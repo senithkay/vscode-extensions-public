@@ -11,16 +11,33 @@ import "@vscode/codicons/dist/codicon.css";
 
 import styled from "@emotion/styled";
 import { Codicon } from "../Codicon/Codicon";
+import Typography from "../Typography/Typography";
 
 interface ContainerProps {
     sx?: any;
+    type?: "info" | "warning" | "error" | "success";
 }
 
 const BannerContainer = styled.div<ContainerProps>`
     display: flex;
     flex-direction: row;
-    background-color: var(--vscode-toolbar-activeBackground);
     padding: 10px;
+    background-color: ${(props: ContainerProps) => {
+        switch (props.type) {
+            case "info":
+                return "var(--vscode-editorInfo-foreground)";
+            case "warning":
+                return "var(--vscode-editorWarning-foreground)";
+            case "error":
+                return "var(--vscode-charts-red)";
+            case "success":
+                return "var(--vscode-statusBarItem-remoteBackground)";
+            default:
+                return "var(--vscode-editorInfo-foreground)";
+        }
+    }};
+    color: white;
+    border-radius: 4px;
     ${(props: ContainerProps) => props.sx};
 `;
 
@@ -38,12 +55,6 @@ const Msg = styled.div<ContainerProps>`
     ${(props: ContainerProps) => props.sx};
 `;
 
-const Title = styled.div<ContainerProps>`
-    font-weight: bold;
-    font-size: 18px;
-    ${(props: ContainerProps) => props.sx};
-`;
-
 const CloseButton = styled.div<ContainerProps>`
     display: flex;
     margin-left: auto;
@@ -54,6 +65,7 @@ export interface BannerProps {
     id?: string;
     className?: string;
 	icon?: ReactNode;
+    type?: "info" | "warning" | "error" | "success";
     message: string;
     title?: string;
     containerSx?: any;
@@ -65,14 +77,14 @@ export interface BannerProps {
 }
 
 export const Banner: React.FC<BannerProps> = (props: BannerProps) => {
-    const { id, className, icon, title, message, containerSx, iconContainerSx, msgSx, closeBtnSx, titleSx, onClose } = props;
+    const { id, className, icon, title, message, type, containerSx, iconContainerSx, msgSx, closeBtnSx, titleSx, onClose } = props;
 
     return (
-        <BannerContainer id={id} className={className} sx={containerSx}>
+        <BannerContainer id={id} className={className} sx={containerSx} type={type}>
             {icon && (<IconContainer sx={iconContainerSx}>{icon}</IconContainer>)}
             <Msg sx={msgSx}>
-                <Title sx={titleSx}>{title}</Title>
-                {message}
+                {title && (<Typography variant="h3" sx={{margin: 0, ...titleSx}}>{title}</Typography>)}
+                <Typography variant="body1" sx={{margin: 0}}>{message}</Typography>
             </Msg>
             {onClose && (
                 <CloseButton sx={closeBtnSx} onClick={onClose}>
