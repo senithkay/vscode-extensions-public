@@ -84,7 +84,6 @@ export function Diagram(props: DiagramProps) {
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
     const [showComponentPanel, setShowComponentPanel] = useState(false);
-    const hasErrorFlow = useRef(false);
 
     useEffect(() => {
         if (diagramEngine) {
@@ -119,11 +118,7 @@ export function Diagram(props: DiagramProps) {
         const nodes = nodeVisitor.getNodes();
         const links = nodeVisitor.getLinks();
 
-        const addTargetVisitor = new LinkTargetVisitor(
-            model,
-            nodes,
-            hasErrorFlow.current ? (showErrorFlow ? "On Failure" : "Body") : undefined
-        );
+        const addTargetVisitor = new LinkTargetVisitor(model, nodes);
         traverseFlow(flowModel, addTargetVisitor);
 
         return { nodes, links };
@@ -203,10 +198,11 @@ export function Diagram(props: DiagramProps) {
 
     const getActiveBreakpointNode = (nodes: NodeModel[]): NodeModel => {
         const node = nodes.find((node) => {
-            const isValidType = node.getType() === NodeTypes.BASE_NODE
-                || node.getType() === NodeTypes.WHILE_NODE
-                || node.getType() === NodeTypes.IF_NODE
-                || node.getType() === NodeTypes.API_CALL_NODE;
+            const isValidType =
+                node.getType() === NodeTypes.BASE_NODE ||
+                node.getType() === NodeTypes.WHILE_NODE ||
+                node.getType() === NodeTypes.IF_NODE ||
+                node.getType() === NodeTypes.API_CALL_NODE;
             return isValidType && (node as BaseNodeModel).isActiveBreakpoint();
         });
 
@@ -215,40 +211,14 @@ export function Diagram(props: DiagramProps) {
 
     return (
         <>
-            {hasErrorFlow.current && (
-                <Switch
-                    leftLabel={
-                        <Tooltip content="Main Flow" position="top">
-                            <Icon name="bi-flowchart" sx={{ fontSize: "16px" }} />
-                        </Tooltip>
-                    }
-                    rightLabel={
-                        <Tooltip content="Error Flow" position="top">
-                            <Icon name="bi-shield-error" sx={{ fontSize: "16px" }} />
-                        </Tooltip>
-                    }
-                    checked={showErrorFlow}
-                    checkedColor="var(--vscode-button-background)"
-                    enableTransition={true}
-                    onChange={toggleDiagramFlow}
-                    sx={{
-                        margin: "auto",
-                        position: "fixed",
-                        bottom: "20px",
-                        right: "20px",
-                        zIndex: "2",
-                        border: "unset",
-                        height: "40px",
-                        width: "100px",
-                    }}
-                    disabled={false}
-                />
-            )}
             <Controls engine={diagramEngine} />
             {diagramEngine && diagramModel && (
                 <DiagramContextProvider value={context}>
                     <DiagramCanvas>
-                        <NavigationWrapperCanvasWidget diagramEngine={diagramEngine} focusedNode={getActiveBreakpointNode(diagramModel.getNodes() as NodeModel[])} />
+                        <NavigationWrapperCanvasWidget
+                            diagramEngine={diagramEngine}
+                            focusedNode={getActiveBreakpointNode(diagramModel.getNodes() as NodeModel[])}
+                        />
                     </DiagramCanvas>
                 </DiagramContextProvider>
             )}
