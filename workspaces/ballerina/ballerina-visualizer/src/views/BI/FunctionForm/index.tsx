@@ -125,6 +125,7 @@ export function FunctionForm() {
             editable: true,
             documentation: '',
             value: '',
+            valueTypeConstraint: ""
         },
         {
             key: `type`,
@@ -134,6 +135,7 @@ export function FunctionForm() {
             editable: true,
             documentation: '',
             value: '',
+            valueTypeConstraint: ""
         },
         {
             key: `defaultable`,
@@ -143,7 +145,8 @@ export function FunctionForm() {
             advanced: true,
             editable: true,
             documentation: '',
-            value: ''
+            value: '',
+            valueTypeConstraint: ""
         }
     ];
 
@@ -186,6 +189,7 @@ export function FunctionForm() {
             advanced: false,
             documentation: '',
             value: '',
+            valueTypeConstraint: ""
         },
         {
             key: `params`,
@@ -200,7 +204,8 @@ export function FunctionForm() {
                 paramValues: [],
                 formFields: paramFiels,
                 handleParameter: handleParamChange
-            }
+            },
+            valueTypeConstraint: ""
         },
         {
             key: `return`,
@@ -210,7 +215,8 @@ export function FunctionForm() {
             advanced: true,
             editable: true,
             documentation: '',
-            value: ''
+            value: '',
+            valueTypeConstraint: ""
         }
     ];
 

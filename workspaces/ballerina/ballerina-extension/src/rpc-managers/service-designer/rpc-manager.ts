@@ -12,6 +12,7 @@ import {
     DIRECTORY_MAP,
     ExportOASRequest,
     ExportOASResponse,
+    FunctionSourceCodeRequest,
     HttpResourceModelRequest,
     HttpResourceModelResponse,
     ListenerModelFromCodeRequest,
@@ -26,7 +27,6 @@ import {
     ProjectStructureResponse,
     RecordSTRequest,
     RecordSTResponse,
-    FunctionSourceCodeRequest,
     ResourceSourceCodeResponse,
     STModification,
     ServiceDesignerAPI,
@@ -37,6 +37,8 @@ import {
     ServiceSourceCodeRequest,
     SourceUpdateResponse,
     SyntaxTree,
+    TriggerModelsRequest,
+    TriggerModelsResponse,
     buildProjectStructure
 } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, NodePosition, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
@@ -428,6 +430,18 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     position: position
                 };
                 resolve(result);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    async getTriggerModels(params: TriggerModelsRequest): Promise<TriggerModelsResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const res: TriggerModelsResponse = await context.langClient.getTriggerModels(params);
+                resolve(res);
             } catch (error) {
                 console.log(error);
             }

@@ -10,10 +10,10 @@
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { ComponentInfo } from "../interfaces/ballerina";
 import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse } from "../interfaces/bi";
-import { BallerinaProjectComponents, ExtendedLangClientInterface, SyntaxTree, Trigger } from "../interfaces/extended-lang-client";
+import { BallerinaProjectComponents, ExtendedLangClientInterface, SyntaxTree } from "../interfaces/extended-lang-client";
 import { URI, Utils } from "vscode-uri";
-import { TriggerNode } from "../interfaces/triggers";
 import { LineRange } from "../interfaces/common";
+import { ServiceModel } from "../interfaces/service";
 
 export async function buildProjectStructure(projectDir: string, langClient: ExtendedLangClientInterface): Promise<ProjectStructureResponse> {
     const result: ProjectStructureResponse = {
@@ -68,7 +68,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
 async function getComponents(langClient: ExtendedLangClientInterface, components: ComponentInfo[], projectPath: string, icon: string, dtype?: DIRECTORY_MAP): Promise<ProjectStructureArtifactResponse[]> {
     const entries: ProjectStructureArtifactResponse[] = [];
     let compType = "HTTP";
-    let triggerNode: TriggerNode = undefined;
+    let serviceModel: ServiceModel = undefined;
     for (const comp of components) {
         const componentFile = Utils.joinPath(URI.parse(projectPath), comp.filePath).fsPath;
         let stNode: SyntaxTree;
@@ -89,20 +89,20 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
 
             // Get trigger model if available
             const lineRange: LineRange = { startLine: { line: comp.startLine, offset: comp.startColumn }, endLine: { line: comp.endLine, offset: comp.endColumn } };
-            const triggerResponse = await langClient.getTriggerModelFromCode({ filePath: componentFile, codedata: { lineRange } });
-            if (triggerResponse?.trigger) {
-                triggerNode = triggerResponse?.trigger;
-                const triggerType = triggerNode.displayName;
-                const labelName = triggerNode.properties['name'].value;
+            const serviceResponse = await langClient.getServiceModelFromCode({ filePath: componentFile, codedata: { lineRange } });
+            if (serviceResponse?.service) {
+                serviceModel = serviceResponse.service;
+                const triggerType = serviceModel.displayName;
+                const labelName = serviceModel.properties['name'].value;
                 compType = triggerType;
                 comp.name = `${triggerType} - ${labelName}`
-                icon = `bi-${triggerNode.moduleName}`;
+                icon = `bi-${serviceModel.moduleName}`;
             }
         } catch (error) {
             console.log(error);
         }
 
-        const iconValue = comp.name.includes('-') && !triggerNode ? `${comp.name.split('-')[0]}-api` : icon;
+        const iconValue = comp.name.includes('-') && !serviceModel ? `${comp.name.split('-')[0]}-api` : icon;
 
         const fileEntry: ProjectStructureArtifactResponse = {
             name: dtype === DIRECTORY_MAP.SERVICES ? comp.name || comp.filePath.replace(".bal", "") : comp.name,
@@ -111,7 +111,7 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
             icon: iconValue,
             context: comp.name,
             st: stNode.syntaxTree,
-            triggerNode: triggerNode,
+            serviceModel: serviceModel,
             resources: comp?.resources ? await getComponents(langClient, comp?.resources, projectPath, "") : [],
             position: {
                 endColumn: comp.endColumn,

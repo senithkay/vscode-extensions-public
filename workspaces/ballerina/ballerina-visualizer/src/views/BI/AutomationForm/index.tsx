@@ -156,6 +156,7 @@ export function MainForm() {
             editable: true,
             documentation: '',
             value: '',
+            valueTypeConstraint: ""
         },
         {
             key: `type`,
@@ -165,6 +166,7 @@ export function MainForm() {
             editable: true,
             documentation: '',
             value: '',
+            valueTypeConstraint: ""
         },
         {
             key: `defaultable`,
@@ -174,7 +176,8 @@ export function MainForm() {
             advanced: true,
             editable: true,
             documentation: '',
-            value: ''
+            value: '',
+            valueTypeConstraint: ""
         }
     ];
 

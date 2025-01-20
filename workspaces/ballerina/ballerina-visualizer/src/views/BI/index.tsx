@@ -10,7 +10,6 @@
 export { WelcomeView } from "./WelcomeView";
 export { ProjectForm } from "./ProjectForm";
 export { Overview as BIOverview } from "./Overview";
-export { AddComponentView } from "./ComponentView";
 export { ComponentListView } from "./ComponentListView";
 export { ComponentDiagram } from "./ComponentDiagram";
 export { PopupMessage } from "./PopupMessage";
