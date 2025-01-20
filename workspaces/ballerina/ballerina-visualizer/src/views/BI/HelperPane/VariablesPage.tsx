@@ -33,23 +33,25 @@ export const VariablesPage = ({ fileName, targetLineRange, setCurrentPage, onClo
 
     const getVariableInfo = useCallback(() => {
         setIsLoading(true);
-        rpcClient
-            .getBIDiagramRpcClient()
-            .getVisibleVariableTypes({
-                filePath: fileName,
-                position: {
-                    line: targetLineRange.startLine.line,
-                    offset: targetLineRange.startLine.offset,
-                },
-            })
-            .then((response) => {
-                if (response.categories?.length) {
-                    const convertedHelperPaneVariable = convertToHelperPaneVariable(response.categories);
-                    setVariableInfo(convertedHelperPaneVariable);
-                    setFilteredVariableInfo(convertedHelperPaneVariable);
-                }
-            })
-            .then(() => setIsLoading(false));
+        setTimeout(() => {
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getVisibleVariableTypes({
+                    filePath: fileName,
+                    position: {
+                        line: targetLineRange.startLine.line,
+                        offset: targetLineRange.startLine.offset,
+                    },
+                })
+                .then((response) => {
+                    if (response.categories?.length) {
+                        const convertedHelperPaneVariable = convertToHelperPaneVariable(response.categories);
+                        setVariableInfo(convertedHelperPaneVariable);
+                        setFilteredVariableInfo(convertedHelperPaneVariable);
+                    }
+                })
+                .then(() => setIsLoading(false));
+        }, 1100)
     }, [rpcClient, fileName, targetLineRange]);
 
     useEffect(() => {
@@ -64,6 +66,54 @@ export const VariablesPage = ({ fileName, targetLineRange, setCurrentPage, onClo
         setFilteredVariableInfo(filterHelperPaneVariables(variableInfo, searchText));
     };
 
+    const getModuleVariables = useCallback(() => {
+        const moduleVariables = filteredVariableInfo?.category.filter(
+            (category) => category.label === "Module Variables"
+        );
+
+        if (!moduleVariables?.[0].items?.length) {
+            return undefined;
+        }
+
+        return (
+            <>
+                {moduleVariables[0].items.map((item, index) => (
+                    <HelperPane.CompletionItem
+                        key={`module-${index}`}
+                        label={item.label}
+                        type={item.type}
+                        onClick={() => onChange(item.label)}
+                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
+                    />
+                ))}
+            </>
+        );
+    }, [filteredVariableInfo, onChange, getIcon]);
+
+    const getLocalVariables = useCallback(() => {
+        const localVariables = filteredVariableInfo?.category.filter(
+            (category) => category.label === "Local Variables"
+        );
+
+        if (!localVariables?.[0].items?.length) {
+            return undefined;
+        }
+
+        return (
+            <>
+                {localVariables[0].items.map((item, index) => (
+                    <HelperPane.CompletionItem
+                        key={`local-${index}`}
+                        label={item.label}
+                        type={item.type}
+                        onClick={() => onChange(item.label)}
+                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
+                    />
+                ))}
+            </>
+        );
+    }, [filteredVariableInfo, onChange, getIcon]);
+
     return (
         <>
             <HelperPane.Header
@@ -73,20 +123,13 @@ export const VariablesPage = ({ fileName, targetLineRange, setCurrentPage, onClo
                 searchValue={searchValue}
                 onSearch={handleSearch}
             />
-            <HelperPane.Body isLoading={isLoading}>
-                {filteredVariableInfo?.category.map((category, index) => (
-                    <HelperPane.Section title={category.label} key={index}>
-                        {category.items.map((item, index) => (
-                            <HelperPane.CompletionItem
-                                key={index}
-                                label={item.label}
-                                type={item.type}
-                                onClick={() => onChange(item.label)}
-                                getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
-                            />
-                        ))}
-                    </HelperPane.Section>
-                ))}
+            <HelperPane.Body>
+                <HelperPane.Section title="Module Variables" loading={isLoading}>
+                    {getModuleVariables()}
+                </HelperPane.Section>
+                <HelperPane.Section title="Local Variables" loading={isLoading}>
+                    {getLocalVariables()}
+                </HelperPane.Section>
             </HelperPane.Body>
         </>
     );

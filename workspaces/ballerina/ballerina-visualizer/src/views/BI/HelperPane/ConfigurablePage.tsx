@@ -216,7 +216,7 @@ export const ConfigurablePage = ({
                 searchValue={searchValue}
                 onSearch={handleSearch}
             />
-            <HelperPane.Body isLoading={isLoading}>
+            <HelperPane.Body loading={isLoading}>
                 {!isFormVisible ? (
                     <>
                         {filteredConfigurableInfo?.category.map((category) => (

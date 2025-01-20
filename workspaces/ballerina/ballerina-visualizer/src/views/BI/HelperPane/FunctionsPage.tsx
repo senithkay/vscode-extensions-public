@@ -108,6 +108,64 @@ export const FunctionsPage = ({ fileName, targetLineRange, setCurrentPage, onClo
         onClose();
     };
 
+    const getCurrentIntegrationFunctions = useCallback(() => {
+        const currentIntegrationFunctions = functionInfo?.category.filter(
+            (category) => category.label === "Current Integration"
+        );
+
+        if (!currentIntegrationFunctions?.[0].items?.length) {
+            return undefined;
+        }
+
+        return (
+            <>
+                {currentIntegrationFunctions[0].items.map((item) => (
+                    <HelperPane.CompletionItem
+                        key={`current-${item.label}`}
+                        label={item.label}
+                        type={item.type}
+                        onClick={async () => await handleFunctionItemSelect(item)}
+                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
+                    />
+                ))}
+            </>
+        );
+    }, [functionInfo, handleFunctionItemSelect, getIcon]);
+
+    const getImportedFunctions = useCallback(() => {
+        const importedFunctions = functionInfo?.category.filter(
+            (category) => category.label === "Imported Functions"
+        );
+
+        if (!importedFunctions?.[0].subCategory?.length) {
+            return undefined;
+        }
+
+        return (
+            <>
+                {importedFunctions[0].subCategory.map((subCategory) => (
+                    <HelperPane.SubSection
+                        key={`imported-${subCategory.label}`}
+                        title={subCategory.label}
+                        collapsible
+                        defaultCollapsed
+                        columns={2}
+                        collapsedItemsCount={6}
+                    >
+                        {subCategory.items?.map((item) => (
+                            <HelperPane.CompletionItem
+                                key={`imported-${subCategory.label}-${item.label}`}
+                                label={item.label}
+                                onClick={async () => await handleFunctionItemSelect(item)}
+                                getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
+                            />
+                        ))}
+                </HelperPane.SubSection>
+                ))}
+            </>
+        );
+    }, [functionInfo, handleFunctionItemSelect, getIcon])
+
     return (
         <>
             <HelperPane.Header
@@ -117,49 +175,20 @@ export const FunctionsPage = ({ fileName, targetLineRange, setCurrentPage, onClo
                 searchValue={searchValue}
                 onSearch={handleFunctionSearch}
             />
-            <HelperPane.Body isLoading={!isLibraryBrowserOpen && isLoading}>
-                {functionInfo?.category.map((category) => (
-                    <HelperPane.Section
-                        key={category.label}
-                        title={category.label}
-                        {...(category.items?.length > 0 &&
-                            category.subCategory?.length === 0 && {
-                                collapsible: true,
-                                defaultCollapsed: true,
-                                columns: 2,
-                                collapsedItemsCount: 6,
-                            })}
-                    >
-                        {category.items?.map((item) => (
-                            <HelperPane.CompletionItem
-                                key={`${category.label}-${item.label}`}
-                                label={item.label}
-                                type={item.type}
-                                onClick={async () => await handleFunctionItemSelect(item)}
-                                getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
-                            />
-                        ))}
-                        {category.subCategory?.map((subCategory) => (
-                            <HelperPane.SubSection
-                                key={`${category.label}-${subCategory.label}`}
-                                title={subCategory.label}
-                                collapsible
-                                defaultCollapsed
-                                columns={2}
-                                collapsedItemsCount={6}
-                            >
-                                {subCategory.items?.map((item) => (
-                                    <HelperPane.CompletionItem
-                                        key={`${category.label}-${subCategory.label}-${item.label}`}
-                                        label={item.label}
-                                        onClick={async () => await handleFunctionItemSelect(item)}
-                                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
-                                    />
-                                ))}
-                            </HelperPane.SubSection>
-                        ))}
-                    </HelperPane.Section>
-                ))}
+            <HelperPane.Body>
+                <HelperPane.Section
+                    title="Current Integration"
+                    collapsible
+                    defaultCollapsed
+                    columns={2}
+                    collapsedItemsCount={6}
+                    loading={isLoading}
+                >
+                    {getCurrentIntegrationFunctions()}
+                </HelperPane.Section>
+                <HelperPane.Section title="Imported Functions" loading={isLoading}>
+                    {getImportedFunctions()}
+                </HelperPane.Section>
             </HelperPane.Body>
             <HelperPane.Footer>
                 <HelperPane.IconButton
