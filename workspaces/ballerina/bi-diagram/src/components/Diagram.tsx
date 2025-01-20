@@ -100,22 +100,7 @@ export function Diagram(props: DiagramProps) {
     }, []);
 
     const getDiagramData = () => {
-        // TODO: move to a separate function
-        // get only do block
         let flowModel = cloneDeep(model);
-        console.log(">>> rearranged diagram model", { new: flowModel, original: model });
-        const globalErrorHandleBlock = model.nodes.find((node) => node.codedata.node === "ERROR_HANDLER");
-        if (globalErrorHandleBlock) {
-            hasErrorFlow.current = true;
-            const branchKind: NodeKind = showErrorFlow ? "ON_FAILURE" : "BODY";
-            const subFlow = globalErrorHandleBlock.branches.find((branch) => branch.codedata.node === branchKind);
-            if (subFlow) {
-                // replace error handler block with success flow
-                flowModel.nodes = [model.nodes.at(0), ...subFlow.children];
-            }
-        } else {
-            hasErrorFlow.current = false;
-        }
 
         const initVisitor = new InitVisitor(flowModel);
         traverseFlow(flowModel, initVisitor);
