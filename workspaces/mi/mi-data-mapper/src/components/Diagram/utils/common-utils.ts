@@ -327,8 +327,9 @@ export function getTypeName(field: DMType): string {
     if (field.kind === TypeKind.Array && field?.memberType) {
 		typeName = `${getTypeName(field.memberType)}[]`;
 	} else if (field.kind === TypeKind.Union){
-        const unionTypeNames = field.unionTypes.map(unionType => getTypeName(unionType)).join(" | ");
-        typeName = field.typeName ? `${field.typeName} (${unionTypeNames})` : unionTypeNames;
+        typeName = `${field.typeName || "Union"} ( ${field.resolvedUnionType ? 
+            getTypeName(field.resolvedUnionType) : 
+            field.unionTypes.map(unionType => getTypeName(unionType)).join(" | ")} )`;
     }
 
 	return typeName;
