@@ -105,7 +105,7 @@ export class LinkDeletingVisitor implements Visitor {
 
                 if (properties.length === 1) {
                     // If only one element in the expression (Could be a root level or sub level object literal expression)
-                    if (isPositionsEquals(getPosition(node), getPosition(this.rootObjLitExpr)) || isChildOfList) {
+                    if (isPositionsEquals(getPosition(node), getPosition(this.rootObjLitExpr)) || isChildOfList || Node.isAsExpression(node.getParent())) {
                         // If only single element in the root level mapping, then only delete that link
                         // Or if the last element is within a object literal expression which is within a array literal expression
                         this.targetedDeleteNodes.push(updatedTargetedDeleteNode);
