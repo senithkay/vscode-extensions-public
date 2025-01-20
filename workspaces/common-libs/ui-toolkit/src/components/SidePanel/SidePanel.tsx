@@ -109,7 +109,7 @@ export const SidePanel: React.FC<SidePanelProps> = (props: SidePanelProps) => {
         <div id={id} className={className}>
             {visible && (
                 <>
-                    { overlay && isOpen && <Overlay sx={{background: colors.vscodeInputBackground, opacity: 0.4}} onClose={handleOverlayClose}/> }
+                    { overlay && isOpen && <Overlay sx={{background: colors.vscodeInputBackground, opacity: 0.4, zIndex: 2000}} onClose={handleOverlayClose}/> }
                     <SidePanelContainer isOpen={open} alignment={alignment} width={width} sx={sx} onTransitionEnd={handleTransitionEnd}>
                         {children}
                     </SidePanelContainer>

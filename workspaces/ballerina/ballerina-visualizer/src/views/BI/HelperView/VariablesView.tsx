@@ -131,7 +131,7 @@ export function VariablesView(props: VariablesViewProps) {
         const updateData: ExpressionFormField = {
             value: variable,
             key: editorKey,
-            cursorPosition: position.endLine.offset
+            cursorPosition: { line: position.endLine.line, offset: position.endLine.offset }
         }
         updateFormField(updateData);
     }

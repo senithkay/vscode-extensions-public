@@ -654,7 +654,8 @@ export class BallerinaExtension {
         for (const file of files) {
             const fullPath = path.join(directory, file);
             if (fs.statSync(fullPath).isDirectory()) {
-                this.setPermissionsForDirectory(fullPath, permissions);
+                await fs.promises.chmod(fullPath, permissions);
+                await this.setPermissionsForDirectory(fullPath, permissions);
             } else {
                 await fs.promises.chmod(fullPath, permissions);
             }

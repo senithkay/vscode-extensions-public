@@ -75,7 +75,7 @@ const VSCodeDataGridFlexRow = styled(VSCodeDataGridRow)`
 
 const ExpandedMenu = styled.div<ContainerProps>`
     position: absolute;
-    z-index: 1001;
+    z-index: 1999;
     background: var(--vscode-editor-background);
     box-shadow: var(--vscode-widget-shadow) 0px 4px 10px;
     top: ${(props: ContainerProps) => `${props.top}px`};
