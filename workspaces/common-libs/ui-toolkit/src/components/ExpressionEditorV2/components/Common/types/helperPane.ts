@@ -17,7 +17,7 @@ export type ArrowProps = StyleBase & {
 }
 
 export type LibraryBrowserProps = PropsWithChildren<{
-    isLoading?: boolean;
+    loading?: boolean;
     searchValue: string;
     onSearch: (searchTerm: string) => void;
     onClose: () => void;
@@ -55,6 +55,10 @@ type CollapsibleConditionalProps = {
     collapsedItemsCount?: never;
 }
 
+export type LoadingItemProps = {
+    columns?: number;
+}
+
 export type PanelViewProps = PropsWithChildren<{
     id: number;
 }>;
@@ -69,6 +73,7 @@ export type PanelsProps = PropsWithChildren<{}>;
 export type HelperPaneSectionProps = PropsWithChildren<{
     title: string;
     columns?: number;
+    loading?: boolean;
 } & CollapsibleConditionalProps>;
 
 type SearchBoxConditionalProps = {
@@ -80,7 +85,7 @@ type SearchBoxConditionalProps = {
 }
 
 export type HelperPaneBodyProps = PropsWithChildren<{
-    isLoading?: boolean;
+    loading?: boolean;
 } & StyleBase>;
 
 export type HelperPaneHeaderProps = SearchBoxConditionalProps & {

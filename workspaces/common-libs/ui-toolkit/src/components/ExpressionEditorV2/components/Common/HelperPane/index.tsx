@@ -8,6 +8,7 @@
  */
 
 import React, { CSSProperties, useState } from 'react';
+import { createPortal } from 'react-dom';
 import styled from '@emotion/styled';
 import {
     HelperPaneBodyProps,
@@ -19,6 +20,7 @@ import {
     HelperPaneProps,
     HelperPaneSectionProps,
     LibraryBrowserProps,
+    LoadingItemProps,
     PanelsProps,
     PanelTabProps,
     PanelViewProps,
@@ -80,8 +82,10 @@ const LibraryBrowserBody = styled.div`
     display: flex;
     flex-direction: column;
     flex: 1 1 0;
-    padding-inline: 16px;
+    padding: 16px;
     overflow-y: auto;
+    scrollbar-color: auto;
+    border: 1px solid var(--vscode-dropdown-border);
 `;
 
 const LibraryBrowserHeader = styled.header`
@@ -104,7 +108,7 @@ const LibraryBrowserContainer = styled.div`
     border-radius: 8px;
     background-color: var(--vscode-dropdown-background);
     box-shadow: 0 3px 8px rgb(0 0 0 / 0.2);
-    z-index: 1001;
+    z-index: 3002;
 `;
 
 const IconButtonContainer = styled.div`
@@ -175,6 +179,23 @@ const CollapseButton = styled.div`
 
     & p:hover {
         color: var(--vscode-button-hoverBackground);
+    }
+`;
+
+const LoadingBox = styled.div`
+    width: 100%;
+    height: 16px;
+    margin-bottom: 2px;
+    background: var(--vscode-editor-background);
+    animation: loading 1s infinite alternate;
+
+    @keyframes loading {
+        0% {
+            background: var(--vscode-editor-background);
+        }
+        100% {
+            background: var(--vscode-editor-inactiveSelectionBackground);
+        }
     }
 `;
 
@@ -254,6 +275,20 @@ const DropdownBody = styled.div<{ sx?: CSSProperties }>`
     ${({ sx }: { sx?: CSSProperties }) => sx}
 `;
 
+const LoadingGroup: React.FC<LoadingItemProps> = ({ columns }) => {
+    const boxCount = columns ? columns * 2 : 2;
+
+    const boxes = [];
+    for (let i = 0; i < boxCount; i++) {
+        boxes.push(<LoadingBox key={i} />);
+    }
+    return (
+        <>
+            {boxes}
+        </>
+    );
+}
+
 const PanelView: React.FC<PanelViewProps> = ({ children, id }) => {
     const { activePanelIndex } = useHelperPanePanelContext();
     
@@ -320,7 +355,7 @@ const LibraryBrowserSubSection: React.FC<HelperPaneSectionProps> = ({
 
     return (
         <SectionContainer>
-            <Typography variant="body3">{title}</Typography>
+            <Typography variant="body3" sx={{ fontStyle: "italic" }}>{title}</Typography>
             <SectionBody columns={columns}>
                 {visibleItems.length > 0 ? visibleItems : <Typography variant="body3">No items found.</Typography>}
             </SectionBody>
@@ -348,7 +383,7 @@ const LibraryBrowserSection: React.FC<HelperPaneSectionProps> = ({
 
     return (
         <SectionContainer>
-            <Typography variant="h3" sx={{ margin: 0 }}>
+            <Typography variant="h3" sx={{ margin: 0, fontFamily: "GilmerMedium" }}>
                 {title}
             </Typography>
             <SectionBody columns={columns}>
@@ -365,20 +400,20 @@ const LibraryBrowserSection: React.FC<HelperPaneSectionProps> = ({
 
 const LibraryBrowser: React.FC<LibraryBrowserProps> = ({
     children,
-    isLoading = true,
+    loading = false,
     searchValue,
     onSearch,
-    onClose
+    onClose,
 }) => {
-    return (
+    return createPortal(
         <>
             <Overlay
-                sx={{ background: 'var(--vscode-editor-inactiveSelectionBackground)', opacity: 0.4 }}
+                sx={{ background: "var(--vscode-editor-inactiveSelectionBackground)", opacity: 0.4 }}
                 onClose={onClose}
             />
             <LibraryBrowserContainer>
                 <LibraryBrowserHeader>
-                    <Typography variant="h2" sx={{ margin: 0 }}>
+                    <Typography variant="h2" sx={{ margin: 0, fontFamily: "GilmerRegular" }}>
                         Library Browser
                     </Typography>
                     <Codicon name="close" onClick={onClose} />
@@ -388,7 +423,7 @@ const LibraryBrowser: React.FC<LibraryBrowserProps> = ({
                     <SearchBox placeholder="Search" value={searchValue} onChange={onSearch} />
                 </LibraryBrowserSearchBoxContainer>
                 <LibraryBrowserBody>
-                    {isLoading ? (
+                    {loading ? (
                         <ProgressRingContainer>
                             <ProgressRing />
                         </ProgressRingContainer>
@@ -397,7 +432,8 @@ const LibraryBrowser: React.FC<LibraryBrowserProps> = ({
                     )}
                 </LibraryBrowserBody>
             </LibraryBrowserContainer>
-        </>
+        </>,
+        document.body
     );
 };
 
@@ -441,7 +477,7 @@ const CategoryItem: React.FC<HelperPaneCategoryItemProps> = ({ label, onClick, g
     return (
         <CategoryItemContainer onClick={onClick}>
             {getIcon && getIcon()}
-            <Typography variant="body2" sx={{ fontWeight: 500 }}>{label}</Typography>
+            <Typography variant="body2" sx={{ fontFamily: "GilmerMedium" }}>{label}</Typography>
             <Codicon sx={{ marginLeft: 'auto' }} name="chevron-right" />
         </CategoryItemContainer>
     );
@@ -462,7 +498,7 @@ const SubSection: React.FC<HelperPaneSectionProps> = ({
 
     return (
         <SectionContainer>
-            <Typography variant="body3">{title}</Typography>
+            <Typography variant="body3" sx={{ fontStyle: "italic" }}>{title}</Typography>
             <SectionBody columns={columns}>
                 {visibleItems.length > 0 ? visibleItems : <Typography variant="body3">No items found.</Typography>}
             </SectionBody>
@@ -481,6 +517,7 @@ const Section: React.FC<HelperPaneSectionProps> = ({
     collapsible,
     defaultCollapsed = false,
     collapsedItemsCount = 10,
+    loading = false,
     children
 }) => {
     const [isCollapsed, setIsCollapsed] = useState<boolean>(defaultCollapsed);
@@ -490,11 +527,17 @@ const Section: React.FC<HelperPaneSectionProps> = ({
 
     return (
         <SectionContainer>
-            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            <Typography variant="body2" sx={{ fontFamily: "GilmerMedium" }}>
                 {title}
             </Typography>
             <SectionBody columns={columns}>
-                {visibleItems.length > 0 ? visibleItems : <Typography variant="body3">No items found.</Typography>}
+                {loading ? (
+                    <LoadingGroup columns={columns} />
+                ) : visibleItems.length > 0 ? (
+                    visibleItems
+                ) : (
+                    <Typography variant="body3">No items found.</Typography>
+                )}
             </SectionBody>
             {collapsible && isItemsOverflowing && (
                 <CollapseButton onClick={() => setIsCollapsed(!isCollapsed)}>
@@ -505,10 +548,10 @@ const Section: React.FC<HelperPaneSectionProps> = ({
     );
 };
 
-const Body: React.FC<HelperPaneBodyProps> = ({ children, isLoading = true, className, sx }) => {
+const Body: React.FC<HelperPaneBodyProps> = ({ children, loading = false, className, sx }) => {
     return (
         <BodyContainer className={className} sx={sx}>
-            {isLoading ? (
+            {loading ? (
                 <ProgressRingContainer>
                     <ProgressRing />
                 </ProgressRingContainer>
@@ -530,9 +573,9 @@ const Header: React.FC<HelperPaneHeaderProps> = ({ title, onBack, onClose, searc
                         <TitleContainer isLink={!!onBack} onClick={onBack}>
                             {onBack && <Codicon name="chevron-left" />}
                             {onBack ? (
-                                <Typography variant="caption">{title}</Typography>
+                                <Typography variant="caption" sx={{ fontFamily: "GilmerRegular" }}>{title}</Typography>
                             ) : (
-                                <Typography variant="h3" sx={{ margin: 0 }}>{title}</Typography>
+                                <Typography sx={{ margin: 0, fontFamily: "GilmerRegular" }}>{title}</Typography>
                             )}
                         </TitleContainer>
                         {onClose && <Codicon name="close" onClick={onClose} />}
