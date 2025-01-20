@@ -125,9 +125,10 @@ export namespace NodeStyles {
         align-items: center;
         border: ${NODE_BORDER_WIDTH}px solid
             ${(props: NodeStyleProp) =>
-            props.hasError ? Colors.ERROR : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+                props.hasError ? Colors.ERROR : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
         border-radius: 50px;
-        background-color: ${(props: NodeStyleProp) => props?.isActiveBreakpoint ? Colors.DEBUGGER_BREAKPOINT_BACKGROUND : Colors.SURFACE_DIM};
+        background-color: ${(props: NodeStyleProp) =>
+            props?.isActiveBreakpoint ? Colors.DEBUGGER_BREAKPOINT_BACKGROUND : Colors.SURFACE_DIM};
         width: ${WHILE_NODE_WIDTH}px;
         height: ${WHILE_NODE_WIDTH}px;
     `;
@@ -165,7 +166,7 @@ interface WhileNodeWidgetProps {
     onClick?: (node: FlowNode) => void;
 }
 
-export interface NodeWidgetProps extends Omit<WhileNodeWidgetProps, "children"> { }
+export interface NodeWidgetProps extends Omit<WhileNodeWidgetProps, "children"> {}
 
 export function WhileNodeWidget(props: WhileNodeWidgetProps) {
     const { model, engine, onClick } = props;
@@ -210,12 +211,12 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
     const onAddBreakpoint = () => {
         addBreakpoint && addBreakpoint(model.node);
         setAnchorEl(null);
-    }
+    };
 
     const onRemoveBreakpoint = () => {
         removeBreakpoint && removeBreakpoint(model.node);
         setAnchorEl(null);
-    }
+    };
 
     const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
         setAnchorEl(event.currentTarget);
@@ -251,10 +252,18 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                         hovered={isHovered}
                         hasError={hasError}
                         isActiveBreakpoint={isActiveBreakpoint}
-
                     >
                         {hasBreakpoint && (
-                            <div style={{ position: "absolute", left: 1, width: 15, height: 15, borderRadius: "50%", backgroundColor: "red" }} />
+                            <div
+                                style={{
+                                    position: "absolute",
+                                    left: 1,
+                                    width: 15,
+                                    height: 15,
+                                    borderRadius: "50%",
+                                    backgroundColor: "red",
+                                }}
+                            />
                         )}
                         <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -274,7 +283,9 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                 </NodeStyles.Column>
                 <NodeStyles.Header>
                     <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
-                    <NodeStyles.Description>{model.node.properties.condition?.value}</NodeStyles.Description>
+                    {model.node.properties?.condition && (
+                        <NodeStyles.Description>{model.node.properties.condition?.value}</NodeStyles.Description>
+                    )}
                 </NodeStyles.Header>
                 {!readOnly && (
                     <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>

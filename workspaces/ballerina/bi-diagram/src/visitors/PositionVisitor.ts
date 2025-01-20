@@ -81,6 +81,10 @@ export class PositionVisitor implements BaseVisitor {
     }
 
     beginVisitNode(node: FlowNode, parent?: FlowNode): void {
+        if (!node.viewState) {
+            console.error("Node view state is not defined");
+            return;
+        }
         if (!node.viewState.y) {
             node.viewState.y = this.lastNodeY;
         }
@@ -127,7 +131,8 @@ export class PositionVisitor implements BaseVisitor {
         const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
         node.viewState.x = centerX - node.viewState.lw;
 
-        const branch = node.branches.find((branch) => branch.label === "Body");
+        // const branch = node.branches.find((branch) => branch.label === "Body");
+        const branch = node.branches.at(0);
         branch.viewState.y = this.lastNodeY;
         branch.viewState.x = centerX - branch.viewState.clw;
     }
@@ -144,6 +149,14 @@ export class PositionVisitor implements BaseVisitor {
         this.endVisitWhile(node, parent);
     }
 
+    beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
+        this.beginVisitWhile(node, parent);
+    }
+
+    endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
+        this.endVisitWhile(node, parent);
+    }
+
     skipChildren(): boolean {
         return this.skipChildrenVisit;
     }
@@ -157,6 +170,10 @@ export class PositionVisitor implements BaseVisitor {
 function getTopNodeCenter(node: FlowNode, parent: FlowNode, branchCenterX: number) {
     if (!parent) {
         console.error("Parent is not defined");
+        return;
+    }
+    if (!parent.viewState) {
+        console.error("Parent view state is not defined");
         return;
     }
     if (parent.codedata.node === "COMMENT") {

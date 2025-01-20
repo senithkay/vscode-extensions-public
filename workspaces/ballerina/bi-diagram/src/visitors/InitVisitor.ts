@@ -21,15 +21,15 @@ export class InitVisitor implements BaseVisitor {
     }
 
     private getDefaultViewState(): ViewState {
-        return { 
-            x: 0, 
-            y: 0, 
-            lw: 0, 
+        return {
+            x: 0,
+            y: 0,
+            lw: 0,
             rw: 0,
-            h: 0, 
+            h: 0,
             clw: 0,
             crw: 0,
-            ch: 0 
+            ch: 0,
         };
     }
 
@@ -123,13 +123,10 @@ export class InitVisitor implements BaseVisitor {
             return;
         }
 
-        // consider the first branch as the body branch
-        node.branches.splice(0, node.branches.length - 1);
-        node.branches.at(0).viewState = this.getDefaultViewState();
-
         const branch = node.branches.at(0);
+        branch.viewState = this.getDefaultViewState();
 
-        // remove empty nodes if the branch is not empty 
+        // remove empty nodes if the branch is not empty
         if (branch.children && branch.children.length > 0) {
             let emptyNodeIndex = branch.children.findIndex((child) => child.codedata.node === "EMPTY");
             while (emptyNodeIndex >= 0) {
@@ -158,6 +155,19 @@ export class InitVisitor implements BaseVisitor {
 
     beginVisitForeach(node: FlowNode, parent?: FlowNode): void {
         this.beginVisitWhile(node, parent);
+    }
+
+    beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
+        this.beginVisitWhile(node, parent);
+    }
+
+    endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
+        const errorBranch = node.branches.find((branch) => branch.codedata.node === "ON_FAILURE");
+        errorBranch.viewState = undefined;
+        errorBranch.children.forEach((child) => {
+            child.viewState = undefined;
+        });
+        this.endVisitNode(node, parent);
     }
 
     skipChildren(): boolean {

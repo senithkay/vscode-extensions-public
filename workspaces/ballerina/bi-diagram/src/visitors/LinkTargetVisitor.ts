@@ -233,50 +233,11 @@ export class LinkTargetVisitor implements BaseVisitor {
     }
 
     beginVisitForeach(node: FlowNode, parent?: FlowNode): void {
-        const outLinks = this.getOutLinksFromNode(node);
-        if (!outLinks) {
-            return;
-        }
+        this.beginVisitWhile(node, parent);
+    }
 
-        const bodyLink = outLinks.at(0);
-        if (bodyLink) {
-            const bodyBranch = node.branches.at(0);
-            const line = bodyBranch.codedata.lineRange.startLine;
-            bodyLink.setTarget({
-                line: line.line,
-                offset: line.offset + 1, // HACK: need to fix with LS extension
-            });
-            bodyLink.setTopNode(bodyBranch);
-            // if the body branch is empty, target node is empty node.
-            // improve empty node with target position and top node
-            const firstNode = bodyLink.targetNode;
-            if (firstNode && firstNode.getType() === NodeTypes.EMPTY_NODE) {
-                const emptyNode = firstNode as EmptyNodeModel;
-                emptyNode.setTopNode(bodyBranch);
-                emptyNode.setTarget({
-                    line: line.line,
-                    offset: line.offset + 1, // HACK: need to fix with LS extension
-                });
-            }
-        }
-
-        // update end-foreach link target
-        const endForeachModel = this.nodeModels.find((nodeModel) => nodeModel.getID() === `${node.id}-endForeach`);
-        if (!endForeachModel) {
-            console.log("End-Foreach node model not found", node);
-            return;
-        }
-        const endForeachOutLinks = this.getOutLinksFromModel(endForeachModel);
-        if (!endForeachOutLinks || endForeachOutLinks.length == 0) {
-            return;
-        }
-        const outLink = endForeachOutLinks.at(0);
-
-        // set target position
-        if (outLink && node.codedata?.lineRange?.endLine) {
-            outLink.setTarget(node.codedata.lineRange.endLine);
-        }
-        outLink.setTopNode(node);
+    beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
+        this.beginVisitWhile(node, parent);
     }
 
     skipChildren(): boolean {

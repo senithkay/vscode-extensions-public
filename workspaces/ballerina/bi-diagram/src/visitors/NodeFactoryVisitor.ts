@@ -17,12 +17,19 @@ import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
 import { WhileNodeModel } from "../components/nodes/WhileNode";
-import { BUTTON_NODE_HEIGHT, EMPTY_NODE_WIDTH, NODE_GAP_X, WHILE_NODE_WIDTH } from "../resources/constants";
+import {
+    BUTTON_NODE_HEIGHT,
+    EMPTY_NODE_WIDTH,
+    ERROR_HANDLER_NODE_WIDTH,
+    NODE_GAP_X,
+    WHILE_NODE_WIDTH,
+} from "../resources/constants";
 import { createNodesLink } from "../utils/diagram";
 import { getBranchInLinkId, getBranchLabel } from "../utils/node";
 import { Branch, FlowNode, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 import { EndNodeModel } from "../components/nodes/EndNode";
+import { ErrorHandleNodeModel } from "../components/nodes/ErrorHandleNode/ErrorHandleNodeModel";
 
 export class NodeFactoryVisitor implements BaseVisitor {
     nodes: NodeModel[] = [];
@@ -54,6 +61,10 @@ export class NodeFactoryVisitor implements BaseVisitor {
     }
 
     private createBaseNode(node: FlowNode): NodeModel {
+        if (!node.viewState) {
+            console.error("Node view state is not defined");
+            return;
+        }
         const nodeModel = new BaseNodeModel(node);
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
@@ -95,7 +106,10 @@ export class NodeFactoryVisitor implements BaseVisitor {
         if (branch.children.at(-1).codedata.node === "IF") {
             // if last child is IF, find endIf node
             lastChildNodeModel = this.nodes.find((n) => n.getID() === `${lastNode.id}-endif`);
-        } else if (branch.children.at(-1).codedata.node === "WHILE" || branch.children.at(-1).codedata.node === "FOREACH") {
+        } else if (
+            branch.children.at(-1).codedata.node === "WHILE" ||
+            branch.children.at(-1).codedata.node === "FOREACH"
+        ) {
             // if last child is WHILE or FOREACH, find endwhile node
             lastChildNodeModel = this.nodes.find((n) => n.getID() === `${lastNode.id}-endwhile`);
         } else {
@@ -115,7 +129,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
     beginVisitNode = (node: FlowNode): void => {
         if (node.id) {
             this.createBaseNode(node);
-            
+
             this.addSuggestionsButton(node);
         }
     }; // only ui nodes have id
@@ -264,14 +278,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
         this.lastNodeModel = undefined;
     }
 
-    beginVisitWhile(node: FlowNode): void {
-        const nodeModel = new WhileNodeModel(node);
-        this.nodes.push(nodeModel);
-        this.updateNodeLinks(node, nodeModel);
-        this.lastNodeModel = undefined;
-    }
-
-    endVisitWhile(node: FlowNode, parent?: FlowNode): void {
+    private visitContainerNode(node: FlowNode, topElementWidth: number) {
         const whileNodeModel = this.nodes.find((n) => n.getID() === node.id);
         if (!whileNodeModel) {
             console.error("While node model not found", node);
@@ -295,7 +302,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
         // create branch's OUT link
         const endWhileEmptyNode = this.createEmptyNode(
             `${node.id}-endwhile`,
-            node.viewState.x + WHILE_NODE_WIDTH / 2 - EMPTY_NODE_WIDTH / 2,
+            node.viewState.x + topElementWidth / 2 - EMPTY_NODE_WIDTH / 2,
             node.viewState.y - EMPTY_NODE_WIDTH / 2 + node.viewState.ch
         );
         endWhileEmptyNode.setParentFlowNode(node);
@@ -310,7 +317,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
             let branchEmptyNode = this.createEmptyNode(
                 branchEmptyNodeModel.id,
-                node.viewState.x + WHILE_NODE_WIDTH / 2 - EMPTY_NODE_WIDTH / 2,
+                node.viewState.x + topElementWidth / 2 - EMPTY_NODE_WIDTH / 2,
                 branchEmptyNodeModel.viewState.y,
                 true,
                 true
@@ -344,12 +351,34 @@ export class NodeFactoryVisitor implements BaseVisitor {
         }
     }
 
+    beginVisitWhile(node: FlowNode): void {
+        const nodeModel = new WhileNodeModel(node);
+        this.nodes.push(nodeModel);
+        this.updateNodeLinks(node, nodeModel);
+        this.lastNodeModel = undefined;
+    }
+
+    endVisitWhile(node: FlowNode, parent?: FlowNode): void {
+        this.visitContainerNode(node, WHILE_NODE_WIDTH);
+    }
+
     beginVisitForeach(node: FlowNode): void {
         this.beginVisitWhile(node);
     }
 
     endVisitForeach(node: FlowNode, parent?: FlowNode): void {
         this.endVisitWhile(node, parent);
+    }
+
+    beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
+        const nodeModel = new ErrorHandleNodeModel(node);
+        this.nodes.push(nodeModel);
+        this.updateNodeLinks(node, nodeModel);
+        this.lastNodeModel = undefined;
+    }
+
+    endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
+        this.visitContainerNode(node, ERROR_HANDLER_NODE_WIDTH);
     }
 
     beginVisitRemoteActionCall(node: FlowNode, parent?: FlowNode): void {

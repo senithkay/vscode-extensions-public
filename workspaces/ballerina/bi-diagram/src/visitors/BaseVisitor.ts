@@ -63,4 +63,7 @@ export interface BaseVisitor {
 
     beginVisitComment?(node: FlowNode, parent?: FlowNode): void;
     endVisitComment?(node: FlowNode, parent?: FlowNode): void;
+
+    beginVisitErrorHandler?(node: FlowNode, parent?: FlowNode): void;
+    endVisitErrorHandler?(node: FlowNode, parent?: FlowNode): void;
 }
