@@ -14,6 +14,7 @@ import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
 import { sidepanelGoBack } from '..';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import path from 'path';
 
 const ProgressRing = styled(VSCodeProgressRing)`
     height: 50px;
@@ -24,6 +25,7 @@ const ProgressRing = styled(VSCodeProgressRing)`
 
 interface DownloadPageProps {
     module: any;
+    documentUri: string;
     onDownloadSuccess: (connectorName: string) => void;
 }
 
@@ -53,9 +55,15 @@ export function DownloadPage(props: DownloadPageProps) {
             }
 
             await updateDependencies();
+            
 
             // Download Connector
             const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
+
+            // Format pom
+            const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: props.documentUri })).path;
+            const pomPath = path.join(projectDir, 'pom.xml');
+            await rpcClient.getMiDiagramRpcClient().rangeFormat({ uri: pomPath });
 
             if (response === "Success") {
                 onDownloadSuccess(props.module.connectorName);
