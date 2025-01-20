@@ -172,6 +172,28 @@ export function Mediators(props: MediatorProps) {
         setExpandedModules([connectorName]);
     };
 
+    const deleteConnector = async (artifaceId: string, version: string) => {
+        const projectDetails = await rpcClient.getMiVisualizerRpcClient().getProjectDetails();
+        const connectorDependencies = projectDetails.dependencies.connectorDependencies;
+
+        for (const d of connectorDependencies) {
+            if (d.artifact === artifaceId && d.version === version) {
+                await rpcClient.getMiVisualizerRpcClient().updatePomValues({
+                    pomValues: [{ range: d.range, value: '' }]
+                });
+                break;
+            }
+        }
+
+        const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
+
+        if (response === "Success") {
+            props.clearSearch();
+            await fetchMediators();
+            fetchLocalConnectorData();
+        }
+    }
+
     const addModule = () => {
         const modulesList = <Modules
             nodePosition={props.nodePosition}
@@ -200,7 +222,12 @@ export function Mediators(props: MediatorProps) {
             <div ref={mediatorListRef}>
                 {Object.entries(mediators).map(([key, values]) => (
                     <div key={key} style={{ marginTop: '15px' }} data-key={key}>
-                        <ButtonGroup key={key} title={FirstCharToUpperCase(key)} isCollapsed={!expandedModules.includes(key)}>
+                        <ButtonGroup
+                            key={key}
+                            title={FirstCharToUpperCase(key)}
+                            isCollapsed={!expandedModules.includes(key)}
+                            connectorDetails={values["isConnector"] ? { artifactId: values["artifactId"], version: values["version"] } : undefined}
+                            onDelete={deleteConnector}>
                             {values["items"].map((mediator: Mediator) => (
                                 <GridButton
                                     key={mediator.title}

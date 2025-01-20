@@ -1459,6 +1459,11 @@ export interface GetAvailableConnectorResponse {
     actions?: any[];
 }
 
+export interface ConnectorDependency {
+    artifactId: string;
+    version: string;
+}
+
 export interface UpdateConnectorRequest {
     documentUri: string;
 }
@@ -1881,7 +1886,12 @@ export interface GetMediatorsRequest {
 }
 
 export interface GetMediatorsResponse {
-    [key: string]: { items: Mediator[] };
+    [key: string]: { 
+        items: Mediator[],
+        isConnector?: boolean;
+        artifactId?: string;
+        version?: string;
+    };
 }
 
 export interface Mediator {
