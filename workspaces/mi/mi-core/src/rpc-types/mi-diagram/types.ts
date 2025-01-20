@@ -966,6 +966,7 @@ export interface CreateTemplateRequest {
     statisticsEnabled: boolean;
     parameters: any;
     getContentOnly: boolean;
+    isEdit: boolean;
 }
 
 export interface CreateTemplateResponse {
