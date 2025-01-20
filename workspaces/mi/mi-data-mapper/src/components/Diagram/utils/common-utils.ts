@@ -322,12 +322,12 @@ export function getTypeName(field: DMType): string {
 		return '';
 	}
 
-	let typeName = field?.typeName || field.kind;
+	let typeName = field.typeName || field.kind;
 
     if (field.kind === TypeKind.Array && field?.memberType) {
 		typeName = `${getTypeName(field.memberType)}[]`;
 	} else if (field.kind === TypeKind.Union){
-        typeName = `${field.typeName || "Union"} ( ${field.resolvedUnionType ? 
+        typeName = `${typeName} ( ${field.resolvedUnionType ? 
             getTypeName(field.resolvedUnionType) : 
             field.unionTypes.map(unionType => getTypeName(unionType)).join(" | ")} )`;
     }
