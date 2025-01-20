@@ -17,7 +17,6 @@ import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteComman
 import { Category, Flow, FlowNode, CodeData, ConfigVariable } from "./bi";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
 import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
-import { TriggerFunction, TriggerNode } from "./triggers";
 import { FunctionModel, ListenerModel, ServiceModel } from "./service";
 import { CDModel } from "./component-diagram";
 import { IDMModel, Mapping } from "./inline-data-mapper";
@@ -701,7 +700,7 @@ export interface ExpressionEditorContext {
     expression: string;
     startLine: LinePosition;
     offset: number;
-    node: FlowNode | TriggerNode;
+    node: FlowNode;
     branch?: string;
     property: string;
 }
@@ -831,60 +830,9 @@ export interface TriggerModelsRequest {
 }
 
 export interface TriggerModelsResponse {
-    local: TriggerNode[];
+    local: ServiceModel[];
 }
 
-export interface TriggerModelRequest {
-    id?: string;
-    organization?: string;
-    packageName?: string;
-    moduleName?: string;
-    serviceName?: string;
-    query?: string;
-    keyWords?: string;
-}
-
-export interface TriggerModelResponse {
-    trigger: TriggerNode;
-}
-
-
-export interface TriggerSourceCodeRequest {
-    filePath: string;
-    codedata?: {
-        lineRange: LineRange; // For the entire service declaration
-    };
-    trigger: TriggerNode;
-}
-
-export interface TriggerSourceCodeResponse {
-    textEdits: {
-        [key: string]: TextEdit[];
-    };
-}
-export interface TriggerModelFromCodeRequest {
-    filePath: string;
-    codedata: {
-        lineRange: LineRange; // For the entire service declaration
-    };
-}
-
-export interface TriggerModelFromCodeResponse {
-    trigger: TriggerNode
-}
-export interface TriggerFunctionRequest {
-    filePath: string;
-    codedata?: {
-        lineRange: LineRange; // For the entire service declaration
-    };
-    function: TriggerFunction;
-}
-
-export interface TriggerFunctionResponse {
-    textEdits: {
-        [key: string]: TextEdit[];
-    };
-}
 // <-------- Trigger Related ------->
 
 // <-------- Service Designer Related ------->
@@ -1001,15 +949,9 @@ export interface BIInterface extends BaseLangClientInterface {
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
     getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
     getExpressionDiagnostics: (params: ExpressionDiagnosticsRequest) => Promise<ExpressionDiagnosticsResponse>;
-    getTriggerModels: (params: TriggerModelsRequest) => Promise<TriggerModelsResponse>;
-    getTriggerModel: (params: TriggerModelRequest) => Promise<TriggerModelResponse>;
-    getTriggerSourceCode: (params: TriggerSourceCodeRequest) => Promise<TriggerSourceCodeResponse>;
-    updateTriggerSourceCode: (params: TriggerSourceCodeRequest) => Promise<TriggerSourceCodeResponse>;
-    getTriggerModelFromCode: (params: TriggerModelFromCodeRequest) => Promise<TriggerModelFromCodeResponse>;
-    addTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
-    updateTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
 
     // New Service Designer APIs
+    getTriggerModels: (params: TriggerModelsRequest) => Promise<TriggerModelsResponse>;
     getListeners: (params: ListenersRequest) => Promise<ListenersResponse>;
     getListenerModel: (params: ListenerModelRequest) => Promise<ListenerModelResponse>;
     addListenerSourceCode: (params: ListenerSourceCodeRequest) => Promise<ListenerSourceCodeResponse>;

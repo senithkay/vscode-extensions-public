@@ -35,8 +35,6 @@ import {
     BISourceCodeResponse,
     BreakpointRequest,
     ComponentRequest,
-    ComponentsRequest,
-    ComponentsResponse,
     ConfigVariableResponse,
     CreateComponentResponse,
     CurrentBreakpointsResponse,
@@ -66,7 +64,6 @@ import {
     addFunction,
     buildProject,
     createComponent,
-    createComponents,
     createProject,
     deleteByComponentInfo,
     deleteFlowNode,
@@ -175,10 +172,6 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     handleReadmeContent(params: ReadmeContentRequest): Promise<ReadmeContentResponse> {
         return this._messenger.sendRequest(handleReadmeContent, HOST_EXTENSION, params);
-    }
-
-    createComponents(params: ComponentsRequest): Promise<ComponentsResponse> {
-        return this._messenger.sendRequest(createComponents, HOST_EXTENSION, params);
     }
 
     getVisibleVariableTypes(params: BIGetVisibleVariableTypesRequest): Promise<BIGetVisibleVariableTypesResponse> {
