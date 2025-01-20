@@ -30,7 +30,7 @@ interface MediatorProps {
     clearSearch?: () => void;
 }
 
-const INBUILT_MODULES = ["most popular", "generic", "flow control", "database", "extension", "security", "transformation", "other"];
+const INBUILT_MODULES = ["favourites", "generic", "flow control", "database", "extension", "security", "transformation", "other"];
 export function Mediators(props: MediatorProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
     const { rpcClient } = useVisualizerContext();
@@ -69,10 +69,10 @@ export function Mediators(props: MediatorProps) {
                 const isConnector = !INBUILT_MODULES.includes(key);
 
                 if (isConnector) {
-                    const iconPath = values[0].iconPath;
+                    const iconPath = values.items[0].iconPath;
                     const iconPathUri = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: iconPath, name: "icon-small" });
 
-                    values.forEach((value) => {
+                    values.items.forEach((value) => {
                         value.iconPath = iconPathUri.uri;
                     });
                 }
@@ -150,9 +150,9 @@ export function Mediators(props: MediatorProps) {
         const searchValue = normalizeString(value || '');
 
         return Object.keys(allMediators).reduce((acc: any, key: string) => {
-            const filtered = (allMediators as any)[key].filter((mediator: { title: string; operationName: string }) => {
+            const filtered = (allMediators as any)[key].items.filter((mediator: { title: string; operationName: string }) => {
                 if (search) {
-                    if (key === "most popular") return null;
+                    if (key === "favourites") return null;
                     return normalizeString(mediator.operationName).includes(searchValue) || normalizeString(mediator.title).includes(searchValue);
                 } else {
                     return normalizeString(mediator.operationName) === searchValue;
@@ -160,7 +160,7 @@ export function Mediators(props: MediatorProps) {
             });
 
             if (filtered.length > 0) {
-                acc[key] = filtered;
+                acc[key] = { "items": filtered };
             }
             return acc;
         }, {});
@@ -202,7 +202,7 @@ export function Mediators(props: MediatorProps) {
                 {Object.entries(mediators).map(([key, values]) => (
                     <div key={key} style={{ marginTop: '15px' }} data-key={key}>
                         <ButtonGroup key={key} title={FirstCharToUpperCase(key)} isCollapsed={!expandedModules.includes(key)}>
-                            {values.map((mediator: Mediator) => (
+                            {values["items"].map((mediator: Mediator) => (
                                 <GridButton
                                     key={mediator.title}
                                     title={mediator.title}

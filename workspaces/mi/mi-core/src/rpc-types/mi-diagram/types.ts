@@ -1882,7 +1882,7 @@ export interface GetMediatorsRequest {
 }
 
 export interface GetMediatorsResponse {
-    [key: string]: Mediator[];
+    [key: string]: { items: Mediator[] };
 }
 
 export interface Mediator {

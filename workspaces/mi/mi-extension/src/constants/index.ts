@@ -53,6 +53,7 @@ export const COMMANDS = {
     REFRESH_COMMAND: 'MI.project-explorer.refresh',
     REFRESH_REGISTRY_COMMAND: 'MI.registry-explorer.refresh',
     ADD_COMMAND: 'MI.project-explorer.add',
+    ADD_ARTIFACT_COMMAND: 'MI.project-explorer.add.artifact',
     ADD_TO_REGISTRY_COMMAND: 'MI.registry-explorer.add',
     ADD_API_COMMAND: 'MI.project-explorer.add-api',
     ADD_RESOURCE_COMMAND: 'MI.project-explorer.add-resource',
