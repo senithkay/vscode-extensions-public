@@ -405,7 +405,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
     <project.scm.id>integration-project</project.scm.id>
     <project.runtime.version>${miVersion}</project.runtime.version>
     <dockerfile.base.image>wso2/wso2mi:\${project.runtime.version}</dockerfile.base.image>
-    <car.plugin.version>5.2.83</car.plugin.version>
+    <car.plugin.version>5.2.84</car.plugin.version>
   </properties>
 </project>`;
 
