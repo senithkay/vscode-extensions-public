@@ -53,12 +53,6 @@ export function TypeDiagram(props: TypeDiagramProps) {
         if (typeModel) {
             const diagramModel = entityModeller(typeModel, focusedNode);
 
-            // if (focusedNode) {
-            //     diagramModel = generateFocusedModel(typeModel, focusedNode);
-            // } else {
-            //     diagramModel = entityModeller(typeModel);
-            // }
-
             if (diagramModel) {
                 diagramModel.addLayer(new OverlayLayerModel());
                 diagramEngine.setModel(diagramModel);
