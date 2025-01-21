@@ -25,36 +25,33 @@ import { focusToNode } from './utils/utils';
 
 interface TypeDiagramProps {
     typeModel: Type[];
-    selectedRecordId?: string;
+    selectedNodeId?: string;
+    focusedNodeId?: string;
+    updateFocusedNodeId?: (nodeId: string) => void;
     showProblemPanel: () => void;
     goToSource: (filePath: string, position: NodePosition) => void;
     onTypeEdit: (typeId: string) => void;
 }
 
 export function TypeDiagram(props: TypeDiagramProps) {
-    const { typeModel, showProblemPanel, selectedRecordId, goToSource } = props;
+    const { typeModel, showProblemPanel, selectedNodeId, goToSource, focusedNodeId, updateFocusedNodeId } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(createEntitiesEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
-    const [selectedNodeId, setSelectedNodeId] = useState<string>(selectedRecordId);
     const [hasDiagnostics, setHasDiagnostics] = useState<boolean>(false);
-    const [focusedNodeId, setFocusedNodeId] = useState<string>(selectedRecordId);
+    const [selectedDiagramNode, setSelectedDiagramNode] = useState<string>(selectedNodeId);
 
     useEffect(() => {
-        drawDiagram();
-    }, [typeModel]);
+        drawDiagram(focusedNodeId);
+    }, [typeModel, focusedNodeId]);
 
     useEffect(() => {
-        if (selectedRecordId !== selectedNodeId) {
-            setSelectedNodeId(selectedRecordId);
-        }
-        setFocusedNodeId(undefined);
-    }, [selectedRecordId]);
+        setSelectedDiagramNode(selectedNodeId);
+    }, [selectedNodeId]);
 
-    const drawDiagram = async () => {
+    const drawDiagram = (focusedNode?: string) => {
         if (typeModel) {
-            setFocusedNodeId(undefined);
-            const diagramModel = entityModeller(typeModel);
+            const diagramModel = entityModeller(typeModel, focusedNode);
 
             if (diagramModel) {
                 diagramModel.addLayer(new OverlayLayerModel());
@@ -68,7 +65,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
                     if (selectedNodeId) {
                         const selectedModel = diagramEngine.getModel().getNode(selectedNodeId);
                         focusToNode(selectedModel, diagramEngine.getModel().getZoomLevel(), diagramEngine);
-                    } else {
+                    } else if (diagramEngine?.getCanvas()?.getBoundingClientRect) {
                         diagramEngine.zoomToFitNodes({ margin: 10, maxZoom: 1 });
                     }
 
@@ -76,7 +73,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
                     diagramEngine.getModel().removeLayer(diagramEngine.getModel().getLayers().find(layer => layer instanceof OverlayLayerModel));
                     diagramEngine.setModel(diagramModel);
                     diagramEngine.repaintCanvas();
-                }, 200);
+                }, 300);
             }
         }
     }
@@ -85,54 +82,45 @@ export function TypeDiagram(props: TypeDiagramProps) {
 
     const styles = useStyles();
 
-    useEffect(() => {
-        if (diagramEngine.getCanvas()) {
-            function handleEscapePress(event: KeyboardEvent) {
-                if (event.key === 'Escape' && selectedNodeId) {
-                    setSelectedNodeId(undefined);
-                }
-            }
-            document.addEventListener('keydown', handleEscapePress);
-        }
-    }, [diagramModel, diagramEngine.getCanvas()]);
-
     const onTypeEdit = (typeId: string) => {
         console.log("Editing type: ", typeId);
-        setSelectedNodeId(typeId);
+        // setSelectedNodeId(typeId);
         props.onTypeEdit(typeId);
     }
 
+    const updateSelectionOnDiagram = (nodeId: string) => {
+        setSelectedDiagramNode(nodeId);
+    }
+
     let ctx = {
-        selectedNodeId,
-        setSelectedNodeId,
+        selectedNodeId: selectedDiagramNode,
+        setSelectedNodeId: updateSelectionOnDiagram,
         setHasDiagnostics,
         hasDiagnostics,
         focusedNodeId,
-        setFocusedNodeId,
+        setFocusedNodeId: updateFocusedNodeId,
         onEditNode: onTypeEdit,
         goToSource
     }
 
-    const handleCanvasClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        if (focusedNodeId && event.target === diagramEngine.getCanvas()) {
-            setFocusedNodeId(undefined);
-        }
+    const refreshDiagram = () => {
+        drawDiagram(focusedNodeId);
     };
 
     return (
         <DesignDiagramContext {...ctx}>
             {diagramEngine?.getModel() && diagramModel ?
                 <>
-                    <DiagramContainer onClick={handleCanvasClick}>
+                    <DiagramContainer>
                         <NavigationWrapperCanvasWidget
                             diagramEngine={diagramEngine}
                             className={styles.canvas}
-                            focusedNode={diagramEngine?.getModel()?.getNode(selectedNodeId)}
+                            focusedNode={diagramEngine?.getModel()?.getNode(selectedDiagramNode)}
                         />
                     </DiagramContainer>
                     <DiagramControls
                         engine={diagramEngine}
-                        refreshDiagram={drawDiagram}
+                        refreshDiagram={refreshDiagram}
                         showProblemPanel={showProblemPanel}
                     />
                 </> :

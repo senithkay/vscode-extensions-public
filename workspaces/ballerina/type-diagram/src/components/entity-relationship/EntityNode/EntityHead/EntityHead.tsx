@@ -40,8 +40,7 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
         node.handleHover(headPorts.current, task);
     }
 
-    const isClickable = selectedNodeId ? false : true;
-
+    const isClickable = selectedNodeId !== node.getID();
 
     const handleOnClickOnEntityName = () => {
         if (isClickable) {

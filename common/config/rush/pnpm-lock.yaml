@@ -1817,15 +1817,26 @@ importers:
       '@emotion/css': ~11.11.2
       '@emotion/react': ~11.11.3
       '@emotion/styled': ~11.11.0
+      '@headlessui/react': ~1.7.18
+      '@tanstack/react-query': 4.0.10
+      '@types/lodash.debounce': ^4.0.6
       '@types/react': ^18.2.55
       '@types/react-dom': ^18.2.19
+      '@types/react-lottie': ^1.2.5
       '@vscode/webview-ui-toolkit': ~1.4.0
       '@wso2-enterprise/ballerina-core': workspace:*
+      '@wso2-enterprise/ballerina-rpc-client': workspace:*
+      '@wso2-enterprise/ballerina-statement-editor': workspace:*
+      '@wso2-enterprise/syntax-tree': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
       copyfiles: ~2.4.1
       eslint: ~8.56.0
+      lodash.debounce: ^4.0.8
+      monaco-editor: ~0.46.0
       react: ^18.2.0
       react-dom: ^18.2.0
+      react-intl: ^5.10.19
+      react-lottie: ^1.2.3
       react-scripts-ts: 3.1.0
       typescript: ^4.9.5
       vscode-uri: ~3.0.8
@@ -1833,15 +1844,26 @@ importers:
       '@emotion/css': 11.11.2
       '@emotion/react': 11.11.4_eteh3so6nztr56vqc4nbg6qqla
       '@emotion/styled': 11.11.0_ihbmxtfl4qsypabejwwqftkmtq
+      '@headlessui/react': 1.7.18_biqbaboplfbrettd7655fr4n2y
+      '@tanstack/react-query': 4.0.10_biqbaboplfbrettd7655fr4n2y
       '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
       '@wso2-enterprise/ballerina-core': link:../ballerina-core
+      '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
+      '@wso2-enterprise/ballerina-statement-editor': link:../statement-editor
+      '@wso2-enterprise/syntax-tree': link:../syntax-tree
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
+      lodash.debounce: 4.0.8
+      monaco-editor: 0.46.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
+      react-intl: 5.25.1_j5ip3o3v6sktjzl5cxtjyfbuo4
+      react-lottie: 1.2.4_react@18.2.0
       vscode-uri: 3.0.8
     devDependencies:
+      '@types/lodash.debounce': 4.0.9
       '@types/react': 18.2.55
       '@types/react-dom': 18.2.19
+      '@types/react-lottie': 1.2.10
       copyfiles: 2.4.1
       eslint: 8.56.0
       react-scripts-ts: 3.1.0_typescript@4.9.5
@@ -11263,7 +11285,7 @@ packages:
       react: ^16 || ^17 || ^18
       react-dom: ^16 || ^17 || ^18
     dependencies:
-      '@tanstack/react-virtual': 3.0.4
+      '@tanstack/react-virtual': 3.10.9
       client-only: 0.0.1
     dev: false
 
@@ -11274,7 +11296,7 @@ packages:
       react: ^16 || ^17 || ^18
       react-dom: ^16 || ^17 || ^18
     dependencies:
-      '@tanstack/react-virtual': 3.0.4_biqbaboplfbrettd7655fr4n2y
+      '@tanstack/react-virtual': 3.10.9_biqbaboplfbrettd7655fr4n2y
       client-only: 0.0.1
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -25619,24 +25641,14 @@ packages:
       react: 18.2.0
     dev: false
 
-  /@tanstack/react-virtual/3.0.4:
-    resolution: {integrity: sha512-tiqKW/e2MJVCr7/pRUXulpkyxllaOclkHNfhKTo4pmHjJIqnhMfwIjc1Q1R0Un3PI3kQywywu/791c8z9u0qeA==}
+  /@tanstack/react-virtual/3.10.9:
+    resolution: {integrity: sha512-OXO2uBjFqA4Ibr2O3y0YMnkrRWGVNqcvHQXmGvMu6IK8chZl3PrDxFXdGZ2iZkSrKh3/qUYoFqYe+Rx23RoU0g==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
-      '@tanstack/virtual-core': 3.0.0
+      '@tanstack/virtual-core': 3.10.9
     dev: false
-
-  /@tanstack/react-virtual/3.0.4_biqbaboplfbrettd7655fr4n2y:
-    resolution: {integrity: sha512-tiqKW/e2MJVCr7/pRUXulpkyxllaOclkHNfhKTo4pmHjJIqnhMfwIjc1Q1R0Un3PI3kQywywu/791c8z9u0qeA==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-    dependencies:
-      '@tanstack/virtual-core': 3.0.0
-      react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
 
   /@tanstack/react-virtual/3.10.9_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-OXO2uBjFqA4Ibr2O3y0YMnkrRWGVNqcvHQXmGvMu6IK8chZl3PrDxFXdGZ2iZkSrKh3/qUYoFqYe+Rx23RoU0g==}
@@ -25647,14 +25659,9 @@ packages:
       '@tanstack/virtual-core': 3.10.9
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-    dev: false
-
-  /@tanstack/virtual-core/3.0.0:
-    resolution: {integrity: sha512-SYXOBTjJb05rXa2vl55TTwO40A6wKu0R5i1qQwhJYNDIqaIGF7D0HsLw+pJAyi2OvntlEIVusx3xtbbgSUi6zg==}
 
   /@tanstack/virtual-core/3.10.9:
     resolution: {integrity: sha512-kBknKOKzmeR7lN+vSadaKWXaLS0SZZG+oqpQ/k80Q6g9REn6zRHS/ZYdrIzHnpHgy/eWs00SujveUN/GJT2qTw==}
-    dev: false
 
   /@testing-library/dom/10.4.0:
     resolution: {integrity: sha512-pemlzrSESWbdAloYml3bAJMEfNh1Z7EduzqPKprCH5S341frlpYnUEW0H72dLxa6IsYr+mPno20GiSm+h9dEdQ==}
@@ -49226,6 +49233,29 @@ packages:
       react: ^16.8.4 || ^17.0.0 || ^18.0.0
     dependencies:
       react: 18.2.0
+
+  /react-intl/5.25.1_j5ip3o3v6sktjzl5cxtjyfbuo4:
+    resolution: {integrity: sha512-pkjdQDvpJROoXLMltkP/5mZb0/XqrqLoPGKUCfbdkP8m6U9xbK40K51Wu+a4aQqTEvEK5lHBk0fWzUV72SJ3Hg==}
+    peerDependencies:
+      react: ^16.3.0 || 17 || 18
+      typescript: ^4.5
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      '@formatjs/ecma402-abstract': 1.11.4
+      '@formatjs/icu-messageformat-parser': 2.1.0
+      '@formatjs/intl': 2.2.1_typescript@4.9.5
+      '@formatjs/intl-displaynames': 5.4.3
+      '@formatjs/intl-listformat': 6.5.3
+      '@types/hoist-non-react-statics': 3.3.5
+      '@types/react': 18.2.55
+      hoist-non-react-statics: 3.3.2
+      intl-messageformat: 9.13.0
+      react: 18.2.0
+      tslib: 2.6.2
+      typescript: 4.9.5
+    dev: false
 
   /react-intl/5.25.1_oatgdhaahtizs2uezdzbohxvne:
     resolution: {integrity: sha512-pkjdQDvpJROoXLMltkP/5mZb0/XqrqLoPGKUCfbdkP8m6U9xbK40K51Wu+a4aQqTEvEK5lHBk0fWzUV72SJ3Hg==}

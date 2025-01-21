@@ -21,9 +21,9 @@ interface StyleProps {
 
 export const EntityNode: React.FC<any> = styled.div`
     background-color: ${(props: StyleProps) => props.isSelected ? ThemeColors.SURFACE_DIM_2 :
-        props.isAnonymous ? ThemeColors.SURFACE_BRIGHT : ThemeColors.SURFACE_DIM};
-    border: ${(props: StyleProps) => `1px solid ${props.isSelected ? ThemeColors.SECONDARY :
-        props.isAnonymous ? ThemeColors.PRIMARY : props.isFocused ? ThemeColors.SECONDARY : ThemeColors.PRIMARY}`};
+        props.isAnonymous ? ThemeColors.SURFACE_BRIGHT : ThemeColors.SURFACE_BRIGHT};
+    border: ${(props: StyleProps) => `1.8px solid ${props.isSelected ? ThemeColors.PRIMARY :
+        props.isAnonymous ? ThemeColors.PRIMARY : props.isFocused ? ThemeColors.SECONDARY : ThemeColors.OUTLINE_VARIANT}`};
     border-radius: 6px !important;
     color: ${(props: StyleProps) => props.isAnonymous ? ThemeColors.PRIMARY : ThemeColors.ON_SURFACE};
     cursor: ${(props: StyleProps) => props.isEditMode ? `pointer` : `auto`};
@@ -36,10 +36,8 @@ export const EntityNode: React.FC<any> = styled.div`
 export const EntityHead: React.FC<any> = styled.div`
     align-items: center;
      border-bottom: ${(props: StyleProps) =>
-          `1px solid ${props.isSelected ? ThemeColors.SECONDARY : ThemeColors.PRIMARY}`};
+        `1px solid ${props.isSelected ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT}`};
     display: flex;
-    font-family: ${(props: StyleProps) => props.isSelected ? `GilmerMedium` : `GilmerRegular`};
-    font-size: 13px;
     height: 40px;
     justify-content: center;
     line-height: 20px;
@@ -49,16 +47,17 @@ export const EntityHead: React.FC<any> = styled.div`
 `;
 
 export const EntityName: React.FC<any> = styled.span`
+    font-family: "GilmerMedium";
+    font-size: 14px;
     &:hover {
         color: ${(props: StyleProps) => props.isClickable ? ThemeColors.PRIMARY : ``};
         cursor: ${(props: StyleProps) => props.isClickable ? `pointer` : ``};
-        text-decoration: ${(props: StyleProps) => props.isClickable ? `underline` : ``};
     }
 `;
 
-export const AttributeContainer: React.FC<any>  = styled.div`
+export const AttributeContainer: React.FC<any> = styled.div`
     align-items: center;
-    background-color: ${(props: { isSelected: boolean }) => props.isSelected ? ThemeColors.SURFACE_DIM_2 : ThemeColors.SURFACE_DIM};
+    background-color: ${(props: { isSelected: boolean }) => props.isSelected ? ThemeColors.SURFACE_DIM_2 : ThemeColors.SURFACE_BRIGHT};
     border: 0.5px solid ${ThemeColors.OUTLINE_VARIANT};
     border-bottom-left-radius: 4px;
     border-bottom-right-radius: 4px;
@@ -83,7 +82,7 @@ export const AttributeName: React.FC<any> = styled.span`
     text-align: left;
 `;
 
-export const AttributeType: React.FC<any>  = styled.span`
+export const AttributeType: React.FC<any> = styled.span`
     background-color: ${ThemeColors.SURFACE_CONTAINER};
     border-radius: 3px;
     color: ${ThemeColors.ON_SURFACE};
