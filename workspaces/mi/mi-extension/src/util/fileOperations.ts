@@ -533,6 +533,7 @@ export async function deleteRegistryResource(filePath: string): Promise<{ status
             if (platform === 'win32') {
                 tempPath = tempPath.replace(/\\/g, '/');
             }
+            tempPath = path.normalize(tempPath);
             if (tempPath.includes('/src/main/wso2mi/resources/registry/')) {
                 tempPath = tempPath.replace('/src/main/wso2mi/resources/registry/', '');
                 var regPath = "";
