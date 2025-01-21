@@ -16,7 +16,7 @@ import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { colors } from "@wso2-enterprise/ui-toolkit";
 import { RUNTIME_VERSION_440 } from "../../constants";
-import { compareVersions } from "./Commons/utils";
+import { compareVersions } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
 
 export interface RegistryWizardProps {
     path: string;

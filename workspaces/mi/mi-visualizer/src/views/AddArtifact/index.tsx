@@ -18,7 +18,7 @@ import { View, ViewContent, ViewHeader } from "../../components/View";
 import path from "path";
 import { handleFileAttach } from "../../utils/fileAttach";
 import { RUNTIME_VERSION_440 } from "../../constants";
-import { compareVersions } from "../Forms/Commons/utils";
+import { compareVersions } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
 
 const Container = styled.div({
     display: "flex",
