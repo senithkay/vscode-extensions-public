@@ -36,6 +36,7 @@ export async function setupEnvironment(projectUri: string): Promise<boolean> {
                 projectUri
             );
         }
+        setupConfigFiles(projectUri);
 
         const { miDetails } = await getProjectSetupDetails();
         if (!(miDetails && miDetails.version)) {
@@ -666,6 +667,22 @@ export function compareVersions(v1: string, v2: string): number {
     }
     return 0;
 }
+
+function setupConfigFiles(projectUri: string): void {
+    const envFilePath = path.join(projectUri, '.env');
+    const targetFolder = path.join(projectUri, 'src', 'main', 'wso2mi', 'resources', 'conf');
+    const configFilePath = path.join(targetFolder, 'config.properties');
+    if (!fs.existsSync(targetFolder)) {
+        fs.mkdirSync(targetFolder, { recursive: true });
+    }
+    if (!fs.existsSync(configFilePath)) {
+        fs.writeFileSync(configFilePath, '', 'utf8');
+    }
+    if (!fs.existsSync(envFilePath)) {
+        fs.writeFileSync(envFilePath, '', 'utf8');
+    }
+}
+
 export function getJavaHomeFromConfig(): string | undefined {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
     if (workspaceFolder) {
