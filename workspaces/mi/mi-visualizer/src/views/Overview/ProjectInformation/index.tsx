@@ -215,16 +215,72 @@ export function ProjectInformation(props: ProjectInformationProps) {
             </FormGroup>
 
             <FormGroup title="Build Details" isCollapsed={true}>
-                <div>
-                    <Item>
-                        <Icon name="file-code" isCodicon sx={{ marginRight: '8px' }} />
-                        <Typography>Base Image: {buildDetails.dockerDetails.dockerFileBaseImage.value}</Typography>
-                    </Item>
-                    <Item>
-                        <Icon name="package" isCodicon sx={{ marginRight: '8px' }} />
-                        <Typography>Docker Name: {buildDetails.dockerDetails.dockerName.value}</Typography>
-                    </Item>
-                </div>
+                <FormGroup title="Docker" isCollapsed={false}>
+                    <div>
+                        <Item>
+                            <Icon name="file-code" isCodicon sx={{ marginRight: '8px' }} />
+                            <Typography>Base Image: {buildDetails?.dockerDetails?.dockerFileBaseImage?.value}</Typography>
+                        </Item>
+                        <Item>
+                            <Icon name="package" isCodicon sx={{ marginRight: '8px' }} />
+                            <Typography>Docker Name: {buildDetails?.dockerDetails?.dockerName?.value}</Typography>
+                        </Item>
+                        <Item>
+                            <Icon name="tools" isCodicon sx={{ marginRight: '8px' }} />
+                            <Typography>Enable Cipher Tool: {buildDetails?.dockerDetails?.cipherToolEnable?.value}</Typography>
+                        </Item>
+                        <Item>
+                            <Icon name="key" isCodicon sx={{ marginRight: '8px' }} />
+                            <Typography>Keystore Name: {buildDetails?.dockerDetails?.keyStoreName?.value}</Typography>
+                        </Item>
+                        <Item>
+                            <Icon name="symbol-key" isCodicon sx={{ marginRight: '8px' }} />
+                            <Typography>Keystore Alias: {buildDetails?.dockerDetails?.keyStoreAlias?.value}</Typography>
+                        </Item>
+                        <Item>
+                            <Icon name="bi-type" sx={{ marginRight: '8px' }} />
+                            <Typography>Keystore Type: {buildDetails?.dockerDetails?.keyStoreType?.value}</Typography>
+                        </Item>
+                        <Item>
+                            <Icon name="gist-secret" isCodicon sx={{ marginRight: '8px' }} />
+                            <Typography>Keystore Password: {'*'.repeat(buildDetails?.dockerDetails?.keyStorePassword?.value?.length || 0)}</Typography>
+                        </Item>
+                    </div>
+                </FormGroup>
+                <FormGroup title="Advanced" isCollapsed={true}>
+                    <div>
+                        {buildDetails?.advanceDetatils?.projectArtifactId?.value && (
+                            <Item>
+                                <Icon name="file-code" isCodicon sx={{ marginRight: '8px' }} />
+                                <Typography>Maven Artifact ID: {buildDetails?.advanceDetatils?.projectArtifactId?.value}</Typography>
+                            </Item>
+                        )}
+                        {buildDetails?.advanceDetatils?.projectGroupId?.value && (
+                            <Item>
+                                <Icon name="package" isCodicon sx={{ marginRight: '8px' }} />
+                                <Typography>Maven Group ID: {buildDetails?.advanceDetatils?.projectGroupId?.value}</Typography>
+                            </Item>
+                        )}
+                        {buildDetails?.advanceDetatils?.pluginDetatils?.projectBuildPluginVersion?.value && (
+                            <Item>
+                                <Icon name="versions" isCodicon sx={{ marginRight: '8px' }} />
+                                <Typography>Build Plugin Version: {buildDetails?.advanceDetatils?.pluginDetatils?.projectBuildPluginVersion?.value}</Typography>
+                            </Item>
+                        )}
+                        {buildDetails?.advanceDetatils?.pluginDetatils?.unitTestPluginVersion?.value && (
+                            <Item>
+                                <Icon name="versions" isCodicon sx={{ marginRight: '8px' }} />
+                                <Typography>Unit Test Plugin Version: {buildDetails?.advanceDetatils?.pluginDetatils?.unitTestPluginVersion?.value}</Typography>
+                            </Item>
+                        )}
+                        {buildDetails?.advanceDetatils?.pluginDetatils?.miContainerPluginVersion?.value && (
+                            <Item>
+                                <Icon name="versions" isCodicon sx={{ marginRight: '8px' }} />
+                                <Typography>Config Mapper Plugin Version: {buildDetails?.advanceDetatils?.pluginDetatils?.miContainerPluginVersion?.value}</Typography>
+                            </Item>
+                        )}
+                    </div>
+                </FormGroup>
             </FormGroup>
 
             <FormGroup title="Unit Tests Configuration" isCollapsed={true}>
@@ -246,8 +302,16 @@ export function ProjectInformation(props: ProjectInformationProps) {
                         <Typography>Server Path: {unitTest?.serverPath?.value}</Typography>
                     </Item>
                     <Item>
-                        <Icon name="info" isCodicon sx={{ marginRight: '8px' }} />
+                        <Icon name="bi-type" sx={{ marginRight: '8px' }} />
                         <Typography>Server Type: {unitTest?.serverType?.value}</Typography>
+                    </Item>
+                    <Item>
+                        <Icon name="versions" isCodicon sx={{ marginRight: '8px' }} />
+                        <Typography>Server Version: {unitTest?.serverVersion?.value}</Typography>
+                    </Item>
+                    <Item>
+                        <Icon name="desktop-download" isCodicon sx={{ marginRight: '8px' }} />
+                        <Typography>Server Download Link: {unitTest?.serverDownloadLink?.value}</Typography>
                     </Item>
                 </div>
             </FormGroup>
