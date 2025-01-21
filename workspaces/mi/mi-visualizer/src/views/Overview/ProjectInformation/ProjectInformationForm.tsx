@@ -11,7 +11,7 @@ import { DependencyDetails, ProjectDetailsResponse } from "@wso2-enterprise/mi-c
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { useEffect, useState } from "react";
 
-import { Button, Dropdown, ErrorBanner, FormActions, FormGroup, FormView, OptionProps, ProgressIndicator, TextField } from "@wso2-enterprise/ui-toolkit";
+import { Button, Dropdown, Banner, FormActions, FormGroup, FormView, OptionProps, ProgressIndicator, TextField, Codicon } from "@wso2-enterprise/ui-toolkit";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Controller, useForm } from "react-hook-form";
@@ -193,7 +193,10 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                         {...register("primaryDetails.runtimeVersion")}
                     />
                     {isRuntimeVersionChanged && (
-                        <ErrorBanner errorMsg={"Extension will restart when submitting"} />
+                        <Banner 
+                        icon={<Codicon name="warning" sx={{fontSize:12}}/>} 
+                        type="warning" 
+                        message="Extension will restart when submitting" />
                     )}
                 </div>
             </FormGroup>
