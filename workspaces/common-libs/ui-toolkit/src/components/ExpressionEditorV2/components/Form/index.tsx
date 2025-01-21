@@ -27,7 +27,10 @@ namespace Ex {
         gap: 8px;
         box-sizing: border-box;
 
-        * {
+        *,
+        *::before,
+        *::after,
+        *::part {
             box-sizing: border-box;
         }
     `;
@@ -82,13 +85,30 @@ export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, F
                     <ExpressionEditor ref={expressionEditorRef} buttonRef={buttonRef} {...rest} />
                     {endAdornment}
                 </Ex.ExpressionBox>
-                {getExpressionEditorIcon ? getExpressionEditorIcon() : (
-                    props.changeHelperPaneState  && (
-                        <Button ref={buttonRef}appearance="icon" onClick={handleHelperPaneToggle} tooltip="Open Helper View">
-                            <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
+                {getExpressionEditorIcon
+                    ? getExpressionEditorIcon()
+                    : props.changeHelperPaneState && (
+                        <Button
+                            ref={buttonRef}
+                            appearance="icon"
+                            onClick={handleHelperPaneToggle}
+                            tooltip="Open Helper View"
+                            {...(props.isHelperPaneOpen && {
+                                sx: { backgroundColor: ThemeColors.PRIMARY, borderRadius: "2px" },
+                            })}
+                        >
+                            <Icon
+                                name="function-icon"
+                                sx={{
+                                    height: "19px",
+                                    width: "17px",
+                                    ...props.isHelperPaneOpen && { color: ThemeColors.ON_PRIMARY },
+                                }}
+                                iconSx={{ fontSize: "16px" }}
+                                
+                            />
                         </Button>
-                    )
-                )}
+                    )}
                 {onRemove && (
                     <Button appearance="icon" onClick={onRemove} tooltip="Remove Expression">
                         <Codicon name="trash" sx={{ color: ThemeColors.ERROR }} />
