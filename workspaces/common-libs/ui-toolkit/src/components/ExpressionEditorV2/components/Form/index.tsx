@@ -54,7 +54,7 @@ namespace Ex {
 }
 
 export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, FormExpressionEditorProps>((props, ref) => {
-    const { id, getExpressionEditorIcon, onRemove, codeActions, ...rest } = props;
+    const { id, getExpressionEditorIcon, onRemove, codeActions, startAdornment, endAdornment, ...rest } = props;
     const expressionEditorRef = useRef<FormExpressionEditorRef>(null);
     const buttonRef = useRef<HTMLDivElement>(null)
 
