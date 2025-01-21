@@ -13,6 +13,7 @@ import { InputOutputPortModel } from "../Port";
 import { IDataMapperContext } from "src/utils/DataMapperContext/DataMapperContext";
 import { MappingFindingVisitor } from "../../../visitors/MappingFindingVisitor";
 import { traverseNode } from "../../../utils/model-utils";
+import { MappingDeletionVisitor } from "../../../visitors/MappingDeletionVisitor";
 
 export async function createNewMapping(link: DataMapperLinkModel) {
 	const targetPort = link.getTargetPort();
@@ -84,7 +85,7 @@ export async function addValue(fieldId: string, value: string, context: IDataMap
 	const { mappings } = context.model;
 
 	const newMapping: Mapping = {
-		output: fieldId.split('.').slice(1).join('.'),
+		output: fieldId,
 		inputs: [],
 		expression: value
 	};
@@ -92,6 +93,14 @@ export async function addValue(fieldId: string, value: string, context: IDataMap
 	mappings.push(newMapping);
 
 	return await context.applyModifications(mappings);
+}
+
+export async function removeMapping(fieldId: string, context: IDataMapperContext) {
+	const deletionVisitor = new MappingDeletionVisitor(fieldId);
+	traverseNode(context.model, deletionVisitor);
+	const remainingMappings = deletionVisitor.getRemainingMappings();
+
+	return await context.applyModifications(remainingMappings);
 }
 
 export function buildInputAccessExpr(fieldFqn: string): string {

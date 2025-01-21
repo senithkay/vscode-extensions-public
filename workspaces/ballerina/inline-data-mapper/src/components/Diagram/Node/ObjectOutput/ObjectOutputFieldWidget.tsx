@@ -21,8 +21,8 @@ import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore } from '../../../../store/store';
 import { getTypeName } from "../../utils/type-utils";
 import { ArrayOutputFieldWidget } from "../ArrayOutput/ArrayOuptutFieldWidget";
-import { getDefaultValue } from "../../utils/common-utils";
-import { addValue } from "../../utils/modification-utils";
+import { fieldFQNFromPortName, getDefaultValue } from "../../utils/common-utils";
+import { addValue, removeMapping } from "../../utils/modification-utils";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
 import { ValueConfigMenu, ValueConfigMenuItem, ValueConfigOption } from "../commons/ValueConfigButton";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
@@ -71,8 +71,8 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         updatedParentId = `${parentId}.${fieldIndex}`
     }
     let fieldName = field?.variableName || '';
-    let fieldFQN = updatedParentId !== '' ? fieldName !== '' ? `${updatedParentId}.${fieldName}` : updatedParentId : fieldName;
-    const portIn = getPort(fieldFQN + ".IN");
+    let portName = updatedParentId !== '' ? fieldName !== '' ? `${updatedParentId}.${fieldName}` : updatedParentId : fieldName;
+    const portIn = getPort(portName + ".IN");
     const mapping = portIn && portIn.value;
     const { inputs, expression, diagnostics } = mapping || {};
     const connectedViaLink = inputs?.length > 0;
@@ -84,9 +84,9 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const handleExpand = () => {
 		const collapsedFields = collapsedFieldsStore.fields;
         if (!expanded) {
-            collapsedFieldsStore.setFields(collapsedFields.filter((element) => element !== fieldFQN));
+            collapsedFieldsStore.setFields(collapsedFields.filter((element) => element !== portName));
         } else {
-            collapsedFieldsStore.setFields([...collapsedFields, fieldFQN]);
+            collapsedFieldsStore.setFields([...collapsedFields, portName]);
         }
     };
 
@@ -98,7 +98,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         setLoading(true);
         try {
             const defaultValue = getDefaultValue(field.kind);
-            await addValue(fieldFQN, defaultValue, context);
+            await addValue(fieldFQNFromPortName(portName), defaultValue, context);
         } finally {
             setLoading(false);
         }
@@ -107,7 +107,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const handleDeleteValue = async () => {
         setLoading(true);
         try {
-            // TODO: Implement delete value
+            await removeMapping(fieldFQNFromPortName(portName), context);
         } finally {
             setLoading(false);
         }
@@ -222,7 +222,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         <>
             {!isArray && (
                 <div
-                    id={"recordfield-" + fieldFQN}
+                    id={"recordfield-" + portName}
                     className={classnames(classes.treeLabel,
                         isDisabled && !hasHoveredParent && !isHovered ? classes.treeLabelDisabled : "",
                         isDisabled && isHovered ? classes.treeLabelDisableHover : "",
@@ -270,11 +270,11 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
             )}
             {isArray && (
                 <ArrayOutputFieldWidget
-                    key={fieldFQN}
+                    key={portName}
                     engine={engine}
                     field={field}
                     getPort={getPort}
-                    parentId={fieldFQN}
+                    parentId={portName}
                     context={context}
                     fieldIndex={fieldIndex}
                     treeDepth={treeDepth}
@@ -290,7 +290,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                             engine={engine}
                             field={subField}
                             getPort={getPort}
-                            parentId={fieldFQN}
+                            parentId={portName}
                             context={context}
                             treeDepth={treeDepth + 1}
                             deleteField={deleteField}
