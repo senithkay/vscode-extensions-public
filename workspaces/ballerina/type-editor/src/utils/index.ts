@@ -185,7 +185,7 @@ export function extractImportedRecordNames(definitions: ModulePart | TypeDefinit
     const recordName: { name: string, checked: boolean }[] = [];
     if (STKindChecker.isModulePart(definitions)) {
         const typeDefs: TypeDefinition[] = definitions.members
-            .filter(definition => STKindChecker.isTypeDefinition(definition)) as TypeDefinition[];
+            .filter((definition: any) => STKindChecker.isTypeDefinition(definition)) as TypeDefinition[];
         typeDefs.forEach(typeDef => recordName.push({ name: typeDef?.typeName?.value, checked: false }));
     } else if (STKindChecker.isTypeDefinition(definitions)) {
         recordName.push({ name: definitions.typeName.value, checked: false });
@@ -197,7 +197,7 @@ export function getActualRecordST(syntaxTree: STNode, recordName: string): TypeD
     let typeDef: TypeDefinition;
     if (STKindChecker.isModulePart(syntaxTree)) {
         typeDef = (syntaxTree.members
-            .filter(definition => STKindChecker.isTypeDefinition(definition)) as TypeDefinition[])
+            .filter((definition: any) => STKindChecker.isTypeDefinition(definition)) as TypeDefinition[])
             .find(record => record.typeName.value === recordName);
     }
     return typeDef;
@@ -207,7 +207,7 @@ export function getAvailableCreatedRecords(recordNames: RecordItemModel[], synta
     const records: RecordItemModel[] = [];
     if (STKindChecker.isModulePart(syntaxTree)) {
         const typeDefs: TypeDefinition[] = syntaxTree.members
-            .filter(definition => STKindChecker.isTypeDefinition(definition)) as TypeDefinition[];
+            .filter((definition: any) => STKindChecker.isTypeDefinition(definition)) as TypeDefinition[];
         const avaibaleRecords = typeDefs.filter(record => recordNames.some(res => res.name === record.typeName.value));
         if (avaibaleRecords.length > 0) {
             avaibaleRecords.forEach((record) => {
