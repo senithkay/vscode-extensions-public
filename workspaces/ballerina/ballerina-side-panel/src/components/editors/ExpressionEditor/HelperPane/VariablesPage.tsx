@@ -52,7 +52,7 @@ export const VariablesPage = ({
                 searchValue={searchValue}
                 onSearch={handleSearch}
             />
-            <HelperPane.Body isLoading={isLoading}>
+            <HelperPane.Body loading={isLoading}>
                 {variableInfo?.category.map((category) => (
                     <HelperPane.Section title={category.label}>
                         {category.items.map((item) => (
