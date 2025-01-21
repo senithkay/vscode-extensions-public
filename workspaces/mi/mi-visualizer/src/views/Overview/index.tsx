@@ -47,8 +47,6 @@ const Column = styled.div<{ width?: string }>`
 
 const ProjectInfoColumn = styled(Column)`
     width: 300px;
-    max-height: 460px;
-    overflow: hidden;
     padding-right: 2px;
     @media (max-width: 600px) {
         width: auto;
@@ -292,7 +290,7 @@ export function Overview(props: OverviewProps) {
                             Project Information
                             <Icon name="edit" isCodicon onClick={handleEditProjectInformation} sx={{ marginLeft: '8px', paddingTop: '5px', cursor: 'pointer' }} />
                         </Typography>
-                        <div style={{ height: '100%', overflow: "scroll", scrollbarWidth: "thin", paddingRight: '5px' }}>
+                        <div style={{ height: '100%', overflow: "scroll", scrollbarWidth: "thin", paddingRight: '5px', maxHeight: '404px' }}>
                             <ProjectInformation key={pomTimestamp} />
                         </div>
                     </ProjectInfoColumn>
