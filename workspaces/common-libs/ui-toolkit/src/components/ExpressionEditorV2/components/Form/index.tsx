@@ -29,8 +29,7 @@ namespace Ex {
 
         *,
         *::before,
-        *::after,
-        *::part {
+        *::after {
             box-sizing: border-box;
         }
     `;
