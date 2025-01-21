@@ -165,6 +165,8 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 	projectRoot.children = projectRoot.children ?? [];
 
 	for (const key in artifacts) {
+		if (!artifacts[key] || artifacts[key].length === 0) continue;
+
 		const artifactConfig = getArtifactConfig(key);
 		const folderPath = artifactConfig.folderName ?
 			path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', ...artifactConfig.folderName.split("/")) :
@@ -174,12 +176,12 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 
 		const parentEntry = new ProjectExplorerEntry(
 			key,
-			isCollapsibleState(artifacts[key].length > 0 || ['Data Integration', 'Common Artifacts', 'Advanced Artifacts', 'Resources'].includes(key)),
+			isCollapsibleState(artifacts[key].length > 0 || ['Other Artifacts', 'Resources'].includes(key)),
 			artifacts[key]
 		);
 
 		let children;
-		if (['APIs', 'Triggers', 'Scheduled Tasks'].includes(key)) {
+		if (['APIs', 'Event Integrations', 'Automations', 'Data Services'].includes(key)) {
 			children = genProjectStructureEntry(artifacts[key]);
 		} else if (key === 'Resources') {
 			children = generateResources(artifacts[key]);
@@ -191,6 +193,7 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 		parentEntry.contextValue = artifactConfig.contextValue;
 		parentEntry.id = `${project.name}/${artifactConfig.contextValue}`;
 
+		if (!children || children.length === 0) continue;
 		projectRoot.children.push(parentEntry);
 	}
 }
@@ -201,25 +204,21 @@ function getArtifactConfig(key: string) {
 			folderName: 'artifacts/apis',
 			contextValue: 'apis'
 		},
-		'Triggers': {
+		'Event Integrations': {
 			folderName: 'artifacts/inbound-endpoints',
 			contextValue: 'inboundEndpoints'
 		},
-		'Scheduled Tasks': {
+		'Automations': {
 			folderName: 'artifacts/tasks',
 			contextValue: 'tasks'
 		},
-		'Common Artifacts': {
-			folderName: '',
-			contextValue: 'Common Artifacts'
+		'Data Services': {
+			folderName: 'artifacts/data-services',
+			contextValue: 'dataServices'
 		},
-		'Data Integration': {
+		'Other Artifacts': {
 			folderName: '',
-			contextValue: 'Data Integration'
-		},
-		'Advanced Artifacts': {
-			folderName: '',
-			contextValue: 'Advanced Artifacts'
+			contextValue: 'Other Artifacts'
 		},
 		'Resources': {
 			folderName: 'resources',
@@ -332,7 +331,7 @@ function generateArtifacts(
 	const result: ProjectExplorerEntry[] = [];
 
 	for (const key in data) {
-		if (key === 'path') continue;
+		if (key === 'path' || !data[key] || data[key].length === 0) continue;
 
 		const artifactPath = generateArtifactsPath(project.uri.fsPath, key);
 		data[key].path = artifactPath;
@@ -503,25 +502,6 @@ function generateArtifacts(
 					return explorerEntry;
 				});
 				parentEntry.contextValue = 'templates';
-				break;
-			}
-			case 'Data Services': {
-				parentEntry.children = data[key].map((entry: any) => {
-					const explorerEntry = new ProjectExplorerEntry(
-						entry.name.replace(".xml", ""),
-						isCollapsibleState(false),
-						entry,
-						"data-service"
-					);
-					explorerEntry.contextValue = 'data-service';
-					explorerEntry.command = {
-						title: "Show Data Service",
-						command: COMMANDS.OPEN_DSS_SERVICE_DESIGNER,
-						arguments: [vscode.Uri.file(entry.path)]
-					};
-					return explorerEntry;
-				});
-				parentEntry.contextValue = 'dataServices';
 				break;
 			}
 			case 'Data Sources': {
@@ -809,6 +789,19 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"title": "Show Inbound Endpoint",
 				"command": COMMANDS.SHOW_INBOUND_ENDPOINT,
 				"arguments": [vscode.Uri.file(entry.path), undefined, false]
+			};
+		} else if (entry.type === 'DATA_SERVICE') {
+			explorerEntry = new ProjectExplorerEntry(
+				entry.name.replace(".xml", ""),
+				isCollapsibleState(false),
+				entry,
+				"data-service"
+			);
+			explorerEntry.contextValue = 'data-service';
+			explorerEntry.command = {
+				title: "Show Data Service",
+				command: COMMANDS.OPEN_DSS_SERVICE_DESIGNER,
+				arguments: [vscode.Uri.file(entry.path)]
 			};
 		}
 		else {

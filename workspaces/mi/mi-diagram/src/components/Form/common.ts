@@ -61,6 +61,9 @@ export const openPopup = (rpcClient: RpcClient, view: string, fetchItems: any, s
         case "dataMapper":
             rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.DatamapperForm, documentUri: documentUri, customProps }, isPopup: true });
             break;
+        case "messageStore":
+            rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.MessageStoreForm, documentUri: documentUri, customProps }, isPopup: true });
+            break;    
         default:
             return;
     }

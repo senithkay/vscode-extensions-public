@@ -70991,7 +70991,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         class="css-18bfde4"
                       >
                         <div
-                          class="css-kyfez4"
+                          class="css-1f8ti7d"
                         >
                           <div
                             class="css-h55zw6"
@@ -71009,7 +71009,9 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                             <div
                               class="css-1vc2u59"
                               data-testid="mediator-description"
-                            />
+                            >
+                              username
+                            </div>
                           </div>
                         </div>
                       </div>
