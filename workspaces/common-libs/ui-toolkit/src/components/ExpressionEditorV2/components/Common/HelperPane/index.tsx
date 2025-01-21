@@ -374,7 +374,8 @@ const LibraryBrowserSection: React.FC<HelperPaneSectionProps> = ({
     collapsible,
     defaultCollapsed = false,
     collapsedItemsCount = 10,
-    children
+    children,
+    titleSx
 }) => {
     const [isCollapsed, setIsCollapsed] = useState<boolean>(defaultCollapsed);
     const items = React.Children.toArray(children);
@@ -383,7 +384,7 @@ const LibraryBrowserSection: React.FC<HelperPaneSectionProps> = ({
 
     return (
         <SectionContainer>
-            <Typography variant="h3" sx={{ margin: 0, fontFamily: "GilmerMedium" }}>
+            <Typography variant="h3" sx={{ margin: 0, ...titleSx }}>
                 {title}
             </Typography>
             <SectionBody columns={columns}>
@@ -402,6 +403,7 @@ const LibraryBrowser: React.FC<LibraryBrowserProps> = ({
     children,
     loading = false,
     searchValue,
+    titleSx,
     onSearch,
     onClose,
 }) => {
@@ -413,7 +415,7 @@ const LibraryBrowser: React.FC<LibraryBrowserProps> = ({
             />
             <LibraryBrowserContainer>
                 <LibraryBrowserHeader>
-                    <Typography variant="h2" sx={{ margin: 0, fontFamily: "GilmerRegular" }}>
+                    <Typography variant="h2" sx={{ margin: 0, ...titleSx }}>
                         Library Browser
                     </Typography>
                     <Codicon name="close" onClick={onClose} />
@@ -473,11 +475,11 @@ const CompletionItem: React.FC<HelperPaneCompletionItemProps> = ({ getIcon, leve
     );
 };
 
-const CategoryItem: React.FC<HelperPaneCategoryItemProps> = ({ label, onClick, getIcon }) => {
+const CategoryItem: React.FC<HelperPaneCategoryItemProps> = ({ label, labelSx, onClick, getIcon }) => {
     return (
         <CategoryItemContainer onClick={onClick}>
             {getIcon && getIcon()}
-            <Typography variant="body2" sx={{ fontFamily: "GilmerMedium" }}>{label}</Typography>
+            <Typography variant="body2" sx={labelSx}>{label}</Typography>
             <Codicon sx={{ marginLeft: 'auto' }} name="chevron-right" />
         </CategoryItemContainer>
     );
@@ -518,7 +520,8 @@ const Section: React.FC<HelperPaneSectionProps> = ({
     defaultCollapsed = false,
     collapsedItemsCount = 10,
     loading = false,
-    children
+    children,
+    titleSx
 }) => {
     const [isCollapsed, setIsCollapsed] = useState<boolean>(defaultCollapsed);
     const items = React.Children.toArray(children);
@@ -527,7 +530,7 @@ const Section: React.FC<HelperPaneSectionProps> = ({
 
     return (
         <SectionContainer>
-            <Typography variant="body2" sx={{ fontFamily: "GilmerMedium" }}>
+            <Typography variant="body2" sx={titleSx}>
                 {title}
             </Typography>
             <SectionBody columns={columns}>
@@ -564,7 +567,7 @@ const Body: React.FC<HelperPaneBodyProps> = ({ children, loading = false, classN
     );
 };
 
-const Header: React.FC<HelperPaneHeaderProps> = ({ title, onBack, onClose, searchValue, onSearch }) => {
+const Header: React.FC<HelperPaneHeaderProps> = ({ title, titleSx, onBack, onClose, searchValue, onSearch }) => {
     return (
         <>
             <HeaderContainerWithSearch>
@@ -573,9 +576,9 @@ const Header: React.FC<HelperPaneHeaderProps> = ({ title, onBack, onClose, searc
                         <TitleContainer isLink={!!onBack} onClick={onBack}>
                             {onBack && <Codicon name="chevron-left" />}
                             {onBack ? (
-                                <Typography variant="caption" sx={{ fontFamily: "GilmerRegular" }}>{title}</Typography>
+                                <Typography variant="caption" sx={titleSx}>{title}</Typography>
                             ) : (
-                                <Typography sx={{ margin: 0, fontFamily: "GilmerRegular" }}>{title}</Typography>
+                                <Typography sx={{ margin: 0, ...titleSx }}>{title}</Typography>
                             )}
                         </TitleContainer>
                         {onClose && <Codicon name="close" onClick={onClose} />}
