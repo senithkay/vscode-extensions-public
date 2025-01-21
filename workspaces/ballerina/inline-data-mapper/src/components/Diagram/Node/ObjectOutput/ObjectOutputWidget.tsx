@@ -47,10 +47,6 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		valueLabel,
 		deleteField
 	} = props;
-	// const { views } = context;
-	// const focusedView = views[views.length - 1];
-	// const focuesOnSubMappingRoot = focusedView.subMappingInfo && focusedView.subMappingInfo.focusedOnSubMappingRoot;
-
 	const classes = useIONodesStyles();
 
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
@@ -123,7 +119,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		<>
 			<TreeContainer data-testid={`${id}-node`} onContextMenu={onRightClick}>
 				<TreeHeader
-					isSelected={false}
+					isSelected={portState !== PortState.Unselected}
 					id={"recordfield-" + id}
 					onMouseEnter={onMouseEnter}
 					onMouseLeave={onMouseLeave}
@@ -164,7 +160,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 									context={context}
 									treeDepth={0}
 									deleteField={deleteField}
-									hasHoveredParent={false}
+									hasHoveredParent={isHovered}
 								/>
 							);
 						})}

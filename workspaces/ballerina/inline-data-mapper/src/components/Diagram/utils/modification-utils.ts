@@ -38,7 +38,7 @@ export async function createNewMapping(link: DataMapperLinkModel) {
         const targetMapping = mappingFindingVisitor.getTargetMapping();
 
 		if (targetMapping) {
-			// Overwrite the existing mapping with default value
+			// Update the existing mapping with the new input
 			targetMapping.expression = input;
 			targetMapping.inputs.push(input);
 		} else {

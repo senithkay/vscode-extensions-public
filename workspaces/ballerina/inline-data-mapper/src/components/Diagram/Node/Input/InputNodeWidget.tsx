@@ -33,7 +33,7 @@ export interface InputNodeWidgetProps {
 export function InputNodeWidget(props: InputNodeWidgetProps) {
     const { engine, dmType, id, getPort, valueLabel, nodeHeaderSuffix } = props;
     
-    const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+    const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
     const expandedFieldsStore = useDMExpandedFieldsStore();
 

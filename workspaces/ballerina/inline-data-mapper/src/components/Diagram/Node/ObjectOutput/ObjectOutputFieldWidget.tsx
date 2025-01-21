@@ -10,7 +10,7 @@
 import React, { useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { IOType, TypeKind } from "@wso2-enterprise/ballerina-core";
 import classnames from "classnames";
 
@@ -21,6 +21,11 @@ import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore } from '../../../../store/store';
 import { getTypeName } from "../../utils/type-utils";
 import { ArrayOutputFieldWidget } from "../ArrayOutput/ArrayOuptutFieldWidget";
+import { getDefaultValue } from "../../utils/common-utils";
+import { addValue } from "../../utils/modification-utils";
+import FieldActionWrapper from "../commons/FieldActionWrapper";
+import { ValueConfigMenu, ValueConfigMenuItem, ValueConfigOption } from "../commons/ValueConfigButton";
+import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 
 export interface ObjectOutputFieldWidgetProps {
     parentId: string;
@@ -47,6 +52,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         hasHoveredParent
     } = props;
     const classes = useIONodesStyles();
+    const [isLoading, setLoading] = useState(false);
 
     const [isHovered, setIsHovered] = useState(false);
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
@@ -67,6 +73,10 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     let fieldName = field?.variableName || '';
     let fieldFQN = updatedParentId !== '' ? fieldName !== '' ? `${updatedParentId}.${fieldName}` : updatedParentId : fieldName;
     const portIn = getPort(fieldFQN + ".IN");
+    const mapping = portIn && portIn.value;
+    const { inputs, expression, diagnostics } = mapping || {};
+    const connectedViaLink = inputs?.length > 0;
+    const hasDefaultValue = expression && getDefaultValue(field.kind) === expression.trim();
 
     const fields = isRecord && field.fields;
     const isWithinArray = fieldIndex !== undefined;
@@ -82,6 +92,29 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
 
     const handlePortState = (state: PortState) => {
         setPortState(state)
+    };
+
+    const handleAddValue = async () => {
+        setLoading(true);
+        try {
+            const defaultValue = getDefaultValue(field.kind);
+            await addValue(fieldFQN, defaultValue, context);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDeleteValue = async () => {
+        setLoading(true);
+        try {
+            // TODO: Implement delete value
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleEditValue = () => {
+        // TODO: Implement edit value
     };
 
     const onMouseEnter = () => {
@@ -136,9 +169,54 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                     {typeName || ''}
                 </span>
             )}
+            {!connectedViaLink && (expression || hasDefaultValue) && (
+                <span className={classes.outputNodeValueBase}>
+                    {diagnostics.length > 0 ? (
+                        <DiagnosticTooltip
+                            placement="right"
+                            diagnostic={diagnostics[0].message}
+                            value={expression}
+                            onClick={handleEditValue}
+                        >
+                            <Button
+                                appearance="icon"
+                                data-testid={`array-widget-field-${portIn?.getName()}`}
+                            >
+                                {expression}
+                                <Icon
+                                    name="error-icon"
+                                    sx={{ height: "14px", width: "14px", marginLeft: "4px" }}
+                                    iconSx={{ fontSize: "14px", color: "var(--vscode-errorForeground)" }}
+                                />
+                            </Button>
+                        </DiagnosticTooltip>
+                    ) : (
+                        <span
+                            className={classes.outputNodeValue}
+                            onClick={handleEditValue}
+                            data-testid={`array-widget-field-${portIn?.getName()}`}
+                        >
+                            {expression}
+                        </span>
+                    )}
+                </span>
+            )}
         </span>
     );
 
+    const addOrEditValueMenuItem: ValueConfigMenuItem = expression || hasDefaultValue
+        ? { title: ValueConfigOption.EditValue, onClick: handleEditValue }
+        : { title: ValueConfigOption.InitializeWithValue, onClick: handleAddValue };
+
+    const deleteValueMenuItem: ValueConfigMenuItem = {
+        title: isWithinArray ? ValueConfigOption.DeleteElement : ValueConfigOption.DeleteValue,
+        onClick: handleDeleteValue
+    };
+
+    const valConfigMenuItems = [
+        !isWithinArray && addOrEditValueMenuItem,
+        (expression || hasDefaultValue || isWithinArray) && deleteValueMenuItem
+    ];
 
     return (
         <>
@@ -178,6 +256,16 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                         )}
                         {label}
                     </span>
+                    {(isLoading) ? (
+                        <ProgressRing />
+                    ) : (((expression && !connectedViaLink) || !isDisabled) && (
+                        <FieldActionWrapper>
+                            <ValueConfigMenu
+                                menuItems={valConfigMenuItems}
+                                portName={portIn?.getName()}
+                            />
+                        </FieldActionWrapper>
+                    ))}
                 </div>
             )}
             {isArray && (
