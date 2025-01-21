@@ -27,8 +27,13 @@ export function generateTSInterfacesFromSchemaFile(schema: JSONSchema3or4, schem
 export async function updateTsFileIoTypes(dmName: string, sourcePath: string, schema: JSONSchema3or4, ioType: IOType): Promise<string> {
   const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
   if (workspaceFolder) {
-    const dataMapperConfigFolder = path.join(
-      workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamapper');
+    let dataMapperConfigFolder;
+    if (path.normalize(sourcePath).includes(path.normalize(path.join('wso2mi', 'resources', 'registry')))) {
+        dataMapperConfigFolder = path.join(
+            workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
+    } else {
+        dataMapperConfigFolder = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamapper');
+    }
     const tsFilepath = path.join(dataMapperConfigFolder, dmName, `${dmName}.ts`);
     const tsSource = getTsAST(tsFilepath);
     const tsSources = separateInterfacesWithComments(tsSource);
@@ -97,8 +102,13 @@ export async function updateTsFileIoTypes(dmName: string, sourcePath: string, sc
 export async function updateTsFileCustomTypes(dmName: string, sourcePath: string, schema: JSONSchema3or4, typeName: string): Promise<string> {
   const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
   if (workspaceFolder) {
-    const dataMapperConfigFolder = path.join(
-      workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamapper');
+    let dataMapperConfigFolder;
+    if (path.normalize(sourcePath).includes(path.normalize(path.join('wso2mi', 'resources', 'registry')))) {
+        dataMapperConfigFolder = path.join(
+            workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
+    } else {
+        dataMapperConfigFolder = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamapper');
+    }
     const tsFilepath = path.join(dataMapperConfigFolder, dmName, `${dmName}.ts`);
 
     const readAndConvertSchema = async (schema: JSONSchema3or4, title: string) => {
