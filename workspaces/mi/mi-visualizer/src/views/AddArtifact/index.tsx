@@ -17,6 +17,8 @@ import styled from "@emotion/styled";
 import { View, ViewContent, ViewHeader } from "../../components/View";
 import path from "path";
 import { handleFileAttach } from "../../utils/fileAttach";
+import { RUNTIME_VERSION_440 } from "../../constants";
+import { compareVersions } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
 
 const Container = styled.div({
     display: "flex",
@@ -110,6 +112,8 @@ export function AddArtifactView() {
     const [files, setFiles] = useState([]);
     const [images, setImages] = useState([]);
     const [fileUploadStatus, setFileUploadStatus] = useState({ type: '', text: '' });
+    const [isResourceContentVisible, setIsResourceContentVisible] = useState(false);
+    const [runtimeVersion, setRuntimeVersion] = useState("");
 
     const handleClick = async (key: string) => {
         const dir = path.join(activeWorkspaces.fsPath, "src", "main", "wso2mi", "artifacts", key);
@@ -182,6 +186,10 @@ export function AddArtifactView() {
                 setActiveWorkspaces(response.workspaces[0]);
                 console.log(response.workspaces[0]);
             });
+        rpcClient.getMiVisualizerRpcClient().getProjectDetails().then((response) => {
+            const runtimeVersion = response.primaryDetails.runtimeVersion.value;
+            setIsResourceContentVisible(compareVersions(runtimeVersion, RUNTIME_VERSION_440) >= 0);
+        })
     }, []);
 
     const handleGenerateWithAI = async () => {
@@ -326,7 +334,7 @@ export function AddArtifactView() {
                                     />
                                     <Card
                                         icon="registry"
-                                        title="Resource"
+                                        title={isResourceContentVisible ? "Resource" : "Registry"}
                                         description="Manage shared resources and configurations."
                                         onClick={() => handleClick("resources")}
                                     />

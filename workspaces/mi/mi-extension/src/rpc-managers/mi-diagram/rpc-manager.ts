@@ -3514,17 +3514,38 @@ ${endpointAttributes}
 
     async createRegistryResource(params: CreateRegistryResourceRequest): Promise<CreateRegistryResourceResponse> {
         return new Promise(async (resolve) => {
-            let artifactName = ('resources/' + params.registryPath).replace(new RegExp('/', 'g'), "_").replace(/_+/g, '_');
+            const artifactNamePrefix = params.registryRoot === '' ? 'resources/' : params.registryRoot + '/';
+            let artifactName = (artifactNamePrefix + params.registryPath).replace(new RegExp('/', 'g'), "_").replace(/_+/g, '_');
 
             let projectDir = params.projectDirectory;
             const fileUri = Uri.file(params.projectDirectory);
             const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
             if (workspaceFolder) {
                 params.projectDirectory = workspaceFolder?.uri.fsPath;
-                projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources');
+                if (params.registryRoot === '') {
+                    projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources');
+                } else {
+                    projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
+                } 
+            }
+            const getTransformedRegistryRoot = (registryRoot: string) => {
+                if (registryRoot === '') {
+                    return "/_system/governance/mi-resources";
+                } else if (registryRoot === 'gov') {
+                    return "/_system/governance";
+                } else {
+                    return "/_system/config";
+                }
+            }
+            const refreshRegistryResource = (registryRoot: string) => {
+                if (registryRoot === '') {
+                    commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                } else {
+                    commands.executeCommand(COMMANDS.REFRESH_REGISTRY_COMMAND);
+                }
             }
             let registryDir = path.join(projectDir, params.registryRoot);
-            let transformedPath = "/_system/governance/mi-resources";
+            let transformedPath = getTransformedRegistryRoot(params.registryRoot);;
             if (params.createOption === "import") {
                 if (fs.existsSync(params.filePath)) {
                     const fileName = path.basename(params.filePath);
@@ -3541,15 +3562,15 @@ ${endpointAttributes}
                         transformedPath = path.join(transformedPath, params.registryPath, fileName);
                         transformedPath = transformedPath.split(path.sep).join("/");
                         createMetadataFilesForRegistryCollection(destPath, transformedPath);
-                        addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, "", true);
+                        addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, "", true, params.registryRoot !== "");
                     } else {
                         fs.copyFileSync(params.filePath, destPath);
                         transformedPath = path.join(transformedPath, params.registryPath);
                         transformedPath = transformedPath.split(path.sep).join("/");
                         const mediaType = await detectMediaType(params.filePath);
-                        addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, mediaType, false);
+                        addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, mediaType, false, params.registryRoot !== "");
                     }
-                    commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                    refreshRegistryResource(params.registryRoot);
                     resolve({ path: destPath });
                 }
             } else if (params.createOption === 'entryOnly') {
@@ -3565,8 +3586,8 @@ ${endpointAttributes}
                 //add the new entry to artifact.xml
                 transformedPath = path.join(transformedPath, params.registryPath);
                 transformedPath = transformedPath.split(path.sep).join("/");
-                addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false);
-                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false, params.registryRoot !== "");
+                refreshRegistryResource(params.registryRoot);
                 resolve({ path: destPath });
 
             } else {
@@ -3584,8 +3605,8 @@ ${endpointAttributes}
                 //add the new entry to artifact.xml
                 transformedPath = path.join(transformedPath, params.registryPath);
                 transformedPath = transformedPath.split(path.sep).join("/");
-                addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false);
-                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false, params.registryRoot !== "");
+                refreshRegistryResource(params.registryRoot);
                 resolve({ path: destPath });
             }
         });

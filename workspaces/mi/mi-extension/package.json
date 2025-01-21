@@ -162,6 +162,12 @@
         {
           "id": "MI.project-explorer",
           "name": "Project Explorer"
+        },
+        {
+          "id": "MI.registry-explorer",
+          "name": "Registry Explorer",
+          "visibility": "collapsed",
+          "when": "MI.registry-explorer.isVisible"
         }
       ],
       "test": [
