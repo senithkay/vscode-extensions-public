@@ -20,7 +20,7 @@ import styled from '@emotion/styled';
 import { Transition } from '@headlessui/react';
 import { ANIMATION, ARROW_HEIGHT } from '../../constants';
 import { CompletionItem } from '../../types/common';
-import { FormExpressionEditorProps, FormExpressionEditorRef } from '../../types/form';
+import { FormExpressionEditorRef, FormExpressionEditorElProps } from '../../types/form';
 import { addClosingBracketIfNeeded, checkCursorInFunction, getArrowPosition, getHelperPanePosition, setCursor } from '../../utils';
 import { Codicon } from '../../../Codicon/Codicon';
 import { ProgressIndicator } from '../../../ProgressIndicator/ProgressIndicator';
@@ -78,10 +78,17 @@ const DropdownContainer = styled.div<StyleBase>`
     z-index: 2001;
     filter: drop-shadow(0 3px 8px rgb(0 0 0 / 0.2));
     ${(props: StyleBase) => props.sx}
+
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
 `;
 
-export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressionEditorProps>((props, ref) => {
+export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressionEditorElProps>((props, ref) => {
     const {
+        containerRef,
         buttonRef,
         value,
         disabled,
@@ -325,8 +332,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     }
 
     const getHelperPaneComponent = (): JSX.Element => {
-        const helperPanePosition = getHelperPanePosition(elementRef, helperPaneOrigin);
-        const arrowPosition = getArrowPosition(elementRef, helperPaneOrigin, helperPanePosition);
+        const helperPanePosition = getHelperPanePosition(containerRef, helperPaneOrigin);
+        const arrowPosition = getArrowPosition(containerRef, helperPaneOrigin, helperPanePosition);
         
         return (
             <DropdownContainer ref={helperPaneContainerRef} sx={{ ...helperPanePosition }}>

@@ -55,6 +55,7 @@ namespace Ex {
 export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, FormExpressionEditorProps>((props, ref) => {
     const { id, getExpressionEditorIcon, onRemove, codeActions, startAdornment, endAdornment, ...rest } = props;
     const expressionEditorRef = useRef<FormExpressionEditorRef>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLDivElement>(null)
 
     useImperativeHandle(ref, () => expressionEditorRef.current);
@@ -68,7 +69,7 @@ export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, F
     };
 
     return (
-        <Ex.Container id={id}>
+        <Ex.Container ref={containerRef} id={id}>
             {codeActions && codeActions.length > 0 && (
                 <Ex.CodeActionsContainer>
                     {codeActions.map((button, index) => (
@@ -81,7 +82,12 @@ export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, F
             <Ex.EditorContainer>
                 <Ex.ExpressionBox>
                     {startAdornment}
-                    <ExpressionEditor ref={expressionEditorRef} buttonRef={buttonRef} {...rest} />
+                    <ExpressionEditor
+                        ref={expressionEditorRef}
+                        containerRef={containerRef}
+                        buttonRef={buttonRef}
+                        {...rest}
+                    />
                     {endAdornment}
                 </Ex.ExpressionBox>
                 {getExpressionEditorIcon
