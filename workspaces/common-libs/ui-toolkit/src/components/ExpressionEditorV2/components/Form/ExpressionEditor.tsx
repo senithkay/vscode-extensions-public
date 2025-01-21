@@ -478,8 +478,13 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                                 <Codicon
                                     key={index}
                                     name={actBtn.name}
-                                    iconSx={{ fontSize: '12px', color: 'var(--vscode-button-background)' }}
-                                    sx={{ height: '14px', width: '18px' }}
+                                    iconSx={{
+                                        fontSize: "12px",
+                                        color: isHelperPaneOpen
+                                            ? "var(--vscode-button-foreground)"
+                                            : "var(--vscode-button-background)",
+                                    }}
+                                    sx={{ height: '14px', width: '16px' }}
                                 />
                             );
                         } else {
@@ -487,8 +492,13 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                                 <Icon
                                     key={index}
                                     name={actBtn.name}
-                                    iconSx={{ fontSize: '12px', color: 'var(--vscode-button-background)' }}
-                                    sx={{ height: '14px', width: '18px' }}
+                                    iconSx={{
+                                        fontSize: '12px',
+                                        color: isHelperPaneOpen
+                                            ? 'var(--vscode-button-foreground)'
+                                            : 'var(--vscode-button-background)',
+                                    }}
+                                    sx={{ height: '14px', width: '16px' }}
                                 />
                             );
                         }
@@ -499,7 +509,14 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                                 tooltip={actBtn.tooltip}
                                 onClick={actBtn.onClick}
                                 appearance='icon'
-                                sx={{ height: '14px', width: '18px' }}
+                                buttonSx={{
+                                    height: '14px',
+                                    width: '22px',
+                                    ...(isHelperPaneOpen && {
+                                        backgroundColor: 'var(--vscode-button-background)',
+                                        borderRadius: '2px',
+                                    })
+                                }}
                             >
                                 {icon}
                             </Button>
