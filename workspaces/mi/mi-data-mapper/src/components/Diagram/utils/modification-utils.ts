@@ -250,7 +250,11 @@ export async function createSourceForUserInput(
 
 		if (nextField.parentType.hasValue() && Node.isPropertyAssignment(nextField.parentType.value)) {
 			const parentField: PropertyAssignment = nextField.parentType.value;
-			const parentFieldInitializer = parentField.getInitializer();
+			let parentFieldInitializer = parentField.getInitializer();
+
+			if (Node.isAsExpression(parentFieldInitializer)) {
+				parentFieldInitializer = parentFieldInitializer.getExpression();
+			}
 
 			if (!parentFieldInitializer.getText()) {
 				const valueExprSource = constructValueExprSource(fieldName, newValue, parentFields.reverse(), 0);
