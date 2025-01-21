@@ -299,14 +299,14 @@ export function AddArtifactView() {
                             />
                             <Card
                                 icon="task"
-                                title="Schedule Task"
-                                description="Set up a task to run at scheduled intervals."
+                                title="Automation"
+                                description="Create a task to run at scheduled intervals."
                                 onClick={() => handleClick("tasks")}
                             />
                             <Card
                                 icon="inbound-endpoint"
-                                title="Listener"
-                                description="Create a listener to handle and mediate incoming event messages."
+                                title="Event Integration"
+                                description="Create an event listener to handle and mediate incoming event messages."
                                 onClick={() => handleClick("inboundEndpoints")}
                             />
                         </HorizontalCardContainer>
