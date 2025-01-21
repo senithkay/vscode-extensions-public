@@ -169,10 +169,12 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
     const debouncedRetrieveCompletions = useCallback(
         async (expression: string, cursorPosition: number) => {
             const machineView = await rpcClient.getVisualizerState();
+            let position = nodeRange.start == nodeRange.end ? nodeRange.start :
+                { line: nodeRange.start.line, character: nodeRange.start.character + 1 };
             const completions = await rpcClient.getMiDiagramRpcClient().getExpressionCompletions({
                 documentUri: machineView.documentUri,
                 expression: expression,
-                position: nodeRange.start,
+                position: position,
                 offset: cursorPosition,
             });
             const modifiedCompletions =
@@ -228,11 +230,13 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
 
     const getHelperPaneInfo = useCallback(debounce((type: string, filterText: string) => {
         rpcClient.getVisualizerState().then((machineView) => {
+            let position = nodeRange?.start == nodeRange?.end ? nodeRange.start :
+                { line: nodeRange.start.line, character: nodeRange.start.character + 1 };
             rpcClient
                 .getMiDiagramRpcClient()
                 .getHelperPaneInfo({
                     documentUri: machineView.documentUri,
-                    position: nodeRange?.start
+                    position: position,
                 })
                 .then((response) => {
                     switch (type) {
