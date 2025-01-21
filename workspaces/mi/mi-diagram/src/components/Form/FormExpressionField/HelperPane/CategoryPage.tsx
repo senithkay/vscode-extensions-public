@@ -50,7 +50,7 @@ export const CategoryPage = ({
 }: CategoryPageProps) => {
     return (
         <>
-            <HelperPane.Body isLoading={false}>
+            <HelperPane.Body>
                 <HelperPane.Panels>
                     <HelperPane.PanelTab id={0} title="Data" />
                     <HelperPane.PanelTab id={1} title="Functions" />
