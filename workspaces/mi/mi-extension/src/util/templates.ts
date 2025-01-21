@@ -135,7 +135,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           <plugin>
             <groupId>org.wso2.maven</groupId>
             <artifactId>vscode-car-plugin</artifactId>
-            <version>5.2.82</version>
+            <version>\${car.plugin.version}</version>
             <extensions>true</extensions>
             <executions>
               <execution>
@@ -230,7 +230,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           <plugin>
             <groupId>org.wso2.maven</groupId>
             <artifactId>vscode-car-plugin</artifactId>
-            <version>5.2.82</version>
+            <version>\${car.plugin.version}</version>
             <extensions>true</extensions>
             <executions>
               <execution>
@@ -405,6 +405,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
     <project.scm.id>integration-project</project.scm.id>
     <project.runtime.version>${miVersion}</project.runtime.version>
     <dockerfile.base.image>wso2/wso2mi:\${project.runtime.version}</dockerfile.base.image>
+    <car.plugin.version>5.2.83</car.plugin.version>
   </properties>
 </project>`;
 
