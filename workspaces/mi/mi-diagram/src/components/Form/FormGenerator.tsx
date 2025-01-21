@@ -339,7 +339,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 let onCreateButtonClick;
                 if (!Array.isArray(keyType)) {
                     onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
-                        const resolvedView = element.inputType === 'registry' || element.inputType === 'resource' || element.inputType === 'resourceOrExpression' ? "addResource" : element.keyType;
+                        const resolvedView = element.inputType === 'key' || element.inputType === 'keyOrExpression' ? "addResource" : element.keyType;
                         openPopup(rpcClient, resolvedView, fetchItems, handleValueChange, undefined, { type: keyType });
                     }
                 }
@@ -349,7 +349,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                     filterType={(keyType as any) ?? "resource"}
                     label={element.displayName}
                     labelAdornment={helpTipElement}
-                    allowItemCreate={element.canAddNew !== false || (element.canAddNew as any) !== 'false'}
+                    allowItemCreate={element.canAddNew === true || (element.canAddNew as any) === 'true'}
                     onValueChange={field.onChange}
                     required={isRequired}
                     errorMsg={errorMsg}
