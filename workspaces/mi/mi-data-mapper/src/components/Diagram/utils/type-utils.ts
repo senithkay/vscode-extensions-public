@@ -330,7 +330,10 @@ function resolveUnionType(
     dmTypeWithValue: DMTypeWithValue
 ) {
     type.resolvedUnionType = type.unionTypes.find(unionType => {
-        return unionType.typeName === nextNode?.getType().getSymbol()?.getName();
+        const typeName = unionType.typeName || unionType.kind;
+        return typeName && 
+        (typeName === 
+            (nextNode?.getType().getSymbol()?.getName() || nextNode?.getType().getBaseTypeOfLiteralType()?.getText()));
     });
 
     if (type.resolvedUnionType && Node.isAsExpression(nextNode)) {
