@@ -50,8 +50,10 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
     }
 
     return (
-        <CtrlClickGo2Source location={{filePath: node.entityObject.codedata.lineRange.fileName,
-        startPosition: node.entityObject.codedata.lineRange.startLine, endPosition: node.entityObject.codedata.lineRange.endLine }}>
+        <CtrlClickGo2Source location={{
+            filePath: node.entityObject.codedata.lineRange.fileName,
+            startPosition: node.entityObject.codedata.lineRange.startLine, endPosition: node.entityObject.codedata.lineRange.endLine
+        }}>
             <EntityHead
                 isSelected={isSelected}
                 onMouseOver={() => handleOnHover('SELECT')}

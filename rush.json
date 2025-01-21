@@ -550,11 +550,6 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
-      "packageName": "@wso2-enterprise/service-designer-view",
-      "projectFolder": "workspaces/ballerina/service-designer-view",
-      "versionPolicyName": "ballerina-extension"
-    },
-    {
       "packageName": "@wso2-enterprise/data-mapper-view",
       "projectFolder": "workspaces/ballerina/data-mapper-view",
       "versionPolicyName": "ballerina-extension"
@@ -708,6 +703,11 @@
     {
       "packageName": "@wso2-enterprise/record-creator",
       "projectFolder": "workspaces/ballerina/record-creator",
+      "versionPolicyName": "ballerina-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/type-editor",
+      "projectFolder": "workspaces/ballerina/type-editor",
       "versionPolicyName": "ballerina-extension"
     },
     {

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef,useState } from "react";
 import {
     EVENT_TYPE,
     FlowNode,
@@ -18,9 +18,13 @@ import {
     TRIGGER_CHARACTERS,
     TriggerCharacter,
     FormDiagnostics,
-    ConfigVariable
+    ConfigVariable,
+    TextEdit,
+    FunctionKind,
+    SubPanelView,
+    LinePosition
 } from "@wso2-enterprise/ballerina-core";
-import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditorProps, HelperPaneData } from "@wso2-enterprise/ballerina-side-panel";
+import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditorProps, HelperPaneData, HelperPaneCompletionItem } from "@wso2-enterprise/ballerina-side-panel";
 import {
     convertBalCompletion,
     convertNodePropertiesToFormFields,
@@ -30,16 +34,24 @@ import {
     convertToHelperPaneVariable,
     convertToVisibleTypes,
     enrichFormPropertiesWithValueConstraint,
+    extractFunctionInsertText,
     getFormProperties,
+    removeDuplicateDiagnostics,
+    updateLineRange,
     updateNodeProperties,
 } from "../../../../utils/bi";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { RecordEditor } from "../../../RecordEditor/RecordEditor";
-import { RemoveEmptyNodesVisitor, traverseNode } from "@wso2-enterprise/bi-diagram";
 import IfForm from "../IfForm";
 import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
-import { debounce, set } from "lodash";
+import { cloneDeep, debounce, set } from "lodash";
 import { URI, Utils } from "vscode-uri";
+import {
+    createNodeWithUpdatedLineRange,
+    processFormData,
+    removeEmptyNodes,
+    updateNodeWithProperties
+} from "../form-utils";
 
 interface FormProps {
     fileName: string;
@@ -51,7 +63,7 @@ interface FormProps {
     projectPath?: string;
     editForm?: boolean;
     onSubmit: (node?: FlowNode, isDataMapper?: boolean) => void;
-    isActiveSubPanel?: boolean;
+    subPanelView?: SubPanelView;
     openSubPanel?: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
@@ -69,7 +81,7 @@ export function FormGenerator(props: FormProps) {
         editForm,
         onSubmit,
         openSubPanel,
-        isActiveSubPanel,
+        subPanelView,
         updatedExpressionField,
         resetUpdatedExpressionField
     } = props;
@@ -78,6 +90,7 @@ export function FormGenerator(props: FormProps) {
 
     const [fields, setFields] = useState<FormField[]>([]);
     const [showRecordEditor, setShowRecordEditor] = useState(false);
+    const [visualizableFields, setVisualizableFields] = useState<string[]>([]);
 
     /* Expression editor related state and ref variables */
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
@@ -90,6 +103,7 @@ export function FormGenerator(props: FormProps) {
     const [functionInfo, setFunctionInfo] = useState<HelperPaneData>();
     const [libraryBrowserInfo, setLibraryBrowserInfo] = useState<HelperPaneData>();
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
+    const expressionOffsetRef = useRef<number>(0); // To track the expression offset on adding import statements
 
     useEffect(() => {
         if (!node) {
@@ -152,6 +166,13 @@ export function FormGenerator(props: FormProps) {
             }
         }
 
+        rpcClient
+            .getInlineDataMapperRpcClient()
+            .getVisualizableFields({filePath: fileName, flowNode: node, position: targetLineRange.startLine})
+            .then((res) => {
+                setVisualizableFields(res.visualizableProperties);
+            });
+
         // get node properties
         setFields(convertNodePropertiesToFormFields(enrichedNodeProperties || formProperties, connections, clientName));
     };
@@ -159,47 +180,30 @@ export function FormGenerator(props: FormProps) {
     const handleOnSubmit = (data: FormValues) => {
         console.log(">>> on form generator submit", data);
         if (node && targetLineRange) {
-            let updatedNode: FlowNode = {
-                ...node,
-                codedata: {
-                    ...node.codedata,
-                    lineRange: {
-                        ...node.codedata.lineRange,
-                        startLine: targetLineRange.startLine,
-                        endLine: targetLineRange.endLine,
-                    },
-                },
-            };
-
-            // assign to a existing variable
-            if ("update-variable" in data) {
-                data["variable"] = data["update-variable"];
-                data["type"] = "";
-            }
-
-            if (node.branches?.at(0)?.properties) {
-                // branch properties
-                // TODO: Handle multiple branches
-                const updatedNodeProperties = updateNodeProperties(data, node.branches.at(0).properties);
-                updatedNode.branches.at(0).properties = updatedNodeProperties;
-            } else if (node.properties) {
-                // node properties
-                const updatedNodeProperties = updateNodeProperties(data, node.properties);
-                updatedNode.properties = updatedNodeProperties;
-            } else {
-                console.error(">>> Error updating source code. No properties found");
-            }
+            const updatedNode = mergeFormDataWithFlowNode(data, targetLineRange);
             console.log(">>> Updated node", updatedNode);
 
-            // check all nodes and remove empty nodes
-            const removeEmptyNodeVisitor = new RemoveEmptyNodesVisitor(updatedNode);
-            traverseNode(updatedNode, removeEmptyNodeVisitor);
-            const updatedNodeWithoutEmptyNodes = removeEmptyNodeVisitor.getNode();
-
             const isDataMapperFormUpdate = data["isDataMapperFormUpdate"];
-
-            onSubmit(updatedNodeWithoutEmptyNodes, isDataMapperFormUpdate);
+            onSubmit(updatedNode, isDataMapperFormUpdate);
         }
+    };
+
+    const mergeFormDataWithFlowNode = (
+        data: FormValues,
+        targetLineRange: LineRange
+    ): FlowNode => {
+        const clonedNode = cloneDeep(node);
+        // Create updated node with new line range
+        const updatedNode = createNodeWithUpdatedLineRange(clonedNode, targetLineRange);
+
+        // assign to a existing variable
+        const processedData = processFormData(data);
+
+        // Update node properties
+        const nodeWithUpdatedProps = updateNodeWithProperties(clonedNode, updatedNode, processedData);
+
+        // check all nodes and remove empty nodes
+        return removeEmptyNodes(nodeWithUpdatedProps);
     };
 
     const handleOpenView = async (filePath: string, position: NodePosition) => {
@@ -265,7 +269,7 @@ export function FormGenerator(props: FormProps) {
                     filePath: fileName,
                     context: {
                         expression: value,
-                        startLine: targetLineRange.startLine,
+                        startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
                         offset: offset,
                         node: node,
                         property: key
@@ -334,7 +338,7 @@ export function FormGenerator(props: FormProps) {
         if (!types.length) {
             const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
                 filePath: fileName,
-                position: targetLineRange.startLine,
+                position: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
             });
 
             visibleTypes = convertToVisibleTypes(response.types);
@@ -361,7 +365,7 @@ export function FormGenerator(props: FormProps) {
             filePath: fileName,
             context: {
                 expression: value,
-                startLine: targetLineRange.startLine,
+                startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
                 offset: cursorPosition,
                 node: node,
                 property: key
@@ -397,18 +401,20 @@ export function FormGenerator(props: FormProps) {
             filePath: fileName,
             context: {
                 expression: expression,
-                startLine: targetLineRange.startLine,
+                startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
                 offset: 0,
                 node: node,
                 property: key
             },
         });
 
-        setDiagnosticsInfo({ key, diagnostics: response.diagnostics });
+        const uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
+        setDiagnosticsInfo({ key, diagnostics: uniqueDiagnostics });
     }, 250), [rpcClient, fileName, targetLineRange, node]);
 
     const getHelperPaneData = useCallback(
         debounce((type: string, searchText: string) => {
+            const updatedTargetLineRange = updateLineRange(targetLineRange, expressionOffsetRef.current);
             switch (type) {
                 case 'variables': {
                     rpcClient
@@ -416,8 +422,8 @@ export function FormGenerator(props: FormProps) {
                         .getVisibleVariableTypes({
                             filePath: fileName,
                             position: {
-                                line: targetLineRange.startLine.line,
-                                offset: targetLineRange.startLine.offset
+                                line: updatedTargetLineRange.startLine.line,
+                                offset: updatedTargetLineRange.startLine.offset
                             }
                         })
                         .then((response) => {
@@ -434,8 +440,8 @@ export function FormGenerator(props: FormProps) {
                         .getVisibleVariableTypes({
                             filePath: fileName,
                             position: {
-                                line: targetLineRange.startLine.line,
-                                offset: targetLineRange.startLine.offset
+                                line: updatedTargetLineRange.startLine.line,
+                                offset: updatedTargetLineRange.startLine.offset
                             }
                         })
                         .then((response) => {
@@ -450,7 +456,7 @@ export function FormGenerator(props: FormProps) {
                     rpcClient
                         .getBIDiagramRpcClient()
                         .getFunctions({
-                            position: targetLineRange,
+                            position: updatedTargetLineRange,
                             filePath: fileName,
                             queryMap: {
                                 q: searchText.trim(),
@@ -470,7 +476,7 @@ export function FormGenerator(props: FormProps) {
                     rpcClient
                         .getBIDiagramRpcClient()
                         .getFunctions({
-                            position: targetLineRange,
+                            position: updatedTargetLineRange,
                             filePath: fileName,
                             queryMap: {
                                 q: searchText.trim(),
@@ -497,11 +503,32 @@ export function FormGenerator(props: FormProps) {
         getHelperPaneData(type, searchText);
     }, [getHelperPaneData]);
 
-    const handleCompletionItemSelect = async () => {
+    const handleCompletionItemSelect = async (value: string, additionalTextEdits?: TextEdit[]) => {
+        if (additionalTextEdits?.[0].newText) {
+            const response = await rpcClient.getBIDiagramRpcClient().updateImports({
+                filePath: fileName,
+                importStatement: additionalTextEdits[0].newText
+            });
+            expressionOffsetRef.current += response.importStatementOffset;
+        }
         debouncedRetrieveCompletions.cancel();
         debouncedGetVisibleTypes.cancel();
         handleExpressionEditorCancel();
     };
+
+    const handleFunctionItemSelect = async (item: HelperPaneCompletionItem) => {
+        const response = await rpcClient.getBIDiagramRpcClient().addFunction({
+            filePath: fileName,
+            codedata: item.codedata,
+            kind: item.kind as FunctionKind
+        })
+
+        if (response.template) {
+            return extractFunctionInsertText(response.template);
+        }
+
+        return "";
+    }
 
     const handleExpressionEditorBlur = () => {
         handleExpressionEditorCancel();
@@ -604,6 +631,7 @@ export function FormGenerator(props: FormProps) {
             functionInfo: functionInfo,
             libraryBrowserInfo: libraryBrowserInfo,
             getHelperPaneData: handleGetHelperPaneData,
+            onFunctionItemSelect: handleFunctionItemSelect,
             getExpressionFormDiagnostics: handleExpressionFormDiagnostics,
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
@@ -621,8 +649,14 @@ export function FormGenerator(props: FormProps) {
         handleRetrieveCompletions,
         handleGetVisibleTypes,
         handleGetHelperPaneData,
+        handleFunctionItemSelect,
         handleExpressionFormDiagnostics
     ]);
+
+    const fetchVisualizableFields = async (filePath: string, flowNode: FlowNode, position: LinePosition) => {
+        const res = await rpcClient.getInlineDataMapperRpcClient().getVisualizableFields({filePath, flowNode, position});
+        setVisualizableFields(res.visualizableProperties);
+    }
 
     // handle if node form
     if (node?.codedata.node === "IF") {
@@ -635,7 +669,7 @@ export function FormGenerator(props: FormProps) {
                 onSubmit={onSubmit}
                 openSubPanel={openSubPanel}
                 updatedExpressionField={updatedExpressionField}
-                isActiveSubPanel={isActiveSubPanel}
+                subPanelView={subPanelView}
                 resetUpdatedExpressionField={resetUpdatedExpressionField}
             />
         );
@@ -653,12 +687,15 @@ export function FormGenerator(props: FormProps) {
                     onSubmit={handleOnSubmit}
                     openView={handleOpenView}
                     openSubPanel={openSubPanel}
-                    isActiveSubPanel={isActiveSubPanel}
+                    subPanelView={subPanelView}
                     expressionEditor={expressionEditor}
                     targetLineRange={targetLineRange}
                     fileName={fileName}
                     updatedExpressionField={updatedExpressionField}
                     resetUpdatedExpressionField={resetUpdatedExpressionField}
+                    mergeFormDataWithFlowNode={mergeFormDataWithFlowNode}
+                    handleVisualizableFields={fetchVisualizableFields}
+                    visualizableFields={visualizableFields}
                 />
             )}
             {showRecordEditor && (

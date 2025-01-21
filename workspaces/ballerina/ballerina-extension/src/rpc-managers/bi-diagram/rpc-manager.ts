@@ -10,6 +10,8 @@
  */
 import {
     AIChatRequest,
+    AddFunctionRequest,
+    AddFunctionResponse,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
@@ -74,6 +76,8 @@ import {
     UpdateConfigVariableResponse,
     UpdateTypeRequest,
     UpdateTypeResponse,
+    UpdateImportsRequest,
+    UpdateImportsResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspaceFolder,
@@ -99,7 +103,7 @@ import { notifyBreakpointChange } from "../../RPCLayer";
 import { ballerinaExtInstance } from "../../core";
 import { BreakpointManager } from "../../features/debugger/breakpoint-manager";
 import { StateMachine, openView, updateView } from "../../stateMachine";
-import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, createBITrigger, createBITriggerListener, handleServiceCreation, sanitizeName } from "../../utils/bi";
+import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, sanitizeName } from "../../utils/bi";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
 import { DATA_MAPPING_FILE_NAME, getDataMapperNodePosition } from "./utils";
@@ -313,21 +317,11 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         return new Promise(async (resolve) => {
             let res: CreateComponentResponse;
             switch (params.type) {
-                case DIRECTORY_MAP.SERVICES:
-                    res = await createBIService(params);
-                    break;
                 case DIRECTORY_MAP.AUTOMATION:
                     res = await createBIAutomation(params);
                     break;
-                case DIRECTORY_MAP.FUNCTIONS:
+                case DIRECTORY_MAP.FUNCTIONS || DIRECTORY_MAP.DATA_MAPPERS:
                     res = await createBIFunction(params);
-                    break;
-                case DIRECTORY_MAP.TRIGGERS:
-                    if (params.triggerType.listenerOnly) {
-                        res = await createBITriggerListener(params);
-                    } else {
-                        res = await createBITrigger(params);
-                    }
                     break;
                 default:
                     break;
@@ -375,122 +369,113 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async getAiSuggestions(params: BIAiSuggestionsRequest): Promise<BIAiSuggestionsResponse> {
         return new Promise(async (resolve) => {
-            const { filePath, position, isOverview } = params;
-            if (isOverview) {
-                const readmeContent = fs.readFileSync(
-                    path.join(StateMachine.context().projectUri, README_FILE),
-                    "utf8"
-                );
-                console.log(">>> readme content", readmeContent);
-                const payload = {
-                    projectDescription: readmeContent,
-                };
-                const requestOptions = {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload),
-                };
-                console.log(">>> request ai suggestion", { request: payload });
-                const response = await fetch(
-                    "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/ballerina-copilot/architecture-api/v1.0/generate",
-                    requestOptions
-                );
-                const data = await response.json();
-                console.log(">>> ai suggestion", { response: data });
-                resolve({ flowModel: null, suggestion: null, overviewFlow: data as OverviewFlow });
-            } else {
-                const enableAiSuggestions = ballerinaExtInstance.enableAiSuggestions();
-                if (!enableAiSuggestions) {
-                    resolve(undefined);
-                    return;
-                }
-                const token = await extension.context.secrets.get('BallerinaAIUser');
-                if (!token) {
-                    resolve(undefined);
-                    return;
-                }
-                // get copilot context form ls
-                const copilotContextRequest: BICopilotContextRequest = {
-                    filePath: filePath,
-                    position: position.startLine,
-                };
-                console.log(">>> request get copilot context from ls", { request: copilotContextRequest });
-                const copilotContext = await StateMachine.langClient().getCopilotContext(copilotContextRequest);
-                console.log(">>> copilot context from ls", { response: copilotContext });
+            const { filePath, position, prompt } = params;
 
-                // get suggestions from ai
-                const requestBody = {
-                    ...copilotContext,
-                    singleCompletion: false, // Remove setting and assign constant value since this is handled by the AI BE
-                };
-                const requestOptions = {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify(requestBody),
-                };
-                console.log(">>> request ai suggestion", { request: requestBody });
-                let response;
-                try {
-                    response = await fetchWithToken(BACKEND_API_URL_V2 + "/completion", requestOptions);
-                } catch (error) {
-                    console.log(">>> error fetching ai suggestion", error);
-                    return new Promise((resolve) => {
-                        resolve(undefined);
-                    });
-                }
-                if (!response.ok) {
-                    console.log(">>> ai completion api call failed ", response);
-                    return new Promise((resolve) => {
-                        resolve(undefined);
-                    });
-                }
-                const data = await response.json();
-                console.log(">>> ai suggestion", { response: data });
-                const suggestedContent = (data as any).completions.at(0);
-                if (!suggestedContent) {
-                    console.log(">>> ai suggested content not found");
-                    return new Promise((resolve) => {
-                        resolve(undefined);
-                    });
-                }
-
-                // get flow model from ls
-                const context = StateMachine.context();
-                if (!context.position) {
-                    console.log(">>> position not found in the context");
-                    return new Promise((resolve) => {
-                        resolve(undefined);
-                    });
-                }
-
-                const request: BISuggestedFlowModelRequest = {
-                    filePath: context.documentUri,
-                    startLine: {
-                        line: context.position.startLine ?? 0,
-                        offset: context.position.startColumn ?? 0,
-                    },
-                    endLine: {
-                        line: context.position.endLine ?? 0,
-                        offset: context.position.endColumn ?? 0,
-                    },
-                    text: suggestedContent,
-                    position: position.startLine,
-                };
-                console.log(">>> request bi suggested flow model", request);
-
-                StateMachine.langClient()
-                    .getSuggestedFlowModel(request)
-                    .then((model) => {
-                        console.log(">>> bi suggested flow model from ls", model);
-                        resolve({ flowModel: model.flowModel, suggestion: suggestedContent });
-                    })
-                    .catch((error) => {
-                        console.log(">>> error fetching bi suggested flow model from ls", error);
-                        return new Promise((resolve) => {
-                            resolve(undefined);
-                        });
-                    });
+            const enableAiSuggestions = ballerinaExtInstance.enableAiSuggestions();
+            if (!enableAiSuggestions) {
+                resolve(undefined);
+                return;
             }
+            const token = await extension.context.secrets.get("BallerinaAIUser");
+            if (!token) {
+                resolve(undefined);
+                return;
+            }
+            // get copilot context form ls
+            const copilotContextRequest: BICopilotContextRequest = {
+                filePath: filePath,
+                position: position.startLine,
+            };
+            console.log(">>> request get copilot context from ls", { request: copilotContextRequest });
+            const copilotContext = await StateMachine.langClient().getCopilotContext(copilotContextRequest);
+            console.log(">>> copilot context from ls", { response: copilotContext });
+
+            // get suggestions from ai
+            const requestBody = {
+                ...copilotContext,
+                prompt,
+                singleCompletion: false, // Remove setting and assign constant value since this is handled by the AI BE
+            };
+            const requestOptions = {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify(requestBody),
+            };
+            console.log(">>> request ai suggestion", { request: requestBody });
+            let response;
+            try {
+                if (prompt) {
+                    // generate new nodes
+                    response = await fetchWithToken(BACKEND_API_URL_V2 + "/inline/generation", requestOptions);
+                } else {
+                    // get next suggestion
+                    response = await fetchWithToken(BACKEND_API_URL_V2 + "/completion", requestOptions);
+                }
+            } catch (error) {
+                console.log(">>> error fetching ai suggestion", error);
+                return new Promise((resolve) => {
+                    resolve(undefined);
+                });
+            }
+            if (!response.ok) {
+                console.log(">>> ai completion api call failed ", response);
+                return new Promise((resolve) => {
+                    resolve(undefined);
+                });
+            }
+            const data = await response.json();
+            console.log(">>> ai suggestion", { response: data });
+            let suggestedContent;
+            if (prompt) {
+                // get response code
+                suggestedContent = (data as any).code;
+            } else {
+                // get first completion
+                suggestedContent = (data as any).completions.at(0);
+            }
+            if (!suggestedContent) {
+                console.log(">>> ai suggested content not found");
+                return new Promise((resolve) => {
+                    resolve(undefined);
+                });
+            }
+
+            // get flow model from ls
+            const context = StateMachine.context();
+            if (!context.position) {
+                console.log(">>> position not found in the context");
+                return new Promise((resolve) => {
+                    resolve(undefined);
+                });
+            }
+
+            const request: BISuggestedFlowModelRequest = {
+                filePath: context.documentUri,
+                startLine: {
+                    line: context.position.startLine ?? 0,
+                    offset: context.position.startColumn ?? 0,
+                },
+                endLine: {
+                    line: context.position.endLine ?? 0,
+                    offset: context.position.endColumn ?? 0,
+                },
+                text: suggestedContent,
+                position: position.startLine,
+            };
+            console.log(">>> request bi suggested flow model", request);
+
+            StateMachine.langClient()
+                .getSuggestedFlowModel(request)
+                .then((model) => {
+                    console.log(">>> bi suggested flow model from ls", model);
+                    resolve({ flowModel: model.flowModel, suggestion: suggestedContent });
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching bi suggested flow model from ls", error);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
+                });
         });
     }
 
@@ -534,67 +519,6 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     fs.writeFileSync(readmePath, params.content);
                     console.log(">>> Updated readme.md with content:", params.content);
                 }
-            }
-        });
-    }
-
-    async createComponents(params: ComponentsRequest): Promise<ComponentsResponse> {
-        return new Promise(async (resolve) => {
-            try {
-                // Create the entry point services
-                params.overviewFlow.entryPoints.forEach(async (entry) => {
-                    if (entry.status === "insert") {
-                        switch (entry.type) {
-                            case "service":
-                                const req: ComponentRequest = {
-                                    serviceType: {
-                                        name: sanitizeName(entry.name),
-                                        path: "/",
-                                        port: "9090",
-                                    },
-                                    type: DIRECTORY_MAP.SERVICES,
-                                };
-                                await handleServiceCreation(req);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                });
-                // Create the connections
-                const importStatements: string[] = [];
-                const connectionLines: string[] = [];
-                const uniqueImports = new Set<string>(); // Track unique import statements
-                params.overviewFlow.connections.forEach(async (connection) => {
-                    if (connection.status === "insert") {
-                        // Create import statement
-                        const importStatement = `import ${connection.org}/${connection.package};`;
-                        if (!uniqueImports.has(importStatement)) {
-                            uniqueImports.add(importStatement); // Add to set if not already present
-                            importStatements.push(importStatement); // Add to array
-                        }
-                        // Create connection line
-                        const connectionLine = `${connection.package}:${connection.client} ${sanitizeName(
-                            connection.name
-                        )} = check new ({});`;
-                        connectionLines.push(connectionLine);
-                    }
-                });
-
-                // Log or return the generated import statements and connection lines
-                console.log("Import Statements:", importStatements);
-                console.log("Connection Lines:", connectionLines);
-
-                const connectionsBalPath = path.join(StateMachine.context().projectUri, "connections.bal");
-                // Write the generated import statements to connections.bal
-                writeBallerinaFileDidOpen(connectionsBalPath, importStatements.join("\n"));
-                // Append the generated connection lines to connections.bal
-                fs.appendFileSync(connectionsBalPath, `\n\n${connectionLines.join("\n")}`);
-                console.log("Generated import statements and connection lines written to connections.bal");
-                await new Promise((resolve) => setTimeout(resolve, 3000));
-                resolve({ response: true });
-            } catch (error) {
-                resolve({ response: false });
             }
         });
     }
@@ -1094,11 +1018,11 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                         resolve(undefined);
                     });
                 }
-            );
+                );
         });
     }
 
-    
+
     async getTypes(params: GetTypesRequest): Promise<GetTypesResponse> {
         const projectUri = StateMachine.context().projectUri;
         const ballerinaFiles = await getBallerinaFiles(Uri.file(projectUri).fsPath);
@@ -1116,8 +1040,19 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
     }
 
     async updateType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        const projectUri = StateMachine.context().projectUri;
+        const ballerinaFiles = await getBallerinaFiles(Uri.file(projectUri).fsPath);
+
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient()
+                .updateType({ filePath: params.filePath, type: params.type, description: "" })
+                .then((types) => {
+                    resolve(types);
+                }).catch((error) => {
+                    console.log(">>> error fetching types from ls", error);
+                    reject(error);
+                });
+        });
     }
 
     async getType(params: GetTypeRequest): Promise<GetTypeResponse> {
@@ -1131,6 +1066,32 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 .catch((error) => {
                     console.log(">>> error fetching type from ls", error);
                     reject(error);
+                });
+        });
+    }
+
+    async updateImports(params: UpdateImportsRequest): Promise<UpdateImportsResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient().updateImports(params)
+                .then(() => {
+                    resolve({ importStatementOffset: params.importStatement.length });
+                })
+                .catch((error) => {
+                    console.error("Error updating imports", error);
+                    reject(error);
+                });
+        });
+    }
+
+    async addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {
+        return new Promise((resolve) => {
+            StateMachine.langClient().addFunction(params)
+                .then((response) => {
+                    resolve(response);
+                })
+                .catch((error) => {
+                    console.log(">>> Error adding function", error);
+                    resolve(undefined);
                 });
         });
     }

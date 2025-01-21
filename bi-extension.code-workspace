@@ -22,7 +22,7 @@
 			"path": "workspaces/ballerina/ballerina-side-panel"
 		},
 		{
-			"path": "workspaces/ballerina/service-designer-view"
+			"path": "workspaces/ballerina/ballerina-service-designer"
 		},
 		{
 			"path": "workspaces/common-libs/service-designer"
@@ -37,7 +37,7 @@
 			"path": "workspaces/ballerina/record-creator"
 		},
 		{
-			"path": "workspaces/ballerina/record-editor"
+			"path": "workspaces/ballerina/type-editor"
 		}
 	],
 	"settings": {}

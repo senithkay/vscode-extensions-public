@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DiagnosticMessage, FormDiagnostics } from "@wso2-enterprise/ballerina-core";
+import { DiagnosticMessage, FormDiagnostics, TextEdit, PropertyModel, LinePosition } from "@wso2-enterprise/ballerina-core";
 import { ParamConfig } from "../ParamManager/ParamManager";
 import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
 
@@ -28,16 +28,18 @@ export type FormField = {
     valueType?: string;
     diagnostics?: DiagnosticMessage[];
     items?: string[];
+    choices?: PropertyModel[];
     paramManagerProps?: ParamConfig;
     valueTypeConstraint: string;
     groupNo?: number;
     groupName?: string;
+    addNewButton?: boolean;
 };
 
 export type ExpressionFormField = {
     key: string;
     value: string;
-    cursorPosition: number;
+    cursorPosition: LinePosition;
     isConfigured?: boolean
 };
 
@@ -45,6 +47,8 @@ export type HelperPaneCompletionItem = {
     label: string;
     type?: string;
     insertText: string;
+    kind?: string;
+    codedata?: any;
 }
 
 export type HelperPaneCompletionCategory = {
@@ -78,7 +82,7 @@ type FormCompletionConditionalProps = {
         triggerCharacter?: string,
         onlyVariables?: boolean
     ) => Promise<void>;
-    extractArgsFromFunction: (
+    extractArgsFromFunction?: (
         value: string,
         key: string,
         cursorPosition: number
@@ -102,13 +106,14 @@ type FormTypeConditionalProps = {
     retrieveVisibleTypes?: never;
 }
 
-type FormHelperPaneConditionalProps = { 
+type FormHelperPaneConditionalProps = {
     isLoadingHelperPaneInfo: boolean;
     variableInfo: HelperPaneData;
     configVariableInfo: HelperPaneData;
     functionInfo: HelperPaneData;
     libraryBrowserInfo: HelperPaneData;
     getHelperPaneData?: (type: string, filterText: string) => void;
+    onFunctionItemSelect?: (item: HelperPaneCompletionItem) => Promise<string>;
 } | {
     isLoadingHelperPaneInfo?: never;
     variableInfo?: never;
@@ -116,6 +121,7 @@ type FormHelperPaneConditionalProps = {
     functionInfo?: never;
     libraryBrowserInfo?: never;
     getHelperPaneData?: never;
+    onFunctionItemSelect?: never;
 }
 
 type FormExpressionEditorBaseProps = {
@@ -132,7 +138,7 @@ type FormExpressionEditorBaseProps = {
         shouldUpdateNode?: boolean,
         variableType?: string
     ) => Promise<void>;
-    onCompletionItemSelect?: (value: string) => Promise<void>;
+    onCompletionItemSelect?: (value: string, additionalTextEdits?: TextEdit[]) => Promise<void>;
     onFocus?: () => void | Promise<void>;
     onBlur?: () => void | Promise<void>;
     onCancel?: () => void;
@@ -141,7 +147,7 @@ type FormExpressionEditorBaseProps = {
     onSaveConfigurables?: (values: any) => void;
 }
 
-export type FormExpressionEditorProps = 
+export type FormExpressionEditorProps =
     FormCompletionConditionalProps &
     FormTypeConditionalProps &
     FormHelperPaneConditionalProps &

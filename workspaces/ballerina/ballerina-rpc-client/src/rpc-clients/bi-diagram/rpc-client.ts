@@ -10,6 +10,8 @@
  */
 import {
     AIChatRequest,
+    AddFunctionRequest,
+    AddFunctionResponse,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
@@ -33,8 +35,6 @@ import {
     BISourceCodeResponse,
     BreakpointRequest,
     ComponentRequest,
-    ComponentsRequest,
-    ComponentsResponse,
     ConfigVariableResponse,
     CreateComponentResponse,
     CurrentBreakpointsResponse,
@@ -61,13 +61,15 @@ import {
     UpdateConfigVariableResponse,
     UpdateTypeRequest,
     UpdateTypeResponse,
+    UpdateImportsRequest,
+    UpdateImportsResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspacesResponse,
     addBreakpointToSource,
+    addFunction,
     buildProject,
     createComponent,
-    createComponents,
     createProject,
     deleteByComponentInfo,
     deleteFlowNode,
@@ -104,7 +106,8 @@ import {
     removeBreakpointFromSource,
     runProject,
     updateConfigVariables,
-    updateType
+    updateType,
+    updateImports
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -178,10 +181,6 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     handleReadmeContent(params: ReadmeContentRequest): Promise<ReadmeContentResponse> {
         return this._messenger.sendRequest(handleReadmeContent, HOST_EXTENSION, params);
-    }
-
-    createComponents(params: ComponentsRequest): Promise<ComponentsResponse> {
-        return this._messenger.sendRequest(createComponents, HOST_EXTENSION, params);
     }
 
     getVisibleVariableTypes(params: BIGetVisibleVariableTypesRequest): Promise<BIGetVisibleVariableTypesResponse> {
@@ -278,5 +277,13 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     updateType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
         return this._messenger.sendRequest(updateType, HOST_EXTENSION, params);
+    }
+    
+    updateImports(params: UpdateImportsRequest): Promise<UpdateImportsResponse> {
+        return this._messenger.sendRequest(updateImports, HOST_EXTENSION, params);
+    }
+
+    addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {
+        return this._messenger.sendRequest(addFunction, HOST_EXTENSION, params);
     }
 }

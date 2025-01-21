@@ -7,27 +7,29 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Point } from "@projectstorm/geometry";
-import { IDMType, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { IOType, Mapping, TypeKind } from "@wso2-enterprise/ballerina-core";
 
-import { useDMCollapsedFieldsStore } from "../../../../store/store";
+import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
-import { MappingMetadata } from "../../Mappings/MappingMetadata";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
-import { getSearchFilteredOutput, hasNoOutputMatchFound } from "../../utils/search-utils";
-import { enrichAndProcessType, getTypeName } from "../../utils/type-utils";
+import { getFilteredMappings, getSearchFilteredOutput, hasNoOutputMatchFound } from "../../utils/search-utils";
+import { getTypeName } from "../../utils/type-utils";
 import { OBJECT_OUTPUT_TARGET_PORT_PREFIX } from "../../utils/constants";
 import { STNode } from "@wso2-enterprise/syntax-tree";
+import { findInputNode } from "../../utils/node-utils";
+import { InputOutputPortModel } from "../../Port";
+import { DataMapperLinkModel } from "../../Link";
+import { ExpressionLabelModel } from "../../Label";
+import { getInputPort, getOutputPort } from "../../utils/port-utils";
 
 export const OBJECT_OUTPUT_NODE_TYPE = "data-mapper-node-object-output";
 const NODE_ID = "object-output-node";
 
 export class ObjectOutputNode extends DataMapperNodeModel {
-    public dmType: IDMType;
-    public dmTypeWithValue: DMTypeWithValue;
+    public filteredOutputType: IOType;
+    public filterdMappings: Mapping[];
     public typeName: string;
     public rootName: string;
-    public mappings: MappingMetadata[];
     public hasNoMatchingFields: boolean;
     public x: number;
     public y: number;
@@ -35,9 +37,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public value: any | undefined,
-        public originalType: IDMType,
-        public isSubMapping: boolean = false
+        public outputType: IOType
     ) {
         super(
             NODE_ID,
@@ -47,31 +47,27 @@ export class ObjectOutputNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
-        this.dmType = getSearchFilteredOutput(this.originalType);
+        this.filteredOutputType = getSearchFilteredOutput(this.outputType);
 
-        if (this.dmType) {
-            this.rootName = this.dmType?.fieldName;
+        if (this.filteredOutputType) {
+            this.rootName = this.filteredOutputType?.id;
 
-            const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
-            const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value);
-            this.dmType = type;
-            this.typeName = getTypeName(valueEnrichedType.type);
+            const collapsedFields = useDMCollapsedFieldsStore.getState().fields;
+            this.typeName = getTypeName(this.filteredOutputType);
 
-            this.hasNoMatchingFields = hasNoOutputMatchFound(this.originalType, valueEnrichedType);
+            this.hasNoMatchingFields = hasNoOutputMatchFound(this.outputType, this.filteredOutputType);
     
             const parentPort = this.addPortsForHeader(
-                this.dmType, this.rootName, "IN", OBJECT_OUTPUT_TARGET_PORT_PREFIX,
-                collapsedFields, valueEnrichedType, this.isMapFn
+                this.filteredOutputType, this.rootName, "IN", OBJECT_OUTPUT_TARGET_PORT_PREFIX,
+                this.context.model.mappings, this.isMapFn
             );
     
-            if (valueEnrichedType.type.kind === TypeKind.Record) {
-                this.dmTypeWithValue = valueEnrichedType;
-
-                if (this.dmTypeWithValue.childrenTypes.length) {
-                    this.dmTypeWithValue.childrenTypes.forEach(field => {
+            if (this.filteredOutputType.kind === TypeKind.Record) {
+                if (this.filteredOutputType.fields.length) {
+                    this.filteredOutputType.fields.forEach(field => {
                         this.addPortsForOutputField(
-                            field, "IN", this.rootName, undefined, OBJECT_OUTPUT_TARGET_PORT_PREFIX,
-                            parentPort, collapsedFields, parentPort.collapsed, this.isMapFn
+                            field, "IN", this.rootName, this.context.model.mappings, OBJECT_OUTPUT_TARGET_PORT_PREFIX,
+                            parentPort, collapsedFields, parentPort.collapsed
                         );
                     });
                 }
@@ -80,11 +76,54 @@ export class ObjectOutputNode extends DataMapperNodeModel {
     }
 
     initLinks(): void {
-        // TODO: Implement
+        const searchValue = useDMSearchStore.getState().outputSearch;
+        this.filterdMappings = getFilteredMappings(this.context.model.mappings, searchValue);
+        this.createLinks(this.filterdMappings);
     }
 
-    private createLinks(mappings: MappingMetadata[]) {
-        // TODO: Implement
+    private createLinks(mappings: Mapping[]) {
+        mappings.forEach((mapping) => {    
+            if (mapping.isComplex || mapping.inputs.length !== 1) {
+                // Complex mappings are handled in the LinkConnectorNode
+                return;
+            }
+
+            const inputNode = findInputNode(mapping.inputs[0], this);
+            let inPort: InputOutputPortModel;
+            if (inputNode) {
+                inPort = getInputPort(inputNode, mapping.inputs[0].replace(/\.\d+/g, ''));
+            }
+
+            const [_, mappedOutPort] = getOutputPort(this, mapping.output);
+
+            if (inPort && mappedOutPort) {
+                const lm = new DataMapperLinkModel(mapping.expression, mapping.diagnostics, true, undefined);
+                lm.setTargetPort(mappedOutPort);
+                lm.setSourcePort(inPort);
+                inPort.addLinkedPort(mappedOutPort);
+
+                lm.addLabel(
+                    new ExpressionLabelModel({
+                        value: mapping.expression,
+                        link: lm
+                    }
+                ));
+
+                lm.registerListener({
+                    selectionChanged(event) {
+                        if (event.isSelected) {
+                            inPort.fireEvent({}, "link-selected");
+                            mappedOutPort.fireEvent({}, "link-selected");
+                        } else {
+                            inPort.fireEvent({}, "link-unselected");
+                            mappedOutPort.fireEvent({}, "link-unselected");
+                        }
+                    },
+                });
+
+                this.getModel().addAll(lm as any);
+            }
+        });
     }
 
     async deleteField(field: STNode, keepDefaultVal?: boolean) {

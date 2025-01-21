@@ -62,7 +62,7 @@ export type CDService = {
     connections: string[];
     functions: CDFunction[];
     remoteFunctions: CDFunction[];
-    resourceFunctions: ResourceFunction[];
+    resourceFunctions: CDResourceFunction[];
     absolutePath: string;
     type: string;
     icon: string;
@@ -75,10 +75,12 @@ export type CDService = {
 export type CDFunction = {
     name: string;
     location: CDLocation;
+    connections?: string[];
 };
 
-export type ResourceFunction = {
+export type CDResourceFunction = {
     accessor: string;
     path: string;
     location: CDLocation;
+    connections?: string[];
 };

@@ -2,7 +2,7 @@
     "name": "kola-extension",
     "displayName": "Kola",
     "description": "Project Kola.",
-    "version": "0.4.0",
+    "version": "0.4.1",
     "publisher": "wso2",
     "repository": {
         "url": "http://repo.url"
@@ -69,7 +69,7 @@
                 },
                 {
                     "command": "BI.project-explorer.delete",
-                    "when": "view == BI.project-explorer && viewItem == connection || viewItem == service || viewItem == function || viewItem == automation || viewItem == type || viewItem == configuration",
+                    "when": "view == BI.project-explorer && viewItem == connection || viewItem == service || viewItem == function || viewItem == automation || viewItem == type || viewItem == configuration || viewItem == dataMapper",
                     "group": "inline"
                 },
                 {
@@ -90,6 +90,11 @@
                 {
                     "command": "BI.project-explorer.add-configuration",
                     "when": "view == BI.project-explorer && viewItem == configurations",
+                    "group": "inline"
+                },
+                {
+                    "command": "BI.project-explorer.add-data-mapper",
+                    "when": "view == BI.project-explorer && viewItem == dataMappers",
                     "group": "inline"
                 }
             ],
