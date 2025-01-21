@@ -44,11 +44,15 @@ type ActionButtonType = {
 }
 
 export type FormExpressionEditorProps = ExpressionEditorProps & HelperPaneConditionalProps & {
-    buttonRef?: MutableRefObject<HTMLDivElement>;
     actionButtons?: ActionButtonType[];
     startAdornment?: ReactNode;
     endAdornment?: ReactNode;
 };
+
+export type FormExpressionEditorElProps = FormExpressionEditorProps & {
+    containerRef: MutableRefObject<HTMLDivElement>;
+    buttonRef?: MutableRefObject<HTMLDivElement>;
+}
 
 export type FormExpressionEditorRef = ExpressionEditorRef & {
     inputElement: HTMLTextAreaElement;
