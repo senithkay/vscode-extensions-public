@@ -967,6 +967,7 @@ export interface CreateTemplateRequest {
     parameters: any;
     getContentOnly: boolean;
     isEdit: boolean;
+    range?: Range;
 }
 
 export interface CreateTemplateResponse {

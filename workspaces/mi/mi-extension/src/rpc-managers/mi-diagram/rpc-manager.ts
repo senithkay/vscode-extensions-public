@@ -267,7 +267,7 @@ import { openSwaggerWebview } from "../../swagger/activate";
 import { testFileMatchPattern } from "../../test-explorer/discover";
 import { mockSerivesFilesMatchPattern } from "../../test-explorer/mock-services/activator";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { copyDockerResources, copyMavenWrapper, createFolderStructure, getAPIResourceXmlWrapper, getAddressEndpointXmlWrapper, getDataServiceXmlWrapper, getDefaultEndpointXmlWrapper, getDssDataSourceXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper, createGitignoreFile } from "../../util";
+import { copyDockerResources, copyMavenWrapper, createFolderStructure, getAPIResourceXmlWrapper, getAddressEndpointXmlWrapper, getDataServiceXmlWrapper, getDefaultEndpointXmlWrapper, getDssDataSourceXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper, createGitignoreFile, getEditTemplateXmlWrapper } from "../../util";
 import { addNewEntryToArtifactXML, changeRootPomForClassMediator, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
@@ -1632,36 +1632,19 @@ ${endpointAttributes}
                 wsdlUri, wsdlService, wsdlPort, traceEnabled, statisticsEnabled, parameters
             };
 
-            const xmlData = getTemplateXmlWrapper(getTemplateParams);
+            let xmlData = getTemplateXmlWrapper(getTemplateParams);
             let sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
-            } else if (params.isEdit) {
-                if (fs.existsSync(params.directory)) {
-                    const xmlData = fs.readFileSync(params.directory, "utf8");
-                    const sequenceStart = xmlData.indexOf('<sequence');
-                    const sequenceEnd = xmlData.indexOf('</sequence>') + '</sequence>'.length;
-
-                    if (sequenceStart !== -1 && sequenceEnd !== -1) {
-                        const sequenceContent = xmlData.substring(sequenceStart, sequenceEnd);
-                        sanitizedXmlData = sanitizedXmlData.replace(/<sequence.*?<\/sequence>/s, sequenceContent);
-                        await replaceFullContentToFile(params.directory, sanitizedXmlData);
-                        await this.rangeFormat({
-                            uri: params.directory,
-                            range: {
-                                start: { line: 0, character: 0 },
-                                end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
-                            }
-                        });
-                        commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-                        resolve({ path: params.directory, content: "" });
-                    } else {
-                        throw new Error("Sequence tags not found in the XML file.");
-                    }
-                } else {
-                    throw new Error(`File not found: ${params.directory}`);
-                }
+            } else if (params.isEdit && params.range) {
+                const filePath = await this.getFilePath(directory, templateName);
+                xmlData = getEditTemplateXmlWrapper(getTemplateParams);
+                this.applyEdit({
+                    text: xmlData,
+                    documentUri: filePath,
+                    range: params.range
+                });
             } else {
                 const filePath = await this.getFilePath(directory, templateName);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
