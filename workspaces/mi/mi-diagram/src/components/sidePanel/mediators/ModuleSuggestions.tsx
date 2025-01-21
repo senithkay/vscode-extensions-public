@@ -67,7 +67,11 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
     }, [searchValue, debouncedSearchModules]);
 
     const downloadModule = (module: any) => {
-        const downloadPage = <DownloadPage module={module} onDownloadSuccess={props.reloadMediatorPalette} documentUri={props.documentUri} />;
+        const downloadPage = <DownloadPage
+            module={module}
+            onDownloadSuccess={props.reloadMediatorPalette}
+            documentUri={props.documentUri}
+            backCount={1} />;
 
         sidepanelAddPage(sidePanelContext, downloadPage, FirstCharToUpperCase(module.connectorName), module.iconUrl);
     };

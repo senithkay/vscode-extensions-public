@@ -111,7 +111,11 @@ export function Modules(props: ModuleProps) {
     }
 
     const downloadModule = (module: any) => {
-        const downloadPage = <DownloadPage module={module} onDownloadSuccess={props.reloadMediatorPalette} documentUri={props.documentUri} />;
+        const downloadPage = <DownloadPage
+            module={module}
+            onDownloadSuccess={props.reloadMediatorPalette}
+            documentUri={props.documentUri}
+            backCount={2} />;
 
         sidepanelAddPage(sidePanelContext, downloadPage, FirstCharToUpperCase(module.connectorName), module.iconUrl);
     };

@@ -26,11 +26,12 @@ const ProgressRing = styled(VSCodeProgressRing)`
 interface DownloadPageProps {
     module: any;
     documentUri: string;
+    backCount: number;
     onDownloadSuccess: (connectorName: string) => void;
 }
 
 export function DownloadPage(props: DownloadPageProps) {
-    const { module, onDownloadSuccess } = props;
+    const { module, onDownloadSuccess, backCount } = props;
     const sidePanelContext = React.useContext(SidePanelContext);
     const { rpcClient } = useVisualizerContext();
     const [isDownloading, setIsDownloading] = React.useState(false);
@@ -88,7 +89,7 @@ export function DownloadPage(props: DownloadPageProps) {
         if (response === "Success") {
             onDownloadSuccess(props.module.connectorName);
             setIsDownloading(false);
-            sidepanelGoBack(sidePanelContext, 2);
+            sidepanelGoBack(sidePanelContext, backCount);
         } else {
             setIsFailedDownload(true);
             setIsDownloading(false);
