@@ -91,7 +91,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         autoSelectFirstItem,
         getDefaultCompletion,
         isHelperPaneOpen,
-        helperPaneOrigin = 'left',
+        helperPaneOrigin = 'bottom',
         changeHelperPaneState,
         getHelperPane,
         actionButtons,
