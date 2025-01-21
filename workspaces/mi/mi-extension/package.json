@@ -185,6 +185,11 @@
       },
       {
         "view": "MI.project-explorer",
+        "contents": "No artifacts were found. Add artifacts to your project to see them here.\n[Add artifact](command:MI.project-explorer.add.artifact)",
+        "when": "projectOpened && MI.status == 'projectLoaded'"
+      },
+      {
+        "view": "MI.project-explorer",
         "contents": "Welcome to Micro Integrator. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:MI.openProject)\n[Create New Project](command:MI.project-explorer.create-project)\nTo learn more about how to use Micro Integrator in VS Code, [read our docs](https://mi.docs.wso2.com/en/4.3.0/develop/mi-for-vscode/mi-for-vscode-overview/).",
         "when": "MI.status == 'unknownProject'"
       },
