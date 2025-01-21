@@ -202,12 +202,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
 
         // Only retrieve completions if the value is an expression
         if (value.isExpression) {
-            const isHelperPaneOpen = expression === "" ? true : false;
-            handleChangeHelperPaneState(isHelperPaneOpen);
-
-            if (!isHelperPaneOpen) {
-                retrieveCompletions(expression, updatedCursorPosition);
-            }
+            retrieveCompletions(expression, updatedCursorPosition);
         }
     };
 
