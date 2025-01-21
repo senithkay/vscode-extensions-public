@@ -367,6 +367,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                     onBlur={handleBlur}
                     onCancel={handleCancel}
                     getExpressionEditorIcon={handleGetExpressionEditorIcon}
+                    helperPaneOrigin='left'
                     {...(expressionType !== "xpath/jsonPath" &&
                         value.isExpression && {
                             completions,
