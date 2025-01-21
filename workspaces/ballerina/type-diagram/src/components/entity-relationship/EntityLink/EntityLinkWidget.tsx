@@ -7,11 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { SVGProps, useEffect, useState } from 'react';
+import React, { SVGProps, useContext, useEffect, useState } from 'react';
 import { DiagramEngine, PortModel, PortModelAlignment } from '@projectstorm/react-diagrams';
 import { Point } from '@projectstorm/geometry';
 import { EntityLinkModel } from './EntityLinkModel';
 import { ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { DiagramContext } from '../../common';
 
 interface WidgetProps {
 	engine: DiagramEngine,
@@ -20,8 +21,19 @@ interface WidgetProps {
 
 export function EntityLinkWidget(props: WidgetProps) {
 	const { engine, link } = props;
+	const { selectedNodeId } = useContext(DiagramContext);
 
 	const [isSelected, setIsSelected] = useState<boolean>(false);
+
+	// Check if the link is connected to the selectedNode
+	const isConnectedToSelectedNode = React.useMemo(() => {
+		if (!selectedNodeId) return false;
+		const sourceNode = link.getSourcePort()?.getParent();
+		const targetNode = link.getTargetPort()?.getParent();
+		return sourceNode?.getID() === selectedNodeId || targetNode?.getID() === selectedNodeId;
+	}, [link, selectedNodeId]);
+
+	const linkColour = isSelected ? ThemeColors.SECONDARY : isConnectedToSelectedNode ? ThemeColors.PRIMARY : ThemeColors.ON_SURFACE;
 
 	useEffect(() => {
 		if (link.cardinality) {
@@ -67,11 +79,11 @@ export function EntityLinkWidget(props: WidgetProps) {
 		<g>
 			{link.cardinality ?
 				<>
-					<text {...getCardinalityProps(link.getSourcePort())} style={{fill: ThemeColors.ON_SURFACE}}>
+					<text {...getCardinalityProps(link.getSourcePort())} style={{ fill: ThemeColors.ON_SURFACE }}>
 						{transformCardinality(link.cardinality.self)}
 					</text>
 
-					<text {...getCardinalityProps(link.getTargetPort())} style={{fill: ThemeColors.ON_SURFACE}}>
+					<text {...getCardinalityProps(link.getTargetPort())} style={{ fill: ThemeColors.ON_SURFACE }}>
 						{isSelected || !multiLinkedTarget ? transformCardinality(link.cardinality.associate) : '...'}
 					</text>
 				</> :
@@ -89,8 +101,8 @@ export function EntityLinkWidget(props: WidgetProps) {
 				onMouseLeave={unselectPath}
 				onMouseOver={selectPath}
 				pointerEvents={'all'}
-				stroke={isSelected ?  ThemeColors.SECONDARY : ThemeColors.PRIMARY}
-				strokeWidth={0.75}
+				stroke={linkColour}
+				strokeWidth={1.5}
 			/>
 		</g>
 	)

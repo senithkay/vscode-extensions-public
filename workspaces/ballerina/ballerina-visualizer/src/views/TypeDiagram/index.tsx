@@ -46,6 +46,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
     const [isTypeCreatorOpen, setIsTypeCreatorOpen] = React.useState<boolean>(false);
     const [typesModel, setTypesModel] = React.useState<Type[]>(undefined);
     const [editingTypeId, setEditingTypeId] = React.useState<string | undefined>(undefined);
+    const [focusedNodeId, setFocusedNodeId] = React.useState<string | undefined>(undefined);
 
     useEffect(() => {
         if (rpcClient) {
@@ -58,6 +59,10 @@ export function TypeDiagram(props: TypeDiagramProps) {
     useEffect(() => {
         getComponentModel();
     }, [visualizerLocation]);
+
+    useEffect(() => {
+        setFocusedNodeId(undefined);
+    }, [selectedTypeId]);
 
 
     const getComponentModel = async () => {
@@ -108,16 +113,31 @@ export function TypeDiagram(props: TypeDiagramProps) {
         setEditingTypeId(undefined);
     }
 
+    const onSwitchToTypeDiagram = () => {
+        setFocusedNodeId(undefined);
+    }
+
     const Header = () => (
         <HeaderContainer>
-            <Title>Type Diagram</Title>
-            <Button
-                appearance="primary"
-                onClick={addNewType}
-                tooltip="Add New Type"
-            >
-                <Codicon name="add" sx={{ marginRight: 5 }} /> Add Type
-            </Button>
+            {focusedNodeId ? (<Title>Focused Type View : {focusedNodeId}</Title>) : (<Title>Type Diagram</Title>)}
+            {focusedNodeId ? (
+                <Button
+                    appearance="primary"
+                    onClick={onSwitchToTypeDiagram}
+                    tooltip="Switch to complete Type Diagram"
+                >
+                    <Codicon name="discard" sx={{ marginRight: 5 }} /> Switch to Type Diagram
+                </Button>
+            )
+                :
+                <Button
+                    appearance="primary"
+                    onClick={addNewType}
+                    tooltip="Add New Type"
+                >
+                    <Codicon name="add" sx={{ marginRight: 5 }} /> Add Type
+                </Button>
+            }
         </HeaderContainer>
     );
 
@@ -129,7 +149,9 @@ export function TypeDiagram(props: TypeDiagramProps) {
                     {typesModel ? (
                         <TypeDesignDiagram
                             typeModel={typesModel}
-                            selectedRecordId={selectedTypeId}
+                            selectedNodeId={selectedTypeId}
+                            focusedNodeId={focusedNodeId}
+                            updateFocusedNodeId={setFocusedNodeId}
                             showProblemPanel={showProblemPanel}
                             goToSource={goToSource}
                             onTypeEdit={onTypeEdit}

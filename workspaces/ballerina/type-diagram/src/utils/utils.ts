@@ -202,13 +202,15 @@ function getLabelAndNextIndex(packageName: string, index: number): [string, numb
 }
 
 export function focusToNode(node: NodeModel, currentZoomLevel: number, diagramEngine: DiagramEngine) {
-    const canvasBounds = diagramEngine.getCanvas().getBoundingClientRect();
-    const nodeBounds = node.getBoundingBox();
+    const canvasBounds = diagramEngine?.getCanvas()?.getBoundingClientRect();
+    const nodeBounds = node?.getBoundingBox();
 
-    const zoomOffset = currentZoomLevel / 100;
-    const offsetX = canvasBounds.width / 2 - (nodeBounds.getTopLeft().x + nodeBounds.getWidth() / 2) * zoomOffset;
-    const offsetY = canvasBounds.height / 2 - (nodeBounds.getTopLeft().y + nodeBounds.getHeight() / 2) * zoomOffset;
+    if (canvasBounds && nodeBounds) {
+        const zoomOffset = currentZoomLevel / 100;
+        const offsetX = canvasBounds.width / 2 - (nodeBounds.getTopLeft().x + nodeBounds.getWidth() / 2) * zoomOffset;
+        const offsetY = canvasBounds.height / 2 - (nodeBounds.getTopLeft().y + nodeBounds.getHeight() / 2) * zoomOffset;
 
-    diagramEngine.getModel().setOffset(offsetX, offsetY);
-    diagramEngine.repaintCanvas();
+        diagramEngine.getModel().setOffset(offsetX, offsetY);
+        diagramEngine.repaintCanvas();
+   }
 }

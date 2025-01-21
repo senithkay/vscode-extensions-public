@@ -32,13 +32,19 @@ const EditIconContainer = styled.div`
     right: 7px;
     z-index: 1000;
     cursor: pointer;
-    height: 14px;
-    width: 14px;
+`;
+
+const FocusIconContainer = styled.div`
+    position: absolute;
+    top: -20px;
+    right: 28px;
+    z-index: 1000;
+    cursor: pointer;
 `;
 
 export function EntityWidget(props: EntityWidgetProps) {
     const { node, engine } = props;
-    const { focusedNodeId, selectedNodeId, onEditNode } = useContext(DiagramContext);
+    const { focusedNodeId, selectedNodeId, onEditNode, setFocusedNodeId } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<EntityLinkModel>(undefined);
 
     const renderAttributes = () => {
@@ -78,10 +84,29 @@ export function EntityWidget(props: EntityWidgetProps) {
                 <EditIconContainer>
                     <Button
                         appearance="icon"
-                        tooltip="Edit">
-                        <Icon name="editIcon" onClick={() => onEditNode(node.getID())} iconSx={{ color: ThemeColors.SECONDARY }} />
+                        tooltip="Edit Type">
+                        <Icon
+                            name="editIcon"
+                            sx={{ height: "14px", width: "14px" }}
+                            onClick={() => onEditNode(node.getID())}
+                            iconSx={{ color: ThemeColors.PRIMARY }}
+                        />
                     </Button>
                 </EditIconContainer>
+            )}
+            {selectedNodeId === node.getID() && focusedNodeId !== node.getID() && (
+                <FocusIconContainer>
+                    <Button
+                        appearance="icon"
+                        tooltip="Focus Node">
+                        <Icon
+                            name="center-focus-weak"
+                            sx={{ height: "14px", width: "14px" }}
+                            onClick={() => setFocusedNodeId(node.getID())}
+                            iconSx={{ color: ThemeColors.PRIMARY, fontSize: "14px" }}
+                        />
+                    </Button>
+                </FocusIconContainer>
             )}
             <EntityHeadWidget
                 engine={engine}

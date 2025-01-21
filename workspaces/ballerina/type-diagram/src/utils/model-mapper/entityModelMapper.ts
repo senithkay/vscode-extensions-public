@@ -11,30 +11,35 @@ import { ComponentModel, CMEntity as Entity, Type } from '@wso2-enterprise/balle
 import { DiagramModel } from '@projectstorm/react-diagrams';
 import { EntityLinkModel, EntityModel, EntityPortModel } from '../../components/entity-relationship';
 
-export function entityModeller(compoenets: Type[])
-    : DiagramModel {
-    let entityNodes: Map<string, EntityModel> = new Map<string, EntityModel>();
+function createEntityNodes(components: Type[], selectedEntityId?: string): Map<string, EntityModel> {
+    let entityNodes = new Map<string, EntityModel>();
+
+    const createNode = (component: Type) => {
+        const node = new EntityModel(component.name, component);
+        if (selectedEntityId && component.name === selectedEntityId) {
+            node.isRootEntity = true;
+        }
+        entityNodes.set(component.name, node);
+    };
+
+    components.forEach(createNode);
+    return entityNodes;
+}
+
+function createEntityLinks(entityNodes: Map<string, EntityModel>): EntityLinkModel[] {
     let entityLinks: EntityLinkModel[] = [];
 
-    // Iterate through components and create entity nodes
-    compoenets.forEach((component) => {
-        const entityNode = new EntityModel(component.name, component);
-        entityNodes.set(component.name, entityNode);
-    });
-
-    // Iterate through the entity relationships and create links
-    entityNodes.forEach((entityNode) => {
-        Object.entries(entityNode.entityObject.members).forEach(([attributeName, member]) => {
+    entityNodes.forEach((sourceNode) => {
+        Object.entries(sourceNode.entityObject.members).forEach(([attributeName, member]) => {
             if (member.refs && member.refs.length > 0) {
-                // Iterate refs and create links
                 member.refs.forEach((ref) => {
-                    const associatedEntity = entityNodes.get(ref);
-                    if (associatedEntity) {
-                        let sourcePort: EntityPortModel = entityNode.getPort(`right-${entityNode.getID()}/${attributeName}`);
-                        let targetPort: EntityPortModel = associatedEntity.getPort(`left-${ref}`);
+                    const targetNode = entityNodes.get(ref);
+                    if (targetNode) {
+                        let sourcePort = sourceNode.getPort(`right-${sourceNode.getID()}/${attributeName}`);
+                        let targetPort = targetNode.getPort(`left-${ref}`);
 
-                        const linkId = `entity-link-${entityNode.getID()}-${ref}`
-                        let link: EntityLinkModel = new EntityLinkModel({ associate: "1", self: "1" }, linkId);
+                        const linkId = `entity-link-${sourceNode.getID()}-${ref}`;
+                        let link = new EntityLinkModel({ associate: "1", self: "1" }, linkId);
                         entityLinks.push(createLinks(sourcePort, targetPort, link));
                     }
                 });
@@ -42,9 +47,43 @@ export function entityModeller(compoenets: Type[])
         });
     });
 
+    return entityLinks;
+}
+
+export function entityModeller(components: Type[], selectedEntityId?: string): DiagramModel {
+    let filteredComponents = components;
+
+    // If selectedEntityId is provided, filter for related entities
+    if (selectedEntityId) {
+        const relatedEntities = new Set<string>();
+        relatedEntities.add(selectedEntityId);
+        findRelatedEntities(selectedEntityId, components, relatedEntities);
+        filteredComponents = components.filter(comp => relatedEntities.has(comp.name));
+    }
+
+    // Create nodes and links
+    const entityNodes = createEntityNodes(filteredComponents, selectedEntityId);
+    const entityLinks = createEntityLinks(entityNodes);
+
     let model = new DiagramModel();
     model.addAll(...Array.from(entityNodes.values()), ...entityLinks);
     return model;
+}
+
+function findRelatedEntities(componentId: string, components: Type[], relatedEntities: Set<string>) {
+    const component = components.find(comp => comp.name === componentId);
+    if (!component) return;
+
+    Object.values(component.members).forEach(member => {
+        if (member.refs) {
+            member.refs.forEach(ref => {
+                if (!relatedEntities.has(ref)) {
+                    relatedEntities.add(ref);
+                    findRelatedEntities(ref, components, relatedEntities);
+                }
+            });
+        }
+    });
 }
 
 function generateNodes(entities: Map<string, Entity>): Map<string, EntityModel> {
