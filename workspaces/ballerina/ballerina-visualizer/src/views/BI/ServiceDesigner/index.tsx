@@ -232,7 +232,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             case label.includes("listener"):
                 return (
                     component.values?.length > 0 ? component.values.map((item, index) => (
-                        <LinkButton sx={{ fontSize: 12, padding: 8, gap: 4 }} key={index} onClick={() => handleOpenListener(item)}>{item}</LinkButton>
+                        <LinkButton sx={{ fontSize: 12, padding: 8, gap: 4 }} key={`${index}-btn`} onClick={() => handleOpenListener(item)}>{item}</LinkButton>
                     )) : <LinkButton sx={{ fontSize: 12, padding: 8, gap: 4 }} onClick={() => handleOpenListener(component.value)}>{component.value}</LinkButton>
                 )
             case label.includes("path"):
@@ -285,10 +285,10 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                                 serviceModel.properties[key].value && (
                                     <InfoSection>
                                         <Icon name={findIcon(serviceModel.properties[key].metadata.label)} isCodicon sx={{ marginRight: '8px' }} />
-                                        <Typography key={index} variant="body3">
+                                        <Typography key={`${index}-label`} variant="body3">
                                             {serviceModel.properties[key].metadata.label}:
                                         </Typography>
-                                        <Typography key={index} variant="body3">
+                                        <Typography key={`${index}-value`} variant="body3">
                                             {getAttributeComponent(serviceModel.properties[key])}
                                         </Typography>
                                     </InfoSection>
@@ -301,7 +301,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                         </Typography>
                         {serviceModel.functions.filter(functionModel => (serviceModel.moduleName === "http" ? functionModel.kind === "RESOURCE" : true) && functionModel.enabled).map((functionModel, index) => (
                             <ResourceAccordion
-                                key={index}
+                                key={`${index}-${functionModel.name.value}`}
                                 functionModel={functionModel}
                                 goToSource={() => { }}
                                 onEditResource={handleFunctionEdit}
