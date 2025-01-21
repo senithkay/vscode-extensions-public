@@ -328,3 +328,4 @@ export const REACT_JSON_THEME = {
     base0F: "var(--webview-highlight-color)"
 };
 export const DEFAULT_ICON = "https://mi-connectors.wso2.com/icons/wordpress.gif";
+export const RUNTIME_VERSION_440 = "4.4.0";

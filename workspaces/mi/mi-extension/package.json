@@ -162,6 +162,12 @@
         {
           "id": "MI.project-explorer",
           "name": "Project Explorer"
+        },
+        {
+          "id": "MI.registry-explorer",
+          "name": "Registry Explorer",
+          "visibility": "collapsed",
+          "when": "MI.registry-explorer.isVisible"
         }
       ],
       "test": [
@@ -176,6 +182,11 @@
         "view": "MI.project-explorer",
         "contents": "Loading...",
         "when": "MI.status != 'unknownProject' && MI.status != 'projectLoaded' && MI.status != 'disabled' && MI.status != 'notSetUp'"
+      },
+      {
+        "view": "MI.project-explorer",
+        "contents": "No artifacts were found. Please add artifacts to your project to view them here.\n[Add artifact](command:MI.project-explorer.add.artifact)",
+        "when": "projectOpened && MI.status == 'projectLoaded'"
       },
       {
         "view": "MI.project-explorer",
