@@ -19,6 +19,7 @@ export type ArrowProps = StyleBase & {
 export type LibraryBrowserProps = PropsWithChildren<{
     loading?: boolean;
     searchValue: string;
+    titleSx?: CSSProperties;
     onSearch: (searchTerm: string) => void;
     onClose: () => void;
 }>;
@@ -41,6 +42,7 @@ export type HelperPaneCompletionItemProps = {
 
 export type HelperPaneCategoryItemProps = {
     label: string;
+    labelSx?: CSSProperties;
     onClick: () => void;
     getIcon?: () => ReactNode;
 };
@@ -74,6 +76,7 @@ export type HelperPaneSectionProps = PropsWithChildren<{
     title: string;
     columns?: number;
     loading?: boolean;
+    titleSx?: CSSProperties;
 } & CollapsibleConditionalProps>;
 
 type SearchBoxConditionalProps = {
@@ -90,6 +93,7 @@ export type HelperPaneBodyProps = PropsWithChildren<{
 
 export type HelperPaneHeaderProps = SearchBoxConditionalProps & {
     title?: string;
+    titleSx?: CSSProperties;
     onBack?: () => void;
     onClose?: () => void;
 };
