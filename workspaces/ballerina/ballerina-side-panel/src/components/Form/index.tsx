@@ -344,6 +344,12 @@ export const Form = forwardRef((props: FormProps, ref) => {
         openSubPanel(updatedSubPanel);
     };
 
+    const handleOnTypeChange = () => {
+        if (mergeFormDataWithFlowNode) {
+            getVisualiableFields();
+        }
+    };
+
     const getVisualiableFields = () => {
         const flowNode = mergeFormDataWithFlowNode(getValues(), targetLineRange);
         handleVisualizableFields && handleVisualizableFields(fileName, flowNode, targetLineRange.startLine);
@@ -447,10 +453,10 @@ export const Form = forwardRef((props: FormProps, ref) => {
                         {typeField && (
                             <EditorFactory
                                 field={typeField}
-                                openRecordEditor={handleOpenRecordEditor}
+                                openRecordEditor={openRecordEditor && handleOpenRecordEditor}
                                 openSubPanel={handleOpenSubPanel}
                                 handleOnFieldFocus={handleOnFieldFocus}
-                                handleOnTypeChange={getVisualiableFields}
+                                handleOnTypeChange={handleOnTypeChange}
                                 visualizableFields={visualizableFields}
                             />
                         )}
@@ -472,7 +478,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                         ref={exprRef}
                                         field={field}
                                         selectedNode={selectedNode}
-                                        openRecordEditor={handleOpenRecordEditor}
+                                        openRecordEditor={openRecordEditor && handleOpenRecordEditor}
                                         openSubPanel={handleOpenSubPanel}
                                         subPanelView={subPanelView}
                                         handleOnFieldFocus={handleOnFieldFocus}
@@ -517,7 +523,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                         <EditorFactory
                                             ref={exprRef}
                                             field={field}
-                                            openRecordEditor={handleOpenRecordEditor}
+                                            openRecordEditor={openRecordEditor && handleOpenRecordEditor}
                                             openSubPanel={handleOpenSubPanel}
                                             subPanelView={subPanelView}
                                             handleOnFieldFocus={handleOnFieldFocus}

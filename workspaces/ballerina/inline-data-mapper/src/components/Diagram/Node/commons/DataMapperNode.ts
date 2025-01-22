@@ -13,7 +13,7 @@ import { IOType, Mapping, MappingElement, TypeKind } from '@wso2-enterprise/ball
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
 import { MappingMetadata } from '../../Mappings/MappingMetadata';
 import { InputOutputPortModel } from "../../Port";
-import { findMappingByOutput } from '../../utils/common-utils';
+import { findMappingByOutput, isCollapsed } from '../../utils/common-utils';
 
 export interface DataMapperNodeModelGenerics {
 	PORT: InputOutputPortModel;
@@ -144,7 +144,6 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		portType: "IN" | "OUT",
 		portPrefix: string,
 		mappings?: Mapping[],
-		collapsedFields?: string[],
 		isWithinMapFunction?: boolean,
 	): InputOutputPortModel {
 
@@ -154,11 +153,10 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 			portName = name ? `${portPrefix}.${name}` : portPrefix;
 		}
 		const mapping = mappings && findMappingByOutput(mappings, name);
-	
-		const isCollapsed = collapsedFields && collapsedFields.includes(portName);
+
 		const headerPort = new InputOutputPortModel(
 			dmType, portName, portType, mapping, undefined, name, name, undefined,
-			isCollapsed, false, false, false, isWithinMapFunction
+			isCollapsed(portName, portType), false, false, false, isWithinMapFunction
 		);
 
 		this.addPort(headerPort)
@@ -170,38 +168,20 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		let foundMappings: MappingMetadata[] = [];
 		const currentFields = [...(parentFields ? parentFields : [])];
 		if (val) {
-			// if (Node.isObjectLiteralExpression(val)) {
-			// 	val.getProperties().forEach((field) => {
-			// 		foundMappings = [...foundMappings, ...this.genMappings(field, [...currentFields, val])];
-			// 	});
-			// } else if (Node.isPropertyAssignment(val) && val.getInitializer()) {
-			// 	const initializer = val.getInitializer();
-			// 	const isObjectLiteralExpr = Node.isObjectLiteralExpression(initializer);
-			// 	const isArrayLiteralExpr = Node.isArrayLiteralExpression(initializer);
-			// 	if (isObjectLiteralExpr || isArrayLiteralExpr) {
-			// 		foundMappings = [...foundMappings, ...this.genMappings(initializer, [...currentFields, val])];
-			// 	} else {
-			// 		foundMappings.push(this.getOtherMappings(val, currentFields));
-			// 	}
-			// } else if (Node.isArrayLiteralExpression(val)) {
-			// 	val.getElements().forEach((expr) => {
-			// 		foundMappings = [...foundMappings, ...this.genMappings(expr, [...currentFields, val])];
-			// 	})
-			// } else {
 				foundMappings.push(this.getOtherMappings(val, currentFields));
+				foundMappings.push(this.getOtherMappings(val, currentFields));
+			// }
+			foundMappings.push(this.getOtherMappings(val, currentFields));
 			// }
 		}
 		return foundMappings;
 	}
 
 	protected getOtherMappings(node: Node, currentFields: Node[]) {
-		// const valNode = Node.isPropertyAssignment(node) ? node.getInitializer() : node;
-		// if (valNode) {
-		// 	const inputNodes = getInputAccessNodes(valNode);
-		// 	if (inputNodes.length === 1) {
-		// 		return new MappingMetadata([...currentFields, node], inputNodes[0], valNode);
-		// 	}
 			return new MappingMetadata([...currentFields, node], undefined, undefined);
+			return new MappingMetadata([...currentFields, node], undefined, undefined);
+		// }
+		return new MappingMetadata([...currentFields, node], undefined, undefined);
 		// }
 	}
 }

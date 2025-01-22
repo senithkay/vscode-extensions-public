@@ -70,20 +70,10 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
             });
     }, [connectionName]);
 
-    const handleOnFormSubmit = async (data: FormValues) => {
-        console.log(">>> on form submit", data);
+    const handleOnFormSubmit = async (node: FlowNode) => {
+        console.log(">>> on form submit", node);
         if (connection) {
             setUpdatingContent(true);
-            let updatedNode: FlowNode = cloneDeep(connection);
-
-            if (connection.properties) {
-                // node properties
-                const updatedNodeProperties = updateNodeProperties(data, connection.properties);
-                updatedNode.properties = updatedNodeProperties;
-            } else {
-                console.error(">>> Error updating source code. No properties found");
-            }
-            console.log(">>> Updated node", updatedNode);
 
             if (fileName === "") {
                 console.error(">>> Error updating source code. No connections.bal file found");
@@ -95,7 +85,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                 .getBIDiagramRpcClient()
                 .getSourceCode({
                     filePath: fileName,
-                    flowNode: updatedNode,
+                    flowNode: node,
                     isConnector: true,
                 })
                 .then((response) => {
@@ -195,8 +185,6 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                             updatedExpressionField={updatedExpressionField}
                             resetUpdatedExpressionField={handleResetUpdatedExpressionField}
                             openSubPanel={handleSubPanel}
-                            isActiveSubPanel={showSubPanel}
-
                         />
                     )}
                 </PanelContainer>

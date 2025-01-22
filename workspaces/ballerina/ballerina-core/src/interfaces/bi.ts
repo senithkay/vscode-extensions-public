@@ -10,7 +10,7 @@
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./common";
 import { Diagnostic as VSCodeDiagnostic } from "vscode-languageserver-types";
-import { TriggerNode } from "./triggers";
+import { ServiceModel } from "./service";
 
 export type { NodePosition };
 
@@ -160,7 +160,7 @@ export enum FUNCTION_TYPE {
     REGULAR = "regular",
     EXPRESSION_BODIED = "expressionBodied",
     ALL = "all",
-} 
+}
 
 export interface ProjectStructureResponse {
     directoryMap: {
@@ -185,7 +185,7 @@ export interface ProjectStructureArtifactResponse {
     context?: string;
     position?: NodePosition;
     st?: STNode;
-    triggerNode?: TriggerNode;
+    serviceModel?: ServiceModel;
     resources?: ProjectStructureArtifactResponse[];
 }
 export type Item = Category | AvailableNode;

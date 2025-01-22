@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ListenerModelRequest, ListenerModelResponse, ServiceModelRequest, ServiceModelResponse, ServiceModelFromCodeRequest, ServiceModelFromCodeResponse, HttpResourceModelRequest, HttpResourceModelResponse, FunctionSourceCodeRequest, ResourceSourceCodeResponse, ListenerSourceCodeRequest, ListenerSourceCodeResponse, ListenersRequest, ListenersResponse, ServiceSourceCodeResponse, ServiceSourceCodeRequest, ListenerModelFromCodeRequest, ListenerModelFromCodeResponse } from "../../interfaces/extended-lang-client";
+import { ListenerModelRequest, ListenerModelResponse, ServiceModelRequest, ServiceModelResponse, ServiceModelFromCodeRequest, ServiceModelFromCodeResponse, HttpResourceModelRequest, HttpResourceModelResponse, FunctionSourceCodeRequest, ListenerSourceCodeRequest, ListenersRequest, ListenersResponse, ServiceSourceCodeRequest, ListenerModelFromCodeRequest, ListenerModelFromCodeResponse, TriggerModelsRequest, TriggerModelsResponse } from "../../interfaces/extended-lang-client";
 import {
     ExportOASRequest,
     ExportOASResponse,
@@ -19,6 +19,7 @@ import {
 export interface ServiceDesignerAPI {
     getRecordST: (params: RecordSTRequest) => Promise<RecordSTResponse>;
     exportOASFile: (params: ExportOASRequest) => Promise<ExportOASResponse>;
+    getTriggerModels: (params: TriggerModelsRequest) => Promise<TriggerModelsResponse>;
     getListeners: (params: ListenersRequest) => Promise<ListenersResponse>;
     getListenerModel: (params: ListenerModelRequest) => Promise<ListenerModelResponse>;
     addListenerSourceCode: (params: ListenerSourceCodeRequest) => Promise<SourceUpdateResponse>;

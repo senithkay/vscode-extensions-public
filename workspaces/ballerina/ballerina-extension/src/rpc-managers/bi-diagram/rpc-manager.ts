@@ -97,7 +97,7 @@ import { notifyBreakpointChange } from "../../RPCLayer";
 import { ballerinaExtInstance } from "../../core";
 import { BreakpointManager } from "../../features/debugger/breakpoint-manager";
 import { StateMachine, openView, updateView } from "../../stateMachine";
-import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, createBITrigger, createBITriggerListener, handleServiceCreation, sanitizeName } from "../../utils/bi";
+import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, sanitizeName } from "../../utils/bi";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
 import { DATA_MAPPING_FILE_NAME, getDataMapperNodePosition } from "./utils";
@@ -310,21 +310,11 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         return new Promise(async (resolve) => {
             let res: CreateComponentResponse;
             switch (params.type) {
-                case DIRECTORY_MAP.SERVICES:
-                    res = await createBIService(params);
-                    break;
                 case DIRECTORY_MAP.AUTOMATION:
                     res = await createBIAutomation(params);
                     break;
                 case DIRECTORY_MAP.FUNCTIONS || DIRECTORY_MAP.DATA_MAPPERS:
                     res = await createBIFunction(params);
-                    break;
-                case DIRECTORY_MAP.TRIGGERS:
-                    if (params.triggerType.listenerOnly) {
-                        res = await createBITriggerListener(params);
-                    } else {
-                        res = await createBITrigger(params);
-                    }
                     break;
                 default:
                     break;
@@ -522,67 +512,6 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     fs.writeFileSync(readmePath, params.content);
                     console.log(">>> Updated readme.md with content:", params.content);
                 }
-            }
-        });
-    }
-
-    async createComponents(params: ComponentsRequest): Promise<ComponentsResponse> {
-        return new Promise(async (resolve) => {
-            try {
-                // Create the entry point services
-                params.overviewFlow.entryPoints.forEach(async (entry) => {
-                    if (entry.status === "insert") {
-                        switch (entry.type) {
-                            case "service":
-                                const req: ComponentRequest = {
-                                    serviceType: {
-                                        name: sanitizeName(entry.name),
-                                        path: "/",
-                                        port: "9090",
-                                    },
-                                    type: DIRECTORY_MAP.SERVICES,
-                                };
-                                await handleServiceCreation(req);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                });
-                // Create the connections
-                const importStatements: string[] = [];
-                const connectionLines: string[] = [];
-                const uniqueImports = new Set<string>(); // Track unique import statements
-                params.overviewFlow.connections.forEach(async (connection) => {
-                    if (connection.status === "insert") {
-                        // Create import statement
-                        const importStatement = `import ${connection.org}/${connection.package};`;
-                        if (!uniqueImports.has(importStatement)) {
-                            uniqueImports.add(importStatement); // Add to set if not already present
-                            importStatements.push(importStatement); // Add to array
-                        }
-                        // Create connection line
-                        const connectionLine = `${connection.package}:${connection.client} ${sanitizeName(
-                            connection.name
-                        )} = check new ({});`;
-                        connectionLines.push(connectionLine);
-                    }
-                });
-
-                // Log or return the generated import statements and connection lines
-                console.log("Import Statements:", importStatements);
-                console.log("Connection Lines:", connectionLines);
-
-                const connectionsBalPath = path.join(StateMachine.context().projectUri, "connections.bal");
-                // Write the generated import statements to connections.bal
-                writeBallerinaFileDidOpen(connectionsBalPath, importStatements.join("\n"));
-                // Append the generated connection lines to connections.bal
-                fs.appendFileSync(connectionsBalPath, `\n\n${connectionLines.join("\n")}`);
-                console.log("Generated import statements and connection lines written to connections.bal");
-                await new Promise((resolve) => setTimeout(resolve, 3000));
-                resolve({ response: true });
-            } catch (error) {
-                resolve({ response: false });
             }
         });
     }
@@ -940,7 +869,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
             const breakpoints = breakpointsForFile.filter((breakpoint) => {
                 return breakpoint.location.range.start.line === params.breakpoint.line &&
-                breakpoint.location.range.start?.character === params.breakpoint?.column;
+                    breakpoint.location.range.start?.character === params.breakpoint?.column;
             });
 
             // If there are no breakpoints found,
@@ -1006,14 +935,14 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             StateMachine.langClient()
                 .getEnclosedFunctionDef(params)
                 .then((response) => {
-                    if(response?.filePath && response?.startLine && response?.endLine) {
+                    if (response?.filePath && response?.startLine && response?.endLine) {
                         console.log(">>> parent function position ", response);
                         resolve(response);
                     } else {
                         console.log(">>> parent function position not found");
                         resolve(undefined);
                     }
-                    
+
                 })
                 .catch((error) => {
                     console.log(">>> error fetching parent function position", error);

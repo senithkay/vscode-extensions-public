@@ -91,11 +91,11 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 	}
 
 	const handleExpand = () => {
-		const collapsedFields = collapsedFieldsStore.collapsedFields;
+		const collapsedFields = collapsedFieldsStore.fields;
 		if (!expanded) {
-			collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== id));
+			collapsedFieldsStore.setFields(collapsedFields.filter((element) => element !== id));
 		} else {
-			collapsedFieldsStore.setCollapsedFields([...collapsedFields, id]);
+			collapsedFieldsStore.setFields([...collapsedFields, id]);
 		}
 	};
 

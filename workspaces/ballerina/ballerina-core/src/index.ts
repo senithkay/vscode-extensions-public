@@ -25,7 +25,6 @@ export * from "./interfaces/event";
 export * from "./interfaces/store";
 export * from "./interfaces/performance";
 export * from "./interfaces/extended-lang-client";
-export * from "./interfaces/triggers";
 export * from "./interfaces/service";
 export * from "./interfaces/inline-data-mapper";
 
@@ -51,9 +50,6 @@ export * from "./rpc-types/graphql-designer/interfaces";
 export * from "./rpc-types/service-designer";
 export * from "./rpc-types/service-designer/rpc-type";
 export * from "./rpc-types/service-designer/interfaces";
-export * from "./rpc-types/trigger-wizard";
-export * from "./rpc-types/trigger-wizard/rpc-type";
-export * from "./rpc-types/trigger-wizard/interfaces";
 export * from "./rpc-types/visualizer";
 export * from "./rpc-types/visualizer/rpc-type";
 export * from "./rpc-types/visualizer/interfaces";

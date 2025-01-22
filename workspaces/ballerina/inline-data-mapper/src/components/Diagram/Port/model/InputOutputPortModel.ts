@@ -13,7 +13,7 @@ import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel } from "../IntermediatePort";
 import { createNewMapping, updateExistingMapping } from "../../utils/modification-utils";
 import { getMappingType } from "../../utils/common-utils";
-import { genArrayElementAccessSuffix, getValueType } from "../../utils/common-utils";
+import { getValueType } from "../../utils/common-utils";
 
 export interface InputOutputPortModelGenerics {
 	PORT: InputOutputPortModel;

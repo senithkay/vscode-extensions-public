@@ -12,6 +12,7 @@ import { InputOutputPortModel, MappingType, ValueType } from "../Port";
 import { getDMTypeDim } from "./type-utils";
 import { DataMapperLinkModel } from "../Link";
 import { IOType, Mapping, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { useDMCollapsedFieldsStore, useDMExpandedFieldsStore } from "../../../store/store";
 
 export function findMappingByOutput(mappings: Mapping[], outputId: string): Mapping {
     return mappings.find(mapping => mapping.output === outputId);
@@ -92,4 +93,13 @@ export function getDefaultValue(typeKind: TypeKind): string {
 			break;
 	}
 	return draftParameter;
+}
+
+export function isCollapsed(portName: string, portType: "IN" | "OUT"): boolean {
+    const collapsedFields = useDMCollapsedFieldsStore.getState().fields;
+    const expandedFields = useDMExpandedFieldsStore.getState().fields;
+
+    // In Inline Data Mapper, the inputs are always collapsed by default.
+    // Hence we explicitly check expandedFields for input header ports.
+    return portType === "IN" ? collapsedFields.includes(portName) : !expandedFields.includes(portName);
 }

@@ -37,7 +37,6 @@ import {
     addFunction,
     buildProject,
     createComponent,
-    createComponents,
     createProject,
     deleteByComponentInfo,
     deleteFlowNode,
@@ -95,7 +94,6 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(createComponent, (args: ComponentRequest) => rpcManger.createComponent(args));
     messenger.onRequest(getBIConnectors, (args: BIConnectorsRequest) => rpcManger.getBIConnectors(args));
     messenger.onRequest(handleReadmeContent, (args: ReadmeContentRequest) => rpcManger.handleReadmeContent(args));
-    messenger.onRequest(createComponents, (args: ComponentsRequest) => rpcManger.createComponents(args));
     messenger.onRequest(getVisibleVariableTypes, (args: BIGetVisibleVariableTypesRequest) => rpcManger.getVisibleVariableTypes(args));
     messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));
     messenger.onRequest(getConfigVariables, () => rpcManger.getConfigVariables());

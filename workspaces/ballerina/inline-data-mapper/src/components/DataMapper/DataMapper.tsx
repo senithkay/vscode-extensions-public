@@ -19,7 +19,7 @@ import { NodeInitVisitor } from "../../visitors/NodeInitVisitor";
 import { DataMapperErrorBoundary } from "./ErrorBoundary";
 import { traverseNode } from "../../utils/model-utils";
 import { View } from "./Views/DataMapperView";
-import { useDMSearchStore } from "../../store/store";
+import { useDMCollapsedFieldsStore, useDMExpandedFieldsStore, useDMSearchStore } from "../../store/store";
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import { DataMapperViewProps } from "../../index";
 
@@ -97,6 +97,13 @@ export function InlineDataMapper(props: DataMapperViewProps) {
         };
     }, [model, views]);
 
+    useEffect(() => {
+        return () => {
+            // Cleanup on close
+            handleOnClose();
+        }
+    }, []);
+
     const generateNodes = () => {
         const context = new DataMapperContext(model, views, addView, applyModifications, addArrayElement);
         const nodeInitVisitor = new NodeInitVisitor(context);
@@ -110,6 +117,13 @@ export function InlineDataMapper(props: DataMapperViewProps) {
         mouseTrapClient.bindNewKey(['command+shift+z', 'ctrl+y'], async () => handleVersionChange('dmRedo'));
     };
 
+    const handleOnClose = () => {
+        useDMSearchStore.getState().resetSearchStore();
+        useDMCollapsedFieldsStore.getState().resetFields();
+        useDMExpandedFieldsStore.getState().resetFields();
+        onClose();
+    };
+
     const handleVersionChange = async (action: 'dmUndo' | 'dmRedo') => {
         // TODO: Implement undo/redo
     };
@@ -120,7 +134,7 @@ export function InlineDataMapper(props: DataMapperViewProps) {
                 {model && (
                     <DataMapperHeader
                         hasEditDisabled={false}
-                        onClose={onClose}
+                        onClose={handleOnClose}
                     />
                 )}
                 {nodes.length > 0 && (

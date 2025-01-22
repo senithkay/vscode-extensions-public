@@ -8,7 +8,7 @@
  */
 import { Point } from "@projectstorm/geometry";
 
-import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
+import { useDMCollapsedFieldsStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { IOType, TypeKind } from "@wso2-enterprise/ballerina-core";
@@ -38,10 +38,8 @@ export class InputNode extends DataMapperNodeModel {
         this.numberOfFields = 1;
 
         if (this.inputType) {
-            const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
-            const parentPort = this.addPortsForHeader(
-                this.inputType, this.identifier, "OUT", undefined, undefined, collapsedFields
-            );
+            const collapsedFields = useDMCollapsedFieldsStore.getState().fields;
+            const parentPort = this.addPortsForHeader(this.inputType, this.identifier, "OUT", undefined, undefined);
 
             if (this.inputType.kind === TypeKind.Record) {
                 const fields = this.inputType.fields;
