@@ -36,6 +36,12 @@ const Columns = styled.div`
     }
 `;
 
+const Rows = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+`;
+
 const Column = styled.div<{ width?: string }>`
     display: block;
     width: ${({ width }: { width?: string }) => width || 'auto'};
@@ -239,85 +245,88 @@ export function Overview(props: OverviewProps) {
             </div>
             <Body>
                 <Columns>
-                    <Column style={{ flex: '1' }}>
-                        <VSCodePanels>
-                            <VSCodePanelTab id="component-diagram">Component Diagram</VSCodePanelTab>
-                            <VSCodePanelTab id="project-structure">Project Structure</VSCodePanelTab>
+                    <Rows style={{ flex: 1, height: 800 }}>
+                        <Column style={{ flex: 1 }}>
+                            <VSCodePanels>
+                                <VSCodePanelTab id="component-diagram">Component Diagram</VSCodePanelTab>
+                                <VSCodePanelTab id="project-structure">Project Structure</VSCodePanelTab>
 
-                            <PanelContent id={"component-diagram"} >
-                                <TabContent style={{ height: '400px', overflow: 'hidden', borderRadius: '8px' }}>
-                                    {projectOverview ?
-                                        <ComponentDiagram
-                                            projectStructure={projectOverview}
-                                            projectName={activeWorkspaces?.name}
-                                        /> :
-                                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                            <ProgressRing />
-                                        </div>
-                                    }
-                                    {(errors as any)?.projectOverview && (
-                                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                            <ErrorBanner errorMsg={(errors as any)?.projectOverview} />
-                                        </div>
-                                    )
-                                    }
-                                </TabContent>
-                            </PanelContent>
+                                <PanelContent id={"component-diagram"} >
+                                    <TabContent style={{ borderRadius: '8px' }}>
+                                        {projectOverview ?
+                                            <ComponentDiagram
+                                                projectStructure={projectOverview}
+                                                projectName={activeWorkspaces?.name}
+                                            /> :
+                                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                                <ProgressRing />
+                                            </div>
+                                        }
+                                        {(errors as any)?.projectOverview && (
+                                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                                <ErrorBanner errorMsg={(errors as any)?.projectOverview} />
+                                            </div>
+                                        )
+                                        }
+                                    </TabContent>
+                                </PanelContent>
 
-                            <PanelContent id={"project-structure"} >
-                                <TabContent>
-                                    {projectStructure ?
-                                        <ProjectStructureView
-                                            projectStructure={projectStructure}
-                                            workspaceDir={selected}
-                                        /> :
-                                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                            <ProgressRing />
-                                        </div>
-                                    }
-                                    {(errors as any)?.projectStructure && (
-                                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                            <ErrorBanner errorMsg={(errors as any)?.projectStructure} />
-                                        </div>
-                                    )
-                                    }
-                                </TabContent>
-                            </PanelContent>
-                        </VSCodePanels>
-                    </Column>
+                                <PanelContent id={"project-structure"} >
+                                    <TabContent>
+                                        {projectStructure ?
+                                            <ProjectStructureView
+                                                projectStructure={projectStructure}
+                                                workspaceDir={selected}
+                                            /> :
+                                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                                <ProgressRing />
+                                            </div>
+                                        }
+                                        {(errors as any)?.projectStructure && (
+                                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                                <ErrorBanner errorMsg={(errors as any)?.projectStructure} />
+                                            </div>
+                                        )
+                                        }
+                                    </TabContent>
+                                </PanelContent>
+                            </VSCodePanels>
+                        </Column>
+                        <Column>
+                            <Typography variant="h3" sx={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center' }}>
+                                Project Readme
+                                {readmeContent && <Icon name="edit" isCodicon onClick={handleEditReadme} sx={{ marginLeft: '8px', paddingTop: '5px', cursor: 'pointer' }} />}
+                            </Typography>
+                            <Readme>
+                                {readmeContent ? (
+                                    <ReactMarkdown>{readmeContent}</ReactMarkdown>
+                                ) : (
+                                    <div style={{ display: 'flex', marginTop: '20px', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                                        <Typography variant="h3" sx={{ marginBottom: '16px' }}>
+                                            Add a README
+                                        </Typography>
+                                        <Typography variant="body1" sx={{ marginBottom: '24px', color: 'var(--vscode-descriptionForeground)' }}>
+                                            Describe your integration and generate your constructs with AI
+                                        </Typography>
+                                        <VSCodeLink onClick={handleEditReadme}>
+                                            Add a README
+                                        </VSCodeLink>
+                                    </div>
+                                )}
+                            </Readme>
+                        </Column>
+
+                    </Rows>
                     <ProjectInfoColumn>
                         <Typography variant="h3" sx={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center' }}>
                             Project Information
                             <Icon name="edit" isCodicon onClick={handleEditProjectInformation} sx={{ marginLeft: '8px', paddingTop: '5px', cursor: 'pointer' }} />
                         </Typography>
-                        <div style={{ height: '100%', overflow: "scroll", scrollbarWidth: "thin", paddingRight: '5px', maxHeight: '404px' }}>
+                        <div style={{ height: '100%', scrollbarWidth: "thin", paddingRight: '5px' }}>
                             <ProjectInformation key={pomTimestamp} />
                         </div>
                     </ProjectInfoColumn>
                 </Columns>
-                <Column style={{ marginTop: '16px' }}>
-                    <Typography variant="h3" sx={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center' }}>
-                        Project Readme
-                        {readmeContent && <Icon name="edit" isCodicon onClick={handleEditReadme} sx={{ marginLeft: '8px', paddingTop: '5px', cursor: 'pointer' }} />}
-                    </Typography>
-                    <Readme>
-                        {readmeContent ? (
-                            <ReactMarkdown>{readmeContent}</ReactMarkdown>
-                        ) : (
-                            <div style={{ display: 'flex', marginTop: '20px', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                                <Typography variant="h3" sx={{ marginBottom: '16px' }}>
-                                    Add a README
-                                </Typography>
-                                <Typography variant="body1" sx={{ marginBottom: '24px', color: 'var(--vscode-descriptionForeground)' }}>
-                                    Describe your integration and generate your constructs with AI
-                                </Typography>
-                                <VSCodeLink onClick={handleEditReadme}>
-                                    Add a README
-                                </VSCodeLink>
-                            </div>
-                        )}
-                    </Readme>
-                </Column>
             </Body>
         </div>
     );
