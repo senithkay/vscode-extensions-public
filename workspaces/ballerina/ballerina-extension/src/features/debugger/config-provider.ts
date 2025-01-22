@@ -705,8 +705,8 @@ async function getCurrentRoot(): Promise<string> {
         // ignore
     }
 
-    // if no bal files are open, use the workspace root
-    if (!file) {
+    // If no Ballerina files are open, safe to assume that the workspace root is same as the package root in BI mode.
+    if (!file && StateMachine.context().isBI) {
         const workspaceRoot = getWorkspaceRoot();
         if (!workspaceRoot) {
             throw new Error("Unable to determine the current workspace root.");
