@@ -10,6 +10,8 @@
 import * as vscode from 'vscode';
 import { extension } from "../../BalExtensionContext";
 import { commands } from 'vscode';
+import { StateMachineAI } from 'src/views/ai-panel/aiMachine';
+import { AI_EVENT_TYPE } from '@wso2-enterprise/ballerina-core';
 
 //TODO: What if user doesnt have github copilot.
 //TODO: Where does auth git get triggered
@@ -41,15 +43,19 @@ export async function loginGithubCopilot() {
                 await extension.context.secrets.store('GITHUB_TOKEN', accessToken);
                 await extension.context.secrets.store('GITHUB_COPILOT_TOKEN', copilot_token);
                 console.log('GitHub Copilot authorized successfully.');
+                return true;
             } catch (error) {
                 console.error('Error exchanging GitHub Copilot information:', error);
                 vscode.window.showErrorMessage('An error occurred while exchanging GitHub Copilot information. Make sure you have GitHub Copilot access.');
+                return false;
             }
         } else {
             console.log('No GitHub session found. User may not be signed in.');
+            return false;
         }
     } catch (error) {
         console.error('Error retrieving GitHub account information:', error);
+        return false;
     }
 }
 
@@ -82,14 +88,14 @@ vscode.authentication.onDidChangeSessions(async e => {
             await extension.context.secrets.delete('GITHUB_TOKEN');
         } else {
             //it could be a login(which we havent captured) or a logout 
-            vscode.window.showInformationMessage(
-                'Ballerina Integrator supports completions with GitHub Copilot.',
-                'Login with GitHub Copilot'
-            ).then(selection => {
-                if (selection === 'Login with GitHub Copilot') {
-                    commands.executeCommand('kolab.login.copilot');
-                }
-            });
+            // vscode.window.showInformationMessage(
+            //     'Ballerina Integrator supports completions with GitHub Copilot.',
+            //     'Login with GitHub Copilot'
+            // ).then(selection => {
+            //     if (selection === 'Login with GitHub Copilot') {
+            //         commands.executeCommand('kolab.login.copilot');
+            //     }
+            // });
         }
     }
 });

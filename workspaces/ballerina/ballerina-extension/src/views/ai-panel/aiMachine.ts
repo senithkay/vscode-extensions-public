@@ -38,7 +38,7 @@ interface AiMachineContext extends AIVisualizerLocation {
 }
 
 const aiStateMachine = createMachine<AiMachineContext>({
-    /** @xstate-layout N4IgpgJg5mDOIC5QFsCWBaAhqgdASQDtUAXVTAG1QC8wBiCAewLB1QIDcGBrFtLXQiTKUaCNpwDGmUkwDaABgC6CxYlAAHBrCFM1IAB6IATEYAsOAJwBmAOwBWeaZs2rFm-Lt2ANCACeiGwA2QJw7KysjeXkLAA4Y0wt5AEYAXxSfPmx8IlIKajpGZlYObl4MLMFckTAxEqkZAhVZJNUkEE1tBr1DBCMLEJsY+3lA0zshmLsbH38ECz6cd3k+1xikvs80jPKBHOF82jAAJyOGI5x1cmkAMzPkHEzdoTzRcQZ61DklFT0OnQJuohAjFFjYkuEostAvIYvJpn5EEk4fJLKZbEYhs4nEYtiBHjhyAwoDAIAB5ACuxFoABlSQBxPAAOR+bT+XTaPQsphRySSozsJmSgQs3gRCCSSXioJFkqspjMphiOPSeJ2OAASmBMBBfDT6aSAKoAFRZGi0-0BCDsiRwRkCfLWgRcSRcMRmASsdhw0SmNjMGLlcVx+M12t1AFEABrhgDCxvDpva5vZoB663coKMdmhdklNic7qtGO9SXlTmdGPBwbVoZ1tBj1PDAEF1Ym2Z8ARzEeEQaYkhZYn35BEYoFC36QtFEnCjEkwn3ldt+DgAOrYUgEKAAMTO1KJbHoTBYbx4DzVa6Em53Rz3UDYtUk0g7TSUv2THctSO53qcMUSVmhNFwkLIYBnGRIkSmcsbGrZcLw3bdd33AhDhOM4LiuYhbiOe58XgthEJvZCH3eJ8vmUV9WXfXQuwQSYLBwJFoTtFwjHCF0QLCSwe36J1hQ8WCsnwq8kLvFCYybRkY3Dak22oztUwCGwGL6Cx+z-F0ISMQsJVnb0ljtQIIjtOxBNwYTCNvA8tybPBqTwcNW0os1Og-WinRU4JImFfohjsUwdKiAZTBzdwrElKYzJwcN9DACRKQI+tSQAWQABUbI0E2cpNXJoxTxSMFxQmUl0EmBEUjMLPsQRiKx4n7cZuRdKKYrihLN1oRz1VJJzWhci1aPWP8cD-ZTPSdMw4kLADzGiExnDUtx+k9FrYvihDaAAZSNUlUrk3KFIMRE+nMYF-L6YVfTGQs+hsYr7FiQratGQJVrajbaTpcMABFDRNbL2zyo7xTlIxFn7FwHCzDx1h0qxHBwe1lLWf0-0cNIVQIBgIDgPRHjfA7LXQeHGLqv0-X8sI1MCbSxVnFFCvsP9mOCBqosqfYaAJgb8vlEDauK3MlmSELFSiwliUgCliG5lNgetBjJTcOcEkxJUdJdFT4cGfMB1U16VRDLUdVltz8sgsGhkVNYpmSKYLELAUwezWEIWhcLlKiiBUFgTAACNyEgU2gbTO7R3TQqxhCmE6o1yZGNqiIRjR0coos68rMOwHDp6NYrEsMw1MmDF+hcQtHtRHMFy5JG3vWgjg5zxEwnzyYYXmEZXBMx2TFCYFh3h93NYxlIgA */
+    /** @xstate-layout N4IgpgJg5mDOIC5QCMCGAbdYBOBLAdqgLSq4DEAIgJIDKACgPI0CiA2gAwC6ioADgPaxcAF1z98PEAA9EAFgBMAGhABPRAEZ2ANgB0WgKwBfQ8rSYcBYqR0ERuDLgBeYMhHFgb+AG78A1h7MsPEISXE87B2cEAh8AY1RRcQ5OZMkBIUSJJGk5AGYATj1c+QAOdXl9ZTUEWXUAdmNTDCDLUPDRSJc3fA8YvwDmixDrWw70JzBo7354zOTWdW5s9LtxSRkagqLS8srVRDKdIxMQQKGrMNH7cecyHGx+bB1edASAM0eAWx0z4Iv264TKZxBJifDzLhpQSrLKgDayLZaYplCpVRAVEo6XLYnG4nGNU6DP5tdD8KAwCAMACuwjIABkGABxKgAOVSy2hmXWGgUmPYJX0+VydT21RKJVyOjq7FyuwJv1a1mwYE+-C8YAAKv18K53J4fP4fkTFWFlar1Vr-PhgTNQUkuOy+JywdyEOpcrJ9DoSvIZbs0QgtOx2Dp2PoZbI6vJozH5PLjcMwgAlMCoCAqelMhgAVQ1jpAKy52Q2mjDUo9wtFiEFmP04Y9Udj0fj5mJ1hTaYzzAAGswAMK5tiQjkZF3FxBBuo6T2y1H7QNadQ6fL6WfHJqtk06Dvpsh9unMACCSfzhbHcMQdRXR3kBi0c+qddk04qDabzZOCsT29Tu4ZzLZYcnVHNZx0DXIQ3yIMhRFAM6nKadVzlT8E3+HcMxYDVszoU9nVAi83WDL06grWD50bZctGld1xVo8UWxab9YDAYRRHwKBYD3AAJQ88yAgs8NhHJCPkKd9HkUiq0DKNpyo9gaLo+iUM3b8IFwWBUGQLAIDIJNmA1JMAE1cJAoSNnvWs1wDX0pwlPF7PUBjzjaAB1Ug2KgAAxR46TJAg7mwB4nhed4viNFT-jcux2O87BfKgAgbVmMEISWYCYVdBFCiRHYHw0YNnxnZCN0YyL3IILyfL8nUaCoRkWQAfVZBqaGzPs+2YGgaBMjKwKy7YUSkup72XJCKictswiijzYvi-y+0PFkOrpHqiwI-qcsGgNNHyKd8m0cblNK1zypiqqEp1TzDyoOkqGYE9+LPfDhI25F-XndR1FkTFZAO9dCQitpmCkMBYhpCq9wYABZOgDw1Ic0oE0zMsRN68oQfRNEQtcJq3YHQfB9iyHupMGAexGnrMvJsrRqT9CDUacaO5zrHxsGPLIGgNQYHDHsElGadyqTFyXIrDpKlmwjZwmoEzRlmAoHM+Ip-m+tRoWA1yLRdGOE58H4CA4EkL8LihZGwKILQA0t3HvyuTozd6gj1C0QoBRgqSJT0f6TZJMkKWpYRHbW4T1DrKdsUFSsA3FZ9fSZiXJp0M01U1bVg-PUP3XkHRRMkgN9BFI560jd842ZpP0Iz56NivQpBXkKCSjI6poOXV9S-fW3-mY1iKvgEcnaz4pc5IhEW4nQ4wwjRsm27to1I0rTIGrqmEGGkN5B26P519EMRXn6xpoq2bqtX116h+sWhvUTF8nqWp2Hg3lC8PqWQfZirz7A+RvqOOotrzlyCUEM2ttbDQlPffIoljDGCAA */
     id: 'ballerina-ai',
     initial: "initialize",
     predictableActionArguments: true,
@@ -83,6 +83,9 @@ const aiStateMachine = createMachine<AiMachineContext>({
             on: {
                 LOGIN: {
                     target: "WaitingForLogin",
+                },
+                SETUP: {
+                    target: "Settings",
                 }
             }
         },
@@ -90,7 +93,7 @@ const aiStateMachine = createMachine<AiMachineContext>({
             invoke: {
                 src: 'removeToken',
                 onDone: {
-                    target: "loggedOut"
+                    target: "Settings"
                 }
             }
         },
@@ -103,7 +106,21 @@ const aiStateMachine = createMachine<AiMachineContext>({
                 },
                 LOGIN: {
                     target: "WaitingForLogin",
+                },
+                SETUP: {
+                    target: "Settings",
                 }
+            }
+        },
+        Settings: {
+            on: {
+                CHAT: {
+                    target: "Ready",
+                },
+                LOGIN: {
+                    target: "WaitingForLogin",
+                },
+                LOGOUT: "removeToken",
             }
         },
         disabled: {
@@ -127,7 +144,7 @@ const aiStateMachine = createMachine<AiMachineContext>({
                 }
             },
             on: {
-                SIGN_IN_SUCCESS: "Ready",
+                SIGN_IN_SUCCESS: "Settings",
                 CANCEL: "loggedOut",
                 FAILIER: "loggedOut"
             }

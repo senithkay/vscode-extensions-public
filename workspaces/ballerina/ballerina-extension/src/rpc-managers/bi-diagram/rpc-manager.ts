@@ -412,6 +412,13 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     suggestedContent = (data as any).code;
                 } else {
                     // get next suggestion
+                    const token = await extension.context.secrets.get("GITHUB_COPILOT_TOKEN");
+                    if (!token) {
+                        await this.promptGithubCopilotAuthNotificaiton();
+                        resolve(undefined);
+                        return;
+                    }
+
                     const resp = await getCompleteSuggestions({
                         prefix:copilotContext.prefix,
                         suffix:copilotContext.suffix,
@@ -1036,6 +1043,18 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     console.log(">>> Error adding function", error);
                     resolve(undefined);
                 });
+        });
+    }
+
+    async promptGithubCopilotAuthNotificaiton(): Promise<void> {
+        //TODO: Prevent multiple notifications
+        vscode.window.showInformationMessage(
+            'Ballerina Integrator supports visual completions with GitHub Copilot.',
+            'Authorize using GitHub Copilot'
+        ).then(selection => {
+            if (selection === 'Authorize using GitHub Copilot') {
+                commands.executeCommand('kolab.login.copilot');
+            }
         });
     }
 }

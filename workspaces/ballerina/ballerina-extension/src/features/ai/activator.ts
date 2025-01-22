@@ -8,11 +8,12 @@
  */
 
 import { BallerinaExtension, ExtendedLangClient } from '../../core';
-import { activateCopilotLoginCommand } from './completions';
+import { activateCopilotLoginCommand, resetBIAuth } from './completions';
 
 export let langClient: ExtendedLangClient;
 
 export function activateAIFeatures(ballerinaExternalInstance: BallerinaExtension) {
     langClient = <ExtendedLangClient>ballerinaExternalInstance.langClient;
     activateCopilotLoginCommand();
+    resetBIAuth();
 }

@@ -31,3 +31,9 @@ export function activateCopilotLoginCommand() {
         }
     });
 }
+
+export function resetBIAuth() {
+    commands.registerCommand(PALETTE_COMMANDS.RESET_BI, async () => {
+        await ballerinaExtInstance.context.secrets.delete('LOGIN_ALERT_SHOWN');
+    });
+}

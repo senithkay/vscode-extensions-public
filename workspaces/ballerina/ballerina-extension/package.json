@@ -357,6 +357,11 @@
                 "category": "Ballerina"
             },
             {
+                "command": "kolab.reset.bi",
+                "title": "Reset BI Auth",
+                "category": "Ballerina"
+            },
+            {
                 "command": "kolab.project.doc",
                 "title": "Build Documentation",
                 "category": "Ballerina"
