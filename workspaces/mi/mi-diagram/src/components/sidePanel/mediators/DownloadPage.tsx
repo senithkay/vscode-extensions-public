@@ -60,7 +60,7 @@ export function DownloadPage(props: DownloadPageProps) {
             if (response === "Success") {
                 onDownloadSuccess(props.module.connectorName);
                 setIsDownloading(false);
-                sidepanelGoBack(sidePanelContext, 2);
+                sidepanelGoBack(sidePanelContext);
             } else {
                 setIsFailedDownload(true);
                 setIsDownloading(false);
