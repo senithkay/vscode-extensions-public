@@ -48,7 +48,7 @@ export const ConfigsPage = ({
                 searchValue={searchValue}
                 onSearch={handleSearch}
             />
-            <HelperPane.Body isLoading={isLoading}>
+            <HelperPane.Body loading={isLoading}>
                 {configInfo?.map((config) => (
                     getHelperPaneCompletionItem(config, onChange, getCompletionItemIcon)
                 ))}

@@ -7,25 +7,5 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { css } from '@emotion/css';
-
-export const ANIMATION = {
-    enter: css({
-        transition: 'all 0.3s ease-in'
-    }),
-    enterFrom: css({
-        opacity: 0
-    }),
-    enterTo: css({
-        opacity: 1
-    }),
-    leave: css({
-        transition: 'all 0s'
-    }),
-    leaveFrom: css({
-        opacity: 1
-    }),
-    leaveTo: css({
-        opacity: 0
-    })
-};
+export * from "./form";
+export * from "./common";
