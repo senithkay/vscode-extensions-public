@@ -67,7 +67,6 @@ const FormWrapper = styled.div`
     border-radius: 8px;
     margin: 10px 0;
     transition: all 0.3s ease-in-out;
-    opacity: 0;
     animation: fadeIn 0.2s forwards;
 `;
 

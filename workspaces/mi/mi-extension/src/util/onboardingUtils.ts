@@ -9,12 +9,14 @@ import { extension } from '../MIExtensionContext';
 import { copyMavenWrapper } from '.';
 import { SELECTED_JAVA_HOME, SELECTED_SERVER_PATH } from '../debugger/constants';
 import { COMMANDS } from '../constants';
-import { JavaAndMIPathRequest, JavaAndMIPathResponse, MIDetails } from '@wso2-enterprise/mi-core';
+import { SetPathRequest, PathDetailsResponse, SetupDetails } from '@wso2-enterprise/mi-core';
 
 // Add Latest MI version as the first element in the array
 export const supportedJavaVersionsForMI: { [key: string]: string } = {
     '4.4.0': '21',
     '4.3.0': '17',
+    '4.2.0': '17',
+    '4.1.0': '11',
 };
 export const LATEST_MI_VERSION = "4.4.0";
 const COMPATIBLE_JDK_VERSION = "11";
@@ -34,13 +36,14 @@ export async function setupEnvironment(projectUri: string): Promise<boolean> {
                 projectUri
             );
         }
+        setupConfigFiles(projectUri);
 
-        const { miVersion } = await getMIDetailsFromPom();
-        if (!miVersion) {
+        const { miDetails } = await getProjectSetupDetails();
+        if (!(miDetails && miDetails.version)) {
             return false;
         }
-        const isMISet = await isMISetup(miVersion);
-        const isJavaSet = await isJavaSetup(miVersion);
+        const isMISet = await isMISetup(miDetails.version);
+        const isJavaSet = await isJavaSetup(miDetails.version);
 
         return isMISet && isJavaSet;
     } catch (error) {
@@ -49,23 +52,32 @@ export async function setupEnvironment(projectUri: string): Promise<boolean> {
         return false;
     }
 }
-export async function getMIDetailsFromPom(): Promise<MIDetails> {
+export async function getProjectSetupDetails(): Promise<SetupDetails> {
+    const miVersion = await getMIVersionFromPom();
+    if (!miVersion) {
+        vscode.window.showErrorMessage('Failed to get Micro Integrator version from pom.xml.');
+        return { isSupportedMIVersion: false, javaDetails: { status: 'not-valid' }, miDetails: { status: 'not-valid' } };
+    }
+    if (isSupportedMIVersion(miVersion)) {
+        const recommendedVersions = { miVersion, javaVersion: supportedJavaVersionsForMI[miVersion] };
+        const setupDetails = await getJavaAndMIPathsFromWorkspace(miVersion);
+        return { ...setupDetails, isSupportedMIVersion: true, showDownloadButtons: isDownloadableMIVersion(miVersion), recommendedVersions };
+    }
+
+    return { isSupportedMIVersion: false, javaDetails: { status: 'not-valid' }, miDetails: { status: 'not-valid' } };
+}
+async function getMIVersionFromPom(): Promise<string | null> {
     const pomFiles = await vscode.workspace.findFiles('pom.xml', '**/node_modules/**', 1);
     if (pomFiles.length === 0) {
         vscode.window.showErrorMessage('pom.xml not found.');
-        return { javaVersion: '', miVersion: '' };
+        return null;
     }
+
     const pomContent = await vscode.workspace.openTextDocument(pomFiles[0]);
     const pomContentText = pomContent.getText();
     const miVersionMatch = pomContentText
         .match(/<project.runtime.version>(.*?)<\/project.runtime.version>/);
-
-    if (miVersionMatch && miVersionMatch[1]) {
-        if (isSupportedMIVersion(miVersionMatch[1])) {
-            return { javaVersion: supportedJavaVersionsForMI[miVersionMatch[1]], miVersion: miVersionMatch[1] };
-        }
-    }
-    return { javaVersion: '', miVersion: '' };
+    return miVersionMatch ? miVersionMatch[1] : null;
 }
 async function isMISetup(miVersion: string): Promise<boolean> {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
@@ -74,7 +86,7 @@ async function isMISetup(miVersion: string): Promise<boolean> {
         const currentMIPath = config.get<string>(SELECTED_SERVER_PATH);
         if (currentMIPath) {
             const availableMIVersion = getMIVersion(currentMIPath);
-            if (availableMIVersion && compareVersions(availableMIVersion, miVersion) >= 0) { // lower mi version not compatible
+            if (availableMIVersion && isCompatibleMIVersion(availableMIVersion, miVersion)) {
                 if (availableMIVersion !== miVersion) {
                     showMIPathChangePrompt();
                 }
@@ -106,35 +118,48 @@ async function isMISetup(miVersion: string): Promise<boolean> {
         return fs.existsSync(miPath) ? miPath : null;
     }
     function showMIPathChangePrompt() {
+        const DONT_SHOW_AGAIN_KEY = 'dontShowMIPathChangePrompt';
+        const dontShowAgain = extension.context.globalState.get<boolean>(DONT_SHOW_AGAIN_KEY);
+
+        if (dontShowAgain) {
+            return;
+        }
+
+        const downloadOption = 'Download Micro Integrator';
+        const changePathOption = 'Change Micro Integrator Path';
+        const dontShowAgainOption = 'Don\'t Show Again';
+
         vscode.window
             .showWarningMessage(
                 'The selected Micro Integrator version is different from the version in the workspace. Do you want to change the Micro Integrator path?',
-                'Download Micro Integrator',
-                'Change Micro Integrator Path'
+                downloadOption,
+                changePathOption,
+                dontShowAgainOption
             )
             .then((selection) => {
                 if (selection) {
-                    if (selection === 'Download Micro Integrator') {
+                    if (selection === downloadOption) {
                         downloadMI(miVersion).then((miPath) => {
                             if (miPath) {
-                                setJavaAndMIPathsInWorkspace({ miPath });
+                                setPathsInWorkSpace({ type: 'MI', path: miPath });
                             }
                         });
-                    } else if (selection === 'Change Micro Integrator Path') {
+                    } else if (selection === changePathOption) {
                         selectFolderDialog('Select Micro Integrator Path').then((miPath) => {
                             if (miPath) {
                                 const validMIPath = verifyMIPath(miPath.fsPath);
                                 if (validMIPath) {
-                                    setJavaAndMIPathsInWorkspace({ miPath: validMIPath });
+                                    setPathsInWorkSpace({ type: 'MI', path: validMIPath });
                                 } else {
                                     vscode.window.showErrorMessage('Invalid Micro Integrator path. Please set a valid Micro Integrator path and run the command again.');
                                 }
                             }
                         });
+                    } else if (selection === dontShowAgainOption) {
+                        extension.context.globalState.update(DONT_SHOW_AGAIN_KEY, true);
                     }
                 }
-            }
-            );
+            });
     }
 }
 async function isJavaSetup(miVersion: string): Promise<boolean> {
@@ -202,31 +227,45 @@ async function isJavaSetup(miVersion: string): Promise<boolean> {
         return null;
     }
     function showJavaHomeChangePrompt() {
+        const DONT_SHOW_AGAIN_KEY = 'dontShowJavaHomeChangePrompt';
+        const dontShowAgain = extension.context.globalState.get<boolean>(DONT_SHOW_AGAIN_KEY);
+
+        if (dontShowAgain) {
+            return;
+        }
+
+        const downloadOption = 'Download Java';
+        const changePathOption = 'Change Java Home';
+        const dontShowAgainOption = 'Don\'t Show Again';
+
         vscode.window
             .showWarningMessage(
                 'The selected Java version is not recommended with the Micro Integrator version. Do you want to change the Java Home path?',
-                'Download Java',
-                'Change Java Home'
+                downloadOption,
+                changePathOption,
+                dontShowAgainOption
             )
             .then((selection) => {
                 if (selection) {
-                    if (selection === 'Download Java') {
-                        downloadJava(miVersion).then((javaPath) => {
+                    if (selection === downloadOption) {
+                        downloadJavaFromMI(miVersion).then((javaPath) => {
                             if (javaPath) {
-                                setJavaAndMIPathsInWorkspace({ javaPath });
+                                setPathsInWorkSpace({ type: 'JAVA', path: javaPath });
                             }
                         });
-                    } else if (selection === 'Change Java Home') {
+                    } else if (selection === changePathOption) {
                         selectFolderDialog('Select Java Home').then((javaHome) => {
                             if (javaHome) {
                                 const validJavaHome = verifyJavaHomePath(javaHome.fsPath);
                                 if (validJavaHome) {
-                                    setJavaAndMIPathsInWorkspace({ javaPath: validJavaHome });
+                                    setPathsInWorkSpace({ type: 'JAVA', path: validJavaHome });
                                 } else {
                                     vscode.window.showErrorMessage('Invalid Java Home path. Please set a valid Java Home path and run the command again.');
                                 }
                             }
                         });
+                    } else if (selection === dontShowAgainOption) {
+                        extension.context.globalState.update(DONT_SHOW_AGAIN_KEY, true);
                     }
                 }
             });
@@ -279,11 +318,14 @@ export function verifyMIPath(folderPath: string): string | null {
     return null;
 }
 
-export function getSupportedMIVersions(): string[] {
+export function getSupportedMIVersionsHigherThan(version: string): string[] {
+    if (version) {
+        return Object.keys(supportedJavaVersionsForMI).filter((v) => compareVersions(v, version) >= 0);
+    }
     return Object.keys(supportedJavaVersionsForMI);
 }
 
-export async function downloadJava(miVersion: string): Promise<string> {
+export async function downloadJavaFromMI(miVersion: string): Promise<string> {
     interface AdoptiumApiResponse {
         binaries: {
             package: {
@@ -399,6 +441,7 @@ export async function downloadMI(miVersion: string): Promise<string> {
         throw new Error('Failed to download Micro Integrator.');
     }
 }
+
 function isSupportedJavaVersionForLS(version: string): boolean {
     if (!version) {
         return false;
@@ -407,6 +450,9 @@ function isSupportedJavaVersionForLS(version: string): boolean {
 }
 function isSupportedMIVersion(version: string): boolean {
     return Object.keys(supportedJavaVersionsForMI).includes(version);
+}
+function isDownloadableMIVersion(version: string): boolean {
+    return miDownloadUrls[version] !== undefined;
 }
 
 function getJavaVersion(javaBinPath: string): string | null {
@@ -444,49 +490,56 @@ function isCompatibleJavaVersionForMI(javaVersion: string, miVersion: string): b
         compareVersions(javaVersion, supportedJavaVersionsForMI[miVersion]) <= 0; // higher java version not compatible
 }
 
+function isCompatibleMIVersion(runtimeVersion: string, projectVersion: string): boolean {
+    if (!projectVersion || !runtimeVersion) {
+        return false;
+    }
+    return compareVersions(runtimeVersion, projectVersion) >= 0; // lower mi version not compatible
+}
+
 function isMIInstalledAtPath(miPath: string): boolean {
     const miExecutable = process.platform === 'win32' ? 'micro-integrator.bat' : 'micro-integrator.sh';
     return fs.existsSync(path.join(miPath, 'bin', miExecutable));
 }
-export async function setJavaAndMIPathsInWorkspace(request: JavaAndMIPathRequest): Promise<JavaAndMIPathResponse> {
-    const miDetails = await getMIDetailsFromPom();
+export async function setPathsInWorkSpace(request: SetPathRequest): Promise<PathDetailsResponse> {
+    const projectMIVersion = await getMIVersionFromPom();
 
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-    const response: JavaAndMIPathResponse = {};
-    if (workspaceFolder) {
+    let response: PathDetailsResponse = { status: 'not-valid' };
+    if (workspaceFolder && projectMIVersion) {
         const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
-        if (request.javaPath) {
-            const validJavaHome = verifyJavaHomePath(request.javaPath);
+        if (request.type === 'JAVA') {
+            const validJavaHome = verifyJavaHomePath(request.path);
             if (validJavaHome) {
+                const javaVersion = getJavaVersion(path.join(validJavaHome, 'bin'));
+                if (supportedJavaVersionsForMI[projectMIVersion] === javaVersion) {
+                    response = { status: "valid", path: validJavaHome, version: javaVersion };
+                } else if (javaVersion && isCompatibleJavaVersionForMI(javaVersion, projectMIVersion)) {
+                    response = { status: "mismatch", path: validJavaHome, version: javaVersion! };
+                }
+            }
+            if (response.status !== 'not-valid') {
                 config.update(SELECTED_JAVA_HOME, validJavaHome, vscode.ConfigurationTarget.Workspace);
                 extension.context.globalState.update(SELECTED_JAVA_HOME, validJavaHome);
-                const javaVersion = getJavaVersion(path.join(validJavaHome, 'bin'));
-                if (supportedJavaVersionsForMI[miDetails.miVersion] === javaVersion) {
-                    response.javaPath = { status: "valid", path: validJavaHome, version: javaVersion };
-                } else {
-                    response.javaPath = { status: "mismatch", path: validJavaHome, version: javaVersion! };
-                }
+
             } else {
-                response.javaPath = { status: "not-found" };
-                vscode.window.showErrorMessage('Invalid Java Home path or Unsupported version. Please set a valid Java Home path and run the command again.');
+                vscode.window.showErrorMessage('Invalid Java Home path or Unsupported version. Please set a valid Java Home path. ');
             }
         }
-        if (request.miPath) {
-            const validServerPath = verifyMIPath(request.miPath);
+        else if (request.type === 'MI') {
+            const validServerPath = verifyMIPath(request.path);
             if (validServerPath) {
-                const miVersion = getMIVersion(validServerPath);
-                if (miDetails.miVersion === miVersion) {
-                    response.miPath = { status: "valid", path: validServerPath, version: miVersion };
-                } else if (miVersion && compareVersions(miVersion, miDetails.miVersion) >= 0) {
-                    response.miPath = { status: "mismatch", path: validServerPath, version: miVersion! };
+                const runtimeVersion = getMIVersion(validServerPath);
+                if (projectMIVersion === runtimeVersion) {
+                    response = { status: "valid", path: validServerPath, version: runtimeVersion };
+                } else if (runtimeVersion && compareVersions(runtimeVersion, projectMIVersion) >= 0) {
+                    response = { status: "mismatch", path: validServerPath, version: runtimeVersion! };
                 }
-
             }
-            if (response.miPath) {
+            if (response.status !== 'not-valid') {
                 config.update(SELECTED_SERVER_PATH, validServerPath, vscode.ConfigurationTarget.Workspace);
                 extension.context.globalState.update(SELECTED_SERVER_PATH, validServerPath);
             } else {
-                response.miPath = { status: "not-found" };
                 vscode.window.showErrorMessage('Invalid Micro Integrator path or Unsupported version. Please set a valid Micro Integrator path');
             }
 
@@ -495,53 +548,45 @@ export async function setJavaAndMIPathsInWorkspace(request: JavaAndMIPathRequest
     return response;
 }
 
-export async function getJavaAndMIPathsFromWorkspace(): Promise<JavaAndMIPathResponse> {
-    const { miVersion: projectMiVersion } = await getMIDetailsFromPom();
+async function getJavaAndMIPathsFromWorkspace(projectMiVersion: string): Promise<SetupDetails> {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-    const response: JavaAndMIPathResponse = {};
-    if (workspaceFolder) {
+    const response: SetupDetails = {
+        javaDetails: { status: 'not-valid', version: supportedJavaVersionsForMI[projectMiVersion] },
+        miDetails: { status: 'not-valid', version: projectMiVersion }
+    };
+    if (workspaceFolder && projectMiVersion) {
         const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
+
         const javaHome = config.get<string>(SELECTED_JAVA_HOME);
-        const validJavaHome = javaHome && verifyJavaHomePath(javaHome);
+        const validJavaHome = javaHome && verifyJavaHomePath(javaHome) && getJavaFromCacheOrEnv(projectMiVersion);
         if (validJavaHome) {
             const javaVersion = getJavaVersion(path.join(validJavaHome, 'bin'));
             if (supportedJavaVersionsForMI[projectMiVersion] === javaVersion) {
-                response.javaPath = { status: "valid", path: validJavaHome, version: javaVersion };
-            } else {
-                response.javaPath = { status: "mismatch", path: validJavaHome, version: javaVersion! };
+                response.javaDetails = { status: "valid", path: validJavaHome, version: javaVersion };
+            } else if (javaVersion && isCompatibleJavaVersionForMI(javaVersion, projectMiVersion)) {
+                response.javaDetails = { status: "mismatch", path: validJavaHome, version: javaVersion! };
             }
-        } else {
-            config.update(SELECTED_JAVA_HOME, undefined, vscode.ConfigurationTarget.Workspace);
         }
+
         const serverPath = config.get<string>(SELECTED_SERVER_PATH);
-        const validServerPath = serverPath && verifyMIPath(serverPath);
+        const validServerPath = serverPath && verifyMIPath(serverPath) && getMIFromCache(projectMiVersion);
         if (validServerPath) {
             const miVersion = getMIVersion(validServerPath);
             if (projectMiVersion === miVersion) {
-                response.miPath = { status: "valid", path: validServerPath, version: miVersion };
-            } else {
-                response.miPath = { status: "mismatch", path: validServerPath, version: miVersion! };
+                response.miDetails = { status: "valid", path: validServerPath, version: miVersion };
+            } else if (miVersion && isCompatibleMIVersion(miVersion, projectMiVersion)) {
+                response.miDetails = { status: "mismatch", path: validServerPath, version: miVersion! };
             }
         }
-    }
-    if (!response.javaPath) {
-        const javaSuggestion = getSuggestionForJavaHome(projectMiVersion);
-        if (javaSuggestion) {
-            const javaVersion = getJavaVersion(path.join(javaSuggestion, 'bin'));
-            response.javaPath = { status: "suggest", path: javaSuggestion, version: javaVersion! };
+
+        if (response.javaDetails.status === 'not-valid') {
+            config.update(SELECTED_JAVA_HOME, undefined, vscode.ConfigurationTarget.Workspace);
+        }
+        if (response.miDetails.status === 'not-valid') {
+            config.update(SELECTED_SERVER_PATH, undefined, vscode.ConfigurationTarget.Workspace);
         }
     }
-    if (!response.miPath) {
-        const miSuggestion = getSuggestionForServerPath(projectMiVersion);
-        if (miSuggestion) {
-            const miVersion = getMIVersion(miSuggestion);
-            if (miVersion && compareVersions(miVersion, projectMiVersion) >= 0) {
-                response.miPath = { status: "suggest", path: miSuggestion, version: miVersion };
-            }
-        }
-    }
-    response.javaPath = response.javaPath ?? { status: "not-found" };
-    response.miPath = response.miPath ?? { status: "not-found" };
+
     return response;
 }
 
@@ -574,7 +619,7 @@ export async function updateRuntimeVersionsInPom(version: string): Promise<void>
     fs.writeFileSync(pomFiles[0].fsPath, xml);
 }
 
-function getSuggestionForJavaHome(miVersion: string): string | undefined {
+function getJavaFromCacheOrEnv(miVersion: string): string | undefined {
     const defaultJavaHome = extension.context.globalState.get<string>(SELECTED_JAVA_HOME);
     if (defaultJavaHome) {
         const defaultJavaVersion = getJavaVersion(path.join(defaultJavaHome, 'bin')) ?? '';
@@ -591,7 +636,7 @@ function getSuggestionForJavaHome(miVersion: string): string | undefined {
     }
 }
 
-function getSuggestionForServerPath(miVersion: string): string | undefined {
+function getMIFromCache(miVersion: string): string | undefined {
     const defaultServerPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
     if (defaultServerPath && isMIInstalledAtPath(defaultServerPath)) {
         const defaultServerMIVersion = getMIVersion(defaultServerPath);
@@ -600,9 +645,18 @@ function getSuggestionForServerPath(miVersion: string): string | undefined {
         }
     }
 }
-function compareVersions(v1: string, v2: string): number {
-    const parts1 = v1.split('.').map(Number);
-    const parts2 = v2.split('.').map(Number);
+export function compareVersions(v1: string, v2: string): number {
+    // Extract only the numeric parts of the version string
+    const getVersionNumbers = (str: string): string => {
+        const match = str.match(/(\d+\.\d+\.\d+)/);
+        return match ? match[0] : '0';
+    };
+
+    const version1 = getVersionNumbers(v1);
+    const version2 = getVersionNumbers(v2);
+
+    const parts1 = version1.split('.').map(part => parseInt(part, 10));
+    const parts2 = version2.split('.').map(part => parseInt(part, 10));
 
     for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
         const part1 = parts1[i] || 0;
@@ -613,6 +667,22 @@ function compareVersions(v1: string, v2: string): number {
     }
     return 0;
 }
+
+function setupConfigFiles(projectUri: string): void {
+    const envFilePath = path.join(projectUri, '.env');
+    const targetFolder = path.join(projectUri, 'src', 'main', 'wso2mi', 'resources', 'conf');
+    const configFilePath = path.join(targetFolder, 'config.properties');
+    if (!fs.existsSync(targetFolder)) {
+        fs.mkdirSync(targetFolder, { recursive: true });
+    }
+    if (!fs.existsSync(configFilePath)) {
+        fs.writeFileSync(configFilePath, '', 'utf8');
+    }
+    if (!fs.existsSync(envFilePath)) {
+        fs.writeFileSync(envFilePath, '', 'utf8');
+    }
+}
+
 export function getJavaHomeFromConfig(): string | undefined {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
     if (workspaceFolder) {
