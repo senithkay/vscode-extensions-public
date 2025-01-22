@@ -103,8 +103,8 @@ async function isMISetup(miVersion: string): Promise<boolean> {
                 if (availableMIVersion !== miVersion) {
                     showMIPathChangePrompt();
                 }
-                await config.update(SELECTED_SERVER_PATH, oldServerPath, vscode.ConfigurationTarget.Workspace);
-                return true;
+                // await config.update(SELECTED_SERVER_PATH, oldServerPath, vscode.ConfigurationTarget.Workspace);
+                // return true;
             }
         }
         if (miCachedPath) {

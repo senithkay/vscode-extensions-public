@@ -173,6 +173,7 @@ export interface VisualizerLocation {
     dataMapperProps?: DataMapperProps;
     type?: string;
     connectorData?: any[];
+    previousContext?: any;
 }
 
 export interface PopupVisualizerLocation extends VisualizerLocation {

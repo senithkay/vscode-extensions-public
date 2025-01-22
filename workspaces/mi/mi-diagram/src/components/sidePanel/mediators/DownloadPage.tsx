@@ -36,9 +36,9 @@ export function DownloadPage(props: DownloadPageProps) {
 
     const handleDependencyResponse = async (response: boolean) => {
         if (response) {
-            
+
             setIsDownloading(true);
-        
+
             const updateDependencies = async () => {
                 const dependencies = [];
                 dependencies.push({
@@ -60,7 +60,7 @@ export function DownloadPage(props: DownloadPageProps) {
             if (response === "Success") {
                 onDownloadSuccess(props.module.connectorName);
                 setIsDownloading(false);
-                sidepanelGoBack(sidePanelContext, 2);
+                sidepanelGoBack(sidePanelContext, sidePanelContext.pageStack.length - 1);
             } else {
                 setIsFailedDownload(true);
                 setIsDownloading(false);
@@ -80,7 +80,7 @@ export function DownloadPage(props: DownloadPageProps) {
         if (response === "Success") {
             onDownloadSuccess(props.module.connectorName);
             setIsDownloading(false);
-            sidepanelGoBack(sidePanelContext, 2);
+            sidepanelGoBack(sidePanelContext, sidePanelContext.pageStack.length - 1);
         } else {
             setIsFailedDownload(true);
             setIsDownloading(false);
