@@ -157,7 +157,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         subPanelView,
         targetLineRange,
         fileName,
-        visualizable
+        visualizable,
+        helperPaneOrigin
     } = props as ExpressionEditorProps;
     const [focused, setFocused] = useState<boolean>(false);
 
@@ -320,6 +321,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             onRemove={onRemove}
                             isHelperPaneOpen={isHelperPaneOpen}
                             changeHelperPaneState={handleChangeHelperPaneState}
+                            helperPaneOrigin={helperPaneOrigin}
                             getHelperPane={handleGetHelperPane}
                             placeholder={field.placeholder}
                             sx={{ paddingInline: '0' }}

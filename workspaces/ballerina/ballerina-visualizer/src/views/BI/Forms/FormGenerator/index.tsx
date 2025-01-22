@@ -461,7 +461,8 @@ export function FormGenerator(props: FormProps) {
             getExpressionFormDiagnostics: handleExpressionFormDiagnostics,
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
-            onCancel: handleExpressionEditorCancel
+            onCancel: handleExpressionEditorCancel,
+            helperPaneOrigin: "bottom"
         } as FormExpressionEditorProps;
     }, [
         filteredCompletions,
