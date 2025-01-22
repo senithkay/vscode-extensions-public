@@ -8,5 +8,6 @@
  */
 
 export type StyleBase = {
+    className?: string;
     sx?: React.CSSProperties;
 };

@@ -55,7 +55,7 @@ export const VariablesPage = ({
                 searchValue={searchValue}
                 onSearch={handleSearch}
             />
-            <HelperPane.Body isLoading={isLoading}>
+            <HelperPane.Body loading={isLoading}>
                 {variableInfo?.map((variable) => (
                     getHelperPaneCompletionItem(variable, onChange, getCompletionItemIcon)
                 ))}

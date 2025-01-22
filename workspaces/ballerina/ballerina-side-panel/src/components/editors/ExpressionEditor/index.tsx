@@ -265,6 +265,15 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         return await extractArgsFromFunction(value, field.key, cursorPosition);
     };
 
+    // FIXME: Merge this when syncing with the main
+    // const codeActions = [
+    //     visualizable && (
+    //         <Button appearance="icon" onClick={() => handleInlineDataMapperOpen(false)}>
+    //             <S.DataMapperBtnTxt>Open In Data Mapper</S.DataMapperBtnTxt>
+    //         </Button>
+    //     )
+    // ];
+
     return (
         <S.Container>
             <S.HeaderContainer>
@@ -328,6 +337,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             getHelperPane={handleGetHelperPane}
                             placeholder={field.placeholder}
                             sx={{ paddingInline: '0' }}
+                            // FIXME: Merge this when syncing with the main
+                            // codeActions={codeActions}
                         />
                         {error && <ErrorBanner errorMsg={error.message.toString()} />}
                     </div>

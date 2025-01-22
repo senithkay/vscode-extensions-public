@@ -14,6 +14,8 @@ import { window } from 'vscode';
 import path = require('path');
 import { findJavaFiles } from '../util/fileOperations';
 import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
+import { RUNTIME_VERSION_440 } from "../constants";
+import { compareVersions } from '../util/onboardingUtils';
 
 let resourceDetails: ListRegistryArtifactsResponse;
 let extensionContext: vscode.ExtensionContext;
@@ -122,25 +124,27 @@ async function getProjectStructureData(langClient: ExtendedLanguageClient): Prom
 				const rootPath = workspace.uri.fsPath;
 
 				const resp = await langClient.getProjectExplorerModel(rootPath);
-				const projectTree = generateTreeData(workspace, resp);
-				if (projectTree) {
+				const projectDetailsRes = await langClient?.getProjectDetails();
+				const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
+				const projectTree = generateTreeData(workspace, resp, runtimeVersion);
+
+				if (projectTree && projectTree.children?.length! > 0) {
 					data.push(projectTree);
 				}
 			};
 		}
+		vscode.commands.executeCommand('setContext', 'projectOpened', true);
 		if (data.length > 0) {
-			vscode.commands.executeCommand('setContext', 'projectOpened', true);
 			return data;
-		} else {
-			vscode.commands.executeCommand('setContext', 'projectOpened', false);
 		}
+	} else {
+		vscode.commands.executeCommand('setContext', 'projectOpened', false);
 	}
-	vscode.commands.executeCommand('setContext', 'projectOpened', false);
 	return [];
 
 }
 
-function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructureResponse): ProjectExplorerEntry | undefined {
+function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructureResponse, runtimeVersion: string): ProjectExplorerEntry | undefined {
 	const directoryMap = data.directoryMap;
 	if (directoryMap) {
 		const projectRoot = new ProjectExplorerEntry(
@@ -151,12 +155,12 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 		);
 
 		projectRoot.contextValue = 'project';
-		generateTreeDataOfArtifacts(project, data, projectRoot);
+		generateTreeDataOfArtifacts(project, data, projectRoot, runtimeVersion);
 		return projectRoot;
 	}
 }
 
-function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: ProjectStructureResponse, projectRoot: ProjectExplorerEntry) {
+function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: ProjectStructureResponse, projectRoot: ProjectExplorerEntry, runtimeVersion: string) {
 	const artifacts = (data.directoryMap as any)?.src?.main?.wso2mi?.artifacts;
 	if (!artifacts) {
 		return;
@@ -184,7 +188,12 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 		if (['APIs', 'Event Integrations', 'Automations', 'Data Services'].includes(key)) {
 			children = genProjectStructureEntry(artifacts[key]);
 		} else if (key === 'Resources') {
-			children = generateResources(artifacts[key]);
+			const isRegistrySupported = compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0;
+			if (!isRegistrySupported) {
+				children = generateResources(artifacts[key]);
+			} else {
+				continue;
+			}
 		} else {
 			children = generateArtifacts(artifacts[key], data, project);
 		}
@@ -263,7 +272,11 @@ function generateResources(data: RegistryResourcesFolder): ProjectExplorerEntry[
 		}
 		if (data.folders) {
 			for (const entry of data.folders) {
-				if (![".meta", "datamapper", "datamappers"].includes(entry.name)) {
+				if (![".meta", "datamapper", "datamappers", "conf"].includes(entry.name)) {
+					const files = generateResources(entry);
+					if (!files || files?.length === 0) {
+						continue;
+					}
 					const explorerEntry = new ProjectExplorerEntry(entry.name,
 						isCollapsibleState(entry.files.length > 0 || entry.folders.length > 0),
 						{

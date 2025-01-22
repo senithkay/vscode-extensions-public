@@ -55,7 +55,7 @@ export const ParamsPage = ({
                 searchValue={searchValue}
                 onSearch={handleSearch}
             />
-            <HelperPane.Body isLoading={isLoading}>
+            <HelperPane.Body loading={isLoading}>
                 {paramInfo?.map((param) => (
                     getHelperPaneCompletionItem(param, onChange, getCompletionItemIcon)
                 ))}

@@ -36,9 +36,9 @@ import {
     UpdatePomValuesRequest,
     UpdateConfigValuesRequest,
     ImportOpenAPISpecRequest,
-    MIDetails,
-    JavaAndMIPathResponse,
-    JavaAndMIPathRequest,
+    SetupDetails,
+    SetPathRequest,
+    PathDetailsResponse,
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 
@@ -69,19 +69,18 @@ export interface MIVisualizerAPI {
     openExternal: (params: OpenExternalRequest) => Promise<OpenExternalResponse>;
     getReadmeContent: () => Promise<ReadmeContentResponse>;
     openReadme: () => void;
-    downloadJava: (params: string) => Promise<string>;
+    downloadJavaFromMI: (params: string) => Promise<string>;
     downloadMI: (params: string) => Promise<string>;
-    getSupportedMIVersions: () => Promise<string[]>;
+    getSupportedMIVersionsHigherThan: (param:string) => Promise<string[]>;
     getProjectDetails: () => Promise<ProjectDetailsResponse>;
     updateDependencies: (params: UpdateDependenciesRequest) => Promise<boolean>;
     updatePomValues: (params: UpdatePomValuesRequest) => Promise<boolean>;
     updateConfigFileValues: (params: UpdateConfigValuesRequest) => Promise<boolean>;
     updateConnectorDependencies: () => Promise<string>;
     importOpenAPISpec: (params: ImportOpenAPISpecRequest) => Promise<void>;
-    getMIDetailsFromPom: () => Promise<MIDetails>;
+    getProjectSetupDetails: () => Promise<SetupDetails>;
     updateRuntimeVersionsInPom: (params:string) => Promise<boolean>;
-    getJavaAndMIPaths: () => Promise<JavaAndMIPathResponse>;
-    setJavaAndMIPaths: (params: JavaAndMIPathRequest) => Promise<JavaAndMIPathResponse>;
+    setPathsInWorkSpace: (params: SetPathRequest) => Promise<PathDetailsResponse>;
     selectFolder: (params: string) => Promise<string | undefined>;
 
 }

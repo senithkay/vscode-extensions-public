@@ -55,7 +55,7 @@ export const PropertiesPage = ({
                 searchValue={searchValue}
                 onSearch={handleSearch}
             />
-            <HelperPane.Body isLoading={isLoading}>
+            <HelperPane.Body loading={isLoading}>
                 {propertiesInfo?.map((property) => (
                     getHelperPaneCompletionItem(property, onChange, getCompletionItemIcon) 
                 ))}

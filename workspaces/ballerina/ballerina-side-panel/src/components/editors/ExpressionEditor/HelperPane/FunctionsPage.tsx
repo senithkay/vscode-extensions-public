@@ -52,7 +52,7 @@ export const FunctionsPage = ({
                 searchValue={searchValue}
                 onSearch={handleSearch}
             />
-            <HelperPane.Body isLoading={isLoading}>
+            <HelperPane.Body loading={isLoading}>
                 {functionInfo?.category.map((category) => (
                     <HelperPane.Section
                         title={category.label}
