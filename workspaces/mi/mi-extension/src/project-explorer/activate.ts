@@ -23,6 +23,7 @@ import { RegistryExplorerEntryProvider } from './registry-explorer-provider';
 import { RUNTIME_VERSION_440 } from "../constants";
 import { deleteSwagger } from '../util/swagger';
 import { compareVersions } from '../util/onboardingUtils';
+import { history } from '../history';
 
 export async function activateProjectExplorer(context: ExtensionContext, lsClient: ExtendedLanguageClient) {
 
@@ -395,7 +396,17 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 							await workspace.fs.delete(Uri.parse(fileUri), { recursive: true, useTrash: true });
 							window.showInformationMessage(`${item.label} has been deleted.`);
 							await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-							navigate();
+
+							const currentLocation = StateMachine.context();
+							if (currentLocation.documentUri === fileUri) {
+								openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+							}
+							const historyStack = history.get();
+							const newHistory = historyStack.filter((location) => location.location?.documentUri !== fileUri);
+							history.clear();
+							newHistory.forEach((location) => {
+								history.push(location);
+							});
 
 							if (item.contextValue === 'api') {
 								deleteSwagger(fileUri);
