@@ -259,6 +259,10 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		let foundMappings: MappingMetadata[] = [];
 		const currentFields = [...(parentFields ? parentFields : [])];
 		if (val) {
+			if (Node.isAsExpression(val)) {
+				val = val.getExpression();
+			}
+
 			if (Node.isObjectLiteralExpression(val)) {
 				val.getProperties().forEach((field) => {
 					foundMappings = [...foundMappings, ...this.genMappings(field, [...currentFields, val])];

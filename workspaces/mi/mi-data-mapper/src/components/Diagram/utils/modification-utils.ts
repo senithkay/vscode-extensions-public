@@ -221,6 +221,13 @@ export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue
 			return targetExpr;
 		} else if (Node.isArrayLiteralExpression(targetExpr)) {
 			return getNextObjectLitExpr(targetExpr);
+		} else if (Node.isAsExpression(targetExpr)) {
+			const expr = targetExpr.getExpression();
+			if (Node.isObjectLiteralExpression(expr)) {
+				return expr;
+			} else if (Node.isArrayLiteralExpression(expr)) {
+				return getNextObjectLitExpr(expr);
+			}
 		}
 	}
 

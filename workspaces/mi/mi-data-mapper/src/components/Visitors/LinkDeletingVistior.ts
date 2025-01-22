@@ -127,8 +127,12 @@ export class LinkDeletingVisitor implements Visitor {
     private findDeletePositionWithinListConstructor(node: ArrayLiteralExpression) {
         if (this.targetedDeleteNodes.length === 0) {
             const elements = node.getElements();
-            const deleteIndex = elements.findIndex(element =>
-                isPositionsEquals(this.fieldPosition, getPosition(element)));
+            const deleteIndex = elements.findIndex(element => {
+                if (Node.isAsExpression(element)) {
+                    element = element.getExpression();
+                }
+                return isPositionsEquals(this.fieldPosition, getPosition(element));
+            });
 
             if (deleteIndex !== -1) {
                 const selected = elements[deleteIndex];

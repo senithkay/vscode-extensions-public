@@ -136,6 +136,26 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         }
     }
 
+    const handleInitUnionTypeArrayElement = async (resolvedUnionType: DMType) => {
+        setIsLoading(true);
+        try {
+            let initValue = getDefaultValue(resolvedUnionType.kind);
+            if (initValue === "{}" && resolvedUnionType.kind !== TypeKind.Object && resolvedUnionType.typeName) {
+                initValue += ` as ${resolvedUnionType.typeName}`;
+            } else if (initValue === "[]" && resolvedUnionType.kind === TypeKind.Array && resolvedUnionType.typeName) {
+                initValue += ` as ${resolvedUnionType.typeName}[]`;
+            }
+            let node = field.value;
+            if (Node.isAsExpression(node.getParent())) {
+                node = node.getParent();
+            }
+            node.replaceWithText(initValue);
+            await context.applyModifications(node.getSourceFile().getFullText());
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handleEditValue = () => {
         if (portIn)
             setExprBarFocusedPort(portIn);
@@ -273,7 +293,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         }
     });
 
-    const addOrEditValueMenuItem: ValueConfigMenuItem[] = hasValue || hasDefaultValue ?
+    const addOrEditValueMenuItems: ValueConfigMenuItem[] = hasValue || hasDefaultValue ?
         [{
             title: ValueConfigOption.EditValue,
             onClick: handleEditValue
@@ -306,12 +326,26 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     };
 
     const valConfigMenuItems = [
-        ...(!isWithinArray && addOrEditValueMenuItem),
         (hasValue || hasDefaultValue || isWithinArray) && deleteValueMenuItem,
         !isWithinArray && modifyFieldOptionalityMenuItem,
         !isWithinArray && isInterface && makeChildFieldsOptionalMenuItem,
         !isWithinArray && isInterface && makeChildFieldsRequiredMenuItem
     ];
+
+    
+    if(isWithinArray){
+        if(field.type.kind === TypeKind.Union){
+            const initUnionTypeArrayElementMenuItems: ValueConfigMenuItem[] =  field.type.unionTypes?.map((unionType)=>{
+                return {
+                    title: `Initialize as ${unionType.typeName || unionType.kind}`,
+                    onClick: () => handleInitUnionTypeArrayElement(unionType)
+                }
+            });
+            valConfigMenuItems.unshift(...initUnionTypeArrayElementMenuItems);
+        }
+    } else {
+        valConfigMenuItems.unshift(...addOrEditValueMenuItems);
+    }
 
     return (
         <>

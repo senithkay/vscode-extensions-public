@@ -203,17 +203,17 @@ function getEnrichedArrayType(
     const members: ArrayElement[] = [];
 
     const elements = node.getElements();
-    const fields = new Array(elements.length).fill(field);
 
     elements.forEach((expr, index) => {
-        const type = fields[index];
+        const type = { ...field }; //TODO: need to check with nested case
+
         if (type) {
             const childType = getEnrichedDMType(type, expr, parentType, childrenTypes);
 
             if (childType) {
                 members.push({
                     member: childType,
-                    elementNode: expr
+                    elementNode: childType.value
                 });
             }
         }
@@ -258,7 +258,7 @@ function getValueNodeAndNextNodeForParentType(
             return [node, node];
         }
     } else if (node && Node.isAsExpression(node)) {
-        return [node, node.getExpression()];
+        return [node.getExpression(), node];
     }
     else {
         return [node, undefined];
