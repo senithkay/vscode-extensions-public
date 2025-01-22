@@ -360,6 +360,10 @@ export function AddConnection(props: AddConnectionProps) {
         }
     }
 
+    const formTitle = !props.connectionName
+        ? "Add New Connection"
+        : "Edit Connection : " + props.connectionName;
+
     const ConnectionName = <Controller
         name="name"
         control={control}
@@ -382,7 +386,7 @@ export function AddConnection(props: AddConnectionProps) {
                 errorMsg={errors.name && errors.name.message.toString()} />
         )} />;
     return (
-        <FormView title={`Add New Connection`} onClose={handlePopupClose ?? handleOnClose}>
+        <FormView title={formTitle} onClose={handlePopupClose ?? handleOnClose}>
             {!props.fromSidePanel && <TypeChip
                 type={connectionType}
                 onClick={props.changeConnectionType}
