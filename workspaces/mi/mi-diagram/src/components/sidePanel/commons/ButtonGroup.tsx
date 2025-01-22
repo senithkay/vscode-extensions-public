@@ -70,7 +70,7 @@ interface ButtonroupProps {
     versionTag?: string;
     onDownload?: any;
     connectorDetails?: ConnectorDependency;
-    onDelete?: (artifactId: string, version: string) => void;
+    onDelete?: (connectorName: string, artifactId: string, version: string, iconUrl: string) => void;
 }
 export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isCollapsed = true, iconUri, versionTag, onDownload, connectorDetails, onDelete }) => {
     const [collapsed, setCollapsed] = useState(isCollapsed);
@@ -135,7 +135,9 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isColl
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                             {connectorDetails &&
-                                <DownloadIconContainer onClick={() => onDelete(connectorDetails.artifactId, connectorDetails.version)} className="download-icon">
+                                <DownloadIconContainer 
+                                onClick={() => onDelete(title, connectorDetails.artifactId, connectorDetails.version, iconUri)} 
+                                className="download-icon">
                                     <Codicon name="trash" iconSx={{ fontSize: 25 }} />
                                 </DownloadIconContainer>
                             }

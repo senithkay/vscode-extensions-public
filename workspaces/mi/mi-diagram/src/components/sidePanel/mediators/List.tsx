@@ -21,6 +21,7 @@ import { MediatorPage } from './Mediator';
 import { ModuleSuggestions } from './ModuleSuggestions';
 import { Modules } from '../modules/ModulesList';
 import AddConnector from '../Pages/AddConnector';
+import { RemoveConnectorPage } from './RemoveConnectorPage';
 
 interface MediatorProps {
     nodePosition: any;
@@ -165,33 +166,21 @@ export function Mediators(props: MediatorProps) {
         }, {});
     };
 
-    const reloadPalette = async (connectorName: string) => {
+    const reloadPalette = async (connectorName?: string) => {
         props.clearSearch();
         await fetchMediators();
         fetchLocalConnectorData();
-        setExpandedModules([connectorName]);
+        connectorName && setExpandedModules([connectorName]);
     };
 
-    const deleteConnector = async (artifaceId: string, version: string) => {
-        const projectDetails = await rpcClient.getMiVisualizerRpcClient().getProjectDetails();
-        const connectorDependencies = projectDetails.dependencies.connectorDependencies;
+    const deleteConnector = async (connectorName: string,artifactId: string, version: string, iconUrl: string) => {
+        const downloadPage = <RemoveConnectorPage
+            connectorName={connectorName}
+            artifactId={artifactId}
+            version={version}
+            onRemoveSuccess={reloadPalette} />;
 
-        for (const d of connectorDependencies) {
-            if (d.artifact === artifaceId && d.version === version) {
-                await rpcClient.getMiVisualizerRpcClient().updatePomValues({
-                    pomValues: [{ range: d.range, value: '' }]
-                });
-                break;
-            }
-        }
-
-        const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
-
-        if (response === "Success") {
-            props.clearSearch();
-            await fetchMediators();
-            fetchLocalConnectorData();
-        }
+        sidepanelAddPage(sidePanelContext, downloadPage, FirstCharToUpperCase(connectorName), iconUrl);
     }
 
     const addModule = () => {
