@@ -339,8 +339,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 let onCreateButtonClick;
                 if (!Array.isArray(keyType)) {
                     onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
-                        const resolvedView = element.inputType === 'key' || element.inputType === 'keyOrExpression' ? "addResource" : element.keyType;
-                        openPopup(rpcClient, resolvedView, fetchItems, handleValueChange, undefined, { type: keyType });
+                        openPopup(rpcClient, element.keyType, fetchItems, handleValueChange, undefined, { type: keyType });
                     }
                 }
 
