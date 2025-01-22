@@ -169,7 +169,7 @@ export function Mediators(props: MediatorProps) {
         props.clearSearch();
         await fetchMediators();
         fetchLocalConnectorData();
-        setExpandedModules([connectorName.toLowerCase()]);
+        setExpandedModules([connectorName]);
     };
 
     const deleteConnector = async (artifaceId: string, version: string) => {
@@ -225,7 +225,7 @@ export function Mediators(props: MediatorProps) {
                         <ButtonGroup
                             key={key}
                             title={FirstCharToUpperCase(key)}
-                            isCollapsed={!expandedModules.includes(key.toLowerCase())}
+                            isCollapsed={!expandedModules.includes(key)}
                             connectorDetails={values["isConnector"] ? { artifactId: values["artifactId"], version: values["version"] } : undefined}
                             onDelete={deleteConnector}>
                             {values["items"].map((mediator: Mediator) => (
