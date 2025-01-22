@@ -45,7 +45,7 @@ export const LibraryBrowser = ({
 
     return (
         <HelperPane.LibraryBrowser
-            isLoading={isLoading}
+            loading={isLoading}
             searchValue={searchValue}
             onSearch={handleSearch}
             onClose={onBack}
