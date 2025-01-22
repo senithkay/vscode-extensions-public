@@ -235,7 +235,7 @@ export function Overview(props: OverviewProps) {
                     <Column style={{ flex: '1' }}>
                         <TabContent style={{ height: '400px', overflow: 'hidden', borderRadius: '8px' }}>
                             {projectOverview ? (
-                                projectOverview.connections.length > 0 && projectOverview.entrypoints?.length > 0 ? (
+                                projectOverview.connections.length > 0 || projectOverview.entrypoints?.length > 0 ? (
                                     <ComponentDiagram
                                         projectStructure={projectOverview}
                                         projectName={activeWorkspaces?.name}
@@ -243,7 +243,7 @@ export function Overview(props: OverviewProps) {
                                 ) : (
                                     <Alert
                                         title="No artifacts were found"
-                                        subTitle="Add artifacts to your project to see them here"
+                                        subTitle="Please add artifacts to your project to view them here."
                                         variant="primary"
                                     />
                                 )
