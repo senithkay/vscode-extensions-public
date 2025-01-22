@@ -294,6 +294,20 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                                     </InfoSection>
                                 )
                             ))}
+
+                            {serviceModel.moduleName === "http" && serviceModel.functions.filter(func => func.kind === "DEFAULT" && func.enabled).map((functionModel, index) => (
+                                <InfoSection>
+                                    <Icon name={findIcon('init')} isCodicon sx={{ marginRight: '8px' }} />
+                                    <Typography key={`${index}-label`} variant="body3">
+                                        Init Function:
+                                    </Typography>
+                                    <Typography key={`${index}-value`} variant="body3">
+                                        <LinkButton sx={{ fontSize: 12, padding: 8, gap: 4 }} onClick={() => handleOpenDiagram(functionModel)}>
+                                            {functionModel.name.value}
+                                        </LinkButton>
+                                    </Typography>
+                                </InfoSection>
+                            ))}
                         </InfoContainer>
 
                         <Typography key={"title"} variant="body2" sx={{ marginLeft: 10, marginBottom: 20, marginTop: 10 }}>
