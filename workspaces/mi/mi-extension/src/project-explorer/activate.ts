@@ -9,7 +9,7 @@
 
 import * as vscode from 'vscode';
 import { ProjectExplorerEntry, ProjectExplorerEntryProvider } from './project-explorer-provider';
-import { StateMachine, openView } from '../stateMachine';
+import { StateMachine, navigate, openView } from '../stateMachine';
 import { EVENT_TYPE, MACHINE_VIEW, VisualizerLocation } from '@wso2-enterprise/mi-core';
 import { COMMANDS } from '../constants';
 import { ExtensionContext, TreeItem, Uri, ViewColumn, commands, window, workspace } from 'vscode';
@@ -60,16 +60,16 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 		console.log('Add Artifact');
 	});
 	commands.registerCommand(COMMANDS.ADD_TO_REGISTRY_COMMAND, () => {
-        const projectUri = StateMachine.context().projectUri;
-        if (!projectUri) {
-            window.showErrorMessage(
-                'Unable to locate Project URI. Please try again after the extension has fully initialized.'
-            );
-            return;
-        }
-        const registryPath = path.join(projectUri, 'src', 'main', 'wso2mi', 'resources');
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RegistryResourceForm, documentUri: registryPath });
-        console.log('Add Registry Resource');
+		const projectUri = StateMachine.context().projectUri;
+		if (!projectUri) {
+			window.showErrorMessage(
+				'Unable to locate Project URI. Please try again after the extension has fully initialized.'
+			);
+			return;
+		}
+		const registryPath = path.join(projectUri, 'src', 'main', 'wso2mi', 'resources');
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RegistryResourceForm, documentUri: registryPath });
+		console.log('Add Registry Resource');
 	});
 	commands.registerCommand(COMMANDS.ADD_API_COMMAND, async (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.APIForm, documentUri: entry.info?.path });
@@ -394,6 +394,8 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 						try {
 							await workspace.fs.delete(Uri.parse(fileUri), { recursive: true, useTrash: true });
 							window.showInformationMessage(`${item.label} has been deleted.`);
+							await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+							navigate();
 
 							if (item.contextValue === 'api') {
 								deleteSwagger(fileUri);
