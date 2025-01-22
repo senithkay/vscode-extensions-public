@@ -34,7 +34,7 @@ export const FunctionsPage = ({ fileName, targetLineRange, setCurrentPage, onClo
     const [functionInfo, setFunctionInfo] = useState<HelperPaneFunctionInfo | undefined>(undefined);
     const [libraryBrowserInfo, setLibraryBrowserInfo] = useState<HelperPaneFunctionInfo | undefined>(undefined);
 
-    const fetchDebouncedFunctionInfo = useCallback(
+    const debounceFetchFunctionInfo = useCallback(
         debounce((searchText: string, includeAvailableFunctions?: string) => {
             rpcClient
                 .getBIDiagramRpcClient()
@@ -65,9 +65,9 @@ export const FunctionsPage = ({ fileName, targetLineRange, setCurrentPage, onClo
     const fetchFunctionInfo = useCallback(
         (searchText: string, includeAvailableFunctions?: string) => {
             setIsLoading(true);
-            fetchDebouncedFunctionInfo(searchText, includeAvailableFunctions);
+            debounceFetchFunctionInfo(searchText, includeAvailableFunctions);
         },
-        [fetchDebouncedFunctionInfo, searchValue]
+        [debounceFetchFunctionInfo, searchValue]
     );
 
     const onFunctionItemSelect = async (item: HelperPaneCompletionItem) => {
@@ -174,6 +174,7 @@ export const FunctionsPage = ({ fileName, targetLineRange, setCurrentPage, onClo
                 onClose={onClose}
                 searchValue={searchValue}
                 onSearch={handleFunctionSearch}
+                titleSx={{ fontFamily: "GilmerRegular" }}
             />
             <HelperPane.Body>
                 <HelperPane.Section
@@ -183,10 +184,15 @@ export const FunctionsPage = ({ fileName, targetLineRange, setCurrentPage, onClo
                     columns={2}
                     collapsedItemsCount={6}
                     loading={isLoading}
+                    titleSx={{ fontFamily: "GilmerMedium" }}
                 >
                     {getCurrentIntegrationFunctions()}
                 </HelperPane.Section>
-                <HelperPane.Section title="Imported Functions" loading={isLoading}>
+                <HelperPane.Section
+                    title="Imported Functions"
+                    loading={isLoading}
+                    titleSx={{ fontFamily: "GilmerMedium" }}
+                >
                     {getImportedFunctions()}
                 </HelperPane.Section>
             </HelperPane.Body>

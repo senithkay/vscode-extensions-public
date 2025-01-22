@@ -30,22 +30,25 @@ const bodyStyles = css({
 export const CategoryPage = ({ setCurrentPage, onClose }: CategoryPageProps) => {
     return (
         <>
-            <HelperPane.Header title="Select Category" onClose={onClose} />
+            <HelperPane.Header title="Select Category" titleSx={{ fontFamily: "GilmerRegular" }} onClose={onClose} />
             <HelperPane.Body className={bodyStyles}>
                 <HelperPane.CategoryItem
                     label="Variables"
                     onClick={() => setCurrentPage(HELPER_PANE_PAGE.VARIABLES)}
                     getIcon={() => <VarIcon />}
+                    labelSx={{ fontFamily: "GilmerMedium" }}
                 />
                 <HelperPane.CategoryItem
                     label="Functions"
                     onClick={() => setCurrentPage(HELPER_PANE_PAGE.FUNCTIONS)}
                     getIcon={() => <FunctionIcon />}
+                    labelSx={{ fontFamily: "GilmerMedium" }}
                 />
                 <HelperPane.CategoryItem
                     label="Configurables"
                     onClick={() => setCurrentPage(HELPER_PANE_PAGE.CONFIGURABLE)}
                     getIcon={() => <ConfigIcon />}
+                    labelSx={{ fontFamily: "GilmerMedium" }}
                 />
             </HelperPane.Body>
         </>

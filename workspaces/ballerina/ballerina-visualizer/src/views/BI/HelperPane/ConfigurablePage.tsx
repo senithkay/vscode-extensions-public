@@ -68,23 +68,25 @@ export const ConfigurablePage = ({
 
     const getConfigurableVariableInfo = () => {
         setIsLoading(true);
-        rpcClient
-            .getBIDiagramRpcClient()
-            .getVisibleVariableTypes({
-                filePath: fileName,
-                position: {
-                    line: targetLineRange.startLine.line,
-                    offset: targetLineRange.startLine.offset,
-                },
-            })
-            .then((response) => {
-                if (response.categories?.length) {
-                    const convertedConfigurableInfo = convertToHelperPaneConfigurableVariable(response.categories);
-                    setConfigurableInfo(convertedConfigurableInfo);
-                    setFilteredConfigurableInfo(convertedConfigurableInfo);
-                }
-            })
-            .then(() => setIsLoading(false));
+        setTimeout(() => {
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getVisibleVariableTypes({
+                    filePath: fileName,
+                    position: {
+                        line: targetLineRange.startLine.line,
+                        offset: targetLineRange.startLine.offset,
+                    },
+                })
+                .then((response) => {
+                    if (response.categories?.length) {
+                        const convertedConfigurableInfo = convertToHelperPaneConfigurableVariable(response.categories);
+                        setConfigurableInfo(convertedConfigurableInfo);
+                        setFilteredConfigurableInfo(convertedConfigurableInfo);
+                    }
+                })
+                .then(() => setIsLoading(false));
+        }, 1100);
     };
 
     const handleSaveConfigurables = async (values: ConfigData) => {
@@ -215,6 +217,7 @@ export const ConfigurablePage = ({
                 onClose={onClose}
                 searchValue={searchValue}
                 onSearch={handleSearch}
+                titleSx={{ fontFamily: "GilmerRegular" }}
             />
             <HelperPane.Body loading={isLoading}>
                 {!isFormVisible ? (
@@ -234,7 +237,7 @@ export const ConfigurablePage = ({
                         ))}
                     </>
                 ) : (
-                    <HelperPane.Section title="Create New Configurable Variable">
+                    <HelperPane.Section title="Create New Configurable Variable" titleSx={{ fontFamily: "GilmerMedium" }}>
                         <S.FormSection>
                             <TextField
                                 label="Name"

@@ -57,11 +57,13 @@ export const LibraryBrowser = ({
             searchValue={searchValue}
             onSearch={handleSearch}
             onClose={onBack}
+            titleSx={{ fontFamily: 'GilmerRegular' }}
         >
             {libraryBrowserInfo?.category.map((category) => (
                 <HelperPane.LibraryBrowserSection
                     key={category.label}
                     title={category.label}
+                    titleSx={{ fontFamily: 'GilmerMedium' }}
                     {...(category.items?.length > 0 && category.subCategory?.length === 0 && {
                         columns: 4
                     })}
