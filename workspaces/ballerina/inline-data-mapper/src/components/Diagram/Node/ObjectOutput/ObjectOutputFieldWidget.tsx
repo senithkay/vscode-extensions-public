@@ -11,23 +11,22 @@ import React, { useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
-import { TypeKind } from "@wso2-enterprise/ballerina-core";
+import { IOType, TypeKind } from "@wso2-enterprise/ballerina-core";
 import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from "../../Port";
 import { OutputSearchHighlight } from "../commons/Search";
 import { useIONodesStyles } from "../../../styles";
-import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../../store/store';
+import { useDMCollapsedFieldsStore } from '../../../../store/store';
 import { getTypeName } from "../../utils/type-utils";
+import { ArrayOutputFieldWidget } from "../ArrayOutput/ArrayOuptutFieldWidget";
 
 export interface ObjectOutputFieldWidgetProps {
     parentId: string;
-    field: DMTypeWithValue;
+    field: IOType;
     engine: DiagramEngine;
     getPort: (portId: string) => InputOutputPortModel;
-    parentObjectLiteralExpr: Node;
     context: IDataMapperContext;
     fieldIndex?: number;
     treeDepth?: number;
@@ -52,32 +51,32 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const [isHovered, setIsHovered] = useState(false);
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
-    const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
 
-    let fieldName = field.type.fieldName || '';
     let indentation = treeDepth * 16;
     let expanded = true;
 
-    const typeName = getTypeName(field.type);
-    const typeKind = field.type.kind;
+    const typeName = getTypeName(field);
+    const typeKind = field.kind;
     const isArray = typeKind === TypeKind.Array;
-    const isInterface = typeKind === TypeKind.Record;
+    const isRecord = typeKind === TypeKind.Record;
 
-    const fieldId = fieldIndex !== undefined
-        ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
-        : `${parentId}${fieldName && `.${fieldName}`}`;
-    const portIn = getPort(fieldId + ".IN");
-    const isExprBarFocused = exprBarFocusedPort?.getName() === portIn?.getName();
+    let updatedParentId = parentId;
+    if (fieldIndex !== undefined) {
+        updatedParentId = `${parentId}.${fieldIndex}`
+    }
+    let fieldName = field?.variableName || '';
+    let fieldFQN = updatedParentId !== '' ? fieldName !== '' ? `${updatedParentId}.${fieldName}` : updatedParentId : fieldName;
+    const portIn = getPort(fieldFQN + ".IN");
 
-    const fields = isInterface && field.childrenTypes;
+    const fields = isRecord && field.fields;
     const isWithinArray = fieldIndex !== undefined;
 
     const handleExpand = () => {
-		const collapsedFields = collapsedFieldsStore.collapsedFields;
+		const collapsedFields = collapsedFieldsStore.fields;
         if (!expanded) {
-            collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== fieldId));
+            collapsedFieldsStore.setFields(collapsedFields.filter((element) => element !== fieldFQN));
         } else {
-            collapsedFieldsStore.setCollapsedFields([...collapsedFields, fieldId]);
+            collapsedFieldsStore.setFields([...collapsedFields, fieldFQN]);
         }
     };
 
@@ -113,8 +112,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     }
 
     if (isWithinArray) {
-        const elementName = fieldName || field.parentType.type?.fieldName;
-        fieldName = elementName ? `${elementName}Item` : 'item';
+        fieldName = field?.typeName ? `${field?.typeName}Item` : 'item';
     }
 
     const label = !isArray && (
@@ -126,7 +124,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                 style={{ marginLeft: fields ? 0 : indentation + 24 }}
             >
                 <OutputSearchHighlight>{fieldName}</OutputSearchHighlight>
-                {!field.type?.optional && <span className={classes.requiredMark}>*</span>}
+                {!field?.optional && <span className={classes.requiredMark}>*</span>}
                 {typeName && ":"}
             </span>
             {typeName && (
@@ -146,13 +144,12 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         <>
             {!isArray && (
                 <div
-                    id={"recordfield-" + fieldId}
+                    id={"recordfield-" + fieldFQN}
                     className={classnames(classes.treeLabel,
                         isDisabled && !hasHoveredParent && !isHovered ? classes.treeLabelDisabled : "",
                         isDisabled && isHovered ? classes.treeLabelDisableHover : "",
                         portState !== PortState.Unselected ? classes.treeLabelPortSelected : "",
-                        hasHoveredParent ? classes.treeLabelParentHovered : "",
-                        isExprBarFocused ? classes.treeLabelPortExprFocused : ""
+                        hasHoveredParent ? classes.treeLabelParentHovered : ""
                     )}
                     onMouseEnter={onMouseEnter}
                     onMouseLeave={onMouseLeave}
@@ -183,6 +180,20 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                     </span>
                 </div>
             )}
+            {isArray && (
+                <ArrayOutputFieldWidget
+                    key={fieldFQN}
+                    engine={engine}
+                    field={field}
+                    getPort={getPort}
+                    parentId={fieldFQN}
+                    context={context}
+                    fieldIndex={fieldIndex}
+                    treeDepth={treeDepth}
+                    deleteField={deleteField}
+                    hasHoveredParent={isHovered || hasHoveredParent}
+                />
+            )}
             {fields && expanded &&
                 fields.map((subField, index) => {
                     return (
@@ -191,8 +202,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                             engine={engine}
                             field={subField}
                             getPort={getPort}
-                            parentId={fieldId}
-                            parentObjectLiteralExpr={undefined}
+                            parentId={fieldFQN}
                             context={context}
                             treeDepth={treeDepth + 1}
                             deleteField={deleteField}

@@ -44,7 +44,7 @@ export const queryKeys = {
 	],
 	getSwaggerSpec: (apiRevisionId: string, org: Organization) => ["get-swagger-spec", { selectedEndpoint: apiRevisionId, org: org.handle }],
 	getBuildPacks: (selectedType: string, org: Organization) => ["build-packs", { selectedType, orgId: org?.id }],
-	getGitBranches: (repoUrl: string, org: Organization) => ["get-git-branches", { repo: repoUrl, orgId: org?.id }],
+	getGitBranches: (repoUrl: string, org: Organization, credRef: string) => ["get-git-branches", { repo: repoUrl, orgId: org?.id, credRef }],
 	getDeployedEndpoints: (deploymentTrack: DeploymentTrack, component: ComponentKind, org: Organization) => [
 		"get-deployed-endpoints",
 		{ organization: org.handle, component: component.metadata.id, deploymentTrackId: deploymentTrack?.id },
@@ -139,14 +139,15 @@ export const useGetBuildPacks = (selectedType: string, org: Organization, option
 		options,
 	);
 
-export const useGetGitBranches = (repoUrl: string, org: Organization, options?: UseQueryOptions<string[]>) =>
+export const useGetGitBranches = (repoUrl: string, org: Organization, credRef = "", options?: UseQueryOptions<string[]>) =>
 	useQuery<string[]>(
-		queryKeys.getGitBranches(repoUrl, org),
+		queryKeys.getGitBranches(repoUrl, org, credRef),
 		async () => {
 			try {
 				const branches = await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getRepoBranches({
 					repoUrl,
 					orgId: org.id.toString(),
+					credRef,
 				});
 				return branches ?? [];
 			} catch {

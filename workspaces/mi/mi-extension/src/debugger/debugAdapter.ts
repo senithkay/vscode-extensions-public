@@ -269,6 +269,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                         DebuggerConfig.setPortOffset(portOffset);
 
                         DebuggerConfig.setEnvVariables(args?.env ? args?.env : {});
+                        DebuggerConfig.setVmArgs(args?.vmArgs ? args?.vmArgs : []);
 
                         DebuggerConfig.setVmArgs(args?.vmArgs ? args?.vmArgs : []);
 

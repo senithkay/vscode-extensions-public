@@ -11,14 +11,15 @@ import { DefaultLinkModel } from "@projectstorm/react-diagrams";
 
 import { IntermediatePortModel } from "../../Port";
 import { calculateControlPointOffset } from "../../utils/diagram-utils";
+import { IDMDiagnostic } from "@wso2-enterprise/ballerina-core";
 
 export const LINK_TYPE_ID = "datamapper-link";
 
 export class DataMapperLinkModel extends DefaultLinkModel {
 
 	constructor(
-		public value?: any,
-		public diagnostics: any[] = [],
+		public value?: string,
+		public diagnostics: IDMDiagnostic[] = [],
 		public isActualLink: boolean = false,
 		public notContainsLabel?: boolean
 	) {

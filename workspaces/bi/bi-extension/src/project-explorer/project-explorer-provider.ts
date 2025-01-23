@@ -180,6 +180,17 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     }
     entries.push(entryPoints);
 
+    // Listeners
+    const listeners = new ProjectExplorerEntry(
+        "Listeners",
+        vscode.TreeItemCollapsibleState.Expanded,
+        null,
+        'bell',
+        true
+    );
+    listeners.contextValue = "listeners";
+    listeners.children = getComponents(components.directoryMap[DIRECTORY_MAP.LISTENERS]);
+    entries.push(listeners);
 
     // Connections
     const connections = new ProjectExplorerEntry(
@@ -221,6 +232,18 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     functions.children = getComponents(components.directoryMap[DIRECTORY_MAP.FUNCTIONS], DIRECTORY_MAP.FUNCTIONS);
     entries.push(functions);
 
+    // Data Mappers
+    const dataMappers = new ProjectExplorerEntry(
+        "Data Mappers",
+        vscode.TreeItemCollapsibleState.Expanded,
+        null,
+        'dataMapper',
+        false
+    );
+    dataMappers.contextValue = "dataMappers";
+    dataMappers.children = getComponents(components.directoryMap[DIRECTORY_MAP.DATA_MAPPERS], DIRECTORY_MAP.DATA_MAPPERS);
+    entries.push(dataMappers);
+
     // Configurations
     const configs = new ProjectExplorerEntry(
         "Configurations",
@@ -261,12 +284,13 @@ function getComponents(items: ProjectStructureArtifactResponse[], itemType?: DIR
             [DIRECTORY_MAP.CONFIGURATIONS]: DIRECTORY_SUB_TYPE.CONFIGURATION,
             [DIRECTORY_MAP.TRIGGERS]: DIRECTORY_SUB_TYPE.TRIGGER,
             [DIRECTORY_MAP.LISTENERS]: DIRECTORY_SUB_TYPE.TRIGGER,
-            [DIRECTORY_MAP.RECORDS]: DIRECTORY_SUB_TYPE.TYPE
+            [DIRECTORY_MAP.RECORDS]: DIRECTORY_SUB_TYPE.TYPE,
+            [DIRECTORY_MAP.DATA_MAPPERS]: DIRECTORY_SUB_TYPE.DATA_MAPPER,
         };
 
         fileEntry.contextValue = contextValueMap[itemType] || comp.icon;
         // Service path is used to identify the service using getBallerniaProject API
-        if(itemType === DIRECTORY_MAP.SERVICES || DIRECTORY_SUB_TYPE.AUTOMATION) {
+        if (itemType === DIRECTORY_MAP.SERVICES || DIRECTORY_SUB_TYPE.AUTOMATION) {
             fileEntry.tooltip = comp.context;
         }
 

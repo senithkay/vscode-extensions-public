@@ -12,7 +12,7 @@ import { EVENT_TYPE, MACHINE_VIEW, ParentPopupData, POPUP_EVENT_TYPE, ProjectOve
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import ProjectStructureView from "./ProjectStructureView";
 import { ViewHeader } from "../../components/View";
-import { Button, Codicon, colors, ErrorBanner, Icon, PanelContent, ProgressRing, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Alert, Button, Codicon, colors, ErrorBanner, Icon, PanelContent, ProgressRing, Typography } from "@wso2-enterprise/ui-toolkit";
 import { ComponentDiagram } from "./ComponentDiagram";
 import styled from "@emotion/styled";
 import ReactMarkdown from "react-markdown";
@@ -92,7 +92,6 @@ export function Overview(props: OverviewProps) {
     const [workspaces, setWorkspaces] = React.useState<WorkspaceFolder[]>([]);
     const [activeWorkspaces, setActiveWorkspaces] = React.useState<WorkspaceFolder>(undefined);
     const [selected, setSelected] = React.useState<string>("");
-    const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
     const [projectOverview, setProjectOverview] = React.useState<ProjectOverviewResponse>(undefined);
     const [readmeContent, setReadmeContent] = React.useState<string>("");
     const [isLoading, setIsLoading] = React.useState<boolean>(true);
@@ -126,14 +125,6 @@ export function Overview(props: OverviewProps) {
 
     useEffect(() => {
         if (workspaces && selected) {
-            rpcClient.getMiVisualizerRpcClient().getProjectStructure({ documentUri: selected }).then((response) => {
-                setProjectStructure(response);
-            }).catch((error) => {
-                console.error('Error getting project structure:', error);
-                setProjectStructure(undefined);
-                setErrors({ ...errors, projectStructure: ERROR_MESSAGES.ERROR_LOADING_PROJECT_STRUCTURE });
-            });
-
             rpcClient.getMiVisualizerRpcClient().getProjectOverview({ documentUri: selected }).then((response) => {
                 setProjectOverview(response);
             }).catch((error) => {

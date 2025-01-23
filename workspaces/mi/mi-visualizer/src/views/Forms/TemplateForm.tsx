@@ -21,12 +21,14 @@ import { AddressEndpointWizard } from "./AddressEndpointForm";
 import { DefaultEndpointWizard } from "./DefaultEndpointForm";
 import { HttpEndpointWizard } from "./HTTPEndpointForm";
 import { WsdlEndpointWizard } from "./WSDLEndpointForm";
+import { Template } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 export interface TemplateWizardProps {
     path: string;
     type?: string;
     isPopup?: boolean;
     onCancel?: () => void;
+    model?: Template;
 }
 
 type InputsFields = {
@@ -200,7 +202,9 @@ export function TemplateWizard(props: TemplateWizardProps) {
             directory: props.path,
             getContentOnly: false,
             ...values,
-            parameters
+            parameters,
+            isEdit: !isNewTemplate,
+            range: props.model ? { start: { line: 0, character:0 }, end: props.model.sequence.range.startTagRange.start} : undefined
         }
 
         await rpcClient.getMiDiagramRpcClient().createTemplate(createTemplateParams);

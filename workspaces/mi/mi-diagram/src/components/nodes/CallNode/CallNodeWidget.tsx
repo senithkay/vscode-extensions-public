@@ -237,7 +237,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
             <S.CircleContainer
                 onMouseEnter={() => setIsHoveredEndpoint(true)}
                 onMouseLeave={() => setIsHoveredEndpoint(false)}
-                onClick={handleOnClickEndpoint}
+                onClick={(e) => node.onClicked(e, node, rpcClient, sidePanelContext)}
             >
                 <Tooltip content={endpointTooltip} position={'bottom'} >
                     <svg width="110" height="50" viewBox="0 0 103 40">

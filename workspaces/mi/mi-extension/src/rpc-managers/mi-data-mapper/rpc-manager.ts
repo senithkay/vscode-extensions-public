@@ -46,9 +46,10 @@ import { MiDiagramRpcManager } from "../mi-diagram/rpc-manager";
 import { UndoRedoManager } from "../../undoRedoManager";
 import * as ts from 'typescript';
 import { DMProject } from "../../datamapper/DMProject";
-import { DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME, DATAMAP_BACKEND_URL, READONLY_MAPPING_FUNCTION_NAME, USER_CHECK_BACKEND_URL } from "../../constants";
+import { DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME, DATAMAP_BACKEND_URL, READONLY_MAPPING_FUNCTION_NAME, USER_CHECK_BACKEND_URL, RUNTIME_VERSION_440 } from "../../constants";
 import { refreshAuthCode } from '../../ai-panel/auth';
 import { fetchBackendUrl, openSignInView, readTSFile, removeMapFunctionEntry, makeRequest, showMappingEndNotification, showSignedOutNotification } from "../../util/ai-datamapper-utils";
+import { compareVersions } from "../../util/onboardingUtils";
 
 const undoRedoManager = new UndoRedoManager();
 
@@ -96,8 +97,13 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         const regPathParts = filePath.split('/');
         const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
         if (workspaceFolder) {
-            const dataMapperConfigFolder = path.join(
-                workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamapper');
+            let dataMapperConfigFolder;
+            if (path.normalize(filePath).includes(path.normalize(path.join('wso2mi', 'resources', 'registry')))) {
+                dataMapperConfigFolder = path.join(
+                    workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
+            } else {
+                dataMapperConfigFolder = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamapper');
+            }
             const absPath = path.join(dataMapperConfigFolder, configName, regPathParts[regPathParts.length - 1]);
             return absPath;
         };
@@ -166,8 +172,13 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             const fileUri = Uri.file(params.filePath);
             const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
             if (workspaceFolder) {
-                const dataMapperConfigFolder = path.join(
-                    workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamapper');
+                let dataMapperConfigFolder;
+                if (path.normalize(params.filePath).includes(path.normalize(path.join('wso2mi', 'resources', 'registry')))) {
+                    dataMapperConfigFolder = path.join(
+                        workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
+                } else {
+                    dataMapperConfigFolder = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamapper');
+                }
                 if (!fs.existsSync(dataMapperConfigFolder)) {
                     return resolve({ dmConfigs: [] });
                 }
@@ -192,8 +203,13 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             const configName = regPathParts[regPathParts.length - 1].slice(0, -4);
             const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
             if (workspaceFolder) {
-                const dataMapperConfigFolder = path.join(
-                    workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamapper');
+                let dataMapperConfigFolder;
+                if (regPath.startsWith("gov:")) {
+                    dataMapperConfigFolder = path.join(
+                        workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
+                } else {
+                    dataMapperConfigFolder = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamapper');
+                }
                 const absPath = path.join(dataMapperConfigFolder, configName, `${configName}.ts`);
                 resolve({ absPath, configName });
             };
@@ -369,9 +385,15 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(filePath));
                 let miDiagramRpcManager: MiDiagramRpcManager = new MiDiagramRpcManager();
 
+                const langClient = StateMachine.context().langClient;
+                const projectDetailsRes = await langClient?.getProjectDetails();
+                const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
+                const isResourceContentUsed = compareVersions(runtimeVersion, RUNTIME_VERSION_440) >= 0;
+
                 if (workspaceFolder) {
-                    const dataMapperConfigFolder = path.join(
-                        workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamapper', dmName);
+                    const dataMapperConfigFolder = isResourceContentUsed ? 
+                        path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamapper', dmName) : 
+                        path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', dmName);
                     if (!fs.existsSync(dataMapperConfigFolder)) {
                         fs.mkdirSync(dataMapperConfigFolder, { recursive: true });
                     }
@@ -385,7 +407,6 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                     if (!fs.existsSync(operatorsDstFilePath)) {
                         fs.copyFileSync(operatorsSrcFilePath, operatorsDstFilePath, fs.constants.COPYFILE_FICLONE);
                     }
-
                     const dmcFilePath = path.join(dataMapperConfigFolder, `${dmName}.dmc`);
                     if (!fs.existsSync(dmcFilePath)) {
                         await miDiagramRpcManager.createRegistryResource({
@@ -394,11 +415,10 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                             templateType: "Data Mapper",
                             resourceName: dmName,
                             artifactName: dmName,
-                            registryRoot: "",
+                            registryRoot: isResourceContentUsed ? "" : "gov",
                             registryPath: `/datamapper/${dmName}`,
                             createOption: "entryOnly",
                             content: ""
-
                         });
                     }
                     const inputSchemaFilePath = path.join(dataMapperConfigFolder, `${dmName}_inputSchema.json`);
@@ -409,7 +429,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                             templateType: "Data Mapper Schema",
                             resourceName: `${dmName}_inputSchema`,
                             artifactName: `${dmName}_inputSchema`,
-                            registryRoot: "",
+                            registryRoot: isResourceContentUsed ? "" : "gov",
                             registryPath: `/datamapper/${dmName}`,
                             createOption: "entryOnly",
                             content: "{}"
@@ -424,7 +444,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                             templateType: "Data Mapper Schema",
                             resourceName: `${dmName}_outputSchema`,
                             artifactName: `${dmName}_outputSchema`,
-                            registryRoot: "",
+                            registryRoot: isResourceContentUsed ? "" : "gov",
                             registryPath: `/datamapper/${dmName}`,
                             createOption: "entryOnly",
                             content: "{}"

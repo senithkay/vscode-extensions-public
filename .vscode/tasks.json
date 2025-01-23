@@ -200,6 +200,22 @@
 			"group": "build"
 		},
         {
+            "label": "npm: watch-api-designer",
+			"type": "npm",
+			"script": "watch",
+            "path": "workspaces/api-designer/api-designer-extension",
+            "problemMatcher": "$tsc-watch",
+			"isBackground": true,
+			"presentation": {
+				"reveal": "never",
+				"group": "watchers"
+			},
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+        {
             "type": "npm",
             "script": "watch-fhir-tools",
             "path": "workspaces/fhir-tools/fhir-tools-extension",

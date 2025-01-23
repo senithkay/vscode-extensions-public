@@ -221,7 +221,8 @@ import {
     GetHelperPaneInfoRequest,
     GetHelperPaneInfoResponse,
     TestConnectorConnectionRequest,
-    TestConnectorConnectionResponse
+    TestConnectorConnectionResponse,
+    MiVersionResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -362,6 +363,7 @@ export interface MiDiagramAPI {
     fetchDSSTables: (params: DSSFetchTablesRequest) => Promise<DSSFetchTablesResponse>;
     tryOutMediator: (params: MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;
     shutDownTryoutServer: () => Promise<boolean>;
+    getMIVersionFromPom: () => Promise<MiVersionResponse>;
     saveInputPayload: (params:SavePayloadRequest) => Promise<boolean>;
     getInputPayloads: (params:GetPayloadsRequest) => Promise<GetPayloadsResponse>;
     getMediatorInputOutputSchema: (params:MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;

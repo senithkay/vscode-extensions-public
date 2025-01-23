@@ -26,17 +26,15 @@ import { ERDiagram } from "./views/ERDiagram";
 import { GraphQLDiagram } from "./views/GraphQLDiagram";
 import { SequenceDiagram } from "./views/SequenceDiagram";
 import { Overview } from "./views/Overview";
-import { ServiceDesigner } from "./views/ServiceDesigner";
+import { ServiceDesigner } from "./views/BI/ServiceDesigner";
 import {
     WelcomeView,
     ProjectForm,
     ComponentListView,
-    ServiceForm,
     PopupMessage,
     MainForm,
     FunctionForm,
-    SetupView,
-    ServiceHttpForm
+    SetupView
 } from "./views/BI";
 import { handleRedo, handleUndo } from "./utils/utils";
 import { FunctionDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
@@ -52,13 +50,14 @@ import { EndpointList } from "./views/Connectors/EndpointList";
 import { getSymbolInfo } from "@wso2-enterprise/ballerina-low-code-diagram";
 import DiagramWrapper from "./views/BI/DiagramWrapper";
 import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
-import TriggerWizard from "./views/BI/Trigger/AddTriggerWizard";
 import { TypeDiagram } from "./views/TypeDiagram";
 import { Overview as OverviewBI } from "./views/BI/Overview/index";
 import EditConnectionWizard from "./views/BI/Connection/EditConnectionWizard";
 import ViewConfigurableVariables from "./views/BI/Configurables/ViewConfigurableVariables";
-import EditConfigurableVariables from "./views/BI/Configurables/EditConfigurableVariables";
-import ListenerView from "./views/BI/Trigger/ListenerView";
+import { ServiceWizard } from "./views/BI/ServiceDesigner/ServiceWizard";
+import { ServiceEditView } from "./views/BI/ServiceDesigner/ServiceEditView";
+import { ListenerEditView } from "./views/BI/ServiceDesigner/ListenerEditView";
+import { DataMapperForm } from "./views/BI/DataMapperForm";
 
 const globalStyles = css`
     *,
@@ -169,10 +168,7 @@ const MainPanel = () => {
                         setViewComponent(
                             <ServiceDesigner
                                 filePath={value.documentUri}
-                                model={value?.syntaxTree as ServiceDeclaration}
-                                applyModifications={applyModifications}
-                                isBI={value.isBI}
-                                isEditingDisabled={value.haveServiceType}
+                                position={value?.position}
                             />
                         );
                         break;
@@ -197,6 +193,15 @@ const MainPanel = () => {
                             />
                         );
                         break;
+                    case MACHINE_VIEW.BIDataMapperForm:
+                        rpcClient.getVisualizerLocation().then((location) => {
+                            setViewComponent(
+                                <DataMapperForm
+                                    filePath={Utils.joinPath(URI.file(location.projectUri), 'data_mappings.bal').fsPath}
+                                />
+                            );
+                        });
+                        break;
                     case MACHINE_VIEW.GraphQLDiagram:
                         setViewComponent(<GraphQLDiagram />);
                         break;
@@ -220,8 +225,14 @@ const MainPanel = () => {
                     case MACHINE_VIEW.BIComponentView:
                         setViewComponent(<ComponentListView />);
                         break;
-                    case MACHINE_VIEW.BIServiceForm:
-                        setViewComponent(<ServiceHttpForm />);
+                    case MACHINE_VIEW.BIServiceWizard:
+                        setViewComponent(<ServiceWizard type={value.serviceType} />);
+                        break;
+                    case MACHINE_VIEW.BIServiceConfigView:
+                        setViewComponent(<ServiceEditView filePath={value.documentUri} position={value?.position} />);
+                        break;
+                    case MACHINE_VIEW.BIListenerConfigView:
+                        setViewComponent(<ListenerEditView filePath={value.documentUri} position={value?.position} />);
                         break;
                     case MACHINE_VIEW.AddConnectionWizard:
                         rpcClient.getVisualizerLocation().then((location) => {
@@ -242,12 +253,6 @@ const MainPanel = () => {
                             );
                         });
                         break;
-                    case MACHINE_VIEW.AddTriggerWizard:
-                        setViewComponent(<TriggerWizard />);
-                        break;
-                    case MACHINE_VIEW.ListenerConfigView:
-                        setViewComponent(<ListenerView position={value.position} />);
-                        break;
                     case MACHINE_VIEW.BIMainFunctionForm:
                         setViewComponent(<MainForm />);
                         break;
@@ -255,7 +260,13 @@ const MainPanel = () => {
                         setViewComponent(<FunctionForm />);
                         break;
                     case MACHINE_VIEW.ViewConfigVariables:
-                        setViewComponent(<ViewConfigurableVariables />);
+                        rpcClient.getVisualizerLocation().then((location) => {
+                            setViewComponent(
+                                <ViewConfigurableVariables
+                                    fileName={Utils.joinPath(URI.file(location.projectUri), 'config.bal').fsPath}
+                                />
+                            );
+                        });
                         break;
                     case MACHINE_VIEW.EditConfigVariables:
                         rpcClient.getVisualizerLocation().then((location) => {
@@ -274,7 +285,8 @@ const MainPanel = () => {
                                     setViewComponent(
                                         <ViewConfigurableVariables
                                             variableIndex={variableIndex}
-                                            isExternallauncher={true} />
+                                            isExternallauncher={true}
+                                            fileName={Utils.joinPath(URI.file(location.projectUri), 'config.bal').fsPath} />
                                     );
                                 }
                             });

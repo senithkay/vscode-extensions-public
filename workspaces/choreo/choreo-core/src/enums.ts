@@ -64,6 +64,7 @@ export enum DeploymentStatus {
 export enum GitProvider {
 	GITHUB = "github",
 	BITBUCKET = "bitbucket",
+	GITLAB_SERVER = "gitlab-server",
 }
 
 export enum GoogleProviderBuildPackNames {

@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { Button, Codicon, Confirm, ContextMenu, Icon, LinkButton, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
@@ -156,10 +156,9 @@ export interface ResourceAccordionProps {
 const ResourceAccordion = (params: ResourceAccordionProps) => {
     const { resource, goToSource, onEditResource, onDeleteResource, onResourceImplement, onResourceClick } = params;
     const { expandable = true, additionalActions } = resource;
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(resource.isOpen || false);
     const [isConfirmOpen, setConfirmOpen] = useState(false);
     const [confirmEl, setConfirmEl] = React.useState(null);
-
 
     const toggleAccordion = () => {
         setIsOpen(!isOpen);
@@ -220,6 +219,12 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
         onResourceClick && onResourceClick(resource);
         toggleAccordion();
     }
+
+    useEffect(() => {
+        if (resource.isOpen !== undefined) {
+            setIsOpen(resource.isOpen);
+        }
+    }, [resource.isOpen]);
 
     return (
         <AccordionContainer data-testid="service-design-view-resource">
