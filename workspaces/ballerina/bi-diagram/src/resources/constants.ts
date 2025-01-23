@@ -123,11 +123,12 @@ export const NODE_GAP_X = 60;
 
 // custom nodes
 export const IF_NODE_WIDTH = 65;
-export const WHILE_NODE_WIDTH = 56;
+export const WHILE_NODE_WIDTH = 52;
 export const ERROR_HANDLER_NODE_WIDTH = 52;
 export const EMPTY_NODE_WIDTH = 16;
 export const EMPTY_NODE_CONTAINER_WIDTH = NODE_WIDTH / 2;
 export const END_NODE_WIDTH = 20;
+export const CONTAINER_PADDING = 8;
 
 // draft node
 export const DRAFT_NODE_WIDTH = NODE_WIDTH;

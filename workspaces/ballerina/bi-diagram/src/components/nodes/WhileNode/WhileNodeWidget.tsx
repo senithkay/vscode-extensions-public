@@ -17,7 +17,7 @@ import {
     NODE_BORDER_WIDTH,
     NODE_WIDTH,
     NODE_GAP_X,
-    NODE_GAP_Y,
+    CONTAINER_PADDING,
 } from "../../../resources/constants";
 import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
 import { FlowNode } from "../../../utils/types";
@@ -118,7 +118,7 @@ export namespace NodeStyles {
         hasError: boolean;
         isActiveBreakpoint?: boolean;
     };
-    export const Circle = styled.div<NodeStyleProp>`
+    export const Box = styled.div<NodeStyleProp>`
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -126,7 +126,7 @@ export namespace NodeStyles {
         border: ${NODE_BORDER_WIDTH}px solid
             ${(props: NodeStyleProp) =>
                 props.hasError ? Colors.ERROR : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
-        border-radius: 50px;
+        border-radius: 8px;
         background-color: ${(props: NodeStyleProp) =>
             props?.isActiveBreakpoint ? Colors.DEBUGGER_BREAKPOINT_BACKGROUND : Colors.SURFACE_DIM};
         width: ${WHILE_NODE_WIDTH}px;
@@ -244,7 +244,7 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
         <NodeStyles.Node>
             <NodeStyles.Row>
                 <NodeStyles.Column>
-                    <NodeStyles.Circle
+                    <NodeStyles.Box
                         onClick={handleOnClick}
                         onMouseEnter={() => setIsHovered(true)}
                         onMouseLeave={() => setIsHovered(false)}
@@ -279,7 +279,7 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                             </g>
                         </svg>
                         <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
-                    </NodeStyles.Circle>
+                    </NodeStyles.Box>
                 </NodeStyles.Column>
                 <NodeStyles.Header>
                     <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
@@ -322,8 +322,8 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
             </NodeStyles.Row>
             <NodeStyles.Container
                 width={nodeViewState.clw + nodeViewState.crw + NODE_GAP_X / 2}
-                height={nodeViewState.ch - nodeViewState.h - NODE_GAP_Y / 2}
-                top={nodeViewState.y + nodeViewState.h + NODE_GAP_Y / 2}
+                height={nodeViewState.ch - nodeViewState.h + CONTAINER_PADDING}
+                top={nodeViewState.y + nodeViewState.h - CONTAINER_PADDING}
                 left={nodeViewState.x + nodeViewState.lw - nodeViewState.clw - NODE_GAP_X / 4}
             ></NodeStyles.Container>
         </NodeStyles.Node>

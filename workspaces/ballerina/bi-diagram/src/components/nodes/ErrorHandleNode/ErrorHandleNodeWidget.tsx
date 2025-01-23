@@ -17,8 +17,8 @@ import {
     NODE_BORDER_WIDTH,
     NODE_WIDTH,
     NODE_GAP_X,
-    NODE_GAP_Y,
     ERROR_HANDLER_NODE_WIDTH,
+    CONTAINER_PADDING,
 } from "../../../resources/constants";
 import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
 import { FlowNode } from "../../../utils/types";
@@ -317,8 +317,8 @@ export function ErrorHandleNodeWidget(props: ErrorHandleNodeWidgetProps) {
             </NodeStyles.Row>
             <NodeStyles.Container
                 width={nodeViewState.clw + nodeViewState.crw + NODE_GAP_X / 2}
-                height={nodeViewState.ch - nodeViewState.h - NODE_GAP_Y / 2}
-                top={nodeViewState.y + nodeViewState.h + NODE_GAP_Y / 2}
+                height={nodeViewState.ch - nodeViewState.h + CONTAINER_PADDING}
+                top={nodeViewState.y + nodeViewState.h - CONTAINER_PADDING}
                 left={nodeViewState.x + nodeViewState.lw - nodeViewState.clw - NODE_GAP_X / 4}
             ></NodeStyles.Container>
         </NodeStyles.Node>
