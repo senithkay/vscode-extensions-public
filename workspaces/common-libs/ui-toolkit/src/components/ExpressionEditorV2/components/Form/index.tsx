@@ -53,6 +53,20 @@ namespace Ex {
     `;
 }
 
+// Styles
+const State = {
+    Selected: {
+        Button: {
+            border: '1px solid var(--focus-border)',
+            backgroundColor: 'var(--vscode-list-activeSelectionBackground)',
+            borderRadius: 'var(--button-icon-corner-radius)',
+        },
+        Icon: {
+            color: 'var(--vscode-list-activeSelectionForeground)',
+        },
+    }
+} as const;
+
 export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, FormExpressionEditorProps>((props, ref) => {
     const { id, getExpressionEditorIcon, onRemove, codeActions, startAdornment, endAdornment, ...rest } = props;
     const expressionEditorRef = useRef<FormExpressionEditorRef>(null);
@@ -99,19 +113,22 @@ export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, F
                             appearance="icon"
                             onClick={handleHelperPaneToggle}
                             tooltip="Open Helper View"
-                            {...(props.isHelperPaneOpen && {
-                                sx: { backgroundColor: ThemeColors.PRIMARY, borderRadius: "2px" },
-                            })}
+                            sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                width: "26px",
+                                height: "26px",
+                                ...(props.isHelperPaneOpen && State.Selected.Button),
+                            }}
+                            buttonSx={{ width: "26px", height: "26px" }}
                         >
                             <Icon
                                 name="function-icon"
-                                sx={{
-                                    height: "19px",
-                                    width: "17px",
-                                    ...props.isHelperPaneOpen && { color: ThemeColors.ON_PRIMARY },
+                                sx={{ height: "20px", width: "18px" }}
+                                iconSx={{
+                                    fontSize: "16px",
+                                    ...(props.isHelperPaneOpen && State.Selected.Icon),
                                 }}
-                                iconSx={{ fontSize: "16px" }}
-                                
                             />
                         </Button>
                     )}
