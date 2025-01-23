@@ -462,7 +462,7 @@ export function FormGenerator(props: FormProps) {
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
             onCancel: handleExpressionEditorCancel,
-            helperPaneOrigin: "bottom"
+            helperPaneOrigin: "left"
         } as FormExpressionEditorProps;
     }, [
         filteredCompletions,

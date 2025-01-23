@@ -136,18 +136,18 @@ export const VariablesPage = ({ fileName, targetLineRange, setCurrentPage, onClo
             />
             <HelperPane.Body>
                 <HelperPane.Section
-                    title="Module Variables"
-                    loading={isLoading}
-                    titleSx={{ fontFamily: "GilmerMedium" }}
-                >
-                    {getModuleVariables()}
-                </HelperPane.Section>
-                <HelperPane.Section
                     title="Local Variables"
                     loading={isLoading}
                     titleSx={{ fontFamily: "GilmerMedium" }}
                 >
                     {getLocalVariables()}
+                </HelperPane.Section>
+                <HelperPane.Section
+                    title="Module Variables"
+                    loading={isLoading}
+                    titleSx={{ fontFamily: "GilmerMedium" }}
+                >
+                    {getModuleVariables()}
                 </HelperPane.Section>
             </HelperPane.Body>
         </>
