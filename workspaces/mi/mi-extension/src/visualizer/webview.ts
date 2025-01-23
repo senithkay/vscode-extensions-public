@@ -16,7 +16,7 @@ import { getComposerJSFiles } from '../util';
 import { RPCLayer } from '../RPCLayer';
 import { extension } from '../MIExtensionContext';
 import { debounce } from 'lodash';
-import { navigate, StateMachine } from '../stateMachine';
+import { navigate, refreshUI, StateMachine } from '../stateMachine';
 import { MACHINE_VIEW, onDocumentSave } from '@wso2-enterprise/mi-core';
 import { COMMANDS, REFRESH_ENABLED_DOCUMENTS, SWAGGER_LANG_ID, SWAGGER_REL_DIR } from '../constants';
 import { AiPanelWebview } from '../ai-panel/webview';
@@ -41,7 +41,7 @@ export class VisualizerWebview {
                 if (!StateMachine.context().isOldProject) {
                     await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND); // Refresh the project explore view
                 }
-                navigate();
+                refreshUI();
             }
         }, 500);
 

@@ -59,16 +59,14 @@ import {
     retrieveContext,
     sendSwaggerProxyRequest,
     showNotification,
-    downloadJava,
+    downloadJavaFromMI,
     downloadMI,
     selectFolder,
-    MIDetails,
-    JavaAndMIPathResponse,
-    JavaAndMIPathRequest,
-    getJavaAndMIPaths,
-    setJavaAndMIPaths,
-    getSupportedMIVersions,
-    getMIDetailsFromPom,
+    SetupDetails,
+    SetPathRequest,
+    setPathsInWorkSpace,
+    getSupportedMIVersionsHigherThan,
+    getProjectSetupDetails,
     toggleDisplayOverview,
     updateContext,
     getProjectDetails,
@@ -82,7 +80,8 @@ import {
     UpdateConfigValuesRequest,
     updateConnectorDependencies,
     ImportOpenAPISpecRequest,
-    updateRuntimeVersionsInPom
+    updateRuntimeVersionsInPom,
+    PathDetailsResponse
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -198,31 +197,26 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
         return this._messenger.sendNotification(openReadme, HOST_EXTENSION);
     }
 
-    downloadJava(params: string): Promise<string> {
-        return this._messenger.sendRequest(downloadJava, HOST_EXTENSION, params);
+    downloadJavaFromMI(params: string): Promise<string> {
+        return this._messenger.sendRequest(downloadJavaFromMI, HOST_EXTENSION, params);
     }
 
     downloadMI(params: string): Promise<string> {
         return this._messenger.sendRequest(downloadMI, HOST_EXTENSION, params);
     }
 
-    getSupportedMIVersions(): Promise<string[]> {
-        return this._messenger.sendRequest(getSupportedMIVersions, HOST_EXTENSION);
+    getSupportedMIVersionsHigherThan(params: string): Promise<string[]> {
+        return this._messenger.sendRequest(getSupportedMIVersionsHigherThan, HOST_EXTENSION,params);
     }
 
-    getMIDetailsFromPom(): Promise<MIDetails> {
-        return this._messenger.sendRequest(getMIDetailsFromPom, HOST_EXTENSION);
+    getProjectSetupDetails(): Promise<SetupDetails> {
+        return this._messenger.sendRequest(getProjectSetupDetails, HOST_EXTENSION);
     }
     updateRuntimeVersionsInPom(params:string): Promise<boolean> {
         return this._messenger.sendRequest(updateRuntimeVersionsInPom, HOST_EXTENSION, params);
     }
-
-    getJavaAndMIPaths(): Promise<JavaAndMIPathResponse> {
-        return this._messenger.sendRequest(getJavaAndMIPaths, HOST_EXTENSION);
-    }
-
-    setJavaAndMIPaths(params: JavaAndMIPathRequest): Promise<JavaAndMIPathResponse> {
-        return this._messenger.sendRequest(setJavaAndMIPaths, HOST_EXTENSION, params);
+    setPathsInWorkSpace(params: SetPathRequest): Promise<PathDetailsResponse> {
+        return this._messenger.sendRequest(setPathsInWorkSpace, HOST_EXTENSION, params);
     }
     
     selectFolder(params:string): Promise<string|undefined> {

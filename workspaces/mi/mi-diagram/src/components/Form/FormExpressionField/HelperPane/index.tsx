@@ -66,7 +66,7 @@ const HelperPaneEl = ({
     };
 
     return (
-        <HelperPane sx={{ '> *': { boxSizing: 'border-box' } }}>
+        <HelperPane sx={{ ' *': { boxSizing: 'border-box' } }}>
             {currentPage === 0 && (
                 <CategoryPage
                     isLoading={isLoadingHelperPaneInfo}

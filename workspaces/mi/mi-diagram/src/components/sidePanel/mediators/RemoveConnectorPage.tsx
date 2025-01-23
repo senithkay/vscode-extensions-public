@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  * 
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -14,7 +14,6 @@ import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
 import { sidepanelGoBack } from '..';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import path from 'path';
 
 const ProgressRing = styled(VSCodeProgressRing)`
     height: 50px;
@@ -23,55 +22,52 @@ const ProgressRing = styled(VSCodeProgressRing)`
     margin-bottom: 10px;
 `;
 
-interface DownloadPageProps {
-    module: any;
-    documentUri: string;
-    onDownloadSuccess: (connectorName: string) => void;
+interface RemoveConnectorPageProps {
+    connectorName: string;
+    artifactId: string;
+    version: string;
+    onRemoveSuccess: () => Promise<void>;
 }
 
-export function DownloadPage(props: DownloadPageProps) {
-    const { module, onDownloadSuccess } = props;
+export function RemoveConnectorPage(props: RemoveConnectorPageProps) {
+    const { connectorName, artifactId, version, onRemoveSuccess } = props;
     const sidePanelContext = React.useContext(SidePanelContext);
     const { rpcClient } = useVisualizerContext();
-    const [isDownloading, setIsDownloading] = React.useState(false);
-    const [isFailedDownload, setIsFailedDownload] = React.useState(false);
+    const [isRemoving, setIsRemoving] = React.useState(false);
+    const [isFailedRemoving, setIsFailedRemoving] = React.useState(false);
 
-    const handleDependencyResponse = async (response: boolean) => {
+    const handleResponse = async (response: boolean) => {
         if (response) {
 
-            setIsDownloading(true);
+            setIsRemoving(true);
 
-            const updateDependencies = async () => {
-                const dependencies = [];
-                dependencies.push({
-                    groupId: module.mavenGroupId,
-                    artifact: module.mavenArtifactId,
-                    version: module.version.tagName,
-                    type: 'zip' as 'zip'
-                });
-                await rpcClient.getMiVisualizerRpcClient().updateDependencies({
-                    dependencies
-                });
-            }
+            const projectDetails = await rpcClient.getMiVisualizerRpcClient().getProjectDetails();
+            const connectorDependencies = projectDetails.dependencies.connectorDependencies;
 
-            await updateDependencies();
             
 
-            // Download Connector
+            const removeDependency = async () => {
+                for (const d of connectorDependencies) {
+                    if (d.artifact === artifactId && d.version === version) {
+                        await rpcClient.getMiVisualizerRpcClient().updatePomValues({
+                            pomValues: [{ range: d.range, value: '' }]
+                        });
+                        break;
+                    }
+                }
+            }
+
+            await removeDependency();
+
             const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
 
-            // Format pom
-            const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: props.documentUri })).path;
-            const pomPath = path.join(projectDir, 'pom.xml');
-            await rpcClient.getMiDiagramRpcClient().rangeFormat({ uri: pomPath });
-
             if (response === "Success") {
-                onDownloadSuccess(props.module.connectorName);
-                setIsDownloading(false);
-                sidepanelGoBack(sidePanelContext, sidePanelContext.pageStack.length - 1);
+                await onRemoveSuccess();
+                setIsRemoving(false);
+                sidepanelGoBack(sidePanelContext, 1);
             } else {
-                setIsFailedDownload(true);
-                setIsDownloading(false);
+                setIsFailedRemoving(true);
+                setIsRemoving(false);
             }
 
 
@@ -80,18 +76,18 @@ export function DownloadPage(props: DownloadPageProps) {
         }
     }
 
-    const retryDownload = async () => {
-        setIsFailedDownload(true);
-        // Download Connector
+    const retryRemove = async () => {
+        setIsFailedRemoving(true);
+        // Removing Connector
         const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
 
         if (response === "Success") {
-            onDownloadSuccess(props.module.connectorName);
-            setIsDownloading(false);
-            sidepanelGoBack(sidePanelContext, sidePanelContext.pageStack.length - 1);
+            onRemoveSuccess();
+            setIsRemoving(false);
+            sidepanelGoBack(sidePanelContext);
         } else {
-            setIsFailedDownload(true);
-            setIsDownloading(false);
+            setIsFailedRemoving(true);
+            setIsRemoving(false);
         }
     }
 
@@ -99,24 +95,24 @@ export function DownloadPage(props: DownloadPageProps) {
         <>
             <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3"></Typography>
             <div>
-                {isDownloading ? (
+                {isRemoving ? (
                     <div style={{ display: "flex", flexDirection: "column", padding: "10px", alignItems: "center", gap: "10px" }}>
                         <ProgressRing sx={{ height: '50px', width: '50px' }} />
-                        <span>Downloading Module...</span>
+                        <span>Removing Module...</span>
                     </div>
-                ) : isFailedDownload ? (
+                ) : isFailedRemoving ? (
                     <div style={{ display: "flex", flexDirection: "column", padding: "40px", gap: "15px" }}>
-                        <Typography variant="body2">Error downloading module. Please try again...</Typography>
+                        <Typography variant="body2">Error removing module. Please try again...</Typography>
                         <FormActions>
                             <Button
                                 appearance="primary"
-                                onClick={() => retryDownload()}
+                                onClick={() => retryRemove()}
                             >
                                 Retry
                             </Button>
                             <Button
                                 appearance="secondary"
-                                onClick={() => handleDependencyResponse(false)}
+                                onClick={() => handleResponse(false)}
                             >
                                 Cancel
                             </Button>
@@ -124,17 +120,20 @@ export function DownloadPage(props: DownloadPageProps) {
                     </div>
                 ) : (
                     <div style={{ display: "flex", flexDirection: "column", padding: "40px", gap: "15px" }}>
-                        <Typography variant="body2">Dependencies will be added to the project. Do you want to continue?</Typography>
+                        <Typography variant="body2">
+                            {connectorName} module will be removed from the project. Make sure all its dependencies are removed.
+                        </Typography>
+                        <Typography variant="body2">Do you want to continue?</Typography>
                         <FormActions>
                             <Button
                                 appearance="secondary"
-                                onClick={() => handleDependencyResponse(false)}
+                                onClick={() => handleResponse(false)}
                             >
                                 No
                             </Button>
                             <Button
                                 appearance="primary"
-                                onClick={() => handleDependencyResponse(true)}
+                                onClick={() => handleResponse(true)}
                             >
                                 Yes
                             </Button>
