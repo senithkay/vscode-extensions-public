@@ -117,8 +117,7 @@ export function AddArtifactView() {
 
     const handleClick = async (key: string) => {
         const dir = path.join(activeWorkspaces.fsPath, "src", "main", "wso2mi", "artifacts", key);
-        const entry = { info: { path: dir } };
-        console.log(entry);
+        let entry = { info: { path: dir } };
         if (key === "apis") {
             await rpcClient
                 .getMiDiagramRpcClient()
@@ -131,6 +130,11 @@ export function AddArtifactView() {
             await rpcClient
                 .getMiDiagramRpcClient()
                 .executeCommand({ commands: ["MI.project-explorer.add-sequence", entry] });
+        } else if (key === "classMediators") {
+            entry = { info: { path: path.join(activeWorkspaces.fsPath, 'src', 'main', 'java') } };
+            await rpcClient
+                .getMiDiagramRpcClient()
+                .executeCommand({ commands: ["MI.project-explorer.add-class-mediator", entry] });
         } else if (key === "inboundEndpoints") {
             await rpcClient
                 .getMiDiagramRpcClient()
@@ -331,6 +335,13 @@ export function AddArtifactView() {
                                         title="Sequence"
                                         description="Configure reusable mediation sequences."
                                         onClick={() => handleClick("sequences")}
+                                    />
+                                    <Card
+                                        icon="file-code"
+                                        isCodicon
+                                        title="Class Mediator"
+                                        description="Execute a custom logic in the mediation flow."
+                                        onClick={() => handleClick("classMediators")}
                                     />
                                     <Card
                                         icon="registry"
