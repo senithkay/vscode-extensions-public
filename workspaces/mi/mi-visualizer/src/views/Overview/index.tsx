@@ -233,7 +233,7 @@ export function Overview(props: OverviewProps) {
             <Body>
                 <Columns>
                     <Column style={{ flex: '1' }}>
-                        <TabContent style={{ height: '400px', overflow: 'hidden', borderRadius: '8px' }}>
+                        <TabContent style={{ height: '450px', overflow: 'hidden', borderRadius: '8px' }}>
                             {projectOverview ? (
                                 projectOverview.connections.length > 0 || projectOverview.entrypoints?.length > 0 ? (
                                     <ComponentDiagram
