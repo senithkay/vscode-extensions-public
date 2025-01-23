@@ -122,6 +122,9 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-jar-plugin</artifactId>
+            <configuration>
+              <skipIfEmpty>true</skipIfEmpty>
+            </configuration>
             <executions>
               <execution>
                 <phase>compile</phase>
@@ -216,6 +219,9 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-jar-plugin</artifactId>
+            <configuration>
+              <skipIfEmpty>true</skipIfEmpty>
+            </configuration>
             <executions>
               <execution>
                 <id>default-jar</id>
@@ -405,7 +411,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
     <project.scm.id>integration-project</project.scm.id>
     <project.runtime.version>${miVersion}</project.runtime.version>
     <dockerfile.base.image>wso2/wso2mi:\${project.runtime.version}</dockerfile.base.image>
-    <car.plugin.version>5.2.84</car.plugin.version>
+    <car.plugin.version>5.2.88</car.plugin.version>
   </properties>
 </project>`;
 
