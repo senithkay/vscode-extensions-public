@@ -62,7 +62,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
     private createBaseNode(node: FlowNode): NodeModel {
         if (!node.viewState) {
-            console.error("Node view state is not defined");
+            console.error(">>> Node view state is not defined", { node });
             return;
         }
         const nodeModel = new BaseNodeModel(node);
@@ -108,10 +108,11 @@ export class NodeFactoryVisitor implements BaseVisitor {
             lastChildNodeModel = this.nodes.find((n) => n.getID() === `${lastNode.id}-endif`);
         } else if (
             branch.children.at(-1).codedata.node === "WHILE" ||
-            branch.children.at(-1).codedata.node === "FOREACH"
+            branch.children.at(-1).codedata.node === "FOREACH" ||
+            branch.children.at(-1).codedata.node === "ERROR_HANDLER"
         ) {
             // if last child is WHILE or FOREACH, find endwhile node
-            lastChildNodeModel = this.nodes.find((n) => n.getID() === `${lastNode.id}-endwhile`);
+            lastChildNodeModel = this.nodes.find((n) => n.getID() === `${lastNode.id}-endContainer`);
         } else {
             lastChildNodeModel = this.nodes.find((n) => n.getID() === lastNode.id);
         }
@@ -279,9 +280,9 @@ export class NodeFactoryVisitor implements BaseVisitor {
     }
 
     private visitContainerNode(node: FlowNode, topElementWidth: number) {
-        const whileNodeModel = this.nodes.find((n) => n.getID() === node.id);
-        if (!whileNodeModel) {
-            console.error("While node model not found", node);
+        const containerNodeModel = this.nodes.find((n) => n.getID() === node.id);
+        if (!containerNodeModel) {
+            console.error("Container node model not found", node);
             return;
         }
 
@@ -292,7 +293,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
         if (branch.children && branch.children.length > 0) {
             const firstChildNodeModel = this.nodes.find((n) => n.getID() === branch.children.at(0).id);
             if (firstChildNodeModel) {
-                const link = createNodesLink(whileNodeModel, firstChildNodeModel);
+                const link = createNodesLink(containerNodeModel, firstChildNodeModel);
                 if (link) {
                     this.links.push(link);
                 }
@@ -300,13 +301,13 @@ export class NodeFactoryVisitor implements BaseVisitor {
         }
 
         // create branch's OUT link
-        const endWhileEmptyNode = this.createEmptyNode(
-            `${node.id}-endwhile`,
+        const endContainerEmptyNode = this.createEmptyNode(
+            `${node.id}-endContainer`,
             node.viewState.x + topElementWidth / 2 - EMPTY_NODE_WIDTH / 2,
             node.viewState.y - EMPTY_NODE_WIDTH / 2 + node.viewState.ch
         );
-        endWhileEmptyNode.setParentFlowNode(node);
-        this.lastNodeModel = endWhileEmptyNode;
+        endContainerEmptyNode.setParentFlowNode(node);
+        this.lastNodeModel = endContainerEmptyNode;
 
         if (
             branch.children &&
@@ -322,10 +323,10 @@ export class NodeFactoryVisitor implements BaseVisitor {
                 true,
                 true
             );
-            const linkIn = createNodesLink(whileNodeModel, branchEmptyNode, {
+            const linkIn = createNodesLink(containerNodeModel, branchEmptyNode, {
                 showAddButton: false,
             });
-            const linkOut = createNodesLink(branchEmptyNode, endWhileEmptyNode, {
+            const linkOut = createNodesLink(branchEmptyNode, endContainerEmptyNode, {
                 showAddButton: false,
                 alignBottom: true,
             });
@@ -342,7 +343,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
             return;
         }
 
-        const endLink = createNodesLink(lastChildNodeModel, endWhileEmptyNode, {
+        const endLink = createNodesLink(lastChildNodeModel, endContainerEmptyNode, {
             alignBottom: true,
             showAddButton: !lastNode.returning,
         });

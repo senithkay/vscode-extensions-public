@@ -115,7 +115,7 @@ export class InitVisitor implements BaseVisitor {
         }
     }
 
-    beginVisitWhile(node: FlowNode, parent?: FlowNode): void {
+    private visitContainerNode(node: FlowNode, parent?: FlowNode): void {
         node.viewState = this.getDefaultViewState();
 
         if (!node.branches || node.branches.length < 1) {
@@ -153,12 +153,16 @@ export class InitVisitor implements BaseVisitor {
         }
     }
 
+    beginVisitWhile(node: FlowNode, parent?: FlowNode): void {
+        this.visitContainerNode(node, parent);
+    }
+
     beginVisitForeach(node: FlowNode, parent?: FlowNode): void {
-        this.beginVisitWhile(node, parent);
+        this.visitContainerNode(node, parent);
     }
 
     beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
-        this.beginVisitWhile(node, parent);
+        this.visitContainerNode(node, parent);
     }
 
     endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {

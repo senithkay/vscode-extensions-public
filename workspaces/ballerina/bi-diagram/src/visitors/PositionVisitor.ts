@@ -82,7 +82,7 @@ export class PositionVisitor implements BaseVisitor {
 
     beginVisitNode(node: FlowNode, parent?: FlowNode): void {
         if (!node.viewState) {
-            console.error("Node view state is not defined");
+            console.error(">>> Node view state is not defined", { node });
             return;
         }
         if (!node.viewState.y) {
@@ -126,7 +126,7 @@ export class PositionVisitor implements BaseVisitor {
 
     beginVisitWhile(node: FlowNode, parent?: FlowNode): void {
         node.viewState.y = this.lastNodeY;
-        this.lastNodeY += node.viewState.h + NODE_GAP_Y * 2;
+        this.lastNodeY += node.viewState.h + NODE_GAP_Y;
 
         const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
         node.viewState.x = centerX - node.viewState.lw;

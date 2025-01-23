@@ -41,7 +41,7 @@ export class SizingVisitor implements BaseVisitor {
         containerHeight?: number
     ): void {
         if (!node.viewState) {
-            console.error("FlowNode view state is not initialized", { node });
+            console.error(">>> Node view state is not defined", { node });
             return;
         }
 
@@ -233,7 +233,7 @@ export class SizingVisitor implements BaseVisitor {
             }
         }
         // add while node width and height
-        containerHeight += topElementWidth + NODE_GAP_Y * 3;
+        containerHeight += topElementWidth + NODE_GAP_Y * 2;
         containerLeftWidth += NODE_GAP_X / 2;
         containerRightWidth += NODE_GAP_X / 2;
 

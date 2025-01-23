@@ -185,24 +185,35 @@ export class LinkTargetVisitor implements BaseVisitor {
         });
     }
 
-    beginVisitWhile(node: FlowNode, parent?: FlowNode): void {
+    private visitContainerNode(node: FlowNode, parent?: FlowNode) {
         const outLinks = this.getOutLinksFromNode(node);
         if (!outLinks) {
             return;
         }
+        if (outLinks.length === 0) {
+            console.log(">>> no out links", { node });
+            return;
+        }
+        if (outLinks.length > 1) {
+            console.log(">>> multiple out links", { node, outLinks });
+            return;
+        }
 
-        const bodyLink = outLinks.at(0);
-        if (bodyLink) {
-            const bodyBranch = node.branches.at(0);
+        const bodyBranch = node.branches.at(0);
+        if (!bodyBranch) {
+            console.log(">>> no body branch", { node });
+            return;
+        }
+        outLinks.forEach((outLink) => {
             const line = bodyBranch.codedata.lineRange.startLine;
-            bodyLink.setTarget({
+            outLink.setTarget({
                 line: line.line,
                 offset: line.offset + 1, // HACK: need to fix with LS extension
             });
-            bodyLink.setTopNode(bodyBranch);
+            outLink.setTopNode(bodyBranch);
             // if the body branch is empty, target node is empty node.
             // improve empty node with target position and top node
-            const firstNode = bodyLink.targetNode;
+            const firstNode = outLink.targetNode;
             if (firstNode && firstNode.getType() === NodeTypes.EMPTY_NODE) {
                 const emptyNode = firstNode as EmptyNodeModel;
                 emptyNode.setTopNode(bodyBranch);
@@ -211,19 +222,21 @@ export class LinkTargetVisitor implements BaseVisitor {
                     offset: line.offset + 1, // HACK: need to fix with LS extension
                 });
             }
-        }
+        });
 
-        // update end-while link target
-        const endWhileModel = this.nodeModels.find((nodeModel) => nodeModel.getID() === `${node.id}-endwhile`);
-        if (!endWhileModel) {
-            console.log("End-while node model not found", node);
+        // update end-container link target
+        const endContainerModel = this.nodeModels.find((nodeModel) => nodeModel.getID() === `${node.id}-endContainer`);
+        if (!endContainerModel) {
+            console.log("End-container node model not found", node);
             return;
         }
-        const endWhileOutLinks = this.getOutLinksFromModel(endWhileModel);
-        if (!endWhileOutLinks || endWhileOutLinks.length == 0) {
+        const endContainerOutLinks = this.getOutLinksFromModel(endContainerModel);
+        console.log(">>> endContainerOutLinks", { endContainerModel, endContainerOutLinks });
+        if (!endContainerOutLinks || endContainerOutLinks.length == 0) {
+            console.log(">>> no end container out links", { node });
             return;
         }
-        const outLink = endWhileOutLinks.at(0);
+        const outLink = endContainerOutLinks.at(0);
 
         // set target position
         if (outLink && node.codedata?.lineRange?.endLine) {
@@ -232,12 +245,16 @@ export class LinkTargetVisitor implements BaseVisitor {
         outLink.setTopNode(node);
     }
 
+    beginVisitWhile(node: FlowNode, parent?: FlowNode): void {
+        this.visitContainerNode(node, parent);
+    }
+
     beginVisitForeach(node: FlowNode, parent?: FlowNode): void {
-        this.beginVisitWhile(node, parent);
+        this.visitContainerNode(node, parent);
     }
 
     beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
-        this.beginVisitWhile(node, parent);
+        this.visitContainerNode(node, parent);
     }
 
     skipChildren(): boolean {
