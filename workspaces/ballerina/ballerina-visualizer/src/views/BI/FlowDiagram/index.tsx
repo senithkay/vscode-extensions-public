@@ -33,7 +33,7 @@ import {
     SubPanel,
     SubPanelView,
     CurrentBreakpointsResponse as BreakpointInfo,
-    FUNCTION_TYPE
+    FUNCTION_TYPE,
 } from "@wso2-enterprise/ballerina-core";
 
 import {
@@ -43,13 +43,7 @@ import {
     getContainerTitle,
 } from "../../../utils/bi";
 import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import {
-    View,
-    ViewContent,
-    ViewHeader,
-    ProgressRing,
-    ProgressIndicator,
-} from "@wso2-enterprise/ui-toolkit";
+import { View, ViewContent, ViewHeader, ProgressRing, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { applyModifications, getColorByMethod, textToModifications } from "../../../utils/utils";
 import FormGenerator from "../Forms/FormGenerator";
@@ -73,7 +67,7 @@ interface ColoredTagProps {
     color: string;
 }
 
-const ColoredTag = styled(VSCodeTag) <ColoredTagProps>`
+const ColoredTag = styled(VSCodeTag)<ColoredTagProps>`
     ::part(control) {
         color: var(--button-primary-foreground);
         background-color: ${({ color }: ColoredTagProps) => color};
@@ -135,20 +129,23 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
 
     const getFlowModel = () => {
         setShowProgressIndicator(true);
-        rpcClient.getBIDiagramRpcClient().getBreakpointInfo().then((response) => {
-            setBreakpointInfo(response);
-            rpcClient
-                .getBIDiagramRpcClient()
-                .getFlowModel()
-                .then((model) => {
-                    if (model?.flowModel) {
-                        setModel(model.flowModel);
-                    }
-                })
-                .finally(() => {
-                    setShowProgressIndicator(false);
-                });
-        });
+        rpcClient
+            .getBIDiagramRpcClient()
+            .getBreakpointInfo()
+            .then((response) => {
+                setBreakpointInfo(response);
+                rpcClient
+                    .getBIDiagramRpcClient()
+                    .getFlowModel()
+                    .then((model) => {
+                        if (model?.flowModel) {
+                            setModel(model.flowModel);
+                        }
+                    })
+                    .finally(() => {
+                        setShowProgressIndicator(false);
+                    });
+            });
     };
 
     const handleOnCloseSidePanel = () => {
@@ -276,7 +273,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     setSuggestedModel(model.flowModel);
                     suggestedText.current = model.suggestion;
                 }
-            }).finally(() => {
+            })
+            .finally(() => {
                 setFetchingAiSuggestions(false);
             });
     };
@@ -293,7 +291,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                       q: searchText,
                       limit: 12,
                       offset: 0,
-                      includeAvailableFunctions: "true"
+                      includeAvailableFunctions: "true",
                   }
                 : undefined,
         };
@@ -336,7 +334,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     console.log(">>> List of functions", response);
                     setCategories(
                         convertFunctionCategoriesToSidePanelCategories(
-                            response.categories as Category[], FUNCTION_TYPE.REGULAR
+                            response.categories as Category[],
+                            FUNCTION_TYPE.REGULAR
                         )
                     );
                     setSidePanelView(SidePanelView.FUNCTION_LIST);
@@ -357,7 +356,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 .then((response) => {
                     setCategories(
                         convertFunctionCategoriesToSidePanelCategories(
-                            response.categories as Category[], FUNCTION_TYPE.EXPRESSION_BODIED
+                            response.categories as Category[],
+                            FUNCTION_TYPE.EXPRESSION_BODIED
                         )
                     );
                     setSidePanelView(SidePanelView.DATA_MAPPER_LIST);
@@ -592,24 +592,24 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             filePath: model?.fileName,
             breakpoint: {
                 line: node.codedata.lineRange.startLine.line,
-                column: node.codedata.lineRange.startLine?.offset
-            }
+                column: node.codedata.lineRange.startLine?.offset,
+            },
         };
 
         rpcClient.getBIDiagramRpcClient().addBreakpointToSource(request);
-    }
+    };
 
     const handleRemoveBreakpoint = (node: FlowNode) => {
         const request = {
             filePath: model?.fileName,
             breakpoint: {
                 line: node.codedata.lineRange.startLine.line,
-                column: node.codedata.lineRange.startLine?.offset
-            }
+                column: node.codedata.lineRange.startLine?.offset,
+            },
         };
 
         rpcClient.getBIDiagramRpcClient().removeBreakpointFromSource(request);
-    }
+    };
 
     // ai suggestions callbacks
     const onAcceptSuggestions = () => {
@@ -712,38 +712,38 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     iconSx={{ fontSize: "16px" }}
                     // onEdit={handleOnFormBack}
                 ></ViewHeader>
-                {(showProgressIndicator || fetchingAiSuggestions) && model && <ProgressIndicator color={Colors.PRIMARY} />}
-                <ViewContent padding>
-                    <Container>
-                        {!model && (
-                            <SpinnerContainer>
-                                <ProgressRing color={Colors.PRIMARY} />
-                            </SpinnerContainer>
-                        )}
-                        {model && (
-                            <Diagram
-                                model={flowModel}
-                                onAddNode={handleOnAddNode}
-                                onAddNodePrompt={handleOnAddNodePrompt}
-                                onDeleteNode={handleOnDeleteNode}
-                                onAddComment={handleOnAddComment}
-                                onNodeSelect={handleOnEditNode}
-                                onConnectionSelect={handleOnEditConnection}
-                                goToSource={handleOnGoToSource}
-                                addBreakpoint={handleAddBreakpoint}
-                                removeBreakpoint={handleRemoveBreakpoint}
-                                openView={handleOpenView}
-                                suggestions={{
-                                    fetching: fetchingAiSuggestions,
-                                    onAccept: onAcceptSuggestions,
-                                    onDiscard: onDiscardSuggestions,
-                                }}
-                                projectPath={projectPath}
-                                breakpointInfo={breakpointInfo}
-                            />
-                        )}
-                    </Container>
-                </ViewContent>
+                {(showProgressIndicator || fetchingAiSuggestions) && model && (
+                    <ProgressIndicator color={Colors.PRIMARY} />
+                )}
+                <Container>
+                    {!model && (
+                        <SpinnerContainer>
+                            <ProgressRing color={Colors.PRIMARY} />
+                        </SpinnerContainer>
+                    )}
+                    {model && (
+                        <Diagram
+                            model={flowModel}
+                            onAddNode={handleOnAddNode}
+                            onAddNodePrompt={handleOnAddNodePrompt}
+                            onDeleteNode={handleOnDeleteNode}
+                            onAddComment={handleOnAddComment}
+                            onNodeSelect={handleOnEditNode}
+                            onConnectionSelect={handleOnEditConnection}
+                            goToSource={handleOnGoToSource}
+                            addBreakpoint={handleAddBreakpoint}
+                            removeBreakpoint={handleRemoveBreakpoint}
+                            openView={handleOpenView}
+                            suggestions={{
+                                fetching: fetchingAiSuggestions,
+                                onAccept: onAcceptSuggestions,
+                                onDiscard: onDiscardSuggestions,
+                            }}
+                            projectPath={projectPath}
+                            breakpointInfo={breakpointInfo}
+                        />
+                    )}
+                </Container>
             </View>
             <PanelContainer
                 title={getContainerTitle(sidePanelView, selectedNodeRef.current, selectedClientName.current)}
@@ -781,7 +781,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         <NodeList
                             categories={categories}
                             onSelect={handleOnSelectNode}
-                            onSearchTextChange={(searchText) => handleSearchFunction(searchText, FUNCTION_TYPE.EXPRESSION_BODIED)}
+                            onSearchTextChange={(searchText) =>
+                                handleSearchFunction(searchText, FUNCTION_TYPE.EXPRESSION_BODIED)
+                            }
                             onClose={handleOnCloseSidePanel}
                             title={"Data Mappers"}
                             onBack={handleOnFormBack}
