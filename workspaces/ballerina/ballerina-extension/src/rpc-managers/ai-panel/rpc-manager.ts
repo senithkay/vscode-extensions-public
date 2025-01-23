@@ -301,7 +301,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
             return { error: MODIFIYING_ERROR };
         }
 
-        const fn = getFunction(syntaxTree as ModulePart, fnSt.functionName.value);
+        const fn = await getFunction(syntaxTree as ModulePart, fnSt.functionName.value);
 
         if (fn && fn.source !== oldSource) {
             modifyFileContent({ filePath, content: source });
