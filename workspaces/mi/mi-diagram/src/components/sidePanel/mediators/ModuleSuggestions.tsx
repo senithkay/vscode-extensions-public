@@ -18,6 +18,7 @@ import { ButtonGroup } from '../commons/ButtonGroup';
 import { ConnectorOperation } from '@wso2-enterprise/mi-core';
 import { debounce } from 'lodash';
 import { APIS } from '../../../resources/constants';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 interface ModuleSuggestionProps {
     documentUri: string;
@@ -35,6 +36,7 @@ export const OperationsWrapper = styled.div`
 
 export function ModuleSuggestions(props: ModuleSuggestionProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
+    const { rpcClient } = useVisualizerContext();
     const { localConnectors, searchValue } = props;
     const [filteredModules, setFilteredModules] = React.useState<any[]>([]);
     const [isSearching, setIsSearching] = React.useState<boolean>(false);
@@ -44,7 +46,8 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
             setIsSearching(true);
             if (value) {
                 try {
-                    const response = await fetch(`${APIS.CONNECTOR_SEARCH.replace('${searchValue}', value)}`);
+                    const runtimeVersion = await rpcClient.getMiDiagramRpcClient().getMIVersionFromPom();
+                    const response = await fetch(`${APIS.CONNECTOR_SEARCH.replace('${searchValue}', value).replace('${version}', runtimeVersion.version)}`);
                     const data = await response.json();
                     setFilteredModules(data);
                 } catch (e) {
@@ -90,7 +93,7 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
                 (c.version === module.version.tagName));
         });
 
-        return Object.keys(filteredModulesWithoutLocals).length > 0 &&
+        return filteredModulesWithoutLocals && Object.keys(filteredModulesWithoutLocals).length > 0 &&
             <>
                 <Typography variant='h4'>In Store:</Typography>
                 {Object.entries(filteredModulesWithoutLocals).map(([key, values]: [string, any]) => (

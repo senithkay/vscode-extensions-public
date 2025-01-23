@@ -58,6 +58,9 @@ export function RemoveConnectorPage(props: RemoveConnectorPageProps) {
 
             await removeDependency();
 
+            // HACK: time to serve saved pom file to ls
+            await new Promise(resolve => setTimeout(resolve, 500));
+
             const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
 
             if (pomRemoveSuccess && (response === "Success" || !response.includes(artifactId))) {
@@ -81,7 +84,7 @@ export function RemoveConnectorPage(props: RemoveConnectorPageProps) {
         const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
 
         if (response === "Success" || !response.includes(artifactId)) {
-            onRemoveSuccess();
+            await onRemoveSuccess();
             setIsRemoving(false);
             sidepanelGoBack(sidePanelContext);
         } else {

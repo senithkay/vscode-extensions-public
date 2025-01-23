@@ -55,8 +55,10 @@ export function DownloadPage(props: DownloadPageProps) {
             }
 
             await updateDependencies();
-            
 
+            // HACK: time to serve saved pom file to ls
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
             // Download Connector
             const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
 

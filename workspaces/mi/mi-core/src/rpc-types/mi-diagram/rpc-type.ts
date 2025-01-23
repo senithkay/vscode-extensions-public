@@ -223,7 +223,8 @@ import {
     GetHelperPaneInfoRequest,
     GetHelperPaneInfoResponse,
     TestConnectorConnectionResponse,
-    TestConnectorConnectionRequest
+    TestConnectorConnectionRequest,
+    MiVersionResponse
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -365,6 +366,7 @@ export const generateDSSQueries: RequestType<ExtendedDSSQueryGenRequest, boolean
 export const fetchDSSTables: RequestType<DSSFetchTablesRequest, DSSFetchTablesResponse> = { method: `${_preFix}/fetchDSSTables` };
 export const tryOutMediator: RequestType<MediatorTryOutRequest, MediatorTryOutResponse> = { method: `${_preFix}/tryOutMediator` };
 export const shutDownTryoutServer: RequestType<void, boolean> = { method: `${_preFix}/shutDownTryoutServer` };
+export const getMIVersionFromPom: RequestType<void, MiVersionResponse> = { method: `${_preFix}/getMIVersionFromPom`};
 export const getMediatorInputOutputSchema: RequestType<MediatorTryOutRequest, MediatorTryOutResponse> = { method: `${_preFix}/getMediatorInputOutputSchema` };
 export const saveInputPayload: RequestType<SavePayloadRequest,boolean> = { method: `${_preFix}/saveInputPayload` };
 export const getInputPayloads: RequestType<GetPayloadsRequest,GetPayloadsResponse> = { method: `${_preFix}/getInputPayloads` };

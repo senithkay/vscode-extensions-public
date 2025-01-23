@@ -83,7 +83,8 @@ export function Modules(props: ModuleProps) {
         () => debounce(async (value: string) => {
             if (value) {
                 try {
-                    const response = await fetch(`${APIS.CONNECTOR_SEARCH.replace('${searchValue}', value)}`);
+                    const runtimeVersion = await rpcClient.getMiDiagramRpcClient().getMIVersionFromPom();
+                    const response = await fetch(`${APIS.CONNECTOR_SEARCH.replace('${searchValue}', value).replace('${version}', runtimeVersion.version)}`);
                     const data = await response.json();
                     setFilteredModules(data);
                 } catch (e) {

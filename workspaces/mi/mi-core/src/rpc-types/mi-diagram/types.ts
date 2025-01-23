@@ -1816,6 +1816,10 @@ export interface FileRenameRequest {
     newPath: string;
 }
 
+export interface MiVersionResponse {
+    version: string;
+}
+
 export interface MediatorTryOutRequest {
     file: string;
     line: number;
