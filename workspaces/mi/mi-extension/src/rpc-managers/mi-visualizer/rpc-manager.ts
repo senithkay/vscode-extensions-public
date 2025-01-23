@@ -146,7 +146,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
                 };
 
             });
-            this.updatePom(textEdits);
+            await this.updatePom(textEdits);
             resolve(true);
         });
     }
