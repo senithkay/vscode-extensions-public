@@ -91,10 +91,13 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
     };
 
     const valueConfigMenuItems = useMemo(() => {
-        const items = [{
-            title: ValueConfigOption.EditValue,
-            onClick: handleEditValue
-        }];
+        const items = [
+            // {
+            //     title: ValueConfigOption.EditValue,
+            //     onClick: handleEditValue
+            // }
+            // TODO: Enable this after adding support for editing value
+        ];
         if (isArrayElement) {
             items.push({
                 title: ValueConfigOption.DeleteElement,

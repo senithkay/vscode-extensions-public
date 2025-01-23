@@ -300,7 +300,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
 
     const valConfigMenuItems: ValueConfigMenuItem[] = hasElements || hasDefaultValue
         ? [
-            { title: ValueConfigOption.EditValue, onClick: handleEditValue },
+            // { title: ValueConfigOption.EditValue, onClick: handleEditValue }, // TODO: Enable this after adding support for editing array values
             { title: ValueConfigOption.DeleteArray, onClick: handleArrayDeletion },
         ]
         : [

@@ -209,7 +209,8 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     );
 
     const addOrEditValueMenuItem: ValueConfigMenuItem = expression || hasDefaultValue
-        ? { title: ValueConfigOption.EditValue, onClick: handleEditValue }
+        ? undefined
+        // ? { title: ValueConfigOption.EditValue, onClick: handleEditValue } TODO: Implement edit value
         : { title: ValueConfigOption.InitializeWithValue, onClick: handleAddValue };
 
     const deleteValueMenuItem: ValueConfigMenuItem = {

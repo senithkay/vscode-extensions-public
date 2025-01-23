@@ -148,17 +148,19 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		</span>
 	);
 
-
 	const valConfigMenuItems: ValueConfigMenuItem[] = [
-		isRootArray && Object.keys(portIn.links).length === 0
-			? {
+		...(isRootArray && Object.keys(portIn.links).length === 0
+			? [{
 				title: ValueConfigOption.InitializeArray,
 				onClick: handleArrayInitialization
-			}
-			: {
-				title: ValueConfigOption.EditValue,
-				onClick: handleEditValue
-			}
+			}]
+			: [
+				// {
+				// 	title: ValueConfigOption.EditValue,
+				// 	onClick: handleEditValue
+				// }
+				// Add edit value option once the feature is implemented
+			])
 	];
 
 	return (
