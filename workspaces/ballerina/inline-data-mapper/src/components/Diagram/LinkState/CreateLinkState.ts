@@ -113,7 +113,6 @@ export class CreateLinkState extends State<DiagramEngine> {
 												linkedPort.fireEvent({}, "enableNewLinking")
 											})
 										}
-										this.clearState();
 										this.eject();
 									}
 								}
