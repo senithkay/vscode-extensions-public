@@ -238,50 +238,32 @@ export function Overview(props: OverviewProps) {
                 <Columns>
                     <Rows style={{ flex: 1, height: 800 }}>
                         <Column style={{ flex: 1 }}>
-                            <VSCodePanels>
-                                <VSCodePanelTab id="component-diagram">Component Diagram</VSCodePanelTab>
-                                <VSCodePanelTab id="project-structure">Project Structure</VSCodePanelTab>
-
-                                <PanelContent id={"component-diagram"} >
-                                    <TabContent style={{ borderRadius: '8px' }}>
-                                        {projectOverview ?
-                                            <ComponentDiagram
-                                                projectStructure={projectOverview}
-                                                projectName={activeWorkspaces?.name}
-                                            /> :
-                                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                                <ProgressRing />
-                                            </div>
-                                        }
-                                        {(errors as any)?.projectOverview && (
-                                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                                <ErrorBanner errorMsg={(errors as any)?.projectOverview} />
-                                            </div>
-                                        )
-                                        }
-                                    </TabContent>
-                                </PanelContent>
-
-                                <PanelContent id={"project-structure"} >
-                                    <TabContent>
-                                        {projectStructure ?
-                                            <ProjectStructureView
-                                                projectStructure={projectStructure}
-                                                workspaceDir={selected}
-                                            /> :
-                                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                                <ProgressRing />
-                                            </div>
-                                        }
-                                        {(errors as any)?.projectStructure && (
-                                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                                <ErrorBanner errorMsg={(errors as any)?.projectStructure} />
-                                            </div>
-                                        )
-                                        }
-                                    </TabContent>
-                                </PanelContent>
-                            </VSCodePanels>
+                            <TabContent style={{ overflow: 'hidden', borderRadius: '8px' }}>
+                                {projectOverview ? (
+                                    projectOverview.connections.length > 0 || projectOverview.entrypoints?.length > 0 ? (
+                                        <ComponentDiagram
+                                            projectName={activeWorkspaces.name}
+                                            projectStructure={projectOverview}
+                                        />
+                                    ) : (
+                                        <Alert
+                                            title="No artifacts were found"
+                                            subTitle="Please add artifacts to your project to view them here."
+                                            variant="primary"
+                                        />
+                                    )
+                                ) : (
+                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                        <ProgressRing />
+                                    </div>
+                                )}
+                                {(errors as any)?.projectOverview && (
+                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                        <ErrorBanner errorMsg={(errors as any)?.projectOverview} />
+                                    </div>
+                                )
+                                }
+                            </TabContent>
                         </Column>
                         <Column>
                             <Typography variant="h3" sx={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center' }}>
@@ -312,7 +294,7 @@ export function Overview(props: OverviewProps) {
                         <Typography variant="h3" sx={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center', opacity: 0.8 }}>
                             Project Information
                             <div style={{ display: "flex", paddingRight: 6, flex: 1, justifyContent: "flex-end" }}>
-                                <Button appearance="icon" tooltip="Edit Project Information" onClick={handleEditProjectInformation}> 
+                                <Button appearance="icon" tooltip="Edit Project Information" onClick={handleEditProjectInformation}>
                                     <Icon name="gear" isCodicon onClick={handleEditProjectInformation} sx={{ flex: 1 }} />
                                 </Button>
                             </div>
