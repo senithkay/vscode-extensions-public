@@ -14,6 +14,8 @@ import { window } from 'vscode';
 import path = require('path');
 import { findJavaFiles } from '../util/fileOperations';
 import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
+import { RUNTIME_VERSION_440 } from "../constants";
+import { compareVersions } from '../util/onboardingUtils';
 
 let resourceDetails: ListRegistryArtifactsResponse;
 let extensionContext: vscode.ExtensionContext;
@@ -122,25 +124,27 @@ async function getProjectStructureData(langClient: ExtendedLanguageClient): Prom
 				const rootPath = workspace.uri.fsPath;
 
 				const resp = await langClient.getProjectExplorerModel(rootPath);
-				const projectTree = generateTreeData(workspace, resp);
-				if (projectTree) {
+				const projectDetailsRes = await langClient?.getProjectDetails();
+				const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
+				const projectTree = generateTreeData(workspace, resp, runtimeVersion);
+
+				if (projectTree && projectTree.children?.length! > 0) {
 					data.push(projectTree);
 				}
 			};
 		}
+		vscode.commands.executeCommand('setContext', 'projectOpened', true);
 		if (data.length > 0) {
-			vscode.commands.executeCommand('setContext', 'projectOpened', true);
 			return data;
-		} else {
-			vscode.commands.executeCommand('setContext', 'projectOpened', false);
 		}
+	} else {
+		vscode.commands.executeCommand('setContext', 'projectOpened', false);
 	}
-	vscode.commands.executeCommand('setContext', 'projectOpened', false);
 	return [];
 
 }
 
-function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructureResponse): ProjectExplorerEntry | undefined {
+function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructureResponse, runtimeVersion: string): ProjectExplorerEntry | undefined {
 	const directoryMap = data.directoryMap;
 	if (directoryMap) {
 		const projectRoot = new ProjectExplorerEntry(
@@ -151,12 +155,12 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 		);
 
 		projectRoot.contextValue = 'project';
-		generateTreeDataOfArtifacts(project, data, projectRoot);
+		generateTreeDataOfArtifacts(project, data, projectRoot, runtimeVersion);
 		return projectRoot;
 	}
 }
 
-function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: ProjectStructureResponse, projectRoot: ProjectExplorerEntry) {
+function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: ProjectStructureResponse, projectRoot: ProjectExplorerEntry, runtimeVersion: string) {
 	const artifacts = (data.directoryMap as any)?.src?.main?.wso2mi?.artifacts;
 	if (!artifacts) {
 		return;
@@ -165,6 +169,8 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 	projectRoot.children = projectRoot.children ?? [];
 
 	for (const key in artifacts) {
+		if (!artifacts[key] || artifacts[key].length === 0) continue;
+
 		const artifactConfig = getArtifactConfig(key);
 		const folderPath = artifactConfig.folderName ?
 			path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', ...artifactConfig.folderName.split("/")) :
@@ -174,15 +180,20 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 
 		const parentEntry = new ProjectExplorerEntry(
 			key,
-			isCollapsibleState(artifacts[key].length > 0 || ['Data Integration', 'Common Artifacts', 'Advanced Artifacts', 'Resources'].includes(key)),
+			isCollapsibleState(artifacts[key].length > 0 || ['Other Artifacts', 'Resources'].includes(key)),
 			artifacts[key]
 		);
 
 		let children;
-		if (['APIs', 'Triggers', 'Scheduled Tasks'].includes(key)) {
+		if (['APIs', 'Event Integrations', 'Automations', 'Data Services'].includes(key)) {
 			children = genProjectStructureEntry(artifacts[key]);
 		} else if (key === 'Resources') {
-			children = generateResources(artifacts[key]);
+			const isRegistrySupported = compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0;
+			if (!isRegistrySupported) {
+				children = generateResources(artifacts[key]);
+			} else {
+				continue;
+			}
 		} else {
 			children = generateArtifacts(artifacts[key], data, project);
 		}
@@ -191,6 +202,7 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 		parentEntry.contextValue = artifactConfig.contextValue;
 		parentEntry.id = `${project.name}/${artifactConfig.contextValue}`;
 
+		if (!children || children.length === 0) continue;
 		projectRoot.children.push(parentEntry);
 	}
 }
@@ -201,25 +213,21 @@ function getArtifactConfig(key: string) {
 			folderName: 'artifacts/apis',
 			contextValue: 'apis'
 		},
-		'Triggers': {
+		'Event Integrations': {
 			folderName: 'artifacts/inbound-endpoints',
 			contextValue: 'inboundEndpoints'
 		},
-		'Scheduled Tasks': {
+		'Automations': {
 			folderName: 'artifacts/tasks',
 			contextValue: 'tasks'
 		},
-		'Common Artifacts': {
-			folderName: '',
-			contextValue: 'Common Artifacts'
+		'Data Services': {
+			folderName: 'artifacts/data-services',
+			contextValue: 'dataServices'
 		},
-		'Data Integration': {
+		'Other Artifacts': {
 			folderName: '',
-			contextValue: 'Data Integration'
-		},
-		'Advanced Artifacts': {
-			folderName: '',
-			contextValue: 'Advanced Artifacts'
+			contextValue: 'Other Artifacts'
 		},
 		'Resources': {
 			folderName: 'resources',
@@ -264,7 +272,11 @@ function generateResources(data: RegistryResourcesFolder): ProjectExplorerEntry[
 		}
 		if (data.folders) {
 			for (const entry of data.folders) {
-				if (![".meta", "datamapper", "datamappers"].includes(entry.name)) {
+				if (![".meta", "datamapper", "datamappers", "conf"].includes(entry.name)) {
+					const files = generateResources(entry);
+					if (!files || files?.length === 0) {
+						continue;
+					}
 					const explorerEntry = new ProjectExplorerEntry(entry.name,
 						isCollapsibleState(entry.files.length > 0 || entry.folders.length > 0),
 						{
@@ -332,7 +344,7 @@ function generateArtifacts(
 	const result: ProjectExplorerEntry[] = [];
 
 	for (const key in data) {
-		if (key === 'path') continue;
+		if (key === 'path' || !data[key] || data[key].length === 0) continue;
 
 		const artifactPath = generateArtifactsPath(project.uri.fsPath, key);
 		data[key].path = artifactPath;
@@ -503,25 +515,6 @@ function generateArtifacts(
 					return explorerEntry;
 				});
 				parentEntry.contextValue = 'templates';
-				break;
-			}
-			case 'Data Services': {
-				parentEntry.children = data[key].map((entry: any) => {
-					const explorerEntry = new ProjectExplorerEntry(
-						entry.name.replace(".xml", ""),
-						isCollapsibleState(false),
-						entry,
-						"data-service"
-					);
-					explorerEntry.contextValue = 'data-service';
-					explorerEntry.command = {
-						title: "Show Data Service",
-						command: COMMANDS.OPEN_DSS_SERVICE_DESIGNER,
-						arguments: [vscode.Uri.file(entry.path)]
-					};
-					return explorerEntry;
-				});
-				parentEntry.contextValue = 'dataServices';
 				break;
 			}
 			case 'Data Sources': {
@@ -809,6 +802,19 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"title": "Show Inbound Endpoint",
 				"command": COMMANDS.SHOW_INBOUND_ENDPOINT,
 				"arguments": [vscode.Uri.file(entry.path), undefined, false]
+			};
+		} else if (entry.type === 'DATA_SERVICE') {
+			explorerEntry = new ProjectExplorerEntry(
+				entry.name.replace(".xml", ""),
+				isCollapsibleState(false),
+				entry,
+				"data-service"
+			);
+			explorerEntry.contextValue = 'data-service';
+			explorerEntry.command = {
+				title: "Show Data Service",
+				command: COMMANDS.OPEN_DSS_SERVICE_DESIGNER,
+				arguments: [vscode.Uri.file(entry.path)]
 			};
 		}
 		else {

@@ -53,6 +53,7 @@ export const COMMANDS = {
     REFRESH_COMMAND: 'MI.project-explorer.refresh',
     REFRESH_REGISTRY_COMMAND: 'MI.registry-explorer.refresh',
     ADD_COMMAND: 'MI.project-explorer.add',
+    ADD_ARTIFACT_COMMAND: 'MI.project-explorer.add.artifact',
     ADD_TO_REGISTRY_COMMAND: 'MI.registry-explorer.add',
     ADD_API_COMMAND: 'MI.project-explorer.add-api',
     ADD_RESOURCE_COMMAND: 'MI.project-explorer.add-resource',
@@ -169,3 +170,4 @@ export const APIS = {
 export const DM_OPERATORS_FILE_NAME="dm-utils";
 export const DM_OPERATORS_IMPORT_NAME="dmUtils";
 export const LAST_EXPORTED_CAR_PATH = "last-exported-car-path";
+export const RUNTIME_VERSION_440 = "4.4.0";

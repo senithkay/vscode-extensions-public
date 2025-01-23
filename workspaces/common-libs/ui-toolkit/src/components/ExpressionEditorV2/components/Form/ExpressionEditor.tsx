@@ -18,16 +18,16 @@ import React, {
 import { createPortal } from 'react-dom';
 import styled from '@emotion/styled';
 import { Transition } from '@headlessui/react';
-import { ANIMATION } from '../constants';
+import { ANIMATION, ARROW_HEIGHT } from '../../constants';
 import { CompletionItem } from '../../types/common';
-import { FormExpressionEditorProps, FormExpressionEditorRef } from '../../types/form';
-import { addClosingBracketIfNeeded, checkCursorInFunction, setCursor } from '../../utils';
+import { FormExpressionEditorRef, FormExpressionEditorElProps } from '../../types/form';
+import { addClosingBracketIfNeeded, checkCursorInFunction, getArrowPosition, getHelperPanePosition, setCursor } from '../../utils';
 import { Codicon } from '../../../Codicon/Codicon';
 import { ProgressIndicator } from '../../../ProgressIndicator/ProgressIndicator';
 import { AutoResizeTextArea } from '../../../TextArea/TextArea';
 import { FnSignatureEl } from '../Common/FnSignature';
 import { Dropdown } from '../Common';
-import { StyleBase, FnSignatureProps } from '../Common/types';
+import { StyleBase, FnSignatureProps, ArrowProps } from '../Common/types';
 import { Icon } from '../../../Icon/Icon';
 import { Button } from '../../../Button/Button';
 
@@ -55,14 +55,41 @@ const StyledTextArea = styled(AutoResizeTextArea)`
     }
 `;
 
-const DropdownContainer = styled.div<StyleBase>`
+const Arrow = styled.div<ArrowProps>`
     position: absolute;
-    z-index: 10000;
+    height: ${ARROW_HEIGHT}px;
+    width: ${ARROW_HEIGHT}px;
+    background-color: var(--vscode-dropdown-background);
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+
+    ${(props: ArrowProps) => props.origin === "left" && `
+        transform: rotate(90deg);
+    `}
+
+    ${(props: ArrowProps) => props.origin === "right" && `
+        transform: rotate(-90deg);
+    `}
+
     ${(props: StyleBase) => props.sx}
 `;
 
-export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressionEditorProps>((props, ref) => {
+const DropdownContainer = styled.div<StyleBase>`
+    position: absolute;
+    z-index: 2001;
+    filter: drop-shadow(0 3px 8px rgb(0 0 0 / 0.2));
+    ${(props: StyleBase) => props.sx}
+
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+`;
+
+export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressionEditorElProps>((props, ref) => {
     const {
+        containerRef,
+        buttonRef,
         value,
         disabled,
         sx,
@@ -71,6 +98,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         autoSelectFirstItem,
         getDefaultCompletion,
         isHelperPaneOpen,
+        helperPaneOrigin = 'bottom',
         changeHelperPaneState,
         getHelperPane,
         actionButtons,
@@ -106,7 +134,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
 
     const showCompletions = !isHelperPaneOpen && (showDefaultCompletion || completions?.length > 0);
 
-    const handleResize = throttle(() => {
+    const updatePosition = throttle(() => {
         if (elementRef.current) {
             const rect = elementRef.current.getBoundingClientRect();
             setDropdownElPosition({
@@ -114,26 +142,26 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                 left: rect.left,
             });
             setFnSignatureElPosition({
-                top: rect.top - 40, // 36px height from fnSignatureEl + 4px of margin
+                top: rect.top - 28,
                 left: rect.left,
             });
         }
     }, 10);
 
     useEffect(() => {
-        handleResize();
+        updatePosition();
 
         // Create ResizeObserver to watch textarea size changes
-        const resizeObserver = new ResizeObserver(handleResize);
+        const resizeObserver = new ResizeObserver(updatePosition);
         if (elementRef.current) {
             resizeObserver.observe(elementRef.current);
         }
 
         // Handle window resize
-        window.addEventListener('resize', handleResize);
+        window.addEventListener('resize', updatePosition);
 
         return () => {
-            window.removeEventListener('resize', handleResize);
+            window.removeEventListener('resize', updatePosition);
             resizeObserver.disconnect();
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -191,7 +219,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         const newTextValue = prefix + item.value + suffix;
 
         await handleChange(newTextValue, newCursorPosition);
-        onCompletionSelect && await onCompletionSelect(newTextValue);
+        onCompletionSelect && await onCompletionSelect(newTextValue, item);
         setCursor(textBoxRef, 'textarea', newTextValue, newCursorPosition);
     };
 
@@ -303,6 +331,20 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         }
     }
 
+    const getHelperPaneComponent = (): JSX.Element => {
+        const helperPanePosition = getHelperPanePosition(containerRef, helperPaneOrigin);
+        const arrowPosition = getArrowPosition(containerRef, helperPaneOrigin, helperPanePosition);
+        
+        return (
+            <DropdownContainer ref={helperPaneContainerRef} sx={{ ...helperPanePosition }}>
+                <Transition show={isHelperPaneOpen} {...ANIMATION}>
+                    {getHelperPane(value, handleChange)}
+                    {arrowPosition && <Arrow origin={helperPaneOrigin} sx={{ ...arrowPosition }} />}
+                </Transition>
+            </DropdownContainer>
+        )
+    }
+
     const handleInputKeyDown = async (e: React.KeyboardEvent) => {
         if (dropdownContainerRef.current) {
             const hoveredEl = dropdownContainerRef.current.querySelector('.hovered');
@@ -403,6 +445,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         const handleOutsideClick = async (e: any) => {
             if (
                 document.activeElement === textBoxRef.current &&
+                !buttonRef.current?.contains(e.target) &&
                 !actionButtonsRef.current?.contains(e.target) &&
                 !textBoxRef.current?.contains(e.target) &&
                 !dropdownContainerRef.current?.contains(e.target) &&
@@ -420,7 +463,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         return () => {
             document.removeEventListener('mousedown', handleOutsideClick);
         }
-    }, [onBlur, changeHelperPaneState]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [onBlur, changeHelperPaneState, buttonRef.current]);
 
     return (
         <Container ref={elementRef}>
@@ -434,8 +478,13 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                                 <Codicon
                                     key={index}
                                     name={actBtn.name}
-                                    iconSx={{ fontSize: '12px', color: 'var(--vscode-button-background)' }}
-                                    sx={{ height: '14px', width: '18px' }}
+                                    iconSx={{
+                                        fontSize: "12px",
+                                        color: isHelperPaneOpen
+                                            ? "var(--vscode-button-foreground)"
+                                            : "var(--vscode-button-background)",
+                                    }}
+                                    sx={{ height: '14px', width: '16px' }}
                                 />
                             );
                         } else {
@@ -443,8 +492,13 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                                 <Icon
                                     key={index}
                                     name={actBtn.name}
-                                    iconSx={{ fontSize: '12px', color: 'var(--vscode-button-background)' }}
-                                    sx={{ height: '14px', width: '18px' }}
+                                    iconSx={{
+                                        fontSize: '12px',
+                                        color: isHelperPaneOpen
+                                            ? 'var(--vscode-button-foreground)'
+                                            : 'var(--vscode-button-background)',
+                                    }}
+                                    sx={{ height: '14px', width: '16px' }}
                                 />
                             );
                         }
@@ -455,7 +509,14 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                                 tooltip={actBtn.tooltip}
                                 onClick={actBtn.onClick}
                                 appearance='icon'
-                                sx={{ height: '14px', width: '18px' }}
+                                buttonSx={{
+                                    height: '14px',
+                                    width: '22px',
+                                    ...(isHelperPaneOpen && {
+                                        backgroundColor: 'var(--vscode-button-background)',
+                                        borderRadius: '2px',
+                                    })
+                                }}
                             >
                                 {icon}
                             </Button>
@@ -479,61 +540,58 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                 resize='vertical'
             />
             {isSavingExpression && <ProgressIndicator barWidth={6} sx={{ top: "100%" }} />}
-            {isFocused && createPortal(
-                <DropdownContainer ref={dropdownContainerRef} sx={{ ...dropdownElPosition }}>
-                    <Transition show={showCompletions} {...ANIMATION}>
-                        <Codicon
-                            id='expression-editor-close'
-                            sx={{
-                                position: 'absolute',
-                                top: '0',
-                                right: '0',
-                                width: '16px',
-                                margin: '-4px',
-                                borderRadius: '50%',
-                                backgroundColor: 'var(--vscode-activityBar-background)',
-                                zIndex: '5',
-                            }}
-                            iconSx={{ color: 'var(--vscode-activityBar-foreground)' }}
-                            name="close"
-                            onClick={handleClose}
-                        />
-                        <Dropdown
-                            ref={dropdownRef}
-                            isSavable={!!onSave}
-                            items={completions}
-                            showDefaultCompletion={showDefaultCompletion}
-                            autoSelectFirstItem={autoSelectFirstItem}
-                            getDefaultCompletion={getDefaultCompletion}
-                            onCompletionSelect={handleCompletionSelect}
-                            onDefaultCompletionSelect={onDefaultCompletionSelect}
-                        />
-                    </Transition>
-                </DropdownContainer>,
-                document.body
-            )}
-            {isFocused && getHelperPane &&
+            {isFocused && 
                 createPortal(
-                    <DropdownContainer ref={helperPaneContainerRef} sx={{ ...dropdownElPosition }}>
-                        <Transition show={isHelperPaneOpen} {...ANIMATION}>
-                            {getHelperPane(value, handleChange)}
+                    <DropdownContainer ref={dropdownContainerRef} sx={{ ...dropdownElPosition }}>
+                        <Transition show={showCompletions} {...ANIMATION}>
+                            <Codicon
+                                id='expression-editor-close'
+                                sx={{
+                                    position: 'absolute',
+                                    top: '0',
+                                    right: '0',
+                                    width: '16px',
+                                    margin: '-4px',
+                                    borderRadius: '50%',
+                                    backgroundColor: 'var(--vscode-activityBar-background)',
+                                    zIndex: '5',
+                                }}
+                                iconSx={{ color: 'var(--vscode-activityBar-foreground)' }}
+                                name="close"
+                                onClick={handleClose}
+                            />
+                            <Dropdown
+                                ref={dropdownRef}
+                                isSavable={!!onSave}
+                                items={completions}
+                                showDefaultCompletion={showDefaultCompletion}
+                                autoSelectFirstItem={autoSelectFirstItem}
+                                getDefaultCompletion={getDefaultCompletion}
+                                onCompletionSelect={handleCompletionSelect}
+                                onDefaultCompletionSelect={onDefaultCompletionSelect}
+                            />
                         </Transition>
                     </DropdownContainer>,
                     document.body
-                )
-            }
-            {isFocused && createPortal(
-                <DropdownContainer sx={{ ...fnSignatureElPosition }}>
-                    <Transition show={!!fnSignature} {...ANIMATION}>
-                        <FnSignatureEl
-                            label={fnSignature?.label}
-                            args={fnSignature?.args}
-                            currentArgIndex={fnSignature?.currentArgIndex ?? 0}
-                        />
-                    </Transition>
-                </DropdownContainer>,
-                document.body
-            )}
+                )}
+            {isFocused && getHelperPane &&
+                createPortal(
+                    getHelperPaneComponent(),
+                    document.body
+                )}
+            {isFocused && 
+                createPortal(
+                    <DropdownContainer sx={{ ...fnSignatureElPosition }}>
+                        <Transition show={!!fnSignature} {...ANIMATION}>
+                            <FnSignatureEl
+                                label={fnSignature?.label}
+                                args={fnSignature?.args}
+                                currentArgIndex={fnSignature?.currentArgIndex ?? 0}
+                            />
+                        </Transition>
+                    </DropdownContainer>,
+                    document.body
+                )}
         </Container>
     );
 });

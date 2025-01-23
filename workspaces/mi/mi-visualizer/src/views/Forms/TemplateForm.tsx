@@ -21,12 +21,14 @@ import { AddressEndpointWizard } from "./AddressEndpointForm";
 import { DefaultEndpointWizard } from "./DefaultEndpointForm";
 import { HttpEndpointWizard } from "./HTTPEndpointForm";
 import { WsdlEndpointWizard } from "./WSDLEndpointForm";
+import { Template } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 export interface TemplateWizardProps {
     path: string;
     type?: string;
     isPopup?: boolean;
     onCancel?: () => void;
+    model?: Template;
 }
 
 type InputsFields = {
@@ -200,7 +202,9 @@ export function TemplateWizard(props: TemplateWizardProps) {
             directory: props.path,
             getContentOnly: false,
             ...values,
-            parameters
+            parameters,
+            isEdit: !isNewTemplate,
+            range: { start: { line: 0, character:0 }, end: props.model.sequence.range.startTagRange.start}
         }
 
         await rpcClient.getMiDiagramRpcClient().createTemplate(createTemplateParams);
@@ -239,13 +243,13 @@ export function TemplateWizard(props: TemplateWizardProps) {
 
     switch (endpointType) {
         case 'Address Endpoint Template':
-            return <AddressEndpointWizard path={props.path} type={endpointType} isPopup={true} handleChangeType={clearEndpointType} handlePopupClose={handleCancel} />;
+            return <AddressEndpointWizard path={props.path} type="template" isPopup={true} handleChangeType={clearEndpointType} handlePopupClose={handleCancel} />;
         case 'Default Endpoint Template':
-            return <DefaultEndpointWizard path={props.path} type={endpointType} isPopup={true} handleChangeType={clearEndpointType} handlePopupClose={handleCancel} />;
+            return <DefaultEndpointWizard path={props.path} type="template" isPopup={true} handleChangeType={clearEndpointType} handlePopupClose={handleCancel} />;
         case 'HTTP Endpoint Template':
-            return <HttpEndpointWizard path={props.path} type={endpointType} isPopup={true} handleChangeType={clearEndpointType} handlePopupClose={handleCancel} />;
+            return <HttpEndpointWizard path={props.path} type="template" isPopup={true} handleChangeType={clearEndpointType} handlePopupClose={handleCancel} />;
         case 'WSDL Endpoint Template':
-            return <WsdlEndpointWizard path={props.path} type={endpointType} isPopup={true} handleChangeType={clearEndpointType} handlePopupClose={handleCancel} />;
+            return <WsdlEndpointWizard path={props.path} type="template" isPopup={true} handleChangeType={clearEndpointType} handlePopupClose={handleCancel} />;
         case 'Sequence Template':
             return (
                 <FormView title="Template" onClose={handleCancel}>

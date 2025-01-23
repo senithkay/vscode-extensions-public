@@ -72,7 +72,7 @@ export const FunctionsPage = ({
                 searchValue={searchValue}
                 onSearch={handleSearch}
             />
-            <HelperPane.Body isLoading={isLoading}>
+            <HelperPane.Body loading={isLoading}>
                 {sortedFunctionInfo.map(({ group, items }) => (
                     <HelperPane.Section title={group}>
                         {items.map((fn) => (

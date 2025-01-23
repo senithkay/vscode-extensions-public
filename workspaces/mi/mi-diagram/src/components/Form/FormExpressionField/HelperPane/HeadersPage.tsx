@@ -55,7 +55,7 @@ export const HeadersPage = ({
                 searchValue={searchValue}
                 onSearch={handleSearch}
             />
-            <HelperPane.Body isLoading={isLoading}>
+            <HelperPane.Body loading={isLoading}>
                 {headerInfo?.map((header) => (
                     getHelperPaneCompletionItem(header, onChange, getCompletionItemIcon)
                 ))}

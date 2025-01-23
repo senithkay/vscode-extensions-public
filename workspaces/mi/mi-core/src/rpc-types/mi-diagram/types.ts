@@ -966,6 +966,8 @@ export interface CreateTemplateRequest {
     statisticsEnabled: boolean;
     parameters: any;
     getContentOnly: boolean;
+    isEdit: boolean;
+    range?: Range;
 }
 
 export interface CreateTemplateResponse {
@@ -1881,7 +1883,7 @@ export interface GetMediatorsRequest {
 }
 
 export interface GetMediatorsResponse {
-    [key: string]: Mediator[];
+    [key: string]: { items: Mediator[] };
 }
 
 export interface Mediator {
