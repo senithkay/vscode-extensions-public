@@ -15,14 +15,12 @@ import Typography from '../../../Typography/Typography';
 /* Styled components */
 const FnSignatureBody = styled.div<StyleBase>`
     width: 350px;
-    height: 36px;
+    height: 28px;
     display: flex;
     align-items: center;
-    margin-block: 2px;
-    padding-block: 8px;
-    border-radius: 8px;
+    border-radius: 2px;
     background-color: var(--vscode-dropdown-background);
-    box-shadow: 0 3px 8px rgb(0 0 0 / 0.2);
+    border: 1px solid var(--vscode-menu-border);
     ${(props: StyleBase) => props.sx}
 `;
 

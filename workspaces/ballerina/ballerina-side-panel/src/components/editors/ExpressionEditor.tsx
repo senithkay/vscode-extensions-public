@@ -7,9 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { debounce } from 'lodash';
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { FormField, FormExpressionEditorProps } from '../../Form/types';
 import { Control, Controller, FieldValues, UseFormWatch } from 'react-hook-form';
+import styled from '@emotion/styled';
 import {
     Button,
     CompletionItem,
@@ -18,18 +19,16 @@ import {
     FormExpressionEditorRef,
     RequiredFormInput
 } from '@wso2-enterprise/ui-toolkit';
-import styled from '@emotion/styled';
-import { useFormContext } from '../../../context';
+import { sanitizeType } from './utils';
+import { FormField, FormExpressionEditorProps } from '../Form/types';
+import { useFormContext } from '../../context';
 import {
     LineRange,
     SubPanel,
     SubPanelView,
     SubPanelViewProps
 } from '@wso2-enterprise/ballerina-core';
-import { Colors } from '../../../resources/constants';
-import { sanitizeType } from '../utils';
-import { getHelperPane } from './HelperPane';
-import { debounce } from 'lodash';
+import { Colors } from '../../resources/constants';
 
 type ContextAwareExpressionEditorProps = {
     field: FormField;
@@ -141,18 +140,12 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         control,
         field,
         watch,
-        isLoadingHelperPaneInfo,
-        variableInfo,
-        configVariableInfo,
-        functionInfo,
-        libraryBrowserInfo,
         completions,
         triggerCharacters,
         retrieveCompletions,
         extractArgsFromFunction,
         getExpressionEditorDiagnostics,
-        getHelperPaneData,
-        onFunctionItemSelect,
+        getHelperPane,
         onFocus,
         onBlur,
         onCompletionItemSelect,
@@ -161,11 +154,11 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         onRemove,
         openSubPanel,
         handleOnFieldFocus,
-        onSaveConfigurables,
         subPanelView,
         targetLineRange,
         fileName,
-        visualizable
+        visualizable,
+        helperPaneOrigin
     } = props as ExpressionEditorProps;
     const [focused, setFocused] = useState<boolean>(false);
 
@@ -251,20 +244,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
     }
 
     const handleGetHelperPane = (value: string, onChange: (value: string, updatedCursorPosition: number) => void) => {
-        return getHelperPane(
-            exprRef,
-            isLoadingHelperPaneInfo,
-            variableInfo,
-            configVariableInfo,
-            functionInfo,
-            libraryBrowserInfo,
-            () => setIsHelperPaneOpen(false),
-            getHelperPaneData,
-            value,
-            onChange,
-            onSaveConfigurables,
-            onFunctionItemSelect
-        );
+        return getHelperPane?.(exprRef, value, onChange, handleChangeHelperPaneState);
     }
 
     const updateSubPanelData = (value: string) => {
@@ -317,25 +297,19 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                                 debouncedUpdateSubPanelData(value);
                                 cursorPositionRef.current = updatedCursorPosition;
 
-                                // Open the helper pane based on the value
-                                const isHelperPaneOpen = value === "" ? true : false;
-                                setIsHelperPaneOpen(isHelperPaneOpen);
-
                                 if (getExpressionEditorDiagnostics) {
                                     getExpressionEditorDiagnostics(!field.optional || value !== '', value, field.key);
                                 }
 
-                                if (!isHelperPaneOpen) {
-                                    // Check if the current character is a trigger character
-                                    const triggerCharacter =
-                                        updatedCursorPosition > 0
-                                            ? triggerCharacters.find((char) => value[updatedCursorPosition - 1] === char)
-                                            : undefined;
-                                    if (triggerCharacter) {
-                                        await retrieveCompletions(value, field.key, updatedCursorPosition, triggerCharacter);
-                                    } else {
-                                        await retrieveCompletions(value, field.key, updatedCursorPosition);
-                                    }
+                                // Check if the current character is a trigger character
+                                const triggerCharacter =
+                                    updatedCursorPosition > 0
+                                        ? triggerCharacters.find((char) => value[updatedCursorPosition - 1] === char)
+                                        : undefined;
+                                if (triggerCharacter) {
+                                    await retrieveCompletions(value, field.key, updatedCursorPosition, triggerCharacter);
+                                } else {
+                                    await retrieveCompletions(value, field.key, updatedCursorPosition);
                                 }
                             }}
                             extractArgsFromFunction={handleExtractArgsFromFunction}
@@ -347,7 +321,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             onRemove={onRemove}
                             isHelperPaneOpen={isHelperPaneOpen}
                             changeHelperPaneState={handleChangeHelperPaneState}
-                            getHelperPane={getHelperPaneData && handleGetHelperPane} // TODO: Remove this check when all the forms are refactored to use form generator
+                            helperPaneOrigin={helperPaneOrigin}
+                            getHelperPane={handleGetHelperPane}
                             placeholder={field.placeholder}
                             sx={{ paddingInline: '0' }}
                             codeActions={codeActions}
