@@ -858,7 +858,7 @@ export async function changeRootPomForClassMediator() {
         {
             groupId: "org.apache.synapse",
             artifact: "synapse-core",
-            version: "4.0.0-wso2v20"
+            version: "4.0.0-wso2v165"
         }
     ];
     await rpcManager.updateDependencies({ dependencies });
