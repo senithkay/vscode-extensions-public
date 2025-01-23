@@ -29,7 +29,7 @@ export const getHelperPanePosition = (
     the helper pane within the viewport. */
     position.top = rect.top - (HELPER_PANE_HEIGHT / 2);
     if (helperPaneOrigin === 'right') {
-        position.left = rect.left + rect.width + HELPER_PANE_WIDTH + ARROW_HEIGHT;
+        position.left = rect.left + rect.width + ARROW_HEIGHT;
     } else if (helperPaneOrigin === 'left') {
         position.left = rect.left - (HELPER_PANE_WIDTH + ARROW_HEIGHT);
     }
