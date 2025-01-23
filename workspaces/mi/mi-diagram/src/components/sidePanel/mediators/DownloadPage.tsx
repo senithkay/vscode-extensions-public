@@ -65,7 +65,7 @@ export function DownloadPage(props: DownloadPageProps) {
             const pomPath = path.join(projectDir, 'pom.xml');
             await rpcClient.getMiDiagramRpcClient().rangeFormat({ uri: pomPath });
 
-            if (response === "Success") {
+            if (response === "Success" || !response.includes(module.mavenArtifactId)) {
                 onDownloadSuccess(props.module.connectorName);
                 setIsDownloading(false);
                 sidepanelGoBack(sidePanelContext, sidePanelContext.pageStack.length - 1);
@@ -85,7 +85,7 @@ export function DownloadPage(props: DownloadPageProps) {
         // Download Connector
         const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
 
-        if (response === "Success") {
+        if (response === "Success" || !response.includes(module.mavenArtifactId)) {
             onDownloadSuccess(props.module.connectorName);
             setIsDownloading(false);
             sidepanelGoBack(sidePanelContext, sidePanelContext.pageStack.length - 1);

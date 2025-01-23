@@ -44,15 +44,14 @@ export function RemoveConnectorPage(props: RemoveConnectorPageProps) {
             const projectDetails = await rpcClient.getMiVisualizerRpcClient().getProjectDetails();
             const connectorDependencies = projectDetails.dependencies.connectorDependencies;
 
-            
+            let pomRemoveSuccess: boolean;
 
             const removeDependency = async () => {
                 for (const d of connectorDependencies) {
                     if (d.artifact === artifactId && d.version === version) {
-                        await rpcClient.getMiVisualizerRpcClient().updatePomValues({
+                        pomRemoveSuccess = await rpcClient.getMiVisualizerRpcClient().updatePomValues({
                             pomValues: [{ range: d.range, value: '' }]
                         });
-                        break;
                     }
                 }
             }
@@ -61,7 +60,7 @@ export function RemoveConnectorPage(props: RemoveConnectorPageProps) {
 
             const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
 
-            if (response === "Success") {
+            if (pomRemoveSuccess && (response === "Success" || !response.includes(artifactId))) {
                 await onRemoveSuccess();
                 setIsRemoving(false);
                 sidepanelGoBack(sidePanelContext, 1);
@@ -81,7 +80,7 @@ export function RemoveConnectorPage(props: RemoveConnectorPageProps) {
         // Removing Connector
         const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
 
-        if (response === "Success") {
+        if (response === "Success" || !response.includes(artifactId)) {
             onRemoveSuccess();
             setIsRemoving(false);
             sidepanelGoBack(sidePanelContext);
