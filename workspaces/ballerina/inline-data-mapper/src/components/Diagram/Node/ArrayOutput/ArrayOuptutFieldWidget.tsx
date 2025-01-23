@@ -60,6 +60,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const [isLoading, setLoading] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
+    const [hasOutputBeforeInput, setHasOutputBeforeInput] = useState(false);
     const [isAddingElement, setIsAddingElement] = useState(false);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
     const setExprBarFocusedPort = useDMExpressionBarStore(state => state.setFocusedPort);
@@ -109,6 +110,10 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const handlePortState = (state: PortState) => {
         setPortState(state)
     };
+
+	const handlePortSelection = (outputBeforeInput: boolean) => {
+		setHasOutputBeforeInput(outputBeforeInput);
+	};
 
     const handleEditValue = () => {
         if (portIn)
@@ -231,6 +236,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const addElementButton = useMemo(() => {
         return (
             <Button
+                id={`add-array-element-${portName}`}
                 key={`array-widget-${portIn?.getName()}-add-element`}
                 className={classes.addArrayElementButton}
                 appearance="icon"
@@ -323,6 +329,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                                 port={portIn}
                                 disable={isDisabled && expanded}
                                 handlePortState={handlePortState}
+                                hasFirstSelectOutput={handlePortSelection}
                                 dataTestId={`array-type-editable-record-field-${portIn.getName()}`}
                             />
                         )}
@@ -331,6 +338,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                         {(expression && !connectedViaLink) && (
                             <FieldActionWrapper>
                                 <Button
+                                    id={`expand-or-collapse-${portName}`}
                                     appearance="icon"
                                     sx={{ marginLeft: indentation }}
                                     onClick={handleExpand}
@@ -352,6 +360,14 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                             />
                         </FieldActionWrapper>
                     ))}
+                    {hasOutputBeforeInput && (
+                        <div className={classes.outputBeforeInputNotification}>
+                            <span style={{ display: 'flex', alignItems: 'center' }}>
+                                <Codicon name="info" sx={{ marginRight: "7px" }} />
+                                Click on input field first to create a mapping
+                            </span>
+                        </div>
+                    )}
                 </div>
             )}
             {(expanded && expression) && (

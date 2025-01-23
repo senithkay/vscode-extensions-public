@@ -11,7 +11,7 @@ import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import classnames from "classnames";
-import { Button, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from "../../Port";
@@ -56,6 +56,7 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
 
     const [isLoading, setLoading] = useState(false);
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
+    const [hasOutputBeforeInput, setHasOutputBeforeInput] = useState(false);
 
     const typeName = field.kind;
     const fieldName = field?.variableName || '';
@@ -112,6 +113,10 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
         setPortState(state)
     };
 
+    const handlePortSelection = (outputBeforeInput: boolean) => {
+		setHasOutputBeforeInput(outputBeforeInput);
+	};
+
     const label = (
         <span style={{ marginRight: "auto" }} data-testid={`primitive-array-element-${portIn?.getName()}`}>
             <span className={classes.valueLabel} style={{ marginLeft: "24px" }}>
@@ -160,7 +165,12 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
                 >
                     <span className={classes.inPort}>
                         {portIn &&
-                            <DataMapperPortWidget engine={engine} port={portIn} handlePortState={handlePortState} />
+                            <DataMapperPortWidget
+                                engine={engine}
+                                port={portIn}
+                                handlePortState={handlePortState}
+                                hasFirstSelectOutput={handlePortSelection}
+                            />
                         }
                     </span>
                     <span className={classes.label}>{label}</span>
@@ -173,6 +183,14 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
                                 portName={portIn?.getName()}
                             />
                         </FieldActionWrapper>
+                    )}
+                    {hasOutputBeforeInput && (
+                        <div className={classes.outputBeforeInputNotification}>
+                            <span style={{ display: 'flex', alignItems: 'center' }}>
+                                <Codicon name="info" sx={{ marginRight: "7px" }} />
+                                Click on input field first to create a mapping
+                            </span>
+                        </div>
                     )}
                 </div>
             )}

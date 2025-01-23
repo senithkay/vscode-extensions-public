@@ -23,6 +23,7 @@ export interface DataMapperPortWidgetProps {
 	disable?: boolean;
 	dataTestId?: string;
 	handlePortState?: (portState: PortState) => void ;
+	hasFirstSelectOutput?: (inputBeforeOutput: boolean) => void;
 }
 
 export enum PortState {
@@ -32,15 +33,13 @@ export enum PortState {
 }
 
 export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props: DataMapperPortWidgetProps) =>  {
-	const { engine, port, disable, dataTestId, handlePortState } = props;
+	const { engine, port, disable, dataTestId, handlePortState, hasFirstSelectOutput } = props;
 	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 	const [ disableNewLinking, setDisableNewLinking] = useState<boolean>(false);
 
 	const isDisabled = disable || (port instanceof InputOutputPortModel && port.isDisabled());
 
-	const { setExprBarFocusedPort, setExprBarInputPort, resetExprBarFocus } = useDMExpressionBarStore(state => ({
-		setExprBarFocusedPort: state.setFocusedPort,
-		setExprBarInputPort: state.setInputPort,
+	const { resetExprBarFocus } = useDMExpressionBarStore(state => ({
 		resetExprBarFocus: state.resetFocus
 	}));
 
@@ -52,18 +51,6 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 		}
 		return false;
 	});
-
-	const addExprBarFocusedPort = () => {
-		if (port instanceof InputOutputPortModel && port.portType === "IN") {
-			setExprBarFocusedPort(port);
-		}
-	};
-
-	const addToExpressionBar = () => {
-		if (port instanceof InputOutputPortModel && port.portType === "OUT") {
-			setExprBarInputPort(port);
-		}
-	};
 
 	useEffect(() => {
 			port.registerListener({
@@ -87,25 +74,16 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 							handlePortState(PortState.Unselected);
 						}
 						resetExprBarFocus();
-					} else if (event.function === "expressionBarFocused") {
-						addExprBarFocusedPort();
-					} else if (event.function === "addToExpression") {
-						addToExpressionBar();
+					} else if (event.function === "firstClickedOnOutput") {
+						hasFirstSelectOutput(true);
+						setTimeout(() => hasFirstSelectOutput(false), 3000);
+					} else if (event.function === "disableNewLinking") {
+						setDisableNewLinking(true);
+					} else if (event.function === "enableNewLinking") {
+						setDisableNewLinking(false);
 					}
 				},
 			})
-	}, []);
-
-	useEffect(() => {
-		port.registerListener({
-			eventDidFire(event) {
-				if (event.function === "disableNewLinking") {
-					setDisableNewLinking(true);
-				} else if (event.function === "enableNewLinking") {
-					setDisableNewLinking(false);
-				}
-			},
-		})
 	}, []);
 
 	const containerProps = {

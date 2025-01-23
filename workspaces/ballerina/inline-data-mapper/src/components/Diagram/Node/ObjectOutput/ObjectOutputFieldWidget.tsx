@@ -54,6 +54,8 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
 
     const [isHovered, setIsHovered] = useState(false);
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
+    const [hasOutputBeforeInput, setHasOutputBeforeInput] = useState(false);
+
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
     let indentation = treeDepth * 16;
@@ -91,6 +93,10 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const handlePortState = (state: PortState) => {
         setPortState(state)
     };
+
+	const handlePortSelection = (outputBeforeInput: boolean) => {
+		setHasOutputBeforeInput(outputBeforeInput);
+	};
 
     const handleAddValue = async () => {
         setLoading(true);
@@ -237,12 +243,14 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                                 port={portIn}
                                 disable={isDisabled && expanded}
                                 handlePortState={handlePortState}
+                                hasFirstSelectOutput={handlePortSelection}
                             />
                         )}
                     </span>
                     <span className={classes.label}>
                         {fields && (
                             <Button
+                                id={"expand-or-collapse-" + portName} 
                                 appearance="icon"
                                 tooltip="Expand/Collapse"
                                 sx={{ marginLeft: indentation }}
@@ -264,6 +272,14 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                             />
                         </FieldActionWrapper>
                     ))}
+                    {hasOutputBeforeInput && (
+                        <div className={classes.outputBeforeInputNotification}>
+                            <span style={{ display: 'flex', alignItems: 'center' }}>
+                                <Codicon name="info" sx={{ marginRight: "7px" }} />
+                                Click on input field first to create a mapping
+                            </span>
+                        </div>
+                    )}
                 </div>
             )}
             {isArray && (

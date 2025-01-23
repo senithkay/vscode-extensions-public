@@ -108,6 +108,7 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
                 <span className={classes.label}>
                     {hasFields && (
                         <Button
+                            id={"expand-or-collapse-" + id} 
                             appearance="icon"
                             tooltip="Expand/Collapse"
                             onClick={handleExpand}

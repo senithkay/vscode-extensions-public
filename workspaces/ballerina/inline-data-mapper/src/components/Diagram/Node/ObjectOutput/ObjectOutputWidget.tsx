@@ -49,6 +49,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 	const [isHovered, setIsHovered] = useState(false);
+	const [hasOutputBeforeInput, setHasOutputBeforeInput] = useState(false);
 
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
@@ -82,6 +83,10 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 
 	const handlePortState = (state: PortState) => {
 		setPortState(state)
+	};
+
+	const handlePortSelection = (outputBeforeInput: boolean) => {
+		setHasOutputBeforeInput(outputBeforeInput);
 	};
 
 	const onMouseEnter = () => {
@@ -128,12 +133,14 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 								engine={engine}
 								port={portIn}
 								handlePortState={handlePortState}
+								hasFirstSelectOutput={handlePortSelection}
 								disable={isDisabled && !expanded}
 							/>)
 						}
 					</span>
 					<span className={classes.label}>
 						<Button
+							id={"expand-or-collapse-" + id} 
 							appearance="icon"
 							tooltip="Expand/Collapse"
 							sx={{ marginLeft: indentation }}
@@ -144,6 +151,14 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 						</Button>
 						{label}
 					</span>
+                    {hasOutputBeforeInput && (
+                        <div className={classes.outputBeforeInputNotification}>
+                            <span style={{ display: 'flex', alignItems: 'center' }}>
+                                <Codicon name="info" sx={{ marginRight: "7px" }} />
+                                Click on input field first to create a mapping
+                            </span>
+                        </div>
+                    )}
 				</TreeHeader>
 				{(expanded && fields) && (
 					<TreeBody>
