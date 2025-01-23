@@ -240,7 +240,8 @@ import {
     RemoveConnectorRequest,
     RemoveConnectorResponse,
     TestConnectorConnectionRequest,
-    TestConnectorConnectionResponse
+    TestConnectorConnectionResponse,
+    MiVersionResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -281,7 +282,7 @@ import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 import { importCapp } from "../../util/importCapp";
-import { getDefaultProjectPath } from "../../util/onboardingUtils";
+import { getDefaultProjectPath, getMIVersionFromPom } from "../../util/onboardingUtils";
 import { Range as STRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 const AdmZip = require('adm-zip');
@@ -344,6 +345,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.shutdownTryoutServer();
             resolve(res);
+        });
+    }
+
+    async getMIVersionFromPom(): Promise<MiVersionResponse> {
+        return new Promise(async (resolve) => {
+            const res = await getMIVersionFromPom();
+            resolve({ version: res ?? ''});
         });
     }
 
@@ -3774,8 +3782,10 @@ ${endpointAttributes}
                     resolve({ inboundConnectors: connectorCache.get('inbound-connector-data'), outboundConnectors: connectorCache.get('outbound-connector-data'), connectors: connectorCache.get('connectors') });
                     return;
                 }
+                const runtimeVersion = await getMIVersionFromPom();
+
                 const response = await fetch(APIS.CONNECTOR);
-                const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE);
+                const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE.replace('${version}', runtimeVersion ?? ''));
                 const data = await response.json();
                 const connectorStoreData = await connectorStoreResponse.json();
                 if (data && data['inbound-connector-data'] && data['outbound-connector-data']) {

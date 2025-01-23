@@ -66,7 +66,7 @@ export async function getProjectSetupDetails(): Promise<SetupDetails> {
 
     return { isSupportedMIVersion: false, javaDetails: { status: 'not-valid' }, miDetails: { status: 'not-valid' } };
 }
-async function getMIVersionFromPom(): Promise<string | null> {
+export async function getMIVersionFromPom(): Promise<string | null> {
     const pomFiles = await vscode.workspace.findFiles('pom.xml', '**/node_modules/**', 1);
     if (pomFiles.length === 0) {
         vscode.window.showErrorMessage('pom.xml not found.');

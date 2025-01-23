@@ -36,6 +36,7 @@ export const OperationsWrapper = styled.div`
 
 export function ModuleSuggestions(props: ModuleSuggestionProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
+    const { rpcClient } = useVisualizerContext();
     const { localConnectors, searchValue } = props;
     const [filteredModules, setFilteredModules] = React.useState<any[]>([]);
     const [isSearching, setIsSearching] = React.useState<boolean>(false);
@@ -44,7 +45,8 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
         () => debounce(async (value: string) => {
             if (value) {
                 try {
-                    const response = await fetch(`${APIS.CONNECTOR_SEARCH.replace('${searchValue}', value)}`);
+                    const runtimeVersion = await rpcClient.getMiDiagramRpcClient().getMIVersionFromPom();
+                    const response = await fetch(`${APIS.CONNECTOR_SEARCH.replace('${searchValue}', value).replace('${version}', runtimeVersion.version)}`);
                     const data = await response.json();
                     setFilteredModules(data);
                 } catch (e) {
@@ -83,7 +85,7 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
             modules = [];
         }
 
-        return Object.keys(modules).length > 0 &&
+        return modules && Object.keys(modules).length > 0 &&
             <>
                 <h4>In Store: </h4>
                 {Object.entries(modules).map(([key, values]: [string, any]) => (
