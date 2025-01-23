@@ -169,8 +169,8 @@ export function Mediators(props: MediatorProps) {
     const reloadPalette = async (connectorName?: string) => {
         props.clearSearch();
         await fetchMediators();
-        fetchLocalConnectorData();
-        connectorName && setExpandedModules([connectorName]);
+        await fetchLocalConnectorData();
+        connectorName ? setExpandedModules([connectorName]) : initializeExpandedModules(allMediators);;
     };
 
     const deleteConnector = async (connectorName: string,artifactId: string, version: string, iconUrl: string) => {

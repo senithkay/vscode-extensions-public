@@ -26,7 +26,7 @@ interface RemoveConnectorPageProps {
     connectorName: string;
     artifactId: string;
     version: string;
-    onRemoveSuccess: () => void;
+    onRemoveSuccess: () => Promise<void>;
 }
 
 export function RemoveConnectorPage(props: RemoveConnectorPageProps) {
@@ -44,19 +44,25 @@ export function RemoveConnectorPage(props: RemoveConnectorPageProps) {
             const projectDetails = await rpcClient.getMiVisualizerRpcClient().getProjectDetails();
             const connectorDependencies = projectDetails.dependencies.connectorDependencies;
 
-            for (const d of connectorDependencies) {
-                if (d.artifact === artifactId && d.version === version) {
-                    await rpcClient.getMiVisualizerRpcClient().updatePomValues({
-                        pomValues: [{ range: d.range, value: '' }]
-                    });
-                    break;
+            
+
+            const removeDependency = async () => {
+                for (const d of connectorDependencies) {
+                    if (d.artifact === artifactId && d.version === version) {
+                        await rpcClient.getMiVisualizerRpcClient().updatePomValues({
+                            pomValues: [{ range: d.range, value: '' }]
+                        });
+                        break;
+                    }
                 }
             }
+
+            await removeDependency();
 
             const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
 
             if (response === "Success") {
-                onRemoveSuccess();
+                await onRemoveSuccess();
                 setIsRemoving(false);
                 sidepanelGoBack(sidePanelContext, 1);
             } else {
@@ -115,7 +121,7 @@ export function RemoveConnectorPage(props: RemoveConnectorPageProps) {
                 ) : (
                     <div style={{ display: "flex", flexDirection: "column", padding: "40px", gap: "15px" }}>
                         <Typography variant="body2">
-                            {connectorName} module will be removed from the project. Make sure to all its dependencies are removed.
+                            {connectorName} module will be removed from the project. Make sure all its dependencies are removed.
                         </Typography>
                         <Typography variant="body2">Do you want to continue?</Typography>
                         <FormActions>
