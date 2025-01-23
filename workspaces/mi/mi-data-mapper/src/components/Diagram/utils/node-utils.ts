@@ -83,10 +83,10 @@ export function createOutputNodeForDmFunction(
             const returnExpr = returnStatement?.getExpression();
     
             // Create output node based on return type
-            if (returnType.isInterface()) {
-                return new ObjectOutputNode(context, returnExpr, outputType);
-            } else if (returnType.isArray()) {
+            if (returnType.isArray()) {
                 return new ArrayOutputNode(context, returnExpr, outputType);
+            } else {
+                return new ObjectOutputNode(context, returnExpr, outputType);
             }
         }
     }
