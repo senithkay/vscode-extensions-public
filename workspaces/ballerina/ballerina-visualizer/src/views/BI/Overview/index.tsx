@@ -459,13 +459,13 @@ export function Overview(props: ComponentDiagramProps) {
         const buttons = [];
         if (readmeContent && isEmptyProject()) {
             buttons.push(
-                <VSCodeButton appearance="icon" title="Scaffold Integration with Readme" onClick={handleReadmeGenerate}>
+                <VSCodeButton key="scaffold-readme" appearance="icon" title="Scaffold Integration with Readme" onClick={handleReadmeGenerate}>
                     <Codicon name="wand" sx={{ marginRight: 5 }} /> Scaffold Integration with Readme
                 </VSCodeButton>
             );
         }
         buttons.push(
-            <VSCodeButton appearance="icon" title="Edit Readme" onClick={handleEditReadme}>
+            <VSCodeButton key="edit-readme" appearance="icon" title="Edit Readme" onClick={handleEditReadme}>
                 <Codicon name="edit" sx={{ marginRight: 5 }} /> Edit
             </VSCodeButton>
         );

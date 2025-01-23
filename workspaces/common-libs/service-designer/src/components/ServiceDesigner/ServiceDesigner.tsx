@@ -37,6 +37,8 @@ interface ServiceDesignerProps {
     // Disable service header
     disableServiceHeader?: boolean;
     customTitle?: string;
+    disableTitle?: boolean;
+    selectedResourceId?: string;
     customEmptyResourceMessage?: string;
 }
 
@@ -81,9 +83,13 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         onServiceEdit,
         onResourceImplement,
         onResourceClick,
-        disableServiceHeader = false
+        disableServiceHeader = false,
+        selectedResourceId,
+        disableTitle = false,
     } = props;
     const [resources, setResources] = useState<JSX.Element[]>([]);
+    const [openResource, setOpenResource] = useState<string | undefined>(undefined);
+    const openResourceRef = React.useRef<HTMLDivElement>(null);
 
     const handleServiceEdit = () => {
         if (onServiceEdit) {
@@ -95,22 +101,35 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         const resourceList: JSX.Element[] = [];
         const fetchResources = async () => {
             model.resources.forEach((resource, i) => {
+                const isOpen = resource.isOpen === true;
+                if (isOpen) {
+                    setOpenResource(`${resource.methods[0]}$${resource.path}`);
+                }
                 resourceList.push(
-                    <ResourceAccordion
-                        key={i}
-                        resource={resource}
-                        onEditResource={onResourceEdit && onResourceEdit}
-                        onDeleteResource={onResourceDelete && onResourceDelete}
-                        goToSource={goToSource}
-                        onResourceImplement={onResourceImplement}
-                        onResourceClick={onResourceClick}
-                    />
+                    <div key={i} ref={isOpen ? openResourceRef : null}>
+                        <ResourceAccordion
+                            key={i}
+                            resource={resource}
+                            onEditResource={onResourceEdit && onResourceEdit}
+                            onDeleteResource={onResourceDelete && onResourceDelete}
+                            goToSource={goToSource}
+                            onResourceImplement={onResourceImplement}
+                            onResourceClick={onResourceClick}
+                        />
+                    </div>
                 );
             });
             setResources(resourceList);
         };
         fetchResources();
-    }, [model]);
+    }, [model, selectedResourceId]);
+
+    useEffect(() => {
+        if (openResourceRef.current) {
+            console.log("scrolling to resource");
+            openResourceRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    }, [openResource]);
 
     return (
         <div data-testid="service-design-view">
@@ -126,7 +145,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 </ServiceHeader>
             )}
             <ResourceListHeader>
-                <Typography sx={{ marginBlockEnd: 10 }} variant="h3">{props.customTitle ?? "Available resources"}</Typography>
+                {!disableTitle && <Typography sx={{ marginBlockEnd: 10 }} variant="h3">{props.customTitle ?? "Available resources"}</Typography>}
                 {onResourceAdd && (
                     <VSCodeButton appearance="primary" title="Edit Service" onClick={onResourceAdd}>
                         <Codicon name="add" sx={{ marginRight: 5 }} /> Resource

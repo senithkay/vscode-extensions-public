@@ -10,15 +10,15 @@ import React from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
-import { LinePosition, Range } from '@wso2-enterprise/ballerina-core';
-import { URI } from 'vscode-uri';
+import { FlowNode, LinePosition } from '@wso2-enterprise/ballerina-core';
+import { convertNodePropertiesToFormFields, getFormProperties } from './utils/bi';
 
 export const useExperimentalEnabled = () => {
     const { rpcClient } = useRpcContext();
 
     const isExperimentalEnabled = async () => {
         return await rpcClient.getCommonRpcClient().experimentalEnabled();
-    }
+    };
 
     const {
         data: experimentalEnabled,
@@ -30,53 +30,58 @@ export const useExperimentalEnabled = () => {
     return { experimentalEnabled, isFetchingExperimentalEnabled, isError, refetch };
 };
 
-export const useIOTypes = (filePath: string, position: LinePosition) => {
+export const useDataMapperFormFields = (filePath: string) => {
     const { rpcClient } = useRpcContext();
-    const getIOTypes = async () => {
+
+    const getFormTemplate = async () => {
+        const res = await rpcClient
+            .getBIDiagramRpcClient()
+            .getNodeTemplate({
+                position: {line: 0, offset: 0},
+                filePath: filePath,
+                id: {node: 'DATA_MAPPER'},
+            });
+        const flowNode = res.flowNode;
+        const formProperties = getFormProperties(flowNode);
+        return convertNodePropertiesToFormFields(formProperties);
+    };
+
+    const {
+        data: formFields,
+        isFetching: isFetchingFormTemplate,
+        isError
+    } = useQuery(['getFormTemplate', {}], () => getFormTemplate(),
+        { networkMode: 'always', refetchOnWindowFocus: false, refetchOnMount: false }
+    );
+
+    return { formFields, isFetchingFormTemplate, isError };
+};
+
+export const useInlineDataMapperModel = (
+    filePath: string,
+    flowNode: FlowNode,
+    propertyKey: string,
+    position: LinePosition
+) => {
+    const { rpcClient } = useRpcContext();
+    const getIDMModel = async () => {
         try {
             const res = await rpcClient
                 .getInlineDataMapperRpcClient()
-                .getIOTypes({ filePath, position });
-            return res;
+                .getDataMapperModel({ filePath, flowNode, propertyKey, position });
+            return res.mappingsModel;
         } catch (error) {
             console.error(error);
             throw error;
         }
-    }
+    };
 
     const {
-        data: dmIOTypes,
-        isFetching: isFetchingIOTypes,
-        isError: isIOTypeError,
+        data: model,
+        isFetching,
+        isError,
         refetch
-    } = useQuery(['getIOTypes', { filePath }], () => getIOTypes(), { networkMode: 'always' });
+    } = useQuery(['getIDMModel', { filePath, flowNode, position }], () => getIDMModel(), { networkMode: 'always' });
 
-    return {dmIOTypes, isFetchingIOTypes, isIOTypeError, refetch};
-};
-
-export const useSTNodeByRange = (filePath: string, range: Range) => {
-    const { rpcClient } = useRpcContext();
-    const getSTNode = async () => {
-        try {
-            const res = await rpcClient
-                .getLangClientRpcClient()
-                .getSTByRange({
-                    documentIdentifier: { uri: URI.file(filePath).toString() },
-                    lineRange: range
-                });
-            return res;
-        } catch (error) {
-            console.error(error);
-            throw error;
-        }
-    }
-
-    const {
-        data: stNode,
-        isFetching: isFetchingSTNode,
-        isError: isSTNodeError,
-        refetch
-    } = useQuery(['getSTNode', { filePath }], () => getSTNode(), { networkMode: 'always' });
-
-    return {stNode, isFetchingSTNode, isSTNodeError, refetch};
+    return {model, isFetching, isError, refetch};
 };

@@ -169,7 +169,7 @@ export interface NodeWidgetProps extends Omit<WhileNodeWidgetProps, "children"> 
 
 export function WhileNodeWidget(props: WhileNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { onNodeSelect, goToSource, onDeleteNode, addBreakpoint, removeBreakpoint } = useDiagramContext();
+    const { onNodeSelect, goToSource, onDeleteNode, addBreakpoint, removeBreakpoint, readOnly } = useDiagramContext();
 
     const [isHovered, setIsHovered] = React.useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
@@ -276,9 +276,11 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                     <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
                     <NodeStyles.Description>{model.node.properties.condition?.value}</NodeStyles.Description>
                 </NodeStyles.Header>
-                <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
-                    <MoreVertIcon />
-                </NodeStyles.StyledButton>
+                {!readOnly && (
+                    <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
+                        <MoreVertIcon />
+                    </NodeStyles.StyledButton>
+                )}
                 {hasError && (
                     <NodeStyles.ErrorIcon>
                         <DiagnosticsPopUp node={model.node} />

@@ -149,7 +149,7 @@ export interface NodeWidgetProps extends Omit<CommentNodeWidgetProps, "children"
 
 export function CommentNodeWidget(props: CommentNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { onNodeSelect, goToSource, onDeleteNode } = useDiagramContext();
+    const { onNodeSelect, goToSource, onDeleteNode, readOnly } = useDiagramContext();
 
     const [isHovered, setIsHovered] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
@@ -213,9 +213,11 @@ export function CommentNodeWidget(props: CommentNodeWidgetProps) {
                             <NodeStyles.Description>{model.node.metadata.description || "..."}</NodeStyles.Description>
                         </Tooltip>
                     </NodeStyles.Header>
-                    <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
-                        <MoreVertIcon />
-                    </NodeStyles.StyledButton>
+                    {!readOnly && (
+                        <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
+                            <MoreVertIcon />
+                        </NodeStyles.StyledButton>
+                    )}
                     <Popover
                         open={isMenuOpen}
                         anchorEl={anchorEl}

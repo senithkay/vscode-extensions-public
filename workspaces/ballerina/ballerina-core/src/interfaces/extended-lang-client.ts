@@ -17,7 +17,9 @@ import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteComman
 import { Category, Flow, FlowNode, CodeData, ConfigVariable } from "./bi";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
 import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
-import { TriggerFunction, TriggerNode } from "./triggers";
+import { FunctionModel, ListenerModel, ServiceModel } from "./service";
+import { CDModel } from "./component-diagram";
+import { IDMModel, Mapping } from "./inline-data-mapper";
 
 export interface DidOpenParams {
     textDocument: TextDocumentItem;
@@ -266,6 +268,43 @@ export interface TypeWithIdentifier {
     type: TypeField;
 }
 
+export interface InlineDataMapperModelRequest {
+    filePath: string;
+    flowNode: FlowNode;
+    propertyKey: string;
+    position: LinePosition;
+}
+
+export interface InlineDataMapperSourceRequest extends InlineDataMapperModelRequest {
+    mappings: Mapping[];
+}
+
+export interface VisualizableFieldsRequest {
+    filePath: string;
+    flowNode: FlowNode;
+    position: LinePosition;
+}
+
+export interface InlineDataMapperModelResponse {
+    mappingsModel: IDMModel;
+}
+
+export interface InlineDataMapperSourceResponse {
+    source: string;
+}
+
+export interface VisualizableFieldsResponse {
+    visualizableProperties: string[];
+}
+
+export interface AddArrayElementRequest {
+    filePath: string;
+    flowNode: FlowNode;
+    position: LinePosition;
+    propertyKey: string;
+    targetField: string;
+}
+
 export interface GraphqlDesignServiceParams {
     filePath: string;
     startLine: LinePosition;
@@ -480,7 +519,9 @@ export interface BISuggestedFlowModelRequest extends BIFlowModelRequest {
 }
 
 export type BIFlowModelResponse = {
-    flowModel: Flow;
+    flowModel?: Flow;
+    errorMsg?: string;
+    stacktrace?: string;
 };
 
 export interface BISourceCodeRequest {
@@ -623,6 +664,14 @@ export interface BICopilotContextResponse {
     suffix: string;
 }
 
+export interface BIDesignModelRequest {
+    projectPath: string;
+}
+
+export type BIDesignModelResponse = {
+    designModel: CDModel;
+};
+
 export interface SequenceModelRequest {
     filePath: string;
     startLine: LinePosition;
@@ -651,7 +700,7 @@ export interface ExpressionEditorContext {
     expression: string;
     startLine: LinePosition;
     offset: number;
-    node: FlowNode | TriggerNode;
+    node: FlowNode;
     branch?: string;
     property: string;
 }
@@ -673,6 +722,7 @@ export interface ExpressionCompletionItem {
     filterText: string;
     insertText: string;
     insertTextFormat: number;
+    additionalTextEdits?: TextEdit[];
 }
 
 export type ExpressionCompletionsResponse = ExpressionCompletionItem[];
@@ -743,6 +793,33 @@ export interface ExpressionDiagnosticsResponse {
     diagnostics: Diagnostic[];
 }
 
+export interface UpdateImportsRequest {
+    filePath: string;
+    importStatement: string;
+}
+
+export interface UpdateImportsResponse {
+    importStatementOffset: number;
+}
+
+export const functionKinds = {
+    CURRENT: 'CURRENT',
+    IMPORTED: 'IMPORTED',
+    AVAILABLE: 'AVAILABLE'
+} as const;
+
+export type FunctionKind = typeof functionKinds[keyof typeof functionKinds];
+
+export interface AddFunctionRequest {
+    filePath: string;
+    codedata: CodeData;
+    kind: FunctionKind;
+}
+
+export interface AddFunctionResponse {
+    template: string;
+}
+
 
 // <-------- Trigger Related ------->
 export interface TriggerModelsRequest {
@@ -753,61 +830,97 @@ export interface TriggerModelsRequest {
 }
 
 export interface TriggerModelsResponse {
-    local: TriggerNode[];
+    local: ServiceModel[];
 }
 
-export interface TriggerModelRequest {
-    id?: string;
-    organization?: string;
-    packageName?: string;
-    moduleName?: string;
-    serviceName?: string;
-    query?: string;
-    keyWords?: string;
-}
+// <-------- Trigger Related ------->
 
-export interface TriggerModelResponse {
-    trigger: TriggerNode;
-}
-
-
-export interface TriggerSourceCodeRequest {
+// <-------- Service Designer Related ------->
+export interface ListenersRequest {
     filePath: string;
-    codedata?: {
-        lineRange: LineRange; // For the entire service declaration
-    };
-    trigger: TriggerNode;
+    moduleName: string;
+    orgName?: string;
+    pkgName?: string;
+    listenerTypeName?: string;
+}
+export interface ListenersResponse {
+    hasListeners: boolean;
+    listeners: string[];
+}
+export interface ListenerModelRequest {
+    moduleName: string;
+    orgName?: string;
+    pkgName?: string;
+    listenerTypeName?: string;
+}
+export interface ListenerModelResponse {
+    listener: ListenerModel;
 }
 
-export interface TriggerSourceCodeResponse {
+export interface ListenerSourceCodeRequest {
+    filePath: string;
+    listener: ListenerModel;
+}
+export interface ListenerSourceCodeResponse {
     textEdits: {
         [key: string]: TextEdit[];
     };
 }
-export interface TriggerModelFromCodeRequest {
+export interface ServiceModelRequest {
+    filePath: string;
+    moduleName: string;
+    listenerName?: string;
+    orgName?: string;
+    pkgName?: string;
+}
+export interface ServiceModelResponse {
+    service: ServiceModel;
+}
+export interface ServiceSourceCodeRequest {
+    filePath: string;
+    service: ServiceModel;
+}
+export interface ServiceSourceCodeResponse {
+    textEdits: {
+        [key: string]: TextEdit[];
+    };
+}
+export interface ServiceModelFromCodeRequest {
     filePath: string;
     codedata: {
-        lineRange: LineRange; // For the entire service declaration
+        lineRange: LineRange; // For the entire service
     };
 }
-
-export interface TriggerModelFromCodeResponse {
-    trigger: TriggerNode
+export interface ServiceModelFromCodeResponse {
+    service: ServiceModel;
 }
-export interface TriggerFunctionRequest {
+export interface ListenerModelFromCodeRequest {
     filePath: string;
-    codedata?: {
-        lineRange: LineRange; // For the entire service declaration
+    codedata: {
+        lineRange: LineRange; // For the entire service
     };
-    function: TriggerFunction;
 }
-
-export interface TriggerFunctionResponse {
+export interface ListenerModelFromCodeResponse {
+    listener: ListenerModel;
+}
+export interface HttpResourceModelRequest {
+}
+export interface HttpResourceModelResponse {
+    resource: FunctionModel;
+}
+export interface FunctionSourceCodeRequest {
+    filePath: string;
+    function: FunctionModel;
+    codedata: {
+        lineRange: LineRange; // For the entire service
+    };
+}
+export interface ResourceSourceCodeResponse {
     textEdits: {
         [key: string]: TextEdit[];
     };
 }
-// <-------- Trigger Related ------->
+// <-------- Service Designer Related ------->
 
 // <------------ BI INTERFACES --------->
 
@@ -836,13 +949,23 @@ export interface BIInterface extends BaseLangClientInterface {
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
     getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
     getExpressionDiagnostics: (params: ExpressionDiagnosticsRequest) => Promise<ExpressionDiagnosticsResponse>;
+
+    // New Service Designer APIs
     getTriggerModels: (params: TriggerModelsRequest) => Promise<TriggerModelsResponse>;
-    getTriggerModel: (params: TriggerModelRequest) => Promise<TriggerModelResponse>;
-    getTriggerSourceCode: (params: TriggerSourceCodeRequest) => Promise<TriggerSourceCodeResponse>;
-    updateTriggerSourceCode: (params: TriggerSourceCodeRequest) => Promise<TriggerSourceCodeResponse>;
-    getTriggerModelFromCode: (params: TriggerModelFromCodeRequest) => Promise<TriggerModelFromCodeResponse>;
-    addTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
-    updateTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
+    getListeners: (params: ListenersRequest) => Promise<ListenersResponse>;
+    getListenerModel: (params: ListenerModelRequest) => Promise<ListenerModelResponse>;
+    addListenerSourceCode: (params: ListenerSourceCodeRequest) => Promise<ListenerSourceCodeResponse>;
+    getListenerFromSourceCode: (params: ListenerModelFromCodeRequest) => Promise<ListenerModelFromCodeResponse>;
+    getServiceModel: (params: ServiceModelRequest) => Promise<ServiceModelResponse>;
+    addServiceSourceCode: (params: ServiceSourceCodeRequest) => Promise<ListenerSourceCodeResponse>;
+    getServiceModelFromCode: (params: ServiceModelFromCodeRequest) => Promise<ServiceModelFromCodeResponse>;
+    getHttpResourceModel: (params: HttpResourceModelRequest) => Promise<HttpResourceModelResponse>;
+    addResourceSourceCode: (params: FunctionSourceCodeRequest) => Promise<ResourceSourceCodeResponse>;
+    addFunctionSourceCode: (params: FunctionSourceCodeRequest) => Promise<ResourceSourceCodeResponse>;
+
+    getDesignModel: (params: BIDesignModelRequest) => Promise<BIDesignModelResponse>;
+    updateImports: (params: UpdateImportsRequest) => Promise<void>;
+    addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {
@@ -857,9 +980,7 @@ export interface ExtendedLangClientInterface extends BIInterface {
     getDiagnostics(params: DiagnosticsParams): Promise<Diagnostics[] | NOT_SUPPORTED_TYPE>;
     getType(params: TypeParams): Promise<ExpressionType | NOT_SUPPORTED_TYPE>;
     getConnectors(params: ConnectorsParams, reset?: boolean): Promise<Connectors | NOT_SUPPORTED_TYPE>;
-    getTriggers(params: TriggersParams): Promise<Triggers | NOT_SUPPORTED_TYPE>;
     getConnector(params: ConnectorRequest): Promise<ConnectorResponse | NOT_SUPPORTED_TYPE>;
-    getTrigger(params: TriggerParams): Promise<Trigger | NOT_SUPPORTED_TYPE>;
     getRecord(params: RecordParams): Promise<BallerinaRecord | NOT_SUPPORTED_TYPE>;
     getSymbolDocumentation(params: SymbolInfoParams): Promise<SymbolInfo | NOT_SUPPORTED_TYPE>;
     getTypeFromExpression(params: TypeFromExpressionParams): Promise<TypesFromExpression | NOT_SUPPORTED_TYPE>;

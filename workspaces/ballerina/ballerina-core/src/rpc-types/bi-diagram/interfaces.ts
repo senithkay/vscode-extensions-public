@@ -9,8 +9,7 @@
 
 import { LineRange } from "../../interfaces/common";
 import { DIRECTORY_MAP, Flow, OverviewFlow } from "../../interfaces/bi";
-import { BallerinaProjectComponents, Trigger } from "../../interfaces/extended-lang-client";
-import { TriggerFormField } from "../../interfaces/triggers";
+import { BallerinaProjectComponents } from "../../interfaces/extended-lang-client";
 import { RemoteFunction, ServiceType } from "../../interfaces/ballerina";
 
 export interface ProjectRequest {
@@ -33,7 +32,6 @@ export interface ComponentRequest {
     type: DIRECTORY_MAP;
     serviceType?: ComponentServiceType;
     functionType?: ComponentFunctionType;
-    triggerType?: ComponentTriggerType;
 }
 
 export interface ComponentServiceType {
@@ -47,15 +45,7 @@ export interface ComponentFunctionType {
     parameters: FunctionParameters[],
     returnType?: string;
     cron?: string;
-}
-export interface ComponentTriggerType {
-    name: string;
-    listenerOnly?: boolean;
-    trigger?: Trigger;
-    listener: TriggerFormField[];
-    service: TriggerFormField[];
-    serviceTypes: Record<string, FunctionField>;
-    functions: Record<string, FunctionField>;
+    isExpressionBodied?: boolean;
 }
 
 export interface FunctionField {
@@ -64,7 +54,6 @@ export interface FunctionField {
     radioValues?: string[];
     serviceType?: ServiceType;
     functionType?: RemoteFunction;
-    fields?: TriggerFormField[];
 }
 
 export interface FunctionParameters {
@@ -93,7 +82,7 @@ export interface ReadmeContentResponse {
 export interface BIAiSuggestionsRequest {
     position: LineRange;
     filePath: string;
-    isOverview?: boolean;
+    prompt?: string;
 }
 export interface BIAiSuggestionsResponse {
     flowModel: Flow;
@@ -140,10 +129,10 @@ export interface AIChatRequest {
 }
 export interface ImportStatement {
     moduleName: string;
-    alias?: string; 
+    alias?: string;
 }
 export interface ImportStatements {
-    filePath: string; 
+    filePath: string;
     statements: ImportStatement[];
 }
 export interface ProjectImports {
