@@ -8,7 +8,7 @@
 */
 
 import React, { useEffect } from 'react';
-import { Button, ProgressIndicator, Typography, FormGroup, ErrorBanner, TextArea, Dropdown, ProgressRing, Tooltip, Icon } from '@wso2-enterprise/ui-toolkit';
+import { Button, ProgressIndicator, Typography, FormGroup, ErrorBanner, TextArea, Dropdown, ProgressRing, Tooltip, Icon, Alert } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { CodeTextArea } from '../../../Form/CodeTextArea';
@@ -206,11 +206,14 @@ export function TryOutView(props: TryoutProps) {
         </Tooltip>);
 
     const Header = (
-        <Typography
-            sx={{ padding: "10px", marginBottom: "10px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }}
-            variant="body3">
-            {`Try the request flow up to this mediator`}
-        </Typography>
+        <>
+            <Typography
+                sx={{ padding: "10px", marginBottom: "10px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }}
+                variant="body3">
+                {`Try the request flow up to this mediator`}
+            </Typography>
+            <Alert subTitle="All mediators up to this point are re-executed each time you change the request payload or click on the 'Run' button." />
+        </>
     );
 
     if (inputPayloads.length === 0) {
