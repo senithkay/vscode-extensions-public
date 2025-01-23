@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  * 
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -14,7 +14,6 @@ import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
 import { sidepanelGoBack } from '..';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import path from 'path';
 
 const ProgressRing = styled(VSCodeProgressRing)`
     height: 50px;
@@ -73,7 +72,7 @@ export function RemoveConnectorPage(props: RemoveConnectorPageProps) {
 
     const retryRemove = async () => {
         setIsFailedRemoving(true);
-        // Download Connector
+        // Removing Connector
         const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
 
         if (response === "Success") {

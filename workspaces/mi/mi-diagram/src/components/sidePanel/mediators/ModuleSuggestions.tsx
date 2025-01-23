@@ -70,8 +70,7 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
         const downloadPage = <DownloadPage
             module={module}
             onDownloadSuccess={props.reloadMediatorPalette}
-            documentUri={props.documentUri}
-            backCount={1} />;
+            documentUri={props.documentUri} />;
 
         sidepanelAddPage(sidePanelContext, downloadPage, FirstCharToUpperCase(module.connectorName), module.iconUrl);
     };
