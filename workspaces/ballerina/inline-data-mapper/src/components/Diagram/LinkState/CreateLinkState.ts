@@ -24,8 +24,12 @@ export class CreateLinkState extends State<DiagramEngine> {
 	sourcePort: PortModel;
 	link: LinkModel;
 
-	constructor() {
+	constructor(resetState: boolean = false) {
 		super({ name: 'create-new-link' });
+
+		if (resetState) {
+			this.clearState();
+		}
 
 		this.registerAction(
 			new Action({

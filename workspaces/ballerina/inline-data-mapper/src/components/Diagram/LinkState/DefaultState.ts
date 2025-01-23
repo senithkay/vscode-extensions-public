@@ -30,11 +30,11 @@ export class DefaultState extends State<DiagramEngine> {
 	createLink: CreateLinkState;
 	dragItems: DragDiagramItemsState;
 
-	constructor() {
+	constructor(resetState: boolean = false) {
 		super({ name: 'starting-state' });
 		this.childStates = [new SelectingState()];
 		this.dragCanvas = new DragCanvasState({allowDrag: false});
-		this.createLink = new CreateLinkState();
+		this.createLink = new CreateLinkState(resetState);
 		this.dragItems = new DragDiagramItemsState();
 
 		// determine what was clicked on

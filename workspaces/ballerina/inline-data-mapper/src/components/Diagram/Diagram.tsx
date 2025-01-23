@@ -34,7 +34,7 @@ import { useDiagramModel, useRepositionedNodes } from '../Hooks';
 import { throttle } from 'lodash';
 import { defaultModelOptions } from './utils/constants';
 import { IONodesScrollCanvasAction } from './Actions/IONodesScrollCanvasAction';
-import { useDMExpressionBarStore } from '../../store/store';
+import { useDMExpressionBarStore, useDMSearchStore } from '../../store/store';
 import { isOutputNode } from './Actions/utils';
 import { InputOutputPortModel } from './Port';
 import * as Nodes from "./Node";
@@ -105,12 +105,18 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	const getScreenWidthRef = useRef(() => screenWidth);
 	const devicePixelRatioRef = useRef(window.devicePixelRatio);
 
+	const { inputSearch, outputSearch } = useDMSearchStore.getState();
+
 	const zoomLevel = defaultModelOptions.zoom;
 
 	const repositionedNodes = useRepositionedNodes(nodes, zoomLevel, diagramModel);
 	const { updatedModel, isFetching } = useDiagramModel(repositionedNodes, diagramModel, onError, zoomLevel);
 
 	engine.setModel(diagramModel);
+
+	useEffect(() => {
+		engine.getStateMachine().pushState(new LinkState(true));
+	}, [inputSearch, outputSearch]);
 
 	useEffect(() => {
 		getScreenWidthRef.current = () => screenWidth;
