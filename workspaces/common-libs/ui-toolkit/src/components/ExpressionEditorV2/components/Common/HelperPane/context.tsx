@@ -24,4 +24,3 @@ export const HelperPanePanelProvider: FC<HelperPanePanelContextType> = props => 
 };
 
 export const useHelperPanePanelContext = () => useContext(HelperPanePanelContext);
-    

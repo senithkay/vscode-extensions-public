@@ -21,6 +21,7 @@ import { MediatorPage } from './Mediator';
 import { ModuleSuggestions } from './ModuleSuggestions';
 import { Modules } from '../modules/ModulesList';
 import AddConnector from '../Pages/AddConnector';
+import { RemoveConnectorPage } from './RemoveConnectorPage';
 
 interface MediatorProps {
     nodePosition: any;
@@ -165,12 +166,22 @@ export function Mediators(props: MediatorProps) {
         }, {});
     };
 
-    const reloadPalette = async (connectorName: string) => {
+    const reloadPalette = async (connectorName?: string) => {
         props.clearSearch();
         await fetchMediators();
-        fetchLocalConnectorData();
-        setExpandedModules([connectorName]);
+        await fetchLocalConnectorData();
+        connectorName ? setExpandedModules([connectorName]) : initializeExpandedModules(allMediators);;
     };
+
+    const deleteConnector = async (connectorName: string,artifactId: string, version: string, iconUrl: string) => {
+        const downloadPage = <RemoveConnectorPage
+            connectorName={connectorName}
+            artifactId={artifactId}
+            version={version}
+            onRemoveSuccess={reloadPalette} />;
+
+        sidepanelAddPage(sidePanelContext, downloadPage, FirstCharToUpperCase(connectorName), iconUrl);
+    }
 
     const addModule = () => {
         const modulesList = <Modules
@@ -200,7 +211,12 @@ export function Mediators(props: MediatorProps) {
             <div ref={mediatorListRef}>
                 {Object.entries(mediators).map(([key, values]) => (
                     <div key={key} style={{ marginTop: '15px' }} data-key={key}>
-                        <ButtonGroup key={key} title={FirstCharToUpperCase(key)} isCollapsed={!expandedModules.includes(key)}>
+                        <ButtonGroup
+                            key={key}
+                            title={FirstCharToUpperCase(key)}
+                            isCollapsed={!expandedModules.includes(key)}
+                            connectorDetails={values["isConnector"] ? { artifactId: values["artifactId"], version: values["version"] } : undefined}
+                            onDelete={deleteConnector}>
                             {values["items"].map((mediator: Mediator) => (
                                 <GridButton
                                     key={mediator.title}

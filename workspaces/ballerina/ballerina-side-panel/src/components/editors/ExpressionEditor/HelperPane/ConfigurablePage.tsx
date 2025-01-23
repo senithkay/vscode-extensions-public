@@ -34,7 +34,7 @@ export const ConfigurablePage = ({ isLoading, setCurrentPage, setFilterText, onC
                 searchValue={searchValue}
                 onSearch={handleSearch}
             />
-            <HelperPane.Body isLoading={isLoading}>
+            <HelperPane.Body loading={isLoading}>
                 <HelperPane.CompletionItem
                     label="key1"
                     type="string"

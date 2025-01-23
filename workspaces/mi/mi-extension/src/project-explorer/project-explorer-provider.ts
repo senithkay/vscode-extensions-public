@@ -127,19 +127,19 @@ async function getProjectStructureData(langClient: ExtendedLanguageClient): Prom
 				const projectDetailsRes = await langClient?.getProjectDetails();
 				const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
 				const projectTree = generateTreeData(workspace, resp, runtimeVersion);
-				if (projectTree) {
+
+				if (projectTree && projectTree.children?.length! > 0) {
 					data.push(projectTree);
 				}
 			};
 		}
+		vscode.commands.executeCommand('setContext', 'projectOpened', true);
 		if (data.length > 0) {
-			vscode.commands.executeCommand('setContext', 'projectOpened', true);
 			return data;
-		} else {
-			vscode.commands.executeCommand('setContext', 'projectOpened', false);
 		}
+	} else {
+		vscode.commands.executeCommand('setContext', 'projectOpened', false);
 	}
-	vscode.commands.executeCommand('setContext', 'projectOpened', false);
 	return [];
 
 }
@@ -272,7 +272,11 @@ function generateResources(data: RegistryResourcesFolder): ProjectExplorerEntry[
 		}
 		if (data.folders) {
 			for (const entry of data.folders) {
-				if (![".meta", "datamapper", "datamappers"].includes(entry.name)) {
+				if (![".meta", "datamapper", "datamappers", "conf"].includes(entry.name)) {
+					const files = generateResources(entry);
+					if (!files || files?.length === 0) {
+						continue;
+					}
 					const explorerEntry = new ProjectExplorerEntry(entry.name,
 						isCollapsibleState(entry.files.length > 0 || entry.folders.length > 0),
 						{
