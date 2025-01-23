@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { SelectionBoxLayerFactory } from "@projectstorm/react-canvas-core";
 import {
@@ -102,12 +102,19 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 	const [, forceUpdate] = useState({});
 
+	const getScreenWidthRef = useRef(() => screenWidth);
+	const devicePixelRatioRef = useRef(window.devicePixelRatio);
+
 	const zoomLevel = defaultModelOptions.zoom;
 
 	const repositionedNodes = useRepositionedNodes(nodes, zoomLevel, diagramModel);
 	const { updatedModel, isFetching } = useDiagramModel(repositionedNodes, diagramModel, onError, zoomLevel);
 
 	engine.setModel(diagramModel);
+
+	useEffect(() => {
+		getScreenWidthRef.current = () => screenWidth;
+	}, [screenWidth]);
 
 	useEffect(() => {
         window.addEventListener('resize', handleResize);
@@ -156,9 +163,12 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	const handleResize = throttle(() => {
 		const newScreenWidth = window.innerWidth;
-		if (newScreenWidth !== screenWidth) {
+		const newDevicePixelRatio = window.devicePixelRatio;
+
+		if (newDevicePixelRatio === devicePixelRatioRef.current && newScreenWidth !== getScreenWidthRef.current()) {
 			setScreenWidth(newScreenWidth);
 		}
+		devicePixelRatioRef.current = newDevicePixelRatio;
 	}, 100);
 
 	return (
