@@ -332,9 +332,9 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
             // Render connection form
             setIsGeneratingForm(true);
 
-            if (response === "Success") {
+            if (response === "Success" || !response.includes(conOnconfirmation.connector.mavenArtifactId)) {
                 const connectorName = conOnconfirmation.connector.connectorName;
-                const connectionType = conOnconfirmation.connectionType.toUpperCase();
+                const connectionType = conOnconfirmation.connectionType;
                 const connector = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.path, connectorName: connectorName.toLowerCase() });
 
                 if (connector) {
@@ -357,9 +357,9 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
         // Download Connector
         const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
 
-        if (response === "Success") {
+        if (response === "Success" || !response.includes(conOnconfirmation.connector.mavenArtifactId)) {
             const connectorName = conOnconfirmation.connector.connectorName;
-            const connectionType = conOnconfirmation.connectionType.toUpperCase();
+            const connectionType = conOnconfirmation.connectionType;
             const connector = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.path, connectorName: connectorName.toLowerCase() });
 
             setSelectedConnectionType({ connector, connectionType });
