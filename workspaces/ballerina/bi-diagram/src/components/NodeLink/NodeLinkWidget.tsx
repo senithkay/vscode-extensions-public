@@ -50,7 +50,10 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
         setLockCanvas(isCommentBoxOpen || isPromptBoxOpen);
     }, [isCommentBoxOpen, isPromptBoxOpen, setLockCanvas]);
 
-    const linkColor = link.disabled ? Colors.OUTLINE_VARIANT : isHovered ? Colors.SECONDARY : Colors.PRIMARY;
+    const showAddButton = link.showAddButton && !link.disabled;
+    const shouldHighlight =
+        showAddButton && (isHovered || link.showButtonAlways || isPromptBoxOpen || isCommentBoxOpen);
+    const linkColor = link.disabled ? Colors.OUTLINE_VARIANT : shouldHighlight ? Colors.SECONDARY : Colors.PRIMARY;
 
     const addButtonPosition = link.getAddButtonPosition();
 
@@ -102,9 +105,6 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
         setIsHovered(false);
     };
 
-    const showAddButton = link.showAddButton && !link.disabled;
-    const highlight = isHovered || link.showButtonAlways || isPromptBoxOpen || isCommentBoxOpen;
-
     return (
         <g pointerEvents={"stroke"} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
             <path
@@ -132,7 +132,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 >
                     <div
                         css={css`
-                            display: ${highlight && showAddButton ? "none" : "flex"};
+                            display: ${shouldHighlight && showAddButton ? "none" : "flex"};
                             justify-content: center;
                             align-items: center;
                             animation: ${fadeInZoomIn} 0.5s ease-out forwards;
@@ -173,7 +173,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 <foreignObject x={addButtonPosition.x - 35} y={addButtonPosition.y - 10} width="70" height="20">
                     <div
                         css={css`
-                            display: ${highlight ? "flex" : "none"};
+                            display: ${shouldHighlight ? "flex" : "none"};
                             justify-content: center;
                             align-items: center;
                             gap: 5px;
@@ -190,7 +190,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                             onMouseLeave={() => setIsCommentButtonHovered(false)}
                             css={css`
                                 cursor: pointer;
-                                visibility: ${highlight ? "visible" : "hidden"};
+                                visibility: ${shouldHighlight ? "visible" : "hidden"};
                             `}
                         >
                             <path
@@ -233,7 +233,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                             onMouseLeave={() => setIsPromptButtonHovered(false)}
                             css={css`
                                 cursor: pointer;
-                                visibility: ${highlight ? "visible" : "hidden"};
+                                visibility: ${shouldHighlight ? "visible" : "hidden"};
                             `}
                         >
                             <path
