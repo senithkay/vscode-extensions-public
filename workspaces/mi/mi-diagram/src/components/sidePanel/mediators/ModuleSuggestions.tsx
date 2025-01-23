@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { ProgressRing, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 import React from 'react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
@@ -18,7 +18,6 @@ import { ButtonGroup } from '../commons/ButtonGroup';
 import { ConnectorOperation } from '@wso2-enterprise/mi-core';
 import { debounce } from 'lodash';
 import { APIS } from '../../../resources/constants';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 interface ModuleSuggestionProps {
     documentUri: string;
@@ -42,6 +41,7 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
 
     const debouncedSearchModules = React.useMemo(
         () => debounce(async (value: string) => {
+            setIsSearching(true);
             if (value) {
                 try {
                     const response = await fetch(`${APIS.CONNECTOR_SEARCH.replace('${searchValue}', value)}`);
@@ -54,6 +54,7 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
             } else {
                 setFilteredModules([]);
             }
+            setIsSearching(false);
         }, 300),
         []
     );
@@ -80,35 +81,38 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
             modules = [];
         }
 
-        return Object.keys(modules).length > 0 &&
+        const filteredModulesWithoutLocals = modules.filter((module: any) => {
+            return !props.localConnectors.some((c: any) =>
+                ((c.displayName ? c.displayName === module.connectorName : c.name.toLowerCase() === module.connectorName.toLowerCase())) &&
+                (c.version === module.version.tagName));
+        });
+
+        return Object.keys(filteredModulesWithoutLocals).length > 0 &&
             <>
-                <h4>In Store: </h4>
-                {Object.entries(modules).map(([key, values]: [string, any]) => (
-                    localConnectors && localConnectors.some((c: any) =>
-                        ((c.displayName ? c.displayName === values.connectorName : c.name.toLowerCase() === values.connectorName.toLowerCase())) &&
-                        (c.version === values.version.tagName)) ? null : (
-                        <div key={key}>
-                            <ButtonGroup
-                                key={key}
-                                title={FirstCharToUpperCase(values.connectorName)}
-                                isCollapsed={true}
-                                iconUri={values.iconUrl}
-                                versionTag={values.version.tagName}
-                                onDownload={() => downloadModule(values)}>
-                                <OperationsWrapper>
-                                    Available Operations
-                                    <hr style={{ border: '1px solid #ccc', margin: '5px 0', width: '350px' }} />
-                                    {values.version.operations.map((operation: ConnectorOperation) => (
-                                        !operation.isHidden && (
-                                            <Tooltip content={operation.description} position='bottom' sx={{ zIndex: 2010 }}>
-                                                {FirstCharToUpperCase(operation.name)}
-                                            </Tooltip>
-                                        )
-                                    ))}
-                                </OperationsWrapper>
-                            </ButtonGroup >
-                        </div >
-                    )))
+                <Typography variant='h4'>In Store:</Typography>
+                {Object.entries(filteredModulesWithoutLocals).map(([key, values]: [string, any]) => (
+                    <div key={key}>
+                        <ButtonGroup
+                            key={key}
+                            title={FirstCharToUpperCase(values.connectorName)}
+                            isCollapsed={true}
+                            iconUri={values.iconUrl}
+                            versionTag={values.version.tagName}
+                            onDownload={() => downloadModule(values)}>
+                            <OperationsWrapper>
+                                Available Operations
+                                <hr style={{ border: '1px solid #ccc', margin: '5px 0', width: '350px' }} />
+                                {values.version.operations.map((operation: ConnectorOperation) => (
+                                    !operation.isHidden && (
+                                        <Tooltip content={operation.description} position='bottom' sx={{ zIndex: 2010 }}>
+                                            {FirstCharToUpperCase(operation.name)}
+                                        </Tooltip>
+                                    )
+                                ))}
+                            </OperationsWrapper>
+                        </ButtonGroup >
+                    </div >
+                ))
                 }
             </>
     }

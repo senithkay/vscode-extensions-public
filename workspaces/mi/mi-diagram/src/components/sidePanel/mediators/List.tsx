@@ -152,7 +152,9 @@ export function Mediators(props: MediatorProps) {
         return Object.keys(allMediators).reduce((acc: any, key: string) => {
             const filtered = (allMediators as any)[key].items.filter((mediator: { title: string; operationName: string }) => {
                 if (search) {
-                    return normalizeString(mediator.operationName).includes(searchValue) || normalizeString(mediator.title).includes(searchValue);
+                    return normalizeString(mediator.operationName).includes(searchValue)
+                        || normalizeString(mediator.title).includes(searchValue)
+                        || normalizeString(key).includes(searchValue);
                 } else {
                     return normalizeString(mediator.operationName) === searchValue;
                 }
