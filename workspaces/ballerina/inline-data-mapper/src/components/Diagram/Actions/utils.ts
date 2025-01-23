@@ -15,6 +15,7 @@ import {
 } from "../Node";
 import { IO_NODE_DEFAULT_WIDTH } from "../utils/constants";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
+import { DataMapperLinkModel } from "../Link";
 
 export const INPUT_NODES = [
     InputNode
@@ -40,4 +41,8 @@ export function isOutputNode(node: BaseModel) {
 
 export function isIntermediateNode(node: BaseModel) {
     return INTERMEDIATE_NODES.some(nodeType => node instanceof nodeType);
+}
+
+export function isLinkModel(node: BaseModel) {
+    return node instanceof DataMapperLinkModel;
 }

@@ -13,9 +13,10 @@ import { DiagramEngine, LinkModel, PortModel } from '@projectstorm/react-diagram
 
 import { ExpressionLabelModel } from "../Label";
 import { InputOutputPortModel } from '../Port/model/InputOutputPortModel';
-import { isInputNode, isOutputNode } from '../Actions/utils';
+import { isInputNode, isLinkModel, isOutputNode } from '../Actions/utils';
 import { useDMExpressionBarStore } from '../../../store/store';
 import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../utils/constants';
+import { DataMapperLinkModel } from '../Link/DataMapperLink';
 /**
  * This state is controlling the creation of a link.
  */
@@ -34,7 +35,9 @@ export class CreateLinkState extends State<DiagramEngine> {
 					const { focusedPort, focusedFilter } = useDMExpressionBarStore.getState();
 					const isExprBarFocused = focusedPort || focusedFilter;
 
-					if (!(element instanceof PortModel)) {
+					if (element === null) {
+						this.clearState();
+					} else if (!(element instanceof PortModel)) {
 						if (isOutputNode(element)) {
 							const recordFieldElement = (event.target as Element).closest('div[id^="recordfield"]');
 							if (recordFieldElement) {
@@ -58,6 +61,10 @@ export class CreateLinkState extends State<DiagramEngine> {
 									element = portModel;
 								}
 							}
+						}
+
+						if (isLinkModel(element)) {
+							element = (element as DataMapperLinkModel).getTargetPort();
 						}
 					}
 
