@@ -914,7 +914,7 @@ importers:
       '@wso2-enterprise/ballerina-side-panel': link:../ballerina-side-panel
       '@wso2-enterprise/ballerina-statement-editor': link:../statement-editor
       '@wso2-enterprise/bi-diagram': link:../bi-diagram
-      '@wso2-enterprise/component-diagram': link:../../common-libs/component-diagram
+      '@wso2-enterprise/component-diagram': link:../component-diagram
       '@wso2-enterprise/data-mapper-view': link:../data-mapper-view
       '@wso2-enterprise/overview-view': link:../overview-view
       '@wso2-enterprise/persist-layer-diagram': link:../persist-layer-diagram
@@ -2145,51 +2145,6 @@ importers:
       webpack-cli: 5.1.4_5nabick7x4u3vnr2pltk3mmvae
       webpack-dev-server: 4.15.1_fsfaki5eyzmxu77y2afce3sch4
 
-  ../../workspaces/common-libs/component-diagram:
-    specifiers:
-      '@emotion/react': ^11.9.3
-      '@emotion/styled': ^11.10.5
-      '@projectstorm/geometry': ^6.7.4
-      '@projectstorm/react-canvas-core': ^6.7.4
-      '@projectstorm/react-diagrams': ^6.7.4
-      '@projectstorm/react-diagrams-core': ^6.7.4
-      '@projectstorm/react-diagrams-defaults': ^6.7.4
-      '@projectstorm/react-diagrams-routing': ^6.7.4
-      '@storybook/react': ^6.3.7
-      '@types/dagre': ~0.7.52
-      '@types/lodash': ~4.14.202
-      '@types/react': ^17.0.14
-      '@types/react-dom': ^17.0.9
-      '@wso2-enterprise/ui-toolkit': workspace:*
-      copyfiles: ^2.4.1
-      dagre: ~0.8.5
-      lodash: ~4.17.21
-      react: ~18.2.0
-      react-dom: ~18.2.0
-      typescript: ^4.3.5
-    dependencies:
-      '@emotion/react': 11.11.4_ujupp4aqvz5yjxfmu635blrdgm
-      '@emotion/styled': 11.11.0_jwuiumyj4eeb4ggxu6dhhwwtmq
-      '@projectstorm/geometry': 6.7.4
-      '@projectstorm/react-canvas-core': 6.7.4_zrp62gez7omnrwllyfdlincg3a
-      '@projectstorm/react-diagrams': 6.7.4_g2znnorjjo64lgpxjgy7c7zesu
-      '@projectstorm/react-diagrams-core': 6.7.4_zrp62gez7omnrwllyfdlincg3a
-      '@projectstorm/react-diagrams-defaults': 6.7.4_qudwbk4fbis32hnzuxpdo4wjza
-      '@projectstorm/react-diagrams-routing': 6.7.4_g2znnorjjo64lgpxjgy7c7zesu
-      '@wso2-enterprise/ui-toolkit': link:../ui-toolkit
-      dagre: 0.8.5
-      lodash: 4.17.21
-      react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
-    devDependencies:
-      '@storybook/react': 6.5.16_ygqkwb4gg3aean7xjfdauovyqq
-      '@types/dagre': 0.7.52
-      '@types/lodash': 4.14.202
-      '@types/react': 17.0.75
-      '@types/react-dom': 17.0.14
-      copyfiles: 2.4.1
-      typescript: 4.9.5
-
   ../../workspaces/common-libs/font-wso2-vscode:
     specifiers:
       '@vscode/codicons': 0.0.33
@@ -2867,7 +2822,7 @@ importers:
       react-dom: 18.2.0_react@18.2.0
       react-hook-form: 7.51.2_react@18.2.0
       react-json-view: 1.21.3_jczjbtsmbzi7zofs22bstoer6y
-      react-json-view-lite: 2.1.0_react@18.2.0
+      react-json-view-lite: 2.3.0_react@18.2.0
       vscode-languageserver-types: 3.17.5
       xmlbuilder2: 3.1.1
       yup: 1.4.0
@@ -3797,7 +3752,7 @@ packages:
       '@babel/core': ^7.0.0
     dependencies:
       '@babel/core': 7.24.4
-      '@babel/helper-annotate-as-pure': 7.22.5
+      '@babel/helper-annotate-as-pure': 7.24.7
       regexpu-core: 5.3.2
       semver: 6.3.1
     dev: true
@@ -26255,9 +26210,6 @@ packages:
     resolution: {integrity: sha512-A0D0aTXvjlqJ5ZILMz3rNfDBOx9hHxLZYv2by47Sm/pqW35zzjusrZTryatjN/Rf8Us2gZrJD+KeHbUSTux1Cw==}
     dev: true
 
-  /@types/prop-types/15.7.11:
-    resolution: {integrity: sha512-ga8y9v9uyeiLdpKddhxYQkxNDrfvuPrlFb0N1qnZZByvcElJaXthF1UhvCh9TLWJBEHeNtdnbysW7Y6Uq8CVng==}
-
   /@types/prop-types/15.7.13:
     resolution: {integrity: sha512-hCZTSvwbzWGvhqxp/RqVqwU999pBf2vp7hzIjiYOsl8wqOmUxkQ6ddw1cV3l8811+kdUFus/q4d1Y3E3SyEifA==}
 
@@ -28563,7 +28515,7 @@ packages:
       webpack-cli: 4.x.x
     dependencies:
       webpack: 5.90.1_webpack-cli@4.10.0
-      webpack-cli: 4.10.0_5nabick7x4u3vnr2pltk3mmvae
+      webpack-cli: 4.10.0_webpack@5.90.1
 
   /@webpack-cli/configtest/2.1.1_fsfaki5eyzmxu77y2afce3sch4:
     resolution: {integrity: sha512-wy0mglZpDSiSS0XHrVR+BAdId2+yxPSoJW8fsna3ZpYSlufjvxnP4YbKTCBZnNIcGN4r6ZPXV55X4mYExOfLmw==}
@@ -28591,7 +28543,7 @@ packages:
       webpack-cli: 4.x.x
     dependencies:
       envinfo: 7.11.1
-      webpack-cli: 4.10.0_5nabick7x4u3vnr2pltk3mmvae
+      webpack-cli: 4.10.0_webpack@5.90.1
 
   /@webpack-cli/info/2.0.2_fsfaki5eyzmxu77y2afce3sch4:
     resolution: {integrity: sha512-zLHQdI/Qs1UyT5UBdWNqsARasIA+AaF8t+4u2aS2nEpBQh2mWIVb8qAklq0eUENnC5mOItrIB4LiS9xMtph18A==}
@@ -28623,7 +28575,6 @@ packages:
         optional: true
     dependencies:
       webpack-cli: 4.10.0_webpack@5.90.1
-    dev: true
 
   /@webpack-cli/serve/1.7.0_zlkpompfwd3ohwjpgahvnmgqqy:
     resolution: {integrity: sha512-oxnCNGj88fL+xzV+dacXs44HcDwf1ovs3AuEzvP7mqXw7fQntqIhQ1BRmynh4qEKQSSSRSWVyXRjmTbZIX9V2Q==}
@@ -28636,6 +28587,7 @@ packages:
     dependencies:
       webpack-cli: 4.10.0_5nabick7x4u3vnr2pltk3mmvae
       webpack-dev-server: 4.15.1_6gndg7zj7jvfuawvaw3en4bimi
+    dev: true
 
   /@webpack-cli/serve/2.0.5_fsfaki5eyzmxu77y2afce3sch4:
     resolution: {integrity: sha512-lqaoKnRYBdo1UgDX8uF24AfGMifWK19TxPmM5FHc2vAGxrJ/qtyUyFBWoY1tISZdelsQ5fBcOusifo5o5wSJxQ==}
@@ -49284,11 +49236,11 @@ packages:
   /react-is/18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
 
-  /react-json-view-lite/2.1.0_react@18.2.0:
-    resolution: {integrity: sha512-4JdlXC+dWPRXPL4fK/NsK6W103+mmpXDeWCHJGhgjPSvuyHnpwQUJ+ClUj4MFlLb4cPxi3T0/PW414JlTKMCJg==}
+  /react-json-view-lite/2.3.0_react@18.2.0:
+    resolution: {integrity: sha512-btGE+nynBIPRPLWMkE7ASOeF7QzzG6S3bTOTL0FLFNvprMsODmv8eUMFCUK9SOJqV8GCOW/avCpDJnMSchTafQ==}
     engines: {node: '>=18'}
     peerDependencies:
-      react: ^18.0.0
+      react: ^18.0.0 || ^19.0.0
     dependencies:
       react: 18.2.0
     dev: false
@@ -56461,6 +56413,7 @@ packages:
       webpack: 5.90.1_webpack-cli@4.10.0
       webpack-dev-server: 4.15.1_6gndg7zj7jvfuawvaw3en4bimi
       webpack-merge: 5.10.0
+    dev: true
 
   /webpack-cli/4.10.0_webpack@5.90.1:
     resolution: {integrity: sha512-NLhDfH/h4O6UOy+0LSso42xvYypClINuMNBVVzX4vX98TmTaTUxwRbXdhucbFMd2qLaCTcLq/PdYrvi8onw90w==}
@@ -56495,7 +56448,6 @@ packages:
       rechoir: 0.7.1
       webpack: 5.90.1_webpack-cli@4.10.0
       webpack-merge: 5.10.0
-    dev: true
 
   /webpack-cli/5.1.4_55ctblq7vmnkc7msvxpxtdxasq:
     resolution: {integrity: sha512-pIDJHIEI9LR0yxHXQ+Qh95k2EvXpWzZ5l+d+jIo+RdSm9MiHfzazIxwwni/p7+x4eJZuvG1AJwgC4TNQ7NRgsg==}
@@ -56769,6 +56721,7 @@ packages:
       - debug
       - supports-color
       - utf-8-validate
+    dev: true
 
   /webpack-dev-server/4.15.1_fsfaki5eyzmxu77y2afce3sch4:
     resolution: {integrity: sha512-5hbAst3h3C3L8w6W4P96L5vaV0PxSmJhxZvWKYIdgxOQm8pNZ5dEOmmSLBVpP85ReeyRt6AS1QJNyo/oFFPeVA==}
@@ -57371,7 +57324,7 @@ packages:
       tapable: 2.2.1
       terser-webpack-plugin: 5.3.10_webpack@5.90.1
       watchpack: 2.4.0
-      webpack-cli: 4.10.0_5nabick7x4u3vnr2pltk3mmvae
+      webpack-cli: 4.10.0_webpack@5.90.1
       webpack-sources: 3.2.3
     transitivePeerDependencies:
       - '@swc/core'
