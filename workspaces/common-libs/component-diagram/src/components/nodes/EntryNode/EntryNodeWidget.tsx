@@ -12,25 +12,23 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { EntryNodeModel } from "./EntryNodeModel";
 import { Colors, NODE_BORDER_WIDTH, ENTRY_NODE_WIDTH, ENTRY_NODE_HEIGHT } from "../../../resources/constants";
-import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
+import { Button, Item, Menu, MenuItem, Popover, ImageWithFallback } from "@wso2-enterprise/ui-toolkit";
 import { useDiagramContext } from "../../DiagramContext";
-import { HttpIcon, TaskIcon, WebhookIcon } from "../../../resources";
+import { HttpIcon, TaskIcon } from "../../../resources";
 import { MoreVertIcon } from "../../../resources/icons/nodes/MoreVertIcon";
-
+import { CDAutomation, CDFunction, CDService, CDResourceFunction } from "@wso2-enterprise/ballerina-core";
+import { getEntryNodeFunctionPortName } from "../../../utils/diagram";
 export namespace NodeStyles {
     export type NodeStyleProp = {
         hovered: boolean;
         inactive?: boolean;
     };
-    export const Node = styled.div<NodeStyleProp>`
+    export const Node = styled.div`
         display: flex;
         flex-direction: row;
         justify-content: center;
         align-items: center;
-        gap: 8px;
-
         color: ${Colors.ON_SURFACE};
-        cursor: pointer;
     `;
 
     export const Header = styled.div<NodeStyleProp>`
@@ -40,6 +38,7 @@ export namespace NodeStyles {
         align-items: flex-start;
         gap: 6px;
         width: 100%;
+        cursor: pointer;
     `;
 
     export const StyledButton = styled(Button)`
@@ -54,6 +53,14 @@ export namespace NodeStyles {
 
     export const BottomPortWidget = styled(PortWidget)`
         margin-bottom: -2px;
+    `;
+
+    export const FunctionPortWidget = styled(PortWidget)`
+        /* width: 8px;
+        height: 8px;
+        background-color: ${Colors.PRIMARY};
+        border-radius: 50%;
+        margin-left: -5px; */
     `;
 
     export const StyledText = styled.div`
@@ -73,14 +80,19 @@ export namespace NodeStyles {
         }
     `;
 
-    export const Title = styled(StyledText) <NodeStyleProp>`
-        max-width: ${ENTRY_NODE_WIDTH - 100}px;
+    export const Title = styled(StyledText)<NodeStyleProp>`
+        max-width: ${ENTRY_NODE_WIDTH - 80}px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         font-family: "GilmerMedium";
         color: ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.ON_SURFACE)};
         opacity: ${(props: NodeStyleProp) => (props.inactive && !props.hovered ? 0.7 : 1)};
+    `;
+
+    export const Accessor = styled(StyledText)`
+        text-transform: uppercase;
+        font-family: "GilmerBold";
     `;
 
     export const Description = styled(StyledText)`
@@ -98,17 +110,48 @@ export namespace NodeStyles {
 
     export const Box = styled.div<NodeStyleProp>`
         display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+
+        border: ${NODE_BORDER_WIDTH}px solid
+            ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
+        border-radius: 8px;
+        background-color: ${Colors.SURFACE_DIM};
+
+        padding: 0 8px 8px 8px;
+    `;
+
+    export const ServiceBox = styled.div`
+        display: flex;
         flex-direction: row;
         justify-content: flex-start;
         align-items: center;
         gap: 10px;
         width: ${ENTRY_NODE_WIDTH}px;
         height: ${ENTRY_NODE_HEIGHT}px;
+        cursor: pointer;
+    `;
+
+    export const FunctionBoxWrapper = styled.div`
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        color: ${Colors.ON_SURFACE};
+        /* margin-right: -20px; */
+    `;
+
+    export const FunctionBox = styled(NodeStyles.ServiceBox)<NodeStyleProp>`
+        height: 40px;
+        padding: 0 12px;
+
         border: ${NODE_BORDER_WIDTH}px solid
             ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
         border-radius: 8px;
         background-color: ${Colors.SURFACE_DIM};
-        padding: 0 12px;
     `;
 
     export const Hr = styled.hr`
@@ -116,8 +159,8 @@ export namespace NodeStyles {
     `;
 
     export const MenuButton = styled(Button)`
-    border-radius: 5px;
-`;
+        border-radius: 5px;
+    `;
 }
 
 interface EntryNodeWidgetProps {
@@ -125,54 +168,54 @@ interface EntryNodeWidgetProps {
     engine: DiagramEngine;
 }
 
-export interface NodeWidgetProps extends Omit<EntryNodeWidgetProps, "children"> { }
+export interface NodeWidgetProps extends Omit<EntryNodeWidgetProps, "children"> {}
 
 export function EntryNodeWidget(props: EntryNodeWidgetProps) {
     const { model, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
-    const { onEntryPointSelect, onDeleteComponent } = useDiagramContext();
+    const { onServiceSelect, onAutomationSelect, onDeleteComponent } = useDiagramContext();
     const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(menuAnchorEl);
 
     const handleOnClick = () => {
-        onEntryPointSelect(model.node);
+        if (model.type === "service") {
+            onServiceSelect(model.node as CDService);
+        } else {
+            onAutomationSelect(model.node as CDAutomation);
+        }
     };
 
     const getNodeIcon = () => {
-        if (model.node.icon) {
-            return model.node.icon;
-        }
-
-        switch (model.node.type) {
-            case "trigger":
-                return <WebhookIcon />;
-            case "task":
-            case "schedule-task":
+        switch (model.type) {
+            case "automation":
                 return <TaskIcon />;
             case "service":
-                return <HttpIcon />;
+                return <ImageWithFallback imageUrl={(model.node as CDService).icon} fallbackEl={<HttpIcon />} />;
             default:
                 return <HttpIcon />;
         }
     };
 
+    const getNodeTitle = () => {
+        if (model.node.displayName) {
+            return model.node.displayName;
+        }
+        if ((model.node as CDService).absolutePath) {
+            return (model.node as CDService).absolutePath;
+        }
+        return "";
+    };
+
     const getNodeDescription = () => {
-        if (model.node.description) {
-            return model.node.description;
+        if (model.type === "automation") {
+            return "Automation";
         }
-        // show type if no description
-        switch (model.node.type) {
-            case "trigger":
-                return "Webhook";
-            case "task":
-            case "schedule-task":
-                return "Automation";
-            case "service":
-                return "Service";
-            default:
-                return model.node.type;
+        // Service
+        if ((model.node as CDService).type) {
+            return (model.node as CDService).type.replace(":Listener", ":Service");
         }
-    }
+        return "Service";
+    };
 
     const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
         event.stopPropagation();
@@ -185,26 +228,39 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
 
     const menuItems: Item[] = [
         { id: "edit", label: "Edit", onClick: () => handleOnClick() },
-        { id: "delete", label: "Delete", onClick: () => onDeleteComponent(model.node) }
+        { id: "delete", label: "Delete", onClick: () => onDeleteComponent(model.node) },
     ];
 
+    const serviceFunctions = [];
+    if ((model.node as CDService).remoteFunctions?.length > 0) {
+        serviceFunctions.push(...(model.node as CDService).remoteFunctions);
+    }
+    if ((model.node as CDService).resourceFunctions?.length > 0) {
+        serviceFunctions.push(...(model.node as CDService).resourceFunctions);
+    }
+
     return (
-        <NodeStyles.Node
-            hovered={isHovered}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            onClick={handleOnClick}
-        >
+        <NodeStyles.Node>
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Box hovered={isHovered}>
-                <NodeStyles.Icon>{getNodeIcon()}</NodeStyles.Icon>
-                <NodeStyles.Header hovered={isHovered}>
-                    <NodeStyles.Title hovered={isHovered}>{model.node.label || model.node.name}</NodeStyles.Title>
-                    <NodeStyles.Description>{getNodeDescription()}</NodeStyles.Description>
-                </NodeStyles.Header>
-                <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
-                    <MoreVertIcon />
-                </NodeStyles.MenuButton>
+                <NodeStyles.ServiceBox onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+                    <NodeStyles.Icon>{getNodeIcon()}</NodeStyles.Icon>
+                    <NodeStyles.Header hovered={isHovered} onClick={handleOnClick}>
+                        <NodeStyles.Title hovered={isHovered}>{getNodeTitle()}</NodeStyles.Title>
+                        <NodeStyles.Description>{getNodeDescription()}</NodeStyles.Description>
+                    </NodeStyles.Header>
+                    <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
+                        <MoreVertIcon />
+                    </NodeStyles.MenuButton>
+                </NodeStyles.ServiceBox>
+                {serviceFunctions?.map((serviceFunction) => (
+                    <FunctionBox
+                        key={getEntryNodeFunctionPortName(serviceFunction)}
+                        func={serviceFunction}
+                        model={model}
+                        engine={engine}
+                    />
+                ))}
             </NodeStyles.Box>
             <Popover
                 open={isMenuOpen}
@@ -223,5 +279,37 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
             </Popover>
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
         </NodeStyles.Node>
+    );
+}
+
+function FunctionBox(props: { func: CDFunction | CDResourceFunction; model: EntryNodeModel; engine: DiagramEngine }) {
+    const { func, model, engine } = props;
+    const [isHovered, setIsHovered] = useState(false);
+    const { onFunctionSelect } = useDiagramContext();
+
+    const handleOnClick = () => {
+        onFunctionSelect(func);
+    };
+
+    return (
+        <NodeStyles.FunctionBoxWrapper>
+            <NodeStyles.FunctionBox
+                hovered={isHovered}
+                onClick={() => handleOnClick()}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+            >
+                {(func as CDResourceFunction).accessor && (
+                    <NodeStyles.Accessor>{(func as CDResourceFunction).accessor}</NodeStyles.Accessor>
+                )}
+                {(func as CDResourceFunction).path && (
+                    <NodeStyles.Title hovered={isHovered}>/{(func as CDResourceFunction).path}</NodeStyles.Title>
+                )}
+                {(func as CDFunction).name && (
+                    <NodeStyles.Title hovered={isHovered}>{(func as CDFunction).name}</NodeStyles.Title>
+                )}
+            </NodeStyles.FunctionBox>
+            <NodeStyles.FunctionPortWidget port={model.getPort(getEntryNodeFunctionPortName(func))!} engine={engine} />
+        </NodeStyles.FunctionBoxWrapper>
     );
 }

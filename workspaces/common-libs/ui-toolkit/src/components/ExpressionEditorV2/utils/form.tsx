@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -29,7 +29,7 @@ export const getHelperPanePosition = (
     the helper pane within the viewport. */
     position.top = rect.top - (HELPER_PANE_HEIGHT / 2);
     if (helperPaneOrigin === 'right') {
-        position.left = rect.left + rect.width + HELPER_PANE_WIDTH + ARROW_HEIGHT;
+        position.left = rect.left + rect.width + ARROW_HEIGHT;
     } else if (helperPaneOrigin === 'left') {
         position.left = rect.left - (HELPER_PANE_WIDTH + ARROW_HEIGHT);
     }

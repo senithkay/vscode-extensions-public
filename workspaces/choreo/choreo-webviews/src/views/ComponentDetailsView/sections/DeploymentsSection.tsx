@@ -34,6 +34,7 @@ import {
 	WebviewQuickPickItemKind,
 	WorkflowInstanceStatus,
 	capitalizeFirstLetter,
+	getComponentKindRepoSource,
 	getShortenedHash,
 	getTimeAgo,
 	getTypeForDisplayType,
@@ -79,6 +80,8 @@ interface Props {
 	builds: BuildKind[];
 	openBuildDetailsPanel: (item: BuildKind) => void;
 }
+
+// todo: check visibilities instead of visibility when showing endpoints
 
 export const DeploymentsSection: FC<Props> = (props) => {
 	const { envs, loadingEnvs, deploymentTrack, component, organization, project, builds = [], openBuildDetailsPanel } = props;
@@ -439,7 +442,7 @@ const EnvItem: FC<{
 										<CommitLink
 											commitHash={deploymentStatus?.build?.commit?.sha}
 											commitMessage={deploymentStatus?.build?.commit?.message}
-											repoPath={component?.spec?.source?.github?.repository}
+											repoPath={getComponentKindRepoSource(component?.spec?.source).repo}
 										/>
 									</GridColumnItem>
 								)}
@@ -666,56 +669,54 @@ const ProxyEnvItem: FC<{
 
 				<div className="flex flex-col gap-3 ">
 					<div className="grid grid-cols-1 gap-2 gap-x-5 md:grid-cols-2 xl:grid-cols-3" ref={envDetailsRef}>
-						<>
-							{isLoadingProxyDeploymentData ? (
-								<>
-									<GridColumnItem label="Lifecycle Status">
-										<SkeletonText className="w-24" />
-									</GridColumnItem>
-									<GridColumnItem label="Proxy URL">
-										<SkeletonText className="max-w-44" />
-									</GridColumnItem>
+						{isLoadingProxyDeploymentData ? (
+							<>
+								<GridColumnItem label="Lifecycle Status">
+									<SkeletonText className="w-24" />
+								</GridColumnItem>
+								<GridColumnItem label="Proxy URL">
+									<SkeletonText className="max-w-44" />
+								</GridColumnItem>
+								<GridColumnItem label="Observability">
+									<SkeletonText className="max-w-24" />
+								</GridColumnItem>
+							</>
+						) : (
+							<>
+								<GridColumnItem label="Status">
+									<span
+										className={classNames({
+											"font-medium text-vsc-charts-green": ["CREATED", "PUBLISHED"].includes(proxyDeploymentData?.lifecycleStatus),
+											"animate-pulse text-vsc-charts-orange": triggeredDeployment,
+										})}
+									>
+										{getStatusText()}
+									</span>
+									{timeAgo && <span className="ml-2 font-thin text-[11px] opacity-70">{`${timeAgo}`}</span>}
+								</GridColumnItem>
+								{proxyDeploymentData?.invokeUrl && (
+									<EndpointItem type="Proxy" name="proxy-url" state={EndpointDeploymentStatus.Active} url={proxyDeploymentData?.invokeUrl} />
+								)}
+								{proxyDeploymentData && (
 									<GridColumnItem label="Observability">
-										<SkeletonText className="max-w-24" />
+										<VSCodeLink className="text-vsc-foreground" onClick={() => selectLogType()} title="View Gateway of your deployed component">
+											Gateway Logs
+										</VSCodeLink>
 									</GridColumnItem>
-								</>
-							) : (
-								<>
-									<GridColumnItem label="Status">
-										<span
-											className={classNames({
-												"font-medium text-vsc-charts-green": ["CREATED", "PUBLISHED"].includes(proxyDeploymentData?.lifecycleStatus),
-												"animate-pulse text-vsc-charts-orange": triggeredDeployment,
-											})}
+								)}
+								{proxyDeploymentData && (
+									<GridColumnItem label="Test">
+										<VSCodeLink
+											className="text-vsc-foreground"
+											onClick={() => setTestPanelOpen(true)}
+											title="View OpenAPI console to test the deployed proxy"
 										>
-											{getStatusText()}
-										</span>
-										{timeAgo && <span className="ml-2 font-thin text-[11px] opacity-70">{`${timeAgo}`}</span>}
+											OpenAPI Console
+										</VSCodeLink>
 									</GridColumnItem>
-									{proxyDeploymentData?.invokeUrl && (
-										<EndpointItem type="Proxy" name="proxy-url" state={EndpointDeploymentStatus.Active} url={proxyDeploymentData?.invokeUrl} />
-									)}
-									{proxyDeploymentData && (
-										<GridColumnItem label="Observability">
-											<VSCodeLink className="text-vsc-foreground" onClick={() => selectLogType()} title="View Gateway of your deployed component">
-												Gateway Logs
-											</VSCodeLink>
-										</GridColumnItem>
-									)}
-									{proxyDeploymentData && (
-										<GridColumnItem label="Test">
-											<VSCodeLink
-												className="text-vsc-foreground"
-												onClick={() => setTestPanelOpen(true)}
-												title="View OpenAPI console to test the deployed proxy"
-											>
-												OpenAPI Console
-											</VSCodeLink>
-										</GridColumnItem>
-									)}
-								</>
-							)}
-						</>
+								)}
+							</>
+						)}
 					</div>
 				</div>
 			</div>

@@ -778,33 +778,6 @@ suite("Language Server Tests", function () {
         });
     });
 
-    test("Test triggers", function (done): void {
-        langClient.getTriggers({
-            query: "ballerinax"
-        }).then(async (res) => {
-            const response = res as Triggers;
-            expect(response).to.contains.keys("central");
-            expect(response).not.contains.keys("error");
-            assert.strictEqual(response.central[0].name, "Trigger", "Invalid triggers");
-            done();
-        }, error => {
-            done(error);
-        });
-    });
-
-    test("Test trigger", function (done): void {
-        langClient.getTrigger({
-            id: "36"
-        }).then(async (res) => {
-            const response = res as Trigger;
-            expect(response).not.contains.keys("error");
-            assert.strictEqual(response.name, "Trigger", "Invalid triggers");
-            done();
-        }, error => {
-            done(error);
-        });
-    });
-
     test("Test get diagnostics", function (done): void {
         const uri = Uri.file(join(PROJECT_ROOT, 'error.bal'));
         commands.executeCommand('vscode.open', uri).then(() => {

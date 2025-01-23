@@ -10,7 +10,7 @@
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./common";
 import { Diagnostic as VSCodeDiagnostic } from "vscode-languageserver-types";
-import { TriggerNode } from "./triggers";
+import { ServiceModel } from "./service";
 
 export type { NodePosition };
 
@@ -55,6 +55,9 @@ export type Metadata = {
     icon?: string;
     keywords?: string[];
     draft?: boolean; // for diagram draft nodes
+    data?: {
+        isDataMappedFunction?: boolean;
+    }
 };
 
 export type Property = {
@@ -139,6 +142,7 @@ export enum DIRECTORY_MAP {
     TYPES = "types",
     RECORDS = "records",
     CONFIGURATIONS = "configurations",
+    DATA_MAPPERS = "dataMappers",
 }
 
 export enum DIRECTORY_SUB_TYPE {
@@ -148,7 +152,14 @@ export enum DIRECTORY_SUB_TYPE {
     CONFIGURATION = "configuration",
     SERVICE = "service",
     AUTOMATION = "automation",
-    TRIGGER = "trigger"
+    TRIGGER = "trigger",
+    DATA_MAPPER = "dataMapper",
+}
+
+export enum FUNCTION_TYPE {
+    REGULAR = "regular",
+    EXPRESSION_BODIED = "expressionBodied",
+    ALL = "all",
 }
 
 export interface ProjectStructureResponse {
@@ -162,6 +173,7 @@ export interface ProjectStructureResponse {
         [DIRECTORY_MAP.TYPES]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.RECORDS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.CONFIGURATIONS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.DATA_MAPPERS]: ProjectStructureArtifactResponse[];
     };
 }
 
@@ -173,7 +185,7 @@ export interface ProjectStructureArtifactResponse {
     context?: string;
     position?: NodePosition;
     st?: STNode;
-    triggerNode?: TriggerNode;
+    serviceModel?: ServiceModel;
     resources?: ProjectStructureArtifactResponse[];
 }
 export type Item = Category | AvailableNode;
@@ -250,6 +262,7 @@ export type NodeKind =
     | "FUNCTION_CALL"
     | "ASSIGN"
     | "DATA_MAPPER"
+    | "DATA_MAPPER_CALL"
     | "CONFIG_VARIABLE";
 
 export type OverviewFlow = {

@@ -132,7 +132,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         suffix: /^((?:\w|')*)/,
     };
 
-    const showCompletions = !isHelperPaneOpen && (showDefaultCompletion || completions?.length > 0);
+    const showCompletions = showDefaultCompletion || completions?.length > 0;
 
     const updatePosition = throttle(() => {
         if (elementRef.current) {
@@ -444,7 +444,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         // Prevent blur event when clicking on the dropdown
         const handleOutsideClick = async (e: any) => {
             if (
-                document.activeElement === textBoxRef.current &&
+                isFocused &&
                 !buttonRef.current?.contains(e.target) &&
                 !actionButtonsRef.current?.contains(e.target) &&
                 !textBoxRef.current?.contains(e.target) &&

@@ -7,23 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import createEngine, { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
-import { EntryNodeFactory } from "../components/nodes/EntryNode";
 import { NodePortFactory, NodePortModel } from "../components/NodePort";
 import { NodeLinkFactory, NodeLinkModel, NodeLinkModelOptions } from "../components/NodeLink";
 import { OverlayLayerFactory } from "../components/OverlayLayer";
 import { DagreEngine } from "../resources/dagre/DagreEngine";
 import { NodeModel } from "./types";
+import { EntryNodeFactory, EntryNodeModel } from "../components/nodes/EntryNode";
 import { ConnectionNodeFactory } from "../components/nodes/ConnectionNode/ConnectionNodeFactory";
-import { ActorNodeFactory } from "../components/nodes/ActorNode/ActorNodeFactory";
-import {
-    ACTOR_NODE_WIDTH,
-    ACTOR_SUFFIX,
-    ENTRY_NODE_HEIGHT,
-    NODE_GAP_Y,
-    NODE_PADDING,
-    NodeTypes,
-} from "../resources/constants";
-import { ButtonNodeFactory } from "../components/nodes/ButtonNode/ButtonNodeFactory";
+import { ListenerNodeFactory } from "../components/nodes/ListenerNode/ListenerNodeFactory";
+import { LISTENER_NODE_WIDTH, NodeTypes, NODE_GAP_X, ENTRY_NODE_WIDTH } from "../resources/constants";
+import { ListenerNodeModel } from "../components/nodes/ListenerNode";
+import { ConnectionNodeModel } from "../components/nodes/ConnectionNode";
+import { CDConnection, CDResourceFunction, CDFunction, CDService } from "@wso2-enterprise/ballerina-core";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -36,10 +31,9 @@ export function generateEngine(): DiagramEngine {
     engine.getPortFactories().registerFactory(new NodePortFactory());
     engine.getLinkFactories().registerFactory(new NodeLinkFactory());
 
+    engine.getNodeFactories().registerFactory(new ListenerNodeFactory());
     engine.getNodeFactories().registerFactory(new EntryNodeFactory());
     engine.getNodeFactories().registerFactory(new ConnectionNodeFactory());
-    engine.getNodeFactories().registerFactory(new ActorNodeFactory());
-    engine.getNodeFactories().registerFactory(new ButtonNodeFactory());
 
     engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
 
@@ -50,47 +44,39 @@ export function generateEngine(): DiagramEngine {
 export function autoDistribute(engine: DiagramEngine) {
     const model = engine.getModel();
 
-    const dagreEngine = genDagreEngine();
-    dagreEngine.redistribute(model);
+    // Get all nodes by type
+    const listenerNodes = model.getNodes().filter((node) => node.getType() === NodeTypes.LISTENER_NODE);
+    const entryNodes = model.getNodes().filter((node) => node.getType() === NodeTypes.ENTRY_NODE);
+    const connectionNodes = model.getNodes().filter((node) => node.getType() === NodeTypes.CONNECTION_NODE);
 
-    // reposition actor node
-    model.getNodes().forEach((node) => {
-        if (node.getType() === NodeTypes.ENTRY_NODE) {
-            const actorNode = model.getNode(node.getID() + ACTOR_SUFFIX);
-            if (actorNode) {
-                const entryNode = node;
-                const entryNodeX = entryNode.getX();
-                const entryNodeY = entryNode.getY();
-                const newActorNodeX = entryNodeX - (NODE_GAP_Y + ACTOR_NODE_WIDTH);
-                const newActorNodeY = entryNodeY + (ENTRY_NODE_HEIGHT - ACTOR_NODE_WIDTH) / 2 - NODE_PADDING / 2;
-                actorNode.setPosition(newActorNodeX, newActorNodeY);
-                return;
-            }
-        }
+    // Set X positions for each column
+    const listenerX = 250;
+    const entryX = listenerX + LISTENER_NODE_WIDTH + NODE_GAP_X;
+    const connectionX = entryX + ENTRY_NODE_WIDTH + NODE_GAP_X;
+
+    // Position listeners while maintaining relative Y positions of their services
+    listenerNodes.forEach((node) => {
+        const listenerNode = node as ListenerNodeModel;
+        const attachedServices = listenerNode.node.attachedServices;
+
+        // Find the average Y position of attached services
+        const serviceNodes = entryNodes.filter((n) => attachedServices.includes(n.getID()));
+        const avgY = serviceNodes.reduce((sum, n) => sum + n.getY(), 0) / serviceNodes.length;
+
+        listenerNode.setPosition(listenerX, avgY);
     });
 
-    // reposition new connection node if no more connections
-    // const connectionNodes = model
-    //     .getNodes()
-    //     .filter((node) => node.getType() === NodeTypes.CONNECTION_NODE && node.getID() !== NEW_CONNECTION);
-    // if (connectionNodes.length === 0) {
-    //     const newConnectionNode = model.getNode(NEW_CONNECTION) as ConnectionNodeModel;
-    //     if (newConnectionNode) {
-    //         for (const id in newConnectionNode.getInPort().getLinks()) {
-    //             const link = newConnectionNode.getInPort().getLinks()[id] as NodeLinkModel;
-    //             const entryNode = link.sourceNode as EntryNodeModel;
-    //             console.log(">>> newConnectionNode", {
-    //                 entryNode: entryNode.getPosition(),
-    //                 conNode: newConnectionNode.getPosition(),
-    //             });
-    //             const entryNodeY = entryNode.getY();
-    //             const newConNodeX = newConnectionNode.getX();
-    //             const newConNodeY = entryNodeY + (ENTRY_NODE_WIDTH - CON_NODE_HEIGHT) / 2 + NODE_PADDING / 2;
-    //             newConnectionNode.setPosition(newConNodeX, newConNodeY);
-    //             return;
-    //         }
-    //     }
-    // }
+    // Update X positions for entry nodes while keeping their Y positions
+    entryNodes.forEach((node) => {
+        const entryNode = node as EntryNodeModel;
+        entryNode.setPosition(entryX, entryNode.getY());
+    });
+
+    // Position connection nodes
+    connectionNodes.forEach((node, index) => {
+        const connectionNode = node as ConnectionNodeModel;
+        connectionNode.setPosition(connectionX, node.getY());
+    });
 
     engine.repaintCanvas();
 }
@@ -107,12 +93,34 @@ export function genDagreEngine() {
     return new DagreEngine({
         graph: {
             rankdir: "LR",
-            nodesep: 100,
+            nodesep: 120,
             ranksep: 400,
             marginx: 100,
             marginy: 100,
-            ranker: "longest-path",
+            // ranker: "longest-path",
         },
+    });
+}
+
+export function sortItems(items: (CDService | CDConnection)[]) {
+    return [...items].sort((a, b) => {
+        if (!a.sortText && !b.sortText) return 0;
+        if (!a.sortText) return 1;
+        if (!b.sortText) return -1;
+
+        // Split the sortText into filename and number parts
+        const [aFile, aNum] = a.sortText.split(".bal");
+        const [bFile, bNum] = b.sortText.split(".bal");
+
+        // First compare filenames
+        if (aFile !== bFile) {
+            return aFile.localeCompare(bFile);
+        }
+
+        // If filenames are same, compare numbers
+        const aNumber = parseInt(aNum || "0", 10);
+        const bNumber = parseInt(bNum || "0", 10);
+        return aNumber - bNumber;
     });
 }
 
@@ -129,9 +137,24 @@ export function createPortsLink(sourcePort: NodePortModel, targetPort: NodePortM
 export function createNodesLink(sourceNode: NodeModel, targetNode: NodeModel, options?: NodeLinkModelOptions) {
     const sourcePort = sourceNode.getOutPort();
     const targetPort = targetNode.getInPort();
+    if (!sourcePort || !targetPort) {
+        return null;
+    }
     const link = createPortsLink(sourcePort, targetPort, options);
     link.setSourceNode(sourceNode);
     link.setTargetNode(targetNode);
+    return link;
+}
+
+// create link between port and node
+export function createPortNodeLink(port: NodePortModel, node: NodeModel, options?: NodeLinkModelOptions) {
+    const targetPort = node.getInPort();
+    if (!targetPort) {
+        return null;
+    }
+    const link = createPortsLink(port, targetPort, options);
+    link.setSourceNode(node);
+    link.setTargetNode(node);
     return link;
 }
 
@@ -178,10 +201,22 @@ export const centerDiagram = (engine: DiagramEngine) => {
     }
 };
 
-export const getNodeId = (nodeType: string, id: string) => {
-    return `${nodeType}-${id}`;
-};
-
 export const getModelId = (nodeId: string) => {
     return nodeId.split("-").pop();
+};
+
+// calculate entry node height based on number of functions
+export const calculateEntryNodeHeight = (numFunctions: number) => {
+    const BASE_HEIGHT = 100;
+    const FUNCTION_HEIGHT = 30;
+    const PADDING = 4;
+
+    return BASE_HEIGHT + numFunctions * FUNCTION_HEIGHT + PADDING * 2;
+};
+
+export const getEntryNodeFunctionPortName = (func: CDFunction | CDResourceFunction) => {
+    if ((func as CDResourceFunction).accessor) {
+        return (func as CDResourceFunction).accessor + "-" + (func as CDResourceFunction).path;
+    }
+    return (func as CDFunction).name;
 };

@@ -8,22 +8,26 @@
  */
 
 import React from "react";
-import { Connection, EntryPoint, Project } from "../utils/types";
-
+import { CDListener, CDModel, CDService } from "@wso2-enterprise/ballerina-core";
+import { CDAutomation } from "@wso2-enterprise/ballerina-core";
+import { CDConnection } from "@wso2-enterprise/ballerina-core";
+import { CDFunction, CDResourceFunction } from "@wso2-enterprise/ballerina-core";
 export interface DiagramContextState {
-    project: Project;
-    onAddEntryPoint: () => void;
-    onAddConnection: () => void;
-    onEntryPointSelect: (entryPoint: EntryPoint) => void;
-    onConnectionSelect: (connection: Connection) => void;
-    onDeleteComponent: (component: EntryPoint | Connection) => void;
+    project: CDModel;
+    onListenerSelect: (listener: CDListener) => void;
+    onServiceSelect: (service: CDService) => void;
+    onFunctionSelect: (func: CDFunction | CDResourceFunction) => void;
+    onAutomationSelect: (automation: CDAutomation) => void;
+    onConnectionSelect: (connection: CDConnection) => void;
+    onDeleteComponent: (component: CDListener | CDService | CDAutomation | CDConnection) => void;
 }
 
 export const DiagramContext = React.createContext<DiagramContextState>({
-    project: { name:"", entryPoints: [], connections: [] },
-    onAddEntryPoint: () => {},
-    onAddConnection: () => {},
-    onEntryPointSelect: () => {},
+    project: { connections: [], listeners: [], services: [] },
+    onListenerSelect: () => {},
+    onServiceSelect: () => {},
+    onFunctionSelect: () => {},
+    onAutomationSelect: () => {},
     onConnectionSelect: () => {},
     onDeleteComponent: () => {},
 });

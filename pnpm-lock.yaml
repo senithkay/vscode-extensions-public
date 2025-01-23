@@ -2543,6 +2543,15 @@ importers:
       '@vscode/webview-ui-toolkit':
         specifier: ^1.2.0
         version: 1.4.0(react@18.2.0)
+      '@wso2-enterprise/ballerina-core':
+        specifier: workspace:*
+        version: link:../../ballerina/ballerina-core
+      '@wso2-enterprise/choreo-cell-diagram':
+        specifier: workspace:*
+        version: link:../cell-diagram
+      '@wso2-enterprise/choreo-client':
+        specifier: workspace:*
+        version: link:../choreo-client
       '@wso2-enterprise/choreo-core':
         specifier: workspace:*
         version: link:../choreo-core
