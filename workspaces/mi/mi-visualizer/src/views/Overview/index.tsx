@@ -318,9 +318,13 @@ export function Overview(props: OverviewProps) {
 
                     </Rows>
                     <ProjectInfoColumn>
-                        <Typography variant="h3" sx={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center' }}>
+                        <Typography variant="h3" sx={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center', opacity: 0.8 }}>
                             Project Information
-                            <Icon name="edit" isCodicon onClick={handleEditProjectInformation} sx={{ marginLeft: '8px', paddingTop: '5px', cursor: 'pointer' }} />
+                            <div style={{ display: "flex", paddingRight: 6, flex: 1, justifyContent: "flex-end" }}>
+                                <Button appearance="icon" tooltip="Edit Project Information" onClick={handleEditProjectInformation}> 
+                                    <Icon name="gear" isCodicon onClick={handleEditProjectInformation} sx={{ flex: 1 }} />
+                                </Button>
+                            </div>
                         </Typography>
                         <div style={{ height: '100%', scrollbarWidth: "thin", paddingRight: '5px' }}>
                             <ProjectInformation key={pomTimestamp} />
