@@ -86,7 +86,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                 isCollapsedField, valueEnrichedType, this.isMapFn
             );
     
-            if (valueEnrichedType.type.kind === TypeKind.Interface) {
+            if (valueEnrichedType.type.kind === TypeKind.Interface || valueEnrichedType.type.kind === TypeKind.Union) {
                 this.dmTypeWithValue = valueEnrichedType;
 
                 if (this.dmTypeWithValue.childrenTypes.length) {

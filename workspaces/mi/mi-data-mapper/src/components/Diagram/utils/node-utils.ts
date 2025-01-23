@@ -117,6 +117,11 @@ export function getOutputNode(
         return new ObjectOutputNode(context, expression, outputType, isSubMapping);
     } else if (outputType.kind === TypeKind.Array) {
         return new ArrayOutputNode(context, expression, outputType, isSubMapping);
+    } else if (outputType.kind === TypeKind.Union) {
+        if (Node.isAsExpression(expression)) {
+            expression = expression.getExpression();
+        }
+        return new ObjectOutputNode(context, expression, outputType, isSubMapping);
     }
     return new PrimitiveOutputNode(context, expression, outputType, isSubMapping);
 }

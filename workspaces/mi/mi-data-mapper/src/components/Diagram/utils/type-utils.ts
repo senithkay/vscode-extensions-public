@@ -238,7 +238,11 @@ function getValueNodeAndNextNodeForParentType(
         if (parentType.type.kind === TypeKind.Array) {
             return [node, node];
         } else if (propertyAssignment) {
-            return [propertyAssignment, propertyAssignment?.getInitializer()];
+            let initializer = propertyAssignment.getInitializer();
+            if (Node.isAsExpression(initializer)) {
+                initializer = initializer.getExpression();
+            }
+            return [propertyAssignment, initializer];
         }
     } else if (node && Node.isArrayLiteralExpression(node)) {
         const objLitExprs = node.getElements().filter(element =>
@@ -258,6 +262,7 @@ function getValueNodeAndNextNodeForParentType(
             return [node, node];
         }
     } else if (node && Node.isAsExpression(node)) {
+        // Added to deal with init array elements as casted types
         return [node.getExpression(), node];
     }
     else {
@@ -329,14 +334,16 @@ function resolveUnionType(
     nextNode: Node | undefined,
     dmTypeWithValue: DMTypeWithValue
 ) {
+    const parentNode = nextNode?.getParent();
+
     type.resolvedUnionType = type.unionTypes.find(unionType => {
         const typeName = unionType.typeName || unionType.kind;
-        return typeName && 
-        (typeName === 
-            (nextNode?.getType().getSymbol()?.getName() || nextNode?.getType().getBaseTypeOfLiteralType()?.getText()));
+        return typeName &&
+            (typeName ===
+                (parentNode?.getType().getSymbol()?.getName() || nextNode?.getType().getBaseTypeOfLiteralType()?.getText()));
     });
 
-    if (type.resolvedUnionType && Node.isAsExpression(nextNode)) {
-        addChildrenTypes(type.resolvedUnionType, childrenTypes, nextNode.getExpression(), dmTypeWithValue);
+    if (type.resolvedUnionType && Node.isAsExpression(parentNode)) {
+        addChildrenTypes(type.resolvedUnionType, childrenTypes, nextNode, dmTypeWithValue);
     }
 }
