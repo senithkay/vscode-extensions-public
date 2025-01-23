@@ -33,7 +33,6 @@ export interface ArrayOutputWidgetProps {
 	getPort: (portId: string) => InputOutputPortModel;
 	context: IDataMapperContext;
 	valueLabel?: string;
-	deleteField?: (node: Node) => Promise<void>;
 }
 
 export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
@@ -45,8 +44,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		isBodyArrayLitExpr,
 		context,
 		typeName,
-		valueLabel,
-		deleteField
+		valueLabel
 	} = props;
 
 	const classes = useIONodesStyles();
@@ -212,7 +210,6 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 							getPort={getPort}
 							parentId={id}
 							context={context}
-							deleteField={deleteField}
 							asOutput={true}
 						/>
 					</TreeBody>

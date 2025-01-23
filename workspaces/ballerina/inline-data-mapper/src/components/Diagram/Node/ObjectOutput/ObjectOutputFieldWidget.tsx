@@ -35,7 +35,6 @@ export interface ObjectOutputFieldWidgetProps {
     context: IDataMapperContext;
     fieldIndex?: number;
     treeDepth?: number;
-    deleteField?: (node: Node) => Promise<void>;
     hasHoveredParent?: boolean;
 }
 
@@ -48,7 +47,6 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         context,
         fieldIndex,
         treeDepth = 0,
-        deleteField,
         hasHoveredParent
     } = props;
     const classes = useIONodesStyles();
@@ -278,7 +276,6 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                     context={context}
                     fieldIndex={fieldIndex}
                     treeDepth={treeDepth}
-                    deleteField={deleteField}
                     hasHoveredParent={isHovered || hasHoveredParent}
                 />
             )}
@@ -293,7 +290,6 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                             parentId={portName}
                             context={context}
                             treeDepth={treeDepth + 1}
-                            deleteField={deleteField}
                             hasHoveredParent={isHovered || hasHoveredParent}
                         />
                     );

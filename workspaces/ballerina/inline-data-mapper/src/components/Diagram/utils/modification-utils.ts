@@ -83,14 +83,21 @@ export async function updateExistingMapping(link: DataMapperLinkModel) {
 
 export async function addValue(fieldId: string, value: string, context: IDataMapperContext) {
 	const { mappings } = context.model;
+	const isWithinArray = fieldId.split('.').some(part => !isNaN(Number(part)));
 
-	const newMapping: Mapping = {
-		output: fieldId,
-		inputs: [],
-		expression: value
-	};
-
-	mappings.push(newMapping);
+	if (isWithinArray) {
+		createNewMappingWithinArray(fieldId.split('.'), value, context.model);
+		const updatedMappings = mappings;
+		return await context.applyModifications(updatedMappings);
+	} else {
+		const newMapping: Mapping = {
+			output: fieldId,
+			inputs: [],
+			expression: value
+		};
+	
+		mappings.push(newMapping);
+	}
 
 	return await context.applyModifications(mappings);
 }

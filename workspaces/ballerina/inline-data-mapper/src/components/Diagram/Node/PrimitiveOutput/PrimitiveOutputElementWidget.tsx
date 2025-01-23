@@ -32,7 +32,6 @@ export interface PrimitiveOutputElementWidgetWidgetProps {
     getPort: (portId: string) => InputOutputPortModel;
     context: IDataMapperContext;
     fieldIndex?: number;
-    deleteField?: (node: Node) => Promise<void>;
     isArrayElement?: boolean;
     hasHoveredParent?: boolean;
 }

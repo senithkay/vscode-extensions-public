@@ -31,7 +31,6 @@ export interface ObjectOutputWidgetProps {
 	context: IDataMapperContext;
 	mappings?: Mapping[];
 	valueLabel?: string;
-	deleteField?: (node: any) => Promise<void>;
 	originalTypeName?: string;
 }
 
@@ -44,8 +43,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		engine,
 		getPort,
 		context,
-		valueLabel,
-		deleteField
+		valueLabel
 	} = props;
 	const classes = useIONodesStyles();
 
@@ -159,7 +157,6 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 									parentId={id}
 									context={context}
 									treeDepth={0}
-									deleteField={deleteField}
 									hasHoveredParent={isHovered}
 								/>
 							);

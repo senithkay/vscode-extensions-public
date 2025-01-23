@@ -39,7 +39,6 @@ export interface ArrayOutputFieldWidgetProps {
     context: IDataMapperContext;
     fieldIndex?: number;
     treeDepth?: number;
-    deleteField?: (node: Node) => Promise<void>;
     asOutput?: boolean;
     hasHoveredParent?: boolean;
 }
@@ -53,7 +52,6 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         context,
         fieldIndex,
         treeDepth = 0,
-        deleteField,
         asOutput,
         hasHoveredParent
     } = props;
@@ -79,7 +77,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const mapping = portIn && portIn.value;
     const { inputs, expression, elements, diagnostics } = mapping || {};
     const searchValue = useDMSearchStore.getState().outputSearch;
-    const hasElements = elements?.length > 0;
+    const hasElements = elements?.length > 0 && elements.some((element) => element.mappings.length > 0);
     const connectedViaLink = inputs?.length > 0;
 
     let expanded = true;
@@ -92,7 +90,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         indentation += 24;
     }
 
-    const hasDefaultValue = expression && getDefaultValue(arrayField.kind) === expression.trim();
+    const hasDefaultValue = expression && getDefaultValue(field.kind) === expression.trim();
     let isDisabled = portIn.descendantHasValue;
 
     if (!isDisabled && !hasDefaultValue) {
@@ -188,7 +186,6 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                                     context={context}
                                     fieldIndex={index}
                                     treeDepth={treeDepth + 1}
-                                    deleteField={deleteField}
                                     hasHoveredParent={isHovered || hasHoveredParent}
                                 />
                             </TreeBody>
@@ -206,7 +203,6 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                             context={context}
                             fieldIndex={index}
                             treeDepth={treeDepth + 1}
-                            deleteField={deleteField}
                             hasHoveredParent={isHovered || hasHoveredParent}
                         />
                     )
@@ -224,7 +220,6 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                         getPort={getPort}
                         context={context}
                         fieldIndex={index}
-                        deleteField={deleteField}
                         isArrayElement={true}
                         hasHoveredParent={isHovered || hasHoveredParent}
                     />
