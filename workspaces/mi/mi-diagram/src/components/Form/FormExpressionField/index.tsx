@@ -277,7 +277,6 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
 
     const handleGetHelperPane = (value: string, onChange: (value: string, updatedCursorPosition: number) => void) => {
         return getHelperPane(
-            expressionRef,
             isLoadingHelperPaneInfo,
             payloadInfo,
             variableInfo,
@@ -289,7 +288,8 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
             () => handleChangeHelperPaneState(false),
             handleGetHelperPaneInfo,
             value,
-            onChange
+            onChange,
+            expressionRef
         );
     }
 
