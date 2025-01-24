@@ -10,13 +10,13 @@
 
 import { commands, TestItem, window, ViewColumn, } from "vscode";
 import { openView, StateMachine, history } from "../../stateMachine";
-import { EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
+import { BI_COMMANDS, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import path from "path";
 
 
 export function activateEditKolaTest() {
     // register run project tests handler
-    commands.registerCommand("kolab.test.edit.case", async (entry: TestItem) => {
+    commands.registerCommand("BI.test.edit.function", async (entry: TestItem) => {
         console.log(entry);
 
         const projectDir = path.join(StateMachine.context().projectUri);
@@ -24,6 +24,10 @@ export function activateEditKolaTest() {
 
         openView(EVENT_TYPE.OPEN_VIEW, { documentUri: functionFile, position: { startLine: 5, startColumn: 0, endLine: 7, endColumn: 1 } });
         history.clear();
+    });
+
+    commands.registerCommand("BI.test.add.function", () => {
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BITestFunctionForm });
     });
 }
 

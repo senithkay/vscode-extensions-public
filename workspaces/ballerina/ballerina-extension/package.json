@@ -332,11 +332,6 @@
                 "category": "Ballerina"
             },
             {
-                "command": "kolab.project.test",
-                "title": "Test",
-                "category": "Ballerina"
-            },
-            {
                 "command": "kolab.project.build",
                 "title": "Build",
                 "category": "Ballerina"
@@ -546,6 +541,18 @@
                 "category": "BI"
             },
             {
+                "command": "BI.test.edit.function",
+                "title": "View test flow",
+                "icon": "$(distro-design-view)",
+                "category": "Ballerina"
+            },
+            {
+                "command": "BI.test.add.function",
+                "title": "Add test case",
+                "icon": "$(add)",
+                "category": "BI"
+            },
+            {
                 "command": "BI.view.typeDiagram",
                 "title": "Type Diagram",
                 "category": "BI"
@@ -635,8 +642,12 @@
         "menus": {
             "testing/item/context": [
                 {
-                  "command": "kolab.test.edit.case",
+                  "command": "BI.test.edit.function",
                   "group": "inline"
+                },
+                {
+                    "command": "BI.test.add.function",
+                    "group": "inline"
                 }
             ],
             "view/title": [

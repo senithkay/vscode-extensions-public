@@ -259,6 +259,9 @@ const MainPanel = () => {
                     case MACHINE_VIEW.BIFunctionForm:
                         setViewComponent(<FunctionForm />);
                         break;
+                    case MACHINE_VIEW.BITestFunctionForm:
+                        setViewComponent(<FunctionForm />);
+                        break;    
                     case MACHINE_VIEW.ViewConfigVariables:
                         rpcClient.getVisualizerLocation().then((location) => {
                             setViewComponent(
