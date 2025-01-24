@@ -159,7 +159,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 				// 	title: ValueConfigOption.EditValue,
 				// 	onClick: handleEditValue
 				// }
-				// Add edit value option once the feature is implemented
+				// TODO: Add edit value option once the feature is implemented
 			])
 	];
 

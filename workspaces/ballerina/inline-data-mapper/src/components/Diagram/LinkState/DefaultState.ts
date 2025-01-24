@@ -43,6 +43,8 @@ export class DefaultState extends State<DiagramEngine> {
 				type: InputType.MOUSE_DOWN,
 				fire: (event: ActionEvent<MouseEvent>) => {
 					const element = this.engine.getActionEventBus().getModelForEvent(event);
+					const isExpandOrCollapse = (event.event.target as Element)
+						.closest('div[id^="expand-or-collapse"]');
 
 					// the canvas was clicked on, transition to the dragging canvas state
 					if (!element) {
@@ -58,7 +60,7 @@ export class DefaultState extends State<DiagramEngine> {
 						}
 					}
 					// initiate dragging a new link
-					else if (element instanceof PortModel || element instanceof DataMapperNodeModel) {
+					else if ((element instanceof PortModel || element instanceof DataMapperNodeModel) && !isExpandOrCollapse) {
 						return;
 					}
 					// move the items (and potentially link points)

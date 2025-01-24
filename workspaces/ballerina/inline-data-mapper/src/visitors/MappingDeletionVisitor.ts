@@ -28,7 +28,6 @@ export class MappingDeletionVisitor implements BaseVisitor {
                 this.isWithinFieldToBeDeleted = true;
             } else {
                 // Create a copy of the node without elements
-                // const nodeCopy: Mapping = { ...node, expression: "[]", elements: [] };
                 const nodeCopy: Mapping = { ...node, elements: [] };
                 this.mappingStack[this.mappingStack.length - 1].push(nodeCopy);
             }
@@ -45,7 +44,6 @@ export class MappingDeletionVisitor implements BaseVisitor {
                 const lastParentMapping = parentMappings[parentMappings.length - 1];
                 if (this.currentMappings.length > 0) {
                     lastParentMapping.elements = [{ mappings: this.currentMappings }];
-                    // lastParentMapping.expression = `[${this.currentMappings.map(m => m.expression).join(", ")}]`;
                 }
             }
             
