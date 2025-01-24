@@ -61,6 +61,12 @@ export function TypeDiagram(props: TypeDiagramProps) {
         getComponentModel();
     }, [visualizerLocation]);
 
+    rpcClient?.onProjectContentUpdated((state: boolean) => {
+        if (state) {
+            getComponentModel();
+        }
+    });
+
     useEffect(() => {
         setFocusedNodeId(undefined);
     }, [selectedTypeId]);
