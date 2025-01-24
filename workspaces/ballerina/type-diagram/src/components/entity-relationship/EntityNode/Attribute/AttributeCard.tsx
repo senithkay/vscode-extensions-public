@@ -50,7 +50,7 @@ export function AttributeWidget(props: AttributeProps) {
     }
 
     return (
-        <CtrlClickGo2Source location={null}>
+        <CtrlClickGo2Source node={node.entityObject}>
             <AttributeContainer
                 isSelected={isSelected || isHovered}
                 onMouseOver={() => handleOnHover('SELECT')}

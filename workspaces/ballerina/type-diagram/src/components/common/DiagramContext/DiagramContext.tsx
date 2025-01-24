@@ -8,7 +8,7 @@
  */
 
 import React, { createContext, ReactNode } from 'react';
-import { NodePosition } from '@wso2-enterprise/ballerina-core';
+import { Type } from '@wso2-enterprise/ballerina-core';
 
 interface DiagramContextProps {
     children?: ReactNode;
@@ -18,7 +18,7 @@ interface DiagramContextProps {
     selectedNodeId?: string;
     setSelectedNodeId?: (id: string) => void;
     onEditNode?: (id: string) => void;
-    goToSource?: (filePath: string, position: NodePosition) => void;
+    goToSource?: (node: Type) => void
 }
 
 interface IDiagramContext {
@@ -28,7 +28,7 @@ interface IDiagramContext {
     selectedNodeId?: string;
     setSelectedNodeId?: (id: string) => void;
     onEditNode?: (id: string) => void;
-    goToSource?: (filePath: string, position: NodePosition) => void;
+    goToSource?: (node: Type) => void
 }
 
 const defaultState: any = {};

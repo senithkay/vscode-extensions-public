@@ -17,34 +17,15 @@ import { EntityHeadWidget } from './EntityHead/EntityHead';
 import { AttributeWidget } from './Attribute/AttributeCard';
 import { EntityNode, InclusionPortsContainer } from './styles';
 import { DiagramContext } from '../../common';
-import styled from '@emotion/styled';
-import { Button, Icon, ThemeColors } from '@wso2-enterprise/ui-toolkit';
-
 
 interface EntityWidgetProps {
     node: EntityModel;
     engine: DiagramEngine;
 }
 
-const EditIconContainer = styled.div`
-    position: absolute;
-    top: -20px;
-    right: 7px;
-    z-index: 1000;
-    cursor: pointer;
-`;
-
-const FocusIconContainer = styled.div`
-    position: absolute;
-    top: -20px;
-    right: 28px;
-    z-index: 1000;
-    cursor: pointer;
-`;
-
 export function EntityWidget(props: EntityWidgetProps) {
     const { node, engine } = props;
-    const { focusedNodeId, selectedNodeId, onEditNode, setFocusedNodeId } = useContext(DiagramContext);
+    const { focusedNodeId, selectedNodeId } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<EntityLinkModel>(undefined);
 
     const renderAttributes = () => {
@@ -80,34 +61,6 @@ export function EntityWidget(props: EntityWidgetProps) {
             shouldShade={false}
             isFocused={node.getID() === focusedNodeId}
         >
-            {selectedNodeId === node.getID() && (
-                <EditIconContainer>
-                    <Button
-                        appearance="icon"
-                        tooltip="Edit Type">
-                        <Icon
-                            name="editIcon"
-                            sx={{ height: "14px", width: "14px" }}
-                            onClick={() => onEditNode(node.getID())}
-                            iconSx={{ color: ThemeColors.PRIMARY }}
-                        />
-                    </Button>
-                </EditIconContainer>
-            )}
-            {selectedNodeId === node.getID() && focusedNodeId !== node.getID() && (
-                <FocusIconContainer>
-                    <Button
-                        appearance="icon"
-                        tooltip="Focus Node">
-                        <Icon
-                            name="center-focus-weak"
-                            sx={{ height: "14px", width: "14px" }}
-                            onClick={() => setFocusedNodeId(node.getID())}
-                            iconSx={{ color: ThemeColors.PRIMARY, fontSize: "14px" }}
-                        />
-                    </Button>
-                </FocusIconContainer>
-            )}
             <EntityHeadWidget
                 engine={engine}
                 node={node}

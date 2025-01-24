@@ -61,6 +61,12 @@ export function TypeDiagram(props: TypeDiagramProps) {
         getComponentModel();
     }, [visualizerLocation]);
 
+    rpcClient?.onProjectContentUpdated((state: boolean) => {
+        if (state) {
+            getComponentModel();
+        }
+    });
+
     useEffect(() => {
         setFocusedNodeId(undefined);
     }, [selectedTypeId]);
@@ -97,12 +103,17 @@ export function TypeDiagram(props: TypeDiagramProps) {
         setIsTypeCreatorOpen(true);
     }
 
-    const goToSource = async (filePath: string, position: NodePosition) => {
-        if (!rpcClient) {
+    const handleOnGoToSource = (node: Type) => {
+        if (!rpcClient || !node.codedata.lineRange) {
             return;
         }
-        rpcClient.getCommonRpcClient().goToSource({ filePath, position });
-
+        const targetPosition: NodePosition = {
+            startLine: node.codedata.lineRange?.startLine?.line,
+            startColumn: node.codedata.lineRange?.startLine?.offset,
+            endLine: node.codedata.lineRange?.endLine?.line,
+            endColumn: node.codedata.lineRange?.endLine?.offset,
+        };
+        rpcClient.getCommonRpcClient().goToSource({ position: targetPosition });
     };
 
     const onTypeEdit = (typeId: string) => {
@@ -181,7 +192,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
                             focusedNodeId={focusedNodeId}
                             updateFocusedNodeId={setFocusedNodeId}
                             showProblemPanel={showProblemPanel}
-                            goToSource={goToSource}
+                            goToSource={handleOnGoToSource}
                             onTypeEdit={onTypeEdit}
                         />
                     ) : (
