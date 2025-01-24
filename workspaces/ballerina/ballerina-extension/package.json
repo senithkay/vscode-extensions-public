@@ -399,6 +399,12 @@
                 "category": "Ballerina"
             },
             {
+                "command": "kolab.test.edit.case",
+                "title": "Edit test case",
+                "icon": "$(distro-design-view)",
+                "category": "Ballerina"
+              },
+            {
                 "command": "kolab.project.run",
                 "title": "Run",
                 "icon": {
@@ -627,6 +633,12 @@
             ]
         },
         "menus": {
+            "testing/item/context": [
+                {
+                  "command": "kolab.test.edit.case",
+                  "group": "inline"
+                }
+            ],
             "view/title": [
                 {
                     "command": "kolab.notebook.refreshVariableView",
