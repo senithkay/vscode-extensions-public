@@ -44,7 +44,7 @@ export const EntityHead: React.FC<any> = styled.div`
     justify-content: center;
     line-height: 20px;
     min-width: calc(100% - 32px);
-    padding: 0 0 0 8px;
+    padding: 0 8px;
     text-align: center;
 `;
 
