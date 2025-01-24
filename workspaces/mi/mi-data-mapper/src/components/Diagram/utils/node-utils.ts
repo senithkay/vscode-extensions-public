@@ -121,7 +121,14 @@ export function getOutputNode(
         if (Node.isAsExpression(expression)) {
             expression = expression.getExpression();
         }
-        return new ObjectOutputNode(context, expression, outputType, isSubMapping);
+        if (outputType.unionTypes.every(unionType =>
+            (unionType.kind === TypeKind.Interface || unionType.kind === TypeKind.Object))) {
+            return new ObjectOutputNode(context, expression, outputType, isSubMapping);
+        } else if (outputType.unionTypes.every(unionType => unionType.kind === TypeKind.Array)) {
+            return new ArrayOutputNode(context, expression, outputType, isSubMapping);
+        } else {
+            // TODO: handle mixed union types, i.e. MyType | string, MyType | MyType[]
+        }
     }
     return new PrimitiveOutputNode(context, expression, outputType, isSubMapping);
 }
