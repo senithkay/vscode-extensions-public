@@ -24,7 +24,7 @@ import {
     RequiredFormInput,
     Typography,
 } from '@wso2-enterprise/ui-toolkit';
-import { getHelperPane } from './HelperPane';
+import { getHelperPane } from '../HelperPane';
 import { enrichExpressionValue, extractExpressionValue, filterHelperPaneCompletionItems, filterHelperPaneFunctionCompletionItems, getExpressionValue, modifyCompletion } from './utils';
 
 type EXProps = {
