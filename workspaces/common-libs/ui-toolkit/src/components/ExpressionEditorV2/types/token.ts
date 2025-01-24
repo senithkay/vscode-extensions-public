@@ -7,12 +7,30 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { MutableRefObject } from "react";
+import { MutableRefObject } from 'react';
+import { HelperPaneOrigin } from './common';
 
 export type ResizeHandleProps = {
     editorRef: MutableRefObject<HTMLDivElement | null>;
 };
 
-export type MarkupProps = {
+type TokenEditorBaseProps = {
     value: string;
+    onChange: (value: string) => void;
 };
+
+type HelperPaneConditionalProps =
+    | {
+          getHelperPane: (value: string, onChange: (value: string) => void) => JSX.Element;
+          helperPaneOrigin?: HelperPaneOrigin;
+          changeHelperPaneState: (state: boolean) => void;
+          isHelperPaneOpen: boolean;
+      }
+    | {
+          getHelperPane?: never;
+          helperPaneOrigin?: never;
+          changeHelperPaneState?: never;
+          isHelperPaneOpen?: never;
+      };
+
+export type TokenEditorProps = TokenEditorBaseProps & HelperPaneConditionalProps;

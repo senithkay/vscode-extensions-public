@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useState } from "react";
 import { ComponentMeta, ComponentStory } from "@storybook/react";
 import { TokenEditor } from ".";
 
@@ -17,9 +17,16 @@ export default {
 } as ComponentMeta<typeof TokenEditor>;
 
 export const Default: ComponentStory<typeof TokenEditor> = () => {
+    const [value, setValue] = useState<string>('Hello ${world}');
+
+    const handleChange = (value: string) => {
+        setValue(value);
+        console.log(value);
+    }
+
     return (
         <div style={{ width: "300px", height: "300px" }}>
-            <TokenEditor />
+            <TokenEditor value={value} onChange={handleChange} />
         </div>
     );
 };

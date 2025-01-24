@@ -7,9 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { RefObject } from 'react';
-import { COMPLETION_ITEM_KIND, CompletionItemKind } from '../types';
+import React, { MutableRefObject, RefObject } from 'react';
+import { COMPLETION_ITEM_KIND, CompletionItemKind, HelperPaneOrigin, HelperPanePosition } from '../types';
 import { Codicon } from '../../Codicon/Codicon';
+import { ARROW_HEIGHT, ARROW_OFFSET } from '../constants';
+import { HELPER_PANE_WIDTH } from '../constants';
+import { HELPER_PANE_HEIGHT } from '../constants';
 
 export const checkCursorInFunction = (text: string, cursorPosition: number) => {
     const effectiveText = text.substring(0, cursorPosition);
@@ -73,3 +76,60 @@ export const getIcon = (kind: CompletionItemKind) => {
 
     return <Codicon name="symbol-variable" />;
 };
+
+/* <------------- Helper pane related functions -------------> */
+
+export const getHelperPanePosition = (
+    expressionEditorRef: MutableRefObject<HTMLDivElement>,
+    helperPaneOrigin: HelperPaneOrigin
+): HelperPanePosition => {
+    const expressionEditor = expressionEditorRef.current!;
+    const rect = expressionEditor.getBoundingClientRect();
+    if (helperPaneOrigin === 'bottom') {
+        return { top: rect.top + rect.height, left: rect.left };
+    }
+
+    const position: HelperPanePosition = { top: 0, left: 0 };
+    /* In the best case scenario, the helper pane should be poping up on the right of left side
+    of the expression editor, aligning to the center of the editor. In case, the viewport is
+    not large enough to position the editor in such a way, the position will be updated to keep
+    the helper pane within the viewport. */
+    position.top = rect.top - (HELPER_PANE_HEIGHT / 2);
+    if (helperPaneOrigin === 'right') {
+        position.left = rect.left + rect.width + HELPER_PANE_WIDTH + ARROW_HEIGHT;
+    } else if (helperPaneOrigin === 'left') {
+        position.left = rect.left - (HELPER_PANE_WIDTH + ARROW_HEIGHT);
+    }
+
+    if (rect.top < HELPER_PANE_HEIGHT / 2) {
+        position.top = 0;
+    }
+    if (window.innerHeight - rect.top < HELPER_PANE_HEIGHT / 2) {
+        position.top = window.innerHeight - HELPER_PANE_HEIGHT;
+    }
+
+    return position;
+};
+
+export const getArrowPosition = (
+    expressionEditorRef: MutableRefObject<HTMLDivElement>,
+    helperPaneOrigin: HelperPaneOrigin,
+    helperPanePosition: HelperPanePosition
+): HelperPanePosition | undefined => {
+    if (helperPaneOrigin === 'bottom' || !helperPanePosition) {
+        return undefined;
+    }
+
+    const position: HelperPanePosition = { top: 0, left: 0 };
+    const expressionEditor = expressionEditorRef.current!;
+    const rect = expressionEditor.getBoundingClientRect();
+
+    position.top = rect.top - helperPanePosition.top + ARROW_OFFSET;
+    if (helperPaneOrigin === 'left') {
+        position.left = HELPER_PANE_WIDTH;
+    } else {
+        position.left = -ARROW_HEIGHT;
+    }
+
+    return position;
+}

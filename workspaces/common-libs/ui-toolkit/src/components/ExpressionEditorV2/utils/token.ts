@@ -8,6 +8,7 @@
  */
 
 const EXPRESSION_REGEX = /\$\{([^}]+)\}/g;
+const EXPRESSION_TOKEN_REGEX = /<div[^>]*>\s*([^<]+?)\s*.+\s*<\/div>/g;
 
 const wrapTextInDiv = (text: string): string => {
     return `<div class="expression-token" contenteditable="false">
@@ -21,3 +22,13 @@ export const transformExpressions = (content: string): string => {
         return wrapTextInDiv(expression.trim());
     });
 };
+
+export const setValue = (element: HTMLDivElement, value: string) => {
+    element.innerHTML = transformExpressions(value);
+}
+
+export const extractExpressions = (content: string): string => {
+    return content.replace(EXPRESSION_TOKEN_REGEX, (_, expression) => {
+        return `\${${expression.trim()}}`;
+    });
+}

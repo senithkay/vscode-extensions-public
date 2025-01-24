@@ -9,7 +9,7 @@
 
 import React, { useCallback, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
-import { ResizeHandleProps } from '../../types/token';
+import { ResizeHandleProps } from '../../types';
 
 /* Styles */
 const StyledHandle = styled.div`
