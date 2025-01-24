@@ -10,7 +10,10 @@
 const EXPRESSION_REGEX = /\$\{([^}]+)\}/g;
 
 const wrapTextInDiv = (text: string): string => {
-    return `<div class="expression-token" contenteditable="false">${text}</div>`;
+    return `<div class="expression-token" contenteditable="false">
+    ${text}
+    <span class="expression-token-close">×</span>
+</div>`;
 };
 
 export const transformExpressions = (content: string): string => {

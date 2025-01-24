@@ -27,6 +27,15 @@ const handleInput = (element: HTMLDivElement) => {
         // Update content
         element.innerHTML = transformedContent;
 
+        /* Add close event listener to the tokens */
+        const tokens = element.querySelectorAll('.expression-token');
+        tokens.forEach(token => {
+            token.getElementsByClassName('expression-token-close')[0].addEventListener('click', e => {
+                e.stopPropagation();
+                token.remove();
+            });
+        });
+
         // Restore cursor position
         if (selection && range && currentNode) {
             const newRange = document.createRange();
@@ -91,7 +100,7 @@ namespace S {
         font-variant: inherit;
         font-weight: inherit;
         font-stretch: inherit;
-        font-family: monospace;
+        font-family: monospace !important;
         font-optical-sizing: inherit;
         font-size-adjust: inherit;
         font-kerning: inherit;
@@ -106,17 +115,37 @@ namespace S {
         outline: none;
         resize: vertical;
 
+        * {
+            font-family: monospace !important;
+        }
+
         &:focus {
             border-color: var(--focus-border);
         }
 
         .expression-token {
-            background-color: lightgreen;
-            padding: 0 4px;
+            color: var(--vscode-button-foreground);
+            background-color: var(--vscode-button-background);
+            padding-left: 4px;
             border-radius: 2px;
-            margin: 0 2px;
+            margin: 0 4px;
             display: inline-block;
-            user-select: none; // Prevent selection of token content
+            user-select: none;
+        }
+        
+        .expression-token-close {
+            cursor: pointer;
+            opacity: 0.7;
+            font-size: 12px;
+            padding: 0 4px;
+            border-left: 1px solid var(--vscode-button-foreground);
+            color: color-mix(in srgb, var(--vscode-button-foreground) 70%, transparent);
+            background-color: color-mix(in srgb, var(--vscode-button-background) 70%, transparent);
+
+            &:hover {
+                color: var(--vscode-button-foreground);
+                background-color: var(--vscode-button-background);
+            }
         }
 
         /* Hide zero-width space character but keep it functional */
