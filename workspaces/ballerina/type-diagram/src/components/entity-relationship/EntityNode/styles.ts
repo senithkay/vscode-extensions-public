@@ -38,11 +38,13 @@ export const EntityHead: React.FC<any> = styled.div`
      border-bottom: ${(props: StyleProps) =>
         `1px solid ${props.isSelected ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT}`};
     display: flex;
+    flex-direction: row;
+    width: 100%;
     height: 40px;
     justify-content: center;
     line-height: 20px;
     min-width: calc(100% - 32px);
-    padding: 0px 16px;
+    padding: 0 0 0 8px;
     text-align: center;
 `;
 

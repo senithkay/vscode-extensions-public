@@ -15,7 +15,7 @@ import { EntityHead, EntityName } from '../styles';
 import { CtrlClickGo2Source } from '../../../common/CtrlClickHandler/CtrlClickGo2Source';
 import { DiagramContext } from '../../../common';
 import styled from '@emotion/styled';
-import { Button, Item, Menu, MenuItem, Popover } from '@wso2-enterprise/ui-toolkit';
+import { Button, Icon, Item, Menu, MenuItem, Popover, ThemeColors } from '@wso2-enterprise/ui-toolkit';
 import { MoreVertIcon } from '../../../../resources';
 
 interface ServiceHeadProps {
@@ -26,9 +26,36 @@ interface ServiceHeadProps {
 
 const MenuButton = styled(Button)`
     border-radius: 5px;
-    position: absolute;
-    top: 10px;
-    right: 10px;
+`;
+
+const EditIconContainer = styled.div`
+    z-index: 1000;
+    cursor: pointer;
+`;
+
+const HeaderButtonsContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-left: auto;
+    justify-content: flex-end;
+    width: 45px;
+`;
+
+const EntityNameContainer = styled.div`
+    flex: 1;
+    justify-content: flex-start;
+    display: flex;
+    align-items: center;
+    padding: 8px;
+`;
+
+const HeaderWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
 `;
 
 export function EntityHeadWidget(props: ServiceHeadProps) {
@@ -101,19 +128,40 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                     port={node.getPort(`left-${node.getID()}`)}
                     engine={engine}
                 />
-                <EntityName
-                    isClickable={isClickable}
-                    onClick={handleOnClickOnEntityName}
-                >
-                    {displayName}
-                </EntityName>
+                <HeaderWrapper>
+                    <EntityNameContainer>
+                        <EntityName
+                            isClickable={isClickable}
+                            onClick={handleOnClickOnEntityName}
+                            onDoubleClick={onFocusedView}
+                        >
+                            {displayName}
+                        </EntityName>
+                    </EntityNameContainer>
+                    <HeaderButtonsContainer>
+                        {selectedNodeId === node.getID() && (
+                            <EditIconContainer>
+                                <Button
+                                    appearance="icon"
+                                    tooltip="Edit Type">
+                                    <Icon
+                                        name="editIcon"
+                                        sx={{ height: "14px", width: "14px" }}
+                                        onClick={() => onEditNode(node.getID())}
+                                        iconSx={{ color: ThemeColors.PRIMARY }}
+                                    />
+                                </Button>
+                            </EditIconContainer>
+                        )}
+                        <MenuButton appearance="icon" onClick={handleOnMenuClick}>
+                            <MoreVertIcon />
+                        </MenuButton>
+                    </HeaderButtonsContainer>
+                </HeaderWrapper>
                 <EntityPortWidget
                     port={node.getPort(`right-${node.getID()}`)}
                     engine={engine}
                 />
-                <MenuButton appearance="icon" onClick={handleOnMenuClick}>
-                    <MoreVertIcon />
-                </MenuButton>
                 <Popover
                     open={isMenuOpen}
                     anchorEl={anchorEl}
