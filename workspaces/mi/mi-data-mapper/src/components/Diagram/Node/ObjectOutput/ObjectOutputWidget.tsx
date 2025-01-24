@@ -66,6 +66,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const classes = useIONodesStyles();
 
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
+    const [isLoading, setIsLoading] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 	const [hasFirstClickOnOutput, setHasFirstClickOnOutput] = useState(false);
 
@@ -188,18 +189,23 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 
 	if (dmTypeWithValue.type.kind === TypeKind.Union) {
 		const handleInitAsUnionType = async (resolvedUnionType: DMType) => {
-			let node = value;
-			if (Node.isAsExpression(node.getParent())) {
-				node = node.getParent();
+			setIsLoading(true);
+			try {
+				let node = value;
+				if (Node.isAsExpression(node.getParent())) {
+					node = node.getParent();
+				}
+				let initValue = getDefaultValue(resolvedUnionType.kind);
+				if (initValue === "{}" && resolvedUnionType.kind !== TypeKind.Object && resolvedUnionType.typeName) {
+					initValue += ` as ${resolvedUnionType.typeName}`;
+				} else if (initValue === "[]" && resolvedUnionType.kind === TypeKind.Array && resolvedUnionType.typeName) {
+					initValue += ` as ${resolvedUnionType.typeName}[]`;
+				}
+				node.replaceWithText(initValue);
+				await context.applyModifications(node.getSourceFile().getFullText());
+			} finally {
+				setIsLoading(false);
 			}
-			let initValue = getDefaultValue(resolvedUnionType.kind);
-			if (initValue === "{}" && resolvedUnionType.kind !== TypeKind.Object && resolvedUnionType.typeName) {
-				initValue += ` as ${resolvedUnionType.typeName}`;
-			} else if (initValue === "[]" && resolvedUnionType.kind === TypeKind.Array && resolvedUnionType.typeName) {
-				initValue += ` as ${resolvedUnionType.typeName}[]`;
-			}
-			node.replaceWithText(initValue);
-			await context.applyModifications(node.getSourceFile().getFullText());
 		};
 
 		const initAsUnionTypeMenuItems: ValueConfigMenuItem[] =  dmTypeWithValue.type.unionTypes?.map((unionType)=>{
@@ -262,7 +268,9 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 							</Button>
 						</FieldActionWrapper>
 					)}
-					{(
+					{isLoading ? (
+						<ProgressRing sx={{ height: '16px', width: '16px' }} />
+					) : (
 						<FieldActionWrapper>
 							<ValueConfigMenu
 								menuItems={valConfigMenuItems}
