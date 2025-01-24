@@ -239,11 +239,11 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
     const formatRegistryPath = (path: string) => {
         let regPath = '';
         if (getValues("registryType") === 'gov') {
-            regPath = 'gov';
+            regPath = 'gov:';
         } else {
-            regPath = 'conf';
+            regPath = 'conf:';
         }
-        path.startsWith('/') ? regPath = regPath + path : regPath = regPath + '/' + path;
+        path.startsWith('/') ? regPath = regPath + path.substring(1) : regPath = regPath + path;
         if (createOptionValue) {
             regPath.endsWith('/') ? regPath = regPath + getValues("resourceName") + getFileExtension(getValues('templateType'))
                 : regPath = regPath + '/' + getValues("resourceName") + getFileExtension(getValues('templateType'));
@@ -309,7 +309,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
         if (props.isPopup) {
             rpcClient.getMiVisualizerRpcClient().openView({
                 type: POPUP_EVENT_TYPE.CLOSE_VIEW,
-                location: { view: null, recentIdentifier: formatResourcePath(values.registryPath) },
+                location: { view: null, recentIdentifier: isResourceContentVisible ? formatResourcePath(values.registryPath) : formatRegistryPath(values.registryPath) },
                 isPopup: true
             });
         } else {
