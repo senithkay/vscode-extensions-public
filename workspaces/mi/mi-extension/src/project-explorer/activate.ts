@@ -23,7 +23,7 @@ import { RegistryExplorerEntryProvider } from './registry-explorer-provider';
 import { RUNTIME_VERSION_440 } from "../constants";
 import { deleteSwagger } from '../util/swagger';
 import { compareVersions } from '../util/onboardingUtils';
-import { history } from '../history';
+import { history, removeFromHistory } from '../history';
 
 export async function activateProjectExplorer(context: ExtensionContext, lsClient: ExtendedLanguageClient) {
 
@@ -401,12 +401,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 							if (currentLocation.documentUri === fileUri) {
 								openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
 							}
-							const historyStack = history.get();
-							const newHistory = historyStack.filter((location) => location.location?.documentUri !== fileUri);
-							history.clear();
-							newHistory.forEach((location) => {
-								history.push(location);
-							});
+							removeFromHistory(fileUri);
 
 							if (item.contextValue === 'api') {
 								deleteSwagger(fileUri);
@@ -476,7 +471,8 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 
 					if (confirmation === 'Yes') {
 						try {
-							const rpcManager = new MiDiagramRpcManager()
+							const rpcManager = new MiDiagramRpcManager();
+							removeFromHistory(fileUri.fsPath, resourceId);
 							await rpcManager.applyEdit({
 								text: "",
 								documentUri: fileUri.fsPath,
