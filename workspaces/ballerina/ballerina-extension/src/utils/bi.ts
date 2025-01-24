@@ -199,6 +199,31 @@ export async function createBIFunction(params: ComponentRequest): Promise<Create
     });
 }
 
+export async function createBITestFunction(params: ComponentRequest): Promise<CreateComponentResponse> {
+    return new Promise(async (resolve) => {
+        const isExpressionBodied = params.functionType.isExpressionBodied;
+        const projectDir = path.join(StateMachine.context().projectUri);
+        // Hack to create trasformation function (Use LS API to create the function when available)
+        const targetFile = path.join(projectDir, isExpressionBodied ? DATA_MAPPING_FILE : FUNCTIONS_FILE);
+        if (!fs.existsSync(targetFile)) {
+            writeBallerinaFileDidOpen(targetFile, '');
+        }
+        const response = await handleFunctionCreation(targetFile, params);
+        await modifyFileContent({ filePath: targetFile, content: response.source });
+        const modulePart: ModulePart = response.syntaxTree as ModulePart;
+        let targetPosition: NodePosition = response.syntaxTree?.position;
+        modulePart.members.forEach(member => {
+            if (STKindChecker.isFunctionDefinition(member) && member.functionName.value === params.functionType.name.trim()) {
+                targetPosition = member.position;
+            }
+        });
+        openView(EVENT_TYPE.OPEN_VIEW, { documentUri: targetFile, position: targetPosition });
+        history.clear();
+        commands.executeCommand("BI.project-explorer.refresh");
+        resolve({ response: true, error: "" });
+    });
+}
+
 // <---------- Task Source Generation START-------->
 export async function handleAutomationCreation(params: ComponentRequest) {
     const displayAnnotation = `@display {

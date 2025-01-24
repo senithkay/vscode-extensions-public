@@ -97,7 +97,8 @@ import { notifyBreakpointChange } from "../../RPCLayer";
 import { ballerinaExtInstance } from "../../core";
 import { BreakpointManager } from "../../features/debugger/breakpoint-manager";
 import { StateMachine, openView, updateView } from "../../stateMachine";
-import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, sanitizeName } from "../../utils/bi";
+import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, 
+    createBITestFunction } from "../../utils/bi";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
 import { DATA_MAPPING_FILE_NAME, getDataMapperNodePosition } from "./utils";
@@ -316,6 +317,9 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 case DIRECTORY_MAP.FUNCTIONS || DIRECTORY_MAP.DATA_MAPPERS:
                     res = await createBIFunction(params);
                     break;
+                case DIRECTORY_MAP.TEST_FUNCTIONS:
+                    res = await createBITestFunction(params);
+                    break;   
                 default:
                     break;
             }

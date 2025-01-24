@@ -153,13 +153,13 @@ export function TestFunctionForm() {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleFunctionCreate = async (data: FormValues) => {
-        console.log("Function Form Data: ", data)
+        console.log("Test Function Form Data: ", data)
         setIsLoading(true);
         const name = data['functionName'];
         const returnType = data['return'];
         const params = data['params'];
         const paramList = params ? getFunctionParametersList(params) : [];
-        const res = await rpcClient.getBIDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.FUNCTIONS, functionType: { name, returnType, parameters: paramList } });
+        const res = await rpcClient.getBIDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.TEST_FUNCTIONS, functionType: { name, returnType, parameters: paramList } });
         setIsLoading(res.response);
     };
 

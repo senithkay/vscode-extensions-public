@@ -24,7 +24,7 @@ export function getDummyTestExecutorPositions() : KolaTestExecutorPositionsRespo
         name: "test1",
         filePath: "file1.bal",
         groups: ["group1"]
-    }
+    };
 
     const e2 : ExecutorPosition = {
         kind: "function",
@@ -41,7 +41,7 @@ export function getDummyTestExecutorPositions() : KolaTestExecutorPositionsRespo
         name: "test2",
         filePath: "file1.bal",
         groups: ["group1", "group2"]
-    }
+    };
 
     const e3 : ExecutorPosition = {
         kind: "function",
@@ -58,14 +58,14 @@ export function getDummyTestExecutorPositions() : KolaTestExecutorPositionsRespo
         name: "test3",
         filePath: "file1.bal",
         groups: ["group2"]
-    }
+    };
 
     const executorPositions:  Map<string, ExecutorPosition[]>  = new Map<string, ExecutorPosition[]>();
     executorPositions.set("group1", [e1, e2]);
     executorPositions.set("group2", [e2, e3]);
     return {
         executorPositions
-    }
+    };
 }
 
 export interface KolaTestExecutorPositionsResponse {
