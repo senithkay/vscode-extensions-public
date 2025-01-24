@@ -94,7 +94,6 @@ const ViewContainer = styled.div({});
 const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
     const { rpcClient, setIsLoading } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
-    const [showAIWindow, setShowAIWindow] = useState<boolean>(false);
     const [machineView, setMachineView] = useState<MACHINE_VIEW>();
     const [showNavigator, setShowNavigator] = useState<boolean>(true);
     const [formState, setFormState] = useState<PopupMachineStateValue>('initialize');
@@ -125,9 +124,7 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
     useEffect(() => {
         rpcClient.getVisualizerState().then((machineView) => {
             setMachineView(machineView.view);
-            if (viewComponent && machineView.view == MACHINE_VIEW.Overview) {
-                setShowAIWindow(true);
-            }
+            rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ['setContext', 'MI.showAddArtifact', viewComponent && machineView.view !== MACHINE_VIEW.ADD_ARTIFACT] });
         });
     }, [viewComponent]);
 
