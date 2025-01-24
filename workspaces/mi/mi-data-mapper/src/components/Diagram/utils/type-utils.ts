@@ -263,7 +263,7 @@ function getValueNodeAndNextNodeForParentType(
         }
     } else if (node && Node.isAsExpression(node)) {
         // Added to deal with init array elements as casted types
-        return [node.getExpression(), node];
+        return [node.getExpression(), node.getExpression()];
     }
     else {
         return [node, undefined];
