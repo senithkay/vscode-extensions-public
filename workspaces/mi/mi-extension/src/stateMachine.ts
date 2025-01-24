@@ -498,13 +498,14 @@ const stateMachine = createMachine<MachineContext>({
                     history.pop();
                 }
                 if (!context.view?.includes("Form")) {
+                    const ctx = context?.previousContext ? context?.previousContext : context;
                     history.push({
                         location: {
-                            view: context?.previousContext?.view,
-                            documentUri: context?.previousContext?.documentUri,
-                            position: context?.previousContext?.position,
-                            identifier: context?.previousContext?.identifier,
-                            dataMapperProps: context?.previousContext?.dataMapperProps
+                            view: ctx?.view,
+                            documentUri: ctx?.documentUri,
+                            position: ctx?.position,
+                            identifier: ctx?.identifier,
+                            dataMapperProps: ctx?.dataMapperProps
                         }
                     });
                 }
