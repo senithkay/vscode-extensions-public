@@ -34,7 +34,8 @@ import {
     PopupMessage,
     MainForm,
     FunctionForm,
-    SetupView
+    SetupView,
+    TestFunctionForm
 } from "./views/BI";
 import { handleRedo, handleUndo } from "./utils/utils";
 import { FunctionDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
@@ -260,7 +261,7 @@ const MainPanel = () => {
                         setViewComponent(<FunctionForm />);
                         break;
                     case MACHINE_VIEW.BITestFunctionForm:
-                        setViewComponent(<FunctionForm />);
+                        setViewComponent(<TestFunctionForm />);
                         break;    
                     case MACHINE_VIEW.ViewConfigVariables:
                         rpcClient.getVisualizerLocation().then((location) => {
