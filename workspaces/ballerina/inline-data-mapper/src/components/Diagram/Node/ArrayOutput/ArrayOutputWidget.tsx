@@ -33,7 +33,6 @@ export interface ArrayOutputWidgetProps {
 	getPort: (portId: string) => InputOutputPortModel;
 	context: IDataMapperContext;
 	valueLabel?: string;
-	deleteField?: (node: Node) => Promise<void>;
 }
 
 export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
@@ -45,15 +44,14 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		isBodyArrayLitExpr,
 		context,
 		typeName,
-		valueLabel,
-		deleteField
+		valueLabel
 	} = props;
 
 	const classes = useIONodesStyles();
 
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 	const [isLoading, setLoading] = useState(false);
-	const [isAddingElement, setIsAddingElement] = useState(false);
+	const [hasOutputBeforeInput, setHasOutputBeforeInput] = useState(false);
 
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
@@ -103,6 +101,10 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		setPortState(state)
 	};
 
+	const handlePortSelection = (outputBeforeInput: boolean) => {
+		setHasOutputBeforeInput(outputBeforeInput);
+	};
+
 	const handleArrayInitialization = async () => {
 		setLoading(true);
 		try {
@@ -146,17 +148,19 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		</span>
 	);
 
-
 	const valConfigMenuItems: ValueConfigMenuItem[] = [
-		isRootArray && Object.keys(portIn.links).length === 0
-			? {
+		...(isRootArray && Object.keys(portIn.links).length === 0
+			? [{
 				title: ValueConfigOption.InitializeArray,
 				onClick: handleArrayInitialization
-			}
-			: {
-				title: ValueConfigOption.EditValue,
-				onClick: handleEditValue
-			}
+			}]
+			: [
+				// {
+				// 	title: ValueConfigOption.EditValue,
+				// 	onClick: handleEditValue
+				// }
+				// TODO: Add edit value option once the feature is implemented
+			])
 	];
 
 	return (
@@ -173,6 +177,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 								port={portIn}
 								disable={isDisabled}
 								handlePortState={handlePortState}
+								hasFirstSelectOutput={handlePortSelection}
 							/>
 						)}
 					</span>
@@ -202,6 +207,14 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 							/>
 						</FieldActionWrapper>
 					))}
+					{hasOutputBeforeInput && (
+                        <div className={classes.outputBeforeInputNotification}>
+                            <span style={{ display: 'flex', alignItems: 'center' }}>
+                                <Codicon name="info" sx={{ marginRight: "7px" }} />
+                                Click on input field first to create a mapping
+                            </span>
+                        </div>
+                    )}
 				</TreeHeader>
 				{expanded && outputType && isBodyArrayLitExpr && (
 					<TreeBody>
@@ -212,7 +225,6 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 							getPort={getPort}
 							parentId={id}
 							context={context}
-							deleteField={deleteField}
 							asOutput={true}
 						/>
 					</TreeBody>

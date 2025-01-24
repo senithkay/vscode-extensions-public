@@ -21,6 +21,7 @@ import { findMappingByOutput } from "../../utils/common-utils";
 import { getTypeName } from "../../utils/type-utils";
 import { findInputNode } from "../../utils/node-utils";
 import { getInputPort, getOutputPort } from "../../utils/port-utils";
+import { removeMapping } from "../../utils/modification-utils";
 
 export const ARRAY_OUTPUT_NODE_TYPE = "data-mapper-node-array-output";
 const NODE_ID = "array-output-node";
@@ -89,22 +90,23 @@ export class ArrayOutputNode extends DataMapperNodeModel {
 
     private createLinks(mappings: Mapping[]) {
         mappings.forEach((mapping) => {
-            if (mapping.isComplex || mapping.inputs.length !== 1) {
+            const { isComplex, inputs, output, expression, diagnostics } = mapping;
+            if (isComplex || inputs.length !== 1) {
                 // Complex mappings are handled in the LinkConnectorNode
                 return;
             }
 
-            const inputNode = findInputNode(mapping.inputs[0], this);
+            const inputNode = findInputNode(inputs[0], this);
             let inPort: InputOutputPortModel;
             if (inputNode) {
-                inPort = getInputPort(inputNode, mapping.inputs[0].replace(/\.\d+/g, ''));
+                inPort = getInputPort(inputNode, inputs[0].replace(/\.\d+/g, ''));
             }
 
             let outPort: InputOutputPortModel;
             let mappedOutPort: InputOutputPortModel;
 
             if (this.isBodyArrayliteralExpr) {
-                [, mappedOutPort] = getOutputPort(this, mapping.output);
+                [, mappedOutPort] = getOutputPort(this, output);
             } else {
                 const portId = `${ARRAY_OUTPUT_TARGET_PORT_PREFIX}${this.rootName ? `.${this.rootName}` : ''}.IN`;
                 outPort = this.getPort(portId) as InputOutputPortModel;
@@ -112,16 +114,17 @@ export class ArrayOutputNode extends DataMapperNodeModel {
             }
 
             if (inPort && mappedOutPort) {
-                const lm = new DataMapperLinkModel(mapping.expression, mapping.diagnostics, true, undefined);
+                const lm = new DataMapperLinkModel(expression, diagnostics, true, undefined);
 
                 lm.setTargetPort(mappedOutPort);
                 lm.setSourcePort(inPort);
                 inPort.addLinkedPort(mappedOutPort);
 
                 lm.addLabel(new ExpressionLabelModel({
-                    value: mapping.expression,
+                    value: expression,
                     link: lm,
-                    context: this.context
+                    context: this.context,
+                    deleteLink: () => this.deleteField(output)
                 }));
 
                 lm.registerListener({
@@ -140,8 +143,8 @@ export class ArrayOutputNode extends DataMapperNodeModel {
         });
     }
 
-    async deleteField(field: Node, keepDefaultVal?: boolean) {
-        // TODO: Implement
+    async deleteField(field: string) {
+        await removeMapping(field, this.context);
     }
 
     public updatePosition() {

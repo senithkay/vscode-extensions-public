@@ -21,6 +21,7 @@ import { InputOutputPortModel } from "../../Port";
 import { DataMapperLinkModel } from "../../Link";
 import { ExpressionLabelModel } from "../../Label";
 import { getInputPort, getOutputPort } from "../../utils/port-utils";
+import { removeMapping } from "../../utils/modification-utils";
 
 export const OBJECT_OUTPUT_NODE_TYPE = "data-mapper-node-object-output";
 const NODE_ID = "object-output-node";
@@ -83,29 +84,31 @@ export class ObjectOutputNode extends DataMapperNodeModel {
 
     private createLinks(mappings: Mapping[]) {
         mappings.forEach((mapping) => {    
-            if (mapping.isComplex || mapping.inputs.length !== 1) {
+            const { isComplex, inputs, output, expression, diagnostics } = mapping;
+            if (isComplex || inputs.length !== 1) {
                 // Complex mappings are handled in the LinkConnectorNode
                 return;
             }
 
-            const inputNode = findInputNode(mapping.inputs[0], this);
+            const inputNode = findInputNode(inputs[0], this);
             let inPort: InputOutputPortModel;
             if (inputNode) {
-                inPort = getInputPort(inputNode, mapping.inputs[0].replace(/\.\d+/g, ''));
+                inPort = getInputPort(inputNode, inputs[0].replace(/\.\d+/g, ''));
             }
 
-            const [_, mappedOutPort] = getOutputPort(this, mapping.output);
+            const [_, mappedOutPort] = getOutputPort(this, output);
 
             if (inPort && mappedOutPort) {
-                const lm = new DataMapperLinkModel(mapping.expression, mapping.diagnostics, true, undefined);
+                const lm = new DataMapperLinkModel(expression, diagnostics, true, undefined);
                 lm.setTargetPort(mappedOutPort);
                 lm.setSourcePort(inPort);
                 inPort.addLinkedPort(mappedOutPort);
 
                 lm.addLabel(
                     new ExpressionLabelModel({
-                        value: mapping.expression,
-                        link: lm
+                        value: expression,
+                        link: lm,
+                        deleteLink: () => this.deleteField(output),
                     }
                 ));
 
@@ -126,8 +129,8 @@ export class ObjectOutputNode extends DataMapperNodeModel {
         });
     }
 
-    async deleteField(field: STNode, keepDefaultVal?: boolean) {
-        // TODO: Implement
+    async deleteField(field: string) {
+        await removeMapping(field, this.context);
     }
 
     public updatePosition() {

@@ -31,7 +31,6 @@ export interface ObjectOutputWidgetProps {
 	context: IDataMapperContext;
 	mappings?: Mapping[];
 	valueLabel?: string;
-	deleteField?: (node: any) => Promise<void>;
 	originalTypeName?: string;
 }
 
@@ -44,17 +43,13 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		engine,
 		getPort,
 		context,
-		valueLabel,
-		deleteField
+		valueLabel
 	} = props;
-	// const { views } = context;
-	// const focusedView = views[views.length - 1];
-	// const focuesOnSubMappingRoot = focusedView.subMappingInfo && focusedView.subMappingInfo.focusedOnSubMappingRoot;
-
 	const classes = useIONodesStyles();
 
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 	const [isHovered, setIsHovered] = useState(false);
+	const [hasOutputBeforeInput, setHasOutputBeforeInput] = useState(false);
 
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
@@ -90,6 +85,10 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		setPortState(state)
 	};
 
+	const handlePortSelection = (outputBeforeInput: boolean) => {
+		setHasOutputBeforeInput(outputBeforeInput);
+	};
+
 	const onMouseEnter = () => {
 		setIsHovered(true);
 	};
@@ -123,7 +122,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		<>
 			<TreeContainer data-testid={`${id}-node`} onContextMenu={onRightClick}>
 				<TreeHeader
-					isSelected={false}
+					isSelected={portState !== PortState.Unselected}
 					id={"recordfield-" + id}
 					onMouseEnter={onMouseEnter}
 					onMouseLeave={onMouseLeave}
@@ -134,12 +133,14 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 								engine={engine}
 								port={portIn}
 								handlePortState={handlePortState}
+								hasFirstSelectOutput={handlePortSelection}
 								disable={isDisabled && !expanded}
 							/>)
 						}
 					</span>
 					<span className={classes.label}>
 						<Button
+							id={"expand-or-collapse-" + id} 
 							appearance="icon"
 							tooltip="Expand/Collapse"
 							sx={{ marginLeft: indentation }}
@@ -150,6 +151,14 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 						</Button>
 						{label}
 					</span>
+                    {hasOutputBeforeInput && (
+                        <div className={classes.outputBeforeInputNotification}>
+                            <span style={{ display: 'flex', alignItems: 'center' }}>
+                                <Codicon name="info" sx={{ marginRight: "7px" }} />
+                                Click on input field first to create a mapping
+                            </span>
+                        </div>
+                    )}
 				</TreeHeader>
 				{(expanded && fields) && (
 					<TreeBody>
@@ -163,8 +172,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 									parentId={id}
 									context={context}
 									treeDepth={0}
-									deleteField={deleteField}
-									hasHoveredParent={false}
+									hasHoveredParent={isHovered}
 								/>
 							);
 						})}
