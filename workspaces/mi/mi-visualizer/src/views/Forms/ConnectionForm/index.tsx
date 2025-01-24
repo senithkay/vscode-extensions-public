@@ -409,7 +409,9 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                         <SampleGrid>
                             {displayedLocalConnectors && displayedLocalConnectors.map((connector: any) => (
                                 Object.entries(connector.connectionUiSchema).map(([connectionType, schemaPath]) => (
-                                    (allowedConnectionTypes && !allowedConnectionTypes.includes(connectionType)) ? null : (
+                                    (allowedConnectionTypes && !allowedConnectionTypes.some(
+                                        type => type.toLowerCase() === connectionType.toLowerCase() // Ignore case on allowedtype check
+                                    )) ? null : (
                                         <ComponentCard
                                             key={connectionType}
                                             onClick={() => selectConnectionType(connector, connectionType)}
