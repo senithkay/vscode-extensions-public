@@ -22,6 +22,7 @@ import { getHelperPane } from "../HelperPane";
 namespace S {
     export const Container = styled.div<{ sx?: CSSProperties }>`
         width: 100%;
+        gap: 2px;
 
         ${({ sx }: { sx?: CSSProperties }) => sx}
     `
