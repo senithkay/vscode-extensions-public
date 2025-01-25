@@ -28,7 +28,15 @@ export const setValue = (element: HTMLDivElement, value: string) => {
 }
 
 export const extractExpressions = (content: string): string => {
-    return content.replace(EXPRESSION_TOKEN_REGEX, (_, expression) => {
+    let updatedContent;
+
+    // Replace the expression tokens with the actual value
+    updatedContent = content.replace(EXPRESSION_TOKEN_REGEX, (_, expression) => {
         return `\${${expression.trim()}}`;
     });
+
+    // Remove html escape characters for spaces
+    updatedContent = updatedContent.replace(/&nbsp;/g, ' ');
+
+    return updatedContent;
 }
