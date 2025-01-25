@@ -138,7 +138,7 @@ export const FormTokenEditor = ({
         setIsHelperPaneOpen(isOpen);
     }
     
-    const getHelperPaneEl = () => {
+    const getHelperPaneEl = (currentValue: string, onValueChange: (value: string) => void) => {
         return getHelperPane(
             isLoadingHelperPaneInfo,
             payloadInfo,
@@ -150,8 +150,8 @@ export const FormTokenEditor = ({
             paramInfo,
             () => handleChangeHelperPaneState(false),
             handleGetHelperPaneInfo,
-            value,
-            onChange
+            currentValue,
+            onValueChange
         );
     }
 

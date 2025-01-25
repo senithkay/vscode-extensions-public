@@ -51,7 +51,7 @@ const HelperPaneEl = ({
     const [currentPage, setCurrentPage] = useState<number>(0);
 
     const handleChange = (value: string) => {
-        if (exprRef.current) {
+        if (exprRef?.current) {
             const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
             const updatedValue = currentValue.slice(0, cursorPosition) + value + currentValue.slice(cursorPosition);
             const updatedCursorPosition = cursorPosition + value.length;
