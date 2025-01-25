@@ -59,10 +59,20 @@ function getServicePort(pid: string): number | undefined {
     try {
         const output = execSync(getLSOFCommand(platform, pid), { encoding: 'utf-8' });
         if (isNaN(output as any)) {
-            const portMatch = output.match(/\*:\d+/);
-            if (portMatch) {
-                return parseInt(portMatch[0].substring(2));
-            }
+            const activeConnectionRegex = /^n(?:\*|localhost):(\d+)\b$/;
+
+            const ports = output
+                .split(/\r?\n/)
+                .map(line => line.trim())
+                .filter(line => activeConnectionRegex.test(line))
+                .map(line => {
+                    const match = line.match(activeConnectionRegex);
+                    return match ? parseInt(match[1]) : null; // Convert port number to integer
+                })
+                .filter((port): port is number => port !== null);
+
+            // TODO: Handle multiple ports (multiple services within the same Ballerina package)
+            return ports[0];
         } else { return parseInt(output); }
     } catch (error) {
         debug(`Error retrieving port for process ${pid}: ${error}`);
