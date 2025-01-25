@@ -167,7 +167,7 @@ export const getHelperPaneCompletionItem = (
  * @returns string
  */
 export const extractExpressionValue = (expression: string) => {
-    const synapseExRegex = /^\$\{(.*)\}$/;
+    const synapseExRegex = /^\$\{((?:.|\s)*)\}$/;
     const match = expression?.match(synapseExRegex);
     if (match) {
         return match[1];
@@ -175,6 +175,24 @@ export const extractExpressionValue = (expression: string) => {
 
     return expression;
 }
+
+/**
+ * Format a JSON expression string for better readability.
+ *
+ * @param expression - string
+ * @returns string
+ */
+export const formatExpression = (expression: string): string => {
+    try {
+        // Attempt to parse the expression as JSON
+        const jsonObject = JSON.parse(expression);
+        // Stringify the JSON object with indentation for formatting
+        return JSON.stringify(jsonObject, null, 2);
+    } catch (error) {
+        // If parsing fails, return the original expression
+        return expression;
+    }
+};
 
 /**
  * Enrich the expression value with the given expression type.

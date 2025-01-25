@@ -8,7 +8,7 @@
  */
 
 import { debounce } from 'lodash';
-import React, { CSSProperties, ReactNode, useCallback, useMemo, useRef, useState } from 'react';
+import React, { CSSProperties, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Range } from 'vscode-languageserver-types';
 import styled from '@emotion/styled';
 import { HelperPaneCompletionItem, HelperPaneFunctionInfo, FormExpressionFieldValue } from '@wso2-enterprise/mi-core';
@@ -25,7 +25,15 @@ import {
     Typography,
 } from '@wso2-enterprise/ui-toolkit';
 import { getHelperPane } from '../HelperPane';
-import { enrichExpressionValue, extractExpressionValue, filterHelperPaneCompletionItems, filterHelperPaneFunctionCompletionItems, getExpressionValue, modifyCompletion } from './utils';
+import {
+    enrichExpressionValue,
+    extractExpressionValue,
+    filterHelperPaneCompletionItems,
+    filterHelperPaneFunctionCompletionItems,
+    formatExpression,
+    getExpressionValue,
+    modifyCompletion
+} from './utils';
 
 type EXProps = {
     isActive: boolean;
@@ -344,6 +352,12 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         ];
     }, [isExActive, isHelperPaneOpen, value, handleChangeHelperPaneState, openExpressionEditor, onChange]);
 
+    const expressionValue = useMemo(() => {
+        const extractedExpressionValue = extractExpressionValue(value.value);
+        const formattedExpressionValue = formatExpression(extractedExpressionValue);
+        return formattedExpressionValue;
+    }, [value.value, extractExpressionValue]);
+
     return (
         <S.Container id={id} sx={sx}>
             <S.Header>
@@ -355,7 +369,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                 <FormExpressionEditor
                     ref={expressionRef}
                     disabled={disabled}
-                    value={extractExpressionValue(value.value)}
+                    value={expressionValue}
                     placeholder={placeholder}
                     onChange={handleExpressionChange}
                     onFocus={handleFocus}
