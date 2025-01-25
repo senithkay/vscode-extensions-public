@@ -17,6 +17,8 @@ export type ResizeHandleProps = {
 type TokenEditorBaseProps = {
     value: string;
     onChange: (value: string) => void;
+    onFocus?: () => void;
+    onBlur?: () => void;
 };
 
 type HelperPaneConditionalProps =

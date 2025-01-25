@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import styled from '@emotion/styled';
 import { StyleBase } from '../Common/types';
@@ -44,7 +44,7 @@ namespace S {
         flex: 1 1 auto;
     `;
 
-    export const Editor = styled.div<StyleBase>`
+    export const Editor = styled.div<StyleBase & { isFocused: boolean }>`
         box-sizing: border-box;
         position: relative;
         color: var(--input-foreground);
@@ -74,9 +74,9 @@ namespace S {
             font-family: monospace !important;
         }
 
-        &:focus {
+        ${(props: { isFocused: boolean }) => props.isFocused && `
             border-color: var(--focus-border);
-        }
+        `}
 
         .expression-token {
             color: var(--vscode-button-foreground);
@@ -146,17 +146,37 @@ export const TokenEditor = ({
     getHelperPane,
     helperPaneOrigin,
     isHelperPaneOpen,
-    changeHelperPaneState
+    changeHelperPaneState,
+    onFocus,
+    onBlur
 }: TokenEditorProps) => {
+    const [isFocused, setIsFocused] = useState<boolean>(false);
     const editorRef = useRef<HTMLDivElement>(null);
+    const buttonRef = useRef<HTMLDivElement>(null);
     const helperPaneContainerRef = useRef<HTMLDivElement>(null);
+    const currentNodeRef = useRef<Node | null>(null);
+    const currentNodeOffsetRef = useRef<number | null>(null);
+
+    const addCloseEventListeners = () => {
+        const editor = editorRef.current;
+        if (!editor) return;
+
+        const tokens = editor.querySelectorAll('.expression-token');
+        tokens.forEach(token => {
+            token.querySelector('.expression-token-close')!.addEventListener('click', e => {
+                e.stopPropagation();
+                token.remove();
+                onChange?.(extractExpressions(editor.innerHTML));
+            });
+        });
+    };
 
     const handleInput = () => {
-        const element = editorRef.current;
-        if (!element) return;
+        const editor = editorRef.current;
+        if (!editor) return;
 
         // Extract expressions from the content
-        const content = element.innerHTML;
+        const content = editor.innerHTML;
         const transformedContent = transformExpressions(content);
 
         // Update the value
@@ -167,25 +187,18 @@ export const TokenEditor = ({
             const selection = window.getSelection();
             const range = selection?.getRangeAt(0);
             const currentNode = range?.startContainer;
-            const currentNodeIndex = Array.from(element.childNodes).indexOf(currentNode as ChildNode);
+            const currentNodeIndex = Array.from(editor.childNodes).indexOf(currentNode as ChildNode);
 
             // Update content
-            element.innerHTML = transformedContent;
+            editor.innerHTML = transformedContent;
 
             /* Add close event listener to the tokens */
-            const tokens = element.querySelectorAll('.expression-token');
-            tokens.forEach(token => {
-                token.querySelector('.expression-token-close')!.addEventListener('click', e => {
-                    e.stopPropagation();
-                    token.remove();
-                    onChange?.(extractExpressions(element.innerHTML));
-                });
-            });
+            addCloseEventListeners();
 
             // Restore cursor position
             if (selection && range && currentNode) {
                 const newRange = document.createRange();
-                const newCurrentNode = element.childNodes[currentNodeIndex + 1];
+                const newCurrentNode = editor.childNodes[currentNodeIndex + 1];
 
                 try {
                     newRange.setStartAfter(newCurrentNode);
@@ -194,7 +207,7 @@ export const TokenEditor = ({
                     selection.addRange(newRange);
                 } catch (e) {
                     // Fallback to end of editor if something goes wrong
-                    const lastChild = element.lastChild;
+                    const lastChild = editor.lastChild;
                     if (lastChild) {
                         newRange.setStartAfter(lastChild);
                         newRange.setEndAfter(lastChild);
@@ -231,13 +244,68 @@ export const TokenEditor = ({
         }
     };
 
+    const handleFocus = () => {
+        // Additional actions to be performed when the token editor is focused
+        setIsFocused(true);
+        changeHelperPaneState?.(true);
+
+        onFocus?.();
+    }
+
+    const handleHelperPaneChange = (value: string) => {
+        const editor = editorRef.current;
+        if (!editor) return;
+
+        const selection = window.getSelection();
+        if (!selection) return;
+
+        // Create a new range using the stored node and offset
+        const range = document.createRange();
+        if (currentNodeRef.current && currentNodeOffsetRef.current !== null) {
+            range.setStart(currentNodeRef.current, currentNodeOffsetRef.current);
+            range.setEnd(currentNodeRef.current, currentNodeOffsetRef.current);
+        } else {
+            // Fallback to the end of the editor if no valid position is stored
+            range.selectNodeContents(editor);
+            range.collapse(false);
+        }
+
+        // Insert the new text node at the current cursor position
+        const textNode = new DOMParser()
+            .parseFromString(transformExpressions(`\${${value}}`), 'text/html')
+            .body
+            .firstChild;
+
+        try {
+            range.insertNode(textNode);
+            // Move the cursor to the end of the inserted text
+            range.setStartAfter(textNode);
+            range.setEndAfter(textNode);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        } catch (e) {
+            // Fallback to end of editor if something goes wrong and insert the text node at the end
+            const lastChild = editor.lastChild;
+            if (lastChild) {
+                range.setStartAfter(lastChild);
+                range.setEndAfter(lastChild);
+                range.insertNode(textNode);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+        }
+
+        // Add close event listener to the tokens
+        addCloseEventListeners();
+    };
+
     const getHelperPaneComponent = (): JSX.Element => {
         const helperPanePosition = getHelperPanePosition(editorRef, helperPaneOrigin);
         const arrowPosition = getArrowPosition(editorRef, helperPaneOrigin, helperPanePosition);
 
         return createPortal(
             <S.HelperPane ref={helperPaneContainerRef} sx={{ ...helperPanePosition }}>
-                {getHelperPane(value, onChange)}
+                {getHelperPane(value, handleHelperPaneChange)}
                 {arrowPosition && <HelperPane.Arrow origin={helperPaneOrigin} sx={{ ...arrowPosition }} />}
             </S.HelperPane>,
             document.body
@@ -247,6 +315,56 @@ export const TokenEditor = ({
     const handleHelperPaneToggle = () => {
         changeHelperPaneState?.(!isHelperPaneOpen);
     };
+
+    const handleSelectionChange = () => {
+        const selection = window.getSelection();
+        if (!selection) return;
+        const range = selection.getRangeAt(0);
+
+        if (
+            range.startContainer !== editorRef.current &&
+            !editorRef.current?.contains(range.startContainer)
+        ) {
+            // If selection is outside of the editor, do nothing
+            return;
+        } else if (
+            range.startContainer.nodeType === Node.TEXT_NODE ||
+            range.startContainer.nodeType === Node.ELEMENT_NODE
+        ) {
+            currentNodeRef.current = range.startContainer;
+            currentNodeOffsetRef.current = range.startOffset;
+        } else {
+            // Fallback to end of editor if something goes wrong
+            const lastChild = editorRef.current?.lastChild;
+            if (lastChild) {
+                currentNodeRef.current = lastChild;
+                currentNodeOffsetRef.current = lastChild.textContent?.length;
+            }
+        }
+    };
+
+    useEffect(() => {
+        const handleOutsideClick = async (e: any) => {
+            if (
+                isFocused &&
+                !editorRef.current?.contains(e.target) &&
+                !buttonRef.current?.contains(e.target) &&
+                !helperPaneContainerRef.current?.contains(e.target)
+            ) {
+                // Additional actions to be performed when the token editor loses focus
+                setIsFocused(false);
+                changeHelperPaneState?.(false);
+
+                onBlur?.();
+            }
+        }
+
+        document.addEventListener('mousedown', handleOutsideClick);
+        return () => {
+            document.removeEventListener('mousedown', handleOutsideClick);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [onBlur, changeHelperPaneState, buttonRef.current, helperPaneContainerRef.current]);
 
     useEffect(() => {
         const editor = editorRef.current;
@@ -261,10 +379,14 @@ export const TokenEditor = ({
 
         editor.addEventListener('input', onInput);
         editor.addEventListener('keydown', onKeyDown);
+        editor.addEventListener('focus', handleFocus);
+        document.addEventListener('selectionchange', handleSelectionChange);
 
         return () => {
             editor.removeEventListener('input', onInput);
             editor.removeEventListener('keydown', onKeyDown);
+            editor.removeEventListener('focus', onFocus);
+            document.removeEventListener('selectionchange', handleSelectionChange);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -272,10 +394,17 @@ export const TokenEditor = ({
     return (
         <S.Container>
             <S.EditorWithHandle>
-                <S.Editor ref={editorRef} contentEditable suppressContentEditableWarning />
+                <S.Editor
+                    ref={editorRef}
+                    isFocused={isFocused}
+                    tabIndex={0}
+                    contentEditable
+                    suppressContentEditableWarning
+                />
                 <ResizeHandle editorRef={editorRef} />
             </S.EditorWithHandle>
             <Button
+                ref={buttonRef}
                 appearance="icon"
                 onClick={handleHelperPaneToggle}
                 tooltip="Open Helper View"
