@@ -142,8 +142,7 @@ export enum DIRECTORY_MAP {
     TYPES = "types",
     RECORDS = "records",
     CONFIGURATIONS = "configurations",
-    DATA_MAPPERS = "dataMappers",
-    TEST_FUNCTIONS = "testFunctions",
+    DATA_MAPPERS = "dataMappers"
 }
 
 export enum DIRECTORY_SUB_TYPE {

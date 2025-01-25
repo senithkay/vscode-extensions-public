@@ -60,6 +60,8 @@ import {
     SyntaxTreeNodeParams,
     SyntaxTreeNode,
     ExecutorPositions,
+    TestsDiscoveryRequest,
+    TestsDiscoveryResponse,
     JsonToRecordParams,
     XMLToRecordParams,
     XMLToRecord,
@@ -252,7 +254,9 @@ enum EXTENDED_APIS {
     BI_SERVICE_GET_TRIGGERS = 'serviceDesign/getTriggerModels',
     BI_DESIGN_MODEL = 'designModelService/getDesignModel',
     BI_UPDATE_IMPORTS = 'expressionEditor/importModule',
-    BI_ADD_FUNCTION = 'expressionEditor/functionCallTemplate'
+    BI_ADD_FUNCTION = 'expressionEditor/functionCallTemplate',
+    BI_DISCOVER_TESTS_IN_PROJECT = 'testManagerService/discoverInProject',
+    BI_DISCOVER_TESTS_IN_FILE = 'testManagerService/discoverInFile'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -583,6 +587,14 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
             return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.DOCUMENT_EXECUTOR_POSITIONS, params);
+    }
+
+    async getProjectTestFunctions(params: TestsDiscoveryRequest): Promise<TestsDiscoveryResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_DISCOVER_TESTS_IN_PROJECT, params);
+    }
+
+    async getFileTestFunctions(params: TestsDiscoveryRequest): Promise<TestsDiscoveryResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_DISCOVER_TESTS_IN_FILE, params);
     }
 
     async getProjectDiagnostics(params: ProjectDiagnosticsRequest): Promise<ProjectDiagnosticsResponse | NOT_SUPPORTED_TYPE> {

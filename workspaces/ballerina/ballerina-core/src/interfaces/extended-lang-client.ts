@@ -386,6 +386,33 @@ export interface ExecutorPositions {
     executorPositions?: ExecutorPosition[];
 }
 
+export interface TestsDiscoveryRequest {
+    filePath: string;
+}
+
+export interface TestsDiscoveryResponse {
+    result?: Map<string, TestFunction[]>;
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
+export interface TestFunction {
+    functionName: string;
+    lineRange: FunctionLineRange;
+    config: TestFunctionConfig;
+}
+
+export interface FunctionLineRange {
+    fileName: string;
+    startLine: LinePosition;
+    endLine: LinePosition;
+}
+
+export interface TestFunctionConfig {
+    groups: string[];
+    enabled: boolean;
+}
+
 export interface JsonToRecordParams {
     jsonString: string;
     recordName: string;

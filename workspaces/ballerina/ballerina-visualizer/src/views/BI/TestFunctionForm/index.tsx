@@ -159,7 +159,7 @@ export function TestFunctionForm() {
         const returnType = data['return'];
         const params = data['params'];
         const paramList = params ? getFunctionParametersList(params) : [];
-        const res = await rpcClient.getBIDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.TEST_FUNCTIONS, functionType: { name, returnType, parameters: paramList } });
+        const res = await rpcClient.getBIDiagramRpcClient().createComponent({ type: "testFunctions", functionType: { name, returnType, parameters: paramList } });
         setIsLoading(res.response);
     };
 

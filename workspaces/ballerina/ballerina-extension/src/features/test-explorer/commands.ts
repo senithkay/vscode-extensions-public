@@ -13,17 +13,18 @@ import { openView, StateMachine, history } from "../../stateMachine";
 import { BI_COMMANDS, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import path from "path";
 
-
 export function activateEditKolaTest() {
     // register run project tests handler
     commands.registerCommand(BI_COMMANDS.BI_EDIT_TEST_FUNCTION, async (entry: TestItem) => {
-        console.log(entry);
+        const fileUri = entry.uri.path;
 
-        const projectDir = path.join(StateMachine.context().projectUri);
-        const functionFile = path.join(projectDir, `tests`, `abc.bal`);
-
-        openView(EVENT_TYPE.OPEN_VIEW, { documentUri: functionFile, position: { startLine: 5, startColumn: 0, endLine: 7, endColumn: 1 } });
-        history.clear();
+        if (fileUri) {
+            const range = entry.range;
+            openView(EVENT_TYPE.OPEN_VIEW, { documentUri: fileUri, 
+                position: { startLine: range.start.line, startColumn: range.start.character, 
+                    endLine: range.end.line, endColumn: range.end.character } });
+            history.clear();
+        }        
     });
 
     commands.registerCommand(BI_COMMANDS.BI_ADD_TEST_FUNCTION, () => {
