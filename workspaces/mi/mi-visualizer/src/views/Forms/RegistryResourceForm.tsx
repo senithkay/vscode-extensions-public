@@ -144,7 +144,8 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
     const [resourcePaths, setResourcePaths] = useState([]);
     const [artifactNames, setArtifactNames] = useState([]);
     const [isResourceContentVisible, setIsResourceContentVisible] = useState(false);
-    const filteredPropTypes = filterTemplateCreatableTypes(props.type);
+    const templateCreatableTypes = filterTemplateCreatableTypes(props.type);
+    const initialResourceType = templateCreatableTypes.length > 0 ? templateCreatableTypes[0] : props.type ? props.type[0] : undefined;
 
     const schema = yup
         .object({
@@ -195,7 +196,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
         setValue,
         watch
     } = useForm<InputsFields>({
-        defaultValues: getInitialResource(filteredPropTypes[0]),
+        defaultValues: getInitialResource(initialResourceType),
         resolver: yupResolver(schema),
         mode: "onChange",
     });
@@ -286,7 +287,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
     }
 
     const canCreateTemplate = (): boolean => {
-        if (!props.type || filterTemplateCreatableTypes.length > 0) {
+        if (!props.type || templateCreatableTypes.length > 0) {
             return true;
         }
         return false;
