@@ -117,28 +117,30 @@ export const filterHelperPaneFunctionCompletionItems = (
 };
 
 const traverseHelperPaneCompletionItem = (
-    children: React.ReactNode[],
     level: number,
     item: HelperPaneCompletionItem,
     onChange: (value: string) => void,
     getIcon: () => React.ReactNode
-) => {
+): React.ReactNode => {
     if (!item) {
         return;
     }
 
-    children.push(
+    let childNodes: React.ReactNode[] = [];
+    for (const child of item.children) {
+        childNodes.push(traverseHelperPaneCompletionItem(level + 1, child, onChange, getIcon));
+    }
+
+    return (
         <HelperPane.CompletionItem
             label={item.label}
             onClick={() => onChange(item.insertText)}
             getIcon={getIcon}
             level={level}
-        />
-    );
-
-    for (const child of item.children) {
-        traverseHelperPaneCompletionItem(children, level + 1, child, onChange, getIcon);
-    }
+        >
+            {childNodes}
+        </HelperPane.CompletionItem>
+    )
 };
 
 /**
@@ -152,12 +154,8 @@ export const getHelperPaneCompletionItem = (
     onChange: (value: string) => void,
     getIcon: () => React.ReactNode
 ) => {
-    const children: React.ReactNode[] = [];
-
     // Apply DFS to get the item
-    traverseHelperPaneCompletionItem(children, 0, item, onChange, getIcon);
-    
-    return children;
+    return traverseHelperPaneCompletionItem(0, item, onChange, getIcon);
 };
 
 /**

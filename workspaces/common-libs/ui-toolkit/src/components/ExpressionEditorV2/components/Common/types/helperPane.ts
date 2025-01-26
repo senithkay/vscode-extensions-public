@@ -32,13 +32,13 @@ export type HelperPaneIconButtonProps = {
 
 export type HelperPaneFooterProps = PropsWithChildren<{}>;
 
-export type HelperPaneCompletionItemProps = {
+export type HelperPaneCompletionItemProps = PropsWithChildren<{
     level?: number;
     label: string;
     type?: string;
     getIcon?: () => ReactNode;
     onClick: () => void;
-};
+}>;
 
 export type HelperPaneCategoryItemProps = {
     label: string;

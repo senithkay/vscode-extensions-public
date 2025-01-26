@@ -157,6 +157,8 @@ const FooterContainer = styled.footer`
 `;
 
 const CompletionItemOuterContainer = styled.div<{ level: number }>`
+    display: flex;
+    flex-direction: column;
     margin-bottom: 2px;
     padding-left: ${({ level }: { level: number }) => level * 16}px;
 `;
@@ -168,6 +170,18 @@ const CompletionItemContainer = styled.div`
     padding: 2px;
     border-radius: 4px;
     cursor: pointer;
+`;
+
+const HorizontalLine = styled.div`
+    border-top: 1px dotted var(--vscode-editorIndentGuide-background);
+    display: flex;
+    flex: 1 1 auto;
+`;
+
+const CompletionItemWithoutCollapseContainer = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 8px;
 
     &:hover {
         background-color: var(--vscode-list-hoverBackground);
@@ -476,23 +490,46 @@ const Footer: React.FC<HelperPaneFooterProps> = ({ children }) => {
     );
 };
 
-const CompletionItem: React.FC<HelperPaneCompletionItemProps> = ({ getIcon, level = 0, label, type, onClick }) => {
+const CompletionItem: React.FC<HelperPaneCompletionItemProps> = ({ getIcon, level = 0, label, type, onClick, children }) => {
+    const [collapsed, setCollapsed] = useState<boolean>(false);
+
+    // Get the child nodes of type CompletionItem
+    const completionItems = children ? React.Children.toArray(children).filter(child => 
+        React.isValidElement(child) && (child.type as any).displayName === 'CompletionItem'
+    ) : [];
+
+    const handleCollapseClick = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setCollapsed(!collapsed);
+    };
+
     return (
         <CompletionItemOuterContainer level={level}>
-            <CompletionItemContainer onClick={onClick}>
-                {getIcon && getIcon()}
-                <Typography variant="body3" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {label}
-                </Typography>
-                {type && (
-                    <Typography variant="body3" sx={{ color: 'var(--vscode-terminal-ansiGreen)' }}>
-                        {type}
+            <CompletionItemContainer>
+                <CompletionItemWithoutCollapseContainer onClick={onClick}>
+                    {getIcon && getIcon()}
+                    <Typography variant="body3" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {label}
                     </Typography>
-                )}
+                    {type && (
+                        <Typography variant="body3" sx={{ color: 'var(--vscode-terminal-ansiGreen)' }}>
+                            {type}
+                        </Typography>
+                    )}
+                </CompletionItemWithoutCollapseContainer>
+                {completionItems.length > 0 && <HorizontalLine />}
+                {completionItems.length > 0 && (collapsed ? (
+                    <Codicon name="chevron-up" onClick={handleCollapseClick} />
+                ) : (
+                    <Codicon name="chevron-down" onClick={handleCollapseClick} />
+                ))}
             </CompletionItemContainer>
+            {!collapsed && completionItems}
         </CompletionItemOuterContainer>
     );
 };
+CompletionItem.displayName = 'CompletionItem';
 
 const CategoryItem: React.FC<HelperPaneCategoryItemProps> = ({ label, labelSx, onClick, getIcon }) => {
     return (
