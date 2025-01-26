@@ -348,7 +348,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                     filterType={(keyType as any) ?? "resource"}
                     label={element.displayName}
                     labelAdornment={helpTipElement}
-                    allowItemCreate={element.canAddNew === true || (element.canAddNew as any) === 'true'}
+                    allowItemCreate={element.canAddNew !== false || (element.canAddNew as any) !== 'false'}
                     onValueChange={field.onChange}
                     required={isRequired}
                     errorMsg={errorMsg}
@@ -371,7 +371,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                     filterType={(keyType as any) ?? "resource"}
                     label={element.displayName}
                     labelAdornment={helpTipElement}
-                    allowItemCreate={element.canAddNew === true || (element.canAddNew as any) === 'true'}
+                    allowItemCreate={element.canAddNew !== false || (element.canAddNew as any) !== 'false'}
                     onValueChange={field.onChange}
                     required={isRequired}
                     errorMsg={errorMsg}

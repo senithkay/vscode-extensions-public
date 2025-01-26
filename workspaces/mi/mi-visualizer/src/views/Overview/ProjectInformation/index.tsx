@@ -218,11 +218,11 @@ export function ProjectInformation(props: ProjectInformationProps) {
                 <div>
                     <Item>
                         <Icon name="file-code" isCodicon sx={{ marginRight: '8px' }} />
-                        <Typography>Base Image: {buildDetails.dockerDetails.dockerFileBaseImage.value}</Typography>
+                        <Typography>Base Image: {buildDetails?.dockerDetails?.dockerFileBaseImage?.value}</Typography>
                     </Item>
                     <Item>
                         <Icon name="package" isCodicon sx={{ marginRight: '8px' }} />
-                        <Typography>Docker Name: {buildDetails.dockerDetails.dockerName.value}</Typography>
+                        <Typography>Docker Name: {buildDetails?.dockerDetails?.dockerName?.value}</Typography>
                     </Item>
                 </div>
             </FormGroup>
