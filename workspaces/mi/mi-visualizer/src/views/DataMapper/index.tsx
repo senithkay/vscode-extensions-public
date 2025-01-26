@@ -18,19 +18,18 @@ import { useIOTypes } from "../../Hooks";
 interface DataMapperProps {
     filePath: string;
     functionName?: string;
-    functionIOTypes?: string;
     fileContent?: string;
-    interfacesSource?: string;
+    outerFileContent?: string;
     configName: string;
 }
 
 export function DataMapper(props: DataMapperProps) {
     const { rpcClient } = useVisualizerContext();
-    const { filePath, functionName, functionIOTypes, fileContent, interfacesSource } = props;
+    const { filePath, functionName, fileContent, outerFileContent } = props;
 
     const [isFileUpdateError, setIsFileUpdateError] = useState(false);
 
-    const { dmIOTypes, isFetchingIOTypes, isIOTypeError } = useIOTypes(filePath, functionName, functionIOTypes, interfacesSource);
+    const { dmIOTypes, isFetchingIOTypes, isIOTypeError } = useIOTypes(filePath, functionName, outerFileContent);
 
     const updateFileContent = async (newContent: string) => {
         try {
