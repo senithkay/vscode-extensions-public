@@ -240,7 +240,8 @@ import {
     RemoveConnectorRequest,
     RemoveConnectorResponse,
     TestConnectorConnectionRequest,
-    TestConnectorConnectionResponse
+    TestConnectorConnectionResponse,
+    MiVersionResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -267,8 +268,8 @@ import { openSwaggerWebview } from "../../swagger/activate";
 import { testFileMatchPattern } from "../../test-explorer/discover";
 import { mockSerivesFilesMatchPattern } from "../../test-explorer/mock-services/activator";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { copyDockerResources, copyMavenWrapper, createFolderStructure, getAPIResourceXmlWrapper, getAddressEndpointXmlWrapper, getDataServiceXmlWrapper, getDefaultEndpointXmlWrapper, getDssDataSourceXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper, createGitignoreFile } from "../../util";
-import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
+import { copyDockerResources, copyMavenWrapper, createFolderStructure, getAPIResourceXmlWrapper, getAddressEndpointXmlWrapper, getDataServiceXmlWrapper, getDefaultEndpointXmlWrapper, getDssDataSourceXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper, createGitignoreFile, getEditTemplateXmlWrapper } from "../../util";
+import { addNewEntryToArtifactXML, changeRootPomForClassMediator, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
 import { getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
@@ -281,7 +282,7 @@ import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 import { importCapp } from "../../util/importCapp";
-import { getDefaultProjectPath } from "../../util/onboardingUtils";
+import { getDefaultProjectPath, getMIVersionFromPom } from "../../util/onboardingUtils";
 import { Range as STRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 const AdmZip = require('adm-zip');
@@ -344,6 +345,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.shutdownTryoutServer();
             resolve(res);
+        });
+    }
+
+    async getMIVersionFromPom(): Promise<MiVersionResponse> {
+        return new Promise(async (resolve) => {
+            const res = await getMIVersionFromPom();
+            resolve({ version: res ?? '' });
         });
     }
 
@@ -948,8 +956,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             let { directory, name, type, value, URL } = params;
             const xmlData = generateXmlData(name, type, value, URL);
 
-            if (directory.includes('localEntries') || directory.includes('local entries')) {
-                directory = directory.replace('localEntries', 'local-entries').replace('local entries', 'local-entries');
+            if (directory.includes('localEntries')) {
+                directory = directory.replace('localEntries', 'local-entries');
             }
             const filePath = await this.getFilePath(directory, name);
 
@@ -1022,8 +1030,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const xmlData = getMessageStoreXmlWrapper(getTemplateParams);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
-            if (getTemplateParams.directory.includes('messageStores') || getTemplateParams.directory.includes('message stores')) {
-                getTemplateParams.directory = getTemplateParams.directory.replace('messageStores', 'message-stores').replace('message stores', 'message-stores');
+            if (getTemplateParams.directory.includes('messageStores')) {
+                getTemplateParams.directory = getTemplateParams.directory.replace('messageStores', 'message-stores');
             }
             const filePath = await this.getFilePath(getTemplateParams.directory, getTemplateParams.name);
 
@@ -1632,11 +1640,19 @@ ${endpointAttributes}
                 wsdlUri, wsdlService, wsdlPort, traceEnabled, statisticsEnabled, parameters
             };
 
-            const xmlData = getTemplateXmlWrapper(getTemplateParams);
-            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+            let xmlData = getTemplateXmlWrapper(getTemplateParams);
+            let sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
+            } else if (params.isEdit && params.range) {
+                const filePath = await this.getFilePath(directory, templateName);
+                xmlData = getEditTemplateXmlWrapper(getTemplateParams);
+                this.applyEdit({
+                    text: xmlData,
+                    documentUri: filePath,
+                    range: params.range
+                });
             } else {
                 const filePath = await this.getFilePath(directory, templateName);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
@@ -2265,8 +2281,8 @@ ${endpointAttributes}
                 const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
                 filePath = path.join(directory, `${dataServiceName}.dbs`);
-                if (filePath.includes('dataServices') || filePath.includes('data services')) {
-                    filePath = filePath.replace('dataServices', 'data-services').replace('data services', 'data-services');
+                if (filePath.includes('dataServices')) {
+                    filePath = filePath.replace('dataServices', 'data-services');
                 }
 
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
@@ -2299,8 +2315,8 @@ ${endpointAttributes}
             };
 
             let filePath = params.directory;
-            if (filePath.includes('dataServices') || filePath.includes('data services')) {
-                filePath = filePath.replace('dataServices', 'data-services').replace('data services', 'data-services');
+            if (filePath.includes('dataServices')) {
+                filePath = filePath.replace('dataServices', 'data-services');
             }
 
             const xmlData = getDataServiceXmlWrapper({ ...getDataServiceParams, writeType: "edit" });
@@ -2356,8 +2372,8 @@ ${endpointAttributes}
             }
 
             let filePath = directory;
-            if (filePath.includes('dataServices') || filePath.includes('data services')) {
-                filePath = filePath.replace('dataServices', 'data-services').replace('data services', 'data-services');
+            if (filePath.includes('dataServices')) {
+                filePath = filePath.replace('dataServices', 'data-services');
             }
 
             const xmlData = getDssDataSourceXmlWrapper(getDssDataSourceParams);
@@ -2564,8 +2580,8 @@ ${endpointAttributes}
             const xmlData = getMessageProcessorXmlWrapper(getTemplateParams);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
-            if (directory.includes('messageProcessors') || directory.includes('message processors')) {
-                directory = directory.replace('messageProcessors', 'message-processors').replace('message processors', 'message-processors');
+            if (directory.includes('messageProcessors')) {
+                directory = directory.replace('messageProcessors', 'message-processors');
             }
             const filePath = await this.getFilePath(directory, messageProcessorName);
 
@@ -2837,6 +2853,7 @@ ${endpointAttributes}
             const folderStructure: FileStructure = {
                 [name]: { // Project folder
                     'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", artifactID ?? name, projectUuid, version ?? DEFAULT_PROJECT_VERSION, miVersion),
+                    '.env': '',
                     'src': {
                         'main': {
                             'java': '',
@@ -2858,6 +2875,9 @@ ${endpointAttributes}
                                 'resources': {
                                     'connectors': '',
                                     'metadata': '',
+                                    'conf': {
+                                        'config.properties': ''
+                                    },
                                 },
                             },
                         },
@@ -2876,7 +2896,7 @@ ${endpointAttributes}
                 },
             };
 
-            createFolderStructure(directory, folderStructure);
+            await createFolderStructure(directory, folderStructure);
             copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), path.join(directory, name));
             copyMavenWrapper(extension.context.asAbsolutePath(path.join('resources', 'maven-wrapper')), path.join(directory, name));
             await createGitignoreFile(path.join(directory, name));
@@ -3510,17 +3530,38 @@ ${endpointAttributes}
 
     async createRegistryResource(params: CreateRegistryResourceRequest): Promise<CreateRegistryResourceResponse> {
         return new Promise(async (resolve) => {
-            let artifactName = ('resources/' + params.registryPath).replace(new RegExp('/', 'g'), "_").replace(/_+/g, '_');
+            const artifactNamePrefix = params.registryRoot === '' ? 'resources/' : params.registryRoot + '/';
+            let artifactName = (artifactNamePrefix + params.registryPath).replace(new RegExp('/', 'g'), "_").replace(/_+/g, '_');
 
             let projectDir = params.projectDirectory;
             const fileUri = Uri.file(params.projectDirectory);
             const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
             if (workspaceFolder) {
                 params.projectDirectory = workspaceFolder?.uri.fsPath;
-                projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources');
+                if (params.registryRoot === '') {
+                    projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources');
+                } else {
+                    projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
+                }
+            }
+            const getTransformedRegistryRoot = (registryRoot: string) => {
+                if (registryRoot === '') {
+                    return "/_system/governance/mi-resources";
+                } else if (registryRoot === 'gov') {
+                    return "/_system/governance";
+                } else {
+                    return "/_system/config";
+                }
+            }
+            const refreshRegistryResource = (registryRoot: string) => {
+                if (registryRoot === '') {
+                    commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                } else {
+                    commands.executeCommand(COMMANDS.REFRESH_REGISTRY_COMMAND);
+                }
             }
             let registryDir = path.join(projectDir, params.registryRoot);
-            let transformedPath = "/_system/governance/mi-resources";
+            let transformedPath = getTransformedRegistryRoot(params.registryRoot);;
             if (params.createOption === "import") {
                 if (fs.existsSync(params.filePath)) {
                     const fileName = path.basename(params.filePath);
@@ -3537,15 +3578,15 @@ ${endpointAttributes}
                         transformedPath = path.join(transformedPath, params.registryPath, fileName);
                         transformedPath = transformedPath.split(path.sep).join("/");
                         createMetadataFilesForRegistryCollection(destPath, transformedPath);
-                        addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, "", true);
+                        addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, "", true, params.registryRoot !== "");
                     } else {
                         fs.copyFileSync(params.filePath, destPath);
                         transformedPath = path.join(transformedPath, params.registryPath);
                         transformedPath = transformedPath.split(path.sep).join("/");
                         const mediaType = await detectMediaType(params.filePath);
-                        addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, mediaType, false);
+                        addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, mediaType, false, params.registryRoot !== "");
                     }
-                    commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                    refreshRegistryResource(params.registryRoot);
                     resolve({ path: destPath });
                 }
             } else if (params.createOption === 'entryOnly') {
@@ -3561,8 +3602,8 @@ ${endpointAttributes}
                 //add the new entry to artifact.xml
                 transformedPath = path.join(transformedPath, params.registryPath);
                 transformedPath = transformedPath.split(path.sep).join("/");
-                addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false);
-                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false, params.registryRoot !== "");
+                refreshRegistryResource(params.registryRoot);
                 resolve({ path: destPath });
 
             } else {
@@ -3580,8 +3621,8 @@ ${endpointAttributes}
                 //add the new entry to artifact.xml
                 transformedPath = path.join(transformedPath, params.registryPath);
                 transformedPath = transformedPath.split(path.sep).join("/");
-                addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false);
-                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false, params.registryRoot !== "");
+                refreshRegistryResource(params.registryRoot);
                 resolve({ path: destPath });
             }
         });
@@ -3609,10 +3650,8 @@ ${endpointAttributes}
             fs.mkdirSync(fullPath, { recursive: true });
             const filePath = path.join(fullPath, `${params.className}.java`);
             await replaceFullContentToFile(filePath, content);
-            const fileUri = Uri.file(params.projectDirectory);
-            const workspaceFolder = workspace.getWorkspaceFolder(fileUri)?.uri.fsPath ?? workspace.getWorkspaceFolder[0].uri.fsPath;
-            changeRootPomPackaging(workspaceFolder, "jar");
-            addSynapseDependency(workspaceFolder);
+
+            await changeRootPomForClassMediator();
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
@@ -3685,7 +3724,7 @@ ${endpointAttributes}
     async migrateProject({ source }: MigrateProjectRequest): Promise<MigrateProjectResponse> {
         return new Promise(async (resolve) => {
             if (source) {
-                importProject({ source, directory: source, open: true });
+                await importProject({ source, directory: source, open: true });
                 resolve({ filePath: source });
             }
         });
@@ -3743,8 +3782,10 @@ ${endpointAttributes}
                     resolve({ inboundConnectors: connectorCache.get('inbound-connector-data'), outboundConnectors: connectorCache.get('outbound-connector-data'), connectors: connectorCache.get('connectors') });
                     return;
                 }
+                const runtimeVersion = await getMIVersionFromPom();
+
                 const response = await fetch(APIS.CONNECTOR);
-                const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE);
+                const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE.replace('${version}', runtimeVersion ?? ''));
                 const data = await response.json();
                 const connectorStoreData = await connectorStoreResponse.json();
                 if (data && data['inbound-connector-data'] && data['outbound-connector-data']) {
@@ -4994,7 +5035,8 @@ ${keyValuesXML}`;
 
                 await this.applyEdit({
                     documentUri: param.documentUri,
-                    edits
+                    edits,
+                    disableUndoRedo: true
                 });
 
                 let document = workspace.textDocuments.find(doc => doc.uri.fsPath === param.documentUri);

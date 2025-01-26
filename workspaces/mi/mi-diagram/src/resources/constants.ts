@@ -124,6 +124,10 @@ export const NODE_DIMENSIONS = {
         DISABLED: {
             WIDTH: 24,
             HEIGHT: 24,
+        },
+        ACTIONED: {
+            WIDTH: 65,
+            HEIGHT: 30,
         }
     },
     CONDITION: {
@@ -152,8 +156,8 @@ export const NODE_DIMENSIONS = {
         },
     },
     END: {
-        WIDTH: 23,
-        HEIGHT: 21,
+        WIDTH: 24,
+        HEIGHT: 24,
     },
     PLUS: {
         WIDTH: 24,
@@ -296,8 +300,8 @@ export const DATA_SERVICE = {
 
 export const APIS = {
     CONNECTOR: "https://apis.wso2.com/connector-store/connector-details",
-    CONNECTORS_STORE: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?offset=0&product=MI&type=Connector",
-    CONNECTOR_SEARCH: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=10&offset=0&searchQuery=${searchValue}&type=Connector&product=MI"
+    CONNECTORS_STORE: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?offset=0&product=MI&type=Connector&runtimeVersion=${version}",
+    CONNECTOR_SEARCH: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=10&offset=0&searchQuery=${searchValue}&type=Connector&product=MI&runtimeVersion=${version}"
 }
 
 export const ERROR_MESSAGES = {
@@ -328,3 +332,4 @@ export const REACT_JSON_THEME = {
     base0F: "var(--webview-highlight-color)"
 };
 export const DEFAULT_ICON = "https://mi-connectors.wso2.com/icons/wordpress.gif";
+export const RUNTIME_VERSION_440 = "4.4.0";

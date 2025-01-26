@@ -18,7 +18,7 @@ import { getMessageProcessorXml, MessageProcessorTemplateArgs } from './template
 import { getProxyServiceXml, ProxyServiceTemplateArgs } from './template-engine/mustach-templates/ProxyService';
 import { GetTaskTemplatesArgs, getTaskXml } from './template-engine/mustach-templates/tasks';
 import { getMessageStoreXml, GetMessageStoreTemplatesArgs } from './template-engine/mustach-templates/messageStore';
-import { getTemplateXml, TemplateArgs } from './template-engine/mustach-templates/Template';
+import { getEditTemplateXml, getTemplateXml, TemplateArgs } from './template-engine/mustach-templates/Template';
 import { getHttpEndpointXml, HttpEndpointArgs } from './template-engine/mustach-templates/HttpEndpoint';
 import { getAddressEndpointXml, AddressEndpointArgs } from './template-engine/mustach-templates/AddressEndpoint';
 import { getWsdlEndpointXml, WsdlEndpointArgs } from './template-engine/mustach-templates/WsdlEndpoint';
@@ -41,17 +41,17 @@ export function getComposerJSFiles(context: ExtensionContext, componentName: str
 	];
 }
 
-export function createFolderStructure(targetPath: string, structure: FileStructure) {
+export async function createFolderStructure(targetPath: string, structure: FileStructure) {
 	for (const [key, value] of Object.entries(structure)) {
 		const fullPath = path.join(targetPath, key);
 
 		if (key.includes('.') || key === 'Dockerfile') {
 			// If it's a file, create the file
-			fs.writeFileSync(fullPath, value as string);
+			await fs.promises.writeFile(fullPath, value as string);
 		} else {
 			// If it's a directory, create the directory and recurse
-			fs.mkdirSync(fullPath, { recursive: true });
-			createFolderStructure(fullPath, value as FileStructure);
+			await fs.promises.mkdir(fullPath, { recursive: true });
+			await createFolderStructure(fullPath, value as FileStructure);
 		}
 	}
 }
@@ -177,6 +177,10 @@ export function getMessageStoreXmlWrapper(props: GetMessageStoreTemplatesArgs) {
 
 export function getTemplateXmlWrapper(props: TemplateArgs) {
 	return getTemplateXml(props);
+}
+
+export function getEditTemplateXmlWrapper(props: TemplateArgs) {
+	return getEditTemplateXml(props);
 }
 
 export function getHttpEndpointXmlWrapper(props: HttpEndpointArgs) {

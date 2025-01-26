@@ -78,6 +78,7 @@ export interface Element {
     initialSeparator?: string;
     secondarySeparator?: string;
     keyValueSeparator?: string;
+    expressionType?: 'xpath/jsonPath' | 'synapse';
 }
 
 interface ExpressionValueWithSetter {
@@ -208,6 +209,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 placeholder={element.placeholder}
                 nodeRange={range}
                 canChange={element.inputType !== 'expression'}
+                expressionType={element.expressionType}
                 errorMsg={errorMsg}
                 openExpressionEditor={(value, setValue) => {
                     setCurrentExpressionValue({ value, setValue });
@@ -301,7 +303,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                         {...field}
                         label={element.displayName}
                         labelAdornment={helpTipElement}
-                        checked={field.value}
+                        checked={typeof field.value === 'boolean' ? field.value  : field.value === 'true' ? true : false }
                     />
                 );
             case 'stringOrExpression':
@@ -337,8 +339,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 let onCreateButtonClick;
                 if (!Array.isArray(keyType)) {
                     onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
-                        const resolvedView = element.inputType === 'registry' || element.inputType === 'resource' || element.inputType === 'resourceOrExpression' ? "addResource" : element.keyType;
-                        openPopup(rpcClient, resolvedView, fetchItems, handleValueChange, undefined, { type: keyType });
+                        openPopup(rpcClient, element.keyType, fetchItems, handleValueChange, undefined, { type: keyType });
                     }
                 }
 
@@ -370,7 +371,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                     filterType={(keyType as any) ?? "resource"}
                     label={element.displayName}
                     labelAdornment={helpTipElement}
-                    allowItemCreate={element.canAddNew === true || (element.canAddNew as any) === 'true'}
+                    allowItemCreate={element.canAddNew !== false || (element.canAddNew as any) !== 'false'}
                     onValueChange={field.onChange}
                     required={isRequired}
                     errorMsg={errorMsg}
@@ -594,8 +595,9 @@ export function FormGenerator(props: FormGeneratorProps) {
                         display: "flex",
                         flexDirection: 'row'
                     }}>
-                        {typeof formData.help === 'string' && formData.help.includes('<')
-                            ? <div dangerouslySetInnerHTML={{ __html: formData.help }} />
+                        {typeof formData.help === 'string' && formData.help.includes('<') ? 
+                            // <div dangerouslySetInnerHTML={{ __html: formData.help }} /> Enable when forms are fixed
+                            null
                             : <Typography variant="body3">{formData.help}</Typography>
                         }
                         {formData.doc && <a href={formData.doc}><Icon name="question" isCodicon iconSx={{ fontSize: '18px' }} sx={{ marginLeft: '5px', cursor: 'help' }} /></a>}

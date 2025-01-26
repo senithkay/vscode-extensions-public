@@ -261,7 +261,8 @@ import {
     RemoveConnectorRequest,
     removeConnector,
     TestConnectorConnectionRequest,
-    testConnectorConnection
+    testConnectorConnection,
+    getMIVersionFromPom
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -392,6 +393,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(updateMockService, (args: UpdateMockServiceRequest) => rpcManger.updateMockService(args));
     messenger.onRequest(getAllTestSuites, () => rpcManger.getAllTestSuites());
     messenger.onRequest(getAllMockServices, () => rpcManger.getAllMockServices());
+    messenger.onRequest(getMIVersionFromPom, () => rpcManger.getMIVersionFromPom());
     messenger.onNotification(openDependencyPom, (args: OpenDependencyPomRequest) => rpcManger.openDependencyPom(args));
     messenger.onRequest(getAllDependencies, (args: getAllDependenciesRequest) => rpcManger.getAllDependencies(args));
     messenger.onRequest(testDbConnection, (args: TestDbConnectionRequest) => rpcManger.testDbConnection(args));

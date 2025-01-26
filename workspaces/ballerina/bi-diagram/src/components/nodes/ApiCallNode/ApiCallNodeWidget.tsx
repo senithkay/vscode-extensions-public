@@ -60,7 +60,8 @@ export namespace NodeStyles {
         border-color: ${(props: NodeStyleProp) =>
             props.hasError ? Colors.ERROR : props.hovered && !props.disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
         border-radius: 10px;
-        background-color: ${(props: NodeStyleProp) => props?.isActiveBreakpoint ? Colors.DEBUGGER_BREAKPOINT_BACKGROUND : Colors.SURFACE_DIM};
+        background-color: ${(props: NodeStyleProp) =>
+            props?.isActiveBreakpoint ? Colors.DEBUGGER_BREAKPOINT_BACKGROUND : Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
     `;
 
@@ -186,11 +187,12 @@ interface ApiCallNodeWidgetProps {
     onClick?: (node: FlowNode) => void;
 }
 
-export interface NodeWidgetProps extends Omit<ApiCallNodeWidgetProps, "children"> { }
+export interface NodeWidgetProps extends Omit<ApiCallNodeWidgetProps, "children"> {}
 
 export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { onNodeSelect, onConnectionSelect, goToSource, onDeleteNode, removeBreakpoint, addBreakpoint } = useDiagramContext();
+    const { onNodeSelect, onConnectionSelect, goToSource, onDeleteNode, removeBreakpoint, addBreakpoint, readOnly } =
+        useDiagramContext();
 
     const [isBoxHovered, setIsBoxHovered] = useState(false);
     const [isCircleHovered, setIsCircleHovered] = useState(false);
@@ -245,12 +247,12 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     const onAddBreakpoint = () => {
         addBreakpoint && addBreakpoint(model.node);
         setAnchorEl(null);
-    }
+    };
 
     const onRemoveBreakpoint = () => {
         removeBreakpoint && removeBreakpoint(model.node);
         setAnchorEl(null);
-    }
+    };
 
     const menuItems: Item[] = [
         {
@@ -277,7 +279,16 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                 onMouseLeave={() => setIsBoxHovered(false)}
             >
                 {hasBreakpoint && (
-                    <div style={{ position: "absolute", left: -5, width: 15, height: 15, borderRadius: "50%", backgroundColor: "red" }} />
+                    <div
+                        style={{
+                            position: "absolute",
+                            left: -5,
+                            width: 15,
+                            height: 15,
+                            borderRadius: "50%",
+                            backgroundColor: "red",
+                        }}
+                    />
                 )}
                 <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
                 <NodeStyles.Row>
@@ -291,9 +302,11 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                         </NodeStyles.Header>
                         <NodeStyles.ActionButtonGroup>
                             {hasError && <DiagnosticsPopUp node={model.node} />}
-                            <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
-                                <MoreVertIcon />
-                            </NodeStyles.MenuButton>
+                            {!readOnly && (
+                                <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
+                                    <MoreVertIcon />
+                                </NodeStyles.MenuButton>
+                            )}
                         </NodeStyles.ActionButtonGroup>
                     </NodeStyles.Row>
                     {/* <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>

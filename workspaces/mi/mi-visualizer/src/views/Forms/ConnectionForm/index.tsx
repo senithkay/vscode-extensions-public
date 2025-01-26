@@ -270,10 +270,11 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
 
     function filterStoreConnectionsFromLocal(displayedStoreConnectors: any, displayedLocalConnectors: any) {
         return displayedStoreConnectors.filter((connector: any) =>
-            !displayedLocalConnectors.some((c: any) =>
-                c.name.toLowerCase() === connector.connectorName.toLowerCase() &&
-                c.version === connector.version.tagName
-            )
+            !displayedLocalConnectors.some((c: any) => {
+                const displayName = c.displayName ?? c.name;
+                return displayName.toLowerCase() === connector.connectorName.toLowerCase() &&
+                    c.version === connector.version.tagName;
+            })
         );
     }
 
@@ -331,12 +332,14 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
             // Render connection form
             setIsGeneratingForm(true);
 
-            if (response === "Success") {
+            if (response === "Success" || !response.includes(conOnconfirmation.connector.mavenArtifactId)) {
                 const connectorName = conOnconfirmation.connector.connectorName;
-                const connectionType = conOnconfirmation.connectionType.toUpperCase();
+                const connectionType = conOnconfirmation.connectionType;
                 const connector = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.path, connectorName: connectorName.toLowerCase() });
 
-                setSelectedConnectionType({ connector, connectionType });
+                if (connector) {
+                    setSelectedConnectionType({ connector, connectionType });
+                }
                 fetchLocalConnectorData();
                 setConOnconfirmation(undefined);
             } else {
@@ -354,9 +357,9 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
         // Download Connector
         const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
 
-        if (response === "Success") {
+        if (response === "Success" || !response.includes(conOnconfirmation.connector.mavenArtifactId)) {
             const connectorName = conOnconfirmation.connector.connectorName;
-            const connectionType = conOnconfirmation.connectionType.toUpperCase();
+            const connectionType = conOnconfirmation.connectionType;
             const connector = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.path, connectorName: connectorName.toLowerCase() });
 
             setSelectedConnectionType({ connector, connectionType });
@@ -406,7 +409,9 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                         <SampleGrid>
                             {displayedLocalConnectors && displayedLocalConnectors.map((connector: any) => (
                                 Object.entries(connector.connectionUiSchema).map(([connectionType, schemaPath]) => (
-                                    (allowedConnectionTypes && !allowedConnectionTypes.includes(connectionType)) ? null : (
+                                    (allowedConnectionTypes && !allowedConnectionTypes.some(
+                                        type => type.toLowerCase() === connectionType.toLowerCase() // Ignore case on allowedtype check
+                                    )) ? null : (
                                         <ComponentCard
                                             key={connectionType}
                                             onClick={() => selectConnectionType(connector, connectionType)}
@@ -566,16 +571,16 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                                         <Typography variant="body2">Dependencies will be added to the project. Do you want to continue?</Typography>
                                         <FormActions>
                                             <Button
-                                                appearance="primary"
-                                                onClick={() => handleDependencyResponse(true)}
-                                            >
-                                                Yes
-                                            </Button>
-                                            <Button
                                                 appearance="secondary"
                                                 onClick={() => handleDependencyResponse(false)}
                                             >
                                                 No
+                                            </Button>
+                                            <Button
+                                                appearance="primary"
+                                                onClick={() => handleDependencyResponse(true)}
+                                            >
+                                                Yes
                                             </Button>
                                         </FormActions>
                                     </div>

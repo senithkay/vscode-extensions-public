@@ -30,7 +30,7 @@ export class BaseNodeModel extends NodeModel {
 
     constructor(type: NodeTypes, mediatorName: string, documentUri: string, stNode: STNode, parentNode?: STNode, prevNodes: STNode[] = []) {
         super({
-            id: stNode.viewState?.id || getNodeIdFromModel(stNode),
+            id: stNode.viewState?.id || getNodeIdFromModel(stNode, type === NodeTypes.START_NODE ? "start" : undefined),
             type: type,
             locked: true,
         });

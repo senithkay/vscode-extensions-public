@@ -13,6 +13,7 @@ import React, { useEffect, useState } from 'react';
 import { FirstCharToUpperCase } from '../../../utils/commons';
 import styled from '@emotion/styled';
 import { DEFAULT_ICON } from '../../../resources/constants';
+import { ConnectorDependency } from '@wso2-enterprise/mi-core';
 
 
 const ButtonGrid = styled.div`
@@ -68,8 +69,10 @@ interface ButtonroupProps {
     iconUri?: string;
     versionTag?: string;
     onDownload?: any;
+    connectorDetails?: ConnectorDependency;
+    onDelete?: (connectorName: string, artifactId: string, version: string, iconUrl: string) => void;
 }
-export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isCollapsed = true, iconUri, versionTag, onDownload }) => {
+export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isCollapsed = true, iconUri, versionTag, onDownload, connectorDetails, onDelete }) => {
     const [collapsed, setCollapsed] = useState(isCollapsed);
 
     useEffect(() => {
@@ -131,6 +134,13 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isColl
                             </VersionTag>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                            {connectorDetails &&
+                                <DownloadIconContainer 
+                                onClick={() => onDelete(title, connectorDetails.artifactId, connectorDetails.version, iconUri)} 
+                                className="download-icon">
+                                    <Codicon name="trash" iconSx={{ fontSize: 25 }} />
+                                </DownloadIconContainer>
+                            }
                             {onDownload &&
                                 <DownloadIconContainer onClick={onDownload} className="download-icon">
                                     <Codicon name="desktop-download" iconSx={{ fontSize: 25 }} />

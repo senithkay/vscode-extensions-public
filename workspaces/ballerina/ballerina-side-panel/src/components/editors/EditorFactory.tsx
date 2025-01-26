@@ -9,7 +9,7 @@
 
 import React from "react";
 
-import { NodeKind, SubPanel } from "@wso2-enterprise/ballerina-core";
+import { NodeKind, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 
 import { FormField } from "../Form/types";
 import { MultiSelectEditor } from "./MultiSelectEditor";
@@ -19,23 +19,36 @@ import { ContextAwareExpressionEditor } from "./ExpressionEditor";
 import { FormExpressionEditorRef } from "@wso2-enterprise/ui-toolkit";
 import { ParamManagerEditor } from "../ParamManager/ParamManager";
 import { DropdownEditor } from "./DropdownEditor";
+import { FileSelect } from "./FileSelect";
 import { CheckBoxEditor } from "./CheckBoxEditor";
 import { ArrayEditor } from "./ArrayEditor";
 import { MapEditor } from "./MapEditor";
+import { ChoiceForm } from "./ChoiceForm";
 
 interface FormFieldEditorProps {
     field: FormField;
     selectedNode?: NodeKind;
     openRecordEditor?: (open: boolean) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
-    isActiveSubPanel?: boolean;
+    subPanelView?: SubPanelView;
     handleOnFieldFocus?: (key: string) => void;
     autoFocus?: boolean;
+    handleOnTypeChange?: () => void;
+    visualizableFields?: string[];
 }
 
 export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormFieldEditorProps>((props, ref) => {
-    const { field, selectedNode, openRecordEditor, openSubPanel, isActiveSubPanel, handleOnFieldFocus, autoFocus } =
-        props;
+    const {
+        field,
+        selectedNode,
+        openRecordEditor,
+        openSubPanel,
+        subPanelView,
+        handleOnFieldFocus,
+        autoFocus,
+        handleOnTypeChange,
+        visualizableFields
+    } = props;
 
     if (field.type === "MULTIPLE_SELECT") {
         let label: string;
@@ -47,7 +60,9 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
                 label = "Add Another";
                 break;
         }
-        return <MultiSelectEditor field={field} label={label} />;
+        return <MultiSelectEditor field={field} label={label} openSubPanel={openSubPanel} />;
+    } else if (field.type === "CHOICE") {
+        return <ChoiceForm field={field} />;
     } else if (field.type === "EXPRESSION_SET") {
         return <ArrayEditor field={field} label={"Add Another Value"} />;
     } else if (field.type === "MAPPING_EXPRESSION_SET") {
@@ -60,6 +75,8 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
     } else if (field.type.toUpperCase() === "ENUM") {
         // Enum is a dropdown field
         return <DropdownEditor field={field} />;
+    } else if (field.type === "FILE_SELECT" && field.editable) {
+        return <FileSelect field={field} />;
     } else if (field.type === "SINGLE_SELECT" && field.editable) {
         // HACK:Single select field is treat as type editor for now
         return <DropdownEditor field={field} />;
@@ -71,6 +88,7 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
                 openRecordEditor={openRecordEditor}
                 handleOnFieldFocus={handleOnFieldFocus}
                 autoFocus={autoFocus}
+                handleOnTypeChange={handleOnTypeChange}
             />
         );
     } else if (!field.items && field.type === "EXPRESSION" && field.editable) {
@@ -80,9 +98,10 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
                 ref={ref}
                 field={field}
                 openSubPanel={openSubPanel}
-                isActiveSubPanel={isActiveSubPanel}
+                subPanelView={subPanelView}
                 handleOnFieldFocus={handleOnFieldFocus}
                 autoFocus={autoFocus}
+                visualizable={visualizableFields?.includes(field.key)}
             />
         );
     } else if (field.type === "VIEW") {

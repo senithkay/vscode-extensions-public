@@ -10,6 +10,7 @@
  */
 import {
     AIChatRequest,
+    AddFunctionRequest,
     BIAiSuggestionsRequest,
     BIAvailableNodesRequest,
     BIConnectorsRequest,
@@ -22,19 +23,20 @@ import {
     BreakpointRequest,
     ComponentRequest,
     ComponentsRequest,
-    FormDidCloseParams,
-    FormDidOpenParams,
     ExpressionCompletionsRequest,
     ExpressionDiagnosticsRequest,
+    FormDidCloseParams,
+    FormDidOpenParams,
     ProjectRequest,
     ReadmeContentRequest,
     SignatureHelpRequest,
     UpdateConfigVariableRequest,
+    UpdateImportsRequest,
     VisibleTypesRequest,
     addBreakpointToSource,
+    addFunction,
     buildProject,
     createComponent,
-    createComponents,
     createProject,
     deleteByComponentInfo,
     deleteFlowNode,
@@ -47,6 +49,7 @@ import {
     getBIConnectors,
     getBreakpointInfo,
     getConfigVariables,
+    getDesignModel,
     getEnclosedFunction,
     getExpressionCompletions,
     getExpressionDiagnostics,
@@ -68,6 +71,7 @@ import {
     removeBreakpointFromSource,
     runProject,
     updateConfigVariables,
+    updateImports
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { BiDiagramRpcManager } from "./rpc-manager";
@@ -90,7 +94,6 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(createComponent, (args: ComponentRequest) => rpcManger.createComponent(args));
     messenger.onRequest(getBIConnectors, (args: BIConnectorsRequest) => rpcManger.getBIConnectors(args));
     messenger.onRequest(handleReadmeContent, (args: ReadmeContentRequest) => rpcManger.handleReadmeContent(args));
-    messenger.onRequest(createComponents, (args: ComponentsRequest) => rpcManger.createComponents(args));
     messenger.onRequest(getVisibleVariableTypes, (args: BIGetVisibleVariableTypesRequest) => rpcManger.getVisibleVariableTypes(args));
     messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));
     messenger.onRequest(getConfigVariables, () => rpcManger.getConfigVariables());
@@ -111,4 +114,7 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAllImports, () => rpcManger.getAllImports());
     messenger.onRequest(formDidOpen, (args: FormDidOpenParams) => rpcManger.formDidOpen(args));
     messenger.onRequest(formDidClose, (args: FormDidCloseParams) => rpcManger.formDidClose(args));
+    messenger.onRequest(getDesignModel, () => rpcManger.getDesignModel());
+    messenger.onRequest(updateImports, (args: UpdateImportsRequest) => rpcManger.updateImports(args));
+    messenger.onRequest(addFunction, (args: AddFunctionRequest) => rpcManger.addFunction(args));
 }

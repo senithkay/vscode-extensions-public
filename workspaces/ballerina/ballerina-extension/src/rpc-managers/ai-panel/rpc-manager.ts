@@ -34,6 +34,7 @@ import {
     PostProcessRequest,
     PostProcessResponse,
     ProjectDiagnostics,
+    ProjectModule,
     ProjectSource,
     STModification,
     SourceFile,
@@ -359,7 +360,8 @@ export class AiPanelRpcManager implements AIPanelAPI {
 
         // Initialize the ProjectSource object
         const projectSource: ProjectSource = {
-            sourceFiles: []
+            sourceFiles: [],
+            projectModules: []
         };
 
         // Iterate through root-level sources
@@ -367,15 +369,21 @@ export class AiPanelRpcManager implements AIPanelAPI {
             projectSource.sourceFiles.push({ filePath, content });
         }
 
-        // // Iterate through module sources
-        // if (project.modules) {
-        //     for (const module of project.modules) {
-        //         for (const [fileName, content] of Object.entries(module.sources)) {
-        //             const filePath = `modules/${module.moduleName}/${fileName}`;
-        //             projectSource.sourceFiles.push({ filePath, content });
-        //         }
-        //     }
-        // }
+        // Iterate through module sources
+        if (project.modules) {
+            for (const module of project.modules) {
+                const projectModule: ProjectModule = {
+                    moduleName: module.moduleName,
+                    sourceFiles: []
+                };
+                for (const [fileName, content] of Object.entries(module.sources)) {
+                    // const filePath = `modules/${module.moduleName}/${fileName}`;
+                    // projectSource.sourceFiles.push({ filePath, content });
+                    projectModule.sourceFiles.push({ filePath: fileName, content });
+                }
+                projectSource.projectModules.push(projectModule);
+            }
+        }
 
         return projectSource;
     }

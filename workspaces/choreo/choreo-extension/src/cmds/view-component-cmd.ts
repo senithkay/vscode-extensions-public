@@ -9,7 +9,7 @@
 
 import { existsSync } from "fs";
 import * as path from "path";
-import { CommandIds, type ViewComponentDetailsReq } from "@wso2-enterprise/choreo-core";
+import { CommandIds, type ViewComponentDetailsReq, getComponentKindRepoSource } from "@wso2-enterprise/choreo-core";
 import { type ExtensionContext, commands, window } from "vscode";
 import { contextStore } from "../stores/context-store";
 import { showComponentDetailsView } from "../webviews/ComponentDetailsView";
@@ -61,11 +61,11 @@ export function viewComponentCommand(context: ExtensionContext) {
 						for (const item of contextItems) {
 							if (item.orgHandle === selectedOrg.handle && item.projectHandle === selectedProject.handler) {
 								const matchingCts = item.contextDirs.find((ctxItem) => {
-									const componentPath = path.join(ctxItem.projectRootFsPath, selectedComponent.spec.source.github?.path!);
+									const componentPath = path.join(ctxItem.projectRootFsPath, getComponentKindRepoSource(selectedComponent.spec.source).path);
 									return existsSync(componentPath);
 								});
 								if (matchingCts) {
-									matchingPath = path.join(matchingCts.projectRootFsPath, selectedComponent.spec.source.github?.path!);
+									matchingPath = path.join(matchingCts.projectRootFsPath, getComponentKindRepoSource(selectedComponent.spec.source).path);
 									break;
 								}
 							}

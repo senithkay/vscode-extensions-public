@@ -51,15 +51,16 @@ export enum MACHINE_VIEW {
     BIWelcome = "BI Welcome",
     BIProjectForm = "BI Project Form",
     BIComponentView = "BI Component View",
-    BIServiceForm = "BI Service Form",
     AddConnectionWizard = "Add Connection Wizard",
-    AddTriggerWizard = "Add Trigger Wizard",
-    ListenerConfigView = "Listener View",
     ViewConfigVariables = "View Config Variables",
     EditConfigVariables = "Edit Config Variables",
     EditConnectionWizard = "Edit Connection Wizard",
     BIMainFunctionForm = "Add Automation",
     BIFunctionForm = "Add Function",
+    BIServiceWizard = "Service Wizard",
+    BIServiceConfigView = "Service Config View",
+    BIListenerConfigView = "Listener Config View",
+    BIDataMapperForm = "Add Data Mapper",
 }
 
 export interface MachineEvent {
@@ -81,7 +82,7 @@ export interface VisualizerLocation {
     position?: NodePosition;
     syntaxTree?: STNode;
     isBI?: boolean;
-    haveServiceType?: boolean;
+    serviceType?: string;
     metadata?: VisualizerMetadata;
 }
 

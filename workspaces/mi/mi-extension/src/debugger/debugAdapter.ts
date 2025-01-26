@@ -27,6 +27,7 @@ import { RPCLayer } from '../RPCLayer';
 interface ILaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
     /** Env variables setup through launch.json */
     env?: any;
+    vmArgs?: string[];
 }
 
 export class MiDebugAdapter extends LoggingDebugSession {
@@ -268,15 +269,18 @@ export class MiDebugAdapter extends LoggingDebugSession {
                         DebuggerConfig.setPortOffset(portOffset);
 
                         DebuggerConfig.setEnvVariables(args?.env ? args?.env : {});
+                        DebuggerConfig.setVmArgs(args?.vmArgs ? args?.vmArgs : []);
+
+                        DebuggerConfig.setVmArgs(args?.vmArgs ? args?.vmArgs : []);
 
                         await setManagementCredentials(serverPath);
 
+                        vscode.commands.executeCommand('setContext', 'MI.isRunning', 'true');
                         executeTasks(serverPath, isDebugAllowed)
                             .then(async () => {
                                 if (args?.noDebug) {
                                     checkServerReadiness().then(() => {
                                         openRuntimeServicesWebview();
-                                        vscode.commands.executeCommand('setContext', 'MI.isRunning', 'true');
                                         extension.isServerStarted = true;
                                         RPCLayer._messenger.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Running');
 
@@ -289,7 +293,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
                                 } else {
                                     this.debuggerHandler?.initializeDebugger().then(() => {
                                         openRuntimeServicesWebview();
-                                        vscode.commands.executeCommand('setContext', 'MI.isRunning', 'true');
                                         extension.isServerStarted = true;
                                         RPCLayer._messenger.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Running');
                                         response.success = true;
@@ -302,6 +305,8 @@ export class MiDebugAdapter extends LoggingDebugSession {
                                 }
                             })
                             .catch(error => {
+                                vscode.commands.executeCommand('setContext', 'MI.isRunning', 'false');
+                                deleteCopiedCapAndLibs();
                                 const completeError = `Error while launching run and debug: ${error}`;
                                 if (error === INCORRECT_SERVER_PATH_MSG) {
                                     this.showErrorAndExecuteChangeServerPath(completeError);

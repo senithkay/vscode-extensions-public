@@ -56,8 +56,7 @@ export function Modules(props: ModuleProps) {
     const { rpcClient } = useVisualizerContext();
     const { localConnectors } = props;
     const [allModules, setAllModules] = React.useState([] as any);
-    const [filteredModules, setFilteredModules] = React.useState([] as any);
-    const [isLoading, setIsLoading] = React.useState<boolean>(true);
+    const [filteredModules, setFilteredModules] = React.useState<[]>(undefined);
     const [searchValue, setSearchValue] = React.useState<string>('');
 
     useEffect(() => {
@@ -73,48 +72,55 @@ export function Modules(props: ModuleProps) {
             } else {
                 console.error('No internet connection. Unable to fetch modules.');
                 setAllModules(undefined);
-                setIsLoading(false);
             }
         } catch (error) {
             console.error('Error fetching mediators:', error);
             setAllModules(undefined);
         }
-        setIsLoading(false);
     };
 
-    React.useEffect(() => {
-        const debouncedSearchModules = debounce(async () => {
-            if (searchValue) {
-                const modules = await searchModules();
-                setFilteredModules(modules);
+    const debouncedSearchModules = React.useMemo(
+        () => debounce(async (value: string) => {
+            if (value) {
+                try {
+                    const runtimeVersion = await rpcClient.getMiDiagramRpcClient().getMIVersionFromPom();
+                    const response = await fetch(`${APIS.CONNECTOR_SEARCH.replace('${searchValue}', value).replace('${version}', runtimeVersion.version)}`);
+                    const data = await response.json();
+                    setFilteredModules(data);
+                } catch (e) {
+                    console.error("Error fetching modules", e);
+                    setFilteredModules(undefined);
+                }
             } else {
-                setFilteredModules([]);
+                setFilteredModules(undefined);
             }
-        }, 300);
+        }, 300),
+        []
+    );
 
-        debouncedSearchModules();
-    }, [searchValue]);
+    React.useEffect(() => {
+        debouncedSearchModules(searchValue);
+
+        return () => {
+            debouncedSearchModules.cancel();
+        };
+    }, [searchValue, debouncedSearchModules]);
 
     const handleSearch = (e: string) => {
+        setFilteredModules(undefined);
         setSearchValue(e);
     }
 
-    const searchModules = async () => {
-        try {
-            const response = await fetch(`${APIS.CONNECTOR_SEARCH.replace('${searchValue}', searchValue)}`);
-            const data = await response.json();
-            return (data);
-        } catch (e) {
-            console.error("Error fetching modules", e);
-            return (undefined);
-        }
-    };
-
     const downloadModule = (module: any) => {
-        const downloadPage = <DownloadPage module={module} onDownloadSuccess={props.reloadMediatorPalette} />;
+        const downloadPage = <DownloadPage
+            module={module}
+            onDownloadSuccess={props.reloadMediatorPalette}
+            documentUri={props.documentUri} />;
 
         sidepanelAddPage(sidePanelContext, downloadPage, FirstCharToUpperCase(module.connectorName), module.iconUrl);
     };
+
+    const isSearching = searchValue && !filteredModules;
 
     const ModuleList = () => {
         let modules: any[];
@@ -136,7 +142,7 @@ export function Modules(props: ModuleProps) {
             <>
                 {Object.entries(modules).sort(([, a], [, b]) => a.connectorRank - b.connectorRank).map(([key, values]: [string, any]) => (
                     localConnectors && localConnectors.some((c: any) =>
-                        (c.name.toLowerCase() === values.connectorName.toLowerCase()) &&
+                        ((c.displayName ? c.displayName === values.connectorName : c.name.toLowerCase() === values.connectorName.toLowerCase())) &&
                         (c.version === values.version.tagName)) ? null : (
                         <div key={key}>
                             <ButtonGroup
@@ -183,7 +189,7 @@ export function Modules(props: ModuleProps) {
             />
             {
 
-                isLoading ? (
+                isSearching ? (
                     <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '20px' }}>
                         <ProgressRing />
                     </div>

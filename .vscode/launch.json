@@ -5,6 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "API Designer Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "env": {
+                "WEB_VIEW_WATCH_MODE": "true",
+                "WEB_VIEW_DEV_HOST": "http://localhost:9000"
+            },
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/api-designer/api-designer-extension"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/workspaces/api-designer/api-designer-extension/dist/**/*.js"
+            ],
+            "preLaunchTask": "npm: watch-api-designer"
+        },
+        {
             "name": "Ballerina & BI Extensions",
             "type": "extensionHost",
             "request": "launch",

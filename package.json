@@ -6,7 +6,7 @@
         "build:langClient": "rush build -o @wso2-enterprise/ballerina-languageclient",
         "build:bbe": "rush build -o @ballerina/ballerina-by-examples",
         "build:choreoWebviews": "rush build -o @wso2-enterprise/choreo-vscode-webviews",
-        "build:cellDiagram": "rush build -o @wso2-enterprise/cell-diagram",
+        "build:cellDiagram": "rush build -o @wso2-enterprise/choreo-cell-diagram",
         "build:configEditor": "rush build -o @wso2-enterprise/ballerina-configurable-editor",
         "build:dataMapper": "rush build -o @wso2-enterprise/ballerina-data-mapper",
         "build:expressionEditor": "rush build -o @wso2-enterprise/ballerina-expression-editor",
@@ -33,6 +33,7 @@
         "build:ballerina": "rush build --to ballerina",
         "build:choreo": "rush build --to choreo",
         "build:mi": "rush build --to micro-integrator",
+        "build:api-designer": "rush build --to api-designer",
         "setup-e2e-test-debug": "workspaces/ballerina/ballerina-extension/node_modules/vscode-extension-tester/out/cli.js get-vscode && workspaces/ballerina/ballerina-extension/node_modules/vscode-extension-tester/out/cli.js get-chromedriver",
         "ui-toolkit-stories": "npm run --prefix ./workspaces/common-libs/ui-toolkit serve-storybook"
     }

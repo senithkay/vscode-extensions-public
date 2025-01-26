@@ -29,4 +29,3 @@ export enum TypeKind {
     Union = 'union',
     Unknown = 'unknown'
 }
-

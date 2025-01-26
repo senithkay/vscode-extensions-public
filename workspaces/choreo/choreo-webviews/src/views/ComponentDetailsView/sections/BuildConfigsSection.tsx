@@ -12,6 +12,7 @@ import {
 	ChoreoImplementationType,
 	ComponentDisplayType,
 	type ComponentKind,
+	getComponentKindRepoSource,
 	getTypeForDisplayType,
 } from "@wso2-enterprise/choreo-core";
 import React, { type FC } from "react";
@@ -37,7 +38,7 @@ const getBuildConfigViewList = (component: ComponentKind): IRightPanelSectionIte
 		buildConfigs.push({ label: "Build Pack", value: componentBuildPack });
 	}
 
-	const dirPath = component.spec.source?.github?.path || component.spec.source?.bitbucket?.path;
+	const dirPath = getComponentKindRepoSource(component.spec.source)?.path;
 
 	if (componentBuildPack !== ChoreoBuildPackNames.Docker && dirPath && dirPath !== ".") {
 		buildConfigs.push({ label: "Subdirectory", value: dirPath });

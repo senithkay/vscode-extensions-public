@@ -360,6 +360,10 @@ export function AddConnection(props: AddConnectionProps) {
         }
     }
 
+    const formTitle = !props.connectionName
+        ? "Add New Connection"
+        : "Edit Connection : " + props.connectionName;
+
     const ConnectionName = <Controller
         name="name"
         control={control}
@@ -382,7 +386,7 @@ export function AddConnection(props: AddConnectionProps) {
                 errorMsg={errors.name && errors.name.message.toString()} />
         )} />;
     return (
-        <FormView title={`Add New Connection`} onClose={handlePopupClose ?? handleOnClose}>
+        <FormView title={formTitle} onClose={handlePopupClose ?? handleOnClose}>
             {!props.fromSidePanel && <TypeChip
                 type={connectionType}
                 onClick={props.changeConnectionType}
@@ -431,16 +435,16 @@ export function AddConnection(props: AddConnectionProps) {
                                 )}
                             </div>}
                             <Button
-                                appearance="primary"
-                                onClick={handleSubmit(onAddConnection)}
-                            >
-                                {props.connectionName ? "Update" : "Add"}
-                            </Button>
-                            <Button
                                 appearance="secondary"
                                 onClick={handleOnClose}
                             >
                                 Cancel
+                            </Button>
+                            <Button
+                                appearance="primary"
+                                onClick={handleSubmit(onAddConnection)}
+                            >
+                                {props.connectionName ? "Update" : "Add"}
                             </Button>
                         </FormActions>
                         { connectionErrorMessage && <span style={{ color: 'red' }}>
@@ -460,16 +464,16 @@ export function AddConnection(props: AddConnectionProps) {
                     </ParamManagerContainer>
                     <FormActions>
                         <Button
-                            appearance="primary"
-                            onClick={onAddInitConnection}
-                        >
-                            {props.connectionName ? "Update" : "Add"}
-                        </Button>
-                        <Button
                             appearance="secondary"
                             onClick={handleOnClose}
                         >
                             Cancel
+                        </Button>
+                        <Button
+                            appearance="primary"
+                            onClick={onAddInitConnection}
+                        >
+                            {props.connectionName ? "Update" : "Add"}
                         </Button>
                     </FormActions>
                 </>

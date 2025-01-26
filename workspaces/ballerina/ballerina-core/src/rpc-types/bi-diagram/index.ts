@@ -42,6 +42,11 @@ import {
     ExpressionDiagnosticsResponse,
     BIGetEnclosedFunctionRequest,
     BIGetEnclosedFunctionResponse,
+    BIDesignModelResponse,
+    UpdateImportsRequest,
+    UpdateImportsResponse,
+    AddFunctionRequest,
+    AddFunctionResponse
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -53,8 +58,6 @@ import {
     ReadmeContentResponse,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
-    ComponentsRequest,
-    ComponentsResponse,
     AIChatRequest,
     ProjectImports,
     BreakpointRequest,
@@ -80,11 +83,10 @@ export interface BIDiagramAPI {
     createComponent: (params: ComponentRequest) => Promise<CreateComponentResponse>;
     getBIConnectors: (params: BIConnectorsRequest) => Promise<BIConnectorsResponse>;
     handleReadmeContent: (params: ReadmeContentRequest) => Promise<ReadmeContentResponse>;
-    createComponents: (params: ComponentsRequest) => Promise<ComponentsResponse>;
     getVisibleVariableTypes: (params: BIGetVisibleVariableTypesRequest) => Promise<BIGetVisibleVariableTypesResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
-    getConfigVariables:() => Promise<ConfigVariableResponse>;
-    updateConfigVariables:(params: UpdateConfigVariableRequest) => Promise<UpdateConfigVariableResponse>;
+    getConfigVariables: () => Promise<ConfigVariableResponse>;
+    updateConfigVariables: (params: UpdateConfigVariableRequest) => Promise<UpdateConfigVariableResponse>;
     getModuleNodes: () => Promise<BIModuleNodesResponse>;
     getReadmeContent: () => Promise<ReadmeContentResponse>;
     openReadme: () => void;
@@ -98,7 +100,10 @@ export interface BIDiagramAPI {
     removeBreakpointFromSource: (params: BreakpointRequest) => void;
     getBreakpointInfo: () => Promise<CurrentBreakpointsResponse>;
     getExpressionDiagnostics: (params: ExpressionDiagnosticsRequest) => Promise<ExpressionDiagnosticsResponse>;
-    getAllImports:()=> Promise<ProjectImports>;
+    getAllImports: () => Promise<ProjectImports>;
     formDidOpen: (params: FormDidOpenParams) => Promise<void>;
     formDidClose: (params: FormDidCloseParams) => Promise<void>;
+    getDesignModel: () => Promise<BIDesignModelResponse>;
+    updateImports: (params: UpdateImportsRequest) => Promise<UpdateImportsResponse>;
+    addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
 }

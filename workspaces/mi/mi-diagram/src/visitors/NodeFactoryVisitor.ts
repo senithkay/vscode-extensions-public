@@ -173,7 +173,7 @@ export class NodeFactoryVisitor implements Visitor {
                 diagramNode = new ConditionNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
                 break;
             case NodeTypes.START_NODE:
-                diagramNode = new StartNodeModel(node, data, this.parents[this.parents.length - 1], this.previousSTNodes);
+                diagramNode = new StartNodeModel(node, data, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
                 break;
             case NodeTypes.END_NODE:
                 diagramNode = new EndNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
@@ -287,7 +287,6 @@ export class NodeFactoryVisitor implements Visitor {
                 const startNode = structuredClone(sequence);
                 if (type === NodeTypes.GROUP_NODE) {
                     this.previousSTNodes = [];
-                    startNode.viewState.x += (startNode.viewState.w / 2) - (NODE_DIMENSIONS.START.DISABLED.WIDTH / 2);
                     startNode.tag = "start";
                     this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.SUB_SEQUENCE });
                 } else {
@@ -318,7 +317,8 @@ export class NodeFactoryVisitor implements Visitor {
                 if (type === NodeTypes.GROUP_NODE) {
                     const endNode = structuredClone(sequence);
                     endNode.viewState.y = startNode.viewState.y + sequence.viewState.h - NODE_DIMENSIONS.END.HEIGHT;
-                    endNode.viewState.x = startNode.viewState.x;
+                    endNode.viewState.x = startNode.viewState.x + ((node.tag === 'scatter-gather' ?
+                        NODE_DIMENSIONS.START.ACTIONED.WIDTH : NODE_DIMENSIONS.START.DISABLED.WIDTH) / 2) - (NODE_DIMENSIONS.END.WIDTH / 2)
                     this.createNodeAndLinks({ node: endNode, type: NodeTypes.END_NODE });
                 }
             }
@@ -402,7 +402,7 @@ export class NodeFactoryVisitor implements Visitor {
         this.parents.push(node);
     }
     endVisitInSequence(node: Sequence): void {
-        node.viewState.x += NODE_DIMENSIONS.START.EDITABLE.WIDTH / 2 - NODE_DIMENSIONS.START.DISABLED.WIDTH / 2;
+        node.viewState.x += NODE_DIMENSIONS.START.EDITABLE.WIDTH / 2 - NODE_DIMENSIONS.END.WIDTH / 2;
         node.viewState.y += node.viewState.fh;
         this.createNodeAndLinks({ node, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE, data: StartNodeType.IN_SEQUENCE });
         this.parents.pop();
@@ -541,7 +541,7 @@ export class NodeFactoryVisitor implements Visitor {
             const prevNodes = this.nodes.filter((prevNode) => prevNode.getParentStNode() === node);
             const lastStNode = lastNode instanceof StartNodeModel ? lastNode.getStNode() : prevNodes[prevNodes.length - 1].getStNode();
             node.viewState.y = lastStNode.viewState.y + Math.max(lastStNode.viewState.h, lastStNode.viewState.fh || 0) + NODE_GAP.Y;
-            node.viewState.x += NODE_DIMENSIONS.START.EDITABLE.WIDTH / 2 - NODE_DIMENSIONS.START.DISABLED.WIDTH / 2;
+            node.viewState.x += NODE_DIMENSIONS.START.EDITABLE.WIDTH / 2 - NODE_DIMENSIONS.END.WIDTH / 2;
             this.createNodeAndLinks({ node, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE, data: node.range.endTagRange.end });
             this.previousSTNodes = undefined;
         }
@@ -1030,7 +1030,7 @@ export class NodeFactoryVisitor implements Visitor {
         const endnode = structuredClone(node);
         endnode.tag = "end";
         endnode.viewState.y = outputMappings.viewState.y + NODE_DIMENSIONS.DATA_SERVICE.HEIGHT + NODE_GAP.Y;
-        endnode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.START.DISABLED.WIDTH) / 2;
+        endnode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.END.WIDTH) / 2;
         this.currentAddPosition = { position: { line: 1, character: 5 }, trailingSpace: "" };
         this.createNodeAndLinks({ node: endnode, type: NodeTypes.END_NODE, data: StartNodeType.IN_SEQUENCE });
         this.parents.push(endnode);

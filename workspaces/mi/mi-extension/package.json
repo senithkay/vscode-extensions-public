@@ -3,7 +3,7 @@
   "displayName": "Micro Integrator",
   "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
   "icon": "resources/images/wso2-micro-integrator-image.png",
-  "version": "1.1.6",
+  "version": "1.9.0",
   "publisher": "wso2",
   "engines": {
     "vscode": "^1.81.0"
@@ -70,6 +70,14 @@
                 "additionalProperties": {
                   "type": "string"
                 }
+              },
+              "vmArgs": {
+                "type": "array",
+                "description": "Arguments to pass to the MI server",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
               }
             }
           }
@@ -79,7 +87,8 @@
             "type": "mi",
             "name": "MI: Run and Debug",
             "request": "launch",
-            "internalConsoleOptions": "openOnSessionStart"
+            "internalConsoleOptions": "openOnSessionStart",
+            "vmArgs": []
           }
         ]
       }
@@ -153,6 +162,12 @@
         {
           "id": "MI.project-explorer",
           "name": "Project Explorer"
+        },
+        {
+          "id": "MI.registry-explorer",
+          "name": "Registry Explorer",
+          "visibility": "collapsed",
+          "when": "MI.registry-explorer.isVisible"
         }
       ],
       "test": [
@@ -167,6 +182,12 @@
         "view": "MI.project-explorer",
         "contents": "Loading...",
         "when": "MI.status != 'unknownProject' && MI.status != 'projectLoaded' && MI.status != 'disabled' && MI.status != 'notSetUp'"
+      },
+      {
+        "view": "MI.project-explorer",
+        "contents": "No artifacts were found. Please add artifacts to your project to view them here.\n[Add artifact](command:MI.project-explorer.add.artifact)",
+        "when": "projectOpened && MI.status == 'projectLoaded'",
+        "enablement": "MI.showAddArtifact"
       },
       {
         "view": "MI.project-explorer",
@@ -228,8 +249,8 @@
         "when": "MI.isRunning== 'true'"
       },
       {
-        "command": "MI.project-explorer.add",
-        "title": "Add Construct",
+        "command": "MI.project-explorer.add.artifact",
+        "title": "Add Artifact",
         "icon": "$(add)",
         "category": "MI"
       },
@@ -613,10 +634,6 @@
           "when": "false"
         },
         {
-          "command": "MI.project-explorer.add",
-          "when": "false"
-        },
-        {
           "command": "MI.registry-explorer.refresh",
           "when": "view == MI.registry-explorer && projectOpened",
           "group": "navigation"
@@ -634,7 +651,7 @@
           "group": "navigation"
         },
         {
-          "command": "MI.project-explorer.add",
+          "command": "MI.project-explorer.add.artifact",
           "when": "view == MI.project-explorer && projectOpened",
           "group": "navigation"
         },
@@ -668,7 +685,7 @@
         {
           "command": "MI.build-and-run",
           "group": "navigation@1",
-          "when": "MI.status == 'projectLoaded' && (isVisualizerActive || resourceLangId == SynapseXml)",
+          "when": "MI.status == 'projectLoaded' && (isVisualizerActive || resourceLangId == SynapseXml) && (MI.isRunning !== 'true')",
           "title": "Build and Run Project"
         }
       ],
@@ -840,7 +857,7 @@
         "description": "design-view",
         "default": {
           "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-          "fontCharacter": "\\f142"
+          "fontCharacter": "\\f144"
         }
       }
     }
