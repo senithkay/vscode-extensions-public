@@ -72,10 +72,10 @@ const SubTitle = styled.div`
 
 
 export const Alert: React.FC<PropsWithChildren<AlertProps>> = props => {
-    const { title, subTitle, variant = "primary", children } = props;
+    const { title, subTitle, variant = "primary", children, sx } = props;
 
     return (
-        <Container variant={variant}>
+        <Container variant={variant} sx={sx}>
             {title && <Title>{title}</Title>}
             {subTitle && <SubTitle>{subTitle}</SubTitle>}
             {children}
