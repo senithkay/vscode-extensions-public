@@ -133,6 +133,7 @@ const traverseHelperPaneCompletionItem = (
 
     return (
         <HelperPane.CompletionItem
+            key={item.insertText}
             label={item.label}
             onClick={() => onChange(item.insertText)}
             getIcon={getIcon}
