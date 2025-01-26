@@ -912,10 +912,11 @@ export interface TypeMetadata {
     description: string;
 }
 
+type TypeNodeKind = "RECORD" | "ENUM" | "ARRAY" | "UNION" | "ERROR";
 // todo make this consistant
 export interface TypeCodeData {
     lineRange: LineRange;
-    kind: string;
+    node: TypeNodeKind;
 }
 
 export interface TypeProperty {

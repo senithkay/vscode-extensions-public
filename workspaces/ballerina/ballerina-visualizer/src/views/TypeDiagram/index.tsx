@@ -154,7 +154,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
         </HeaderContainer>
     );
 
-    const findSelectedType = (typeId: string) => {
+    const findSelectedType = (typeId: string): Type => {
         if (!typeId) {
             return {
                 name: "MyType",
@@ -164,12 +164,12 @@ export function TypeDiagram(props: TypeDiagramProps) {
                     description: ""
                 },
                 codedata: {
-                    lineRange: null,
-                    kind: ""
+                    lineRange: undefined,
+                    node: "RECORD"
                 },
                 properties: {},
                 members: {},
-                includes: []
+                includes: [] as string[]
             };
         }
         return typesModel.find((type: Type) => type.name === typeId);

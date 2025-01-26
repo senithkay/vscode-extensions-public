@@ -180,6 +180,7 @@ export function TypeEditor(props: TypeEditorProps) {
 
     const onTypeChange = (type: Type) => {
         // setTypeName(type.name);
+        console.log(type);
         props.onTypeChange(type);
     }
 
@@ -196,6 +197,7 @@ export function TypeEditor(props: TypeEditorProps) {
                         onFocus={(e) => e.target.select()}
                         ref={nameInputRef}
                     />
+
                     {editorState === ConfigState.EDITOR_FORM &&
                         <RecordEditor
                             type={type}
