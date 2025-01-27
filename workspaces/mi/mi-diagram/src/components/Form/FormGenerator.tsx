@@ -41,7 +41,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import ParameterManager from './GigaParamManager/ParameterManager';
 import { StringWithParamManagerComponent } from './StringWithParamManager';
-import { isValueExpression } from './utils';
+import { isLegacyExpression, isValueExpression } from './utils';
 
 const Field = styled.div`
     margin-bottom: 12px;
@@ -388,7 +388,10 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'textAreaOrExpression':
             case 'integerOrExpression':
             case 'expression':
-                if (isLegacyExpressionEnabled) {
+                const isValueLegacyExpression = isLegacyExpression(
+                    typeof field.value === 'object' ? field.value.value : field.value
+                );
+                if (isLegacyExpressionEnabled || isValueLegacyExpression) {
                     return ExpressionFieldComponent({
                         element,
                         canChange: element.inputType !== 'expression',
