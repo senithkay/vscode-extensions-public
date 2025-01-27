@@ -35,4 +35,8 @@ export function activateEditKolaTest() {
     commands.registerCommand(BI_COMMANDS.BI_ADD_TEST_FUNCTION, () => {
         openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BITestFunctionForm });
     });
+
+    commands.registerCommand(BI_COMMANDS.BI_EDIT_TEST_FUNCTION_DEF, () => {
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BITestFunctionForm });
+    });
 }

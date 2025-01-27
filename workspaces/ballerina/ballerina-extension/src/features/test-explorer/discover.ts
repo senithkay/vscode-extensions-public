@@ -12,11 +12,13 @@ import path from "path";
 import { StateMachine } from "../../stateMachine";
 import { TestsDiscoveryRequest, TestsDiscoveryResponse, TestFunction } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "../../core";
-import { Position, Range, TestController, Uri, TestItem } from "vscode";
+import { Position, Range, TestController, Uri, TestItem, commands } from "vscode";
 
+let groups: string[] = [];
 
 export async function discoverTestFunctionsInProject(ballerinaExtInstance: BallerinaExtension, 
     testController: TestController) {
+    groups.push(testController.id);
     const filePath : string = path.join(StateMachine.context().projectUri);
     const request: TestsDiscoveryRequest = {
         filePath
@@ -24,6 +26,7 @@ export async function discoverTestFunctionsInProject(ballerinaExtInstance: Balle
     const response: TestsDiscoveryResponse = await ballerinaExtInstance.langClient?.getProjectTestFunctions(request);
     if (response) {
         createTests(response, testController);
+        setGroupsContext();
     }
 }
 
@@ -49,6 +52,7 @@ function createTests(response: TestsDiscoveryResponse, testController: TestContr
                 // If the group doesn't exist, create it
                 groupItem = testController.createTestItem(groupId, group);
                 testController.items.add(groupItem);
+                groups.push(groupId);
             }
 
             // Ensure testFunctions is iterable (convert to an array if necessary)
@@ -98,6 +102,7 @@ export async function handleFileChange(ballerinaExtInstance: BallerinaExtension,
 
     handleFileDelete(uri, testController);
     createTests(response, testController);
+    setGroupsContext();
 }
 
 export async function handleFileDelete(uri: Uri, testController: TestController) {
@@ -127,6 +132,7 @@ export async function handleFileDelete(uri: Uri, testController: TestController)
             // If the group is empty after deletion, remove it
             if (item.children.size === 0) {
                 testController.items.delete(item.id);
+                groups = groups.filter((group) => group !== item.id);
             }
         }
     });
@@ -140,4 +146,8 @@ export function isTestFunctionItem(item: TestItem): boolean {
 export function isTestGroupItem(item: TestItem): boolean {
     // Test group items have IDs starting with "group:"
     return item.id.startsWith('group:');
+}
+
+function setGroupsContext() {
+    commands.executeCommand('setContext', 'testGroups', groups);
 }

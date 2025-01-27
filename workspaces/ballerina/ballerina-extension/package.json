@@ -544,7 +544,13 @@
                 "command": "BI.test.edit.function",
                 "title": "View test flow",
                 "icon": "$(distro-design-view)",
-                "category": "Ballerina"
+                "category": "BI"
+            },
+            {
+                "command": "BI.test.edit.function.def",
+                "title": "Edit test function definition",
+                "icon": "$(edit)",
+                "category": "BI"
             },
             {
                 "command": "BI.test.add.function",
@@ -642,12 +648,19 @@
         "menus": {
             "testing/item/context": [
                 {
+                    "command": "BI.test.edit.function.def",
+                    "group": "inline",
+                    "when": "testId not in testGroups"
+                },
+                {
                   "command": "BI.test.edit.function",
-                  "group": "inline"
+                  "group": "inline",
+                  "when": "testId not in testGroups"
                 },
                 {
                     "command": "BI.test.add.function",
-                    "group": "inline"
+                    "group": "inline",
+                    "when": "testId in testGroups"
                 }
             ],
             "view/title": [
