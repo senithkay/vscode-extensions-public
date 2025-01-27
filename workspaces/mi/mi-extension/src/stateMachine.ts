@@ -677,7 +677,7 @@ async function checkIfMiProject() {
     }
 
     if (projectUri) {
-        isEnvironmentSetUp = await setupEnvironment(projectUri);
+        isEnvironmentSetUp = await setupEnvironment(projectUri, isOldProject);
         if (!isEnvironmentSetUp) {
             vscode.commands.executeCommand('setContext', 'MI.status', 'notSetUp');
         }
