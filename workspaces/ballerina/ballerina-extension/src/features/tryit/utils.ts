@@ -59,14 +59,13 @@ function getServicePort(pid: string): number | undefined {
     try {
         const output = execSync(getLSOFCommand(platform, pid), { encoding: 'utf-8' });
         if (isNaN(output as any)) {
-            const activeConnectionRegex = /^n(?:\*|localhost):(\d+)\b$/;
-
+            const listeningConnectionRegex = /^n(?:\*|localhost):(\d+)\b$/;
             const ports = output
                 .split(/\r?\n/)
                 .map(line => line.trim())
-                .filter(line => activeConnectionRegex.test(line))
+                .filter(line => listeningConnectionRegex.test(line))
                 .map(line => {
-                    const match = line.match(activeConnectionRegex);
+                    const match = line.match(listeningConnectionRegex);
                     return match ? parseInt(match[1]) : null; // Convert port number to integer
                 })
                 .filter((port): port is number => port !== null);
