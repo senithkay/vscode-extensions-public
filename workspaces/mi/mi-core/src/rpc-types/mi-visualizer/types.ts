@@ -88,11 +88,6 @@ export interface ProjectDetailsResponse {
     dependencies: DependenciesDetails;
     unitTest: UnitTestDetails;
     configurables: PomNodeDetails[];
-    advanced: AdvancedProjectDetails;
-}
-
-export interface AdvancedProjectDetails {
-    isLegacyExpressionEnabled: boolean;
 }
 
 export interface PomNodeDetails {

@@ -52,6 +52,7 @@ import {
     goSelected,
     goToSource,
     log,
+    isLegacyExpressionSupportEnabled,
     openExternal,
     openReadme,
     openView,
@@ -243,5 +244,9 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
     }
     updateLegacyExpressionSupport(value: boolean): Promise<void> {
         return this._messenger.sendRequest(updateLegacyExpressionSupport, HOST_EXTENSION, value);
+    }
+
+    isLegacyExpressionSupportEnabled(): Promise<boolean> {
+        return this._messenger.sendRequest(isLegacyExpressionSupportEnabled, HOST_EXTENSION);
     }
 }
