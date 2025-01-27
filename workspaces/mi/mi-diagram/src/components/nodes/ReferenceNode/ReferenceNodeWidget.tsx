@@ -88,7 +88,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const [definition, setDefinition] = useState<GetDefinitionResponse>(undefined);
     const [canOpenView, setCanOpenView] = useState(false);
-    const description = getNodeDescription(node.stNode);
+    const description = getNodeDescription(node.stNode) || node.referenceName;
 
     useEffect(() => {
         if (node.mediatorName === MEDIATORS.DATAMAPPER) {
@@ -139,7 +139,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
                 line: range.start.line + keyLines.length - 1 + valueLines.length - 1,
                 character: keyLines.length > 1 || valueLines.length > 1 ?
                     charPosition :
-                    range.start.character + offsetBeforeKey + match[0].length,
+                    range.start.character + offsetBeforeKey + match[0].length - 2,
             };
 
             const definition = await rpcClient?.getMiDiagramRpcClient().getDefinition({
