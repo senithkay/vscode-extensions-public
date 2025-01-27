@@ -9,12 +9,12 @@
  */
 
 import { exec } from 'child_process';
-import { CancellationToken, TestRunRequest, TestMessage, TestRun, TestItem } from 'vscode';
+import { CancellationToken, TestRunRequest, TestMessage, TestRun, TestItem, debug, Uri, WorkspaceFolder, DebugConfiguration, workspace, TestRunProfileKind } from 'vscode';
 import { testController } from './activator';
 import { StateMachine } from "../../stateMachine";
 import { isTestFunctionItem, isTestGroupItem } from './discover';
 import { ballerinaExtInstance } from '../../core';
-
+import { constructDebugConfig } from "../debugger";
 
 export async function runHandler(request: TestRunRequest, token: CancellationToken) {
     if (!request.include) {
@@ -22,6 +22,22 @@ export async function runHandler(request: TestRunRequest, token: CancellationTok
     }
     const run = testController.createTestRun(request);
 
+    if (request.profile?.kind == TestRunProfileKind.Debug) {
+        const testFuncs : string[] = [];
+        request.include.forEach((test) => {
+            if (isTestFunctionItem(test)) {
+                testFuncs.push(test.label);
+            } else if (isTestGroupItem(test)) {
+                test.children.forEach((child) => {
+                    testFuncs.push(child.label);
+                });
+            }
+        });
+        startDebugging(true, testFuncs);
+        return;
+    }
+
+    // Handle Test Run
     request.include.forEach((test) => {
         if (token.isCancellationRequested) {
             run.skipped(test);
@@ -88,4 +104,26 @@ async function runCommand(run: TestRun, test: TestItem, command: string, request
             }
         });
     });
+}
+
+/**
+ * Start debugging
+ */
+export async function startDebugging(testDebug: boolean, args: any[])
+    : Promise<void> {
+    const uri : Uri = Uri.parse(StateMachine.context().projectUri);    
+    const workspaceFolder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(uri);
+    const debugConfig: DebugConfiguration = await constructDebugConfig(uri, testDebug, args);
+
+    return debug.startDebugging(workspaceFolder, debugConfig).then(
+        // Wait for debug session to be complete.
+        () => {
+            return new Promise<void>((resolve) => {
+                debug.onDidTerminateDebugSession(() => {
+                    resolve();
+                });
+            });
+        },
+        (ex) => console.log('Failed to start debugging tests' + ex),
+    );
 }
