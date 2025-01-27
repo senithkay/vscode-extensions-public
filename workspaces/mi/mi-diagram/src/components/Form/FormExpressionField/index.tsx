@@ -8,7 +8,7 @@
  */
 
 import { debounce } from 'lodash';
-import React, { CSSProperties, ReactNode, useCallback, useMemo, useRef, useState } from 'react';
+import React, { CSSProperties, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Range } from 'vscode-languageserver-types';
 import styled from '@emotion/styled';
 import { HelperPaneCompletionItem, HelperPaneFunctionInfo, FormExpressionFieldValue } from '@wso2-enterprise/mi-core';
@@ -24,8 +24,16 @@ import {
     RequiredFormInput,
     Typography,
 } from '@wso2-enterprise/ui-toolkit';
-import { getHelperPane } from './HelperPane';
-import { enrichExpressionValue, extractExpressionValue, filterHelperPaneCompletionItems, filterHelperPaneFunctionCompletionItems, getExpressionValue, modifyCompletion } from './utils';
+import { getHelperPane } from '../HelperPane';
+import {
+    enrichExpressionValue,
+    extractExpressionValue,
+    filterHelperPaneCompletionItems,
+    filterHelperPaneFunctionCompletionItems,
+    formatExpression,
+    getExpressionValue,
+    modifyCompletion
+} from './utils';
 
 type EXProps = {
     isActive: boolean;
@@ -261,8 +269,8 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                 .finally(() => {
                     setIsLoadingHelperPaneInfo(false);
                 });
-            });
-        }, 300),
+        });
+    }, 300),
         [rpcClient, nodeRange?.start]
     );
 
@@ -277,7 +285,6 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
 
     const handleGetHelperPane = (value: string, onChange: (value: string, updatedCursorPosition: number) => void) => {
         return getHelperPane(
-            expressionRef,
             isLoadingHelperPaneInfo,
             payloadInfo,
             variableInfo,
@@ -289,7 +296,8 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
             () => handleChangeHelperPaneState(false),
             handleGetHelperPaneInfo,
             value,
-            onChange
+            onChange,
+            expressionRef
         );
     }
 
@@ -326,23 +334,29 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         }
 
         return [
-            ...(isExActive ? [{
+            ...(isExActive || expressionType === "xpath/jsonPath" ? [{
                 tooltip: 'Open Expression Editor',
                 iconType: 'codicon' as any,
                 name: 'edit',
                 onClick: () => openExpressionEditor(value, onChange)
             }] : []),
-            {
+            ...(expressionType === "synapse" ? [{
                 tooltip: 'Open Helper Pane',
                 iconType: 'icon' as any,
                 name: 'function-icon',
                 onClick: () => {
                     expressionRef.current?.focus();
                     handleChangeHelperPaneState(!isHelperPaneOpen)
-                }
-            }
+                },
+            }] : [])
         ];
     }, [isExActive, isHelperPaneOpen, value, handleChangeHelperPaneState, openExpressionEditor, onChange]);
+
+    const expressionValue = useMemo(() => {
+        const extractedExpressionValue = extractExpressionValue(value.value);
+        const formattedExpressionValue = formatExpression(extractedExpressionValue);
+        return formattedExpressionValue;
+    }, [value.value, extractExpressionValue]);
 
     return (
         <S.Container id={id} sx={sx}>
@@ -355,7 +369,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                 <FormExpressionEditor
                     ref={expressionRef}
                     disabled={disabled}
-                    value={extractExpressionValue(value.value)}
+                    value={expressionValue}
                     placeholder={placeholder}
                     onChange={handleExpressionChange}
                     onFocus={handleFocus}
@@ -363,29 +377,29 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                     onCancel={handleCancel}
                     getExpressionEditorIcon={handleGetExpressionEditorIcon}
                     helperPaneOrigin='left'
+                    actionButtons={actionButtons}
                     {...(expressionType !== "xpath/jsonPath" &&
                         value.isExpression && {
-                            completions,
-                            actionButtons,
-                            isHelperPaneOpen,
-                            changeHelperPaneState: handleChangeHelperPaneState,
-                            getHelperPane: handleGetHelperPane,
-                            onFunctionEdit: handleFunctionEdit,
-                            startAdornment: (
-                                <S.AdornmentContainer>
-                                    <Typography variant="h4" sx={{ margin: 0 }}>
-                                        {"${"}
-                                    </Typography>
-                                </S.AdornmentContainer>
-                            ),
-                            endAdornment: (
-                                <S.AdornmentContainer>
-                                    <Typography variant="h4" sx={{ margin: 0 }}>
-                                        {"}"}
-                                    </Typography>
-                                </S.AdornmentContainer>
-                            ),
-                        })}
+                        completions,
+                        isHelperPaneOpen,
+                        changeHelperPaneState: handleChangeHelperPaneState,
+                        getHelperPane: handleGetHelperPane,
+                        onFunctionEdit: handleFunctionEdit,
+                        startAdornment: (
+                            <S.AdornmentContainer>
+                                <Typography variant="h4" sx={{ margin: 0 }}>
+                                    {"${"}
+                                </Typography>
+                            </S.AdornmentContainer>
+                        ),
+                        endAdornment: (
+                            <S.AdornmentContainer>
+                                <Typography variant="h4" sx={{ margin: 0 }}>
+                                    {"}"}
+                                </Typography>
+                            </S.AdornmentContainer>
+                        ),
+                    })}
                 />
                 {errorMsg && <ErrorBanner errorMsg={errorMsg} />}
             </div>

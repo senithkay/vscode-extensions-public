@@ -24928,7 +24928,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         class="css-18bfde4"
                       >
                         <div
-                          class="css-kyfez4"
+                          class="css-1f8ti7d"
                         >
                           <div
                             class="css-h55zw6"
@@ -24944,7 +24944,9 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class="css-1vc2u59"
-                            />
+                            >
+                              s1
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -25646,6 +25648,2194 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 class="port "
                 data-name="out"
                 data-nodeid="inSequence-4-2"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div />
+  </div>
+</div>"
+`;
+
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - GroupNodeMediators.xml - POST / 1`] = `
+"<div>
+  <div
+    class="css-x0z1wx"
+    data-testid="diagram-container"
+  >
+    <div
+      class="css-v1leuj"
+    >
+      <div
+        class="css-gougeo"
+      >
+        <vscode-button
+          appearance="icon"
+          aria-label="Icon Button"
+          current-value=""
+          title="Zoom In"
+        >
+          <div
+            class="css-pk5gz1"
+          >
+            <i
+              class="codicon codicon-plus"
+              style="font-size: 18px; width: 18px; height: 18px;"
+            />
+          </div>
+          <input
+            slot="form-associated-proxy"
+            style="display: none;"
+            type="undefined"
+          />
+        </vscode-button>
+      </div>
+      <div
+        class="css-gougeo"
+      >
+        <vscode-button
+          appearance="icon"
+          aria-label="Icon Button"
+          current-value=""
+          title="Zoom Out"
+        >
+          <div
+            class="css-pk5gz1"
+          >
+            <i
+              class="codicon codicon-dash"
+              style="font-size: 18px; width: 18px; height: 18px;"
+            />
+          </div>
+          <input
+            slot="form-associated-proxy"
+            style="display: none;"
+            type="undefined"
+          />
+        </vscode-button>
+      </div>
+      <div
+        class="css-1qcscwo"
+      >
+        <vscode-button
+          appearance="icon"
+          aria-label="Icon Button"
+          current-value=""
+          title="Reset Zoom"
+        >
+          <div
+            class="css-pk5gz1"
+          >
+            <i
+              class="codicon codicon-layout-centered"
+              style="font-size: 18px; width: 18px; height: 18px;"
+            />
+          </div>
+          <input
+            slot="form-associated-proxy"
+            style="display: none;"
+            type="undefined"
+          />
+        </vscode-button>
+      </div>
+    </div>
+    <div
+      class="css-11m2s7j"
+      color="var(--vscode-foreground)"
+      data-testid="diagram-canvas-flow"
+      height="1778"
+      width="400"
+    >
+      <div
+        class="css-byrass"
+        cursor="Default"
+      >
+        <svg
+          class="css-poo601"
+          style="transform: translate(
+				-3px,
+				0px)
+			scale(
+				1
+			);"
+        >
+          <g
+            data-linkid="5,12"
+          >
+            <g
+              data-testid="link-5,12"
+              pointer-events="auto"
+            >
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-7"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-button-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="6,12"
+          >
+            <g
+              data-testid="link-6,12"
+              pointer-events="auto"
+            >
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-7"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-button-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="7,12"
+          >
+            <g
+              data-testid="link-7,12"
+              pointer-events="auto"
+            >
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-7"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-button-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="10,20"
+          >
+            <g
+              data-testid="link-10,20"
+              pointer-events="auto"
+            >
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="5,5"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-7"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-button-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="13,16"
+          >
+            <g
+              data-testid="link-13,16"
+              pointer-events="auto"
+            >
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="5,5"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-7"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-button-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="14,26"
+          >
+            <g
+              data-testid="link-14,26"
+              pointer-events="auto"
+            >
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="5,5"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-7"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-button-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="16,12"
+          >
+            <g
+              data-testid="link-16,12"
+              pointer-events="auto"
+            >
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-7"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-button-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="19,24"
+          >
+            <g
+              data-testid="link-19,24"
+              pointer-events="auto"
+            >
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="5,5"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-7"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-button-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="21,24"
+          >
+            <g
+              data-testid="link-21,24"
+              pointer-events="auto"
+            >
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-7"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-button-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="25,20"
+          >
+            <g
+              data-testid="link-25,20"
+              pointer-events="auto"
+            >
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="5,5"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-7"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-button-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="28,12"
+          >
+            <g
+              data-testid="link-28,12"
+              pointer-events="auto"
+            >
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-7"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-button-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="34,20"
+          >
+            <g
+              data-testid="link-34,20"
+              pointer-events="auto"
+            >
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="5,5"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-7"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-button-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="35,16"
+          >
+            <g
+              data-testid="link-35,16"
+              pointer-events="auto"
+            >
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="5,5"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-7"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-button-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="37,8"
+          >
+            <g
+              data-testid="link-37,8"
+              pointer-events="auto"
+            >
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 3 0 L 3 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-7"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-button-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+        </svg>
+        <div
+          class="css-poo601"
+          style="transform: translate(
+				-3px,
+				0px)
+			scale(
+				1
+			);"
+        >
+          <div
+            class="node css-nlpftr"
+            data-nodeid="start-resource-2-4"
+            style="top: 40px; left: 150px;"
+          >
+            <div
+              class="css-2ttski"
+              data-testid="startNode-start-resource-2-4"
+              style="cursor: pointer;"
+            >
+              <div
+                class="port "
+                data-name="in"
+                data-nodeid="start-resource-2-4"
+              />
+              <svg
+                height="40"
+                viewBox="0 0 100 40"
+                width="100"
+              >
+                <rect
+                  fill="var(--vscode-button-background)"
+                  height="40"
+                  rx="20"
+                  width="100"
+                  x="0"
+                  y="0"
+                />
+                <rect
+                  fill="var(--vscode-editor-background)"
+                  height="36"
+                  rx="18"
+                  width="96"
+                  x="2"
+                  y="2"
+                />
+                <text
+                  alignment-baseline="central"
+                  fill="var(--vscode-foreground)"
+                  text-anchor="middle"
+                  x="50%"
+                  y="50%"
+                >
+                  Start
+                </text>
+              </svg>
+              <div
+                class="port "
+                data-name="out"
+                data-nodeid="start-resource-2-4"
+              />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="property-5-12"
+            style="top: 130px; left: 125px;"
+          >
+            <div
+              data-testid="mediatorNode-property-5-12"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-17lt5ih"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="property-5-12"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1gt6rr1"
+                    >
+                      <div
+                        class="css-1tyk8pj"
+                      >
+                        <i
+                          class="fw-Property"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-1f8ti7d"
+                        >
+                          <div
+                            class="css-h55zw6"
+                            data-testid="mediator-name"
+                          >
+                            Property
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                              data-testid="mediator-description"
+                            >
+                              uri.var.appid
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="port css-1l1tlbe"
+                    data-name="out"
+                    data-nodeid="property-5-12"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="variable-6-12"
+            style="top: 240px; left: 125px;"
+          >
+            <div
+              data-testid="mediatorNode-variable-6-12"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-17lt5ih"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="variable-6-12"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1gt6rr1"
+                    >
+                      <div
+                        class="css-s11uwd"
+                      >
+                        <i
+                          class="fw-Variable"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-1f8ti7d"
+                        >
+                          <div
+                            class="css-h55zw6"
+                            data-testid="mediator-name"
+                          >
+                            Variable
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                              data-testid="mediator-description"
+                            >
+                              APP_ID
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="port css-1l1tlbe"
+                    data-name="out"
+                    data-nodeid="variable-6-12"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="scatter-gather-7-12"
+            style="top: 350px; left: 125px;"
+          >
+            <div
+              data-testid="groupNode-scatter-gather-7-12"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-17lt5ih"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="scatter-gather-7-12"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1wk9l6y"
+                    >
+                      <div
+                        class="css-q4be3z"
+                      >
+                        <i
+                          class="fw-ScatterGather"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-kyfez4"
+                        >
+                          <div
+                            class="css-h55zw6"
+                          >
+                            Scatter-Gather
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="css-as7ops"
+                  />
+                </div>
+              </div>
+              <div
+                class="css-bayoaf"
+                height="368"
+                width="400"
+              >
+                <div
+                  class="port css-1l1tlbe"
+                  data-name="out"
+                  data-nodeid="scatter-gather-7-12"
+                  style="margin-left: 197px;"
+                />
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="start-start-9-16"
+            style="top: 460px; left: 67.5px;"
+          >
+            <div
+              class="css-2ttski"
+              data-testid="startNode-start-start-9-16"
+              style="cursor: default;"
+            >
+              <div
+                class="port "
+                data-name="in"
+                data-nodeid="start-start-9-16"
+              />
+              <div
+                style="position: relative; display: flex; justify-content: center; align-items: center;"
+              >
+                <svg
+                  height="30"
+                  viewBox="0 0 65 30"
+                  width="65"
+                >
+                  <rect
+                    fill="var(--vscode-button-background)"
+                    height="30"
+                    rx="20"
+                    width="65"
+                    x="0"
+                    y="0"
+                  />
+                  <rect
+                    fill="var(--vscode-editor-background)"
+                    height="26"
+                    rx="18"
+                    width="61"
+                    x="2"
+                    y="2"
+                  />
+                </svg>
+              </div>
+              <div
+                class="port "
+                data-name="out"
+                data-nodeid="start-start-9-16"
+              />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="log-10-20"
+            style="top: 534px; left: 25px;"
+          >
+            <div
+              data-testid="mediatorNode-log-10-20"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-17lt5ih"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="log-10-20"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1gt6rr1"
+                    >
+                      <div
+                        class="css-14uaptq"
+                      >
+                        <i
+                          class="fw-Log"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-1f8ti7d"
+                        >
+                          <div
+                            class="css-h55zw6"
+                            data-testid="mediator-name"
+                          >
+                            Log
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                              data-testid="mediator-description"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="port css-1l1tlbe"
+                    data-name="out"
+                    data-nodeid="log-10-20"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="subSequence-9-16"
+            style="top: 644px; left: 88px;"
+          >
+            <div
+              class="css-2ttski"
+              data-testid="endNode-subSequence-9-16"
+            >
+              <div
+                class="port "
+                data-name="in"
+                data-nodeid="subSequence-9-16"
+              />
+              <svg
+                height="24"
+                viewBox="0 0 32 32"
+                width="24"
+              >
+                <circle
+                  cx="16"
+                  cy="16"
+                  fill="var(--vscode-button-background)"
+                  r="14"
+                />
+              </svg>
+              <div
+                class="port "
+                data-name="out"
+                data-nodeid="subSequence-9-16"
+              />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="start-start-14-16"
+            style="top: 460px; left: 267.5px;"
+          >
+            <div
+              class="css-2ttski"
+              data-testid="startNode-start-start-14-16"
+              style="cursor: default;"
+            >
+              <div
+                class="port "
+                data-name="in"
+                data-nodeid="start-start-14-16"
+              />
+              <div
+                style="position: relative; display: flex; justify-content: center; align-items: center;"
+              >
+                <svg
+                  height="30"
+                  viewBox="0 0 65 30"
+                  width="65"
+                >
+                  <rect
+                    fill="var(--vscode-button-background)"
+                    height="30"
+                    rx="20"
+                    width="65"
+                    x="0"
+                    y="0"
+                  />
+                  <rect
+                    fill="var(--vscode-editor-background)"
+                    height="26"
+                    rx="18"
+                    width="61"
+                    x="2"
+                    y="2"
+                  />
+                </svg>
+              </div>
+              <div
+                class="port "
+                data-name="out"
+                data-nodeid="start-start-14-16"
+              />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="sequence-14-16"
+            style="top: 534px; left: 288px;"
+          >
+            <div
+              class="css-2ttski"
+              data-testid="endNode-sequence-14-16"
+            >
+              <div
+                class="port "
+                data-name="in"
+                data-nodeid="sequence-14-16"
+              />
+              <svg
+                height="24"
+                viewBox="0 0 32 32"
+                width="24"
+              >
+                <circle
+                  cx="16"
+                  cy="16"
+                  fill="var(--vscode-button-background)"
+                  r="14"
+                />
+              </svg>
+              <div
+                class="port "
+                data-name="out"
+                data-nodeid="sequence-14-16"
+              />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="addNewSequence-15-12"
+            style="top: 460px; left: 385px;"
+          >
+            <div
+              class="css-7l5e9h"
+              data-testid="plusNode-addNewSequence-15-12"
+            >
+              <div
+                class="port "
+                data-name="in"
+                data-nodeid="addNewSequence-15-12"
+              />
+              <svg
+                height="24"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                  fill="var(--vscode-editor-background)"
+                />
+                <path
+                  d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                  fill="var(--vscode-foreground)"
+                />
+              </svg>
+              <div
+                class="port "
+                data-name="out"
+                data-nodeid="addNewSequence-15-12"
+              />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="iterate-16-12"
+            style="top: 768px; left: 125px;"
+          >
+            <div
+              data-testid="groupNode-iterate-16-12"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-17lt5ih"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="iterate-16-12"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1wk9l6y"
+                    >
+                      <div
+                        class="css-znnhbi"
+                      >
+                        <i
+                          class="fw-Iterate"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-kyfez4"
+                        >
+                          <div
+                            class="css-h55zw6"
+                          >
+                            Iterate
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="css-as7ops"
+                  />
+                </div>
+              </div>
+              <div
+                class="css-ztgap3"
+                height="478"
+                width="260"
+              >
+                <div
+                  class="port css-1l1tlbe"
+                  data-name="out"
+                  data-nodeid="iterate-16-12"
+                  style="margin-left: 97px;"
+                />
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="start-start-18-20"
+            style="top: 878px; left: 188px;"
+          >
+            <div
+              class="css-2ttski"
+              data-testid="startNode-start-start-18-20"
+              style="cursor: default;"
+            >
+              <div
+                class="port "
+                data-name="in"
+                data-nodeid="start-start-18-20"
+              />
+              <svg
+                height="24"
+                viewBox="0 0 32 32"
+                width="24"
+              >
+                <circle
+                  cx="16"
+                  cy="16"
+                  fill="var(--vscode-button-background)"
+                  r="10"
+                />
+                <path
+                  d="M16 30a14 14 0 1 1 14-14a14.016 14.016 0 0 1-14 14m0-26a12 12 0 1 0 12 12A12.014 12.014 0 0 0 16 4"
+                  fill="var(--vscode-button-background)"
+                />
+              </svg>
+              <div
+                class="port "
+                data-name="out"
+                data-nodeid="start-start-18-20"
+              />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="property-19-24"
+            style="top: 952px; left: 125px;"
+          >
+            <div
+              data-testid="mediatorNode-property-19-24"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-17lt5ih"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="property-19-24"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1gt6rr1"
+                    >
+                      <div
+                        class="css-1tyk8pj"
+                      >
+                        <i
+                          class="fw-Property"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-1f8ti7d"
+                        >
+                          <div
+                            class="css-h55zw6"
+                            data-testid="mediator-name"
+                          >
+                            Property
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                              data-testid="mediator-description"
+                            >
+                              uri.var.city
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="port css-1l1tlbe"
+                    data-name="out"
+                    data-nodeid="property-19-24"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="call-21-24"
+            style="top: 1062px; left: 125px;"
+          >
+            <div
+              data-testid="callNode-call-21-24"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-8dz80v"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="call-21-24"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1wk9l6y"
+                    >
+                      <div
+                        class="css-1sgd2zu"
+                      >
+                        <i
+                          class="fw-Call"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-kyfez4"
+                        >
+                          <div
+                            class="css-h55zw6"
+                          >
+                            Call
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="port css-1l1tlbe"
+                    data-name="out"
+                    data-nodeid="call-21-24"
+                  />
+                </div>
+              </div>
+              <div
+                class="css-1e0hp15"
+              >
+                <div
+                  class="css-1t1qebt"
+                >
+                  <svg
+                    height="50"
+                    viewBox="0 0 103 40"
+                    width="110"
+                  >
+                    <circle
+                      cx="80"
+                      cy="20"
+                      fill="var(--vscode-editor-background)"
+                      r="22"
+                      stroke="#a8a8a8"
+                      stroke-width="2"
+                    />
+                    <g
+                      transform="translate(80,20)"
+                    >
+                      <foreignobject
+                        height="25"
+                        overflow="visible"
+                        width="25"
+                      >
+                        <div
+                          style="transform: translate(-50%, -50%);"
+                        >
+                          <div
+                            class="css-pxp5xx"
+                          >
+                            <i
+                              class="fw-NamedEndpoint"
+                            />
+                          </div>
+                        </div>
+                      </foreignobject>
+                    </g>
+                    <line
+                      style="stroke: var(--vscode-button-background); stroke-width: 2; marker-end: url(#call-21-24-arrow-head);"
+                      x1="0"
+                      x2="57"
+                      y1="20"
+                      y2="20"
+                    />
+                    <defs>
+                      <marker
+                        markerHeight="4"
+                        markerWidth="4"
+                        orient="auto"
+                        refX="3"
+                        refY="2"
+                        viewBox="0 0 4 4"
+                      >
+                        <polygon
+                          fill="var(--vscode-button-background)"
+                          points="0,4 0,0 4,2"
+                        />
+                      </marker>
+                    </defs>
+                  </svg>
+                </div>
+              </div>
+              <div
+                class="css-abcnmy"
+              >
+                OpenWeatherMapEp
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="subSequence-18-20"
+            style="top: 1172px; left: 188px;"
+          >
+            <div
+              class="css-2ttski"
+              data-testid="endNode-subSequence-18-20"
+            >
+              <div
+                class="port "
+                data-name="in"
+                data-nodeid="subSequence-18-20"
+              />
+              <svg
+                height="24"
+                viewBox="0 0 32 32"
+                width="24"
+              >
+                <circle
+                  cx="16"
+                  cy="16"
+                  fill="var(--vscode-button-background)"
+                  r="14"
+                />
+              </svg>
+              <div
+                class="port "
+                data-name="out"
+                data-nodeid="subSequence-18-20"
+              />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="aggregate-28-12"
+            style="top: 1296px; left: 125px;"
+          >
+            <div
+              data-testid="groupNode-aggregate-28-12"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-17lt5ih"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="aggregate-28-12"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1wk9l6y"
+                    >
+                      <div
+                        class="css-1y9wcek"
+                      >
+                        <i
+                          class="fw-Aggregate"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-kyfez4"
+                        >
+                          <div
+                            class="css-h55zw6"
+                          >
+                            Aggregate
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="css-as7ops"
+                  />
+                </div>
+              </div>
+              <div
+                class="css-h1q2y6"
+                height="368"
+                width="150"
+              >
+                <div
+                  class="port css-1l1tlbe"
+                  data-name="out"
+                  data-nodeid="aggregate-28-12"
+                  style="margin-left: 97px;"
+                />
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="start-start-33-16"
+            style="top: 1406px; left: 188px;"
+          >
+            <div
+              class="css-2ttski"
+              data-testid="startNode-start-start-33-16"
+              style="cursor: default;"
+            >
+              <div
+                class="port "
+                data-name="in"
+                data-nodeid="start-start-33-16"
+              />
+              <svg
+                height="24"
+                viewBox="0 0 32 32"
+                width="24"
+              >
+                <circle
+                  cx="16"
+                  cy="16"
+                  fill="var(--vscode-button-background)"
+                  r="10"
+                />
+                <path
+                  d="M16 30a14 14 0 1 1 14-14a14.016 14.016 0 0 1-14 14m0-26a12 12 0 1 0 12 12A12.014 12.014 0 0 0 16 4"
+                  fill="var(--vscode-button-background)"
+                />
+              </svg>
+              <div
+                class="port "
+                data-name="out"
+                data-nodeid="start-start-33-16"
+              />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="respond-34-20"
+            style="top: 1480px; left: 125px;"
+          >
+            <div
+              data-testid="mediatorNode-respond-34-20"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-17lt5ih"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="respond-34-20"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1gt6rr1"
+                    >
+                      <div
+                        class="css-14uaptq"
+                      >
+                        <i
+                          class="fw-Respond"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-kyfez4"
+                        >
+                          <div
+                            class="css-h55zw6"
+                            data-testid="mediator-name"
+                          >
+                            Respond
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                              data-testid="mediator-description"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="port css-1l1tlbe"
+                    data-name="out"
+                    data-nodeid="respond-34-20"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="subSequence-33-16"
+            style="top: 1590px; left: 188px;"
+          >
+            <div
+              class="css-2ttski"
+              data-testid="endNode-subSequence-33-16"
+            >
+              <div
+                class="port "
+                data-name="in"
+                data-nodeid="subSequence-33-16"
+              />
+              <svg
+                height="24"
+                viewBox="0 0 32 32"
+                width="24"
+              >
+                <circle
+                  cx="16"
+                  cy="16"
+                  fill="var(--vscode-button-background)"
+                  r="14"
+                />
+              </svg>
+              <div
+                class="port "
+                data-name="out"
+                data-nodeid="subSequence-33-16"
+              />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="inSequence-4-8"
+            style="top: 1714px; left: 188px;"
+          >
+            <div
+              class="css-2ttski"
+              data-testid="endNode-inSequence-4-8"
+            >
+              <div
+                class="port "
+                data-name="in"
+                data-nodeid="inSequence-4-8"
+              />
+              <svg
+                height="24"
+                viewBox="0 0 32 32"
+                width="24"
+              >
+                <circle
+                  cx="16"
+                  cy="16"
+                  fill="var(--vscode-button-background)"
+                  r="14"
+                />
+              </svg>
+              <div
+                class="port "
+                data-name="out"
+                data-nodeid="inSequence-4-8"
               />
             </div>
           </div>
@@ -27607,7 +29797,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         class="css-18bfde4"
                       >
                         <div
-                          class="css-kyfez4"
+                          class="css-1f8ti7d"
                         >
                           <div
                             class="css-h55zw6"
@@ -27623,7 +29813,9 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class="css-1vc2u59"
-                            />
+                            >
+                              seq1
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -35943,7 +38135,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         class="css-18bfde4"
                       >
                         <div
-                          class="css-kyfez4"
+                          class="css-1f8ti7d"
                         >
                           <div
                             class="css-h55zw6"
@@ -35959,7 +38151,9 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class="css-1vc2u59"
-                            />
+                            >
+                              s1
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -36404,7 +38598,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         class="css-18bfde4"
                       >
                         <div
-                          class="css-kyfez4"
+                          class="css-1f8ti7d"
                         >
                           <div
                             class="css-h55zw6"
@@ -36420,7 +38614,9 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class="css-1vc2u59"
-                            />
+                            >
+                              s1
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -36545,7 +38741,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         class="css-18bfde4"
                       >
                         <div
-                          class="css-kyfez4"
+                          class="css-1f8ti7d"
                         >
                           <div
                             class="css-h55zw6"
@@ -36561,7 +38757,9 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class="css-1vc2u59"
-                            />
+                            >
+                              s1
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -37006,7 +39204,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         class="css-18bfde4"
                       >
                         <div
-                          class="css-kyfez4"
+                          class="css-1f8ti7d"
                         >
                           <div
                             class="css-h55zw6"
@@ -37022,7 +39220,9 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class="css-1vc2u59"
-                            />
+                            >
+                              s1
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -37147,7 +39347,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         class="css-18bfde4"
                       >
                         <div
-                          class="css-kyfez4"
+                          class="css-1f8ti7d"
                         >
                           <div
                             class="css-h55zw6"
@@ -37163,7 +39363,9 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class="css-1vc2u59"
-                            />
+                            >
+                              s1
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -37497,7 +39699,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         class="css-18bfde4"
                       >
                         <div
-                          class="css-kyfez4"
+                          class="css-1f8ti7d"
                         >
                           <div
                             class="css-h55zw6"
@@ -37513,7 +39715,9 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class="css-1vc2u59"
-                            />
+                            >
+                              s1
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -39532,7 +41736,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         class="css-18bfde4"
                       >
                         <div
-                          class="css-kyfez4"
+                          class="css-1f8ti7d"
                         >
                           <div
                             class="css-h55zw6"
@@ -39548,7 +41752,9 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class="css-1vc2u59"
-                            />
+                            >
+                              s1
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -40054,7 +42260,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         class="css-18bfde4"
                       >
                         <div
-                          class="css-kyfez4"
+                          class="css-1f8ti7d"
                         >
                           <div
                             class="css-h55zw6"
@@ -40070,7 +42276,9 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class="css-1vc2u59"
-                            />
+                            >
+                              s1
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -40475,7 +42683,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         class="css-18bfde4"
                       >
                         <div
-                          class="css-kyfez4"
+                          class="css-1f8ti7d"
                         >
                           <div
                             class="css-h55zw6"
@@ -40491,7 +42699,9 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class="css-1vc2u59"
-                            />
+                            >
+                              s1
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -40936,7 +43146,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         class="css-18bfde4"
                       >
                         <div
-                          class="css-kyfez4"
+                          class="css-1f8ti7d"
                         >
                           <div
                             class="css-h55zw6"
@@ -40952,7 +43162,9 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class="css-1vc2u59"
-                            />
+                            >
+                              s1
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -41077,7 +43289,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         class="css-18bfde4"
                       >
                         <div
-                          class="css-kyfez4"
+                          class="css-1f8ti7d"
                         >
                           <div
                             class="css-h55zw6"
@@ -41093,7 +43305,9 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class="css-1vc2u59"
-                            />
+                            >
+                              s1
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -43204,7 +45418,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         class="css-18bfde4"
                       >
                         <div
-                          class="css-kyfez4"
+                          class="css-1f8ti7d"
                         >
                           <div
                             class="css-h55zw6"
@@ -43220,7 +45434,9 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class="css-1vc2u59"
-                            />
+                            >
+                              s1
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -47694,7 +49910,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         class="css-18bfde4"
                       >
                         <div
-                          class="css-kyfez4"
+                          class="css-1f8ti7d"
                         >
                           <div
                             class="css-h55zw6"
@@ -47710,7 +49926,9 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class="css-1vc2u59"
-                            />
+                            >
+                              s1
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -48354,7 +50572,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         class="css-18bfde4"
                       >
                         <div
-                          class="css-kyfez4"
+                          class="css-1f8ti7d"
                         >
                           <div
                             class="css-h55zw6"
@@ -48370,7 +50588,9 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class="css-1vc2u59"
-                            />
+                            >
+                              s1
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -48849,7 +51069,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         class="css-18bfde4"
                       >
                         <div
-                          class="css-kyfez4"
+                          class="css-1f8ti7d"
                         >
                           <div
                             class="css-h55zw6"
@@ -48865,7 +51085,9 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class="css-1vc2u59"
-                            />
+                            >
+                              s1
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -49310,7 +51532,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         class="css-18bfde4"
                       >
                         <div
-                          class="css-kyfez4"
+                          class="css-1f8ti7d"
                         >
                           <div
                             class="css-h55zw6"
@@ -49326,7 +51548,9 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class="css-1vc2u59"
-                            />
+                            >
+                              s1
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -49451,7 +51675,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         class="css-18bfde4"
                       >
                         <div
-                          class="css-kyfez4"
+                          class="css-1f8ti7d"
                         >
                           <div
                             class="css-h55zw6"
@@ -49467,7 +51691,9 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class="css-1vc2u59"
-                            />
+                            >
+                              s1
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -52470,7 +54696,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         class="css-18bfde4"
                       >
                         <div
-                          class="css-kyfez4"
+                          class="css-1f8ti7d"
                         >
                           <div
                             class="css-h55zw6"
@@ -52486,7 +54712,9 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class="css-1vc2u59"
-                            />
+                            >
+                              s1
+                            </div>
                           </div>
                         </div>
                       </div>

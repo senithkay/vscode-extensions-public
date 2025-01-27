@@ -8,23 +8,27 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { HelperPaneCompletionItem } from '@wso2-enterprise/mi-core';
-import { getHelperPaneCompletionItem } from '../utils';
+import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { getHelperPaneCompletionItem } from '../FormExpressionField/utils';
 
-type ConfigsPageProps = {
+type PayloadPageProps = {
     isLoading: boolean;
-    configInfo: HelperPaneCompletionItem[];
+    payloadInfo: HelperPaneCompletionItem[];
+    setCurrentPage: (page: number) => void;
     setFilterText: (filterText: string) => void;
+    onClose: () => void;
     onChange: (value: string) => void;
 };
 
-export const ConfigsPage = ({
+export const PayloadPage = ({
     isLoading,
-    configInfo,
+    payloadInfo,
+    setCurrentPage,
     setFilterText,
+    onClose,
     onChange
-}: ConfigsPageProps) => {
+}: PayloadPageProps) => {
     const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>('');
 
@@ -45,12 +49,15 @@ export const ConfigsPage = ({
     return (
         <>
             <HelperPane.Header
+                title="Payload"
+                onBack={() => setCurrentPage(0)}
+                onClose={onClose}
                 searchValue={searchValue}
                 onSearch={handleSearch}
             />
             <HelperPane.Body loading={isLoading}>
-                {configInfo?.map((config) => (
-                    getHelperPaneCompletionItem(config, onChange, getCompletionItemIcon)
+                {payloadInfo?.map((payload) => (
+                    getHelperPaneCompletionItem(payload, onChange, getCompletionItemIcon)
                 ))}
             </HelperPane.Body>
         </>

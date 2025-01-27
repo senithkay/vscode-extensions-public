@@ -342,7 +342,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
                             <Typography variant="h3" sx={{ margin: '0px' }}>Available Connections</Typography>
                             {Object.values(connections).some(({ connections }) => connections.length > 0) && (
                                 <LinkButton onClick={() => addNewConnection()}>
-                                    <Codicon name="plus"/>Add new connection
+                                    <Codicon name="plus" />Add new connection
                                 </LinkButton>
                             )}
                         </SectionTitleWrapper>
@@ -352,152 +352,155 @@ export function ConnectionPage(props: ConnectorPageProps) {
                                     No connections available. Please create a new connection.
                                 </MessageWrapper>
                                 <LinkButton onClick={() => addNewConnection()}>
-                                    <Codicon name="plus"/>Add new connection
+                                    <Codicon name="plus" />Add new connection
                                 </LinkButton>
                             </>
                         ) : filteredConnections && (
-                            <ConnectionWrapper>
-                                {Object.keys(filteredConnections).map((key) => {
-                                    return (
-                                        <div key={key}>
-                                            {filteredConnections[key].connections.map((connection, index) => (
-                                                connection && (
-                                                    <div key={index} style={{
-                                                        backgroundColor: 'var(--vscode-editorWidget-background)',
-                                                        border: '0px',
-                                                        borderRadius: 2,
-                                                        cursor: 'pointer',
-                                                        display: 'flex',
-                                                        justifyContent: 'left',
-                                                        transition: '0.3s',
-                                                        flexDirection: 'column',
-                                                        marginBottom: '15px'
-                                                    }}>
-                                                        <ComponentCard
-                                                            id={connection.name}
-                                                            key={connection.name}
-                                                            onClick={() => selectConnection(key, connection)}
-                                                            sx={{
+                            Object.keys(filteredConnections).length === 0 ?
+                                <h3 style={{ textAlign: "center" }}>No connections found</h3> : (
+                                    <ConnectionWrapper>
+                                        {Object.keys(filteredConnections).map((key) => {
+                                            return (
+                                                <div key={key}>
+                                                    {filteredConnections[key].connections.map((connection, index) => (
+                                                        connection && (
+                                                            <div key={index} style={{
+                                                                backgroundColor: 'var(--vscode-editorWidget-background)',
                                                                 border: '0px',
                                                                 borderRadius: 2,
-                                                                padding: '6px 10px',
-                                                                width: 'auto',
-                                                                height: '32px'
-                                                            }}
-                                                        >
-                                                            <CardContent>
-                                                                <CardLabel>
-                                                                    <IconContainer>
-                                                                        <img
-                                                                            src={filteredConnections[key]?.iconPathUri}
-                                                                            alt="Icon"
-                                                                            onError={(e) => {
-                                                                                const target = e.target as HTMLImageElement;
-                                                                                target.src = 'https://mi-connectors.wso2.com/icons/wordpress.gif'
-                                                                            }}
-                                                                        />
-                                                                    </IconContainer>
-                                                                    <div style={{
-                                                                        width: '100%',
-                                                                        overflow: 'hidden',
-                                                                        textOverflow: 'ellipsis',
-                                                                        whiteSpace: 'nowrap',
-                                                                        textAlign: 'left',
-                                                                        display: 'flex',
-                                                                        flexDirection: 'column',
-                                                                        justifyContent: 'center'
-                                                                    }}>
-                                                                        <IconLabel>
-                                                                            {connection.name}
-                                                                        </IconLabel>
-                                                                        <VersionTag>
-                                                                            {getConnectionLabel(key, connection.connectionType)}
-                                                                        </VersionTag>
-                                                                    </div>
-                                                                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                                                        {expandedConnections.includes(connection) ?
-                                                                            <Codicon name={"chevron-up"} /> : <Codicon name={"chevron-down"} />
-                                                                        }
-                                                                    </div>
-                                                                </CardLabel>
-                                                            </CardContent>
-                                                        </ComponentCard>
-                                                        {(filteredOperations?.some(
-                                                            ([filteredConnector]) =>
-                                                                filteredConnector.name === connection.name
-                                                        )
-                                                            || (expandedConnections && expandedConnections.includes(connection))) &&
-                                                            <div style={{ padding: 10 }}>
-                                                                <div style={{ width: '100%', textAlign: 'left' }}>Select Operation</div>
-                                                                <OperationGrid>
-                                                                    {((filteredOperations.find(([filteredConnection]) => filteredConnection === connection)?.slice(1)[0])
-                                                                        || filteredConnections[key].connectorData?.actions).map((operation: any) => {
-                                                                            const allowedTypes = operation.allowedConnectionTypes;
-                                                                            if (operation.isHidden || (!(allowedTypes?.includes(connection.connectionType)))) {
-                                                                                return null;
-                                                                            }
-
-                                                                            return (
-                                                                                <ComponentCard
-                                                                                    id={operation.name}
-                                                                                    key={operation.name}
-                                                                                    onClick={() => generateForm(
-                                                                                        connection,
-                                                                                        operation.name,
-                                                                                        filteredConnections[key].connectorData
-                                                                                    )}
-                                                                                    sx={{
-                                                                                        '&:hover, &.active': {
-                                                                                            '.icon svg g': {
-                                                                                                fill: 'var(--vscode-editor-foreground)'
-                                                                                            },
-                                                                                            backgroundColor: 'var(--vscode-pickerGroup-border)',
-                                                                                            border: '0.5px solid var(--vscode-focusBorder)'
-                                                                                        },
-                                                                                        alignItems: 'center',
-                                                                                        border: '0.5px solid var(--vscode-editor-foreground)',
-                                                                                        borderRadius: 2,
-                                                                                        cursor: 'pointer',
-                                                                                        display: 'flex',
-                                                                                        height: 20,
-                                                                                        justifyContent: 'left',
-                                                                                        marginBottom: 10,
-                                                                                        padding: 10,
-                                                                                        transition: '0.3s',
-                                                                                        width: '160px'
+                                                                cursor: 'pointer',
+                                                                display: 'flex',
+                                                                justifyContent: 'left',
+                                                                transition: '0.3s',
+                                                                flexDirection: 'column',
+                                                                marginBottom: '15px'
+                                                            }}>
+                                                                <ComponentCard
+                                                                    id={connection.name}
+                                                                    key={connection.name}
+                                                                    onClick={() => selectConnection(key, connection)}
+                                                                    sx={{
+                                                                        border: '0px',
+                                                                        borderRadius: 2,
+                                                                        padding: '6px 10px',
+                                                                        width: 'auto',
+                                                                        height: '32px'
+                                                                    }}
+                                                                >
+                                                                    <CardContent>
+                                                                        <CardLabel>
+                                                                            <IconContainer>
+                                                                                <img
+                                                                                    src={filteredConnections[key]?.iconPathUri}
+                                                                                    alt="Icon"
+                                                                                    onError={(e) => {
+                                                                                        const target = e.target as HTMLImageElement;
+                                                                                        target.src = 'https://mi-connectors.wso2.com/icons/wordpress.gif'
                                                                                     }}
-                                                                                >
-                                                                                    <SmallIconContainer>
-                                                                                        <img
-                                                                                            src={filteredConnections[key]?.iconPathUri}
-                                                                                            alt="Icon"
-                                                                                            onError={(e) => {
-                                                                                                const target = e.target as HTMLImageElement;
-                                                                                                target.src = 'https://mi-connectors.wso2.com/icons/wordpress.gif'
+                                                                                />
+                                                                            </IconContainer>
+                                                                            <div style={{
+                                                                                width: '100%',
+                                                                                overflow: 'hidden',
+                                                                                textOverflow: 'ellipsis',
+                                                                                whiteSpace: 'nowrap',
+                                                                                textAlign: 'left',
+                                                                                display: 'flex',
+                                                                                flexDirection: 'column',
+                                                                                justifyContent: 'center'
+                                                                            }}>
+                                                                                <IconLabel>
+                                                                                    {connection.name}
+                                                                                </IconLabel>
+                                                                                <VersionTag>
+                                                                                    {getConnectionLabel(key, connection.connectionType)}
+                                                                                </VersionTag>
+                                                                            </div>
+                                                                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                                                                {expandedConnections.includes(connection) ?
+                                                                                    <Codicon name={"chevron-up"} /> : <Codicon name={"chevron-down"} />
+                                                                                }
+                                                                            </div>
+                                                                        </CardLabel>
+                                                                    </CardContent>
+                                                                </ComponentCard>
+                                                                {(filteredOperations?.some(
+                                                                    ([filteredConnector]) =>
+                                                                        filteredConnector.name === connection.name
+                                                                )
+                                                                    || (expandedConnections && expandedConnections.includes(connection))) &&
+                                                                    <div style={{ padding: 10 }}>
+                                                                        <div style={{ width: '100%', textAlign: 'left' }}>Select Operation</div>
+                                                                        <OperationGrid>
+                                                                            {((filteredOperations.find(([filteredConnection]) => filteredConnection === connection)?.slice(1)[0])
+                                                                                || filteredConnections[key].connectorData?.actions).map((operation: any) => {
+                                                                                    const allowedTypes = operation.allowedConnectionTypes;
+                                                                                    if (operation.isHidden || (!(allowedTypes?.some((type: string) => type.toLowerCase() === connection.connectionType.toLowerCase())))) {
+                                                                                        return null;
+                                                                                    }
+
+                                                                                    return (
+                                                                                        <ComponentCard
+                                                                                            id={operation.name}
+                                                                                            key={operation.name}
+                                                                                            onClick={() => generateForm(
+                                                                                                connection,
+                                                                                                operation.name,
+                                                                                                filteredConnections[key].connectorData
+                                                                                            )}
+                                                                                            sx={{
+                                                                                                '&:hover, &.active': {
+                                                                                                    '.icon svg g': {
+                                                                                                        fill: 'var(--vscode-editor-foreground)'
+                                                                                                    },
+                                                                                                    backgroundColor: 'var(--vscode-pickerGroup-border)',
+                                                                                                    border: '0.5px solid var(--vscode-focusBorder)'
+                                                                                                },
+                                                                                                alignItems: 'center',
+                                                                                                border: '0.5px solid var(--vscode-editor-foreground)',
+                                                                                                borderRadius: 2,
+                                                                                                cursor: 'pointer',
+                                                                                                display: 'flex',
+                                                                                                height: 20,
+                                                                                                justifyContent: 'left',
+                                                                                                marginBottom: 10,
+                                                                                                padding: 10,
+                                                                                                transition: '0.3s',
+                                                                                                width: '160px'
                                                                                             }}
-                                                                                        />
-                                                                                    </SmallIconContainer>
-                                                                                    <div style={{
-                                                                                        width: '120px',
-                                                                                        overflow: 'hidden',
-                                                                                        textOverflow: 'ellipsis',
-                                                                                        whiteSpace: 'nowrap'
-                                                                                    }}>
-                                                                                        <IconLabel>{FirstCharToUpperCase(operation.name)}</IconLabel>
-                                                                                    </div>
-                                                                                </ComponentCard>
-                                                                            );
-                                                                        })}
-                                                                </OperationGrid>
+                                                                                        >
+                                                                                            <SmallIconContainer>
+                                                                                                <img
+                                                                                                    src={filteredConnections[key]?.iconPathUri}
+                                                                                                    alt="Icon"
+                                                                                                    onError={(e) => {
+                                                                                                        const target = e.target as HTMLImageElement;
+                                                                                                        target.src = 'https://mi-connectors.wso2.com/icons/wordpress.gif'
+                                                                                                    }}
+                                                                                                />
+                                                                                            </SmallIconContainer>
+                                                                                            <div style={{
+                                                                                                width: '120px',
+                                                                                                overflow: 'hidden',
+                                                                                                textOverflow: 'ellipsis',
+                                                                                                whiteSpace: 'nowrap'
+                                                                                            }}>
+                                                                                                <IconLabel>{FirstCharToUpperCase(operation.name)}</IconLabel>
+                                                                                            </div>
+                                                                                        </ComponentCard>
+                                                                                    );
+                                                                                })}
+                                                                        </OperationGrid>
+                                                                    </div>
+                                                                }
                                                             </div>
-                                                        }
-                                                    </div>
-                                                )
-                                            ))}
-                                        </div>
-                                    );
-                                })}
-                            </ConnectionWrapper>
+                                                        )
+                                                    ))}
+                                                </div>
+                                            );
+                                        })}
+                                    </ConnectionWrapper>
+                                )
                         )}
                     </SectionContainer>
                 )}

@@ -208,7 +208,8 @@ interface BaseProps {
     notItemsFoundMessage?: string;
     hideDropdown?: boolean;
     errorMsg?: string;
-    labelAdornment?: ReactNode
+    labelAdornment?: ReactNode,
+    requireValidation?: boolean
 }
 
 // Define the conditional properties
@@ -273,7 +274,8 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
         onCreateButtonClick,
         identifier,
         hideDropdown,
-        errorMsg
+        errorMsg,
+        requireValidation = false
     } = props;
     const [query, setQuery] = useState('');
     const [isTextFieldFocused, setIsTextFieldFocused] = useState(false);
@@ -423,7 +425,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                             <Combobox.Options>
                                 {/* A hidden Combobox.Option which is used to create a new item */}
                                 {filteredResults.length === 0 && query !== "" && !onCreateButtonClick ? (
-                                    allowItemCreate ? (
+                                    allowItemCreate && !requireValidation ? (
                                         <ComboboxOption key={0}>
                                             <Combobox.Option className={ComboboxOptionContainer} value={query} key={0}>
                                                 {query}
@@ -438,7 +440,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                                          * A hidden Combobox.Option which is used to create a new item when the query is a
                                          * substring of the filtered results
                                         **/}
-                                        {allowItemCreate && extactMatch.length === 0 && (
+                                        {allowItemCreate && !requireValidation && extactMatch.length === 0 && (
                                             <ComboboxOption display={false} key={0}>
                                                 <Combobox.Option className={ComboboxOptionContainer} value={query} key={0}>
                                                     {query}
