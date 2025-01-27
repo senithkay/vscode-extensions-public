@@ -65,7 +65,7 @@ function createTests(response: TestsDiscoveryResponse, testController: TestContr
                 const testId = `test:${path.basename(fileUri.path)}:${testFunc.functionName}`;
 
                 // Create a test item for the test function
-                const testItem = testController.createTestItem(testId, testFunc.functionName, fileUri);
+                const testItem = testController.createTestItem(testId, testFunc.functionName);
 
                 // Set the range for the test (optional, for navigation)
                 const startPosition = new Position(
