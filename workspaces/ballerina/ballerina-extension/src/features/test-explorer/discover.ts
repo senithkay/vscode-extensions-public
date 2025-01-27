@@ -43,7 +43,7 @@ function createTests(response: TestsDiscoveryResponse, testController: TestContr
         for (const [group, testFunctions] of entries) {
             // Create a test item for the group
             const groupId = `group:${group}`;
-            let groupItem = testController.items.get(groupId);
+            let groupItem : TestItem = testController.items.get(groupId);
 
             if (!groupItem) {
                 // If the group doesn't exist, create it
@@ -61,7 +61,7 @@ function createTests(response: TestsDiscoveryResponse, testController: TestContr
                 const testFunc : TestFunction = tf as TestFunction;
                 // Generate a unique ID for the test item using the function name
                 const fileName: string = testFunc.lineRange.fileName;
-                const fileUri = Uri.file(path.join(projectDir, fileName)) 
+                const fileUri = Uri.file(path.join(projectDir, fileName)); 
                 const testId = `test:${path.basename(fileUri.path)}:${testFunc.functionName}`;
 
                 // Create a test item for the test function
@@ -132,12 +132,12 @@ export async function handleFileDelete(uri: Uri, testController: TestController)
     });
 }
 
-function isTestFunctionItem(item: TestItem): boolean {
+export function isTestFunctionItem(item: TestItem): boolean {
     // Test function items have IDs starting with "test:"
     return item.id.startsWith('test:');
 }
 
-function isTestGroupItem(item: TestItem): boolean {
+export function isTestGroupItem(item: TestItem): boolean {
     // Test group items have IDs starting with "group:"
     return item.id.startsWith('group:');
 }

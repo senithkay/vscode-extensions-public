@@ -8,14 +8,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { tests, workspace,  TestRunProfileKind } from "vscode";
+import { tests, workspace,  TestRunProfileKind, TestController } from "vscode";
 import { BallerinaExtension } from "../../core";
 import { runHandler } from "./runner";
 import { activateEditKolaTest } from "./commands";
 import { discoverTestFunctionsInProject, handleFileChange as handleTestFileUpdate, handleFileDelete as handleTestFileDelete } from "./discover";
 
+export let testController: TestController;
+
 export async function activate(ballerinaExtInstance: BallerinaExtension) {
-    const testController = tests.createTestController('kola-tests', 'Kola Tests');
+    testController = tests.createTestController('kola-tests', 'Kola Tests');
 
     // Create test profiles to display.
     testController.createRunProfile('Run Tests', TestRunProfileKind.Run, runHandler, true);
