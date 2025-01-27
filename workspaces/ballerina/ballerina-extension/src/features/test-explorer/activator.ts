@@ -8,23 +8,34 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { tests, Uri, Position, Range,  TestRunProfileKind } from "vscode";
+import { tests, workspace,  TestRunProfileKind } from "vscode";
 import { BallerinaExtension } from "../../core";
 import { runHandler } from "./runner";
 import { activateEditKolaTest } from "./commands";
-import { discoverTestFunctionsInProject } from "./discover";
+import { discoverTestFunctionsInProject, handleFileChange as handleTestFileUpdate, handleFileDelete as handleTestFileDelete } from "./discover";
 
 export async function activate(ballerinaExtInstance: BallerinaExtension) {
-    activateEditKolaTest();
-
     const testController = tests.createTestController('kola-tests', 'Kola Tests');
 
-    // create test profiles to display.
+    // Create test profiles to display.
     testController.createRunProfile('Run Tests', TestRunProfileKind.Run, runHandler, true);
     testController.createRunProfile('Debug Tests', TestRunProfileKind.Debug, runHandler, true);
 
+    // Register a file watcher for test files
+    const fileWatcher = workspace.createFileSystemWatcher('**/tests/**/*.bal');
+
+    // Handle file creation, modification, and deletion
+    fileWatcher.onDidCreate(async (uri) => await handleTestFileUpdate(ballerinaExtInstance, uri, testController));
+    fileWatcher.onDidChange(async (uri) => await handleTestFileUpdate(ballerinaExtInstance, uri, testController));
+    fileWatcher.onDidDelete((uri) => handleTestFileDelete(uri, testController));
+
+    // Initial test discovery
     discoverTestFunctionsInProject(ballerinaExtInstance, testController);
-    ballerinaExtInstance.context?.subscriptions.push(testController);
+
+    // Register the test controller and file watcher with the extension context
+    ballerinaExtInstance.context?.subscriptions.push(testController, fileWatcher);
+
+    activateEditKolaTest();
 }
 
 

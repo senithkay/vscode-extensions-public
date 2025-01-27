@@ -11,7 +11,6 @@
 import { commands, TestItem } from "vscode";
 import { openView, StateMachine, history } from "../../stateMachine";
 import { BI_COMMANDS, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
-import path from "path";
 
 export function activateEditKolaTest() {
     // register run project tests handler

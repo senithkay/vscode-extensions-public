@@ -12,7 +12,7 @@ import path from "path";
 import { StateMachine } from "../../stateMachine";
 import { TestsDiscoveryRequest, TestsDiscoveryResponse, TestFunction } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "../../core";
-import { Position, Range, TestController, Uri } from "vscode";
+import { Position, Range, TestController, Uri, TestItem } from "vscode";
 
 
 export async function discoverTestFunctionsInProject(ballerinaExtInstance: BallerinaExtension, 
@@ -42,7 +42,7 @@ function createTests(response: TestsDiscoveryResponse, testController: TestContr
         // Iterate over the result map
         for (const [group, testFunctions] of entries) {
             // Create a test item for the group
-            const groupId = `${group}`;
+            const groupId = `group:${group}`;
             let groupItem = testController.items.get(groupId);
 
             if (!groupItem) {
@@ -60,12 +60,12 @@ function createTests(response: TestsDiscoveryResponse, testController: TestContr
             for (const tf of testFunctionsArray) {
                 const testFunc : TestFunction = tf as TestFunction;
                 // Generate a unique ID for the test item using the function name
-                const testId = `${group}:${testFunc.functionName}`;
-
-                const fileUri = path.join(projectDir, testFunc.lineRange.fileName);
+                const fileName: string = testFunc.lineRange.fileName;
+                const fileUri = Uri.file(path.join(projectDir, fileName)) 
+                const testId = `test:${path.basename(fileUri.path)}:${testFunc.functionName}`;
 
                 // Create a test item for the test function
-                const testItem = testController.createTestItem(testId, testFunc.functionName, Uri.file(fileUri));
+                const testItem = testController.createTestItem(testId, testFunc.functionName, fileUri);
 
                 // Set the range for the test (optional, for navigation)
                 const startPosition = new Position(
@@ -83,4 +83,61 @@ function createTests(response: TestsDiscoveryResponse, testController: TestContr
             }
         }
     } 
+}
+
+
+export async function handleFileChange(ballerinaExtInstance: BallerinaExtension, 
+    uri: Uri, testController: TestController) {    
+    const request: TestsDiscoveryRequest = {
+        filePath: uri.path
+    };
+    const response: TestsDiscoveryResponse = await ballerinaExtInstance.langClient?.getFileTestFunctions(request);
+    if (!response || !response.result) {
+        return;
+    }
+
+    handleFileDelete(uri, testController);
+    createTests(response, testController);
+}
+
+export async function handleFileDelete(uri: Uri, testController: TestController) {
+    const filePath = path.basename(uri.path);
+
+    // Iterate over all root-level items in the Test Explorer
+    testController.items.forEach((item) => {
+        if (isTestFunctionItem(item)) {
+            // If the item is a test function, check if it belongs to the deleted file
+            if (item.id.startsWith(`test:${filePath}:`)) {
+                testController.items.delete(item.id);
+            }
+        } else if (isTestGroupItem(item)) {
+            // If the item is a test group, iterate over its children
+            const childrenToDelete: TestItem[] = [];
+            item.children.forEach((child) => {
+                if (child.id.startsWith(`test:${filePath}:`)) {
+                    childrenToDelete.push(child);
+                }
+            });
+
+            // Remove the matching test function items
+            childrenToDelete.forEach((child) => {
+                item.children.delete(child.id);
+            });
+
+            // If the group is empty after deletion, remove it
+            if (item.children.size === 0) {
+                testController.items.delete(item.id);
+            }
+        }
+    });
+}
+
+function isTestFunctionItem(item: TestItem): boolean {
+    // Test function items have IDs starting with "test:"
+    return item.id.startsWith('test:');
+}
+
+function isTestGroupItem(item: TestItem): boolean {
+    // Test group items have IDs starting with "group:"
+    return item.id.startsWith('group:');
 }
