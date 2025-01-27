@@ -135,8 +135,10 @@ async function getProjectStructureData(langClient: ExtendedLanguageClient): Prom
 		}
 		vscode.commands.executeCommand('setContext', 'projectOpened', true);
 		if (data.length > 0) {
+			vscode.commands.executeCommand('setContext', 'MI.showAddArtifact', false);
 			return data;
 		}
+		vscode.commands.executeCommand('setContext', 'MI.showAddArtifact', true);
 	} else {
 		vscode.commands.executeCommand('setContext', 'projectOpened', false);
 	}

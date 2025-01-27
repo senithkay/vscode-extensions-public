@@ -60,7 +60,17 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
         </svg>
     );
 
-    const getStartNode = () => (
+    const getEmptyStartNode = () => (
+        <svg width="24" height="24" viewBox="0 0 32 32">
+            <circle cx="16" cy="16" r="10" fill={Colors.PRIMARY} />
+            <path
+                fill={Colors.PRIMARY}
+                d="M16 30a14 14 0 1 1 14-14a14.016 14.016 0 0 1-14 14m0-26a12 12 0 1 0 12 12A12.014 12.014 0 0 0 16 4"
+            />
+        </svg>
+    );
+
+    const getStartNodeWithActions = () => (
         <div
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
@@ -100,8 +110,10 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
         switch (nodeType) {
             case StartNodeType.IN_SEQUENCE:
                 return getNamedStartNode();
+            case StartNodeType.OUT_SEQUENCE:
+                return getEmptyStartNode();
             default:
-                return getStartNode();
+                return node?.getParentStNode()?.tag === 'scatter-gather' ? getStartNodeWithActions() : getEmptyStartNode();
         }
     };
 

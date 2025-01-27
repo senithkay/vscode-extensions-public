@@ -179,6 +179,8 @@ import {
     RetrieveTemplateResponse,
     RetrieveWsdlEndpointRequest,
     RetrieveWsdlEndpointResponse,
+    SaveConfigRequest,
+    SaveConfigResponse,
     SaveInboundEPUischemaRequest,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
@@ -351,7 +353,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async getMIVersionFromPom(): Promise<MiVersionResponse> {
         return new Promise(async (resolve) => {
             const res = await getMIVersionFromPom();
-            resolve({ version: res ?? ''});
+            resolve({ version: res ?? '' });
         });
     }
 
@@ -3542,7 +3544,7 @@ ${endpointAttributes}
                     projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources');
                 } else {
                     projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
-                } 
+                }
             }
             const getTransformedRegistryRoot = (registryRoot: string) => {
                 if (registryRoot === '') {
@@ -5035,7 +5037,8 @@ ${keyValuesXML}`;
 
                 await this.applyEdit({
                     documentUri: param.documentUri,
-                    edits
+                    edits,
+                    disableUndoRedo: true
                 });
 
                 let document = workspace.textDocuments.find(doc => doc.uri.fsPath === param.documentUri);
@@ -5091,6 +5094,42 @@ ${keyValuesXML}`;
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.testConnectorConnection(params);
             resolve(res);
+        });
+    }
+
+    async saveConfig(params: SaveConfigRequest): Promise<SaveConfigResponse> {
+        return new Promise(async (resolve, reject) => {
+            const { configName, configType } = params;
+            const projectUri = StateMachine.context().projectUri!;
+
+            try {
+                // Read the config file content
+                const configFilePath = path.join(
+                    projectUri,
+                    'src',
+                    'main',
+                    'wso2mi',
+                    'resources',
+                    'conf',
+                    'config.properties'
+                );
+                const configFileContent = fs.readFileSync(configFilePath, 'utf-8').trim();
+
+                // Derive the updated config file content
+                let updatedConfigFileContent: string;
+                if (configFileContent.length > 0) {
+                    // Add a new line if the file is not empty
+                    updatedConfigFileContent = configFileContent + `\n${configName}:${configType}`;
+                } else {
+                    updatedConfigFileContent = configFileContent + `${configName}:${configType}`;
+                }
+
+                // Write the updated config file content back to the file
+                fs.writeFileSync(configFilePath, updatedConfigFileContent, 'utf-8');
+                resolve({ success: true });
+            } catch (e) {
+                reject(e);
+            }
         });
     }
 }

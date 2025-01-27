@@ -153,7 +153,7 @@ export class PositionVisitor implements Visitor {
                 } else if (subSequence.tag === "endpoint") {
                     this.setBasicMediatorPosition(subSequence);
                 } else {
-                    subSequence.viewState.w = NODE_DIMENSIONS.EMPTY.WIDTH;
+                    subSequence.viewState.w = node.tag === 'scatter-gather' ? NODE_DIMENSIONS.START.ACTIONED.WIDTH : NODE_DIMENSIONS.START.DISABLED.WIDTH;
                     this.setBasicMediatorPosition(subSequence);
                 }
                 this.position.x += subSequence.viewState.r + NODE_GAP.BRANCH_X;

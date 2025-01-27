@@ -8,6 +8,7 @@
  */
 
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState, ReactNode } from "react";
+import { Range } from 'vscode-languageserver-types';
 import { ComponentCard, RequiredFormInput, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import ParameterManager, { Param } from "../GigaParamManager/ParameterManager";
 import { Element, cardStyle } from "../FormGenerator";
@@ -19,11 +20,12 @@ interface StringWithParamManagerProps {
     helpTipElement: React.JSX.Element;
     field: any;
     errorMsg: string;
+    nodeRange?: Range;
 }
 
 export const StringWithParamManagerComponent = forwardRef<HTMLDivElement, StringWithParamManagerProps>(
     (props, ref) => {
-    const { element, isRequired, helpTipElement, field, errorMsg } = props;
+    const { element, isRequired, helpTipElement, field, errorMsg, nodeRange } = props;
     const [stringValue, setStringValue] = useState('');
     const [paramManagerParameters, setParamManagerParameters] = useState<Param[]>([]);
 
@@ -106,6 +108,7 @@ export const StringWithParamManagerComponent = forwardRef<HTMLDivElement, String
                 setParamManagerParameters([...params]);
                 }
             }
+            nodeRange={nodeRange}
         />
     </ComponentCard>);
 }

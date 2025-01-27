@@ -10,7 +10,7 @@
 
 import { CSSProperties, PropsWithChildren, ReactNode } from "react";
 import { StyleBase } from "./common";
-import { HelperPaneOrigin } from "../../../types/form";
+import { HelperPaneOrigin } from "../../../types/common";
 
 export type ArrowProps = StyleBase & {
     origin: HelperPaneOrigin;
@@ -32,13 +32,13 @@ export type HelperPaneIconButtonProps = {
 
 export type HelperPaneFooterProps = PropsWithChildren<{}>;
 
-export type HelperPaneCompletionItemProps = {
+export type HelperPaneCompletionItemProps = PropsWithChildren<{
     level?: number;
     label: string;
     type?: string;
     getIcon?: () => ReactNode;
     onClick: () => void;
-};
+}>;
 
 export type HelperPaneCategoryItemProps = {
     label: string;
