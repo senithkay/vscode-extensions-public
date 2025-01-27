@@ -41,7 +41,7 @@ export function fetchSubMappingTypes(filePath: string, functionName: string) {
 
 export function getSources(filePath: string, functionName?: string) {
     let fileContent: string;
-    let outerFileContent: string = "";
+    let nonMappingFileContent: string = "";
     try {
         const resolvedPath = path.resolve(filePath);
         const project = DMProject.getInstance(resolvedPath).getProject();
@@ -54,7 +54,7 @@ export function getSources(filePath: string, functionName?: string) {
             const dmFunctionBody = dmFunction.getBody();
             const dmFunctionStart = dmFunctionBody?.getStart();
             const dmFunctionEnd = dmFunctionBody?.getEnd();
-            outerFileContent = fileContent.slice(0, dmFunctionStart) + fileContent.slice(dmFunctionEnd);
+            nonMappingFileContent = fileContent.slice(0, dmFunctionStart) + fileContent.slice(dmFunctionEnd);
         }
 
     } catch (error: any) {
@@ -64,7 +64,7 @@ export function getSources(filePath: string, functionName?: string) {
     if (!fileContent) {
         throw new Error("[MI Data Mapper] No source file content found.");
     }
-    return [fileContent, outerFileContent];
+    return [fileContent, nonMappingFileContent];
 }
 
 export function getFunctionIOTypes(filePath: string, functionName: string) {

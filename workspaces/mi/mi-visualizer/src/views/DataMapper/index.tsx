@@ -19,17 +19,17 @@ interface DataMapperProps {
     filePath: string;
     functionName?: string;
     fileContent?: string;
-    outerFileContent?: string;
+    nonMappingFileContent?: string;
     configName: string;
 }
 
 export function DataMapper(props: DataMapperProps) {
     const { rpcClient } = useVisualizerContext();
-    const { filePath, functionName, fileContent, outerFileContent } = props;
+    const { filePath, functionName, fileContent, nonMappingFileContent } = props;
 
     const [isFileUpdateError, setIsFileUpdateError] = useState(false);
 
-    const { dmIOTypes, isFetchingIOTypes, isIOTypeError } = useIOTypes(filePath, functionName, outerFileContent);
+    const { dmIOTypes, isFetchingIOTypes, isIOTypeError } = useIOTypes(filePath, functionName, nonMappingFileContent);
 
     const updateFileContent = async (newContent: string) => {
         try {

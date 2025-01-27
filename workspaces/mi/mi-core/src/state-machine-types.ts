@@ -149,7 +149,7 @@ interface DataMapperProps {
     filePath: string;
     functionName?: string;
     fileContent?: string;
-    outerFileContent?: string;
+    nonMappingFileContent?: string;
     configName: string;
 }
 
