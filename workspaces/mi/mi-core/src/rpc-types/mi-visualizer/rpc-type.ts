@@ -85,3 +85,4 @@ export const getProjectSetupDetails: RequestType<void, SetupDetails> = { method:
 export const updateRuntimeVersionsInPom: RequestType<string, boolean> = { method: `${_preFix}/updateRuntimeVersionsInPom` };
 export const setPathsInWorkSpace: RequestType<SetPathRequest, PathDetailsResponse> = { method: `${_preFix}/setPathsInWorkSpace` };
 export const selectFolder: RequestType<string, string | undefined> = { method: `${_preFix}/selectFolder` };
+export const updateLegacyExpressionSupport: RequestType<boolean, void> = { method: `${_preFix}/updateLegacyExpressionSupport` };
