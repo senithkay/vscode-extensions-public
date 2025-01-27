@@ -1458,5 +1458,16 @@
         ]
       }
     ]
+  },
+  {
+    "file": "GroupNodeMediators.xml",
+    "resources": [
+      {
+        "path": "/",
+        "methods": [
+          "POST"
+        ]
+      }
+    ]
   }
 ]
