@@ -30,6 +30,7 @@ import { getTypeName } from "../../utils/type-utils";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
 import { addValue, removeMapping } from "../../utils/modification-utils";
 import { PrimitiveOutputElementWidget } from "../PrimitiveOutput/PrimitiveOutputElementWidget";
+import { OutputBeforeInputNotification } from "../commons/OutputBeforeInputNotification";
 
 export interface ArrayOutputFieldWidgetProps {
     parentId: string;
@@ -360,14 +361,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                             />
                         </FieldActionWrapper>
                     ))}
-                    {hasOutputBeforeInput && (
-                        <div className={classes.outputBeforeInputNotification}>
-                            <span style={{ display: 'flex', alignItems: 'center' }}>
-                                <Codicon name="info" sx={{ marginRight: "7px" }} />
-                                Click on input field first to create a mapping
-                            </span>
-                        </div>
-                    )}
+                    {hasOutputBeforeInput && <OutputBeforeInputNotification />}
                 </div>
             )}
             {(expanded && expression) && (
