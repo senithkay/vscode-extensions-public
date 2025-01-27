@@ -66,7 +66,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const classes = useIONodesStyles();
 
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
-    const [isLoading, setIsLoading] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 	const [hasFirstClickOnOutput, setHasFirstClickOnOutput] = useState(false);
 
@@ -187,6 +187,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		}
 	];
 
+	// TODO: Create separate node to handle union types and implement this logic there
 	if (dmTypeWithValue.type.kind === TypeKind.Union) {
 		const handleInitAsUnionType = async (resolvedUnionType: DMType) => {
 			setIsLoading(true);
