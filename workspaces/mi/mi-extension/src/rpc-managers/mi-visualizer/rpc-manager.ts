@@ -109,6 +109,8 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getProjectDetails();
+            res.advanced = res.advanced || {};
+            res.advanced.isLegacyExpressionEnabled = await this.isLegacyExpressionEnabled();
             resolve(res);
         });
     }
@@ -622,4 +624,15 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         }
     }
 
+    async updateLegacyExpressionSupport(value: boolean): Promise<void> {
+
+        const config = workspace.getConfiguration('MI');
+        await config.update("LEGACY_EXPRESSION_ENABLED", value, vscode.ConfigurationTarget.Workspace);
+    }
+
+    async isLegacyExpressionEnabled(): Promise<boolean> {
+
+        const config = workspace.getConfiguration('MI');
+        return config.get("LEGACY_EXPRESSION_ENABLED") || false;
+    }
 }

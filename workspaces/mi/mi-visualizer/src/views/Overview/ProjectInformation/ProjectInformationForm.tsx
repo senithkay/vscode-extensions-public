@@ -11,7 +11,7 @@ import { DependencyDetails, ProjectDetailsResponse } from "@wso2-enterprise/mi-c
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { useEffect, useState } from "react";
 
-import { Button, Dropdown, Banner, FormActions, FormGroup, FormView, OptionProps, ProgressIndicator, TextField, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Dropdown, Banner, FormActions, FormGroup, FormView, OptionProps, ProgressIndicator, TextField, Codicon, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Controller, useForm } from "react-hook-form";
@@ -37,9 +37,11 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         "unitTest.serverPort": yup.string(),
         "unitTest.serverPath": yup.string(),
         "unitTest.serverType": yup.string(),
+        "advanced.legacyExpressionSupport": yup.boolean()
     });
 
     const {
+        control,
         register,
         formState: { errors, dirtyFields, isSubmitting },
         handleSubmit,
@@ -62,7 +64,6 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                 const supportedVersions = await rpcClient.getMiVisualizerRpcClient().getSupportedMIVersionsHigherThan(response.primaryDetails.runtimeVersion.value);
                 const supportedMIVersions = supportedVersions.map((version: string) => ({ value: version, content: version }));
                 setRuntimeVersions(supportedMIVersions);
-
                 reset({
                     "primaryDetails.projectName": response.primaryDetails.projectName.value,
                     "primaryDetails.projectDescription": response.primaryDetails.projectDescription.value,
@@ -75,6 +76,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     "unitTest.serverPort": response.unitTest?.serverPort?.value,
                     "unitTest.serverPath": response.unitTest?.serverPath?.value,
                     "unitTest.serverType": response.unitTest?.serverType?.value,
+                    "advanced.legacyExpressionSupport": response.advanced?.isLegacyExpressionEnabled
                 });
             } catch (error) {
                 console.error("Error fetching project details:", error);
@@ -146,6 +148,11 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
             await updatePomValuesForSection("primaryDetails");
             await updatePomValuesForSection("dockerDetails");
             await updatePomValuesForSection("unitTest");
+
+            if (updatedValues.includes("advanced")) {
+                let isLegacyExpressionSupportEnabled = getValues("advanced.legacyExpressionSupport");
+                await rpcClient.getMiVisualizerRpcClient().updateLegacyExpressionSupport(isLegacyExpressionSupportEnabled);
+            }
             if (isRuntimeVersionChanged) {
                 await rpcClient.getMiVisualizerRpcClient().reloadWindow();
             } else {
@@ -232,6 +239,14 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                 <TextField
                     label="Server Type"
                     {...register("unitTest.serverType")}
+                />
+            </FormGroup>
+
+            <FormGroup title="Advanced" isCollapsed={true}>
+                <FormCheckBox
+                    name="advanced.legacyExpressionSupport"
+                    label="Enable legacy expression support"
+                    control={control}
                 />
             </FormGroup>
 
