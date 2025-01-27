@@ -17,6 +17,8 @@ import styled from "@emotion/styled";
 import { View, ViewContent, ViewHeader } from "../../components/View";
 import path from "path";
 import { handleFileAttach } from "../../utils/fileAttach";
+import { RUNTIME_VERSION_440 } from "../../constants";
+import { compareVersions } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
 
 const Container = styled.div({
     display: "flex",
@@ -110,11 +112,12 @@ export function AddArtifactView() {
     const [files, setFiles] = useState([]);
     const [images, setImages] = useState([]);
     const [fileUploadStatus, setFileUploadStatus] = useState({ type: '', text: '' });
+    const [isResourceContentVisible, setIsResourceContentVisible] = useState(false);
+    const [runtimeVersion, setRuntimeVersion] = useState("");
 
     const handleClick = async (key: string) => {
         const dir = path.join(activeWorkspaces.fsPath, "src", "main", "wso2mi", "artifacts", key);
-        const entry = { info: { path: dir } };
-        console.log(entry);
+        let entry = { info: { path: dir } };
         if (key === "apis") {
             await rpcClient
                 .getMiDiagramRpcClient()
@@ -127,6 +130,11 @@ export function AddArtifactView() {
             await rpcClient
                 .getMiDiagramRpcClient()
                 .executeCommand({ commands: ["MI.project-explorer.add-sequence", entry] });
+        } else if (key === "classMediators") {
+            entry = { info: { path: path.join(activeWorkspaces.fsPath, 'src', 'main', 'java') } };
+            await rpcClient
+                .getMiDiagramRpcClient()
+                .executeCommand({ commands: ["MI.project-explorer.add-class-mediator", entry] });
         } else if (key === "inboundEndpoints") {
             await rpcClient
                 .getMiDiagramRpcClient()
@@ -182,6 +190,10 @@ export function AddArtifactView() {
                 setActiveWorkspaces(response.workspaces[0]);
                 console.log(response.workspaces[0]);
             });
+        rpcClient.getMiVisualizerRpcClient().getProjectDetails().then((response) => {
+            const runtimeVersion = response.primaryDetails.runtimeVersion.value;
+            setIsResourceContentVisible(compareVersions(runtimeVersion, RUNTIME_VERSION_440) >= 0);
+        })
     }, []);
 
     const handleGenerateWithAI = async () => {
@@ -291,14 +303,14 @@ export function AddArtifactView() {
                             />
                             <Card
                                 icon="task"
-                                title="Schedule Task"
-                                description="Set up a task to run at scheduled intervals."
+                                title="Automation"
+                                description="Create a task to run at scheduled intervals."
                                 onClick={() => handleClick("tasks")}
                             />
                             <Card
                                 icon="inbound-endpoint"
-                                title="Listener"
-                                description="Create a listener to handle and mediate incoming event messages."
+                                title="Event Integration"
+                                description="Create an event listener to handle and mediate incoming event messages."
                                 onClick={() => handleClick("inboundEndpoints")}
                             />
                         </HorizontalCardContainer>
@@ -325,8 +337,15 @@ export function AddArtifactView() {
                                         onClick={() => handleClick("sequences")}
                                     />
                                     <Card
+                                        icon="file-code"
+                                        isCodicon
+                                        title="Class Mediator"
+                                        description="Execute a custom logic in the mediation flow."
+                                        onClick={() => handleClick("classMediators")}
+                                    />
+                                    <Card
                                         icon="registry"
-                                        title="Resource"
+                                        title={isResourceContentVisible ? "Resource" : "Registry"}
                                         description="Manage shared resources and configurations."
                                         onClick={() => handleClick("resources")}
                                     />

@@ -54,7 +54,7 @@ const stateMachine = createMachine<MachineContext>({
                 onDone: [
                     {
                         target: 'environmentSetup',
-                        cond: (context, event) => (event.data.isProject === true || event.data.isOldProject === true)&& event.data.isEnvironmentSetUp === false,
+                        cond: (context, event) => (event.data.isProject === true || event.data.isOldProject === true) && event.data.isEnvironmentSetUp === false,
                     },
                     {
                         target: 'oldProjectDetected',
@@ -219,7 +219,8 @@ const stateMachine = createMachine<MachineContext>({
                                 dataMapperProps: (context, event) => event.viewLocation.dataMapperProps,
                                 stNode: (context, event) => undefined,
                                 diagnostics: (context, event) => undefined,
-                                type: (context, event) => event.type
+                                type: (context, event) => event.type,
+                                previousContext: (context, event) => context
                             })
                         },
                         REPLACE_VIEW: {
@@ -497,13 +498,14 @@ const stateMachine = createMachine<MachineContext>({
                     history.pop();
                 }
                 if (!context.view?.includes("Form")) {
+                    const ctx = context?.previousContext ? context?.previousContext : context;
                     history.push({
                         location: {
-                            view: context.view,
-                            documentUri: context.documentUri,
-                            position: context.position,
-                            identifier: context.identifier,
-                            dataMapperProps: context?.dataMapperProps
+                            view: ctx?.view,
+                            documentUri: ctx?.documentUri,
+                            position: ctx?.position,
+                            identifier: ctx?.identifier,
+                            dataMapperProps: ctx?.dataMapperProps
                         }
                     });
                 }
@@ -578,6 +580,18 @@ export function navigate(entry?: HistoryEntry) {
         const location = entry ? entry.location : historyStack[historyStack.length - 1].location;
         stateService.send({ type: "NAVIGATE", viewLocation: location });
     }
+}
+
+export function refreshUI() {
+    const context = StateMachine.context();
+    const location = {
+        view: context?.view,
+        documentUri: context?.documentUri,
+        position: context?.position,
+        identifier: context?.identifier,
+        dataMapperProps: context?.dataMapperProps
+    };
+    stateService.send({ type: "NAVIGATE", viewLocation: location });
 }
 
 function updateProjectExplorer(location: VisualizerLocation | undefined) {
@@ -678,7 +692,7 @@ async function checkIfMiProject() {
             log('Create New Project');
         });
     }
-    
+
     log('Project detection completed ' + new Date().toLocaleTimeString());
     return {
         isProject,

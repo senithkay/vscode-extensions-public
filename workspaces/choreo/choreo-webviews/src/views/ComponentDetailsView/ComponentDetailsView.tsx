@@ -17,6 +17,7 @@ import {
 	type DeploymentTrack,
 	type Environment,
 	WebviewQuickPickItemKind,
+	getComponentKindRepoSource,
 	getTypeForDisplayType,
 } from "@wso2-enterprise/choreo-core";
 import classNames from "classnames";
@@ -95,7 +96,7 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 				type: getTypeForDisplayType(component?.spec?.type),
 				repoDir: directoryFsPath,
 				branch: deploymentTrack?.branch,
-				repoUrl: component?.spec?.source?.github?.repository || component?.spec?.source?.bitbucket?.repository,
+				repoUrl: getComponentKindRepoSource(component?.spec?.source).repo,
 			}),
 		enabled: !!directoryFsPath,
 		refetchOnWindowFocus: true,

@@ -17,11 +17,10 @@ import {
     GoToSourceRequest,
     HistoryEntry,
     HistoryEntryResponse,
-    JavaAndMIPathRequest,
-    JavaAndMIPathResponse,
     LogRequest,
     MACHINE_VIEW,
-    MIDetails,
+    SetupDetails,
+    SetPathRequest,
     MIVisualizerAPI,
     NotificationRequest,
     NotificationResponse,
@@ -51,6 +50,7 @@ import {
     UpdatePomValuesRequest,
     UpdateConfigValuesRequest,
     ImportOpenAPISpecRequest,
+    PathDetailsResponse,
 } from "@wso2-enterprise/mi-core";
 import * as https from "https";
 import Mustache from "mustache";
@@ -73,7 +73,7 @@ import { copy } from 'fs-extra';
 
 const fs = require('fs');
 import { TextEdit } from "vscode-languageclient";
-import { downloadJava, downloadMI, getJavaAndMIPathsFromWorkspace, getMIDetailsFromPom, getSupportedMIVersions, setJavaAndMIPathsInWorkspace, updateRuntimeVersionsInPom } from '../../util/onboardingUtils';
+import { downloadJavaFromMI, downloadMI, getProjectSetupDetails, getSupportedMIVersionsHigherThan, setPathsInWorkSpace, updateRuntimeVersionsInPom } from '../../util/onboardingUtils';
 
 Mustache.escape = escapeXml;
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
@@ -109,6 +109,8 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getProjectDetails();
+            res.advanced = res.advanced || {};
+            res.advanced.isLegacyExpressionEnabled = await this.isLegacyExpressionEnabled();
             resolve(res);
         });
     }
@@ -146,7 +148,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
                 };
 
             });
-            this.updatePom(textEdits);
+            await this.updatePom(textEdits);
             resolve(true);
         });
     }
@@ -474,24 +476,19 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             resolve({ success: isSuccess });
         });
     }
-    async downloadJava(miVersion: string): Promise<string> {
-        const javaPath = await downloadJava(miVersion);
+    async downloadJavaFromMI(miVersion: string): Promise<string> {
+        const javaPath = await downloadJavaFromMI(miVersion);
         return javaPath;
     }
     async downloadMI(miVersion: string): Promise<string> {
         const miPath = await downloadMI(miVersion);
         return miPath;
     }
-    async getSupportedMIVersions(): Promise<string[]> {
-        return getSupportedMIVersions();
+    async getSupportedMIVersionsHigherThan(miVersion:string): Promise<string[]> {
+        return getSupportedMIVersionsHigherThan(miVersion);
     }
-
-    async getJavaAndMIPaths(): Promise<JavaAndMIPathResponse> {
-        return await getJavaAndMIPathsFromWorkspace();
-
-    }
-    async setJavaAndMIPaths(request: JavaAndMIPathRequest): Promise<JavaAndMIPathResponse> {
-        return await setJavaAndMIPathsInWorkspace(request);
+    async setPathsInWorkSpace(request: SetPathRequest): Promise<PathDetailsResponse> {
+        return await setPathsInWorkSpace(request);
     }
 
     async selectFolder(title: string): Promise<string | undefined> {
@@ -509,8 +506,8 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         }
     }
 
-    async getMIDetailsFromPom(): Promise<MIDetails> {
-        return getMIDetailsFromPom();
+    async getProjectSetupDetails(): Promise<SetupDetails> {
+        return getProjectSetupDetails();
     }
     async updateRuntimeVersionsInPom(version: string): Promise<boolean> {
         try {
@@ -627,4 +624,15 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         }
     }
 
+    async updateLegacyExpressionSupport(value: boolean): Promise<void> {
+
+        const config = workspace.getConfiguration('MI');
+        await config.update("LEGACY_EXPRESSION_ENABLED", value, vscode.ConfigurationTarget.Workspace);
+    }
+
+    async isLegacyExpressionEnabled(): Promise<boolean> {
+
+        const config = workspace.getConfiguration('MI');
+        return config.get("LEGACY_EXPRESSION_ENABLED") || false;
+    }
 }

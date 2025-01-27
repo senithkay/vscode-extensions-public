@@ -150,6 +150,8 @@ import {
     RetrieveTemplateResponse,
     RetrieveWsdlEndpointRequest,
     RetrieveWsdlEndpointResponse,
+    SaveConfigRequest,
+    SaveConfigResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
     SwaggerFromAPIResponse,
@@ -287,6 +289,7 @@ import {
     rangeFormat,
     redo,
     refreshAccessToken,
+    saveConfig,
     showErrorMessage,
     undo,
     updateAPIFromSwagger,
@@ -371,7 +374,9 @@ import {
     TestConnectorConnectionRequest,
     TestConnectorConnectionResponse,
     testConnectorConnection,
-    shutDownTryoutServer
+    shutDownTryoutServer,
+    MiVersionResponse,
+    getMIVersionFromPom
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -931,6 +936,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(shutDownTryoutServer, HOST_EXTENSION);
     }
 
+    getMIVersionFromPom(): Promise<MiVersionResponse> {
+        return this._messenger.sendRequest(getMIVersionFromPom, HOST_EXTENSION);
+    }
+
     getMediatorInputOutputSchema(params: MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
         return this._messenger.sendRequest(getMediatorInputOutputSchema, HOST_EXTENSION, params);
     }
@@ -968,5 +977,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     testConnectorConnection(params: TestConnectorConnectionRequest): Promise<TestConnectorConnectionResponse> {
         return this._messenger.sendRequest(testConnectorConnection, HOST_EXTENSION, params);
+    }
+
+    saveConfig(params: SaveConfigRequest): Promise<SaveConfigResponse> {
+        return this._messenger.sendRequest(saveConfig, HOST_EXTENSION, params);
     }
 }

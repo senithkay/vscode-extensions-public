@@ -287,8 +287,9 @@ export class NodeFactoryVisitor implements Visitor {
                 const startNode = structuredClone(sequence);
                 if (type === NodeTypes.GROUP_NODE) {
                     this.previousSTNodes = [];
-                    startNode.viewState.x += (startNode.viewState.w / 2) - (NODE_DIMENSIONS.START.DISABLED.WIDTH / 2);
                     startNode.tag = "start";
+                    startNode.viewState.x += (startNode.viewState.w / 2) - ((node.tag === 'scatter-gather' ?
+                        NODE_DIMENSIONS.START.ACTIONED.WIDTH : NODE_DIMENSIONS.START.DISABLED.WIDTH) / 2);
                     this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.SUB_SEQUENCE });
                 } else {
                     this.currentBranchData = { name: sequenceKeys[i], diagnostics: sequence.diagnostics };
@@ -318,7 +319,8 @@ export class NodeFactoryVisitor implements Visitor {
                 if (type === NodeTypes.GROUP_NODE) {
                     const endNode = structuredClone(sequence);
                     endNode.viewState.y = startNode.viewState.y + sequence.viewState.h - NODE_DIMENSIONS.END.HEIGHT;
-                    endNode.viewState.x = startNode.viewState.x + (NODE_DIMENSIONS.START.DISABLED.WIDTH / 2) - (NODE_DIMENSIONS.END.WIDTH / 2)- NODE_DIMENSIONS.BORDER;
+                    endNode.viewState.x = startNode.viewState.x + ((node.tag === 'scatter-gather' ?
+                        NODE_DIMENSIONS.START.ACTIONED.WIDTH : NODE_DIMENSIONS.START.DISABLED.WIDTH) / 2) - (NODE_DIMENSIONS.END.WIDTH / 2)
                     this.createNodeAndLinks({ node: endNode, type: NodeTypes.END_NODE });
                 }
             }

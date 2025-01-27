@@ -88,6 +88,11 @@ export interface ProjectDetailsResponse {
     dependencies: DependenciesDetails;
     unitTest: UnitTestDetails;
     configurables: PomNodeDetails[];
+    advanced: AdvancedProjectDetails;
+}
+
+export interface AdvancedProjectDetails {
+    isLegacyExpressionEnabled: boolean;
 }
 
 export interface PomNodeDetails {
@@ -396,20 +401,19 @@ export interface Entrypoint {
 export interface ReadmeContentResponse {
     content: string;
 }
-export interface PathResponse {
+export interface PathDetailsResponse {
     path?: string;
-    status: "valid" | "suggest" | "mismatch" | "not-found";
+    status: "valid" | "mismatch" | "not-valid";
     version?: string;
 }
-export interface JavaAndMIPathResponse {
-    javaPath?: PathResponse;
-    miPath?: PathResponse;
+export interface SetPathRequest {
+    type: "JAVA" | "MI";
+    path: string;
 }
-export interface JavaAndMIPathRequest {
-    javaPath?: string;
-    miPath?: string;
-}
-export interface MIDetails {
-    miVersion: string;
-    javaVersion: string;
+export interface SetupDetails {
+    isSupportedMIVersion?: boolean;
+    miDetails: PathDetailsResponse;
+    javaDetails: PathDetailsResponse;
+    showDownloadButtons?: boolean;
+    recommendedVersions?: { miVersion: string, javaVersion: string }
 }

@@ -14,6 +14,7 @@ import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
 import { sidepanelGoBack } from '..';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import path from 'path';
 
 const ProgressRing = styled(VSCodeProgressRing)`
     height: 50px;
@@ -24,6 +25,7 @@ const ProgressRing = styled(VSCodeProgressRing)`
 
 interface DownloadPageProps {
     module: any;
+    documentUri: string;
     onDownloadSuccess: (connectorName: string) => void;
 }
 
@@ -36,9 +38,9 @@ export function DownloadPage(props: DownloadPageProps) {
 
     const handleDependencyResponse = async (response: boolean) => {
         if (response) {
-            
+
             setIsDownloading(true);
-        
+
             const updateDependencies = async () => {
                 const dependencies = [];
                 dependencies.push({
@@ -54,13 +56,21 @@ export function DownloadPage(props: DownloadPageProps) {
 
             await updateDependencies();
 
+            // HACK: time to serve saved pom file to ls
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
             // Download Connector
             const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
 
-            if (response === "Success") {
+            // Format pom
+            const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: props.documentUri })).path;
+            const pomPath = path.join(projectDir, 'pom.xml');
+            await rpcClient.getMiDiagramRpcClient().rangeFormat({ uri: pomPath });
+
+            if (response === "Success" || !response.includes(module.mavenArtifactId)) {
                 onDownloadSuccess(props.module.connectorName);
                 setIsDownloading(false);
-                sidepanelGoBack(sidePanelContext, 2);
+                sidepanelGoBack(sidePanelContext, sidePanelContext.pageStack.length - 1);
             } else {
                 setIsFailedDownload(true);
                 setIsDownloading(false);
@@ -77,10 +87,10 @@ export function DownloadPage(props: DownloadPageProps) {
         // Download Connector
         const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
 
-        if (response === "Success") {
+        if (response === "Success" || !response.includes(module.mavenArtifactId)) {
             onDownloadSuccess(props.module.connectorName);
             setIsDownloading(false);
-            sidepanelGoBack(sidePanelContext, 2);
+            sidepanelGoBack(sidePanelContext, sidePanelContext.pageStack.length - 1);
         } else {
             setIsFailedDownload(true);
             setIsDownloading(false);

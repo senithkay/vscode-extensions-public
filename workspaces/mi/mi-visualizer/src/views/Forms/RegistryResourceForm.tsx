@@ -7,14 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Dropdown, Button, TextField, FormView, FormActions, RadioButtonGroup, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EVENT_TYPE, MACHINE_VIEW, CreateRegistryResourceRequest, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, CreateRegistryResourceRequest, POPUP_EVENT_TYPE, getProjectDetails } from "@wso2-enterprise/mi-core";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { colors } from "@wso2-enterprise/ui-toolkit";
+import { RUNTIME_VERSION_440 } from "../../constants";
+import { compareVersions } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
 
 export interface RegistryWizardProps {
     path: string;
@@ -32,9 +34,9 @@ type InputsFields = {
     filePath?: string;
     resourceName?: string;
     artifactName?: string;
-    registryPath?: string
+    registryPath?: string;
     createOption?: "new" | "import";
-    registryType?: "gov" | "conf";
+    registryType?: string;
 };
 
 const canCreateTemplateForType = (type: string) => {
@@ -141,14 +143,26 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
     const [registryPaths, setRegistryPaths] = useState([]);
     const [resourcePaths, setResourcePaths] = useState([]);
     const [artifactNames, setArtifactNames] = useState([]);
+    const [isResourceContentVisible, setIsResourceContentVisible] = useState(false);
     const filteredPropTypes = filterTemplateCreatableTypes(props.type);
 
     const schema = yup
         .object({
             createOption: yup.mixed<"new" | "import">().oneOf(["new", "import"]),
             registryPath: yup.string().test('validateRegistryPath', 'Resource already exists', value => {
-                const formattedPath = formatResourcePath(value);
-                return !resourcePaths.includes(formattedPath);
+                if (isResourceContentVisible) {
+                    const formattedPath = formatResourcePath(value);
+                    return !resourcePaths.includes(formattedPath);
+                } else {
+                    const formattedPath = formatRegistryPath(value);
+                    return !registryPaths.includes(formattedPath);
+                }
+            }),
+            registryType: yup.string().test('validateRegistryType', 'Invalid registry type', value => {
+                if (!isResourceContentVisible) {
+                    return ['gov', 'conf'].includes(value);
+                }
+                return true;
             }),
             filePath: yup.string().when('createOption', {
                 is: "new",
@@ -190,10 +204,13 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
 
     useEffect(() => {
         (async () => {
-            if (regArtifactNames.length === 0 || registryPaths.length === 0) {
+            if (regArtifactNames.length === 0 || registryPaths.length === 0 || resourcePaths.length === 0) {
                 const request = {
                     path: props.path
                 }
+                const response = await rpcClient.getMiVisualizerRpcClient().getProjectDetails();
+                const runtimeVersion = response.primaryDetails.runtimeVersion.value;
+                setIsResourceContentVisible(compareVersions(runtimeVersion, RUNTIME_VERSION_440) >= 0);
                 const tempArtifactNames = await rpcClient.getMiDiagramRpcClient().getAvailableRegistryResources(request);
                 setRegArtifactNames(tempArtifactNames.artifacts);
                 const res = await rpcClient.getMiDiagramRpcClient().getAllRegistryPaths(request);
@@ -222,11 +239,11 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
     const formatRegistryPath = (path: string) => {
         let regPath = '';
         if (getValues("registryType") === 'gov') {
-            regPath = 'gov';
+            regPath = 'gov:';
         } else {
-            regPath = 'conf';
+            regPath = 'conf:';
         }
-        path.startsWith('/') ? regPath = regPath + path : regPath = regPath + '/' + path;
+        path.startsWith('/') ? regPath = regPath + path.substring(1) : regPath = regPath + path;
         if (createOptionValue) {
             regPath.endsWith('/') ? regPath = regPath + getValues("resourceName") + getFileExtension(getValues('templateType'))
                 : regPath = regPath + '/' + getValues("resourceName") + getFileExtension(getValues('templateType'));
@@ -284,7 +301,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
             resourceName: values.resourceName,
             artifactName: '',
             registryPath: values.registryPath,
-            registryRoot: '',
+            registryRoot: isResourceContentVisible ? '': values.registryType,
             createOption: values.createOption
         }
         
@@ -292,7 +309,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
         if (props.isPopup) {
             rpcClient.getMiVisualizerRpcClient().openView({
                 type: POPUP_EVENT_TYPE.CLOSE_VIEW,
-                location: { view: null, recentIdentifier: formatResourcePath(values.registryPath) },
+                location: { view: null, recentIdentifier: isResourceContentVisible ? formatResourcePath(values.registryPath) : formatRegistryPath(values.registryPath) },
                 isPopup: true
             });
         } else {
@@ -305,8 +322,24 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
         props.handlePopupClose ? props.handlePopupClose() : rpcClient.getMiVisualizerRpcClient().goBack();
     };
 
+    const resourcesTag: ReactNode = (
+        <div
+            style={{
+                display: "flex",
+                flexDirection: "row",
+                backgroundColor: colors.vscodeBadgeBackground,
+                padding: "2px",
+                borderRadius: "3px",
+                paddingLeft: "4px",
+                paddingRight: "4px"
+            }}
+        >
+            resources:
+        </div>
+    );
+
     return (
-        <FormView title="Create New Resource" onClose={handleBackButtonClick}>
+        <FormView title={ isResourceContentVisible ? "Create New Resource" : "Create New Registry Resource" } onClose={handleBackButtonClick}>
             {canCreateTemplate() && <RadioButtonGroup
                 label="Create Options"
                 id="createOption"
@@ -342,12 +375,18 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                     </Typography>
                 </div>
             </>)}
+            {!isResourceContentVisible && (<RadioButtonGroup
+                label="Select registry type"
+                id="registryType"
+                options={[{ content: "Governance registry (gov)", value: "gov" }, { content: "Configuration registry (conf)", value: "conf" }]}
+                {...register("registryType")}
+            />)}
             <TextField
                 id='registryPath'
-                label="Resource Path"
+                label={isResourceContentVisible ? "Resource Path" : "Registry Path"}
                 value={getFileExtension(getValues('templateType')).split('.').pop()}
                 errorMsg={errors.registryPath?.message.toString()}
-                inputProps={{ startAdornment: "resources:" }}
+                inputProps={{ startAdornment: isResourceContentVisible ? resourcesTag : "" }}
                 {...register("registryPath")}
             />
             <br />

@@ -7,8 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import * as vscode from 'vscode';
 import { ProjectExplorerEntry, ProjectExplorerEntryProvider } from './project-explorer-provider';
-import { StateMachine, openView } from '../stateMachine';
+import { StateMachine, navigate, openView } from '../stateMachine';
 import { EVENT_TYPE, MACHINE_VIEW, VisualizerLocation } from '@wso2-enterprise/mi-core';
 import { COMMANDS } from '../constants';
 import { ExtensionContext, TreeItem, Uri, ViewColumn, commands, window, workspace } from 'vscode';
@@ -18,13 +19,30 @@ import { extension } from '../MIExtensionContext';
 import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 import { APIResource } from '../../../syntax-tree/lib/src';
 import { MiDiagramRpcManager } from '../rpc-managers/mi-diagram/rpc-manager';
+import { RegistryExplorerEntryProvider } from './registry-explorer-provider';
+import { RUNTIME_VERSION_440 } from "../constants";
 import { deleteSwagger } from '../util/swagger';
+import { compareVersions } from '../util/onboardingUtils';
+import { history, removeFromHistory } from '../history';
 
 export async function activateProjectExplorer(context: ExtensionContext, lsClient: ExtendedLanguageClient) {
 
 	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(context);
 	await projectExplorerDataProvider.refresh(lsClient);
+	let registryExplorerDataProvider;
 	const projectTree = window.createTreeView('MI.project-explorer', { treeDataProvider: projectExplorerDataProvider });
+
+	const projectDetailsRes = await lsClient?.getProjectDetails();
+	const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
+	const isRegistrySupported = compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0;
+
+	if (isRegistrySupported) {
+		registryExplorerDataProvider = new RegistryExplorerEntryProvider(context);
+		await registryExplorerDataProvider.refresh(lsClient);
+		window.createTreeView('MI.registry-explorer', { treeDataProvider: registryExplorerDataProvider });
+		vscode.commands.executeCommand('setContext', 'MI.registry-explorer.isVisible', true);
+		commands.registerCommand(COMMANDS.REFRESH_REGISTRY_COMMAND, () => { return registryExplorerDataProvider.refresh(lsClient); });
+	}
 
 	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(lsClient); });
 	// commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
@@ -43,16 +61,16 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 		console.log('Add Artifact');
 	});
 	commands.registerCommand(COMMANDS.ADD_TO_REGISTRY_COMMAND, () => {
-        const projectUri = StateMachine.context().projectUri;
-        if (!projectUri) {
-            window.showErrorMessage(
-                'Unable to locate Project URI. Please try again after the extension has fully initialized.'
-            );
-            return;
-        }
-        const registryPath = path.join(projectUri, 'src', 'main', 'wso2mi', 'resources');
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RegistryResourceForm, documentUri: registryPath });
-        console.log('Add Registry Resource');
+		const projectUri = StateMachine.context().projectUri;
+		if (!projectUri) {
+			window.showErrorMessage(
+				'Unable to locate Project URI. Please try again after the extension has fully initialized.'
+			);
+			return;
+		}
+		const registryPath = path.join(projectUri, 'src', 'main', 'wso2mi', 'resources');
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RegistryResourceForm, documentUri: registryPath });
+		console.log('Add Registry Resource');
 	});
 	commands.registerCommand(COMMANDS.ADD_API_COMMAND, async (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.APIForm, documentUri: entry.info?.path });
@@ -377,6 +395,13 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 						try {
 							await workspace.fs.delete(Uri.parse(fileUri), { recursive: true, useTrash: true });
 							window.showInformationMessage(`${item.label} has been deleted.`);
+							await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+
+							const currentLocation = StateMachine.context();
+							if (currentLocation.documentUri === fileUri) {
+								openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+							}
+							removeFromHistory(fileUri);
 
 							if (item.contextValue === 'api') {
 								deleteSwagger(fileUri);
@@ -405,6 +430,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 							// delete the file and the residing folder
 							const folderPath = path.dirname(fileUri);
 							await deleteDataMapperResources(fileUri);
+							projectExplorerDataProvider.refresh(lsClient);
 							window.showInformationMessage(`${item.label} has been deleted.`);
 						} catch (error) {
 							window.showErrorMessage(`Failed to delete ${item.label}: ${error}`);
@@ -445,7 +471,8 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 
 					if (confirmation === 'Yes') {
 						try {
-							const rpcManager = new MiDiagramRpcManager()
+							const rpcManager = new MiDiagramRpcManager();
+							removeFromHistory(fileUri.fsPath, resourceId);
 							await rpcManager.applyEdit({
 								text: "",
 								documentUri: fileUri.fsPath,
@@ -484,6 +511,9 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 								if (res.status === true) {
 									window.showInformationMessage(res.info);
 									projectExplorerDataProvider.refresh(lsClient);
+									if (isRegistrySupported && registryExplorerDataProvider) {
+										registryExplorerDataProvider.refresh(lsClient);
+									}
 								} else {
 									window.showErrorMessage(res.info);
 								}
@@ -494,6 +524,9 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 			}
 		}
 		projectExplorerDataProvider.refresh(lsClient);
+		if (runtimeVersion !== RUNTIME_VERSION_440 && registryExplorerDataProvider) {
+			registryExplorerDataProvider.refresh(lsClient);
+		}
 	});
 }
 

@@ -133,6 +133,7 @@ namespace S {
 export interface ConfigProps {
     variableIndex?: number;
     isExternallauncher?: boolean;
+    fileName: string;
 }
 
 export function ViewConfigurableVariables(props?: ConfigProps) {
@@ -312,6 +313,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                             onClose={handleEditConfigFormClose}
                             variable={configVariables[configIndex]}
                             title="Edit Configurable Variable"
+                            filename={props.fileName}
                         />
                     }
 
@@ -320,6 +322,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                             isOpen={isAddConfigVariableFormOpen}
                             onClose={handleAddConfigFormClose}
                             title="Add Configurable Variable"
+                            filename={props.fileName}
                         />
                     }
                 </Container>

@@ -269,7 +269,7 @@ const AddConnector = (props: AddConnectorProps) => {
             values.configKey = props.connectionName;
         }
 
-        await rpcClient.getMiDiagramRpcClient().updateMediator({
+        rpcClient.getMiDiagramRpcClient().updateMediator({
             mediatorType: `${connectorName}.${operationName}`,
             values: values as Record<string, any>,
             oldValues: sidePanelContext.formValues as Record<string, any>,

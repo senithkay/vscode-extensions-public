@@ -332,9 +332,9 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
             // Render connection form
             setIsGeneratingForm(true);
 
-            if (response === "Success") {
+            if (response === "Success" || !response.includes(conOnconfirmation.connector.mavenArtifactId)) {
                 const connectorName = conOnconfirmation.connector.connectorName;
-                const connectionType = conOnconfirmation.connectionType.toUpperCase();
+                const connectionType = conOnconfirmation.connectionType;
                 const connector = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.path, connectorName: connectorName.toLowerCase() });
 
                 if (connector) {
@@ -357,9 +357,9 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
         // Download Connector
         const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
 
-        if (response === "Success") {
+        if (response === "Success" || !response.includes(conOnconfirmation.connector.mavenArtifactId)) {
             const connectorName = conOnconfirmation.connector.connectorName;
-            const connectionType = conOnconfirmation.connectionType.toUpperCase();
+            const connectionType = conOnconfirmation.connectionType;
             const connector = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.path, connectorName: connectorName.toLowerCase() });
 
             setSelectedConnectionType({ connector, connectionType });
@@ -409,7 +409,9 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                         <SampleGrid>
                             {displayedLocalConnectors && displayedLocalConnectors.map((connector: any) => (
                                 Object.entries(connector.connectionUiSchema).map(([connectionType, schemaPath]) => (
-                                    (allowedConnectionTypes && !allowedConnectionTypes.includes(connectionType)) ? null : (
+                                    (allowedConnectionTypes && !allowedConnectionTypes.some(
+                                        type => type.toLowerCase() === connectionType.toLowerCase() // Ignore case on allowedtype check
+                                    )) ? null : (
                                         <ComponentCard
                                             key={connectionType}
                                             onClick={() => selectConnectionType(connector, connectionType)}

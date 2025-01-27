@@ -23,6 +23,7 @@ import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import ParameterManager from './GigaParamManager/ParameterManager';
 import { StringWithParamManagerComponent } from './StringWithParamManager';
 import { isValueExpression } from './utils';
+import { FormTokenEditor } from './FormTokenEditor';
 
 const Field = styled.div`
     margin-bottom: 12px;
@@ -339,8 +340,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 let onCreateButtonClick;
                 if (!Array.isArray(keyType)) {
                     onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
-                        const resolvedView = element.inputType === 'registry' || element.inputType === 'resource' || element.inputType === 'resourceOrExpression' ? "addResource" : element.keyType;
-                        openPopup(rpcClient, resolvedView, fetchItems, handleValueChange, undefined, { type: keyType });
+                        openPopup(rpcClient, element.keyType, fetchItems, handleValueChange, undefined, { type: keyType });
                     }
                 }
 
@@ -372,7 +372,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                     filterType={(keyType as any) ?? "resource"}
                     label={element.displayName}
                     labelAdornment={helpTipElement}
-                    allowItemCreate={element.canAddNew === true || (element.canAddNew as any) === 'true'}
+                    allowItemCreate={element.canAddNew !== false || (element.canAddNew as any) !== 'false'}
                     onValueChange={field.onChange}
                     required={isRequired}
                     errorMsg={errorMsg}
@@ -384,13 +384,16 @@ export function FormGenerator(props: FormGeneratorProps) {
                 />)
             }
             case 'stringWithParamManager': {
-                return (<StringWithParamManagerComponent
-                    element={element}
-                    isRequired={isRequired}
-                    helpTipElement={helpTipElement}
-                    field={field}
-                    errorMsg={errorMsg}
-                />)
+                return (
+                    <StringWithParamManagerComponent
+                        element={element}
+                        isRequired={isRequired}
+                        helpTipElement={helpTipElement}
+                        field={field}
+                        errorMsg={errorMsg}
+                        nodeRange={range}
+                    />
+                )
             }
             case 'ParamManager': {
                 return (
@@ -398,16 +401,18 @@ export function FormGenerator(props: FormGeneratorProps) {
                 );
             }
             case 'codeTextArea':
-                return (<CodeTextArea
-                    {...field}
-                    label={element.displayName}
-                    labelAdornment={helpTipElement}
-                    placeholder={placeholder}
-                    required={isRequired}
-                    resize="vertical"
-                    growRange={{ start: 5, offset: 10 }}
-                    errorMsg={errorMsg}
-                />);
+                return (
+                    <FormTokenEditor
+                        nodeRange={range}
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder={placeholder}
+                        label={element.displayName}
+                        labelAdornment={helpTipElement}
+                        required={isRequired}
+                        errorMsg={errorMsg}
+                    />
+                );
             case 'configurable': {
                 const onCreateButtonClick = async (fetchItems: any, handleValueChange: any) => {
                     await rpcClient.getMiVisualizerRpcClient().addConfigurable({

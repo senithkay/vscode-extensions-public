@@ -6,11 +6,10 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { IDMType, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { IOType, Mapping, TypeKind } from "@wso2-enterprise/ballerina-core";
 import { useDMSearchStore } from "../../../store/store";
-import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 
-export const getSearchFilteredInput = (dmType: IDMType, varName?: string) => {
+export const getSearchFilteredInput = (dmType: IOType, varName?: string) => {
 	const searchValue = useDMSearchStore.getState().inputSearch;
 	if (!searchValue) {
 		return dmType;
@@ -26,26 +25,26 @@ export const getSearchFilteredInput = (dmType: IDMType, varName?: string) => {
 	}
 }
 
-export const getSearchFilteredOutput = (dmType: IDMType) => {
+export const getSearchFilteredOutput = (outputType: IOType) => {
 	const searchValue = useDMSearchStore.getState().outputSearch;
-	if (!dmType) {
+	if (!outputType) {
 		return null
 	}
 	if (!searchValue) {
-		return dmType;
+		return outputType;
 	}
 
-	let searchType: IDMType = dmType;
+	let searchType: IOType = outputType;
 
 	if (searchType.kind === TypeKind.Array) {
-		const subFields = searchType.memberType?.fields
+		const subFields = searchType.member?.fields
 			?.map(item => getFilteredSubFields(item, searchValue))
 			.filter(item => item);
 
 		return {
 			...searchType,
 			memberType: {
-				...searchType.memberType,
+				...searchType.member,
 				fields: subFields || []
 			}
 		}
@@ -62,76 +61,74 @@ export const getSearchFilteredOutput = (dmType: IDMType) => {
 	return  null;
 }
 
-export const getFilteredSubFields = (dmType: IDMType, searchValue: string) => {
-	if (!dmType) {
+export const getFilteredSubFields = (field: IOType, searchValue: string) => {
+	if (!field) {
 		return null;
 	}
 
 	if (!searchValue) {
-		return dmType;
+		return field;
 	}
 
-	if (dmType.kind === TypeKind.Record) {
-		const matchedSubFields: IDMType[] = dmType?.fields
-            ?.map(fieldItem => getFilteredSubFields(fieldItem, searchValue))
-            .filter(fieldItem => fieldItem);
+	if (field.kind === TypeKind.Record) {
+		const matchedSubFields: IOType[] = field.fields
+			?.map((fieldItem) => getFilteredSubFields(fieldItem, searchValue))
+			.filter((fieldItem): fieldItem is IOType => fieldItem !== null);
 
-		const matchingName = dmType?.fieldName?.toLowerCase().includes(searchValue.toLowerCase());
+		const matchingName = field.variableName?.toLowerCase().includes(searchValue.toLowerCase());
 		if (matchingName || matchedSubFields?.length > 0) {
 			return {
-				...dmType,
-				fields: matchingName ? dmType?.fields : matchedSubFields
+				...field,
+				fields: matchingName ? field.fields : matchedSubFields
 			}
 		}
-	} else if (dmType.kind === TypeKind.Array) {
-		const matchedSubFields: IDMType[] = dmType?.memberType
-            ?.fields?.map(fieldItem => getFilteredSubFields(fieldItem, searchValue))
-            .filter(fieldItem => fieldItem);
+	} else if (field.kind === TypeKind.Array) {
+		const matchedSubFields: IOType[] = field.member?.fields
+			?.map((fieldItem) => getFilteredSubFields(fieldItem, searchValue))
+			.filter((fieldItem): fieldItem is IOType => fieldItem !== null);
 
-		const matchingName = dmType?.fieldName?.toLowerCase().includes(searchValue.toLowerCase());
+		const matchingName = field.variableName?.toLowerCase().includes(searchValue.toLowerCase());
 		if (matchingName || matchedSubFields?.length > 0) {
 			return {
-				...dmType,
+				...field,
 				memberType: {
-					...dmType?.memberType,
-					fields: matchingName ? dmType?.memberType?.fields : matchedSubFields
+					...field.member,
+					fields: matchingName ? field.member?.fields : matchedSubFields
 				}
 			}
 		}
 	} else {
-		return dmType?.fieldName?.toLowerCase()?.includes(searchValue.toLowerCase()) ? dmType : null
+		return field.variableName?.toLowerCase()?.includes(searchValue.toLowerCase()) ? field : null
 	}
 
 	return null;
 }
 
-export function hasNoOutputMatchFound(dmType: IDMType, valueEnrichedType: DMTypeWithValue): boolean {
+export function hasNoOutputMatchFound(outputType: IOType, filteredOutputType: IOType): boolean {
 	const searchValue = useDMSearchStore.getState().outputSearch;
-	const filteredTypeDef = valueEnrichedType.type;
+
 	if (!searchValue) {
 		return false;
-	} else if (dmType.kind === TypeKind.Record && filteredTypeDef.kind === TypeKind.Record) {
-		return valueEnrichedType?.childrenTypes.length === 0;
-	} else if (dmType.kind === TypeKind.Array && filteredTypeDef.kind === TypeKind.Array) {
-		return hasNoMatchFoundInArray(valueEnrichedType?.elements, searchValue);
+	} else if (outputType.kind === TypeKind.Record && filteredOutputType.kind === TypeKind.Record) {
+		return filteredOutputType?.fields.length === 0;
+	} else if (outputType.kind === TypeKind.Array && filteredOutputType.kind === TypeKind.Array) {
+		// Handle array output
 	}
 	return false;
 }
 
-function hasNoMatchFoundInArray(elements: ArrayElement[], searchValue: string): boolean {
-	if (!elements) {
-		return false;
-	} else if (elements.length === 0) {
-		return true;
-	}
-	return elements.every(element => {
-		if (element.member.type.kind === TypeKind.Record) {
-			return element.member?.childrenTypes.length === 0;
-		} else if (element.member.type.kind === TypeKind.Array) {
-			return element.member.elements && element.member.elements.length === 0
-		} else if (element.member.value) {
-			const value = element.member.value?.getText() || element.member.value.getText();
-			return !value.toLowerCase().includes(searchValue.toLowerCase());
-		}
-	});
+export function getFilteredMappings(mappings: Mapping[], searchValue: string): Mapping[] {
+    return mappings.flatMap(mapping => {
+        const outputField = mapping.output.split(".").pop();
+        const isCurrentMappingMatched = searchValue === "" || 
+            outputField.toLowerCase().includes(searchValue.toLowerCase());
+        
+        // Get nested mappings from elements
+        const nestedMappings = mapping.elements?.flatMap(element => 
+            getFilteredMappings(element.mappings, searchValue)
+        ) || [];
+        
+        // Return current mapping if matched, along with any nested matches
+        return isCurrentMappingMatched ? [mapping, ...nestedMappings] : nestedMappings;
+    });
 }

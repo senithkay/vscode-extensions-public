@@ -10,6 +10,8 @@
  */
 import {
     AIChatRequest,
+    AddFunctionRequest,
+    AddFunctionResponse,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
@@ -33,17 +35,16 @@ import {
     BISourceCodeResponse,
     BreakpointRequest,
     ComponentRequest,
-    ComponentsRequest,
-    ComponentsResponse,
     ConfigVariableResponse,
     CreateComponentResponse,
     CurrentBreakpointsResponse,
-    FormDidCloseParams,
-    FormDidOpenParams,
+    BIDesignModelResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     ExpressionDiagnosticsRequest,
     ExpressionDiagnosticsResponse,
+    FormDidCloseParams,
+    FormDidOpenParams,
     ProjectComponentsResponse,
     ProjectImports,
     ProjectRequest,
@@ -54,13 +55,15 @@ import {
     SignatureHelpResponse,
     UpdateConfigVariableRequest,
     UpdateConfigVariableResponse,
+    UpdateImportsRequest,
+    UpdateImportsResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspacesResponse,
     addBreakpointToSource,
+    addFunction,
     buildProject,
     createComponent,
-    createComponents,
     createProject,
     deleteByComponentInfo,
     deleteFlowNode,
@@ -73,6 +76,7 @@ import {
     getBIConnectors,
     getBreakpointInfo,
     getConfigVariables,
+    getDesignModel,
     getEnclosedFunction,
     getExpressionCompletions,
     getExpressionDiagnostics,
@@ -93,7 +97,8 @@ import {
     openReadme,
     removeBreakpointFromSource,
     runProject,
-    updateConfigVariables
+    updateConfigVariables,
+    updateImports
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -167,10 +172,6 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     handleReadmeContent(params: ReadmeContentRequest): Promise<ReadmeContentResponse> {
         return this._messenger.sendRequest(handleReadmeContent, HOST_EXTENSION, params);
-    }
-
-    createComponents(params: ComponentsRequest): Promise<ComponentsResponse> {
-        return this._messenger.sendRequest(createComponents, HOST_EXTENSION, params);
     }
 
     getVisibleVariableTypes(params: BIGetVisibleVariableTypesRequest): Promise<BIGetVisibleVariableTypesResponse> {
@@ -251,5 +252,17 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     formDidClose(params: FormDidCloseParams): Promise<void> {
         return this._messenger.sendRequest(formDidClose, HOST_EXTENSION, params);
+    }
+
+    getDesignModel(): Promise<BIDesignModelResponse> {
+        return this._messenger.sendRequest(getDesignModel, HOST_EXTENSION);
+    }
+
+    updateImports(params: UpdateImportsRequest): Promise<UpdateImportsResponse> {
+        return this._messenger.sendRequest(updateImports, HOST_EXTENSION, params);
+    }
+
+    addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {
+        return this._messenger.sendRequest(addFunction, HOST_EXTENSION, params);
     }
 }

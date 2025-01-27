@@ -16,11 +16,11 @@ import { getComposerJSFiles } from '../util';
 import { RPCLayer } from '../RPCLayer';
 import { extension } from '../MIExtensionContext';
 import { debounce } from 'lodash';
-import { navigate, StateMachine } from '../stateMachine';
+import { navigate, refreshUI, StateMachine, stateService } from '../stateMachine';
 import { MACHINE_VIEW, onDocumentSave } from '@wso2-enterprise/mi-core';
 import { COMMANDS, REFRESH_ENABLED_DOCUMENTS, SWAGGER_LANG_ID, SWAGGER_REL_DIR } from '../constants';
 import { AiPanelWebview } from '../ai-panel/webview';
-import { DMProject } from '../datamapper/DMProject';
+import { history, removeFromHistory } from './../history/activator';
 import { deleteSwagger, generateSwagger } from '../util/swagger';
 
 export class VisualizerWebview {
@@ -36,12 +36,14 @@ export class VisualizerWebview {
         RPCLayer.create(this._panel);
 
         // Handle the text change and diagram update with rpc notification
-        const refreshDiagram = debounce(async () => {
+        const refreshDiagram = debounce(async (refreshDiagram: boolean = true) => {
             if (this.getWebview()) {
                 if (!StateMachine.context().isOldProject) {
                     await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND); // Refresh the project explore view
                 }
-                navigate();
+                if (refreshDiagram) {
+                    refreshUI();
+                }
             }
         }, 500);
 
@@ -59,7 +61,7 @@ export class VisualizerWebview {
 
         vscode.workspace.onDidDeleteFiles(async function (event) {
             const projectRoot = StateMachine.context().projectUri!;
-            refreshDiagram();
+            refreshDiagram(false);
 
             const apiDir = path.join(projectRoot, 'src', 'main', "wso2mi", "artifacts", "apis");
             event.files.forEach(file => {
@@ -67,6 +69,7 @@ export class VisualizerWebview {
                 if (filePath?.includes(apiDir)) {
                     deleteSwagger(filePath);
                 }
+                removeFromHistory(filePath);
             });
         }, extension.context);
 

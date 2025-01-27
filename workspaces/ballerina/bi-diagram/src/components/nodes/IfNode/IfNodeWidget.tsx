@@ -118,11 +118,11 @@ interface IfNodeWidgetProps {
     onClick?: (node: FlowNode) => void;
 }
 
-export interface NodeWidgetProps extends Omit<IfNodeWidgetProps, "children"> { }
+export interface NodeWidgetProps extends Omit<IfNodeWidgetProps, "children"> {}
 
 export function IfNodeWidget(props: IfNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { onNodeSelect, goToSource, onDeleteNode, addBreakpoint, removeBreakpoint } = useDiagramContext();
+    const { onNodeSelect, goToSource, onDeleteNode, addBreakpoint, removeBreakpoint, readOnly } = useDiagramContext();
 
     const [isHovered, setIsHovered] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
@@ -171,12 +171,12 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
     const onAddBreakpoint = () => {
         addBreakpoint && addBreakpoint(model.node);
         setAnchorEl(null);
-    }
+    };
 
     const onRemoveBreakpoint = () => {
         removeBreakpoint && removeBreakpoint(model.node);
         setAnchorEl(null);
-    }
+    };
 
     const menuItems: Item[] = [
         {
@@ -201,7 +201,17 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
             <NodeStyles.Row>
                 <NodeStyles.Column onClick={handleOnClick}>
                     {hasBreakpoint && (
-                        <div style={{ position: "absolute", left: -5, width: 15, height: 15, top: 22, borderRadius: "50%", backgroundColor: "red" }} />
+                        <div
+                            style={{
+                                position: "absolute",
+                                left: -5,
+                                width: 15,
+                                height: 15,
+                                top: 22,
+                                borderRadius: "50%",
+                                backgroundColor: "red",
+                            }}
+                        />
                     )}
                     <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
                     <svg width={IF_NODE_WIDTH} height={IF_NODE_WIDTH} viewBox="0 0 70 70">
@@ -217,8 +227,8 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                                 hasError
                                     ? Colors.ERROR
                                     : isHovered && !disabled
-                                        ? Colors.PRIMARY
-                                        : Colors.OUTLINE_VARIANT
+                                    ? Colors.PRIMARY
+                                    : Colors.OUTLINE_VARIANT
                             }
                             strokeWidth={NODE_BORDER_WIDTH}
                             strokeDasharray={disabled ? "5 5" : "none"}
@@ -247,9 +257,11 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                         <DiagnosticsPopUp node={model.node} />
                     </NodeStyles.ErrorIcon>
                 )}
-                <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
-                    <MoreVertIcon />
-                </NodeStyles.StyledButton>
+                {!readOnly && (
+                    <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
+                        <MoreVertIcon />
+                    </NodeStyles.StyledButton>
+                )}
                 <Popover
                     open={isMenuOpen}
                     anchorEl={anchorEl}

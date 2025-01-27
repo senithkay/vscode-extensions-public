@@ -179,6 +179,8 @@ import {
     RetrieveTemplateResponse,
     RetrieveWsdlEndpointRequest,
     RetrieveWsdlEndpointResponse,
+    SaveConfigRequest,
+    SaveConfigResponse,
     SaveInboundEPUischemaRequest,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
@@ -240,7 +242,8 @@ import {
     RemoveConnectorRequest,
     RemoveConnectorResponse,
     TestConnectorConnectionRequest,
-    TestConnectorConnectionResponse
+    TestConnectorConnectionResponse,
+    MiVersionResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -267,7 +270,7 @@ import { openSwaggerWebview } from "../../swagger/activate";
 import { testFileMatchPattern } from "../../test-explorer/discover";
 import { mockSerivesFilesMatchPattern } from "../../test-explorer/mock-services/activator";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { copyDockerResources, copyMavenWrapper, createFolderStructure, getAPIResourceXmlWrapper, getAddressEndpointXmlWrapper, getDataServiceXmlWrapper, getDefaultEndpointXmlWrapper, getDssDataSourceXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper, createGitignoreFile } from "../../util";
+import { copyDockerResources, copyMavenWrapper, createFolderStructure, getAPIResourceXmlWrapper, getAddressEndpointXmlWrapper, getDataServiceXmlWrapper, getDefaultEndpointXmlWrapper, getDssDataSourceXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper, createGitignoreFile, getEditTemplateXmlWrapper } from "../../util";
 import { addNewEntryToArtifactXML, changeRootPomForClassMediator, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
@@ -281,7 +284,7 @@ import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 import { importCapp } from "../../util/importCapp";
-import { getDefaultProjectPath } from "../../util/onboardingUtils";
+import { getDefaultProjectPath, getMIVersionFromPom } from "../../util/onboardingUtils";
 import { Range as STRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 const AdmZip = require('adm-zip');
@@ -344,6 +347,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.shutdownTryoutServer();
             resolve(res);
+        });
+    }
+
+    async getMIVersionFromPom(): Promise<MiVersionResponse> {
+        return new Promise(async (resolve) => {
+            const res = await getMIVersionFromPom();
+            resolve({ version: res ?? '' });
         });
     }
 
@@ -1632,11 +1642,19 @@ ${endpointAttributes}
                 wsdlUri, wsdlService, wsdlPort, traceEnabled, statisticsEnabled, parameters
             };
 
-            const xmlData = getTemplateXmlWrapper(getTemplateParams);
-            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+            let xmlData = getTemplateXmlWrapper(getTemplateParams);
+            let sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
+            } else if (params.isEdit && params.range) {
+                const filePath = await this.getFilePath(directory, templateName);
+                xmlData = getEditTemplateXmlWrapper(getTemplateParams);
+                this.applyEdit({
+                    text: xmlData,
+                    documentUri: filePath,
+                    range: params.range
+                });
             } else {
                 const filePath = await this.getFilePath(directory, templateName);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
@@ -3514,17 +3532,38 @@ ${endpointAttributes}
 
     async createRegistryResource(params: CreateRegistryResourceRequest): Promise<CreateRegistryResourceResponse> {
         return new Promise(async (resolve) => {
-            let artifactName = ('resources/' + params.registryPath).replace(new RegExp('/', 'g'), "_").replace(/_+/g, '_');
+            const artifactNamePrefix = params.registryRoot === '' ? 'resources/' : params.registryRoot + '/';
+            let artifactName = (artifactNamePrefix + params.registryPath).replace(new RegExp('/', 'g'), "_").replace(/_+/g, '_');
 
             let projectDir = params.projectDirectory;
             const fileUri = Uri.file(params.projectDirectory);
             const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
             if (workspaceFolder) {
                 params.projectDirectory = workspaceFolder?.uri.fsPath;
-                projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources');
+                if (params.registryRoot === '') {
+                    projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources');
+                } else {
+                    projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
+                }
+            }
+            const getTransformedRegistryRoot = (registryRoot: string) => {
+                if (registryRoot === '') {
+                    return "/_system/governance/mi-resources";
+                } else if (registryRoot === 'gov') {
+                    return "/_system/governance";
+                } else {
+                    return "/_system/config";
+                }
+            }
+            const refreshRegistryResource = (registryRoot: string) => {
+                if (registryRoot === '') {
+                    commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                } else {
+                    commands.executeCommand(COMMANDS.REFRESH_REGISTRY_COMMAND);
+                }
             }
             let registryDir = path.join(projectDir, params.registryRoot);
-            let transformedPath = "/_system/governance/mi-resources";
+            let transformedPath = getTransformedRegistryRoot(params.registryRoot);;
             if (params.createOption === "import") {
                 if (fs.existsSync(params.filePath)) {
                     const fileName = path.basename(params.filePath);
@@ -3541,15 +3580,15 @@ ${endpointAttributes}
                         transformedPath = path.join(transformedPath, params.registryPath, fileName);
                         transformedPath = transformedPath.split(path.sep).join("/");
                         createMetadataFilesForRegistryCollection(destPath, transformedPath);
-                        addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, "", true);
+                        addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, "", true, params.registryRoot !== "");
                     } else {
                         fs.copyFileSync(params.filePath, destPath);
                         transformedPath = path.join(transformedPath, params.registryPath);
                         transformedPath = transformedPath.split(path.sep).join("/");
                         const mediaType = await detectMediaType(params.filePath);
-                        addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, mediaType, false);
+                        addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, mediaType, false, params.registryRoot !== "");
                     }
-                    commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                    refreshRegistryResource(params.registryRoot);
                     resolve({ path: destPath });
                 }
             } else if (params.createOption === 'entryOnly') {
@@ -3565,8 +3604,8 @@ ${endpointAttributes}
                 //add the new entry to artifact.xml
                 transformedPath = path.join(transformedPath, params.registryPath);
                 transformedPath = transformedPath.split(path.sep).join("/");
-                addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false);
-                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false, params.registryRoot !== "");
+                refreshRegistryResource(params.registryRoot);
                 resolve({ path: destPath });
 
             } else {
@@ -3584,8 +3623,8 @@ ${endpointAttributes}
                 //add the new entry to artifact.xml
                 transformedPath = path.join(transformedPath, params.registryPath);
                 transformedPath = transformedPath.split(path.sep).join("/");
-                addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false);
-                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false, params.registryRoot !== "");
+                refreshRegistryResource(params.registryRoot);
                 resolve({ path: destPath });
             }
         });
@@ -3745,8 +3784,10 @@ ${endpointAttributes}
                     resolve({ inboundConnectors: connectorCache.get('inbound-connector-data'), outboundConnectors: connectorCache.get('outbound-connector-data'), connectors: connectorCache.get('connectors') });
                     return;
                 }
+                const runtimeVersion = await getMIVersionFromPom();
+
                 const response = await fetch(APIS.CONNECTOR);
-                const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE);
+                const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE.replace('${version}', runtimeVersion ?? ''));
                 const data = await response.json();
                 const connectorStoreData = await connectorStoreResponse.json();
                 if (data && data['inbound-connector-data'] && data['outbound-connector-data']) {
@@ -4996,7 +5037,8 @@ ${keyValuesXML}`;
 
                 await this.applyEdit({
                     documentUri: param.documentUri,
-                    edits
+                    edits,
+                    disableUndoRedo: true
                 });
 
                 let document = workspace.textDocuments.find(doc => doc.uri.fsPath === param.documentUri);
@@ -5052,6 +5094,42 @@ ${keyValuesXML}`;
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.testConnectorConnection(params);
             resolve(res);
+        });
+    }
+
+    async saveConfig(params: SaveConfigRequest): Promise<SaveConfigResponse> {
+        return new Promise(async (resolve, reject) => {
+            const { configName, configType } = params;
+            const projectUri = StateMachine.context().projectUri!;
+
+            try {
+                // Read the config file content
+                const configFilePath = path.join(
+                    projectUri,
+                    'src',
+                    'main',
+                    'wso2mi',
+                    'resources',
+                    'conf',
+                    'config.properties'
+                );
+                const configFileContent = fs.readFileSync(configFilePath, 'utf-8').trim();
+
+                // Derive the updated config file content
+                let updatedConfigFileContent: string;
+                if (configFileContent.length > 0) {
+                    // Add a new line if the file is not empty
+                    updatedConfigFileContent = configFileContent + `\n${configName}:${configType}`;
+                } else {
+                    updatedConfigFileContent = configFileContent + `${configName}:${configType}`;
+                }
+
+                // Write the updated config file content back to the file
+                fs.writeFileSync(configFilePath, updatedConfigFileContent, 'utf-8');
+                resolve({ success: true });
+            } catch (e) {
+                reject(e);
+            }
         });
     }
 }

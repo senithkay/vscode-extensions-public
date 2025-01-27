@@ -59,9 +59,9 @@ function getServicePort(pid: string): number | undefined {
     try {
         const output = execSync(getLSOFCommand(platform, pid), { encoding: 'utf-8' });
         if (isNaN(output as any)) {
-            const portMatch = output.match(/:\d+/);
+            const portMatch = output.match(/\*:\d+/);
             if (portMatch) {
-                return parseInt(portMatch[0].substring(1));
+                return parseInt(portMatch[0].substring(2));
             }
         } else { return parseInt(output); }
     } catch (error) {

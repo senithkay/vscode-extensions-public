@@ -3,7 +3,7 @@
   "displayName": "Micro Integrator",
   "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
   "icon": "resources/images/wso2-micro-integrator-image.png",
-  "version": "1.1.6",
+  "version": "1.9.0",
   "publisher": "wso2",
   "engines": {
     "vscode": "^1.81.0"
@@ -144,6 +144,12 @@
             "default": "${env:JAVA_HOME}",
             "description": "Java Home path",
             "scope": "resource"
+          },
+          "MI.LEGACY_EXPRESSION_ENABLED": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable legacy expression support",
+            "scope": "resource"
           }
         }
       }
@@ -162,6 +168,12 @@
         {
           "id": "MI.project-explorer",
           "name": "Project Explorer"
+        },
+        {
+          "id": "MI.registry-explorer",
+          "name": "Registry Explorer",
+          "visibility": "collapsed",
+          "when": "MI.registry-explorer.isVisible"
         }
       ],
       "test": [
@@ -176,6 +188,12 @@
         "view": "MI.project-explorer",
         "contents": "Loading...",
         "when": "MI.status != 'unknownProject' && MI.status != 'projectLoaded' && MI.status != 'disabled' && MI.status != 'notSetUp'"
+      },
+      {
+        "view": "MI.project-explorer",
+        "contents": "No artifacts were found. Please add artifacts to your project to view them here.\n[Add artifact](command:MI.project-explorer.add.artifact)",
+        "when": "projectOpened && MI.status == 'projectLoaded'",
+        "enablement": "MI.showAddArtifact"
       },
       {
         "view": "MI.project-explorer",
@@ -845,7 +863,7 @@
         "description": "design-view",
         "default": {
           "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-          "fontCharacter": "\\f142"
+          "fontCharacter": "\\f144"
         }
       }
     }

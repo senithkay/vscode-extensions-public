@@ -2,7 +2,7 @@
     "name": "kolab",
     "displayName": "KolaB",
     "description": "KolaB Extension for Kola.",
-    "version": "0.3.5",
+    "version": "0.4.2",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
@@ -511,7 +511,8 @@
             {
                 "command": "kolab.tryit",
                 "title": "Open Try It",
-                "category": "Ballerina"
+                "category": "Ballerina",
+                "icon": "$(server)"
             },
             {
                 "command": "kolab.open.ai.panel",
@@ -597,6 +598,13 @@
                 "icon": "$(distro-design-view)",
                 "group": "navigation",
                 "category": "BI"
+            },
+            {
+                "command": "BI.project-explorer.add-data-mapper",
+                "title": "Add Data Mapper",
+                "icon": "$(add)",
+                "group": "navigation",
+                "category": "BI"
             }
         ],
         "views": {
@@ -632,6 +640,12 @@
                     "group": "navigation@1",
                     "title": "Run project in terminal",
                     "when": "resourceLangId == ballerina || isBallerinaDiagram"
+                },
+                {
+                    "command": "kolab.tryit",
+                    "group": "navigation@1",
+                    "title": "Open Try It",
+                    "when": "isBIProjectRunning"
                 },
                 {
                     "command": "kolab.project.run.config",
@@ -804,21 +818,21 @@
                 "description": "design-view",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f142"
+                    "fontCharacter": "\\f144"
                 }
             },
             "distro-start": {
                 "description": "start",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f1b4"
+                    "fontCharacter": "\\f1b5"
                 }
             },
             "distro-debug": {
                 "description": "debug",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f13d"
+                    "fontCharacter": "\\f13f"
                 }
             },
             "distro-source-view": {
@@ -832,7 +846,7 @@
                 "description": "persist-diagram",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f18f"
+                    "fontCharacter": "\\f191"
                 }
             },
             "distro-cached-rounded": {

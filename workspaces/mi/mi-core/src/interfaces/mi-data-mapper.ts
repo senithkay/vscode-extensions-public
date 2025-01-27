@@ -26,4 +26,3 @@ export enum TypeKind {
     Object = 'object',
     Unknown = 'unknown'
 }
-

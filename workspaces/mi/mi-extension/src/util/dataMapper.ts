@@ -196,12 +196,18 @@ function getVariableTypes(fn: FunctionDeclaration) {
 }
 
 function getTypeInfoForInterface(typeNode: Type, sourceFile: SourceFile): DMType {
-    const typeName = typeNode.getText();
-    const interfaceNode = sourceFile.getInterface(typeName);
+
+    const typeSymbol = typeNode.getSymbol();
+    if (!typeSymbol) return { kind: TypeKind.Unknown };
+
+    const declarations = typeSymbol?.getDeclarations();
+    const interfaceNode = declarations?.find(Node.isInterfaceDeclaration);
 
     if (!interfaceNode) {
         return { kind: TypeKind.Unknown };
     }
+
+    const typeName = typeSymbol.getName();
 
     const fields = interfaceNode.getMembers().map(member => {
         if (Node.isPropertySignature(member)) {

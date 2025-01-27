@@ -13,7 +13,6 @@ import * as os from 'os';
 import axios from "axios";
 import * as path from 'path';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
-import { COMMANDS } from "../constants";
 import * as unzipper from 'unzipper';
 import { DownloadProgressData, ListRegistryArtifactsResponse, onDownloadProgress, Range, RegistryArtifact, UpdateRegistryMetadataRequest } from "@wso2-enterprise/mi-core";
 import { rm } from 'node:fs/promises';
@@ -198,7 +197,7 @@ export async function handleOpenFile(sampleName: string, repoUrl: string) {
     * @param mediaType     The media type of the artifact.
     */
 export async function addNewEntryToArtifactXML(projectDir: string, artifactName: string, file: string,
-    artifactPath: string, mediaType: string, isCollection: boolean): Promise<boolean> {
+    artifactPath: string, mediaType: string, isCollection: boolean, isRegistry: boolean): Promise<boolean> {
     return new Promise(async (resolve) => {
         const options = {
             ignoreAttributes: false,
@@ -207,7 +206,7 @@ export async function addNewEntryToArtifactXML(projectDir: string, artifactName:
             format: true,
         };
         const parser = new XMLParser(options);
-        const artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'artifact.xml');
+        const artifactXMLPath = isRegistry ? path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry','artifact.xml') : path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'artifact.xml');
         if (!fs.existsSync(artifactXMLPath)) {
             fs.writeFileSync(artifactXMLPath, `<?xml version="1.0" encoding="UTF-8"?><artifacts></artifacts>`);
         }
@@ -273,7 +272,12 @@ export async function removeEntryFromArtifactXML(projectDir: string, artifactPat
             format: true,
         };
         const parser = new XMLParser(options);
-        const artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'artifact.xml');
+        let artifactXMLPath;
+        if (path.normalize(artifactPath).includes(path.normalize("_system/governance/mi-resources"))) {
+            artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'artifact.xml');
+        } else {
+            artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
+        }
         if (!fs.existsSync(artifactXMLPath)) {
             resolve(false);
         }
@@ -529,8 +533,21 @@ export async function deleteRegistryResource(filePath: string): Promise<{ status
             if (platform === 'win32') {
                 tempPath = tempPath.replace(/\\/g, '/');
             }
-            tempPath = tempPath.replace('/src/main/wso2mi/resources/', '');
-            var regPath = "/_system/governance/mi-resources/" + tempPath;
+            tempPath = path.normalize(tempPath);
+            if (tempPath.includes('/src/main/wso2mi/resources/registry/')) {
+                tempPath = tempPath.replace('/src/main/wso2mi/resources/registry/', '');
+                var regPath = "";
+                if (tempPath.startsWith('gov')) {
+                    regPath = '/_system/governance/';
+                    regPath = regPath + tempPath.replace('gov/', '');
+                } else {
+                    regPath = '/_system/config/';
+                    regPath = regPath + tempPath.replace('conf/', '');
+                }
+            } else {
+                tempPath = tempPath.replace('/src/main/wso2mi/resources/', '');
+                var regPath = "/_system/governance/mi-resources/" + tempPath;
+            }
             if (fs.lstatSync(filePath).isDirectory()) {
                 removeEntryFromArtifactXML(workspaceFolder, regPath, "");
                 await rm(filePath, { recursive: true, force: true });
@@ -553,13 +570,19 @@ export function deleteDataMapperResources(filePath: string): Promise<{ status: b
         const fileName = path.basename(filePath);
         if (projectDir && fileName.endsWith('.ts')) {
             const dmName = fileName.replace('.ts', '');
-            const inputSchemaRegPath = '/_system/governance/datamapper/' + dmName;
-            const outputSchemaRegPath = '/_system/governance/datamapper/' + dmName;
-            const configFileRegpath = '/_system/governance/datamapper/' + dmName;
-            removeEntryFromArtifactXML(projectDir, inputSchemaRegPath, dmName + '_inputSchema.json');
-            removeEntryFromArtifactXML(projectDir, outputSchemaRegPath, dmName + '_outputSchema.json');
-            removeEntryFromArtifactXML(projectDir, configFileRegpath, dmName + '.dmc');
-            workspace.fs.delete(Uri.parse(path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov/datamapper/' + dmName)), { recursive: true, useTrash: true });
+            let artifactXmlSavePath = '';
+            let projectDirPath = '';
+            if (path.normalize(filePath).includes(path.normalize(path.join('resources', 'datamapper')))) {
+                artifactXmlSavePath = '/_system/governance/mi-resources/datamapper/' + dmName
+                projectDirPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'datamapper', dmName);
+            } else {
+                artifactXmlSavePath = '/_system/governance/datamapper/' + dmName;
+                projectDirPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', dmName);
+            }
+            removeEntryFromArtifactXML(projectDir, artifactXmlSavePath, dmName + '_inputSchema.json');
+            removeEntryFromArtifactXML(projectDir, artifactXmlSavePath, dmName + '_outputSchema.json');
+            removeEntryFromArtifactXML(projectDir, artifactXmlSavePath, dmName + '.dmc');
+            workspace.fs.delete(Uri.parse(projectDirPath), { recursive: true, useTrash: true });
             resolve({ status: true, info: "Datamapper resources removed" });
         }
     });
@@ -611,15 +634,7 @@ export async function createMetadataFilesForRegistryCollection(collectionRoot: s
  */
 export function getAvailableRegistryResources(projectDir: string): ListRegistryArtifactsResponse {
     const result: RegistryArtifact[] = [];
-    var artifactXMLPath = path.join(projectDir, 'artifact.xml');
-    if (!projectDir.endsWith('registry')) {
-        const fileUri = Uri.file(projectDir);
-        const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
-        if (workspaceFolder) {
-            projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources');
-            artifactXMLPath = path.join(projectDir, 'artifact.xml');
-        }
-    }
+    var artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
     if (fs.existsSync(artifactXMLPath)) {
         const artifactXML = fs.readFileSync(artifactXMLPath, "utf8");
         const options = {
@@ -843,7 +858,7 @@ export async function changeRootPomForClassMediator() {
         {
             groupId: "org.apache.synapse",
             artifact: "synapse-core",
-            version: "4.0.0-wso2v20"
+            version: "4.0.0-wso2v165"
         }
     ];
     await rpcManager.updateDependencies({ dependencies });

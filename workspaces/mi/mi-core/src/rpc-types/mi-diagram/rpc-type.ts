@@ -223,7 +223,10 @@ import {
     GetHelperPaneInfoRequest,
     GetHelperPaneInfoResponse,
     TestConnectorConnectionResponse,
-    TestConnectorConnectionRequest
+    TestConnectorConnectionRequest,
+    MiVersionResponse,
+    SaveConfigRequest,
+    SaveConfigResponse
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -365,6 +368,7 @@ export const generateDSSQueries: RequestType<ExtendedDSSQueryGenRequest, boolean
 export const fetchDSSTables: RequestType<DSSFetchTablesRequest, DSSFetchTablesResponse> = { method: `${_preFix}/fetchDSSTables` };
 export const tryOutMediator: RequestType<MediatorTryOutRequest, MediatorTryOutResponse> = { method: `${_preFix}/tryOutMediator` };
 export const shutDownTryoutServer: RequestType<void, boolean> = { method: `${_preFix}/shutDownTryoutServer` };
+export const getMIVersionFromPom: RequestType<void, MiVersionResponse> = { method: `${_preFix}/getMIVersionFromPom`};
 export const getMediatorInputOutputSchema: RequestType<MediatorTryOutRequest, MediatorTryOutResponse> = { method: `${_preFix}/getMediatorInputOutputSchema` };
 export const saveInputPayload: RequestType<SavePayloadRequest,boolean> = { method: `${_preFix}/saveInputPayload` };
 export const getInputPayloads: RequestType<GetPayloadsRequest,GetPayloadsResponse> = { method: `${_preFix}/getInputPayloads` };
@@ -375,3 +379,4 @@ export const getConnectionSchema: RequestType<GetConnectionSchemaRequest, GetCon
 export const getExpressionCompletions: RequestType<ExpressionCompletionsRequest, ExpressionCompletionsResponse> = { method: `${_preFix}/getExpressionCompletions` };
 export const getHelperPaneInfo: RequestType<GetHelperPaneInfoRequest, GetHelperPaneInfoResponse> = { method: `${_preFix}/getHelperPaneInfo` };
 export const testConnectorConnection: RequestType<TestConnectorConnectionRequest, TestConnectorConnectionResponse> = { method: `${_preFix}/testConnectorConnection` };
+export const saveConfig: RequestType<SaveConfigRequest, SaveConfigResponse> = { method: `${_preFix}/saveConfig` };
