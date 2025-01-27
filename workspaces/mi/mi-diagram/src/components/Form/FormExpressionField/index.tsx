@@ -269,8 +269,8 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                 .finally(() => {
                     setIsLoadingHelperPaneInfo(false);
                 });
-            });
-        }, 300),
+        });
+    }, 300),
         [rpcClient, nodeRange?.start]
     );
 
@@ -334,21 +334,21 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         }
 
         return [
-            ...(isExActive ? [{
+            ...(isExActive || expressionType === "xpath/jsonPath" ? [{
                 tooltip: 'Open Expression Editor',
                 iconType: 'codicon' as any,
                 name: 'edit',
                 onClick: () => openExpressionEditor(value, onChange)
             }] : []),
-            {
+            ...(expressionType === "synapse" ? [{
                 tooltip: 'Open Helper Pane',
                 iconType: 'icon' as any,
                 name: 'function-icon',
                 onClick: () => {
                     expressionRef.current?.focus();
                     handleChangeHelperPaneState(!isHelperPaneOpen)
-                }
-            }
+                },
+            }] : [])
         ];
     }, [isExActive, isHelperPaneOpen, value, handleChangeHelperPaneState, openExpressionEditor, onChange]);
 
@@ -377,29 +377,29 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                     onCancel={handleCancel}
                     getExpressionEditorIcon={handleGetExpressionEditorIcon}
                     helperPaneOrigin='left'
+                    actionButtons={actionButtons}
                     {...(expressionType !== "xpath/jsonPath" &&
                         value.isExpression && {
-                            completions,
-                            actionButtons,
-                            isHelperPaneOpen,
-                            changeHelperPaneState: handleChangeHelperPaneState,
-                            getHelperPane: handleGetHelperPane,
-                            onFunctionEdit: handleFunctionEdit,
-                            startAdornment: (
-                                <S.AdornmentContainer>
-                                    <Typography variant="h4" sx={{ margin: 0 }}>
-                                        {"${"}
-                                    </Typography>
-                                </S.AdornmentContainer>
-                            ),
-                            endAdornment: (
-                                <S.AdornmentContainer>
-                                    <Typography variant="h4" sx={{ margin: 0 }}>
-                                        {"}"}
-                                    </Typography>
-                                </S.AdornmentContainer>
-                            ),
-                        })}
+                        completions,
+                        isHelperPaneOpen,
+                        changeHelperPaneState: handleChangeHelperPaneState,
+                        getHelperPane: handleGetHelperPane,
+                        onFunctionEdit: handleFunctionEdit,
+                        startAdornment: (
+                            <S.AdornmentContainer>
+                                <Typography variant="h4" sx={{ margin: 0 }}>
+                                    {"${"}
+                                </Typography>
+                            </S.AdornmentContainer>
+                        ),
+                        endAdornment: (
+                            <S.AdornmentContainer>
+                                <Typography variant="h4" sx={{ margin: 0 }}>
+                                    {"}"}
+                                </Typography>
+                            </S.AdornmentContainer>
+                        ),
+                    })}
                 />
                 {errorMsg && <ErrorBanner errorMsg={errorMsg} />}
             </div>

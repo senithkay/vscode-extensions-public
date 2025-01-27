@@ -2482,17 +2482,18 @@ ${endpointAttributes}
             const edit = new WorkspaceEdit();
             const uri = params.documentUri;
             const file = Uri.file(uri);
+            const addNewLine = params.addNewLine ?? true;
 
             const getRange = (range: STRange | Range) =>
                 new Range(new Position(range.start.line, range.start.character),
                     new Position(range.end.line, range.end.character));
 
             if ('text' in params) {
-                const textToInsert = params.text.endsWith('\n') ? params.text : `${params.text}\n`;
+                const textToInsert = params.addNewLine ? (params.text.endsWith('\n') ? params.text : `${params.text}\n`) : params.text;
                 edit.replace(file, getRange(params.range), textToInsert);
             } else if ('edits' in params) {
                 params.edits.forEach(editRequest => {
-                    const textToInsert = editRequest.newText.endsWith('\n') ? editRequest.newText : `${editRequest.newText}\n`;
+                    const textToInsert = params.addNewLine ? (editRequest.newText.endsWith('\n') ? editRequest.newText : `${editRequest.newText}\n`) : editRequest.newText;
                     edit.replace(file, getRange(editRequest.range), textToInsert);
                 });
             }

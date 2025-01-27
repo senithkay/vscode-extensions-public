@@ -23,6 +23,7 @@ export interface ApplyEditRequest {
     range: Range;
     disableFormatting?: boolean;
     disableUndoRedo?: boolean;
+    addNewLine?: boolean;
 }
 
 export interface ApplyEditsRequest {
@@ -30,6 +31,7 @@ export interface ApplyEditsRequest {
     edits: TextEdit[];
     disableFormatting?: boolean;
     disableUndoRedo?: boolean;
+    addNewLine?: boolean;
 }
 
 export interface ApplyEditResponse {
