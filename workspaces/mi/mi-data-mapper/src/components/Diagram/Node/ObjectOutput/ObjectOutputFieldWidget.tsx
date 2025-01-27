@@ -126,8 +126,6 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
             let initValue = getDefaultValue(resolvedUnionType.kind);
             if (initValue === "{}" && resolvedUnionType.kind !== TypeKind.Object && resolvedUnionType.typeName) {
                 initValue += ` as ${resolvedUnionType.typeName}`;
-            } else if (initValue === "[]" && resolvedUnionType.kind === TypeKind.Array && resolvedUnionType.typeName) {
-                initValue += ` as ${resolvedUnionType.typeName}[]`;
             }
             const fnBody = context.functionST.getBody() as Block;
             await createSourceForUserInput(field, objectLiteralExpr, initValue, fnBody, context.applyModifications);
@@ -142,8 +140,6 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
             let initValue = getDefaultValue(resolvedUnionType.kind);
             if (initValue === "{}" && resolvedUnionType.kind !== TypeKind.Object && resolvedUnionType.typeName) {
                 initValue += ` as ${resolvedUnionType.typeName}`;
-            } else if (initValue === "[]" && resolvedUnionType.kind === TypeKind.Array && resolvedUnionType.typeName) {
-                initValue += ` as ${resolvedUnionType.typeName}[]`;
             }
             let node = field.value;
             if (Node.isAsExpression(node.getParent())) {

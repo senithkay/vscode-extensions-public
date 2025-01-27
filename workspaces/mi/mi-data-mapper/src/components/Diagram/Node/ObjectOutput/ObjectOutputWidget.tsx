@@ -198,8 +198,6 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 				let initValue = getDefaultValue(resolvedUnionType.kind);
 				if (initValue === "{}" && resolvedUnionType.kind !== TypeKind.Object && resolvedUnionType.typeName) {
 					initValue += ` as ${resolvedUnionType.typeName}`;
-				} else if (initValue === "[]" && resolvedUnionType.kind === TypeKind.Array && resolvedUnionType.typeName) {
-					initValue += ` as ${resolvedUnionType.typeName}[]`;
 				}
 				node.replaceWithText(initValue);
 				await context.applyModifications(node.getSourceFile().getFullText());
