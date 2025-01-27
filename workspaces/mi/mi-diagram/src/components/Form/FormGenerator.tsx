@@ -8,22 +8,40 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { AutoComplete, CheckBox, Codicon, ComponentCard, FormGroup, Icon, LinkButton, RequiredFormInput, TextArea, TextField, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
+import {
+    AutoComplete,
+    CheckBox,
+    Codicon,
+    ComponentCard,
+    FormGroup,
+    Icon,
+    LinkButton,
+    RequiredFormInput,
+    TextArea,
+    TextField,
+    Tooltip,
+    Typography
+} from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import React from 'react';
-import { ExpressionFieldValue, Keylookup, FormExpressionField } from '.';
+import {
+    ExpressionFieldValue,
+    Keylookup,
+    FormExpressionField,
+    ExpressionField,
+    FormTokenEditor,
+    CodeTextArea
+} from '.';
 import ExpressionEditor from '../sidePanel/expressionEditor/ExpressionEditor';
 import { handleOpenExprEditor, sidepanelGoBack } from '../sidePanel';
 import SidePanelContext from '../sidePanel/SidePanelContexProvider';
 import { openPopup, deriveDefaultValue } from './common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { CodeTextArea } from './CodeTextArea';
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import ParameterManager from './GigaParamManager/ParameterManager';
 import { StringWithParamManagerComponent } from './StringWithParamManager';
 import { isValueExpression } from './utils';
-import { FormTokenEditor } from './FormTokenEditor';
 
 const Field = styled.div`
     margin-bottom: 12px;
@@ -114,8 +132,22 @@ export function FormGenerator(props: FormGeneratorProps) {
     } = props;
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = React.useState(true);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [isLegacyExpressionEnabled, setIsLegacyExpressionEnabled] = useState<boolean>(false);
     const handleOnCancelExprEditorRef = useRef(() => { });
+
+    useEffect(() => {
+        rpcClient
+            .getMiVisualizerRpcClient()
+            .getProjectDetails()
+            .then(projectDetails => {
+                setIsLegacyExpressionEnabled(projectDetails.advanced.isLegacyExpressionEnabled);
+            })
+            .catch(() => {
+                // Fallback to false if the project details cannot be fetched
+                setIsLegacyExpressionEnabled(false);
+            });
+    }, []);
 
     useEffect(() => {
         setIsLoading(true);
@@ -196,6 +228,49 @@ export function FormGenerator(props: FormGeneratorProps) {
                 nodeRange={range}
             />
         </ComponentCard>;
+    }
+
+    const ExpressionFieldComponent = ({ element, canChange, field, helpTipElement, placeholder, isRequired }: { element: Element, canChange: boolean, field: any, helpTipElement: React.JSX.Element, placeholder: string, isRequired: boolean }) => {
+        const name = getNameForController(element.name);
+
+        return expressionEditorField !== name ? (
+            <ExpressionField
+                {...field}
+                label={element.displayName}
+                labelAdornment={helpTipElement}
+                placeholder={placeholder}
+                canChange={canChange}
+                required={isRequired}
+                isTextArea={element.inputType === 'textAreaOrExpression'}
+                errorMsg={errors[name] && errors[name].message.toString()}
+                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                    setCurrentExpressionValue({ value, setValue });
+                    setExpressionEditorField(name);
+                }}
+            />
+        ) : (
+            <>
+                <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                    <label>{element.displayName}</label>
+                    {element.required === "true" && <RequiredFormInput />}
+                    <div style={{ paddingTop: '5px' }}>
+                        {helpTipElement}
+                    </div>
+                </div>
+                <ExpressionEditor
+                    value={currentExpressionValue.value || { isExpression: false, value: '', namespaces: [] }}
+                    handleOnSave={(newValue) => {
+                        if (currentExpressionValue) {
+                            currentExpressionValue.setValue(newValue);
+                        }
+                        setExpressionEditorField(null);
+                    }}
+                    handleOnCancel={() => {
+                        setExpressionEditorField(null);
+                    }}
+                />
+            </>
+        )
     }
 
     const FormExpressionFieldComponent = (element: Element, field: any, helpTipElement: React.JSX.Element, isRequired: boolean, errorMsg: string) => {
@@ -313,6 +388,16 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'textAreaOrExpression':
             case 'integerOrExpression':
             case 'expression':
+                if (isLegacyExpressionEnabled) {
+                    return ExpressionFieldComponent({
+                        element,
+                        canChange: element.inputType !== 'expression',
+                        field,
+                        helpTipElement,
+                        placeholder,
+                        isRequired
+                    });
+                }
                 return FormExpressionFieldComponent(element, field, helpTipElement, isRequired, errorMsg);
             case 'booleanOrExpression':
             case 'comboOrExpression':
