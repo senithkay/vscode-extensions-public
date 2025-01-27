@@ -1993,3 +1993,12 @@ export interface TestConnectorConnectionResponse {
     isConnectionValid: boolean;
     errorMessage: string;
 }
+
+export interface SaveConfigRequest {
+    configName: string;
+    configType: "string" | "cert";
+}
+
+export interface SaveConfigResponse {
+    success: boolean;
+}

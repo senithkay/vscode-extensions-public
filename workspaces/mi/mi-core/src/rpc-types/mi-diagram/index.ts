@@ -222,7 +222,9 @@ import {
     GetHelperPaneInfoResponse,
     TestConnectorConnectionRequest,
     TestConnectorConnectionResponse,
-    MiVersionResponse
+    MiVersionResponse,
+    SaveConfigRequest,
+    SaveConfigResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -374,4 +376,5 @@ export interface MiDiagramAPI {
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
     getHelperPaneInfo: (params: GetHelperPaneInfoRequest) => Promise<GetHelperPaneInfoResponse>;
     testConnectorConnection: (params: TestConnectorConnectionRequest) => Promise<TestConnectorConnectionResponse>;
+    saveConfig: (params: SaveConfigRequest) => Promise<SaveConfigResponse>;
 }
