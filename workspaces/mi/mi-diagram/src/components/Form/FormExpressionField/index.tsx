@@ -24,7 +24,7 @@ import {
     RequiredFormInput,
     Typography,
 } from '@wso2-enterprise/ui-toolkit';
-import { getHelperPane } from './HelperPane';
+import { getHelperPane } from '../HelperPane';
 import { enrichExpressionValue, extractExpressionValue, filterHelperPaneCompletionItems, filterHelperPaneFunctionCompletionItems, getExpressionValue, modifyCompletion } from './utils';
 
 type EXProps = {
@@ -277,7 +277,6 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
 
     const handleGetHelperPane = (value: string, onChange: (value: string, updatedCursorPosition: number) => void) => {
         return getHelperPane(
-            expressionRef,
             isLoadingHelperPaneInfo,
             payloadInfo,
             variableInfo,
@@ -289,7 +288,8 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
             () => handleChangeHelperPaneState(false),
             handleGetHelperPaneInfo,
             value,
-            onChange
+            onChange,
+            expressionRef
         );
     }
 

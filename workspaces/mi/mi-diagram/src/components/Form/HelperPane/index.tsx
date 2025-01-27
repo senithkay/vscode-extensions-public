@@ -18,7 +18,7 @@ import { HeadersPage } from './HeadersPage';
 import { ParamsPage } from './ParamsPage';
 
 export type HelperPaneProps = {
-    exprRef: React.RefObject<FormExpressionEditorRef>;
+    exprRef?: React.RefObject<FormExpressionEditorRef>;
     isLoadingHelperPaneInfo: boolean;
     payloadInfo: HelperPaneCompletionItem[];
     variableInfo: HelperPaneCompletionItem[];
@@ -51,18 +51,22 @@ const HelperPaneEl = ({
     const [currentPage, setCurrentPage] = useState<number>(0);
 
     const handleChange = (value: string) => {
-        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
-        const updatedValue = currentValue.slice(0, cursorPosition) + value + currentValue.slice(cursorPosition);
-        const updatedCursorPosition = cursorPosition + value.length;
+        if (exprRef?.current) {
+            const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
+            const updatedValue = currentValue.slice(0, cursorPosition) + value + currentValue.slice(cursorPosition);
+            const updatedCursorPosition = cursorPosition + value.length;
 
-        // Update the value in the expression editor
-        onChange(updatedValue, updatedCursorPosition);
-        // Focus the expression editor
-        exprRef.current?.focus();
-        // Set the cursor
-        exprRef.current?.setCursor(updatedValue, updatedCursorPosition);
-        // Close the helper pane
-        onClose();
+            // Update the value in the expression editor
+            onChange(updatedValue, updatedCursorPosition);
+            // Focus the expression editor
+            exprRef.current?.focus();
+            // Set the cursor
+            exprRef.current?.setCursor(updatedValue, updatedCursorPosition);
+            // Close the helper pane
+            onClose();
+        } else {
+            onChange(value, 0);
+        }
     };
 
     return (
@@ -133,7 +137,6 @@ const HelperPaneEl = ({
 };
 
 export const getHelperPane = (
-    exprRef: React.RefObject<FormExpressionEditorRef>,
     isLoadingHelperPaneInfo: boolean,
     payloadInfo: HelperPaneCompletionItem[],
     variableInfo: HelperPaneCompletionItem[],
@@ -145,7 +148,8 @@ export const getHelperPane = (
     onClose: () => void,
     setFilterText: (type: string, filterText: string) => void,
     currentValue: string,
-    onChange: (value: string, updatedCursorPosition: number) => void
+    onChange: (value: string, updatedCursorPosition: number) => void,
+    exprRef?: React.RefObject<FormExpressionEditorRef>
 ) => {
     return (
         <HelperPaneEl

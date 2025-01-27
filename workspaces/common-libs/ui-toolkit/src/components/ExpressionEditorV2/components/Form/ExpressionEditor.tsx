@@ -18,7 +18,7 @@ import React, {
 import { createPortal } from 'react-dom';
 import styled from '@emotion/styled';
 import { Transition } from '@headlessui/react';
-import { ANIMATION, ARROW_HEIGHT } from '../../constants';
+import { ANIMATION } from '../../constants';
 import { CompletionItem } from '../../types/common';
 import { FormExpressionEditorRef, FormExpressionEditorElProps } from '../../types/form';
 import { addClosingBracketIfNeeded, checkCursorInFunction, getArrowPosition, getHelperPanePosition, setCursor } from '../../utils';
@@ -27,9 +27,10 @@ import { ProgressIndicator } from '../../../ProgressIndicator/ProgressIndicator'
 import { AutoResizeTextArea } from '../../../TextArea/TextArea';
 import { FnSignatureEl } from '../Common/FnSignature';
 import { Dropdown } from '../Common';
-import { StyleBase, FnSignatureProps, ArrowProps } from '../Common/types';
+import { StyleBase, FnSignatureProps } from '../Common/types';
 import { Icon } from '../../../Icon/Icon';
 import { Button } from '../../../Button/Button';
+import HelperPane from '../Common/HelperPane';
 
 /* Styled components */
 const Container = styled.div`
@@ -53,24 +54,6 @@ const StyledTextArea = styled(AutoResizeTextArea)`
         min-height: 20px;
         padding: 5px 8px;
     }
-`;
-
-const Arrow = styled.div<ArrowProps>`
-    position: absolute;
-    height: ${ARROW_HEIGHT}px;
-    width: ${ARROW_HEIGHT}px;
-    background-color: var(--vscode-dropdown-background);
-    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-
-    ${(props: ArrowProps) => props.origin === "left" && `
-        transform: rotate(90deg);
-    `}
-
-    ${(props: ArrowProps) => props.origin === "right" && `
-        transform: rotate(-90deg);
-    `}
-
-    ${(props: StyleBase) => props.sx}
 `;
 
 const DropdownContainer = styled.div<StyleBase>`
@@ -339,7 +322,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
             <DropdownContainer ref={helperPaneContainerRef} sx={{ ...helperPanePosition }}>
                 <Transition show={isHelperPaneOpen} {...ANIMATION}>
                     {getHelperPane(value, handleChange)}
-                    {arrowPosition && <Arrow origin={helperPaneOrigin} sx={{ ...arrowPosition }} />}
+                    {arrowPosition && <HelperPane.Arrow origin={helperPaneOrigin} sx={{ ...arrowPosition }} />}
                 </Transition>
             </DropdownContainer>
         )

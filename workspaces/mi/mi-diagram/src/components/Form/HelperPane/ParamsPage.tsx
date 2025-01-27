@@ -10,25 +10,25 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { HelperPaneCompletionItem } from '@wso2-enterprise/mi-core';
-import { getHelperPaneCompletionItem } from '../utils';
+import { getHelperPaneCompletionItem } from '../FormExpressionField/utils';
 
-type HeadersPageProps = {
+type ParamsPageProps = {
     isLoading: boolean;
-    headerInfo: HelperPaneCompletionItem[];
+    paramInfo: HelperPaneCompletionItem[];
     setCurrentPage: (page: number) => void;
     setFilterText: (filterText: string) => void;
     onClose: () => void;
     onChange: (value: string) => void;
 };
 
-export const HeadersPage = ({
+export const ParamsPage = ({
     isLoading,
-    headerInfo,
+    paramInfo,
     setCurrentPage,
     setFilterText,
     onClose,
     onChange
-}: HeadersPageProps) => {
+}: ParamsPageProps) => {
     const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>('');
 
@@ -49,15 +49,15 @@ export const HeadersPage = ({
     return (
         <>
             <HelperPane.Header
-                title="Headers"
+                title="Params"
                 onBack={() => setCurrentPage(0)}
                 onClose={onClose}
                 searchValue={searchValue}
                 onSearch={handleSearch}
             />
             <HelperPane.Body loading={isLoading}>
-                {headerInfo?.map((header) => (
-                    getHelperPaneCompletionItem(header, onChange, getCompletionItemIcon)
+                {paramInfo?.map((param) => (
+                    getHelperPaneCompletionItem(param, onChange, getCompletionItemIcon)
                 ))}
             </HelperPane.Body>
         </>
