@@ -384,13 +384,16 @@ export function FormGenerator(props: FormGeneratorProps) {
                 />)
             }
             case 'stringWithParamManager': {
-                return (<StringWithParamManagerComponent
-                    element={element}
-                    isRequired={isRequired}
-                    helpTipElement={helpTipElement}
-                    field={field}
-                    errorMsg={errorMsg}
-                />)
+                return (
+                    <StringWithParamManagerComponent
+                        element={element}
+                        isRequired={isRequired}
+                        helpTipElement={helpTipElement}
+                        field={field}
+                        errorMsg={errorMsg}
+                        nodeRange={range}
+                    />
+                )
             }
             case 'ParamManager': {
                 return (
