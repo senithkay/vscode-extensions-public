@@ -128,7 +128,7 @@ export function Overview(props: OverviewProps) {
             rpcClient.getMiVisualizerRpcClient().getProjectOverview({ documentUri: selected }).then((response) => {
                 setProjectOverview(response);
             }).catch((error) => {
-                console.error('Error getting project overview:', error);
+                console.error('Error getting project settings:', error);
                 setProjectOverview(undefined);
                 setErrors({ ...errors, projectOverview: ERROR_MESSAGES.ERROR_LOADING_PROJECT_OVERVIEW });
             });

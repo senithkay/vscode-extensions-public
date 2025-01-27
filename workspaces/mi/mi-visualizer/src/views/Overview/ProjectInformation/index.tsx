@@ -253,34 +253,34 @@ export function ProjectInformation(props: ProjectInformationProps) {
                 <Icon name="gist-secret" isCodicon sx={{ marginRight: '8px' }} />
                 <Typography>Keystore Password: {'*'.repeat(buildDetails?.dockerDetails?.keyStorePassword?.value?.length || 0)}</Typography>
             </Item>
-            {buildDetails?.advanceDetatils?.projectArtifactId?.value && (
+            {buildDetails?.advanceDetails?.projectArtifactId?.value && (
                 <Item>
                     <Icon name="file-code" isCodicon sx={{ marginRight: '8px' }} />
-                    <Typography>Maven Artifact ID: {buildDetails?.advanceDetatils?.projectArtifactId?.value}</Typography>
+                    <Typography>Maven Artifact ID: {buildDetails?.advanceDetails?.projectArtifactId?.value}</Typography>
                 </Item>
             )}
-            {buildDetails?.advanceDetatils?.projectGroupId?.value && (
+            {buildDetails?.advanceDetails?.projectGroupId?.value && (
                 <Item>
                     <Icon name="package" isCodicon sx={{ marginRight: '8px' }} />
-                    <Typography>Maven Group ID: {buildDetails?.advanceDetatils?.projectGroupId?.value}</Typography>
+                    <Typography>Maven Group ID: {buildDetails?.advanceDetails?.projectGroupId?.value}</Typography>
                 </Item>
             )}
-            {buildDetails?.advanceDetatils?.pluginDetatils?.projectBuildPluginVersion?.value && (
+            {buildDetails?.advanceDetails?.pluginDetatils?.projectBuildPluginVersion?.value && (
                 <Item>
                     <Icon name="versions" isCodicon sx={{ marginRight: '8px' }} />
-                    <Typography>Build Plugin Version: {buildDetails?.advanceDetatils?.pluginDetatils?.projectBuildPluginVersion?.value}</Typography>
+                    <Typography>Build Plugin Version: {buildDetails?.advanceDetails?.pluginDetatils?.projectBuildPluginVersion?.value}</Typography>
                 </Item>
             )}
-            {buildDetails?.advanceDetatils?.pluginDetatils?.unitTestPluginVersion?.value && (
+            {buildDetails?.advanceDetails?.pluginDetatils?.unitTestPluginVersion?.value && (
                 <Item>
                     <Icon name="versions" isCodicon sx={{ marginRight: '8px' }} />
-                    <Typography>Unit Test Plugin Version: {buildDetails?.advanceDetatils?.pluginDetatils?.unitTestPluginVersion?.value}</Typography>
+                    <Typography>Unit Test Plugin Version: {buildDetails?.advanceDetails?.pluginDetatils?.unitTestPluginVersion?.value}</Typography>
                 </Item>
             )}
-            {buildDetails?.advanceDetatils?.pluginDetatils?.miContainerPluginVersion?.value && (
+            {buildDetails?.advanceDetails?.pluginDetatils?.miContainerPluginVersion?.value && (
                 <Item>
                     <Icon name="versions" isCodicon sx={{ marginRight: '8px' }} />
-                    <Typography>Config Mapper Plugin Version: {buildDetails?.advanceDetatils?.pluginDetatils?.miContainerPluginVersion?.value}</Typography>
+                    <Typography>Config Mapper Plugin Version: {buildDetails?.advanceDetails?.pluginDetatils?.miContainerPluginVersion?.value}</Typography>
                 </Item>
             )}
 

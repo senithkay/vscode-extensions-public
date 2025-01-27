@@ -106,7 +106,7 @@ export interface PrimaryDetails {
 
 export interface BuildDetails {
     dockerDetails: DockerDetails;
-    advanceDetatils: AdvanceDetails;
+    advanceDetails: AdvanceDetails;
 }
 
 export interface DockerDetails {
