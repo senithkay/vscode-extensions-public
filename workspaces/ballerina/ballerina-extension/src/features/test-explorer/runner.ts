@@ -47,12 +47,13 @@ export async function runHandler(request: TestRunRequest, token: CancellationTok
         run.started(test);
 
         let command : string;
+        const executor = ballerinaExtInstance.getBallerinaCmd();
         if (isTestGroupItem(test)) {
             let allPassed = true;
             let count = 0;
             test.children.forEach(async (child) => {
                 const functionName = child.label;
-                const executor = ballerinaExtInstance.getBallerinaCmd();
+                
                 command = `${executor} test --tests ${functionName}`;
                 runCommand(run, child, command, request).then(() => {
                     allPassed = allPassed && true;
@@ -67,8 +68,8 @@ export async function runHandler(request: TestRunRequest, token: CancellationTok
             
         } else if (isTestFunctionItem(test)) {
             const functionName = test.label;
-            command = `bal test --tests ${functionName}`;
-            async () => await runCommand(run, test, command, request);
+            command = `${executor} test --tests ${functionName}`;
+            runCommand(run, test, command, request);
         }
     });
 }
