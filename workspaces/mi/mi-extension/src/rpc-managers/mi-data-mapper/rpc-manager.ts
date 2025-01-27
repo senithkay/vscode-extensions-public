@@ -33,7 +33,7 @@ import {
     DataMapWriteRequest,
 } from "@wso2-enterprise/mi-core";
 import { fetchIOTypes, fetchSubMappingTypes, fetchCompletions, fetchDiagnostics } from "../../util/dataMapper";
-import { StateMachine, navigate } from "../../stateMachine";
+import { StateMachine, navigate, refreshUI } from "../../stateMachine";
 import { generateSchemaFromContent } from "../../util/schemaBuilder";
 import { JSONSchema3or4 } from "to-json-schema";
 import { updateTsFileCustomTypes, updateTsFileIoTypes } from "../../util/tsBuilder";
@@ -90,7 +90,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         sourceFile.replaceWithText(params.fileContent);
         sourceFile.formatText();
         await sourceFile.save();
-        navigate();
+        refreshUI();
     }
 
     getAbsoluteFilePath(filePath: string, sourcePath: string, configName: string) {
