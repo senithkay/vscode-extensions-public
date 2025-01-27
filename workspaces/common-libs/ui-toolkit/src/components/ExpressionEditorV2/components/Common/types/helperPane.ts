@@ -10,7 +10,7 @@
 
 import { CSSProperties, PropsWithChildren, ReactNode } from "react";
 import { StyleBase } from "./common";
-import { HelperPaneOrigin } from "../../../types/form";
+import { HelperPaneOrigin } from "../../../types/common";
 
 export type ArrowProps = StyleBase & {
     origin: HelperPaneOrigin;
