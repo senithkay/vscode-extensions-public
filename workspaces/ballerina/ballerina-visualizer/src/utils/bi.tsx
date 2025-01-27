@@ -548,6 +548,25 @@ export const convertToHelperPaneVariable = (variables: VisibleType[]): HelperPan
     });
 }
 
+export const filterHelperPaneVariables = (
+    variables: HelperPaneVariableInfo,
+    filterText: string
+): HelperPaneVariableInfo => {
+    const filteredCategories = variables.category.map((category) => {
+        const filteredItems = category.items.filter((item) =>
+            item.label.toLowerCase().includes(filterText.toLowerCase())
+        );
+        return {
+            ...category,
+            items: filteredItems,
+        };
+    });
+
+    return {
+        category: filteredCategories,
+    };
+};
+
 export const convertToHelperPaneConfigurableVariable = (variables: VisibleType[]): HelperPaneVariableInfo => {
     return ({
         category: variables

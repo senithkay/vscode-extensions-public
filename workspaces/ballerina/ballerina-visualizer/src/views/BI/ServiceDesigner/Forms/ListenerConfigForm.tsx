@@ -130,7 +130,7 @@ function convertConfig(listener: ListenerModel): FormField[] {
             valueTypeConstraint: expression.valueTypeConstraint,
             advanced: expression.advanced,
             diagnostics: [],
-            items: [""].concat(expression.items),
+            items: expression.items,
             placeholder: expression.placeholder
         }
         formFields.push(formField);

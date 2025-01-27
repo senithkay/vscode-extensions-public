@@ -82,7 +82,7 @@ export function ResponseEditor(props: ParamProps) {
             {!isEdit &&
                 <>
                     <CheckBox
-                        label={response.createStatusCodeResponse?.metadata.description}
+                        label={schema.createStatusCodeResponse?.metadata.description}
                         value={response.createStatusCodeResponse?.metadata.description}
                         checked={response.createStatusCodeResponse?.value === "true"}
                         onChange={handleNamedTypeChange}
@@ -92,7 +92,7 @@ export function ResponseEditor(props: ParamProps) {
                             <>
                                 <AutoComplete
                                     sx={{ zIndex: 99, position: "relative", marginTop: "3px" }}
-                                    label="Code"
+                                    label={schema.statusCode.metadata.label}
                                     value={getTitleFromResponseCode(Number(response.statusCode.value))}
                                     items={responseCodes.map(code => code.title)}
                                     onValueChange={handleCodeChange}
@@ -101,7 +101,7 @@ export function ResponseEditor(props: ParamProps) {
                                     id='body'
                                     sx={{ zIndex: 1, position: "relative" }}
                                     isOptional={true}
-                                    label="Body"
+                                    label={schema.body.metadata.label}
                                     handleArray={true}
                                     selectedItem={response.body.value}
                                     onChange={handleTypeChange}
@@ -109,7 +109,7 @@ export function ResponseEditor(props: ParamProps) {
                                 <TextField
                                     sx={{ flexGrow: 1 }}
                                     errorMsg={""}
-                                    label={response.name.metadata.label}
+                                    label={schema.name.metadata.label}
                                     size={50}
                                     onTextChange={(input) => {
                                         const trimmedInput = input.trim();
@@ -124,7 +124,7 @@ export function ResponseEditor(props: ParamProps) {
                             <TypeBrowser
                                 id='namedType'
                                 sx={{ zIndex: 1, position: "relative" }}
-                                label="Named Type"
+                                label={schema.type.metadata.label}
                                 handleArray={true}
                                 selectedItem={response.type.value}
                                 onChange={handleNTypeChange}
@@ -138,7 +138,7 @@ export function ResponseEditor(props: ParamProps) {
                     <TypeBrowser
                         id='namedType'
                         sx={{ zIndex: 1, position: "relative" }}
-                        label="Named Type"
+                        label={schema.type.metadata.label}
                         handleArray={true}
                         selectedItem={response.type.value}
                         onChange={handleNTypeChange}
