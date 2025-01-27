@@ -10,25 +10,25 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { HelperPaneCompletionItem } from '@wso2-enterprise/mi-core';
-import { getHelperPaneCompletionItem } from '../utils';
+import { getHelperPaneCompletionItem } from '../FormExpressionField/utils';
 
-type VariablesPageProps = {
+type PropertiesPageProps = {
     isLoading: boolean;
-    variableInfo: HelperPaneCompletionItem[];
+    propertiesInfo: HelperPaneCompletionItem[];
     setCurrentPage: (page: number) => void;
     setFilterText: (filterText: string) => void;
     onClose: () => void;
     onChange: (value: string) => void;
 };
 
-export const VariablesPage = ({
+export const PropertiesPage = ({
     isLoading,
-    variableInfo,
+    propertiesInfo,
     setCurrentPage,
     setFilterText,
     onClose,
     onChange
-}: VariablesPageProps) => {
+}: PropertiesPageProps) => {
     const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>('');
 
@@ -49,15 +49,15 @@ export const VariablesPage = ({
     return (
         <>
             <HelperPane.Header
-                title="Variables"
+                title="Properties"
                 onBack={() => setCurrentPage(0)}
                 onClose={onClose}
                 searchValue={searchValue}
                 onSearch={handleSearch}
             />
             <HelperPane.Body loading={isLoading}>
-                {variableInfo?.map((variable) => (
-                    getHelperPaneCompletionItem(variable, onChange, getCompletionItemIcon)
+                {propertiesInfo?.map((property) => (
+                    getHelperPaneCompletionItem(property, onChange, getCompletionItemIcon) 
                 ))}
             </HelperPane.Body>
         </>

@@ -8,14 +8,12 @@
  */
 
 import { MutableRefObject, ReactNode } from 'react';
-import { ExpressionEditorProps, ExpressionEditorRef } from './common';
+import { ExpressionEditorProps, ExpressionEditorRef, HelperPaneOrigin } from './common';
 
 export type HelperPanePosition = {
     top: number;
     left: number;
 }
-
-export type HelperPaneOrigin = 'bottom' | 'left' | 'right';
 
 type HelperPaneConditionalProps = {
     // - Whether the helper pane is open

@@ -170,3 +170,7 @@ export type ExpressionEditorRef = {
     // Saves the expression with the provided value
     saveExpression: (value?: string, ref?: React.MutableRefObject<string>) => Promise<void>;
 };
+
+/* <------ Types related to the helper pane ------> */
+
+export type HelperPaneOrigin = 'bottom' | 'left' | 'right';
