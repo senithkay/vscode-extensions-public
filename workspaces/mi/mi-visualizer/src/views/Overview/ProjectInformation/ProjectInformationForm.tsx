@@ -59,6 +59,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         async function fetchData() {
             try {
                 const response = await rpcClient?.getMiVisualizerRpcClient().getProjectDetails();
+                const isLegacyExpressionEnabled = await rpcClient?.getMiVisualizerRpcClient().isLegacyExpressionSupportEnabled();
                 setProjectDetails(response);
                 setInitialRuntimeVersion(response.primaryDetails.runtimeVersion.value);
                 const supportedVersions = await rpcClient.getMiVisualizerRpcClient().getSupportedMIVersionsHigherThan(response.primaryDetails.runtimeVersion.value);
@@ -76,7 +77,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     "unitTest.serverPort": response.unitTest?.serverPort?.value,
                     "unitTest.serverPath": response.unitTest?.serverPath?.value,
                     "unitTest.serverType": response.unitTest?.serverType?.value,
-                    "advanced.legacyExpressionSupport": response.advanced?.isLegacyExpressionEnabled
+                    "advanced.legacyExpressionSupport": isLegacyExpressionEnabled
                 });
             } catch (error) {
                 console.error("Error fetching project details:", error);

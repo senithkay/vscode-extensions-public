@@ -139,9 +139,9 @@ export function FormGenerator(props: FormGeneratorProps) {
     useEffect(() => {
         rpcClient
             .getMiVisualizerRpcClient()
-            .getProjectDetails()
-            .then(projectDetails => {
-                setIsLegacyExpressionEnabled(projectDetails.advanced.isLegacyExpressionEnabled);
+            .isLegacyExpressionSupportEnabled()
+            .then(isEnabled => {
+                setIsLegacyExpressionEnabled(isEnabled);
             })
             .catch(() => {
                 // Fallback to false if the project details cannot be fetched

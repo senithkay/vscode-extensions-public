@@ -109,8 +109,6 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getProjectDetails();
-            res.advanced = res.advanced || {};
-            res.advanced.isLegacyExpressionEnabled = await this.isLegacyExpressionEnabled();
             resolve(res);
         });
     }
