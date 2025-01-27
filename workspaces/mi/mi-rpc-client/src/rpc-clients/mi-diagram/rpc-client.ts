@@ -150,6 +150,8 @@ import {
     RetrieveTemplateResponse,
     RetrieveWsdlEndpointRequest,
     RetrieveWsdlEndpointResponse,
+    SaveConfigRequest,
+    SaveConfigResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
     SwaggerFromAPIResponse,
@@ -287,6 +289,7 @@ import {
     rangeFormat,
     redo,
     refreshAccessToken,
+    saveConfig,
     showErrorMessage,
     undo,
     updateAPIFromSwagger,
@@ -974,5 +977,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     testConnectorConnection(params: TestConnectorConnectionRequest): Promise<TestConnectorConnectionResponse> {
         return this._messenger.sendRequest(testConnectorConnection, HOST_EXTENSION, params);
+    }
+
+    saveConfig(params: SaveConfigRequest): Promise<SaveConfigResponse> {
+        return this._messenger.sendRequest(saveConfig, HOST_EXTENSION, params);
     }
 }

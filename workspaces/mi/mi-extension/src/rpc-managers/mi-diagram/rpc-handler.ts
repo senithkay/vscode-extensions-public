@@ -85,6 +85,7 @@ import {
     RetrieveMessageProcessorRequest,
     RetrieveTemplateRequest,
     RetrieveWsdlEndpointRequest,
+    SaveConfigRequest,
     SaveInboundEPUischemaRequest,
     ShowErrorMessageRequest,
     SwaggerTypeRequest,
@@ -224,6 +225,7 @@ import {
     redo,
     refreshAccessToken,
     renameFile,
+    saveConfig,
     saveInboundEPUischema,
     showErrorMessage,
     testDbConnection,
@@ -416,4 +418,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));
     messenger.onRequest(getHelperPaneInfo, (args: GetHelperPaneInfoRequest) => rpcManger.getHelperPaneInfo(args));
     messenger.onRequest(testConnectorConnection, (args: TestConnectorConnectionRequest) => rpcManger.testConnectorConnection(args));
+    messenger.onRequest(saveConfig, (args: SaveConfigRequest) => rpcManger.saveConfig(args));
 }
