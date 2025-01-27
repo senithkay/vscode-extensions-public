@@ -288,6 +288,8 @@ export class NodeFactoryVisitor implements Visitor {
                 if (type === NodeTypes.GROUP_NODE) {
                     this.previousSTNodes = [];
                     startNode.tag = "start";
+                    startNode.viewState.x += (startNode.viewState.w / 2) - ((node.tag === 'scatter-gather' ?
+                        NODE_DIMENSIONS.START.ACTIONED.WIDTH : NODE_DIMENSIONS.START.DISABLED.WIDTH) / 2);
                     this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.SUB_SEQUENCE });
                 } else {
                     this.currentBranchData = { name: sequenceKeys[i], diagnostics: sequence.diagnostics };
