@@ -50,6 +50,16 @@ export function AddConnection(props: AddConnectionProps) {
         }
     });
     const [connectionType, setConnectionType] = useState(props.connectionType ?? "");
+    const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
+
+    useEffect(() => {
+        (async () => {
+            const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
+                path: props.path,
+            });
+            setWorkspaceFileNames(artifactRes.artifacts);
+        })();
+    })
 
     useEffect(() => {
         const fetchConnections = async () => {
@@ -372,6 +382,8 @@ export function AddConnection(props: AddConnectionProps) {
             validate: (value) => {
                 if (connections.includes(value)) {
                     return "Connection name already exists";
+                } else if (workspaceFileNames.includes(value)) {
+                    return "An artifact with same name already exists"
                 }
                 return true;
             }
