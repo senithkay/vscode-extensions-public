@@ -38,6 +38,7 @@ import {
     goHome,
     goSelected,
     goToSource,
+    isLegacyExpressionSupportEnabled,
     log,
     openExternal,
     openReadme,
@@ -113,4 +114,5 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(setPathsInWorkSpace, (args: SetPathRequest) => rpcManger.setPathsInWorkSpace(args));
     messenger.onRequest(selectFolder, (args: string) => rpcManger.selectFolder(args));
     messenger.onRequest(updateLegacyExpressionSupport, (args: boolean) => rpcManger.updateLegacyExpressionSupport(args));
+    messenger.onRequest(isLegacyExpressionSupportEnabled, () => rpcManger.isLegacyExpressionSupportEnabled());
 }
