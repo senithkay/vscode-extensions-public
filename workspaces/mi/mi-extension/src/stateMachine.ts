@@ -386,14 +386,12 @@ const stateMachine = createMachine<MachineContext>({
                         const filePath = context.documentUri;
                         const functionName = DM_FUNCTION_NAME;
                         DMProject.refreshProject(filePath);
-                        const [fnSource, interfacesSrc] = getSources(filePath);
-                        const functionIOTypes = getFunctionIOTypes(filePath, functionName);
+                        const [fileContent, nonMappingFileContent] = getSources(filePath, functionName);
                         viewLocation.dataMapperProps = {
                             filePath: filePath,
                             functionName: functionName,
-                            functionIOTypes: functionIOTypes,
-                            fileContent: fnSource,
-                            interfacesSource: interfacesSrc,
+                            fileContent: fileContent,
+                            nonMappingFileContent: nonMappingFileContent,
                             configName: deriveConfigName(filePath)
                         };
                         viewLocation.view = MACHINE_VIEW.DataMapperView;
