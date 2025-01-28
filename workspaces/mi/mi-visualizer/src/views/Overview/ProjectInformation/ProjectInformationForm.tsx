@@ -16,9 +16,9 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Controller, useForm } from "react-hook-form";
 import styled from "@emotion/styled";
-import { get } from "lodash";
 
 interface ProjectInformationFormProps {
+    selectedComponent?: string;
     onClose: () => void;
 }
 
@@ -27,6 +27,14 @@ const TitleBoxShadow = styled.div`
     height: 3px;
 `;
 
+const fieldGroupStyle = { display: "flex", flexDirection: "column", gap: 24, padding: "0 0 30px", marginTop: "20px", paddingLeft: "10px" };
+const fieldStyle = { 
+    padding: "10px",
+    "&:hover": { backgroundColor: "var(--vscode-settings-rowHoverBackground)" },
+};
+const treeViewStyle = { margin: "0px 0px 3px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" };
+const sectionTitleStyle = { margin: 0, paddingLeft: 20 };
+
 export function ProjectInformationForm(props: ProjectInformationFormProps) {
     const { rpcClient } = useVisualizerContext();
     const [projectDetails, setProjectDetails] = useState<ProjectDetailsResponse>();
@@ -34,7 +42,6 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
     const [initialRuntimeVersion, setInitialRuntimeVersion] = useState<string>("");
 
     const [selectedId, setSelectedId] = useState<string | null>("Project Information");
-    const [currentTitle, setCurrentTitle] = useState<string>("Project Information");
 
     const schema = yup.object({
         "primaryDetails.projectName": yup.string().required("Project Name is required"),
@@ -44,10 +51,10 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         "dockerDetails.dockerFileBaseImage": yup.string().required("Base image is required"),
         "dockerDetails.dockerName": yup.string().required("Docker name is required"),
         "dockerDetails.enableCipherTool": yup.boolean(),
-        "dockerDetails.keystoreName": yup.string(),
-        "dockerDetails.keystoreAlias": yup.string(),
-        "dockerDetails.keystoreType": yup.string(),
-        "dockerDetails.keystorePassword": yup.string(),
+        "buildDetails.dockerDetails.keyStoreName": yup.string(),
+        "buildDetails.dockerDetails.keyStoreAlias": yup.string(),
+        "buildDetails.dockerDetails.keyStoreType": yup.string(),
+        "buildDetails.dockerDetails.keyStorePassword": yup.string(),
         "advanced.mavenArtifactId": yup.string(),
         "advanced.mavenGroupId": yup.string(),
         "advanced.carPluginVersion": yup.string(),
@@ -83,6 +90,9 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         "Build Details": useRef<HTMLDivElement | null>(null),
         "Unit Test": useRef<HTMLDivElement | null>(null),
     };
+    const contentRef = useRef<HTMLDivElement | null>(null); // Ref for the content div
+
+    console.log("Project Log", props.selectedComponent);
 
     useEffect(() => {
         async function fetchData() {
@@ -103,10 +113,10 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     "dockerDetails.dockerFileBaseImage": response.buildDetails.dockerDetails.dockerFileBaseImage.value,
                     "dockerDetails.dockerName": response.buildDetails.dockerDetails.dockerName.value,
                     "dockerDetails.enableCipherTool": Boolean(response.buildDetails?.dockerDetails?.cipherToolEnable?.value),
-                    "dockerDetails.keystoreName": response.buildDetails?.dockerDetails?.keyStoreName?.value,
-                    "dockerDetails.keystoreAlias": response.buildDetails?.dockerDetails?.keyStoreAlias?.value,
-                    "dockerDetails.keystoreType": response.buildDetails?.dockerDetails?.keyStoreType?.value,
-                    "dockerDetails.keystorePassword": response.buildDetails?.dockerDetails?.keyStorePassword?.value,
+                    "buildDetails.dockerDetails.keyStoreName": response.buildDetails?.dockerDetails?.keyStoreName?.value,
+                    "buildDetails.dockerDetails.keyStoreAlias": response.buildDetails?.dockerDetails?.keyStoreAlias?.value,
+                    "buildDetails.dockerDetails.keyStoreType": response.buildDetails?.dockerDetails?.keyStoreType?.value,
+                    "buildDetails.dockerDetails.keyStorePassword": response.buildDetails?.dockerDetails?.keyStorePassword?.value,
                     "advanced.mavenArtifactId": response.buildDetails?.advanceDetails?.projectArtifactId?.value,
                     "advanced.mavenGroupId": response.buildDetails?.advanceDetails?.projectGroupId?.value,
                     "advanced.carPluginVersion": response.buildDetails?.advanceDetails?.pluginDetatils?.projectBuildPluginVersion?.value,
@@ -127,6 +137,16 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         fetchData();
     }, [rpcClient, reset]);
 
+    const scrollTo = (id: string, behavior?: ScrollBehavior) => {
+        const targetDiv = divRefs[id].current;
+        const contentDiv = contentRef.current;
+        const targetPosition = targetDiv.getBoundingClientRect().top - contentDiv.getBoundingClientRect().top;
+        contentDiv.scrollTo({
+            top: targetPosition + contentDiv.scrollTop, // Add current scroll position
+            behavior: behavior // Optional: for smooth scrolling
+        });
+    };
+
     useEffect(() => {
         const navigatorObserver = new IntersectionObserver(entries => {
             entries.forEach(entry => {
@@ -134,56 +154,53 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     setSelectedId(entry.target.id); // Update selectedId based on the visible div
                 }
             });
-        }, { threshold: 0.3 }); // Adjust threshold as needed
-        const titleObserver = new IntersectionObserver(entries => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    setCurrentTitle(entry.target.id); // Update currentTitle based on the visible div
-                }
-            });
-        }, { threshold: 0.4 }); // Adjust threshold as needed
+        }, { threshold: 0.2 }); // Adjust threshold as needed
 
         // Observe each div
         Object.keys(divRefs).forEach(key => {
             if (divRefs[key].current) {
                 navigatorObserver.observe(divRefs[key].current);
-                titleObserver.observe(divRefs[key].current);
             }
         });
-
         return () => {
             // Cleanup observer on unmount
             navigatorObserver.disconnect();
-            titleObserver.disconnect
         };
     }, [divRefs]);
 
     const handleFormSubmit = async () => {
         try {
-            const updatedValues = Object.keys((dirtyFields as any));
-
-            const updatePomValuesForSection = async (section: string) => {
-                if (updatedValues.includes(section)) {
-                    const changes = [];
-                    for (const field of Object.keys((dirtyFields as any)?.[section])) {
-                        const value = getValues((`${section}.${field}` as any).toString());
-                        const range = (projectDetails as any)?.[section]?.[field]?.range;
-
-                        if (!range) {
-                            continue;
+            const changes: any[] = [];
+            const processFields = (fields: any, path: string = '') => {
+                Object.entries(fields).forEach(([key, value]) => {
+                    const newPath = path ? `${path}.${key}` : key;
+                    if (typeof value === 'object' && !Array.isArray(value)) {
+                        processFields(value, newPath);
+                    } else {
+                        const fieldValue = getValues(newPath as any);
+                        const range = newPath.split('.').reduce((acc, key) => acc?.[key], projectDetails as any)?.range;
+                        if (range) {
+                            changes.push({ value: fieldValue, range });
                         }
-                        changes.push({ value, range });
                     }
-                    await rpcClient.getMiVisualizerRpcClient().updatePomValues({
-                        pomValues: changes
-                    });
-                }
+                });
             };
 
-            await updatePomValuesForSection("primaryDetails");
-            await updatePomValuesForSection("dockerDetails");
-            await updatePomValuesForSection("unitTest");
-            await updatePomValuesForSection("advanced");
+            Object.entries(dirtyFields).forEach(([section, fields]) => {
+                processFields(fields, section);
+            });
+
+            // sort changes by range
+            const sortedChanges = changes.sort((a, b) => b.range.start - a.range.start);
+
+            await rpcClient.getMiVisualizerRpcClient().updatePomValues({ pomValues: sortedChanges });
+
+            const updatedValues = Object.keys(dirtyFields);
+
+            // if (updatedValues.includes("advanced")) {
+            //     let isLegacyExpressionSupportEnabled = getValues("advanced.legacyExpressionSupport");
+            //     await rpcClient.getMiVisualizerRpcClient().updateLegacyExpressionSupport(isLegacyExpressionSupportEnabled);
+            // }
             if (isRuntimeVersionChanged) {
                 await rpcClient.getMiVisualizerRpcClient().reloadWindow();
             } else {
@@ -194,54 +211,94 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         }
     };
 
+    useEffect(() => {
+        if (!divRefs["Unit Test"].current) {
+            setTimeout(() => {
+                if (divRefs["Unit Test"].current) {
+                    setSelectedId(props.selectedComponent);
+                    scrollTo(props.selectedComponent);
+                }
+            }, 100);
+        }
+    }, []);
+
     const handleCancel = () => {
         props.onClose();
     };
 
     const handleClick = (id: string) => {
         setSelectedId(id);
-        if (divRefs[id].current) {
-            divRefs[id].current.scrollIntoView({ behavior: "smooth", block: "start" }); // Scroll to the selected div
-        }
+        scrollTo(id);
     };
 
     if (!projectDetails) {
         return <ProgressIndicator />;
     }
 
-    console.log("Project Name:", getValues("primaryDetails.projectName"));
-
     return (
-        <SplitView sx={{ width: "auto", height: "auto", padding: 60, maxWidth: 1200 }} defaultWidths={[20, 80]} dynamicContainerSx={{ overflow: "visible" }}>
-            {/* Left side view */}
+        <SplitView sx={{ width: "auto", maxWidth: 1200, padding: 60 }} defaultWidths={[25, 75]} dynamicContainerSx={{ overflow: "visible" }}>
+            {/* Left side tree view */}
             <div style={{ padding: "10px 0 50px 0" }}>
-                <TreeView rootTreeView id="Project Information" content={<Typography sx={{ margin: 0 }} variant="h4">Project Information</Typography>} selectedId={selectedId} onSelect={handleClick} />
-                <TreeView rootTreeView id="Build Details" content={<Typography sx={{ margin: 0 }} variant="h4">Build Details</Typography>} selectedId={selectedId} onSelect={handleClick} />
-                <TreeView rootTreeView id="Unit Test" content={<Typography sx={{ margin: 0 }} variant="h4">Unit Test</Typography>} selectedId={selectedId} onSelect={handleClick} />
+                <TreeView 
+                    rootTreeView 
+                    id="Project Information"
+                    sx={ selectedId === "Project Information" ? { cursor: "pointer", border: "1px solid var(--vscode-focusBorder)" } : { cursor: "pointer" }}
+                    content={
+                        <Typography sx={treeViewStyle} variant="h4">Project Information</Typography>
+                    } 
+                    selectedId={selectedId}
+                    onSelect={handleClick}
+                />
+                <TreeView 
+                    rootTreeView 
+                    id="Build Details"
+                    sx={selectedId === "Build Details" ? { cursor: "pointer", border: "1px solid var(--vscode-focusBorder)" } : { cursor: "pointer" }}
+                    content={
+                        <Typography sx={treeViewStyle} variant="h4">
+                            Build Details
+                        </Typography>
+                    }
+                    selectedId={selectedId} 
+                    onSelect={handleClick}
+                />
+                <TreeView 
+                    rootTreeView
+                    id="Unit Test"
+                    sx={selectedId === "Unit Test" ? { cursor: "pointer", border: "1px solid var(--vscode-focusBorder)" } : { cursor: "pointer" }}
+                    content={
+                        <Typography sx={treeViewStyle} variant="h4">
+                            Unit Test
+                        </Typography>
+                    }
+                    selectedId={selectedId}
+                    onSelect={handleClick} 
+                />
             </div>
             {/* Right side view */}
-            <div style={{ paddingLeft: 40 }}>
+            <div>
                 {/* Title and subtitle */}
                 <div id="TitleDiv" style={{ position: "sticky", top: 0, zIndex: 20005, height: 60, color: "var(--vscode-editor-foreground)", backgroundColor: "var(--vscode-editor-background)" }}>
-                    <Typography variant="h1" sx={{ marginTop: 0, paddingTop: 8 }} >{currentTitle}</Typography>
+                    <Typography variant="h1" sx={{ marginTop: 0, padding: "8px 0 0 40px" }} >{selectedId}</Typography>
                     <TitleBoxShadow />
                 </div>
                 {/* Item 1 */}
-                <div style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+                <div id={"content"} ref={contentRef} style={{ maxHeight: '65vh', overflowY: 'auto', paddingLeft: 20 }}>
                     {/* Body 1.1 */}
-                    <div ref={divRefs["Project Information"]} id="Project Information" style={{ display: "flex", flexDirection: "column", gap: 24, padding: "0 0 30px", marginTop: "20px" }}>
+                    <div ref={divRefs["Project Information"]} id="Project Information" style={fieldGroupStyle}>
                         <TextField
                             label="Project Name"
                             required
                             description="The name of the project"
                             descriptionSx={{ margin: "8px 0" }}
                             errorMsg={errors["primaryDetails.projectName"]?.message?.toString()}
+                            sx={fieldStyle}
                             {...register("primaryDetails.projectName")}
                         />
                         <TextField
                             label="Description"
                             description="The description of the project"
                             descriptionSx={{ margin: "8px 0" }}
+                            sx={fieldStyle}
                             {...register("primaryDetails.projectDescription")}
                         />
                         <TextField
@@ -249,6 +306,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                             required
                             description="The version of the project"
                             descriptionSx={{ margin: "8px 0" }}
+                            sx={fieldStyle}
                             errorMsg={errors["primaryDetails.projectVersion"]?.message?.toString()}
                             {...register("primaryDetails.projectVersion")}
                         />
@@ -259,6 +317,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                             required
                             description="The runtime version of the project"
                             descriptionSx={{ margin: "6px 0 8px" }}
+                            containerSx={fieldStyle}
                             errorMsg={errors["primaryDetails.runtimeVersion"]?.message?.toString()}
                             items={runtimeVersions}
                             {...register("primaryDetails.runtimeVersion")}
@@ -271,14 +330,15 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                             />
                         )}
                     </div>
-                    <Typography variant="h1" sx={{ margin: 0 }} > Build Details </Typography>
-                    <div ref={divRefs["Build Details"]} id="Build Details" style={{ display: "flex", flexDirection: "column", gap: 24, padding: "0 0 30px", marginTop: "20px" }}>
+                    <Typography variant="h1" sx={sectionTitleStyle} > Build Details </Typography>
+                    <div ref={divRefs["Build Details"]} id="Build Details" style={fieldGroupStyle}>
                         <TextField
                             label="Base Image"
                             required
                             errorMsg={errors["dockerDetails.dockerFileBaseImage"]?.message?.toString()}
                             description="The base image of the project"
                             descriptionSx={{ margin: "8px 0" }}
+                            sx={fieldStyle}
                             {...register("dockerDetails.dockerFileBaseImage")}
                         />
                         <TextField
@@ -287,6 +347,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                             errorMsg={errors["dockerDetails.dockerName"]?.message?.toString()}
                             description="The name of the docker"
                             descriptionSx={{ margin: "10px 0" }}
+                            sx={fieldStyle}
                             {...register("dockerDetails.dockerName")}
                         />
                         <FormCheckBox
@@ -294,99 +355,116 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                             description="Enables the cipher tool"
                             descriptionSx={{ margin: "10px 0" }}
                             control={control}
+                            sx={fieldStyle}
                             {...register("dockerDetails.enableCipherTool")}
                         />
                         <TextField
                             label="Keystore Name"
                             description="The name of the keystore"
                             descriptionSx={{ margin: "8px 0" }}
-                            {...register("dockerDetails.keystoreName")}
+                            sx={fieldStyle}
+                            {...register("buildDetails.dockerDetails.keyStoreName")}
                         />
                         <TextField
                             label="Keystore Alias"
                             description="The alias of the keystore"
                             descriptionSx={{ margin: "8px 0" }}
-                            {...register("dockerDetails.keystoreAlias")}
+                            sx={fieldStyle}
+                            {...register("buildDetails.dockerDetails.keyStoreAlias")}
                         />
                         <TextField
                             label="Keystore Type"
                             description="The type of the keystore"
                             descriptionSx={{ margin: "8px 0" }}
-                            {...register("dockerDetails.keystoreType")}
+                            sx={fieldStyle}
+                            {...register("buildDetails.dockerDetails.keyStoreType")}
                         />
                         <TextField
                             label="Keystore Password"
+                            type="password"
                             description="The password of the keystore"
                             descriptionSx={{ margin: "8px 0" }}
-                            {...register("dockerDetails.keystorePassword")}
+                            sx={fieldStyle}
+                            {...register("buildDetails.dockerDetails.keyStorePassword")}
                         />
                         <TextField
                             label="Maven Artifact Id"
                             description="The artifact id of the maven"
                             descriptionSx={{ margin: "8px 0" }}
+                            sx={fieldStyle}
                             {...register("advanced.mavenArtifactId")}
                         />
                         <TextField
                             label="Maven Group Id"
                             description="The group id of the maven"
                             descriptionSx={{ margin: "8px 0" }}
+                            sx={fieldStyle}
                             {...register("advanced.mavenGroupId")}
                         />
                         <TextField
                             label="CAR Plugin Version"
                             description="The version of the car plugin"
                             descriptionSx={{ margin: "8px 0" }}
+                            sx={fieldStyle}
                             {...register("advanced.carPluginVersion")}
                         />
                         <TextField
                             label="Unit Test Plugin Version"
                             description="The version of the unit test plugin"
                             descriptionSx={{ margin: "8px 0" }}
+                            sx={fieldStyle}
                             {...register("advanced.unitTestPluginVersion")}
                         />
                         <TextField
                             label="MI Config Mapper Plugin Version"
                             description="The version of the mi config mapper plugin"
                             descriptionSx={{ margin: "8px 0" }}
+                            sx={fieldStyle}
                             {...register("advanced.miConfigMapperPluginVersion")}
                         />
                     </div>
-                    <Typography variant="h1" sx={{ margin: 0 }} > Unit Test </Typography>
-                    <div ref={divRefs["Unit Test"]} id="Unit Test" style={{ display: "flex", flexDirection: "column", gap: 24, padding: "0 0 30px", marginTop: "20px" }}>
+                    <Typography variant="h1" sx={sectionTitleStyle} > Unit Test </Typography>
+                    <div ref={divRefs["Unit Test"]} id="Unit Test" style={{...fieldGroupStyle, paddingBottom: 0}}>
                         <TextField
                             label="Server Host"
                             description="The host of the server"
                             descriptionSx={{ margin: "8px 0" }}
+                            sx={fieldStyle}
                             {...register("unitTest.serverHost")}
                         />
                         <TextField
                             label="Server Port"
                             description="The port of the server"
                             descriptionSx={{ margin: "8px 0" }}
+                            sx={fieldStyle}
                             {...register("unitTest.serverPort")}
                         />
                         <TextField
                             label="Server Path"
                             description="The path of the server"
                             descriptionSx={{ margin: "8px 0" }}
+                            sx={fieldStyle}
                             {...register("unitTest.serverPath")}
                         />
                         <TextField
                             label="Server Type"
                             description="The type of the server"
                             descriptionSx={{ margin: "8px 0" }}
+                            sx={fieldStyle}
                             {...register("unitTest.serverType")}
                         />
                         <TextField
                             label="Server Version"
                             description="The version of the server"
                             descriptionSx={{ margin: "8px 0" }}
+                            sx={fieldStyle}
                             {...register("unitTest.serverVersion")}
                         />
                         <TextField
                             label="Server Download Link"
                             description="The download link of the server"
                             descriptionSx={{ margin: "8px 0" }}
+                            sx={fieldStyle}
                             {...register("unitTest.serverDownloadLink")}
                         />
                     </div>

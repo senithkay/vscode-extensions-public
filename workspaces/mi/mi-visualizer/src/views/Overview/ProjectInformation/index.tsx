@@ -7,11 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DependencyDetails, MACHINE_VIEW, PomNodeDetails, POPUP_EVENT_TYPE, ProjectDetailsResponse } from "@wso2-enterprise/mi-core";
+import { DependencyDetails, MACHINE_VIEW, ParentPopupData, PomNodeDetails, POPUP_EVENT_TYPE, ProjectDetailsResponse } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { useEffect, useState } from "react";
 
-import { Icon, ProgressIndicator, Typography, Divider } from "@wso2-enterprise/ui-toolkit";
+import { Icon, ProgressIndicator, Typography, Divider, Button } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
@@ -40,6 +40,7 @@ export function ProjectInformation(props: ProjectInformationProps) {
         paramValues: [],
         paramFields: []
     });
+    const [pomTimestamp, setPomTimestamp] = useState<number>(0);
 
     useEffect(() => {
         async function fetchData() {
@@ -187,9 +188,32 @@ export function ProjectInformation(props: ProjectInformationProps) {
         </>;
     }
 
+    const handleEditProjectInformation = (componentType: string) => {
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: POPUP_EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.ProjectInformationForm,
+                customProps: componentType
+            },
+            
+            isPopup: true
+        });
+
+        rpcClient.onParentPopupSubmitted((data: ParentPopupData) => {
+            setPomTimestamp(pomTimestamp + 1);
+        });
+    };
+
     return (
         <div>
-            <Typography variant="h4" sx={{margin: "10px 0 12px", opacity: 0.8}}>Project Summary</Typography>
+            <Typography variant="h4" sx={{ margin: "10px 0 12px", opacity: 0.8, display: 'flex', alignItems: 'center' }}>
+                Project Information
+                <div style={{ display: "flex", paddingRight: 6, flex: 1, justifyContent: "flex-end" }}>
+                    <Button appearance="icon" tooltip="Edit Project Information" onClick={() => handleEditProjectInformation("Project Information")}>
+                        <Icon name="gear" isCodicon sx={{ flex: 1 }} />
+                    </Button>
+                </div>
+            </Typography>
             <Item>
                 <Icon name="project" sx={{ marginRight: '8px' }} />
                 <Typography>Name: {primaryDetails.projectName.value}</Typography>
@@ -224,7 +248,14 @@ export function ProjectInformation(props: ProjectInformationProps) {
 
             <Divider />
 
-            <Typography variant="h4" sx={{margin: "10px 0 12px", opacity: 0.8}}>Build Details</Typography>
+            <Typography variant="h4" sx={{margin: "10px 0 12px", opacity: 0.8, display: 'flex', alignItems: 'center'}}>
+                Build Details
+                <div style={{ display: "flex", paddingRight: 6, flex: 1, justifyContent: "flex-end" }}>
+                    <Button appearance="icon" tooltip="Edit Project Information" onClick={() => handleEditProjectInformation("Build Details")}>
+                        <Icon name="gear" isCodicon sx={{ flex: 1 }} />
+                    </Button>
+                </div>
+            </Typography>
             <Item>
                 <Icon name="file-code" isCodicon sx={{ marginRight: '8px' }} />
                 <Typography>Base Image: {buildDetails?.dockerDetails?.dockerFileBaseImage?.value}</Typography>
@@ -286,7 +317,14 @@ export function ProjectInformation(props: ProjectInformationProps) {
 
             <Divider />
 
-            <Typography variant="h4" sx={{margin: "10px 0 12px", opacity: 0.8}}>Unit Tests Configuration</Typography>
+            <Typography variant="h4" sx={{margin: "10px 0 12px", opacity: 0.8, display: "flex", alignItems: 'center'}}>
+                Unit Tests Configuration
+                <div style={{ display: "flex", paddingRight: 6, flex: 1, justifyContent: "flex-end" }}>
+                    <Button appearance="icon" tooltip="Edit Project Information" onClick={() => handleEditProjectInformation("Unit Test")}>
+                        <Icon name="gear" isCodicon sx={{ flex: 1 }} />
+                    </Button>
+                </div>
+            </Typography>
             <Item>
                 <Icon name="check" isCodicon sx={{ marginRight: '8px' }} />
                 <Typography>Skip Tests: {unitTest?.skipTest?.value}</Typography>

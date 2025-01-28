@@ -53,7 +53,7 @@ const Column = styled.div<{ width?: string }>`
 
 const ProjectInfoColumn = styled(Column)`
     width: 300px;
-    padding-right: 2px;
+    padding-right: 20px;
     @media (max-width: 600px) {
         width: auto;
     }
@@ -175,8 +175,10 @@ export function Overview(props: OverviewProps) {
         rpcClient.getMiVisualizerRpcClient().openView({
             type: POPUP_EVENT_TYPE.OPEN_VIEW,
             location: {
-                view: MACHINE_VIEW.ProjectInformationForm
+                view: MACHINE_VIEW.ProjectInformationForm,
+                type: "project"
             },
+            
             isPopup: true
         });
 
@@ -292,12 +294,7 @@ export function Overview(props: OverviewProps) {
                     </Rows>
                     <ProjectInfoColumn>
                         <Typography variant="h3" sx={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center', opacity: 0.8 }}>
-                            Project Information
-                            <div style={{ display: "flex", paddingRight: 6, flex: 1, justifyContent: "flex-end" }}>
-                                <Button appearance="icon" tooltip="Edit Project Information" onClick={handleEditProjectInformation}>
-                                    <Icon name="gear" isCodicon onClick={handleEditProjectInformation} sx={{ flex: 1 }} />
-                                </Button>
-                            </div>
+                            Project Summary
                         </Typography>
                         <div style={{ height: '100%', scrollbarWidth: "thin", paddingRight: '5px' }}>
                             <ProjectInformation key={pomTimestamp} />
