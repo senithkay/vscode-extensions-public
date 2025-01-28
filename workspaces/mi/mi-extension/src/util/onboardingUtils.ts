@@ -91,6 +91,9 @@ async function isMISetup(miVersion: string): Promise<boolean> {
                     showMIPathChangePrompt();
                 }
                 return true;
+            } else {
+                vscode.window.showErrorMessage('Invalid Micro Integrator path or Unsupported version found in the workspace. Please set a valid Micro Integrator path.');
+                return false;
             }
         }
 
@@ -174,6 +177,9 @@ async function isJavaSetup(miVersion: string): Promise<boolean> {
                     showJavaHomeChangePrompt();
                 }
                 return true;
+            } else {
+                vscode.window.showErrorMessage('Invalid Java Home path or Unsupported version found in the workspace. Please set a valid Java Home path.');
+                return false;
             }
         }
 
