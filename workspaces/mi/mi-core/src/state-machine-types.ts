@@ -148,9 +148,8 @@ export interface ErrorType {
 interface DataMapperProps {
     filePath: string;
     functionName?: string;
-    functionIOTypes?: string;
     fileContent?: string;
-    interfacesSource?: string;
+    nonMappingFileContent?: string;
     configName: string;
 }
 

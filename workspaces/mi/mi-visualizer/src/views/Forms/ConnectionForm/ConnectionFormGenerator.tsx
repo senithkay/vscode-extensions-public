@@ -57,7 +57,8 @@ export function AddConnection(props: AddConnectionProps) {
             const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
                 path: props.path,
             });
-            setWorkspaceFileNames(artifactRes.artifacts);
+            const filteredArtifacts = artifactRes.artifacts.filter(artifact => artifact !== props.connectionName);
+            setWorkspaceFileNames(filteredArtifacts);
         })();
     })
 

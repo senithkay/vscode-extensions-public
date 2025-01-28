@@ -92,7 +92,7 @@ const QueryForm = (props: AddMediatorProps) => {
         updatedQuery.returnGeneratedKeys = values.returnGeneratedKeys;
         updatedQuery.returnUpdatedRowCount = values.returnUpdatedRowCount;
         updatedQuery.keyColumns = values.keyColumns;
-        updatedQuery.hashasQueryProperties = queryProperties.length > 0;
+        updatedQuery.hasQueryProperties = queryProperties.length > 0;
 
         let queryType = "";
         const existingDataService = await rpcClient.getMiDiagramRpcClient().getDataService({ path: props.documentUri });

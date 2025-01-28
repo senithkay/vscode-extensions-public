@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ArrayLiteralExpression, Block, FunctionDeclaration, Node, ObjectLiteralExpression, PropertyAssignment, VariableDeclaration } from "ts-morph"
+import { ArrayLiteralExpression, AsExpression, Block, FunctionDeclaration, Node, ObjectLiteralExpression, PropertyAssignment, VariableDeclaration } from "ts-morph"
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
@@ -145,6 +145,8 @@ export function getEnrichedDMType(
         } else {
             addArrayElements(type, parentType, dmTypeWithValue, childrenTypes);
         }
+    } else if (type.kind === TypeKind.Union) {
+        resolveUnionType(type, childrenTypes, nextNode, dmTypeWithValue);
     }
 
     return dmTypeWithValue;
@@ -201,17 +203,17 @@ function getEnrichedArrayType(
     const members: ArrayElement[] = [];
 
     const elements = node.getElements();
-    const fields = new Array(elements.length).fill(field);
 
     elements.forEach((expr, index) => {
-        const type = fields[index];
+        const type = { ...field }; //TODO: need to check with nested case
+
         if (type) {
             const childType = getEnrichedDMType(type, expr, parentType, childrenTypes);
 
             if (childType) {
                 members.push({
                     member: childType,
-                    elementNode: expr
+                    elementNode: childType.value
                 });
             }
         }
@@ -236,7 +238,11 @@ function getValueNodeAndNextNodeForParentType(
         if (parentType.type.kind === TypeKind.Array) {
             return [node, node];
         } else if (propertyAssignment) {
-            return [propertyAssignment, propertyAssignment?.getInitializer()];
+            let initializer = propertyAssignment.getInitializer();
+            if (Node.isAsExpression(initializer)) {
+                initializer = initializer.getExpression();
+            }
+            return [propertyAssignment, initializer];
         }
     } else if (node && Node.isArrayLiteralExpression(node)) {
         const objLitExprs = node.getElements().filter(element =>
@@ -255,7 +261,11 @@ function getValueNodeAndNextNodeForParentType(
         } else {
             return [node, node];
         }
-    } else {
+    } else if (node && Node.isAsExpression(node)) {
+        // Added to deal with init array elements as casted types
+        return [node.getExpression(), node.getExpression()];
+    }
+    else {
         return [node, undefined];
     }
     return [undefined, undefined];
@@ -315,5 +325,25 @@ function addArrayElements(
             elementNode: undefined
         });
         dmTypeWithValue.elements = members;
+    }
+}
+
+function resolveUnionType(
+    type: DMType,
+    childrenTypes: DMTypeWithValue[] | undefined,
+    nextNode: Node | undefined,
+    dmTypeWithValue: DMTypeWithValue
+) {
+    const parentNode = nextNode?.getParent();
+
+    type.resolvedUnionType = type.unionTypes.find(unionType => {
+        const typeName = unionType.typeName || unionType.kind;
+        return typeName &&
+            (typeName ===
+                (parentNode?.getType().getSymbol()?.getName() || nextNode?.getType().getBaseTypeOfLiteralType()?.getText()));
+    });
+
+    if (type.resolvedUnionType && Node.isAsExpression(parentNode)) {
+        addChildrenTypes(type.resolvedUnionType, childrenTypes, nextNode, dmTypeWithValue);
     }
 }
