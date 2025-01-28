@@ -7,36 +7,27 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     EVENT_TYPE,
-    FlowNode,
     LineRange,
     NodePosition,
     SubPanel,
     VisualizerLocation,
     TRIGGER_CHARACTERS,
     TriggerCharacter,
-    FormDiagnostics
 } from "@wso2-enterprise/ballerina-core";
 import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditorProps, HelperPaneData } from "@wso2-enterprise/ballerina-side-panel";
 import {
     convertBalCompletion,
-    convertNodePropertiesToFormFields,
-    convertToFnSignature,
     convertToHelperPaneFunction,
     convertToHelperPaneVariable,
     convertToVisibleTypes,
-    enrichFormPropertiesWithValueConstraint,
-    getFormProperties,
-    updateNodeProperties,
 } from "../../../../utils/bi";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { RecordEditor } from "../../../RecordEditor/RecordEditor";
-import { RemoveEmptyNodesVisitor, traverseNode } from "@wso2-enterprise/bi-diagram";
-import IfForm from "../IfForm";
-import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
+import { CompletionItem, FormExpressionEditorRef } from "@wso2-enterprise/ui-toolkit";
 import { debounce } from "lodash";
+import { getHelperPane } from "../../HelperPane";
 
 interface FormProps {
     fileName: string;
@@ -162,7 +153,7 @@ export function FormGeneratorNew(props: FormProps) {
                         expression: value,
                         startLine: targetLineRange.startLine,
                         offset: offset,
-                        node: node,
+                        node: undefined,
                         property: key
                     },
                     completionContext: {
@@ -332,6 +323,22 @@ export function FormGeneratorNew(props: FormProps) {
         handleExpressionEditorCancel();
     };
 
+    const handleGetHelperPane = (
+        exprRef: RefObject<FormExpressionEditorRef>,
+        value: string,
+        onChange: (value: string, updatedCursorPosition: number) => void,
+        changeHelperPaneState: (isOpen: boolean) => void
+    ) => {
+        return getHelperPane({
+            fileName: fileName,
+            targetLineRange: targetLineRange,
+            exprRef: exprRef,
+            onClose: () => changeHelperPaneState(false),
+            currentValue: value,
+            onChange: onChange
+        });
+    }
+
     const expressionEditor = useMemo(() => {
         return {
             completions: filteredCompletions,
@@ -339,14 +346,11 @@ export function FormGeneratorNew(props: FormProps) {
             retrieveCompletions: handleRetrieveCompletions,
             types: filteredTypes,
             retrieveVisibleTypes: handleGetVisibleTypes,
-            isLoadingHelperPaneInfo: isLoadingHelperPaneInfo,
-            variableInfo: variableInfo,
-            functionInfo: functionInfo,
-            libraryBrowserInfo: libraryBrowserInfo,
-            getHelperPaneData: handleGetHelperPaneData,
+            getHelperPane: handleGetHelperPane,
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
-            onCancel: handleExpressionEditorCancel
+            onCancel: handleExpressionEditorCancel,
+            helperPaneOrigin: "right"
         } as FormExpressionEditorProps;
     }, [
         filteredCompletions,
@@ -371,7 +375,6 @@ export function FormGeneratorNew(props: FormProps) {
                     onSubmit={onSubmit}
                     openView={handleOpenView}
                     openSubPanel={openSubPanel}
-                    isActiveSubPanel={isActiveSubPanel}
                     expressionEditor={expressionEditor}
                     targetLineRange={targetLineRange}
                     fileName={fileName}

@@ -27,7 +27,9 @@ namespace Ex {
         gap: 4px;
         box-sizing: border-box;
 
-        * {
+        *,
+        *::before,
+        *::after {
             box-sizing: border-box;
         }
     `;
@@ -39,6 +41,7 @@ namespace Ex {
     `;
 
     export const EditorContainer = styled.div`
+        width: 100%;
         display: flex;
         align-items: center;
         gap: 8px;
@@ -50,9 +53,24 @@ namespace Ex {
     `;
 }
 
+// Styles
+const State = {
+    Selected: {
+        Button: {
+            border: '1px solid var(--focus-border)',
+            backgroundColor: 'var(--vscode-list-activeSelectionBackground)',
+            borderRadius: 'var(--button-icon-corner-radius)',
+        },
+        Icon: {
+            color: 'var(--vscode-list-activeSelectionForeground)',
+        },
+    }
+} as const;
+
 export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, FormExpressionEditorProps>((props, ref) => {
-    const { id, getExpressionEditorIcon, onRemove, codeActions, ...rest } = props;
+    const { id, getExpressionEditorIcon, onRemove, codeActions, startAdornment, endAdornment, ...rest } = props;
     const expressionEditorRef = useRef<FormExpressionEditorRef>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLDivElement>(null)
 
     useImperativeHandle(ref, () => expressionEditorRef.current);
@@ -66,7 +84,7 @@ export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, F
     };
 
     return (
-        <Ex.Container id={id}>
+        <Ex.Container ref={containerRef} id={id}>
             {codeActions && codeActions.length > 0 && (
                 <Ex.CodeActionsContainer>
                     {codeActions.map((button, index) => (
@@ -78,15 +96,42 @@ export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, F
             )}
             <Ex.EditorContainer>
                 <Ex.ExpressionBox>
-                    <ExpressionEditor ref={expressionEditorRef} buttonRef={buttonRef} {...rest} />
+                    {startAdornment}
+                    <ExpressionEditor
+                        ref={expressionEditorRef}
+                        containerRef={containerRef}
+                        buttonRef={buttonRef}
+                        {...rest}
+                    />
+                    {endAdornment}
                 </Ex.ExpressionBox>
-                {getExpressionEditorIcon ? getExpressionEditorIcon() : (
-                    props.changeHelperPaneState  && (
-                        <Button ref={buttonRef}appearance="icon" onClick={handleHelperPaneToggle} tooltip="Open Helper View">
-                            <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
+                {getExpressionEditorIcon
+                    ? getExpressionEditorIcon()
+                    : props.changeHelperPaneState && (
+                        <Button
+                            ref={buttonRef}
+                            appearance="icon"
+                            onClick={handleHelperPaneToggle}
+                            tooltip="Open Helper View"
+                            sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                width: "26px",
+                                height: "26px",
+                                ...(props.isHelperPaneOpen && State.Selected.Button),
+                            }}
+                            buttonSx={{ width: "26px", height: "26px" }}
+                        >
+                            <Icon
+                                name="function-icon"
+                                sx={{ height: "20px", width: "18px" }}
+                                iconSx={{
+                                    fontSize: "16px",
+                                    ...(props.isHelperPaneOpen && State.Selected.Icon),
+                                }}
+                            />
                         </Button>
-                    )
-                )}
+                    )}
                 {onRemove && (
                     <Button appearance="icon" onClick={onRemove} tooltip="Remove Expression">
                         <Codicon name="trash" sx={{ color: ThemeColors.ERROR }} />

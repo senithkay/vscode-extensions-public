@@ -16,6 +16,7 @@ import {
     ENDPOINT_REMOVED,
     INVALID_PARAMETER_TYPE,
     INVALID_PARAMETER_TYPE_MULTIPLE_ARRAY,
+    INVALID_TYPE_CONVERSION,
     MODIFIYING_ERROR,
     PARSING_ERROR,
     TIMEOUT,
@@ -35,7 +36,6 @@ const REQUEST_TIMEOUT = 40000;
 
 let abortController = new AbortController();
 let nestedKeyArray: string[] = [];
-let isCheckError: boolean = false;
 
 export interface ParameterMetadata {
     inputs: object;
@@ -139,7 +139,7 @@ export async function getParamDefinitions(
             return INVALID_PARAMETER_TYPE;
         }
 
-        let inputDefinition;
+        let inputDefinition: ErrorCode | RecordDefinitonObject;
         if ('types' in parameterDefinition && parameterDefinition.types[0].type.hasOwnProperty('fields')) {
             inputDefinition = navigateTypeInfo(parameterDefinition.types[0].type.fields, false);
         } else {
@@ -239,19 +239,20 @@ export async function processMappings(
     }
 
     const codeObject = await getDatamapperCode(parameterDefinitions);
-    if (isErrorCode(codeObject)) {
+    if (isErrorCode(codeObject) || Object.keys(codeObject).length === 0) {
         return codeObject as ErrorCode;
     }
 
-    const { recordString, isCheckError } = constructRecord(codeObject);
+    const { recordString, isCheckError } = await constructRecord(codeObject);
     let codeString: string;
     if (fnSt.functionSignature.returnTypeDesc.type.kind === "ArrayTypeDesc") {
         const parameter = fnSt.functionSignature.parameters[0] as RequiredParam;
         const paramName = parameter.paramName.value;
         const formattedRecordString = recordString.startsWith(":") ? recordString.substring(1) : recordString;
-        codeString = `=> from var ${paramName}Item in ${paramName}\n select ${formattedRecordString};`;
+        codeString = isCheckError ? `|error => from var ${paramName}Item in ${paramName}\n select ${formattedRecordString};` : 
+                                    `=> from var ${paramName}Item in ${paramName}\n select ${formattedRecordString};`;
     } else {
-        codeString = isCheckError ? `|error=> ${recordString};` : `=> ${recordString};`;
+        codeString = isCheckError ? `|error => ${recordString};` : `=> ${recordString};`;
     }
 
     const modifications: STModification[] = [];
@@ -275,7 +276,7 @@ export async function processMappings(
 }
 
 
-export async function generateBallerinaCode(response: object, parameterDefinitions: ParameterMetadata, nestedKey: string = ""): Promise<object> {
+export async function generateBallerinaCode(response: object, parameterDefinitions: ParameterMetadata | ErrorCode, nestedKey: string = ""): Promise<object|ErrorCode> {
     let recordFields: { [key: string]: any } = {};
 
     if (response.hasOwnProperty("code") && response.hasOwnProperty("message")) {
@@ -283,7 +284,10 @@ export async function generateBallerinaCode(response: object, parameterDefinitio
     }
 
     if (response.hasOwnProperty("operation") && response.hasOwnProperty("parameters") && response.hasOwnProperty("targetType")) {
-        let path = getMappingString(response, parameterDefinitions);
+        let path = await getMappingString(response, parameterDefinitions, nestedKey);
+        if (isErrorCode(path)) {
+            return INVALID_TYPE_CONVERSION;
+        }        
         let parameters: string[] = response["parameters"];
         let paths = parameters[0].split(".");
         let recordFieldName: string = nestedKey || paths[1];
@@ -311,13 +315,17 @@ export async function generateBallerinaCode(response: object, parameterDefinitio
     }
 }
 
-function getMappingString(mapping: object, parameterDefinitions: ParameterMetadata): string {
+async function getMappingString(mapping: object, parameterDefinitions: ParameterMetadata | ErrorCode, nestedKey:string): Promise<string | ErrorCode>  {
     let operation: string = mapping["operation"];
     let targetType: string = mapping["targetType"];
     let parameters: string[] = mapping["parameters"];
     
     let path: string = "";
+    let modifiedPaths: string[] = [];
     let inputType: string = "";
+    let baseType: string = "";
+    let baseTargetType: string = "";
+    let modifiedOutput = parameterDefinitions["outputMetadata"];
 
     if (operation === "DIRECT") {
         if (parameters.length > 1) {
@@ -325,15 +333,24 @@ function getMappingString(mapping: object, parameterDefinitions: ParameterMetada
         }
         let paths = parameters[0].split(".");
         let recordObjectName: string = paths[0];
-        let modifiedPaths: string[] = accessMetadata(paths, 1, parameterDefinitions["inputMetadata"][recordObjectName], false);
         
         // Retrieve inputType
         if (paths.length > 2) {
-            inputType = getNestedType(paths.slice(1), parameterDefinitions["inputMetadata"][recordObjectName]);
+            inputType = await getNestedType(paths.slice(1), parameterDefinitions["inputMetadata"][recordObjectName]);
         } else {
             inputType = parameterDefinitions["inputMetadata"][recordObjectName]["fields"][paths[1]]["type"];
         }
-
+        baseType = inputType.replace("|()", "");
+        baseTargetType= targetType.replace("|()", "");
+        modifiedPaths = await accessMetadata(
+            paths, 
+            parameterDefinitions, 
+            modifiedOutput, 
+            baseType, 
+            baseTargetType,
+            nestedKey, 
+            operation
+        );
         for (let index = 0; index < modifiedPaths.length; index++) {
             if (index > 0 && modifiedPaths[index] === modifiedPaths[index - 1]) {
                 continue;
@@ -344,7 +361,7 @@ function getMappingString(mapping: object, parameterDefinitions: ParameterMetada
             path = `${path}${modifiedPaths[index]}`;
         }
         // Add split operation if inputType is "string" and targetType is "string[]"
-        if (inputType === "string" && targetType === "string[]") {
+        if (baseType === "string" && baseTargetType === "string[]") {
             return `re \`,\`.split(${path})`;
         }
 
@@ -358,26 +375,42 @@ function getMappingString(mapping: object, parameterDefinitions: ParameterMetada
 
         const numericConversions: { [key: string]: { [key: string]: string } } = {
             float: {
-                int: `check ${path}.ensureType()`,
-                decimal: `check ${path}.ensureType()`
+                int: `check (${path}).ensureType()`,
+                decimal: `check (${path}).ensureType()`
             },
             int: {
-                float: `check ${path}.ensureType()`,
-                decimal: `check ${path}.ensureType()`
+                float: `check (${path}).ensureType()`,
+                decimal: `check (${path}).ensureType()`
             },
             decimal: {
-                int: `check ${path}.ensureType()`,
-                float: `check ${path}.ensureType()`
+                int: `check (${path}).ensureType()`,
+                float: `check (${path}).ensureType()`
             }
         };
 
-        if (inputType !== targetType) {
-            if (inputType === "string") {
-                path = stringConversions[targetType] ? `${stringConversions[targetType]}(${path})` : path;
-            } else if (numericConversions[inputType] && numericConversions[inputType][targetType]) {
-                path = `${numericConversions[inputType][targetType]}`;
-            } else if (targetType === "string") {
-                path = `${path}.toString()`;
+        const isStringInput = ["string", "string|()"].includes(inputType);
+        const isStringTarget = ["string", "string|()"].includes(targetType);
+        if (inputType === targetType || inputType === baseTargetType) {
+            path = `${path}`;
+        } else if (isStringInput) {
+            const conversion = stringConversions[baseTargetType];
+            if (conversion) {
+                path = `${conversion}(${path})`;
+            } else if (!isStringTarget) {
+                return INVALID_TYPE_CONVERSION;
+            }
+        } else if (isStringTarget) {
+            path = `(${path}).toString()`;
+        } else {
+            const conversion = numericConversions[inputType]?.[targetType];
+            if (conversion && baseTargetType !== "boolean") {
+                path = conversion;
+            } else if (baseType === baseTargetType) {
+                path = `${path}`;
+            } else if ((targetType.includes("|()") && inputType !== baseTargetType) || inputType.includes("|()") && baseTargetType !== "boolean") {
+                path = `check (${path}).ensureType()`;
+            } else {
+                return INVALID_TYPE_CONVERSION;
             }
         }
     } else if (operation === "LENGTH") {
@@ -385,8 +418,15 @@ function getMappingString(mapping: object, parameterDefinitions: ParameterMetada
             return "";
         }
         let paths = parameters[0].split(".");
-        let recordObjectName: string = paths[0];
-        let modifiedPaths: string[] = accessMetadata(paths, 1, parameterDefinitions["inputMetadata"][recordObjectName], false);
+        modifiedPaths = await accessMetadata(
+            paths, 
+            parameterDefinitions, 
+            modifiedOutput, 
+            baseType, 
+            baseTargetType,
+            nestedKey, 
+            operation
+        );
         for (let index = 0; index < modifiedPaths.length; index++) {
             if (path !== "") {
                 path = `${path}.`;
@@ -399,8 +439,15 @@ function getMappingString(mapping: object, parameterDefinitions: ParameterMetada
             return "";
         }
         let paths = parameters[0].split(".");
-        let recordObjectName: string = paths[0];
-        let modifiedPaths: string[] = accessMetadata(paths, 1, parameterDefinitions["inputMetadata"][recordObjectName], false);
+        modifiedPaths = await accessMetadata(
+            paths, 
+            parameterDefinitions, 
+            modifiedOutput, 
+            baseType, 
+            baseTargetType,
+            nestedKey, 
+            operation
+        );
         for (let index = 0; index < modifiedPaths.length; index++) {
             if (path !== "") {
                 path = `${path}.`;
@@ -455,78 +502,113 @@ function navigateTypeInfo(
 ): RecordDefinitonObject | ErrorCode {
     let recordFields: { [key: string]: any } = {};
     let recordFieldsMetadata: { [key: string]: any } = {};
+    let memberFieldsMetadata: { [key: string]: any } = {};
+    let memberRecordFields: { [key: string]: any } = {};
+    let temporaryRecord: RecordDefinitonObject | ErrorCode;
+    let isNullable = false;
+    let memberName: string;
+
+    const handleMember = (member: any): string => {
+        if (member.typeName === "record" && member.fields) {
+            temporaryRecord = navigateTypeInfo(member.fields, false);
+            memberName = "record";
+            memberRecordFields = {
+                ...memberRecordFields,
+                ...(temporaryRecord as RecordDefinitonObject).recordFields
+            };
+            memberFieldsMetadata = {
+                ...memberFieldsMetadata,
+                ...((temporaryRecord as RecordDefinitonObject).recordFieldsMetadata)
+            };
+        } else if (member.typeName === "array") {
+            if (member.memberType.hasOwnProperty("fields")) {
+                temporaryRecord = navigateTypeInfo(member.memberType.fields, false);
+                memberName = `${member.memberType.typeName}[]`;
+                memberRecordFields = {
+                    ...memberRecordFields,
+                    ...(temporaryRecord as RecordDefinitonObject).recordFields
+                };
+                memberFieldsMetadata = {
+                    ...memberFieldsMetadata,
+                    ...((temporaryRecord as RecordDefinitonObject).recordFieldsMetadata)
+                };
+            } else if (member.memberType.hasOwnProperty("typeInfo") && member.typeName === "array") {
+                memberName = "record[]";
+            } else {
+                memberName = `${member.memberType.typeName}[]`;
+            }
+        } else if (member.typeName === "()") {
+            memberName = member.typeName;
+            isNullable = true;
+        } else {
+            memberName = member.typeName;
+        }
+        return memberName;
+    };
 
     for (const field of typeInfos) {
+        memberRecordFields = {};
+        memberFieldsMetadata = {};
         let typeName = field.typeName;
-        if (field.typeName === "record") {
+        if (typeName === "record") {
             const temporaryRecord = navigateTypeInfo(field.fields, false);
-            recordFields = {
-                ...recordFields,
-                [field.name]: (temporaryRecord as RecordDefinitonObject).recordFields
+            recordFields[field.name] = (temporaryRecord as RecordDefinitonObject).recordFields;
+            recordFieldsMetadata[field.name] = {
+                nullable: isNill,
+                optional: field.optional,
+                type: "record",
+                typeInstance: field.name,
+                typeName: field.typeName,
+                fields: (temporaryRecord as RecordDefinitonObject).recordFieldsMetadata
             };
-            recordFieldsMetadata = {
-                ...recordFieldsMetadata,
-                [field.name]: {
-                    nullable: isNill,
-                    optional: field.optional,
-                    type: "record",
-                    typeInstance: field.name,
-                    typeName: field.typeName,
-                    fields: (temporaryRecord as RecordDefinitonObject).recordFieldsMetadata
-                }
-            };
-        } else if (field.typeName === "union" || field.typeName === "intersection") {
+        } else if (typeName === "union" || typeName === "intersection") {
+            let memberTypeNames: string[] = [];
             for (const member of field.members) {
-                if (member.typeName === "()") {
-                    continue;
-                }
-                if (!("fields" in member)) {
-                    const memberTypeName = field.typeInfo.name;
-                    recordFields[field.name] = { type: memberTypeName, comment: "" };
-                    recordFieldsMetadata[field.name] = {
-                        nullable: true,
-                        optional: field.optional,
-                        typeName: memberTypeName,
-                        type: memberTypeName,
-                        typeInstance: field.name
-                    };
-                }
+                const memberTypeName = handleMember(member);
+                memberTypeNames.push(memberTypeName);
             }
-        } else if (field.typeName === "array") {
+            const resolvedTypeName = memberTypeNames.join("|");
+            recordFields[field.name] = Object.keys(memberRecordFields).length > 0 
+                                        ? memberRecordFields : { type: resolvedTypeName, comment: "" };
+            recordFieldsMetadata[field.name] = {
+                nullable: isNullable,
+                optional: field.optional,
+                typeName: resolvedTypeName,
+                type: resolvedTypeName,
+                typeInstance: field.name,
+                ...(Object.keys(memberFieldsMetadata).length > 0 && { fields: memberFieldsMetadata })
+            };
+        } else if (typeName === "array") {
             if (field.memberType.typeName === "union") {
                 const unionTypeNames = field.memberType.members
-                    .map((member: any) => member.name)
+                    .map((member: any) => handleMember(member))
                     .join(" | ");
                 typeName = `${unionTypeNames}`;
             } else if (field.memberType.hasOwnProperty("fields")) {
                 const temporaryRecord = navigateTypeInfo(field.memberType.fields, false);
-                recordFields = {
-                    ...recordFields,
-                    [field.name]: (temporaryRecord as RecordDefinitonObject).recordFields
-                };
-                recordFieldsMetadata = {
-                    ...recordFieldsMetadata,
-                    [field.name]: {
-                        typeName: "record[]",
-                        type: "record[]",
-                        typeInstance: field.name,
-                        nullable: isNill,
-                        optional: field.optional,
-                        fields: (temporaryRecord as RecordDefinitonObject).recordFieldsMetadata
-                    }
-                };
-                continue;
-            } else {
-                typeName = `${field.memberType.typeName}[]`;
-                recordFields[field.name] = { type: typeName, comment: "" };
+                recordFields[field.name] = (temporaryRecord as RecordDefinitonObject).recordFields;
                 recordFieldsMetadata[field.name] = {
-                    typeName: typeName,
-                    type: typeName,
+                    typeName: "record[]",
+                    type: "record[]",
                     typeInstance: field.name,
                     nullable: isNill,
-                    optional: field.optional
+                    optional: field.optional,
+                    fields: (temporaryRecord as RecordDefinitonObject).recordFieldsMetadata
                 };
+                continue;
+            } else if (field.memberType.hasOwnProperty("typeInfo")) {
+                typeName = `record[]`;
+            } else {
+                typeName = `${field.memberType.typeName}[]`;
             }
+            recordFields[field.name] = { type: typeName, comment: "" };
+            recordFieldsMetadata[field.name] = {
+                typeName: typeName,
+                type: typeName,
+                typeInstance: field.name,
+                nullable: isNill,
+                optional: field.optional
+            };
         } else {
             recordFields[field.name] = { type: typeName, comment: "" };
             recordFieldsMetadata[field.name] = {
@@ -542,7 +624,7 @@ function navigateTypeInfo(
     return response;
 }
 
-export async function getDatamapperCode(parameterDefinitions): Promise<object | ErrorCode> {
+export async function getDatamapperCode(parameterDefinitions: ErrorCode | ParameterMetadata): Promise<object | ErrorCode> {
     console.log(JSON.stringify(parameterDefinitions));
     try {
         const accessToken = await getAccessToken().catch((error) => {
@@ -583,8 +665,9 @@ export async function getDatamapperCode(parameterDefinitions): Promise<object | 
     }
 }
 
-export function constructRecord(codeObject: object): { recordString: string; isCheckError: boolean } {
+export async function constructRecord(codeObject: object): Promise<{ recordString: string; isCheckError: boolean; }> {
     let recordString: string = ""; 
+    let isCheckError: boolean = false;
     let objectKeys = Object.keys(codeObject);
     for (let index = 0; index < objectKeys.length; index++) {
         let key = objectKeys[index];
@@ -598,7 +681,7 @@ export function constructRecord(codeObject: object): { recordString: string; isC
             }
             recordString += `${key}:${mapping}`;
         } else {
-            let subRecordResult = constructRecord(mapping);
+            let subRecordResult = await constructRecord(mapping);
             if (subRecordResult.isCheckError) {
                 isCheckError = true; 
             }
@@ -608,10 +691,10 @@ export function constructRecord(codeObject: object): { recordString: string; isC
             recordString += `${key}:${subRecordResult.recordString}`;
         }
     }
-    return { recordString: `{${recordString}}`, isCheckError };
+    return { recordString: `{\n${recordString}}`, isCheckError };
 }
 
-export function getFunction(modulePart: ModulePart, functionName: string) {
+export async function getFunction(modulePart: ModulePart, functionName: string) {
     const fns = modulePart.members.filter((mem) =>
         STKindChecker.isFunctionDefinition(mem)
     ) as FunctionDefinition[];
@@ -624,7 +707,7 @@ export function notifyNoGeneratedMappings() {
     window.showInformationMessage(msg);
 }
 
-async function sendDatamapperRequest(parameterDefinitions, accessToken): Promise<Response | ErrorCode> {
+async function sendDatamapperRequest(parameterDefinitions: ParameterMetadata | ErrorCode, accessToken: string | ErrorCode): Promise<Response | ErrorCode> {
     const response = await fetchWithTimeout(BACKEND_API_URL_V2 + "/datamapper", {
         method: "POST",
         headers: {
@@ -642,7 +725,6 @@ async function sendDatamapperRequest(parameterDefinitions, accessToken): Promise
 async function sendMappingFileUploadRequest(file: Blob): Promise<Response | ErrorCode> {
     const formData = new FormData();
     formData.append("file", file);
-    // const BACKEND_API_URL = "http://127.0.0.1:8000";
     const response = await fetch(CONTEXT_UPLOAD_URL_V1 + "/file_upload/generate_mapping_instruction", {
         method: "POST",
         body: formData
@@ -690,7 +772,6 @@ export async function getMappingFromFile(file: Blob): Promise<MappingFileRecord 
 async function sendTypesFileUploadRequest(file: Blob): Promise<Response | ErrorCode> {
     const formData = new FormData();
     formData.append("file", file);
-    // const BACKEND_API_URL = "http://127.0.0.1:8000";
     const response = await fetch(CONTEXT_UPLOAD_URL_V1 + "/file_upload/generate_record", {
         method: "POST",
         body: formData
@@ -713,7 +794,7 @@ export async function getTypesFromFile(file: Blob): Promise<string | ErrorCode> 
     }
 }
 
-export async function mappingFileParameterDefinitions(file: AttachmentResult, parameterDefinitions): Promise<ParameterMetadata | ErrorCode> {
+export async function mappingFileParameterDefinitions(file: AttachmentResult, parameterDefinitions: ErrorCode | ParameterMetadata): Promise<ParameterMetadata | ErrorCode> {
     if (!file) { return parameterDefinitions; }
 
     const convertedFile = convertBase64ToBlob(file);
@@ -800,58 +881,111 @@ export function isErrorCode(error: any): boolean {
     return error.hasOwnProperty("code") && error.hasOwnProperty("message");
 }
 
-function accessMetadata(paths: string[], index: number, parameterDefinitions: ParameterMetadata, isContinued: boolean): string[] {
-    if (index == paths.length) {
-        return paths;
-    } else {
-        let modifiedInputs: object = parameterDefinitions;
-        if (parameterDefinitions["type"] == "typeReference" || parameterDefinitions["type"] == "record" || parameterDefinitions["type"] == "record[]") {
-            modifiedInputs = parameterDefinitions["fields"];
-        }
-        let pathIndex: string = paths[index];
-        let tempObject = modifiedInputs[pathIndex];
-        if (!tempObject) {
-            throw new Error(`Field ${pathIndex} not found in metadata.`);
-        }
-        let isNullable: boolean = tempObject["nullable"];
-        let isOptional: boolean = tempObject["optional"];
+async function accessMetadata(
+    paths: string[],
+    parameterDefinitions: ParameterMetadata | ErrorCode,
+    modifiedOutput: object,
+    baseType: string,
+    baseTargetType: string,
+    nestedKey: string,
+    operation: string
+): Promise<string[]> {
+    const newPath: string[] = [...paths];
+    let outputObject: object;
+    let isOutputNullable = false;
+    let isOutputOptional = false;
+    let isUsingDefault = false;
 
-        if (index == paths.length - 1) {
-            if (!isNullable && !isOptional && isContinued) {
-                let dataType: string = tempObject["typeName"];
-                if (!dataType) {
-                    throw new Error(`Type name for field ${pathIndex} is not specified.`);
-                }
-                let defaultValue = getDefaultValue(dataType);
-                paths[index] = `${paths[index]}?:${defaultValue}`;
-            }
-        } else if (isNullable || isOptional) {
-            if (index == 0) {
-                throw new Error(`Nullable or optional field ${pathIndex} at the root level is not supported.`);
-            }
-            paths[index] = `${paths[index]}?`;
-            isContinued = true;
-        }
-        return accessMetadata(paths, index + 1, tempObject, isContinued);
+    // Resolve output metadata
+    if (nestedKeyArray.length > 0) {
+        outputObject = await resolveMetadata(parameterDefinitions, nestedKeyArray, nestedKey, "outputMetadata");
+        if (!outputObject) { throw new Error(`Metadata not found for ${nestedKey}.`); }
+    } else if (modifiedOutput.hasOwnProperty("fields") || !modifiedOutput[nestedKey]) {
+        throw new Error(`Invalid or missing metadata for nestedKey: ${nestedKey}.`);
+    } else {
+        outputObject = modifiedOutput[nestedKey];
     }
+
+    const outputMetadataType = outputObject["type"];
+    baseTargetType = outputMetadataType.replace("|()", "");
+    isOutputNullable = outputObject["nullable"];
+    isOutputOptional = outputObject["optional"];
+
+    // Process paths for metadata
+    for (let index = 1; index < paths.length; index++) {
+        const pathIndex = paths[index];
+        let inputObject = await resolveMetadata(parameterDefinitions, paths, pathIndex, "inputMetadata");
+        if (!inputObject) { throw new Error(`Field ${pathIndex} not found in metadata.`); }
+
+        const inputMetadataType = inputObject["type"];
+        const isInputNullable = inputObject["nullable"];
+        const isInputOptional = inputObject["optional"];
+
+        // Handle record types with nullable or optional conditions
+        if (inputObject.hasOwnProperty("fields") || operation === "LENGTH") {
+            const isInputRecordNullable = inputObject["nullable"];
+            const isInputRecordOptional = inputObject["optional"];
+            isUsingDefault = false;
+            if (isInputRecordNullable || isInputRecordOptional) {
+                if (["record", "record|()", "readonly|record", "readonly|record|()"].includes(inputMetadataType)) {
+                    newPath[index] = `${paths[index]}?`;
+                    isUsingDefault = true;
+                }
+                if (["record[]", "record[]|()", "readonly|record[]", "readonly|record[]|()"].includes(inputMetadataType) && operation === "LENGTH") {
+                    let lastInputObject = await resolveMetadata(parameterDefinitions, paths, paths[paths.length - 1], "inputMetadata");
+                    let inputDataType = lastInputObject["type"].replace("|()", "");
+                    let defaultValue = await getDefaultValue(inputDataType);
+                    newPath[paths.length - 1] = `${paths[paths.length - 1]}?:${defaultValue}`;
+                }
+
+                if (isInputRecordNullable && isInputRecordOptional) {
+                    newPath[index - 1] = `${paths[index - 1]}?`;
+                }
+            }
+        } else {
+            if (isInputNullable && isInputOptional) {
+                newPath[index - 1] = `${paths[index - 1]}?`;
+            }
+            let defaultValue = await getDefaultValue(baseType);
+
+            if (isUsingDefault && !isOutputNullable && !isOutputOptional) {
+                newPath[index] = `${pathIndex}?:${defaultValue}`;
+            } else if (isInputNullable || isInputOptional) {
+                if (!isOutputNullable && !isOutputOptional) {
+                    newPath[index] = baseType === "string" || baseType === baseTargetType
+                        ? `${pathIndex}?:${defaultValue}`
+                        : `${pathIndex}`;
+                } else {
+                    newPath[index] = baseType !== baseTargetType && baseType === "string"
+                        ? `${pathIndex}?:${defaultValue}`
+                        : `${pathIndex}`;
+                }
+            }
+            return newPath;
+        }
+    }
+    return newPath;
 }
 
-function getDefaultValue(dataType: string): string {
+async function getDefaultValue(dataType: string): Promise<string> {
     switch (dataType) {
         case "string":
             return "\"\"";
         case "int":
             return "0";
         case "decimal":
-            return "0d";
+            return "0.0";
         case "float":
-            return "0f";
+            return "0.0";
         case "boolean":
             return "false";
         case "int[]":
         case "string[]":
         case "float[]":
         case "decimal[]":
+        case "boolean[]":
+        case "record[]":
+        case "readonly|record[]":
             return "[]";
         default:
             // change the following to a appropriate value
@@ -859,7 +993,7 @@ function getDefaultValue(dataType: string): string {
     }
 }
 
-function getNestedType(paths: string[], metadata: object): string {
+async function getNestedType(paths: string[], metadata: object): Promise<string> {
     let currentMetadata = metadata;
     for (let i = 0; i < paths.length; i++) {
         let cleanPath = paths[i].replace(/\?.*$/, "");
@@ -872,45 +1006,63 @@ function getNestedType(paths: string[], metadata: object): string {
     return currentMetadata["type"];
 }
 
-function resolveMetadataType(parameterDefinitions: ParameterMetadata, nestedKeyArray: string[], key: string, metadataKey: "inputMetadata" | "outputMetadata"): string {
+async function resolveMetadata(parameterDefinitions: ParameterMetadata | ErrorCode, nestedKeyArray: string[], key: string, metadataKey: "inputMetadata" | "outputMetadata"): Promise<object|null> {
     let metadata = parameterDefinitions[metadataKey];
-    let type:string = "";
-
     for (let nk of nestedKeyArray) {
         if (metadata[nk] && metadata[nk]["fields"]) {
             if (nk === key){
-                type = metadata[nk]["type"];
-                return type;
+                return metadata[nk];
             }
             metadata = metadata[nk]["fields"];
         } else {
-            return "";
+            return metadata[key];
         }
     }
+    return metadata[key];
 }
 
-async function handleRecordArrays(key: string, nestedKey:string, responseRecord: object, parameterDefinitions: ParameterMetadata) {
+async function handleRecordArrays(key: string, nestedKey: string, responseRecord: object, parameterDefinitions: ParameterMetadata | ErrorCode) {
     let recordFields: { [key: string]: any } = {};
     let subObjectKeys = Object.keys(responseRecord);
 
     let formattedRecordsArray: string[] = [];
     let itemKey: string = "";
     let combinedKey: string = "";
-    let outputMetadataType: string;
+    let modifiedOutput: object;
+    let outputMetadataType: string = "";
 
     for (let subObjectKey of subObjectKeys) {
         if (!nestedKey) {
-            outputMetadataType = parameterDefinitions["outputMetadata"][key]["type"];
+            modifiedOutput = parameterDefinitions["outputMetadata"][key];
         } else {
-            outputMetadataType = resolveMetadataType(parameterDefinitions, nestedKeyArray, key, "outputMetadata");
+            modifiedOutput = await resolveMetadata(parameterDefinitions, nestedKeyArray, key, "outputMetadata");
+            if (!modifiedOutput) {
+                throw new Error(`Metadata not found for ${nestedKey}.`);
+            }
         }
+        outputMetadataType = modifiedOutput["type"];
+        let isDeeplyNested = (["record[]", "record[]|()", "readonly|record[]", "readonly|record[]|()"].includes(outputMetadataType));
 
-        let isDeeplyNested = outputMetadataType === "record[]";
-        let { parentKey, itemKey: currentItemKey, combinedKey: currentCombinedKey } = extractKeys(responseRecord[subObjectKey], parameterDefinitions);
-        if (outputMetadataType === "record[]" ||  outputMetadataType === "record" ) {
+        let { itemKey: currentItemKey, combinedKey: currentCombinedKey } = await extractKeys(responseRecord[subObjectKey], parameterDefinitions);
+        if (currentItemKey.includes('?')) {
+            currentItemKey = currentItemKey.replace('?', '');
+        }
+        if (modifiedOutput.hasOwnProperty("fields")) {
             if (isDeeplyNested) {
-                let subArrayRecord = responseRecord[subObjectKey];
-                formattedRecordsArray.push(`${subObjectKey}: ${subArrayRecord.replace(new RegExp(`${currentCombinedKey}\.`, 'g'), `${currentItemKey}Item.`)}`);
+                const subArrayRecord = responseRecord[subObjectKey];
+                const isCombinedKeyModified = currentCombinedKey.endsWith('?');
+                const replacementKey = isCombinedKeyModified 
+                    ? `${currentItemKey}Item?.` 
+                    : `${currentItemKey}Item.`;
+        
+                const regex = new RegExp(
+                    currentCombinedKey.replace(/\?/g, '\\?').replace(/\./g, '\\.') + '\\.', 'g'
+                );
+        
+                formattedRecordsArray.push(
+                    `${subObjectKey}: ${subArrayRecord.replace(regex, replacementKey)}`
+                );
+
                 itemKey = currentItemKey;
                 combinedKey = currentCombinedKey;
             } else {
@@ -922,11 +1074,15 @@ async function handleRecordArrays(key: string, nestedKey:string, responseRecord:
     }
 
     if (formattedRecordsArray.length > 0 && itemKey && combinedKey) {
-        let formattedRecords = formattedRecordsArray.join(",\n");
-        recordFields[key] = `from var ${itemKey}Item in ${combinedKey}\n select {\n ${formattedRecords}\n}`;
+        const formattedRecords = formattedRecordsArray.join(",\n");
+        const keyToReplace = combinedKey.endsWith('?') ? combinedKey.replace(/\?$/, '') : combinedKey;
+        const processedKeys = await processCombinedKey(combinedKey, parameterDefinitions);
+        const combinedKeyExpression = (processedKeys.isinputRecordArrayNullable || processedKeys.isinputRecordArrayOptional || processedKeys.isinputArrayNullable || processedKeys.isinputArrayOptional)
+            ? `${keyToReplace} ?: []`
+            : keyToReplace;
+        recordFields[key] = `from var ${itemKey}Item in ${combinedKeyExpression}\n select {\n ${formattedRecords}\n}`;
     } else {
-        let formattedRecords = formattedRecordsArray.join(",\n");
-        recordFields[key] = `{\n ${formattedRecords} \n}`;
+        recordFields[key] = `{\n ${formattedRecordsArray.join(",\n")} \n}`;
     }
 
     return { ...recordFields };
@@ -952,19 +1108,25 @@ async function filterResponse(resp: Response): Promise<string | ErrorCode> {
     }
 }
 
-function extractKeys(key: string, parameterDefinitions: ParameterMetadata): { parentKey: string[], itemKey: string, combinedKey: string } {
+async function extractKeys(
+    key: string,
+    parameterDefinitions: ParameterMetadata | ErrorCode
+): Promise<{
+    itemKey: string;
+    combinedKey: string;
+}> {
     let innerKey: string;
     let itemKey: string = "";
     let combinedKey: string = "";
 
     // Handle the key for nullable and optional fields
-    key = key.replace(/\?.*$/, "");
-    
+    key = key.replace(/\?*$/, "");
+
     // Check for a nested mapping like 'from var ... in ...'
-    const nestedMappingMatch = key.match(/from\s+var\s+(\w+)\s+in\s+([\w.]+)\s+/);
+    const nestedMappingMatch = key.match(/from\s+var\s+(\w+)\s+in\s+([\w?.]+)/);
     if (nestedMappingMatch) {
-        itemKey = nestedMappingMatch[1]; 
-        innerKey = nestedMappingMatch[2]; 
+        itemKey = nestedMappingMatch[1];
+        innerKey = nestedMappingMatch[2];
 
         const keys = innerKey.split(".");
         combinedKey = keys.slice(0, keys.length - 1).join(".");
@@ -974,38 +1136,136 @@ function extractKeys(key: string, parameterDefinitions: ParameterMetadata): { pa
         innerKey = matches ? matches[1] : key;
 
         // Use regex to find each deeply nested mapping within braces
-        const nestedKeys = innerKey.match(/[\w.]+:\s*([\w.]+)/g);
+        const nestedKeys = innerKey.match(/[\w\s]+:\s*([\w?.]+)/g);
         if (nestedKeys) {
             const parsedKeys = nestedKeys.map(kv => kv.split(":")[1].trim());
             innerKey = parsedKeys[0] || ""; // Assume the first entry for simplicity if multiple mappings
         } else {
             // Fallback for simpler cases
-            innerKey = innerKey.split(",").map(kv => kv.split(":")[1].trim())[0] || ""; 
+            innerKey = innerKey.split(",").map(kv => kv.split(":")[1].trim())[0] || "";
         }
     } else {
         // Standard case
         innerKey = key.match(/\(([^)]+)\)/)?.[1] || key;
-        
+
         innerKey = innerKey
             .replace(/^check\s*/, '')
             .replace(/\.ensureType\(\)$/, '')
             .replace(/\.toString\(\)$/, '');
     }
+    // Call the helper function to process parent keys
+    const processedKeys = await processParentKey(innerKey, parameterDefinitions);
+    itemKey = processedKeys.itemKey;
+    combinedKey = processedKeys.combinedKey;
+    return { itemKey, combinedKey };
+}
+
+async function processParentKey(
+    innerKey: string, 
+    parameterDefinitions: ParameterMetadata | ErrorCode, 
+): Promise<{ 
+    itemKey: string; 
+    combinedKey: string; 
+}> {
+    let inputMetadataType: string = "";
+    let itemKey: string = "";
+    let combinedKey: string = "";
+    let refinedInnerKey: string;
+    let isSet: boolean = false;
 
     // Split the innerKey to get parent keys and field name
     let keys = innerKey.split(".");
     let fieldName = keys.pop()!;
     let parentKey = keys.slice(0, keys.length);
-    
-    // Traverse parentKey to check for record[] type and set itemKey and combinedKey accordingly
-    for (let index = parentKey.length - 1; index >= 0; index--) {
-        let inputMetadataType = resolveMetadataType(parameterDefinitions, parentKey, parentKey[index], "inputMetadata");
-        if (inputMetadataType === "record[]") {
+
+    refinedInnerKey = innerKey
+        .replace(/\?\./g, ".") // Replace `?.` with `.`
+        .replace(/\?$/g, "") // Remove a trailing `?`
+        .replace(/\s*\?:.*$/g, "") // Remove `?: <value>`
+        .replace(/[\(\)]/g, ""); // Remove parentheses
+
+    let refinedKeys = refinedInnerKey.split(".");
+    let refinedFieldName = refinedKeys.pop()!;
+    let refinedParentKey = refinedKeys.slice(0, refinedKeys.length);
+
+    for (let index = refinedParentKey.length - 1; index > 0; index--) {
+        const modifiedInputs = await resolveMetadata(parameterDefinitions, refinedParentKey, refinedParentKey[index], "inputMetadata");
+        if (!modifiedInputs) {
+            throw new Error(`Metadata not found for ${refinedParentKey[index]}.`);
+        }
+        inputMetadataType = modifiedInputs["type"];
+
+        if (!isSet && (["record[]", "record[]|()", "readonly|record[]", "readonly|record[]|()"].includes(inputMetadataType))) {
             itemKey = parentKey[index];
             combinedKey = parentKey.slice(0, index + 1).join(".");
-            break;
+            isSet = true;
         }
     }
+    return { itemKey, combinedKey };
+}
 
-    return { parentKey, itemKey, combinedKey };
+async function processCombinedKey(
+    combinedKey: string,
+    parameterDefinitions: ParameterMetadata | ErrorCode
+): Promise<{
+    isinputRecordArrayNullable: boolean;
+    isinputRecordArrayOptional: boolean;
+    isinputArrayNullable: boolean;
+    isinputArrayOptional: boolean;
+}> {
+    let isinputRecordArrayNullable: boolean = false;
+    let isinputRecordArrayOptional: boolean = false;
+    let isinputArrayNullable: boolean = false;
+    let isinputArrayOptional: boolean = false;
+    let currentNullable: boolean = false;
+    let currentOptional: boolean = false;
+    let inputMetadataType: string = "";
+    let refinedCombinedKey: string = "";
+    let isSet: boolean = false;
+
+    // Refine and split the inner key
+    refinedCombinedKey = combinedKey
+        .replace(/\?\./g, ".") // Replace `?.` with `.`
+        .replace(/\?$/g, "") // Remove a trailing `?`
+        .replace(/\s*\?:.*$/g, "") // Remove `?: <value>`
+        .replace(/[\(\)]/g, ""); // Remove parentheses
+
+    let refinedCombinedKeys = refinedCombinedKey.split(".");
+
+    // Iterate through parent keys in reverse
+    let index = refinedCombinedKeys.length - 1;
+    const modifiedInputs = await resolveMetadata(parameterDefinitions, refinedCombinedKeys, refinedCombinedKeys[index], "inputMetadata");
+    if (!modifiedInputs) {
+        throw new Error(`Metadata not found for ${refinedCombinedKeys[index]}.`);
+    }
+
+    currentNullable = modifiedInputs["nullable"];
+    currentOptional = modifiedInputs["optional"];
+    inputMetadataType = modifiedInputs["type"];
+
+    if (!isSet && ["record[]", "record[]|()", "readonly|record[]", "readonly|record[]|()"].includes(inputMetadataType)) {
+        isSet = true;
+    }
+
+    if (isSet) {
+        // Update record array flags
+        if (currentNullable) { isinputRecordArrayNullable = true; }
+        if (currentOptional) { isinputRecordArrayOptional = true; }
+
+        // Check preceding elements for non-`record[]` types
+        for (let nextIndex = index - 1; nextIndex >= 0; nextIndex--) {
+            const nextModifiedInputs = await resolveMetadata(parameterDefinitions, refinedCombinedKeys, refinedCombinedKeys[nextIndex], "inputMetadata");
+            const nextMetadataType = nextModifiedInputs["type"];
+            const nextNullable = nextModifiedInputs["nullable"];
+            const nextOptional = nextModifiedInputs["optional"];
+
+            if (!["record[]", "record[]|()", "readonly|record[]", "readonly|record[]|()"].includes(nextMetadataType)) {
+                if (nextNullable) { isinputArrayNullable = true; }
+                if (nextOptional) { isinputArrayOptional = true; }
+            } else {
+                return { isinputRecordArrayNullable, isinputRecordArrayOptional, isinputArrayNullable, isinputArrayOptional };
+            }
+        }
+    }
+    return { isinputRecordArrayNullable, isinputRecordArrayOptional, isinputArrayNullable, isinputArrayOptional };
 }
