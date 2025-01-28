@@ -294,9 +294,12 @@ export const TokenEditor = ({
                 selection.addRange(range);
             }
         }
-
+        
         // Add close event listener to the tokens
         addCloseEventListeners();
+
+        // Update the value
+        onChange?.(extractExpressions(editor.innerHTML));
     };
 
     const getHelperPaneComponent = (): JSX.Element => {
@@ -372,6 +375,7 @@ export const TokenEditor = ({
 
         if (value) {
             setValue(editor, value);
+            addCloseEventListeners();
         }
 
         const onInput = () => handleInput();
