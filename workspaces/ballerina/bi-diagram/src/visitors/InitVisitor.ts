@@ -33,11 +33,20 @@ export class InitVisitor implements BaseVisitor {
         };
     }
 
+    private validateNode(node: FlowNode): boolean {
+        if (this.skipChildrenVisit) {
+            return false;
+        }
+        return true;
+    }
+
     beginVisitNode(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         node.viewState = this.getDefaultViewState();
     }
 
     endVisitNode(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         // if this is last block in the flow, add empty node end of the block
         if (!node.returning && this.flow.nodes.at(-1).id === node.id) {
             const emptyNode: FlowNode = {
@@ -55,6 +64,7 @@ export class InitVisitor implements BaseVisitor {
     }
 
     beginVisitIf(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         node.viewState = this.getDefaultViewState();
         // add empty node if branch is empty
         node.branches?.forEach((branch, index) => {
@@ -154,18 +164,22 @@ export class InitVisitor implements BaseVisitor {
     }
 
     beginVisitWhile(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.visitContainerNode(node, parent);
     }
 
     beginVisitForeach(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.visitContainerNode(node, parent);
     }
 
     beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.visitContainerNode(node, parent);
     }
 
     endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         const errorBranch = node.branches.find((branch) => branch.codedata.node === "ON_FAILURE");
         errorBranch.viewState = undefined;
         errorBranch.children.forEach((child) => {

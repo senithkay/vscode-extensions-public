@@ -105,9 +105,24 @@ export class SizingVisitor implements BaseVisitor {
         this.setNodeSize(node, leftWidth, rightWidth, height);
     }
 
-    endVisitNode = (node: FlowNode): void => this.createBaseNode(node);
+    private validateNode(node: FlowNode | Branch): boolean {
+        if (this.skipChildrenVisit) {
+            return false;
+        }
+        if (!node.viewState) {
+            console.error(">>> Node view state is not defined", { node });
+            return false;
+        }
+        return true;
+    }
+
+    endVisitNode = (node: FlowNode): void => {
+        if (!this.validateNode(node)) return;
+        this.createBaseNode(node);
+    };
 
     endVisitEventStart(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         // consider this as a start node
         const width = Math.round(NODE_WIDTH / 3);
         const height = Math.round(NODE_HEIGHT / 1.5) + NODE_BORDER_WIDTH * 2;
@@ -116,6 +131,7 @@ export class SizingVisitor implements BaseVisitor {
     }
 
     endVisitIf(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         // first branch
         const firstBranchWidthViewState = node.branches.at(0)?.viewState;
         // last branch
@@ -161,31 +177,34 @@ export class SizingVisitor implements BaseVisitor {
         );
     }
 
-    // endVisitBlock(node: Branch, parent?: FlowNode): void {
-    //     this.createBlockNode(node);
-    // }
     endVisitConditional(node: Branch, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.createBlockNode(node);
     }
 
     // `Body` is inside `Foreach` node
     endVisitBody(node: Branch, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.createBlockNode(node);
     }
 
     endVisitElse(node: Branch, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.createBlockNode(node);
     }
 
     endVisitRemoteActionCall(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.createApiCallNode(node);
     }
 
     endVisitResourceActionCall(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.createApiCallNode(node);
     }
 
     endVisitEmpty(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         if (node.id.endsWith("-last")) {
             const halfWidth = END_NODE_WIDTH / 2;
             const containerHalfWidth = EMPTY_NODE_CONTAINER_WIDTH / 2;
@@ -214,6 +233,7 @@ export class SizingVisitor implements BaseVisitor {
     }
 
     endVisitComment(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         const width = COMMENT_NODE_WIDTH;
         const height = NODE_HEIGHT;
         const containerWidth = width + NODE_WIDTH / 2;
@@ -251,14 +271,17 @@ export class SizingVisitor implements BaseVisitor {
     }
 
     endVisitWhile(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.visitContainerNode(node, WHILE_NODE_WIDTH);
     }
 
     endVisitForeach(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.endVisitWhile(node, parent);
     }
 
     endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.visitContainerNode(node, ERROR_HANDLER_NODE_WIDTH);
     }
 

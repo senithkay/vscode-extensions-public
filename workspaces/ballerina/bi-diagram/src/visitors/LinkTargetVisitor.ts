@@ -65,7 +65,19 @@ export class LinkTargetVisitor implements BaseVisitor {
         return links;
     }
 
+    private validateNode(node: FlowNode): boolean {
+        if (this.skipChildrenVisit) {
+            return false;
+        }
+        if (!node.viewState) {
+            console.error(">>> Node view state is not defined", { node });
+            return false;
+        }
+        return true;
+    }
+
     beginVisitNode(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         const outLinks = this.getOutLinksFromNode(node);
         if (!outLinks) {
             return;
@@ -80,6 +92,7 @@ export class LinkTargetVisitor implements BaseVisitor {
     }
 
     beginVisitComment(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         const outLinks = this.getOutLinksFromNode(node);
         if (!outLinks) {
             return;
@@ -97,6 +110,7 @@ export class LinkTargetVisitor implements BaseVisitor {
     }
 
     beginVisitEventStart(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         // out links
         const outLinks = this.getOutLinksFromNode(node);
         // find top level do block
@@ -135,6 +149,7 @@ export class LinkTargetVisitor implements BaseVisitor {
     }
 
     beginVisitIf(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         const outLinks = this.getOutLinksFromNode(node);
         if (!outLinks) {
             return;
@@ -246,14 +261,17 @@ export class LinkTargetVisitor implements BaseVisitor {
     }
 
     beginVisitWhile(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.visitContainerNode(node, parent);
     }
 
     beginVisitForeach(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.visitContainerNode(node, parent);
     }
 
     beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.visitContainerNode(node, parent);
     }
 

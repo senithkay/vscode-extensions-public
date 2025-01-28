@@ -127,15 +127,27 @@ export class NodeFactoryVisitor implements BaseVisitor {
         return this.links;
     }
 
+    private validateNode(node: FlowNode | Branch): boolean {
+        if (this.skipChildrenVisit) {
+            return false;
+        }
+        if (!node.viewState) {
+            console.error(">>> Node view state is not defined", { node });
+            return false;
+        }
+        return true;
+    }
+
     beginVisitNode = (node: FlowNode): void => {
+        if (!this.validateNode(node)) return;
         if (node.id) {
             this.createBaseNode(node);
-
             this.addSuggestionsButton(node);
         }
     }; // only ui nodes have id
 
     beginVisitEventStart(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         // consider this as a start node
         const nodeModel = new StartNodeModel(node);
         this.nodes.push(nodeModel);
@@ -143,6 +155,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
     }
 
     beginVisitIf(node: FlowNode): void {
+        if (!this.validateNode(node)) return;
         const nodeModel = new IfNodeModel(node);
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
@@ -151,6 +164,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
     }
 
     endVisitIf(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         const ifNodeModel = this.nodes.find((n) => n.getID() === node.id);
         if (!ifNodeModel) {
             console.error("If node model not found", node);
@@ -263,19 +277,19 @@ export class NodeFactoryVisitor implements BaseVisitor {
         this.lastNodeModel = endIfEmptyNode;
     }
 
-    // endVisitBlock(node: Branch, parent?: FlowNode): void {
-    //     this.lastNodeModel = undefined;
-    // }
     endVisitConditional(node: Branch, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.lastNodeModel = undefined;
     }
 
     endVisitBody(node: Branch, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         // `Body` is inside `Foreach` node
         this.lastNodeModel = undefined;
     }
 
     endVisitElse(node: Branch, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.lastNodeModel = undefined;
     }
 
@@ -353,6 +367,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
     }
 
     beginVisitWhile(node: FlowNode): void {
+        if (!this.validateNode(node)) return;
         const nodeModel = new WhileNodeModel(node);
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
@@ -360,18 +375,22 @@ export class NodeFactoryVisitor implements BaseVisitor {
     }
 
     endVisitWhile(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.visitContainerNode(node, WHILE_NODE_WIDTH);
     }
 
     beginVisitForeach(node: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.beginVisitWhile(node);
     }
 
     endVisitForeach(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.endVisitWhile(node, parent);
     }
 
     beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         const nodeModel = new ErrorHandleNodeModel(node);
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
@@ -379,10 +398,12 @@ export class NodeFactoryVisitor implements BaseVisitor {
     }
 
     endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.visitContainerNode(node, ERROR_HANDLER_NODE_WIDTH);
     }
 
     beginVisitRemoteActionCall(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         if (node.id) {
             this.createApiCallNode(node);
             this.addSuggestionsButton(node);
@@ -390,10 +411,12 @@ export class NodeFactoryVisitor implements BaseVisitor {
     }
 
     beginVisitResourceActionCall(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.beginVisitRemoteActionCall(node, parent);
     }
 
     beginVisitEmpty(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         // add empty node end of the block
         if (node.id.endsWith("-last")) {
             const lastNodeModel = new EndNodeModel(node.id);
@@ -409,12 +432,14 @@ export class NodeFactoryVisitor implements BaseVisitor {
     }
 
     beginVisitDraft(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         const nodeModel = new DraftNodeModel(node);
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
     }
 
     beginVisitComment(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         const nodeModel = new CommentNodeModel(node);
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);

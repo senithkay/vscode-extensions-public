@@ -28,7 +28,19 @@ export class PositionVisitor implements BaseVisitor {
         // console.log(">>> position visitor started");
     }
 
+    private validateNode(node: FlowNode | Branch): boolean {
+        if (this.skipChildrenVisit) {
+            return false;
+        }
+        if (!node.viewState) {
+            console.error(">>> Node view state is not defined", { node });
+            return false;
+        }
+        return true;
+    }
+
     beginVisitEventStart(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         // consider this as a start node
         node.viewState.y = this.lastNodeY;
         this.lastNodeY += node.viewState.h + NODE_GAP_Y;
@@ -37,6 +49,7 @@ export class PositionVisitor implements BaseVisitor {
     }
 
     beginVisitIf(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         node.viewState.y = this.lastNodeY;
         this.lastNodeY += node.viewState.h + (NODE_GAP_Y * 3) / 2;
 
@@ -64,27 +77,28 @@ export class PositionVisitor implements BaseVisitor {
     }
 
     endVisitIf(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.lastNodeY = node.viewState.y + node.viewState.ch + NODE_GAP_Y;
     }
 
     beginVisitConditional(node: Branch, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.lastNodeY = node.viewState.y;
     }
 
     beginVisitBody(node: Branch, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         // `Body` is inside `Foreach` node
         this.lastNodeY = node.viewState.y;
     }
 
     beginVisitElse(node: Branch, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.lastNodeY = node.viewState.y;
     }
 
     beginVisitNode(node: FlowNode, parent?: FlowNode): void {
-        if (!node.viewState) {
-            console.error(">>> Node view state is not defined", { node });
-            return;
-        }
+        if (!this.validateNode(node)) return;
         if (!node.viewState.y) {
             node.viewState.y = this.lastNodeY;
         }
@@ -97,6 +111,7 @@ export class PositionVisitor implements BaseVisitor {
     }
 
     beginVisitEmpty(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         // add empty node end of the block
         if (node.id.endsWith("-last")) {
             node.viewState.y = this.lastNodeY;
@@ -113,6 +128,7 @@ export class PositionVisitor implements BaseVisitor {
     }
 
     beginVisitComment(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         if (!node.viewState.y) {
             node.viewState.y = this.lastNodeY - COMMENT_NODE_GAP;
         }
@@ -125,6 +141,7 @@ export class PositionVisitor implements BaseVisitor {
     }
 
     beginVisitWhile(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         node.viewState.y = this.lastNodeY;
         this.lastNodeY += node.viewState.h + NODE_GAP_Y;
 
@@ -138,22 +155,27 @@ export class PositionVisitor implements BaseVisitor {
     }
 
     endVisitWhile(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.lastNodeY = node.viewState.y + node.viewState.ch + NODE_GAP_Y;
     }
 
     beginVisitForeach(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.beginVisitWhile(node, parent);
     }
 
     endVisitForeach(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.endVisitWhile(node, parent);
     }
 
     beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.beginVisitWhile(node, parent);
     }
 
     endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.endVisitWhile(node, parent);
     }
 
