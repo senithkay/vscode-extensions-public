@@ -92,10 +92,11 @@ async function isMISetup(miVersion: string): Promise<boolean> {
                     showMIPathChangePrompt();
                 }
                 return true;
+            } else {
+                vscode.window.showErrorMessage('Invalid Micro Integrator path or Unsupported version found in the workspace. Please set a valid Micro Integrator path.');
+                return false;
             }
         }
-
-        const miCachedPath = getMICachedPath(miVersion);
 
         const oldServerPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
         if (oldServerPath) {
@@ -108,16 +109,14 @@ async function isMISetup(miVersion: string): Promise<boolean> {
                 return true;
             }
         }
+
+        const miCachedPath = getMIPathFromCache(miVersion);
         if (miCachedPath) {
             await config.update(SELECTED_SERVER_PATH, miCachedPath, vscode.ConfigurationTarget.Workspace);
             return true;
         }
     }
     return false;
-    function getMICachedPath(miVersion: string): string | null {
-        const miPath = path.join(CACHED_FOLDER, 'micro-integrator', `wso2mi-${miVersion}`);
-        return fs.existsSync(miPath) ? miPath : null;
-    }
     function showMIPathChangePrompt() {
         const DONT_SHOW_AGAIN_KEY = 'dontShowMIPathChangePrompt';
         const dontShowAgain = extension.context.globalState.get<boolean>(DONT_SHOW_AGAIN_KEY);
@@ -175,6 +174,9 @@ async function isJavaSetup(miVersion: string): Promise<boolean> {
                     showJavaHomeChangePrompt();
                 }
                 return true;
+            } else {
+                vscode.window.showErrorMessage('Invalid Java Home path or Unsupported version found in the workspace. Please set a valid Java Home path.');
+                return false;
             }
         }
 
@@ -190,7 +192,7 @@ async function isJavaSetup(miVersion: string): Promise<boolean> {
             }
         }
 
-        const javaHome = getCachedJavaHomeForMIVersion(miVersion);
+        const javaHome = getJavaHomeForMIVersionFromCache(miVersion);
 
         if (javaHome) {
             await config.update(SELECTED_JAVA_HOME, path.normalize(javaHome), vscode.ConfigurationTarget.Workspace);
@@ -208,25 +210,7 @@ async function isJavaSetup(miVersion: string): Promise<boolean> {
         }
     }
     return false;
-    function getCachedJavaHomeForMIVersion(miVersion: string): string | null {
 
-        const javaCachedPath = path.join(CACHED_FOLDER, 'java');
-        if (fs.existsSync(javaCachedPath)) {
-            const javaFolders = fs.readdirSync(javaCachedPath, { withFileTypes: true });
-            for (const folder of javaFolders) {
-                if (folder.isDirectory()) {
-                    const javaHomePath = process.platform === 'darwin'
-                        ? path.join(javaCachedPath, folder.name, 'Contents', 'Home')
-                        : path.join(javaCachedPath, folder.name);
-                    const javaVersion = getJavaVersion(path.join(javaHomePath, 'bin'));
-                    if (javaVersion && isRecommendedJavaVersionForMI(javaVersion, miVersion)) {
-                        return javaHomePath;
-                    }
-                }
-            }
-        }
-        return null;
-    }
     function showJavaHomeChangePrompt() {
         const DONT_SHOW_AGAIN_KEY = 'dontShowJavaHomeChangePrompt';
         const dontShowAgain = extension.context.globalState.get<boolean>(DONT_SHOW_AGAIN_KEY);
@@ -559,7 +543,9 @@ async function getJavaAndMIPathsFromWorkspace(projectMiVersion: string): Promise
         const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
 
         const javaHome = config.get<string>(SELECTED_JAVA_HOME);
-        const validJavaHome = javaHome && verifyJavaHomePath(javaHome) && getJavaFromCacheOrEnv(projectMiVersion);
+        const validJavaHome = javaHome && verifyJavaHomePath(javaHome) || 
+                                getJavaFromGlobalOrEnv(projectMiVersion) || 
+                                getJavaHomeForMIVersionFromCache(projectMiVersion);
         if (validJavaHome) {
             const javaVersion = getJavaVersion(path.join(validJavaHome, 'bin'));
             if (supportedJavaVersionsForMI[projectMiVersion] === javaVersion) {
@@ -570,7 +556,10 @@ async function getJavaAndMIPathsFromWorkspace(projectMiVersion: string): Promise
         }
 
         const serverPath = config.get<string>(SELECTED_SERVER_PATH);
-        const validServerPath = serverPath && verifyMIPath(serverPath) && getMIFromCache(projectMiVersion);
+        const validServerPath = serverPath && verifyMIPath(serverPath) || 
+                                getMIFromGlobal(projectMiVersion) || 
+                                getMIPathFromCache(projectMiVersion);
+
         if (validServerPath) {
             const miVersion = getMIVersion(validServerPath);
             if (projectMiVersion === miVersion) {
@@ -578,13 +567,6 @@ async function getJavaAndMIPathsFromWorkspace(projectMiVersion: string): Promise
             } else if (miVersion && isCompatibleMIVersion(miVersion, projectMiVersion)) {
                 response.miDetails = { status: "mismatch", path: validServerPath, version: miVersion! };
             }
-        }
-
-        if (response.javaDetails.status === 'not-valid') {
-            config.update(SELECTED_JAVA_HOME, undefined, vscode.ConfigurationTarget.Workspace);
-        }
-        if (response.miDetails.status === 'not-valid') {
-            config.update(SELECTED_SERVER_PATH, undefined, vscode.ConfigurationTarget.Workspace);
         }
     }
 
@@ -620,7 +602,7 @@ export async function updateRuntimeVersionsInPom(version: string): Promise<void>
     fs.writeFileSync(pomFiles[0].fsPath, xml);
 }
 
-function getJavaFromCacheOrEnv(miVersion: string): string | undefined {
+function getJavaFromGlobalOrEnv(miVersion: string): string | undefined {
     const defaultJavaHome = extension.context.globalState.get<string>(SELECTED_JAVA_HOME);
     if (defaultJavaHome) {
         const defaultJavaVersion = getJavaVersion(path.join(defaultJavaHome, 'bin')) ?? '';
@@ -637,7 +619,27 @@ function getJavaFromCacheOrEnv(miVersion: string): string | undefined {
     }
 }
 
-function getMIFromCache(miVersion: string): string | undefined {
+function getJavaHomeForMIVersionFromCache(miVersion: string): string | null {
+
+    const javaCachedPath = path.join(CACHED_FOLDER, 'java');
+    if (fs.existsSync(javaCachedPath)) {
+        const javaFolders = fs.readdirSync(javaCachedPath, { withFileTypes: true });
+        for (const folder of javaFolders) {
+            if (folder.isDirectory()) {
+                const javaHomePath = process.platform === 'darwin'
+                    ? path.join(javaCachedPath, folder.name, 'Contents', 'Home')
+                    : path.join(javaCachedPath, folder.name);
+                const javaVersion = getJavaVersion(path.join(javaHomePath, 'bin'));
+                if (javaVersion && isRecommendedJavaVersionForMI(javaVersion, miVersion)) {
+                    return javaHomePath;
+                }
+            }
+        }
+    }
+    return null;
+}
+
+function getMIFromGlobal(miVersion: string): string | undefined {
     const defaultServerPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
     if (defaultServerPath && isMIInstalledAtPath(defaultServerPath)) {
         const defaultServerMIVersion = getMIVersion(defaultServerPath);
@@ -645,6 +647,22 @@ function getMIFromCache(miVersion: string): string | undefined {
             return defaultServerPath;
         }
     }
+}
+function getMIPathFromCache(miVersion: string): string | null {
+    const miCachedPath = path.join(CACHED_FOLDER, 'micro-integrator');
+    if (fs.existsSync(miCachedPath)) {
+        const miFolders = fs.readdirSync(miCachedPath, { withFileTypes: true });
+        for (const folder of miFolders) {
+            if (folder.isDirectory()) {
+                const miHomePath = path.join(miCachedPath, folder.name);
+                const miRuntimeVersion = getMIVersion(miHomePath);
+                if (miRuntimeVersion && compareVersions(miVersion, miRuntimeVersion) === 0) {
+                    return miHomePath;
+                }
+            }
+        }
+    }
+    return null;
 }
 export function compareVersions(v1: string, v2: string): number {
     // Extract only the numeric parts of the version string

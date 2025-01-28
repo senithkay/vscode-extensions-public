@@ -126,7 +126,7 @@ const PopupPanel = (props: { formState: PopupMachineStateValue, handleClose?: ()
                     setViewComponent(<TemplateWizard onCancel={props.handleClose} isPopup={true} path={rPath} type='Sequence Template' />);
                     break;
                 case MACHINE_VIEW.DatamapperForm:
-                    setViewComponent(<DatamapperForm path={machineSate.documentUri} handlePopupClose={props.handleClose} isPopup={true} />);
+                    setViewComponent(<DatamapperForm path={machineSate.projectUri} handlePopupClose={props.handleClose} isPopup={true} />);
                     break;
                 case MACHINE_VIEW.MessageStoreForm:
                     const dir = [machineSate.projectUri, "src", "main", "wso2mi", "artifacts", "messageStores"].join(machineSate.pathSeparator);
