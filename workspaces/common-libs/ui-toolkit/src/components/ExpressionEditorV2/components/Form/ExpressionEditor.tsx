@@ -463,9 +463,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                                     name={actBtn.name}
                                     iconSx={{
                                         fontSize: "12px",
-                                        color: isHelperPaneOpen
-                                            ? "var(--vscode-button-foreground)"
-                                            : "var(--vscode-button-background)",
+                                        color: "var(--vscode-button-background)",
                                     }}
                                     sx={{ height: '14px', width: '16px' }}
                                 />
@@ -477,9 +475,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                                     name={actBtn.name}
                                     iconSx={{
                                         fontSize: '12px',
-                                        color: isHelperPaneOpen
-                                            ? 'var(--vscode-button-foreground)'
-                                            : 'var(--vscode-button-background)',
+                                        color: 'var(--vscode-button-background)',
                                     }}
                                     sx={{ height: '14px', width: '16px' }}
                                 />
@@ -493,10 +489,10 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                                 onClick={actBtn.onClick}
                                 appearance='icon'
                                 buttonSx={{
-                                    height: '14px',
+                                    height: '16px',
                                     width: '22px',
                                     ...(isHelperPaneOpen && {
-                                        backgroundColor: 'var(--vscode-button-background)',
+                                        backgroundColor: 'var(--button-secondary-background)',
                                         borderRadius: '2px',
                                     })
                                 }}
