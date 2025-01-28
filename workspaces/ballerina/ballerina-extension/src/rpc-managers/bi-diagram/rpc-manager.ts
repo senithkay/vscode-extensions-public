@@ -379,6 +379,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             const copilotContext = await StateMachine.langClient().getCopilotContext(copilotContextRequest);
             console.log(">>> copilot context from ls", { response: copilotContext });
             
+            //TODO: Refactor this logic
             let suggestedContent;
             try {
                 if (prompt) {
@@ -412,19 +413,24 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     suggestedContent = (data as any).code;
                 } else {
                     // get next suggestion
-                    const token = await extension.context.secrets.get("GITHUB_COPILOT_TOKEN");
-                    if (!token) {
-                        await this.promptGithubCopilotAuthNotificaiton();
-                        resolve(undefined);
-                        return;
+                    const copilot_token = await extension.context.secrets.get("GITHUB_COPILOT_TOKEN");
+                    if (!copilot_token) {
+                        const token = await extension.context.secrets.get("BallerinaAIUser");
+                        if (!token) {
+                            //TODO: Do we need to prompt to login here? If so what? Copilot or Ballerina AI?
+                            resolve(undefined);
+                            return;
+                        }
+                        suggestedContent = await this.getCompletionsWithHostedAI(token, copilotContext);
+                    } else {
+                        const resp = await getCompleteSuggestions({
+                            prefix:copilotContext.prefix,
+                            suffix:copilotContext.suffix,
+                        });
+                        console.log(">>> ai suggestion", { response: resp });
+                        suggestedContent = resp.completions.at(0);
                     }
 
-                    const resp = await getCompleteSuggestions({
-                        prefix:copilotContext.prefix,
-                        suffix:copilotContext.suffix,
-                    });
-                    console.log(">>> ai suggestion", { response: resp });
-                    suggestedContent = resp.completions.at(0);
                 }
             } catch (error) {
                 console.log(">>> error fetching ai suggestion", error);
@@ -1056,6 +1062,31 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 commands.executeCommand('kolab.login.copilot');
             }
         });
+    }
+
+    async getCompletionsWithHostedAI(token, copilotContext): Promise<void> {
+        // get suggestions from ai
+        const requestBody = {
+            ...copilotContext,
+        };
+        const requestOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            body: JSON.stringify(requestBody),
+        };
+        console.log(">>> request ai suggestion", { request: requestBody });
+        // generate new nodes
+        const response = await fetchWithToken(BACKEND_API_URL_V2 + "/completion", requestOptions);
+        if (!response.ok) {
+            console.log(">>> ai completion api call failed ", response);
+            return new Promise((resolve) => {
+                resolve(undefined);
+            });
+        }
+        const data = await response.json();
+        console.log(">>> ai suggestion", { response: data });
+        const suggestedContent = (data as any).completions.at(0);
+        return suggestedContent
     }
 }
 

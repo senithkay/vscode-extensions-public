@@ -94,10 +94,8 @@ export const SettingsPanel = (props: { showProjectHeader?: boolean }) => {
         const resp = await rpcClient.getAiPanelRpcClient().promptGithubAuthorize();
         console.log("called auth copilot", resp);
         if (resp) {
-            console.log("Authorized");
             setCopilotAuthorized(true);
         } else {
-            console.log("Not Authorized");
             setCopilotAuthorized(false);
         }
     }
@@ -124,9 +122,11 @@ export const SettingsPanel = (props: { showProjectHeader?: boolean }) => {
     return (
         <AIChatView>
             <Header>
-                <Button appearance="icon" onClick={() => handleChat()} tooltip="Chat">
-                    <Codicon name="arrow-left" />
-                </Button>
+                {wso2AILoggedIn && (
+                    <Button appearance="icon" onClick={() => handleChat()} tooltip="Chat">
+                        <Codicon name="arrow-left" />
+                    </Button>
+                )}
                 <Typography variant="subtitle2">Manage Accounts</Typography>
             </Header>
             <VerticalLine />
@@ -134,8 +134,8 @@ export const SettingsPanel = (props: { showProjectHeader?: boolean }) => {
                 <Typography variant="subtitle1">Connect to AI Platforms for Enhanced Features</Typography>
                 <RowGroup>
                     <Row>
-                        <Typography variant="subtitle2">Login to WSO2 AI Platform</Typography>
-                    <Typography variant="caption">Login to access AI-powered code, test generation, data mappings, and more.</Typography>
+                        <Typography variant="subtitle2">Login to WSO2 Copilot</Typography>
+                    <Typography variant="caption">Login to access AI-powered code generation, completions, test generation, data mappings, and more.</Typography>
                     </Row>
                     {
                             wso2AILoggedIn
@@ -146,7 +146,7 @@ export const SettingsPanel = (props: { showProjectHeader?: boolean }) => {
                 <RowGroup>
                     <Row>
                         <Typography variant="subtitle2">Enable GitHub Copilot Integration</Typography>
-                        <Typography variant="caption">Authorize Github Copilot to get Visual Completions.</Typography>
+                        <Typography variant="caption">Authorize Github Copilot and get Visual Completions via Github.</Typography>
                     </Row>
                     <Button onClick={() => handleAuthorizeCopilot()} disabled={copilotAuthorized}>Authorize</Button>
                 </RowGroup>

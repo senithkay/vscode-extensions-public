@@ -85,8 +85,6 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async logout(): Promise<void> {
-        extension.context.secrets.store('BallerinaAIUser', 'abc');
-        extension.context.secrets.store('BallerinaAIRefreshToken', 'abc');
         StateMachineAI.service().send(AI_EVENT_TYPE.LOGOUT);
     }
 
@@ -670,22 +668,20 @@ export class AiPanelRpcManager implements AIPanelAPI {
 
     async isWSO2AISignedIn(): Promise<boolean> {
         const token = await extension.context.secrets.get('BallerinaAIUser');
-        if (token && token !== 'abc') {
+        if (token && token !== '') {
             return true;
         }
         return false;
     }
 
     async showSignInAlert(): Promise<boolean> {
-        // ADD YOUR IMPLEMENTATION HERE
         const resp =  await extension.context.secrets.get('LOGIN_ALERT_SHOWN');
         if (resp === 'true') {
             return false;
         }
         const isWso2Signed = await this.isWSO2AISignedIn();
-        const isCopilotSigned = await this.isCopilotSignedIn();
 
-        if (isWso2Signed && isCopilotSigned) {
+        if (isWso2Signed) {
             return false;
         }
         return true;

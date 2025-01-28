@@ -68,7 +68,7 @@ const aiStateMachine = createMachine<AiMachineContext>({
                     },
                     {
                         cond: (context, event) => event.data.token === undefined, // No token found
-                        target: 'loggedOut'
+                        target: 'Settings'
                     }
                 ],
                 onError: {
@@ -137,7 +137,7 @@ const aiStateMachine = createMachine<AiMachineContext>({
             invoke: {
                 src: 'openLogin',
                 onError: {
-                    target: "loggedOut",
+                    target: "Settings",
                     actions: assign({
                         errorCode: (context, event) => event.data
                     })
@@ -145,8 +145,8 @@ const aiStateMachine = createMachine<AiMachineContext>({
             },
             on: {
                 SIGN_IN_SUCCESS: "Settings",
-                CANCEL: "loggedOut",
-                FAILIER: "loggedOut"
+                CANCEL: "Settings",
+                FAILIER: "Settings"
             }
         },
         Executing: {
@@ -154,7 +154,7 @@ const aiStateMachine = createMachine<AiMachineContext>({
                 COMPLETE: "Ready",
                 ERROR: "Ready",
                 STOP: "Ready",
-                LOGEDOUT: "loggedOut"
+                LOGEDOUT: "Settings"
             }
         }
     }
@@ -177,6 +177,10 @@ async function checkToken(context, event): Promise<UserToken> {
         try {
             const token = await extension.context.secrets.get('BallerinaAIUser');
             if (token) {
+                if (token === '') {
+                    resolve({ token: undefined, userToken: undefined });
+                    return
+                }
                 // const config = getPluginConfig();
                 // const ROOT_URL = config.get('rootUrl') as string;
                 // const url = ROOT_URL + USER_CHECK_BACKEND_URL;

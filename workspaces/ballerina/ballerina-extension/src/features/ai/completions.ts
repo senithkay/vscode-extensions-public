@@ -34,6 +34,8 @@ export function activateCopilotLoginCommand() {
 
 export function resetBIAuth() {
     commands.registerCommand(PALETTE_COMMANDS.RESET_BI, async () => {
+        await ballerinaExtInstance.context.secrets.delete('GITHUB_TOKEN');
+        await ballerinaExtInstance.context.secrets.delete('GITHUB_COPILOT_TOKEN');
         await ballerinaExtInstance.context.secrets.delete('LOGIN_ALERT_SHOWN');
     });
 }
