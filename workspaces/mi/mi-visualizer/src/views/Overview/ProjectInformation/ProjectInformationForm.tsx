@@ -7,14 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DependencyDetails, ProjectDetailsResponse } from "@wso2-enterprise/mi-core";
+import { ProjectDetailsResponse } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { useEffect, useRef, useState } from "react";
 
-import { Button, Dropdown, Banner, FormActions, FormGroup, FormView, OptionProps, ProgressIndicator, TextField, Codicon, SplitView, TreeView, TreeViewItem, Typography, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
+import { Button, Dropdown, Banner, FormActions, OptionProps, ProgressIndicator, TextField, Codicon, SplitView, TreeView, TreeViewItem, Typography, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import styled from "@emotion/styled";
 
 interface ProjectInformationFormProps {
@@ -48,9 +48,9 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         "primaryDetails.projectDescription": yup.string(),
         "primaryDetails.projectVersion": yup.string().required("Version is required").matches(/^[a-zA-Z0-9.]*$/, "Version cannot contain spaces or special characters"),
         "primaryDetails.runtimeVersion": yup.string().required("Runtime version is required"),
-        "dockerDetails.dockerFileBaseImage": yup.string().required("Base image is required"),
-        "dockerDetails.dockerName": yup.string().required("Docker name is required"),
-        "dockerDetails.enableCipherTool": yup.boolean(),
+        "buildDetails.dockerDetails.dockerFileBaseImage": yup.string().required("Base image is required"),
+        "buildDetails.dockerDetails.dockerName": yup.string().required("Docker name is required"),
+        "buildDetails.dockerDetails.enableCipherTool": yup.boolean(),
         "buildDetails.dockerDetails.keyStoreName": yup.string(),
         "buildDetails.dockerDetails.keyStoreAlias": yup.string(),
         "buildDetails.dockerDetails.keyStoreType": yup.string(),
@@ -67,10 +67,10 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         "unitTest.serverType": yup.string(),
         "unitTest.serverVersion": yup.string(),
         "unitTest.serverDownloadLink": yup.string(),
+        "advanced.legacyExpressionSupport": yup.boolean(),
     });
 
     const {
-        control,
         register,
         formState: { errors, dirtyFields, isSubmitting },
         handleSubmit,
@@ -90,6 +90,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         "Project Information": useRef<HTMLDivElement | null>(null),
         "Build Details": useRef<HTMLDivElement | null>(null),
         "Unit Test": useRef<HTMLDivElement | null>(null),
+        "Advanced": useRef<HTMLDivElement | null>(null),
     };
     const contentRef = useRef<HTMLDivElement | null>(null); // Ref for the content div
 
@@ -110,9 +111,9 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     "primaryDetails.projectDescription": response.primaryDetails.projectDescription.value,
                     "primaryDetails.projectVersion": response.primaryDetails.projectVersion.value,
                     "primaryDetails.runtimeVersion": response.primaryDetails.runtimeVersion.value,
-                    "dockerDetails.dockerFileBaseImage": response.buildDetails.dockerDetails.dockerFileBaseImage.value,
-                    "dockerDetails.dockerName": response.buildDetails.dockerDetails.dockerName.value,
-                    "dockerDetails.enableCipherTool": Boolean(response.buildDetails?.dockerDetails?.cipherToolEnable?.value),
+                    "buildDetails.dockerDetails.dockerFileBaseImage": response.buildDetails.dockerDetails.dockerFileBaseImage.value,
+                    "buildDetails.dockerDetails.dockerName": response.buildDetails.dockerDetails.dockerName.value,
+                    "buildDetails.dockerDetails.enableCipherTool": Boolean(response.buildDetails?.dockerDetails?.cipherToolEnable?.value),
                     "buildDetails.dockerDetails.keyStoreName": response.buildDetails?.dockerDetails?.keyStoreName?.value,
                     "buildDetails.dockerDetails.keyStoreAlias": response.buildDetails?.dockerDetails?.keyStoreAlias?.value,
                     "buildDetails.dockerDetails.keyStoreType": response.buildDetails?.dockerDetails?.keyStoreType?.value,
@@ -129,6 +130,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     "unitTest.serverType": response.unitTest?.serverType?.value,
                     "unitTest.serverVersion": response.unitTest?.serverVersion?.value,
                     "unitTest.serverDownloadLink": response.unitTest?.serverDownloadLink?.value,
+                    "advanced.legacyExpressionSupport": response.advanced?.isLegacyExpressionEnabled
                 });
             } catch (error) {
                 console.error("Error fetching project details:", error);
@@ -197,10 +199,10 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
 
             const updatedValues = Object.keys(dirtyFields);
 
-            // if (updatedValues.includes("advanced")) {
-            //     let isLegacyExpressionSupportEnabled = getValues("advanced.legacyExpressionSupport");
-            //     await rpcClient.getMiVisualizerRpcClient().updateLegacyExpressionSupport(isLegacyExpressionSupportEnabled);
-            // }
+            if (updatedValues.includes("advanced")) {
+                let isLegacyExpressionSupportEnabled = getValues("advanced.legacyExpressionSupport");
+                await rpcClient.getMiVisualizerRpcClient().updateLegacyExpressionSupport(isLegacyExpressionSupportEnabled);
+            }
             if (isRuntimeVersionChanged) {
                 await rpcClient.getMiVisualizerRpcClient().reloadWindow();
             } else {
@@ -273,6 +275,18 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     selectedId={selectedId}
                     onSelect={handleClick} 
                 />
+                <TreeView 
+                    rootTreeView
+                    id="Advanced"
+                    sx={selectedId === "Advanced" ? { cursor: "pointer", border: "1px solid var(--vscode-focusBorder)" } : { cursor: "pointer" }}
+                    content={
+                        <Typography sx={treeViewStyle} variant="h4">
+                            Advanced
+                        </Typography>
+                    }
+                    selectedId={selectedId}
+                    onSelect={handleClick}
+                />
             </div>
             {/* Right side view */}
             <div>
@@ -335,20 +349,20 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                         <TextField
                             label="Base Image"
                             required
-                            errorMsg={errors["dockerDetails.dockerFileBaseImage"]?.message?.toString()}
+                            errorMsg={errors["buildDetails.dockerDetails.dockerFileBaseImage"]?.message?.toString()}
                             description="The base image of the project"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            {...register("dockerDetails.dockerFileBaseImage")}
+                            {...register("buildDetails.dockerDetails.dockerFileBaseImage")}
                         />
                         <TextField
                             label="Docker Name"
                             required
-                            errorMsg={errors["dockerDetails.dockerName"]?.message?.toString()}
+                            errorMsg={errors["buildDetails.dockerDetails.dockerName"]?.message?.toString()}
                             description="The name of the docker"
                             descriptionSx={{ margin: "10px 0" }}
                             sx={fieldStyle}
-                            {...register("dockerDetails.dockerName")}
+                            {...register("buildDetails.dockerDetails.dockerName")}
                         />
                         <FormCheckBox
                             label="Enable Cipher Tool"
@@ -356,7 +370,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                             descriptionSx={{ margin: "10px 0" }}
                             control={control}
                             sx={fieldStyle}
-                            {...register("dockerDetails.enableCipherTool")}
+                            {...register("buildDetails.dockerDetails.enableCipherTool")}
                         />
                         <TextField
                             label="Keystore Name"
@@ -424,7 +438,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                         />
                     </div>
                     <Typography variant="h1" sx={sectionTitleStyle} > Unit Test </Typography>
-                    <div ref={divRefs["Unit Test"]} id="Unit Test" style={{...fieldGroupStyle, paddingBottom: 0}}>
+                    <div ref={divRefs["Unit Test"]} id="Unit Test" style={fieldGroupStyle}>
                         <TextField
                             label="Server Host"
                             description="The host of the server"
@@ -466,6 +480,17 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
                             {...register("unitTest.serverDownloadLink")}
+                        />
+                    </div>
+                    <Typography variant="h1" sx={sectionTitleStyle} > Advanced </Typography>
+                    <div ref={divRefs["Advanced"]} id="Advanced" style={{...fieldGroupStyle, paddingBottom: 0}}>
+                        <FormCheckBox
+                            label="Legacy Expression Support"
+                            description="Enables the legacy expression support"
+                            descriptionSx={{ margin: "10px 0" }}
+                            control={control}
+                            sx={fieldStyle}
+                            {...register("advanced.legacyExpressionSupport")}
                         />
                     </div>
                 </div>
