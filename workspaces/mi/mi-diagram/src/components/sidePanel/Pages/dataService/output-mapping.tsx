@@ -46,7 +46,7 @@ const OutputMappingsForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             outputMappings: {
-                paramValues: sidePanelContext?.formValues?.outputMappings ? getParamManagerFromValues(sidePanelContext?.formValues?.outputMappings, 0) : [],
+                paramValues: sidePanelContext?.formValues?.outputMappings ? getParamManagerFromValues(sidePanelContext?.formValues?.outputMappings, 0, 4) : [],
                 paramFields: [
                     {
                         "type": "Dropdown",
