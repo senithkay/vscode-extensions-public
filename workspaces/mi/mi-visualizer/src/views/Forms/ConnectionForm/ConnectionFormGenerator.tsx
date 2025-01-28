@@ -394,7 +394,7 @@ export function AddConnection(props: AddConnectionProps) {
                 {...field}
                 label="Connection Name"
                 size={50}
-                placeholder="The name for the file connection"
+                placeholder={`The name for the ${connectionType} connection`}
                 required={true}
                 errorMsg={errors.name && errors.name.message.toString()} />
         )} />;
