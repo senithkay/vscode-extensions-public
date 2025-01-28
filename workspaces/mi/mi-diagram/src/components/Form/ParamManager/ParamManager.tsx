@@ -85,7 +85,12 @@ export interface ParamManagerProps {
     allowAddItem?: boolean;
     errorMessage?: string;
     nodeRange?: Range;
+    sx?: any;
 }
+
+const ParamManagerWrapper = styled.div< { sx: any }>`
+    ${(props: { sx: any }) => props.sx}
+`;
 
 const AddButtonWrapper = styled.div`
 	margin: 8px 0;
@@ -348,7 +353,7 @@ const getAddParamTextFromParamId = (paramFields: ParamField[], paramId: number) 
 
 export function ParamManager(props: ParamManagerProps) {
     const { paramConfigs, readonly, openInDrawer,
-        addParamText = "Add Parameter", onChange, allowAddItem = true, errorMessage, nodeRange
+        addParamText = "Add Parameter", onChange, allowAddItem = true, errorMessage, nodeRange, sx
     } = props;
 
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
@@ -508,7 +513,7 @@ export function ParamManager(props: ParamManagerProps) {
         });
 
     return (
-        <div>
+        <ParamManagerWrapper sx={sx}>
             {paramComponents}
             {(editingSegmentId === -1 && allowAddItem) && (
                 <AddButtonWrapper>
@@ -528,6 +533,6 @@ export function ParamManager(props: ParamManagerProps) {
                     {errorMessage && <Typography variant='body1' sx={{ color: "var(--vscode-errorForeground)" }}>{errorMessage}</Typography>}
                 </AddButtonWrapper>
             )}
-        </div>
+        </ParamManagerWrapper>
     );
 }

@@ -39,6 +39,7 @@ export interface TextFieldProps extends ComponentProps<"input"> {
     validationMessage?: string;
     sx?: any;
     textFieldSx?: any;
+    descriptionSx?: any;
     onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
     onTextChange?: (text: string) => void;
     inputProps?: InputProps;
@@ -62,11 +63,12 @@ const Description = styled.div<ContainerProps>`
     color: var(--vscode-list-deemphasizedForeground);
     margin-bottom: 4px;
     text-align: left;
+    ${(props: ContainerProps) => props.sx};
 `;
 
 export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((props, ref) => {
     const { label, type = "text", size = 20, disabled, icon, readonly, id, autoFocus, required,
-        placeholder, description, validationMessage, errorMsg, sx, textFieldSx, inputProps, onTextChange,
+        placeholder, description, validationMessage, errorMsg, sx, textFieldSx, descriptionSx, inputProps, onTextChange,
         labelAdornment, onKeyDown, forceAutoFocus, ...rest
     } = props;
 
@@ -142,7 +144,7 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
                     </LabelContainer>
                 )}
                 {description && (
-                    <Description>
+                    <Description sx={descriptionSx}>
                         {description}
                     </Description>
                 )}

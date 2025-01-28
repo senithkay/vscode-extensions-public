@@ -192,8 +192,12 @@
       {
         "view": "MI.project-explorer",
         "contents": "No artifacts were found. Please add artifacts to your project to view them here.\n[Add artifact](command:MI.project-explorer.add.artifact)",
-        "when": "projectOpened && MI.status == 'projectLoaded'",
-        "enablement": "MI.showAddArtifact"
+        "when": "projectOpened && MI.status == 'projectLoaded' && MI.showAddArtifact"
+      },
+      {
+        "view": "MI.project-explorer",
+        "contents": "No artifacts were found. Please add artifacts to your project to view them here.",
+        "when": "projectOpened && MI.status == 'projectLoaded' && !MI.showAddArtifact"
       },
       {
         "view": "MI.project-explorer",
@@ -301,7 +305,7 @@
       },
       {
         "command": "MI.project-explorer.open-project-overview",
-        "title": "Open Project Overview",
+        "title": "Open Project Settings",
         "icon": "$(list-unordered)",
         "when": "false"
       },

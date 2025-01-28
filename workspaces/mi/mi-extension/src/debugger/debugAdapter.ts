@@ -289,6 +289,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                                     }).catch(error => {
                                         vscode.window.showErrorMessage(error);
                                         this.sendError(response, 1, error);
+                                        vscode.commands.executeCommand('setContext', 'MI.isRunning', 'false');
                                     });
                                 } else {
                                     this.debuggerHandler?.initializeDebugger().then(() => {
@@ -301,6 +302,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                                         const completeError = `Error while initializing the Debugger: ${error}`;
                                         vscode.window.showErrorMessage(completeError);
                                         this.sendError(response, 1, completeError);
+                                        vscode.commands.executeCommand('setContext', 'MI.isRunning', 'false');
                                     });
                                 }
                             })
