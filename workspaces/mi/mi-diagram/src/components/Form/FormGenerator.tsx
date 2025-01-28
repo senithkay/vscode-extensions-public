@@ -388,9 +388,8 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'textAreaOrExpression':
             case 'integerOrExpression':
             case 'expression':
-                const isValueLegacyExpression = isLegacyExpression(
-                    typeof field.value === 'object' ? field.value.value : field.value
-                );
+                const isValueLegacyExpression = field.value?.isExpression && 
+                    isLegacyExpression(typeof field.value === 'object' ? field.value.value : field.value);
                 if (isLegacyExpressionEnabled || isValueLegacyExpression) {
                     return ExpressionFieldComponent({
                         element,
