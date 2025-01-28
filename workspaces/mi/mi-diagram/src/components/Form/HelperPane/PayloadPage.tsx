@@ -9,8 +9,14 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { HelperPaneCompletionItem } from '@wso2-enterprise/mi-core';
-import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { Alert, COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { getHelperPaneCompletionItem } from '../FormExpressionField/utils';
+import styled from '@emotion/styled';
+
+const InfoMessage = styled.div`
+    margin-top: auto;
+    padding-inline: 8px;
+`;
 
 type PayloadPageProps = {
     isLoading: boolean;
@@ -60,6 +66,13 @@ export const PayloadPage = ({
                     getHelperPaneCompletionItem(payload, onChange, getCompletionItemIcon)
                 ))}
             </HelperPane.Body>
+            <InfoMessage>
+                <Alert
+                    variant='primary'
+                    title='Important!'
+                    subTitle="Payload suggestions are generated based on the first request payload defined in the 'Start' node. If no payloads are defined yet, please add one in the 'Start' node of the diagram."
+                />
+            </InfoMessage>
         </>
     );
 };

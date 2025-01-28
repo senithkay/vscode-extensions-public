@@ -8,7 +8,7 @@
  */
 
 import { MutableRefObject, ReactNode } from 'react';
-import { ExpressionEditorProps, ExpressionEditorRef, HelperPaneOrigin } from './common';
+import { ActionButtonType, ExpressionEditorProps, ExpressionEditorRef, HelperPaneOrigin } from './common';
 
 export type HelperPanePosition = {
     top: number;
@@ -32,13 +32,6 @@ type HelperPaneConditionalProps = {
     changeHelperPaneState?: never;
     getHelperPane?: never;
     getExpressionEditorIcon?: never;
-}
-
-type ActionButtonType = {
-    tooltip?: string;
-    iconType: 'codicon' | 'icon';
-    name: string;
-    onClick: () => void;
 }
 
 export type FormExpressionEditorProps = ExpressionEditorProps & HelperPaneConditionalProps & {

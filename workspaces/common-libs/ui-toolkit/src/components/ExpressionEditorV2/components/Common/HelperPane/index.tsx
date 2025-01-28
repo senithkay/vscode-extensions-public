@@ -156,11 +156,11 @@ const FooterContainer = styled.footer`
     flex-direction: column;
 `;
 
-const CompletionItemOuterContainer = styled.div<{ level: number }>`
+const CompletionItemOuterContainer = styled.div<{ indent: boolean }>`
     display: flex;
     flex-direction: column;
     margin-bottom: 2px;
-    padding-left: ${({ level }: { level: number }) => level * 16}px;
+    padding-left: ${({ indent }: { indent: boolean }) => indent ? 16 : 0}px;
 `;
 
 const CompletionItemContainer = styled.div`
@@ -490,7 +490,7 @@ const Footer: React.FC<HelperPaneFooterProps> = ({ children }) => {
     );
 };
 
-const CompletionItem: React.FC<HelperPaneCompletionItemProps> = ({ getIcon, level = 0, label, type, onClick, children }) => {
+const CompletionItem: React.FC<HelperPaneCompletionItemProps> = ({ getIcon, indent = false, label, type, onClick, children }) => {
     const [collapsed, setCollapsed] = useState<boolean>(false);
 
     // Get the child nodes of type CompletionItem
@@ -505,7 +505,7 @@ const CompletionItem: React.FC<HelperPaneCompletionItemProps> = ({ getIcon, leve
     };
 
     return (
-        <CompletionItemOuterContainer level={level}>
+        <CompletionItemOuterContainer indent={indent}>
             <CompletionItemContainer>
                 <CompletionItemWithoutCollapseContainer onClick={onClick}>
                     {getIcon && getIcon()}
