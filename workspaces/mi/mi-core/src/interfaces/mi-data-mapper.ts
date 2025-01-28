@@ -15,6 +15,8 @@ export interface DMType {
     defaultValue?: unknown;
     optional?: boolean;
     fields?: DMType[];
+    unionTypes?: DMType[];
+    resolvedUnionType?: DMType;
 }
 
 export enum TypeKind {
@@ -24,5 +26,6 @@ export enum TypeKind {
     Number = 'number',
     Boolean = 'boolean',
     Object = 'object',
+    Union = 'union',
     Unknown = 'unknown'
 }
