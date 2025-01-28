@@ -135,6 +135,14 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 						fieldPort, isCollapsedField, isCollapsed ? true : hidden);
 				});
 			}
+		} else if (field.type.kind === TypeKind.Union && field.type.resolvedUnionType?.kind === TypeKind.Interface) {
+			const fields = field?.childrenTypes;
+			if (fields && !!fields.length) {
+				fields.forEach((subField) => {
+					this.addPortsForOutputField(subField, type, fieldFQN, undefined, portPrefix,
+						fieldPort, isCollapsedField, isCollapsed ? true : hidden);
+				});
+			}
 		} else if (field.type.kind === TypeKind.Array) {
 			const elements: ArrayElement[] = field?.elements;
 			if (elements && !!elements.length && elements[0].elementNode) {
@@ -251,12 +259,19 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		let foundMappings: MappingMetadata[] = [];
 		const currentFields = [...(parentFields ? parentFields : [])];
 		if (val) {
+			if (Node.isAsExpression(val)) {
+				val = val.getExpression();
+			}
+
 			if (Node.isObjectLiteralExpression(val)) {
 				val.getProperties().forEach((field) => {
 					foundMappings = [...foundMappings, ...this.genMappings(field, [...currentFields, val])];
 				});
 			} else if (Node.isPropertyAssignment(val) && val.getInitializer()) {
-				const initializer = val.getInitializer();
+				let initializer = val.getInitializer();
+				if (Node.isAsExpression(initializer)) {
+					initializer = initializer.getExpression();
+				}
 				const isObjectLiteralExpr = Node.isObjectLiteralExpression(initializer);
 				const isArrayLiteralExpr = Node.isArrayLiteralExpression(initializer);
 				if (isObjectLiteralExpr || isArrayLiteralExpr) {
