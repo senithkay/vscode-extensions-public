@@ -41,8 +41,8 @@ export enum MACHINE_VIEW {
     TemplateEndPointForm = "Template Endpoint Form",
     SequenceForm = "Sequence Form",
     DatamapperForm = "Datamapper Form",
-    InboundEPForm = "Inbound EP Form",
-    InboundEPView = "Inbound EP View",
+    InboundEPForm = "Event Integration Form",
+    InboundEPView = "Event Integration View",
     MessageProcessorForm = "Message Processor Form",
     ProxyServiceForm = "Proxy Service Form",
     TaskForm = "Task Form",
@@ -148,9 +148,8 @@ export interface ErrorType {
 interface DataMapperProps {
     filePath: string;
     functionName?: string;
-    functionIOTypes?: string;
     fileContent?: string;
-    interfacesSource?: string;
+    nonMappingFileContent?: string;
     configName: string;
 }
 

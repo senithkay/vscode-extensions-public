@@ -386,14 +386,12 @@ const stateMachine = createMachine<MachineContext>({
                         const filePath = context.documentUri;
                         const functionName = DM_FUNCTION_NAME;
                         DMProject.refreshProject(filePath);
-                        const [fnSource, interfacesSrc] = getSources(filePath);
-                        const functionIOTypes = getFunctionIOTypes(filePath, functionName);
+                        const [fileContent, nonMappingFileContent] = getSources(filePath, functionName);
                         viewLocation.dataMapperProps = {
                             filePath: filePath,
                             functionName: functionName,
-                            functionIOTypes: functionIOTypes,
-                            fileContent: fnSource,
-                            interfacesSource: interfacesSrc,
+                            fileContent: fileContent,
+                            nonMappingFileContent: nonMappingFileContent,
                             configName: deriveConfigName(filePath)
                         };
                         viewLocation.view = MACHINE_VIEW.DataMapperView;
@@ -498,13 +496,14 @@ const stateMachine = createMachine<MachineContext>({
                     history.pop();
                 }
                 if (!context.view?.includes("Form")) {
+                    const ctx = context?.previousContext ? context?.previousContext : context;
                     history.push({
                         location: {
-                            view: context?.previousContext?.view,
-                            documentUri: context?.previousContext?.documentUri,
-                            position: context?.previousContext?.position,
-                            identifier: context?.previousContext?.identifier,
-                            dataMapperProps: context?.previousContext?.dataMapperProps
+                            view: ctx?.view,
+                            documentUri: ctx?.documentUri,
+                            position: ctx?.position,
+                            identifier: ctx?.identifier,
+                            dataMapperProps: ctx?.dataMapperProps
                         }
                     });
                 }
@@ -676,7 +675,7 @@ async function checkIfMiProject() {
     }
 
     if (projectUri) {
-        isEnvironmentSetUp = await setupEnvironment(projectUri);
+        isEnvironmentSetUp = await setupEnvironment(projectUri, isOldProject);
         if (!isEnvironmentSetUp) {
             vscode.commands.executeCommand('setContext', 'MI.status', 'notSetUp');
         }

@@ -148,6 +148,14 @@ export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue
 				} else if (Node.isArrayLiteralExpression(valueExpr)
 					&& fieldIndexes !== undefined && !!fieldIndexes.length) {
 					objectLitExpr = getNextObjectLitExpr(valueExpr);
+				} else if (Node.isAsExpression(valueExpr)) {
+					const expr = valueExpr.getExpression();
+					if (Node.isObjectLiteralExpression(expr)) {
+						objectLitExpr = expr;
+					} else if (Node.isArrayLiteralExpression(expr)
+						&& fieldIndexes !== undefined && !!fieldIndexes.length) {
+						objectLitExpr = getNextObjectLitExpr(expr);
+					}
 				}
 
 				if (i === fieldNames.length - 1) {
@@ -213,6 +221,13 @@ export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue
 			return targetExpr;
 		} else if (Node.isArrayLiteralExpression(targetExpr)) {
 			return getNextObjectLitExpr(targetExpr);
+		} else if (Node.isAsExpression(targetExpr)) {
+			const expr = targetExpr.getExpression();
+			if (Node.isObjectLiteralExpression(expr)) {
+				return expr;
+			} else if (Node.isArrayLiteralExpression(expr)) {
+				return getNextObjectLitExpr(expr);
+			}
 		}
 	}
 
@@ -242,7 +257,11 @@ export async function createSourceForUserInput(
 
 		if (nextField.parentType.hasValue() && Node.isPropertyAssignment(nextField.parentType.value)) {
 			const parentField: PropertyAssignment = nextField.parentType.value;
-			const parentFieldInitializer = parentField.getInitializer();
+			let parentFieldInitializer = parentField.getInitializer();
+
+			if (Node.isAsExpression(parentFieldInitializer)) {
+				parentFieldInitializer = parentFieldInitializer.getExpression();
+			}
 
 			if (!parentFieldInitializer.getText()) {
 				const valueExprSource = constructValueExprSource(fieldName, newValue, parentFields.reverse(), 0);

@@ -117,28 +117,31 @@ export const filterHelperPaneFunctionCompletionItems = (
 };
 
 const traverseHelperPaneCompletionItem = (
-    children: React.ReactNode[],
-    level: number,
     item: HelperPaneCompletionItem,
+    indent: boolean,
     onChange: (value: string) => void,
     getIcon: () => React.ReactNode
-) => {
+): React.ReactNode => {
     if (!item) {
         return;
     }
 
-    children.push(
+    let childNodes: React.ReactNode[] = [];
+    for (const child of item.children) {
+        childNodes.push(traverseHelperPaneCompletionItem(child, true, onChange, getIcon));
+    }
+
+    return (
         <HelperPane.CompletionItem
+            key={item.insertText}
             label={item.label}
+            indent={indent}
             onClick={() => onChange(item.insertText)}
             getIcon={getIcon}
-            level={level}
-        />
-    );
-
-    for (const child of item.children) {
-        traverseHelperPaneCompletionItem(children, level + 1, child, onChange, getIcon);
-    }
+        >
+            {childNodes}
+        </HelperPane.CompletionItem>
+    )
 };
 
 /**
@@ -152,12 +155,8 @@ export const getHelperPaneCompletionItem = (
     onChange: (value: string) => void,
     getIcon: () => React.ReactNode
 ) => {
-    const children: React.ReactNode[] = [];
-
     // Apply DFS to get the item
-    traverseHelperPaneCompletionItem(children, 0, item, onChange, getIcon);
-    
-    return children;
+    return traverseHelperPaneCompletionItem(item, false, onChange, getIcon);
 };
 
 /**
@@ -167,7 +166,7 @@ export const getHelperPaneCompletionItem = (
  * @returns string
  */
 export const extractExpressionValue = (expression: string) => {
-    const synapseExRegex = /^\$\{(.*)\}$/;
+    const synapseExRegex = /^\$\{((?:.|\s)*)\}$/;
     const match = expression?.match(synapseExRegex);
     if (match) {
         return match[1];
@@ -175,6 +174,24 @@ export const extractExpressionValue = (expression: string) => {
 
     return expression;
 }
+
+/**
+ * Format a JSON expression string for better readability.
+ *
+ * @param expression - string
+ * @returns string
+ */
+export const formatExpression = (expression: string): string => {
+    try {
+        // Attempt to parse the expression as JSON
+        const jsonObject = JSON.parse(expression);
+        // Stringify the JSON object with indentation for formatting
+        return JSON.stringify(jsonObject, null, 2);
+    } catch (error) {
+        // If parsing fails, return the original expression
+        return expression;
+    }
+};
 
 /**
  * Enrich the expression value with the given expression type.

@@ -224,7 +224,9 @@ import {
     GetHelperPaneInfoResponse,
     TestConnectorConnectionResponse,
     TestConnectorConnectionRequest,
-    MiVersionResponse
+    MiVersionResponse,
+    SaveConfigRequest,
+    SaveConfigResponse
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -377,3 +379,4 @@ export const getConnectionSchema: RequestType<GetConnectionSchemaRequest, GetCon
 export const getExpressionCompletions: RequestType<ExpressionCompletionsRequest, ExpressionCompletionsResponse> = { method: `${_preFix}/getExpressionCompletions` };
 export const getHelperPaneInfo: RequestType<GetHelperPaneInfoRequest, GetHelperPaneInfoResponse> = { method: `${_preFix}/getHelperPaneInfo` };
 export const testConnectorConnection: RequestType<TestConnectorConnectionRequest, TestConnectorConnectionResponse> = { method: `${_preFix}/testConnectorConnection` };
+export const saveConfig: RequestType<SaveConfigRequest, SaveConfigResponse> = { method: `${_preFix}/saveConfig` };

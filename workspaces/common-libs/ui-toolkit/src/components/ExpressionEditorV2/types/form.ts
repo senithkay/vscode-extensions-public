@@ -8,14 +8,12 @@
  */
 
 import { MutableRefObject, ReactNode } from 'react';
-import { ExpressionEditorProps, ExpressionEditorRef } from './common';
+import { ActionButtonType, ExpressionEditorProps, ExpressionEditorRef, HelperPaneOrigin } from './common';
 
 export type HelperPanePosition = {
     top: number;
     left: number;
 }
-
-export type HelperPaneOrigin = 'bottom' | 'left' | 'right';
 
 type HelperPaneConditionalProps = {
     // - Whether the helper pane is open
@@ -34,13 +32,6 @@ type HelperPaneConditionalProps = {
     changeHelperPaneState?: never;
     getHelperPane?: never;
     getExpressionEditorIcon?: never;
-}
-
-type ActionButtonType = {
-    tooltip?: string;
-    iconType: 'codicon' | 'icon';
-    name: string;
-    onClick: () => void;
 }
 
 export type FormExpressionEditorProps = ExpressionEditorProps & HelperPaneConditionalProps & {

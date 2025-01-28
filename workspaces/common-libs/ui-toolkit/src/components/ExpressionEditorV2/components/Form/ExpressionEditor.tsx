@@ -18,7 +18,7 @@ import React, {
 import { createPortal } from 'react-dom';
 import styled from '@emotion/styled';
 import { Transition } from '@headlessui/react';
-import { ANIMATION, ARROW_HEIGHT } from '../../constants';
+import { ANIMATION } from '../../constants';
 import { CompletionItem } from '../../types/common';
 import { FormExpressionEditorRef, FormExpressionEditorElProps } from '../../types/form';
 import { addClosingBracketIfNeeded, checkCursorInFunction, getArrowPosition, getHelperPanePosition, setCursor } from '../../utils';
@@ -27,9 +27,9 @@ import { ProgressIndicator } from '../../../ProgressIndicator/ProgressIndicator'
 import { AutoResizeTextArea } from '../../../TextArea/TextArea';
 import { FnSignatureEl } from '../Common/FnSignature';
 import { Dropdown } from '../Common';
-import { StyleBase, FnSignatureProps, ArrowProps } from '../Common/types';
-import { Icon } from '../../../Icon/Icon';
-import { Button } from '../../../Button/Button';
+import { StyleBase, FnSignatureProps } from '../Common/types';
+import HelperPane from '../Common/HelperPane';
+import { ActionButtons } from '../Common/ActionButtons';
 
 /* Styled components */
 const Container = styled.div`
@@ -38,15 +38,7 @@ const Container = styled.div`
     display: flex;
 `;
 
-const ActionButtons = styled.div`
-    position: absolute;
-    top: -14px;
-    right: 0;
-    display: flex;
-    gap: 4px;
-`
-
-const StyledTextArea = styled(AutoResizeTextArea)`
+export const StyledTextArea = styled(AutoResizeTextArea)`
     ::part(control) {
         font-family: monospace;
         font-size: 12px;
@@ -55,25 +47,7 @@ const StyledTextArea = styled(AutoResizeTextArea)`
     }
 `;
 
-const Arrow = styled.div<ArrowProps>`
-    position: absolute;
-    height: ${ARROW_HEIGHT}px;
-    width: ${ARROW_HEIGHT}px;
-    background-color: var(--vscode-dropdown-background);
-    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-
-    ${(props: ArrowProps) => props.origin === "left" && `
-        transform: rotate(90deg);
-    `}
-
-    ${(props: ArrowProps) => props.origin === "right" && `
-        transform: rotate(-90deg);
-    `}
-
-    ${(props: StyleBase) => props.sx}
-`;
-
-const DropdownContainer = styled.div<StyleBase>`
+export const DropdownContainer = styled.div<StyleBase>`
     position: absolute;
     z-index: 2001;
     filter: drop-shadow(0 3px 8px rgb(0 0 0 / 0.2));
@@ -119,7 +93,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
 
     const elementRef = useRef<HTMLDivElement>(null);
     const actionButtonsRef = useRef<HTMLDivElement>(null);
-    const textBoxRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null);
+    const textAreaRef = useRef<HTMLTextAreaElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const dropdownContainerRef = useRef<HTMLDivElement>(null);
     const helperPaneContainerRef = useRef<HTMLDivElement>(null);
@@ -187,7 +161,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
 
     const handleChange = async (text: string, cursorPosition?: number) => {
         const updatedCursorPosition =
-            cursorPosition ?? textBoxRef.current.shadowRoot.querySelector('textarea').selectionStart;
+            cursorPosition ?? textAreaRef.current.shadowRoot.querySelector('textarea').selectionStart;
         // Update the text field value
         await onChange(text, updatedCursorPosition);
 
@@ -210,7 +184,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
 
     const handleCompletionSelect = async (item: CompletionItem) => {
         const replacementSpan = item.replacementSpan ?? 0;
-        const cursorPosition = textBoxRef.current.shadowRoot.querySelector('textarea').selectionStart;
+        const cursorPosition = textAreaRef.current.shadowRoot.querySelector('textarea').selectionStart;
         const prefixMatches = value.substring(0, cursorPosition).match(SUGGESTION_REGEX.prefix);
         const suffixMatches = value.substring(cursorPosition).match(SUGGESTION_REGEX.suffix);
         const prefix = value.substring(0, cursorPosition - prefixMatches[1].length - replacementSpan);
@@ -220,7 +194,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
 
         await handleChange(newTextValue, newCursorPosition);
         onCompletionSelect && await onCompletionSelect(newTextValue, item);
-        setCursor(textBoxRef, 'textarea', newTextValue, newCursorPosition);
+        setCursor(textAreaRef, 'textarea', newTextValue, newCursorPosition);
     };
 
     const handleExpressionSave = async (value: string, ref?: React.MutableRefObject<string>) => {
@@ -339,7 +313,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
             <DropdownContainer ref={helperPaneContainerRef} sx={{ ...helperPanePosition }}>
                 <Transition show={isHelperPaneOpen} {...ANIMATION}>
                     {getHelperPane(value, handleChange)}
-                    {arrowPosition && <Arrow origin={helperPaneOrigin} sx={{ ...arrowPosition }} />}
+                    {arrowPosition && <HelperPane.Arrow origin={helperPaneOrigin} sx={{ ...arrowPosition }} />}
                 </Transition>
             </DropdownContainer>
         )
@@ -398,7 +372,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
 
     const handleRefFocus = () => {
         if (document.activeElement !== elementRef.current) {
-            textBoxRef.current?.focus();
+            textAreaRef.current?.focus();
         }
     }
 
@@ -408,12 +382,12 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
             if (value !== undefined) {
                 await handleExpressionSaveMutation(value);
             }
-            textBoxRef.current?.blur();
+            textAreaRef.current?.blur();
         }
     }
 
     const handleRefSetCursor = (value: string, cursorPosition: number) => {
-        setCursor(textBoxRef, 'textarea', value, cursorPosition);
+        setCursor(textAreaRef, 'textarea', value, cursorPosition);
     }
 
     const handleTextAreaFocus = async () => {
@@ -430,8 +404,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     }
 
     useImperativeHandle(ref, () => ({
-        shadowRoot: textBoxRef.current?.shadowRoot,
-        inputElement: textBoxRef.current?.shadowRoot?.querySelector('textarea'),
+        shadowRoot: textAreaRef.current?.shadowRoot,
+        inputElement: textAreaRef.current?.shadowRoot?.querySelector('textarea'),
         focus: handleRefFocus,
         blur: handleRefBlur,
         setCursor: handleRefSetCursor,
@@ -447,7 +421,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                 isFocused &&
                 !buttonRef.current?.contains(e.target) &&
                 !actionButtonsRef.current?.contains(e.target) &&
-                !textBoxRef.current?.contains(e.target) &&
+                !textAreaRef.current?.contains(e.target) &&
                 !dropdownContainerRef.current?.contains(e.target) &&
                 !helperPaneContainerRef.current?.contains(e.target)
             ) {
@@ -470,65 +444,17 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         <Container ref={elementRef}>
             {/* Action buttons at the top of the expression editor */}
             {actionButtons?.length > 0 && (
-                <ActionButtons ref={actionButtonsRef}>
-                    {actionButtons.map((actBtn, index) => {
-                        let icon: React.ReactNode;
-                        if (actBtn.iconType === 'codicon') {
-                            icon = (
-                                <Codicon
-                                    key={index}
-                                    name={actBtn.name}
-                                    iconSx={{
-                                        fontSize: "12px",
-                                        color: isHelperPaneOpen
-                                            ? "var(--vscode-button-foreground)"
-                                            : "var(--vscode-button-background)",
-                                    }}
-                                    sx={{ height: '14px', width: '16px' }}
-                                />
-                            );
-                        } else {
-                            icon = (
-                                <Icon
-                                    key={index}
-                                    name={actBtn.name}
-                                    iconSx={{
-                                        fontSize: '12px',
-                                        color: isHelperPaneOpen
-                                            ? 'var(--vscode-button-foreground)'
-                                            : 'var(--vscode-button-background)',
-                                    }}
-                                    sx={{ height: '14px', width: '16px' }}
-                                />
-                            );
-                        }
-                        
-                        return (
-                            <Button
-                                key={index}
-                                tooltip={actBtn.tooltip}
-                                onClick={actBtn.onClick}
-                                appearance='icon'
-                                buttonSx={{
-                                    height: '14px',
-                                    width: '22px',
-                                    ...(isHelperPaneOpen && {
-                                        backgroundColor: 'var(--vscode-button-background)',
-                                        borderRadius: '2px',
-                                    })
-                                }}
-                            >
-                                {icon}
-                            </Button>
-                        )
-                    })}
-                </ActionButtons>
+                <ActionButtons
+                    ref={actionButtonsRef}
+                    isHelperPaneOpen={isHelperPaneOpen}
+                    actionButtons={actionButtons}
+                />
             )}
 
             {/* Expression editor component */}
             <StyledTextArea
                 {...rest}
-                ref={textBoxRef as React.RefObject<HTMLTextAreaElement>}
+                ref={textAreaRef}
                 value={value}
                 onTextChange={handleChange}
                 onKeyDown={handleInputKeyDown}

@@ -8,27 +8,33 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { HelperPaneCompletionItem } from '@wso2-enterprise/mi-core';
-import { getHelperPaneCompletionItem } from '../utils';
+import { Alert, COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { getHelperPaneCompletionItem } from '../FormExpressionField/utils';
+import styled from '@emotion/styled';
 
-type HeadersPageProps = {
+const InfoMessage = styled.div`
+    margin-top: auto;
+    padding-inline: 8px;
+`;
+
+type PayloadPageProps = {
     isLoading: boolean;
-    headerInfo: HelperPaneCompletionItem[];
+    payloadInfo: HelperPaneCompletionItem[];
     setCurrentPage: (page: number) => void;
     setFilterText: (filterText: string) => void;
     onClose: () => void;
     onChange: (value: string) => void;
 };
 
-export const HeadersPage = ({
+export const PayloadPage = ({
     isLoading,
-    headerInfo,
+    payloadInfo,
     setCurrentPage,
     setFilterText,
     onClose,
     onChange
-}: HeadersPageProps) => {
+}: PayloadPageProps) => {
     const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>('');
 
@@ -49,17 +55,24 @@ export const HeadersPage = ({
     return (
         <>
             <HelperPane.Header
-                title="Headers"
+                title="Payload"
                 onBack={() => setCurrentPage(0)}
                 onClose={onClose}
                 searchValue={searchValue}
                 onSearch={handleSearch}
             />
             <HelperPane.Body loading={isLoading}>
-                {headerInfo?.map((header) => (
-                    getHelperPaneCompletionItem(header, onChange, getCompletionItemIcon)
+                {payloadInfo?.map((payload) => (
+                    getHelperPaneCompletionItem(payload, onChange, getCompletionItemIcon)
                 ))}
             </HelperPane.Body>
+            <InfoMessage>
+                <Alert
+                    variant='primary'
+                    title='Important!'
+                    subTitle="Payload suggestions are generated based on the first request payload defined in the 'Start' node. If no payloads are defined yet, please add one in the 'Start' node of the diagram."
+                />
+            </InfoMessage>
         </>
     );
 };

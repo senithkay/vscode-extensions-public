@@ -144,6 +144,12 @@
             "default": "${env:JAVA_HOME}",
             "description": "Java Home path",
             "scope": "resource"
+          },
+          "MI.LEGACY_EXPRESSION_ENABLED": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable legacy expression support",
+            "scope": "resource"
           }
         }
       }
@@ -186,7 +192,8 @@
       {
         "view": "MI.project-explorer",
         "contents": "No artifacts were found. Please add artifacts to your project to view them here.\n[Add artifact](command:MI.project-explorer.add.artifact)",
-        "when": "projectOpened && MI.status == 'projectLoaded'"
+        "when": "projectOpened && MI.status == 'projectLoaded'",
+        "enablement": "MI.showAddArtifact"
       },
       {
         "view": "MI.project-explorer",

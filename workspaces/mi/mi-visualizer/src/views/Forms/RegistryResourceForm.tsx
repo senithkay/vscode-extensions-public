@@ -144,7 +144,8 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
     const [resourcePaths, setResourcePaths] = useState([]);
     const [artifactNames, setArtifactNames] = useState([]);
     const [isResourceContentVisible, setIsResourceContentVisible] = useState(false);
-    const filteredPropTypes = filterTemplateCreatableTypes(props.type);
+    const templateCreatableTypes = filterTemplateCreatableTypes(props.type);
+    const initialResourceType = templateCreatableTypes.length > 0 ? templateCreatableTypes[0] : props.type ? props.type[0] : undefined;
 
     const schema = yup
         .object({
@@ -195,7 +196,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
         setValue,
         watch
     } = useForm<InputsFields>({
-        defaultValues: getInitialResource(filteredPropTypes[0]),
+        defaultValues: getInitialResource(initialResourceType),
         resolver: yupResolver(schema),
         mode: "onChange",
     });
@@ -239,11 +240,11 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
     const formatRegistryPath = (path: string) => {
         let regPath = '';
         if (getValues("registryType") === 'gov') {
-            regPath = 'gov';
+            regPath = 'gov:';
         } else {
-            regPath = 'conf';
+            regPath = 'conf:';
         }
-        path.startsWith('/') ? regPath = regPath + path : regPath = regPath + '/' + path;
+        path.startsWith('/') ? regPath = regPath + path.substring(1) : regPath = regPath + path;
         if (createOptionValue) {
             regPath.endsWith('/') ? regPath = regPath + getValues("resourceName") + getFileExtension(getValues('templateType'))
                 : regPath = regPath + '/' + getValues("resourceName") + getFileExtension(getValues('templateType'));
@@ -286,7 +287,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
     }
 
     const canCreateTemplate = (): boolean => {
-        if (!props.type || filterTemplateCreatableTypes.length > 0) {
+        if (!props.type || templateCreatableTypes.length > 0) {
             return true;
         }
         return false;
@@ -309,7 +310,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
         if (props.isPopup) {
             rpcClient.getMiVisualizerRpcClient().openView({
                 type: POPUP_EVENT_TYPE.CLOSE_VIEW,
-                location: { view: null, recentIdentifier: formatResourcePath(values.registryPath) },
+                location: { view: null, recentIdentifier: isResourceContentVisible ? formatResourcePath(values.registryPath) : formatRegistryPath(values.registryPath) },
                 isPopup: true
             });
         } else {

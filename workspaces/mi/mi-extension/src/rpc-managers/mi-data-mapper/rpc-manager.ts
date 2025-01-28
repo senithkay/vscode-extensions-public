@@ -33,18 +33,16 @@ import {
     DataMapWriteRequest,
 } from "@wso2-enterprise/mi-core";
 import { fetchIOTypes, fetchSubMappingTypes, fetchCompletions, fetchDiagnostics } from "../../util/dataMapper";
-import { StateMachine, navigate } from "../../stateMachine";
+import { StateMachine, navigate, refreshUI } from "../../stateMachine";
 import { generateSchemaFromContent } from "../../util/schemaBuilder";
 import { JSONSchema3or4 } from "to-json-schema";
 import { updateTsFileCustomTypes, updateTsFileIoTypes } from "../../util/tsBuilder";
 import * as fs from "fs";
-import * as os from 'os';
 import { window, Uri, workspace, commands, TextEdit, WorkspaceEdit } from "vscode";
 import path = require("path");
 import { extension } from "../../MIExtensionContext";
 import { MiDiagramRpcManager } from "../mi-diagram/rpc-manager";
 import { UndoRedoManager } from "../../undoRedoManager";
-import * as ts from 'typescript';
 import { DMProject } from "../../datamapper/DMProject";
 import { DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME, DATAMAP_BACKEND_URL, READONLY_MAPPING_FUNCTION_NAME, USER_CHECK_BACKEND_URL, RUNTIME_VERSION_440 } from "../../constants";
 import { refreshAuthCode } from '../../ai-panel/auth';
@@ -90,7 +88,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         sourceFile.replaceWithText(params.fileContent);
         sourceFile.formatText();
         await sourceFile.save();
-        navigate();
+        refreshUI();
     }
 
     getAbsoluteFilePath(filePath: string, sourcePath: string, configName: string) {
@@ -145,7 +143,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                     }
 
                     await this.formatDMC(documentUri);
-                    navigate();
+                    refreshUI();
                     return resolve({ success: true });
                 } catch (error: any) {
                     console.error(error);

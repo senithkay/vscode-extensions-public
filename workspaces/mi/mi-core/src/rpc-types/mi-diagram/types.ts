@@ -23,6 +23,7 @@ export interface ApplyEditRequest {
     range: Range;
     disableFormatting?: boolean;
     disableUndoRedo?: boolean;
+    addNewLine?: boolean;
 }
 
 export interface ApplyEditsRequest {
@@ -30,6 +31,7 @@ export interface ApplyEditsRequest {
     edits: TextEdit[];
     disableFormatting?: boolean;
     disableUndoRedo?: boolean;
+    addNewLine?: boolean;
 }
 
 export interface ApplyEditResponse {
@@ -1992,4 +1994,13 @@ export interface TestConnectorConnectionResponse {
     isConnectionTested: boolean;
     isConnectionValid: boolean;
     errorMessage: string;
+}
+
+export interface SaveConfigRequest {
+    configName: string;
+    configType: "string" | "cert";
+}
+
+export interface SaveConfigResponse {
+    success: boolean;
 }

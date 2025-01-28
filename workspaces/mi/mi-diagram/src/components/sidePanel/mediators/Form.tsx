@@ -17,7 +17,6 @@ import { useVisualizerContext, } from "@wso2-enterprise/mi-rpc-client";
 import { GetMediatorResponse } from "@wso2-enterprise/mi-core";
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ERROR_MESSAGES } from "../../../resources/constants";
-import { createAndopenDataMapper } from "./onSubmitFunctions";
 
 export interface MediatorFormProps {
     control: any;
@@ -69,15 +68,6 @@ export function MediatorForm(props: MediatorFormProps) {
             range
         });
 
-        if (mediatorData.onSubmit) {
-            switch (mediatorData.onSubmit) {
-                case "openDataMapperEditor":
-                    const projectDetails = await rpcClient.getMiVisualizerRpcClient().getProjectDetails();
-                    const runtimeVersion = await projectDetails.primaryDetails.runtimeVersion.value;
-                    createAndopenDataMapper(documentUri, values, rpcClient, runtimeVersion)();
-                    break;
-            }
-        }
         clearSidePanelState(sidePanelContext);
     }
 

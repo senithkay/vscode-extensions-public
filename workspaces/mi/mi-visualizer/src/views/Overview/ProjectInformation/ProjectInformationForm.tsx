@@ -70,6 +70,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
     });
 
     const {
+        control,
         register,
         formState: { errors, dirtyFields, isSubmitting },
         handleSubmit,
@@ -104,7 +105,6 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                 const supportedVersions = await rpcClient.getMiVisualizerRpcClient().getSupportedMIVersionsHigherThan(response.primaryDetails.runtimeVersion.value);
                 const supportedMIVersions = supportedVersions.map((version: string) => ({ value: version, content: version }));
                 setRuntimeVersions(supportedMIVersions);
-
                 reset({
                     "primaryDetails.projectName": response.primaryDetails.projectName.value,
                     "primaryDetails.projectDescription": response.primaryDetails.projectDescription.value,

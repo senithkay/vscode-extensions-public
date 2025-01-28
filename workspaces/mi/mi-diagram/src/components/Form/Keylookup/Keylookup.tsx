@@ -344,6 +344,7 @@ export const Keylookup = (props: IKeylookup) => {
                     required={props.required}
                     items={items}
                     allowItemCreate={allowItemCreate}
+                    requireValidation={allowItemCreate}
                     onCreateButtonClick={props.onCreateButtonClick ? () => {
                         handleValueChange("");
                         props.onCreateButtonClick(fetchItems, handleValueChange);

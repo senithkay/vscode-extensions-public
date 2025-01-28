@@ -122,6 +122,10 @@ export const NODE_DIMENSIONS = {
             HEIGHT: 40,
         },
         DISABLED: {
+            WIDTH: 24,
+            HEIGHT: 24,
+        },
+        ACTIONED: {
             WIDTH: 65,
             HEIGHT: 30,
         }

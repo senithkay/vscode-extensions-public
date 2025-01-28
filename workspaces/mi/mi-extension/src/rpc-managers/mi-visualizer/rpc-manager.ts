@@ -622,4 +622,20 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         }
     }
 
+    async updateLegacyExpressionSupport(value: boolean): Promise<void> {
+        const config = workspace.getConfiguration('MI');
+        await config.update("LEGACY_EXPRESSION_ENABLED", value, vscode.ConfigurationTarget.Workspace);
+    }
+
+    async isLegacyExpressionSupportEnabled(): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            try {
+                const config = workspace.getConfiguration('MI');
+                resolve(config.get("LEGACY_EXPRESSION_ENABLED") || false);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
 }
+
