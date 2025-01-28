@@ -225,7 +225,7 @@ export function AddArtifactView() {
 
     return (
         <View>
-            <ViewHeader title={"Project: " + activeWorkspaces?.name} icon="project" iconSx={{ fontSize: "15px" }}></ViewHeader>
+            <ViewHeader title={"Add artifact"} icon="project" iconSx={{ fontSize: "15px" }}></ViewHeader>
             <ViewContent padding>
                 <Container>
                     <AddPanel>

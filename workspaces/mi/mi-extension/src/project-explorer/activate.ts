@@ -9,7 +9,7 @@
 
 import * as vscode from 'vscode';
 import { ProjectExplorerEntry, ProjectExplorerEntryProvider } from './project-explorer-provider';
-import { StateMachine, navigate, openView } from '../stateMachine';
+import { StateMachine, navigate, openView, refreshUI } from '../stateMachine';
 import { EVENT_TYPE, MACHINE_VIEW, VisualizerLocation } from '@wso2-enterprise/mi-core';
 import { COMMANDS } from '../constants';
 import { ExtensionContext, TreeItem, Uri, ViewColumn, commands, window, workspace } from 'vscode';
@@ -401,7 +401,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 							if (currentLocation.documentUri === fileUri) {
 								openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
 							}
-							removeFromHistory(fileUri);
+							removeFromHistory(fileUri.fsPath);
 
 							if (item.contextValue === 'api') {
 								deleteSwagger(fileUri);
@@ -526,6 +526,9 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 		projectExplorerDataProvider.refresh(lsClient);
 		if (runtimeVersion !== RUNTIME_VERSION_440 && registryExplorerDataProvider) {
 			registryExplorerDataProvider.refresh(lsClient);
+		}
+		if (StateMachine.context().view === MACHINE_VIEW.Overview) {
+			refreshUI();
 		}
 	});
 }
