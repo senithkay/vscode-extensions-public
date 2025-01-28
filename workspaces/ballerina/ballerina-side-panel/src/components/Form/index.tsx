@@ -156,14 +156,13 @@ namespace S {
     `;
 }
 export interface FormProps {
-    refKey?: string;
     formFields: FormField[];
     submitText?: string;
     targetLineRange?: LineRange; // TODO: make them required after connector wizard is fixed
     fileName?: string; // TODO: make them required after connector wizard is fixed
     projectPath?: string;
     selectedNode?: NodeKind;
-    onSubmit?: (data: FormValues, refKey?: string) => void;
+    onSubmit?: (data: FormValues) => void;
     openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
     openView?: (filePath: string, position: NodePosition) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
@@ -181,7 +180,6 @@ export interface FormProps {
 
 export const Form = forwardRef((props: FormProps, ref) => {
     const {
-        refKey,
         formFields,
         projectPath,
         selectedNode,
@@ -276,8 +274,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
     console.log(">>> form fields", { formFields, values: getValues() });
 
     const handleOnSave = (data: FormValues) => {
-        console.log(">>> saved form fields", { data, refKey });
-        onSubmit && onSubmit(data, refKey);
+        console.log(">>> saved form fields", { data });
+        onSubmit && onSubmit(data);
     };
 
     // Expose a method to trigger the save

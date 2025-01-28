@@ -39,7 +39,6 @@ import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
 import { debounce } from "lodash";
 
 interface FormProps {
-    ref?: React.Ref<unknown>;
     fileName: string;
     fields: FormField[];
     targetLineRange: LineRange;
@@ -47,7 +46,7 @@ interface FormProps {
     submitText?: string;
     onBack?: () => void;
     editForm?: boolean;
-    onSubmit: (data: FormValues, refKey?: string) => void;
+    onSubmit: (data: FormValues) => void;
     isActiveSubPanel?: boolean;
     openSubPanel?: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
@@ -56,7 +55,6 @@ interface FormProps {
 
 export function FormGeneratorNew(props: FormProps) {
     const {
-        ref,
         fileName,
         fields,
         targetLineRange,
@@ -366,7 +364,6 @@ export function FormGeneratorNew(props: FormProps) {
         <>
             {fields && fields.length > 0 && (
                 <Form
-                    ref={ref}
                     formFields={fields}
                     projectPath={projectPath}
                     onCancelForm={onBack}
