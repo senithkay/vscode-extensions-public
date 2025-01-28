@@ -260,7 +260,6 @@ export const TokenEditor = ({
     const handleFocus = () => {
         // Additional actions to be performed when the token editor is focused
         setIsFocused(true);
-        changeHelperPaneState?.(true);
 
         onFocus?.();
     }
