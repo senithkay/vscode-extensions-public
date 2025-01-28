@@ -144,6 +144,12 @@
             "default": "${env:JAVA_HOME}",
             "description": "Java Home path",
             "scope": "resource"
+          },
+          "MI.LEGACY_EXPRESSION_ENABLED": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable legacy expression support",
+            "scope": "resource"
           }
         }
       }

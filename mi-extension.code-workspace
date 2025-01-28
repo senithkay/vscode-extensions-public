@@ -26,6 +26,9 @@
 		},
 		{
 			"path": ".github"
+		},
+		{
+			"path": "workspaces/mi/mi-data-mapper"
 		}
 	]
 }

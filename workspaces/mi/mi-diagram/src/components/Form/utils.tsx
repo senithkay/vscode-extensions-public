@@ -36,3 +36,8 @@ export function replaceSpecialCharacters(stringValue: string): any {
 export function isValueExpression(stringValue: string): any {
     return stringValue != null && stringValue.startsWith('${') && stringValue.endsWith('}');
 }
+
+export function isLegacyExpression(value: string): boolean {
+    // Check if the string is wrapped in ${...}
+    return value.length > 0 && (!value.startsWith('${') || !value.endsWith('}'));
+}

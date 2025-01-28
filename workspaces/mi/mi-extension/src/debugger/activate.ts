@@ -197,6 +197,7 @@ export function activateDebugger(context: vscode.ExtensionContext) {
 
         if (workspaceFolder) {
             const launchJsonPath = path.join(workspaceFolder.uri.fsPath, '.vscode', 'launch.json');
+            const envPath = path.join(workspaceFolder.uri.fsPath, '.env');
             let config: vscode.DebugConfiguration | undefined = undefined;
 
             if (fs.existsSync(launchJsonPath)) {
@@ -222,6 +223,20 @@ export function activateDebugger(context: vscode.ExtensionContext) {
                 config.name = 'MI: Run';
                 config.noDebug = true;
                 config.internalConsoleOptions = 'neverOpen';
+            }
+
+            if (fs.existsSync(envPath)) {
+                const envFileContent = fs.readFileSync(envPath, 'utf-8');
+                const envVariables = envFileContent.split('\n').reduce((acc, line) => {
+                    const [key, value] = line.split('=').map(part => part.trim());
+                    if (key && value) {
+                        acc[key] = value;
+                    }
+                    return acc;
+                }, {} as { [key: string]: string });
+                
+                // Adding env variables
+                config.env = { ...config.env, ...envVariables };
             }
 
             try {
