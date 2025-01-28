@@ -229,11 +229,13 @@ export const EnvironmentSetup = () => {
         }
     }
 
-    const refreshProject = () => {
+    const refreshProject = async () => {
         let isJavaSet = javaPathDetails?.status !== "not-valid";
         let isMISet = miPathDetails?.status !== "not-valid";
 
         if (isJavaSet && isMISet) {
+            await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ type: 'MI', path: miPathDetails.path });
+            await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ type: 'JAVA', path: javaPathDetails.path });
             rpcClient.getMiVisualizerRpcClient().openView({
                 type: EVENT_TYPE.REFRESH_ENVIRONMENT,
                 location: {},
