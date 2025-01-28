@@ -340,7 +340,9 @@ function resolveUnionType(
         const typeName = unionType.typeName || unionType.kind;
         return typeName &&
             (typeName ===
-                (parentNode?.getType().getSymbol()?.getName() || nextNode?.getType().getBaseTypeOfLiteralType()?.getText()));
+                (parentNode?.getType().getSymbol()?.getName() || 
+                parentNode?.getType().getAliasSymbol()?.getName() ||
+                nextNode?.getType().getBaseTypeOfLiteralType()?.getText()));
     });
 
     if (type.resolvedUnionType && Node.isAsExpression(parentNode)) {
