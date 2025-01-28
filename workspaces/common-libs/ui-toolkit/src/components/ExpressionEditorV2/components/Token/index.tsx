@@ -24,6 +24,7 @@ import { Icon } from '../../../Icon/Icon';
 import { Button } from '../../../Button/Button';
 import HelperPane from '../Common/HelperPane';
 import { ThemeColors } from '../../../../styles/ThemeColours';
+import { ActionButtons } from '../Common/ActionButtons';
 
 /* Styles */
 namespace S {
@@ -42,6 +43,7 @@ namespace S {
     export const EditorWithHandle = styled.div`
         position: relative;
         flex: 1 1 auto;
+        padding-block: 4px;
     `;
 
     export const Editor = styled.div<StyleBase & { isFocused: boolean }>`
@@ -142,16 +144,19 @@ namespace S {
 
 export const TokenEditor = ({
     value,
+    actionButtons,
     onChange,
     getHelperPane,
     helperPaneOrigin,
     isHelperPaneOpen,
     changeHelperPaneState,
     onFocus,
-    onBlur
+    onBlur,
+    getExpressionEditorIcon
 }: TokenEditorProps) => {
     const [isFocused, setIsFocused] = useState<boolean>(false);
     const editorRef = useRef<HTMLDivElement>(null);
+    const actionButtonsRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLDivElement>(null);
     const helperPaneContainerRef = useRef<HTMLDivElement>(null);
     const currentNodeRef = useRef<Node | null>(null);
@@ -247,7 +252,6 @@ export const TokenEditor = ({
     const handleFocus = () => {
         // Additional actions to be performed when the token editor is focused
         setIsFocused(true);
-        changeHelperPaneState?.(true);
 
         onFocus?.();
     }
@@ -294,9 +298,12 @@ export const TokenEditor = ({
                 selection.addRange(range);
             }
         }
-
+        
         // Add close event listener to the tokens
         addCloseEventListeners();
+
+        // Update the value
+        onChange?.(extractExpressions(editor.innerHTML));
     };
 
     const getHelperPaneComponent = (): JSX.Element => {
@@ -348,6 +355,7 @@ export const TokenEditor = ({
             if (
                 isFocused &&
                 !editorRef.current?.contains(e.target) &&
+                !actionButtonsRef.current?.contains(e.target) &&
                 !buttonRef.current?.contains(e.target) &&
                 !helperPaneContainerRef.current?.contains(e.target)
             ) {
@@ -372,6 +380,7 @@ export const TokenEditor = ({
 
         if (value) {
             setValue(editor, value);
+            addCloseEventListeners();
         }
 
         const onInput = () => handleInput();
@@ -394,6 +403,15 @@ export const TokenEditor = ({
     return (
         <S.Container>
             <S.EditorWithHandle>
+                {/* Action buttons at the top of the expression editor */}
+                {actionButtons?.length > 0 && (
+                    <ActionButtons
+                        ref={actionButtonsRef}
+                        isHelperPaneOpen={isHelperPaneOpen}
+                        actionButtons={actionButtons}
+                    />
+                )}
+
                 <S.Editor
                     ref={editorRef}
                     isFocused={isFocused}
@@ -403,25 +421,29 @@ export const TokenEditor = ({
                 />
                 <ResizeHandle editorRef={editorRef} />
             </S.EditorWithHandle>
-            <Button
-                ref={buttonRef}
-                appearance="icon"
-                onClick={handleHelperPaneToggle}
-                tooltip="Open Helper View"
-                {...(isHelperPaneOpen && {
-                    sx: { backgroundColor: ThemeColors.PRIMARY, borderRadius: '2px' }
-                })}
-            >
-                <Icon
-                    name="function-icon"
-                    sx={{
-                        height: '19px',
-                        width: '17px',
-                        ...(isHelperPaneOpen && { color: ThemeColors.ON_PRIMARY })
-                    }}
-                    iconSx={{ fontSize: '16px' }}
-                />
-            </Button>
+            {getExpressionEditorIcon
+                ? getExpressionEditorIcon()
+                : (
+                    <Button
+                        ref={buttonRef}
+                        appearance="icon"
+                        onClick={handleHelperPaneToggle}
+                        tooltip="Open Helper View"
+                        {...(isHelperPaneOpen && {
+                            sx: { backgroundColor: ThemeColors.PRIMARY, borderRadius: '2px' }
+                        })}
+                    >
+                        <Icon
+                            name="function-icon"
+                            sx={{
+                                height: '19px',
+                                width: '17px',
+                                ...(isHelperPaneOpen && { color: ThemeColors.ON_PRIMARY })
+                            }}
+                            iconSx={{ fontSize: '16px' }}
+                        />
+                    </Button>
+                )}
             {isHelperPaneOpen && getHelperPaneComponent()}
         </S.Container>
     );

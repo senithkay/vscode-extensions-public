@@ -57,7 +57,8 @@ export function AddConnection(props: AddConnectionProps) {
             const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
                 path: props.path,
             });
-            setWorkspaceFileNames(artifactRes.artifacts);
+            const filteredArtifacts = artifactRes.artifacts.filter(artifact => artifact !== props.connectionName);
+            setWorkspaceFileNames(filteredArtifacts);
         })();
     })
 
@@ -393,7 +394,7 @@ export function AddConnection(props: AddConnectionProps) {
                 {...field}
                 label="Connection Name"
                 size={50}
-                placeholder="The name for the file connection"
+                placeholder={`The name for the ${connectionType} connection`}
                 required={true}
                 errorMsg={errors.name && errors.name.message.toString()} />
         )} />;
