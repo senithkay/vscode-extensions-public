@@ -74,30 +74,55 @@ export const CheckBox = ({ label, labelAdornment, value, sx, checked, onChange, 
     );
 };
 
+interface ContainerProps {
+    sx?: any;
+}
+const Description = styled.div<ContainerProps>`
+    color: var(--vscode-list-deemphasizedForeground);
+    margin-bottom: 4px;
+    text-align: left;
+    ${(props: ContainerProps) => props.sx};
+`;
 
 interface FormCheckBoxProps {
     name: string;
     label?: string;
     labelAdornment?: ReactNode;
+    description?: string;
+    descriptionSx?: any;
+    sx?: any;
     control: Control<any>;
 }
 
-export const FormCheckBox: React.FC<FormCheckBoxProps> = ({ name, control, label, labelAdornment }) => {
+const FormCheckBoxContainer = styled.div<ContainerProps>`
+    ${({ sx }: ContainerProps) => sx};
+`;
+
+export const FormCheckBox: React.FC<FormCheckBoxProps> = ({ name, control, label, labelAdornment, description, sx, descriptionSx }) => {
     return (
-        <Controller
-            name={name}
-            control={control}
-            render={({ field: { onChange, value: checked } }) => {
-                return (
-                    <CheckBox
-                        label={label}
-                        labelAdornment={labelAdornment}
-                        checked={checked}
-                        onChange={onChange}
-                    />
-                );
-            }}
-        />
+        <FormCheckBoxContainer sx={sx}>
+            <Controller
+                name={name}
+                control={control}
+                render={({ field: { onChange, value: checked } }) => {
+                    return (
+                        <div>
+                            {description && (
+                                <Description sx={descriptionSx}>
+                                    {description}
+                                </Description>
+                            )}
+                            <CheckBox
+                                label={label}
+                                labelAdornment={labelAdornment}
+                                checked={checked}
+                                onChange={onChange}
+                            />
+                        </div>
+                    );
+                }}
+            />
+        </FormCheckBoxContainer>
     );
 };
 

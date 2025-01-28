@@ -36,6 +36,12 @@ const Columns = styled.div`
     }
 `;
 
+const Rows = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+`;
+
 const Column = styled.div<{ width?: string }>`
     display: block;
     width: ${({ width }: { width?: string }) => width || 'auto'};
@@ -47,9 +53,7 @@ const Column = styled.div<{ width?: string }>`
 
 const ProjectInfoColumn = styled(Column)`
     width: 300px;
-    max-height: 460px;
-    overflow: hidden;
-    padding-right: 2px;
+    padding-right: 20px;
     @media (max-width: 600px) {
         width: auto;
     }
@@ -124,7 +128,7 @@ export function Overview(props: OverviewProps) {
             rpcClient.getMiVisualizerRpcClient().getProjectOverview({ documentUri: selected }).then((response) => {
                 setProjectOverview(response);
             }).catch((error) => {
-                console.error('Error getting project overview:', error);
+                console.error('Error getting project settings:', error);
                 setProjectOverview(undefined);
                 setErrors({ ...errors, projectOverview: ERROR_MESSAGES.ERROR_LOADING_PROJECT_OVERVIEW });
             });
@@ -171,8 +175,10 @@ export function Overview(props: OverviewProps) {
         rpcClient.getMiVisualizerRpcClient().openView({
             type: POPUP_EVENT_TYPE.OPEN_VIEW,
             location: {
-                view: MACHINE_VIEW.ProjectInformationForm
+                view: MACHINE_VIEW.ProjectInformationForm,
+                type: "project"
             },
+            
             isPopup: true
         });
 
@@ -232,14 +238,22 @@ export function Overview(props: OverviewProps) {
             </div>
             <Body>
                 <Columns>
-                    <Column style={{ flex: '1' }}>
-                        <TabContent style={{ height: '450px', overflow: 'hidden', borderRadius: '8px' }}>
-                            {projectOverview ? (
-                                projectOverview.connections.length > 0 || projectOverview.entrypoints?.length > 0 ? (
-                                    <ComponentDiagram
-                                        projectStructure={projectOverview}
-                                        projectName={activeWorkspaces?.name}
-                                    />
+                    <Rows style={{ flex: 1, height: 800 }}>
+                        <Column style={{ flex: 1 }}>
+                            <TabContent style={{ overflow: 'hidden', borderRadius: '8px' }}>
+                                {projectOverview ? (
+                                    projectOverview.connections.length > 0 || projectOverview.entrypoints?.length > 0 ? (
+                                        <ComponentDiagram
+                                            projectName={activeWorkspaces.name}
+                                            projectStructure={projectOverview}
+                                        />
+                                    ) : (
+                                        <Alert
+                                            title="No artifacts were found"
+                                            subTitle="Please add artifacts to your project to view them here."
+                                            variant="primary"
+                                        />
+                                    )
                                 ) : (
                                     <Alert
                                         title="Project overview not available"
@@ -247,52 +261,43 @@ export function Overview(props: OverviewProps) {
                                         variant="primary"
                                     />
                                 )
-                            ) : (
-                                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                    <ProgressRing />
-                                </div>
-                            )}
-                            {(errors as any)?.projectOverview && (
-                                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                    <ErrorBanner errorMsg={(errors as any)?.projectOverview} />
-                                </div>
-                            )
-                            }
-                        </TabContent>
-                    </Column>
+                                }
+                            </TabContent>
+                        </Column>
+                        <Column>
+                            <Typography variant="h3" sx={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center' }}>
+                                Project Readme
+                                {readmeContent && <Icon name="edit" isCodicon onClick={handleEditReadme} sx={{ marginLeft: '8px', paddingTop: '5px', cursor: 'pointer' }} />}
+                            </Typography>
+                            <Readme>
+                                {readmeContent ? (
+                                    <ReactMarkdown>{readmeContent}</ReactMarkdown>
+                                ) : (
+                                    <div style={{ display: 'flex', marginTop: '20px', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                                        <Typography variant="h3" sx={{ marginBottom: '16px' }}>
+                                            Add a README
+                                        </Typography>
+                                        <Typography variant="body1" sx={{ marginBottom: '24px', color: 'var(--vscode-descriptionForeground)' }}>
+                                            Describe your integration and generate your constructs with AI
+                                        </Typography>
+                                        <VSCodeLink onClick={handleEditReadme}>
+                                            Add a README
+                                        </VSCodeLink>
+                                    </div>
+                                )}
+                            </Readme>
+                        </Column>
+
+                    </Rows>
                     <ProjectInfoColumn>
-                        <Typography variant="h3" sx={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center' }}>
-                            Project Information
-                            <Icon name="edit" isCodicon onClick={handleEditProjectInformation} sx={{ marginLeft: '8px', paddingTop: '5px', cursor: 'pointer' }} />
+                        <Typography variant="h3" sx={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center', opacity: 0.8 }}>
+                            Project Summary
                         </Typography>
-                        <div style={{ height: '100%', overflow: "scroll", scrollbarWidth: "thin", paddingRight: '5px' }}>
+                        <div style={{ height: '100%', scrollbarWidth: "thin", paddingRight: '5px' }}>
                             <ProjectInformation key={pomTimestamp} />
                         </div>
                     </ProjectInfoColumn>
                 </Columns>
-                <Column style={{ marginTop: '16px' }}>
-                    <Typography variant="h3" sx={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center' }}>
-                        Project Readme
-                        {readmeContent && <Icon name="edit" isCodicon onClick={handleEditReadme} sx={{ marginLeft: '8px', paddingTop: '5px', cursor: 'pointer' }} />}
-                    </Typography>
-                    <Readme>
-                        {readmeContent ? (
-                            <ReactMarkdown>{readmeContent}</ReactMarkdown>
-                        ) : (
-                            <div style={{ display: 'flex', marginTop: '20px', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                                <Typography variant="h3" sx={{ marginBottom: '16px' }}>
-                                    Add a README
-                                </Typography>
-                                <Typography variant="body1" sx={{ marginBottom: '24px', color: 'var(--vscode-descriptionForeground)' }}>
-                                    Describe your integration and generate your constructs with AI
-                                </Typography>
-                                <VSCodeLink onClick={handleEditReadme}>
-                                    Add a README
-                                </VSCodeLink>
-                            </div>
-                        )}
-                    </Readme>
-                </Column>
             </Body>
         </div>
     );

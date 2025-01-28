@@ -88,6 +88,11 @@ export interface ProjectDetailsResponse {
     dependencies: DependenciesDetails;
     unitTest: UnitTestDetails;
     configurables: PomNodeDetails[];
+    advanced: AdvancedProjectDetails;
+}
+
+export interface AdvancedProjectDetails {
+    isLegacyExpressionEnabled: boolean;
 }
 
 export interface PomNodeDetails {
@@ -106,7 +111,7 @@ export interface PrimaryDetails {
 
 export interface BuildDetails {
     dockerDetails: DockerDetails;
-    advanceDetatils: AdvanceDetails;
+    advanceDetails: AdvanceDetails;
 }
 
 export interface DockerDetails {
@@ -122,7 +127,7 @@ export interface DockerDetails {
 export interface AdvanceDetails {
     projectGroupId: PomNodeDetails;
     projectArtifactId: PomNodeDetails;
-    pluginDetatils: PluginDetatils;
+    pluginDetails: PluginDetatils;
 }
 
 export interface PluginDetatils {
