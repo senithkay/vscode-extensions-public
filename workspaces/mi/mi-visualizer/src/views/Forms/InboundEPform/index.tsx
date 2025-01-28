@@ -184,8 +184,17 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.InboundEPView, documentUri: sequencePath } });
     };
 
+    const openInboundEPView = (documentUri: string) => {
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.InboundEPView, documentUri: documentUri } });
+    };
+
     const handleOnClose = () => {
-        rpcClient.getMiVisualizerRpcClient().goBack();
+        const isNewTask = !props.model;
+        if (isNewTask) {
+            openOverview();
+        } else {
+            openInboundEPView(props.path);
+        }
     }
 
     return (
