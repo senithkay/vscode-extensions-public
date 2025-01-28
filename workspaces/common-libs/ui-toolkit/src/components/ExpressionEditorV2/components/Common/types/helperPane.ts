@@ -33,7 +33,7 @@ export type HelperPaneIconButtonProps = {
 export type HelperPaneFooterProps = PropsWithChildren<{}>;
 
 export type HelperPaneCompletionItemProps = PropsWithChildren<{
-    level?: number;
+    indent?: boolean;
     label: string;
     type?: string;
     getIcon?: () => ReactNode;
