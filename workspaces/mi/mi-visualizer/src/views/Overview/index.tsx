@@ -255,14 +255,11 @@ export function Overview(props: OverviewProps) {
                                         />
                                     )
                                 ) : (
-                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                        <ProgressRing />
-                                    </div>
-                                )}
-                                {(errors as any)?.projectOverview && (
-                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                        <ErrorBanner errorMsg={(errors as any)?.projectOverview} />
-                                    </div>
+                                    <Alert
+                                        title="Project overview not available"
+                                        subTitle="Please add APIs, Automations, Event integrations or Connections to your project to view the project overview."
+                                        variant="primary"
+                                    />
                                 )
                                 }
                             </TabContent>
