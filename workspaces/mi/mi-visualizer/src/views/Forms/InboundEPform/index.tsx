@@ -95,8 +95,8 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     };
 
     const formTitle = !props.model
-        ? "Create new Listener"
-        : "Edit Listener : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
+        ? "Create Event Integration"
+        : "Edit Event Integration : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
 
 
     const transformParams = (params: any, reverse: boolean = false) => {
@@ -205,7 +205,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                         </LoaderWrapper>
                     ) : (
                         <>
-                            <span>Please select an inbound endpoint.</span>
+                            <span>Please select an event integration.</span>
                             <SampleGrid>
                                 {connectors ?
                                     connectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (
