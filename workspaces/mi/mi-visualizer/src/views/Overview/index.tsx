@@ -242,8 +242,8 @@ export function Overview(props: OverviewProps) {
                                     />
                                 ) : (
                                     <Alert
-                                        title="No artifacts were found"
-                                        subTitle="Please add artifacts to your project to view them here."
+                                        title="Project overview not available"
+                                        subTitle="Please add APIs, Automations, Event integrations or Connections to your project to view the project overview."
                                         variant="primary"
                                     />
                                 )
