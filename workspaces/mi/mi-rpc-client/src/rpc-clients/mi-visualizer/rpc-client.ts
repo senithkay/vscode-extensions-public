@@ -52,6 +52,7 @@ import {
     goSelected,
     goToSource,
     log,
+    isLegacyExpressionSupportEnabled,
     openExternal,
     openReadme,
     openView,
@@ -81,7 +82,8 @@ import {
     updateConnectorDependencies,
     ImportOpenAPISpecRequest,
     updateRuntimeVersionsInPom,
-    PathDetailsResponse
+    PathDetailsResponse,
+    updateLegacyExpressionSupport,
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -239,5 +241,12 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
     }
     importOpenAPISpec(params: ImportOpenAPISpecRequest): Promise<void> {
         return this._messenger.sendRequest(importOpenAPISpec, HOST_EXTENSION, params);
+    }
+    updateLegacyExpressionSupport(value: boolean): Promise<void> {
+        return this._messenger.sendRequest(updateLegacyExpressionSupport, HOST_EXTENSION, value);
+    }
+
+    isLegacyExpressionSupportEnabled(): Promise<boolean> {
+        return this._messenger.sendRequest(isLegacyExpressionSupportEnabled, HOST_EXTENSION);
     }
 }

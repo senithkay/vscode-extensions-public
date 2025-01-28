@@ -82,5 +82,6 @@ export interface MIVisualizerAPI {
     updateRuntimeVersionsInPom: (params:string) => Promise<boolean>;
     setPathsInWorkSpace: (params: SetPathRequest) => Promise<PathDetailsResponse>;
     selectFolder: (params: string) => Promise<string | undefined>;
-
+    updateLegacyExpressionSupport: (value: boolean) => Promise<void>;
+    isLegacyExpressionSupportEnabled: () => Promise<boolean>;
 }
