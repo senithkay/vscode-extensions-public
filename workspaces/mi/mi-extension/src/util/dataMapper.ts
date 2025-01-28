@@ -39,27 +39,32 @@ export function fetchSubMappingTypes(filePath: string, functionName: string) {
     }
 }
 
-export function getSources(filePath: string) {
+export function getSources(filePath: string, functionName?: string) {
     let fileContent: string;
-    let interfacesSource: string;
+    let nonMappingFileContent: string = "";
     try {
         const resolvedPath = path.resolve(filePath);
         const project = DMProject.getInstance(resolvedPath).getProject();
         const sourceFile = project.getSourceFileOrThrow(resolvedPath);
 
         fileContent = sourceFile.getFullText();
-        interfacesSource = sourceFile.getInterfaces().map((interfaceNode) => {
-            return interfaceNode.getText();
-        }).join('\n');
+        
+        if (functionName) {
+            const dmFunction = sourceFile.getFunctionOrThrow(functionName);
+            const dmFunctionBody = dmFunction.getBody();
+            const dmFunctionStart = dmFunctionBody?.getStart();
+            const dmFunctionEnd = dmFunctionBody?.getEnd();
+            nonMappingFileContent = fileContent.slice(0, dmFunctionStart) + fileContent.slice(dmFunctionEnd);
+        }
 
     } catch (error: any) {
         throw new Error("[MI Data Mapper] Failed to fetch input/output types. " + error.message);
     }
 
-    if (!fileContent || !interfacesSource) {
-        throw new Error("[MI Data Mapper] Function or interfaces not found in the source file.");
+    if (!fileContent) {
+        throw new Error("[MI Data Mapper] No source file content found.");
     }
-    return [fileContent, interfacesSource];
+    return [fileContent, nonMappingFileContent];
 }
 
 export function getFunctionIOTypes(filePath: string, functionName: string) {
@@ -176,6 +181,8 @@ function getTypeInfo(typeNode: Type, sourceFile: SourceFile): DMType {
         return { kind: TypeKind.Boolean, optional: typeNode.isNullable() };
     } else if (typeNode.isNumber()) {
         return { kind: TypeKind.Number, optional: typeNode.isNullable() };
+    } else if (typeNode.isUnion()) {
+        return getTypeInfoForUnion(typeNode, sourceFile);
     }
 
     return { kind: TypeKind.Unknown };
@@ -258,6 +265,25 @@ function getTypeInfoForObject(typeNode: Type, sourceFile: SourceFile): DMType {
         kind: TypeKind.Interface,
         typeName: 'Object',
         fields,
+        optional: typeNode.isNullable()
+    };
+}
+
+function getTypeInfoForUnion(typeNode: Type, sourceFile: SourceFile): DMType {
+    const unionTypes = typeNode.getUnionTypes().map(type => {
+        if (type.isBooleanLiteral()) {
+            if (type.getText() === 'true') {
+                return { kind: TypeKind.Boolean };
+            }
+        } else {
+            return getTypeInfo(type, sourceFile);
+        }
+    }).filter(Boolean) as DMType[];
+    
+    return {
+        kind: TypeKind.Union,
+        typeName: typeNode.getAliasSymbol()?.getName(),
+        unionTypes,
         optional: typeNode.isNullable()
     };
 }
