@@ -176,6 +176,8 @@ function getTypeInfo(typeNode: Type, sourceFile: SourceFile): DMType {
         return { kind: TypeKind.Boolean, optional: typeNode.isNullable() };
     } else if (typeNode.isNumber()) {
         return { kind: TypeKind.Number, optional: typeNode.isNullable() };
+    } else if (typeNode.isUnion()) {
+        return getTypeInfoForUnion(typeNode, sourceFile);
     }
 
     return { kind: TypeKind.Unknown };
@@ -258,6 +260,25 @@ function getTypeInfoForObject(typeNode: Type, sourceFile: SourceFile): DMType {
         kind: TypeKind.Interface,
         typeName: 'Object',
         fields,
+        optional: typeNode.isNullable()
+    };
+}
+
+function getTypeInfoForUnion(typeNode: Type, sourceFile: SourceFile): DMType {
+    const unionTypes = typeNode.getUnionTypes().map(type => {
+        if (type.isBooleanLiteral()) {
+            if (type.getText() === 'true') {
+                return { kind: TypeKind.Boolean };
+            }
+        } else {
+            return getTypeInfo(type, sourceFile);
+        }
+    }).filter(Boolean) as DMType[];
+    
+    return {
+        kind: TypeKind.Union,
+        typeName: typeNode.getAliasSymbol()?.getName(),
+        unionTypes,
         optional: typeNode.isNullable()
     };
 }
