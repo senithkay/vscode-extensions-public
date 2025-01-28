@@ -27,17 +27,18 @@ const miDownloadUrls: { [key: string]: string } = {
 
 const CACHED_FOLDER = path.join(os.homedir(), '.wso2-mi');
 
-export async function setupEnvironment(projectUri: string): Promise<boolean> {
+export async function setupEnvironment(projectUri: string, isOldProject: boolean): Promise<boolean> {
     try {
         const wrapperFiles = await vscode.workspace.findFiles('{mvnw,mvnw.cmd}', '**/node_modules/**', 1);
-        if (wrapperFiles.length === 0) {
-            copyMavenWrapper(
-                extension.context.asAbsolutePath(path.join('resources', 'maven-wrapper')),
-                projectUri
-            );
+        if (!isOldProject) {
+            if (wrapperFiles.length === 0) {
+                copyMavenWrapper(
+                    extension.context.asAbsolutePath(path.join('resources', 'maven-wrapper')),
+                    projectUri
+                );
+            }
+            setupConfigFiles(projectUri);
         }
-        setupConfigFiles(projectUri);
-
         const { miDetails } = await getProjectSetupDetails();
         if (!(miDetails && miDetails.version)) {
             return false;
@@ -106,8 +107,8 @@ async function isMISetup(miVersion: string): Promise<boolean> {
                 if (availableMIVersion !== miVersion) {
                     showMIPathChangePrompt();
                 }
-                // await config.update(SELECTED_SERVER_PATH, oldServerPath, vscode.ConfigurationTarget.Workspace);
-                // return true;
+                await config.update(SELECTED_SERVER_PATH, oldServerPath, vscode.ConfigurationTarget.Workspace);
+                return true;
             }
         }
         if (miCachedPath) {

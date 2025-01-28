@@ -39,27 +39,32 @@ export function fetchSubMappingTypes(filePath: string, functionName: string) {
     }
 }
 
-export function getSources(filePath: string) {
+export function getSources(filePath: string, functionName?: string) {
     let fileContent: string;
-    let interfacesSource: string;
+    let nonMappingFileContent: string = "";
     try {
         const resolvedPath = path.resolve(filePath);
         const project = DMProject.getInstance(resolvedPath).getProject();
         const sourceFile = project.getSourceFileOrThrow(resolvedPath);
 
         fileContent = sourceFile.getFullText();
-        interfacesSource = sourceFile.getInterfaces().map((interfaceNode) => {
-            return interfaceNode.getText();
-        }).join('\n');
+        
+        if (functionName) {
+            const dmFunction = sourceFile.getFunctionOrThrow(functionName);
+            const dmFunctionBody = dmFunction.getBody();
+            const dmFunctionStart = dmFunctionBody?.getStart();
+            const dmFunctionEnd = dmFunctionBody?.getEnd();
+            nonMappingFileContent = fileContent.slice(0, dmFunctionStart) + fileContent.slice(dmFunctionEnd);
+        }
 
     } catch (error: any) {
         throw new Error("[MI Data Mapper] Failed to fetch input/output types. " + error.message);
     }
 
-    if (!fileContent || !interfacesSource) {
-        throw new Error("[MI Data Mapper] Function or interfaces not found in the source file.");
+    if (!fileContent) {
+        throw new Error("[MI Data Mapper] No source file content found.");
     }
-    return [fileContent, interfacesSource];
+    return [fileContent, nonMappingFileContent];
 }
 
 export function getFunctionIOTypes(filePath: string, functionName: string) {
