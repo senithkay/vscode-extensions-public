@@ -181,6 +181,8 @@ function getTypeInfo(typeNode: Type, allInterfaces: string[]): DMType {
         return { kind: TypeKind.Boolean, optional: typeNode.isNullable() };
     } else if (typeNode.isNumber()) {
         return { kind: TypeKind.Number, optional: typeNode.isNullable() };
+    } else if (typeNode.isLiteral()) {
+        return { kind: TypeKind.Literal, typeName: typeNode.getText(), optional: typeNode.isNullable() };
     } else if (typeNode.isUnion()) {
         return getTypeInfoForUnion(typeNode, allInterfaces);
     }
