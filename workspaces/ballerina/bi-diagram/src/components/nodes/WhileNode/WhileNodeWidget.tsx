@@ -18,6 +18,7 @@ import {
     NODE_WIDTH,
     NODE_GAP_X,
     CONTAINER_PADDING,
+    DRAFT_NODE_BORDER_WIDTH,
 } from "../../../resources/constants";
 import { Button, Item, Menu, MenuItem, Popover, Icon } from "@wso2-enterprise/ui-toolkit";
 import { FlowNode } from "../../../utils/types";
@@ -117,15 +118,17 @@ export namespace NodeStyles {
         hovered: boolean;
         hasError: boolean;
         isActiveBreakpoint?: boolean;
+        disabled: boolean;
     };
     export const Box = styled.div<NodeStyleProp>`
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
-        border: ${NODE_BORDER_WIDTH}px solid
-            ${(props: NodeStyleProp) =>
-                props.hasError ? Colors.ERROR : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+        border: ${(props: NodeStyleProp) => (props.disabled ? DRAFT_NODE_BORDER_WIDTH : NODE_BORDER_WIDTH)}px;
+        border-style: ${(props: NodeStyleProp) => (props.disabled ? "dashed" : "solid")};
+        border-color: ${(props: NodeStyleProp) =>
+            props.hasError ? Colors.ERROR : props.hovered && !props.disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
         border-radius: 8px;
         background-color: ${(props: NodeStyleProp) =>
             props?.isActiveBreakpoint ? Colors.DEBUGGER_BREAKPOINT_BACKGROUND : Colors.SURFACE_DIM};
@@ -252,6 +255,7 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                         hovered={isHovered}
                         hasError={hasError}
                         isActiveBreakpoint={isActiveBreakpoint}
+                        disabled={disabled}
                     >
                         {hasBreakpoint && (
                             <div
