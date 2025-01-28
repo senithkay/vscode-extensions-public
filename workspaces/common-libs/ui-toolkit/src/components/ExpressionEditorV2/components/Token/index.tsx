@@ -24,7 +24,7 @@ import { Icon } from '../../../Icon/Icon';
 import { Button } from '../../../Button/Button';
 import HelperPane from '../Common/HelperPane';
 import { ThemeColors } from '../../../../styles/ThemeColours';
-import { Codicon } from '../../../Codicon/Codicon';
+import { ActionButtons } from '../Common/ActionButtons';
 
 /* Styles */
 namespace S {
@@ -39,14 +39,6 @@ namespace S {
             box-sizing: border-box;
         }
     `;
-
-    export const ActionButtons = styled.div`
-        position: absolute;
-        top: -14px;
-        right: 0;
-        display: flex;
-        gap: 4px;
-    `
 
     export const EditorWithHandle = styled.div`
         position: relative;
@@ -413,56 +405,13 @@ export const TokenEditor = ({
             <S.EditorWithHandle>
                 {/* Action buttons at the top of the expression editor */}
                 {actionButtons?.length > 0 && (
-                    <S.ActionButtons ref={actionButtonsRef}>
-                        {actionButtons.map((actBtn, index) => {
-                            let icon: React.ReactNode;
-                            if (actBtn.iconType === 'codicon') {
-                                icon = (
-                                    <Codicon
-                                        key={index}
-                                        name={actBtn.name}
-                                        iconSx={{
-                                            fontSize: "12px",
-                                            color: "var(--vscode-button-background)",
-                                        }}
-                                        sx={{ height: '14px', width: '16px' }}
-                                    />
-                                );
-                            } else {
-                                icon = (
-                                    <Icon
-                                        key={index}
-                                        name={actBtn.name}
-                                        iconSx={{
-                                            fontSize: '12px',
-                                            color: 'var(--vscode-button-background)',
-                                        }}
-                                        sx={{ height: '14px', width: '16px' }}
-                                    />
-                                );
-                            }
-                            
-                            return (
-                                <Button
-                                    key={index}
-                                    tooltip={actBtn.tooltip}
-                                    onClick={actBtn.onClick}
-                                    appearance='icon'
-                                    buttonSx={{
-                                        height: '16px',
-                                        width: '22px',
-                                        ...(isHelperPaneOpen && {
-                                            backgroundColor: 'var(--button-secondary-background)',
-                                            borderRadius: '2px',
-                                        })
-                                    }}
-                                >
-                                    {icon}
-                                </Button>
-                            )
-                        })}
-                    </S.ActionButtons>
+                    <ActionButtons
+                        ref={actionButtonsRef}
+                        isHelperPaneOpen={isHelperPaneOpen}
+                        actionButtons={actionButtons}
+                    />
                 )}
+
                 <S.Editor
                     ref={editorRef}
                     isFocused={isFocused}

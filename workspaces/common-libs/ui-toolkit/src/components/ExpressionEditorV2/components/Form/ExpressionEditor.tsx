@@ -28,9 +28,8 @@ import { AutoResizeTextArea } from '../../../TextArea/TextArea';
 import { FnSignatureEl } from '../Common/FnSignature';
 import { Dropdown } from '../Common';
 import { StyleBase, FnSignatureProps } from '../Common/types';
-import { Icon } from '../../../Icon/Icon';
-import { Button } from '../../../Button/Button';
 import HelperPane from '../Common/HelperPane';
+import { ActionButtons } from '../Common/ActionButtons';
 
 /* Styled components */
 const Container = styled.div`
@@ -39,15 +38,7 @@ const Container = styled.div`
     display: flex;
 `;
 
-const ActionButtons = styled.div`
-    position: absolute;
-    top: -14px;
-    right: 0;
-    display: flex;
-    gap: 4px;
-`
-
-const StyledTextArea = styled(AutoResizeTextArea)`
+export const StyledTextArea = styled(AutoResizeTextArea)`
     ::part(control) {
         font-family: monospace;
         font-size: 12px;
@@ -56,7 +47,7 @@ const StyledTextArea = styled(AutoResizeTextArea)`
     }
 `;
 
-const DropdownContainer = styled.div<StyleBase>`
+export const DropdownContainer = styled.div<StyleBase>`
     position: absolute;
     z-index: 2001;
     filter: drop-shadow(0 3px 8px rgb(0 0 0 / 0.2));
@@ -453,55 +444,11 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         <Container ref={elementRef}>
             {/* Action buttons at the top of the expression editor */}
             {actionButtons?.length > 0 && (
-                <ActionButtons ref={actionButtonsRef}>
-                    {actionButtons.map((actBtn, index) => {
-                        let icon: React.ReactNode;
-                        if (actBtn.iconType === 'codicon') {
-                            icon = (
-                                <Codicon
-                                    key={index}
-                                    name={actBtn.name}
-                                    iconSx={{
-                                        fontSize: "12px",
-                                        color: "var(--vscode-button-background)",
-                                    }}
-                                    sx={{ height: '14px', width: '16px' }}
-                                />
-                            );
-                        } else {
-                            icon = (
-                                <Icon
-                                    key={index}
-                                    name={actBtn.name}
-                                    iconSx={{
-                                        fontSize: '12px',
-                                        color: 'var(--vscode-button-background)',
-                                    }}
-                                    sx={{ height: '14px', width: '16px' }}
-                                />
-                            );
-                        }
-                        
-                        return (
-                            <Button
-                                key={index}
-                                tooltip={actBtn.tooltip}
-                                onClick={actBtn.onClick}
-                                appearance='icon'
-                                buttonSx={{
-                                    height: '16px',
-                                    width: '22px',
-                                    ...(isHelperPaneOpen && {
-                                        backgroundColor: 'var(--button-secondary-background)',
-                                        borderRadius: '2px',
-                                    })
-                                }}
-                            >
-                                {icon}
-                            </Button>
-                        )
-                    })}
-                </ActionButtons>
+                <ActionButtons
+                    ref={actionButtonsRef}
+                    isHelperPaneOpen={isHelperPaneOpen}
+                    actionButtons={actionButtons}
+                />
             )}
 
             {/* Expression editor component */}
