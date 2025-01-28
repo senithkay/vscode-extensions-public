@@ -28,11 +28,11 @@ import {
 } from '../../../../store/store';
 import { OutputSearchHighlight } from '../commons/Search';
 import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../../utils/constants';
-import { IOType } from '@wso2-enterprise/mi-core';
+import { DMType, IOType, TypeKind } from '@wso2-enterprise/mi-core';
 import FieldActionWrapper from '../commons/FieldActionWrapper';
 import { ValueConfigMenu, ValueConfigMenuItem, ValueConfigOption } from '../commons/ValueConfigButton';
 import { modifyChildFieldsOptionality } from '../../utils/modification-utils';
-import { set } from 'lodash';
+import { getDefaultValue } from '../../utils/common-utils';
 export interface ObjectOutputWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
 	dmTypeWithValue: DMTypeWithValue;
@@ -66,6 +66,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const classes = useIONodesStyles();
 
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
+	const [isLoading, setIsLoading] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 	const [hasFirstClickOnOutput, setHasFirstClickOnOutput] = useState(false);
 
@@ -186,6 +187,36 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		}
 	];
 
+	// TODO: Create separate node to handle union types and implement this logic there
+	if (dmTypeWithValue.type.kind === TypeKind.Union) {
+		const handleInitAsUnionType = async (resolvedUnionType: DMType) => {
+			setIsLoading(true);
+			try {
+				let node = value;
+				if (Node.isAsExpression(node.getParent())) {
+					node = node.getParent();
+				}
+				let initValue = getDefaultValue(resolvedUnionType.kind);
+				if (initValue === "{}" && resolvedUnionType.kind !== TypeKind.Object && resolvedUnionType.typeName) {
+					initValue += ` as ${resolvedUnionType.typeName}`;
+				}
+				node.replaceWithText(initValue);
+				await context.applyModifications(node.getSourceFile().getFullText());
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
+		const initAsUnionTypeMenuItems: ValueConfigMenuItem[] =  dmTypeWithValue.type.unionTypes?.map((unionType)=>{
+			return {
+				title: `Initialize as ${unionType.typeName || unionType.kind}`,
+				onClick: () => handleInitAsUnionType(unionType)
+			}
+		});
+
+		valConfigMenuItems.unshift(...initAsUnionTypeMenuItems);
+	}
+
 	return (
 		<>
 			<TreeContainer data-testid={`${id}-node`} onContextMenu={onRightClick}>
@@ -236,7 +267,9 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 							</Button>
 						</FieldActionWrapper>
 					)}
-					{(
+					{isLoading ? (
+						<ProgressRing sx={{ height: '16px', width: '16px' }} />
+					) : (
 						<FieldActionWrapper>
 							<ValueConfigMenu
 								menuItems={valConfigMenuItems}

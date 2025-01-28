@@ -38,7 +38,9 @@ export class InputAccessNodeFindingVisitor implements Visitor {
             functionCall = fnName === node.getText();
         }
 
-        if ((!parent || !(inputAccessExpr || functionCall)) && this.mapFnDepth === 0) {
+        const typeReference = parent && Node.isTypeReference(parent);
+
+        if ((!parent || !(inputAccessExpr || functionCall || typeReference)) && this.mapFnDepth === 0) {
             this.inputNodes.push(node);
         }
     }
