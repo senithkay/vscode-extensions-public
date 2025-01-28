@@ -14,7 +14,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button, Dropdown, Banner, FormActions, OptionProps, ProgressIndicator, TextField, Codicon, SplitView, TreeView, TreeViewItem, Typography, FormCheckBox, setValue } from "@wso2-enterprise/ui-toolkit";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import styled from "@emotion/styled";
 
 interface ProjectInformationFormProps {
@@ -44,35 +44,35 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
     const [selectedId, setSelectedId] = useState<string | null>("Project Information");
 
     const schema = yup.object({
-        "primaryDetails.projectName": yup.string().required("Project Name is required"),
-        "primaryDetails.projectDescription": yup.string(),
-        "primaryDetails.projectVersion": yup.string().required("Version is required").matches(/^[a-zA-Z0-9.]*$/, "Version cannot contain spaces or special characters"),
-        "primaryDetails.runtimeVersion": yup.string().required("Runtime version is required"),
-        "buildDetails.dockerDetails.dockerFileBaseImage": yup.string().required("Base image is required"),
-        "buildDetails.dockerDetails.dockerName": yup.string().required("Docker name is required"),
-        "buildDetails.dockerDetails.enableCipherTool": yup.boolean(),
-        "buildDetails.dockerDetails.keyStoreName": yup.string(),
-        "buildDetails.dockerDetails.keyStoreAlias": yup.string(),
-        "buildDetails.dockerDetails.keyStoreType": yup.string(),
-        "buildDetails.dockerDetails.keyStorePassword": yup.string(),
-        "buildDetails.advanceDetails.projectArtifactId": yup.string(),
-        "buildDetails.advanceDetails.projectGroupId": yup.string(),
-        "buildDetails.advanceDetails.pluginDetails.projectBuildPluginVersion": yup.string(),
-        "buildDetails.advanceDetails.pluginDetails.unitTestPluginVersion": yup.string(),
-        "buildDetails.advanceDetails.pluginDetails.miContainerPluginVersion": yup.string(),
-        "unitTest.skipTest": yup.boolean(),
-        "unitTest.serverHost": yup.string(),
-        "unitTest.serverPort": yup.string(),
-        "unitTest.serverPath": yup.string(),
-        "unitTest.serverType": yup.string(),
-        "unitTest.serverVersion": yup.string(),
-        "unitTest.serverDownloadLink": yup.string(),
-        "advanced.legacyExpressionSupport": yup.boolean(),
+        "primaryDetails-projectName": yup.string().required("Project Name is required"),
+        "primaryDetails-projectDescription": yup.string(),
+        "primaryDetails-projectVersion": yup.string().required("Version is required").matches(/^[a-zA-Z0-9.]*$/, "Version cannot contain spaces or special characters"),
+        "primaryDetails-runtimeVersion": yup.string().required("Runtime version is required"),
+        "buildDetails-dockerDetails-dockerFileBaseImage": yup.string().required("Base image is required"),
+        "buildDetails-dockerDetails-dockerName": yup.string().required("Docker name is required"),
+        "buildDetails-dockerDetails-enableCipherTool": yup.boolean(),
+        "buildDetails-dockerDetails-keyStoreName": yup.string(),
+        "buildDetails-dockerDetails-keyStoreAlias": yup.string(),
+        "buildDetails-dockerDetails-keyStoreType": yup.string(),
+        "buildDetails-dockerDetails-keyStorePassword": yup.string(),
+        "buildDetails-advanceDetails-projectArtifactId": yup.string(),
+        "buildDetails-advanceDetails-projectGroupId": yup.string(),
+        "buildDetails-advanceDetails-pluginDetails-projectBuildPluginVersion": yup.string(),
+        "buildDetails-advanceDetails-pluginDetails-unitTestPluginVersion": yup.string(),
+        "buildDetails-advanceDetails-pluginDetails-miContainerPluginVersion": yup.string(),
+        "unitTest-skipTest": yup.boolean(),
+        "unitTest-serverHost": yup.string(),
+        "unitTest-serverPort": yup.string(),
+        "unitTest-serverPath": yup.string(),
+        "unitTest-serverType": yup.string(),
+        "unitTest-serverVersion": yup.string(),
+        "unitTest-serverDownloadLink": yup.string(),
+        "advanced-legacyExpressionSupport": yup.boolean(),
     });
 
     const {
         register,
-        formState: { errors, dirtyFields, isSubmitting },
+        formState: { errors, dirtyFields, isSubmitting, isValid },
         handleSubmit,
         reset,
         getValues,
@@ -81,10 +81,10 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         watch,
     } = useForm({
         resolver: yupResolver(schema),
-        mode: "onChange"
+        mode: "all"
     });
 
-    const currentRuntimeVersion = watch("primaryDetails.runtimeVersion");
+    const currentRuntimeVersion = watch("primaryDetails-runtimeVersion");
     const isRuntimeVersionChanged = currentRuntimeVersion && currentRuntimeVersion !== initialRuntimeVersion;
 
     const divRefs: Record<string, React.RefObject<HTMLDivElement>> = {
@@ -94,8 +94,6 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         "Advanced": useRef<HTMLDivElement | null>(null),
     };
     const contentRef = useRef<HTMLDivElement | null>(null); // Ref for the content div
-
-    console.log("Project Log", props.selectedComponent);
 
     useEffect(() => {
         async function fetchData() {
@@ -109,30 +107,30 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                 const supportedMIVersions = supportedVersions.map((version: string) => ({ value: version, content: version }));
                 setRuntimeVersions(supportedMIVersions);
                 reset({
-                    "primaryDetails.projectName": response.primaryDetails.projectName.value,
-                    "primaryDetails.projectDescription": response.primaryDetails.projectDescription.value,
-                    "primaryDetails.projectVersion": response.primaryDetails.projectVersion.value,
-                    "primaryDetails.runtimeVersion": response.primaryDetails.runtimeVersion.value,
-                    "buildDetails.dockerDetails.dockerFileBaseImage": response.buildDetails.dockerDetails.dockerFileBaseImage.value,
-                    "buildDetails.dockerDetails.dockerName": response.buildDetails.dockerDetails.dockerName.value,
-                    "buildDetails.dockerDetails.enableCipherTool": Boolean(response.buildDetails?.dockerDetails?.cipherToolEnable?.value),
-                    "buildDetails.dockerDetails.keyStoreName": response.buildDetails?.dockerDetails?.keyStoreName?.value,
-                    "buildDetails.dockerDetails.keyStoreAlias": response.buildDetails?.dockerDetails?.keyStoreAlias?.value,
-                    "buildDetails.dockerDetails.keyStoreType": response.buildDetails?.dockerDetails?.keyStoreType?.value,
-                    "buildDetails.dockerDetails.keyStorePassword": response.buildDetails?.dockerDetails?.keyStorePassword?.value,
-                    "buildDetails.advanceDetails.projectArtifactId": response.buildDetails?.advanceDetails?.projectArtifactId?.value,
-                    "buildDetails.advanceDetails.projectGroupId": response.buildDetails?.advanceDetails?.projectGroupId?.value,
-                    "buildDetails.advanceDetails.pluginDetails.projectBuildPluginVersion": response.buildDetails?.advanceDetails?.pluginDetails?.projectBuildPluginVersion?.value,
-                    "buildDetails.advanceDetails.pluginDetails.unitTestPluginVersion": response.buildDetails?.advanceDetails?.pluginDetails?.unitTestPluginVersion?.value,
-                    "buildDetails.advanceDetails.pluginDetails.miContainerPluginVersion": response.buildDetails?.advanceDetails?.pluginDetails?.miContainerPluginVersion?.value,
-                    "unitTest.skipTest": Boolean(response.unitTest?.skipTest?.value),
-                    "unitTest.serverHost": response.unitTest?.serverHost?.value,
-                    "unitTest.serverPort": response.unitTest?.serverPort?.value,
-                    "unitTest.serverPath": response.unitTest?.serverPath?.value,
-                    "unitTest.serverType": response.unitTest?.serverType?.value,
-                    "unitTest.serverVersion": response.unitTest?.serverVersion?.value,
-                    "unitTest.serverDownloadLink": response.unitTest?.serverDownloadLink?.value,
-                    "advanced.legacyExpressionSupport": isLegacyExpressionEnabled
+                    "primaryDetails-projectName": response.primaryDetails.projectName.value,
+                    "primaryDetails-projectDescription": response.primaryDetails.projectDescription.value,
+                    "primaryDetails-projectVersion": response.primaryDetails.projectVersion.value,
+                    "primaryDetails-runtimeVersion": response.primaryDetails.runtimeVersion.value,
+                    "buildDetails-dockerDetails-dockerFileBaseImage": response.buildDetails.dockerDetails.dockerFileBaseImage.value,
+                    "buildDetails-dockerDetails-dockerName": response.buildDetails.dockerDetails.dockerName.value,
+                    "buildDetails-dockerDetails-enableCipherTool": Boolean(response.buildDetails?.dockerDetails?.cipherToolEnable?.value),
+                    "buildDetails-dockerDetails-keyStoreName": response.buildDetails?.dockerDetails?.keyStoreName?.value,
+                    "buildDetails-dockerDetails-keyStoreAlias": response.buildDetails?.dockerDetails?.keyStoreAlias?.value,
+                    "buildDetails-dockerDetails-keyStoreType": response.buildDetails?.dockerDetails?.keyStoreType?.value,
+                    "buildDetails-dockerDetails-keyStorePassword": response.buildDetails?.dockerDetails?.keyStorePassword?.value,
+                    "buildDetails-advanceDetails-projectArtifactId": response.buildDetails?.advanceDetails?.projectArtifactId?.value,
+                    "buildDetails-advanceDetails-projectGroupId": response.buildDetails?.advanceDetails?.projectGroupId?.value,
+                    "buildDetails-advanceDetails-pluginDetails-projectBuildPluginVersion": response.buildDetails?.advanceDetails?.pluginDetails?.projectBuildPluginVersion?.value,
+                    "buildDetails-advanceDetails-pluginDetails-unitTestPluginVersion": response.buildDetails?.advanceDetails?.pluginDetails?.unitTestPluginVersion?.value,
+                    "buildDetails-advanceDetails-pluginDetails-miContainerPluginVersion": response.buildDetails?.advanceDetails?.pluginDetails?.miContainerPluginVersion?.value,
+                    "unitTest-skipTest": Boolean(response.unitTest?.skipTest?.value),
+                    "unitTest-serverHost": response.unitTest?.serverHost?.value,
+                    "unitTest-serverPort": response.unitTest?.serverPort?.value,
+                    "unitTest-serverPath": response.unitTest?.serverPath?.value,
+                    "unitTest-serverType": response.unitTest?.serverType?.value,
+                    "unitTest-serverVersion": response.unitTest?.serverVersion?.value,
+                    "unitTest-serverDownloadLink": response.unitTest?.serverDownloadLink?.value,
+                    "advanced-legacyExpressionSupport": isLegacyExpressionEnabled
                 });
             } catch (error) {
                 console.error("Error fetching project details:", error);
@@ -175,32 +173,23 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
     const handleFormSubmit = async () => {
         try {
             const changes: any[] = [];
-            const processFields = (fields: any, path: string = '') => {
-                Object.entries(fields).forEach(async ([key, value]) => {
-                    const newPath = path ? `${path}.${key}` : key;
-                    if (typeof value === 'object' && !Array.isArray(value)) {
-                        processFields(value, newPath);
-                    } else if (newPath === "advanced.legacyExpressionSupport") {
-                        let isLegacyExpressionSupportEnabled = getValues("advanced.legacyExpressionSupport");
-                        await rpcClient.getMiVisualizerRpcClient().updateLegacyExpressionSupport(isLegacyExpressionSupportEnabled);
-                    } else {
-                        const fieldValue = getValues(newPath as any);
-                        const range = newPath.split('.').reduce((acc, key) => acc?.[key], projectDetails as any)?.range;
-                        if (range) {
-                            if (Array.isArray(range)) {
-                                range.forEach((r: any) => {
-                                    changes.push({ value: fieldValue, range: r });
-                                });
-                            } else {
-                                changes.push({ value: fieldValue, range });
-                            }
-                        }
-                    }
-                });
-            };
+            Object.entries(dirtyFields).forEach(async ([field]) => {
+                if (field === "advanced-legacyExpressionSupport") {
+                    let isLegacyExpressionSupportEnabled = getValues("advanced-legacyExpressionSupport");
+                    await rpcClient.getMiVisualizerRpcClient().updateLegacyExpressionSupport(isLegacyExpressionSupportEnabled);
+                }
 
-            Object.entries(dirtyFields).forEach(([section, fields]) => {
-                processFields(fields, section);
+                const fieldValue = getValues(field as any);
+                const range = field.split('-').reduce((acc, key) => acc?.[key], projectDetails as any)?.range;
+                if (range) {
+                    if (Array.isArray(range)) {
+                        range.forEach((r: any) => {
+                            changes.push({ value: fieldValue, range: r });
+                        });
+                    } else {
+                        changes.push({ value: fieldValue, range });
+                    }
+                }
             });
 
             if (changes.length > 0) {
@@ -306,21 +295,35 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                 <div id={"content"} ref={contentRef} style={{ maxHeight: '65vh', overflowY: 'auto', paddingLeft: 20 }}>
                     {/* Body 1.1 */}
                     <div ref={divRefs["Project Information"]} id="Project Information" style={fieldGroupStyle}>
-                        <TextField
-                            label="Project Name"
-                            required
-                            description="The name of the project"
-                            descriptionSx={{ margin: "8px 0" }}
-                            errorMsg={errors["primaryDetails.projectName"]?.message?.toString()}
-                            sx={fieldStyle}
-                            {...register("primaryDetails.projectName")}
+                        <Controller
+                            name="primaryDetails-projectName"
+                            control={control}
+                            rules={{
+                                validate: (value) => {
+                                    if (!value) {
+                                        return "Project Name is required";
+                                    }
+                                    return true;
+                                }
+                            }}
+                            render={({ field }) => (
+                                <TextField
+                                    {...field}
+                                    label="Project Name"
+                                    required
+                                    description="The name of the project"
+                                    descriptionSx={{ margin: "8px 0" }}
+                                    errorMsg={errors["primaryDetails-projectName"]?.message?.toString()}
+                                    sx={fieldStyle}
+                                />
+                            )}
                         />
                         <TextField
                             label="Description"
                             description="The description of the project"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            {...register("primaryDetails.projectDescription")}
+                            {...register("primaryDetails-projectDescription")}
                         />
                         <TextField
                             label="Version"
@@ -328,8 +331,8 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                             description="The version of the project"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            errorMsg={errors["primaryDetails.projectVersion"]?.message?.toString()}
-                            {...register("primaryDetails.projectVersion")}
+                            errorMsg={errors["primaryDetails-projectVersion"]?.message?.toString()}
+                            {...register("primaryDetails-projectVersion")}
                         />
 
                         <Dropdown
@@ -339,9 +342,9 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                             description="The runtime version of the project"
                             descriptionSx={{ margin: "6px 0 8px" }}
                             containerSx={fieldStyle}
-                            errorMsg={errors["primaryDetails.runtimeVersion"]?.message?.toString()}
+                            errorMsg={errors["primaryDetails-runtimeVersion"]?.message?.toString()}
                             items={runtimeVersions}
-                            {...register("primaryDetails.runtimeVersion")}
+                            {...register("primaryDetails-runtimeVersion")}
                         />
                         {isRuntimeVersionChanged && (
                             <Banner
@@ -356,20 +359,20 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                         <TextField
                             label="Base Image"
                             required
-                            errorMsg={errors["buildDetails.dockerDetails.dockerFileBaseImage"]?.message?.toString()}
+                            errorMsg={errors["buildDetails-dockerDetails-dockerFileBaseImage"]?.message?.toString()}
                             description="The base image of the project"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            {...register("buildDetails.dockerDetails.dockerFileBaseImage")}
+                            {...register("buildDetails-dockerDetails-dockerFileBaseImage")}
                         />
                         <TextField
                             label="Docker Name"
                             required
-                            errorMsg={errors["buildDetails.dockerDetails.dockerName"]?.message?.toString()}
+                            errorMsg={errors["buildDetails-dockerDetails-dockerName"]?.message?.toString()}
                             description="The name of the docker"
                             descriptionSx={{ margin: "10px 0" }}
                             sx={fieldStyle}
-                            {...register("buildDetails.dockerDetails.dockerName")}
+                            {...register("buildDetails-dockerDetails-dockerName")}
                         />
                         <FormCheckBox
                             label="Enable Cipher Tool"
@@ -377,28 +380,28 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                             descriptionSx={{ margin: "10px 0" }}
                             control={control}
                             sx={fieldStyle}
-                            {...register("buildDetails.dockerDetails.enableCipherTool")}
+                            {...register("buildDetails-dockerDetails-enableCipherTool")}
                         />
                         <TextField
                             label="Keystore Name"
                             description="The name of the keystore"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            {...register("buildDetails.dockerDetails.keyStoreName")}
+                            {...register("buildDetails-dockerDetails-keyStoreName")}
                         />
                         <TextField
                             label="Keystore Alias"
                             description="The alias of the keystore"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            {...register("buildDetails.dockerDetails.keyStoreAlias")}
+                            {...register("buildDetails-dockerDetails-keyStoreAlias")}
                         />
                         <TextField
                             label="Keystore Type"
                             description="The type of the keystore"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            {...register("buildDetails.dockerDetails.keyStoreType")}
+                            {...register("buildDetails-dockerDetails-keyStoreType")}
                         />
                         <TextField
                             label="Keystore Password"
@@ -406,42 +409,42 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                             description="The password of the keystore"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            {...register("buildDetails.dockerDetails.keyStorePassword")}
+                            {...register("buildDetails-dockerDetails-keyStorePassword")}
                         />
                         <TextField
                             label="Maven Artifact Id"
                             description="The artifact id of the maven"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            {...register("buildDetails.advanceDetails.projectArtifactId")}
+                            {...register("buildDetails-advanceDetails-projectArtifactId")}
                         />
                         <TextField
                             label="Maven Group Id"
                             description="The group id of the maven"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            {...register("buildDetails.advanceDetails.projectGroupId")}
+                            {...register("buildDetails-advanceDetails-projectGroupId")}
                         />
                         <TextField
                             label="CAR Plugin Version"
                             description="The version of the car plugin"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            {...register("buildDetails.advanceDetails.pluginDetails.projectBuildPluginVersion")}
+                            {...register("buildDetails-advanceDetails-pluginDetails-projectBuildPluginVersion")}
                         />
                         <TextField
                             label="Unit Test Plugin Version"
                             description="The version of the unit test plugin"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            {...register("buildDetails.advanceDetails.pluginDetails.unitTestPluginVersion")}
+                            {...register("buildDetails-advanceDetails-pluginDetails-unitTestPluginVersion")}
                         />
                         <TextField
                             label="MI Config Mapper Plugin Version"
                             description="The version of the mi config mapper plugin"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            {...register("buildDetails.advanceDetails.pluginDetails.miContainerPluginVersion")}
+                            {...register("buildDetails-advanceDetails-pluginDetails-miContainerPluginVersion")}
                         />
                     </div>
                     <Typography variant="h1" sx={sectionTitleStyle} > Unit Test </Typography>
@@ -451,42 +454,42 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                             description="The host of the server"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            {...register("unitTest.serverHost")}
+                            {...register("unitTest-serverHost")}
                         />
                         <TextField
                             label="Server Port"
                             description="The port of the server"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            {...register("unitTest.serverPort")}
+                            {...register("unitTest-serverPort")}
                         />
                         <TextField
                             label="Server Path"
                             description="The path of the server"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            {...register("unitTest.serverPath")}
+                            {...register("unitTest-serverPath")}
                         />
                         <TextField
                             label="Server Type"
                             description="The type of the server"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            {...register("unitTest.serverType")}
+                            {...register("unitTest-serverType")}
                         />
                         <TextField
                             label="Server Version"
                             description="The version of the server"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            {...register("unitTest.serverVersion")}
+                            {...register("unitTest-serverVersion")}
                         />
                         <TextField
                             label="Server Download Link"
                             description="The download link of the server"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            {...register("unitTest.serverDownloadLink")}
+                            {...register("unitTest-serverDownloadLink")}
                         />
                     </div>
                     <Typography variant="h1" sx={sectionTitleStyle} > Advanced </Typography>
@@ -497,7 +500,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                             descriptionSx={{ margin: "10px 0" }}
                             control={control}
                             sx={fieldStyle}
-                            {...register("advanced.legacyExpressionSupport")}
+                            {...register("advanced-legacyExpressionSupport")}
                         />
                     </div>
                 </div>
@@ -513,7 +516,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                         <Button
                             appearance="primary"
                             onClick={handleSubmit(handleFormSubmit)}
-                            disabled={!Object.keys(dirtyFields).length || isSubmitting}
+                            disabled={!Object.keys(dirtyFields).length || isSubmitting || !isValid}
                         >
                             Save Changes
                         </Button>
