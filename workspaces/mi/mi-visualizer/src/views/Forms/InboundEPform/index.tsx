@@ -95,8 +95,8 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     };
 
     const formTitle = !props.model
-        ? "Create new Listener"
-        : "Edit Listener : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
+        ? "Create Event Integration"
+        : "Edit Event Integration : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
 
 
     const transformParams = (params: any, reverse: boolean = false) => {
@@ -184,8 +184,17 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.InboundEPView, documentUri: sequencePath } });
     };
 
+    const openInboundEPView = (documentUri: string) => {
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.InboundEPView, documentUri: documentUri } });
+    };
+
     const handleOnClose = () => {
-        rpcClient.getMiVisualizerRpcClient().goBack();
+        const isNewTask = !props.model;
+        if (isNewTask) {
+            openOverview();
+        } else {
+            openInboundEPView(props.path);
+        }
     }
 
     return (
@@ -205,7 +214,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                         </LoaderWrapper>
                     ) : (
                         <>
-                            <span>Please select an inbound endpoint.</span>
+                            <span>Please select an event integration.</span>
                             <SampleGrid>
                                 {connectors ?
                                     connectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (
