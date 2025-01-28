@@ -35,12 +35,12 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
 
     const projectUuid = uuidv4();
 
-    let { projectName, groupId, artifactId, version } = getProjectDetails(source);
+    let { projectName, groupId, artifactId, version, runtimeVersion } = getProjectDetails(source);
 
     if (projectName && groupId && artifactId && version) {
         const folderStructure: FileStructure = {
-            'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid, version, LATEST_MI_VERSION),
-            '.env':'',
+            'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid, version, runtimeVersion ?? LATEST_MI_VERSION),
+            '.env': '',
             'src': {
                 'main': {
                     'java': '',
@@ -66,8 +66,8 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
                             },
                             'metadata': '',
                             'connectors': '',
-                            'conf':{
-                                'config.properties':''
+                            'conf': {
+                                'config.properties': ''
                             }
                         },
                     },
@@ -119,6 +119,7 @@ export function getProjectDetails(filePath: string) {
     let groupId: string | undefined;
     let artifactId: string | undefined;
     let version: string | undefined;
+    let runtimeVersion: string | undefined;
     const pomContent = fs.readFileSync(path.join(filePath, "pom.xml"), 'utf8');
 
     parseString(pomContent, { explicitArray: false, ignoreAttrs: true }, (err, result) => {
@@ -131,9 +132,10 @@ export function getProjectDetails(filePath: string) {
         groupId = result?.project?.groupId;
         artifactId = result?.project?.artifactId;
         version = result?.project?.version;
+        runtimeVersion = result?.project?.properties["project.runtime.version"];
     });
 
-    return { projectName, groupId, artifactId, version };
+    return { projectName, groupId, artifactId, version, runtimeVersion };
 }
 
 export async function migrateConfigs(source: string, target: string) {
