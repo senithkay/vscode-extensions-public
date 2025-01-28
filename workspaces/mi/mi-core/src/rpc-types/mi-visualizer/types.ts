@@ -127,7 +127,7 @@ export interface DockerDetails {
 export interface AdvanceDetails {
     projectGroupId: PomNodeDetails;
     projectArtifactId: PomNodeDetails;
-    pluginDetatils: PluginDetatils;
+    pluginDetails: PluginDetatils;
 }
 
 export interface PluginDetatils {

@@ -11,7 +11,7 @@ import { ProjectDetailsResponse } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { useEffect, useRef, useState } from "react";
 
-import { Button, Dropdown, Banner, FormActions, OptionProps, ProgressIndicator, TextField, Codicon, SplitView, TreeView, TreeViewItem, Typography, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
+import { Button, Dropdown, Banner, FormActions, OptionProps, ProgressIndicator, TextField, Codicon, SplitView, TreeView, TreeViewItem, Typography, FormCheckBox, setValue } from "@wso2-enterprise/ui-toolkit";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
@@ -28,7 +28,7 @@ const TitleBoxShadow = styled.div`
 `;
 
 const fieldGroupStyle = { display: "flex", flexDirection: "column", gap: 24, padding: "0 0 30px", marginTop: "20px", paddingLeft: "10px" };
-const fieldStyle = { 
+const fieldStyle = {
     padding: "10px",
     "&:hover": { backgroundColor: "var(--vscode-settings-rowHoverBackground)" },
 };
@@ -55,11 +55,11 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         "buildDetails.dockerDetails.keyStoreAlias": yup.string(),
         "buildDetails.dockerDetails.keyStoreType": yup.string(),
         "buildDetails.dockerDetails.keyStorePassword": yup.string(),
-        "advanced.mavenArtifactId": yup.string(),
-        "advanced.mavenGroupId": yup.string(),
-        "advanced.carPluginVersion": yup.string(),
-        "advanced.unitTestPluginVersion": yup.string(),
-        "advanced.miConfigMapperPluginVersion": yup.string(),
+        "buildDetails.advanceDetails.projectArtifactId": yup.string(),
+        "buildDetails.advanceDetails.projectGroupId": yup.string(),
+        "buildDetails.advanceDetails.pluginDetails.projectBuildPluginVersion": yup.string(),
+        "buildDetails.advanceDetails.pluginDetails.unitTestPluginVersion": yup.string(),
+        "buildDetails.advanceDetails.pluginDetails.miContainerPluginVersion": yup.string(),
         "unitTest.skipTest": yup.boolean(),
         "unitTest.serverHost": yup.string(),
         "unitTest.serverPort": yup.string(),
@@ -76,6 +76,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         handleSubmit,
         reset,
         getValues,
+        setValue,
         control,
         watch,
     } = useForm({
@@ -100,7 +101,8 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         async function fetchData() {
             try {
                 const response = await rpcClient?.getMiVisualizerRpcClient().getProjectDetails();
-                console.log("Maven Artifact Id:", response.buildDetails?.advanceDetails?.projectArtifactId?.value);
+                const isLegacyExpressionEnabled = await rpcClient.getMiVisualizerRpcClient().isLegacyExpressionSupportEnabled();
+
                 setProjectDetails(response);
                 setInitialRuntimeVersion(response.primaryDetails.runtimeVersion.value);
                 const supportedVersions = await rpcClient.getMiVisualizerRpcClient().getSupportedMIVersionsHigherThan(response.primaryDetails.runtimeVersion.value);
@@ -118,11 +120,11 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     "buildDetails.dockerDetails.keyStoreAlias": response.buildDetails?.dockerDetails?.keyStoreAlias?.value,
                     "buildDetails.dockerDetails.keyStoreType": response.buildDetails?.dockerDetails?.keyStoreType?.value,
                     "buildDetails.dockerDetails.keyStorePassword": response.buildDetails?.dockerDetails?.keyStorePassword?.value,
-                    "advanced.mavenArtifactId": response.buildDetails?.advanceDetails?.projectArtifactId?.value,
-                    "advanced.mavenGroupId": response.buildDetails?.advanceDetails?.projectGroupId?.value,
-                    "advanced.carPluginVersion": response.buildDetails?.advanceDetails?.pluginDetatils?.projectBuildPluginVersion?.value,
-                    "advanced.unitTestPluginVersion": response.buildDetails?.advanceDetails?.pluginDetatils?.unitTestPluginVersion?.value,
-                    "advanced.miConfigMapperPluginVersion": response.buildDetails?.advanceDetails?.pluginDetatils?.miContainerPluginVersion?.value,
+                    "buildDetails.advanceDetails.projectArtifactId": response.buildDetails?.advanceDetails?.projectArtifactId?.value,
+                    "buildDetails.advanceDetails.projectGroupId": response.buildDetails?.advanceDetails?.projectGroupId?.value,
+                    "buildDetails.advanceDetails.pluginDetails.projectBuildPluginVersion": response.buildDetails?.advanceDetails?.pluginDetails?.projectBuildPluginVersion?.value,
+                    "buildDetails.advanceDetails.pluginDetails.unitTestPluginVersion": response.buildDetails?.advanceDetails?.pluginDetails?.unitTestPluginVersion?.value,
+                    "buildDetails.advanceDetails.pluginDetails.miContainerPluginVersion": response.buildDetails?.advanceDetails?.pluginDetails?.miContainerPluginVersion?.value,
                     "unitTest.skipTest": Boolean(response.unitTest?.skipTest?.value),
                     "unitTest.serverHost": response.unitTest?.serverHost?.value,
                     "unitTest.serverPort": response.unitTest?.serverPort?.value,
@@ -130,7 +132,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     "unitTest.serverType": response.unitTest?.serverType?.value,
                     "unitTest.serverVersion": response.unitTest?.serverVersion?.value,
                     "unitTest.serverDownloadLink": response.unitTest?.serverDownloadLink?.value,
-                    "advanced.legacyExpressionSupport": response.advanced?.isLegacyExpressionEnabled
+                    "advanced.legacyExpressionSupport": isLegacyExpressionEnabled
                 });
             } catch (error) {
                 console.error("Error fetching project details:", error);
@@ -174,15 +176,24 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         try {
             const changes: any[] = [];
             const processFields = (fields: any, path: string = '') => {
-                Object.entries(fields).forEach(([key, value]) => {
+                Object.entries(fields).forEach(async ([key, value]) => {
                     const newPath = path ? `${path}.${key}` : key;
                     if (typeof value === 'object' && !Array.isArray(value)) {
                         processFields(value, newPath);
+                    } else if (newPath === "advanced.legacyExpressionSupport") {
+                        let isLegacyExpressionSupportEnabled = getValues("advanced.legacyExpressionSupport");
+                        await rpcClient.getMiVisualizerRpcClient().updateLegacyExpressionSupport(isLegacyExpressionSupportEnabled);
                     } else {
                         const fieldValue = getValues(newPath as any);
                         const range = newPath.split('.').reduce((acc, key) => acc?.[key], projectDetails as any)?.range;
                         if (range) {
-                            changes.push({ value: fieldValue, range });
+                            if (Array.isArray(range)) {
+                                range.forEach((r: any) => {
+                                    changes.push({ value: fieldValue, range: r });
+                                });
+                            } else {
+                                changes.push({ value: fieldValue, range });
+                            }
                         }
                     }
                 });
@@ -192,17 +203,13 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                 processFields(fields, section);
             });
 
-            // sort changes by range
-            const sortedChanges = changes.sort((a, b) => b.range.start - a.range.start);
+            if (changes.length > 0) {
+                // sort changes by range
+                const sortedChanges = changes.sort((a, b) => b.range.start - a.range.start);
 
-            await rpcClient.getMiVisualizerRpcClient().updatePomValues({ pomValues: sortedChanges });
-
-            const updatedValues = Object.keys(dirtyFields);
-
-            if (updatedValues.includes("advanced")) {
-                let isLegacyExpressionSupportEnabled = getValues("advanced.legacyExpressionSupport");
-                await rpcClient.getMiVisualizerRpcClient().updateLegacyExpressionSupport(isLegacyExpressionSupportEnabled);
+                await rpcClient.getMiVisualizerRpcClient().updatePomValues({ pomValues: sortedChanges });
             }
+
             if (isRuntimeVersionChanged) {
                 await rpcClient.getMiVisualizerRpcClient().reloadWindow();
             } else {
@@ -241,18 +248,18 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         <SplitView sx={{ width: "auto", maxWidth: 1200, padding: 60 }} defaultWidths={[25, 75]} dynamicContainerSx={{ overflow: "visible" }}>
             {/* Left side tree view */}
             <div style={{ padding: "10px 0 50px 0" }}>
-                <TreeView 
-                    rootTreeView 
+                <TreeView
+                    rootTreeView
                     id="Project Information"
-                    sx={ selectedId === "Project Information" ? { cursor: "pointer", border: "1px solid var(--vscode-focusBorder)" } : { cursor: "pointer" }}
+                    sx={selectedId === "Project Information" ? { cursor: "pointer", border: "1px solid var(--vscode-focusBorder)" } : { cursor: "pointer" }}
                     content={
                         <Typography sx={treeViewStyle} variant="h4">Project Information</Typography>
-                    } 
+                    }
                     selectedId={selectedId}
                     onSelect={handleClick}
                 />
-                <TreeView 
-                    rootTreeView 
+                <TreeView
+                    rootTreeView
                     id="Build Details"
                     sx={selectedId === "Build Details" ? { cursor: "pointer", border: "1px solid var(--vscode-focusBorder)" } : { cursor: "pointer" }}
                     content={
@@ -260,10 +267,10 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                             Build Details
                         </Typography>
                     }
-                    selectedId={selectedId} 
+                    selectedId={selectedId}
                     onSelect={handleClick}
                 />
-                <TreeView 
+                <TreeView
                     rootTreeView
                     id="Unit Test"
                     sx={selectedId === "Unit Test" ? { cursor: "pointer", border: "1px solid var(--vscode-focusBorder)" } : { cursor: "pointer" }}
@@ -273,9 +280,9 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                         </Typography>
                     }
                     selectedId={selectedId}
-                    onSelect={handleClick} 
+                    onSelect={handleClick}
                 />
-                <TreeView 
+                <TreeView
                     rootTreeView
                     id="Advanced"
                     sx={selectedId === "Advanced" ? { cursor: "pointer", border: "1px solid var(--vscode-focusBorder)" } : { cursor: "pointer" }}
@@ -406,35 +413,35 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                             description="The artifact id of the maven"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            {...register("advanced.mavenArtifactId")}
+                            {...register("buildDetails.advanceDetails.projectArtifactId")}
                         />
                         <TextField
                             label="Maven Group Id"
                             description="The group id of the maven"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            {...register("advanced.mavenGroupId")}
+                            {...register("buildDetails.advanceDetails.projectGroupId")}
                         />
                         <TextField
                             label="CAR Plugin Version"
                             description="The version of the car plugin"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            {...register("advanced.carPluginVersion")}
+                            {...register("buildDetails.advanceDetails.pluginDetails.projectBuildPluginVersion")}
                         />
                         <TextField
                             label="Unit Test Plugin Version"
                             description="The version of the unit test plugin"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            {...register("advanced.unitTestPluginVersion")}
+                            {...register("buildDetails.advanceDetails.pluginDetails.unitTestPluginVersion")}
                         />
                         <TextField
                             label="MI Config Mapper Plugin Version"
                             description="The version of the mi config mapper plugin"
                             descriptionSx={{ margin: "8px 0" }}
                             sx={fieldStyle}
-                            {...register("advanced.miConfigMapperPluginVersion")}
+                            {...register("buildDetails.advanceDetails.pluginDetails.miContainerPluginVersion")}
                         />
                     </div>
                     <Typography variant="h1" sx={sectionTitleStyle} > Unit Test </Typography>
@@ -483,7 +490,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                         />
                     </div>
                     <Typography variant="h1" sx={sectionTitleStyle} > Advanced </Typography>
-                    <div ref={divRefs["Advanced"]} id="Advanced" style={{...fieldGroupStyle, paddingBottom: 0}}>
+                    <div ref={divRefs["Advanced"]} id="Advanced" style={{ ...fieldGroupStyle, paddingBottom: 0 }}>
                         <FormCheckBox
                             label="Legacy Expression Support"
                             description="Enables the legacy expression support"
@@ -494,7 +501,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                         />
                     </div>
                 </div>
-                <div style={{ position: "sticky", bottom: 0, zIndex: 20005, height: 40, backgroundColor: "var(--vscode-editor-background)"}}>
+                <div style={{ position: "sticky", bottom: 0, zIndex: 20005, height: 40, backgroundColor: "var(--vscode-editor-background)" }}>
                     {/* <TitleBoxShadow/> */}
                     <FormActions>
                         <Button

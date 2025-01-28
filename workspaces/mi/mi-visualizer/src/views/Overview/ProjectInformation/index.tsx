@@ -296,22 +296,22 @@ export function ProjectInformation(props: ProjectInformationProps) {
                     <Typography>Maven Group ID: {buildDetails?.advanceDetails?.projectGroupId?.value}</Typography>
                 </Item>
             )}
-            {buildDetails?.advanceDetails?.pluginDetatils?.projectBuildPluginVersion?.value && (
+            {buildDetails?.advanceDetails?.pluginDetails?.projectBuildPluginVersion?.value && (
                 <Item>
                     <Icon name="versions" isCodicon sx={{ marginRight: '8px' }} />
-                    <Typography>Build Plugin Version: {buildDetails?.advanceDetails?.pluginDetatils?.projectBuildPluginVersion?.value}</Typography>
+                    <Typography>Build Plugin Version: {buildDetails?.advanceDetails?.pluginDetails?.projectBuildPluginVersion?.value}</Typography>
                 </Item>
             )}
-            {buildDetails?.advanceDetails?.pluginDetatils?.unitTestPluginVersion?.value && (
+            {buildDetails?.advanceDetails?.pluginDetails?.unitTestPluginVersion?.value && (
                 <Item>
                     <Icon name="versions" isCodicon sx={{ marginRight: '8px' }} />
-                    <Typography>Unit Test Plugin Version: {buildDetails?.advanceDetails?.pluginDetatils?.unitTestPluginVersion?.value}</Typography>
+                    <Typography>Unit Test Plugin Version: {buildDetails?.advanceDetails?.pluginDetails?.unitTestPluginVersion?.value}</Typography>
                 </Item>
             )}
-            {buildDetails?.advanceDetails?.pluginDetatils?.miContainerPluginVersion?.value && (
+            {buildDetails?.advanceDetails?.pluginDetails?.miContainerPluginVersion?.value && (
                 <Item>
                     <Icon name="versions" isCodicon sx={{ marginRight: '8px' }} />
-                    <Typography>Config Mapper Plugin Version: {buildDetails?.advanceDetails?.pluginDetatils?.miContainerPluginVersion?.value}</Typography>
+                    <Typography>Config Mapper Plugin Version: {buildDetails?.advanceDetails?.pluginDetails?.miContainerPluginVersion?.value}</Typography>
                 </Item>
             )}
 
