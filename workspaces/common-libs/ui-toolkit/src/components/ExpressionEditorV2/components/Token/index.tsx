@@ -24,6 +24,7 @@ import { Icon } from '../../../Icon/Icon';
 import { Button } from '../../../Button/Button';
 import HelperPane from '../Common/HelperPane';
 import { ThemeColors } from '../../../../styles/ThemeColours';
+import { Codicon } from '../../../Codicon/Codicon';
 
 /* Styles */
 namespace S {
@@ -39,9 +40,18 @@ namespace S {
         }
     `;
 
+    export const ActionButtons = styled.div`
+        position: absolute;
+        top: -14px;
+        right: 0;
+        display: flex;
+        gap: 4px;
+    `
+
     export const EditorWithHandle = styled.div`
         position: relative;
         flex: 1 1 auto;
+        padding-block: 4px;
     `;
 
     export const Editor = styled.div<StyleBase & { isFocused: boolean }>`
@@ -142,16 +152,19 @@ namespace S {
 
 export const TokenEditor = ({
     value,
+    actionButtons,
     onChange,
     getHelperPane,
     helperPaneOrigin,
     isHelperPaneOpen,
     changeHelperPaneState,
     onFocus,
-    onBlur
+    onBlur,
+    getExpressionEditorIcon
 }: TokenEditorProps) => {
     const [isFocused, setIsFocused] = useState<boolean>(false);
     const editorRef = useRef<HTMLDivElement>(null);
+    const actionButtonsRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLDivElement>(null);
     const helperPaneContainerRef = useRef<HTMLDivElement>(null);
     const currentNodeRef = useRef<Node | null>(null);
@@ -351,6 +364,7 @@ export const TokenEditor = ({
             if (
                 isFocused &&
                 !editorRef.current?.contains(e.target) &&
+                !actionButtonsRef.current?.contains(e.target) &&
                 !buttonRef.current?.contains(e.target) &&
                 !helperPaneContainerRef.current?.contains(e.target)
             ) {
@@ -398,6 +412,62 @@ export const TokenEditor = ({
     return (
         <S.Container>
             <S.EditorWithHandle>
+                {/* Action buttons at the top of the expression editor */}
+                {actionButtons?.length > 0 && (
+                    <S.ActionButtons ref={actionButtonsRef}>
+                        {actionButtons.map((actBtn, index) => {
+                            let icon: React.ReactNode;
+                            if (actBtn.iconType === 'codicon') {
+                                icon = (
+                                    <Codicon
+                                        key={index}
+                                        name={actBtn.name}
+                                        iconSx={{
+                                            fontSize: "12px",
+                                            color: isHelperPaneOpen
+                                                ? "var(--vscode-button-foreground)"
+                                                : "var(--vscode-button-background)",
+                                        }}
+                                        sx={{ height: '14px', width: '16px' }}
+                                    />
+                                );
+                            } else {
+                                icon = (
+                                    <Icon
+                                        key={index}
+                                        name={actBtn.name}
+                                        iconSx={{
+                                            fontSize: '12px',
+                                            color: isHelperPaneOpen
+                                                ? 'var(--vscode-button-foreground)'
+                                                : 'var(--vscode-button-background)',
+                                        }}
+                                        sx={{ height: '14px', width: '16px' }}
+                                    />
+                                );
+                            }
+                            
+                            return (
+                                <Button
+                                    key={index}
+                                    tooltip={actBtn.tooltip}
+                                    onClick={actBtn.onClick}
+                                    appearance='icon'
+                                    buttonSx={{
+                                        height: '14px',
+                                        width: '22px',
+                                        ...(isHelperPaneOpen && {
+                                            backgroundColor: 'var(--vscode-button-background)',
+                                            borderRadius: '2px',
+                                        })
+                                    }}
+                                >
+                                    {icon}
+                                </Button>
+                            )
+                        })}
+                    </S.ActionButtons>
+                )}
                 <S.Editor
                     ref={editorRef}
                     isFocused={isFocused}
@@ -407,25 +477,29 @@ export const TokenEditor = ({
                 />
                 <ResizeHandle editorRef={editorRef} />
             </S.EditorWithHandle>
-            <Button
-                ref={buttonRef}
-                appearance="icon"
-                onClick={handleHelperPaneToggle}
-                tooltip="Open Helper View"
-                {...(isHelperPaneOpen && {
-                    sx: { backgroundColor: ThemeColors.PRIMARY, borderRadius: '2px' }
-                })}
-            >
-                <Icon
-                    name="function-icon"
-                    sx={{
-                        height: '19px',
-                        width: '17px',
-                        ...(isHelperPaneOpen && { color: ThemeColors.ON_PRIMARY })
-                    }}
-                    iconSx={{ fontSize: '16px' }}
-                />
-            </Button>
+            {getExpressionEditorIcon
+                ? getExpressionEditorIcon()
+                : (
+                    <Button
+                        ref={buttonRef}
+                        appearance="icon"
+                        onClick={handleHelperPaneToggle}
+                        tooltip="Open Helper View"
+                        {...(isHelperPaneOpen && {
+                            sx: { backgroundColor: ThemeColors.PRIMARY, borderRadius: '2px' }
+                        })}
+                    >
+                        <Icon
+                            name="function-icon"
+                            sx={{
+                                height: '19px',
+                                width: '17px',
+                                ...(isHelperPaneOpen && { color: ThemeColors.ON_PRIMARY })
+                            }}
+                            iconSx={{ fontSize: '16px' }}
+                        />
+                    </Button>
+                )}
             {isHelperPaneOpen && getHelperPaneComponent()}
         </S.Container>
     );
