@@ -59,10 +59,19 @@ function getServicePort(pid: string): number | undefined {
     try {
         const output = execSync(getLSOFCommand(platform, pid), { encoding: 'utf-8' });
         if (isNaN(output as any)) {
-            const portMatch = output.match(/\*:\d+/);
-            if (portMatch) {
-                return parseInt(portMatch[0].substring(2));
-            }
+            const listeningConnectionRegex = /^n(?:\*|localhost):(\d+)\b$/;
+            const ports = output
+                .split(/\r?\n/)
+                .map(line => line.trim())
+                .filter(line => listeningConnectionRegex.test(line))
+                .map(line => {
+                    const match = line.match(listeningConnectionRegex);
+                    return match ? parseInt(match[1]) : null; // Convert port number to integer
+                })
+                .filter((port): port is number => port !== null);
+
+            // TODO: Handle multiple ports (multiple services within the same Ballerina package)
+            return ports[0];
         } else { return parseInt(output); }
     } catch (error) {
         debug(`Error retrieving port for process ${pid}: ${error}`);
@@ -100,18 +109,18 @@ function getLSOFCommand(platform: string, pid: string): string {
 
 export async function waitForBallerinaService(projectDir: string): Promise<number> {
     const defaultPort = 9090;
-    const maxAttempts = 30; // Try for 30 seconds
-    let attempts = 0;
+    const maxAttempts = 200; // Try for 20 seconds
+    const timeout = 100; // 100ms
 
-    while (attempts < maxAttempts) {
+    let attempt = 0;
+    while (attempt < maxAttempts) {
         const runningServices = await findRunningBallerinaServices(projectDir);
         if (runningServices.length > 0) {
             return runningServices[0].port;
         }
 
-        // Wait for 1 second before next attempt
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        attempts++;
+        await new Promise(resolve => setTimeout(resolve, timeout));
+        attempt++;
     }
     throw new Error('Timed out waiting for Ballerina service to start');
 }
