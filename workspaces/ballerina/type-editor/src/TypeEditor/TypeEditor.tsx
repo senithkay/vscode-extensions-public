@@ -179,8 +179,6 @@ export function TypeEditor(props: TypeEditorProps) {
 
 
     const onTypeChange = (type: Type) => {
-        // setTypeName(type.name);
-        console.log(type);
         props.onTypeChange(type);
     }
 

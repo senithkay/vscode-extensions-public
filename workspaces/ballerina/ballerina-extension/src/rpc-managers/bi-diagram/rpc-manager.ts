@@ -83,6 +83,7 @@ import {
     WorkspaceFolder,
     WorkspacesResponse,
     buildProjectStructure,
+    TextEdit,
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import { writeFileSync } from "fs";
@@ -256,6 +257,47 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         }
         if (!isConnector && !isDataMapperFormUpdate) {
             updateView();
+        }
+    }
+
+    async applyTextEdits(filePath: string, textEdits: TextEdit[]): Promise<void> {
+        const workspaceEdit = new vscode.WorkspaceEdit();
+        const fileUri = Uri.file(filePath);
+
+        for (const edit of textEdits) {
+            const range = new vscode.Range(
+                edit.range.start.line,
+                edit.range.start.character,
+                edit.range.end.line,
+                edit.range.end.character
+            );
+            workspaceEdit.replace(fileUri, range, edit.newText);
+            console.log(">>> edit");
+            console.log(edit.newText);
+            console.log(">>> end edit");
+        }
+
+        try {
+            await workspace.applyEdit(workspaceEdit);
+
+            // Notify language server about the changes
+            const document = await workspace.openTextDocument(fileUri);
+
+            console.log(">>> document");
+            console.log(document.getText());
+            console.log(">>> end document");
+            await StateMachine.langClient().didChange({
+                textDocument: {
+                    uri: fileUri.toString(),
+                    version: document.version
+                },
+                contentChanges: [{
+                    text: document.getText()
+                }]
+            });
+        } catch (error) {
+            console.error("Error applying text edits:", error);
+            throw error;
         }
     }
 
@@ -1046,8 +1088,13 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         return new Promise((resolve, reject) => {
             StateMachine.langClient()
                 .updateType({ filePath: params.filePath, type: params.type, description: "" })
-                .then((types) => {
-                    resolve(types);
+                .then((updateTypeResponse: UpdateTypeResponse) => {
+                    console.log(">>> update type response", updateTypeResponse);
+                    // loop though all the files and update the type
+                    Object.entries(updateTypeResponse.textEdits).forEach(([file, textEdits]) => {
+                        this.applyTextEdits(file, textEdits);
+                    });
+                    resolve(updateTypeResponse);
                 }).catch((error) => {
                     console.log(">>> error fetching types from ls", error);
                     reject(error);

@@ -38,6 +38,9 @@
 		},
 		{
 			"path": "workspaces/ballerina/type-editor"
+		},
+		{
+			"path": "workspaces/common-libs/font-wso2-vscode"
 		}
 	],
 	"settings": {}

@@ -9,7 +9,7 @@
 
 import React, { useRef, useState } from 'react';
 import { Member, Type } from '@wso2-enterprise/ballerina-core';
-import { Codicon } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
 import { Button } from '@wso2-enterprise/ui-toolkit';
 import { TextField } from '@wso2-enterprise/ui-toolkit';
 
@@ -123,7 +123,7 @@ export const RecordEditor: React.FC<RecordEditorProps> = (props) => {
                         onChange={handleMemberTypeChange(key, member)}
                     />
                     <Button appearance="icon"><Codicon name="case-sensitive" /></Button>
-                    <Button appearance="icon" onClick={handleDeleteMember(key)}><Codicon name="delete" /></Button>
+                    <Button appearance="icon" onClick={handleDeleteMember(key)}><Codicon name="trash" /></Button>
                 </div>
             ))}
         </div>
