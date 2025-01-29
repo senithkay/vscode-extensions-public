@@ -325,6 +325,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
     protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args?: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
         this.debuggerHandler?.closeDebugger();
+        vscode.commands.executeCommand('setContext', 'MI.isRunning', 'false');
         try {
             if (process.platform === 'win32') {
                 await stopServer(this.currentServerPath, true);
@@ -346,7 +347,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
         DebuggerConfig.resetCappandLibs();
         extension.isServerStarted = false;
-        vscode.commands.executeCommand('setContext', 'MI.isRunning', 'false');
         RPCLayer._messenger.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Stopped');
     }
 

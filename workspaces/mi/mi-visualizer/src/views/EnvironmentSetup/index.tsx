@@ -245,11 +245,22 @@ export const EnvironmentSetup = () => {
         }
     }
 
+    const getHeadlineDescription = () => {
+        let isJavaSet = javaPathDetails?.status !== "not-valid";
+        let isMISet = miPathDetails?.status !== "not-valid";
+
+        if (isJavaSet && isMISet) {
+            return `Micro Integrator version ${recommendedVersions.miVersion} is setup.`;
+        } else {
+            return `Micro Integrator version ${recommendedVersions.miVersion} is not setup.`;
+        }
+    }
+
     return (
         <Container>
             <TitlePanel>
                 <Headline>Micro Integrator (MI) for VS Code</Headline>
-                <HeadlineSecondary>Micro Integrator version {recommendedVersions.miVersion} is not setup.</HeadlineSecondary>
+                <HeadlineSecondary>{getHeadlineDescription()}</HeadlineSecondary>
             </TitlePanel>
 
             {isPomValid ? (
