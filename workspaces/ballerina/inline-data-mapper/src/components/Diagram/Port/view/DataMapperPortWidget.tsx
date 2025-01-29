@@ -77,7 +77,7 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 						resetExprBarFocus();
 					} else if (event.function === "firstClickedOnOutput") {
 						hasFirstSelectOutput(true);
-						setTimeout(() => hasFirstSelectOutput(false), 3000);
+						setTimeout(() => hasFirstSelectOutput(false), 1500);
 					} else if (event.function === "disableNewLinking") {
 						setDisableNewLinking(true);
 					} else if (event.function === "enableNewLinking") {

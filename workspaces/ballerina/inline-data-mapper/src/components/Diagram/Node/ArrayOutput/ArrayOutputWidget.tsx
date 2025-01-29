@@ -23,6 +23,7 @@ import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore } from "../../../../
 import { OutputSearchHighlight } from "../commons/Search";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
 import { ValueConfigMenu, ValueConfigMenuItem, ValueConfigOption } from "../commons/ValueConfigButton";
+import { OutputBeforeInputNotification } from "../commons/OutputBeforeInputNotification";
 
 export interface ArrayOutputWidgetProps {
 	id: string;
@@ -207,14 +208,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 							/>
 						</FieldActionWrapper>
 					))}
-					{hasOutputBeforeInput && (
-                        <div className={classes.outputBeforeInputNotification}>
-                            <span style={{ display: 'flex', alignItems: 'center' }}>
-                                <Codicon name="info" sx={{ marginRight: "7px" }} />
-                                Click on input field first to create a mapping
-                            </span>
-                        </div>
-                    )}
+					{hasOutputBeforeInput && <OutputBeforeInputNotification />}
 				</TreeHeader>
 				{expanded && outputType && isBodyArrayLitExpr && (
 					<TreeBody>

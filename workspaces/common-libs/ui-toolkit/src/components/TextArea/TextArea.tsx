@@ -109,7 +109,7 @@ export const AutoResizeTextArea = React.forwardRef<HTMLTextAreaElement, AutoResi
 
         // Initial row calculation
         useEffect(() => {
-            if (props.value && initialRender.current && growRange) {
+            if (props.value !== undefined && initialRender.current && growRange) {
                 growTextArea(props.value.toString());
                 initialRender.current = false;
             }

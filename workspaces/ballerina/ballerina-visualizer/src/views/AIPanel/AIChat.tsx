@@ -21,6 +21,7 @@ import {
     DataMappingRecord,
     PostProcessResponse,
 } from "@wso2-enterprise/ballerina-core";
+
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon } from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from "react-markdown";
@@ -35,9 +36,19 @@ import { findRegexMatches } from "../../utils/utils";
 import { Collapse } from "react-collapse";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 
-interface MarkdownRendererProps {
-    markdownContent: string;
-}
+import {
+    MarkdownRenderer,
+    Footer,
+    FlexRow,
+    AIChatView,
+    Header,
+    HeaderButtons,
+    Main,
+    ChatMessage,
+    Welcome,
+    Badge,
+    ResetsInBadge
+} from './styles'
 
 interface CodeBlock {
     filePath: string;
@@ -55,65 +66,6 @@ interface ApiResponse {
 }
 
 var chatArray: ChatEntry[] = [];
-
-const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) => {
-    return <ReactMarkdown>{markdownContent}</ReactMarkdown>;
-};
-
-const Footer = styled.footer({
-    padding: "20px",
-});
-
-const FlexRow = styled.div({
-    display: "flex",
-    flexDirection: "row",
-});
-
-const AIChatView = styled.div({
-    display: "flex",
-    flexDirection: "column",
-    height: "100%",
-});
-
-const Header = styled.header({
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: "10px",
-    gap: "10px",
-});
-
-const HeaderButtons = styled.div({
-    display: "flex",
-    justifyContent: "flex-end",
-    marginRight: "10px",
-});
-
-const Main = styled.main({
-    flex: 1,
-    flexDirection: "column",
-    overflowY: "auto",
-});
-
-const ChatMessage = styled.div({
-    padding: "20px",
-    borderTop: "1px solid var(--vscode-editorWidget-border)",
-});
-
-const Welcome = styled.div({
-    padding: "0 20px",
-});
-
-const Badge = styled.div`
-    padding: 5px;
-    margin-left: 10px;
-    display: inline-block;
-    text-align: left;
-`;
-
-const ResetsInBadge = styled.div`
-    font-size: 10px;
-`;
 
 // A string array to store all code blocks
 const codeBlocks: string[] = [];
@@ -1032,8 +984,8 @@ export function AIChat() {
         setIsCodeLoading(false);
     }
 
-    async function handleLogout() {
-        await rpcClient.getAiPanelRpcClient().logout();
+    async function handleSettings() {
+        await rpcClient.getAiPanelRpcClient().openSettings();
     }
 
     function handleClearChat(): void {
@@ -1081,9 +1033,9 @@ export function AIChat() {
                         <Codicon name="clear-all" />
                         &nbsp;&nbsp;Clear
                     </Button>
-                    <Button appearance="icon" onClick={() => handleLogout()} tooltip="Logout" disabled={true}>
-                        <Codicon name="sign-out" />
-                        &nbsp;&nbsp;Logout
+                    <Button appearance="icon" onClick={() => handleSettings()} tooltip="Settings">
+                        <Codicon name="settings-gear" />
+                        &nbsp;&nbsp;Settings
                     </Button>
                 </HeaderButtons>
             </Header>
