@@ -106,6 +106,7 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                 <span className={classes.label}>
                     {hasFields && (
                         <Button
+                            id={"expand-or-collapse-" + id}
                             appearance="icon"
                             tooltip="Expand/Collapse"
                             onClick={handleExpand}
