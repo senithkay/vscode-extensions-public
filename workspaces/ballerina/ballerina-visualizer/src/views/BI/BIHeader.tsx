@@ -9,10 +9,12 @@
 
 import React, { useEffect } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Codicon, Divider } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Divider, Alert } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { SHARED_COMMANDS } from "@wso2-enterprise/ballerina-core";
+import { AlertBox } from "../AIPanel/AlertBox";
+import { AlertBoxWithClose } from "../AIPanel/AlertBoxWithClose";
 
 const TitleContainer = styled.div`
     display: flex;
@@ -60,33 +62,71 @@ const ProjectSubtitle = styled.h2`
 export function BIHeader(props: { showAI?: boolean, actions?: React.ReactNode[] }) {
     const { rpcClient } = useRpcContext();
     const [projectName, setProjectName] = React.useState<string>("");
+    const [showAlert, setShowAlert] = React.useState(false);
 
     useEffect(() => {
         rpcClient.getBIDiagramRpcClient().getWorkspaces().then(res => {
             setProjectName(res.workspaces[0].name);
         });
+        showLoginAlert().then((status) => {
+            setShowAlert(status);
+        });
     }, []);
 
-    const handleGenerateBtn = () => {
+    async function handleSettings() {
+        await rpcClient.getAiPanelRpcClient().openSettings();
         rpcClient.getCommonRpcClient().executeCommand({ commands: [SHARED_COMMANDS.OPEN_AI_PANEL] });
+    }
+
+    async function handleClose() {
+        //TODO: Set state to never show this alert again
+        console.log("Close");
+        await rpcClient.getAiPanelRpcClient().markAlertShown();
+        setShowAlert(false);
+    }
+
+    async function showLoginAlert() {
+        //TODO: Read state and return true/false
+        const resp = await rpcClient.getAiPanelRpcClient().showSignInAlert();
+        console.log("showLoginAlert", resp);
+        setShowAlert(resp);
+        return resp;
     }
 
     return (
         <>
             <TitleContainer>
-                <ProjectTitle>{projectName}</ProjectTitle>
-                <ProjectSubtitle>Integration</ProjectSubtitle>
-                {/* {props.showAI && <AIContainer>
-                    <VSCodeButton appearance="primary" title="Generate with AI" onClick={handleGenerateBtn}>
-                        <Codicon name="wand" sx={{ marginRight: 5 }} /> Generate with AI
-                    </VSCodeButton>
+            <ProjectTitle>{projectName}</ProjectTitle>
+            <ProjectSubtitle>Integration</ProjectSubtitle>
+            {/* {props.showAI && <AIContainer>
+                <VSCodeButton appearance="primary" title="Generate with AI" onClick={handleGenerateBtn}>
+                <Codicon name="wand" sx={{ marginRight: 5 }} /> Generate with AI
+                </VSCodeButton>
 
-                </AIContainer>} */}
-                <ActionContainer>
-                    {props.actions}
-                </ActionContainer>
+            </AIContainer>} */}
+            <ActionContainer>
+                {props.actions}
+            </ActionContainer>
             </TitleContainer>
             <Divider />
+            {showAlert && (
+            <AlertBoxWithClose 
+                subTitle={
+                "Please log in to WSO2 AI Platform to access AI features. You won't be able to use AI features until you log in."
+                }
+                title={"Login to WSO2 AI Platform"}
+
+                btn1Title="Manage Accounts"
+                btn1IconName="settings-gear"
+                btn1OnClick={() => handleSettings()}
+                btn1Id="settings"
+
+                btn2Title="Close"
+                btn2IconName="close"
+                btn2OnClick={() =>handleClose()}
+                btn2Id="Close"
+            />
+            )}
         </>
     );
 }
