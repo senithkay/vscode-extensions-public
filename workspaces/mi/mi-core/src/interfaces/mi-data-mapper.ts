@@ -17,6 +17,7 @@ export interface DMType {
     fields?: DMType[];
     unionTypes?: DMType[];
     resolvedUnionType?: DMType;
+    isRecursive?: boolean;
 }
 
 export enum TypeKind {
