@@ -49,6 +49,11 @@ const ServiceContainer = styled.div`
     padding-left: 10px;
 `;
 
+const FunctionsContainer = styled.div`
+    max-height: 600px;
+    overflow: scroll;
+`;
+
 interface ServiceDesignerProps {
     filePath: string;
     position: NodePosition;
@@ -313,16 +318,18 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                         <Typography key={"title"} variant="body2" sx={{ marginLeft: 10, marginBottom: 20, marginTop: 10 }}>
                             Available {serviceModel.moduleName === "http" ? "Resources" : "Functions"}
                         </Typography>
-                        {serviceModel.functions.filter(functionModel => (serviceModel.moduleName === "http" ? functionModel.kind === "RESOURCE" : true) && functionModel.enabled).map((functionModel, index) => (
-                            <ResourceAccordion
-                                key={`${index}-${functionModel.name.value}`}
-                                functionModel={functionModel}
-                                goToSource={() => { }}
-                                onEditResource={handleFunctionEdit}
-                                onDeleteResource={handleFunctionDelete}
-                                onResourceImplement={handleOpenDiagram}
-                            />
-                        ))}
+                        <FunctionsContainer>
+                            {serviceModel.functions.filter(functionModel => (serviceModel.moduleName === "http" ? functionModel.kind === "RESOURCE" : true) && functionModel.enabled).map((functionModel, index) => (
+                                <ResourceAccordion
+                                    key={`${index}-${functionModel.name.value}`}
+                                    functionModel={functionModel}
+                                    goToSource={() => { }}
+                                    onEditResource={handleFunctionEdit}
+                                    onDeleteResource={handleFunctionDelete}
+                                    onResourceImplement={handleOpenDiagram}
+                                />
+                            ))}
+                        </FunctionsContainer>
                     </>
                 }
                 {functionModel && functionModel.kind === "RESOURCE" &&
