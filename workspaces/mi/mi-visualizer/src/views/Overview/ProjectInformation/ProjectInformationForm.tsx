@@ -11,7 +11,7 @@ import { ProjectDetailsResponse } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { useEffect, useRef, useState } from "react";
 
-import { Button, Dropdown, Banner, FormActions, OptionProps, ProgressIndicator, TextField, Codicon, SplitView, TreeView, TreeViewItem, Typography, FormCheckBox, setValue } from "@wso2-enterprise/ui-toolkit";
+import { Button, Dropdown, Banner, FormActions, OptionProps, ProgressIndicator, TextField, Codicon, SplitView, TreeView, Typography, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Controller, useForm } from "react-hook-form";
@@ -76,7 +76,6 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         handleSubmit,
         reset,
         getValues,
-        setValue,
         control,
         watch,
     } = useForm({
@@ -107,12 +106,12 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                 const supportedMIVersions = supportedVersions.map((version: string) => ({ value: version, content: version }));
                 setRuntimeVersions(supportedMIVersions);
                 reset({
-                    "primaryDetails-projectName": response.primaryDetails.projectName.value,
-                    "primaryDetails-projectDescription": response.primaryDetails.projectDescription.value,
-                    "primaryDetails-projectVersion": response.primaryDetails.projectVersion.value,
-                    "primaryDetails-runtimeVersion": response.primaryDetails.runtimeVersion.value,
-                    "buildDetails-dockerDetails-dockerFileBaseImage": response.buildDetails.dockerDetails.dockerFileBaseImage.value,
-                    "buildDetails-dockerDetails-dockerName": response.buildDetails.dockerDetails.dockerName.value,
+                    "primaryDetails-projectName": response.primaryDetails?.projectName?.value,
+                    "primaryDetails-projectDescription": response.primaryDetails?.projectDescription?.value,
+                    "primaryDetails-projectVersion": response.primaryDetails?.projectVersion?.value,
+                    "primaryDetails-runtimeVersion": response.primaryDetails?.runtimeVersion?.value,
+                    "buildDetails-dockerDetails-dockerFileBaseImage": response.buildDetails?.dockerDetails?.dockerFileBaseImage?.displayValue || response.buildDetails?.dockerDetails?.dockerFileBaseImage?.value,
+                    "buildDetails-dockerDetails-dockerName": response.buildDetails?.dockerDetails?.dockerName?.displayValue || response.buildDetails?.dockerDetails?.dockerName.value,
                     "buildDetails-dockerDetails-enableCipherTool": Boolean(response.buildDetails?.dockerDetails?.cipherToolEnable?.value),
                     "buildDetails-dockerDetails-keyStoreName": response.buildDetails?.dockerDetails?.keyStoreName?.value,
                     "buildDetails-dockerDetails-keyStoreAlias": response.buildDetails?.dockerDetails?.keyStoreAlias?.value,
