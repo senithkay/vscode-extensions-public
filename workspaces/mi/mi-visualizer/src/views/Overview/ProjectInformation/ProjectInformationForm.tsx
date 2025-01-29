@@ -32,7 +32,8 @@ const fieldStyle = {
     padding: "10px",
     "&:hover": { backgroundColor: "var(--vscode-settings-rowHoverBackground)" },
 };
-const treeViewStyle = { margin: "0px 0px 3px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" };
+const treeViewSelectedStyle = { margin: "0px 0px 3px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" };
+const treeViewStyle = { ...treeViewSelectedStyle, opacity: 0.8 };
 const sectionTitleStyle = { margin: 0, paddingLeft: 20 };
 
 export function ProjectInformationForm(props: ProjectInformationFormProps) {
@@ -241,7 +242,9 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     id="Project Information"
                     sx={selectedId === "Project Information" ? { cursor: "pointer", border: "1px solid var(--vscode-focusBorder)" } : { cursor: "pointer" }}
                     content={
-                        <Typography sx={treeViewStyle} variant="h4">Project Information</Typography>
+                        <Typography sx={selectedId === "Project Information" ? treeViewSelectedStyle : treeViewStyle} variant="h4">
+                            Project Information
+                        </Typography>
                     }
                     selectedId={selectedId}
                     onSelect={handleClick}
@@ -251,7 +254,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     id="Build Details"
                     sx={selectedId === "Build Details" ? { cursor: "pointer", border: "1px solid var(--vscode-focusBorder)" } : { cursor: "pointer" }}
                     content={
-                        <Typography sx={treeViewStyle} variant="h4">
+                        <Typography sx={selectedId === "Build Details" ? treeViewSelectedStyle : treeViewStyle} variant="h4">
                             Build Details
                         </Typography>
                     }
@@ -263,7 +266,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     id="Unit Test"
                     sx={selectedId === "Unit Test" ? { cursor: "pointer", border: "1px solid var(--vscode-focusBorder)" } : { cursor: "pointer" }}
                     content={
-                        <Typography sx={treeViewStyle} variant="h4">
+                        <Typography sx={selectedId === "Unit Test" ? treeViewSelectedStyle : treeViewStyle} variant="h4">
                             Unit Test
                         </Typography>
                     }
@@ -275,7 +278,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     id="Advanced"
                     sx={selectedId === "Advanced" ? { cursor: "pointer", border: "1px solid var(--vscode-focusBorder)" } : { cursor: "pointer" }}
                     content={
-                        <Typography sx={treeViewStyle} variant="h4">
+                        <Typography sx={selectedId === "Advanced" ? treeViewSelectedStyle : treeViewStyle} variant="h4">
                             Advanced
                         </Typography>
                     }
