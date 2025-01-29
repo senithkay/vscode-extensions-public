@@ -20,6 +20,7 @@ import { ObjectOutputFieldWidget } from "./ObjectOutputFieldWidget";
 import { useIONodesStyles } from '../../../styles';
 import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore } from '../../../../store/store';
 import { OutputSearchHighlight } from '../commons/Search';
+import { OutputBeforeInputNotification } from '../commons/OutputBeforeInputNotification';
 
 export interface ObjectOutputWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -151,14 +152,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 						</Button>
 						{label}
 					</span>
-                    {hasOutputBeforeInput && (
-                        <div className={classes.outputBeforeInputNotification}>
-                            <span style={{ display: 'flex', alignItems: 'center' }}>
-                                <Codicon name="info" sx={{ marginRight: "7px" }} />
-                                Click on input field first to create a mapping
-                            </span>
-                        </div>
-                    )}
+                    {hasOutputBeforeInput && <OutputBeforeInputNotification />}
 				</TreeHeader>
 				{(expanded && fields) && (
 					<TreeBody>
