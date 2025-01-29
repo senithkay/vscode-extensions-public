@@ -33,7 +33,7 @@ export class PositionVisitor implements BaseVisitor {
             return false;
         }
         if (!node.viewState) {
-            console.error(">>> Node view state is not defined", { node });
+            // console.error(">>> Node view state is not defined", { node });
             return false;
         }
         return true;
@@ -177,6 +177,22 @@ export class PositionVisitor implements BaseVisitor {
     endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
         this.endVisitWhile(node, parent);
+    }
+
+
+    beginVisitFork(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.beginVisitWhile(node, parent);
+    }
+
+    endVisitFork(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.endVisitWhile(node, parent);
+    }
+
+    beginVisitWorker(node: Branch, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.lastNodeY = node.viewState.y;
     }
 
     skipChildren(): boolean {

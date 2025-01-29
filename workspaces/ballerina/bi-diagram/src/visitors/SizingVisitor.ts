@@ -11,7 +11,6 @@ import {
     COMMENT_NODE_WIDTH,
     EMPTY_NODE_CONTAINER_WIDTH,
     END_NODE_WIDTH,
-    ERROR_HANDLER_NODE_WIDTH,
     IF_NODE_WIDTH,
     LABEL_HEIGHT,
     NODE_BORDER_WIDTH,
@@ -110,7 +109,7 @@ export class SizingVisitor implements BaseVisitor {
             return false;
         }
         if (!node.viewState) {
-            console.error(">>> Node view state is not defined", { node });
+            // console.error(">>> Node view state is not defined", { node });
             return false;
         }
         return true;
@@ -277,12 +276,22 @@ export class SizingVisitor implements BaseVisitor {
 
     endVisitForeach(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
-        this.endVisitWhile(node, parent);
+        this.visitContainerNode(node, WHILE_NODE_WIDTH);
     }
 
     endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
-        this.visitContainerNode(node, ERROR_HANDLER_NODE_WIDTH);
+        this.visitContainerNode(node, WHILE_NODE_WIDTH);
+    }
+
+    endVisitFork(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.visitContainerNode(node, WHILE_NODE_WIDTH);
+    }
+
+    endVisitWorker(node: Branch, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.createBlockNode(node);
     }
 
     skipChildren(): boolean {

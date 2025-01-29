@@ -229,6 +229,21 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
         setAnchorEl(null);
     };
 
+    const getNodeIcon = () => {
+        switch (model.node.codedata.node) {
+            case "WHILE":
+                return <Icon name="bi-loop" sx={{ stroke: Colors.ON_SURFACE, fontSize: 24, width: 24, height: 24 }} />;
+            case "FORK":
+                return <Icon name="bi-parallel" sx={{ stroke: Colors.ON_SURFACE, fontSize: 24, width: 24, height: 24 }} />;
+            case "ERROR_HANDLER":
+                return (
+                    <Icon name="bi-shield" sx={{ stroke: Colors.ON_SURFACE, fontSize: 24, width: 24, height: 24 }} />
+                );
+            default:
+                return <Icon name="bi-code" sx={{ stroke: Colors.ON_SURFACE, fontSize: 24, width: 24, height: 24 }} />;
+        }
+    };
+
     const menuItems: Item[] = [
         {
             id: "edit",
@@ -270,7 +285,7 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                             />
                         )}
                         <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
-                        <Icon name="bi-loop" sx={{ stroke: Colors.ON_SURFACE, fontSize: 24, width: 24, height: 24 }} />
+                        {getNodeIcon()}
                         <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
                     </NodeStyles.Box>
                 </NodeStyles.Column>

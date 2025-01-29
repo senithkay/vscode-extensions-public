@@ -29,6 +29,7 @@ import {
 } from "../../resources";
 import { NodeKind } from "../../utils/types";
 import { Icon } from "@wso2-enterprise/ui-toolkit";
+import { Colors } from "../../resources/constants";
 
 interface NodeIconProps {
     type: NodeKind;
@@ -61,7 +62,7 @@ export function NodeIcon(props: NodeIconProps) {
         case "STOP":
             return <StopIcon />;
         case "ERROR_HANDLER":
-            return <SecurityIcon />;
+            return <Icon name="bi-shield" sx={{ stroke: Colors.ON_SURFACE, fontSize: 18, width: 18, height: 18 }} />;
         case "PANIC":
             return <BombIcon />;
         case "LOCK":
@@ -79,6 +80,8 @@ export function NodeIcon(props: NodeIconProps) {
             return <FunctionIcon />;
         case "DATA_MAPPER_CALL":
             return <Icon name="dataMapper" />;
+        case "FORK":
+            return <Icon name="bi-parallel" sx={{ stroke: Colors.ON_SURFACE, fontSize: 16, width: 16, height: 16 }} />;
         
         default:
             return <CodeIcon />;

@@ -20,7 +20,6 @@ import { WhileNodeModel } from "../components/nodes/WhileNode";
 import {
     BUTTON_NODE_HEIGHT,
     EMPTY_NODE_WIDTH,
-    ERROR_HANDLER_NODE_WIDTH,
     NODE_GAP_X,
     WHILE_NODE_WIDTH,
 } from "../resources/constants";
@@ -29,7 +28,6 @@ import { getBranchInLinkId, getBranchLabel } from "../utils/node";
 import { Branch, FlowNode, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 import { EndNodeModel } from "../components/nodes/EndNode";
-import { ErrorHandleNodeModel } from "../components/nodes/ErrorHandleNode/ErrorHandleNodeModel";
 
 export class NodeFactoryVisitor implements BaseVisitor {
     nodes: NodeModel[] = [];
@@ -102,6 +100,9 @@ export class NodeFactoryVisitor implements BaseVisitor {
     private getBranchEndNode(branch: Branch): NodeModel | undefined {
         // get last child node model
         const lastNode = branch.children.at(-1);
+        if (!lastNode) {
+            return;
+        }
         let lastChildNodeModel: NodeModel | undefined;
         if (branch.children.at(-1).codedata.node === "IF") {
             // if last child is IF, find endIf node
@@ -109,7 +110,8 @@ export class NodeFactoryVisitor implements BaseVisitor {
         } else if (
             branch.children.at(-1).codedata.node === "WHILE" ||
             branch.children.at(-1).codedata.node === "FOREACH" ||
-            branch.children.at(-1).codedata.node === "ERROR_HANDLER"
+            branch.children.at(-1).codedata.node === "ERROR_HANDLER" ||
+            branch.children.at(-1).codedata.node === "FORK"
         ) {
             // if last child is WHILE or FOREACH, find endwhile node
             lastChildNodeModel = this.nodes.find((n) => n.getID() === `${lastNode.id}-endContainer`);
@@ -132,7 +134,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
             return false;
         }
         if (!node.viewState) {
-            console.error(">>> Node view state is not defined", { node });
+            // console.error(">>> Node view state is not defined", { node });
             return false;
         }
         return true;
@@ -154,7 +156,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
         this.updateNodeLinks(node, nodeModel);
     }
 
-    beginVisitIf(node: FlowNode): void {
+    beginVisitIf(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
         const nodeModel = new IfNodeModel(node);
         this.nodes.push(nodeModel);
@@ -366,7 +368,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
         }
     }
 
-    beginVisitWhile(node: FlowNode): void {
+    beginVisitWhile(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
         const nodeModel = new WhileNodeModel(node);
         this.nodes.push(nodeModel);
@@ -391,7 +393,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
     beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
-        const nodeModel = new ErrorHandleNodeModel(node);
+        const nodeModel = new WhileNodeModel(node);
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
         this.lastNodeModel = undefined;
@@ -399,7 +401,20 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
     endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
-        this.visitContainerNode(node, ERROR_HANDLER_NODE_WIDTH);
+        this.visitContainerNode(node, WHILE_NODE_WIDTH);
+    }
+
+    beginVisitFork(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        const nodeModel = new WhileNodeModel(node);
+        this.nodes.push(nodeModel);
+        this.updateNodeLinks(node, nodeModel);
+        this.lastNodeModel = undefined;
+    }
+
+    endVisitFork(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.visitContainerNode(node, WHILE_NODE_WIDTH);
     }
 
     beginVisitRemoteActionCall(node: FlowNode, parent?: FlowNode): void {

@@ -178,8 +178,14 @@ export class InitVisitor implements BaseVisitor {
         this.visitContainerNode(node, parent);
     }
 
+    beginVisitFork(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.visitContainerNode(node, parent);
+    }
+
     endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
+        // remove view state of error branch and its children to avoid visiting them
         const errorBranch = node.branches.find((branch) => branch.codedata.node === "ON_FAILURE");
         errorBranch.viewState = undefined;
         errorBranch.children.forEach((child) => {
