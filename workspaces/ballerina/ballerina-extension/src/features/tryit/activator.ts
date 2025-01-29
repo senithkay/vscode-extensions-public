@@ -5,10 +5,12 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { BallerinaExtension, ExtendedLangClient } from "src/core";
 import { URI } from "vscode-uri";
-import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
 import { forEach } from "lodash";
 import Handlebars from "handlebars";
-import { findRunningBallerinaServices } from "./utils";
+import { findRunningBallerinaProcesses } from "./utils";
+import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core/lib/interfaces/extended-lang-client";
+import { OpenAPISpec } from "@wso2-enterprise/ballerina-core/lib/interfaces/extended-lang-client";
+import { NOT_SUPPORTED_TYPE } from "@wso2-enterprise/ballerina-core";
 
 let langClient: ExtendedLangClient | undefined;
 
@@ -73,7 +75,7 @@ async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: 
             title: 'Available Services'
         });
 
-         // User cancelled the selection
+        // User cancelled the selection
         if (!selected) {
             return;
         }
@@ -89,7 +91,8 @@ async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: 
     }
 
     // Create tryit.http file with service name
-    const tryitFileName = `tryit.${selectedService.name}.http`;
+    const fileName = path.parse(selectedService.filePath).name;
+    const tryitFileName = `tryit.${fileName}.http`;
     const tryitFilePath = path.join(targetDir, tryitFileName);
 
     const content = await generateTryItFileContent(workspaceRoot, selectedService);
@@ -111,10 +114,12 @@ async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> 
         return [];
     }
 
+    // Get project components
     const components: BallerinaProjectComponents = await langClient.getBallerinaProjectComponents({
         documentIdentifiers: [{ uri: URI.file(projectDir).toString() }]
     });
 
+    // Get all services from components
     const services = components.packages
         ?.flatMap(pkg => pkg.modules)
         .flatMap(module => module.services)
@@ -133,20 +138,75 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
     }
 
     // Get the openapi definitions from LS for the selected service
-    const openapiDefinitions = await langClient.convertToOpenAPI({
+    const openapiDefinitions: OpenAPISpec | NOT_SUPPORTED_TYPE = await langClient.convertToOpenAPI({
         documentFilePath: service.filePath
     });
 
-    const runningServices = await findRunningBallerinaServices(projectDir);
-    const serviceInstance = runningServices.find(s => s.serviceName === service.name);
-    
-    if (!serviceInstance) {
-        vscode.window.showWarningMessage(`Service ${service.name} is not running. Some features might not work correctly.`);
+    if (openapiDefinitions === 'NOT_SUPPORTED_TYPE') {
+        vscode.window.showErrorMessage('OpenAPI generation is not supported for the selected service');
         return undefined;
     }
 
-    // @ts-ignore
-    const content: Content = openapiDefinitions.content[0] as OpenAPISpec;
+    const balProcesses = await findRunningBallerinaProcesses(projectDir);
+
+    // Handle no running processes
+    if (!balProcesses || balProcesses.length === 0) {
+        vscode.window.showErrorMessage('No running Ballerina processes found. Please start your service first.');
+        return undefined;
+    }
+
+    // Collect all unique ports from all processes
+    const allPorts = balProcesses.flatMap(process => process.ports);
+    const uniquePorts = [...new Set(allPorts)];
+
+    // Handle port selection
+    let selectedPort: number;
+
+    if (uniquePorts.length > 1) {
+        const portItems = uniquePorts.map(port => ({
+            label: `Port ${port}`,
+            port
+        }));
+
+        const selected = await vscode.window.showQuickPick(portItems, {
+            placeHolder: `Multiple ports detected. Please select the port configured for the service "${service.name}"`,
+            title: 'Available Ports'
+        });
+
+        if (!selected) {
+            // User cancelled the selection
+            return undefined;
+        }
+
+        selectedPort = selected.port;
+    } else if (uniquePorts.length === 1) {
+        selectedPort = uniquePorts[0];
+    } else {
+        vscode.window.showErrorMessage('No ports found in the running Ballerina processes');
+        return undefined;
+    }
+
+    // Find the matching OpenAPI definition based on file path
+    const matchingDefinition = (openapiDefinitions as OpenAPISpec).content.find(content =>
+        path.basename(content.file) === path.basename(service.filePath)
+    );
+
+    if (!matchingDefinition) {
+        vscode.window.showErrorMessage(`No matching OpenAPI definition found for service: ${service.name}`);
+        return undefined;
+    }
+
+    // Register helpers if not already registered
+    if (!Handlebars.helpers.uppercase) {
+        Handlebars.registerHelper('uppercase', function (str) {
+            return str.toUpperCase();
+        });
+    }
+    if (!Handlebars.helpers.trim) {
+        Handlebars.registerHelper('trim', function (str) {
+            return str ? str.trim() : '';
+        });
+    }
 
     const template = `/*
 ### Try Service : "{{info.title}}" ({{../../serviceName}})
@@ -180,23 +240,11 @@ Content-Type: application/json
 {{/each}}
 {{/each}}`;
 
-    // Register helpers if not already registered
-    if (!Handlebars.helpers.uppercase) {
-        Handlebars.registerHelper('uppercase', function (str) {
-            return str.toUpperCase();
-        });
-    }
-    if (!Handlebars.helpers.trim) {
-        Handlebars.registerHelper('trim', function (str) {
-            return str ? str.trim() : '';
-        });
-    }
-
-    // Compile and execute the template with the OpenAPI spec
+    // Compile and execute the template with the matching OpenAPI spec
     const compiledTemplate = Handlebars.compile(template);
     return compiledTemplate({
-        ...content.spec,
-        port: serviceInstance.port.toString(),
+        ...matchingDefinition.spec,
+        port: selectedPort.toString(),
         basePath: service.name,
         serviceName: service.name
     });
@@ -205,11 +253,11 @@ Content-Type: application/json
 interface Content {
     file: string;
     serviceName: string;
-    spec: OpenAPISpec;
+    spec: OAISpec;
 }
 
 
-interface OpenAPISpec {
+interface OAISpec {
     openapi: string;
     info: {
         title: string;
