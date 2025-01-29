@@ -146,7 +146,7 @@ function convertConfig(listener: ServiceModel): FormField[] {
             valueTypeConstraint: expression.valueTypeConstraint,
             advanced: expression.advanced,
             diagnostics: [],
-            items: expression.valueType === "SINGLE_SELECT" ? [""].concat(expression.items) : expression.items || [expression.value],
+            items: expression.valueType === "SINGLE_SELECT" ? expression.items : expression.items || [expression.value],
             choices: expression.choices,
             placeholder: expression.placeholder,
             addNewButton: expression.addNewButton
