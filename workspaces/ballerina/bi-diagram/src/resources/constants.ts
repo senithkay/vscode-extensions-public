@@ -93,7 +93,6 @@ export enum NodeTypes {
     DRAFT_NODE = "draft-node",
     IF_NODE = "if-node",
     WHILE_NODE = "while-node",
-    ERROR_HANDLER_NODE = "error-handler-node",
     START_NODE = "start-node",
     API_CALL_NODE = "api-call-node",
     COMMENT_NODE = "comment-node",
