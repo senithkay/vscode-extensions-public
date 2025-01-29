@@ -144,6 +144,8 @@ import {
     GetTypesRequest,
     UpdateTypeRequest,
     UpdateTypeResponse,
+    GetGraphqlTypeRequest,
+    GetGraphqlTypeResponse,
     GetTypeRequest,
     GetTypeResponse,
     ListenerModelFromCodeRequest,
@@ -250,6 +252,7 @@ enum EXTENDED_APIS {
     BI_GET_TYPES = 'typesManager/getTypes',
     BI_GET_TYPE = 'typesManager/getType',
     BI_UPDATE_TYPE = 'typesManager/updateType',
+    BI_GET_GRAPHQL_TYPE = 'typesManager/getGraphqlType',
     BI_SERVICE_TRIGGER_MODELS = 'serviceDesign/getTriggerModels',
     BI_SERVICE_GET_LISTENERS = 'serviceDesign/getListeners',
     BI_SERVICE_GET_LISTENER = 'serviceDesign/getListenerModel',
@@ -839,6 +842,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async updateType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
         return this.sendRequest<UpdateTypeResponse>(EXTENDED_APIS.BI_UPDATE_TYPE, params);
+    }
+
+    async getGraphqlTypeModel(params: GetGraphqlTypeRequest): Promise<GetGraphqlTypeResponse> {
+        return this.sendRequest<GetGraphqlTypeResponse>(EXTENDED_APIS.BI_GET_GRAPHQL_TYPE, params);
     }
 
     async updateImports(params: UpdateImportsRequest): Promise<void> {
