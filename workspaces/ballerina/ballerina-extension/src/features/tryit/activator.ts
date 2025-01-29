@@ -5,12 +5,9 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { BallerinaExtension, ExtendedLangClient } from "src/core";
 import { URI } from "vscode-uri";
-import { forEach } from "lodash";
 import Handlebars from "handlebars";
 import { findRunningBallerinaProcesses } from "./utils";
-import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core/lib/interfaces/extended-lang-client";
-import { OpenAPISpec } from "@wso2-enterprise/ballerina-core/lib/interfaces/extended-lang-client";
-import { NOT_SUPPORTED_TYPE } from "@wso2-enterprise/ballerina-core";
+import { BallerinaProjectComponents, OpenAPISpec, NOT_SUPPORTED_TYPE } from "@wso2-enterprise/ballerina-core";
 
 let langClient: ExtendedLangClient | undefined;
 
@@ -22,41 +19,33 @@ export function activateTryItCommand(ballerinaExtInstance: BallerinaExtension) {
     });
 }
 
-interface ServiceInfo {
-    name: string;
-    filePath: string;
-}
-
 async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: BallerinaExtension) {
     if (!langClient) {
         vscode.window.showErrorMessage('Ballerina Language Server is not connected');
         return;
     }
 
-    // Get workspace root
     const workspaceRoot = vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders[0].uri.fsPath;
     if (!workspaceRoot) {
         vscode.window.showErrorMessage('Please open a workspace first');
         return;
     }
 
-    // Get all available services
     const services = await getAvailableServices(workspaceRoot);
-    
+
     if (!services || services.length === 0) {
         vscode.window.showInformationMessage('No services found in the project');
         return;
     }
 
-    // If withNotice is true, show the initial prompt
     if (withNotice) {
         const selection = await vscode.window.showInformationMessage(
-            `Found ${services.length} service(s) in the integration. Do you want to open Try It?`,
-            "Yes",
-            "No"
+            `${services.length} service${services.length === 1 ? '' : 's'} found in the integration. Test with Try It Client?`,
+            "Test",
+            "Cancel"
         );
 
-        if (selection !== "Yes") {
+        if (selection !== "Test") {
             return;
         }
     }
@@ -75,7 +64,6 @@ async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: 
             title: 'Available Services'
         });
 
-        // User cancelled the selection
         if (!selected) {
             return;
         }
@@ -84,13 +72,11 @@ async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: 
         selectedService = services[0];
     }
 
-    // Create target directory if it doesn't exist
     const targetDir = path.join(workspaceRoot, 'target');
     if (!fs.existsSync(targetDir)) {
         fs.mkdirSync(targetDir);
     }
 
-    // Create tryit.http file with service name
     const fileName = path.parse(selectedService.filePath).name;
     const tryitFileName = `tryit.${fileName}.http`;
     const tryitFilePath = path.join(targetDir, tryitFileName);
@@ -101,7 +87,6 @@ async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: 
         return;
     }
 
-    // Create tryit.http file
     fs.writeFileSync(tryitFilePath, content);
 
     // Open the file as a notebook document
@@ -114,12 +99,10 @@ async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> 
         return [];
     }
 
-    // Get project components
     const components: BallerinaProjectComponents = await langClient.getBallerinaProjectComponents({
         documentIdentifiers: [{ uri: URI.file(projectDir).toString() }]
     });
 
-    // Get all services from components
     const services = components.packages
         ?.flatMap(pkg => pkg.modules)
         .flatMap(module => module.services)
@@ -148,20 +131,15 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
     }
 
     const balProcesses = await findRunningBallerinaProcesses(projectDir);
-
-    // Handle no running processes
     if (!balProcesses || balProcesses.length === 0) {
         vscode.window.showErrorMessage('No running Ballerina processes found. Please start your service first.');
         return undefined;
     }
 
-    // Collect all unique ports from all processes
     const allPorts = balProcesses.flatMap(process => process.ports);
     const uniquePorts = [...new Set(allPorts)];
 
-    // Handle port selection
     let selectedPort: number;
-
     if (uniquePorts.length > 1) {
         const portItems = uniquePorts.map(port => ({
             label: `Port ${port}`,
@@ -174,7 +152,6 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
         });
 
         if (!selected) {
-            // User cancelled the selection
             return undefined;
         }
 
@@ -196,7 +173,8 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
         return undefined;
     }
 
-    // Register helpers if not already registered
+    const openapiSpec = matchingDefinition.spec as OAISpec;
+
     if (!Handlebars.helpers.uppercase) {
         Handlebars.registerHelper('uppercase', function (str) {
             return str.toUpperCase();
@@ -243,110 +221,99 @@ Content-Type: application/json
     // Compile and execute the template with the matching OpenAPI spec
     const compiledTemplate = Handlebars.compile(template);
     return compiledTemplate({
-        ...matchingDefinition.spec,
+        ...openapiSpec,
         port: selectedPort.toString(),
         basePath: service.name,
         serviceName: service.name
     });
 }
 
-interface Content {
-    file: string;
-    serviceName: string;
-    spec: OAISpec;
+// Service information interface
+interface ServiceInfo {
+    name: string;
+    filePath: string;
 }
 
-
+// Main OpenAPI specification interface
 interface OAISpec {
     openapi: string;
-    info: {
-        title: string;
-        description?: string;
-        version: string;
-        contact?: {
-            name?: string;
-            url?: string;
-            email?: string;
-        };
-        license?: {
-            name: string;
-            url?: string;
-        };
-    };
-    servers?: {
-        url: string;
-        description?: string;
-        variables?: {
-            [key: string]: {
-                default: string;
-                description?: string;
-                enum?: string[];
-            }
-        }
-    }[];
-    paths: {
-        [path: string]: {
-            [method: string]: {
-                summary?: string;
-                description?: string;
-                parameters?: {
-                    name: string;
-                    in: string;
-                    description?: string;
-                    required?: boolean;
-                    schema?: {
-                        type: string;
-                    }
-                }[];
-                requestBody?: {
-                    description?: string;
-                    content: {
-                        [contentType: string]: {
-                            schema: {
-                                type: string;
-                                properties?: {
-                                    [property: string]: {
-                                        type: string;
-                                        description?: string;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                };
-                responses: {
-                    [statusCode: string]: {
-                        description: string;
-                        content?: {
-                            [contentType: string]: {
-                                schema: {
-                                    type: string;
-                                    properties?: {
-                                        [property: string]: {
-                                            type: string;
-                                            description?: string;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    };
-    components?: {
-        schemas?: {
-            [key: string]: {
-                type: string;
-                properties?: {
-                    [key: string]: {
-                        type: string;
-                        description?: string;
-                    }
-                }
-            }
-        }
-    };
+    info: Info;
+    servers?: Server[];
+    paths: Record<string, Record<string, Operation>>;
+    components?: Components;
 }
 
+interface Contact {
+    name?: string;
+    url?: string;
+    email?: string;
+}
+
+interface License {
+    name: string;
+    url?: string;
+}
+
+interface Info {
+    title: string;
+    description?: string;
+    version: string;
+    contact?: Contact;
+    license?: License;
+}
+
+interface Schema {
+    type: string;
+    properties?: Record<string, Property>;
+}
+
+interface Server {
+    url: string;
+    description?: string;
+    variables?: Record<string, ServerVariable>;
+}
+
+interface ServerVariable {
+    default: string;
+    description?: string;
+    enum?: string[];
+}
+
+interface Property {
+    type: string;
+    description?: string;
+}
+
+interface Operation {
+    summary?: string;
+    description?: string;
+    parameters?: Parameter[];
+    requestBody?: RequestBody;
+    responses: Record<string, Response>;
+}
+
+interface Parameter {
+    name: string;
+    in: string;
+    description?: string;
+    required?: boolean;
+    schema?: Schema;
+}
+
+interface Content {
+    schema: Schema;
+}
+
+interface RequestBody {
+    description?: string;
+    content: Record<string, Content>;
+}
+
+interface Response {
+    description: string;
+    content?: Record<string, Content>;
+}
+
+interface Components {
+    schemas?: Record<string, Schema>;
+}
