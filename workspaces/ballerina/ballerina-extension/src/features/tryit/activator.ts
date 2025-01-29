@@ -16,26 +16,19 @@ export function activateTryItCommand(ballerinaExtInstance: BallerinaExtension) {
     langClient = ballerinaExtInstance.langClient as ExtendedLangClient;
     // register try it command handler
     commands.registerCommand(PALETTE_COMMANDS.TRY_IT, async (withNotice: boolean = false) => {
-        openTryItView(withNotice, ballerinaExtInstance);
+        await openTryItView(withNotice, ballerinaExtInstance);
     });
+}
+
+interface ServiceInfo {
+    name: string;
+    filePath: string;
 }
 
 async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: BallerinaExtension) {
     if (!langClient) {
         vscode.window.showErrorMessage('Ballerina Language Server is not connected');
         return;
-    }
-
-    if (withNotice) {
-        const selection = await vscode.window.showInformationMessage(
-            "The integration has services. Do you want to open the Try It ?",
-            "Yes",
-            "No"
-        );
-
-        if (selection !== "Yes") {
-            return;
-        }
     }
 
     // Get workspace root
@@ -45,59 +38,118 @@ async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: 
         return;
     }
 
+    // Get all available services
+    const services = await getAvailableServices(workspaceRoot);
+    
+    if (!services || services.length === 0) {
+        vscode.window.showInformationMessage('No services found in the project');
+        return;
+    }
+
+    // If withNotice is true, show the initial prompt
+    if (withNotice) {
+        const selection = await vscode.window.showInformationMessage(
+            `Found ${services.length} service(s) in the integration. Do you want to open Try It?`,
+            "Yes",
+            "No"
+        );
+
+        if (selection !== "Yes") {
+            return;
+        }
+    }
+
+    // If there's more than one service, show the quick pick
+    let selectedService: ServiceInfo;
+    if (services.length > 1) {
+        const quickPickItems = services.map(service => ({
+            label: service.name,
+            description: path.basename(service.filePath),
+            service
+        }));
+
+        const selected = await vscode.window.showQuickPick(quickPickItems, {
+            placeHolder: 'Select a service to try out',
+            title: 'Available Services'
+        });
+
+         // User cancelled the selection
+        if (!selected) {
+            return;
+        }
+        selectedService = selected.service;
+    } else {
+        selectedService = services[0];
+    }
+
     // Create target directory if it doesn't exist
     const targetDir = path.join(workspaceRoot, 'target');
     if (!fs.existsSync(targetDir)) {
         fs.mkdirSync(targetDir);
     }
 
-    // Create tryit.http file path
-    const tryitFilePath = path.join(targetDir, 'tryit.http');
+    // Create tryit.http file with service name
+    const tryitFileName = `tryit.${selectedService.name}.http`;
+    const tryitFilePath = path.join(targetDir, tryitFileName);
 
+    const content = await generateTryItFileContent(workspaceRoot, selectedService);
+    if (!content) {
+        vscode.window.showErrorMessage('Failed to generate Try It content');
+        return;
+    }
 
-    const content: string = await generateTryItFileContent(workspaceRoot);
-    // Create empty tryit.http file
+    // Create tryit.http file
     fs.writeFileSync(tryitFilePath, content);
 
-    // Open the file in VS Code editor
     // Open the file as a notebook document
     const tryitFileUri = vscode.Uri.file(tryitFilePath);
     await vscode.commands.executeCommand('vscode.openWith', tryitFileUri, 'http');
 }
 
-async function generateTryItFileContent(projectDir: string): Promise<string | undefined> {
-    // Get access to language server
+async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> {
     if (!langClient) {
-        return undefined;
+        return [];
     }
-    // Get the component list
+
     const components: BallerinaProjectComponents = await langClient.getBallerinaProjectComponents({
         documentIdentifiers: [{ uri: URI.file(projectDir).toString() }]
     });
 
-    // Iterate and extract the services 
     const services = components.packages
         ?.flatMap(pkg => pkg.modules)
-        .flatMap(module => module.services);
+        .flatMap(module => module.services)
+        .filter(service => service !== undefined)
+        .map(service => ({
+            name: service.name,
+            filePath: service.filePath
+        }));
 
-    if (!services || services.length === 0) {
+    return services || [];
+}
+
+async function generateTryItFileContent(projectDir: string, service: ServiceInfo): Promise<string | undefined> {
+    if (!langClient) {
         return undefined;
     }
 
-    const service = services[0];
-    // Get the openapi definitions from LS
+    // Get the openapi definitions from LS for the selected service
     const openapiDefinitions = await langClient.convertToOpenAPI({
-        documentFilePath: services[0].filePath
+        documentFilePath: service.filePath
     });
 
     const runningServices = await findRunningBallerinaServices(projectDir);
-    const port = runningServices[0].port;
+    const serviceInstance = runningServices.find(s => s.serviceName === service.name);
+    
+    if (!serviceInstance) {
+        vscode.window.showWarningMessage(`Service ${service.name} is not running. Some features might not work correctly.`);
+        return undefined;
+    }
 
     // @ts-ignore
     const content: Content = openapiDefinitions.content[0] as OpenAPISpec;
 
     const template = `/*
-### Try Service : "{{info.title}}"  
+### Try Service : "{{info.title}}" ({{../../serviceName}})
 {{info.description}}
 */
 
@@ -128,19 +180,27 @@ Content-Type: application/json
 {{/each}}
 {{/each}}`;
 
-    // Register a helper to convert text to uppercase
-    Handlebars.registerHelper('uppercase', function (str) {
-        return str.toUpperCase();
-    });
-    // Register a helper to trim whitespace
-    Handlebars.registerHelper('trim', function (str) {
-        return str.trim();
-    });
+    // Register helpers if not already registered
+    if (!Handlebars.helpers.uppercase) {
+        Handlebars.registerHelper('uppercase', function (str) {
+            return str.toUpperCase();
+        });
+    }
+    if (!Handlebars.helpers.trim) {
+        Handlebars.registerHelper('trim', function (str) {
+            return str ? str.trim() : '';
+        });
+    }
+
     // Compile and execute the template with the OpenAPI spec
     const compiledTemplate = Handlebars.compile(template);
-    return compiledTemplate({ ...content.spec, port: port.toString(), basePath: service.name });
+    return compiledTemplate({
+        ...content.spec,
+        port: serviceInstance.port.toString(),
+        basePath: service.name,
+        serviceName: service.name
+    });
 }
-
 
 interface Content {
     file: string;
