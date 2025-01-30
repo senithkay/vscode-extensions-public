@@ -184,6 +184,9 @@ export function FormGenerator(props: FormGeneratorProps) {
         const defaultValue = deriveResponseVariable ? deriveDefaultValue(formData.connectorName, formData.operationName) : value.defaultValue;
         const currentValue = value.currentValue ?? defaultValue ?? getValues(name);
         deriveDefaultValue(formData.connectorName, formData.operationName);
+        const expressionTypes = ['stringOrExpression', 'integerOrExpression', 'expression', 'keyOrExpression', 'resourceOrExpression',
+            'textOrExpression', 'textAreaOrExpression', 'stringOrExpresion'
+        ];
 
         if (type === 'table') {
             const valueObj: any[] = [];
@@ -199,7 +202,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             });
 
             return valueObj;
-        } else if (['stringOrExpression', 'expression', 'keyOrExpression', 'resourceOrExpression'].includes(inputType) &&
+        } else if (expressionTypes.includes(inputType) &&
             (!currentValue || typeof currentValue !== 'object' || !('isExpression' in currentValue))) {
             const isExpression = inputType === "expression" || isValueExpression(currentValue);
             return { isExpression: isExpression, value: currentValue ?? "" };
