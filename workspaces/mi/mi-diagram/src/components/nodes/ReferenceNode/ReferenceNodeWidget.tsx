@@ -88,8 +88,8 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const [definition, setDefinition] = useState<GetDefinitionResponse>(undefined);
     const [canOpenView, setCanOpenView] = useState(false);
-    const referenceKey = node.referenceName.split("=")[0];
-    const referenceValue = node.referenceName.split("=")[1];
+    const referenceKey = node.referenceName?.split("=")[0];
+    const referenceValue = node.referenceName?.split("=")[1];
     const isClickable = referenceKey !== "inSequence" && referenceKey !== "outSequence" && referenceKey !== "faultSequence" && node.stNode.tag !== "target";
     const description = getNodeDescription(node.stNode) || referenceValue;
 
