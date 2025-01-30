@@ -12,7 +12,6 @@ import { Range } from 'vscode-languageserver-types';
 import { ComponentCard, RequiredFormInput, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import ParameterManager, { Param } from "../GigaParamManager/ParameterManager";
 import { Element, cardStyle } from "../FormGenerator";
-import { replaceSpecialCharacters } from "../utils";
 
 interface StringWithParamManagerProps {
     element: Element;
@@ -30,7 +29,7 @@ export const StringWithParamManagerComponent = forwardRef<HTMLDivElement, String
     const [paramManagerParameters, setParamManagerParameters] = useState<Param[]>([]);
 
     useEffect(() => {
-        field.onChange(replaceSpecialCharacters(stringValue));
+        field.onChange(stringValue);
     }, [stringValue]);
 
     useEffect(() => {

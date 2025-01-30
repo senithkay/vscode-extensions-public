@@ -14,6 +14,8 @@ import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
+import { compareVersions } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
+import { RUNTIME_VERSION_440 } from "../../constants";
 
 export interface DatamapperFormProps {
     path: string;
@@ -66,14 +68,22 @@ export function DatamapperForm(props: DatamapperFormProps) {
                 documentIdentifier: props.path,
                 resourceType: "dataMapper"
             });
-            setWorkspaceFileNames(artifactRes.registryResources.map((resource: any) => resource.name));
+            setWorkspaceFileNames(artifactRes.registryResources.map((resource: any) => resource.name.replace(/\.ts$/, "")));
         })();
     }, []);
 
     const handleCreateDatamapper = async () => {
+        const projectDetails = await rpcClient.getMiVisualizerRpcClient().getProjectDetails();
+        const runtimeVersion = projectDetails.primaryDetails.runtimeVersion.value;
+        const isResourceContentUsed = compareVersions(runtimeVersion, RUNTIME_VERSION_440) >= 0;
+        const localPathPrefix = isResourceContentUsed ? 'resources' : 'gov';
         const configName = getValues("name");
-        const configurationLocalPath = 'gov:/datamapper/' + configName + '/' + configName + '.dmc';
+        if (configName === "") {
+            return;
+        }
 
+        const configurationLocalPath = localPathPrefix + ':/datamapper/' + configName + '/' + configName + '.dmc';
+        const dataMapperIdentifier = localPathPrefix + ':datamapper/' + configName;
         const request = {
             sourcePath: props.path,
             regPath: configurationLocalPath
@@ -89,7 +99,7 @@ export function DatamapperForm(props: DatamapperFormProps) {
         if (props.isPopup) {
             rpcClient.getMiVisualizerRpcClient().openView({
                 type: POPUP_EVENT_TYPE.CLOSE_VIEW,
-                location: { view: null, recentIdentifier: getValues("name") },
+                location: { view: null, recentIdentifier: dataMapperIdentifier },
                 isPopup: true
             });
         } else {

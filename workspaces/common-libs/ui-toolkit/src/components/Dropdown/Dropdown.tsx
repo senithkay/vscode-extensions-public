@@ -33,6 +33,8 @@ export interface DropdownProps extends ComponentProps<"select"> {
     sx?: any;
     containerSx?: any;
     dropdownContainerSx?: any;
+    description?: string | ReactNode;
+    descriptionSx?: any;
     onValueChange?: (value: string) => void;
 }
 
@@ -65,8 +67,15 @@ const LabelContainer = styled.div<ContainerProps>`
     margin-bottom: 2px;
 `;
 
+const Description = styled.div<ContainerProps>`
+    color: var(--vscode-list-deemphasizedForeground);
+    margin-bottom: 4px;
+    text-align: left;
+    ${(props: ContainerProps) => props.sx};
+`;
+
 export const Dropdown = React.forwardRef<HTMLSelectElement, DropdownProps>((props, ref) => {
-    const { isLoading, isRequired, id, items, label, errorMsg, labelAdornment, sx, containerSx, dropdownContainerSx, ...rest } = props;
+    const { isLoading, isRequired, id, items, label, errorMsg, labelAdornment, description, sx, descriptionSx, containerSx, dropdownContainerSx, ...rest } = props;
 
     const handleValueChange = (e: any) => {
         props.onValueChange && props.onValueChange(e.target.value);
@@ -85,6 +94,11 @@ export const Dropdown = React.forwardRef<HTMLSelectElement, DropdownProps>((prop
                             {(isRequired) && (<RequiredFormInput />)}
                             {labelAdornment && labelAdornment}
                         </LabelContainer>
+                    )}
+                    {description && (
+                        <Description sx={descriptionSx}>
+                            {description}
+                        </Description>
                     )}
                     <VSCodeDropdown ref={ref} id={id} style={sx} {...rest} onChange={handleValueChange}>
                         {items?.map((item: OptionProps) => (
