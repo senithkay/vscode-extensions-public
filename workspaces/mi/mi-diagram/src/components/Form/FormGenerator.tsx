@@ -182,7 +182,7 @@ export function FormGenerator(props: FormGeneratorProps) {
         const inputType = value.inputType;
         const deriveResponseVariable = value.deriveResponseVariable ?? false;
         const defaultValue = deriveResponseVariable ? deriveDefaultValue(formData.connectorName, formData.operationName) : value.defaultValue;
-        const currentValue = value.currentValue ?? defaultValue ?? getValues(name);
+        const currentValue = value.currentValue ?? getValues(name) ?? defaultValue;
         deriveDefaultValue(formData.connectorName, formData.operationName);
         const expressionTypes = ['stringOrExpression', 'integerOrExpression', 'expression', 'keyOrExpression', 'resourceOrExpression',
             'textOrExpression', 'textAreaOrExpression', 'stringOrExpresion'

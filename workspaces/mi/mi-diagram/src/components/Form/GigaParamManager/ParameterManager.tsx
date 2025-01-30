@@ -184,7 +184,7 @@ const ParameterManager = (props: ParameterManagerProps) => {
                                 sx={{
                                     color: Colors.ON_PRIMARY
                                 }}
-                            >{param[tableKey as keyof Param] ?? (index + 1)}</Typography>
+                            >{getFieldValue(param[tableKey as keyof Param]) ?? (index + 1)}</Typography>
                         </div>
                         <div 
                             style={{ 
