@@ -9,7 +9,7 @@
 
 import React, { useRef, useState } from 'react';
 import { Member, Type } from '@wso2-enterprise/ballerina-core';
-import { Codicon } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
 import { Button } from '@wso2-enterprise/ui-toolkit';
 import { TextField } from '@wso2-enterprise/ui-toolkit';
 
@@ -24,55 +24,22 @@ export const RecordEditor: React.FC<RecordEditorProps> = (props) => {
     const { type, onChange, onImportJson, onImportXml } = props;
     const nameInputRefs = useRef<HTMLInputElement[]>([]);
 
-    const handleMemberNameChange = (key: string, member: Member) => (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newMembers: Member[] = [];
-        // Preserve order by iterating through existing members
-        Object.entries(type.members).forEach(([currentKey, currentMember]) => {
-            if (currentKey === key) {
-                // Update the member with new name while keeping the same position
-                newMembers.push({
-                    ...member,
-                    name: e.target.value
-                });
-            } else {
-                // Keep other members unchanged
-                newMembers.push(currentMember);
-            }
-        });
+    const handleMemberNameChange = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newMembers: Member[] = [...type.members];
+        newMembers[index].name = e.target.value;
         onChange({ ...type, members: newMembers });
     };
 
-    const handleMemberTypeChange = (key: string, member: Member) => (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newMembers: Member[] = [];
-        // Preserve order by iterating through existing members
-        Object.entries(type.members).forEach(([currentKey, currentMember]) => {
-            if (currentKey === key) {
-                // Update the member with new name while keeping the same position
-                newMembers.push({
-                    ...member,
-                    name: e.target.value
-                });
-            } else {
-                // Keep other members unchanged
-                newMembers.push(currentMember);
-            }
-        });
+    const handleMemberTypeChange = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newMembers: Member[] = [...type.members];
+        newMembers[index].type = e.target.value;
         onChange({ ...type, members: newMembers });
     };
 
-    const handleTabNavigation = (index: number, array: [string, Member][]) => (e: React.KeyboardEvent) => {
-        if (e.key === 'Tab' && !e.shiftKey) {
-            e.preventDefault();
-            const nextIndex = index + 1;
-            if (nextIndex < array.length) {
-                nameInputRefs.current[nextIndex]?.focus();
-            }
-        }
-    };
-
-    const handleDeleteMember = (key: string) => () => {
-        const filteredMember = type.members.filter((member) => member.name !== key);
-        onChange({ ...type, members: filteredMember });
+    const handleDeleteMember = (index: number) => () => {
+        const newMembers = [...type.members];
+        newMembers.splice(index, 1);
+        onChange({ ...type, members: newMembers });
     };
 
     const addMember = () => {
@@ -85,7 +52,7 @@ export const RecordEditor: React.FC<RecordEditorProps> = (props) => {
             refs: [],
             docs: ""
         }
-        onChange({ ...type, members: { ...type.members, [newMemberName]: newMember } });
+        onChange({ ...type, members: [...type.members, newMember] });
     }
 
     const handleImportJson = () => {
@@ -110,20 +77,19 @@ export const RecordEditor: React.FC<RecordEditorProps> = (props) => {
                     <Button appearance="icon" onClick={addMember}><Codicon name="add" /></Button>
                 </div>
             </div>
-            {Object.entries(type.members).map(([key, member], index, array) => (
+            {type.members.map((member, index) => (
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <TextField
                         value={member.name}
                         ref={(el) => nameInputRefs.current[index] = el}
-                        onKeyDown={handleTabNavigation(index, array)}
-                        onBlur={handleMemberNameChange(key, member)}
+                        onBlur={handleMemberNameChange(index)}
                     />
                     <TextField
-                        value={typeof member.type === 'string' ? member.type : member.type.name }
-                        onChange={handleMemberTypeChange(key, member)}
+                        value={typeof member.type === 'string' ? member.type : member.type.name}
+                        onChange={handleMemberTypeChange(index)}
                     />
                     <Button appearance="icon"><Codicon name="case-sensitive" /></Button>
-                    <Button appearance="icon" onClick={handleDeleteMember(key)}><Codicon name="delete" /></Button>
+                    <Button appearance="icon" onClick={handleDeleteMember(index)}><Codicon name="trash" /></Button>
                 </div>
             ))}
         </div>

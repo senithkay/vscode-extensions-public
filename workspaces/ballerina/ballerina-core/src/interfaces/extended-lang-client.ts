@@ -986,8 +986,27 @@ export interface GetTypeResponse {
     type: Type;
 }
 
-export interface UpdateTypeResponse {
+export interface TextEditRange {
+    start: {
+        line: number;
+        character: number;
+    };
+    end: {
+        line: number;
+        character: number;
+    };
+}
 
+export interface TextEdit {
+    range: TextEditRange;
+    newText: string;
+}
+
+export interface UpdateTypeResponse {
+    name: string;
+    textEdits: {
+        [filePath: string]: TextEdit[];
+    };
 }
 
 // <-------- Trigger Related ------->

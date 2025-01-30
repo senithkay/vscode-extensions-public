@@ -79,17 +79,6 @@ export function TypeDiagram(props: TypeDiagramProps) {
         const response = await rpcClient.getBIDiagramRpcClient().getTypes({ filePath: visualizerLocation?.metadata?.recordFilePath });
         setTypesModel(response.types);
         console.log(response);
-        // -        rpcClient.getBIDiagramRpcClient().getTypes({ filePath: visualizerLocation?.metadata?.recordFilePath }).then((response: any) => {
-        //     -            console.log(response);
-        //     -            // @ts-ignore
-        //     -            response.types.forEach((type) => {
-        //     -                console.log(type);
-        //     -                rpcClient.getBIDiagramRpcClient().getType({ filePath: type.codedata.lineRange.fileName, linePosition: type.codedata.lineRange.startLine }).then((typeResponse: any) => {
-        //     -                    console.log(typeResponse);
-        //     -                });
-        //     -            });
-        //     -        });
-        // const response: ComponentModels = await langRpcClient.getPackageComponentModels({ documentUris: [visualizerLocation.metadata.recordFilePath] });
     };
 
     const showProblemPanel = async () => {
@@ -130,6 +119,14 @@ export function TypeDiagram(props: TypeDiagramProps) {
         setFocusedNodeId(undefined);
     }
 
+    const onFocusedNodeIdChange = (typeId: string) => {
+        setFocusedNodeId(typeId);
+        // if a type is already selected, then we need to update selected type
+        if (selectedTypeId) {
+            setEditingTypeId(typeId);
+        }
+    }
+
     const Header = () => (
         <HeaderContainer>
             {focusedNodeId ? (<Title>Focused Type View : {focusedNodeId}</Title>) : (<Title>Type Diagram</Title>)}
@@ -164,11 +161,21 @@ export function TypeDiagram(props: TypeDiagramProps) {
                     description: ""
                 },
                 codedata: {
-                    lineRange: undefined,
+                    lineRange: {
+                        startLine: {
+                            line: 0,
+                            offset: 0
+                        },
+                        endLine: {
+                            line: 0,
+                            offset: 0
+                        },
+                        fileName: "types.bal"
+                    },
                     node: "RECORD"
                 },
                 properties: {},
-                members: {},
+                members: [],
                 includes: [] as string[]
             };
         }
@@ -176,8 +183,8 @@ export function TypeDiagram(props: TypeDiagramProps) {
     }
 
     const onTypeChange = async (type: Type) => {
-        const response = await rpcClient.getBIDiagramRpcClient().updateType({ filePath: visualizerLocation?.metadata?.recordFilePath, type, description: "" });
-        console.log(response);
+        setEditingTypeId(undefined);
+        setIsTypeCreatorOpen(false);
     }
 
     return (
@@ -190,7 +197,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
                             typeModel={typesModel}
                             selectedNodeId={selectedTypeId}
                             focusedNodeId={focusedNodeId}
-                            updateFocusedNodeId={setFocusedNodeId}
+                            updateFocusedNodeId={onFocusedNodeIdChange}
                             showProblemPanel={showProblemPanel}
                             goToSource={handleOnGoToSource}
                             onTypeEdit={onTypeEdit}
