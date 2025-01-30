@@ -391,6 +391,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                 {...register("registryPath")}
             />
             <br />
+            <br />
             <FormActions>
                 <Button
                     appearance="primary"
