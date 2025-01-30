@@ -52,6 +52,7 @@ import {
     removeEmptyNodes,
     updateNodeWithProperties
 } from "../form-utils";
+import ForkForm from "../ForkForm";
 
 interface FormProps {
     fileName: string;
@@ -671,6 +672,23 @@ export function FormGenerator(props: FormProps) {
                 updatedExpressionField={updatedExpressionField}
                 subPanelView={subPanelView}
                 resetUpdatedExpressionField={resetUpdatedExpressionField}
+            />
+        );
+    }
+
+    // handle fork node form
+    if (node?.codedata.node === "FORK") {
+        return (
+            <ForkForm
+                fileName={fileName}
+                node={node}
+                targetLineRange={targetLineRange}
+                expressionEditor={expressionEditor}
+                onSubmit={onSubmit}
+                openSubPanel={openSubPanel}
+                updatedExpressionField={updatedExpressionField}
+                resetUpdatedExpressionField={resetUpdatedExpressionField}
+                subPanelView={subPanelView}
             />
         );
     }

@@ -506,9 +506,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             topNodeRef.current = undefined;
             targetRef.current = node.codedata.lineRange;
         }
-        // setSidePanelView(SidePanelView.FORM);
-        // setShowSidePanel(true);
-        // return;
         if (!targetRef.current) {
             return;
         }
@@ -521,6 +518,15 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 id: node.codedata,
             })
             .then((response) => {
+                const nodesWithCustomForms = ["IF", "FORK"];
+                // if node doesn't have properties. don't show edit form
+                if (!response.flowNode.properties && !nodesWithCustomForms.includes(response.flowNode.codedata.node)) {
+                    console.log(">>> Node doesn't have properties. Don't show edit form", response.flowNode);
+                    setShowProgressIndicator(false);
+                    showEditForm.current = false;
+                    return;
+                }
+
                 nodeTemplateRef.current = response.flowNode;
                 showEditForm.current = true;
                 setSidePanelView(SidePanelView.FORM);

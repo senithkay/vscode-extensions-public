@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -18,14 +18,16 @@ import {
     SubPanel,
     SubPanelView,
     FormDiagnostics,
-    Diagnostic
+    Diagnostic,
 } from "@wso2-enterprise/ballerina-core";
 import { Colors } from "../../../../resources/constants";
 import {
     FormValues,
     ExpressionEditor,
     ExpressionFormField,
-    FormExpressionEditorProps
+    FormExpressionEditorProps,
+    TypeEditor,
+    TextEditor,
 } from "@wso2-enterprise/ballerina-side-panel";
 import { FormStyles } from "../styles";
 import { convertNodePropertyToFormField, removeDuplicateDiagnostics } from "../../../../utils/bi";
@@ -33,7 +35,7 @@ import { cloneDeep, debounce } from "lodash";
 import { RemoveEmptyNodesVisitor, traverseNode } from "@wso2-enterprise/bi-diagram";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 
-interface IfFormProps {
+interface ForkFormProps {
     fileName: string;
     node: FlowNode;
     targetLineRange: LineRange;
@@ -45,7 +47,7 @@ interface IfFormProps {
     subPanelView?: SubPanelView;
 }
 
-export function IfForm(props: IfFormProps) {
+export function ForkForm(props: ForkFormProps) {
     const {
         fileName,
         node,
@@ -57,11 +59,11 @@ export function IfForm(props: IfFormProps) {
         resetUpdatedExpressionField,
         subPanelView,
     } = props;
-    const { 
+    const {
         watch,
-        control, 
-        getValues, 
-        setValue, 
+        control,
+        getValues,
+        setValue,
         handleSubmit,
         setError,
         clearErrors,
@@ -93,14 +95,6 @@ export function IfForm(props: IfFormProps) {
             });
     };
 
-    const hasElseBranch = branches.find(
-        (branch) =>
-            branch.label === "Else" &&
-            ((branch.children?.length > 0 &&
-                !(branch.children[0].codedata.node === "EMPTY" && branch.children[0].metadata.draft)) ||
-                branch.children?.length === 0)
-    );
-
     useEffect(() => {
         if (updatedExpressionField) {
             const currentValue = getValues(updatedExpressionField.key);
@@ -122,21 +116,21 @@ export function IfForm(props: IfFormProps) {
     useEffect(() => {
         handleFormOpen();
         branches.forEach((branch, index) => {
-            if (branch.properties?.condition) {
-                const conditionValue = branch.properties.condition.value;
-                setValue(`branch-${index}`, conditionValue || "");
+            if (branch.properties?.variable) {
+                const variableValue = branch.properties.variable.value;
+                setValue(`branch-${index}`, variableValue || "");
             }
         });
 
         return () => {
             handleFormClose();
-        }
+        };
     }, []);
 
     const handleSetDiagnosticsInfo = (diagnostics: FormDiagnostics) => {
         const otherDiagnostics = diagnosticsInfo?.filter((item) => item.key !== diagnostics.key) || [];
         setDiagnosticsInfo([...otherDiagnostics, diagnostics]);
-    }
+    };
 
     const handleOnSave = (data: FormValues) => {
         if (node && targetLineRange) {
@@ -150,17 +144,10 @@ export function IfForm(props: IfFormProps) {
                 };
             }
 
-            // loop data and update branches (properties.condition.value)
             branches.forEach((branch, index) => {
-                if (branch.label === "Else") {
-                    return;
-                }
-                const conditionValue = data[`branch-${index}`]?.trim();
-                if (conditionValue) {
-                    branch.properties.condition.value = conditionValue;
-                    if (branch.label !== "Then") {
-                        branch.label = "";
-                    }
+                const variableValue = data[`branch-${index}`]?.trim();
+                if (variableValue) {
+                    branch.properties.variable.value = variableValue;
                 }
             });
 
@@ -171,46 +158,55 @@ export function IfForm(props: IfFormProps) {
             traverseNode(updatedNode, removeEmptyNodeVisitor);
             const updatedNodeWithoutEmptyNodes = removeEmptyNodeVisitor.getNode();
 
+            console.log(">>> updatedNodeWithoutEmptyNodes", updatedNodeWithoutEmptyNodes);
+
             onSubmit(updatedNodeWithoutEmptyNodes);
         }
     };
 
-    const addNewCondition = () => {
+    const addNewWorker = () => {
         // create new branch obj
         const newBranch: Branch = {
             label: "branch-" + branches.length,
-            kind: "block",
+            kind: "worker",
             codedata: {
-                node: "CONDITIONAL",
+                node: "WORKER",
                 lineRange: null,
             },
             repeatable: "ONE_OR_MORE",
             properties: {
-                condition: {
+                variable: {
                     metadata: {
-                        label: "Else If Condition",
-                        description: "Add condition to evaluate if the previous conditions are false",
+                        label: "Worker " + (branches.length + 1),
+                        description: "Name of the worker",
                     },
-                    valueType: "EXPRESSION",
-                    value: "",
-                    placeholder: "true",
+                    valueType: "IDENTIFIER",
+                    value: "worker" + (branches.length + 1),
                     optional: false,
                     editable: true,
+                    advanced: false,
+                },
+                type: {
+                    metadata: {
+                        label: "Return Type",
+                        description: "Return type of the function/worker",
+                    },
+                    valueType: "TYPE",
+                    value: "",
+                    optional: true,
+                    editable: true,
+                    advanced: false,
                 },
             },
             children: [],
         };
 
-        setValue(`branch-${branches.length}`, "");
+        setValue(`branch-${branches.length}`, "worker" + (branches.length + 1));
         // add new branch to end of the current branches
         setBranches([...branches, newBranch]);
     };
 
-    const removeCondition = (index: number) => {
-        // Don't remove if it's the first branch (Then) or last branch (Else)
-        if (index === 0 || (hasElseBranch && index === branches.length - 1)) {
-            return;
-        }
+    const removeWorker = (index: number) => {
         // Remove the branch at the specified index
         const updatedBranches = branches.filter((_, i) => i !== index);
         setBranches(updatedBranches);
@@ -221,71 +217,30 @@ export function IfForm(props: IfFormProps) {
         }
     };
 
-    const addElseBlock = () => {
-        if (hasElseBranch) {
-            return;
-        }
-        const elseBranch: Branch = {
-            label: "Else",
-            kind: "block",
-            codedata: {
-                node: "ELSE",
-                lineRange: null,
-            },
-            repeatable: "ZERO_OR_ONE",
-            properties: {
-                condition: {
-                    metadata: {
-                        label: "Else",
-                        description: "Add condition to evaluate if the previous conditions are false",
-                    },
-                    valueType: "EXPRESSION",
-                    value: "",
-                    placeholder: "true",
-                    optional: false,
-                    editable: true,
-                },
-            },
-            children: [],
-        };
-        // add new branch to end of the current branches
-        setBranches([...branches, elseBranch]);
-    };
-
-    const removeElseBlock = () => {
-        if (!hasElseBranch) {
-            return;
-        }
-        // remove the else branch
-        const updatedBranches = branches.filter((branch) => branch.label !== "Else");
-        setBranches(updatedBranches);
-    };
-
-    const handleExpressionFormDiagnostics = useCallback(debounce(async (
-        showDiagnostics: boolean,
-        expression: string,
-        key: string
-    ) => {
-        if (!showDiagnostics) {
-            handleSetDiagnosticsInfo({ key, diagnostics: [] });
-            return;
-        }
-        
-        const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
-            filePath: fileName,
-            context: {
-                expression: expression,
-                startLine: targetLineRange.startLine,
-                offset: 0,
-                node: node,
-                property: "condition",
-                branch: ""
+    const handleExpressionFormDiagnostics = useCallback(
+        debounce(async (showDiagnostics: boolean, expression: string, key: string) => {
+            if (!showDiagnostics) {
+                handleSetDiagnosticsInfo({ key, diagnostics: [] });
+                return;
             }
-        });
 
-        const uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
-        handleSetDiagnosticsInfo({ key, diagnostics: uniqueDiagnostics });
-    }, 250), [rpcClient, fileName, targetLineRange, node, handleSetDiagnosticsInfo]);
+            const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
+                filePath: fileName,
+                context: {
+                    expression: expression,
+                    startLine: targetLineRange.startLine,
+                    offset: 0,
+                    node: node,
+                    property: "variable",
+                    branch: "",
+                },
+            });
+
+            const uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
+            handleSetDiagnosticsInfo({ key, diagnostics: uniqueDiagnostics });
+        }, 250),
+        [rpcClient, fileName, targetLineRange, node, handleSetDiagnosticsInfo]
+    );
 
     const handleEditorFocus = (currentActive: number) => {
         const isActiveSubPanel = subPanelView !== SubPanelView.UNDEFINED;
@@ -312,11 +267,11 @@ export function IfForm(props: IfFormProps) {
                 clearErrors(key);
                 continue;
             } else {
-                const diagnosticsMessage = diagnostics.map(d => d.message).join('\n');
+                const diagnosticsMessage = diagnostics.map((d) => d.message).join("\n");
                 setError(key, { type: "validate", message: diagnosticsMessage });
-    
+
                 // If the severity is not ERROR, don't invalidate
-                const hasErrorDiagnostics = diagnostics.some(d => d.severity === 1);
+                const hasErrorDiagnostics = diagnostics.some((d) => d.severity === 1);
                 if (hasErrorDiagnostics) {
                     hasDiagnostics = false;
                 } else {
@@ -326,7 +281,7 @@ export function IfForm(props: IfFormProps) {
         }
 
         return hasDiagnostics;
-    }, [diagnosticsInfo])
+    }, [diagnosticsInfo]);
 
     const disableSaveButton = !isValid || isValidating;
 
@@ -334,17 +289,16 @@ export function IfForm(props: IfFormProps) {
     return (
         <FormStyles.Container>
             {branches.map((branch, index) => {
-                if (branch.properties?.condition && branch.label !== "Else") {
-                    const field = convertNodePropertyToFormField(`branch-${index}`, branch.properties.condition);
+                if (branch.properties?.variable) {
+                    const field = convertNodePropertyToFormField(`branch-${index}`, branch.properties.variable);
+                    field.label = "Worker " + (index + 1); // TODO: remove this
                     return (
                         <FormStyles.Row key={field.key}>
                             <ExpressionEditor
-                                /* Completion related props */
                                 completions={activeEditor === index ? expressionEditor.completions : []}
                                 triggerCharacters={expressionEditor.triggerCharacters}
                                 retrieveCompletions={expressionEditor.retrieveCompletions}
                                 extractArgsFromFunction={expressionEditor.extractArgsFromFunction}
-                                /* Helper pane related props */
                                 isLoadingHelperPaneInfo={expressionEditor.isLoadingHelperPaneInfo}
                                 variableInfo={expressionEditor.variableInfo}
                                 configVariableInfo={expressionEditor.configVariableInfo}
@@ -352,7 +306,6 @@ export function IfForm(props: IfFormProps) {
                                 libraryBrowserInfo={expressionEditor.libraryBrowserInfo}
                                 getHelperPaneData={expressionEditor.getHelperPaneData}
                                 onFunctionItemSelect={expressionEditor.onFunctionItemSelect}
-                                /* Other props */
                                 ref={exprRef}
                                 control={control}
                                 field={field}
@@ -362,7 +315,7 @@ export function IfForm(props: IfFormProps) {
                                 openSubPanel={openSubPanel}
                                 targetLineRange={targetLineRange}
                                 fileName={fileName}
-                                onRemove={index !== 0 && !branch.label.includes("Else") ? () => removeCondition(index) : undefined}
+                                onRemove={() => removeWorker(index)}
                                 onCompletionItemSelect={expressionEditor.onCompletionItemSelect}
                                 onCancel={expressionEditor.onCancel}
                                 onBlur={expressionEditor.onBlur}
@@ -372,24 +325,10 @@ export function IfForm(props: IfFormProps) {
                 }
             })}
 
-            <LinkButton onClick={addNewCondition} sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
+            <LinkButton onClick={addNewWorker} sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
                 <Codicon name={"add"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
-                Add Else IF Block
+                Add Worker
             </LinkButton>
-
-            {!hasElseBranch && (
-                <LinkButton onClick={addElseBlock} sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
-                    <Codicon name={"add"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
-                    Add Else Block
-                </LinkButton>
-            )}
-
-            {hasElseBranch && (
-                <LinkButton onClick={removeElseBlock} sx={{ fontSize: 12, padding: 8, color: Colors.ERROR, gap: 4 }}>
-                    <Codicon name={"chrome-minimize"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
-                    Remove Else Block
-                </LinkButton>
-            )}
 
             {onSubmit && (
                 <FormStyles.Footer>
@@ -402,4 +341,4 @@ export function IfForm(props: IfFormProps) {
     );
 }
 
-export default IfForm;
+export default ForkForm;
