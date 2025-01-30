@@ -129,7 +129,7 @@ const ParameterManager = (props: ParameterManagerProps) => {
             } else if (Array.isArray(field)) {
                 return getFieldValue(field[0])
             } else {
-                return (Object.values(field)[0]).toString()
+                return (Object.values(field)[0] || '').toString()
             }
         }
         return field as string | number || '';
