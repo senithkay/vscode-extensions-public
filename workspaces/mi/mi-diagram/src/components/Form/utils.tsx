@@ -61,7 +61,7 @@ export function isLegacyExpression(
     /* If the field is wrapped in ${...} */
     const isExpression = field.value?.isExpression;
     const value = typeof field.value === 'object' ? field.value.value : field.value;
-    if (isExpression && value.length > 0 && (!value.startsWith('${') || !value.endsWith('}'))) {
+    if (isExpression && value?.length > 0 && (!value?.startsWith('${') || !value?.endsWith('}'))) {
         return true;
     }
 
