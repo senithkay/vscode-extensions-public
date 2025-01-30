@@ -157,7 +157,7 @@
                     },
                     "kolab.rootUrl": {
                         "type": "string",
-                        "default": "https://dev-tools.wso2.com/ballerina-copilot/v2.0",
+                        "default": "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/ballerina-copilot/ballerina-copilot-api-byo/v2.0",
                         "description": "Ballerina AI Backend service"
                     },
                     "kolab.contextUploadServiceUrl": {
@@ -167,12 +167,12 @@
                     },
                     "kolab.authOrg": {
                         "type": "string",
-                        "default": "ballerinacopilot",
+                        "default": "ballerinacopilotdev",
                         "description": "Asgardeo Organization for Auth Services\nDefault: ballerinacopilot"
                     },
                     "kolab.authClientID": {
                         "type": "string",
-                        "default": "9rKng8hSZd0VkeA45Lt4LOfCp9Aa",
+                        "default": "XpQ6lphi7kjKkWzumYyqqNf7CjIa",
                         "description": "Client ID of the Asgardeo Organization for Auth Services\n Default: 9rKng8hSZd0VkeA45Lt4LOfCp9Aa"
                     },
                     "kolab.authRedirectURL": {
@@ -349,6 +349,16 @@
             {
                 "command": "kolab.create.cloud",
                 "title": "Create Cloud.toml",
+                "category": "Ballerina"
+            },
+            {
+                "command": "kolab.login.copilot",
+                "title": "Authorize Github Copilot",
+                "category": "Ballerina"
+            },
+            {
+                "command": "kolab.reset.bi",
+                "title": "Reset BI Auth",
                 "category": "Ballerina"
             },
             {

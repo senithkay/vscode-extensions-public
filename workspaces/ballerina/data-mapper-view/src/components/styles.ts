@@ -83,9 +83,8 @@ export const useIONodesStyles = () => ({
         },
     }),
     queryPortWrap: css({
-        width: 85,
-        display: 'flex',
-        justifyContent: 'center'
+        width: IO_NODE_DEFAULT_WIDTH,
+        position: "absolute"
     }),
     nodeType: css({
         float: 'right',
