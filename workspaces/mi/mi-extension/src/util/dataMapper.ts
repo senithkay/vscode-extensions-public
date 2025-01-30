@@ -219,7 +219,7 @@ function getTypeInfoForInterface(typeNode: Type, allInterfaces: string[]): DMTyp
     if(allInterfaces.includes(typeName)) {
         return {
             kind: TypeKind.Interface,
-            typeName,
+            typeName: `${typeName} ∞`,
             optional: typeNode.isNullable(),
             isRecursive: true
         };
