@@ -265,6 +265,12 @@ export type NodeKind =
     | "DATA_MAPPER_CALL"
     | "FORK"
     | "WORKER"
+    | "WAIT"
+    | "START"
+    | "COMMIT"
+    | "ROLLBACK"
+    | "FAIL"
+    | "RETRY"
     | "CONFIG_VARIABLE";
 
 export type OverviewFlow = {
