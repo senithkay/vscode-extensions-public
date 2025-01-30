@@ -192,6 +192,11 @@ export function FormGenerator(props: FormGeneratorProps) {
             const valueObj: any[] = [];
             currentValue?.forEach((param: any[]) => {
                 const val: any = {};
+
+                if (!Array.isArray(param)) {
+                    param = Object.values(param);
+                }
+
                 value.elements.forEach((field: any, index: number) => {
                     const fieldName = getNameForController(field.value.name);
                     const fieldValue = param[index];
@@ -382,7 +387,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                         {...field}
                         label={element.displayName}
                         labelAdornment={helpTipElement}
-                        checked={typeof field.value === 'boolean' ? field.value  : field.value === 'true' ? true : false }
+                        checked={typeof field.value === 'boolean' ? field.value : field.value === 'true' ? true : false}
                     />
                 );
             case 'stringOrExpression':
@@ -391,7 +396,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'textAreaOrExpression':
             case 'integerOrExpression':
             case 'expression':
-                const isValueLegacyExpression = field.value?.isExpression && 
+                const isValueLegacyExpression = field.value?.isExpression &&
                     isLegacyExpression(typeof field.value === 'object' ? field.value.value : field.value);
                 if (isLegacyExpressionEnabled || isValueLegacyExpression) {
                     return ExpressionFieldComponent({
@@ -556,20 +561,20 @@ export function FormGenerator(props: FormGeneratorProps) {
                             allowItemCreate={false}
                         />
                     </>);
-                // TODO: Add this back when the token editor is fixed
-                // case 'expressionTextArea':
-                //     return (
-                //         <FormTokenEditor
-                //             nodeRange={range}
-                //             value={field.value}
-                //             onChange={field.onChange}
-                //             placeholder={placeholder}
-                //             label={element.displayName}
-                //             labelAdornment={helpTipElement}
-                //             required={isRequired}
-                //             errorMsg={errorMsg}
-                //         />
-                //     );
+            // TODO: Add this back when the token editor is fixed
+            // case 'expressionTextArea':
+            //     return (
+            //         <FormTokenEditor
+            //             nodeRange={range}
+            //             value={field.value}
+            //             onChange={field.onChange}
+            //             placeholder={placeholder}
+            //             label={element.displayName}
+            //             labelAdornment={helpTipElement}
+            //             required={isRequired}
+            //             errorMsg={errorMsg}
+            //         />
+            //     );
             default:
                 return null;
         }
@@ -706,7 +711,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                         display: "flex",
                         flexDirection: 'row'
                     }}>
-                        {typeof formData.help === 'string' && formData.help.includes('<') ? 
+                        {typeof formData.help === 'string' && formData.help.includes('<') ?
                             // <div dangerouslySetInnerHTML={{ __html: formData.help }} /> Enable when forms are fixed
                             null
                             : <Typography variant="body3">{formData.help}</Typography>

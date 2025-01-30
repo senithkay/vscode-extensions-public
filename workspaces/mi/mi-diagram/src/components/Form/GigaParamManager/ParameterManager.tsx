@@ -123,8 +123,14 @@ const ParameterManager = (props: ParameterManagerProps) => {
     };
 
     const getFieldValue = (field: string | number | ExpressionFieldValue): string | number => {
-        if (typeof field === 'object' && field !== null && 'value' in field) {
-            return field.value;
+        if (typeof field === 'object' && field !== null) {
+            if ('value' in field) {
+                return field.value;
+            } else if (Array.isArray(field)) {
+                return getFieldValue(field[0])
+            } else {
+                return (Object.values(field)[0]).toString()
+            }
         }
         return field as string | number || '';
     }
@@ -170,14 +176,14 @@ const ParameterManager = (props: ParameterManagerProps) => {
             {parameters?.map((param: Param, index: number) => (
                 <>
                     <Row key={index}>
-                        <div 
-                            style={{ 
+                        <div
+                            style={{
                                 backgroundColor: Colors.PRIMARY,
                                 padding: '5px',
                                 flex: 1,
-                                borderTopLeftRadius: 4, 
-                                borderBottomLeftRadius: 4, 
-                                height: !param[tableKey as keyof Param] && 15, 
+                                borderTopLeftRadius: 4,
+                                borderBottomLeftRadius: 4,
+                                height: !param[tableKey as keyof Param] && 15,
                             }}
                         >
                             <Typography
@@ -186,11 +192,11 @@ const ParameterManager = (props: ParameterManagerProps) => {
                                 }}
                             >{getFieldValue(param[tableKey as keyof Param]) ?? (index + 1)}</Typography>
                         </div>
-                        <div 
-                            style={{ 
-                                backgroundColor: Colors.SURFACE_CONTAINER, 
-                                padding: '5px', 
-                                flex: 2, 
+                        <div
+                            style={{
+                                backgroundColor: Colors.SURFACE_CONTAINER,
+                                padding: '5px',
+                                flex: 2,
                                 overflow: 'hidden',
                                 borderTopRightRadius: 4,
                                 borderBottomRightRadius: 4,
