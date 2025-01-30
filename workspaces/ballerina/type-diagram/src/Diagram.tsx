@@ -22,19 +22,22 @@ import { DiagramControls } from './components/Controls/DiagramControls';
 import { OverlayLayerModel } from './components/OverlayLoader';
 import { Type } from '@wso2-enterprise/ballerina-core';
 import { focusToNode } from './utils/utils';
+import { graphqlModeller } from './utils/model-mapper/entityModelMapper';
 
 interface TypeDiagramProps {
     typeModel: Type[];
+    rootService?: Type;
+    isGraphql?: boolean;
     selectedNodeId?: string;
     focusedNodeId?: string;
     updateFocusedNodeId?: (nodeId: string) => void;
-    showProblemPanel: () => void;
+    showProblemPanel?: () => void;
     goToSource: (node: Type) => void
-    onTypeEdit: (typeId: string) => void;
+    onTypeEdit: (typeId: string, isGraphqlRoot?: boolean) => void;
 }
 
 export function TypeDiagram(props: TypeDiagramProps) {
-    const { typeModel, showProblemPanel, selectedNodeId, goToSource, focusedNodeId, updateFocusedNodeId } = props;
+    const { typeModel, showProblemPanel, selectedNodeId, goToSource, focusedNodeId, updateFocusedNodeId, rootService, isGraphql } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(createEntitiesEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
@@ -50,7 +53,34 @@ export function TypeDiagram(props: TypeDiagramProps) {
     }, [selectedNodeId]);
 
     const drawDiagram = (focusedNode?: string) => {
-        if (typeModel) {
+        if(isGraphql && rootService) { // TODO: Refactor for graphql and types
+            const diagramModel = graphqlModeller(rootService, typeModel);
+            console.log("diagramModel", diagramModel);
+
+            if (diagramModel) {
+                diagramModel.addLayer(new OverlayLayerModel());
+                diagramEngine.setModel(diagramModel);
+                setDiagramModel(diagramModel);
+
+                // Always distribute first to properly layout the diagram
+                setTimeout(() => {
+                    dagreEngine.redistribute(diagramEngine.getModel());
+
+                    if (selectedNodeId) {
+                        const selectedModel = diagramEngine.getModel().getNode(selectedNodeId);
+                        focusToNode(selectedModel, diagramEngine.getModel().getZoomLevel(), diagramEngine);
+                    } else if (diagramEngine?.getCanvas()?.getBoundingClientRect) {
+                        diagramEngine.zoomToFitNodes({ margin: 10, maxZoom: 1 });
+                    }
+
+                    // Remove overlay and update model
+                    diagramEngine.getModel().removeLayer(diagramEngine.getModel().getLayers().find(layer => layer instanceof OverlayLayerModel));
+                    diagramEngine.setModel(diagramModel);
+                    diagramEngine.repaintCanvas();
+                }, 300);
+            }
+        }
+        if (typeModel && !isGraphql) {
             const diagramModel = entityModeller(typeModel, focusedNode);
 
             if (diagramModel) {
@@ -82,10 +112,10 @@ export function TypeDiagram(props: TypeDiagramProps) {
 
     const styles = useStyles();
 
-    const onTypeEdit = (typeId: string) => {
-        console.log("Editing type: ", typeId);
+    const onTypeEdit = (typeId: string, isGraphqlRoot?: boolean) => {
+        console.log("Editing type: ", typeId, isGraphqlRoot);
         // setSelectedNodeId(typeId);
-        props.onTypeEdit(typeId);
+        props.onTypeEdit(typeId, isGraphqlRoot);
     }
 
     const updateSelectionOnDiagram = (nodeId: string) => {

@@ -17,7 +17,7 @@ interface DiagramContextProps {
     setFocusedNodeId?: (id: string) => void;
     selectedNodeId?: string;
     setSelectedNodeId?: (id: string) => void;
-    onEditNode?: (id: string) => void;
+    onEditNode?: (id: string, isGraphqlRoot?: boolean) => void;
     goToSource?: (node: Type) => void
 }
 
@@ -27,7 +27,7 @@ interface IDiagramContext {
     setFocusedNodeId?: (id: string) => void;
     selectedNodeId?: string;
     setSelectedNodeId?: (id: string) => void;
-    onEditNode?: (id: string) => void;
+    onEditNode?: (id: string, isGraphqlRoot?: boolean) => void;
     goToSource?: (node: Type) => void
 }
 
