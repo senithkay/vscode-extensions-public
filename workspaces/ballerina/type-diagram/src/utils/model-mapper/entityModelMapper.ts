@@ -47,7 +47,7 @@ function createEntityLinks(entityNodes: Map<string, EntityModel>): EntityLinkMod
                         let targetPort = targetNode.getPort(`left-${ref}`);
 
                         const linkId = `entity-link-${sourceNode.getID()}-${ref}`;
-                        let link = new EntityLinkModel({ associate: "1", self: "1" }, linkId); // REMOVE cardinalities
+                        let link = new EntityLinkModel(undefined,linkId); // REMOVE cardinalities
                         entityLinks.push(createLinks(sourcePort, targetPort, link));
                     }
                 });
