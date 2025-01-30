@@ -64,7 +64,7 @@ export const ActionButtons = forwardRef<HTMLDivElement, ActionButtonsProps>(
                                 height: '16px',
                                 width: '22px',
                                 ...(isHelperPaneOpen && {
-                                    backgroundColor: 'var(--button-secondary-background)',
+                                    backgroundColor: 'var(--button-icon-hover-background)',
                                     borderRadius: '2px'
                                 })
                             }}
