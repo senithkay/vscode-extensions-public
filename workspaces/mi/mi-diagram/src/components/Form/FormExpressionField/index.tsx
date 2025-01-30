@@ -8,19 +8,16 @@
  */
 
 import { debounce } from 'lodash';
-import React, { CSSProperties, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { CSSProperties, ReactNode, useCallback, useMemo, useRef, useState } from 'react';
 import { Range } from 'vscode-languageserver-types';
 import styled from '@emotion/styled';
 import { HelperPaneCompletionItem, HelperPaneFunctionInfo, FormExpressionFieldValue } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import {
-    Button,
-    Codicon,
     CompletionItem,
     ErrorBanner,
     FormExpressionEditor,
     FormExpressionEditorRef,
-    Icon,
     RequiredFormInput,
     Typography,
 } from '@wso2-enterprise/ui-toolkit';
@@ -59,7 +56,6 @@ type StyleProps = {
  * @param onBlur - Callback function to be called when the expression is blurred
  * @param onCancel - Callback function to be called when the completions dropdown is closed
  * @param openExpressionEditor - Callback function to be called when the expression editor is opened
- * @param expressionType - Whether the expression is of type xpath/jsonPath or synapse
  * @param errorMsg - The error message to display
  * @param sx - The style to apply to the container
  */
@@ -78,7 +74,6 @@ type FormExpressionFieldProps = {
     onBlur?: (e?: any) => void | Promise<void>;
     onCancel?: () => void;
     openExpressionEditor: (value: FormExpressionFieldValue, setValue: (value: FormExpressionFieldValue) => void) => void;
-    expressionType?: 'xpath/jsonPath' | 'synapse';
     errorMsg: string;
     sx?: CSSProperties;
 };
@@ -153,7 +148,6 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         errorMsg,
         onFocus,
         onBlur,
-        expressionType = 'synapse',
         openExpressionEditor,
         sx
     } = params;
@@ -201,10 +195,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
     const handleExpressionChange = async (expression: string, updatedCursorPosition: number) => {
         onChange({
             ...value,
-            value:
-                value.isExpression && expressionType !== "xpath/jsonPath"
-                    ? enrichExpressionValue(expression)
-                    : expression,
+            value: value.isExpression ? enrichExpressionValue(expression) : expression
         });
         cursorPositionRef.current = updatedCursorPosition;
 
@@ -334,23 +325,39 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         }
 
         return [
-            ...(isExActive || expressionType === "xpath/jsonPath" ? [{
-                tooltip: 'Open Expression Editor',
-                iconType: 'codicon' as any,
-                name: 'edit',
-                onClick: () => openExpressionEditor(value, onChange)
-            }] : []),
-            ...(expressionType === "synapse" ? [{
-                tooltip: 'Open Helper Pane',
-                iconType: 'icon' as any,
-                name: 'open-helper-pane',
-                onClick: () => {
-                    expressionRef.current?.focus();
-                    handleChangeHelperPaneState(!isHelperPaneOpen)
-                },
-            }] : [])
+            ...(isExActive
+                ? [
+                      {
+                          tooltip: 'Open Expression Editor',
+                          iconType: 'codicon' as any,
+                          name: 'edit',
+                          onClick: () => openExpressionEditor(value, onChange)
+                      }
+                  ]
+                : []),
+            ...(value.isExpression
+                ? [
+                      {
+                          tooltip: 'Open Helper Pane',
+                          iconType: 'icon' as any,
+                          name: 'open-helper-pane',
+                          onClick: () => {
+                              expressionRef.current?.focus();
+                              handleChangeHelperPaneState(!isHelperPaneOpen);
+                          }
+                      }
+                  ]
+                : [])
         ];
-    }, [isExActive, isHelperPaneOpen, value, handleChangeHelperPaneState, openExpressionEditor, onChange]);
+    }, [
+        isExActive,
+        isHelperPaneOpen,
+        value,
+        expressionRef.current,
+        handleChangeHelperPaneState,
+        openExpressionEditor,
+        onChange
+    ]);
 
     const expressionValue = useMemo(() => {
         const extractedExpressionValue = extractExpressionValue(value.value);
@@ -378,8 +385,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                     getExpressionEditorIcon={handleGetExpressionEditorIcon}
                     helperPaneOrigin='left'
                     actionButtons={actionButtons}
-                    {...(expressionType !== "xpath/jsonPath" &&
-                        value.isExpression && {
+                    {...(value.isExpression && {
                         completions,
                         isHelperPaneOpen,
                         changeHelperPaneState: handleChangeHelperPaneState,

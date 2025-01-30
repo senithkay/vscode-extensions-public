@@ -33,7 +33,38 @@ export function isValueExpression(stringValue: string): any {
     return stringValue != null && stringValue.startsWith('${') && stringValue.endsWith('}');
 }
 
-export function isLegacyExpression(value: string): boolean {
-    // Check if the string is wrapped in ${...}
-    return value.length > 0 && (!value.startsWith('${') || !value.endsWith('}'));
+/**
+ * Check whether to use the legacy expression editor or not.
+ *
+ * @param expressionType - The expression type.
+ * @param isLegacyExpressionEnabled - Whether the enable legacy expression editor setting is checked.
+ * @param field - The field object.
+ * @returns - Whether to use the legacy expression editor or not.
+ */
+export function isLegacyExpression(
+    expressionType: 'xpath/jsonPath' | 'synapse',
+    isLegacyExpressionEnabled: boolean,
+    field: any
+): boolean {
+    /* Check if for the expressionType field
+     * If the field value is 'xPath/jsonPath' -> enable the legacy expression editor
+     */
+    if (expressionType === 'xpath/jsonPath') {
+        return true;
+    }
+
+    /* If the legacy expression editor is enabled, return true */
+    if (isLegacyExpressionEnabled) {
+        return true;
+    }
+
+    /* If the field is wrapped in ${...} */
+    const isExpression = field.value?.isExpression;
+    const value = typeof field.value === 'object' ? field.value.value : field.value;
+    if (isExpression && value.length > 0 && (!value.startsWith('${') || !value.endsWith('}'))) {
+        return true;
+    }
+
+    /* If non of the conditions are met -> enable the new expression editor */
+    return false;
 }
