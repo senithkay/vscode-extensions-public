@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Type, TypeNodeKind } from '@wso2-enterprise/ballerina-core';
+import { Member, Type, TypeFunctionModel, TypeNodeKind } from '@wso2-enterprise/ballerina-core';
 import { DiagramModel } from '@projectstorm/react-diagrams';
 import { EntityLinkModel, EntityModel, EntityPortModel } from '../../components/entity-relationship';
 
@@ -37,8 +37,10 @@ function createEntityLinks(entityNodes: Map<string, EntityModel>): EntityLinkMod
         const members = isNodeClass(sourceNode.entityObject?.codedata?.node ) ? sourceNode.entityObject.functions : sourceNode.entityObject.members; // Use functions if it's a CLASS
 
         Object.entries(members).forEach(([_, member]) => {
-            if (member.refs && member.refs.length > 0) {
-                member.refs.forEach((ref) => {
+            const refs = getRefs(member.type, member);
+        
+            if (refs.length > 0) {
+                refs.forEach((ref) => {
                     const targetNode = entityNodes.get(ref);
                     if (targetNode) {
                         let sourcePort = sourceNode.getPort(`right-${sourceNode.getID()}/${member.name}`);
@@ -55,6 +57,19 @@ function createEntityLinks(entityNodes: Map<string, EntityModel>): EntityLinkMod
 
     return entityLinks;
 }
+
+const getRefs = (type: string | Type, member: Member | TypeFunctionModel): string[] => {
+    if (typeof type === 'string') {
+        return member.refs || [];
+    }
+    
+    if ('returnType' in member) { 
+        return getRefs(member.returnType, member);
+    }
+
+    return type.members.flatMap(m => getRefs(m.type, m));
+};
+
 
 export function isNodeClass(nodeKind: TypeNodeKind): boolean {
     return nodeKind === 'CLASS' || nodeKind === 'SERVICE_DECLARATION';

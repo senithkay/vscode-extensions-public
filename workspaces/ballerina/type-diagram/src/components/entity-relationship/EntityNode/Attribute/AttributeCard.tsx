@@ -9,13 +9,13 @@
 
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
-import { Member, TypeFunctionModel } from '@wso2-enterprise/ballerina-core';
+import { Member,TypeFunctionModel } from '@wso2-enterprise/ballerina-core';
 import { EntityModel } from '../EntityModel';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
 
 import { AttributeContainer, AttributeName, AttributeType } from '../styles';
 import { CtrlClickGo2Source, DiagramContext } from '../../../common';
-import { extractAttributeType } from '../entity-utils';
+import { getAttributeType } from '../../../../utils/utils';
 
 interface AttributeProps {
     node: EntityModel;
@@ -31,10 +31,7 @@ export function AttributeWidget(props: AttributeProps) {
     const [isHovered, setIsHovered] = useState<boolean>(false);
     const attributePorts = useRef<PortModel[]>([]);
 
-    // get the attribute type based on the attribute whether its Member or TypeFunctionModel
-    const attType: string = 'returnType' in attribute ? attribute.returnType as string  : (attribute as Member).type as string;
-
-    let attributeType: string = extractAttributeType(attType);// TODO: FIX for anynnymous records
+    let attributeType: string = getAttributeType(attribute);// TODO: FIX for anynnymous records
 
     useEffect(() => {
         attributePorts.current.push(node.getPortFromID(`left-${node.getID()}/${attribute.name}`));

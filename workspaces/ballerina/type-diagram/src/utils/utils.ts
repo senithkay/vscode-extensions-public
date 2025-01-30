@@ -13,7 +13,9 @@ import {
     CMEntryPoint, CMInteraction, CMRemoteFunction, CMResourceFunction,
     CMService,
     ComponentModel,
-    ComponentModelDeprecated
+    ComponentModelDeprecated,
+    Member,
+    TypeFunctionModel
 } from '@wso2-enterprise/ballerina-core';
 import { EntityFactory, EntityLinkFactory, EntityPortFactory } from '../components/entity-relationship';
 import { OverlayLayerFactory } from '../components/OverlayLoader';
@@ -214,3 +216,56 @@ export function focusToNode(node: NodeModel, currentZoomLevel: number, diagramEn
         diagramEngine.repaintCanvas();
    }
 }
+
+export const getAttributeType = (attr: Member | TypeFunctionModel): string => {
+
+    const type = 'returnType' in attr ? attr.returnType : (attr as Member).type;
+
+    if (typeof type === 'string') {
+        return type;
+    }
+
+    // Get base type representation based on node kind
+    const getTypeString = (members: Member[]): string => {
+        const memberTypes = members.map(member => {
+            if (typeof member.type === 'string') {
+                return member.type;
+            }
+            return getAttributeType(member);
+        });
+
+        switch (type.codedata.node) {
+            case 'ARRAY':
+                return `${memberTypes[0]}[]`;
+            case 'UNION':
+                return memberTypes.reverse().join('|');
+            case 'MAP':
+                return `map<${memberTypes[0]}>`;
+            case 'TABLE':
+                const rowType = members.find(m => m.name === 'rowType');
+                const keyConstraint = members.find(m => m.name === 'keyConstraintType');
+                const tableType = rowType ? getAttributeType(rowType) : 'unknown';
+                return keyConstraint
+                    ? `table<${tableType}> key<${getAttributeType(keyConstraint)}>`
+                    : `table<${tableType}>`;
+            case 'STREAM':
+                return `stream<${memberTypes.reverse().join(',')}>`;
+            case 'FUTURE':
+                return `future<${memberTypes[0] || ''}>`;
+            case 'TYPEDESC':
+                return `typedesc<${memberTypes[0] || ''}>`;
+            case 'TUPLE':
+                return `[${memberTypes.reverse().join(',')}]`;
+            case 'RECORD':
+                const recordMembers = [...members].reverse().map(member => {
+                    const memberType = typeof member.type === 'string' ? member.type : getAttributeType(member);
+                    return `${memberType} ${member.name}`;
+                });
+                return `record {${recordMembers.join(', ')}}`;// TODO: Verify anonymous records representation
+            default:
+                return type.name || 'unknown';
+        }
+    };
+
+    return getTypeString(type.members);
+};
