@@ -90,6 +90,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
     const [canOpenView, setCanOpenView] = useState(false);
     const referenceKey = node.referenceName.split("=")[0];
     const referenceValue = node.referenceName.split("=")[1];
+    const isClickable = referenceKey !== "inSequence" && referenceKey !== "outSequence" && referenceKey !== "faultSequence" && node.stNode.tag !== "target";
     const description = getNodeDescription(node.stNode) || referenceValue;
 
     useEffect(() => {
@@ -180,7 +181,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
     }
 
     const onClick = (e: any) => {
-        if (node.stNode.tag === "target") {
+        if (!isClickable) {
             return;
         }
         node.onClicked(e, node, rpcClient, sidePanelContext);
