@@ -491,6 +491,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 );
             }
             case 'codeTextArea':
+            case 'expressionTextArea':
                 return (
                     <CodeTextArea
                         {...field}
@@ -555,19 +556,20 @@ export function FormGenerator(props: FormGeneratorProps) {
                             allowItemCreate={false}
                         />
                     </>);
-                case 'expressionTextArea':
-                    return (
-                        <FormTokenEditor
-                            nodeRange={range}
-                            value={field.value}
-                            onChange={field.onChange}
-                            placeholder={placeholder}
-                            label={element.displayName}
-                            labelAdornment={helpTipElement}
-                            required={isRequired}
-                            errorMsg={errorMsg}
-                        />
-                    );
+                // TODO: Add this back when the token editor is fixed
+                // case 'expressionTextArea':
+                //     return (
+                //         <FormTokenEditor
+                //             nodeRange={range}
+                //             value={field.value}
+                //             onChange={field.onChange}
+                //             placeholder={placeholder}
+                //             label={element.displayName}
+                //             labelAdornment={helpTipElement}
+                //             required={isRequired}
+                //             errorMsg={errorMsg}
+                //         />
+                //     );
             default:
                 return null;
         }
