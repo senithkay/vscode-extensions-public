@@ -64,7 +64,7 @@ function convertAvailableNodeToPanelNode(node: AvailableNode, functionType?: FUN
         description: node.metadata.description,
         enabled: node.enabled,
         metadata: node,
-        icon: <NodeIcon type={functionType === FUNCTION_TYPE.EXPRESSION_BODIED ? "DATA_MAPPER_CALL" : node.codedata.node} />,
+        icon: <NodeIcon type={functionType === FUNCTION_TYPE.EXPRESSION_BODIED ? "DATA_MAPPER_CALL" : node.codedata.node} size={16} />,
     };
 }
 

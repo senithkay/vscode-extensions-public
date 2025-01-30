@@ -27,6 +27,7 @@ import { MoreVertIcon } from "../../../resources";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
 import { nodeHasError } from "../../../utils/node";
 import { BreakpointMenu } from "../../BreakNodeMenu/BreakNodeMenu";
+import { NodeIcon } from "../../NodeIcon";
 
 export namespace NodeStyles {
     export const Node = styled.div`
@@ -52,8 +53,8 @@ export namespace NodeStyles {
     export const StyledButton = styled(Button)`
         border-radius: 5px;
         position: absolute;
-        top: -8px;
-        left: 48px;
+        top: -10px;
+        left: 52px;
     `;
 
     export const ErrorIcon = styled.div`
@@ -229,21 +230,6 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
         setAnchorEl(null);
     };
 
-    const getNodeIcon = () => {
-        switch (model.node.codedata.node) {
-            case "WHILE":
-                return <Icon name="bi-loop" sx={{ stroke: Colors.ON_SURFACE, fontSize: 24, width: 24, height: 24 }} />;
-            case "FORK":
-                return <Icon name="bi-parallel" sx={{ stroke: Colors.ON_SURFACE, fontSize: 24, width: 24, height: 24 }} />;
-            case "ERROR_HANDLER":
-                return (
-                    <Icon name="bi-shield" sx={{ stroke: Colors.ON_SURFACE, fontSize: 24, width: 24, height: 24 }} />
-                );
-            default:
-                return <Icon name="bi-code" sx={{ stroke: Colors.ON_SURFACE, fontSize: 24, width: 24, height: 24 }} />;
-        }
-    };
-
     const menuItems: Item[] = [
         {
             id: "edit",
@@ -285,7 +271,7 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                             />
                         )}
                         <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
-                        {getNodeIcon()}
+                        <NodeIcon type={model.node.codedata.node} size={24} />
                         <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
                     </NodeStyles.Box>
                 </NodeStyles.Column>

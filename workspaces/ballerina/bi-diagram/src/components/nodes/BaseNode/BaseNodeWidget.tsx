@@ -315,7 +315,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Row>
                 <NodeStyles.Icon onClick={handleOnClick}>
-                    <NodeIcon type={model.node.codedata.node} />
+                    <NodeIcon type={model.node.codedata.node} size={24} />
                     {/* {model.node.properties.variable?.value && (
                         <NodeStyles.Description>{model.node.properties.variable.value}</NodeStyles.Description>
                     )} */}
