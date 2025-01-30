@@ -161,11 +161,21 @@ export function TypeDiagram(props: TypeDiagramProps) {
                     description: ""
                 },
                 codedata: {
-                    lineRange: undefined,
+                    lineRange: {
+                        startLine: {
+                            line: 0,
+                            offset: 0
+                        },
+                        endLine: {
+                            line: 0,
+                            offset: 0
+                        },
+                        fileName: "types.bal"
+                    },
                     node: "RECORD"
                 },
                 properties: {},
-                members: {},
+                members: [],
                 includes: [] as string[]
             };
         }
@@ -173,9 +183,8 @@ export function TypeDiagram(props: TypeDiagramProps) {
     }
 
     const onTypeChange = async (type: Type) => {
-        const name = type.name;
-        const response = await rpcClient.getBIDiagramRpcClient().updateType({ filePath: visualizerLocation?.metadata?.recordFilePath, type, description: "" });
         setEditingTypeId(undefined);
+        setIsTypeCreatorOpen(false);
     }
 
     return (

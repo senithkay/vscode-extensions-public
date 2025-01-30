@@ -11,7 +11,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { TextField, View, ViewContent, Dropdown, Button, SidePanelBody, ProgressRing, Divider, Icon, Codicon } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
-import { Member, Type, UndoRedoManager } from "@wso2-enterprise/ballerina-core";
+import { Member, Type, UndoRedoManager, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { RecordFromJson } from "../RecordFromJson";
 import { RecordFromXml } from "../RecordFromXml";
 import { RecordEditor } from "./RecordEditor";
@@ -164,6 +164,7 @@ const undoRedoManager = new UndoRedoManager();
 
 export function TypeEditor(props: TypeEditorProps) {
     const [type, setType] = useState<Type | undefined>(props.type ? { ...props.type } : undefined);
+    const [visualizerLocation, setVisualizerLocation] = React.useState<VisualizerLocation>();
     const nameInputRefs = useRef<(HTMLElement | null)[]>([]);
     const [isNewType, setIsNewType] = useState<boolean>(props.newType);
     const nameInputRef = useRef<HTMLInputElement | null>(null);
@@ -178,7 +179,11 @@ export function TypeEditor(props: TypeEditorProps) {
 
 
 
-    const onTypeChange = (type: Type) => {
+    const onTypeChange = async (type: Type) => {
+        const name = type.name;
+        const response = await props.rpcClient
+            .getBIDiagramRpcClient()
+            .updateType({ filePath: type.codedata.lineRange.fileName, type, description: "" });
         props.onTypeChange(type);
     }
 

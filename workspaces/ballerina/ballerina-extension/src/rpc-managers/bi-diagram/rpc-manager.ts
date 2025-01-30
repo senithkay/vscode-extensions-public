@@ -1083,11 +1083,10 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async updateType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
         const projectUri = StateMachine.context().projectUri;
-        const ballerinaFiles = await getBallerinaFiles(Uri.file(projectUri).fsPath);
-
+        const filePath =  path.join(projectUri, params.filePath);
         return new Promise((resolve, reject) => {
             StateMachine.langClient()
-                .updateType({ filePath: params.filePath, type: params.type, description: "" })
+                .updateType({ filePath , type: params.type, description: "" })
                 .then((updateTypeResponse: UpdateTypeResponse) => {
                     console.log(">>> update type response", updateTypeResponse);
                     // loop though all the files and update the type
