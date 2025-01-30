@@ -397,7 +397,7 @@ export function isConnectedViaLink(field: Node) {
 }
 
 export function getDefaultValue(dmType: DMType): string {
-    let typeKind: TypeKind = dmType?.kind;
+    const typeKind: TypeKind = dmType?.kind;
 	let draftParameter = "";
 	switch (typeKind) {
 		case TypeKind.String:
@@ -412,6 +412,9 @@ export function getDefaultValue(dmType: DMType): string {
 		case TypeKind.Array:
 			draftParameter = `[]`;
 			break;
+        case TypeKind.Literal: ;
+            draftParameter = dmType?.typeName;
+            break;
 		default:
 			draftParameter = `{}`;
 			break;

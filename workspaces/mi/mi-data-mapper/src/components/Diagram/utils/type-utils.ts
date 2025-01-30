@@ -342,6 +342,7 @@ function resolveUnionType(
             (typeName ===
                 (parentNode?.getType().getSymbol()?.getName() || 
                 parentNode?.getType().getAliasSymbol()?.getName() ||
+                nextNode?.getType().getText() ||
                 nextNode?.getType().getBaseTypeOfLiteralType()?.getText()));
     });
 
