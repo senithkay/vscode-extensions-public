@@ -171,6 +171,10 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
     const handleOpenView = async (e?: any) => {
         if (e) e.stopPropagation();
 
+        if (!definition && node.mediatorName !== MEDIATORS.DATAMAPPER) {
+            return onClick(e);
+        }
+
         if (node.mediatorName === MEDIATORS.DATASERVICECALL) {
             node.openDSSServiceDesigner(rpcClient, definition.uri);
         } else if (node.mediatorName === MEDIATORS.DATAMAPPER) {
