@@ -23,8 +23,17 @@ export function getBranchLabel(branch: Branch): string {
     return branch.properties?.condition?.value?.toString().trim() || branch.label;
 }
 
-export function getBranchId(nodeId: string, branchLabel: string, branchIndex: number) {
-    return `${nodeId}-${branchLabel}-branch-${branchIndex}`;
+export function getCustomNodeId(nodeId: string, label: string, branchIndex?: number, suffix?: string) {
+    return `${nodeId}-${label}${branchIndex ? `-${branchIndex}` : ""}${suffix ? `-${suffix}` : ""}`;
+}
+
+export function reverseCustomNodeId(customNodeId: string) {
+    const parts = customNodeId.split('-');
+    const nodeId = parts[0];
+    const label = parts[1];
+    const branchIndex = parts.length > 3 ? parseInt(parts[3]) : undefined;
+    const suffix = parts.length > 4 ? parts.slice(4).join('-') : undefined;
+    return { nodeId, label, branchIndex, suffix };
 }
 
 export function getBranchInLinkId(nodeId: string, branchLabel: string, branchIndex: number) {

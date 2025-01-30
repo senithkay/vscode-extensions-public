@@ -20,11 +20,13 @@ import { WhileNodeModel } from "../components/nodes/WhileNode";
 import {
     BUTTON_NODE_HEIGHT,
     EMPTY_NODE_WIDTH,
+    END_CONTAINER,
+    LAST_NODE,
     NODE_GAP_X,
     WHILE_NODE_WIDTH,
 } from "../resources/constants";
 import { createNodesLink } from "../utils/diagram";
-import { getBranchInLinkId, getBranchLabel } from "../utils/node";
+import { getBranchInLinkId, getBranchLabel, getCustomNodeId, reverseCustomNodeId } from "../utils/node";
 import { Branch, FlowNode, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 import { EndNodeModel } from "../components/nodes/EndNode";
@@ -114,7 +116,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
             branch.children.at(-1).codedata.node === "FORK"
         ) {
             // if last child is WHILE or FOREACH, find endwhile node
-            lastChildNodeModel = this.nodes.find((n) => n.getID() === `${lastNode.id}-endContainer`);
+            lastChildNodeModel = this.nodes.find((n) => n.getID() === getCustomNodeId(lastNode.id, END_CONTAINER));
         } else {
             lastChildNodeModel = this.nodes.find((n) => n.getID() === lastNode.id);
         }
@@ -318,7 +320,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
         // create branch's OUT link
         const endContainerEmptyNode = this.createEmptyNode(
-            `${node.id}-endContainer`,
+            getCustomNodeId(node.id, END_CONTAINER),
             node.viewState.x + topElementWidth / 2 - EMPTY_NODE_WIDTH / 2,
             node.viewState.y - EMPTY_NODE_WIDTH / 2 + node.viewState.ch
         );
@@ -373,6 +375,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
         const nodeModel = new WhileNodeModel(node);
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
+        this.addSuggestionsButton(node);
         this.lastNodeModel = undefined;
     }
 
@@ -396,6 +399,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
         const nodeModel = new WhileNodeModel(node);
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
+        this.addSuggestionsButton(node);
         this.lastNodeModel = undefined;
     }
 
@@ -409,12 +413,26 @@ export class NodeFactoryVisitor implements BaseVisitor {
         const nodeModel = new WhileNodeModel(node);
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
+        this.addSuggestionsButton(node);
         this.lastNodeModel = undefined;
     }
 
     endVisitFork(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
-        this.visitContainerNode(node, WHILE_NODE_WIDTH);
+
+        // create branch's OUT link
+        const endContainerEmptyNode = this.createEmptyNode(
+            getCustomNodeId(node.id, END_CONTAINER),
+            node.viewState.x + WHILE_NODE_WIDTH / 2 - EMPTY_NODE_WIDTH / 2,
+            node.viewState.y - EMPTY_NODE_WIDTH / 2 + node.viewState.ch
+        );
+        endContainerEmptyNode.setParentFlowNode(node);
+        this.lastNodeModel = endContainerEmptyNode;
+    }
+
+    endVisitWorker(node: Branch, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.lastNodeModel = undefined;
     }
 
     beginVisitRemoteActionCall(node: FlowNode, parent?: FlowNode): void {
@@ -433,7 +451,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
     beginVisitEmpty(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
         // add empty node end of the block
-        if (node.id.endsWith("-last")) {
+        if (reverseCustomNodeId(node.id).label === LAST_NODE) {
             const lastNodeModel = new EndNodeModel(node.id);
             lastNodeModel.setPosition(node.viewState.x, node.viewState.y);
             this.updateNodeLinks(node, lastNodeModel, { showArrow: true, showButtonAlways: this.nodes.length === 1 });

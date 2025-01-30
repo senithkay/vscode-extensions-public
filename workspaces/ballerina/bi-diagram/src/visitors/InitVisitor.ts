@@ -7,7 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { getBranchId } from "../utils/node";
+import { LAST_NODE, START_NODE } from "../resources/constants";
+import { getCustomNodeId } from "../utils/node";
 import { Flow, FlowNode, ViewState } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
@@ -50,7 +51,7 @@ export class InitVisitor implements BaseVisitor {
         // if this is last block in the flow, add empty node end of the block
         if (!node.returning && this.flow.nodes.at(-1).id === node.id) {
             const emptyNode: FlowNode = {
-                id: `${node.id}-last`,
+                id: getCustomNodeId(node.id, LAST_NODE),
                 codedata: {
                     node: "EMPTY",
                 },
@@ -81,7 +82,7 @@ export class InitVisitor implements BaseVisitor {
                 // empty branch
                 // add empty node as `add new node` button
                 const emptyNode: FlowNode = {
-                    id: getBranchId(node.id, branch.label, index),
+                    id: getCustomNodeId(node.id, branch.label, index),
                     codedata: {
                         node: "EMPTY",
                     },
@@ -98,7 +99,7 @@ export class InitVisitor implements BaseVisitor {
         // add empty else branch if not exists
         if (node.branches.find((branch) => branch.label === "Else") === undefined) {
             const emptyElseBranch: FlowNode = {
-                id: `${node.id}-Else-branch`,
+                id: getCustomNodeId(node.id, "Else"),
                 codedata: {
                     node: "EMPTY",
                 },
@@ -150,7 +151,7 @@ export class InitVisitor implements BaseVisitor {
             // empty branch
             // add empty node as `add new node` button
             const emptyNode: FlowNode = {
-                id: `${node.id}-${branch.label}-branch`,
+                id: getCustomNodeId(node.id, branch.label),
                 codedata: {
                     node: "EMPTY",
                 },
@@ -178,9 +179,45 @@ export class InitVisitor implements BaseVisitor {
         this.visitContainerNode(node, parent);
     }
 
+    private visitForkNode(node: FlowNode, parent?: FlowNode): void {
+        node.viewState = this.getDefaultViewState();
+
+        node.branches.forEach((branch, index) => {
+            // add start node, end node to every branch
+            const startNode: FlowNode = {
+                id: getCustomNodeId(node.id, START_NODE, index, branch.label),
+                metadata: {
+                    label: branch.label,
+                    description: "",
+                },
+                codedata: {
+                    node: "EVENT_START",
+                },
+                branches: [],
+                returning: false,
+                viewState: this.getDefaultViewState(),
+            };
+            // add startNode as first child of the branch
+            branch.children.unshift(startNode);
+
+            const endNode: FlowNode = {
+                id: getCustomNodeId(node.id, LAST_NODE, index, branch.label),
+                codedata: {
+                    node: "EMPTY",
+                },
+                returning: false,
+                metadata: { label: "", description: "" },
+                branches: [],
+                viewState: this.getDefaultViewState(),
+            };
+            // add endNode as last child of the branch
+            branch.children.push(endNode);
+        });
+    }
+
     beginVisitFork(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
-        this.visitContainerNode(node, parent);
+        this.visitForkNode(node, parent);
     }
 
     endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {

@@ -9,8 +9,8 @@
 
 import { NodeLinkModel } from "../components/NodeLink";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
-import { NodeTypes } from "../resources/constants";
-import { getBranchInLinkId, getNodeIdFromModel } from "../utils/node";
+import { END_CONTAINER, NodeTypes } from "../resources/constants";
+import { getBranchInLinkId, getCustomNodeId, getNodeIdFromModel } from "../utils/node";
 import { Flow, FlowNode, LinkableNodeModel, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
@@ -70,7 +70,7 @@ export class LinkTargetVisitor implements BaseVisitor {
             return false;
         }
         if (!node.viewState) {
-            console.error(">>> Node view state is not defined", { node });
+            // console.error(">>> Node view state is not defined", { node });
             return false;
         }
         return true;
@@ -240,7 +240,9 @@ export class LinkTargetVisitor implements BaseVisitor {
         });
 
         // update end-container link target
-        const endContainerModel = this.nodeModels.find((nodeModel) => nodeModel.getID() === `${node.id}-endContainer`);
+        const endContainerModel = this.nodeModels.find(
+            (nodeModel) => nodeModel.getID() === getCustomNodeId(node.id, END_CONTAINER)
+        );
         if (!endContainerModel) {
             console.log("End-container node model not found", node);
             return;

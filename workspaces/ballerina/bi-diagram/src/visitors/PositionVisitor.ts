@@ -12,10 +12,12 @@ import {
     COMMENT_NODE_GAP,
     DIAGRAM_CENTER_X,
     DRAFT_NODE_BORDER_WIDTH,
+    LAST_NODE,
     NODE_GAP_X,
     NODE_GAP_Y,
     NODE_PADDING,
 } from "../resources/constants";
+import { reverseCustomNodeId } from "../utils/node";
 import { Branch, FlowNode } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
@@ -45,7 +47,12 @@ export class PositionVisitor implements BaseVisitor {
         node.viewState.y = this.lastNodeY;
         this.lastNodeY += node.viewState.h + NODE_GAP_Y;
 
-        node.viewState.x = this.diagramCenterX - node.viewState.rw;
+        if (parent?.codedata.node === "WORKER") {
+            const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
+            node.viewState.x = centerX - node.viewState.lw;
+        } else {
+            node.viewState.x = this.diagramCenterX - node.viewState.rw;
+        }
     }
 
     beginVisitIf(node: FlowNode, parent?: FlowNode): void {
@@ -113,7 +120,7 @@ export class PositionVisitor implements BaseVisitor {
     beginVisitEmpty(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
         // add empty node end of the block
-        if (node.id.endsWith("-last")) {
+        if (reverseCustomNodeId(node.id).label === LAST_NODE) {
             node.viewState.y = this.lastNodeY;
             const centerX = parent ? parent.viewState.x + parent.viewState.lw : this.diagramCenterX;
             node.viewState.x = centerX - node.viewState.rw;
@@ -179,15 +186,38 @@ export class PositionVisitor implements BaseVisitor {
         this.endVisitWhile(node, parent);
     }
 
-
     beginVisitFork(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
-        this.beginVisitWhile(node, parent);
+
+        node.viewState.y = this.lastNodeY;
+        this.lastNodeY += node.viewState.h + NODE_GAP_Y;
+
+        const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
+        node.viewState.x = centerX - node.viewState.lw;
+
+        if (node.branches.length < 2) {
+            console.error("If node should have 2 branches");
+            return;
+        }
+
+        node.branches.forEach((branch, index) => {
+            if (index === 0) {
+                branch.viewState.x = centerX - node.viewState.clw;
+            } else {
+                const previousBranch = node.branches.at(index - 1);
+                branch.viewState.x =
+                    previousBranch.viewState.x +
+                    previousBranch.viewState.clw +
+                    previousBranch.viewState.crw +
+                    NODE_GAP_X;
+            }
+            branch.viewState.y = this.lastNodeY;
+        });
     }
 
     endVisitFork(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
-        this.endVisitWhile(node, parent);
+        this.lastNodeY = node.viewState.y + node.viewState.ch + NODE_GAP_Y;
     }
 
     beginVisitWorker(node: Branch, parent?: FlowNode): void {

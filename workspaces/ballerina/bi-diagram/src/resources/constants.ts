@@ -145,3 +145,8 @@ export const BUTTON_NODE_HEIGHT = 30;
 export const COMMENT_NODE_WIDTH = 200;
 export const COMMENT_NODE_GAP = 30;
 export const COMMENT_NODE_CIRCLE_WIDTH = 8;
+
+// custom nodes
+export const END_CONTAINER = "endContainer";
+export const START_NODE = "startNode";
+export const LAST_NODE = "lastNode";
