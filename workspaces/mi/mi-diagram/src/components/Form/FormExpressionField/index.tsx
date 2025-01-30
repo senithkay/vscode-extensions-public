@@ -319,6 +319,24 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         );
     }
 
+    const handleExpressionEditorChange = useCallback((expressionField: FormExpressionFieldValue) => {
+        onChange({
+            ...value,
+            value: value.isExpression ? enrichExpressionValue(expressionField.value) : expressionField.value
+        });
+        cursorPositionRef.current = expressionField.value?.length ?? 0;
+    }, [value, onChange, retrieveCompletions]);
+    
+    const handleOpenExpressionEditor = useCallback(() => {
+        const extractedExpressionValue = extractExpressionValue(value.value);
+        const newValue = {
+            ...value,
+            value: extractedExpressionValue
+        }
+
+        openExpressionEditor(newValue, handleExpressionEditorChange);
+    }, [value, openExpressionEditor, handleExpressionEditorChange]);
+
     const actionButtons = useMemo(() => {
         if (!value.isExpression) {
             return [];
@@ -331,7 +349,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                           tooltip: 'Open Expression Editor',
                           iconType: 'codicon' as any,
                           name: 'edit',
-                          onClick: () => openExpressionEditor(value, onChange)
+                          onClick: handleOpenExpressionEditor
                       }
                   ]
                 : []),
