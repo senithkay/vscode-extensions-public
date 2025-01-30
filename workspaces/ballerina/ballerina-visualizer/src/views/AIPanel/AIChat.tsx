@@ -673,8 +673,6 @@ export function AIChat() {
                 .getAiPanelRpcClient()
                 .addToProject({ filePath: filePath, content: segmentText, isTestCode: isTestCode });
         }
-        //TODO:Modify the function signature or comment this for datamapper working correctly
-        await rpcClient.getAiPanelRpcClient().applyDoOnFailBlocks();
         setIsCodeAdded(true);
     };
 
