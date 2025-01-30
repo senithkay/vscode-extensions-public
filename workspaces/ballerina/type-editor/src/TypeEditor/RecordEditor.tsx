@@ -25,36 +25,36 @@ export const RecordEditor: React.FC<RecordEditorProps> = (props) => {
     const nameInputRefs = useRef<HTMLInputElement[]>([]);
 
     const handleMemberNameChange = (key: string, member: Member) => (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newMembers: Record<string, Member> = {};
+        const newMembers: Member[] = [];
         // Preserve order by iterating through existing members
         Object.entries(type.members).forEach(([currentKey, currentMember]) => {
             if (currentKey === key) {
                 // Update the member with new name while keeping the same position
-                newMembers[e.target.value] = {
+                newMembers.push({
                     ...member,
                     name: e.target.value
-                };
+                });
             } else {
                 // Keep other members unchanged
-                newMembers[currentKey] = currentMember;
+                newMembers.push(currentMember);
             }
         });
         onChange({ ...type, members: newMembers });
     };
 
     const handleMemberTypeChange = (key: string, member: Member) => (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newMembers: Record<string, Member> = {};
+        const newMembers: Member[] = [];
         // Preserve order by iterating through existing members
         Object.entries(type.members).forEach(([currentKey, currentMember]) => {
             if (currentKey === key) {
-                // Update the member with new type while keeping the same position
-                newMembers[currentKey] = {
+                // Update the member with new name while keeping the same position
+                newMembers.push({
                     ...member,
-                    type: e.target.value
-                };
+                    name: e.target.value
+                });
             } else {
                 // Keep other members unchanged
-                newMembers[currentKey] = currentMember;
+                newMembers.push(currentMember);
             }
         });
         onChange({ ...type, members: newMembers });
@@ -71,9 +71,8 @@ export const RecordEditor: React.FC<RecordEditorProps> = (props) => {
     };
 
     const handleDeleteMember = (key: string) => () => {
-        const newMembers = { ...type.members };
-        delete newMembers[key];
-        onChange({ ...type, members: newMembers });
+        const filteredMember = type.members.filter((member) => member.name !== key);
+        onChange({ ...type, members: filteredMember });
     };
 
     const addMember = () => {
@@ -120,7 +119,7 @@ export const RecordEditor: React.FC<RecordEditorProps> = (props) => {
                         onBlur={handleMemberNameChange(key, member)}
                     />
                     <TextField
-                        value={member.type}
+                        value={typeof member.type === 'string' ? member.type : member.type.name }
                         onChange={handleMemberTypeChange(key, member)}
                     />
                     <Button appearance="icon"><Codicon name="case-sensitive" /></Button>

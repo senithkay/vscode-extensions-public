@@ -902,9 +902,24 @@ export interface Type {
     metadata: TypeMetadata;
     codedata: TypeCodeData;
     properties: Record<string, TypeProperty>;
-    members: Record<string, Member>;
+    members: Member[];
     restMember?: Member;
-    includes: string[];
+    includes?: string[];
+    functions?: TypeFunctionModel[];
+}
+
+type ServiceFunctionKind = "RESOURCE" | "REMOTE" | "FUNCTION";
+
+export interface TypeFunctionModel {
+    qualifiers: string[];
+    accessor: string;
+    kind: ServiceFunctionKind;
+    name?: string;
+    description?: string;
+    parameters:  Member[];
+    restParameter?: Member;
+    returnType?: Type | string;
+    refs: string[];
 }
 
 export interface TypeMetadata {
@@ -912,7 +927,7 @@ export interface TypeMetadata {
     description: string;
 }
 
-type TypeNodeKind = "RECORD" | "ENUM" | "ARRAY" | "UNION" | "ERROR";
+export type TypeNodeKind = "RECORD" | "ENUM" | "ARRAY" | "UNION" | "ERROR" | "CLASS" | "SERVICE_DECLARATION";
 // todo make this consistant
 export interface TypeCodeData {
     lineRange: LineRange;
@@ -922,7 +937,7 @@ export interface TypeCodeData {
 export interface TypeProperty {
     metadata: TypeMetadata;
     valueType: string;
-    value: string;
+    value: string | string[]; // as required for qualifiers
     optional: boolean;
     editable: boolean;
     advanced: boolean;
@@ -931,9 +946,20 @@ export interface TypeProperty {
 export interface Member {
     kind: string;
     refs: string[];
-    type: string;
-    name: string;
-    docs: string;
+    type: string | Type;
+    name?: string;
+    docs?: string;
+    defaultValue?: string;
+}
+
+export interface GetGraphqlTypeRequest {
+    filePath: string,
+    linePosition: LinePosition;
+}
+
+export interface GetGraphqlTypeResponse {
+    type: Type;
+    refs: Type[];
 }
 
 export interface GetTypesRequest {
@@ -1051,9 +1077,7 @@ export interface ExtendedLangClientInterface extends BIInterface {
     getPersistERModel(params: PersistERModelParams): Promise<PersistERModel>;
     getDiagnostics(params: DiagnosticsParams): Promise<Diagnostics[] | NOT_SUPPORTED_TYPE>;
     getConnectors(params: ConnectorsParams, reset?: boolean): Promise<Connectors | NOT_SUPPORTED_TYPE>;
-    getTriggers(params: TriggersParams): Promise<Triggers | NOT_SUPPORTED_TYPE>;
     getConnector(params: ConnectorRequest): Promise<ConnectorResponse | NOT_SUPPORTED_TYPE>;
-    getTrigger(params: TriggerParams): Promise<Trigger | NOT_SUPPORTED_TYPE>;
     getRecord(params: RecordParams): Promise<BallerinaRecord | NOT_SUPPORTED_TYPE>;
     getSymbolDocumentation(params: SymbolInfoParams): Promise<SymbolInfo | NOT_SUPPORTED_TYPE>;
     getTypeFromExpression(params: TypeFromExpressionParams): Promise<TypesFromExpression | NOT_SUPPORTED_TYPE>;

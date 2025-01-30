@@ -10,17 +10,27 @@
 import { MutableRefObject, ReactNode } from 'react';
 import { ExpressionEditorProps, ExpressionEditorRef } from './common';
 
+export type HelperPanePosition = {
+    top: number;
+    left: number;
+}
+
+export type HelperPaneOrigin = 'bottom' | 'left' | 'right';
+
 type HelperPaneConditionalProps = {
     // - Whether the helper pane is open
     isHelperPaneOpen: boolean;
+    // - Position of the helper pane
+    helperPaneOrigin?: HelperPaneOrigin;
     // - Callback function to open/close the helper pane
     changeHelperPaneState: (isOpen: boolean) => void;
     // - Get the helper panel component
     getHelperPane: (value: string, onChange: (value: string, updatedCursorPosition: number) => void) => ReactNode;
     // - Get a custom icon for the expression editor
-    getExpressionEditorIcon?: () => ReactNode;  
+    getExpressionEditorIcon?: () => ReactNode;
 } | {
     isHelperPaneOpen?: never;
+    helperPaneOrigin?: never;
     changeHelperPaneState?: never;
     getHelperPane?: never;
     getExpressionEditorIcon?: never;
@@ -34,11 +44,15 @@ type ActionButtonType = {
 }
 
 export type FormExpressionEditorProps = ExpressionEditorProps & HelperPaneConditionalProps & {
-    buttonRef?: MutableRefObject<HTMLDivElement>;
     actionButtons?: ActionButtonType[];
     startAdornment?: ReactNode;
     endAdornment?: ReactNode;
 };
+
+export type FormExpressionEditorElProps = FormExpressionEditorProps & {
+    containerRef: MutableRefObject<HTMLDivElement>;
+    buttonRef?: MutableRefObject<HTMLDivElement>;
+}
 
 export type FormExpressionEditorRef = ExpressionEditorRef & {
     inputElement: HTMLTextAreaElement;

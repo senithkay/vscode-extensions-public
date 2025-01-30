@@ -698,9 +698,28 @@ async function stopRunFast(root: string): Promise<boolean> {
 }
 
 async function getCurrentRoot(): Promise<string> {
-    const file = getCurrentBallerinaFile();
+    let file: string | undefined;
+    try {
+        file = getCurrentBallerinaFile();
+    } catch (error) {
+        // ignore
+    }
+
+    // If no Ballerina files are open, safe to assume that the workspace root is same as the package root in BI mode.
+    if (!file && StateMachine.context().isBI) {
+        const workspaceRoot = getWorkspaceRoot();
+        if (!workspaceRoot) {
+            throw new Error("Unable to determine the current workspace root.");
+        }
+        return workspaceRoot;
+    }
+
     const currentProject = await getCurrentBallerinaProject(file);
     return (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) ? currentProject.path! : file;
+}
+
+function getWorkspaceRoot(): string | undefined {
+    return workspace.workspaceFolders?.[0]?.uri.fsPath;
 }
 
 function findFreePort(): Promise<number> {

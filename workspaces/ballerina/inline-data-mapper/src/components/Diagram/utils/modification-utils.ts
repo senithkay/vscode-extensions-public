@@ -13,6 +13,7 @@ import { InputOutputPortModel } from "../Port";
 import { IDataMapperContext } from "src/utils/DataMapperContext/DataMapperContext";
 import { MappingFindingVisitor } from "../../../visitors/MappingFindingVisitor";
 import { traverseNode } from "../../../utils/model-utils";
+import { MappingDeletionVisitor } from "../../../visitors/MappingDeletionVisitor";
 
 export async function createNewMapping(link: DataMapperLinkModel) {
 	const targetPort = link.getTargetPort();
@@ -38,7 +39,7 @@ export async function createNewMapping(link: DataMapperLinkModel) {
         const targetMapping = mappingFindingVisitor.getTargetMapping();
 
 		if (targetMapping) {
-			// Overwrite the existing mapping with default value
+			// Update the existing mapping with the new input
 			targetMapping.expression = input;
 			targetMapping.inputs.push(input);
 		} else {
@@ -82,16 +83,31 @@ export async function updateExistingMapping(link: DataMapperLinkModel) {
 
 export async function addValue(fieldId: string, value: string, context: IDataMapperContext) {
 	const { mappings } = context.model;
+	const isWithinArray = fieldId.split('.').some(part => !isNaN(Number(part)));
 
-	const newMapping: Mapping = {
-		output: fieldId.split('.').slice(1).join('.'),
-		inputs: [],
-		expression: value
-	};
-
-	mappings.push(newMapping);
+	if (isWithinArray) {
+		createNewMappingWithinArray(fieldId.split('.'), value, context.model);
+		const updatedMappings = mappings;
+		return await context.applyModifications(updatedMappings);
+	} else {
+		const newMapping: Mapping = {
+			output: fieldId,
+			inputs: [],
+			expression: value
+		};
+	
+		mappings.push(newMapping);
+	}
 
 	return await context.applyModifications(mappings);
+}
+
+export async function removeMapping(fieldId: string, context: IDataMapperContext) {
+	const deletionVisitor = new MappingDeletionVisitor(fieldId);
+	traverseNode(context.model, deletionVisitor);
+	const remainingMappings = deletionVisitor.getRemainingMappings();
+
+	return await context.applyModifications(remainingMappings);
 }
 
 export function buildInputAccessExpr(fieldFqn: string): string {

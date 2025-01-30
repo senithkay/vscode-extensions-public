@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -7,9 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { useEffect, useRef, useState } from 'react';
 import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
-import React, { useEffect, useRef, useState } from 'react';
-import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '../../../Form/types';
+import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '@wso2-enterprise/ballerina-side-panel';
 
 type LibraryBrowserProps = {
     isLoading: boolean;
@@ -53,15 +53,17 @@ export const LibraryBrowser = ({
 
     return (
         <HelperPane.LibraryBrowser
-            isLoading={isLoading}
+            loading={isLoading}
             searchValue={searchValue}
             onSearch={handleSearch}
             onClose={onBack}
+            titleSx={{ fontFamily: 'GilmerRegular' }}
         >
             {libraryBrowserInfo?.category.map((category) => (
                 <HelperPane.LibraryBrowserSection
                     key={category.label}
                     title={category.label}
+                    titleSx={{ fontFamily: 'GilmerMedium' }}
                     {...(category.items?.length > 0 && category.subCategory?.length === 0 && {
                         columns: 4
                     })}

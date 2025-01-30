@@ -73,7 +73,13 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
     };
 
     const onNodeEdit = () => {
-        onEditNode && onEditNode(node.getID());
+        if (onEditNode) {
+            if (node.isGraphqlRoot) {
+                onEditNode(node.getID(), true);
+            } else {
+                onEditNode(node.getID());
+            }
+        }
         setAnchorEl(null);
     };
 
@@ -147,7 +153,7 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                                     <Icon
                                         name="editIcon"
                                         sx={{ height: "14px", width: "14px" }}
-                                        onClick={() => onEditNode(node.getID())}
+                                        onClick={onNodeEdit}
                                         iconSx={{ color: ThemeColors.PRIMARY }}
                                     />
                                 </Button>
