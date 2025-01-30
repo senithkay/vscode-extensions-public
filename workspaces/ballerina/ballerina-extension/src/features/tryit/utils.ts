@@ -17,13 +17,13 @@ import { window } from 'vscode';
 const platform = os.platform();
 
 export interface Process {
-    serviceName: string;
+    processName: string;
     pid: string;
     command: string;
-    port: number;
+    ports: number[];
 }
 
-export function findRunningBallerinaServices(projectPath: string): Promise<Process[]> {
+export function findRunningBallerinaProcesses(projectPath: string): Promise<Process[]> {
     // Execute the 'ps' command to retrieve running processes with command
     return new Promise((resolve, reject) => {
         exec(getPSCommand(platform, `-XX:HeapDumpPath=${projectPath}`), (error, stdout) => {
@@ -37,25 +37,25 @@ export function findRunningBallerinaServices(projectPath: string): Promise<Proce
             const processes = platform == 'win32' ? out.slice(1) : out; // Exclude the header row
 
             // Extract the service name, PID, and command information
-            let services = processes.map((service) => {
-                const [, serviceName, pid, command] = service.trim().match(/(\S+)\s+(\d+)\s+(.+)/) || [];
-                const port = pid ? getServicePort(pid) : undefined;
-                return { serviceName, pid, command, port };
+            let balProcesses = processes.map((service) => {
+                const [, processName, pid, command] = service.trim().match(/(\S+)\s+(\d+)\s+(.+)/) || [];
+                const ports = pid ? getServicePorts(pid) : [];
+                return { processName, pid, command, ports };
             });
 
             // Display the service information
-            services = services.filter((service) => !isNaN(service.port as any));
-            services.forEach((service) => {
-                debug(`Service: ${service.serviceName} Port: ${service.port}`);
+            balProcesses = balProcesses.filter((process) => process.ports && process.ports.length > 0);
+            balProcesses.forEach((service) => {
+                debug(`Bal Process: ${service.pid}, Port(s): ${service.ports}`);
             });
 
-            return resolve(services);
+            return resolve(balProcesses);
         });
     });
 }
 
-// Function to retrieve the port information of a service using its process ID (PID)
-function getServicePort(pid: string): number | undefined {
+// Function to retrieve the port information of services using the related Ballerina program's process ID (PID)
+function getServicePorts(pid: string): number[] {
     try {
         const output = execSync(getLSOFCommand(platform, pid), { encoding: 'utf-8' });
         if (isNaN(output as any)) {
@@ -70,13 +70,12 @@ function getServicePort(pid: string): number | undefined {
                 })
                 .filter((port): port is number => port !== null);
 
-            // TODO: Handle multiple ports (multiple services within the same Ballerina package)
-            return ports[0];
-        } else { return parseInt(output); }
+            return ports;
+        }
     } catch (error) {
         debug(`Error retrieving port for process ${pid}: ${error}`);
     }
-    return undefined;
+    return [];
 }
 
 // Function to get the platform-specific 'ps' command
@@ -107,16 +106,15 @@ function getLSOFCommand(platform: string, pid: string): string {
     }
 }
 
-export async function waitForBallerinaService(projectDir: string): Promise<number> {
-    const defaultPort = 9090;
+export async function waitForBallerinaService(projectDir: string): Promise<void> {
     const maxAttempts = 200; // Try for 20 seconds
     const timeout = 100; // 100ms
 
     let attempt = 0;
     while (attempt < maxAttempts) {
-        const runningServices = await findRunningBallerinaServices(projectDir);
-        if (runningServices.length > 0) {
-            return runningServices[0].port;
+        const runningProcesses = await findRunningBallerinaProcesses(projectDir);
+        if (runningProcesses.length > 0) {
+            return;
         }
 
         await new Promise(resolve => setTimeout(resolve, timeout));

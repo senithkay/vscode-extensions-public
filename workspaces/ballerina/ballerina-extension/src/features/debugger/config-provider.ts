@@ -322,7 +322,7 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                     const msg = <DebugProtocol.Response>message;
                     if ((msg.command === "launch" || msg.command == "restart") && StateMachine.context().isBI) {
                         // Trigger Try-It view when starting/restarting debug sessions in low-code mode
-                        waitForBallerinaService(workspace.workspaceFolders![0].uri.fsPath).then((port) => {
+                        waitForBallerinaService(workspace.workspaceFolders![0].uri.fsPath).then(() => {
                             commands.executeCommand(PALETTE_COMMANDS.TRY_IT, true);
                         });
                     } else if (msg.command === "setBreakpoints") {
@@ -634,7 +634,7 @@ class BIRunAdapter extends LoggingDebugSession {
                 });
 
                 // Trigger Try It command after successful build
-                waitForBallerinaService(workspace.workspaceFolders![0].uri.fsPath).then((port) => {
+                waitForBallerinaService(workspace.workspaceFolders![0].uri.fsPath).then(() => {
                     commands.executeCommand(PALETTE_COMMANDS.TRY_IT, false);
                 });
 
