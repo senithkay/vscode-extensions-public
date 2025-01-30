@@ -830,13 +830,25 @@ export function AIChat() {
             if (!rec) {
                 if (recordName.includes(":")) {
                     const [moduleName, alias] = recordName.split(":");
-                    const matchedImport = activeFileImports.find((imp) => recordName.startsWith(imp.alias));
+                    const matchedImport = activeFileImports.find((imp) => {
+                        if (imp.alias) {
+                            // Match using alias if it exists
+                            return recordName.startsWith(imp.alias);
+                        }
+                        // If alias doesn't exist, match using the last part of the module name
+                        const moduleNameParts = imp.moduleName.split(".");
+                        const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
+                        return recordName.startsWith(inferredAlias);
+                    });
+
                     if (!matchedImport) {
                         throw new Error(`Must import the module for "${recordName}".`);
                     }
+                    // Use the actual alias if present, otherwise infer from the module name
+                    const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
                     importsMap.set(recordName, {
                         moduleName: matchedImport.moduleName,
-                        alias: matchedImport.alias,
+                        alias: resolvedAlias,
                     });
                     return { type: `${recordName}`, isArray, filePath: null };
                 } else {
@@ -853,15 +865,27 @@ export function AIChat() {
         if (!output) {
             if (outputRecordName.includes(":")) {
                 const [moduleName, alias] = outputRecordName.split(":");
-                const matchedImport = activeFileImports.find((imp) => outputRecordName.startsWith(imp.alias));
-                if (!matchedImport) {
-                    throw new Error(`Must import the module for "${outputRecordName}".`);
-                }
-                importsMap.set(outputRecordName, {
-                    moduleName: matchedImport.moduleName,
-                    alias: matchedImport.alias,
-                });
-                output = { type: `${outputRecordName}`, isArray: outputIsArray, filePath: null };
+                    const matchedImport = activeFileImports.find((imp) => {
+                        if (imp.alias) {
+                            // Match using alias if it exists
+                            return outputRecordName.startsWith(imp.alias);
+                        }
+                        // If alias doesn't exist, match using the last part of the module name
+                        const moduleNameParts = imp.moduleName.split(".");
+                        const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
+                        return outputRecordName.startsWith(inferredAlias);
+                    });
+
+                    if (!matchedImport) {
+                        throw new Error(`Must import the module for "${outputRecordName}".`);
+                    }
+                    // Use the actual alias if present, otherwise infer from the module name
+                    const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
+                    importsMap.set(outputRecordName, {
+                        moduleName: matchedImport.moduleName,
+                        alias: resolvedAlias,
+                    });
+                    output = { type: `${outputRecordName}`, isArray: outputIsArray, filePath: null };
             } else {
                 throw new Error(`${outputRecordName} is not defined.`);
             }
