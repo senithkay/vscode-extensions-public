@@ -15,7 +15,7 @@ import {
     SubPanel,
     VisualizerLocation,
     TRIGGER_CHARACTERS,
-    TriggerCharacter,
+    TriggerCharacter
 } from "@wso2-enterprise/ballerina-core";
 import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditorProps, HelperPaneData } from "@wso2-enterprise/ballerina-side-panel";
 import {
@@ -28,6 +28,7 @@ import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { CompletionItem, FormExpressionEditorRef } from "@wso2-enterprise/ui-toolkit";
 import { debounce } from "lodash";
 import { getHelperPane } from "../../HelperPane";
+import { RecordEditor } from "../../../RecordEditor/RecordEditor";
 
 interface FormProps {
     fileName: string;
@@ -74,6 +75,9 @@ export function FormGeneratorNew(props: FormProps) {
     const [functionInfo, setFunctionInfo] = useState<HelperPaneData>();
     const [libraryBrowserInfo, setLibraryBrowserInfo] = useState<HelperPaneData>();
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
+
+    const [fieldsValues, setFields] = useState<FormField[]>(fields);
+
 
     useEffect(() => {
         handleFormOpen();
@@ -339,6 +343,19 @@ export function FormGeneratorNew(props: FormProps) {
         });
     }
 
+    const handleOpenRecordEditor = (isOpen: boolean, f: FormValues) => {
+        // Get f.value and assign that value to field value
+        const updatedFields = fields.map((field) => {
+            const updatedField = { ...field };
+            if (f[field.key]) {
+                updatedField.value = f[field.key];
+            }
+            return updatedField;
+        });
+        setFields(updatedFields);
+        setShowRecordEditor(isOpen);
+    };
+
     const expressionEditor = useMemo(() => {
         return {
             completions: filteredCompletions,
@@ -370,6 +387,7 @@ export function FormGeneratorNew(props: FormProps) {
                 <Form
                     formFields={fields}
                     projectPath={projectPath}
+                    openRecordEditor={handleOpenRecordEditor}
                     onCancelForm={onBack}
                     submitText={submitText}
                     onSubmit={onSubmit}
@@ -380,6 +398,15 @@ export function FormGeneratorNew(props: FormProps) {
                     fileName={fileName}
                     updatedExpressionField={updatedExpressionField}
                     resetUpdatedExpressionField={resetUpdatedExpressionField}
+                />
+            )}
+            {showRecordEditor && (
+                <RecordEditor
+                    fields={fields}
+                    isRecordEditorOpen={showRecordEditor}
+                    onClose={() => setShowRecordEditor(false)}
+                    updateFields={(updatedFields) => setFields(updatedFields)}
+                    rpcClient={rpcClient}
                 />
             )}
         </>
