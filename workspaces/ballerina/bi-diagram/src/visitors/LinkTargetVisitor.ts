@@ -277,6 +277,25 @@ export class LinkTargetVisitor implements BaseVisitor {
         this.visitContainerNode(node, parent);
     }
 
+    beginVisitFork(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+
+        node.branches.forEach((branch, index) => {
+            const outLinks = this.getOutLinksFromNode(branch.children.at(0));
+            const link = outLinks.at(0);
+            if (!link) {
+                console.error(">>> Link not found", { node, branch });
+                return;
+            }
+            const line = branch.codedata.lineRange.startLine;
+            link.setTarget({
+                line: line.line,
+                offset: line.offset + branch.codedata.sourceCode.indexOf('{\n') + 1, // HACK: need to fix with LS extension
+            });
+            link.setTopNode(branch);
+        });
+    }
+
     skipChildren(): boolean {
         return this.skipChildrenVisit;
     }
