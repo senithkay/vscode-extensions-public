@@ -7,9 +7,41 @@ import { BallerinaExtension, ExtendedLangClient } from "src/core";
 import { URI } from "vscode-uri";
 import Handlebars from "handlebars";
 import { findRunningBallerinaProcesses } from "./utils";
-import { BallerinaProjectComponents, OpenAPISpec, NOT_SUPPORTED_TYPE } from "@wso2-enterprise/ballerina-core";
+import { BallerinaProjectComponents, OpenAPISpec } from "@wso2-enterprise/ballerina-core";
 
 let langClient: ExtendedLangClient | undefined;
+
+const TRYIT_TEMPLATE = `/*
+### Try Service : "{{info.title}}" ({{../../serviceName}})
+{{info.description}}
+*/
+
+{{#each paths}}
+{{#each this}}
+/*
+**{{uppercase @key}} {{@../key}}**
+
+{{#if parameters}}
+\`\`\`
+Parameters:
+{{#each parameters}}
+- {{name}} ({{in}}){{#if required}} [Required]{{/if}}{{#if description}}: {{description}}{{/if}}
+{{/each}}
+{{/if}}
+\`\`\`
+*/
+###
+{{uppercase @key}} http://localhost:{{../../port}}{{trim ../../basePath}}{{@../key}}
+{{#if requestBody}}
+Content-Type: application/json
+
+{
+    // Add request body here
+}
+{{/if}}
+
+{{/each}}
+{{/each}}`;
 
 export function activateTryItCommand(ballerinaExtInstance: BallerinaExtension) {
     langClient = ballerinaExtInstance.langClient as ExtendedLangClient;
@@ -116,54 +148,51 @@ async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> 
 }
 
 async function generateTryItFileContent(projectDir: string, service: ServiceInfo): Promise<string | undefined> {
+    try {
+        // Get OpenAPI definition
+        const openapiSpec = await getOpenAPIDefinition(langClient, service);
+        if (!openapiSpec) {
+            return undefined;
+        }
+
+        // Get service port
+        const selectedPort = await getServicePort(projectDir, service, openapiSpec);
+        if (!selectedPort) {
+            vscode.window.showErrorMessage('Failed to get the service port for the service');
+        }
+
+        // Register Handlebars helpers
+        registerHandlebarsHelpers();
+
+        // Generate content using template
+        const compiledTemplate = Handlebars.compile(TRYIT_TEMPLATE);
+        return compiledTemplate({
+            ...openapiSpec,
+            port: selectedPort.toString(),
+            basePath: service.name,
+            serviceName: service.name
+        });
+    } catch (error) {
+        vscode.window.showErrorMessage('An unexpected error occurred while generating the try-it file');
+        return undefined;
+    }
+}
+
+async function getOpenAPIDefinition(langClient: any, service: ServiceInfo): Promise<OAISpec | undefined> {
     if (!langClient) {
+        vscode.window.showErrorMessage('Language client is not initialized');
         return undefined;
     }
 
-    // Get the openapi definitions from LS for the selected service
-    const openapiDefinitions: OpenAPISpec | NOT_SUPPORTED_TYPE = await langClient.convertToOpenAPI({
+    const openapiDefinitions: OpenAPISpec | 'NOT_SUPPORTED_TYPE' = await langClient.convertToOpenAPI({
         documentFilePath: service.filePath
     });
 
     if (openapiDefinitions === 'NOT_SUPPORTED_TYPE') {
-        vscode.window.showErrorMessage('OpenAPI generation is not supported for the selected service');
+        vscode.window.showErrorMessage('OpenAPI spec generation failed for the selected service');
         return undefined;
     }
 
-    const balProcesses = await findRunningBallerinaProcesses(projectDir);
-    if (!balProcesses || balProcesses.length === 0) {
-        vscode.window.showErrorMessage('No running Ballerina processes found. Please start your service first.');
-        return undefined;
-    }
-
-    const allPorts = balProcesses.flatMap(process => process.ports);
-    const uniquePorts = [...new Set(allPorts)];
-
-    let selectedPort: number;
-    if (uniquePorts.length > 1) {
-        const portItems = uniquePorts.map(port => ({
-            label: `Port ${port}`,
-            port
-        }));
-
-        const selected = await vscode.window.showQuickPick(portItems, {
-            placeHolder: `Multiple ports detected. Please select the port configured for the service "${service.name}"`,
-            title: 'Available Ports'
-        });
-
-        if (!selected) {
-            return undefined;
-        }
-
-        selectedPort = selected.port;
-    } else if (uniquePorts.length === 1) {
-        selectedPort = uniquePorts[0];
-    } else {
-        vscode.window.showErrorMessage('No ports found in the running Ballerina processes');
-        return undefined;
-    }
-
-    // Find the matching OpenAPI definition based on file path
     const matchingDefinition = (openapiDefinitions as OpenAPISpec).content.find(content =>
         path.basename(content.file) === path.basename(service.filePath)
     );
@@ -173,59 +202,56 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
         return undefined;
     }
 
-    const openapiSpec = matchingDefinition.spec as OAISpec;
+    return matchingDefinition.spec as OAISpec;
+}
 
+async function getServicePort(projectDir: string, service: ServiceInfo, openapiSpec: OAISpec): Promise<number | undefined> {
+    // Try to get default port from OpenAPI spec first
+    const defaultPort = openapiSpec.servers?.[0]?.variables?.port?.default;
+    if (defaultPort) {
+        const parsedPort = parseInt(defaultPort);
+        if (!isNaN(parsedPort) && parsedPort > 0 && parsedPort <= 65535) {
+            return parsedPort;
+        }
+    }
+
+    const balProcesses = await findRunningBallerinaProcesses(projectDir);
+    if (!balProcesses?.length) {
+        vscode.window.showErrorMessage('No running Ballerina processes found. Please start your service first.');
+        return undefined;
+    }
+
+    const uniquePorts = [...new Set(balProcesses.flatMap(process => process.ports))];
+
+    if (uniquePorts.length === 0) {
+        vscode.window.showErrorMessage('No ports found in the running Ballerina processes');
+        return undefined;
+    }
+
+    if (uniquePorts.length === 1) {
+        return uniquePorts[0];
+    }
+
+    // If multiple ports, prompt user to select one
+    const portItems = uniquePorts.map(port => ({
+        label: `Port ${port}`, port
+    }));
+
+    const selected = await vscode.window.showQuickPick(portItems, {
+        placeHolder: `Multiple ports detected. Please select the port configured for the service "${service.name}"`,
+        title: 'Available Ports'
+    });
+
+    return selected?.port;
+}
+
+function registerHandlebarsHelpers(): void {
     if (!Handlebars.helpers.uppercase) {
-        Handlebars.registerHelper('uppercase', function (str) {
-            return str.toUpperCase();
-        });
+        Handlebars.registerHelper('uppercase', (str: string) => str.toUpperCase());
     }
     if (!Handlebars.helpers.trim) {
-        Handlebars.registerHelper('trim', function (str) {
-            return str ? str.trim() : '';
-        });
+        Handlebars.registerHelper('trim', (str?: string) => str ? str.trim() : '');
     }
-
-    const template = `/*
-### Try Service : "{{info.title}}" ({{../../serviceName}})
-{{info.description}}
-*/
-
-{{#each paths}}
-{{#each this}}
-/*
-**{{uppercase @key}} {{@../key}}**
-
-{{#if parameters}}
-\`\`\`
-Parameters:
-{{#each parameters}}
-- {{name}} ({{in}}){{#if required}} [Required]{{/if}}{{#if description}}: {{description}}{{/if}}
-{{/each}}
-{{/if}}
-\`\`\`
-*/
-###
-{{uppercase @key}} http://localhost:{{../../port}}{{trim ../../basePath}}{{@../key}}
-{{#if requestBody}}
-Content-Type: application/json
-
-{
-    // Add request body here
-}
-{{/if}}
-
-{{/each}}
-{{/each}}`;
-
-    // Compile and execute the template with the matching OpenAPI spec
-    const compiledTemplate = Handlebars.compile(template);
-    return compiledTemplate({
-        ...openapiSpec,
-        port: selectedPort.toString(),
-        basePath: service.name,
-        serviceName: service.name
-    });
 }
 
 // Service information interface
