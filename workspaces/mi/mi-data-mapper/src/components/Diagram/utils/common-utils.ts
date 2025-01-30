@@ -396,7 +396,8 @@ export function isConnectedViaLink(field: Node) {
 	return (!!inputNodes.length || isIdentifier || isArrayFunction) && !isObjectLiteralExpr && !isArrayLiteralExpr;
 }
 
-export function getDefaultValue(typeKind: TypeKind): string {
+export function getDefaultValue(dmType: DMType): string {
+    let typeKind: TypeKind = dmType?.kind;
 	let draftParameter = "";
 	switch (typeKind) {
 		case TypeKind.String:
@@ -423,7 +424,7 @@ export function isEmptyValue(position: NodePosition): boolean {
 }
 
 export function isDefaultValue(fieldType: DMType, value: string): boolean {
-	const defaultValue = getDefaultValue(fieldType.kind);
+	const defaultValue = getDefaultValue(fieldType);
     const targetValue =  value?.trim().replace(/(\r\n|\n|\r|\s)/g, "")
 	return targetValue === "null" ||  defaultValue === targetValue;
 }
