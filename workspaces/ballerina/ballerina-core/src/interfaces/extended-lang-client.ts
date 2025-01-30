@@ -916,7 +916,7 @@ export interface TypeFunctionModel {
     kind: ServiceFunctionKind;
     name?: string;
     description?: string;
-    parameters:  Member[];
+    parameters: Member[];
     restParameter?: Member;
     returnType?: Type | string;
     refs: string[];
@@ -927,7 +927,8 @@ export interface TypeMetadata {
     description: string;
 }
 
-export type TypeNodeKind = "RECORD" | "ENUM" | "ARRAY" | "UNION" | "ERROR" | "CLASS" | "SERVICE_DECLARATION";
+export type TypeNodeKind = "RECORD" | "ENUM" | "ARRAY" | "UNION" | "ERROR" | "MAP" | "STREAM" | "FUTURE" |
+                            "TYPEDESC" | "CLASS" | "OBJECT" | "INTERSECTION" | "SERVICE_DECLARATION" | "TABLE" | "TUPLE";
 // todo make this consistant
 export interface TypeCodeData {
     lineRange: LineRange;
