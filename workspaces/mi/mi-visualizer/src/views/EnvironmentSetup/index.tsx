@@ -317,10 +317,10 @@ export const EnvironmentSetup = () => {
                 <>
                     <div>
                         <p>
-                            Unsupported project runtime version detected in <code>pom.xml</code>.
+                            Unsupported project runtime version or project runtime version missing in <code>pom.xml</code>.
                         </p>
                         <p>
-                            Update the runtime version in your <code>pom.xml</code> file to a supported version.
+                            Please select the correct runtime version for your project in <code>pom.xml</code> file to a supported version.
                         </p>
                     </div>
 
