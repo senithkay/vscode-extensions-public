@@ -710,7 +710,7 @@ export class NodeFactoryVisitor implements Visitor {
 
         if (node.target?.sequenceAttribute) {
             this.previousSTNodes = [];
-            this.addSequenceReference(node.target, "target", `target=${node?.target}`, StartNodeType.SUB_SEQUENCE);
+            this.addSequenceReference(node.target, "target", `sequence=${node?.target?.sequenceAttribute}`, StartNodeType.SUB_SEQUENCE);
             this.previousSTNodes = [node];
         } else {
             this.visitSubSequences(node, MEDIATORS.ITERATE, {

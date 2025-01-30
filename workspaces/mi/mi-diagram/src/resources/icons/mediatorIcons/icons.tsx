@@ -29,6 +29,7 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
         case MEDIATORS.DROP.toLowerCase():
         case MEDIATORS.CALLTEMPLATE.toLowerCase():
         case MEDIATORS.SEQUENCE.toLowerCase():
+        case "target":    
         case MEDIATORS.PROPERTYGROUP.toLowerCase():
         case MEDIATORS.CACHE.toLowerCase():
         case MEDIATORS.THROTTLE.toLowerCase():
@@ -213,6 +214,7 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
             break;
         case MEDIATORS.SEQUENCE.toLowerCase():
         case MEDIATORS.RESOURCE.toLowerCase():
+        case "target":
             icon = (<Icon name="CallSequence" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.SMOOKS.toLowerCase():
