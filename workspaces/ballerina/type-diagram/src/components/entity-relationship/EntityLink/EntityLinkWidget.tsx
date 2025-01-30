@@ -87,10 +87,11 @@ export function EntityLinkWidget(props: WidgetProps) {
 						{isSelected || !multiLinkedTarget ? transformCardinality(link.cardinality.associate) : '...'}
 					</text>
 				</> :
-				<polygon
-					points={link.getArrowHeadPoints()}
-					fill={isSelected ? ThemeColors.SECONDARY : ThemeColors.PRIMARY}
-				/>
+				// <polygon
+				// 	points={link.getArrowHeadPoints()}
+				// 	fill={isSelected ? ThemeColors.SECONDARY : ThemeColors.PRIMARY}
+				// />
+				<></>
 			}
 			<path
 				id={link.getID()}
