@@ -412,7 +412,7 @@ export function getDefaultValue(dmType: DMType): string {
 		case TypeKind.Array:
 			draftParameter = `[]`;
 			break;
-        case TypeKind.Literal: ;
+        case TypeKind.Literal:
             draftParameter = dmType?.typeName;
             break;
 		default:
