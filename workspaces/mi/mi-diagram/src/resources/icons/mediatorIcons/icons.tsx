@@ -30,6 +30,7 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
         case MEDIATORS.CALLTEMPLATE.toLowerCase():
         case MEDIATORS.SEQUENCE.toLowerCase():
         case "target":    
+        case MEDIATORS.RESOURCE.toLowerCase():
         case MEDIATORS.PROPERTYGROUP.toLowerCase():
         case MEDIATORS.CACHE.toLowerCase():
         case MEDIATORS.THROTTLE.toLowerCase():
