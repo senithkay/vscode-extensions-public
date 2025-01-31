@@ -20,6 +20,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import CardWrapper from "./Commons/CardWrapper";
+import AddToRegistry, { formatRegistryPath, getArtifactNamesAndRegistryPaths, saveToRegistry } from "./AddToRegistry";
 import { TypeChip } from "./Commons";
 
 const SourceURLContainer = styled.div({
@@ -47,7 +48,12 @@ type InputsFields = {
     type?: string;
     inLineTextValue?: string;
     inLineXmlValue?: string;
+    saveInReg?: boolean;
     sourceURL?: string;
+    //reg form
+    artifactName?: string;
+    registryPath?: string
+    registryType?: "gov" | "conf";
 };
 
 const initialLocalEntry: InputsFields = {
@@ -55,10 +61,17 @@ const initialLocalEntry: InputsFields = {
     type: "",
     inLineTextValue: "",
     inLineXmlValue: "",
+    saveInReg: false,
     sourceURL: "",
+    //reg form
+    artifactName: "",
+    registryPath: "/",
+    registryType: "gov"
 };
 export function LocalEntryWizard(props: LocalEntryWizardProps) {
     const { rpcClient } = useVisualizerContext();
+    const [registryPaths, setRegistryPaths] = useState([]);
+    const [artifactNames, setArtifactNames] = useState([]);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
     const [savedLocalEntryName, setSavedLocalEntryName] = useState<string>("");
     const [type, setType] = useState("");
@@ -80,8 +93,12 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
         name: yup.string().required("Local Entry Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Local Entry name")
             .test('validateSequenceName', 'An artifact with same name already exists', value => {
                 return !(workspaceFileNames.includes(value) && savedLocalEntryName !== value)
+            })
+            .test('validateArtifactName', 'A registry resource with this artifact name already exists', value => {
+                return !(artifactNames.includes(value) && savedLocalEntryName !== value)
             }),
         type: yup.string(),
+        saveInReg: yup.boolean().default(false),
         inLineTextValue: yup.string().required().when("type", {
             is: "In-Line Text Entry",
             then: (schema) => schema.required("In-Line Text Value is required"),
@@ -97,6 +114,32 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
             then: (schema) => schema.required("Source URL is required"),
             otherwise: (schema) => schema.notRequired()
         }),
+        artifactName: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().required("Artifact Name is required")
+                    .test('validateArtifactName', 'Artifact name already exists', value => {
+                        return !artifactNames.includes(value);
+                    })
+                    .test('validateFileName', 'A file already exists in the workspace with this artifact name', value => {
+                        return !workspaceFileNames.includes(value);
+                    }),
+        }),
+        registryPath: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().required("Registry Path is required")
+                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
+                    const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
+                    if (formattedPath === undefined) return true;
+                    return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
+                }),
+        }),
+        registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"]),
     });
 
     const {
@@ -116,6 +159,9 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
 
     useEffect(() => {
         (async () => {
+            const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
+            setArtifactNames(result.artifactNamesArr);
+            setRegistryPaths(result.registryPaths);
             const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
                 path: props.path,
             });
@@ -142,6 +188,9 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
 
     useEffect(() => {
         setPrevName(watch("name"));
+        if (prevName === watch("artifactName")) {
+            setValue("artifactName", watch("name"));
+        }
     }, [watch("name")]);
 
     useEffect(() => {
@@ -216,9 +265,14 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
             type: values.type,
             value: values.type === "In-Line XML Entry" ? values.inLineXmlValue : values.inLineTextValue,
             URL: values.sourceURL,
-            getContentOnly: false,
+            getContentOnly: watch("saveInReg") ?? false,
         };
-        await rpcClient.getMiDiagramRpcClient().createLocalEntry(createLocalEntryParams);
+        const result: CreateLocalEntryResponse = await rpcClient
+            .getMiDiagramRpcClient()
+            .createLocalEntry(createLocalEntryParams);
+        if (watch("saveInReg")) {
+            await saveToRegistry(rpcClient, props.path, values.registryType, values.name, result.fileContent, values.registryPath, values.artifactName);
+        }
         openOverview();
     };
 
@@ -316,6 +370,14 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
                     )}
                     {isNewTask && (
                         <>
+                            <FormCheckBox
+                                label="Save the local entry in registry"
+                                {...register("saveInReg")}
+                                control={control}
+                            />
+                            {watch("saveInReg") && (<>
+                                <AddToRegistry path={props.path} fileName={watch("name")} register={register} errors={errors} getValues={getValues} />
+                            </>)}
                             <FormActions>
                                 <Button
                                     appearance="secondary"
