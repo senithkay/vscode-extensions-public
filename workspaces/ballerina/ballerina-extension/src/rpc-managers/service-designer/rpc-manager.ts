@@ -12,6 +12,8 @@ import {
     DIRECTORY_MAP,
     ExportOASRequest,
     ExportOASResponse,
+    FunctionModelRequest,
+    FunctionModelResponse,
     FunctionSourceCodeRequest,
     HttpResourceModelRequest,
     HttpResourceModelResponse,
@@ -444,6 +446,18 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 resolve(res);
             } catch (error) {
                 console.log(error);
+            }
+        });
+    }
+
+    async getFunctionModel(params: FunctionModelRequest): Promise<FunctionModelResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const res: FunctionModelResponse = await context.langClient.getFunctionModel(params);
+                resolve(res);
+            } catch (error) {
+                console.log(">>> error fetching function model", error);
             }
         });
     }
