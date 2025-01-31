@@ -16,6 +16,7 @@ export interface TruncatedLabelProps {
 }
 
 const TruncatedLabelContainer = styled.span`
+    display: inline-block;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

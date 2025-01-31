@@ -11,27 +11,17 @@
  *  associated services.
  */
 import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { TruncatedLabel, TruncatedLabelProps } from "./TruncatedLabel";
-import styled from "@emotion/styled";
+import { storiesOf } from "@storybook/react";
+import { TruncatedLabel } from "./TruncatedLabel";
 
-const ContainerSpan = styled.span({
-    display: "flex",
-    // // alignItems: "center",
-    width: "50px",
-    // whiteSpace: "nowrap",
-    // overflow: "hidden",
-    // textOverflow: "ellipsis",
-    // color: "inherit"
-});
+const TruncatedLabelComponent = () => {
+    return (
+        <TruncatedLabel style={{ width: "50px" }}>
+            <span>Truncated</span>
+            <span>Label Content</span>
+        </TruncatedLabel>
 
-const Template: ComponentStory<typeof TruncatedLabel> = (args: TruncatedLabelProps) =>
-    <ContainerSpan>
-        <TruncatedLabel {...args} />
+    );
+}
 
-    </ContainerSpan>;
-
-export const TruncatedLabelComponent = Template.bind();
-TruncatedLabelComponent.args = { children: "This is a long text that should be truncated", style: { color: "red" } };
-
-export default { component: TruncatedLabel, title: "TruncatedLabel" };
+storiesOf("TruncatedLabel").add("Default", () => <TruncatedLabelComponent />);
