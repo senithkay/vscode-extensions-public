@@ -93,7 +93,7 @@ export interface Element {
     configurableType?: string;
     addParamText?: string;
     deriveResponseVariable?: boolean;
-    matchPattern?: string;
+    separatorPattern?: string;
     initialSeparator?: string;
     secondarySeparator?: string;
     keyValueSeparator?: string;
