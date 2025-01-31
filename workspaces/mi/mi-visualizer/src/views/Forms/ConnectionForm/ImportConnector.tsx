@@ -67,11 +67,17 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
         setIsImporting(true);
         try {
             await rpcClient.getMiVisualizerRpcClient().importOpenAPISpec({ filePath: openApiDir });
+            
+            const newConnector: any = await waitForEvent();
+            if (newConnector?.isSuccess) {
+                props.onImportSuccess();
+            } else {
+                setIsFailedImport(true);
+            }
         } catch (error) {
             console.log(error);
         }
         setIsImporting(false);
-        props.onImportSuccess();
     };
 
     const importWithZip = async () => {
