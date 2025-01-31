@@ -224,7 +224,7 @@ function getTypeInfoForInterface(typeNode: Type, allInterfaces: string[]): DMTyp
             isRecursive: true
         };
     } else {
-        allInterfaces.push(typeName);
+        allInterfaces = [...allInterfaces, typeName];
     }
 
     const fields = interfaceNode.getMembers().map(member => {
