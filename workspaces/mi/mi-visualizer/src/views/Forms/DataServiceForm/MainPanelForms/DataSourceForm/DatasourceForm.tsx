@@ -651,17 +651,7 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
     };
 
     const handleNext = async (values: any) => {
-        if (step === 1) {
-            const driverClassAvailable = await rpcClient.getMiDiagramRpcClient().checkDBDriver(watch('rdbms.driverClassName'));
-
-            if (driverClassAvailable) {
-                setStep(3);
-            } else {
-                setStep(2);
-            }
-        } else {
-            setStep(step + 1);
-        }
+        setStep(step + 1);
     }
 
     const renderProps = (fieldName: keyof DataSourceFields) => {
@@ -697,17 +687,7 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
     };
 
     const handleBack = async () => {
-        if (step === 3) {
-            const driverClassAvailable = await rpcClient.getMiDiagramRpcClient().checkDBDriver(watch('rdbms.driverClassName'));
-
-            if (driverClassAvailable) {
-                setStep(1);
-            } else {
-                setStep(2);
-            }
-        } else {
-            setStep(step - 1);
-        }
+        setStep(step - 1);
     }
 
     const showNextButton = watch('dataSourceType') === 'RDBMS' && step === 1;

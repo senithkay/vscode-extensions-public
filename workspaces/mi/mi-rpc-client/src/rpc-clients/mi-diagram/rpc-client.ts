@@ -376,7 +376,11 @@ import {
     testConnectorConnection,
     shutDownTryoutServer,
     MiVersionResponse,
-    getMIVersionFromPom
+    getMIVersionFromPom,
+    CheckDBDriverResponse,
+    RemoveDBDriverResponse,
+    removeDBDriver,
+    modifyDBDriver
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -912,12 +916,20 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendNotification(openUpdateExtensionPage, HOST_EXTENSION);
     }
 
-    checkDBDriver(params: string): Promise<boolean> {
+    checkDBDriver(params: string): Promise<CheckDBDriverResponse> {
         return this._messenger.sendRequest(checkDBDriver, HOST_EXTENSION, params);
     }
 
     addDBDriver(params: AddDriverRequest): Promise<boolean> {
         return this._messenger.sendRequest(addDBDriver, HOST_EXTENSION, params);
+    }
+
+    removeDBDriver(params: AddDriverRequest): Promise<RemoveDBDriverResponse> {
+        return this._messenger.sendRequest(removeDBDriver, HOST_EXTENSION, params);
+    }
+
+    modifyDBDriver(params: AddDriverRequest): Promise<RemoveDBDriverResponse> {
+        return this._messenger.sendRequest(modifyDBDriver, HOST_EXTENSION, params);
     }
 
     generateDSSQueries(params: ExtendedDSSQueryGenRequest): Promise<boolean> {

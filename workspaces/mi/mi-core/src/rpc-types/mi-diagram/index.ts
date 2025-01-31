@@ -224,7 +224,9 @@ import {
     TestConnectorConnectionResponse,
     MiVersionResponse,
     SaveConfigRequest,
-    SaveConfigResponse
+    SaveConfigResponse,
+    CheckDBDriverResponse,
+    RemoveDBDriverResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -359,8 +361,10 @@ export interface MiDiagramAPI {
     getSubFolderNames: (path: GetSubFoldersRequest) => Promise<GetSubFoldersResponse>;
     renameFile: (params: FileRenameRequest) => Promise<void>;
     openUpdateExtensionPage: () => void;
-    checkDBDriver: (className: string) => Promise<boolean>;
+    checkDBDriver: (className: string) => Promise<CheckDBDriverResponse>;
     addDBDriver: (params: AddDriverRequest) => Promise<boolean>;
+    removeDBDriver: (params: AddDriverRequest) => Promise<RemoveDBDriverResponse>;
+    modifyDBDriver: (params: AddDriverRequest) => Promise<RemoveDBDriverResponse>;
     generateDSSQueries: (params: ExtendedDSSQueryGenRequest) => Promise<boolean>;
     fetchDSSTables: (params: DSSFetchTablesRequest) => Promise<DSSFetchTablesResponse>;
     tryOutMediator: (params: MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;

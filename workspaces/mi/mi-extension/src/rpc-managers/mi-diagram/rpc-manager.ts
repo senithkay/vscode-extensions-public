@@ -243,7 +243,9 @@ import {
     RemoveConnectorResponse,
     TestConnectorConnectionRequest,
     TestConnectorConnectionResponse,
-    MiVersionResponse
+    MiVersionResponse,
+    CheckDBDriverResponse,
+    RemoveDBDriverResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -4960,7 +4962,7 @@ ${keyValuesXML}`;
         vscode.commands.executeCommand('vscode.open', vscode.Uri.parse(url));
     }
 
-    async checkDBDriver(className: string): Promise<boolean> {
+    async checkDBDriver(className: string): Promise<CheckDBDriverResponse> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.checkDBDriver(className);
@@ -4972,6 +4974,22 @@ ${keyValuesXML}`;
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.addDBDriver(params);
+            resolve(res);
+        });
+    }
+
+    async removeDBDriver(params: AddDriverRequest): Promise<RemoveDBDriverResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.removeDBDriver(params);
+            resolve(res);
+        });
+    }
+
+    async modifyDBDriver(params: AddDriverRequest): Promise<RemoveDBDriverResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.modifyDBDriver(params);
             resolve(res);
         });
     }

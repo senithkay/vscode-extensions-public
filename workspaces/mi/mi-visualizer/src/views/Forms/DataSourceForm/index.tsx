@@ -438,31 +438,11 @@ export function DataSourceWizard(props: DataSourceFormProps) {
     };
 
     const handleNext = async (values: any) => {
-        if (step === 1) {
-            const driverClassAvailable = await rpcClient.getMiDiagramRpcClient().checkDBDriver(watch('driverClassName'));
-
-            if (driverClassAvailable) {
-                setStep(3);
-            } else {
-                setStep(2);
-            }
-        } else {
-            setStep(step + 1);
-        }
+        setStep(step + 1);
     }
 
     const handleBack = async () => {
-        if (step === 3) {
-            const driverClassAvailable = await rpcClient.getMiDiagramRpcClient().checkDBDriver(watch('driverClassName'));
-
-            if (driverClassAvailable) {
-                setStep(1);
-            } else {
-                setStep(2);
-            }
-        } else {
-            setStep(step - 1);
-        }
+        setStep(step - 1);
     }
 
     const handleModifyURL = () => {

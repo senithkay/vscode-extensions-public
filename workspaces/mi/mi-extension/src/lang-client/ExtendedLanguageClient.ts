@@ -63,7 +63,9 @@ import {
     GetHelperPaneInfoResponse,
     GetHelperPaneInfoRequest,
     TestConnectorConnectionRequest,
-    TestConnectorConnectionResponse
+    TestConnectorConnectionResponse,
+    CheckDBDriverResponse,
+    RemoveDBDriverResponse
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -294,12 +296,20 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest("synapse/testDBConnection", req);
     }
 
-    async checkDBDriver(req: string): Promise<boolean> {
+    async checkDBDriver(req: string): Promise<CheckDBDriverResponse> {
         return this.sendRequest("synapse/checkDBDriver", { className: req });
     }
 
     async addDBDriver(req: AddDriverRequest): Promise<boolean> {
         return this.sendRequest("synapse/addDBDriver", req);
+    }
+
+    async removeDBDriver(req: AddDriverRequest): Promise<RemoveDBDriverResponse> {
+        return this.sendRequest("synapse/removeDBDriver", { req });
+    }
+
+    async modifyDBDriver(req: AddDriverRequest): Promise<RemoveDBDriverResponse> {
+        return this.sendRequest("synapse/modifyDBDriver", { req });
     }
 
     async generateQueries(req: DSSQueryGenRequest): Promise<string> {
