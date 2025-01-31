@@ -182,13 +182,21 @@ export function FormGenerator(props: FormGeneratorProps) {
         const inputType = value.inputType;
         const deriveResponseVariable = value.deriveResponseVariable ?? false;
         const defaultValue = deriveResponseVariable ? deriveDefaultValue(formData.connectorName, formData.operationName) : value.defaultValue;
-        const currentValue = value.currentValue ?? defaultValue ?? getValues(name);
+        const currentValue = value.currentValue ?? getValues(name) ?? defaultValue;
         deriveDefaultValue(formData.connectorName, formData.operationName);
+        const expressionTypes = ['stringOrExpression', 'integerOrExpression', 'expression', 'keyOrExpression', 'resourceOrExpression',
+            'textOrExpression', 'textAreaOrExpression', 'stringOrExpresion'
+        ];
 
         if (type === 'table') {
             const valueObj: any[] = [];
             currentValue?.forEach((param: any[]) => {
                 const val: any = {};
+
+                if (!Array.isArray(param)) {
+                    param = Object.values(param);
+                }
+
                 value.elements.forEach((field: any, index: number) => {
                     const fieldName = getNameForController(field.value.name);
                     const fieldValue = param[index];
@@ -199,7 +207,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             });
 
             return valueObj;
-        } else if (['stringOrExpression', 'expression', 'keyOrExpression', 'resourceOrExpression'].includes(inputType) &&
+        } else if (expressionTypes.includes(inputType) &&
             (!currentValue || typeof currentValue !== 'object' || !('isExpression' in currentValue))) {
             const isExpression = inputType === "expression" || isValueExpression(currentValue);
             return { isExpression: isExpression, value: currentValue ?? "" };
@@ -379,7 +387,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                         {...field}
                         label={element.displayName}
                         labelAdornment={helpTipElement}
-                        checked={typeof field.value === 'boolean' ? field.value  : field.value === 'true' ? true : false }
+                        checked={typeof field.value === 'boolean' ? field.value : field.value === 'true' ? true : false}
                     />
                 );
             case 'stringOrExpression':
@@ -388,9 +396,8 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'textAreaOrExpression':
             case 'integerOrExpression':
             case 'expression':
-                const isValueLegacyExpression = isLegacyExpression(
-                    typeof field.value === 'object' ? field.value.value : field.value
-                );
+                const isValueLegacyExpression = field.value?.isExpression &&
+                    isLegacyExpression(typeof field.value === 'object' ? field.value.value : field.value);
                 if (isLegacyExpressionEnabled || isValueLegacyExpression) {
                     return ExpressionFieldComponent({
                         element,
@@ -489,6 +496,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 );
             }
             case 'codeTextArea':
+            case 'expressionTextArea':
                 return (
                     <CodeTextArea
                         {...field}
@@ -553,19 +561,20 @@ export function FormGenerator(props: FormGeneratorProps) {
                             allowItemCreate={false}
                         />
                     </>);
-                case 'expressionTextArea':
-                    return (
-                        <FormTokenEditor
-                            nodeRange={range}
-                            value={field.value}
-                            onChange={field.onChange}
-                            placeholder={placeholder}
-                            label={element.displayName}
-                            labelAdornment={helpTipElement}
-                            required={isRequired}
-                            errorMsg={errorMsg}
-                        />
-                    );
+            // TODO: Add this back when the token editor is fixed
+            // case 'expressionTextArea':
+            //     return (
+            //         <FormTokenEditor
+            //             nodeRange={range}
+            //             value={field.value}
+            //             onChange={field.onChange}
+            //             placeholder={placeholder}
+            //             label={element.displayName}
+            //             labelAdornment={helpTipElement}
+            //             required={isRequired}
+            //             errorMsg={errorMsg}
+            //         />
+            //     );
             default:
                 return null;
         }
@@ -623,6 +632,8 @@ export function FormGenerator(props: FormGeneratorProps) {
     const renderController = (element: any) => {
         const name = getNameForController(element.value.name);
         const isRequired = typeof element.value.required === 'boolean' ? element.value.required : element.value.required === 'true';
+        const matchPattern = element.value.matchPattern;
+        const validateType = element.value.validateType;
         const defaultValue = getDefaultValue(element);
 
         if (getValues(name) === undefined) {
@@ -647,6 +658,30 @@ export function FormGenerator(props: FormGeneratorProps) {
                                 }
                                 return true;
                             },
+                        },
+                        ...(matchPattern) && {
+                            pattern: {
+                                value: new RegExp(matchPattern),
+                                message: "Value does not match the pattern"
+                            }
+                        },
+                        ...(validateType) && {
+                            validate: (value) => {
+                                if (validateType === 'number' && isNaN(value)) {
+                                    return "Value should be a number";
+                                }
+                                if (validateType === 'boolean' && !['true', 'false'].includes(value)) {
+                                    return "Value should be a boolean";
+                                }
+                                if (validateType === 'json' && typeof value !== 'object') {
+                                    try {
+                                        JSON.parse(value);
+                                    } catch (e) {
+                                        return "Value should be a valid JSON";
+                                    }
+                                }
+                                return true;
+                            }
                         }
                     }
                 }
@@ -702,7 +737,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                         display: "flex",
                         flexDirection: 'row'
                     }}>
-                        {typeof formData.help === 'string' && formData.help.includes('<') ? 
+                        {typeof formData.help === 'string' && formData.help.includes('<') ?
                             // <div dangerouslySetInnerHTML={{ __html: formData.help }} /> Enable when forms are fixed
                             null
                             : <Typography variant="body3">{formData.help}</Typography>

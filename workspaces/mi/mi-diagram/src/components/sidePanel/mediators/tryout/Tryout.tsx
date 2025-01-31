@@ -359,7 +359,7 @@ const MediatorDetails = ({ data, setMediatorInfo, isExpanded, setIsExpanded, isE
     const Params = ({ params }: { params: Params }) => (
         <FormGroup title='Params' isCollapsed={!isExpanded.params} onToggle={(collapsed) => toggleExpanded('params', collapsed)}>
             <PropertiesContainer>
-                {['functionParams', 'queryParams', 'uriParams'].map((key) => (
+                {['functionParams', 'queryParams', 'pathParams'].map((key) => (
                     <ReactJson
                         sortKeys
                         name={key.charAt(0).toUpperCase() + key.slice(1)}

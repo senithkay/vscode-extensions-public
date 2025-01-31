@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { MutableRefObject } from 'react';
-import { HelperPaneOrigin } from './common';
+import { MutableRefObject, ReactNode } from 'react';
+import { ActionButtonType, HelperPaneOrigin } from './common';
 
 export type ResizeHandleProps = {
     editorRef: MutableRefObject<HTMLDivElement | null>;
@@ -16,9 +16,11 @@ export type ResizeHandleProps = {
 
 type TokenEditorBaseProps = {
     value: string;
+    actionButtons?: ActionButtonType[];
     onChange: (value: string) => void;
     onFocus?: () => void;
     onBlur?: () => void;
+    getExpressionEditorIcon?: () => ReactNode;
 };
 
 type HelperPaneConditionalProps =

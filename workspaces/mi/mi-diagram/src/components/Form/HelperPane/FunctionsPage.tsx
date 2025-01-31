@@ -62,8 +62,17 @@ export const FunctionsPage = ({
     }, [functionInfo]);
 
     const handleFunctionItemClick = (insertText: string) => {
-        const functionName = insertText.split('(')[0];
-        onChange(`${functionName}(`);
+        const functionRegex = /^([a-zA-Z0-9_]+)\((.*)\)/;
+        const matches = insertText.match(functionRegex);
+        const functionName = matches?.[1];
+        const functionArgs = matches?.[2];
+
+        if (functionName && functionArgs) {
+            onChange(`${functionName}(`);
+        } else if (functionName) {
+            // If the function has no arguments, add an empty pair of parentheses
+            onChange(`${functionName}()`);
+        }
     }
 
     return (

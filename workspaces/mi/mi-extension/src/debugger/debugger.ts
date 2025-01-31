@@ -11,7 +11,7 @@ import * as net from 'net';
 import * as vscode from 'vscode';
 import { EventEmitter } from 'events';
 import { DebugProtocol } from 'vscode-debugprotocol';
-import { StateMachine, navigate } from '../stateMachine';
+import { StateMachine, refreshUI } from '../stateMachine';
 import { BreakpointInfo, SequenceBreakpoint, GetBreakpointInfoRequest, GetBreakpointInfoResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse, TemplateBreakpoint, StepOverBreakpointResponse } from '@wso2-enterprise/mi-core';
 import { checkServerReadiness, isADiagramView } from './debugHelper';
 import { VisualizerWebview } from '../visualizer/webview';
@@ -435,7 +435,7 @@ export class Debugger extends EventEmitter {
                         this.stepOverBreakpointMap.clear();
 
                         if (VisualizerWebview.currentPanel?.getWebview()?.visible && isADiagramView()) {
-                            navigate();
+                            refreshUI();
                         }
                         extension.webviewReveal = false;
                     }

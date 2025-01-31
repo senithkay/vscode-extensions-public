@@ -49,6 +49,9 @@ export const openPopup = (rpcClient: RpcClient, view: string, fetchItems: any, s
         case "datasource":
             rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.DssDataSourceForm, documentUri: documentUri, customProps }, isPopup: true });
             break;
+        case "dataService":
+            rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.DataServiceForm, documentUri: documentUri, customProps }, isPopup: true });
+            break;
         case "addDriver":
             rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.AddDriverPopup, documentUri: documentUri, customProps }, isPopup: true });
             break;
@@ -63,7 +66,7 @@ export const openPopup = (rpcClient: RpcClient, view: string, fetchItems: any, s
             break;
         case "messageStore":
             rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.MessageStoreForm, documentUri: documentUri, customProps }, isPopup: true });
-            break;    
+            break;
         default:
             return;
     }

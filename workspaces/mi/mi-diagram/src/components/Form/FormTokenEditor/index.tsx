@@ -8,7 +8,7 @@
  */
 
 import { debounce } from "lodash";
-import React, { CSSProperties, ReactNode, useCallback, useState } from "react";
+import React, { CSSProperties, ReactNode, useCallback, useMemo, useState } from "react";
 import { Range } from 'vscode-languageserver-types';
 
 import styled from "@emotion/styled";
@@ -156,6 +156,20 @@ export const FormTokenEditor = ({
         );
     }
 
+    const actionButtons = useMemo(() => {
+        return [
+            {
+                tooltip: 'Open Helper View',
+                iconType: 'icon' as const,
+                name: 'open-helper-pane',
+                onClick: () => handleChangeHelperPaneState(!isHelperPaneOpen)
+            }
+        ];
+    }, [isHelperPaneOpen, handleChangeHelperPaneState]);
+
+    const getExpressionEditorIcon = useCallback((): ReactNode => {
+        return undefined;
+    }, []);
 
     return (
         <S.Container id={id} sx={sx}>
@@ -167,10 +181,12 @@ export const FormTokenEditor = ({
             <TokenEditor
                 value={value}
                 onChange={onChange}
+                actionButtons={actionButtons}
                 getHelperPane={getHelperPaneEl}
                 helperPaneOrigin="left"
                 isHelperPaneOpen={isHelperPaneOpen}
                 changeHelperPaneState={setIsHelperPaneOpen}
+                getExpressionEditorIcon={getExpressionEditorIcon}
             />
             {errorMsg && <ErrorBanner errorMsg={errorMsg} />}
         </S.Container>
