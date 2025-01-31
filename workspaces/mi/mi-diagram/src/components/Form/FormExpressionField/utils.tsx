@@ -184,9 +184,15 @@ export const extractExpressionValue = (expression: string) => {
 export const formatExpression = (expression: string): string => {
     try {
         // Attempt to parse the expression as JSON
-        const jsonObject = JSON.parse(expression);
+        // Preserve trailing zeros by marking numbers with trailing zeros
+        const preservedExpression = expression.replace(/\b\d+\.\d*?0+\b/g, match => `"__PRESERVE_TRAILING_ZERO__${match}"`);
+        const jsonObject = JSON.parse(preservedExpression);
         // Stringify the JSON object with indentation for formatting
-        return JSON.stringify(jsonObject, null, 2);
+        const str = JSON.stringify(jsonObject, null, 2);
+
+        // Restore trailing zeros
+        return str.replace(/"__PRESERVE_TRAILING_ZERO__(\d+\.\d*?0+)"/g, '$1');
+
     } catch (error) {
         // If parsing fails, return the original expression
         return expression;
