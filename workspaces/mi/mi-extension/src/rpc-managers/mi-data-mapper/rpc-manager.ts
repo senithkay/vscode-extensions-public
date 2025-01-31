@@ -33,7 +33,7 @@ import {
     DataMapWriteRequest,
 } from "@wso2-enterprise/mi-core";
 import { fetchIOTypes, fetchSubMappingTypes, fetchCompletions, fetchDiagnostics } from "../../util/dataMapper";
-import { StateMachine, navigate, refreshUI } from "../../stateMachine";
+import { StateMachine, refreshUI } from "../../stateMachine";
 import { generateSchemaFromContent } from "../../util/schemaBuilder";
 import { JSONSchema3or4 } from "to-json-schema";
 import { updateTsFileCustomTypes, updateTsFileIoTypes } from "../../util/tsBuilder";
@@ -299,7 +299,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                     functionDeclaration.setBodyText(`${dataMapping || defaultReturnValue}`);
                     // Write the updates to the file
                     await sourceFile.save();
-                    await navigate();
+                    await refreshUI();
                 } else {
                     console.error("Error in writing data mapping, mapFunction not found in target ts file.");
                 }
