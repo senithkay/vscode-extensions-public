@@ -87,9 +87,10 @@ export function SetPayloads(props: SetPayloadsProps) {
                 type: "attribute",
                 value: {
                     name: "content",
-                    displayName: "Request body",
+                    displayName: "Request body", 
                     inputType: "codeTextArea",
                     required: true,
+                    validateType: "json",
                     helpTip: "",
                 },
             },
