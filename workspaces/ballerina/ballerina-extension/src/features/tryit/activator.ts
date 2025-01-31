@@ -27,11 +27,21 @@ Parameters:
 {{#each parameters}}
 - {{name}} ({{in}}){{#if required}} [Required]{{/if}}{{#if description}}: {{description}}{{/if}}
 {{/each}}
-{{/if}}
 \`\`\`
+{{/if}}
+
+{{#if responses}}
+\`\`\`
+Expected Responses:
+{{#each responses}}
+- {{@key}}: {{description}}
+{{/each}}
+\`\`\`
+{{/if}}
 */
 ###
-{{uppercase @key}} http://localhost:{{../../port}}{{trim ../../basePath}}{{@../key}}
+{{uppercase @key}} http://localhost:{{../../port}}{{trim ../../basePath}}{{@../key}}{{queryParams parameters}}
+
 {{#if requestBody}}
 Content-Type: application/json
 
@@ -251,6 +261,23 @@ function registerHandlebarsHelpers(): void {
     }
     if (!Handlebars.helpers.trim) {
         Handlebars.registerHelper('trim', (str?: string) => str ? str.trim() : '');
+    }
+
+    // handlebar helper to process query parameters
+    if (!Handlebars.helpers.queryParams) {
+        Handlebars.registerHelper('queryParams', function (parameters) {
+            if (!parameters || !parameters.length) { return ''; }
+
+            const queryParams = parameters
+                .filter(param => param.in === 'query')
+                .map(param => {
+                    const value = param.example || 'value';
+                    return `${param.name}=${value}`;
+                })
+                .join('&');
+
+            return new Handlebars.SafeString(queryParams && queryParams.length > 0 ? `?${queryParams}` : '');
+        });
     }
 }
 
