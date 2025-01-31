@@ -92,9 +92,6 @@ export function ServiceWizard(props: ServiceWizardProps) {
     const [saving, setSaving] = useState<boolean>(false);
     const [existingListener, setExistingListener] = useState<string>(undefined);
 
-    const listenerConfigForm = useRef<{ triggerSave: () => void }>(null);
-    const serviceConfigForm = useRef<{ triggerSave: () => void }>(null);
-
     useEffect(() => {
         rpcClient.getServiceDesignerRpcClient().getListeners({ filePath: "", moduleName: type }).then(res => {
             console.log("Existing Listeners: ", res);
@@ -137,22 +134,6 @@ export function ServiceWizard(props: ServiceWizardProps) {
             setStep(1);
         });
     };
-
-    const handleOnNext = () => {
-        if (existing && !creatingListener) {
-            handleListenerSubmit();
-        } else {
-            if (listenerConfigForm.current) {
-                listenerConfigForm.current.triggerSave();
-            }
-        }
-    }
-
-    const handleOnSave = () => {
-        if (serviceConfigForm.current) {
-            serviceConfigForm.current.triggerSave();
-        }
-    }
 
     const handleServiceSubmit = async (value: ServiceModel) => {
         setSaving(true);
@@ -197,7 +178,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
                         {!listeners?.hasListeners && <Stepper alignment='flex-start' steps={defaultSteps} currentStep={step} />}
                         {step === 0 && !saving &&
                             <>
-                                <ListenerConfigForm formRef={listenerConfigForm} listenerModel={listenerModel} onSubmit={handleListenerSubmit} onBack={creatingListener && onBack} formSubmitText={listeners?.hasListeners ? "Create" : undefined} />
+                                <ListenerConfigForm listenerModel={listenerModel} onSubmit={handleListenerSubmit} onBack={creatingListener && onBack} formSubmitText={listeners?.hasListeners ? "Create" : undefined} />
                             </>
                         }
                         {step === 0 && saving &&
@@ -208,7 +189,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
                         }
                         {step === 1 && !saving &&
                             <>
-                                <ServiceConfigForm formRef={serviceConfigForm} serviceModel={serviceModel} onSubmit={handleServiceSubmit} openListenerForm={existing && openListenerForm} formSubmitText={listeners?.hasListeners ? "Create" : undefined} />
+                                <ServiceConfigForm serviceModel={serviceModel} onSubmit={handleServiceSubmit} openListenerForm={existing && openListenerForm} formSubmitText={listeners?.hasListeners ? "Create" : undefined} />
                             </>
                         }
                         {step === 1 && saving &&
