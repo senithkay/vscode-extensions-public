@@ -41,7 +41,7 @@ export function DropdownEditor(props: DropdownEditorProps) {
             disabled={!field.editable}
             sx={{ width: "100%" }}
             containerSx={{ width: "100%" }}
-            addNewBtnClick={() => openSubPanel({ view: SubPanelView.UNDEFINED })}
+            addNewBtnClick={field.addNewButton ? () => openSubPanel({ view: SubPanelView.UNDEFINED }) : undefined}
         />
     );
 }
