@@ -511,7 +511,7 @@ function navigateTypeInfo(
     const handleMember = (member: any): string => {
         if (member.typeName === "record" && member.fields) {
             temporaryRecord = navigateTypeInfo(member.fields, false);
-            memberName = "record";
+            memberName = "record"; // TODO: Check with health-care records
             memberRecordFields = {
                 ...memberRecordFields,
                 ...(temporaryRecord as RecordDefinitonObject).recordFields
@@ -521,7 +521,7 @@ function navigateTypeInfo(
                 ...((temporaryRecord as RecordDefinitonObject).recordFieldsMetadata)
             };
         } else if (member.typeName === "array") {
-            if (member.memberType.hasOwnProperty("fields")) {
+            if (member.memberType.hasOwnProperty("fields") && member.memberType.typeName === "record") {
                 temporaryRecord = navigateTypeInfo(member.memberType.fields, false);
                 memberName = `${member.memberType.typeName}[]`;
                 memberRecordFields = {
@@ -532,8 +532,25 @@ function navigateTypeInfo(
                     ...memberFieldsMetadata,
                     ...((temporaryRecord as RecordDefinitonObject).recordFieldsMetadata)
                 };
-            } else if (member.memberType.hasOwnProperty("typeInfo") && member.typeName === "array") {
-                memberName = "record[]";
+            } else if (member.memberType.hasOwnProperty("members") && 
+            (member.memberType.typeName === "union" || member.memberType.typeName === "intersection")) {
+                temporaryRecord = navigateTypeInfo(member.memberType.members, false);
+                let memberTypes: string[] = [];
+                for (const innerMember of member.memberType.members) {
+                    const memberTypeName = handleMember(innerMember);
+                    memberTypes.push(memberTypeName);
+                }
+                memberName = `${member.memberType.name}[]`;
+                memberRecordFields = {
+                    ...memberRecordFields,
+                    ...(temporaryRecord as RecordDefinitonObject).recordFields
+                };
+                memberFieldsMetadata = {
+                    ...memberFieldsMetadata,
+                    ...((temporaryRecord as RecordDefinitonObject).recordFieldsMetadata)
+                };
+            } else if (member.memberType.hasOwnProperty("typeInfo")) {
+                memberName = "record[]"; // TODO: Check with health-care records
             } else {
                 memberName = `${member.memberType.typeName}[]`;
             }
@@ -550,70 +567,95 @@ function navigateTypeInfo(
         memberRecordFields = {};
         memberFieldsMetadata = {};
         let typeName = field.typeName;
-        if (typeName === "record") {
-            const temporaryRecord = navigateTypeInfo(field.fields, false);
-            recordFields[field.name] = (temporaryRecord as RecordDefinitonObject).recordFields;
-            recordFieldsMetadata[field.name] = {
-                nullable: isNill,
-                optional: field.optional,
-                type: "record",
-                typeInstance: field.name,
-                typeName: field.typeName,
-                fields: (temporaryRecord as RecordDefinitonObject).recordFieldsMetadata
-            };
-        } else if (typeName === "union" || typeName === "intersection") {
-            let memberTypeNames: string[] = [];
-            for (const member of field.members) {
-                const memberTypeName = handleMember(member);
-                memberTypeNames.push(memberTypeName);
-            }
-            const resolvedTypeName = memberTypeNames.join("|");
-            recordFields[field.name] = Object.keys(memberRecordFields).length > 0 
-                                        ? memberRecordFields : { type: resolvedTypeName, comment: "" };
-            recordFieldsMetadata[field.name] = {
-                nullable: isNullable,
-                optional: field.optional,
-                typeName: resolvedTypeName,
-                type: resolvedTypeName,
-                typeInstance: field.name,
-                ...(Object.keys(memberFieldsMetadata).length > 0 && { fields: memberFieldsMetadata })
-            };
-        } else if (typeName === "array") {
-            if (field.memberType.typeName === "union") {
-                const unionTypeNames = field.memberType.members
-                    .map((member: any) => handleMember(member))
-                    .join(" | ");
-                typeName = `${unionTypeNames}`;
-            } else if (field.memberType.hasOwnProperty("fields")) {
-                const temporaryRecord = navigateTypeInfo(field.memberType.fields, false);
+        if (typeName) {
+            if (typeName === "record") {
+                const temporaryRecord = navigateTypeInfo(field.fields, false);
                 recordFields[field.name] = (temporaryRecord as RecordDefinitonObject).recordFields;
                 recordFieldsMetadata[field.name] = {
-                    typeName: "record[]",
-                    type: "record[]",
-                    typeInstance: field.name,
                     nullable: isNill,
                     optional: field.optional,
+                    type: "record",
+                    typeInstance: field.name,
+                    typeName: field.typeName,
                     fields: (temporaryRecord as RecordDefinitonObject).recordFieldsMetadata
                 };
-                continue;
-            } else if (field.memberType.hasOwnProperty("typeInfo")) {
-                typeName = `record[]`;
+            } else if (typeName === "union" || typeName === "intersection") {
+                let memberTypeNames: string[] = [];
+                for (const member of field.members) {
+                    const memberTypeName = handleMember(member);
+                    memberTypeNames.push(memberTypeName);
+                }
+                const resolvedTypeName = memberTypeNames.join("|");
+                recordFields[field.name] = Object.keys(memberRecordFields).length > 0 
+                                            ? memberRecordFields : { type: resolvedTypeName, comment: "" };
+                recordFieldsMetadata[field.name] = {
+                    nullable: isNullable,
+                    optional: field.optional,
+                    typeName: resolvedTypeName,
+                    type: resolvedTypeName,
+                    typeInstance: field.name,
+                    ...(Object.keys(memberFieldsMetadata).length > 0 && { fields: memberFieldsMetadata })
+                };
+            } else if (typeName === "array") {
+                if (field.memberType.hasOwnProperty("members") && 
+                (field.memberType.typeName === "union" || field.memberType.typeName === "intersection")) {
+                    let memberTypeNames: string[] = [];
+                    for (const member of field.memberType.members) {
+                        const memberTypeName = handleMember(member);
+                        memberTypeNames.push(memberTypeName);
+                    }
+    
+                    recordFields[field.name] = Object.keys(memberRecordFields).length > 0 
+                                            ? memberRecordFields : { type: `${field.memberType.name}[]`, comment: "" };
+                    recordFieldsMetadata[field.name] = {
+                        nullable: isNullable,
+                        optional: field.optional,
+                        typeName: `${field.memberType.name}[]`,
+                        type: `${field.memberType.name}[]`,
+                        typeInstance: field.name,
+                        ...(Object.keys(memberFieldsMetadata).length > 0 && { fields: memberFieldsMetadata })
+                    };
+                    continue;
+                } else if (field.memberType.hasOwnProperty("fields") && field.memberType.typeName === "record") {
+                    const temporaryRecord = navigateTypeInfo(field.memberType.fields, false);
+                    recordFields[field.name] = (temporaryRecord as RecordDefinitonObject).recordFields;
+                    recordFieldsMetadata[field.name] = {
+                        typeName: "record[]",
+                        type: "record[]",
+                        typeInstance: field.name,
+                        nullable: isNill,
+                        optional: field.optional,
+                        fields: (temporaryRecord as RecordDefinitonObject).recordFieldsMetadata
+                    };
+                    continue;
+                } else if (field.memberType.hasOwnProperty("typeInfo")) {
+                    typeName = "record[]"; // TODO: Check with Health-care Records
+                } else {
+                    typeName = `${field.memberType.typeName}[]`;
+                }
+                recordFields[field.name] = { type: typeName, comment: "" };
+                recordFieldsMetadata[field.name] = {
+                    typeName: typeName,
+                    type: typeName,
+                    typeInstance: field.name,
+                    nullable: isNill,
+                    optional: field.optional
+                };
             } else {
-                typeName = `${field.memberType.typeName}[]`;
+                recordFields[field.name] = { type: typeName, comment: "" };
+                recordFieldsMetadata[field.name] = {
+                    typeName: typeName,
+                    type: typeName,
+                    typeInstance: field.name,
+                    nullable: isNill,
+                    optional: field.optional
+                };
             }
-            recordFields[field.name] = { type: typeName, comment: "" };
-            recordFieldsMetadata[field.name] = {
-                typeName: typeName,
-                type: typeName,
-                typeInstance: field.name,
-                nullable: isNill,
-                optional: field.optional
-            };
         } else {
-            recordFields[field.name] = { type: typeName, comment: "" };
+            recordFields[field.name] = { type: field.typeInfo.name, comment: "" };
             recordFieldsMetadata[field.name] = {
-                typeName: typeName,
-                type: typeName,
+                typeName: field.typeInfo.name,
+                type: field.typeInfo.name,
                 typeInstance: field.name,
                 nullable: isNill,
                 optional: field.optional
