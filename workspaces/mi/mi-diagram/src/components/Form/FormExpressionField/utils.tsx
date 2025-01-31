@@ -117,8 +117,8 @@ export const filterHelperPaneFunctionCompletionItems = (
 };
 
 const traverseHelperPaneCompletionItem = (
-    level: number,
     item: HelperPaneCompletionItem,
+    indent: boolean,
     onChange: (value: string) => void,
     getIcon: () => React.ReactNode
 ): React.ReactNode => {
@@ -128,16 +128,16 @@ const traverseHelperPaneCompletionItem = (
 
     let childNodes: React.ReactNode[] = [];
     for (const child of item.children) {
-        childNodes.push(traverseHelperPaneCompletionItem(level + 1, child, onChange, getIcon));
+        childNodes.push(traverseHelperPaneCompletionItem(child, true, onChange, getIcon));
     }
 
     return (
         <HelperPane.CompletionItem
             key={item.insertText}
             label={item.label}
+            indent={indent}
             onClick={() => onChange(item.insertText)}
             getIcon={getIcon}
-            level={level}
         >
             {childNodes}
         </HelperPane.CompletionItem>
@@ -156,7 +156,7 @@ export const getHelperPaneCompletionItem = (
     getIcon: () => React.ReactNode
 ) => {
     // Apply DFS to get the item
-    return traverseHelperPaneCompletionItem(0, item, onChange, getIcon);
+    return traverseHelperPaneCompletionItem(item, false, onChange, getIcon);
 };
 
 /**

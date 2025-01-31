@@ -174,3 +174,10 @@ export type ExpressionEditorRef = {
 /* <------ Types related to the helper pane ------> */
 
 export type HelperPaneOrigin = 'bottom' | 'left' | 'right';
+
+export type ActionButtonType = {
+    tooltip?: string;
+    iconType: 'codicon' | 'icon';
+    name: string;
+    onClick: () => void;
+};

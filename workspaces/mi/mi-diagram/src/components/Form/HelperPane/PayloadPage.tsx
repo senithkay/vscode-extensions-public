@@ -15,6 +15,7 @@ import styled from '@emotion/styled';
 
 const InfoMessage = styled.div`
     margin-top: auto;
+    padding-inline: 8px;
 `;
 
 type PayloadPageProps = {
@@ -64,14 +65,14 @@ export const PayloadPage = ({
                 {payloadInfo?.map((payload) => (
                     getHelperPaneCompletionItem(payload, onChange, getCompletionItemIcon)
                 ))}
-                <InfoMessage>
-                    <Alert
-                        variant='primary'
-                        title='Important!'
-                        subTitle="Payload suggestions are generated based on the first request payload defined in the 'Start' node. If no payloads are defined yet, please add one in the 'Start' node of the diagram."
-                    />
-                </InfoMessage>
             </HelperPane.Body>
+            <InfoMessage>
+                <Alert
+                    variant='primary'
+                    title='Important!'
+                    subTitle="Payload suggestions are generated based on the first request payload defined in the 'Start' node. If no payloads are defined yet, please add one in the 'Start' node of the diagram."
+                />
+            </InfoMessage>
         </>
     );
 };

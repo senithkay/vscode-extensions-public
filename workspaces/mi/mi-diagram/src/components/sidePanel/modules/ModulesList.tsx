@@ -56,8 +56,9 @@ export function Modules(props: ModuleProps) {
     const { rpcClient } = useVisualizerContext();
     const { localConnectors } = props;
     const [allModules, setAllModules] = React.useState([] as any);
-    const [filteredModules, setFilteredModules] = React.useState<[]>(undefined);
+    const [searchedModules, setSearchedModules] = React.useState<[]>(undefined);
     const [searchValue, setSearchValue] = React.useState<string>('');
+    const [isFetchingModules, setIsFetchingModules] = React.useState<Boolean>(false);
 
     useEffect(() => {
         fetchModules();
@@ -65,6 +66,7 @@ export function Modules(props: ModuleProps) {
 
     const fetchModules = async () => {
         try {
+            setIsFetchingModules(true);
             if (navigator.onLine) {
                 const response = await rpcClient.getMiDiagramRpcClient().getStoreConnectorJSON();
                 const data = response.connectors;
@@ -73,6 +75,7 @@ export function Modules(props: ModuleProps) {
                 console.error('No internet connection. Unable to fetch modules.');
                 setAllModules(undefined);
             }
+            setIsFetchingModules(false);
         } catch (error) {
             console.error('Error fetching mediators:', error);
             setAllModules(undefined);
@@ -86,13 +89,13 @@ export function Modules(props: ModuleProps) {
                     const runtimeVersion = await rpcClient.getMiDiagramRpcClient().getMIVersionFromPom();
                     const response = await fetch(`${APIS.CONNECTOR_SEARCH.replace('${searchValue}', value).replace('${version}', runtimeVersion.version)}`);
                     const data = await response.json();
-                    setFilteredModules(data);
+                    setSearchedModules(data);
                 } catch (e) {
                     console.error("Error fetching modules", e);
-                    setFilteredModules(undefined);
+                    setSearchedModules(undefined);
                 }
             } else {
-                setFilteredModules(undefined);
+                setSearchedModules(undefined);
             }
         }, 300),
         []
@@ -107,7 +110,7 @@ export function Modules(props: ModuleProps) {
     }, [searchValue, debouncedSearchModules]);
 
     const handleSearch = (e: string) => {
-        setFilteredModules(undefined);
+        setSearchedModules(undefined);
         setSearchValue(e);
     }
 
@@ -120,12 +123,26 @@ export function Modules(props: ModuleProps) {
         sidepanelAddPage(sidePanelContext, downloadPage, FirstCharToUpperCase(module.connectorName), module.iconUrl);
     };
 
-    const isSearching = searchValue && !filteredModules;
+    const getFilteredStoreModules = (modules: any[]) => {
+        return Object.entries(modules)
+            .filter(([_, values]: [string, any]) =>
+                !localConnectors ||
+                !localConnectors.some((c: any) =>
+                    ((c.displayName ? c.displayName === values.connectorName : c.name.toLowerCase() === values.connectorName.toLowerCase())) &&
+                    (c.version === values.version.tagName)
+                )
+            )
+            .sort(([, a], [, b]) => a.connectorRank - b.connectorRank);
+    }
+
+    const isSearching = searchValue && !searchedModules;
+
+
 
     const ModuleList = () => {
         let modules: any[];
         if (searchValue) {
-            modules = filteredModules;
+            modules = searchedModules;
         } else {
             modules = allModules;
         }
@@ -133,17 +150,20 @@ export function Modules(props: ModuleProps) {
         if (!modules || !Array.isArray(modules)) {
             return (
                 <LoaderWrapper>
-                    <span>Failed to fetch store connectors. Please <VSCodeLink onClick={fetchModules}>retry</VSCodeLink></span>
+                    <span>Failed to fetch store modules. Please <VSCodeLink onClick={fetchModules}>retry</VSCodeLink></span>
                 </LoaderWrapper>
             );
         }
 
-        return Object.keys(modules).length === 0 ? <h3 style={{ textAlign: "center" }}>No modules found</h3> :
+        const filteredModules = modules && getFilteredStoreModules(modules);
+
+
+        return Object.keys(modules).length === 0 ? <h3 style={{ textAlign: "center", paddingTop: "30px" }}>No modules found</h3> :
             <>
-                {Object.entries(modules).sort(([, a], [, b]) => a.connectorRank - b.connectorRank).map(([key, values]: [string, any]) => (
-                    localConnectors && localConnectors.some((c: any) =>
-                        ((c.displayName ? c.displayName === values.connectorName : c.name.toLowerCase() === values.connectorName.toLowerCase())) &&
-                        (c.version === values.version.tagName)) ? null : (
+                {filteredModules.length === 0 ? (
+                    <h3 style={{ textAlign: "center", paddingTop: "30px" }}>No more modules available</h3>
+                ) : (
+                    filteredModules.map(([key, values]: [string, any]) => (
                         <div key={key}>
                             <ButtonGroup
                                 key={key}
@@ -176,20 +196,21 @@ export function Modules(props: ModuleProps) {
                 <Typography variant="body3">A collection of reusable modules for efficient software development.</Typography>
             </div>
             {/* Search bar */}
-            <TextField
-                sx={SearchStyle}
-                placeholder="Search"
-                value={searchValue}
-                onTextChange={handleSearch}
-                icon={{
-                    iconComponent: searchIcon,
-                    position: 'start',
-                }}
-                autoFocus={true}
-            />
+            {allModules && getFilteredStoreModules(allModules).length > 0 &&
+                <TextField
+                    sx={SearchStyle}
+                    placeholder="Search"
+                    value={searchValue}
+                    onTextChange={handleSearch}
+                    icon={{
+                        iconComponent: searchIcon,
+                        position: 'start',
+                    }}
+                    autoFocus={true}
+                />}
             {
 
-                isSearching ? (
+                isSearching || isFetchingModules ? (
                     <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '20px' }}>
                         <ProgressRing />
                     </div>

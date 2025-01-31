@@ -13,7 +13,7 @@ import * as vscode from 'vscode';
 import { checkServerReadiness, deleteCopiedCapAndLibs, executeBuildTask, executeTasks, getServerPath, isADiagramView, readPortOffset, removeTempDebugBatchFile, setManagementCredentials, stopServer } from './debugHelper';
 import { Subject } from 'await-notify';
 import { Debugger } from './debugger';
-import { StateMachine, navigate, openView } from '../stateMachine';
+import { StateMachine, openView, refreshUI } from '../stateMachine';
 import { VisualizerWebview } from '../visualizer/webview';
 import { ViewColumn } from 'vscode';
 import { COMMANDS } from '../constants';
@@ -69,7 +69,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                                 newContext.documentUri = this.debuggerHandler?.getCurrentFilePath();
                                 openView(EVENT_TYPE.OPEN_VIEW, newContext);
                             } else {
-                                navigate();
+                                refreshUI();
                             }
                         }, 200);
                     } else {
@@ -244,7 +244,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
             }
         }
         this.sendResponse(response);
-        navigate();
+        refreshUI();
     }
 
     protected configurationDoneRequest(response: DebugProtocol.ConfigurationDoneResponse, args: DebugProtocol.ConfigurationDoneArguments, request?: DebugProtocol.Request | undefined): void {
@@ -289,6 +289,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                                     }).catch(error => {
                                         vscode.window.showErrorMessage(error);
                                         this.sendError(response, 1, error);
+                                        vscode.commands.executeCommand('setContext', 'MI.isRunning', 'false');
                                     });
                                 } else {
                                     this.debuggerHandler?.initializeDebugger().then(() => {
@@ -301,6 +302,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                                         const completeError = `Error while initializing the Debugger: ${error}`;
                                         vscode.window.showErrorMessage(completeError);
                                         this.sendError(response, 1, completeError);
+                                        vscode.commands.executeCommand('setContext', 'MI.isRunning', 'false');
                                     });
                                 }
                             })

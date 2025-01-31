@@ -343,7 +343,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
             ...(expressionType === "synapse" ? [{
                 tooltip: 'Open Helper Pane',
                 iconType: 'icon' as any,
-                name: 'function-icon',
+                name: 'open-helper-pane',
                 onClick: () => {
                     expressionRef.current?.focus();
                     handleChangeHelperPaneState(!isHelperPaneOpen)
