@@ -10,7 +10,7 @@
 import React, { useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { Button, Codicon, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Tooltip, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 import classnames from "classnames";
 
@@ -63,7 +63,7 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
     const indentation = fields ? 0 : ((treeDepth + 1) * 16) + 8;
 
     const label = (
-        <span style={{ marginRight: "auto", opacity: (portOut && portOut.isPreview) ? 0.5 : 1 }}>
+        <TruncatedLabel style={{ marginRight: "auto", opacity: (portOut && portOut.isPreview) ? 0.5 : 1 }}>
             <span className={classes.valueLabel} style={{ marginLeft: indentation }}>
                 <InputSearchHighlight>{fieldName}</InputSearchHighlight>
                 {dmType.optional && "?"}
@@ -75,7 +75,7 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
                 </span>
             )}
 
-        </span>
+        </TruncatedLabel>
     );
 
     const handleExpand = () => {

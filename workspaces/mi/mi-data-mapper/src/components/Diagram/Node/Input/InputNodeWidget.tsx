@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
 import { DMType, IOType, TypeKind } from "@wso2-enterprise/mi-core";
 
@@ -66,7 +66,7 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
     const invisiblePort = getPort(`${ARRAY_FILTER_NODE_PREFIX}`);
 
     const label = (
-        <span style={{ marginRight: "auto" }}>
+        <TruncatedLabel style={{ marginRight: "auto" }}>
             <span className={classes.valueLabel}>
                 <InputSearchHighlight>{valueLabel ? valueLabel : id}</InputSearchHighlight>
                 {typeName && ":"}
@@ -76,7 +76,7 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
                     {typeName}
                 </span>
             )}
-        </span>
+        </TruncatedLabel>
     );
 
     const handleExpand = () => {
