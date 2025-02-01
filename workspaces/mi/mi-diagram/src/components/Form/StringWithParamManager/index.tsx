@@ -35,7 +35,7 @@ export const StringWithParamManagerComponent = forwardRef<HTMLDivElement, String
     useEffect(() => {
         if (field.value !== undefined) {
             setStringValue(field.value);
-            const initialParamManagerParameters = generateParamManagerParameters(field.value, element.matchPattern);
+            const initialParamManagerParameters = generateParamManagerParameters(field.value, element.separatorPattern);
             setParamManagerParameters(initialParamManagerParameters);
         }
     }, []);
@@ -84,7 +84,7 @@ export const StringWithParamManagerComponent = forwardRef<HTMLDivElement, String
             value={stringValue}
             onChange={(e) => {
                 setStringValue(e.target.value);
-                setParamManagerParameters(generateParamManagerParameters(e.target.value, element.matchPattern));
+                setParamManagerParameters(generateParamManagerParameters(e.target.value, element.separatorPattern));
             }}
             labelAdornment={helpTipElement}
             size={50}
