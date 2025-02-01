@@ -203,7 +203,7 @@ const MainPanel = () => {
                         });
                         break;
                     case MACHINE_VIEW.GraphQLDiagram:
-                        setViewComponent(<GraphQLDiagram />);
+                        setViewComponent(<GraphQLDiagram filePath={value?.documentUri} position={value?.position} />);
                         break;
                     case MACHINE_VIEW.SequenceDiagram:
                         setViewComponent(
