@@ -49,6 +49,11 @@ const ServiceContainer = styled.div`
     padding-left: 10px;
 `;
 
+const FunctionsContainer = styled.div`
+    max-height: 600px;
+    overflow: scroll;
+`;
+
 interface ServiceDesignerProps {
     filePath: string;
     position: NodePosition;
@@ -294,21 +299,37 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                                     </InfoSection>
                                 )
                             ))}
+
+                            {serviceModel.moduleName === "http" && serviceModel.functions.filter(func => func.kind === "DEFAULT" && func.enabled).map((functionModel, index) => (
+                                <InfoSection>
+                                    <Icon name={findIcon('init')} isCodicon sx={{ marginRight: '8px' }} />
+                                    <Typography key={`${index}-label`} variant="body3">
+                                        Constructor:
+                                    </Typography>
+                                    <Typography key={`${index}-value`} variant="body3">
+                                        <LinkButton sx={{ fontSize: 12, padding: 8, gap: 4 }} onClick={() => handleOpenDiagram(functionModel)}>
+                                            {functionModel.name.value}
+                                        </LinkButton>
+                                    </Typography>
+                                </InfoSection>
+                            ))}
                         </InfoContainer>
 
                         <Typography key={"title"} variant="body2" sx={{ marginLeft: 10, marginBottom: 20, marginTop: 10 }}>
                             Available {serviceModel.moduleName === "http" ? "Resources" : "Functions"}
                         </Typography>
-                        {serviceModel.functions.filter(functionModel => (serviceModel.moduleName === "http" ? functionModel.kind === "RESOURCE" : true) && functionModel.enabled).map((functionModel, index) => (
-                            <ResourceAccordion
-                                key={`${index}-${functionModel.name.value}`}
-                                functionModel={functionModel}
-                                goToSource={() => { }}
-                                onEditResource={handleFunctionEdit}
-                                onDeleteResource={handleFunctionDelete}
-                                onResourceImplement={handleOpenDiagram}
-                            />
-                        ))}
+                        <FunctionsContainer>
+                            {serviceModel.functions.filter(functionModel => (serviceModel.moduleName === "http" ? functionModel.kind === "RESOURCE" : true) && functionModel.enabled).map((functionModel, index) => (
+                                <ResourceAccordion
+                                    key={`${index}-${functionModel.name.value}`}
+                                    functionModel={functionModel}
+                                    goToSource={() => { }}
+                                    onEditResource={handleFunctionEdit}
+                                    onDeleteResource={handleFunctionDelete}
+                                    onResourceImplement={handleOpenDiagram}
+                                />
+                            ))}
+                        </FunctionsContainer>
                     </>
                 }
                 {functionModel && functionModel.kind === "RESOURCE" &&

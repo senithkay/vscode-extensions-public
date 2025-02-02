@@ -108,7 +108,7 @@ import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure,
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
 import { DATA_MAPPING_FILE_NAME, getDataMapperNodePosition } from "./utils";
-import { reject } from "lodash";
+import {getCompleteSuggestions} from '../../utils/ai/completions';
 
 export class BiDiagramRpcManager implements BIDiagramAPI {
 
@@ -418,11 +418,6 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 resolve(undefined);
                 return;
             }
-            const token = await extension.context.secrets.get("BallerinaAIUser");
-            if (!token) {
-                resolve(undefined);
-                return;
-            }
             // get copilot context form ls
             const copilotContextRequest: BICopilotContextRequest = {
                 filePath: filePath,
@@ -431,49 +426,65 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             console.log(">>> request get copilot context from ls", { request: copilotContextRequest });
             const copilotContext = await StateMachine.langClient().getCopilotContext(copilotContextRequest);
             console.log(">>> copilot context from ls", { response: copilotContext });
-
-            // get suggestions from ai
-            const requestBody = {
-                ...copilotContext,
-                prompt,
-                singleCompletion: false, // Remove setting and assign constant value since this is handled by the AI BE
-            };
-            const requestOptions = {
-                method: "POST",
-                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-                body: JSON.stringify(requestBody),
-            };
-            console.log(">>> request ai suggestion", { request: requestBody });
-            let response;
+            
+            //TODO: Refactor this logic
+            let suggestedContent;
             try {
                 if (prompt) {
+                    const token = await extension.context.secrets.get("BallerinaAIUser");
+                    if (!token) {
+                        resolve(undefined);
+                        return;
+                    }
+                    // get suggestions from ai
+                    const requestBody = {
+                        ...copilotContext,
+                        prompt,
+                        singleCompletion: false, // Remove setting and assign constant value since this is handled by the AI BE
+                    };
+                    const requestOptions = {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                        body: JSON.stringify(requestBody),
+                    };
+                    console.log(">>> request ai suggestion", { request: requestBody });
                     // generate new nodes
-                    response = await fetchWithToken(BACKEND_API_URL_V2 + "/inline/generation", requestOptions);
+                    const response = await fetchWithToken(BACKEND_API_URL_V2 + "/inline/generation", requestOptions);
+                    if (!response.ok) {
+                        console.log(">>> ai completion api call failed ", response);
+                        return new Promise((resolve) => {
+                            resolve(undefined);
+                        });
+                    }
+                    const data = await response.json();
+                    console.log(">>> ai suggestion", { response: data });
+                    suggestedContent = (data as any).code;
                 } else {
                     // get next suggestion
-                    response = await fetchWithToken(BACKEND_API_URL_V2 + "/completion", requestOptions);
+                    const copilot_token = await extension.context.secrets.get("GITHUB_COPILOT_TOKEN");
+                    if (!copilot_token) {
+                        const token = await extension.context.secrets.get("BallerinaAIUser");
+                        if (!token) {
+                            //TODO: Do we need to prompt to login here? If so what? Copilot or Ballerina AI?
+                            resolve(undefined);
+                            return;
+                        }
+                        suggestedContent = await this.getCompletionsWithHostedAI(token, copilotContext);
+                    } else {
+                        const resp = await getCompleteSuggestions({
+                            prefix:copilotContext.prefix,
+                            suffix:copilotContext.suffix,
+                        });
+                        console.log(">>> ai suggestion", { response: resp });
+                        suggestedContent = resp.completions.at(0);
+                    }
+
                 }
             } catch (error) {
                 console.log(">>> error fetching ai suggestion", error);
                 return new Promise((resolve) => {
                     resolve(undefined);
                 });
-            }
-            if (!response.ok) {
-                console.log(">>> ai completion api call failed ", response);
-                return new Promise((resolve) => {
-                    resolve(undefined);
-                });
-            }
-            const data = await response.json();
-            console.log(">>> ai suggestion", { response: data });
-            let suggestedContent;
-            if (prompt) {
-                // get response code
-                suggestedContent = (data as any).code;
-            } else {
-                // get first completion
-                suggestedContent = (data as any).completions.at(0);
             }
             if (!suggestedContent) {
                 console.log(">>> ai suggested content not found");
@@ -1140,6 +1151,43 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     resolve(undefined);
                 });
         });
+    }
+
+    async promptGithubCopilotAuthNotificaiton(): Promise<void> {
+        //TODO: Prevent multiple notifications
+        vscode.window.showInformationMessage(
+            'Ballerina Integrator supports visual completions with GitHub Copilot.',
+            'Authorize using GitHub Copilot'
+        ).then(selection => {
+            if (selection === 'Authorize using GitHub Copilot') {
+                commands.executeCommand('kolab.login.copilot');
+            }
+        });
+    }
+
+    async getCompletionsWithHostedAI(token, copilotContext): Promise<void> {
+        // get suggestions from ai
+        const requestBody = {
+            ...copilotContext,
+        };
+        const requestOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            body: JSON.stringify(requestBody),
+        };
+        console.log(">>> request ai suggestion", { request: requestBody });
+        // generate new nodes
+        const response = await fetchWithToken(BACKEND_API_URL_V2 + "/completion", requestOptions);
+        if (!response.ok) {
+            console.log(">>> ai completion api call failed ", response);
+            return new Promise((resolve) => {
+                resolve(undefined);
+            });
+        }
+        const data = await response.json();
+        console.log(">>> ai suggestion", { response: data });
+        const suggestedContent = (data as any).completions.at(0);
+        return suggestedContent
     }
 }
 

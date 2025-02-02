@@ -11,7 +11,7 @@ import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import classnames from "classnames";
-import { Button, Codicon, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from "../../Port";
@@ -24,6 +24,7 @@ import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
 import { IOType } from "@wso2-enterprise/ballerina-core";
 import { removeMapping } from "../../utils/modification-utils";
+import { OutputBeforeInputNotification } from "../commons/OutputBeforeInputNotification";
 
 export interface PrimitiveOutputElementWidgetWidgetProps {
     parentId: string;
@@ -187,14 +188,7 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
                             />
                         </FieldActionWrapper>
                     )}
-                    {hasOutputBeforeInput && (
-                        <div className={classes.outputBeforeInputNotification}>
-                            <span style={{ display: 'flex', alignItems: 'center' }}>
-                                <Codicon name="info" sx={{ marginRight: "7px" }} />
-                                Click on input field first to create a mapping
-                            </span>
-                        </div>
-                    )}
+                    {hasOutputBeforeInput && <OutputBeforeInputNotification />}
                 </div>
             )}
         </>
