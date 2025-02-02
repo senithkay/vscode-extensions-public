@@ -31,7 +31,9 @@ export class EntityModel extends SharedNodeModel {
 
         const members = isNodeClass(this.entityObject?.codedata?.node) ? this.entityObject.functions : this.entityObject.members; // Use functions if it's a CLASS
 
-        Object.entries(members).forEach(([_, member]) => {
+        if(members === undefined) return;
+        
+        Object.entries(members)?.forEach(([_, member]) => {
             this.addPort(new EntityPortModel(`${entityName}/${member.name}`, PortModelAlignment.LEFT));
             this.addPort(new EntityPortModel(`${entityName}/${member.name}`, PortModelAlignment.RIGHT));
         });
