@@ -350,17 +350,20 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
     }
 
     const handleNewOperation = async () => {
-        setFunctionModel(functionTemplates.query);
+        setFunctionModel(JSON.parse(JSON.stringify(functionTemplates.query)));
         console.log("New Function Model: ", functionTemplates);
         setIsNewForm(true);
     }
 
     const handleNewFunctionClose = () => {
         setIsNewForm(false);
+        setFunctionModel(undefined);
+
     }
 
     const handleEditFunctionClose = () => {
         setIsEdit(false);
+        setFunctionModel(undefined);
     }
 
     const handleFunctionSubmit = async (updatedModel: FunctionModel) => {
@@ -392,6 +395,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
             } else {
                 setIsNewForm(false);
             }
+            setFunctionModel(undefined);
         } catch (error) {
             console.error('Error handling submit:', error);
         }
@@ -400,13 +404,13 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
     const handleMethodChange = (value: string) => {
         switch (value) {
             case 'Query':
-                setFunctionModel(functionTemplates.query);
+                setFunctionModel(JSON.parse(JSON.stringify(functionTemplates.query)));
                 break;
             case 'Mutation':
-                setFunctionModel(functionTemplates.mutation);
+                setFunctionModel(JSON.parse(JSON.stringify(functionTemplates.mutation)));
                 break;
             case 'Subscription':
-                setFunctionModel(functionTemplates.subscription);
+                setFunctionModel(JSON.parse(JSON.stringify(functionTemplates.subscription)));
                 break;
         }
     };

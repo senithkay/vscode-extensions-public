@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { FunctionModel, LineRange, ParameterModel } from '@wso2-enterprise/ballerina-core';
+import { FunctionModel, LineRange, ParameterModel, PropertyModel, ConfigProperties } from '@wso2-enterprise/ballerina-core';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import FormGeneratorNew from '../BI/Forms/FormGeneratorNew';
 import { FormField, FormValues, Parameter } from '@wso2-enterprise/ballerina-side-panel';
@@ -29,7 +29,11 @@ export function OperationForm(props: OperationFormProps) {
     const handleParamChange = (param: Parameter) => {
         const name = `${param.formValues['variable']}`;
         const type = `${param.formValues['type']}`;
-        const defaultValue = Object.keys(param.formValues).indexOf('defaultable') > -1 && `${param.formValues['defaultable']}`;
+        const hasDefaultValue = Object.keys(param.formValues).includes('defaultable') && 
+        param.formValues['defaultable'] !== undefined && 
+        param.formValues['defaultable'] !== '';
+    
+        const defaultValue = hasDefaultValue ? `${param.formValues['defaultable']}`.trim() : '';
         let value = `${type} ${name}`;
         if (defaultValue) {
             value += ` = ${defaultValue}`;
@@ -40,40 +44,40 @@ export function OperationForm(props: OperationFormProps) {
             value: value
         }
     };
-    console.log("Schema Parameters:", model.schema.parameters);
-    const paramFields: FormField[] = [
-        {
-            key: `variable`,
-            label: 'Name',
-            type: 'string',
-            optional: false,
-            editable: true,
-            documentation: '',
-            value: '',
-            valueTypeConstraint: ""
-        },
-        {
-            key: `type`,
-            label: 'Type',
-            type: 'TYPE',
-            optional: false,
-            editable: true,
-            documentation: '',
-            value: '',
-            valueTypeConstraint: ""
-        },
-        {
-            key: `defaultable`,
-            label: 'Default Value',
-            type: 'string',
-            optional: true,
-            advanced: true,
-            editable: true,
-            documentation: '',
-            value: '',
-            valueTypeConstraint: ""
-        }
-    ];
+    console.log("Schema Parameters:", model.schema);
+    // const paramFields: FormField[] = [
+    //     {
+    //         key: `variable`,
+    //         label: 'Name',
+    //         type: 'string',
+    //         optional: false,
+    //         editable: true,
+    //         documentation: '',
+    //         value: '',
+    //         valueTypeConstraint: ""
+    //     },
+    //     {
+    //         key: `type`,
+    //         label: 'Type',
+    //         type: 'TYPE',
+    //         optional: false,
+    //         editable: true,
+    //         documentation: '',
+    //         value: '',
+    //         valueTypeConstraint: ""
+    //     },
+    //     {
+    //         key: `defaultable`,
+    //         label: 'Default Value',
+    //         type: 'string',
+    //         optional: true,
+    //         advanced: true,
+    //         editable: true,
+    //         documentation: '',
+    //         value: '',
+    //         valueTypeConstraint: ""
+    //     }
+    // ];
 
     const formFields: FormField[] = [
         {
@@ -97,18 +101,8 @@ export function OperationForm(props: OperationFormProps) {
             documentation: '',
             value: '',
             paramManagerProps: {
-                paramValues: model.parameters.map((param: any, index: number) => ({
-                    id: index,
-                    key: param.name.value,
-                    value: `${param.type.value} ${param.name.value}${param.defaultValue?.value ? ` = ${param.defaultValue.value}` : ''}`,
-                    formValues: {
-                        variable: param.name.value,
-                        type: param.type.value,
-                        defaultable: param.defaultValue?.value || ''
-                    },
-                    icon: 'symbol-variable'
-                })),
-                formFields: paramFields,
+                paramValues: model.parameters.map((param, index) => convertParameterToParamValue(param, index)),
+                formFields: convertSchemaToFormFields(model.schema),
                 handleParameter: handleParamChange
             },
             valueTypeConstraint: ''
@@ -126,41 +120,92 @@ export function OperationForm(props: OperationFormProps) {
         }
     ];
 
+    // const getFunctionParametersList = (params: Parameter[]) => {
+    //     const paramList: ParameterModel[] = [];
+    //     params.forEach(param => {
+    //         paramList.push({
+    //             kind: 'REQUIRED',
+    //             enabled: true,
+    //             editable: true,
+    //             advanced: false,
+    //             optional: false,
+    //             type: {
+    //                 value: param.formValues['type'] as string,
+    //                 valueType: 'TYPE',
+    //                 isType: true,
+    //                 optional: false,
+    //                 advanced: false,
+    //                 addNewButton: false
+    //             },
+    //             name: {
+    //                 value: param.formValues['variable'] as string,
+    //                 valueType: 'IDENTIFIER',
+    //                 isType: false,
+    //                 optional: false,
+    //                 advanced: false,
+    //                 addNewButton: false
+    //             },
+    //             defaultValue: {
+    //                 value: param.formValues['defaultable'] as string,
+    //                 valueType: 'string',
+    //                 isType: false,
+    //                 optional: false,
+    //                 advanced: false,
+    //                 addNewButton: false
+    //             }
+    //         });
+    //     })
+    //     return paramList;
+    // }
+
     const getFunctionParametersList = (params: Parameter[]) => {
         const paramList: ParameterModel[] = [];
+        const paramFields = convertSchemaToFormFields(model.schema);
+        
         params.forEach(param => {
+            // Find matching field configurations from schema
+            const typeField = paramFields.find(field => field.key === 'type');
+            const nameField = paramFields.find(field => field.key === 'variable');
+            const defaultField = paramFields.find(field => field.key === 'defaultable');
+    
             paramList.push({
                 kind: 'REQUIRED',
-                enabled: true,
-                editable: true,
-                advanced: false,
-                optional: false,
+                enabled: typeField?.enabled ?? true,
+                editable: typeField?.editable ?? true,
+                advanced: typeField?.advanced ?? false,
+                optional: typeField?.optional ?? false,
                 type: {
                     value: param.formValues['type'] as string,
-                    valueType: 'TYPE',
+                    valueType: typeField?.type,
                     isType: true,
-                    optional: false,
-                    advanced: false,
-                    addNewButton: false
+                    optional: typeField?.optional,
+                    advanced: typeField?.advanced,
+                    addNewButton: false,
+                    enabled: typeField?.enabled,
+                    editable: typeField?.editable,
                 },
                 name: {
                     value: param.formValues['variable'] as string,
-                    valueType: 'IDENTIFIER',
+                    valueType: nameField?.type,
                     isType: false,
-                    optional: false,
-                    advanced: false,
-                    addNewButton: false
+                    optional: nameField?.optional,
+                    advanced: nameField?.advanced,
+                    addNewButton: false,
+                    enabled: nameField?.enabled,
+                    editable: nameField?.editable
                 },
                 defaultValue: {
-                    value: param.formValues['defaultable'] as string,
-                    valueType: 'string',
+                    value: param.formValues['defaultable'],
+                    valueType: defaultField?.type || 'string',
                     isType: false,
-                    optional: false,
-                    advanced: false,
-                    addNewButton: false
+                    optional: defaultField?.optional,
+                    advanced: defaultField?.advanced,
+                    addNewButton: false,
+                    enabled: defaultField?.enabled,
+                    editable: defaultField?.editable
                 }
             });
-        })
+        });
         return paramList;
     }
 
@@ -190,3 +235,57 @@ export function OperationForm(props: OperationFormProps) {
         />
     );
 } 
+
+
+export function convertSchemaToFormFields(schema: ConfigProperties): FormField[] {
+    const formFields: FormField[] = [];
+
+    // Get the parameter configuration if it exists
+    const parameterConfig = schema["parameter"] as ConfigProperties;
+    if (parameterConfig) {
+        // Iterate over each parameter field in the parameter config
+        for (const key in parameterConfig) {
+            if (parameterConfig.hasOwnProperty(key)) {
+                const parameter = parameterConfig[key];
+                if (parameter.metadata && parameter.metadata.label) {
+                    const formField = convertParameterToFormField(key, parameter as ParameterModel);
+                    console.log("Form Field: ", formField);
+                    formFields.push(formField);
+                }
+            }
+        }
+    }
+
+    return formFields;
+}
+
+export function convertParameterToFormField(key: string, param: ParameterModel): FormField {
+    return {
+        key: key === "defaultValue" ? "defaultable" : key === "name" ? "variable" : key,
+        label: param.metadata?.label,
+        type: param.valueType || 'TYPE',
+        optional: param.optional || false,
+        editable: param.editable || false,
+        advanced: key === "defaultValue" ? true : param.advanced,
+        documentation: param.metadata?.description || '',
+        value: param.value || '',
+        valueTypeConstraint: param?.valueTypeConstraint || '',
+        enabled: param.enabled || true
+    };
+
+}
+
+
+function convertParameterToParamValue(param: ParameterModel, index: number) {
+    return {
+        id: index,
+        key: param.name.value,
+        value: `${param.type.value} ${param.name.value}${param.defaultValue?.value ? ` = ${param.defaultValue.value}` : ''}`,
+        formValues: {
+            variable: param.name.value,
+            type: param.type.value,
+            defaultable: param.defaultValue?.value || ''
+        },
+        icon: 'symbol-variable'
+    };
+}
