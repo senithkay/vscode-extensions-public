@@ -56,11 +56,12 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         return new Promise(async (resolve, reject) => {
             const { filePath, functionName } = params;
             try {
-                const { inputTypes, outputType } = fetchIOTypes(filePath, functionName);
+                const { inputTypes, outputType, outputRecursiveTypes } = fetchIOTypes(filePath, functionName);
 
                 return resolve({
                     inputTrees: inputTypes,
-                    outputTree: outputType
+                    outputTree: outputType,
+                    outputRecursiveTypes: outputRecursiveTypes
                 });
             } catch (error: any) {
                 reject(error);
