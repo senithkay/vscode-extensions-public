@@ -141,7 +141,7 @@
           },
           "MI.JAVA_HOME": {
             "type": "string",
-            "default": "${env:JAVA_HOME}",
+            "default": "",
             "description": "Java Home path",
             "scope": "resource"
           },

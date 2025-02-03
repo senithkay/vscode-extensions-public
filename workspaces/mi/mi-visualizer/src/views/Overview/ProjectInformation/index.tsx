@@ -142,7 +142,7 @@ export function ProjectInformation(props: ProjectInformationProps) {
 
     function Configurables(configs: PomNodeDetails[]) {
         return <>
-            {!configs || configs.length === 0 ? <Typography>No configurables found</Typography> :
+            {!configs || configs.length === 0 ? <Typography sx={{opacity: 0.6}}>No configurables found</Typography> :
                 <ParamManager
                     sx={{ opacity: 0.8 }}
                     paramConfigs={{
@@ -258,27 +258,27 @@ export function ProjectInformation(props: ProjectInformationProps) {
             </Typography>
             <Item>
                 <Icon name="file-code" isCodicon sx={{ marginRight: '8px' }} />
-                <Typography>Base Image: {buildDetails?.dockerDetails?.dockerFileBaseImage?.value}</Typography>
+                <Typography>Base Image: {buildDetails?.dockerDetails?.dockerFileBaseImage?.displayValue || buildDetails?.dockerDetails?.dockerFileBaseImage?.value}</Typography>
             </Item>
             <Item>
                 <Icon name="package" isCodicon sx={{ marginRight: '8px' }} />
-                <Typography>Docker Name: {buildDetails?.dockerDetails?.dockerName?.value}</Typography>
+                <Typography>Docker Name: {buildDetails?.dockerDetails?.dockerName?.displayValue || buildDetails?.dockerDetails?.dockerName?.value}</Typography>
             </Item>
             <Item>
                 <Icon name="tools" isCodicon sx={{ marginRight: '8px' }} />
-                <Typography>Enable Cipher Tool: {buildDetails?.dockerDetails?.cipherToolEnable?.value}</Typography>
+                <Typography>Enable Cipher Tool: {buildDetails?.dockerDetails?.cipherToolEnable?.displayValue || buildDetails?.dockerDetails?.cipherToolEnable?.value}</Typography>
             </Item>
             <Item>
                 <Icon name="key" isCodicon sx={{ marginRight: '8px' }} />
-                <Typography>Keystore Name: {buildDetails?.dockerDetails?.keyStoreName?.value}</Typography>
+                <Typography>Keystore Name: {buildDetails?.dockerDetails?.keyStoreName?.displayValue || buildDetails?.dockerDetails?.keyStoreName?.value}</Typography>
             </Item>
             <Item>
                 <Icon name="symbol-key" isCodicon sx={{ marginRight: '8px' }} />
-                <Typography>Keystore Alias: {buildDetails?.dockerDetails?.keyStoreAlias?.value}</Typography>
+                <Typography>Keystore Alias: {buildDetails?.dockerDetails?.keyStoreAlias?.displayValue || buildDetails?.dockerDetails?.keyStoreAlias?.value}</Typography>
             </Item>
             <Item>
                 <Icon name="bi-type" sx={{ marginRight: '8px' }} />
-                <Typography>Keystore Type: {buildDetails?.dockerDetails?.keyStoreType?.value}</Typography>
+                <Typography>Keystore Type: {buildDetails?.dockerDetails?.keyStoreType?.displayValue || buildDetails?.dockerDetails?.keyStoreType?.value}</Typography>
             </Item>
             <Item>
                 <Icon name="gist-secret" isCodicon sx={{ marginRight: '8px' }} />
@@ -287,31 +287,31 @@ export function ProjectInformation(props: ProjectInformationProps) {
             {buildDetails?.advanceDetails?.projectArtifactId?.value && (
                 <Item>
                     <Icon name="file-code" isCodicon sx={{ marginRight: '8px' }} />
-                    <Typography>Maven Artifact ID: {buildDetails?.advanceDetails?.projectArtifactId?.value}</Typography>
+                    <Typography>Maven Artifact ID: {buildDetails?.advanceDetails?.projectArtifactId?.displayValue || buildDetails?.advanceDetails?.projectArtifactId?.value}</Typography>
                 </Item>
             )}
             {buildDetails?.advanceDetails?.projectGroupId?.value && (
                 <Item>
                     <Icon name="package" isCodicon sx={{ marginRight: '8px' }} />
-                    <Typography>Maven Group ID: {buildDetails?.advanceDetails?.projectGroupId?.value}</Typography>
+                    <Typography>Maven Group ID: {buildDetails?.advanceDetails?.projectGroupId?.displayValue || buildDetails?.advanceDetails?.projectGroupId?.value}</Typography>
                 </Item>
             )}
             {buildDetails?.advanceDetails?.pluginDetails?.projectBuildPluginVersion?.value && (
                 <Item>
                     <Icon name="versions" isCodicon sx={{ marginRight: '8px' }} />
-                    <Typography>Build Plugin Version: {buildDetails?.advanceDetails?.pluginDetails?.projectBuildPluginVersion?.value}</Typography>
+                    <Typography>Build Plugin Version: {buildDetails?.advanceDetails?.pluginDetails?.projectBuildPluginVersion?.displayValue || buildDetails?.advanceDetails?.pluginDetails?.projectBuildPluginVersion?.value}</Typography>
                 </Item>
             )}
             {buildDetails?.advanceDetails?.pluginDetails?.unitTestPluginVersion?.value && (
                 <Item>
                     <Icon name="versions" isCodicon sx={{ marginRight: '8px' }} />
-                    <Typography>Unit Test Plugin Version: {buildDetails?.advanceDetails?.pluginDetails?.unitTestPluginVersion?.value}</Typography>
+                    <Typography>Unit Test Plugin Version: {buildDetails?.advanceDetails?.pluginDetails?.unitTestPluginVersion?.displayValue || buildDetails?.advanceDetails?.pluginDetails?.unitTestPluginVersion?.value}</Typography>
                 </Item>
             )}
             {buildDetails?.advanceDetails?.pluginDetails?.miContainerPluginVersion?.value && (
                 <Item>
                     <Icon name="versions" isCodicon sx={{ marginRight: '8px' }} />
-                    <Typography>Config Mapper Plugin Version: {buildDetails?.advanceDetails?.pluginDetails?.miContainerPluginVersion?.value}</Typography>
+                    <Typography>Config Mapper Plugin Version: {buildDetails?.advanceDetails?.pluginDetails?.miContainerPluginVersion?.displayValue || buildDetails?.advanceDetails?.pluginDetails?.miContainerPluginVersion?.value}</Typography>
                 </Item>
             )}
 
@@ -327,31 +327,31 @@ export function ProjectInformation(props: ProjectInformationProps) {
             </Typography>
             <Item>
                 <Icon name="check" isCodicon sx={{ marginRight: '8px' }} />
-                <Typography>Skip Tests: {unitTest?.skipTest?.value}</Typography>
+                <Typography>Skip Tests: {unitTest?.skipTest?.displayValue || unitTest?.skipTest?.value}</Typography>
             </Item>
             <Item>
                 <Icon name="server" isCodicon sx={{ marginRight: '8px' }} />
-                <Typography>Server Host: {unitTest?.serverHost?.value}</Typography>
+                <Typography>Server Host: {unitTest?.serverHost?.displayValue || unitTest?.serverHost?.value}</Typography>
             </Item>
             <Item>
                 <Icon name="settings" isCodicon sx={{ marginRight: '8px' }} />
-                <Typography>Server Port: {unitTest?.serverPort?.value}</Typography>
+                <Typography>Server Port: {unitTest?.serverPort?.displayValue || unitTest?.serverPort?.value}</Typography>
             </Item>
             <Item>
                 <Icon name="folder" isCodicon sx={{ marginRight: '8px' }} />
-                <Typography>Server Path: {unitTest?.serverPath?.value}</Typography>
+                <Typography>Server Path: {unitTest?.serverPath?.displayValue || unitTest?.serverPath?.value}</Typography>
             </Item>
             <Item>
                 <Icon name="bi-type" sx={{ marginRight: '8px' }} />
-                <Typography>Server Type: {unitTest?.serverType?.value}</Typography>
+                <Typography>Server Type: {unitTest?.serverType?.displayValue || unitTest?.serverType?.value}</Typography>
             </Item>
             <Item>
                 <Icon name="versions" isCodicon sx={{ marginRight: '8px' }} />
-                <Typography>Server Version: {unitTest?.serverVersion?.value}</Typography>
+                <Typography>Server Version: {unitTest?.serverVersion?.displayValue || unitTest?.serverVersion?.value}</Typography>
             </Item>
             <Item>
                 <Icon name="desktop-download" isCodicon sx={{ marginRight: '8px' }} />
-                <Typography>Server Download Link: {unitTest?.serverDownloadLink?.value}</Typography>
+                <Typography>Server Download Link: {unitTest?.serverDownloadLink?.displayValue || unitTest?.serverDownloadLink?.value}</Typography>
             </Item>
         </div>
     );

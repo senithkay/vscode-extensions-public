@@ -62,7 +62,7 @@ export const FunctionsPage = ({
     }, [functionInfo]);
 
     const handleFunctionItemClick = (insertText: string) => {
-        const functionRegex = /^([a-zA-Z0-9_]+)\((.*)\)/;
+        const functionRegex = /^([a-zA-Z0-9_-]+)\((.*)\)/;
         const matches = insertText.match(functionRegex);
         const functionName = matches?.[1];
         const functionArgs = matches?.[2];
