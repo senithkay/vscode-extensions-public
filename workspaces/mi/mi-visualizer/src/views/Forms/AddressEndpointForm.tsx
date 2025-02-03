@@ -16,6 +16,8 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import AddToRegistry, { formatRegistryPath, saveToRegistry, getArtifactNamesAndRegistryPaths } from "./AddToRegistry";
 import { FormKeylookup, ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
+import { compareVersions } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
+import { RUNTIME_VERSION_440 } from "../../constants";
 
 interface OptionProps {
     value: string;
@@ -220,6 +222,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
     const [savedEPName, setSavedEPName] = useState<string>("");
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
     const [prevName, setPrevName] = useState<string | null>(null);
+    const [isRegistryContentVisible, setIsRegistryContentVisible] = useState(false);
 
     const paramTemplateConfigs: ParamConfig = {
         paramValues: [],
@@ -321,6 +324,9 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
             const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
                 path: props.path,
             });
+            const response = await rpcClient.getMiVisualizerRpcClient().getProjectDetails();
+            const runtimeVersion = response.primaryDetails.runtimeVersion.value;
+            setIsRegistryContentVisible(compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0);
             setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
@@ -643,7 +649,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                 />
                 <Dropdown label="Timeout Action" items={timeoutOptions} {...renderProps('timeoutAction')} />
             </FormGroup>
-            {isNewEndpoint && (
+            {isRegistryContentVisible && isNewEndpoint && (
                 <>
                     <FormCheckBox
                         label="Save the endpoint in registry"
