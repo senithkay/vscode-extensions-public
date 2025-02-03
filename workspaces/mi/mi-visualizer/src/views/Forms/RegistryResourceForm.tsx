@@ -17,6 +17,7 @@ import { useForm } from "react-hook-form";
 import { colors } from "@wso2-enterprise/ui-toolkit";
 import { RUNTIME_VERSION_440 } from "../../constants";
 import { compareVersions } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
+import path from "path";
 
 export interface RegistryWizardProps {
     path: string;
@@ -293,6 +294,25 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
         return false;
     }
 
+    const getRegistryRoot = (registryType: string, registryPath: string): string => {
+        if (isResourceContentVisible) {
+            if (registryPath && registryPath.includes(path.join('registry', 'gov'))) {
+                return 'gov';
+            } else if (registryPath && registryPath.includes(path.join('registry', 'conf'))) {
+                return 'conf';
+            } else {
+                return '';
+            }
+        }
+        return registryType;
+    };
+
+    const handleRegistryPathPrefix = (registryPath: string): string => {
+        let handledRegistryPath = registryPath.replaceAll(path.join('registry', 'gov'), '');
+        handledRegistryPath = handledRegistryPath.replaceAll(path.join('registry', 'conf'), '');
+        return handledRegistryPath;
+    }
+
     const handleCreateRegResource = async (values: InputsFields) => {
         const projectDir = props.path ? (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: props.path })).path : (await rpcClient.getVisualizerState()).projectUri;
         const regRequest: CreateRegistryResourceRequest = {
@@ -301,8 +321,8 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
             filePath: values.filePath,
             resourceName: values.resourceName,
             artifactName: '',
-            registryPath: values.registryPath,
-            registryRoot: isResourceContentVisible ? '': values.registryType,
+            registryPath: handleRegistryPathPrefix(values.registryPath),
+            registryRoot: getRegistryRoot(values.registryType, values.registryPath),
             createOption: values.createOption
         }
         
