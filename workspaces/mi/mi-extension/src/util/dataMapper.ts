@@ -20,9 +20,9 @@ export function fetchIOTypes(filePath: string, functionName: string) {
         const sourceFile = tnfFn.getSourceFile();
 
         tnfFn.getParameters().forEach((param) => {
-            inputTypes.push(getTypeInfo(param.getType(), sourceFile));
+            inputTypes.push(getTypeInfo(param.getType(), []));
         });
-        outputType = getTypeInfo(tnfFn.getReturnType(), sourceFile);
+        outputType = getTypeInfo(tnfFn.getReturnType(), []);
     } catch (error: any) {
         throw new Error("[MI Data Mapper] Failed to fetch input/output types. " + error.message);
     }
@@ -33,7 +33,7 @@ export function fetchIOTypes(filePath: string, functionName: string) {
 export function fetchSubMappingTypes(filePath: string, functionName: string) {
     try {
         const tnfFn = getDMFunction(filePath, functionName);
-        return getVariableTypes(tnfFn)
+        return getVariableTypes(tnfFn, []);
     } catch (error: any) {
         throw new Error("[MI Data Mapper] Failed to fetch sub mapping types. " + error.message);
     }
@@ -168,13 +168,13 @@ function getDMFunction(filePath: string, functionName: string) {
 }
 
 // Function to extract type information
-function getTypeInfo(typeNode: Type, sourceFile: SourceFile): DMType {
+function getTypeInfo(typeNode: Type, allInterfaces: string[]): DMType {
     if (typeNode.isInterface()) {
-        return getTypeInfoForInterface(typeNode, sourceFile);
+        return getTypeInfoForInterface(typeNode, allInterfaces);
     } else if (typeNode.isArray()) {
-        return getTypeInfoForArray(typeNode, sourceFile);
+        return getTypeInfoForArray(typeNode, allInterfaces);
     } else if (typeNode.isObject()) {
-        return getTypeInfoForObject(typeNode, sourceFile);
+        return getTypeInfoForObject(typeNode, allInterfaces);
     } else if (typeNode.isString()) {
         return { kind: TypeKind.String, optional: typeNode.isNullable() };
     } else if (typeNode.isBoolean()) {
@@ -182,19 +182,19 @@ function getTypeInfo(typeNode: Type, sourceFile: SourceFile): DMType {
     } else if (typeNode.isNumber()) {
         return { kind: TypeKind.Number, optional: typeNode.isNullable() };
     } else if (typeNode.isUnion()) {
-        return getTypeInfoForUnion(typeNode, sourceFile);
+        return getTypeInfoForUnion(typeNode, allInterfaces);
     }
 
     return { kind: TypeKind.Unknown };
 }
 
 // Find the types of variables declared in the function
-function getVariableTypes(fn: FunctionDeclaration) {
+function getVariableTypes(fn: FunctionDeclaration, allInterfaces: string[]) {
     const variableTypes: Record<string, DMType | undefined> = {};
 
     fn.getVariableStatements().forEach((stmt) => {
         const varDecl = stmt.getDeclarations()[0];
-        const type = varDecl && getTypeInfo(varDecl.getType(), fn.getSourceFile());
+        const type = varDecl && getTypeInfo(varDecl.getType(), allInterfaces);
         const key = varDecl.getStart().toString() + varDecl.getEnd().toString();
         variableTypes[key] = type;
     });
@@ -202,7 +202,7 @@ function getVariableTypes(fn: FunctionDeclaration) {
     return variableTypes;
 }
 
-function getTypeInfoForInterface(typeNode: Type, sourceFile: SourceFile): DMType {
+function getTypeInfoForInterface(typeNode: Type, allInterfaces: string[]): DMType {
 
     const typeSymbol = typeNode.getSymbol();
     if (!typeSymbol) return { kind: TypeKind.Unknown };
@@ -216,10 +216,21 @@ function getTypeInfoForInterface(typeNode: Type, sourceFile: SourceFile): DMType
 
     const typeName = typeSymbol.getName();
 
+    if(allInterfaces.includes(typeName)) {
+        return {
+            kind: TypeKind.Interface,
+            typeName: `${typeName} ∞`,
+            optional: typeNode.isNullable(),
+            isRecursive: true
+        };
+    } else {
+        allInterfaces = [...allInterfaces, typeName];
+    }
+
     const fields = interfaceNode.getMembers().map(member => {
         if (Node.isPropertySignature(member)) {
             return {
-                ...getTypeInfo(member.getType()!, sourceFile),
+                ...getTypeInfo(member.getType()!, allInterfaces),
                 fieldName: member.getName(),
                 optional: !!member.getQuestionTokenNode()
             };
@@ -234,8 +245,8 @@ function getTypeInfoForInterface(typeNode: Type, sourceFile: SourceFile): DMType
     };
 }
 
-function getTypeInfoForArray(typeNode: Type, sourceFile: SourceFile): DMType {
-    const elementType = getTypeInfo(typeNode.getArrayElementType()!, sourceFile);
+function getTypeInfoForArray(typeNode: Type, allInterfaces: string[]): DMType {
+    const elementType = getTypeInfo(typeNode.getArrayElementType()!, allInterfaces);
     return {
         kind: TypeKind.Array,
         memberType: elementType,
@@ -243,7 +254,7 @@ function getTypeInfoForArray(typeNode: Type, sourceFile: SourceFile): DMType {
     };
 }
 
-function getTypeInfoForObject(typeNode: Type, sourceFile: SourceFile): DMType {
+function getTypeInfoForObject(typeNode: Type, allInterfaces: string[]): DMType {
     const properties = typeNode.getProperties();
     const fields: DMType[] = [];
 
@@ -252,7 +263,7 @@ function getTypeInfoForObject(typeNode: Type, sourceFile: SourceFile): DMType {
         const dmType = decls.map(decl => {
             if (Node.isPropertySignature(decl) || Node.isPropertyAssignment(decl)) {
                 return {
-                    ...getTypeInfo(decl.getType()!, sourceFile),
+                    ...getTypeInfo(decl.getType()!, allInterfaces),
                     fieldName: decl.getName(),
                     optional: !!decl.getQuestionTokenNode()
                 };
@@ -269,14 +280,14 @@ function getTypeInfoForObject(typeNode: Type, sourceFile: SourceFile): DMType {
     };
 }
 
-function getTypeInfoForUnion(typeNode: Type, sourceFile: SourceFile): DMType {
+function getTypeInfoForUnion(typeNode: Type, allInterfaces: string[]): DMType {
     const unionTypes = typeNode.getUnionTypes().map(type => {
         if (type.isBooleanLiteral()) {
             if (type.getText() === 'true') {
                 return { kind: TypeKind.Boolean };
             }
         } else {
-            return getTypeInfo(type, sourceFile);
+            return getTypeInfo(type, allInterfaces);
         }
     }).filter(Boolean) as DMType[];
     
