@@ -22,6 +22,8 @@ import { DefaultEndpointWizard } from "./DefaultEndpointForm";
 import { HttpEndpointWizard } from "./HTTPEndpointForm";
 import { WsdlEndpointWizard } from "./WSDLEndpointForm";
 import { Template } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { compareVersions } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
+import { RUNTIME_VERSION_440 } from "../../constants";
 
 export interface TemplateWizardProps {
     path: string;
@@ -144,6 +146,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
     const [paramsUpdated, setParamsUpdated] = useState(false);
     const [prevName, setPrevName] = useState<string | null>(null);
     const [endpointType, setEndpointType] = useState<string>(props.type);
+    const [isRegistryContentVisible, setIsRegistryContentVisible] = useState(false);
 
     const params: ParamConfig = {
         paramValues: [],
@@ -212,6 +215,9 @@ export function TemplateWizard(props: TemplateWizardProps) {
             const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
                 path: props.path,
             });
+            const response = await rpcClient.getMiVisualizerRpcClient().getProjectDetails();
+            const runtimeVersion = response.primaryDetails.runtimeVersion.value;
+            setIsRegistryContentVisible(compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0);
             setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
@@ -332,7 +338,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
                         paramConfigs={sequenceParams}
                         readonly={false}
                         onChange={handleParametersChange} />
-                    {isNewTemplate && (
+                    {isRegistryContentVisible && isNewTemplate && (
                         <>
                             <FormCheckBox
                                 label="Save the template in registry"
