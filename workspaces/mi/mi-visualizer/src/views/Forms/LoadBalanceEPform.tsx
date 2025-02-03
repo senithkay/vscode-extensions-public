@@ -18,6 +18,8 @@ import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import AddToRegistry, { getArtifactNamesAndRegistryPaths, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
 import { ParamManager } from "@wso2-enterprise/mi-diagram";
+import { compareVersions } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
+import { RUNTIME_VERSION_440 } from "../../constants";
 
 const FieldGroup = styled.div`
     display: flex;
@@ -94,6 +96,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
     const [endpointsUpdated, setEndpointsUpdated] = useState(false);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
     const [prevName, setPrevName] = useState<string | null>(null);
+    const [isRegistryContentVisible, setIsRegistryContentVisible] = useState(false);
 
     const schema = yup.object({
         name: yup.string().required("Endpoint name is required")
@@ -210,6 +213,9 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
             const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
                 path: props.path,
             });
+            const response = await rpcClient.getMiVisualizerRpcClient().getProjectDetails();
+            const runtimeVersion = response.primaryDetails.runtimeVersion.value;
+            setIsRegistryContentVisible(compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0);
             setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
@@ -408,7 +414,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                     <ParamManager paramConfigs={paramConfigs} onChange={handleParamChange} />
                 </FieldGroup>
             </FormGroup>
-            {isNewEndpoint && (<>
+            {isRegistryContentVisible && isNewEndpoint && (<>
                 <FormCheckBox
                     label="Save the endpoint in registry"
                     {...register("saveInReg")}
