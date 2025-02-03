@@ -33,7 +33,7 @@ import {
     DataMapWriteRequest,
 } from "@wso2-enterprise/mi-core";
 import { fetchIOTypes, fetchSubMappingTypes, fetchCompletions, fetchDiagnostics } from "../../util/dataMapper";
-import { StateMachine, navigate, refreshUI } from "../../stateMachine";
+import { StateMachine, refreshUI } from "../../stateMachine";
 import { generateSchemaFromContent } from "../../util/schemaBuilder";
 import { JSONSchema3or4 } from "to-json-schema";
 import { updateTsFileCustomTypes, updateTsFileIoTypes } from "../../util/tsBuilder";
@@ -299,7 +299,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                     functionDeclaration.setBodyText(`${dataMapping || defaultReturnValue}`);
                     // Write the updates to the file
                     await sourceFile.save();
-                    await navigate();
+                    await refreshUI();
                 } else {
                     console.error("Error in writing data mapping, mapFunction not found in target ts file.");
                 }
@@ -396,17 +396,9 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                         fs.mkdirSync(dataMapperConfigFolder, { recursive: true });
                     }
                     const tsFilePath = path.join(dataMapperConfigFolder, `${dmName}.ts`);
-                    if (!fs.existsSync(tsFilePath)) {
-                        fs.writeFileSync(tsFilePath, dmContent);
-                    }
-
                     const operatorsSrcFilePath = path.join(extension.context.extensionUri.fsPath, "resources", "data-mapper-utils", `${DM_OPERATORS_FILE_NAME}.ts.lib`);
                     const operatorsDstFilePath = path.join(dataMapperConfigFolder, `${DM_OPERATORS_FILE_NAME}.ts`);
-                    if (!fs.existsSync(operatorsDstFilePath)) {
-                        fs.copyFileSync(operatorsSrcFilePath, operatorsDstFilePath, fs.constants.COPYFILE_FICLONE);
-                    }
-                    const dmcFilePath = path.join(dataMapperConfigFolder, `${dmName}.dmc`);
-                    if (!fs.existsSync(dmcFilePath)) {
+                    if (!fs.existsSync(tsFilePath) && !fs.existsSync(operatorsDstFilePath)) {
                         await miDiagramRpcManager.createRegistryResource({
                             filePath: "",
                             projectDirectory: workspaceFolder.uri.fsPath,
@@ -418,9 +410,6 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                             createOption: "entryOnly",
                             content: ""
                         });
-                    }
-                    const inputSchemaFilePath = path.join(dataMapperConfigFolder, `${dmName}_inputSchema.json`);
-                    if (!fs.existsSync(inputSchemaFilePath)) {
                         await miDiagramRpcManager.createRegistryResource({
                             filePath: "",
                             projectDirectory: workspaceFolder.uri.fsPath,
@@ -433,9 +422,6 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                             content: "{}"
 
                         });
-                    }
-                    const outputSchemaFilePath = path.join(dataMapperConfigFolder, `${dmName}_outputSchema.json`);
-                    if (!fs.existsSync(outputSchemaFilePath)) {
                         await miDiagramRpcManager.createRegistryResource({
                             filePath: "",
                             projectDirectory: workspaceFolder.uri.fsPath,
@@ -448,6 +434,12 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                             content: "{}"
 
                         });
+                    }
+                    if (!fs.existsSync(tsFilePath)) {
+                        fs.writeFileSync(tsFilePath, dmContent);
+                    }
+                    if (!fs.existsSync(operatorsDstFilePath)) {
+                        fs.copyFileSync(operatorsSrcFilePath, operatorsDstFilePath, fs.constants.COPYFILE_FICLONE);
                     }
                     resolve({ success: true });
                 }

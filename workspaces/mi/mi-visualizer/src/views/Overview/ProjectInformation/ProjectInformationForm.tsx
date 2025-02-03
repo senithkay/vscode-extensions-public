@@ -11,7 +11,7 @@ import { ProjectDetailsResponse } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { useEffect, useRef, useState } from "react";
 
-import { Button, Dropdown, Banner, FormActions, OptionProps, ProgressIndicator, TextField, Codicon, SplitView, TreeView, TreeViewItem, Typography, FormCheckBox, setValue } from "@wso2-enterprise/ui-toolkit";
+import { Button, Dropdown, Banner, FormActions, OptionProps, ProgressIndicator, TextField, Codicon, SplitView, TreeView, Typography, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Controller, useForm } from "react-hook-form";
@@ -32,14 +32,14 @@ const fieldStyle = {
     padding: "10px",
     "&:hover": { backgroundColor: "var(--vscode-settings-rowHoverBackground)" },
 };
-const treeViewStyle = { margin: "0px 0px 3px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" };
+const treeViewSelectedStyle = { margin: "0px 0px 3px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" };
+const treeViewStyle = { ...treeViewSelectedStyle, opacity: 0.8 };
 const sectionTitleStyle = { margin: 0, paddingLeft: 20 };
 
 export function ProjectInformationForm(props: ProjectInformationFormProps) {
     const { rpcClient } = useVisualizerContext();
     const [projectDetails, setProjectDetails] = useState<ProjectDetailsResponse>();
     const [runtimeVersions, setRuntimeVersions] = useState<OptionProps[]>([]);
-    const [initialRuntimeVersion, setInitialRuntimeVersion] = useState<string>("");
 
     const [selectedId, setSelectedId] = useState<string | null>("Project Information");
 
@@ -76,7 +76,6 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         handleSubmit,
         reset,
         getValues,
-        setValue,
         control,
         watch,
     } = useForm({
@@ -84,8 +83,6 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         mode: "all"
     });
 
-    const currentRuntimeVersion = watch("primaryDetails-runtimeVersion");
-    const isRuntimeVersionChanged = currentRuntimeVersion && currentRuntimeVersion !== initialRuntimeVersion;
 
     const divRefs: Record<string, React.RefObject<HTMLDivElement>> = {
         "Project Information": useRef<HTMLDivElement | null>(null),
@@ -102,17 +99,16 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                 const isLegacyExpressionEnabled = await rpcClient.getMiVisualizerRpcClient().isLegacyExpressionSupportEnabled();
 
                 setProjectDetails(response);
-                setInitialRuntimeVersion(response.primaryDetails.runtimeVersion.value);
                 const supportedVersions = await rpcClient.getMiVisualizerRpcClient().getSupportedMIVersionsHigherThan(response.primaryDetails.runtimeVersion.value);
                 const supportedMIVersions = supportedVersions.map((version: string) => ({ value: version, content: version }));
                 setRuntimeVersions(supportedMIVersions);
                 reset({
-                    "primaryDetails-projectName": response.primaryDetails.projectName.value,
-                    "primaryDetails-projectDescription": response.primaryDetails.projectDescription.value,
-                    "primaryDetails-projectVersion": response.primaryDetails.projectVersion.value,
-                    "primaryDetails-runtimeVersion": response.primaryDetails.runtimeVersion.value,
-                    "buildDetails-dockerDetails-dockerFileBaseImage": response.buildDetails.dockerDetails.dockerFileBaseImage.value,
-                    "buildDetails-dockerDetails-dockerName": response.buildDetails.dockerDetails.dockerName.value,
+                    "primaryDetails-projectName": response.primaryDetails?.projectName?.value,
+                    "primaryDetails-projectDescription": response.primaryDetails?.projectDescription?.value,
+                    "primaryDetails-projectVersion": response.primaryDetails?.projectVersion?.value,
+                    "primaryDetails-runtimeVersion": response.primaryDetails?.runtimeVersion?.value,
+                    "buildDetails-dockerDetails-dockerFileBaseImage": response.buildDetails?.dockerDetails?.dockerFileBaseImage?.value,
+                    "buildDetails-dockerDetails-dockerName": response.buildDetails?.dockerDetails?.dockerName.value,
                     "buildDetails-dockerDetails-enableCipherTool": Boolean(response.buildDetails?.dockerDetails?.cipherToolEnable?.value),
                     "buildDetails-dockerDetails-keyStoreName": response.buildDetails?.dockerDetails?.keyStoreName?.value,
                     "buildDetails-dockerDetails-keyStoreAlias": response.buildDetails?.dockerDetails?.keyStoreAlias?.value,
@@ -199,7 +195,8 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                 await rpcClient.getMiVisualizerRpcClient().updatePomValues({ pomValues: sortedChanges });
             }
 
-            if (isRuntimeVersionChanged) {
+            if (dirtyFields["primaryDetails-runtimeVersion"]) {
+                await rpcClient?.getMiVisualizerRpcClient().updateCarPluginVersion();
                 await rpcClient.getMiVisualizerRpcClient().reloadWindow();
             } else {
                 props.onClose();
@@ -242,7 +239,9 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     id="Project Information"
                     sx={selectedId === "Project Information" ? { cursor: "pointer", border: "1px solid var(--vscode-focusBorder)" } : { cursor: "pointer" }}
                     content={
-                        <Typography sx={treeViewStyle} variant="h4">Project Information</Typography>
+                        <Typography sx={selectedId === "Project Information" ? treeViewSelectedStyle : treeViewStyle} variant="h4">
+                            Project Information
+                        </Typography>
                     }
                     selectedId={selectedId}
                     onSelect={handleClick}
@@ -252,7 +251,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     id="Build Details"
                     sx={selectedId === "Build Details" ? { cursor: "pointer", border: "1px solid var(--vscode-focusBorder)" } : { cursor: "pointer" }}
                     content={
-                        <Typography sx={treeViewStyle} variant="h4">
+                        <Typography sx={selectedId === "Build Details" ? treeViewSelectedStyle : treeViewStyle} variant="h4">
                             Build Details
                         </Typography>
                     }
@@ -264,7 +263,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     id="Unit Test"
                     sx={selectedId === "Unit Test" ? { cursor: "pointer", border: "1px solid var(--vscode-focusBorder)" } : { cursor: "pointer" }}
                     content={
-                        <Typography sx={treeViewStyle} variant="h4">
+                        <Typography sx={selectedId === "Unit Test" ? treeViewSelectedStyle : treeViewStyle} variant="h4">
                             Unit Test
                         </Typography>
                     }
@@ -276,7 +275,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     id="Advanced"
                     sx={selectedId === "Advanced" ? { cursor: "pointer", border: "1px solid var(--vscode-focusBorder)" } : { cursor: "pointer" }}
                     content={
-                        <Typography sx={treeViewStyle} variant="h4">
+                        <Typography sx={selectedId === "Advanced" ? treeViewSelectedStyle : treeViewStyle} variant="h4">
                             Advanced
                         </Typography>
                     }
@@ -346,11 +345,11 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                             items={runtimeVersions}
                             {...register("primaryDetails-runtimeVersion")}
                         />
-                        {isRuntimeVersionChanged && (
+                        {dirtyFields["primaryDetails-runtimeVersion"] && (
                             <Banner
                                 icon={<Codicon name="warning" sx={{ fontSize: 12 }} />}
                                 type="warning"
-                                message="Extension will restart when submitting"
+                                message={`The extension will restart after saving changes. You will need to set the server runtime again post-restart.${watch("primaryDetails-runtimeVersion") === "4.4.0" ? "\nPlugin versions will also be updated automatically to support the new runtime version." : ""}`}
                             />
                         )}
                     </div>
