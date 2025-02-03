@@ -12,7 +12,6 @@ import React, { CSSProperties, PropsWithChildren, useEffect, useMemo, useRef, us
 export interface TruncatedLabelProps {
     style?: CSSProperties;
     className?: string;
-    "data-testid"?: string;
 }
 
 const TruncatedLabelContainer = styled.span`
