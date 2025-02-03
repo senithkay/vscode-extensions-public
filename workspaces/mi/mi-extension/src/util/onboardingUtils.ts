@@ -11,6 +11,7 @@ import { SELECTED_JAVA_HOME, SELECTED_SERVER_PATH } from '../debugger/constants'
 import { COMMANDS } from '../constants';
 import { SetPathRequest, PathDetailsResponse, SetupDetails } from '@wso2-enterprise/mi-core';
 import { parseStringPromise } from 'xml2js';
+import { LATEST_CAR_PLUGIN_VERSION } from './templates';
 
 // Add Latest MI version as the first element in the array
 export const supportedJavaVersionsForMI: { [key: string]: string } = {
@@ -599,7 +600,31 @@ export async function updateRuntimeVersionsInPom(version: string): Promise<void>
         xml = xml.replace(/(<project[^>]*>)/, `$1\n${propertiesSection}`);
     }
 
-    fs.writeFileSync(pomFiles[0].fsPath, xml);
+    const dockerImageTag = "<dockerfile.base.image>wso2/wso2mi:${project.runtime.version}</dockerfile.base.image>";
+    const miVersionTag = "<miVersion>${project.runtime.version}</miVersion>";
+    const dockerImageRegex = /<dockerfile\.base\.image>.*?<\/dockerfile\.base\.image>/s;
+    if (dockerImageRegex.test(xml)) {
+        xml = xml.replace(dockerImageRegex, dockerImageTag);
+    }
+
+    const miVersionRegex = /<miVersion>.*?<\/miVersion>/s;
+    if (miVersionRegex.test(xml)) {
+        xml = xml.replace(miVersionRegex, miVersionTag);
+    }
+    const carPropertyTag = `<car.plugin.version>${LATEST_CAR_PLUGIN_VERSION}</car.plugin.version>`;
+
+    const singleCarPluginRegex = /<car\.plugin\.version>.*?<\/car\.plugin\.version>/s;
+    if (singleCarPluginRegex.test(xml)) {
+        xml = xml.replace(singleCarPluginRegex, carPropertyTag);
+    } else {
+        const multipleCarPluginRegex = /<plugin>[\s\S]*?vscode-car-plugin[\s\S]*?<version>(.*?)<\/version>[\s\S]*?<\/plugin>/g;
+        let match: RegExpExecArray | null;
+        while ((match = multipleCarPluginRegex.exec(xml)) !== null) {
+            const versionTag = match[1];
+            xml = xml.replace(versionTag, LATEST_CAR_PLUGIN_VERSION);
+        }
+    }
+    await fs.promises.writeFile(pomFiles[0].fsPath, xml);
 }
 
 function getJavaFromGlobalOrEnv(miVersion: string): string | undefined {

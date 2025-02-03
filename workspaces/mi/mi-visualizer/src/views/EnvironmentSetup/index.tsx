@@ -205,7 +205,7 @@ export const EnvironmentSetup = () => {
             return <ButtonWithDescription buttonDisabled={refreshDisabled}
                 onClick={refreshProject}
                 buttonText="Continue Anyway"
-                description="Project is not properly setup. You can continue anyway. However, the project may not work as expected."
+                description="Some requirements are not properly setup. You can continue anyway. However, the project may not work as expected."
                 appearance="secondary"
             />
         } else if (!needSetup) {
@@ -246,13 +246,15 @@ export const EnvironmentSetup = () => {
     }
 
     const getHeadlineDescription = () => {
-        let isJavaSet = javaPathDetails?.status !== "not-valid";
-        let isMISet = miPathDetails?.status !== "not-valid";
+        let javaStatus = javaPathDetails?.status;
+        let miStatus = miPathDetails?.status;
 
-        if (isJavaSet && isMISet) {
-            return `Micro Integrator version ${recommendedVersions.miVersion} is setup.`;
+        if (javaStatus === "valid" && miStatus === "valid") {
+            return `Micro Integrator ${recommendedVersions.miVersion} project is setup.`;
+        } else if (javaStatus !== "not-valid" && miStatus !== "not-valid") {
+            return `Micro Integrator ${recommendedVersions.miVersion} project in not properly setup.`;
         } else {
-            return `Micro Integrator version ${recommendedVersions.miVersion} is not setup.`;
+            return `Micro Integrator ${recommendedVersions.miVersion} is not setup.`;
         }
     }
 
@@ -317,10 +319,10 @@ export const EnvironmentSetup = () => {
                 <>
                     <div>
                         <p>
-                            Unsupported project runtime version or project runtime version missing in <code>pom.xml</code>.
+                            The project runtime version is either unsupported or missing.
                         </p>
                         <p>
-                            Please select the correct runtime version for your project in <code>pom.xml</code> file to a supported version.
+                            Please select the correct runtime version for your project from the options below and click Save.
                         </p>
                     </div>
 
