@@ -155,6 +155,10 @@ export async function executeBuildTask(serverPath: string, shouldCopyTarget: boo
         buildProcess.stdout.on('data', (data) => {
             serverLog(data.toString('utf8'));
         });
+        
+        buildProcess.stderr.on('data', (data) => {
+            serverLog(`Build error:\n${data.toString('utf8')}`);
+        });
 
         if (shouldCopyTarget) {
 

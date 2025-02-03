@@ -87,3 +87,4 @@ export const setPathsInWorkSpace: RequestType<SetPathRequest, PathDetailsRespons
 export const selectFolder: RequestType<string, string | undefined> = { method: `${_preFix}/selectFolder` };
 export const updateLegacyExpressionSupport: RequestType<boolean, void> = { method: `${_preFix}/updateLegacyExpressionSupport` };
 export const isLegacyExpressionSupportEnabled: RequestType<void, boolean> = { method: `${_preFix}/isLegacyExpressionSupportEnabled` };
+export const updateCarPluginVersion: RequestType<void, boolean> = { method: `${_preFix}/updateCarPluginVersion` };
