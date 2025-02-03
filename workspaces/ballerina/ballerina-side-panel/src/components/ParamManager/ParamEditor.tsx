@@ -21,10 +21,11 @@ export interface ParamProps {
     paramFields: FormField[];
     onSave: (param: Parameter) => void;
     onCancelEdit: (param?: Parameter) => void;
+    openRecordEditor?: (open: boolean) => void;
 }
 
 export function ParamEditor(props: ParamProps) {
-    const { parameter, paramFields, onSave, onCancelEdit } = props;
+    const { parameter, paramFields, onSave, onCancelEdit, openRecordEditor } = props;
     const { expressionEditor } = useFormContext();
 
     const [fields, setFields] = useState<FormField[]>(paramFields);
@@ -39,6 +40,7 @@ export function ParamEditor(props: ParamProps) {
         <EditorContainer>
             <Form
                 formFields={fields}
+                openRecordEditor={openRecordEditor}
                 onSubmit={handleOnSave}
                 onCancelForm={() => onCancelEdit(parameter)}
                 expressionEditor={expressionEditor}

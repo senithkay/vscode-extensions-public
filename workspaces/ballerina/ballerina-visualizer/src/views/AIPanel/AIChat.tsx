@@ -21,6 +21,7 @@ import {
     DataMappingRecord,
     PostProcessResponse,
 } from "@wso2-enterprise/ballerina-core";
+
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon } from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from "react-markdown";
@@ -35,9 +36,19 @@ import { findRegexMatches } from "../../utils/utils";
 import { Collapse } from "react-collapse";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 
-interface MarkdownRendererProps {
-    markdownContent: string;
-}
+import {
+    MarkdownRenderer,
+    Footer,
+    FlexRow,
+    AIChatView,
+    Header,
+    HeaderButtons,
+    Main,
+    ChatMessage,
+    Welcome,
+    Badge,
+    ResetsInBadge
+} from './styles'
 
 interface CodeBlock {
     filePath: string;
@@ -55,65 +66,6 @@ interface ApiResponse {
 }
 
 var chatArray: ChatEntry[] = [];
-
-const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) => {
-    return <ReactMarkdown>{markdownContent}</ReactMarkdown>;
-};
-
-const Footer = styled.footer({
-    padding: "20px",
-});
-
-const FlexRow = styled.div({
-    display: "flex",
-    flexDirection: "row",
-});
-
-const AIChatView = styled.div({
-    display: "flex",
-    flexDirection: "column",
-    height: "100%",
-});
-
-const Header = styled.header({
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: "10px",
-    gap: "10px",
-});
-
-const HeaderButtons = styled.div({
-    display: "flex",
-    justifyContent: "flex-end",
-    marginRight: "10px",
-});
-
-const Main = styled.main({
-    flex: 1,
-    flexDirection: "column",
-    overflowY: "auto",
-});
-
-const ChatMessage = styled.div({
-    padding: "20px",
-    borderTop: "1px solid var(--vscode-editorWidget-border)",
-});
-
-const Welcome = styled.div({
-    padding: "0 20px",
-});
-
-const Badge = styled.div`
-    padding: 5px;
-    margin-left: 10px;
-    display: inline-block;
-    text-align: left;
-`;
-
-const ResetsInBadge = styled.div`
-    font-size: 10px;
-`;
 
 // A string array to store all code blocks
 const codeBlocks: string[] = [];
@@ -721,8 +673,6 @@ export function AIChat() {
                 .getAiPanelRpcClient()
                 .addToProject({ filePath: filePath, content: segmentText, isTestCode: isTestCode });
         }
-        //TODO:Modify the function signature or comment this for datamapper working correctly
-        await rpcClient.getAiPanelRpcClient().applyDoOnFailBlocks();
         setIsCodeAdded(true);
     };
 
@@ -878,13 +828,25 @@ export function AIChat() {
             if (!rec) {
                 if (recordName.includes(":")) {
                     const [moduleName, alias] = recordName.split(":");
-                    const matchedImport = activeFileImports.find((imp) => recordName.startsWith(imp.alias));
+                    const matchedImport = activeFileImports.find((imp) => {
+                        if (imp.alias) {
+                            // Match using alias if it exists
+                            return recordName.startsWith(imp.alias);
+                        }
+                        // If alias doesn't exist, match using the last part of the module name
+                        const moduleNameParts = imp.moduleName.split(".");
+                        const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
+                        return recordName.startsWith(inferredAlias);
+                    });
+
                     if (!matchedImport) {
                         throw new Error(`Must import the module for "${recordName}".`);
                     }
+                    // Use the actual alias if present, otherwise infer from the module name
+                    const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
                     importsMap.set(recordName, {
                         moduleName: matchedImport.moduleName,
-                        alias: matchedImport.alias,
+                        alias: resolvedAlias,
                     });
                     return { type: `${recordName}`, isArray, filePath: null };
                 } else {
@@ -901,15 +863,27 @@ export function AIChat() {
         if (!output) {
             if (outputRecordName.includes(":")) {
                 const [moduleName, alias] = outputRecordName.split(":");
-                const matchedImport = activeFileImports.find((imp) => outputRecordName.startsWith(imp.alias));
-                if (!matchedImport) {
-                    throw new Error(`Must import the module for "${outputRecordName}".`);
-                }
-                importsMap.set(outputRecordName, {
-                    moduleName: matchedImport.moduleName,
-                    alias: matchedImport.alias,
-                });
-                output = { type: `${outputRecordName}`, isArray: outputIsArray, filePath: null };
+                    const matchedImport = activeFileImports.find((imp) => {
+                        if (imp.alias) {
+                            // Match using alias if it exists
+                            return outputRecordName.startsWith(imp.alias);
+                        }
+                        // If alias doesn't exist, match using the last part of the module name
+                        const moduleNameParts = imp.moduleName.split(".");
+                        const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
+                        return outputRecordName.startsWith(inferredAlias);
+                    });
+
+                    if (!matchedImport) {
+                        throw new Error(`Must import the module for "${outputRecordName}".`);
+                    }
+                    // Use the actual alias if present, otherwise infer from the module name
+                    const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
+                    importsMap.set(outputRecordName, {
+                        moduleName: matchedImport.moduleName,
+                        alias: resolvedAlias,
+                    });
+                    output = { type: `${outputRecordName}`, isArray: outputIsArray, filePath: null };
             } else {
                 throw new Error(`${outputRecordName} is not defined.`);
             }
@@ -1032,8 +1006,8 @@ export function AIChat() {
         setIsCodeLoading(false);
     }
 
-    async function handleLogout() {
-        await rpcClient.getAiPanelRpcClient().logout();
+    async function handleSettings() {
+        await rpcClient.getAiPanelRpcClient().openSettings();
     }
 
     function handleClearChat(): void {
@@ -1081,9 +1055,9 @@ export function AIChat() {
                         <Codicon name="clear-all" />
                         &nbsp;&nbsp;Clear
                     </Button>
-                    <Button appearance="icon" onClick={() => handleLogout()} tooltip="Logout" disabled={true}>
-                        <Codicon name="sign-out" />
-                        &nbsp;&nbsp;Logout
+                    <Button appearance="icon" onClick={() => handleSettings()} tooltip="Settings">
+                        <Codicon name="settings-gear" />
+                        &nbsp;&nbsp;Settings
                     </Button>
                 </HeaderButtons>
             </Header>

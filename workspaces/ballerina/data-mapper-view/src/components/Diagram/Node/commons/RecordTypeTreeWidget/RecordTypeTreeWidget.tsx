@@ -89,69 +89,67 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
     };
 
     return (
-        <>
+        <TreeContainer data-testid={`${id}-node`}>
             <div className={classes.queryPortWrap}>
                 {invisiblePort && <PortWidget port={invisiblePort} engine={engine} />}
             </div>
-            <TreeContainer data-testid={`${id}-node`}>
-                <TreeHeader
-                    id={"recordfield-" + id}
-                    isSelected={portState !== PortState.Unselected}
-                    onMouseEnter={onMouseEnter}
-                    onMouseLeave={onMouseLeave}
-                    className={classnames(
-                        isPortDisabled && !isHovered ? classes.treeLabelDisabled : "",
-                        isPortDisabled && isHovered ? classes.treeLabelDisableHover : "",
-                    )}
-                >
-                    <span className={classes.label}>
-                        {hasFields && (
-                            <Button
-                                appearance="icon"
-                                tooltip="Expand/Collapse"
-                                onClick={handleExpand}
-                                data-testid={`${id}-expand-icon-record-source-node`}
-                            >
-                                {expanded ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />}
-                            </Button>
-                        )}
-                        {label}
-                        <span className={classes.nodeType}>{nodeHeaderSuffix}</span>
-                    </span>
-                    <span className={classes.outPort}>
-                        {portOut &&
-                            <DataMapperPortWidget
-                                engine={engine}
-                                port={portOut}
-                                handlePortState={handlePortState}
-                                disable={isPortDisabled}
-                            />
-                        }
-                    </span>
-                </TreeHeader>
-                {expanded && hasFields && (
-                    <TreeBody>
-                        {
-                            typeDesc.fields.map((field, index) => {
-                                return (
-                                    <RecordFieldTreeItemWidget
-                                        key={index}
-                                        engine={engine}
-                                        field={field}
-                                        getPort={getPort}
-                                        parentId={id}
-                                        handleCollapse={handleCollapse}
-                                        treeDepth={0}
-                                        isOptional={typeDesc.optional}
-                                        hasHoveredParent={isHovered}
-                                        hasLinkViaCollectClause={hasLinkViaCollectClause}
-                                    />
-                                );
-                            })
-                        }
-                    </TreeBody>
+            <TreeHeader
+                id={"recordfield-" + id}
+                isSelected={portState !== PortState.Unselected}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
+                className={classnames(
+                    isPortDisabled && !isHovered ? classes.treeLabelDisabled : "",
+                    isPortDisabled && isHovered ? classes.treeLabelDisableHover : "",
                 )}
-            </TreeContainer>
-        </>
+            >
+                <span className={classes.label}>
+                    {hasFields && (
+                        <Button
+                            appearance="icon"
+                            tooltip="Expand/Collapse"
+                            onClick={handleExpand}
+                            data-testid={`${id}-expand-icon-record-source-node`}
+                        >
+                            {expanded ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />}
+                        </Button>
+                    )}
+                    {label}
+                    <span className={classes.nodeType}>{nodeHeaderSuffix}</span>
+                </span>
+                <span className={classes.outPort}>
+                    {portOut &&
+                        <DataMapperPortWidget
+                            engine={engine}
+                            port={portOut}
+                            handlePortState={handlePortState}
+                            disable={isPortDisabled}
+                        />
+                    }
+                </span>
+            </TreeHeader>
+            {expanded && hasFields && (
+                <TreeBody>
+                    {
+                        typeDesc.fields.map((field, index) => {
+                            return (
+                                <RecordFieldTreeItemWidget
+                                    key={index}
+                                    engine={engine}
+                                    field={field}
+                                    getPort={getPort}
+                                    parentId={id}
+                                    handleCollapse={handleCollapse}
+                                    treeDepth={0}
+                                    isOptional={typeDesc.optional}
+                                    hasHoveredParent={isHovered}
+                                    hasLinkViaCollectClause={hasLinkViaCollectClause}
+                                />
+                            );
+                        })
+                    }
+                </TreeBody>
+            )}
+        </TreeContainer>
     );
 }

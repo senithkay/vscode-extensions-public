@@ -49,12 +49,20 @@ import {
     getShadowDiagnostics,
     getTestDiagnostics,
     getTypesFromRecord,
+    isCopilotSignedIn,
+    isWSO2AISignedIn,
     login,
     logout,
+    markAlertShown,
     notifyAIMappings,
+    openChat,
+    openSettings,
     postProcess,
+    promptGithubAuthorize,
     promptLogin,
+    promptWSO2AILogout,
     refreshAccessToken,
+    showSignInAlert,
     stopAIMappings,
     updateProject
 } from "@wso2-enterprise/ballerina-core";
@@ -182,5 +190,37 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     getActiveFile(): Promise<string> {
         return this._messenger.sendRequest(getActiveFile, HOST_EXTENSION);
+    }
+
+    openSettings(): void {
+        return this._messenger.sendNotification(openSettings, HOST_EXTENSION);
+    }
+
+    openChat(): void {
+        return this._messenger.sendNotification(openChat, HOST_EXTENSION);
+    }
+
+    promptGithubAuthorize(): Promise<boolean> {
+        return this._messenger.sendRequest(promptGithubAuthorize, HOST_EXTENSION);
+    }
+
+    promptWSO2AILogout(): Promise<boolean> {
+        return this._messenger.sendRequest(promptWSO2AILogout, HOST_EXTENSION);
+    }
+
+    isCopilotSignedIn(): Promise<boolean> {
+        return this._messenger.sendRequest(isCopilotSignedIn, HOST_EXTENSION);
+    }
+
+    isWSO2AISignedIn(): Promise<boolean> {
+        return this._messenger.sendRequest(isWSO2AISignedIn, HOST_EXTENSION);
+    }
+
+    showSignInAlert(): Promise<boolean> {
+        return this._messenger.sendRequest(showSignInAlert, HOST_EXTENSION);
+    }
+
+    markAlertShown(): void {
+        return this._messenger.sendNotification(markAlertShown, HOST_EXTENSION);
     }
 }

@@ -117,6 +117,18 @@ export namespace S {
         margin: 0;
         color: var(--vscode-button-background);
     `;
+
+    export const AddNewButton = styled(Button)`
+        & > vscode-button {
+            color: var(--vscode-textLink-activeForeground);
+            border-radius: 0px;
+            padding: 3px 5px;
+            margin-top: 4px;
+        };
+        & > vscode-button > * {
+            margin-right: 6px;
+        };
+    `;
 }
 
 export const ContextAwareExpressionEditor = forwardRef<FormExpressionEditorRef, ContextAwareExpressionEditorProps>((props, ref) => {
@@ -223,18 +235,20 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
 
     const handleInlineDataMapperOpen = (isUpdate: boolean) => {
         if (subPanelView === SubPanelView.INLINE_DATA_MAPPER && !isUpdate) {
-            openSubPanel({view: SubPanelView.UNDEFINED});
+            openSubPanel({ view: SubPanelView.UNDEFINED });
         } else {
-            handleOpenSubPanel(SubPanelView.INLINE_DATA_MAPPER, { inlineDataMapper: {
-                filePath: effectiveFileName,
-                flowNode: undefined, // This will be updated in the Form component
-                position: {
-                    line: effectiveTargetLineRange.startLine.line,
-                    offset: effectiveTargetLineRange.startLine.offset,
-                },
-                propertyKey: field.key,
-                editorKey: field.key
-            }});
+            handleOpenSubPanel(SubPanelView.INLINE_DATA_MAPPER, {
+                inlineDataMapper: {
+                    filePath: effectiveFileName,
+                    flowNode: undefined, // This will be updated in the Form component
+                    position: {
+                        line: effectiveTargetLineRange.startLine.line,
+                        offset: effectiveTargetLineRange.startLine.offset,
+                    },
+                    propertyKey: field.key,
+                    editorKey: field.key
+                }
+            });
             handleOnFieldFocus?.(field.key);
         }
     };

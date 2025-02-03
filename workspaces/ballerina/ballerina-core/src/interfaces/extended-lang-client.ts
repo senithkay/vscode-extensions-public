@@ -878,6 +878,15 @@ export interface ServiceSourceCodeResponse {
         [key: string]: TextEdit[];
     };
 }
+
+export interface FunctionModelRequest {
+    type : string;
+    functionName : string;
+}
+
+export interface FunctionModelResponse {
+    function: FunctionModel;
+}
 export interface ServiceModelFromCodeRequest {
     filePath: string;
     codedata: {

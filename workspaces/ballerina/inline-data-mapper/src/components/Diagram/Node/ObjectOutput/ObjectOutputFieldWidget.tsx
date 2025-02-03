@@ -26,6 +26,7 @@ import { addValue, removeMapping } from "../../utils/modification-utils";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
 import { ValueConfigMenu, ValueConfigMenuItem, ValueConfigOption } from "../commons/ValueConfigButton";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
+import { OutputBeforeInputNotification } from "../commons/OutputBeforeInputNotification";
 
 export interface ObjectOutputFieldWidgetProps {
     parentId: string;
@@ -273,14 +274,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                             />
                         </FieldActionWrapper>
                     ))}
-                    {hasOutputBeforeInput && (
-                        <div className={classes.outputBeforeInputNotification}>
-                            <span style={{ display: 'flex', alignItems: 'center' }}>
-                                <Codicon name="info" sx={{ marginRight: "7px" }} />
-                                Click on input field first to create a mapping
-                            </span>
-                        </div>
-                    )}
+                    {hasOutputBeforeInput && <OutputBeforeInputNotification />}
                 </div>
             )}
             {isArray && (

@@ -8,13 +8,17 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { ActionButtons, Divider, Dropdown, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { EditorContainer, EditorContent } from '../../../styles';
 import { TypeBrowser } from '../../../components/TypeBrowser/TypeBrowser';
 import { ParameterModel } from '@wso2-enterprise/ballerina-core';
+import { FormField } from '@wso2-enterprise/ballerina-side-panel';
+import FormGeneratorNew from '../../../../Forms/FormGeneratorNew';
+import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { URI, Utils } from 'vscode-uri';
 
 const options = [{ id: "0", value: "QUERY" }, { id: "1", value: "Header" }];
 
@@ -28,6 +32,11 @@ export interface ParamProps {
 
 export function ParamEditor(props: ParamProps) {
     const { param, hideType = false, onChange, onSave, onCancel } = props;
+
+    const { rpcClient } = useRpcContext();
+
+    const [filePath, setFilePath] = useState<string>('');
+
 
     const handleOnSelect = (value: string) => {
         onChange({ ...param, httpParamType: value as "QUERY" | "Header" | "PAYLOAD" });
@@ -58,6 +67,57 @@ export function ParamEditor(props: ParamProps) {
         onSave(param);
     };
 
+    useEffect(() => {
+        rpcClient.getVisualizerLocation().then(res => { setFilePath(Utils.joinPath(URI.file(res.projectUri), 'main.bal').fsPath) });
+    }, []);
+
+
+    const currentFields: FormField[] = [
+        {
+            key: `variable`,
+            label: 'Name',
+            type: 'string',
+            optional: false,
+            editable: true,
+            documentation: '',
+            value: param.name.value,
+            valueTypeConstraint: ""
+        }
+    ];
+
+    !hideType && currentFields.push({
+        key: `type`,
+        label: 'Type',
+        type: 'TYPE',
+        optional: false,
+        editable: true,
+        documentation: '',
+        value: param.type.value,
+        valueTypeConstraint: ""
+    })
+
+    param.defaultValue && currentFields.push({
+        key: `defaultable`,
+        label: 'Default Value',
+        type: 'string',
+        optional: true,
+        advanced: true,
+        editable: true,
+        documentation: '',
+        value: param.defaultValue?.value,
+        valueTypeConstraint: ""
+    })
+
+    const onParameterSubmit = (dataValues: any) => {
+        console.log("Param values", dataValues);
+        onSave({
+            ...param,
+            type: { ...param.type, value: dataValues['type'] },
+            name: { ...param.name, value: dataValues['variable'] },
+            defaultValue: { ...param.defaultValue, value: dataValues['defaultable'] }
+        });
+    }
+
     return (
         <EditorContainer>
             {param.httpParamType && <Typography sx={{ marginBlockEnd: 10 }} variant="h4">{param.httpParamType === "PAYLOAD" ? "Payload" : "Parameter"} Configuration</Typography>}
@@ -74,48 +134,23 @@ export function ParamEditor(props: ParamProps) {
                     value={param.httpParamType}
                 />
             )}
-            <EditorContent>
-                {!hideType && (
-                    <TypeBrowser
-                        sx={{ zIndex: 1, position: "relative", width: "100%" }}
-                        borderBox={true}
-                        label="Type"
-                        selectedItem={param.type.value}
-                        onChange={handleTypeChange}
+            <>
+                {filePath &&
+                    <FormGeneratorNew
+                        fileName={filePath}
+                        targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
+                        fields={currentFields}
+                        onBack={handleOnCancel}
+                        onSubmit={onParameterSubmit}
                     />
-                )}
-                <TextField
-                    label='Name'
-                    size={21}
-                    required
-                    sx={{ width: "100%" }}
-                    placeholder='Enter name'
-                    value={param.name.value}
-                    errorMsg={""}
-                    onTextChange={handleChange}
-                />
-                {param.defaultValue && (
-                    <TextField
-                        label='Default Value'
-                        size={21}
-                        sx={{ width: "100%" }}
-                        placeholder='Enter default value'
-                        errorMsg={""}
-                        value={param.defaultValue.value}
-                        onTextChange={handleValueChange}
-                    />
-                )}
-            </EditorContent>
+                }
+
+            </>
             {param.httpParamType === "QUERY" && (
                 <VSCodeCheckbox checked={param.kind === "REQUIRED"} onChange={handleReqFieldChange} id="is-req-checkbox">
                     Is Required?
                 </VSCodeCheckbox>
             )}
-            <ActionButtons
-                primaryButton={{ text: "Save", onClick: handleOnSave }}
-                secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}
-                sx={{ justifyContent: "flex-end" }}
-            />
         </EditorContainer >
     );
 }
