@@ -155,18 +155,20 @@ export function EntityWidget(props: EntityWidgetProps) {
         } else {
             const attributes: React.ReactNode[] = [];
             const members = isNodeClass(node.entityObject?.codedata?.node) ? node.entityObject.functions : node.entityObject.members; // Use functions if it's a CLASS
+            if (members) {
+                Object.entries(members).forEach(([key, member]) => (
+                    attributes.push(
+                        <AttributeWidget
+                            key={key}
+                            engine={engine}
+                            node={node}
+                            attribute={member}
+                            isSelected={node.isNodeSelected(selectedLink, `${node.getID()}/${member.name}`)}
+                        />
+                    )
+                ));
+            }
 
-            Object.entries(members).forEach(([key, member]) => (
-                attributes.push(
-                    <AttributeWidget
-                        key={key}
-                        engine={engine}
-                        node={node}
-                        attribute={member}
-                        isSelected={node.isNodeSelected(selectedLink, `${node.getID()}/${member.name}`)}
-                    />
-                )
-            ));
             return attributes;
         }
     };
@@ -181,31 +183,35 @@ export function EntityWidget(props: EntityWidgetProps) {
     }, [node])
 
     return (
-        <EntityNode
-            isAnonymous={false}
-            isEditMode={false}
-            isSelected={node.isNodeSelected(selectedLink, node.getID()) || selectedNodeId === node.getID()}
-            shouldShade={false}
-            isFocused={node.getID() === focusedNodeId}
-        >
-            <EntityHeadWidget
-                engine={engine}
-                node={node}
-                isSelected={node.isNodeSelected(selectedLink, node.getID()) || selectedNodeId === node.getID()}
-            />
+        <>
+            {node.getID() &&
+                <EntityNode
+                    isAnonymous={false}
+                    isEditMode={false}
+                    isSelected={node.isNodeSelected(selectedLink, node.getID()) || selectedNodeId === node.getID()}
+                    shouldShade={false}
+                    isFocused={node.getID() === focusedNodeId}
+                >
+                    <EntityHeadWidget
+                        engine={engine}
+                        node={node}
+                        isSelected={node.isNodeSelected(selectedLink, node.getID()) || selectedNodeId === node.getID()}
+                    />
 
-            {renderAttributes()}
+                    {renderAttributes()}
 
-            <InclusionPortsContainer>
-                <EntityPortWidget
-                    port={node.getPort(`top-${node.getID()}`)}
-                    engine={engine}
-                />
-                <EntityPortWidget
-                    port={node.getPort(`bottom-${node.getID()}`)}
-                    engine={engine}
-                />
-            </InclusionPortsContainer>
-        </EntityNode>
+                    <InclusionPortsContainer>
+                        <EntityPortWidget
+                            port={node.getPort(`top-${node.getID()}`)}
+                            engine={engine}
+                        />
+                        <EntityPortWidget
+                            port={node.getPort(`bottom-${node.getID()}`)}
+                            engine={engine}
+                        />
+                    </InclusionPortsContainer>
+                </EntityNode>
+            }
+        </>
     );
 }

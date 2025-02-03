@@ -63,7 +63,7 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
     const { setFocusedNodeId, selectedNodeId, setSelectedNodeId, onEditNode, goToSource } = useContext(DiagramContext);
     const headPorts = useRef<PortModel[]>([]);
 
-    const displayName: string = node.getID().slice(node.getID().lastIndexOf(':') + 1);
+    const displayName: string = node.getID()?.slice(node.getID()?.lastIndexOf(':') + 1);
 
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(anchorEl);

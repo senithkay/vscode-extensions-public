@@ -19,7 +19,7 @@ function createEntityNodes(components: Type[], selectedEntityId?: string, isGrap
         if (selectedEntityId && component.name === selectedEntityId) {
             node.isRootEntity = true;
         }
-        if(isGraphqlRoot) {
+        if (isGraphqlRoot) {
             node.isGraphqlRoot = true;
         }
 
@@ -34,25 +34,26 @@ function createEntityLinks(entityNodes: Map<string, EntityModel>): EntityLinkMod
     let entityLinks: EntityLinkModel[] = [];
 
     entityNodes.forEach((sourceNode) => {
-        const members = isNodeClass(sourceNode.entityObject?.codedata?.node ) ? sourceNode.entityObject.functions : sourceNode.entityObject.members; // Use functions if it's a CLASS
+        const members = isNodeClass(sourceNode.entityObject?.codedata?.node) ? sourceNode.entityObject.functions : sourceNode.entityObject.members;
+        if (members) {
+            Object.entries(members).forEach(([_, member]: [string, Member | TypeFunctionModel]) => {
+                const refs = getRefs(member);
 
-        Object.entries(members).forEach(([_, member]: [string, Member | TypeFunctionModel]) => {
-            const refs = getRefs(member);
+                if (refs.length > 0) {
+                    refs.forEach((ref) => {
+                        const targetNode = entityNodes.get(ref);
+                        if (targetNode) {
+                            let sourcePort = sourceNode.getPort(`right-${sourceNode.getID()}/${member.name}`);
+                            let targetPort = targetNode.getPort(`left-${ref}`);
 
-            if (refs.length > 0) {
-                refs.forEach((ref) => {
-                    const targetNode = entityNodes.get(ref);
-                    if (targetNode) {
-                        let sourcePort = sourceNode.getPort(`right-${sourceNode.getID()}/${member.name}`);
-                        let targetPort = targetNode.getPort(`left-${ref}`);
-
-                        const linkId = `entity-link-${sourceNode.getID()}-${ref}`;
-                        let link = new EntityLinkModel(undefined,linkId); // REMOVE cardinalities
-                        entityLinks.push(createLinks(sourcePort, targetPort, link));
-                    }
-                });
-            }
-        });
+                            const linkId = `entity-link-${sourceNode.getID()}-${ref}`;
+                            let link = new EntityLinkModel(undefined, linkId); // REMOVE cardinalities
+                            entityLinks.push(createLinks(sourcePort, targetPort, link));
+                        }
+                    });
+                }
+            });
+        }
     });
 
     return entityLinks;
@@ -64,8 +65,8 @@ const getRefs = (member: Member | TypeFunctionModel): string[] => {
     if (typeof typeToCheck === 'string') {
         return member.refs || [];
     }
-    
-   // Handle type with members case
+
+    // Handle type with members case
     if ('members' in typeToCheck && Array.isArray(typeToCheck.members)) {
         return typeToCheck.members.flatMap(m => getRefs(m));
     }
@@ -80,7 +81,7 @@ export function isNodeClass(nodeKind: TypeNodeKind): boolean {
 }
 
 export function graphqlModeller(rootService: Type, refs: Type[]): DiagramModel {
-    const rootNode  = createEntityNodes([rootService], undefined, true);
+    const rootNode = createEntityNodes([rootService], undefined, true);
     console.log("rootNode", rootNode);
     const entityNodes = createEntityNodes(refs);
     console.log("entityNodes", entityNodes);
@@ -116,7 +117,7 @@ function findRelatedEntities(componentId: string, components: Type[], relatedEnt
     if (!component) return;
 
     const members = isNodeClass(component?.codedata?.node) ? component.functions : component.members;
-    
+
     Object.values(members).forEach(member => {
         if (member.refs) {
             member.refs.forEach(ref => {
