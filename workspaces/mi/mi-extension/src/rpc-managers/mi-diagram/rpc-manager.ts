@@ -3560,6 +3560,7 @@ ${endpointAttributes}
                 if (registryRoot === '') {
                     commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 } else {
+                    commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                     commands.executeCommand(COMMANDS.REFRESH_REGISTRY_COMMAND);
                 }
             }
