@@ -97,7 +97,7 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
                 title: ValueConfigOption.DeleteElement,
                 onClick: handleDelete
             });
-        } else if (value !== getDefaultValue(field.type?.kind)) {
+        } else if (value !== getDefaultValue(field.type)) {
             items.push({
                 title: ValueConfigOption.DeleteValue,
                 onClick: handleDelete

@@ -189,7 +189,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
 
     async deleteField(field: Node, keepDefaultVal?: boolean) {
         const typeOfValue = getTypeOfValue(this.dmTypeWithValue, getPosition(field));
-        const defaultValue = getDefaultValue(typeOfValue.kind);
+        const defaultValue = getDefaultValue(typeOfValue);
 
         if (keepDefaultVal && !Node.isPropertyAssignment(field)) {
             field.replaceWithText(defaultValue);

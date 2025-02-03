@@ -113,7 +113,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         && Node.isPropertyAssignment(field.value)
         && field.value;
     const value: string = hasValue && propertyAssignment && propertyAssignment.getInitializer().getText();
-    const hasDefaultValue = value && getDefaultValue(field.type.kind) === value.trim();
+    const hasDefaultValue = value && getDefaultValue(field.type) === value.trim();
     let isDisabled = portIn.descendantHasValue;
 
     if (!isDisabled && !hasDefaultValue) {
@@ -222,8 +222,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         setIsAddingElement(true);
 
         try {
-            const typeKind: TypeKind = field.type?.memberType.kind;
-            const defaultValue = getDefaultValue(typeKind);
+            const defaultValue = getDefaultValue(field.type?.memberType);
             let targetExpr = arrayLitExpr;
             if (isReturnStmtMissing) {
                 const fnBody = context.functionST.getBody() as Block;

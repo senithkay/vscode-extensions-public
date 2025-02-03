@@ -196,7 +196,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 				if (Node.isAsExpression(node.getParent())) {
 					node = node.getParent();
 				}
-				let initValue = getDefaultValue(resolvedUnionType.kind);
+				let initValue = getDefaultValue(resolvedUnionType);
 				if (initValue === "{}" && resolvedUnionType.kind !== TypeKind.Object && resolvedUnionType.typeName) {
 					initValue += ` as ${resolvedUnionType.typeName}`;
 				}

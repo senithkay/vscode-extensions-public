@@ -97,9 +97,9 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         && propertyAssignment.getInitializer();
     const hasValue = initializer
         && !!initializer.getText()
-        && initializer.getText() !== getDefaultValue(field.type.kind)
+        && initializer.getText() !== getDefaultValue(field.type)
         && initializer.getText() !== "null";
-    const hasDefaultValue = initializer && initializer.getText() === getDefaultValue(field.type.kind);
+    const hasDefaultValue = initializer && initializer.getText() === getDefaultValue(field.type); 
 
     const fields = isInterface && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
@@ -112,7 +112,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const handleAddValue = async () => {
         setIsLoading(true);
         try {
-            const defaultValue = getDefaultValue(field.type.kind);
+            const defaultValue = getDefaultValue(field.type);
             const fnBody = context.functionST.getBody() as Block;
             await createSourceForUserInput(field, objectLiteralExpr, defaultValue, fnBody, context.applyModifications);
         } finally {
@@ -123,7 +123,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const handleInitUnionTypeValue = async (resolvedUnionType: DMType) => {
         setIsLoading(true);
         try {
-            let initValue = getDefaultValue(resolvedUnionType.kind);
+            let initValue = getDefaultValue(resolvedUnionType);
             if (initValue === "{}" && resolvedUnionType.kind !== TypeKind.Object && resolvedUnionType.typeName) {
                 initValue += ` as ${resolvedUnionType.typeName}`;
             }
@@ -137,7 +137,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const handleInitUnionTypeArrayElement = async (resolvedUnionType: DMType) => {
         setIsLoading(true);
         try {
-            let initValue = getDefaultValue(resolvedUnionType.kind);
+            let initValue = getDefaultValue(resolvedUnionType);
             if (initValue === "{}" && resolvedUnionType.kind !== TypeKind.Object && resolvedUnionType.typeName) {
                 initValue += ` as ${resolvedUnionType.typeName}`;
             }
