@@ -168,13 +168,13 @@ function getDMFunction(filePath: string, functionName: string) {
 }
 
 // Function to extract type information
-function getTypeInfo(typeNode: Type, allInterfaces: string[]): DMType {
+function getTypeInfo(typeNode: Type, branchInterfaces: string[]): DMType {
     if (typeNode.isInterface()) {
-        return getTypeInfoForInterface(typeNode, allInterfaces);
+        return getTypeInfoForInterface(typeNode, branchInterfaces);
     } else if (typeNode.isArray()) {
-        return getTypeInfoForArray(typeNode, allInterfaces);
+        return getTypeInfoForArray(typeNode, branchInterfaces);
     } else if (typeNode.isObject()) {
-        return getTypeInfoForObject(typeNode, allInterfaces);
+        return getTypeInfoForObject(typeNode, branchInterfaces);
     } else if (typeNode.isString()) {
         return { kind: TypeKind.String, optional: typeNode.isNullable() };
     } else if (typeNode.isBoolean()) {
@@ -184,19 +184,19 @@ function getTypeInfo(typeNode: Type, allInterfaces: string[]): DMType {
     } else if (typeNode.isLiteral()) {
         return { kind: TypeKind.Literal, typeName: typeNode.getText(), optional: typeNode.isNullable() };
     } else if (typeNode.isUnion()) {
-        return getTypeInfoForUnion(typeNode, allInterfaces);
+        return getTypeInfoForUnion(typeNode, branchInterfaces);
     }
 
     return { kind: TypeKind.Unknown };
 }
 
 // Find the types of variables declared in the function
-function getVariableTypes(fn: FunctionDeclaration, allInterfaces: string[]) {
+function getVariableTypes(fn: FunctionDeclaration, branchInterfaces: string[]) {
     const variableTypes: Record<string, DMType | undefined> = {};
 
     fn.getVariableStatements().forEach((stmt) => {
         const varDecl = stmt.getDeclarations()[0];
-        const type = varDecl && getTypeInfo(varDecl.getType(), allInterfaces);
+        const type = varDecl && getTypeInfo(varDecl.getType(), branchInterfaces);
         const key = varDecl.getStart().toString() + varDecl.getEnd().toString();
         variableTypes[key] = type;
     });
@@ -204,7 +204,7 @@ function getVariableTypes(fn: FunctionDeclaration, allInterfaces: string[]) {
     return variableTypes;
 }
 
-function getTypeInfoForInterface(typeNode: Type, allInterfaces: string[]): DMType {
+function getTypeInfoForInterface(typeNode: Type, branchInterfaces: string[]): DMType {
 
     const typeSymbol = typeNode.getSymbol();
     if (!typeSymbol) return { kind: TypeKind.Unknown };
@@ -218,7 +218,7 @@ function getTypeInfoForInterface(typeNode: Type, allInterfaces: string[]): DMTyp
 
     const typeName = typeSymbol.getName();
 
-    if(allInterfaces.includes(typeName)) {
+    if(branchInterfaces.includes(typeName)) {
         return {
             kind: TypeKind.Interface,
             typeName: `${typeName} ∞`,
@@ -226,13 +226,13 @@ function getTypeInfoForInterface(typeNode: Type, allInterfaces: string[]): DMTyp
             isRecursive: true
         };
     } else {
-        allInterfaces = [...allInterfaces, typeName];
+        branchInterfaces = [...branchInterfaces, typeName];
     }
 
     const fields = interfaceNode.getMembers().map(member => {
         if (Node.isPropertySignature(member)) {
             return {
-                ...getTypeInfo(member.getType()!, allInterfaces),
+                ...getTypeInfo(member.getType()!, branchInterfaces),
                 fieldName: member.getName(),
                 optional: !!member.getQuestionTokenNode()
             };
@@ -247,8 +247,8 @@ function getTypeInfoForInterface(typeNode: Type, allInterfaces: string[]): DMTyp
     };
 }
 
-function getTypeInfoForArray(typeNode: Type, allInterfaces: string[]): DMType {
-    const elementType = getTypeInfo(typeNode.getArrayElementType()!, allInterfaces);
+function getTypeInfoForArray(typeNode: Type, branchInterfaces: string[]): DMType {
+    const elementType = getTypeInfo(typeNode.getArrayElementType()!, branchInterfaces);
     return {
         kind: TypeKind.Array,
         memberType: elementType,
@@ -256,7 +256,7 @@ function getTypeInfoForArray(typeNode: Type, allInterfaces: string[]): DMType {
     };
 }
 
-function getTypeInfoForObject(typeNode: Type, allInterfaces: string[]): DMType {
+function getTypeInfoForObject(typeNode: Type, branchInterfaces: string[]): DMType {
     const properties = typeNode.getProperties();
     const fields: DMType[] = [];
 
@@ -265,7 +265,7 @@ function getTypeInfoForObject(typeNode: Type, allInterfaces: string[]): DMType {
         const dmType = decls.map(decl => {
             if (Node.isPropertySignature(decl) || Node.isPropertyAssignment(decl)) {
                 return {
-                    ...getTypeInfo(decl.getType()!, allInterfaces),
+                    ...getTypeInfo(decl.getType()!, branchInterfaces),
                     fieldName: decl.getName(),
                     optional: !!decl.getQuestionTokenNode()
                 };
@@ -282,14 +282,14 @@ function getTypeInfoForObject(typeNode: Type, allInterfaces: string[]): DMType {
     };
 }
 
-function getTypeInfoForUnion(typeNode: Type, allInterfaces: string[]): DMType {
+function getTypeInfoForUnion(typeNode: Type, branchInterfaces: string[]): DMType {
     const unionTypes = typeNode.getUnionTypes().map(type => {
         if (type.isBooleanLiteral()) {
             if (type.getText() === 'true') {
                 return { kind: TypeKind.Boolean };
             }
         } else {
-            return getTypeInfo(type, allInterfaces);
+            return getTypeInfo(type, branchInterfaces);
         }
     }).filter(Boolean) as DMType[];
     
