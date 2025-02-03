@@ -10,6 +10,7 @@ import { copyMavenWrapper } from '.';
 import { SELECTED_JAVA_HOME, SELECTED_SERVER_PATH } from '../debugger/constants';
 import { COMMANDS } from '../constants';
 import { SetPathRequest, PathDetailsResponse, SetupDetails } from '@wso2-enterprise/mi-core';
+import { parseStringPromise } from 'xml2js';
 
 // Add Latest MI version as the first element in the array
 export const supportedJavaVersionsForMI: { [key: string]: string } = {
@@ -75,10 +76,9 @@ export async function getMIVersionFromPom(): Promise<string | null> {
     }
 
     const pomContent = await vscode.workspace.openTextDocument(pomFiles[0]);
-    const pomContentText = pomContent.getText();
-    const miVersionMatch = pomContentText
-        .match(/<project.runtime.version>(.*?)<\/project.runtime.version>/);
-    return miVersionMatch ? miVersionMatch[1] : null;
+    const result = await parseStringPromise(pomContent.getText(), { explicitArray: false, ignoreAttrs: true });
+    const runtimeVersion = result?.project?.properties["project.runtime.version"];
+    return runtimeVersion;
 }
 async function isMISetup(miVersion: string): Promise<boolean> {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
@@ -543,9 +543,9 @@ async function getJavaAndMIPathsFromWorkspace(projectMiVersion: string): Promise
         const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
 
         const javaHome = config.get<string>(SELECTED_JAVA_HOME);
-        const validJavaHome = javaHome && verifyJavaHomePath(javaHome) || 
-                                getJavaFromGlobalOrEnv(projectMiVersion) || 
-                                getJavaHomeForMIVersionFromCache(projectMiVersion);
+        const validJavaHome = javaHome && verifyJavaHomePath(javaHome) ||
+            getJavaFromGlobalOrEnv(projectMiVersion) ||
+            getJavaHomeForMIVersionFromCache(projectMiVersion);
         if (validJavaHome) {
             const javaVersion = getJavaVersion(path.join(validJavaHome, 'bin'));
             if (supportedJavaVersionsForMI[projectMiVersion] === javaVersion) {
@@ -556,9 +556,9 @@ async function getJavaAndMIPathsFromWorkspace(projectMiVersion: string): Promise
         }
 
         const serverPath = config.get<string>(SELECTED_SERVER_PATH);
-        const validServerPath = serverPath && verifyMIPath(serverPath) || 
-                                getMIFromGlobal(projectMiVersion) || 
-                                getMIPathFromCache(projectMiVersion);
+        const validServerPath = serverPath && verifyMIPath(serverPath) ||
+            getMIFromGlobal(projectMiVersion) ||
+            getMIPathFromCache(projectMiVersion);
 
         if (validServerPath) {
             const miVersion = getMIVersion(validServerPath);
@@ -591,7 +591,7 @@ export async function updateRuntimeVersionsInPom(version: string): Promise<void>
             xml = xml.replace(propertyRegex, propertyTag.trim());
         } else {
             // Insert the new property before the closing </properties> tag
-            xml = xml.replace(/(<\/properties>)/, `${propertyTag}$1`);
+            xml = xml.replace(/(<\/properties>\s<\/project>)/, `${propertyTag}$1`);
         }
     } else {
         // Insert a new <properties> section after the <project> tag
@@ -664,10 +664,23 @@ function getMIPathFromCache(miVersion: string): string | null {
     }
     return null;
 }
+/**
+ * Compares two version strings and returns a number indicating their relative order.
+ *
+ * The version strings should be in the format "x.y.z" where x, y, and z are numeric parts.
+ * If the version strings contain non-numeric parts, they will be ignored.
+ *
+ * @param v1 - The first version string to compare.
+ * @param v2 - The second version string to compare.
+ * @returns A number indicating the relative order of the versions:
+ *          - 1 if v1 is greater than v2
+ *          - -1 if v1 is less than v2
+ *          - 0 if v1 is equal to v2
+ */
 export function compareVersions(v1: string, v2: string): number {
     // Extract only the numeric parts of the version string
     const getVersionNumbers = (str: string): string => {
-        const match = str.match(/(\d+\.\d+\.\d+)/);
+        const match = str.match(/(\d+(\.\d+)*)/);
         return match ? match[0] : '0';
     };
 
@@ -746,32 +759,6 @@ export function getServerPathFromConfig(): string | undefined {
     if (workspaceFolder) {
         const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
         const currentServerPath = config.get<string>(SELECTED_SERVER_PATH);
-
-        if (currentServerPath) {
-            if (!isMIInstalledAtPath(currentServerPath)) {
-                vscode.window
-                    .showErrorMessage(
-                        'Invalid Micro Integrator path. Please set a valid Micro Integrator path and run the command again.',
-                        'Change Micro Integrator Path'
-                    )
-                    .then((selection) => {
-                        if (selection) {
-                            vscode.commands.executeCommand(COMMANDS.CHANGE_SERVER_PATH);
-                        }
-                    });
-            }
-        } else {
-            vscode.window
-                .showErrorMessage(
-                    'Micro Integrator path is not set. Please set a valid Micro Integrator path and run the command again.',
-                    'Set Micro Integrator Path'
-                )
-                .then((selection) => {
-                    if (selection) {
-                        vscode.commands.executeCommand(COMMANDS.CHANGE_SERVER_PATH);
-                    }
-                });
-        }
         return currentServerPath;
     }
 }
