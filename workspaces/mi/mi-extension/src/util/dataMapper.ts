@@ -11,10 +11,6 @@ import * as path from 'path';
 import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
 import { DMProject } from '../datamapper/DMProject';
 
-interface InterfaceTypes{
-    allTypes: Map<string, DMType>;
-    recursiveTypes: Map<string, DMType | undefined>;
-}
 
 export function fetchIOTypes(filePath: string, functionName: string) {
     const inputTypes: DMType[] = [];
@@ -24,22 +20,15 @@ export function fetchIOTypes(filePath: string, functionName: string) {
         const tnfFn = getDMFunction(filePath, functionName);
         const sourceFile = tnfFn.getSourceFile();
 
-        const inputInterfaceTypes: InterfaceTypes = {
-            allTypes: new Map<string, DMType>(),
-            recursiveTypes: new Map<string, DMType | undefined>()
-        };
-
-        const outputInterfaceTypes: InterfaceTypes = {
-            allTypes: new Map<string, DMType>(),
-            recursiveTypes: new Map<string, DMType | undefined>()
-        };
+        const inputRecursiveTypes = new Map<string, DMType | undefined>();
+        const outputRecursiveTypes = new Map<string, DMType | undefined>();
 
         tnfFn.getParameters().forEach((param) => {
-            inputTypes.push(getTypeInfo(param.getType(), [], inputInterfaceTypes));
+            inputTypes.push(getTypeInfo(param.getType(), [], inputRecursiveTypes));
         });
-        outputType = getTypeInfo(tnfFn.getReturnType(), [], outputInterfaceTypes);
+        outputType = getTypeInfo(tnfFn.getReturnType(), [], outputRecursiveTypes);
 
-        console.log("OutInterfaceTypes", outputInterfaceTypes);
+        console.log("OutInterfaceTypes", outputRecursiveTypes);
     } catch (error: any) {
         throw new Error("[MI Data Mapper] Failed to fetch input/output types. " + error.message);
     }
@@ -50,11 +39,8 @@ export function fetchIOTypes(filePath: string, functionName: string) {
 export function fetchSubMappingTypes(filePath: string, functionName: string) {
     try {
         const tnfFn = getDMFunction(filePath, functionName);
-        const interfaceTypes: InterfaceTypes = {
-            allTypes: new Map<string, DMType>(),
-            recursiveTypes: new Map<string, DMType | undefined>()
-        };
-        return getVariableTypes(tnfFn, [], interfaceTypes);
+        const recursiveTypes = new Map<string, DMType | undefined>();
+        return getVariableTypes(tnfFn, [], recursiveTypes);
     } catch (error: any) {
         throw new Error("[MI Data Mapper] Failed to fetch sub mapping types. " + error.message);
     }
@@ -189,13 +175,13 @@ function getDMFunction(filePath: string, functionName: string) {
 }
 
 // Function to extract type information
-function getTypeInfo(typeNode: Type, branchInterfaces: string[], interfaceTypes: InterfaceTypes): DMType {
+function getTypeInfo(typeNode: Type, branchInterfaces: string[], recursiveTypes: Map<string, DMType | undefined>): DMType {
     if (typeNode.isInterface()) {
-        return getTypeInfoForInterface(typeNode, branchInterfaces, interfaceTypes);
+        return getTypeInfoForInterface(typeNode, branchInterfaces, recursiveTypes);
     } else if (typeNode.isArray()) {
-        return getTypeInfoForArray(typeNode, branchInterfaces, interfaceTypes);
+        return getTypeInfoForArray(typeNode, branchInterfaces, recursiveTypes);
     } else if (typeNode.isObject()) {
-        return getTypeInfoForObject(typeNode, branchInterfaces, interfaceTypes);
+        return getTypeInfoForObject(typeNode, branchInterfaces, recursiveTypes);
     } else if (typeNode.isString()) {
         return { kind: TypeKind.String, optional: typeNode.isNullable() };
     } else if (typeNode.isBoolean()) {
@@ -205,19 +191,19 @@ function getTypeInfo(typeNode: Type, branchInterfaces: string[], interfaceTypes:
     } else if (typeNode.isLiteral()) {
         return { kind: TypeKind.Literal, typeName: typeNode.getText(), optional: typeNode.isNullable() };
     } else if (typeNode.isUnion()) {
-        return getTypeInfoForUnion(typeNode, branchInterfaces, interfaceTypes);
+        return getTypeInfoForUnion(typeNode, branchInterfaces, recursiveTypes);
     }
 
     return { kind: TypeKind.Unknown };
 }
 
 // Find the types of variables declared in the function
-function getVariableTypes(fn: FunctionDeclaration, branchInterfaces: string[], interfaceTypes: InterfaceTypes) {
+function getVariableTypes(fn: FunctionDeclaration, branchInterfaces: string[], recursiveTypes: Map<string, DMType | undefined>) {
     const variableTypes: Record<string, DMType | undefined> = {};
 
     fn.getVariableStatements().forEach((stmt) => {
         const varDecl = stmt.getDeclarations()[0];
-        const type = varDecl && getTypeInfo(varDecl.getType(), branchInterfaces, interfaceTypes);
+        const type = varDecl && getTypeInfo(varDecl.getType(), branchInterfaces, recursiveTypes);
         const key = varDecl.getStart().toString() + varDecl.getEnd().toString();
         variableTypes[key] = type;
     });
@@ -225,7 +211,7 @@ function getVariableTypes(fn: FunctionDeclaration, branchInterfaces: string[], i
     return variableTypes;
 }
 
-function getTypeInfoForInterface(typeNode: Type, branchInterfaces: string[], interfaceTypes: InterfaceTypes): DMType {
+function getTypeInfoForInterface(typeNode: Type, branchInterfaces: string[], recursiveTypes: Map<string, DMType | undefined>): DMType {
 
     const typeSymbol = typeNode.getSymbol();
     if (!typeSymbol) return { kind: TypeKind.Unknown };
@@ -240,8 +226,8 @@ function getTypeInfoForInterface(typeNode: Type, branchInterfaces: string[], int
     const typeName = typeSymbol.getName();
 
     if(branchInterfaces.includes(typeName)) {
-        if (!interfaceTypes.recursiveTypes.has(typeName)) {
-            interfaceTypes.recursiveTypes.set(typeName, undefined);
+        if (!recursiveTypes.has(typeName)) {
+            recursiveTypes.set(typeName, undefined);
         }
 
         return {
@@ -257,7 +243,7 @@ function getTypeInfoForInterface(typeNode: Type, branchInterfaces: string[], int
     const fields = interfaceNode.getMembers().map(member => {
         if (Node.isPropertySignature(member)) {
             return {
-                ...getTypeInfo(member.getType()!, branchInterfaces, interfaceTypes),
+                ...getTypeInfo(member.getType()!, branchInterfaces, recursiveTypes),
                 fieldName: member.getName(),
                 optional: !!member.getQuestionTokenNode()
             };
@@ -271,19 +257,15 @@ function getTypeInfoForInterface(typeNode: Type, branchInterfaces: string[], int
         optional: typeNode.isNullable()
     };
 
-    // if (!interfaceTypes.allTypes.has(typeName)) {
-    //     interfaceTypes.allTypes.set(typeName, interfaceType);
-    // }
-    
-    if (interfaceTypes.recursiveTypes.has(typeName) && interfaceTypes.recursiveTypes.get(typeName) === undefined) {
-        interfaceTypes.recursiveTypes.set(typeName, interfaceType);
+    if (recursiveTypes.has(typeName) && recursiveTypes.get(typeName) === undefined) {
+        recursiveTypes.set(typeName, interfaceType);
     }
 
     return interfaceType;
 }
 
-function getTypeInfoForArray(typeNode: Type, branchInterfaces: string[], interfaceTypes: InterfaceTypes): DMType {
-    const elementType = getTypeInfo(typeNode.getArrayElementType()!, branchInterfaces, interfaceTypes);
+function getTypeInfoForArray(typeNode: Type, branchInterfaces: string[], recursiveTypes: Map<string, DMType | undefined>): DMType {
+    const elementType = getTypeInfo(typeNode.getArrayElementType()!, branchInterfaces, recursiveTypes);
     return {
         kind: TypeKind.Array,
         memberType: elementType,
@@ -291,7 +273,7 @@ function getTypeInfoForArray(typeNode: Type, branchInterfaces: string[], interfa
     };
 }
 
-function getTypeInfoForObject(typeNode: Type, branchInterfaces: string[], interfaceTypes: InterfaceTypes): DMType {
+function getTypeInfoForObject(typeNode: Type, branchInterfaces: string[], recursiveTypes: Map<string, DMType | undefined>): DMType {
     const properties = typeNode.getProperties();
     const fields: DMType[] = [];
 
@@ -300,7 +282,7 @@ function getTypeInfoForObject(typeNode: Type, branchInterfaces: string[], interf
         const dmType = decls.map(decl => {
             if (Node.isPropertySignature(decl) || Node.isPropertyAssignment(decl)) {
                 return {
-                    ...getTypeInfo(decl.getType()!, branchInterfaces, interfaceTypes),
+                    ...getTypeInfo(decl.getType()!, branchInterfaces, recursiveTypes),
                     fieldName: decl.getName(),
                     optional: !!decl.getQuestionTokenNode()
                 };
@@ -317,14 +299,14 @@ function getTypeInfoForObject(typeNode: Type, branchInterfaces: string[], interf
     };
 }
 
-function getTypeInfoForUnion(typeNode: Type, branchInterfaces: string[], interfaceTypes: InterfaceTypes): DMType {
+function getTypeInfoForUnion(typeNode: Type, branchInterfaces: string[], recursiveTypes: Map<string, DMType | undefined>): DMType {
     const unionTypes = typeNode.getUnionTypes().map(type => {
         if (type.isBooleanLiteral()) {
             if (type.getText() === 'true') {
                 return { kind: TypeKind.Boolean };
             }
         } else {
-            return getTypeInfo(type, branchInterfaces, interfaceTypes);
+            return getTypeInfo(type, branchInterfaces, recursiveTypes);
         }
     }).filter(Boolean) as DMType[];
     
