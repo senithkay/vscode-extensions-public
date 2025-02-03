@@ -84,4 +84,5 @@ export interface MIVisualizerAPI {
     selectFolder: (params: string) => Promise<string | undefined>;
     updateLegacyExpressionSupport: (value: boolean) => Promise<void>;
     isLegacyExpressionSupportEnabled: () => Promise<boolean>;
+    updateCarPluginVersion: () => Promise<boolean>;
 }
