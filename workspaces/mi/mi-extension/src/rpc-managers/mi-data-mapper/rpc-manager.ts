@@ -61,7 +61,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 return resolve({
                     inputTrees: inputTypes,
                     outputTree: outputType,
-                    outputRecursiveTypes: outputRecursiveTypes
+                    outputRecursiveTypes: Object.fromEntries(outputRecursiveTypes)
                 });
             } catch (error: any) {
                 reject(error);
