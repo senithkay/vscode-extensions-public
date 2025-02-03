@@ -18,6 +18,8 @@ import { initialEndpoint, InputsFields, paramTemplateConfigs, propertiesConfigs,
 import { TypeChip } from "../Commons";
 import Form from "./Form";
 import AddToRegistry, { formatRegistryPath, getArtifactNamesAndRegistryPaths, saveToRegistry } from "../AddToRegistry";
+import { compareVersions } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
+import { RUNTIME_VERSION_440 } from "../../../constants";
 
 export interface HttpEndpointWizardProps {
     path: string;
@@ -205,6 +207,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
     const [savedEPName, setSavedEPName] = useState<string>("");
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
     const [prevName, setPrevName] = useState<string | null>(null);
+    const [isRegistryContentVisible, setIsRegistryContentVisible] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -271,6 +274,9 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
             const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
                 path: props.path,
             });
+            const response = await rpcClient.getMiVisualizerRpcClient().getProjectDetails();
+            const runtimeVersion = response.primaryDetails.runtimeVersion.value;
+            setIsRegistryContentVisible(compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0);
             setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
@@ -395,7 +401,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 additionalOauthParams={additionalOauthParams}
                 setAdditionalOauthParams={setAdditionalOauthParams}
             />
-            {isNewEndpoint && (
+            {isRegistryContentVisible && isNewEndpoint && (
                 <>
                     <FormCheckBox
                         label="Save the endpoint in registry"
