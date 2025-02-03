@@ -93,7 +93,10 @@ const AddConnector = (props: AddConnectorProps) => {
             });
 
             const filteredConnections = connectorData.connections.filter(
-                connection => allowedTypes?.includes(connection.connectionType));
+                connection => allowedTypes?.some(
+                    // Ignore case in checking allowed connection types
+                    type => type.toLowerCase() === connection.connectionType.toLowerCase()
+                ));
             const connectionNames = filteredConnections.map(connection => connection.name);
 
             setConnections(connectionNames);
