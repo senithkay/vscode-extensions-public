@@ -428,10 +428,14 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 					if (confirmation === 'Yes') {
 						try {
 							// delete the file and the residing folder
-							const folderPath = path.dirname(fileUri);
 							await deleteDataMapperResources(fileUri);
-							projectExplorerDataProvider.refresh(lsClient);
 							window.showInformationMessage(`${item.label} has been deleted.`);
+							await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+							const currentLocation = StateMachine.context();
+							if (currentLocation.documentUri === fileUri) {
+								openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+							}
+							removeFromHistory(fileUri.fsPath);
 						} catch (error) {
 							window.showErrorMessage(`Failed to delete ${item.label}: ${error}`);
 						}
@@ -524,7 +528,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 			}
 		}
 		projectExplorerDataProvider.refresh(lsClient);
-		if (runtimeVersion !== RUNTIME_VERSION_440 && registryExplorerDataProvider) {
+		if (compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0 && registryExplorerDataProvider) {
 			registryExplorerDataProvider.refresh(lsClient);
 		}
 		if (StateMachine.context().view === MACHINE_VIEW.Overview) {
