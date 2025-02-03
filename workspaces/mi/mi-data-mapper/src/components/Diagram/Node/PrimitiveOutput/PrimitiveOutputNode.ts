@@ -171,7 +171,7 @@ export class PrimitiveOutputNode extends DataMapperNodeModel {
 
     async deleteField(field: Node) {
         const typeOfValue = this.isLocked && this.dmType?.memberType ? this.dmType.memberType : this.dmType;
-        const defaultValue = getDefaultValue(typeOfValue?.kind);
+        const defaultValue = getDefaultValue(typeOfValue);
         const updatedField = field.replaceWithText(defaultValue);
         await this.context.applyModifications(updatedField.getSourceFile().getFullText());
     }

@@ -51,7 +51,7 @@ export const modifyCompletion = (completion: ExpressionCompletionItem): Completi
     let completionValue = completion.insertText;
 
     // For functions add the opening bracket
-    const fnRegex = /\w+(?=\(.*\))/;
+    const fnRegex = /[a-zA-Z0-9_-]+(?=\(.*\))/;
     const fnMatch = completion.insertText.match(fnRegex);
     if (fnMatch) {
         completionValue = `${fnMatch}(`;

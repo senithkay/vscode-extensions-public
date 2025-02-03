@@ -68,6 +68,7 @@ import {
     selectFolder,
     SetPathRequest,
     updateLegacyExpressionSupport,
+    updateCarPluginVersion,
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiVisualizerRpcManager } from "./rpc-manager";
@@ -115,4 +116,5 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(selectFolder, (args: string) => rpcManger.selectFolder(args));
     messenger.onRequest(updateLegacyExpressionSupport, (args: boolean) => rpcManger.updateLegacyExpressionSupport(args));
     messenger.onRequest(isLegacyExpressionSupportEnabled, () => rpcManger.isLegacyExpressionSupportEnabled());
+    messenger.onRequest(updateCarPluginVersion, () => rpcManger.updateCarPluginVersion());
 }

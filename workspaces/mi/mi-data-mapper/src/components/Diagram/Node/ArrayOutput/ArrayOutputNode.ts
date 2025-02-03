@@ -197,7 +197,7 @@ export class ArrayOutputNode extends DataMapperNodeModel {
         const typeOfValue = getTypeOfValue(this.dmTypeWithValue, getPosition(field));
 
         if (keepDefaultVal && !Node.isPropertyAssignment(field)) {
-            const replaceWith = getDefaultValue(typeOfValue.kind);
+            const replaceWith = getDefaultValue(typeOfValue);
             field.replaceWithText(replaceWith);
         }  else {
             const linkDeleteVisitor = new LinkDeletingVisitor(field, this.value);

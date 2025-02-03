@@ -329,7 +329,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 
             } else {
                 const newValue = value === ''
-                    ? getDefaultValue(lastFocusedPort.typeWithValue.type.kind)
+                    ? getDefaultValue(lastFocusedPort.typeWithValue.type)
                     : value;
                 targetExpr = focusedFieldValue;
                 const updatedNode = targetExpr.replaceWithText(newValue);
