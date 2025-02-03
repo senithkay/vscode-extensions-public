@@ -16,6 +16,8 @@ import { useForm } from "react-hook-form";
 import AddToRegistry, { getArtifactNamesAndRegistryPaths, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
 import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
 import path from "path";
+import { compareVersions } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
+import { RUNTIME_VERSION_440 } from "../../constants";
 
 export interface SequenceWizardProps {
     path: string;
@@ -56,6 +58,7 @@ export function SequenceWizard(props: SequenceWizardProps) {
     const [registryPaths, setRegistryPaths] = useState([]);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
     const [prevName, setPrevName] = useState<string | null>(null);
+    const [isRegistryContentVisible, setIsRegistryContentVisible] = useState(false);
 
     const isNewTemplate = !props?.path?.endsWith(".xml");
 
@@ -123,6 +126,9 @@ export function SequenceWizard(props: SequenceWizardProps) {
             const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
                 path: props.path,
             });
+            const response = await rpcClient.getMiVisualizerRpcClient().getProjectDetails();
+            const runtimeVersion = response.primaryDetails.runtimeVersion.value;
+            setIsRegistryContentVisible(compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0);
             setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, []);
@@ -204,12 +210,12 @@ export function SequenceWizard(props: SequenceWizardProps) {
                     control={control}
                 />
             </FormGroup>
-            <FormCheckBox
+            {isRegistryContentVisible && <FormCheckBox
                 label="Save the sequence in registry"
                 {...register("saveInReg")}
                 control={control}
-            />
-            {watch("saveInReg") && (<>
+            />}
+            {isRegistryContentVisible && watch("saveInReg") && (<>
                 <AddToRegistry path={props.path} fileName={watch("name")} register={register} errors={errors} getValues={getValues} />
             </>)}
             <FormActions>
