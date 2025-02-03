@@ -40,7 +40,6 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
     const { rpcClient } = useVisualizerContext();
     const [projectDetails, setProjectDetails] = useState<ProjectDetailsResponse>();
     const [runtimeVersions, setRuntimeVersions] = useState<OptionProps[]>([]);
-    const [initialRuntimeVersion, setInitialRuntimeVersion] = useState<string>("");
 
     const [selectedId, setSelectedId] = useState<string | null>("Project Information");
 
@@ -84,8 +83,6 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         mode: "all"
     });
 
-    const currentRuntimeVersion = watch("primaryDetails-runtimeVersion");
-    const isRuntimeVersionChanged = currentRuntimeVersion && currentRuntimeVersion !== initialRuntimeVersion;
 
     const divRefs: Record<string, React.RefObject<HTMLDivElement>> = {
         "Project Information": useRef<HTMLDivElement | null>(null),
@@ -102,7 +99,6 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                 const isLegacyExpressionEnabled = await rpcClient.getMiVisualizerRpcClient().isLegacyExpressionSupportEnabled();
 
                 setProjectDetails(response);
-                setInitialRuntimeVersion(response.primaryDetails.runtimeVersion.value);
                 const supportedVersions = await rpcClient.getMiVisualizerRpcClient().getSupportedMIVersionsHigherThan(response.primaryDetails.runtimeVersion.value);
                 const supportedMIVersions = supportedVersions.map((version: string) => ({ value: version, content: version }));
                 setRuntimeVersions(supportedMIVersions);
@@ -199,7 +195,8 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                 await rpcClient.getMiVisualizerRpcClient().updatePomValues({ pomValues: sortedChanges });
             }
 
-            if (isRuntimeVersionChanged) {
+            if (dirtyFields["primaryDetails-runtimeVersion"]) {
+                await rpcClient?.getMiVisualizerRpcClient().updateCarPluginVersion();
                 await rpcClient.getMiVisualizerRpcClient().reloadWindow();
             } else {
                 props.onClose();
@@ -348,11 +345,11 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                             items={runtimeVersions}
                             {...register("primaryDetails-runtimeVersion")}
                         />
-                        {isRuntimeVersionChanged && (
+                        {dirtyFields["primaryDetails-runtimeVersion"] && (
                             <Banner
                                 icon={<Codicon name="warning" sx={{ fontSize: 12 }} />}
                                 type="warning"
-                                message="Extension will restart when submitting"
+                                message={`The extension will restart after saving changes. You will need to set the server runtime again post-restart.${watch("primaryDetails-runtimeVersion") === "4.4.0" ? "\nPlugin versions will also be updated automatically to support the new runtime version." : ""}`}
                             />
                         )}
                     </div>
