@@ -36,9 +36,9 @@ function createEntityLinks(entityNodes: Map<string, EntityModel>): EntityLinkMod
     entityNodes.forEach((sourceNode) => {
         const members = isNodeClass(sourceNode.entityObject?.codedata?.node ) ? sourceNode.entityObject.functions : sourceNode.entityObject.members; // Use functions if it's a CLASS
 
-        Object.entries(members).forEach(([_, member]) => {
-            const refs = getRefs(member.type, member);
-        
+        Object.entries(members).forEach(([_, member]: [string, Member | TypeFunctionModel]) => {
+            const refs = getRefs(member);
+
             if (refs.length > 0) {
                 refs.forEach((ref) => {
                     const targetNode = entityNodes.get(ref);
@@ -58,16 +58,20 @@ function createEntityLinks(entityNodes: Map<string, EntityModel>): EntityLinkMod
     return entityLinks;
 }
 
-const getRefs = (type: string | Type, member: Member | TypeFunctionModel): string[] => {
-    if (typeof type === 'string') {
+const getRefs = (member: Member | TypeFunctionModel): string[] => {
+    const typeToCheck = 'returnType' in member ? member.returnType : (member as Member).type;
+
+    if (typeof typeToCheck === 'string') {
         return member.refs || [];
     }
     
-    if ('returnType' in member) { 
-        return getRefs(member.returnType, member);
+   // Handle type with members case
+    if ('members' in typeToCheck && Array.isArray(typeToCheck.members)) {
+        return typeToCheck.members.flatMap(m => getRefs(m));
     }
 
-    return type.members.flatMap(m => getRefs(m.type, m));
+    // Default case - return empty array if none of the above conditions match
+    return [];
 };
 
 
