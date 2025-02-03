@@ -37,6 +37,7 @@ export interface ParamConfig {
 export interface ParamManagerProps {
     paramConfigs: ParamConfig;
     onChange?: (parameters: ParamConfig) => void,
+    openRecordEditor?: (open: boolean) => void;
     readonly?: boolean;
 }
 
@@ -52,10 +53,11 @@ const ParamContainer = styled.div`
 export interface ParamManagerEditorProps {
     field: FormField;
     handleOnFieldFocus?: (key: string) => void;
+    openRecordEditor?: (open: boolean) => void;
 }
 
 export function ParamManagerEditor(props: ParamManagerEditorProps) {
-    const { field } = props;
+    const { field, openRecordEditor } = props;
     const { form } = useFormContext();
     const { control, setValue } = form;
     return (
@@ -67,6 +69,7 @@ export function ParamManagerEditor(props: ParamManagerEditorProps) {
                 render={({ field: { onChange } }) => (
                     <ParamManager
                         paramConfigs={field.paramManagerProps}
+                        openRecordEditor={openRecordEditor}
                         onChange={async (config: ParamConfig) => {
                             onChange(config.paramValues);
                         }}
@@ -79,7 +82,7 @@ export function ParamManagerEditor(props: ParamManagerEditorProps) {
 }
 
 export function ParamManager(props: ParamManagerProps) {
-    const { paramConfigs, readonly, onChange } = props;
+    const { paramConfigs, readonly, onChange, openRecordEditor } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
     const [parameters, setParameters] = useState<Parameter[]>(paramConfigs.paramValues);
@@ -168,6 +171,7 @@ export function ParamManager(props: ParamManagerProps) {
                             paramFields={paramConfigs.formFields}
                             onSave={onSaveParam}
                             onCancelEdit={onParamEditCancel}
+                            openRecordEditor={openRecordEditor}
                         />
                     )
                 } else if ((editingSegmentId !== index)) {
