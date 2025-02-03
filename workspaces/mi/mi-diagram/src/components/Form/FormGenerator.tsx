@@ -93,7 +93,7 @@ export interface Element {
     configurableType?: string;
     addParamText?: string;
     deriveResponseVariable?: boolean;
-    matchPattern?: string;
+    separatorPattern?: string;
     initialSeparator?: string;
     secondarySeparator?: string;
     keyValueSeparator?: string;
@@ -293,7 +293,6 @@ export function FormGenerator(props: FormGeneratorProps) {
                 placeholder={element.placeholder}
                 nodeRange={range}
                 canChange={element.inputType !== 'expression'}
-                expressionType={element.expressionType}
                 errorMsg={errorMsg}
                 openExpressionEditor={(value, setValue) => {
                     setCurrentExpressionValue({ value, setValue });
@@ -396,9 +395,8 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'textAreaOrExpression':
             case 'integerOrExpression':
             case 'expression':
-                const isValueLegacyExpression = field.value?.isExpression &&
-                    isLegacyExpression(typeof field.value === 'object' ? field.value.value : field.value);
-                if (isLegacyExpressionEnabled || isValueLegacyExpression) {
+                const isValueLegacyExpression = isLegacyExpression(element.expressionType, isLegacyExpressionEnabled, field);
+                if (isValueLegacyExpression) {
                     return ExpressionFieldComponent({
                         element,
                         canChange: element.inputType !== 'expression',

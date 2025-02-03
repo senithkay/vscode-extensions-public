@@ -188,10 +188,12 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
       <id>test</id>
       <build/>
       <properties>
-        <server.type>\${testServerType}</server.type>
-        <server.host>\${testServerHost}</server.host>
-        <server.port>\${testServerPort}</server.port>
-        <server.path>\${testServerPath}</server.path>
+        <server.type>\${test.server.type}</server.type>
+        <server.host>\${test.server.host}</server.host>
+        <server.port>\${test.server.port}</server.port>
+        <server.path>\${test.server.path}</server.path>
+        <server.version>\${test.server.version}</server.version>
+        <server.download.link>\${test.server.download.link}</server.download.link>
       </properties>
     </profile>
     <profile>
@@ -358,12 +360,12 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
         </plugins>
       </build>
       <properties>
-        <server.type>local</server.type>
-        <server.host>localhost</server.host>
-        <server.port>9008</server.port>
-        <server.path>/</server.path>
-        <server.version>\${project.runtime.version}</server.version>
-        <server.download.link>\${testServerDownloadLink}</server.download.link>
+        <server.type>\${test.server.type}</server.type>
+        <server.host>\${test.server.host}</server.host>
+        <server.port>\${test.server.port}</server.port>
+        <server.path>\${test.server.path}</server.path>
+        <server.version>\${test.server.version}</server.version>
+        <server.download.link>\${test.server.download.link}</server.download.link>
       </properties>
     </profile>
   </profiles>
@@ -372,7 +374,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
       <plugin>
         <groupId>org.wso2.maven</groupId>
         <artifactId>synapse-unit-test-maven-plugin</artifactId>
-        <version>5.2.82</version>
+        <version>5.2.90</version>
         <executions>
           <execution>
             <id>synapse-unit-test</id>
@@ -412,6 +414,13 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
     <project.runtime.version>${miVersion}</project.runtime.version>
     <dockerfile.base.image>wso2/wso2mi:\${project.runtime.version}</dockerfile.base.image>
     <car.plugin.version>5.2.88</car.plugin.version>
+    <test.server.type>local</test.server.type>
+    <test.server.host>localhost</test.server.host>
+    <test.server.port>9008</test.server.port>
+    <test.server.path>/</test.server.path>
+    <test.server.version>\${project.runtime.version}</test.server.version>
+    <testServerDownloadLink>https://github.com/wso2/micro-integrator/releases/download/v\${project.runtime.version}/wso2mi-\${project.runtime.version}.zip</testServerDownloadLink>
+    <maven.test.skip>false</maven.test.skip>
   </properties>
 </project>`;
 
