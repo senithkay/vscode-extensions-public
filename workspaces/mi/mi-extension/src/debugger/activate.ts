@@ -14,7 +14,7 @@ import { COMMANDS } from '../constants';
 import { extension } from '../MIExtensionContext';
 import { executeBuildTask, getServerPath } from './debugHelper';
 import { getDockerTask } from './tasks';
-import { navigate } from '../stateMachine';
+import { refreshUI } from '../stateMachine';
 import * as fs from 'fs';
 import * as path from 'path';
 import { SELECTED_SERVER_PATH, SELECTED_JAVA_HOME } from './constants';
@@ -259,7 +259,7 @@ export function activateDebugger(context: vscode.ExtensionContext) {
 
     // Listener to support reflect breakpoint changes in diagram when debugger is inactive
     context.subscriptions.push(vscode.debug.onDidChangeBreakpoints((session) => {
-        navigate();
+        refreshUI();
     }));
 
     const factory = new InlineDebugAdapterFactory();
