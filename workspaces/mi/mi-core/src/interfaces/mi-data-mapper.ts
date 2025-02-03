@@ -28,5 +28,6 @@ export enum TypeKind {
     Boolean = 'boolean',
     Object = 'object',
     Union = 'union',
+    Literal = 'literal',
     Unknown = 'unknown'
 }

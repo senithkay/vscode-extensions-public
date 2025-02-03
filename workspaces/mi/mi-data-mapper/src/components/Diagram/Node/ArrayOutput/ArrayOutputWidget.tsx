@@ -116,7 +116,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		&& Node.isPropertyAssignment(dmTypeWithValue.value)
 		&& dmTypeWithValue.value;
 	const value: string = hasValue && propertyAssignment && propertyAssignment.getInitializer().getText();
-	const hasDefaultValue = value && getDefaultValue(dmTypeWithValue.type.kind) === value.trim();
+	const hasDefaultValue = value && getDefaultValue(dmTypeWithValue.type) === value.trim();
 
 	const handleExpand = (expanded: boolean) => {
 		if (!expanded) {
@@ -142,10 +142,9 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 	};
 
 	const handleAddArrayElement = async () => {
-		setIsAddingElement(true)
-
-		const typeKind = dmTypeWithValue.type?.memberType.kind;
-		const defaultValue = getDefaultValue(typeKind);
+		setIsAddingElement(true);
+		
+		const defaultValue = getDefaultValue(dmTypeWithValue.type?.memberType);
 		const bodyNodeForgotten = body && body.wasForgotten();
 		const valExpr = body && !bodyNodeForgotten && Node.isPropertyAssignment(body) ? body.getInitializer() : body;
 		const arrayLitExpr = dmTypeWithValue && Node.isArrayLiteralExpression(valExpr) ? valExpr : null;
