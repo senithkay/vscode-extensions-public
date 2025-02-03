@@ -10,7 +10,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, ProgressRing, TruncatedLabel } from '@wso2-enterprise/ui-toolkit';
 import { Node } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -137,7 +137,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	};
 
 	const label = (
-		<span style={{ marginRight: "auto" }}>
+		<TruncatedLabel style={{ marginRight: "auto" }}>
 			{valueLabel && (
 				<span className={classes.valueLabel}>
 					<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
@@ -147,7 +147,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 			<span className={classes.outputTypeLabel}>
 				{typeName || ''}
 			</span>
-		</span>
+		</TruncatedLabel>
 	);
 
 	const onRightClick = (event: React.MouseEvent) => {

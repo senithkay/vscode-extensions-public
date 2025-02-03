@@ -10,7 +10,7 @@
 import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { Button, Codicon, Icon, LinkButton, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon, LinkButton, ProgressRing, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import { TypeKind } from "@wso2-enterprise/mi-core";
 import { ArrayLiteralExpression, Block, Node, ObjectLiteralExpression, ReturnStatement } from "ts-morph";
 import classnames from "classnames";
@@ -141,7 +141,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     };
 
     const label = (
-        <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
+        <TruncatedLabel style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
                 className={classnames(classes.valueLabel,
                     isDisabled ? classes.labelDisabled : "")}
@@ -187,7 +187,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                     )}
                 </span>
             )}
-        </span>
+        </TruncatedLabel>
     );
 
     const handleExpand = (expanded: boolean) => {

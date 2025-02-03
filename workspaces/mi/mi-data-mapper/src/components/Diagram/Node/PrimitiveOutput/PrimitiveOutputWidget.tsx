@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, TruncatedLabel } from '@wso2-enterprise/ui-toolkit';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Node } from "ts-morph";
 
@@ -63,7 +63,7 @@ export function PrimitiveOutputWidget(props: PrimitiveOutputWidgetProps) {
 	const indentation = (portIn && !expanded) ? 0 : 24;
 
 	const label = (
-		<span style={{ marginRight: "auto" }}>
+		<TruncatedLabel style={{ marginRight: "auto" }}>
 			{valueLabel && (
 				<span className={classes.valueLabel}>
 					<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
@@ -71,7 +71,7 @@ export function PrimitiveOutputWidget(props: PrimitiveOutputWidgetProps) {
 				</span>
 			)}
 			<span className={classes.outputTypeLabel}>{type}</span>
-		</span>
+		</TruncatedLabel>
 	);
 
 	const handleExpand = () => {
