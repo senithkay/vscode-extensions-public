@@ -57,7 +57,6 @@ interface ServiceConfigFormProps {
     onSubmit: (data: ServiceModel) => void;
     openListenerForm?: () => void;
     onBack?: () => void;
-    formRef?: React.Ref<unknown>;
     formSubmitText?: string;
 }
 
@@ -65,7 +64,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const { rpcClient } = useRpcContext();
 
     const [serviceFields, setServiceFields] = useState<FormField[]>([]);
-    const { serviceModel, onSubmit, onBack, formRef, openListenerForm, formSubmitText = "Next" } = props;
+    const { serviceModel, onSubmit, onBack, openListenerForm, formSubmitText = "Next" } = props;
     const [filePath, setFilePath] = useState<string>('');
 
     const createTitle = `Provide the necessary configuration details for the ${serviceModel.displayAnnotation.label} to complete the setup.`;
@@ -112,7 +111,6 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                             </BodyText>
                             {filePath &&
                                 <FormGeneratorNew
-                                    ref={formRef}
                                     fileName={filePath}
                                     targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
                                     fields={serviceFields}
@@ -148,7 +146,7 @@ function convertConfig(listener: ServiceModel): FormField[] {
             valueTypeConstraint: expression.valueTypeConstraint,
             advanced: expression.advanced,
             diagnostics: [],
-            items: expression.valueType === "SINGLE_SELECT" ? [""].concat(expression.items) : expression.items || [expression.value],
+            items: expression.valueType === "SINGLE_SELECT" ? expression.items : expression.items || [expression.value],
             choices: expression.choices,
             placeholder: expression.placeholder,
             addNewButton: expression.addNewButton
