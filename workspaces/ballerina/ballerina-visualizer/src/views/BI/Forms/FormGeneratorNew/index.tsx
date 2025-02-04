@@ -15,9 +15,10 @@ import {
     SubPanel,
     VisualizerLocation,
     TRIGGER_CHARACTERS,
-    TriggerCharacter
+    TriggerCharacter,
+    Type
 } from "@wso2-enterprise/ballerina-core";
-import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditorProps, HelperPaneData } from "@wso2-enterprise/ballerina-side-panel";
+import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditorProps, HelperPaneData, PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import {
     convertBalCompletion,
     convertToHelperPaneFunction,
@@ -29,6 +30,7 @@ import { CompletionItem, FormExpressionEditorRef } from "@wso2-enterprise/ui-too
 import { debounce } from "lodash";
 import { getHelperPane } from "../../HelperPane";
 import { RecordEditor } from "../../../RecordEditor/RecordEditor";
+import { TypeEditor } from "@wso2-enterprise/type-editor";
 
 interface FormProps {
     fileName: string;
@@ -38,6 +40,7 @@ interface FormProps {
     submitText?: string;
     onBack?: () => void;
     editForm?: boolean;
+    isGraphqlEditor?: boolean;
     onSubmit: (data: FormValues) => void;
     isActiveSubPanel?: boolean;
     openSubPanel?: (subPanel: SubPanel) => void;
@@ -58,6 +61,7 @@ export function FormGeneratorNew(props: FormProps) {
         openSubPanel,
         isActiveSubPanel,
         updatedExpressionField,
+        isGraphqlEditor,
         resetUpdatedExpressionField
     } = props;
 
@@ -74,10 +78,11 @@ export function FormGeneratorNew(props: FormProps) {
     const [variableInfo, setVariableInfo] = useState<HelperPaneData>();
     const [functionInfo, setFunctionInfo] = useState<HelperPaneData>();
     const [libraryBrowserInfo, setLibraryBrowserInfo] = useState<HelperPaneData>();
+    const [openTypeEditor, setOpenTypeEditor] = useState<boolean>(false);
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
 
     const [fieldsValues, setFields] = useState<FormField[]>(fields);
-
+    // const [isReturnTypeField, setIsReturnTypeField] = useState(false);
 
     useEffect(() => {
         handleFormOpen();
@@ -344,6 +349,14 @@ export function FormGeneratorNew(props: FormProps) {
     }
 
     const handleOpenRecordEditor = (isOpen: boolean, f: FormValues) => {
+        if (isGraphqlEditor) {
+            // Check if the field that triggered this is a return type field
+            // const triggeringField = fields.find(field => f[field.key] !== undefined);
+            // const isReturnType = triggeringField?.key.includes('returnType');
+            // setIsReturnTypeField(isReturnType);
+            setOpenTypeEditor(isOpen);
+            return;
+        }
         // Get f.value and assign that value to field value
         const updatedFields = fields.map((field) => {
             const updatedField = { ...field };
@@ -355,6 +368,100 @@ export function FormGeneratorNew(props: FormProps) {
         setFields(updatedFields);
         setShowRecordEditor(isOpen);
     };
+
+    const defaultType = (): Type => {
+        // For GraphQL return types, create a Class type
+        // if (isGraphqlEditor && isReturnTypeField) {
+        //     return {
+        //         name: "MyType",
+        //         editable: true,
+        //         metadata: {
+        //             label: "",
+        //             description: ""
+        //         },
+        //         codedata: {
+        //             lineRange: {
+        //                 startLine: {
+        //                     line: 0,
+        //                     offset: 0
+        //                 },
+        //                 endLine: {
+        //                     line: 0,
+        //                     offset: 0
+        //                 },
+        //                 fileName: "types.bal"
+        //             },
+        //             node: "CLASS"
+        //         },
+        //         properties: {},
+        //         members: [],
+        //         includes: [] as string[],
+        //         functions: []
+        //     };
+        // }
+
+        return {
+            name: "MyType",
+            editable: true,
+            metadata: {
+                label: "",
+                description: ""
+            },
+            codedata: {
+                lineRange: {
+                    startLine: {
+                        line: 0,
+                        offset: 0
+                    },
+                    endLine: {
+                        line: 0,
+                        offset: 0
+                    },
+                    fileName: "types.bal"
+                },
+                node: "CLASS"
+            },
+            properties: {},
+            members: [],
+            includes: [] as string[],
+            functions: []
+        };
+
+        // Default Record type for other cases
+        // return {
+        //     name: "MyType",
+        //     editable: true,
+        //     metadata: {
+        //         label: "",
+        //         description: ""
+        //     },
+        //     codedata: {
+        //         lineRange: {
+        //             startLine: {
+        //                 line: 0,
+        //                 offset: 0
+        //             },
+        //             endLine: {
+        //                 line: 0,
+        //                 offset: 0
+        //             },
+        //             fileName: "types.bal"
+        //         },
+        //         node: "RECORD"
+        //     },
+        //     properties: {},
+        //     members: [],
+        //     includes: [] as string[]
+        // };
+    }
+
+    const onTypeChange = async (type: Type) => {
+        setOpenTypeEditor(false);
+    }
+
+    const onCloseTypeEditor = () => {
+        setOpenTypeEditor(false);
+    }
 
     const expressionEditor = useMemo(() => {
         return {
@@ -400,7 +507,7 @@ export function FormGeneratorNew(props: FormProps) {
                     resetUpdatedExpressionField={resetUpdatedExpressionField}
                 />
             )}
-            {showRecordEditor && (
+            {showRecordEditor && !isGraphqlEditor && (
                 <RecordEditor
                     fields={fields}
                     isRecordEditorOpen={showRecordEditor}
@@ -409,6 +516,18 @@ export function FormGeneratorNew(props: FormProps) {
                     rpcClient={rpcClient}
                 />
             )}
+            {isGraphqlEditor && openTypeEditor &&
+                <PanelContainer title={"New Type"} show={true} onClose={onCloseTypeEditor}>
+                    <TypeEditor
+                        type={defaultType()}
+                        newType={true}
+                        isGraphql={true}
+                        rpcClient={rpcClient}
+                        onTypeChange={onTypeChange}
+                    />
+                </PanelContainer>
+            }
+
         </>
     );
 }

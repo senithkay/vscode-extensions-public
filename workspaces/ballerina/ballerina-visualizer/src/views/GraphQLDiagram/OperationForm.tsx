@@ -226,6 +226,7 @@ export function OperationForm(props: OperationFormProps) {
 
     return (
         <FormGeneratorNew
+            isGraphqlEditor={true}
             fileName={filePath}
             targetLineRange={lineRange}
             fields={formFields}
@@ -263,7 +264,7 @@ export function convertParameterToFormField(key: string, param: ParameterModel):
     return {
         key: key === "defaultValue" ? "defaultable" : key === "name" ? "variable" : key,
         label: param.metadata?.label,
-        type: param.valueType || 'TYPE',
+        type: param.valueType || 'string',
         optional: param.optional || false,
         editable: param.editable || false,
         advanced: key === "defaultValue" ? true : param.advanced,

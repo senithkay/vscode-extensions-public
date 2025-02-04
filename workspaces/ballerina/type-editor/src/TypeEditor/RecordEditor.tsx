@@ -18,10 +18,11 @@ interface RecordEditorProps {
     onChange: (type: Type) => void;
     onImportJson: () => void;
     onImportXml: () => void;
+    isGraphql?: boolean;
 }
 
 export const RecordEditor: React.FC<RecordEditorProps> = (props) => {
-    const { type, onChange, onImportJson, onImportXml } = props;
+    const { type, onChange, onImportJson, onImportXml, isGraphql } = props;
     const nameInputRefs = useRef<HTMLInputElement[]>([]);
 
     const handleMemberNameChange = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,7 +67,7 @@ export const RecordEditor: React.FC<RecordEditorProps> = (props) => {
     return (
         <div className="record-editor">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3>Record</h3>
+                <h3>{isGraphql ? 'Input Object' : 'Record'}</h3>
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <Button appearance="icon">
                         <Codicon name="arrow-circle-down" onClick={handleImportJson} /> JSON

@@ -16,6 +16,8 @@ import { ProgressRing, ThemeColors, View, ViewContent } from "@wso2-enterprise/u
 import { Colors } from "../../resources/constants";
 import styled from "@emotion/styled";
 import { GraphqlServiceEditor } from "./GraphqlServiceEditor";
+import { TypeEditor } from "@wso2-enterprise/type-editor";
+import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 
 const HeaderContainer = styled.div`
     align-items: center;
@@ -48,6 +50,8 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
     // const [graphqlModdel, setGraphqlModel] = useState<GraphqlDesignService>();
     const [graphqlTypeModel, setGraphqlTypeModel] = useState<GetGraphqlTypeResponse>();
     const [isServiceEditorOpen, setIsServiceEditorOpen] = useState<boolean>(false);
+    const [isTypeEditorOpen, setIsTypeEditorOpen] = useState(false);
+    const [editingType, setEditingType] = useState<Type>();
 
     // useEffect(() => {
     //     if (rpcClient) {
@@ -105,12 +109,30 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
         rpcClient.getCommonRpcClient().goToSource({ position: targetPosition });
     };
 
-    const onTypeEdit = (typeId: string, isGraphqlRoot?: boolean) => {
-        console.log(typeId, isGraphqlRoot);
+    const onTypeEdit = async (typeId: string, isGraphqlRoot?: boolean) => {
         if (isGraphqlRoot) {
             setIsServiceEditorOpen(true);
+            return;
         }
-        // Else open the respective type editor
+
+        // find the type by checking the references of graphqlTypeModel
+        const type = graphqlTypeModel?.refs.find((type) => type.name === typeId);
+        if (type) {
+            setEditingType(type);
+            setIsTypeEditorOpen(true);
+        } else {
+            console.error("Type not found");
+        }
+    }
+
+    const onTypeChange = async (type: Type) => {
+        setIsTypeEditorOpen(false);
+        setEditingType(undefined);
+    }
+
+    const onTypeEditorClosed = () => {
+        setIsTypeEditorOpen(false);
+        setEditingType(undefined);
     }
 
 
@@ -152,6 +174,17 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
                     onClose={() => setIsServiceEditorOpen(false)}
                 />
             }
+            {isTypeEditorOpen && editingType && (
+                <PanelContainer title={`Edit Type`} show={true} onClose={onTypeEditorClosed}>
+                    <TypeEditor
+                        type={editingType}
+                        rpcClient={rpcClient}
+                        onTypeChange={onTypeChange}
+                        newType={false}
+                        isGraphql={true}
+                    />
+                </PanelContainer>
+            )}
         </>
         // <>
         //     {visualizerLocation &&
