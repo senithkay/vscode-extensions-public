@@ -245,11 +245,22 @@ export const EnvironmentSetup = () => {
         }
     }
 
+    const getHeadlineDescription = () => {
+        let isJavaSet = javaPathDetails?.status !== "not-valid";
+        let isMISet = miPathDetails?.status !== "not-valid";
+
+        if (isJavaSet && isMISet) {
+            return `Micro Integrator version ${recommendedVersions.miVersion} is setup.`;
+        } else {
+            return `Micro Integrator version ${recommendedVersions.miVersion} is not setup.`;
+        }
+    }
+
     return (
         <Container>
             <TitlePanel>
                 <Headline>Micro Integrator (MI) for VS Code</Headline>
-                <HeadlineSecondary>Micro Integrator version {recommendedVersions.miVersion} is not setup.</HeadlineSecondary>
+                <HeadlineSecondary>{getHeadlineDescription()}</HeadlineSecondary>
             </TitlePanel>
 
             {isPomValid ? (
@@ -306,10 +317,10 @@ export const EnvironmentSetup = () => {
                 <>
                     <div>
                         <p>
-                            Unsupported project runtime version detected in <code>pom.xml</code>.
+                            Unsupported project runtime version or project runtime version missing in <code>pom.xml</code>.
                         </p>
                         <p>
-                            Update the runtime version in your <code>pom.xml</code> file to a supported version.
+                            Please select the correct runtime version for your project in <code>pom.xml</code> file to a supported version.
                         </p>
                     </div>
 

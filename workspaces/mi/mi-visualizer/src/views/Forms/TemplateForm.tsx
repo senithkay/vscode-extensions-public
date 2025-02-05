@@ -22,6 +22,8 @@ import { DefaultEndpointWizard } from "./DefaultEndpointForm";
 import { HttpEndpointWizard } from "./HTTPEndpointForm";
 import { WsdlEndpointWizard } from "./WSDLEndpointForm";
 import { Template } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { compareVersions } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
+import { RUNTIME_VERSION_440 } from "../../constants";
 
 export interface TemplateWizardProps {
     path: string;
@@ -42,6 +44,11 @@ type InputsFields = {
     wsdlPort?: number;
     traceEnabled?: boolean;
     statisticsEnabled?: boolean;
+    saveInReg?: boolean;
+    //reg form
+    artifactName?: string;
+    registryPath?: string
+    registryType?: "gov" | "conf";
 };
 
 const newTemplate: InputsFields = {
@@ -55,6 +62,11 @@ const newTemplate: InputsFields = {
     wsdlPort: 8080,
     traceEnabled: false,
     statisticsEnabled: false,
+    saveInReg: false,
+    //reg form
+    artifactName: "",
+    registryPath: "/",
+    registryType: "gov"
 }
 
 export function TemplateWizard(props: TemplateWizardProps) {
@@ -65,6 +77,10 @@ export function TemplateWizard(props: TemplateWizardProps) {
             .test('validateTemplateName',
                 'An artifact with same name already exists', value => {
                     return !isNewTemplate ? !(workspaceFileNames.includes(value) && value !== savedTemplateName) : !workspaceFileNames.includes(value);
+                })
+            .test('validateTemplateArtifactName',
+                'A registry resource with this artifact name already exists', value => {
+                    return !isNewTemplate ? !(artifactNames.includes(value) && value !== savedTemplateName) : !artifactNames.includes(value);
                 }),
         templateType: yup.string().default(""),
         address: yup.string().notRequired().default(""),
@@ -75,6 +91,35 @@ export function TemplateWizard(props: TemplateWizardProps) {
         wsdlPort: yup.number().notRequired().default(8080),
         traceEnabled: yup.boolean().default(false),
         statisticsEnabled: yup.boolean().default(false),
+        saveInReg: yup.boolean().default(false),
+        artifactName: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().required("Artifact Name is required")
+                    .test('validateArtifactName',
+                        'Artifact name already exists', value => {
+                            return !artifactNames.includes(value);
+                        })
+                    .test('validateFileName',
+                        'A file already exists in the workspace with this artifact name', value => {
+                            return !workspaceFileNames.includes(value);
+                        }),
+        }),
+        registryPath: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().required("Registry Path is required")
+                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
+                        const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("templateName"));
+                        if (formattedPath === undefined) return true;
+                        return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
+                    }),
+        }),
+        registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"]),
     });
 
     const {
@@ -93,12 +138,15 @@ export function TemplateWizard(props: TemplateWizardProps) {
     });
 
     const { rpcClient } = useVisualizerContext();
+    const [artifactNames, setArtifactNames] = useState([]);
+    const [registryPaths, setRegistryPaths] = useState([]);
     const isNewTemplate = !props.path.endsWith(".xml");
     const [savedTemplateName, setSavedTemplateName] = useState<string>("");
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
     const [paramsUpdated, setParamsUpdated] = useState(false);
     const [prevName, setPrevName] = useState<string | null>(null);
     const [endpointType, setEndpointType] = useState<string>(props.type);
+    const [isRegistryContentVisible, setIsRegistryContentVisible] = useState(false);
 
     const params: ParamConfig = {
         paramValues: [],
@@ -154,21 +202,31 @@ export function TemplateWizard(props: TemplateWizardProps) {
                 });
                 reset(existingTemplates);
                 setSavedTemplateName(existingTemplates.templateName);
+                setValue('saveInReg', false);
             } else {
                 params.paramValues = [];
                 setSequenceParams(params);
                 reset(newTemplate);
             }
 
+            const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
+            setArtifactNames(result.artifactNamesArr);
+            setRegistryPaths(result.registryPaths);
             const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
                 path: props.path,
             });
+            const response = await rpcClient.getMiVisualizerRpcClient().getProjectDetails();
+            const runtimeVersion = response.primaryDetails.runtimeVersion.value;
+            setIsRegistryContentVisible(compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0);
             setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
 
     useEffect(() => {
         setPrevName(watch("templateName"));
+        if (prevName === watch("artifactName")) {
+            setValue("artifactName", watch("templateName"));
+        }
     }, [watch("templateName")]);
 
     const handleParametersChange = (params: any) => {
@@ -200,14 +258,17 @@ export function TemplateWizard(props: TemplateWizardProps) {
         setValue('templateType', 'Sequence Template');
         const createTemplateParams: CreateTemplateRequest = {
             directory: props.path,
-            getContentOnly: false,
+            getContentOnly: watch("saveInReg"),
             ...values,
             parameters,
             isEdit: !isNewTemplate,
             range: props.model ? { start: { line: 0, character:0 }, end: props.model.sequence.range.startTagRange.start} : undefined
         }
 
-        await rpcClient.getMiDiagramRpcClient().createTemplate(createTemplateParams);
+        const result = await rpcClient.getMiDiagramRpcClient().createTemplate(createTemplateParams);
+        if (watch("saveInReg")) {
+            await saveToRegistry(rpcClient, props.path, values.registryType, values.templateName, result.content, values.registryPath, values.artifactName);
+        }
 
         if (props.isPopup) {
             rpcClient.getMiVisualizerRpcClient().openView({
@@ -277,6 +338,18 @@ export function TemplateWizard(props: TemplateWizardProps) {
                         paramConfigs={sequenceParams}
                         readonly={false}
                         onChange={handleParametersChange} />
+                    {isRegistryContentVisible && isNewTemplate && (
+                        <>
+                            <FormCheckBox
+                                label="Save the template in registry"
+                                {...register("saveInReg")}
+                                control={control}
+                            />
+                            {watch("saveInReg") && (<>
+                                <AddToRegistry path={props.path} fileName={watch("templateName")} register={register} errors={errors} getValues={getValues} />
+                            </>)}
+                        </>
+                    )}
                     <FormActions>
                         <Button
                             appearance="primary"

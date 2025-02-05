@@ -17,6 +17,7 @@ export interface DMType {
     fields?: DMType[];
     unionTypes?: DMType[];
     resolvedUnionType?: DMType;
+    isRecursive?: boolean;
 }
 
 export enum TypeKind {
@@ -27,5 +28,6 @@ export enum TypeKind {
     Boolean = 'boolean',
     Object = 'object',
     Union = 'union',
+    Literal = 'literal',
     Unknown = 'unknown'
 }

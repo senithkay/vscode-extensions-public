@@ -77,10 +77,7 @@ export const useIONodesStyles = () => ({
         whiteSpace: "nowrap",
         overflow: "hidden",
         textOverflow: "ellipsis",
-        color: "inherit",
-        "&:hover": {
-            overflow: "visible"
-        },
+        color: "inherit"
     }),
     filterPortWrap: css({
         width: IO_NODE_DEFAULT_WIDTH,

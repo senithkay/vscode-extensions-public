@@ -10,7 +10,7 @@
 import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { Button, Codicon, Icon, LinkButton, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon, LinkButton, ProgressRing, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import { TypeKind } from "@wso2-enterprise/mi-core";
 import { ArrayLiteralExpression, Block, Node, ObjectLiteralExpression, ReturnStatement } from "ts-morph";
 import classnames from "classnames";
@@ -113,7 +113,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         && Node.isPropertyAssignment(field.value)
         && field.value;
     const value: string = hasValue && propertyAssignment && propertyAssignment.getInitializer().getText();
-    const hasDefaultValue = value && getDefaultValue(field.type.kind) === value.trim();
+    const hasDefaultValue = value && getDefaultValue(field.type) === value.trim();
     let isDisabled = portIn.descendantHasValue;
 
     if (!isDisabled && !hasDefaultValue) {
@@ -141,7 +141,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     };
 
     const label = (
-        <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
+        <TruncatedLabel style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
                 className={classnames(classes.valueLabel,
                     isDisabled ? classes.labelDisabled : "")}
@@ -187,7 +187,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                     )}
                 </span>
             )}
-        </span>
+        </TruncatedLabel>
     );
 
     const handleExpand = (expanded: boolean) => {
@@ -222,8 +222,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         setIsAddingElement(true);
 
         try {
-            const typeKind: TypeKind = field.type?.memberType.kind;
-            const defaultValue = getDefaultValue(typeKind);
+            const defaultValue = getDefaultValue(field.type?.memberType);
             let targetExpr = arrayLitExpr;
             if (isReturnStmtMissing) {
                 const fnBody = context.functionST.getBody() as Block;
