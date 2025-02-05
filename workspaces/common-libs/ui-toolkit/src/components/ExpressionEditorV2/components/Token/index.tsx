@@ -131,8 +131,9 @@ namespace S {
         display: flex;
         flex-direction: column;
         gap: 8px;
-        padding: 8px;
-        background-color: var(--vscode-editor-background);
+        padding: 16px;
+        background-color: var(--vscode-dropdown-background);
+        box-sizing: border-box;
         filter: drop-shadow(0 3px 8px rgb(0 0 0 / 0.2));
         ${(props: StyleBase) => props.sx}
 
@@ -434,7 +435,7 @@ export const TokenEditor = ({
         return createPortal(
             <S.HelperPane ref={helperPaneContainerRef} sx={{ ...helperPanePosition }}>
                 {/* Editor to edit the token */}
-                <TextArea ref={textAreaRef} value={tokenValue} onTextChange={setTokenValue} rows={2} />
+                <TextArea ref={textAreaRef} value={tokenValue} onTextChange={setTokenValue} rows={3} />
 
                 {/* Helper pane content */}
                 {getHelperPane(handleHelperPaneChange)}
