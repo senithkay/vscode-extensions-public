@@ -12,6 +12,23 @@ import { Member, Type } from '@wso2-enterprise/ballerina-core';
 import { Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
 import { Button } from '@wso2-enterprise/ui-toolkit';
 import { TextField } from '@wso2-enterprise/ui-toolkit';
+import styled from '@emotion/styled';
+
+
+ const Header = styled.div`
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 8px;
+    `;
+
+const SectionTitle = styled.div`
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--vscode-editor-foreground);
+        margin-bottom: 4px;
+    `;
 
 interface RecordEditorProps {
     type: Type;
@@ -66,8 +83,8 @@ export const RecordEditor: React.FC<RecordEditorProps> = (props) => {
 
     return (
         <div className="record-editor">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3>{isGraphql ? 'Input Object' : 'Record'}</h3>
+            <Header>
+                <SectionTitle>{isGraphql ? 'Input Object' : 'Record'}</SectionTitle>
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <Button appearance="icon">
                         <Codicon name="arrow-circle-down" onClick={handleImportJson} /> JSON
@@ -77,7 +94,7 @@ export const RecordEditor: React.FC<RecordEditorProps> = (props) => {
                     </Button>
                     <Button appearance="icon" onClick={addMember}><Codicon name="add" /></Button>
                 </div>
-            </div>
+            </Header>
             {type.members.map((member, index) => (
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <TextField

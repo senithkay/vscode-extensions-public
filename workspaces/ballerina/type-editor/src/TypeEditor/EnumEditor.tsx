@@ -24,6 +24,21 @@ namespace S {
         justify-content: space-between;
     `;
 
+    export const Header = styled.div`
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 8px;
+    `;
+
+    export const SectionTitle = styled.div`
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--vscode-editor-foreground);
+        margin-bottom: 4px;
+    `;
+
     export const AddButton = styled(Button)`
         margin-top: 8px;
     `;
@@ -78,12 +93,12 @@ export function EnumEditor({ type, onChange }: EnumEditorProps) {
 
     return (
         <S.Container>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3>Enum</h3>
+            <S.Header>
+                <S.SectionTitle>Enum</S.SectionTitle>
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <Button appearance="icon" onClick={addMember}><Codicon name="add" /></Button>
                 </div>
-            </div>
+            </S.Header>
             {type.members.map((member, index) => (
                 <S.MemberRow key={index}>
                     <TextField

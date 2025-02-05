@@ -24,6 +24,14 @@ namespace S {
         align-items: center;
         justify-content: space-between;
         width: 100%;
+        padding: 8px;
+    `;
+
+    export const SectionTitle = styled.div`
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--vscode-editor-foreground);
+        margin-bottom: 4px;
     `;
 
     export const FunctionRow = styled.div`
@@ -91,12 +99,12 @@ export function ClassEditor({ type, onChange }: ClassEditorProps) {
 
     return (
         <S.Container>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3>Output Object</h3>
+            <S.Header>
+                <S.SectionTitle>Output Object</S.SectionTitle>
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <Button appearance="icon" onClick={addFunction}><Codicon name="add" /></Button>
                 </div>
-            </div>
+            </S.Header>
             {type.functions?.map((func, index) => (
                 <div key={index} style={{ display: 'flex', gap: '8px' }}>
                     <TextField

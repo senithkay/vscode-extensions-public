@@ -39,15 +39,26 @@ namespace S {
 
     export const Header = styled.div`
         display: flex;
-        align-items: center;
-        justify-content: space-between;
+        flex-direction: column;
+        gap: 12px;
         width: 100%;
+    `;
+
+    export const SectionTitle = styled.div`
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--vscode-editor-foreground);
     `;
 
     export const TypeList = styled.div`
         display: flex;
         flex-direction: column;
         gap: 8px;
+        width: 100%;
+        margin-top: 8px;
+    `;
+
+    export const TypeSelector = styled.div`
         width: 100%;
     `;
 }
@@ -126,13 +137,15 @@ export function UnionEditor({ type, onChange, rpcClient }: UnionEditorProps) {
     return (
         <S.Container>
             <S.Header>
-                <h3>Union Type</h3>
-                <Dropdown
-                    id="type-selector"
-                    label="Add Type"
-                    items={getFilteredTypes().map(t => ({ label: t.name, value: t.name }))}
-                    onChange={(e) => addType(e.target.value)}
-                />
+                <S.SectionTitle>Union Type</S.SectionTitle>
+                <S.TypeSelector>
+                    <Dropdown
+                        id="type-selector"
+                        label="Add Type"
+                        items={getFilteredTypes().map(t => ({ label: t.name, value: t.name }))}
+                        onChange={(e) => addType(e.target.value)}
+                    />
+                </S.TypeSelector>
             </S.Header>
             <S.TypeList>
                 {type.members.map((member, index) => (

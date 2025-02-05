@@ -24,8 +24,9 @@ import { applyModifications } from "../../utils/utils";
 
 const InfoContainer = styled.div`
     display: flex;
-    gap: 20px;
-    padding: 15px;
+    flex-direction: column;
+    gap: 5px;
+    padding:  0 15px 15px 15px;
 `;
 
 const InfoSection = styled.div`
@@ -43,7 +44,7 @@ const GraphqlContainer = styled.div`
     position: fixed;
     top: 0;
     right: 0;
-    width: 600px;
+    width: 400px;
     height: 100%;
     background-color: ${Colors.SURFACE_BRIGHT};
 `;
@@ -469,7 +470,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                     title={"Operation Configuration"}
                     show={isNewForm}
                     onClose={handleNewFunctionClose}
-                    width={600}
+                    width={400}
                 >
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 16px 0 16px' }}>
@@ -500,7 +501,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                     title={"Edit Operation"}
                     show={isEdit}
                     onClose={handleEditFunctionClose}
-                    width={600}
+                    width={400}
                 >
                     <OperationForm
                         model={functionModel}

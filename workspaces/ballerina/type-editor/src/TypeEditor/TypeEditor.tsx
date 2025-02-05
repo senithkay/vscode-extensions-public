@@ -36,7 +36,7 @@ namespace S {
 
     export const CategoryRow = styled.div<{ showBorder?: boolean }>`
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         justify-content: flex-start;
         align-items: flex-start;
         gap: 12px;
@@ -319,6 +319,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             items={Object.values(TypeKind).map((kind) => ({ label: kind, value: kind }))}
                             onChange={(e) => handleTypeKindChange(e.target.value)}
                         />
+                        <div style={{ flex: '1' }}>
                         <TextField
                             label="Name"
                             value={type.name}
@@ -326,6 +327,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             onFocus={(e) => e.target.select()}
                             ref={nameInputRef}
                         />
+                        </div>
                     </S.CategoryRow>
 
                     {renderEditor()}
