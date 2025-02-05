@@ -74,7 +74,7 @@ export class ArrayOutputNode extends DataMapperNodeModel {
             this.isMapFn = isMapFnAtPropAsmt || isMapFnAtRootRtn;
 
             const isCollapsedField = useDMCollapsedFieldsStore.getState().isCollapsedField;
-            const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value);
+            const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value, this.context.recursiveTypes);
             this.dmType = type;
             this.typeName = getTypeName(valueEnrichedType.type);
 
