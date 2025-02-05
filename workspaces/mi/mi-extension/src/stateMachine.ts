@@ -497,7 +497,9 @@ const stateMachine = createMachine<MachineContext>({
                 }
                 if (!context.view?.includes("Form")) {
                     const ctx = context?.previousContext ? context?.previousContext : context;
-                    history.push({
+                    const historyStack = history.get();
+                    const lastEntry = historyStack[historyStack.length - 1];
+                    const newEntry = {
                         location: {
                             view: ctx?.view,
                             documentUri: ctx?.documentUri,
@@ -505,7 +507,11 @@ const stateMachine = createMachine<MachineContext>({
                             identifier: ctx?.identifier,
                             dataMapperProps: ctx?.dataMapperProps
                         }
-                    });
+                    };
+
+                    if (!lastEntry || JSON.stringify(lastEntry) !== JSON.stringify(newEntry)) {
+                        history.push(newEntry);
+                    }
                 }
                 StateMachinePopup.resetState();
                 resolve(true);
