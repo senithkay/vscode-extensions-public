@@ -105,7 +105,7 @@ export function UnionEditor({ type, onChange, rpcClient }: UnionEditorProps) {
         if (!typeInfo) return;
 
         const newMember: Member = {
-            kind: "UNION_MEMBER",
+            kind: "TYPE",
             type: typeInfo.name,
             refs: [],
             name: typeInfo.name
