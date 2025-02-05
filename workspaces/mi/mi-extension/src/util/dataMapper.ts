@@ -231,7 +231,7 @@ function getTypeInfoForInterface(typeNode: Type, branchInterfaces: string[], rec
 
         return {
             kind: TypeKind.Interface,
-            typeName: `${typeName} ∞`,
+            typeName,
             optional: typeNode.isNullable(),
             isRecursive: true
         };

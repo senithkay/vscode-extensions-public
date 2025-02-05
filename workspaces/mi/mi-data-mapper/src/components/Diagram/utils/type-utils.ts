@@ -7,10 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { ArrayLiteralExpression, AsExpression, Block, FunctionDeclaration, Node, ObjectLiteralExpression, PropertyAssignment, VariableDeclaration } from "ts-morph"
+import { cloneDeep } from "lodash";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
+import { useDMRecursiveTypesStore } from "../../../store/store";
 
 export function enrichAndProcessType(
     typeToBeProcessed: DMType,
@@ -133,6 +135,13 @@ export function getEnrichedDMType(
     } else {
         valueNode = node;
         nextNode = node;
+    }
+
+    if (type.isRecursive && valueNode) {
+        const recursiveType = type;
+        type = cloneDeep(useDMRecursiveTypesStore.getState().outputRecursiveTypes[recursiveType.typeName]);
+        type.fieldName = recursiveType.fieldName;
+        type.optional = recursiveType.optional;
     }
 
     dmTypeWithValue = new DMTypeWithValue(type, valueNode, parentType, originalType);

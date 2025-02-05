@@ -10,7 +10,7 @@ import { create } from "zustand";
 import { Node } from "ts-morph";
 
 import { InputOutputPortModel } from "../components/Diagram/Port";
-import { IOType, TypeKind } from "@wso2-enterprise/mi-core";
+import { DMType, IOType, TypeKind } from "@wso2-enterprise/mi-core";
 import { View } from "../components/DataMapper/Views/DataMapperView";
 
 interface SubMappingConfig {
@@ -91,6 +91,11 @@ export interface DataMapperArrayFiltersState {
 export interface DataMapperViewState {
     views: View[];
     setViews: (newViews: View[]) => void;
+}
+
+export interface DataMapperRecursiveTypesState {
+    outputRecursiveTypes: Record<string, DMType | undefined>;
+    setOutputRecursiveTypes: (outputRecursiveTypes: Record<string, DMType | undefined>) => void;
 }
 
 export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
@@ -197,4 +202,9 @@ export const useDMArrayFilterStore = create<DataMapperArrayFiltersState>((set) =
 export const useDMViewsStore = create<DataMapperViewState>((set) => ({
     views: [],
     setViews: (newViews: View[]) => set({ views: newViews })
+}));
+
+export const useDMRecursiveTypesStore = create<DataMapperRecursiveTypesState>((set) => ({
+    outputRecursiveTypes: {},
+    setOutputRecursiveTypes: (outputRecursiveTypes: Record<string, DMType | undefined>) => set({ outputRecursiveTypes })
 }));
