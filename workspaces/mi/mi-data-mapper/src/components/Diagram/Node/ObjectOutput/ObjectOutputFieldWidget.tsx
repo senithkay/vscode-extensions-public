@@ -387,7 +387,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                         {field.type.isRecursive && (
                             <span
                                 className={classes.outputNodeValue}
-                                style={{paddingInline: "3px"}}
+                                style={{ paddingInline: "3px" }}
                                 title="Recursive type. Initialize to access child fields.">
                                 ∞
                             </span>
