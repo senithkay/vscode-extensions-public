@@ -29,7 +29,7 @@ import treeKill = require('tree-kill');
 import { serverLog, showServerOutputChannel } from '../util/serverLogger';
 import { getJavaHomeFromConfig, getServerPathFromConfig } from '../util/onboardingUtils';
 const child_process = require('child_process');
-
+const findProcess = require('find-process');
 export async function isPortActivelyListening(port: number, timeout: number): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
         const startTime = Date.now();
@@ -155,7 +155,7 @@ export async function executeBuildTask(serverPath: string, shouldCopyTarget: boo
         buildProcess.stdout.on('data', (data) => {
             serverLog(data.toString('utf8'));
         });
-        
+
         buildProcess.stderr.on('data', (data) => {
             serverLog(`Build error:\n${data.toString('utf8')}`);
         });
@@ -352,24 +352,7 @@ export async function executeTasks(serverPath: string, isDebug: boolean): Promis
         executeBuildTask(serverPath).then(async () => {
             const isServerRunning = await checkServerLiveness();
             if (!isServerRunning) {
-                startServer(serverPath, isDebug).then(() => {
-                    if (isDebug) {
-                        // check if server command port is active
-                        isPortActivelyListening(DebuggerConfig.getCommandPort(), maxTimeout).then((isListening) => {
-                            if (isListening) {
-                                resolve();
-                                // Proceed with connecting to the port
-                            } else {
-                                logDebug(`The ${DebuggerConfig.getCommandPort()} port is not actively listening or the timeout has been reached.`, ERROR_LOG);
-                                reject(`Server command port isn't actively listening. Stop any running MI servers and restart the debugger.`);
-                            }
-                        });
-                    } else {
-                        resolve();
-                    }
-                }).catch((error) => {
-                    reject(error);
-                });
+                startServerWithPortCheck(resolve, reject);
             } else {
                 // Server could be running in the background without debug mode, but we need to rerun to support this mode
                 if (isDebug) {
@@ -383,8 +366,15 @@ export async function executeTasks(serverPath: string, isDebug: boolean): Promis
                         }
                     });
                 } else {
-                    vscode.window.showInformationMessage('Server is already running');
-                    resolve();
+                    const choice = await vscode.window.showWarningMessage('A server is already running. Do you wish to stop the running server?',
+                        { modal: true },
+                        'Yes', 'No');
+                    if (choice === 'Yes') {
+                        await killProcessByPort(DebuggerConfig.getServerPort());
+                        startServerWithPortCheck(resolve, reject);
+                    } else {
+                        resolve();
+                    }
                 }
             }
         }).catch((error) => {
@@ -392,6 +382,27 @@ export async function executeTasks(serverPath: string, isDebug: boolean): Promis
             logDebug(`Error executing BuildTask: ${error}`, ERROR_LOG);
         });
     });
+
+    function startServerWithPortCheck(resolve: (value: void | PromiseLike<void>) => void, reject: (reason?: any) => void) {
+        startServer(serverPath, isDebug).then(() => {
+            if (isDebug) {
+                // check if server command port is active
+                isPortActivelyListening(DebuggerConfig.getCommandPort(), maxTimeout).then((isListening) => {
+                    if (isListening) {
+                        resolve();
+                        // Proceed with connecting to the port
+                    } else {
+                        logDebug(`The ${DebuggerConfig.getCommandPort()} port is not actively listening or the timeout has been reached.`, ERROR_LOG);
+                        reject(`Server command port isn't actively listening. Stop any running MI servers and restart the debugger.`);
+                    }
+                });
+            } else {
+                resolve();
+            }
+        }).catch((error) => {
+            reject(error);
+        });
+    }
 }
 
 export async function getServerPath(): Promise<string | undefined> {
@@ -581,5 +592,28 @@ export async function setManagementCredentials(serverConfigPath: string) {
         }
     } catch (error) {
         logDebug(`Failed to read or parse deployment.toml: ${error}`, ERROR_LOG);
+    }
+}
+
+/**
+ * Kill a process by its listening port.
+ * @param port The port number on which the target process is listening.
+ */
+export async function killProcessByPort(port: number): Promise<void> {
+    try {
+        const list = await findProcess('port', port);
+
+        if (list.length === 0) {
+            vscode.window.showInformationMessage(`No process found listening on port ${port}.`);
+            return;
+        }
+
+        // Iterate over the found processes and kill each
+        for (const processInfo of list) {
+            const pid = processInfo.pid;
+            treeKill(pid, 'SIGKILL');
+        }
+    } catch (error) {
+        vscode.window.showErrorMessage(`Error finding or killing process on port ${port}: ${(error as Error).message}`);
     }
 }

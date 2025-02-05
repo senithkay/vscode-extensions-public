@@ -2896,6 +2896,7 @@ importers:
       cors-anywhere: ^0.4.4
       eslint: ^8.47.0
       fast-xml-parser: ~4.3.2
+      find-process: ~1.4.10
       fs-extra: ~11.2.0
       glob: ^10.3.3
       json-schema: 0.4.0
@@ -2954,6 +2955,7 @@ importers:
       copyfiles: 2.4.1
       cors-anywhere: 0.4.4
       fast-xml-parser: 4.3.5
+      find-process: 1.4.10
       fs-extra: 11.2.0
       json-schema: 0.4.0
       json-schema-to-ts: 3.0.1
@@ -28515,7 +28517,7 @@ packages:
       webpack-cli: 4.x.x
     dependencies:
       webpack: 5.90.1_webpack-cli@4.10.0
-      webpack-cli: 4.10.0_webpack@5.90.1
+      webpack-cli: 4.10.0_5nabick7x4u3vnr2pltk3mmvae
 
   /@webpack-cli/configtest/2.1.1_fsfaki5eyzmxu77y2afce3sch4:
     resolution: {integrity: sha512-wy0mglZpDSiSS0XHrVR+BAdId2+yxPSoJW8fsna3ZpYSlufjvxnP4YbKTCBZnNIcGN4r6ZPXV55X4mYExOfLmw==}
@@ -28543,7 +28545,7 @@ packages:
       webpack-cli: 4.x.x
     dependencies:
       envinfo: 7.11.1
-      webpack-cli: 4.10.0_webpack@5.90.1
+      webpack-cli: 4.10.0_5nabick7x4u3vnr2pltk3mmvae
 
   /@webpack-cli/info/2.0.2_fsfaki5eyzmxu77y2afce3sch4:
     resolution: {integrity: sha512-zLHQdI/Qs1UyT5UBdWNqsARasIA+AaF8t+4u2aS2nEpBQh2mWIVb8qAklq0eUENnC5mOItrIB4LiS9xMtph18A==}
@@ -28575,6 +28577,7 @@ packages:
         optional: true
     dependencies:
       webpack-cli: 4.10.0_webpack@5.90.1
+    dev: true
 
   /@webpack-cli/serve/1.7.0_zlkpompfwd3ohwjpgahvnmgqqy:
     resolution: {integrity: sha512-oxnCNGj88fL+xzV+dacXs44HcDwf1ovs3AuEzvP7mqXw7fQntqIhQ1BRmynh4qEKQSSSRSWVyXRjmTbZIX9V2Q==}
@@ -28587,7 +28590,6 @@ packages:
     dependencies:
       webpack-cli: 4.10.0_5nabick7x4u3vnr2pltk3mmvae
       webpack-dev-server: 4.15.1_6gndg7zj7jvfuawvaw3en4bimi
-    dev: true
 
   /@webpack-cli/serve/2.0.5_fsfaki5eyzmxu77y2afce3sch4:
     resolution: {integrity: sha512-lqaoKnRYBdo1UgDX8uF24AfGMifWK19TxPmM5FHc2vAGxrJ/qtyUyFBWoY1tISZdelsQ5fBcOusifo5o5wSJxQ==}
@@ -32627,6 +32629,11 @@ packages:
   /commander/11.1.0:
     resolution: {integrity: sha512-yPVavfyCcRhmorC7rWlkHn15b4wDVgVmBA7kV4QVBsF7kv/9TKJAbAXVTxvTnwP8HHKjRCJDClKbciiYS7p0DQ==}
     engines: {node: '>=16'}
+
+  /commander/12.1.0:
+    resolution: {integrity: sha512-Vw8qHK3bZM9y/P10u3Vib8o/DdkvA2OtPtZvD871QKjy74Wj1WSKFILMPRPSdUSx5RFK1arlJzEtA4PkFgnbuA==}
+    engines: {node: '>=18'}
+    dev: false
 
   /commander/2.13.0:
     resolution: {integrity: sha512-MVuS359B+YzaWqjCL/c+22gfryv+mCBPHAv3zyVI2GN8EY6IRP8VwtasXn8jyyhvvq84R4ImN1OKRtcbIasjYA==}
@@ -36706,6 +36713,15 @@ packages:
   /find-index/0.1.1:
     resolution: {integrity: sha512-uJ5vWrfBKMcE6y2Z8834dwEZj9mNGxYa3t3I53OwFeuZ8D9oc2E5zcsrkuhX6h4iYrjhiv0T3szQmxlAV9uxDg==}
     dev: true
+
+  /find-process/1.4.10:
+    resolution: {integrity: sha512-ncYFnWEIwL7PzmrK1yZtaccN8GhethD37RzBHG6iOZoFYB4vSmLLXfeWJjeN5nMvCJMjOtBvBBF8OgxEcikiZg==}
+    hasBin: true
+    dependencies:
+      chalk: 4.1.2
+      commander: 12.1.0
+      loglevel: 1.9.2
+    dev: false
 
   /find-root/1.1.0:
     resolution: {integrity: sha512-NKfW6bec6GfKc0SGx1e07QZY9PE99u0Bft/0rzSD5k3sO/vwkVUpDUKVm5Gpp5Ue3YfShPFTX2070tDs5kB9Ng==}
@@ -43147,6 +43163,11 @@ packages:
     resolution: {integrity: sha512-hP3I3kCrDIMuRwAwHltphhDM1r8i55H33GgqjXbrisuJhF4kRhW1dNuxsRklp4bXl8DSdLaNLuiL4A/LWRfxvg==}
     engines: {node: '>= 0.6.0'}
     dev: true
+
+  /loglevel/1.9.2:
+    resolution: {integrity: sha512-HgMmCqIJSAKqo68l0rS2AanEWfkxaZ5wNiEFb5ggm08lDs9Xl2KxBlX3PTcaD2chBM1gXAYf491/M2Rv8Jwayg==}
+    engines: {node: '>= 0.6.0'}
+    dev: false
 
   /lolex/5.1.2:
     resolution: {integrity: sha512-h4hmjAvHTmd+25JSwrtTIuwbKdwg5NzZVRMLn9saij4SZaepCrTCxPr35H/3bjwfMJtN+t3CX8672UIkglz28A==}
@@ -56413,7 +56434,6 @@ packages:
       webpack: 5.90.1_webpack-cli@4.10.0
       webpack-dev-server: 4.15.1_6gndg7zj7jvfuawvaw3en4bimi
       webpack-merge: 5.10.0
-    dev: true
 
   /webpack-cli/4.10.0_webpack@5.90.1:
     resolution: {integrity: sha512-NLhDfH/h4O6UOy+0LSso42xvYypClINuMNBVVzX4vX98TmTaTUxwRbXdhucbFMd2qLaCTcLq/PdYrvi8onw90w==}
@@ -56448,6 +56468,7 @@ packages:
       rechoir: 0.7.1
       webpack: 5.90.1_webpack-cli@4.10.0
       webpack-merge: 5.10.0
+    dev: true
 
   /webpack-cli/5.1.4_55ctblq7vmnkc7msvxpxtdxasq:
     resolution: {integrity: sha512-pIDJHIEI9LR0yxHXQ+Qh95k2EvXpWzZ5l+d+jIo+RdSm9MiHfzazIxwwni/p7+x4eJZuvG1AJwgC4TNQ7NRgsg==}
@@ -56721,7 +56742,6 @@ packages:
       - debug
       - supports-color
       - utf-8-validate
-    dev: true
 
   /webpack-dev-server/4.15.1_fsfaki5eyzmxu77y2afce3sch4:
     resolution: {integrity: sha512-5hbAst3h3C3L8w6W4P96L5vaV0PxSmJhxZvWKYIdgxOQm8pNZ5dEOmmSLBVpP85ReeyRt6AS1QJNyo/oFFPeVA==}
@@ -57324,7 +57344,7 @@ packages:
       tapable: 2.2.1
       terser-webpack-plugin: 5.3.10_webpack@5.90.1
       watchpack: 2.4.0
-      webpack-cli: 4.10.0_webpack@5.90.1
+      webpack-cli: 4.10.0_5nabick7x4u3vnr2pltk3mmvae
       webpack-sources: 3.2.3
     transitivePeerDependencies:
       - '@swc/core'

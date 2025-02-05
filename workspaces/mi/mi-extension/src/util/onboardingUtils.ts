@@ -23,8 +23,8 @@ export const supportedJavaVersionsForMI: { [key: string]: string } = {
 export const LATEST_MI_VERSION = "4.4.0";
 const COMPATIBLE_JDK_VERSION = "11";
 const miDownloadUrls: { [key: string]: string } = {
-    '4.4.0': 'https://github.com/wso2/product-micro-integrator/releases/download/v4.4.0-beta/wso2mi-4.4.0-beta.zip',
-    '4.3.0': 'https://github.com/wso2/micro-integrator/releases/download/v4.3.0/wso2mi-4.3.0.zip'
+    '4.4.0': 'https://mi-distribution.wso2.com/4.4.0/wso2mi-4.4.0.zip',
+    '4.3.0': 'https://mi-distribution.wso2.com/4.3.0/wso2mi-4.3.0.zip'
 };
 
 const CACHED_FOLDER = path.join(os.homedir(), '.wso2-mi');
@@ -59,15 +59,15 @@ export async function getProjectSetupDetails(): Promise<SetupDetails> {
     const miVersion = await getMIVersionFromPom();
     if (!miVersion) {
         vscode.window.showErrorMessage('Failed to get Micro Integrator version from pom.xml.');
-        return { isSupportedMIVersion: false, javaDetails: { status: 'not-valid' }, miDetails: { status: 'not-valid' } };
+        return { miVersionStatus: 'missing', javaDetails: { status: 'not-valid' }, miDetails: { status: 'not-valid' } };
     }
     if (isSupportedMIVersion(miVersion)) {
         const recommendedVersions = { miVersion, javaVersion: supportedJavaVersionsForMI[miVersion] };
         const setupDetails = await getJavaAndMIPathsFromWorkspace(miVersion);
-        return { ...setupDetails, isSupportedMIVersion: true, showDownloadButtons: isDownloadableMIVersion(miVersion), recommendedVersions };
+        return { ...setupDetails, miVersionStatus: 'valid', showDownloadButtons: isDownloadableMIVersion(miVersion), recommendedVersions };
     }
 
-    return { isSupportedMIVersion: false, javaDetails: { status: 'not-valid' }, miDetails: { status: 'not-valid' } };
+    return { miVersionStatus: 'not-valid', javaDetails: { status: 'not-valid' }, miDetails: { status: 'not-valid' } };
 }
 export async function getMIVersionFromPom(): Promise<string | null> {
     const pomFiles = await vscode.workspace.findFiles('pom.xml', '**/node_modules/**', 1);
@@ -78,7 +78,7 @@ export async function getMIVersionFromPom(): Promise<string | null> {
 
     const pomContent = await vscode.workspace.openTextDocument(pomFiles[0]);
     const result = await parseStringPromise(pomContent.getText(), { explicitArray: false, ignoreAttrs: true });
-    const runtimeVersion = result?.project?.properties["project.runtime.version"];
+    const runtimeVersion = result?.project?.properties?.["project.runtime.version"];
     return runtimeVersion;
 }
 async function isMISetup(miVersion: string): Promise<boolean> {
