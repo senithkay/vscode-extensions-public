@@ -118,7 +118,7 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
     const handleOnClickOnEntityName = () => {
         if (isClickable) {
             setSelectedNodeId(node.getID());
-            setFocusedNodeId(undefined);
+            setFocusedNodeId && setFocusedNodeId(undefined);
         }
     }
 
