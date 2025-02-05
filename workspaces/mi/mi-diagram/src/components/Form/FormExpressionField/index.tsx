@@ -25,8 +25,6 @@ import { getHelperPane } from '../HelperPane';
 import {
     enrichExpressionValue,
     extractExpressionValue,
-    filterHelperPaneCompletionItems,
-    filterHelperPaneFunctionCompletionItems,
     formatExpression,
     getExpressionValue,
     modifyCompletion
@@ -222,75 +220,33 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         handleCancel();
     };
 
-    const getHelperPaneInfo = useCallback(debounce((type: string, filterText: string) => {
-        rpcClient.getVisualizerState().then((machineView) => {
-            let position = nodeRange?.start == nodeRange?.end ? nodeRange.start :
-                { line: nodeRange.start.line, character: nodeRange.start.character + 1 };
-            rpcClient
-                .getMiDiagramRpcClient()
-                .getHelperPaneInfo({
-                    documentUri: machineView.documentUri,
-                    position: position,
-                })
-                .then((response) => {
-                    switch (type) {
-                        case 'payload':
-                            setPayloadInfo(filterHelperPaneCompletionItems(response.payload, filterText));
-                            break;
-                        case 'variables':
-                            setVariableInfo(filterHelperPaneCompletionItems(response.variables, filterText));
-                            break;
-                        case 'properties':
-                            setPropertiesInfo(filterHelperPaneCompletionItems(response.properties, filterText));
-                            break;
-                        case 'functions':
-                            setFunctionInfo(filterHelperPaneFunctionCompletionItems(response.functions, filterText));
-                            break;
-                        case 'configs':
-                            setConfigInfo(filterHelperPaneCompletionItems(response.configs, filterText));
-                            break;
-                        case 'headers':
-                            setHeaderInfo(filterHelperPaneCompletionItems(response.headers, filterText));
-                            break;
-                        case 'params':
-                            setParamInfo(filterHelperPaneCompletionItems(response.params, filterText));
-                            break;
-                    }
-                })
-                .finally(() => {
-                    setIsLoadingHelperPaneInfo(false);
-                });
-        });
-    }, 300),
-        [rpcClient, nodeRange?.start]
-    );
-
-    const handleGetHelperPaneInfo = useCallback((type: string, filterText: string) => {
-        setIsLoadingHelperPaneInfo(true);
-        getHelperPaneInfo(type, filterText);
-    }, [getHelperPaneInfo]);
-
     const handleChangeHelperPaneState = (isOpen: boolean) => {
         setIsHelperPaneOpen(isOpen);
     }
 
-    const handleGetHelperPane = (value: string, onChange: (value: string, updatedCursorPosition: number) => void) => {
-        return getHelperPane(
-            isLoadingHelperPaneInfo,
-            payloadInfo,
-            variableInfo,
-            propertiesInfo,
-            functionInfo,
-            configInfo,
-            headerInfo,
-            paramInfo,
-            () => handleChangeHelperPaneState(false),
-            handleGetHelperPaneInfo,
-            value,
-            onChange,
-            expressionRef
-        );
-    }
+    const handleGetHelperPane = useCallback((currentValue: string, onChange: (value: string, updatedCursorPosition: number) => void) => {
+        const handleHelperPaneChange = (value: string) => {
+            const cursorPosition = expressionRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
+            const updatedValue = currentValue.slice(0, cursorPosition) + value + currentValue.slice(cursorPosition);
+            const updatedCursorPosition = cursorPosition + value.length;
+
+            // Update the value in the expression editor
+            onChange(updatedValue, updatedCursorPosition);
+            // Focus the expression editor
+            expressionRef.current?.focus();
+            // Set the cursor
+            expressionRef.current?.setCursor(updatedValue, updatedCursorPosition);
+            // Close the helper pane
+            handleChangeHelperPaneState(false);
+        };
+
+        const position =
+            nodeRange?.start == nodeRange?.end
+                ? nodeRange.start
+                : { line: nodeRange.start.line, character: nodeRange.start.character + 1 };
+
+        return getHelperPane(position, () => handleChangeHelperPaneState(false), handleHelperPaneChange);
+    }, [expressionRef.current, handleChangeHelperPaneState, nodeRange, getHelperPane]);
 
     const handleFunctionEdit = (functionName: string) => {
         // Open Expression Editor for xpath

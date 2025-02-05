@@ -7,8 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import { debounce } from 'lodash';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { Position } from 'vscode-languageserver-types';
 import * as yup from 'yup';
 
 import styled from '@emotion/styled';
@@ -17,7 +19,7 @@ import { Alert, Button, Codicon, COMPLETION_ITEM_KIND, Divider, Dropdown, getIco
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { HelperPaneCompletionItem } from '@wso2-enterprise/mi-core';
 
-import { getHelperPaneCompletionItem } from '../FormExpressionField/utils';
+import { filterHelperPaneCompletionItems, getHelperPaneCompletionItem } from '../FormExpressionField/utils';
 
 const Form = styled.div`
     display: flex;
@@ -40,9 +42,7 @@ const ButtonPanel = styled.div`
 `;
 
 type ConfigsPageProps = {
-    isLoading: boolean;
-    configInfo: HelperPaneCompletionItem[];
-    setFilterText: (filterText: string) => void;
+    position: Position;
     onChange: (value: string) => void;
 };
 
@@ -54,14 +54,12 @@ const schema = yup.object({
 
 type ConfigFormData = yup.InferType<typeof schema>;
 
-export const ConfigsPage = ({
-    isLoading,
-    configInfo,
-    setFilterText,
-    onChange
-}: ConfigsPageProps) => {
+export const ConfigsPage = ({ position, onChange }: ConfigsPageProps) => {
     const { rpcClient } = useVisualizerContext();
     const firstRender = useRef<boolean>(true);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [configInfo, setConfigInfo] = useState<HelperPaneCompletionItem[]>([]);
+    const [filteredConfigInfo, setFilteredConfigInfo] = useState<HelperPaneCompletionItem[]>([]);
     const [searchValue, setSearchValue] = useState<string>('');
     const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
 
@@ -73,10 +71,31 @@ export const ConfigsPage = ({
         }
     });
 
+    const getConfigInfo = useCallback(() => {
+        setIsLoading(true);
+        setTimeout(() => {
+            rpcClient.getVisualizerState().then((machineView) => {
+                rpcClient
+                    .getMiDiagramRpcClient()
+                    .getHelperPaneInfo({
+                        documentUri: machineView.documentUri,
+                        position: position,
+                    })
+                    .then((response) => {
+                        if (response.configs?.length) {
+                            setConfigInfo(response.configs);
+                            setFilteredConfigInfo(response.configs);
+                        }
+                    })
+                    .finally(() => setIsLoading(false));
+            });
+        }, 1100);
+    }, [rpcClient, position]);
+    
     useEffect(() => {
         if (firstRender.current) {
             firstRender.current = false;
-            setFilterText('');
+            getConfigInfo();
         }
     }, []);
 
@@ -88,7 +107,6 @@ export const ConfigsPage = ({
         }).then(({ success }) => {
             if (success) {
                 // Retrieve the updated config info
-                setFilterText('');
                 clearForm();
             }
         });
@@ -99,9 +117,18 @@ export const ConfigsPage = ({
         reset();
     };
 
+    const debounceFilterConfigs = useCallback(
+        debounce((searchText: string) => {
+            setFilteredConfigInfo(filterHelperPaneCompletionItems(configInfo, searchText));
+            setIsLoading(false);
+        }, 1100),
+        [configInfo, setFilteredConfigInfo, setIsLoading, filterHelperPaneCompletionItems]
+    );
+
     const handleSearch = (searchText: string) => {
-        setFilterText(searchText);
         setSearchValue(searchText);
+        setIsLoading(true);
+        debounceFilterConfigs(searchText);
     };
 
     const getCompletionItemIcon = () => getIcon(COMPLETION_ITEM_KIND.Variable);
@@ -115,7 +142,7 @@ export const ConfigsPage = ({
                         onSearch={handleSearch}
                     />
                     <HelperPane.Body loading={isLoading}>
-                        {configInfo?.map((config) => (
+                        {filteredConfigInfo?.map((config) => (
                             getHelperPaneCompletionItem(config, onChange, getCompletionItemIcon)
                         ))}
                     </HelperPane.Body>

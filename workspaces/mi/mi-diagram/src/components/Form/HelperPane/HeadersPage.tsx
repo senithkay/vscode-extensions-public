@@ -7,41 +7,74 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { Position } from 'vscode-languageserver-types';
 import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { HelperPaneCompletionItem } from '@wso2-enterprise/mi-core';
-import { getHelperPaneCompletionItem } from '../FormExpressionField/utils';
+import { filterHelperPaneCompletionItems, getHelperPaneCompletionItem } from '../FormExpressionField/utils';
+import { debounce } from 'lodash';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 type HeadersPageProps = {
-    isLoading: boolean;
-    headerInfo: HelperPaneCompletionItem[];
+    position: Position;
     setCurrentPage: (page: number) => void;
-    setFilterText: (filterText: string) => void;
     onClose: () => void;
     onChange: (value: string) => void;
 };
 
 export const HeadersPage = ({
-    isLoading,
-    headerInfo,
+    position,
     setCurrentPage,
-    setFilterText,
     onClose,
     onChange
 }: HeadersPageProps) => {
+    const { rpcClient } = useVisualizerContext();
     const firstRender = useRef<boolean>(true);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [headerInfo, setHeaderInfo] = useState<HelperPaneCompletionItem[]>([]);
+    const [filteredHeaderInfo, setFilteredHeaderInfo] = useState<HelperPaneCompletionItem[]>([]);
     const [searchValue, setSearchValue] = useState<string>('');
+
+    const getHeaders = useCallback(() => {
+        setIsLoading(true);
+        setTimeout(() => {
+            rpcClient.getVisualizerState().then((machineView) => {
+                rpcClient
+                    .getMiDiagramRpcClient()
+                    .getHelperPaneInfo({
+                        documentUri: machineView.documentUri,
+                        position: position,
+                    })
+                    .then((response) => {
+                        if (response.headers?.length) {
+                            setHeaderInfo(response.headers);
+                            setFilteredHeaderInfo(response.headers);
+                        }
+                    })
+                    .finally(() => setIsLoading(false));
+            });
+        }, 1100);
+    }, [rpcClient, position]);
 
     useEffect(() => {
         if (firstRender.current) {
             firstRender.current = false;
-            setFilterText('');
+            getHeaders();
         }
-    }, []);
+    }, [getHeaders]);
+
+    const debounceFilterHeaders = useCallback(
+        debounce((searchText: string) => {
+            setFilteredHeaderInfo(filterHelperPaneCompletionItems(headerInfo, searchText));
+            setIsLoading(false);
+        }, 1100),
+        [headerInfo, setFilteredHeaderInfo, setIsLoading, filterHelperPaneCompletionItems]
+    );
 
     const handleSearch = (searchText: string) => {
-        setFilterText(searchText);
         setSearchValue(searchText);
+        setIsLoading(true);
+        debounceFilterHeaders(searchText);
     };
 
     const getCompletionItemIcon = () => getIcon(COMPLETION_ITEM_KIND.Variable);
@@ -56,7 +89,7 @@ export const HeadersPage = ({
                 onSearch={handleSearch}
             />
             <HelperPane.Body loading={isLoading}>
-                {headerInfo?.map((header) => (
+                {filteredHeaderInfo?.map((header) => (
                     getHelperPaneCompletionItem(header, onChange, getCompletionItemIcon)
                 ))}
             </HelperPane.Body>
