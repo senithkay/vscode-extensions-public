@@ -30,17 +30,16 @@ Parameters:
 \`\`\`
 {{/if}}
 
-{{#if responses}}
-\`\`\`
-Expected Responses:
-{{#each responses}}
-- {{@key}}: {{description}}
-{{/each}}
-\`\`\`
-{{/if}}
 */
 ###
-{{uppercase @key}} http://localhost:{{../../port}}{{trim ../../basePath}}{{@../key}}{{queryParams parameters}}
+{{uppercase @key}} http://localhost:{{../../port}}{{trim ../../basePath}}{{{@../key}}}{{queryParams parameters}}
+{{#if parameters}}
+{{#each parameters}}
+{{#if (eq in "header")}}
+{{name}}: {value}
+{{/if}}
+{{/each}}
+{{/if}}
 
 {{#if requestBody}}
 Content-Type: application/json
@@ -271,13 +270,17 @@ function registerHandlebarsHelpers(): void {
             const queryParams = parameters
                 .filter(param => param.in === 'query')
                 .map(param => {
-                    const value = param.example || 'value';
-                    return `${param.name}=${value}`;
+                    const value = param.schema?.default || `{value}`;
+                    return `${param.name}= ${value}`;
                 })
                 .join('&');
 
             return new Handlebars.SafeString(queryParams && queryParams.length > 0 ? `?${queryParams}` : '');
         });
+    }
+
+    if (!Handlebars.helpers.eq) {
+        Handlebars.registerHelper('eq', (value1, value2) => value1 === value2);
     }
 }
 
