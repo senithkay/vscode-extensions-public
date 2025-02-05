@@ -131,7 +131,7 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
     return (
         <>
             <FormView title={`Import Connector`} onClose={props.handlePopupClose ?? handleOnClose}>
-                <span>Please select an method to import a connector.</span>
+                <span>Please select a method to import a connector.</span>
                 <div style={{ display: 'flex', flexDirection: 'row', gap: '80px', margin: '0px 0px 20px 0' }}>
                     <label>
                         <input
