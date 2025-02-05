@@ -33,13 +33,7 @@ Parameters:
 */
 ###
 {{uppercase @key}} http://localhost:{{../../port}}{{trim ../../basePath}}{{{@../key}}}{{queryParams parameters}}
-{{#if parameters}}
-{{#each parameters}}
-{{#if (eq in "header")}}
-{{name}}: {value}
-{{/if}}
-{{/each}}
-{{/if}}
+{{#if parameters}}{{headerParams parameters}}{{/if}}
 
 {{#if requestBody}}
 Content-Type: application/json
@@ -265,7 +259,9 @@ function registerHandlebarsHelpers(): void {
     // handlebar helper to process query parameters
     if (!Handlebars.helpers.queryParams) {
         Handlebars.registerHelper('queryParams', function (parameters) {
-            if (!parameters || !parameters.length) { return ''; }
+            if (!parameters || !parameters.length) {
+                return '';
+            }
 
             const queryParams = parameters
                 .filter(param => param.in === 'query')
@@ -276,6 +272,25 @@ function registerHandlebarsHelpers(): void {
                 .join('&');
 
             return new Handlebars.SafeString(queryParams && queryParams.length > 0 ? `?${queryParams}` : '');
+        });
+    }
+
+    // handlebar helper to process header parameters
+    if (!Handlebars.helpers.headerParams) {
+        Handlebars.registerHelper('headerParams', function (parameters) {
+            if (!parameters || !parameters.length) {
+                return '';
+            }
+
+            const headerParams = parameters
+                .filter(param => param.in === 'header')
+                .map(param => {
+                    const value = param.schema?.default || `{value}`;
+                    return `${param.name}: ${value}`;
+                })
+                .join('\n');
+
+            return new Handlebars.SafeString(headerParams ? `${headerParams}\n` : '');
         });
     }
 
