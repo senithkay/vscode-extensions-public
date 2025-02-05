@@ -31,7 +31,7 @@ export enum DefaultColors {
 }
 
 export enum VSCodeColors {
-    PRIMARY = "var(--vscode-button-background)",
+    PRIMARY = "var(--vscode-progressBar-background)",
     ON_PRIMARY = "var(--vscode-button-foreground)",
     PRIMARY_CONTAINER = "var(--vscode-sideBar-background)",
 
