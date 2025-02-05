@@ -26,8 +26,6 @@ export function fetchIOTypes(filePath: string, functionName: string) {
             inputTypes.push(getTypeInfo(param.getType(), [], inputRecursiveTypes));
         });
         outputType = getTypeInfo(tnfFn.getReturnType(), [], outputRecursiveTypes);
-
-        console.log("OutInterfaceTypes", outputRecursiveTypes);
     } catch (error: any) {
         throw new Error("[MI Data Mapper] Failed to fetch input/output types. " + error.message);
     }
