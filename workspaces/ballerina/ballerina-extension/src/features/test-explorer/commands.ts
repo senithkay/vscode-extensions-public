@@ -36,7 +36,16 @@ export function activateEditKolaTest() {
         openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BITestFunctionForm });
     });
 
-    commands.registerCommand(BI_COMMANDS.BI_EDIT_TEST_FUNCTION_DEF, () => {
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BITestFunctionForm });
+    commands.registerCommand(BI_COMMANDS.BI_EDIT_TEST_FUNCTION_DEF, (entry: TestItem) => {
+        if (!isTestFunctionItem(entry)) {
+            return;
+        }
+
+        const fileName = entry.id.split(":")[1];
+        const fileUri = path.resolve(StateMachine.context().projectUri, `tests`, fileName);
+        if (fileUri) {
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BITestFunctionForm, 
+                documentUri: fileUri, identifier: entry.label });
+        }
     });
 }

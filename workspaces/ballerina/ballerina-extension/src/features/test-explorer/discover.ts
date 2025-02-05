@@ -10,7 +10,7 @@
 
 import path from "path";
 import { StateMachine } from "../../stateMachine";
-import { TestsDiscoveryRequest, TestsDiscoveryResponse, TestFunction } from "@wso2-enterprise/ballerina-core";
+import { TestsDiscoveryRequest, TestsDiscoveryResponse, FunctionTreeNode } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "../../core";
 import { Position, Range, TestController, Uri, TestItem, commands } from "vscode";
 
@@ -62,7 +62,7 @@ function createTests(response: TestsDiscoveryResponse, testController: TestContr
 
             // Iterate over the test functions in the group
             for (const tf of testFunctionsArray) {
-                const testFunc : TestFunction = tf as TestFunction;
+                const testFunc : FunctionTreeNode = tf as FunctionTreeNode;
                 // Generate a unique ID for the test item using the function name
                 const fileName: string = testFunc.lineRange.fileName;
                 const fileUri = Uri.file(path.join(projectDir, fileName)); 

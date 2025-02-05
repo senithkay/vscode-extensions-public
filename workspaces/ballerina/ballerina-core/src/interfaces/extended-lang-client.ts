@@ -391,26 +391,22 @@ export interface TestsDiscoveryRequest {
 }
 
 export interface TestsDiscoveryResponse {
-    result?: Map<string, TestFunction[]>;
+    result?: Map<string, FunctionTreeNode[]>;
     errorMsg?: string;
     stacktrace?: string;
 }
 
-export interface TestFunction {
+export interface FunctionTreeNode {
     functionName: string;
     lineRange: FunctionLineRange;
-    config: TestFunctionConfig;
+    kind: string;
+    groups: string[];
 }
 
 export interface FunctionLineRange {
     fileName: string;
     startLine: LinePosition;
     endLine: LinePosition;
-}
-
-export interface TestFunctionConfig {
-    groups: string[];
-    enabled: boolean;
 }
 
 export interface JsonToRecordParams {

@@ -261,7 +261,10 @@ const MainPanel = () => {
                         setViewComponent(<FunctionForm />);
                         break;
                     case MACHINE_VIEW.BITestFunctionForm:
-                        setViewComponent(<TestFunctionForm />);
+                        setViewComponent(<TestFunctionForm 
+                            functionName={value?.identifier}
+                            filePath={value?.documentUri}
+                        />);
                         break;    
                     case MACHINE_VIEW.ViewConfigVariables:
                         rpcClient.getVisualizerLocation().then((location) => {

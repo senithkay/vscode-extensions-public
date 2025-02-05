@@ -17,7 +17,7 @@ import { BIHeader } from "../BIHeader";
 import { BodyText } from "../../styles";
 import { getFunctionParametersList } from "../../../utils/utils";
 import { FormField, Form, FormValues, Parameter } from "@wso2-enterprise/ballerina-side-panel";
-import { debounce } from "lodash";
+import { debounce, forEach } from "lodash";
 import { convertToVisibleTypes } from "../../../utils/bi";
 import { URI, Utils } from "vscode-uri";
 
@@ -58,7 +58,68 @@ const Link = styled.a`
     color: var(--button-primary-background);
 `;
 
-export function TestFunctionForm() {
+interface TestFunctionDefProps {
+    functionName?: string;
+    filePath?: string;
+}
+
+interface Metadata {
+    label?: string;
+    description?: string;
+  }
+  
+  interface Codedata {
+    lineRange?: LineRange;
+  }
+  
+  interface LineRange {
+    // Define the properties of LineRange based on its structure in Java
+  }
+  
+  interface Property {
+    metadata?: Metadata;
+    codedata?: Codedata;
+    valueType?: string;
+    valueTypeConstraint?: any;
+    originalName?: string;
+    value?: any;
+    placeholder?: string;
+    optional?: boolean;
+    editable?: boolean;
+    advanced?: boolean;
+  }
+  
+  interface FunctionParameter {
+    type?: Property;
+    variable?: Property;
+    defaultValue?: Property;
+    optional?: boolean;
+    editable?: boolean;
+    advanced?: boolean;
+  }
+  
+  interface Annotation {
+    metadata?: Metadata;
+    codedata?: Codedata;
+    org?: string;
+    module?: string;
+    name?: string;
+    fields?: Property[];
+  }
+  
+  interface TestFunction {
+    metadata?: Metadata;
+    codedata?: Codedata;
+    functionName?: Property;
+    returnType?: Property;
+    parameters?: FunctionParameter[];
+    annotations?: Annotation[];
+    editable?: boolean;
+  }
+
+
+export function TestFunctionForm(props: TestFunctionDefProps) {
+    const { functionName, filePath } = props;
     const { rpcClient } = useRpcContext();
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
@@ -179,57 +240,90 @@ export function TestFunctionForm() {
         }
     };
 
-    const currentFields: FormField[] = [
-        {
-            key: `functionName`,
-            label: 'Test Case Name',
-            type: 'IDENTIFIER',
-            optional: false,
-            editable: true,
-            advanced: false,
-            documentation: '',
-            value: '',
-            valueTypeConstraint: ""
-        },
-        {
-            key: `groups`,
-            label: 'Groups to include',
-            type: 'EXPRESSION_SET',
-            optional: false,
-            editable: true,
-            advanced: false,
-            documentation: '',
-            value: '',
-            valueTypeConstraint: ""
-        },
-        {
-            key: `params`,
-            label: 'Parameters',
-            type: 'PARAM_MANAGER',
-            optional: false,
-            editable: true,
-            advanced: false,
-            documentation: '',
-            value: '',
-            paramManagerProps: {
-                paramValues: [],
-                formFields: paramFiels,
-                handleParameter: handleParamChange
-            },
-            valueTypeConstraint: ""
-        },
-        {
-            key: `return`,
-            label: 'Return Type',
-            type: 'TYPE',
-            optional: true,
-            advanced: true,
-            editable: true,
-            documentation: '',
-            value: '',
+    const generateFormFields = (testFunction: TestFunction) : FormField[] => {
+        const fields: FormField[] = [];
+        if (testFunction.functionName) {
+            fields.push(generateFieldFromProperty('functionName', testFunction.functionName));
+        }
+        if (testFunction.parameters) {
+            fields.push({
+                key: `params`,
+                label: 'Parameters',
+                type: 'PARAM_MANAGER',
+                optional: false,
+                editable: true,
+                advanced: false,
+                documentation: '',
+                value: '',
+                paramManagerProps: {
+                    paramValues: generateParamFields(testFunction.parameters),
+                    formFields: paramFiels,
+                    handleParameter: handleParamChange
+                },
+                valueTypeConstraint: ""
+            });
+        }
+        if (testFunction.returnType) {
+            fields.push(generateFieldFromProperty('returnType', testFunction.returnType));
+        }
+        if (testFunction.annotations) {
+            const configAnnotation = getTestConfigAnnotation(testFunction.annotations);
+            if (configAnnotation && configAnnotation.fields) {
+                for(const field of configAnnotation.fields) {
+                    fields.push(generateFieldFromProperty(field.originalName, field));
+                }
+            }
+        }
+        return fields;
+    }
+
+    const getTestConfigAnnotation = (annotations: Annotation[]) : Annotation | undefined => {
+        for(const annotation of annotations) {
+            if(annotation.name === 'Config') {
+                return annotation;
+            }
+        }
+        return;
+    }
+    
+    const generateParamFields = (parameters: FunctionParameter[]) : Parameter[] => {
+        const params: Parameter[] = [];
+        let id = 0;
+        for(const param of parameters) {
+            const key = param.variable.value;
+            const type = param.type.value;
+
+            const value = `${type} ${key}`;
+            params.push({
+                id: id,
+                formValues: {
+                    variable: key,
+                    type: type,
+                    defaultable: param.defaultValue ? param.defaultValue.value : ''
+                },
+                key: key,
+                value: value,
+                icon: ''
+            });
+
+            id++;
+        }
+        return params
+    }
+
+    const generateFieldFromProperty = (key: string, property: Property) : FormField => {
+        return {
+            key: key,
+            label: property.metadata.label,
+            type: property.valueType,
+            optional: property.optional,
+            editable: property.editable,
+            advanced: property.advanced,
+            documentation: property.metadata.description,
+            value: property.value,
             valueTypeConstraint: ""
         }
-    ];
+    }
 
     return (
         <View>
@@ -242,8 +336,8 @@ export function TestFunctionForm() {
                     </BodyText>
                     <FormContainer>
                         <Form
-                            formFields={currentFields}
-                            oneTimeForm={true}
+                            formFields={generateFormFields(sampleTestFunction())}
+                            oneTimeForm={false}
                             expressionEditor={
                                 {
                                     types: filteredTypes,
@@ -260,4 +354,134 @@ export function TestFunctionForm() {
             </ViewContent>
         </View>
     );
+}
+
+function sampleTestFunction() : TestFunction {
+    return {
+        "metadata": {
+          "label": "Test Function",
+          "description": "Test Function"
+        },
+        "codedata": {
+          "lineRange": {
+            "fileName": "tests/test1.bal",
+            "startLine": {
+              "line": 3,
+              "offset": 0
+            },
+            "endLine": {
+              "line": 6,
+              "offset": 1
+            }
+          }
+        },
+        "functionName": {
+          "metadata": {
+            "label": "Test Function",
+            "description": "Test function"
+          },
+          "valueType": "IDENTIFIER",
+          "value": "testFunction1",
+          "optional": false,
+          "editable": true,
+          "advanced": false
+        },
+        "returnType": {
+          "metadata": {
+            "label": "Return Type",
+            "description": "Return type of the function"
+          },
+          "valueType": "TYPE",
+          "optional": true,
+          "editable": true,
+          "advanced": true
+        },
+        "parameters": [
+          {
+            "type": {
+              "valueType": "TYPE",
+              "value": "string",
+              "optional": false,
+              "editable": true,
+              "advanced": false
+            },
+            "variable": {
+              "valueType": "IDENTIFIER",
+              "value": "a",
+              "optional": false,
+              "editable": true,
+              "advanced": false
+            },
+            "optional": false,
+            "editable": true,
+            "advanced": false
+          },
+          {
+            "type": {
+              "valueType": "TYPE",
+              "value": "string",
+              "optional": false,
+              "editable": true,
+              "advanced": false
+            },
+            "variable": {
+              "valueType": "IDENTIFIER",
+              "value": "b",
+              "optional": false,
+              "editable": true,
+              "advanced": false
+            },
+            "defaultValue": {
+              "valueType": "EXPRESSION",
+              "value": "\"default\"",
+              "optional": false,
+              "editable": true,
+              "advanced": false
+            },
+            "optional": false,
+            "editable": true,
+            "advanced": false
+          }
+        ],
+        "annotations": [
+          {
+            "metadata": {
+              "label": "Config",
+              "description": "Test Function Configurations"
+            },
+            "org": "ballerina",
+            "module": "test",
+            "name": "Config",
+            "fields": [
+              {
+                "metadata": {
+                  "label": "Groups",
+                  "description": "Groups to run"
+                },
+                "valueType": "EXPRESSION_SET",
+                "originalName": "groups",
+                "value": [
+                  "\"g1\""
+                ],
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              {
+                "metadata": {
+                  "label": "Enabled",
+                  "description": "Enable/Disable the test"
+                },
+                "valueType": "FLAG",
+                "originalName": "enabled",
+                "value": true,
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              }
+            ]
+          }
+        ],
+        "editable": true
+      }
 }
