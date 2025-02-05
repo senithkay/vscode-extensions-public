@@ -93,11 +93,6 @@ export interface DataMapperViewState {
     setViews: (newViews: View[]) => void;
 }
 
-export interface DataMapperRecursiveTypesState {
-    outputRecursiveTypes: Record<string, DMType | undefined>;
-    setOutputRecursiveTypes: (outputRecursiveTypes: Record<string, DMType | undefined>) => void;
-}
-
 export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
     inputSearch: "",
     outputSearch: "",
@@ -202,9 +197,4 @@ export const useDMArrayFilterStore = create<DataMapperArrayFiltersState>((set) =
 export const useDMViewsStore = create<DataMapperViewState>((set) => ({
     views: [],
     setViews: (newViews: View[]) => set({ views: newViews })
-}));
-
-export const useDMRecursiveTypesStore = create<DataMapperRecursiveTypesState>((set) => ({
-    outputRecursiveTypes: {},
-    setOutputRecursiveTypes: (outputRecursiveTypes: Record<string, DMType | undefined>) => set({ outputRecursiveTypes })
 }));

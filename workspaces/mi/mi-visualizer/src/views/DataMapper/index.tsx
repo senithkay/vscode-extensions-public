@@ -9,7 +9,7 @@
 
 import React, { useEffect, useState } from "react";
 
-import { DataMapperView, useDMRecursiveTypesStore } from "@wso2-enterprise/mi-data-mapper";
+import { DataMapperView } from "@wso2-enterprise/mi-data-mapper";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 
@@ -43,15 +43,6 @@ export function DataMapper(props: DataMapperProps) {
         }
     };
 
-
-    useEffect(() => {
-        if (!isFetchingIOTypes) {
-            useDMRecursiveTypesStore.getState().setOutputRecursiveTypes(dmIOTypes.outputRecursiveTypes);
-        }
-    }, [isFetchingIOTypes]);
-
-
-
     useEffect(() => {
         // Hack to hit the error boundary
         if (isIOTypeError) {
@@ -70,8 +61,7 @@ export function DataMapper(props: DataMapperProps) {
                         filePath={filePath}
                         fileContent={fileContent}
                         functionName={functionName}
-                        inputTrees={dmIOTypes.inputTrees}
-                        outputTree={dmIOTypes.outputTree}
+                        dmIOTypes={dmIOTypes}
                         updateFileContent={updateFileContent}
                         configName={props.configName}
                     />
