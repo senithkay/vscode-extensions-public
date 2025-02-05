@@ -15,22 +15,20 @@ import { DMProject } from '../datamapper/DMProject';
 export function fetchIOTypes(filePath: string, functionName: string) {
     const inputTypes: DMType[] = [];
     let outputType: DMType | undefined;
-    const inputRecursiveTypes = new Map<string, DMType | undefined>();
-    const outputRecursiveTypes = new Map<string, DMType | undefined>();
+    const recursiveTypes = new Map<string, DMType | undefined>();
 
     try {
         const tnfFn = getDMFunction(filePath, functionName);
-        const sourceFile = tnfFn.getSourceFile();
 
         tnfFn.getParameters().forEach((param) => {
-            inputTypes.push(getTypeInfo(param.getType(), [], inputRecursiveTypes));
+            inputTypes.push(getTypeInfo(param.getType(), [], recursiveTypes));
         });
-        outputType = getTypeInfo(tnfFn.getReturnType(), [], outputRecursiveTypes);
+        outputType = getTypeInfo(tnfFn.getReturnType(), [], recursiveTypes);
     } catch (error: any) {
         throw new Error("[MI Data Mapper] Failed to fetch input/output types. " + error.message);
     }
 
-    return { inputTypes, outputType, outputRecursiveTypes };
+    return { inputTypes, outputType, recursiveTypes };
 }
 
 export function fetchSubMappingTypes(filePath: string, functionName: string) {
