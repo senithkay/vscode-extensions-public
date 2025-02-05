@@ -72,7 +72,7 @@ namespace S {
         font-feature-settings: inherit;
         font-variation-settings: inherit;
         font-size: 12px;
-        line-height: var(--type-ramp-base-line-height);
+        line-height: 1.5;
         padding: 5px 8px;
         width: 100%;
         min-height: 26px;
@@ -92,11 +92,11 @@ namespace S {
             color: var(--vscode-button-foreground);
             background-color: var(--vscode-button-background);
             font-weight: 600;
-            margin-inline: 2px;
             padding-left: 4px;
             border-radius: 2px;
-            margin: 0 4px;
+            margin-inline: 4px;
             display: inline-block;
+            line-height: normal;
             user-select: none;
             cursor: pointer;
         }
