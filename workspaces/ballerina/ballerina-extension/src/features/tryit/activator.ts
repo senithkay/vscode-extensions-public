@@ -267,7 +267,7 @@ function registerHandlebarsHelpers(): void {
                 .filter(param => param.in === 'query')
                 .map(param => {
                     const value = param.schema?.default || `{value}`;
-                    return `${param.name}= ${value}`;
+                    return `${param.name}=${value}`;
                 })
                 .join('&');
 
