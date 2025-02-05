@@ -167,12 +167,12 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
         // show type if no description
         switch (model.node.type) {
             case "trigger":
-                return "Webhook";
+                return "Event Integration";
             case "task":
             case "schedule-task":
                 return "Automation";
             case "service":
-                return "Service";
+                return "API";
             default:
                 return model.node.type;
         }
