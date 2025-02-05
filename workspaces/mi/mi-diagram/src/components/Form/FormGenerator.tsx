@@ -93,7 +93,7 @@ export interface Element {
     configurableType?: string;
     addParamText?: string;
     deriveResponseVariable?: boolean;
-    matchPattern?: string;
+    separatorPattern?: string;
     initialSeparator?: string;
     secondarySeparator?: string;
     keyValueSeparator?: string;
@@ -293,7 +293,6 @@ export function FormGenerator(props: FormGeneratorProps) {
                 placeholder={element.placeholder}
                 nodeRange={range}
                 canChange={element.inputType !== 'expression'}
-                expressionType={element.expressionType}
                 errorMsg={errorMsg}
                 openExpressionEditor={(value, setValue) => {
                     setCurrentExpressionValue({ value, setValue });
@@ -396,9 +395,8 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'textAreaOrExpression':
             case 'integerOrExpression':
             case 'expression':
-                const isValueLegacyExpression = field.value?.isExpression &&
-                    isLegacyExpression(typeof field.value === 'object' ? field.value.value : field.value);
-                if (isLegacyExpressionEnabled || isValueLegacyExpression) {
+                const isValueLegacyExpression = isLegacyExpression(element.expressionType, isLegacyExpressionEnabled, field);
+                if (isValueLegacyExpression) {
                     return ExpressionFieldComponent({
                         element,
                         canChange: element.inputType !== 'expression',
@@ -632,6 +630,8 @@ export function FormGenerator(props: FormGeneratorProps) {
     const renderController = (element: any) => {
         const name = getNameForController(element.value.name);
         const isRequired = typeof element.value.required === 'boolean' ? element.value.required : element.value.required === 'true';
+        const matchPattern = element.value.matchPattern;
+        const validateType = element.value.validateType;
         const defaultValue = getDefaultValue(element);
 
         if (getValues(name) === undefined) {
@@ -656,6 +656,30 @@ export function FormGenerator(props: FormGeneratorProps) {
                                 }
                                 return true;
                             },
+                        },
+                        ...(matchPattern) && {
+                            pattern: {
+                                value: new RegExp(matchPattern),
+                                message: "Value does not match the pattern"
+                            }
+                        },
+                        ...(validateType) && {
+                            validate: (value) => {
+                                if (validateType === 'number' && isNaN(value)) {
+                                    return "Value should be a number";
+                                }
+                                if (validateType === 'boolean' && !['true', 'false'].includes(value)) {
+                                    return "Value should be a boolean";
+                                }
+                                if (validateType === 'json' && typeof value !== 'object') {
+                                    try {
+                                        JSON.parse(value);
+                                    } catch (e) {
+                                        return "Value should be a valid JSON";
+                                    }
+                                }
+                                return true;
+                            }
                         }
                     }
                 }

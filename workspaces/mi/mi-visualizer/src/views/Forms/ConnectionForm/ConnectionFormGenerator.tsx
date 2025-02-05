@@ -50,16 +50,14 @@ export function AddConnection(props: AddConnectionProps) {
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
 
     useEffect(() => {
-        (async () => {
+        const fetchArtifacts = async () => {
             const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
                 path: props.path,
             });
             const filteredArtifacts = artifactRes.artifacts.filter(artifact => artifact !== props.connectionName);
             setWorkspaceFileNames(filteredArtifacts);
-        })();
-    })
+        }
 
-    useEffect(() => {
         const fetchConnections = async () => {
             const connectionData: any = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
                 documentUri: props.path,
@@ -90,6 +88,7 @@ export function AddConnection(props: AddConnectionProps) {
         };
 
         (async () => {
+            await fetchArtifacts();
             // Fetch connections and form data for connection creation
             if (!props.connectionName) {
                 await fetchConnections();
@@ -366,7 +365,9 @@ export function AddConnection(props: AddConnectionProps) {
                 if (connections.includes(connectionName)) {
                     return "Connection name already exists";
                 } else if (workspaceFileNames.includes(connectionName)) {
-                    return "An artifact with same name already exists"
+                    return "An artifact with same name already exists";
+                } else if (/[^\w]/.test(connectionName)) {
+                    return "Connection name cannot contain spaces or special characters";
                 }
                 return true;
             }

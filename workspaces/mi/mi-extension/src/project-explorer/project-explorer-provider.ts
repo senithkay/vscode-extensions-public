@@ -251,6 +251,9 @@ function generateResources(data: RegistryResourcesFolder): ProjectExplorerEntry[
 	if (data) {
 		if (data.files) {
 			for (const entry of data.files) {
+				if (entry.path.includes(path.join("resources", "conf", "config.properties"))) {
+					continue;
+				}
 				const explorerEntry = new ProjectExplorerEntry(entry.name, isCollapsibleState(false), {
 					name: entry.name,
 					type: 'resource',
@@ -274,7 +277,7 @@ function generateResources(data: RegistryResourcesFolder): ProjectExplorerEntry[
 		}
 		if (data.folders) {
 			for (const entry of data.folders) {
-				if (![".meta", "datamapper", "datamappers", "conf"].includes(entry.name)) {
+				if (![".meta", "datamapper", "datamappers"].includes(entry.name)) {
 					const files = generateResources(entry);
 					if (!files || files?.length === 0) {
 						continue;
