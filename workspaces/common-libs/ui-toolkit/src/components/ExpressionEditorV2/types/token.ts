@@ -25,7 +25,7 @@ type TokenEditorBaseProps = {
 
 type HelperPaneConditionalProps =
     | {
-          getHelperPane: (value: string, onChange: (value: string) => void) => JSX.Element;
+          getHelperPane: (onChange: (value: string) => void) => JSX.Element;
           helperPaneOrigin?: HelperPaneOrigin;
           changeHelperPaneState: (state: boolean) => void;
           isHelperPaneOpen: boolean;
@@ -38,3 +38,8 @@ type HelperPaneConditionalProps =
       };
 
 export type TokenEditorProps = TokenEditorBaseProps & HelperPaneConditionalProps;
+
+export type TokenFieldProps = {
+    value: string;
+    onChange: (value: string) => void;
+};

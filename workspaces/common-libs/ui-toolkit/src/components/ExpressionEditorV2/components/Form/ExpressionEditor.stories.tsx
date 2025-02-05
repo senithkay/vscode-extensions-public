@@ -8,9 +8,12 @@
  */
 
 import React, { useState } from "react";
-import { CompletionItem } from "../../types";
-import { FormExpressionEditorWrapper as FormExpressionEditor } from ".";
+
 import { ComponentMeta, ComponentStory } from "@storybook/react";
+
+import { FormExpressionEditorWrapper as FormExpressionEditor } from ".";
+
+import { CompletionItem } from "../../types";
 
 /* Common */
 const completions: CompletionItem[] = [

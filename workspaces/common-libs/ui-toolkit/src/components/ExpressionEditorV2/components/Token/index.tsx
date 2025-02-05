@@ -9,22 +9,30 @@
 
 import React, { useRef, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+
 import styled from '@emotion/styled';
-import { StyleBase } from '../Common/types';
+
 import { ResizeHandle } from './ResizeHandle';
+
+import { ActionButtons } from '../Common/ActionButtons';
+import HelperPane from '../Common/HelperPane';
+import { StyleBase } from '../Common/types';
+
 import {
     extractExpressions,
+    getHelperPaneWithEditorArrowPosition,
+    getHelperPaneWithEditorPosition,
     setValue,
-    transformExpressions,
-    getArrowPosition,
-    getHelperPanePosition
+    transformExpressions
 } from '../../utils';
 import { TokenEditorProps } from '../../types';
-import { Icon } from '../../../Icon/Icon';
+
 import { Button } from '../../../Button/Button';
-import HelperPane from '../Common/HelperPane';
+import { Icon } from '../../../Icon/Icon';
+
 import { ThemeColors } from '../../../../styles/ThemeColours';
-import { ActionButtons } from '../Common/ActionButtons';
+import { HELPER_PANE_WITH_EDITOR_HEIGHT, HELPER_PANE_WITH_EDITOR_WIDTH } from '../../constants';
+import { TextArea } from '../../../TextArea/TextArea';
 
 /* Styles */
 namespace S {
@@ -84,15 +92,16 @@ namespace S {
             color: var(--vscode-button-foreground);
             background-color: var(--vscode-button-background);
             font-weight: 600;
+            margin-inline: 2px;
             padding-left: 4px;
             border-radius: 2px;
             margin: 0 4px;
             display: inline-block;
             user-select: none;
+            cursor: pointer;
         }
 
         .expression-token-close {
-            cursor: pointer;
             opacity: 0.7;
             font-size: 12px;
             padding: 0 4px;
@@ -111,26 +120,19 @@ namespace S {
             display: none;
         }
 
-        .normal-text {
-            display: inline-block;
-            margin: 0;
-            padding: 0;
-            font-family: inherit;
-            min-width: 1px; /* Ensures cursor is visible in empty paragraphs */
-        }
-
-        /* Remove extra spacing between p elements */
-        p {
-            margin: 0;
-            padding: 0;
-        }
-
         ${(props: StyleBase) => props.sx};
     `;
 
     export const HelperPane = styled.div<StyleBase>`
+        height: ${HELPER_PANE_WITH_EDITOR_HEIGHT}px;
+        width: ${HELPER_PANE_WITH_EDITOR_WIDTH}px;
         position: absolute;
         z-index: 2001;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 8px;
+        background-color: var(--vscode-editor-background);
         filter: drop-shadow(0 3px 8px rgb(0 0 0 / 0.2));
         ${(props: StyleBase) => props.sx}
 
@@ -139,6 +141,13 @@ namespace S {
         *::after {
             box-sizing: border-box;
         }
+    `;
+
+    export const HelperPaneButtons = styled.div`
+        margin-top: auto;
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
     `;
 }
 
@@ -155,22 +164,40 @@ export const TokenEditor = ({
     getExpressionEditorIcon
 }: TokenEditorProps) => {
     const [isFocused, setIsFocused] = useState<boolean>(false);
+    const containerRef = useRef<HTMLDivElement>(null);
     const editorRef = useRef<HTMLDivElement>(null);
     const actionButtonsRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLDivElement>(null);
     const helperPaneContainerRef = useRef<HTMLDivElement>(null);
+    const textAreaRef = useRef<HTMLTextAreaElement>(null);
     const currentNodeRef = useRef<Node | null>(null);
     const currentNodeOffsetRef = useRef<number | null>(null);
+    const textAreaCursorPositionRef = useRef<number>(0);
+    const [tokenValue, setTokenValue] = useState<string>('');
+    const selectedTokenRef = useRef<HTMLSpanElement | null>(null);
 
-    const addCloseEventListeners = () => {
+    const addEventListeners = () => {
         const editor = editorRef.current;
         if (!editor) return;
 
         const tokens = editor.querySelectorAll('.expression-token');
         tokens.forEach(token => {
+            // Edit event listener
+            token.querySelector('.expression-token-text')!.addEventListener('click', e => {
+                e.stopPropagation();
+                // Open the helper pane
+                changeHelperPaneState?.(true);
+                
+                setTokenValue((e.target as HTMLSpanElement).textContent?.trim() || '');
+                textAreaRef.current?.focus();
+                selectedTokenRef.current = e.target as HTMLSpanElement;
+            });
+
+            // Close event listener
             token.querySelector('.expression-token-close')!.addEventListener('click', e => {
                 e.stopPropagation();
                 token.remove();
+                selectedTokenRef.current = null;
                 onChange?.(extractExpressions(editor.innerHTML));
             });
         });
@@ -197,8 +224,8 @@ export const TokenEditor = ({
             // Update content
             editor.innerHTML = transformedContent;
 
-            /* Add close event listener to the tokens */
-            addCloseEventListeners();
+            // Add event listeners to the tokens
+            addEventListeners();
 
             // Restore cursor position
             if (selection && range && currentNode) {
@@ -256,12 +283,81 @@ export const TokenEditor = ({
         onFocus?.();
     }
 
-    const handleHelperPaneChange = (value: string) => {
+    const handleHelperPaneWithEditorClose = () => {
+        // Clearing operations
+        changeHelperPaneState?.(false);
+        setTokenValue('');
+        selectedTokenRef.current = null;
+    }
+
+    const handleHelperPaneWithEditorEdit = () => {
+        const editor = editorRef.current;
+        const selection = window.getSelection();
+        if (!editor || !selection || !selectedTokenRef.current) {
+            return;
+        }
+
+        // If empty value, remove the token
+        if (tokenValue.trim() === '') {
+            selectedTokenRef.current.parentElement?.remove();
+
+            // Clearing operations
+            changeHelperPaneState?.(false);
+            setTokenValue('');
+            selectedTokenRef.current = null;
+
+            return;
+        }
+        
+        // Update the token value
+        selectedTokenRef.current.innerHTML = tokenValue;
+
+        // Update cursor position
+        const range = document.createRange();
+        try {
+            range.setStartAfter(selectedTokenRef.current);
+            range.setEndAfter(selectedTokenRef.current);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        } catch (e) {
+            // Fallback to end of editor if something goes wrong
+            const lastChild = editor.lastChild;
+            if (lastChild) {
+                range.setStartAfter(lastChild);
+                range.setEndAfter(lastChild);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+        }
+
+        // Add event listeners to the tokens
+        addEventListeners();
+
+        // Update the value
+        onChange?.(extractExpressions(editor.innerHTML));
+
+        // Clearing operations
+        changeHelperPaneState?.(false);
+        setTokenValue('');
+        selectedTokenRef.current = null;
+    }
+
+    const handleHelperPaneWithEditorSave = () => {
         const editor = editorRef.current;
         if (!editor) return;
 
         const selection = window.getSelection();
         if (!selection) return;
+
+        // If empty value, remove the token
+        if (tokenValue.trim() === '') {
+            // Clearing operations
+            changeHelperPaneState?.(false);
+            setTokenValue('');
+            selectedTokenRef.current = null;
+
+            return;
+        }
 
         // Create a new range using the stored node and offset
         const range = document.createRange();
@@ -276,7 +372,7 @@ export const TokenEditor = ({
 
         // Insert the new text node at the current cursor position
         const textNode = new DOMParser()
-            .parseFromString(transformExpressions(`\${${value}}`), 'text/html')
+            .parseFromString(transformExpressions(`\${${tokenValue}}`), 'text/html')
             .body
             .firstChild;
 
@@ -299,20 +395,68 @@ export const TokenEditor = ({
             }
         }
         
-        // Add close event listener to the tokens
-        addCloseEventListeners();
+        // Add event listeners to the tokens
+        addEventListeners();
 
         // Update the value
         onChange?.(extractExpressions(editor.innerHTML));
+
+        // Clearing operations
+        changeHelperPaneState?.(false);
+        setTokenValue('');
+        selectedTokenRef.current = null;
     };
 
-    const getHelperPaneComponent = (): JSX.Element => {
-        const helperPanePosition = getHelperPanePosition(editorRef, helperPaneOrigin);
-        const arrowPosition = getArrowPosition(editorRef, helperPaneOrigin, helperPanePosition);
+    const handleHelperPaneChange = (value: string) => {
+        const textArea = textAreaRef.current;
+        if (!textArea) return;
+
+        // Focus the text area
+        textArea.focus();
+        
+        // Update the token value
+        const cursorPosition = textAreaCursorPositionRef.current;
+        const newTokenValue = tokenValue.slice(0, cursorPosition) + value + tokenValue.slice(cursorPosition);
+        setTokenValue(newTokenValue);
+
+        // Update the cursor position
+        const textAreaElement = textArea.shadowRoot.querySelector('textarea')!;
+        const newCursorPosition = cursorPosition + value.length;
+        textAreaCursorPositionRef.current = newCursorPosition;
+        textAreaElement.value = newTokenValue;
+        textAreaElement.setSelectionRange(newCursorPosition, newCursorPosition);
+    }
+
+    const getHelperPaneWithEditorComponent = (): JSX.Element => {
+        const helperPanePosition = getHelperPaneWithEditorPosition(containerRef, helperPaneOrigin);
+        const arrowPosition = getHelperPaneWithEditorArrowPosition(containerRef, helperPaneOrigin, helperPanePosition);
 
         return createPortal(
             <S.HelperPane ref={helperPaneContainerRef} sx={{ ...helperPanePosition }}>
-                {getHelperPane(value, handleHelperPaneChange)}
+                {/* Editor to edit the token */}
+                <TextArea ref={textAreaRef} value={tokenValue} onTextChange={setTokenValue} rows={2} />
+
+                {/* Helper pane content */}
+                {getHelperPane(handleHelperPaneChange)}
+
+                {/* Action buttons for the helper pane */}
+                <S.HelperPaneButtons>
+                    <Button appearance="secondary" onClick={handleHelperPaneWithEditorClose}>
+                        Cancel
+                    </Button>
+                    <Button
+                        appearance="primary"
+                        onClick={() =>
+                            selectedTokenRef.current
+                                ? handleHelperPaneWithEditorEdit()
+                                : handleHelperPaneWithEditorSave()
+                        }
+                    >
+                        Save
+                    </Button>
+                </S.HelperPaneButtons>
+
+                {/* Side arrow of the helper pane */}
                 {arrowPosition && <HelperPane.Arrow origin={helperPaneOrigin} sx={{ ...arrowPosition }} />}
             </S.HelperPane>,
             document.body
@@ -327,6 +471,12 @@ export const TokenEditor = ({
         const selection = window.getSelection();
         if (!selection) return;
         const range = selection.getRangeAt(0);
+
+        if (range.startContainer.contains(textAreaRef.current)) {
+            // Update cursor position for text area
+            textAreaCursorPositionRef.current =
+                textAreaRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
+        }
 
         if (
             range.startContainer !== editorRef.current &&
@@ -362,6 +512,8 @@ export const TokenEditor = ({
                 // Additional actions to be performed when the token editor loses focus
                 setIsFocused(false);
                 changeHelperPaneState?.(false);
+                setTokenValue('');
+                selectedTokenRef.current = null;
 
                 onBlur?.();
             }
@@ -380,7 +532,7 @@ export const TokenEditor = ({
 
         if (value) {
             setValue(editor, value);
-            addCloseEventListeners();
+            addEventListeners();
         }
 
         const onInput = () => handleInput();
@@ -401,7 +553,7 @@ export const TokenEditor = ({
     }, []);
 
     return (
-        <S.Container>
+        <S.Container ref={containerRef}>
             <S.EditorWithHandle>
                 {/* Action buttons at the top of the expression editor */}
                 {actionButtons?.length > 0 && (
@@ -411,7 +563,6 @@ export const TokenEditor = ({
                         actionButtons={actionButtons}
                     />
                 )}
-
                 <S.Editor
                     ref={editorRef}
                     isFocused={isFocused}
@@ -444,7 +595,7 @@ export const TokenEditor = ({
                         />
                     </Button>
                 )}
-            {isHelperPaneOpen && getHelperPaneComponent()}
+            {isHelperPaneOpen && getHelperPaneWithEditorComponent()}
         </S.Container>
     );
 };

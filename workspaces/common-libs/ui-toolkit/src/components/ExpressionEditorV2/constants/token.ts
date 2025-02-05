@@ -7,6 +7,5 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export * from './common';
-export * from './token';
-export * from './form';
+export const HELPER_PANE_WITH_EDITOR_WIDTH = 350;
+export const HELPER_PANE_WITH_EDITOR_HEIGHT = 500;
