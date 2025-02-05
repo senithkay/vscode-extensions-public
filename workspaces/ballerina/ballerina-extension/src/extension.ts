@@ -132,9 +132,6 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         // Enable Ballerina Telemetry listener
         activateTelemetryListener(ballerinaExtInstance);
 
-        //TOOD: Remove. Temp workaround to disable auth
-        extension.context.secrets.store('BallerinaAIUser', 'abc');
-        extension.context.secrets.store('BallerinaAIRefreshToken', 'abc');
         //activate ai panel
         activateAiPanel(ballerinaExtInstance);
 

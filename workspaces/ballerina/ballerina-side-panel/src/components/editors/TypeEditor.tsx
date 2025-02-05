@@ -100,7 +100,7 @@ export function TypeEditor(props: TypeEditorProps) {
     }
 
     const handleTypeEdit = (value: string) => {
-        handleOnTypeChange();
+        handleOnTypeChange && handleOnTypeChange();
     };
 
     const debouncedTypeEdit = debounce(handleTypeEdit, 300);

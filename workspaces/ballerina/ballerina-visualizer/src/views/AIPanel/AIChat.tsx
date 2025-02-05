@@ -21,6 +21,7 @@ import {
     DataMappingRecord,
     PostProcessResponse,
 } from "@wso2-enterprise/ballerina-core";
+
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon } from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from "react-markdown";
@@ -35,9 +36,19 @@ import { findRegexMatches } from "../../utils/utils";
 import { Collapse } from "react-collapse";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 
-interface MarkdownRendererProps {
-    markdownContent: string;
-}
+import {
+    MarkdownRenderer,
+    Footer,
+    FlexRow,
+    AIChatView,
+    Header,
+    HeaderButtons,
+    Main,
+    ChatMessage,
+    Welcome,
+    Badge,
+    ResetsInBadge
+} from './styles'
 
 interface CodeBlock {
     filePath: string;
@@ -55,65 +66,6 @@ interface ApiResponse {
 }
 
 var chatArray: ChatEntry[] = [];
-
-const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) => {
-    return <ReactMarkdown>{markdownContent}</ReactMarkdown>;
-};
-
-const Footer = styled.footer({
-    padding: "20px",
-});
-
-const FlexRow = styled.div({
-    display: "flex",
-    flexDirection: "row",
-});
-
-const AIChatView = styled.div({
-    display: "flex",
-    flexDirection: "column",
-    height: "100%",
-});
-
-const Header = styled.header({
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: "10px",
-    gap: "10px",
-});
-
-const HeaderButtons = styled.div({
-    display: "flex",
-    justifyContent: "flex-end",
-    marginRight: "10px",
-});
-
-const Main = styled.main({
-    flex: 1,
-    flexDirection: "column",
-    overflowY: "auto",
-});
-
-const ChatMessage = styled.div({
-    padding: "20px",
-    borderTop: "1px solid var(--vscode-editorWidget-border)",
-});
-
-const Welcome = styled.div({
-    padding: "0 20px",
-});
-
-const Badge = styled.div`
-    padding: 5px;
-    margin-left: 10px;
-    display: inline-block;
-    text-align: left;
-`;
-
-const ResetsInBadge = styled.div`
-    font-size: 10px;
-`;
 
 // A string array to store all code blocks
 const codeBlocks: string[] = [];
@@ -144,7 +96,7 @@ const TEMPLATE_DATAMAP = [
     "generate mapping using input as <recordname(s)> and output as <recordname> using the function <functionname>",
     "generate mapping using input as <recordname(s)> and output as <recordname>",
 ];
-const TEMPLATE_TYPECREATOR = ["generate types using the given file content"];
+const TEMPLATE_TYPECREATOR = ["generate types using the given file"];
 
 // Use the constants in the commandToTemplate map
 const commandToTemplate = new Map<string, string[]>([
@@ -721,8 +673,6 @@ export function AIChat() {
                 .getAiPanelRpcClient()
                 .addToProject({ filePath: filePath, content: segmentText, isTestCode: isTestCode });
         }
-        //TODO:Modify the function signature or comment this for datamapper working correctly
-        await rpcClient.getAiPanelRpcClient().applyDoOnFailBlocks();
         setIsCodeAdded(true);
     };
 
@@ -870,102 +820,115 @@ export function AIChat() {
             });
         });
 
-        try {
-            const inputs: DataMappingRecord[] = inputParams.map((param: string) => {
-                const isArray = param.endsWith("[]");
-                const recordName = param.replace(/\[\]$/, "");
-                const rec = recordMap.get(recordName);
+        const inputs: DataMappingRecord[] = inputParams.map((param: string) => {
+            const isArray = param.endsWith("[]");
+            const recordName = param.replace(/\[\]$/, "");
+            const rec = recordMap.get(recordName);
 
-                if (!rec) {
-                    if (recordName.includes(":")) {
-                        const [moduleName, alias] = recordName.split(":");
-                        const matchedImport = activeFileImports.find((imp) => recordName.startsWith(imp.alias));
-                        if (!matchedImport) {
-                            throw new Error(`Must import the module for "${recordName}".`);
+            if (!rec) {
+                if (recordName.includes(":")) {
+                    const [moduleName, alias] = recordName.split(":");
+                    const matchedImport = activeFileImports.find((imp) => {
+                        if (imp.alias) {
+                            // Match using alias if it exists
+                            return recordName.startsWith(imp.alias);
                         }
-                        importsMap.set(recordName, {
-                            moduleName: matchedImport.moduleName,
-                            alias: matchedImport.alias,
-                        });
-                        return { type: `${recordName}`, isArray, filePath: null };
-                    } else {
-                        throw new Error(`${recordName} is not defined.`);
+                        // If alias doesn't exist, match using the last part of the module name
+                        const moduleNameParts = imp.moduleName.split(".");
+                        const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
+                        return recordName.startsWith(inferredAlias);
+                    });
+
+                    if (!matchedImport) {
+                        throw new Error(`Must import the module for "${recordName}".`);
                     }
+                    // Use the actual alias if present, otherwise infer from the module name
+                    const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
+                    importsMap.set(recordName, {
+                        moduleName: matchedImport.moduleName,
+                        alias: resolvedAlias,
+                    });
+                    return { type: `${recordName}`, isArray, filePath: null };
+                } else {
+                    throw new Error(`${recordName} is not defined.`);
                 }
-                return { ...rec, isArray };
-            });
+            }
+            return { ...rec, isArray };
+        });
 
-            const outputRecordName = outputParam.replace(/\[\]$/, "");
-            const outputIsArray = outputParam.endsWith("[]");
-            let output = recordMap.get(outputRecordName);
+        const outputRecordName = outputParam.replace(/\[\]$/, "");
+        const outputIsArray = outputParam.endsWith("[]");
+        let output = recordMap.get(outputRecordName);
 
-            if (!output) {
-                if (outputRecordName.includes(":")) {
-                    const [moduleName, alias] = outputRecordName.split(":");
-                    const matchedImport = activeFileImports.find((imp) => outputRecordName.startsWith(imp.alias));
+        if (!output) {
+            if (outputRecordName.includes(":")) {
+                const [moduleName, alias] = outputRecordName.split(":");
+                    const matchedImport = activeFileImports.find((imp) => {
+                        if (imp.alias) {
+                            // Match using alias if it exists
+                            return outputRecordName.startsWith(imp.alias);
+                        }
+                        // If alias doesn't exist, match using the last part of the module name
+                        const moduleNameParts = imp.moduleName.split(".");
+                        const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
+                        return outputRecordName.startsWith(inferredAlias);
+                    });
+
                     if (!matchedImport) {
                         throw new Error(`Must import the module for "${outputRecordName}".`);
                     }
+                    // Use the actual alias if present, otherwise infer from the module name
+                    const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
                     importsMap.set(outputRecordName, {
                         moduleName: matchedImport.moduleName,
-                        alias: matchedImport.alias,
+                        alias: resolvedAlias,
                     });
                     output = { type: `${outputRecordName}`, isArray: outputIsArray, filePath: null };
-                } else {
-                    throw new Error(`${outputRecordName} is not defined.`);
-                }
             } else {
-                output = { ...output, isArray: outputIsArray };
+                throw new Error(`${outputRecordName} is not defined.`);
             }
-
-            const requestPayload: any = {
-                backendUri: "",
-                token: "",
-                inputRecordTypes: inputs,
-                outputRecordType: output,
-                functionName,
-                imports: Array.from(importsMap.values()),
-            };
-            if (attachments && attachments.length > 0) {
-                requestPayload.attachment = attachments;
-            }
-            const response = await rpcClient.getAiPanelRpcClient().getMappingsFromRecord(requestPayload);
-            setIsLoading(false);
-
-            assistant_response = `Mappings consist of the following:\n`;
-            if (inputParams.length === 1) {
-                assistant_response += `- **Input Record**: ${inputParams[0]}\n`;
-            } else {
-                assistant_response += `- **Input Records**: ${inputParams.join(", ")}\n`;
-            }
-            assistant_response += `- **Output Record**: ${outputParam}\n`;
-            assistant_response += `- **Function Name**: ${functionName}\n`;
-
-            let filePath = "mappings.bal";
-            let finalContent = response.mappingCode;
-            const needsImports = Array.from(importsMap.values()).length > 0;
-
-            if (needsImports) {
-                filePath = activeFile;
-                finalContent = `${fileContent}\n${response.mappingCode}`;
-            }
-            assistant_response += `<code filename="${filePath}">\n\`\`\`ballerina\n${finalContent}\n\`\`\`\n</code>`;
-
-            setMessages((prevMessages) => {
-                const newMessages = [...prevMessages];
-                newMessages[newMessages.length - 1].content = assistant_response;
-                return newMessages;
-            });
-        } catch (error) {
-            setIsLoading(false);
-            setMessages((prevMessages) => {
-                const newMessages = [...prevMessages];
-                newMessages[newMessages.length - 1].content += `Mappings generation failed: ${error}`;
-                newMessages[newMessages.length - 1].type = "Error";
-                return newMessages;
-            });
-            throw new Error("Failed to generate Mappings.");
+        } else {
+            output = { ...output, isArray: outputIsArray };
         }
+
+        const requestPayload: any = {
+            backendUri: "",
+            token: "",
+            inputRecordTypes: inputs,
+            outputRecordType: output,
+            functionName,
+            imports: Array.from(importsMap.values()),
+        };
+        if (attachments && attachments.length > 0) {
+            requestPayload.attachment = attachments;
+        }
+        const response = await rpcClient.getAiPanelRpcClient().getMappingsFromRecord(requestPayload);
+        setIsLoading(false);
+
+        assistant_response = `Mappings consist of the following:\n`;
+        if (inputParams.length === 1) {
+            assistant_response += `- **Input Record**: ${inputParams[0]}\n`;
+        } else {
+            assistant_response += `- **Input Records**: ${inputParams.join(", ")}\n`;
+        }
+        assistant_response += `- **Output Record**: ${outputParam}\n`;
+        assistant_response += `- **Function Name**: ${functionName}\n`;
+
+        let filePath = "mappings.bal";
+        let finalContent = response.mappingCode;
+        const needsImports = Array.from(importsMap.values()).length > 0;
+
+        if (needsImports) {
+            filePath = activeFile;
+            finalContent = `${fileContent}\n${response.mappingCode}`;
+        }
+        assistant_response += `<code filename="${filePath}">\n\`\`\`ballerina\n${finalContent}\n\`\`\`\n</code>`;
+
+        setMessages((prevMessages) => {
+            const newMessages = [...prevMessages];
+            newMessages[newMessages.length - 1].content = assistant_response;
+            return newMessages;
+        });
         addChatEntry("user", message);
         addChatEntry("assistant", assistant_response);
     }
@@ -976,70 +939,57 @@ export function AIChat() {
         setIsLoading(true);
         let filePath = "types.bal";
 
-        try {
-            const projectComponents = await rpcClient.getBIDiagramRpcClient().getProjectComponents();
+        const projectComponents = await rpcClient.getBIDiagramRpcClient().getProjectComponents();
 
-            projectComponents.components.packages?.forEach((pkg) => {
-                pkg.modules?.forEach((mod) => {
-                    let filepath = pkg.filePath;
-                    if (mod.name !== undefined) {
-                        filepath += `modules/${mod.name}/`;
-                    }
-                    mod.records.forEach((rec) => {
-                        const recFilePath = filepath + rec.filePath;
-                        recordMap.set(rec.name, { type: rec.name, isArray: false, filePath: recFilePath });
-                    });
+        projectComponents.components.packages?.forEach((pkg) => {
+            pkg.modules?.forEach((mod) => {
+                let filepath = pkg.filePath;
+                if (mod.name !== undefined) {
+                    filepath += `modules/${mod.name}/`;
+                }
+                mod.records.forEach((rec) => {
+                    const recFilePath = filepath + rec.filePath;
+                    recordMap.set(rec.name, { type: rec.name, isArray: false, filePath: recFilePath });
                 });
             });
+        });
 
-            if (!attachments || attachments.length === 0) {
-                throw new Error(`Missing attachment`);
-            }
-
-            const requestPayload: any = {
-                backendUri: "",
-                token: token,
-                attachment: attachments,
-            };
-
-            const response = await rpcClient.getAiPanelRpcClient().getTypesFromRecord(requestPayload);
-            let typeContent = response.typesCode;
-            const newRecords = extractRecordTypes(typeContent);
-
-            let fileContent = "";
-            let fileExists = await rpcClient.getAiPanelRpcClient().getFileExists({ filePath: filePath });
-            if (fileExists) {
-                fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath });
-                typeContent = `${fileContent}\n${response.typesCode}`;
-            }
-
-            for (const record of newRecords) {
-                if (recordMap.has(record.name)) {
-                    throw new Error(`Record "${record.name}" already exists in the workspace.`);
-                }
-            }
-
-            assistant_response = `Record types generated from the ${attachments[0].name} file shown below.\n`;
-
-            assistant_response += `<code filename="${filePath}">\n\`\`\`ballerina\n${response.typesCode}\n\`\`\`\n</code>`;
-
-            setMessages((prevMessages) => {
-                const newMessages = [...prevMessages];
-                newMessages[newMessages.length - 1].content = assistant_response;
-                return newMessages;
-            });
-            setIsLoading(false);
-        } catch (error) {
-            setIsLoading(false);
-            setMessages((prevMessages) => {
-                const newMessages = [...prevMessages];
-                newMessages[newMessages.length - 1].content += `Type creation failed: ${error}`;
-                newMessages[newMessages.length - 1].type = "Error";
-                return newMessages;
-            });
-            throw new Error("Failed to generate types.");
+        if (!attachments || attachments.length === 0) {
+            throw new Error(`Missing attachment`);
         }
 
+        const requestPayload: any = {
+            backendUri: "",
+            token: token,
+            attachment: attachments,
+        };
+
+        const response = await rpcClient.getAiPanelRpcClient().getTypesFromRecord(requestPayload);
+        let typeContent = response.typesCode;
+        const newRecords = extractRecordTypes(typeContent);
+
+        let fileContent = "";
+        let fileExists = await rpcClient.getAiPanelRpcClient().getFileExists({ filePath: filePath });
+        if (fileExists) {
+            fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath });
+            typeContent = `${fileContent}\n${response.typesCode}`;
+        }
+
+        for (const record of newRecords) {
+            if (recordMap.has(record.name)) {
+                throw new Error(`Record "${record.name}" already exists in the workspace.`);
+            }
+        }
+
+        assistant_response = `Record types generated from the ${attachments[0].name} file shown below.\n`;
+        assistant_response += `<code filename="${filePath}">\n\`\`\`ballerina\n${response.typesCode}\n\`\`\`\n</code>`;
+
+        setMessages((prevMessages) => {
+            const newMessages = [...prevMessages];
+            newMessages[newMessages.length - 1].content = assistant_response;
+            return newMessages;
+        });
+        setIsLoading(false);
         addChatEntry("user", message);
         addChatEntry("assistant", assistant_response);
     }
@@ -1056,8 +1006,8 @@ export function AIChat() {
         setIsCodeLoading(false);
     }
 
-    async function handleLogout() {
-        await rpcClient.getAiPanelRpcClient().logout();
+    async function handleSettings() {
+        await rpcClient.getAiPanelRpcClient().openSettings();
     }
 
     function handleClearChat(): void {
@@ -1105,9 +1055,9 @@ export function AIChat() {
                         <Codicon name="clear-all" />
                         &nbsp;&nbsp;Clear
                     </Button>
-                    <Button appearance="icon" onClick={() => handleLogout()} tooltip="Logout" disabled={true}>
-                        <Codicon name="sign-out" />
-                        &nbsp;&nbsp;Logout
+                    <Button appearance="icon" onClick={() => handleSettings()} tooltip="Settings">
+                        <Codicon name="settings-gear" />
+                        &nbsp;&nbsp;Settings
                     </Button>
                 </HeaderButtons>
             </Header>
