@@ -7,6 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { throttle } from 'lodash';
 import React, { useRef, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -25,7 +26,7 @@ import {
     setValue,
     transformExpressions
 } from '../../utils';
-import { TokenEditorProps } from '../../types';
+import { HelperPanePosition, TokenEditorProps } from '../../types';
 
 import { Button } from '../../../Button/Button';
 import { Icon } from '../../../Icon/Icon';
@@ -176,7 +177,37 @@ export const TokenEditor = ({
     const textAreaCursorPositionRef = useRef<number>(0);
     const [tokenValue, setTokenValue] = useState<string>('');
     const selectedTokenRef = useRef<HTMLSpanElement | null>(null);
+    const [helperPanePosition, setHelperPanePosition] = useState<HelperPanePosition>({ top: 0, left: 0 });
+    const [helperPaneArrowPosition, setHelperPaneArrowPosition] = useState<HelperPanePosition>({ top: 0, left: 0 });
 
+    const updatePosition = throttle(() => {
+        if (containerRef.current) {
+            setHelperPanePosition(getHelperPaneWithEditorPosition(containerRef, helperPaneOrigin));
+            setHelperPaneArrowPosition(
+                getHelperPaneWithEditorArrowPosition(containerRef, helperPaneOrigin, helperPanePosition)
+            );
+        }
+    }, 10);
+
+    useEffect(() => {
+        updatePosition();
+
+        // Create ResizeObserver to watch textarea size changes
+        const resizeObserver = new ResizeObserver(updatePosition);
+        if (containerRef.current) {
+            resizeObserver.observe(containerRef.current);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', updatePosition);
+
+        return () => {
+            window.removeEventListener('resize', updatePosition);
+            resizeObserver.disconnect();
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isHelperPaneOpen]);
+    
     const addEventListeners = () => {
         const editor = editorRef.current;
         if (!editor) return;
@@ -429,9 +460,6 @@ export const TokenEditor = ({
     }
 
     const getHelperPaneWithEditorComponent = (): JSX.Element => {
-        const helperPanePosition = getHelperPaneWithEditorPosition(containerRef, helperPaneOrigin);
-        const arrowPosition = getHelperPaneWithEditorArrowPosition(containerRef, helperPaneOrigin, helperPanePosition);
-
         return createPortal(
             <S.HelperPane ref={helperPaneContainerRef} sx={{ ...helperPanePosition }}>
                 {/* Editor to edit the token */}
@@ -458,7 +486,9 @@ export const TokenEditor = ({
                 </S.HelperPaneButtons>
 
                 {/* Side arrow of the helper pane */}
-                {arrowPosition && <HelperPane.Arrow origin={helperPaneOrigin} sx={{ ...arrowPosition }} />}
+                {helperPaneArrowPosition && (
+                    <HelperPane.Arrow origin={helperPaneOrigin} sx={{ ...helperPaneArrowPosition }} />
+                )}
             </S.HelperPane>,
             document.body
         );
