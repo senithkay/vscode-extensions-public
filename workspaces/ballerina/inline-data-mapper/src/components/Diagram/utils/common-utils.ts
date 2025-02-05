@@ -15,7 +15,7 @@ import { IOType, Mapping, TypeKind } from "@wso2-enterprise/ballerina-core";
 import { useDMCollapsedFieldsStore, useDMExpandedFieldsStore } from "../../../store/store";
 
 export function findMappingByOutput(mappings: Mapping[], outputId: string): Mapping {
-    return mappings.find(mapping => mapping.output === outputId);
+    return mappings.find(mapping => (mapping.output === outputId || mapping.output.replaceAll("\"", "") === outputId));
 }
 
 export function getMappingType(sourcePort: PortModel, targetPort: PortModel): MappingType {
