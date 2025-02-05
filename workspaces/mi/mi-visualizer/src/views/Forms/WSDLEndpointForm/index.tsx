@@ -17,6 +17,9 @@ import { InputsFields, initialEndpoint, propertiesConfigs, paramTemplateConfigs 
 import { TypeChip } from "../Commons";
 import Form from "./Form";
 import * as yup from "yup";
+import AddToRegistry, { formatRegistryPath, getArtifactNamesAndRegistryPaths, saveToRegistry } from "../AddToRegistry";
+import { compareVersions } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
+import { RUNTIME_VERSION_440 } from "../../../constants";
 
 export interface WsdlEndpointWizardProps {
     path: string;
@@ -34,6 +37,10 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
             .test('validateEndpointName',
                 'An artifact with same name already exists', value => {
                     return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
+                })
+            .test('validateEndpointArtifactName',
+                'A registry resource with this artifact name already exists', value => {
+                    return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
                 }) :
             yup.string().required("Endpoint Name is required")
                 .matches(/^[^@\\^+;:!%&,=*#[\]?'"<>{}() /]*$/, "Invalid characters in Endpoint Name"),
@@ -86,10 +93,43 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
             .test('validateTemplateName',
                 'An artifact with same name already exists', value => {
                     return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
+                })
+            .test('validateTemplateArtifactName',
+                'A registry resource with this artifact name already exists', value => {
+                    return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
                 }) :
             yup.string().notRequired().default(""),
         requireTemplateParameters: yup.boolean(),
         templateParameters: yup.array(),
+        saveInReg: yup.boolean(),
+        artifactName: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().required("Artifact Name is required")
+                    .test('validateArtifactName',
+                        'Artifact name already exists', value => {
+                            return !artifactNames.includes(value);
+                        })
+                    .test('validateFileName',
+                        'A file already exists in the workspace with this artifact name', value => {
+                            return !workspaceFileNames.includes(value);
+                        }),
+        }),
+        registryPath: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().required("Registry Path is required")
+                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
+                    const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("endpointName"));
+                    if (formattedPath === undefined) return true;
+                    return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
+                }),
+        }),
+        registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"])
     });
 
     const {
@@ -109,11 +149,14 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
     const { rpcClient } = useVisualizerContext();
     const isNewEndpoint = !props.path.endsWith(".xml");
     const isTemplate = props.type === 'template';
+    const [artifactNames, setArtifactNames] = useState([]);
+    const [registryPaths, setRegistryPaths] = useState([]);
     const [templateParams, setTemplateParams] = useState(paramTemplateConfigs);
     const [additionalParams, setAdditionalParams] = useState(propertiesConfigs);
     const [savedEPName, setSavedEPName] = useState<string>("");
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
     const [prevName, setPrevName] = useState<string | null>(null);
+    const [isRegistryContentVisible, setIsRegistryContentVisible] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -144,6 +187,7 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
                 }));
                 reset(existingEndpoint);
                 setSavedEPName(isTemplate ? existingEndpoint.templateName : existingEndpoint.endpointName);
+                setValue('saveInReg', false);
                 setValue('timeoutAction', existingEndpoint.timeoutAction === '' ? 'Never' :
                     existingEndpoint.timeoutAction.charAt(0).toUpperCase() + existingEndpoint.timeoutAction.slice(1)
                 );
@@ -152,26 +196,40 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
                 isTemplate ? setValue("endpointName", "$name") : setValue("endpointName", "");
             }
 
+            const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
+            setArtifactNames(result.artifactNamesArr);
+            setRegistryPaths(result.registryPaths);
             const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
                 path: props.path,
             });
+            const response = await rpcClient.getMiVisualizerRpcClient().getProjectDetails();
+            const runtimeVersion = response.primaryDetails.runtimeVersion.value;
+            setIsRegistryContentVisible(compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0);
             setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
 
     useEffect(() => {
         setPrevName(isTemplate ? watch("templateName") : watch("endpointName"));
+        if (prevName === watch("artifactName")) {
+            setValue("artifactName", isTemplate ? watch("templateName") : watch("endpointName"));
+        }
     }, [isTemplate ? watch("templateName") : watch("endpointName")]);
 
     const handleUpdateWsdlEndpoint = async (values: any) => {
         const updateWsdlEndpointParams: UpdateWsdlEndpointRequest = {
             directory: props.path,
-            getContentOnly: false,
+            getContentOnly: watch("saveInReg"),
             ...values
         }
 
-        await rpcClient.getMiDiagramRpcClient().updateWsdlEndpoint(updateWsdlEndpointParams);
-        
+        const result = await rpcClient.getMiDiagramRpcClient().updateWsdlEndpoint(updateWsdlEndpointParams);
+        if (watch("saveInReg")) {
+            await saveToRegistry(rpcClient, props.path, values.registryType,
+                isTemplate ? values.templateName : values.endpointName,
+                result.content, values.registryPath, values.artifactName);
+        }
+
         if (props.isPopup) {
             rpcClient.getMiVisualizerRpcClient().openView({
                 type: POPUP_EVENT_TYPE.CLOSE_VIEW,
@@ -239,6 +297,20 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
                 additionalParams={additionalParams}
                 setAdditionalParams={setAdditionalParams}
             />
+            {isRegistryContentVisible && isNewEndpoint && (
+                <>
+                    <FormCheckBox
+                        label="Save the endpoint in registry"
+                        {...register("saveInReg")}
+                        control={control}
+                    />
+                    {watch("saveInReg") && (<>
+                        <AddToRegistry path={props.path}
+                            fileName={isTemplate ? watch("templateName") : watch("endpointName")}
+                            register={register} errors={errors} getValues={getValues} />
+                    </>)}
+                </>
+            )}
             <FormActions>
                 <Button
                     appearance="secondary"

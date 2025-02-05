@@ -104,7 +104,7 @@ export function MediatorForm(props: MediatorFormProps) {
                 <Button
                     appearance="primary"
                     onClick={handleSubmit(handleOnSubmit)}
-                    disabled={Object.keys(dirtyFields).length === 0}
+                    disabled={isUpdate && Object.keys(dirtyFields).length === 0}
                 >
                     {isUpdate ? "Update" : "Add"}
                 </Button>
