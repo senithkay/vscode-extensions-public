@@ -15,10 +15,10 @@ import { EntityLinkModel } from '../EntityLink/EntityLinkModel';
 import { EntityPortWidget } from '../EntityPort/EntityPortWidget';
 import { EntityHeadWidget } from './EntityHead/EntityHead';
 import { AttributeWidget } from './Attribute/AttributeCard';
-import { EntityNode, InclusionPortsContainer } from './styles';
+import { EntityNode, InclusionPortsContainer, OperationSection } from './styles';
 import { DiagramContext } from '../../common';
 import styled from '@emotion/styled';
-import { Codicon, ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { ThemeColors } from '@wso2-enterprise/ui-toolkit';
 import { isNodeClass } from '../../../utils/model-mapper/entityModelMapper';
 
 
@@ -49,15 +49,15 @@ export function EntityWidget(props: EntityWidgetProps) {
         if (node.isGraphqlRoot) {
 
             const attributes: React.ReactNode[] = [];
-            const [collapsedSections, setCollapsedSections] = useState({
-                query: false,
-                mutation: false,
-                subscription: false,
-            });
+            // const [collapsedSections, setCollapsedSections] = useState({
+            //     query: false,
+            //     mutation: false,
+            //     subscription: false,
+            // });
 
-            const toggleSection = (section: string) => {
-                setCollapsedSections(prev => ({ ...prev, [section]: !prev[section] }));
-            };
+            // const toggleSection = (section: string) => {
+            //     setCollapsedSections(prev => ({ ...prev, [section]: !prev[section] }));
+            // };
 
             const categorizedFunctions = {
                 query: [],
@@ -81,12 +81,13 @@ export function EntityWidget(props: EntityWidgetProps) {
             if (categorizedFunctions.query.length > 0) {
                 attributes.push(
                     <div key="query-section">
+                        <OperationSection>
                         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                            <Codicon name={collapsedSections.query ? "chevron-up" : "chevron-down"} onClick={() => toggleSection('query')} />
+                            {/* <Codicon name={collapsedSections.query ? "chevron-up" : "chevron-down"} onClick={() => toggleSection('query')} /> */}
                             <AttributeHeader>Query</AttributeHeader>
                         </div>
                         {/* <h3 onClick={() => toggleSection('query')}>Query</h3> */}
-                        {!collapsedSections.query && (
+                        {/* {!collapsedSections.query && ( */}
                             <div>
                                 {categorizedFunctions.query.map((query: any) => (
                                     <AttributeWidget
@@ -98,7 +99,8 @@ export function EntityWidget(props: EntityWidgetProps) {
                                     // <div key={query.name}>{query.name}</div>
                                 ))}
                             </div>
-                        )}
+                        {/* )} */}
+                        </OperationSection>
                     </div>
                 );
             }
@@ -107,11 +109,12 @@ export function EntityWidget(props: EntityWidgetProps) {
             if (categorizedFunctions.mutation.length > 0) {
                 attributes.push(
                     <div key="mutation-section">
+                        <OperationSection>
                         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                            <Codicon name={collapsedSections.mutation ? "chevron-up" : "chevron-down"} onClick={() => toggleSection('mutation')} />
+                            {/* <Codicon name={collapsedSections.mutation ? "chevron-up" : "chevron-down"} onClick={() => toggleSection('mutation')} /> */}
                             <AttributeHeader>Mutation</AttributeHeader>
                         </div>
-                        {!collapsedSections.mutation && (
+                        {/* {!collapsedSections.mutation && ( */}
                             <div>
                                 {categorizedFunctions.mutation.map((mutation: any) => (
                                     <AttributeWidget
@@ -122,7 +125,8 @@ export function EntityWidget(props: EntityWidgetProps) {
                                     />
                                 ))}
                             </div>
-                        )}
+                        {/* )} */}
+                        </OperationSection>
                     </div>
                 );
             }
@@ -132,9 +136,10 @@ export function EntityWidget(props: EntityWidgetProps) {
                 attributes.push(
                     <div key="subscription-section">
                         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                            <Codicon name={collapsedSections.subscription ? "chevron-up" : "chevron-down"} onClick={() => toggleSection('subscription')} />
+                            {/* <Codicon name={collapsedSections.subscription ? "chevron-up" : "chevron-down"} onClick={() => toggleSection('subscription')} /> */}
                             <AttributeHeader>Subscription</AttributeHeader>
-                        </div>                    {!collapsedSections.subscription && (
+                        </div>
+                        {/* {!collapsedSections.subscription && ( */}
                             <div>
                                 {categorizedFunctions.subscription.map((subscription: any) => (
                                     <AttributeWidget
@@ -144,7 +149,7 @@ export function EntityWidget(props: EntityWidgetProps) {
                                         isSelected={node.isNodeSelected(selectedLink, `${node.getID()}/${subscription.name}`)}
                                     />))}
                             </div>
-                        )}
+                        {/* )} */}
                     </div>
                 );
             }

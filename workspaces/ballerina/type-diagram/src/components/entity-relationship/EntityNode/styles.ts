@@ -60,9 +60,7 @@ export const EntityName: React.FC<any> = styled.span`
 export const AttributeContainer: React.FC<any> = styled.div`
     align-items: center;
     background-color: ${(props: { isSelected: boolean }) => props.isSelected ? ThemeColors.SURFACE_DIM_2 : ThemeColors.SURFACE_BRIGHT};
-    border: 0.5px solid ${ThemeColors.OUTLINE_VARIANT};
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
+    border-top: 0.5px solid ${ThemeColors.OUTLINE_VARIANT};
     display: flex;
     flex-direction: row;
     font-size: 12px;
@@ -70,6 +68,21 @@ export const AttributeContainer: React.FC<any> = styled.div`
     justify-content: space-between;
     min-width: calc(100% - 20px);
     padding: 8px 8px 8px 12px;
+
+    &:last-of-type {
+        border-bottom-left-radius: 6px;
+        border-bottom-right-radius: 6px;
+    }
+`;
+
+export const OperationSection: React.FC<any> = styled.div`
+    border-bottom: 0.5px solid ${ThemeColors.OUTLINE_VARIANT};
+    margin-bottom: 8px;
+
+    &:last-child {
+        border-bottom-left-radius: 6px;
+        border-bottom-right-radius: 6px;
+    }
 `;
 
 export const AttributeName: React.FC<any> = styled.span`
