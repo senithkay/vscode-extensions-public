@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useRef, useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import { Member, Type } from '@wso2-enterprise/ballerina-core';
 import { Codicon, Icon, CheckBox } from '@wso2-enterprise/ui-toolkit';
 import { Button } from '@wso2-enterprise/ui-toolkit';
@@ -16,13 +16,14 @@ import { FieldEditor } from './FieldEditor';
 
 interface RecordEditorProps {
     type: Type;
+    isAnonymous: boolean;
     onChange: (type: Type) => void;
     onImportJson: () => void;
     onImportXml: () => void;
 }
 
-export const RecordEditor: React.FC<RecordEditorProps> = (props) => {
-    const { type, onChange, onImportJson, onImportXml } = props;
+export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorProps>((props, ref) => {
+    const { type, isAnonymous = false, onChange, onImportJson, onImportXml } = props;
     const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
 
     const addMember = () => {
@@ -38,6 +39,10 @@ export const RecordEditor: React.FC<RecordEditorProps> = (props) => {
         onChange({ ...type, members: [...type.members, newMember] });
     }
 
+    useImperativeHandle(ref, () => ({
+        addMember
+    }));
+
     const handleImportJson = () => {
         onImportJson();
     }
@@ -47,13 +52,17 @@ export const RecordEditor: React.FC<RecordEditorProps> = (props) => {
     }
 
     const deleteSelected = () => {
-        const newMembers = [...type.members];
-        newMembers.splice(selectedMembers.length, 1);
+        const newMembers = type.members.filter((_, index) => !selectedMembers.includes(index));
+        setSelectedMembers([]);
         onChange({ ...type, members: newMembers });
     }
 
-    const toggleSelected = (index: number) => () => {
+    const onSelect = (index: number) => () => {
         setSelectedMembers([...selectedMembers, index]);
+    }
+
+    const onDeselect = (index: number) => () => {
+        setSelectedMembers(selectedMembers.filter(i => i !== index));
     }
 
     const handleMemberChange = (index: number) => (member: Member) => {
@@ -64,26 +73,27 @@ export const RecordEditor: React.FC<RecordEditorProps> = (props) => {
 
     return (
         <div className="record-editor">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3>Record</h3>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                    <Button appearance="icon">
-                        <Codicon name="arrow-circle-down" onClick={handleImportJson} />&nbsp;JSON
-                    </Button>
-                    <Button appearance="icon">
-                        <Codicon name="arrow-circle-down" onClick={handleImportXml} />&nbsp;XML
-                    </Button>
-                    <Button appearance="icon" onClick={addMember}><Codicon name="add" /></Button>
-                    <Button appearance="icon" onClick={deleteSelected}><Codicon name="trash" /></Button>
-                    {/* <Button appearance="icon"><Codicon name="kebab-vertical" /></Button> */}
+            {!isAnonymous &&
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <h3>Record</h3>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        <Button appearance="icon">
+                            <Codicon name="arrow-circle-down" onClick={handleImportJson} />&nbsp;JSON
+                        </Button>
+                        <Button appearance="icon">
+                            <Codicon name="arrow-circle-down" onClick={handleImportXml} />&nbsp;XML
+                        </Button>
+                        <Button appearance="icon" onClick={addMember}><Codicon name="add" /></Button>
+                        <Button appearance="icon" onClick={deleteSelected}><Codicon name="trash" /></Button>
+                        {/* <Button appearance="icon"><Codicon name="kebab-vertical" /></Button> */}
+                    </div>
                 </div>
-            </div>
+            }
             {type.members.map((member, index) => (
                 <>
-                    <FieldEditor member={member} onChange={handleMemberChange(index)} onSelectedChanged={toggleSelected(index)} />
+                    <FieldEditor selected={selectedMembers.includes(index)} member={member} onChange={handleMemberChange(index)} onSelect={onSelect(index)} onDeselect={onDeselect(index)} />
                 </>
-            ))
-            }
+            ))}
         </div >
     );
-};
+});

@@ -118,10 +118,13 @@ export const typeToSource = (type: string | Type): string => {
     }
 
     if (type.codedata.node === 'UNION') {
-        const typeString = type.members.map(m => typeToSource(m.type)).join('|');
-        // if string has `|()` replace it with `?`
-        if (typeString.includes('|()')) {
-            return typeString.replace('|()', '?');
+        const typeString = type.members.reverse().map(m => typeToSource(m.type)).join(' | ');
+        // Convert union with () to optional type notation, handling different orderings
+        const optionalTypeRegex = /^\(\)\|(.+)$|^(.+)\|\(\)$/;
+        const match = typeString.replace(/\s+/g, '').match(optionalTypeRegex);
+        if (match) {
+            // match[1] or match[2] will contain the type (whichever group matched)
+            return (match[1] || match[2]) + '?';
         }
         return typeString;
     }
@@ -132,3 +135,24 @@ export const typeToSource = (type: string | Type): string => {
 
     return type.codedata.node;
 };
+
+export const defaultAnonymousRecordType = {
+    "editable": false,
+    "codedata": {
+        "node": "RECORD"
+    },
+    "properties": {
+    },
+    "members": [
+        {
+            "kind": "FIELD",
+            //@ts-ignore
+            "refs": [],
+            "type": "string",
+            "name": "name",
+            "docs": ""
+        }
+    ],
+    //@ts-ignore
+    "includes": []
+}

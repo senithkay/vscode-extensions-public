@@ -53,7 +53,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
     }, [selectedNodeId]);
 
     const drawDiagram = (focusedNode?: string) => {
-        if(isGraphql && rootService) { // TODO: Refactor for graphql and types
+        if (isGraphql && rootService) { // TODO: Refactor for graphql and types
             const diagramModel = graphqlModeller(rootService, typeModel);
             console.log("diagramModel", diagramModel);
 
@@ -140,7 +140,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
     return (
         <DesignDiagramContext {...ctx}>
             {diagramEngine?.getModel() && diagramModel ?
-                <>
+                <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
                     <DiagramContainer>
                         <NavigationWrapperCanvasWidget
                             diagramEngine={diagramEngine}
@@ -153,7 +153,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
                         refreshDiagram={refreshDiagram}
                         showProblemPanel={showProblemPanel}
                     />
-                </> :
+                </div> :
                 <ProgressRing sx={{ color: ThemeColors.PRIMARY }} />
             }
         </DesignDiagramContext>
