@@ -22,7 +22,7 @@ export enum ColorThemeKind {
 export enum MACHINE_VIEW {
     Welcome = "Welcome to MI",
     ADD_ARTIFACT = "Add Artifact",
-    Overview = "Project Settings",
+    Overview = "Project Overview",
     UnsupportedProject = "Unsupported Project",
     Disabled = "MI Extension",
     Diagram = "MI Diagram",
@@ -76,7 +76,7 @@ export enum MACHINE_VIEW {
     UpdateExtension = "Update Extension",
     ManageDependencies = "Manage Dependencies",
     ManageConfigurables = "Manage Configurables",
-    ProjectInformationForm = "Project Information Form",
+    Settings = "Project Settings",
 }
 
 export enum AI_MACHINE_VIEW {

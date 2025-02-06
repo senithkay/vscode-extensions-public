@@ -126,6 +126,13 @@ const stateMachinePopup = createMachine<PopupMachineContext>({
         notifyChange: (context, event) => {
             return new Promise((resolve, reject) => {
                 RPCLayer._messenger.sendNotification(onParentPopupSubmitted, { type: 'webview', webviewType: VisualizerWebview.viewType }, { recentIdentifier: context.recentIdentifier });
+                const webview = VisualizerWebview.currentPanel?.getWebview();
+                const currentView = StateMachine.context().view;
+                if (webview) {
+                    if (currentView) {
+                        webview.title = currentView;
+                    }
+                }
                 resolve(true);
             });
         },
@@ -157,6 +164,12 @@ export const StateMachinePopup = {
     }
 };
 
-export function openPopupView(type: POPUP_EVENT_TYPE, viewLocation?: PopupVisualizerLocation) {
-    popupStateService.send({ type: type, viewLocation: viewLocation });
+export function openPopupView(type: POPUP_EVENT_TYPE, location?: PopupVisualizerLocation) {
+    const webview = VisualizerWebview.currentPanel?.getWebview();
+    if (webview) {
+        if (location && location.view) {
+            webview.title = location.view;
+        }
+    }
+    popupStateService.send({ type: type, viewLocation: location });
 }
