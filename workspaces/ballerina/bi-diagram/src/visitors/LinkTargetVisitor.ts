@@ -9,7 +9,7 @@
 
 import { NodeLinkModel } from "../components/NodeLink";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
-import { END_CONTAINER, NodeTypes } from "../resources/constants";
+import { END_CONTAINER, NodeTypes, START_CONTAINER } from "../resources/constants";
 import { getBranchInLinkId, getCustomNodeId, getNodeIdFromModel } from "../utils/node";
 import { Flow, FlowNode, LinkableNodeModel, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
@@ -253,7 +253,71 @@ export class LinkTargetVisitor implements BaseVisitor {
 
     beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
-        this.visitContainerNode(node, parent);
+
+        const startEmptyNodeModel = this.nodeModels.find(
+            (nodeModel) => nodeModel.getID() === getCustomNodeId(node.id, START_CONTAINER)
+        );
+        if (!startEmptyNodeModel) {
+            console.log(">>> error start empty node model not found", node);
+            return;
+        }
+
+        const outLinks = this.getOutLinksFromModel(startEmptyNodeModel as LinkableNodeModel);
+        if (!outLinks) {
+            return;
+        }
+        if (outLinks.length === 0) {
+            console.log(">>> no out links", { node });
+            return;
+        }
+        if (outLinks.length > 1) {
+            console.log(">>> multiple out links", { node, outLinks });
+            return;
+        }
+
+        const bodyBranch = node.branches.at(0);
+        if (!bodyBranch) {
+            console.log(">>> no body branch", { node });
+            return;
+        }
+        outLinks.forEach((outLink) => {
+            const line = bodyBranch.codedata.lineRange.startLine;
+            outLink.setTarget({
+                line: line.line,
+                offset: line.offset + 1, // HACK: need to fix with LS extension
+            });
+            outLink.setTopNode(bodyBranch);
+            // if the body branch is empty, target node is empty node.
+            // improve empty node with target position and top node
+            const firstNode = outLink.targetNode;
+            if (firstNode && firstNode.getType() === NodeTypes.EMPTY_NODE) {
+                const emptyNode = firstNode as EmptyNodeModel;
+                emptyNode.setTopNode(bodyBranch);
+                emptyNode.setTarget({
+                    line: line.line,
+                    offset: line.offset + 1, // HACK: need to fix with LS extension
+                });
+            }
+        });
+
+        const containerNodeModel = this.nodeModels.find((nodeModel) => nodeModel.getID() === node.id);
+        if (!containerNodeModel) {
+            console.log(">>> error container node model not found", node);
+            return;
+        }
+        const endContainerOutLinks = this.getOutLinksFromModel(containerNodeModel);
+        console.log(">>> endContainerOutLinks", { endContainerModel: containerNodeModel, endContainerOutLinks });
+        if (!endContainerOutLinks || endContainerOutLinks.length == 0) {
+            console.log(">>> no end container out links", { node });
+            return;
+        }
+        const outLink = endContainerOutLinks.at(0);
+
+        // set target position
+        if (outLink && node.codedata?.lineRange?.endLine) {
+            outLink.setTarget(node.codedata.lineRange.endLine);
+        }
+        outLink.setTopNode(node);
     }
 
     beginVisitFork(node: FlowNode, parent?: FlowNode): void {
@@ -269,7 +333,7 @@ export class LinkTargetVisitor implements BaseVisitor {
             const line = branch.codedata.lineRange.startLine;
             link.setTarget({
                 line: line.line,
-                offset: line.offset + branch.codedata.sourceCode.indexOf('{\n') + 1, // HACK: need to fix with LS extension
+                offset: line.offset + branch.codedata.sourceCode.indexOf("{\n") + 1, // HACK: need to fix with LS extension
             });
             link.setTopNode(branch);
         });
