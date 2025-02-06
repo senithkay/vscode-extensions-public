@@ -77,7 +77,6 @@ export const AttributeContainer: React.FC<any> = styled.div`
 
 export const OperationSection: React.FC<any> = styled.div`
     border-bottom: 0.5px solid ${ThemeColors.OUTLINE_VARIANT};
-    margin-bottom: 8px;
 
     &:last-child {
         border-bottom-left-radius: 6px;

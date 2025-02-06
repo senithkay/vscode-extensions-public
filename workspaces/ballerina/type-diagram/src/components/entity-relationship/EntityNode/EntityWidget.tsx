@@ -9,6 +9,7 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
+import { Codicon } from '@wso2-enterprise/ui-toolkit';
 
 import { EntityModel } from './EntityModel';
 import { EntityLinkModel } from '../EntityLink/EntityLinkModel';
@@ -21,6 +22,24 @@ import styled from '@emotion/styled';
 import { ThemeColors } from '@wso2-enterprise/ui-toolkit';
 import { isNodeClass } from '../../../utils/model-mapper/entityModelMapper';
 
+const HighlightedButton = styled.div`
+    margin: 16px;
+    width: calc(100% - 32px);
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    color: ${ThemeColors.PRIMARY};
+    border: 1px dashed ${ThemeColors.PRIMARY};
+    border-radius: 5px;
+    cursor: pointer;
+    &:hover {
+        border: 1px solid ${ThemeColors.PRIMARY};
+        background-color: ${ThemeColors.PRIMARY_CONTAINER};
+    }
+`;
 
 export const AttributeHeader: React.FC<any> = styled.span`
     align-items: center;
@@ -34,6 +53,15 @@ export const AttributeHeader: React.FC<any> = styled.span`
     text-align: left;
 `;
 
+const OperationHeader = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 8px;
+    padding-top: 8px;
+`;
+
 
 interface EntityWidgetProps {
     node: EntityModel;
@@ -42,30 +70,23 @@ interface EntityWidgetProps {
 
 export function EntityWidget(props: EntityWidgetProps) {
     const { node, engine } = props;
-    const { focusedNodeId, selectedNodeId } = useContext(DiagramContext);
+    const { focusedNodeId, selectedNodeId, onEditNode } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<EntityLinkModel>(undefined);
+
+    const onGraphqlEdit = () => {
+        onEditNode(node.getID(), true);
+    };
 
     const renderAttributes = () => {
         if (node.isGraphqlRoot) {
-
             const attributes: React.ReactNode[] = [];
-            // const [collapsedSections, setCollapsedSections] = useState({
-            //     query: false,
-            //     mutation: false,
-            //     subscription: false,
-            // });
-
-            // const toggleSection = (section: string) => {
-            //     setCollapsedSections(prev => ({ ...prev, [section]: !prev[section] }));
-            // };
-
             const categorizedFunctions = {
                 query: [],
                 mutation: [],
                 subscription: [],
             };
 
-            node.entityObject.functions.forEach((func: any) => {
+            node.entityObject.functions?.forEach((func: any) => {
                 if (func.kind === 'RESOURCE') {
                     if (func.accessor === 'subscribe') {
                         categorizedFunctions.subscription.push(func);
@@ -77,47 +98,57 @@ export function EntityWidget(props: EntityWidgetProps) {
                 }
             });
 
-            // Render Query section
+            const hasAnyOperations = categorizedFunctions.query.length > 0 
+                || categorizedFunctions.mutation.length > 0 
+                || categorizedFunctions.subscription.length > 0;
+
+            if (!hasAnyOperations) {
+                return (
+                    <OperationSection>
+                        <HighlightedButton onClick={onGraphqlEdit}>
+                            <Codicon name="plus" />
+                            Create Root Types
+                        </HighlightedButton>
+                    </OperationSection>
+                );
+            }
+
+            // Query section
             if (categorizedFunctions.query.length > 0) {
                 attributes.push(
                     <div key="query-section">
                         <OperationSection>
-                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                            {/* <Codicon name={collapsedSections.query ? "chevron-up" : "chevron-down"} onClick={() => toggleSection('query')} /> */}
-                            <AttributeHeader>Query</AttributeHeader>
-                        </div>
-                        {/* <h3 onClick={() => toggleSection('query')}>Query</h3> */}
-                        {/* {!collapsedSections.query && ( */}
+                            <OperationHeader>
+                                <AttributeHeader>Query</AttributeHeader>
+                            </OperationHeader>
                             <div>
                                 {categorizedFunctions.query.map((query: any) => (
                                     <AttributeWidget
+                                        key={query.name}
                                         engine={engine}
                                         node={node}
                                         attribute={query}
                                         isSelected={node.isNodeSelected(selectedLink, `${node.getID()}/${query.name}`)}
                                     />
-                                    // <div key={query.name}>{query.name}</div>
                                 ))}
                             </div>
-                        {/* )} */}
                         </OperationSection>
                     </div>
                 );
             }
 
-            // Render Mutation section
+            // Mutation section
             if (categorizedFunctions.mutation.length > 0) {
                 attributes.push(
                     <div key="mutation-section">
                         <OperationSection>
-                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                            {/* <Codicon name={collapsedSections.mutation ? "chevron-up" : "chevron-down"} onClick={() => toggleSection('mutation')} /> */}
-                            <AttributeHeader>Mutation</AttributeHeader>
-                        </div>
-                        {/* {!collapsedSections.mutation && ( */}
+                            <OperationHeader>
+                                <AttributeHeader>Mutation</AttributeHeader>
+                            </OperationHeader>
                             <div>
                                 {categorizedFunctions.mutation.map((mutation: any) => (
                                     <AttributeWidget
+                                        key={mutation.name}
                                         engine={engine}
                                         node={node}
                                         attribute={mutation}
@@ -125,38 +156,36 @@ export function EntityWidget(props: EntityWidgetProps) {
                                     />
                                 ))}
                             </div>
-                        {/* )} */}
                         </OperationSection>
                     </div>
                 );
             }
 
-            // Render Subscription section
+            // Subscription section
             if (categorizedFunctions.subscription.length > 0) {
                 attributes.push(
                     <div key="subscription-section">
-                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                            {/* <Codicon name={collapsedSections.subscription ? "chevron-up" : "chevron-down"} onClick={() => toggleSection('subscription')} /> */}
-                            <AttributeHeader>Subscription</AttributeHeader>
-                        </div>
-                        {/* {!collapsedSections.subscription && ( */}
+                        <OperationSection>
+                            <OperationHeader>
+                                <AttributeHeader>Subscription</AttributeHeader>
+                            </OperationHeader>
                             <div>
                                 {categorizedFunctions.subscription.map((subscription: any) => (
                                     <AttributeWidget
+                                        key={subscription.name}
                                         engine={engine}
                                         node={node}
                                         attribute={subscription}
                                         isSelected={node.isNodeSelected(selectedLink, `${node.getID()}/${subscription.name}`)}
-                                    />))}
+                                    />
+                                ))}
                             </div>
-                        {/* )} */}
+                        </OperationSection>
                     </div>
                 );
             }
 
             return attributes;
-
-
         } else {
             const attributes: React.ReactNode[] = [];
             const members = isNodeClass(node.entityObject?.codedata?.node) ? node.entityObject.functions : node.entityObject.members; // Use functions if it's a CLASS
