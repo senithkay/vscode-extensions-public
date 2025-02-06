@@ -38,10 +38,8 @@ Request Body:
 {{/if}}
 */
 ###
-{{uppercase @key}} http://localhost:{{../../port}}{{trim ../../basePath}}{{{@../key}}}{{queryParams parameters}}
-{{#if parameters}}{{headerParams parameters}}{{/if}}
-{{#if requestBody}}
-Content-Type: {{getContentType requestBody}}
+{{uppercase @key}} http://localhost:{{../../port}}{{trim ../../basePath}}{{{@../key}}}{{queryParams parameters}}{{#if parameters}}{{headerParams parameters}}{{/if}}
+{{#if requestBody}}Content-Type: {{getContentType requestBody}}
 {{generateRequestBody requestBody}}
 {{/if}}
 
@@ -292,7 +290,7 @@ function registerHandlebarsHelpers(openapiSpec: OAISpec): void {
                 })
                 .join('\n');
 
-            return new Handlebars.SafeString(headerParams ? `${headerParams}` : '');
+            return new Handlebars.SafeString(headerParams ? `\n${headerParams}` : '');
         });
     }
 
@@ -327,8 +325,6 @@ function registerHandlebarsHelpers(openapiSpec: OAISpec): void {
         });
     }
 }
-
-
 
 function generateSchemaDoc(schema: Schema, depth: number, context: OAISpec): string {
     const indent = '  '.repeat(depth);
