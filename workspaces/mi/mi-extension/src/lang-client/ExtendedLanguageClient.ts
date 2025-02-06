@@ -294,12 +294,12 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest("synapse/testDBConnection", req);
     }
 
-    async checkDBDriver(req: string): Promise<boolean> {
+    async checkDBDriver(req: string): Promise<any> {
         return this.sendRequest("synapse/checkDBDriver", { className: req });
     }
 
     async addDBDriver(req: AddDriverRequest): Promise<boolean> {
-        return this.sendRequest("synapse/addDBDriver", req);
+        return this.sendRequest("synapse/addDBDriver", { addDriverPath: req.driverPath, removeDriverPath: "", className: req.className });
     }
 
     async generateQueries(req: DSSQueryGenRequest): Promise<string> {
