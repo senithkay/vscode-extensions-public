@@ -264,6 +264,7 @@ const MainPanel = () => {
                         setViewComponent(<TestFunctionForm 
                             functionName={value?.identifier}
                             filePath={value?.documentUri}
+                            serviceType={value?.serviceType}
                         />);
                         break;    
                     case MACHINE_VIEW.ViewConfigVariables:

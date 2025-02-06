@@ -8,11 +8,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { commands, TestItem, Uri } from "vscode";
+import { commands, TestItem } from "vscode";
 import { openView, StateMachine, history } from "../../stateMachine";
 import { BI_COMMANDS, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { isTestFunctionItem } from "./discover";
 import path from "path";
+import { promises as fs } from 'fs';
 
 export function activateEditKolaTest() {
     // register run project tests handler
@@ -33,7 +34,10 @@ export function activateEditKolaTest() {
     });
 
     commands.registerCommand(BI_COMMANDS.BI_ADD_TEST_FUNCTION, () => {
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BITestFunctionForm });
+        const fileUri = path.resolve(StateMachine.context().projectUri, `tests`, `tests.bal`);
+        ensureFileExists(fileUri);
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BITestFunctionForm, 
+            documentUri: fileUri, identifier: '', serviceType: 'ADD_NEW_TEST' });
     });
 
     commands.registerCommand(BI_COMMANDS.BI_EDIT_TEST_FUNCTION_DEF, (entry: TestItem) => {
@@ -45,7 +49,19 @@ export function activateEditKolaTest() {
         const fileUri = path.resolve(StateMachine.context().projectUri, `tests`, fileName);
         if (fileUri) {
             openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BITestFunctionForm, 
-                documentUri: fileUri, identifier: entry.label });
+                documentUri: fileUri, identifier: entry.label, serviceType: 'UPDATE_TEST' });
         }
     });
+}
+
+async function ensureFileExists(filePath: string) {
+  try {
+    await fs.access(filePath);
+  } catch {
+    // Ensure the directory exists
+    await fs.mkdir(path.dirname(filePath), { recursive: true });
+
+    await fs.writeFile(filePath, '', 'utf8');
+    console.log('File created:', filePath);
+  }
 }

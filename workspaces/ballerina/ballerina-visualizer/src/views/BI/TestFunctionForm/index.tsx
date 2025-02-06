@@ -7,15 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
-import { DIRECTORY_MAP } from "@wso2-enterprise/ballerina-core";
-import { Button, TextField, Typography, View, ViewContent, ErrorBanner, FormGroup, Parameters, Dropdown, CompletionItem } from "@wso2-enterprise/ui-toolkit";
+import { useEffect, useState } from "react";
+import { Typography, View, ViewContent, CompletionItem } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { css } from "@emotion/css";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { BIHeader } from "../BIHeader";
 import { BodyText } from "../../styles";
-import { getFunctionParametersList } from "../../../utils/utils";
 import { FormField, Form, FormValues, Parameter } from "@wso2-enterprise/ballerina-side-panel";
 import { debounce, forEach, set } from "lodash";
 import { convertToVisibleTypes } from "../../../utils/bi";
@@ -61,22 +58,30 @@ const Link = styled.a`
 interface TestFunctionDefProps {
     functionName?: string;
     filePath?: string;
+    serviceType?: string;
 }
 
 interface Metadata {
     label?: string;
     description?: string;
-  }
-  
-  interface Codedata {
+}
+
+interface Codedata {
     lineRange?: LineRange;
-  }
-  
-  interface LineRange {
-    // Define the properties of LineRange based on its structure in Java
-  }
-  
-  interface Property {
+}
+
+interface LineRange {
+    fileName: string;
+    startLine: LinePosition;
+    endLine: LinePosition;
+}
+
+interface LinePosition {
+    line: number;
+    offset: number;
+}
+
+interface Property {
     metadata?: Metadata;
     codedata?: Codedata;
     valueType?: string;
@@ -87,27 +92,27 @@ interface Metadata {
     optional?: boolean;
     editable?: boolean;
     advanced?: boolean;
-  }
-  
-  interface FunctionParameter {
+}
+
+interface FunctionParameter {
     type?: Property;
     variable?: Property;
     defaultValue?: Property;
     optional?: boolean;
     editable?: boolean;
     advanced?: boolean;
-  }
-  
-  interface Annotation {
+}
+
+interface Annotation {
     metadata?: Metadata;
     codedata?: Codedata;
     org?: string;
     module?: string;
     name?: string;
     fields?: Property[];
-  }
-  
-  interface TestFunction {
+}
+
+interface TestFunction {
     metadata?: Metadata;
     codedata?: Codedata;
     functionName?: Property;
@@ -115,15 +120,16 @@ interface Metadata {
     parameters?: FunctionParameter[];
     annotations?: Annotation[];
     editable?: boolean;
-  }
+}
 
 
 export function TestFunctionForm(props: TestFunctionDefProps) {
-    const { functionName, filePath } = props;
+    const { functionName, filePath, serviceType } = props;
     const { rpcClient } = useRpcContext();
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
     const [formFields, setFormFields] = useState<FormField[]>([]);
+    const [testFunction, setTestFunction] = useState<TestFunction>();
 
     // <------------- Expression Editor Util functions list start --------------->
     const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {
@@ -177,6 +183,297 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
     };
     // <------------- Expression Editor Util functions list end --------------->
 
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        if (serviceType === 'UPDATE_TEST') {
+            loadFunction();
+        } else {
+            loadEmptyForm();
+        }
+    }, [functionName]);
+
+    const loadFunction = async () => {
+        setIsLoading(true);
+        const res = await rpcClient.getTestManagerRpcClient().getTestFunction({ functionName, filePath });
+        console.log("Test Function: ", res);
+        setTestFunction(res.function);
+        let formFields = generateFormFields(res.function);
+        setFormFields(formFields);
+        setIsLoading(false);
+    }
+
+    const loadEmptyForm = async () => {
+        setIsLoading(true);
+        const emptyTestFunction = getEmptyTestFunctionModel();
+        setTestFunction(emptyTestFunction);
+        let formFields = generateFormFields(emptyTestFunction);
+        setFormFields(formFields);
+        setIsLoading(false);
+    }
+
+    const onFormSubmit = async (data: FormValues) => {
+        console.log("Test Function Form Data: ", data);
+        setIsLoading(true);
+        const updatedTestFunction = fillFunctionModel(data);
+        console.log("Test Function: ", updatedTestFunction);
+        if (serviceType === 'UPDATE_TEST') {
+            const res = await rpcClient.getTestManagerRpcClient().updateTestFunction(
+                { function: updatedTestFunction, filePath });
+            // load the flow model
+        } else {
+            const res = await rpcClient.getTestManagerRpcClient().addTestFunction(
+                { function: updatedTestFunction, filePath });
+            // load the flow model
+        }
+        setIsLoading(false);
+    };
+
+    // Helper function to modify and set the visual information
+    const handleParamChange = (param: Parameter) => {
+        const name = `${param.formValues['variable']}`;
+        const type = `${param.formValues['type']}`;
+        const defaultValue = Object.keys(param.formValues).indexOf('defaultable') > -1 && `${param.formValues['defaultable']}`;
+        let value = `${type} ${name}`;
+        if (defaultValue) {
+            value += ` = ${defaultValue}`;
+        }
+        return {
+            ...param,
+            key: name,
+            value: value
+        }
+    };
+
+    const generateFormFields = (testFunction: TestFunction): FormField[] => {
+        const fields: FormField[] = [];
+        if (testFunction.functionName) {
+            fields.push(generateFieldFromProperty('functionName', testFunction.functionName));
+        }
+        if (testFunction.parameters) {
+            fields.push({
+                key: `params`,
+                label: 'Parameters',
+                type: 'PARAM_MANAGER',
+                optional: false,
+                editable: true,
+                advanced: false,
+                documentation: '',
+                value: '',
+                paramManagerProps: {
+                    paramValues: generateParamFields(testFunction.parameters),
+                    formFields: paramFiels,
+                    handleParameter: handleParamChange
+                },
+                valueTypeConstraint: ""
+            });
+        }
+        if (testFunction.returnType) {
+            fields.push(generateFieldFromProperty('returnType', testFunction.returnType));
+        }
+        if (testFunction.annotations) {
+            const configAnnotation = getTestConfigAnnotation(testFunction.annotations);
+            if (configAnnotation && configAnnotation.fields) {
+                for (const field of configAnnotation.fields) {
+                    fields.push(generateFieldFromProperty(field.originalName, field));
+                }
+            }
+        }
+        return fields;
+    }
+
+    const getTestConfigAnnotation = (annotations: Annotation[]): Annotation | undefined => {
+        for (const annotation of annotations) {
+            if (annotation.name === 'Config') {
+                return annotation;
+            }
+        }
+        return;
+    }
+
+    const generateParamFields = (parameters: FunctionParameter[]): Parameter[] => {
+        const params: Parameter[] = [];
+        let id = 0;
+        for (const param of parameters) {
+            const key = param.variable.value;
+            const type = param.type.value;
+
+            const value = `${type} ${key}`;
+            params.push({
+                id: id,
+                formValues: {
+                    variable: key,
+                    type: type,
+                    defaultable: param.defaultValue ? param.defaultValue.value : ''
+                },
+                key: key,
+                value: value,
+                icon: ''
+            });
+
+            id++;
+        }
+        return params
+    }
+
+    const generateFieldFromProperty = (key: string, property: Property): FormField => {
+        return {
+            key: key,
+            label: property.metadata.label,
+            type: property.valueType,
+            optional: property.optional,
+            editable: property.editable,
+            advanced: property.advanced,
+            documentation: property.metadata.description,
+            value: property.value,
+            valueTypeConstraint: ""
+        }
+    }
+
+    const fillFunctionModel = (formValues: FormValues): TestFunction => {
+        let tmpTestFunction = testFunction;
+        if (!tmpTestFunction) {
+            tmpTestFunction = {};
+        }
+
+        if (formValues['functionName']) {
+            tmpTestFunction.functionName.value = formValues['functionName'];
+        }
+
+        if (formValues['returnType']) {
+            tmpTestFunction.returnType.value = formValues['returnType'];
+        }
+
+        if (formValues['params']) {
+            const params = formValues['params'];
+            const paramList: FunctionParameter[] = [];
+            for (const param of params) {
+                const variable = param['variable'];
+                const type = param['type'];
+                const defaultValue = param['defaultable'];
+                let emptyParam = getEmptyParamModel();
+                emptyParam.variable.value = variable;
+                emptyParam.type.value = type;
+                emptyParam.defaultValue.value = defaultValue;
+                paramList.push(emptyParam);
+            }
+            tmpTestFunction.parameters = paramList;
+        }
+
+        let annots = tmpTestFunction.annotations;
+        for (const annot of annots) {
+            if (annot.name == 'Config') {
+                let configAnnot = annot;
+                let fields = configAnnot.fields;
+                for (const field of fields) {
+                    if (field.originalName == 'groups') {
+                        field.value = formValues['groups'];
+                    }
+                    if (field.originalName == 'enabled') {
+                        field.value = formValues['enabled'];
+                    }
+                }
+            }
+        }
+
+        return tmpTestFunction;
+    }
+
+    const getEmptyParamModel = (): FunctionParameter => {
+        return {
+            type: {
+                valueType: "TYPE",
+                value: "string",
+                optional: false,
+                editable: true,
+                advanced: false
+            },
+            variable: {
+                valueType: "IDENTIFIER",
+                value: "b",
+                optional: false,
+                editable: true,
+                advanced: false
+            },
+            defaultValue: {
+                valueType: "EXPRESSION",
+                value: "\"default\"",
+                optional: false,
+                editable: true,
+                advanced: false
+            },
+            optional: false,
+            editable: true,
+            advanced: false
+        }
+
+    }
+
+    const getEmptyTestFunctionModel = (): TestFunction => {
+        return {
+            functionName: {
+                metadata: {
+                    label: "Test Function",
+                    description: "Test function"
+                },
+                valueType: "IDENTIFIER",
+                value: "",
+                optional: false,
+                editable: true,
+                advanced: false
+            },
+            returnType: {
+                metadata: {
+                    label: "Return Type",
+                    description: "Return type of the function"
+                },
+                valueType: "TYPE",
+                optional: true,
+                editable: true,
+                advanced: true
+            },
+            parameters: [],
+            annotations: [
+                {
+                    metadata: {
+                        label: "Config",
+                        description: "Test Function Configurations"
+                    },
+                    org: "ballerina",
+                    module: "test",
+                    name: "Config",
+                    fields: [
+                        {
+                            metadata: {
+                                label: "Groups",
+                                description: "Groups to run"
+                            },
+                            valueType: "EXPRESSION_SET",
+                            originalName: "groups",
+                            value: [],
+                            optional: true,
+                            editable: true,
+                            advanced: false
+                        },
+                        {
+                            metadata: {
+                                label: "Enabled",
+                                description: "Enable/Disable the test"
+                            },
+                            valueType: "FLAG",
+                            originalName: "enabled",
+                            value: true,
+                            optional: true,
+                            editable: true,
+                            advanced: false
+                        }
+                    ]
+                }
+            ],
+            editable: true
+        }
+    }
+
     const paramFiels: FormField[] = [
         {
             key: `variable`,
@@ -211,143 +508,6 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
         }
     ];
 
-    const [isLoading, setIsLoading] = useState(false);
-
-    const handleFunctionCreate = async (data: FormValues) => {
-        console.log("Test Function Form Data: ", data)
-        setIsLoading(true);
-        const name = data['functionName'];
-        const returnType = data['return'];
-        const params = data['params'];
-        const paramList = params ? getFunctionParametersList(params) : [];
-        const res = await rpcClient.getBIDiagramRpcClient().createComponent({ type: "testFunctions", functionType: { name, returnType, parameters: paramList } });
-        setIsLoading(res.response);
-    };
-
-    useEffect(() => {
-      if (functionName && filePath) {
-        loadFunction();
-      } else{
-        loadEmptyForm();
-      }
-    }, []);
-
-    const loadFunction = async () => {
-        setIsLoading(true);
-        const res = await rpcClient.getTestManagerRpcClient().getTestFunction({ functionName, filePath });
-        console.log("Test Function: ", res);
-        let formFields = generateFormFields(res.function);
-        setFormFields(formFields);
-        setIsLoading(false);
-    }
-
-    const loadEmptyForm = async () => {
-      setIsLoading(true);
-      setFormFields([]);
-      setIsLoading(false);
-    }
-
-    // Helper function to modify and set the visual information
-    const handleParamChange = (param: Parameter) => {
-        const name = `${param.formValues['variable']}`;
-        const type = `${param.formValues['type']}`;
-        const defaultValue = Object.keys(param.formValues).indexOf('defaultable') > -1 && `${param.formValues['defaultable']}`;
-        let value = `${type} ${name}`;
-        if (defaultValue) {
-            value += ` = ${defaultValue}`;
-        }
-        return {
-            ...param,
-            key: name,
-            value: value
-        }
-    };
-
-    const generateFormFields = (testFunction: TestFunction) : FormField[] => {
-        const fields: FormField[] = [];
-        if (testFunction.functionName) {
-            fields.push(generateFieldFromProperty('functionName', testFunction.functionName));
-        }
-        if (testFunction.parameters) {
-            fields.push({
-                key: `params`,
-                label: 'Parameters',
-                type: 'PARAM_MANAGER',
-                optional: false,
-                editable: true,
-                advanced: false,
-                documentation: '',
-                value: '',
-                paramManagerProps: {
-                    paramValues: generateParamFields(testFunction.parameters),
-                    formFields: paramFiels,
-                    handleParameter: handleParamChange
-                },
-                valueTypeConstraint: ""
-            });
-        }
-        if (testFunction.returnType) {
-            fields.push(generateFieldFromProperty('returnType', testFunction.returnType));
-        }
-        if (testFunction.annotations) {
-            const configAnnotation = getTestConfigAnnotation(testFunction.annotations);
-            if (configAnnotation && configAnnotation.fields) {
-                for(const field of configAnnotation.fields) {
-                    fields.push(generateFieldFromProperty(field.originalName, field));
-                }
-            }
-        }
-        return fields;
-    }
-
-    const getTestConfigAnnotation = (annotations: Annotation[]) : Annotation | undefined => {
-        for(const annotation of annotations) {
-            if(annotation.name === 'Config') {
-                return annotation;
-            }
-        }
-        return;
-    }
-    
-    const generateParamFields = (parameters: FunctionParameter[]) : Parameter[] => {
-        const params: Parameter[] = [];
-        let id = 0;
-        for(const param of parameters) {
-            const key = param.variable.value;
-            const type = param.type.value;
-
-            const value = `${type} ${key}`;
-            params.push({
-                id: id,
-                formValues: {
-                    variable: key,
-                    type: type,
-                    defaultable: param.defaultValue ? param.defaultValue.value : ''
-                },
-                key: key,
-                value: value,
-                icon: ''
-            });
-
-            id++;
-        }
-        return params
-    }
-
-    const generateFieldFromProperty = (key: string, property: Property) : FormField => {
-        return {
-            key: key,
-            label: property.metadata.label,
-            type: property.valueType,
-            optional: property.optional,
-            editable: property.editable,
-            advanced: property.advanced,
-            documentation: property.metadata.description,
-            value: property.value,
-            valueTypeConstraint: ""
-        }
-    }
-
     return (
         <View>
             <ViewContent padding>
@@ -370,7 +530,7 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
                                     onBlur: handleExpressionEditorBlur
                                 }
                             }
-                            onSubmit={!isLoading && handleFunctionCreate}
+                            onSubmit={!isLoading && onFormSubmit}
                         />
                     </FormContainer>
                 </Container>
