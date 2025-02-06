@@ -646,6 +646,12 @@
                 }
             ]
         },
+        "viewsWelcome": [
+            {
+                "view": "testing",
+                "contents": "[Add Unit Test](command:BI.test.add.function)"
+            }
+        ],
         "viewsContainers": {
             "panel": [
                 {
@@ -677,6 +683,11 @@
                 {
                     "command": "kolab.notebook.refreshVariableView",
                     "when": "view == ballerinaViewVariables",
+                    "group": "navigation"
+                },
+                {
+                    "command": "BI.test.add.function",
+                    "when": "view == workbench.view.testing",
                     "group": "navigation"
                 }
             ],
