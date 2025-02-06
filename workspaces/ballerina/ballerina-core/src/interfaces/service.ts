@@ -47,7 +47,7 @@ export interface ServiceModel {
 
 export interface FunctionModel {
     metadata: MetaData;
-    kind: "REMOTE" | "RESOURCE";
+    kind: "REMOTE" | "RESOURCE" | "DEFAULT";
     enabled: boolean;
     optional: boolean;
     editable: boolean;

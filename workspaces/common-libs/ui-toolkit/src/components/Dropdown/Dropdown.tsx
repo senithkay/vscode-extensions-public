@@ -15,6 +15,8 @@ import {
 import styled from "@emotion/styled";
 import { ErrorBanner } from "../Commons/ErrorBanner";
 import { RequiredFormInput } from "../Commons/RequiredInput";
+import { Button } from "../Button/Button";
+import { Codicon } from "../Codicon/Codicon";
 
 export interface OptionProps {
     id?: string;
@@ -33,6 +35,8 @@ export interface DropdownProps extends ComponentProps<"select"> {
     containerSx?: any;
     dropdownContainerSx?: any;
     onValueChange?: (value: string) => void;
+    addNewBtnLabel?: string;
+    addNewBtnClick?: () => void;
 }
 
 const SmallProgressRing = styled(VSCodeProgressRing)`
@@ -58,14 +62,32 @@ const Container = styled.div<ContainerProps>`
     ${(props: ContainerProps) => props.sx};
 `;
 
-const LabelContainer = styled.div<ContainerProps>`
+const Label = styled.div<ContainerProps>`
     display: flex;
     flex-direction: row;
     margin-bottom: 2px;
 `;
 
+const LabelContainer = styled.div<ContainerProps>`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+`;
+
+const AddNewButton = styled(Button)`
+    & > vscode-button {
+        color: var(--vscode-textLink-activeForeground);
+        border-radius: 0px;
+        padding: 3px 5px;
+    };
+    & > vscode-button > * {
+        margin-right: 6px;
+    };
+`;
+
 export const Dropdown = React.forwardRef<HTMLSelectElement, DropdownProps>((props, ref) => {
-    const { isLoading, isRequired, id, items, label, errorMsg, sx, containerSx, dropdownContainerSx, ...rest } = props;
+    const { isLoading, isRequired, id, items, label, errorMsg, sx, containerSx, addNewBtnLabel, addNewBtnClick, dropdownContainerSx, ...rest } = props;
 
     const handleValueChange = (e: any) => {
         props.onValueChange && props.onValueChange(e.target.value);
@@ -78,10 +100,22 @@ export const Dropdown = React.forwardRef<HTMLSelectElement, DropdownProps>((prop
                 <SmallProgressRing />
             ) : (
                 <DropDownContainer sx={dropdownContainerSx}>
-                    { label && (
+                    {label && (
                         <LabelContainer>
-                            <label htmlFor={id}>{label}</label> 
-                            {(isRequired) && (<RequiredFormInput />)}
+                            <Label>
+                                <label htmlFor={id}>{label}</label>
+                                {(isRequired) && (<RequiredFormInput />)}
+                            </Label>
+                            {addNewBtnClick &&
+                                <AddNewButton
+                                    appearance='icon'
+                                    aria-label="add"
+                                    onClick={() => addNewBtnClick()}
+                                >
+                                    <Codicon name="add" />
+                                    {addNewBtnLabel ? addNewBtnLabel : label}
+                                </AddNewButton>
+                            }
                         </LabelContainer>
                     )}
                     <VSCodeDropdown ref={ref} id={id} style={sx} {...rest} onChange={handleValueChange}>
