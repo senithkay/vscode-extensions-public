@@ -32,7 +32,7 @@ Parameters:
 
 {{#if requestBody}}
 \`\`\`
-Request Body Schema:
+Request Body: 
 {{generateSchemaDescription requestBody}}
 \`\`\`
 {{/if}}
@@ -292,7 +292,7 @@ function registerHandlebarsHelpers(openapiSpec: OAISpec): void {
                 })
                 .join('\n');
 
-            return new Handlebars.SafeString(headerParams ? `${headerParams}\n` : '');
+            return new Handlebars.SafeString(headerParams ? `${headerParams}` : '');
         });
     }
 
@@ -343,28 +343,40 @@ function generateSchemaDoc(schema: Schema, depth: number, context: OAISpec): str
     }
 
     if (schema.type === 'object' && schema.properties) {
-        let doc = `${schema.type}:\n`;
+        let doc = `${indent}${schema.type}\n`;
         for (const [propName, prop] of Object.entries(schema.properties)) {
             const propSchema = '$ref' in prop ? resolveSchemaRef(prop.$ref, context) || prop : prop;
-            doc += `${indent}- ${propName} (${propSchema.type})${propSchema.description ? `: ${propSchema.description}` : ''}\n`;
+            const format = propSchema.format ? `(${propSchema.format})` : '';
+            const description = propSchema.description ? ` - ${propSchema.description}` : '';
+            doc += `${indent}- ${propName}: ${propSchema.type}${format}${description}\n`;
+
             if (propSchema.type === 'object' && 'properties' in propSchema) {
                 doc += generateSchemaDoc(propSchema, depth + 1, context);
             } else if (propSchema.type === 'array' && 'items' in propSchema) {
-                doc += `${indent}  items: `;
-                doc += generateSchemaDoc(propSchema.items as Schema, depth + 1, context);
+                const itemsSchema = '$ref' in propSchema.items
+                    ? resolveSchemaRef(propSchema.items.$ref, context) || propSchema.items
+                    : propSchema.items;
+                doc += `${indent}  items: ${generateSchemaDoc(itemsSchema as Schema, depth + 1, context).trimStart()}`;
+            }
+
+            // Add enum values if present
+            if (propSchema.enum) {
+                doc += `${indent}  enum: [${propSchema.enum.join(', ')}]\n`;
             }
         }
         return doc;
     } else if (schema.type === 'array') {
-        let doc = `${schema.type} of `;
-        if (schema.items) {
-            const itemsSchema = '$ref' in schema.items ? resolveSchemaRef(schema.items.$ref, context) || schema.items : schema.items;
-            doc += generateSchemaDoc(itemsSchema as Schema, depth + 1, context);
+        let doc = `array\n`;
+        if (schema.type === 'array' && 'items' in schema) {
+            const itemsSchema = '$ref' in schema.items
+                ? resolveSchemaRef(schema.items.$ref, context) || schema.items
+                : schema.items;
+            doc += `${indent}items: ${generateSchemaDoc(itemsSchema as Schema, depth + 1, context).trimStart()}`;
         }
         return doc;
     }
 
-    return `${schema.type}\n`;
+    return `${schema.type}${schema.format ? ` (${schema.format})` : ''}\n`;
 }
 
 function generateSampleValue(schema: Schema, context: OAISpec): any {
