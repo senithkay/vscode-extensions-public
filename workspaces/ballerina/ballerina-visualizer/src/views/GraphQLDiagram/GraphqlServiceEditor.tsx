@@ -518,7 +518,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                         {serviceModel && (
                             <>
                                 <SidePanelTitleContainer>
-                                    {"Root Type Configuration"}
+                                    {"Configure Root Types"}
                                     <StyledButton appearance="icon" onClick={onClose}>
                                         <Codicon name="close" />
                                     </StyledButton>
@@ -532,7 +532,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
             )}
             {functionModel && isNewForm && (
                 <PanelContainer
-                    title={"Root Type Configuration"}
+                    title={"Add Root Type"}
                     show={isNewForm}
                     onClose={handleNewFunctionClose}
                     width={400}
