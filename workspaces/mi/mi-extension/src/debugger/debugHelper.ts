@@ -366,10 +366,10 @@ export async function executeTasks(serverPath: string, isDebug: boolean): Promis
                         }
                     });
                 } else {
-                    const choice = await vscode.window.showWarningMessage('A server is already running. Do you wish to stop the running server?',
+                    const stopServer = await vscode.window.showWarningMessage('A server is already running. Do you wish to stop the running server?',
                         { modal: true },
                         'Yes', 'No');
-                    if (choice === 'Yes') {
+                    if (stopServer === 'Yes') {
                         await killProcessByPort(DebuggerConfig.getServerPort());
                         startServerWithPortCheck(resolve, reject);
                     } else {
@@ -604,7 +604,6 @@ export async function killProcessByPort(port: number): Promise<void> {
         const list = await findProcess('port', port);
 
         if (list.length === 0) {
-            vscode.window.showInformationMessage(`No process found listening on port ${port}.`);
             return;
         }
 
