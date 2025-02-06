@@ -55,6 +55,55 @@ const TopBar = styled.div`
     align-items: center;
 `;
 
+const Title = styled.div`
+        font-size: 14px;
+        font-family: GilmerBold;
+        text-wrap: nowrap;
+        &:first {
+            margin-top: 0;
+        }
+`;
+
+const OperationHeader = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 10px;
+`;
+const StyledButton = styled(Button)`
+        border-radius: 5px;
+    `;
+
+const SidePanelTitleContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--vscode-panel-border);
+    font-size: 16px;
+    padding: 20px 0 20px 0;
+    font-family: GilmerBold;
+    color: var(--vscode-editor-foreground);
+`;
+
+const OperationCard = styled.div`
+    border: 1px solid ${Colors.OUTLINE_VARIANT};
+    border-radius: 6px;
+    margin: 8px 0;
+    padding: 8px;
+`;
+
+const OperationSection = styled.div`
+    margin: 16px 0;
+`;
+
+const EmptyStateText = styled(Typography)`
+    color: ${Colors.ON_SURFACE_VARIANT};
+    padding: 12px;
+    text-align: center;
+`;
+
 type FunctionTemapltes = {
     query: FunctionModel;
     mutation: FunctionModel;
@@ -268,6 +317,27 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
         await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { position: nodePosition, documentUri: filePath } })
     }
 
+    const handleNewQueryOperation = () => {
+        const queryModel = JSON.parse(JSON.stringify(functionTemplates.query));
+        queryModel.kind = 'QUERY';
+        setFunctionModel(queryModel);
+        setIsNewForm(true);
+    };
+
+    const handleNewMutationOperation = () => {
+        const mutationModel = JSON.parse(JSON.stringify(functionTemplates.mutation));
+        mutationModel.kind = 'MUTATION';
+        setFunctionModel(mutationModel);
+        setIsNewForm(true);
+    };
+
+    const handleNewSubscriptionOperation = () => {
+        const subscriptionModel = JSON.parse(JSON.stringify(functionTemplates.subscription));
+        subscriptionModel.kind = 'SUBSCRIPTION';
+        setFunctionModel(subscriptionModel);
+        setIsNewForm(true);
+    };
+
     const renderOperations = () => {
         const categories: { query: FunctionModel[]; mutation: FunctionModel[]; subscription: FunctionModel[] } = {
             query: [],
@@ -291,15 +361,21 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
             }
         });
 
-
         return (
             <>
-                {categories.query.length > 0 && (
-                    <div>
-                        <Typography variant="body2" sx={{ marginLeft: 10, marginBottom: 20, marginTop: 10 }}>
-                            Query Operations
-                        </Typography>
-                        {categories.query.map((operation, index) => (
+                <OperationSection>
+                    <OperationCard>
+                        <OperationHeader>
+                            <Title>Query</Title>
+                            <Button
+                                appearance="icon"
+                                tooltip={"Add Query Type"}
+                                onClick={handleNewQueryOperation}
+                            >
+                                <Codicon name="add" />
+                            </Button>
+                        </OperationHeader>
+                        {categories.query?.map((operation, index) => (
                             <OperationAccordion
                                 key={index}
                                 functionModel={operation}
@@ -309,14 +385,27 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                                 onFunctionImplement={onFunctionImplement}
                             />
                         ))}
-                    </div>
-                )}
-                {categories.mutation.length > 0 && (
-                    <div>
-                        <Typography variant="body2" sx={{ marginLeft: 10, marginBottom: 20, marginTop: 10 }}>
-                            Mutation Operations
-                        </Typography>
-                        {categories.mutation.map((operation, index) => (
+                        {categories.query?.length === 0 && (
+                            <EmptyStateText variant="body2">
+                                No Query Root Type found
+                            </EmptyStateText>
+                        )}
+                    </OperationCard>
+                </OperationSection>
+
+                <OperationSection>
+                    <OperationCard>
+                        <OperationHeader>
+                            <Title>Mutation</Title>
+                            <Button
+                                appearance="icon"
+                                tooltip={"Add Mutation Type"}
+                                onClick={handleNewMutationOperation}
+                            >
+                                <Codicon name="add" />
+                            </Button>
+                        </OperationHeader>
+                        {categories.mutation?.map((operation, index) => (
                             <OperationAccordion
                                 key={index}
                                 functionModel={operation}
@@ -326,14 +415,27 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                                 onFunctionImplement={onFunctionImplement}
                             />
                         ))}
-                    </div>
-                )}
-                {categories.subscription.length > 0 && (
-                    <div>
-                        <Typography variant="body2" sx={{ marginLeft: 10, marginBottom: 20, marginTop: 10 }}>
-                            Subscription Operations
-                        </Typography>
-                        {categories.subscription.map((operation, index) => (
+                        {categories.mutation?.length === 0 && (
+                            <EmptyStateText variant="body2">
+                                No Mutation Root Type found
+                            </EmptyStateText>
+                        )}
+                    </OperationCard>
+                </OperationSection>
+
+                <OperationSection>
+                    <OperationCard>
+                        <OperationHeader>
+                            <Title>Subscription</Title>
+                            <Button
+                                appearance="icon"
+                                tooltip={"Add Subscription Type"}
+                                onClick={handleNewSubscriptionOperation}
+                            >
+                                <Codicon name="add" />
+                            </Button>
+                        </OperationHeader>
+                        {categories.subscription?.map((operation, index) => (
                             <OperationAccordion
                                 key={index}
                                 functionModel={operation}
@@ -343,18 +445,16 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                                 onFunctionImplement={onFunctionImplement}
                             />
                         ))}
-                    </div>
-                )}
+                        {categories.subscription?.length === 0 && (
+                            <EmptyStateText variant="body2">
+                                No Subscription Root Type found
+                            </EmptyStateText>
+                        )}
+                    </OperationCard>
+                </OperationSection>
             </>
         );
-
-    }
-
-    const handleNewOperation = async () => {
-        setFunctionModel(JSON.parse(JSON.stringify(functionTemplates.query)));
-        console.log("New Function Model: ", functionTemplates);
-        setIsNewForm(true);
-    }
+    };
 
     const handleNewFunctionClose = () => {
         setIsNewForm(false);
@@ -402,91 +502,40 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
         }
     };
 
-    const handleMethodChange = (value: string) => {
-        switch (value) {
-            case 'Query':
-                setFunctionModel(JSON.parse(JSON.stringify(functionTemplates.query)));
-                break;
-            case 'Mutation':
-                setFunctionModel(JSON.parse(JSON.stringify(functionTemplates.mutation)));
-                break;
-            case 'Subscription':
-                setFunctionModel(JSON.parse(JSON.stringify(functionTemplates.subscription)));
-                break;
-        }
-    };
-
     return (
         <>
             {!isNewForm && !isEdit && (
                 <GraphqlContainer>
                     <ServiceContainer>
+
                         {!serviceModel &&
                             <LoadingContainer>
                                 <ProgressRing />
-                                <Typography variant="h3" sx={{ marginTop: '16px' }}>Loading Service Designer...</Typography>
+                                <Typography variant="h3" sx={{ marginTop: '16px' }}>Loading Graphql Desginer...</Typography>
                             </LoadingContainer>
                         }
                         {serviceModel && (
                             <>
-                                <TopBar>
-                                    <ViewHeader title={serviceModel.displayAnnotation.label} codicon="globe" onEdit={handleServiceEdit} />
-                                    <Button appearance="icon" onClick={onClose}>
+                                <SidePanelTitleContainer>
+                                    {"Root Type Configuration"}
+                                    <StyledButton appearance="icon" onClick={onClose}>
                                         <Codicon name="close" />
-                                    </Button>
-                                </TopBar>
-                                <Divider />
-                                <InfoContainer>
-                                    {Object.keys(serviceModel.properties).map((key, index) => (
-                                        serviceModel.properties[key].value && (
-                                            <InfoSection>
-                                                <Icon name={findIcon(serviceModel.properties[key].metadata.label)} isCodicon sx={{ marginRight: '8px' }} />
-                                                <Typography key={`${index}-label`} variant="body3">
-                                                    {serviceModel.properties[key].metadata.label}:
-                                                </Typography>
-                                                <Typography key={`${index}-value`} variant="body3">
-                                                    {getAttributeComponent(serviceModel.properties[key])}
-                                                </Typography>
-                                            </InfoSection>
-                                        )
-                                    ))}
-                                </InfoContainer>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Typography key={"title"} variant="body2" sx={{ marginLeft: 10, marginBottom: 20, marginTop: 10 }}>
-                                        Available Operations
-                                    </Typography>
-                                    <VSCodeButton appearance="primary" title="Add Resource" onClick={handleNewOperation}>
-                                        <Codicon name="add" sx={{ marginRight: 5 }} /> Operation
-                                    </VSCodeButton>
-                                </div>
+                                    </StyledButton>
+                                </SidePanelTitleContainer>
                                 {renderOperations()}
                             </>
                         )}
+
                     </ServiceContainer>
                 </GraphqlContainer>
             )}
             {functionModel && isNewForm && (
                 <PanelContainer
-                    title={"Operation Configuration"}
+                    title={"Root Type Configuration"}
                     show={isNewForm}
                     onClose={handleNewFunctionClose}
                     width={400}
                 >
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 16px 0 16px' }}>
-                        <Dropdown
-                            sx={{ width: 160 }}
-                            isRequired
-                            errorMsg=""
-                            id="drop-down"
-                            items={[{ value: 'Query' }, { value: 'Mutation' }, { value: 'Subscription' }]}
-                            label="Operation Type"
-                            onValueChange={handleMethodChange}
-                            value={functionModel.kind === 'QUERY' ? 'Query' :
-                                functionModel.kind === 'MUTATION' ? 'Mutation' :
-                                    functionModel.kind === 'SUBSCRIPTION' ? 'Subscription' : ''}
-                        />
-                    </div>
                     <OperationForm
                         model={functionModel}
                         filePath={filePath}
@@ -498,7 +547,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
             )}
             {functionModel && isEdit && (
                 <PanelContainer
-                    title={"Edit Operation"}
+                    title={"Edit Root Type"}
                     show={isEdit}
                     onClose={handleEditFunctionClose}
                     width={400}

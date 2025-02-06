@@ -8,11 +8,11 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { GraphqlDesignServiceParams, GraphqlDesignService, VisualizerLocation, Type, NodePosition, GetGraphqlTypeResponse, GetGraphqlTypeRequest } from "@wso2-enterprise/ballerina-core";
+import { GraphqlDesignServiceParams, GraphqlDesignService, VisualizerLocation, Type, NodePosition, GetGraphqlTypeResponse, GetGraphqlTypeRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { GraphqlDesignDiagram } from "@wso2-enterprise/ballerina-graphql-design-diagram";
 import { TypeDiagram as TypeDesignDiagram } from "@wso2-enterprise/type-diagram";
-import { ProgressRing, ThemeColors, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ProgressRing, ThemeColors, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import { Colors } from "../../resources/constants";
 import styled from "@emotion/styled";
 import { GraphqlServiceEditor } from "./GraphqlServiceEditor";
@@ -27,7 +27,7 @@ const HeaderContainer = styled.div`
     font-family: GilmerBold;
     font-size: 16px;
     height: 50px;
-    justify-content: space-between;
+    justify-content: flex-start;
     min-width: 350px;
     padding-inline: 10px;
     width: calc(100vw - 20px);
@@ -35,6 +35,7 @@ const HeaderContainer = styled.div`
 
 const Title: React.FC<any> = styled.div`
     color: ${ThemeColors.ON_SURFACE};
+    padding-right: 5px;
 `;
 
 
@@ -135,12 +136,38 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
         setEditingType(undefined);
     }
 
+    const handleServiceEdit = async () => {
+        await rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.BIServiceConfigView,
+                position: {
+                    startLine: position?.startLine,
+                    startColumn: position?.startColumn,
+                    endLine: position?.endLine,
+                    endColumn: position?.endColumn
+                },
+                documentUri: filePath
+            },
+        });
+    }
+
 
     return (
         <>
             <View>
                 <HeaderContainer>
                     <Title>GraphQL Diagram</Title>
+                    <Button
+                        appearance="icon"
+                        onClick={handleServiceEdit}
+                        tooltip="Edit"
+                    >
+                        <Codicon
+                            name="edit"
+                        />
+                        &nbsp;Edit
+                    </Button>
                 </HeaderContainer>
                 <ViewContent>
                     {graphqlTypeModel ? (
