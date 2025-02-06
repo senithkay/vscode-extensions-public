@@ -28,11 +28,11 @@ export function getCustomNodeId(nodeId: string, label: string, branchIndex?: num
 }
 
 export function reverseCustomNodeId(customNodeId: string) {
-    const parts = customNodeId.split('-');
+    const parts = customNodeId.split("-");
     const nodeId = parts[0];
     const label = parts[1];
     const branchIndex = parts.length > 3 ? parseInt(parts[3]) : undefined;
-    const suffix = parts.length > 4 ? parts.slice(4).join('-') : undefined;
+    const suffix = parts.length > 4 ? parts.slice(4).join("-") : undefined;
     return { nodeId, label, branchIndex, suffix };
 }
 
@@ -43,6 +43,11 @@ export function getBranchInLinkId(nodeId: string, branchLabel: string, branchInd
 export function nodeHasError(node: FlowNode) {
     if (!node) {
         return false;
+    }
+
+    // Check node
+    if (node.diagnostics && node.diagnostics.hasDiagnostics && node.diagnostics.diagnostics) {
+        return node.diagnostics.diagnostics?.some((diagnostic) => diagnostic.severity === "ERROR");
     }
 
     // Check branch properties

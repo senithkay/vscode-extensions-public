@@ -43,7 +43,7 @@ import {
     getContainerTitle,
 } from "../../../utils/bi";
 import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { View, ViewContent, ViewHeader, ProgressRing, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
+import { View, ViewHeader, ProgressRing, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { applyModifications, getColorByMethod, textToModifications } from "../../../utils/utils";
 import FormGenerator from "../Forms/FormGenerator";
@@ -509,6 +509,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         if (!targetRef.current) {
             return;
         }
+
         setShowProgressIndicator(true);
         rpcClient
             .getBIDiagramRpcClient()
@@ -716,7 +717,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     title={isResource ? ResourceDiagramTitle : FunctionDiagramTitle}
                     icon={isResource ? "bi-http-service" : "bi-function"}
                     iconSx={{ fontSize: "16px" }}
-                    // onEdit={handleOnFormBack}
                 ></ViewHeader>
                 {(showProgressIndicator || fetchingAiSuggestions) && model && (
                     <ProgressIndicator color={Colors.PRIMARY} />
