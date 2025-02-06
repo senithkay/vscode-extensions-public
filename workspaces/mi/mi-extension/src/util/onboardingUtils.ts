@@ -11,6 +11,7 @@ import { SELECTED_JAVA_HOME, SELECTED_SERVER_PATH } from '../debugger/constants'
 import { COMMANDS } from '../constants';
 import { SetPathRequest, PathDetailsResponse, SetupDetails } from '@wso2-enterprise/mi-core';
 import { parseStringPromise } from 'xml2js';
+import { LATEST_CAR_PLUGIN_VERSION } from './templates';
 
 // Add Latest MI version as the first element in the array
 export const supportedJavaVersionsForMI: { [key: string]: string } = {
@@ -22,8 +23,8 @@ export const supportedJavaVersionsForMI: { [key: string]: string } = {
 export const LATEST_MI_VERSION = "4.4.0";
 const COMPATIBLE_JDK_VERSION = "11";
 const miDownloadUrls: { [key: string]: string } = {
-    '4.4.0': 'https://github.com/wso2/product-micro-integrator/releases/download/v4.4.0-beta/wso2mi-4.4.0-beta.zip',
-    '4.3.0': 'https://github.com/wso2/micro-integrator/releases/download/v4.3.0/wso2mi-4.3.0.zip'
+    '4.4.0': 'https://mi-distribution.wso2.com/4.4.0/wso2mi-4.4.0.zip',
+    '4.3.0': 'https://mi-distribution.wso2.com/4.3.0/wso2mi-4.3.0.zip'
 };
 
 const CACHED_FOLDER = path.join(os.homedir(), '.wso2-mi');
@@ -58,15 +59,15 @@ export async function getProjectSetupDetails(): Promise<SetupDetails> {
     const miVersion = await getMIVersionFromPom();
     if (!miVersion) {
         vscode.window.showErrorMessage('Failed to get Micro Integrator version from pom.xml.');
-        return { isSupportedMIVersion: false, javaDetails: { status: 'not-valid' }, miDetails: { status: 'not-valid' } };
+        return { miVersionStatus: 'missing', javaDetails: { status: 'not-valid' }, miDetails: { status: 'not-valid' } };
     }
     if (isSupportedMIVersion(miVersion)) {
         const recommendedVersions = { miVersion, javaVersion: supportedJavaVersionsForMI[miVersion] };
         const setupDetails = await getJavaAndMIPathsFromWorkspace(miVersion);
-        return { ...setupDetails, isSupportedMIVersion: true, showDownloadButtons: isDownloadableMIVersion(miVersion), recommendedVersions };
+        return { ...setupDetails, miVersionStatus: 'valid', showDownloadButtons: isDownloadableMIVersion(miVersion), recommendedVersions };
     }
 
-    return { isSupportedMIVersion: false, javaDetails: { status: 'not-valid' }, miDetails: { status: 'not-valid' } };
+    return { miVersionStatus: 'not-valid', javaDetails: { status: 'not-valid' }, miDetails: { status: 'not-valid' } };
 }
 export async function getMIVersionFromPom(): Promise<string | null> {
     const pomFiles = await vscode.workspace.findFiles('pom.xml', '**/node_modules/**', 1);
@@ -77,7 +78,7 @@ export async function getMIVersionFromPom(): Promise<string | null> {
 
     const pomContent = await vscode.workspace.openTextDocument(pomFiles[0]);
     const result = await parseStringPromise(pomContent.getText(), { explicitArray: false, ignoreAttrs: true });
-    const runtimeVersion = result?.project?.properties["project.runtime.version"];
+    const runtimeVersion = result?.project?.properties?.["project.runtime.version"];
     return runtimeVersion;
 }
 async function isMISetup(miVersion: string): Promise<boolean> {
@@ -406,22 +407,18 @@ export async function downloadMI(miVersion: string): Promise<string> {
             fs.mkdirSync(miPath, { recursive: true });
         }
         const zipName = miDownloadUrls[miVersion].split('/').pop();
-        const extractFolderName = zipName?.replace('.zip', '');
 
         const miDownloadPath = path.join(miPath, zipName!);
-        const extractedMIPath = path.join(miPath, extractFolderName!);
 
         if (!fs.existsSync(miDownloadPath)) {
             await downloadWithProgress(miDownloadUrls[miVersion], miDownloadPath, 'Downloading Micro Integrator');
         } else {
             vscode.window.showInformationMessage('Micro Integrator already downloaded.');
         }
-        if (!fs.existsSync(extractedMIPath)) {
-            await extractWithProgress(miDownloadPath, miPath, 'Extracting Micro Integrator');
-        } else {
-            vscode.window.showInformationMessage('Micro Integrator already extracted.');
-        }
-        return extractedMIPath;
+        await extractWithProgress(miDownloadPath, miPath, 'Extracting Micro Integrator');
+        
+        return getMIPathFromCache(miVersion)!;
+        
     } catch (error) {
         throw new Error('Failed to download Micro Integrator.');
     }
@@ -599,7 +596,31 @@ export async function updateRuntimeVersionsInPom(version: string): Promise<void>
         xml = xml.replace(/(<project[^>]*>)/, `$1\n${propertiesSection}`);
     }
 
-    fs.writeFileSync(pomFiles[0].fsPath, xml);
+    const dockerImageTag = "<dockerfile.base.image>wso2/wso2mi:${project.runtime.version}</dockerfile.base.image>";
+    const miVersionTag = "<miVersion>${project.runtime.version}</miVersion>";
+    const dockerImageRegex = /<dockerfile\.base\.image>.*?<\/dockerfile\.base\.image>/s;
+    if (dockerImageRegex.test(xml)) {
+        xml = xml.replace(dockerImageRegex, dockerImageTag);
+    }
+
+    const miVersionRegex = /<miVersion>.*?<\/miVersion>/s;
+    if (miVersionRegex.test(xml)) {
+        xml = xml.replace(miVersionRegex, miVersionTag);
+    }
+    const carPropertyTag = `<car.plugin.version>${LATEST_CAR_PLUGIN_VERSION}</car.plugin.version>`;
+
+    const singleCarPluginRegex = /<car\.plugin\.version>.*?<\/car\.plugin\.version>/s;
+    if (singleCarPluginRegex.test(xml)) {
+        xml = xml.replace(singleCarPluginRegex, carPropertyTag);
+    } else {
+        const multipleCarPluginRegex = /<plugin>[\s\S]*?vscode-car-plugin[\s\S]*?<version>(.*?)<\/version>[\s\S]*?<\/plugin>/g;
+        let match: RegExpExecArray | null;
+        while ((match = multipleCarPluginRegex.exec(xml)) !== null) {
+            const versionTag = match[1];
+            xml = xml.replace(versionTag, LATEST_CAR_PLUGIN_VERSION);
+        }
+    }
+    await fs.promises.writeFile(pomFiles[0].fsPath, xml);
 }
 
 function getJavaFromGlobalOrEnv(miVersion: string): string | undefined {

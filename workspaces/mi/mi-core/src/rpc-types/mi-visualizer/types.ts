@@ -412,7 +412,7 @@ export interface SetPathRequest {
     path: string;
 }
 export interface SetupDetails {
-    isSupportedMIVersion?: boolean;
+    miVersionStatus?: "valid" | "missing" | "not-valid";
     miDetails: PathDetailsResponse;
     javaDetails: PathDetailsResponse;
     showDownloadButtons?: boolean;
