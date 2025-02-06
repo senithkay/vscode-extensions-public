@@ -266,7 +266,7 @@ function registerHandlebarsHelpers(openapiSpec: OAISpec): void {
             const queryParams = parameters
                 .filter(param => param.in === 'query')
                 .map(param => {
-                    const value = param.schema?.default || `{value}`;
+                    const value = param.schema?.default || `{?}`;
                     return `${param.name}=${value}`;
                 })
                 .join('&');
@@ -285,7 +285,7 @@ function registerHandlebarsHelpers(openapiSpec: OAISpec): void {
             const headerParams = parameters
                 .filter(param => param.in === 'header')
                 .map(param => {
-                    const value = param.schema?.default || `{value}`;
+                    const value = param.schema?.default || `{?}`;
                     return `${param.name}: ${value}`;
                 })
                 .join('\n');
@@ -424,10 +424,10 @@ function generateSampleValue(schema: Schema, context: OAISpec): any {
                     case 'uuid':
                         return "123e4567-e89b-12d3-a456-426614174000";
                     default:
-                        return "<string>";
+                        return "{?}";
                 }
             }
-            return schema.default || "string";
+            return schema.default || "{?}";
         case 'integer':
         case 'number':
             return schema.default || 0;
