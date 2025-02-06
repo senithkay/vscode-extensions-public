@@ -18,10 +18,9 @@ import {
 import { HelperPaneOrigin, HelperPanePosition } from '../types';
 
 const EXPRESSION_REGEX = /\$\{([^}]+)\}/g;
-const EXPRESSION_TOKEN_REGEX = /<div[^>]*>\s*([^<]+?)\s*.+\s*<\/div>/g;
+const EXPRESSION_TOKEN_REGEX = /<div[^>]*>\s*<span[^>]*>\s*([^<]+?)\s*<\/span>\s*.+\s*<\/div>/g;
 
 const wrapTextInDiv = (text: string): string => {
-    console.log(`wrapTextInDiv: ${text}`);
     return `<div class="expression-token" contenteditable="false">
     <span class="expression-token-text">${text}</span>
     <span class="expression-token-close">×</span>
@@ -30,7 +29,10 @@ const wrapTextInDiv = (text: string): string => {
 
 export const transformExpressions = (content: string): string => {
     return content.replace(EXPRESSION_REGEX, (_, expression) => {
-        return wrapTextInDiv(expression.trim());
+        // Replace div tags within expressions
+        const updatedExpression = expression.replace(/<div>|<\/div>/g, '');
+
+        return wrapTextInDiv(updatedExpression.trim());
     });
 };
 
@@ -46,8 +48,8 @@ export const extractExpressions = (content: string): string => {
         return `\${${expression.trim()}}`;
     });
 
-    // Remove html escape characters for spaces
-    updatedContent = updatedContent.replace(/&nbsp;/g, ' ');
+    // Remove div tags
+    updatedContent = updatedContent.replace(/<div>|<\/div>/g, '');
 
     return updatedContent;
 }
@@ -106,4 +108,3 @@ export const getHelperPaneWithEditorArrowPosition = (
 
     return position;
 }
-

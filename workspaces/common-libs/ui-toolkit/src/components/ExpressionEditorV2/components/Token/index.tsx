@@ -80,6 +80,7 @@ namespace S {
         min-width: var(--input-min-width);
         outline: none;
         resize: vertical;
+        white-space: pre-wrap;
 
         * {
             font-family: monospace !important;
@@ -99,6 +100,7 @@ namespace S {
             display: inline-block;
             line-height: normal;
             user-select: none;
+            white-space: normal;
             cursor: pointer;
         }
 
@@ -521,13 +523,6 @@ export const TokenEditor = ({
         ) {
             currentNodeRef.current = range.startContainer;
             currentNodeOffsetRef.current = range.startOffset;
-        } else {
-            // Fallback to end of editor if something goes wrong
-            const lastChild = editorRef.current?.lastChild;
-            if (lastChild) {
-                currentNodeRef.current = lastChild;
-                currentNodeOffsetRef.current = lastChild.textContent?.length;
-            }
         }
     };
 
