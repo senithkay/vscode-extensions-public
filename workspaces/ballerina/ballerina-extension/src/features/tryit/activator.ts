@@ -12,7 +12,7 @@ import { BallerinaProjectComponents, OpenAPISpec } from "@wso2-enterprise/baller
 let langClient: ExtendedLangClient | undefined;
 
 const TRYIT_TEMPLATE = `/*
-### Try Service : "{{info.title}}" ({{../../serviceName}})
+### Try Service: "{{info.title}}" (http://localhost:{{port}}{{trim basePath}})
 {{info.description}}
 */
 
