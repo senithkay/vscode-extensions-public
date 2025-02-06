@@ -407,22 +407,18 @@ export async function downloadMI(miVersion: string): Promise<string> {
             fs.mkdirSync(miPath, { recursive: true });
         }
         const zipName = miDownloadUrls[miVersion].split('/').pop();
-        const extractFolderName = zipName?.replace('.zip', '');
 
         const miDownloadPath = path.join(miPath, zipName!);
-        const extractedMIPath = path.join(miPath, extractFolderName!);
 
         if (!fs.existsSync(miDownloadPath)) {
             await downloadWithProgress(miDownloadUrls[miVersion], miDownloadPath, 'Downloading Micro Integrator');
         } else {
             vscode.window.showInformationMessage('Micro Integrator already downloaded.');
         }
-        if (!fs.existsSync(extractedMIPath)) {
-            await extractWithProgress(miDownloadPath, miPath, 'Extracting Micro Integrator');
-        } else {
-            vscode.window.showInformationMessage('Micro Integrator already extracted.');
-        }
-        return extractedMIPath;
+        await extractWithProgress(miDownloadPath, miPath, 'Extracting Micro Integrator');
+        
+        return getMIPathFromCache(miVersion)!;
+        
     } catch (error) {
         throw new Error('Failed to download Micro Integrator.');
     }
