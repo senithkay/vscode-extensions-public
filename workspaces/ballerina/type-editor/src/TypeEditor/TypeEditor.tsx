@@ -213,7 +213,7 @@ export function TypeEditor(props: TypeEditorProps) {
             properties: {},
             codedata: {
                 lineRange: {
-                    fileName: "main.bal",
+                    fileName: "types.bal",
                     startLine: { line: 0, character: 0, offset: 0 },
                     endLine: { line: 0, character: 0, offset: 0 }
                 },

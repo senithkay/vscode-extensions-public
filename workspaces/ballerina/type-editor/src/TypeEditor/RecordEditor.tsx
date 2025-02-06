@@ -84,7 +84,7 @@ export const RecordEditor: React.FC<RecordEditorProps> = (props) => {
     return (
         <div className="record-editor">
             <Header>
-                <SectionTitle>{isGraphql ? 'Input Object' : 'Record'}</SectionTitle>
+                <SectionTitle>{'Record'}</SectionTitle>
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <Button appearance="icon">
                         <Codicon name="arrow-circle-down" onClick={handleImportJson} /> JSON

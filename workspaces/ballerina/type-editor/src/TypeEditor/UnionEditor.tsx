@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { Dropdown, Button, Icon, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Dropdown, Button, Icon, Codicon, TextField } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { Type, Member, TypeWithIdentifier, VisibleType } from "@wso2-enterprise/ballerina-core";
 import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
@@ -17,49 +17,37 @@ namespace S {
     export const Container = styled.div`
         display: flex;
         flex-direction: column;
-        gap: 16px;
-        width: 100%;
     `;
 
-    export const TypeRow = styled.div`
+    export const MemberRow = styled.div`
         display: flex;
-        flex-direction: row;
-        align-items: center;
         gap: 8px;
-        width: 100%;
-        padding: 8px;
-        background-color: var(--vscode-editor-background);
-        border-radius: 4px;
-    `;
-
-    export const TypeName = styled.span`
-        flex-grow: 1;
-        color: var(--vscode-editor-foreground);
+        justify-content: space-between;
     `;
 
     export const Header = styled.div`
         display: flex;
-        flex-direction: column;
-        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
         width: 100%;
+        padding: 8px;
     `;
 
     export const SectionTitle = styled.div`
         font-size: 13px;
         font-weight: 500;
         color: var(--vscode-editor-foreground);
+        margin-bottom: 4px;
     `;
 
-    export const TypeList = styled.div`
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        width: 100%;
+    export const AddButton = styled(Button)`
         margin-top: 8px;
     `;
 
-    export const TypeSelector = styled.div`
-        width: 100%;
+    export const DeleteButton = styled(Button)`
+        min-width: 32px;
+        height: 32px;
+        padding: 0;
     `;
 }
 
@@ -70,45 +58,13 @@ interface UnionEditorProps {
 }
 
 export function UnionEditor({ type, onChange, rpcClient }: UnionEditorProps) {
-    const [availableTypes, setAvailableTypes] = useState<TypeWithIdentifier[]>([]);
-    const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchTypes = async () => {
-            try {
-                const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
-                    filePath: type.codedata.lineRange.fileName,
-                    position: type.codedata.lineRange.startLine
-                });
-                if (response.types) {
-                    const typeIdentifiers: TypeWithIdentifier[] = response.types.map(t => ({
-                        name: t,
-                        type: {
-                            typeName: t,
-                            name: t
-                        }
-                    }));
-                    setAvailableTypes(typeIdentifiers);
-                }
-            } catch (error) {
-                console.error("Error fetching types:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchTypes();
-    }, [type.codedata.lineRange.fileName, rpcClient]);
-
-    const addType = (selectedType: string) => {
-        const typeInfo = availableTypes.find(t => t.name === selectedType);
-        if (!typeInfo) return;
-
+    const addMember = () => {
         const newMember: Member = {
             kind: "TYPE",
-            type: typeInfo.name,
+            type: "",
             refs: [],
-            name: typeInfo.name
+            name: ""
         };
 
         onChange({
@@ -117,7 +73,22 @@ export function UnionEditor({ type, onChange, rpcClient }: UnionEditorProps) {
         });
     };
 
-    const removeType = (index: number) => {
+    const updateMember = (index: number, name: string) => {
+        const updatedMembers = [...type.members];
+        updatedMembers[index] = {
+            ...updatedMembers[index],
+            type: name,
+            name: name,
+            refs: []
+        };
+
+        onChange({
+            ...type,
+            members: updatedMembers
+        });
+    };
+
+    const deleteMember = (index: number) => {
         const updatedMembers = type.members.filter((_, i) => i !== index);
         onChange({
             ...type,
@@ -125,36 +96,26 @@ export function UnionEditor({ type, onChange, rpcClient }: UnionEditorProps) {
         });
     };
 
-    const getFilteredTypes = () => {
-        const selectedTypes = new Set(type.members.map(m => m.name));
-        return availableTypes.filter(t => !selectedTypes.has(t.name));
-    };
-
-    if (loading) {
-        return <div>Loading available types...</div>;
-    }
 
     return (
         <S.Container>
             <S.Header>
-                <S.SectionTitle>Union Type</S.SectionTitle>
-                <S.TypeSelector>
-                    <Dropdown
-                        id="type-selector"
-                        label="Add Type"
-                        items={getFilteredTypes().map(t => ({ label: t.name, value: t.name }))}
-                        onChange={(e) => addType(e.target.value)}
-                    />
-                </S.TypeSelector>
+                <S.SectionTitle>Union</S.SectionTitle>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <Button appearance="icon" onClick={addMember}><Codicon name="add" /></Button>
+                </div>
             </S.Header>
-            <S.TypeList>
-                {type.members.map((member, index) => (
-                    <S.TypeRow key={index}>
-                        <S.TypeName>{typeof member.type === 'string' ? member.type : member.name}</S.TypeName>
-                        <Button appearance="icon" onClick={() => removeType(index)}><Codicon name="trash" /></Button>
-                    </S.TypeRow>
-                ))}
-            </S.TypeList>
+            {type.members.map((member, index) => (
+                <S.MemberRow key={index}>
+                    <TextField
+                        value={typeof member.type === 'string' ? member.type : member.name}
+                        onChange={(e) => updateMember(index, e.target.value)}
+                        placeholder="Enter type"
+                        sx={{ flexGrow: 1 }}
+                    />
+                    <Button appearance="icon" onClick={() => deleteMember(index)}><Codicon name="trash" /></Button>
+                </S.MemberRow>
+            ))}
         </S.Container>
     );
 } 

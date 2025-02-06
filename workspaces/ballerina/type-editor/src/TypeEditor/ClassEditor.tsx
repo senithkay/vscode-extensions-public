@@ -100,7 +100,7 @@ export function ClassEditor({ type, onChange }: ClassEditorProps) {
     return (
         <S.Container>
             <S.Header>
-                <S.SectionTitle>Output Object</S.SectionTitle>
+                <S.SectionTitle>Class</S.SectionTitle>
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <Button appearance="icon" onClick={addFunction}><Codicon name="add" /></Button>
                 </div>

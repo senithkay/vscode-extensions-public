@@ -104,7 +104,7 @@ export function EnumEditor({ type, onChange }: EnumEditorProps) {
                     <TextField
                         value={member.name}
                         onChange={(e) => updateMember(index, e.target.value)}
-                        placeholder="Enter enum member name"
+                        placeholder="Enter enum field"
                         sx={{ flexGrow: 1 }}
                     />
                     <Button appearance="icon" onClick={() => deleteMember(index)}><Codicon name="trash" /></Button>
