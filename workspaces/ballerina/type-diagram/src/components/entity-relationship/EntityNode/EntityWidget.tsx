@@ -44,6 +44,7 @@ const HighlightedButton = styled.div`
 export const AttributeHeader: React.FC<any> = styled.span`
     align-items: center;
     color: ${ThemeColors.ON_SURFACE};
+    background-color: ${(props: { isSelected: boolean }) => props.isSelected ? ThemeColors.SURFACE_DIM_2 : ThemeColors.SURFACE_BRIGHT};
     display: flex;
     flex: 1;
     font-family: GilmerMedium;
@@ -51,14 +52,6 @@ export const AttributeHeader: React.FC<any> = styled.span`
     line-height: 30px;
     padding-left: 8px;
     text-align: left;
-`;
-
-const OperationHeader = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding-right: 8px;
     padding-top: 8px;
 `;
 
@@ -118,9 +111,7 @@ export function EntityWidget(props: EntityWidgetProps) {
                 attributes.push(
                     <div key="query-section">
                         <OperationSection>
-                            <OperationHeader>
                                 <AttributeHeader>Query</AttributeHeader>
-                            </OperationHeader>
                             <div>
                                 {categorizedFunctions.query.map((query: any) => (
                                     <AttributeWidget
@@ -142,9 +133,7 @@ export function EntityWidget(props: EntityWidgetProps) {
                 attributes.push(
                     <div key="mutation-section">
                         <OperationSection>
-                            <OperationHeader>
                                 <AttributeHeader>Mutation</AttributeHeader>
-                            </OperationHeader>
                             <div>
                                 {categorizedFunctions.mutation.map((mutation: any) => (
                                     <AttributeWidget
@@ -166,9 +155,7 @@ export function EntityWidget(props: EntityWidgetProps) {
                 attributes.push(
                     <div key="subscription-section">
                         <OperationSection>
-                            <OperationHeader>
                                 <AttributeHeader>Subscription</AttributeHeader>
-                            </OperationHeader>
                             <div>
                                 {categorizedFunctions.subscription.map((subscription: any) => (
                                     <AttributeWidget

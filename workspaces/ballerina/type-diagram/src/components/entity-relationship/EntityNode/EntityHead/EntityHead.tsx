@@ -113,12 +113,18 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
         node.handleHover(headPorts.current, task);
     }
 
-    const isClickable = selectedNodeId !== node.getID();
+    const isClickable = true;
 
     const handleOnClickOnEntityName = () => {
-        if (isClickable) {
-            setSelectedNodeId(node.getID());
-            setFocusedNodeId && setFocusedNodeId(undefined);
+        setSelectedNodeId(node.getID());
+        setFocusedNodeId && setFocusedNodeId(undefined);
+        
+        if (onEditNode) {
+            if (node.isGraphqlRoot) {
+                onEditNode(node.getID(), true);
+            } else {
+                onEditNode(node.getID());
+            } 
         }
     }
 
@@ -145,7 +151,7 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                         </EntityName>
                     </EntityNameContainer>
                     <HeaderButtonsContainer>
-                        {selectedNodeId === node.getID() && (
+                        {/* {selectedNodeId === node.getID() && (
                             <EditIconContainer>
                                 <Button
                                     appearance="icon"
@@ -158,7 +164,7 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                                     />
                                 </Button>
                             </EditIconContainer>
-                        )}
+                        )} */}
                         <MenuButton appearance="icon" onClick={handleOnMenuClick}>
                             <MoreVertIcon />
                         </MenuButton>
