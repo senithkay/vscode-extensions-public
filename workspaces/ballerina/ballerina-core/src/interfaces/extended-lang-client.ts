@@ -906,7 +906,7 @@ export interface ListenerModelFromCodeResponse {
 export interface HttpResourceModelRequest {
 }
 export interface HttpResourceModelResponse {
-    resource: FunctionModel;
+    function: FunctionModel;
 }
 export interface FunctionSourceCodeRequest {
     filePath: string;

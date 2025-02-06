@@ -128,8 +128,8 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
 
     const handleNewResourceFunction = () => {
         rpcClient.getServiceDesignerRpcClient().getHttpResourceModel({}).then(res => {
-            console.log("New Function Model: ", res.resource);
-            setFunctionModel(res.resource);
+            console.log("New Function Model: ", res.function);
+            setFunctionModel(res.function);
             setIsNew(true);
             setShowForm(true);
         })
