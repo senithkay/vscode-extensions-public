@@ -251,9 +251,18 @@ export function TypeEditor(props: TypeEditorProps) {
 
     const onTypeChange = async (type: Type) => {
         const name = type.name;
+        // IF type nodeKind is CLASS then we call graphqlEndpoint
+        // TODO: for TypeDiagram we need to give a generic class creation
+        if (type.codedata.node === "CLASS") {
+            const response = await props.rpcClient
+            .getBIDiagramRpcClient()
+            .createGraphqlClassType({ filePath: type.codedata.lineRange.fileName, type, description: "" });
+
+        } else {
         const response = await props.rpcClient
             .getBIDiagramRpcClient()
             .updateType({ filePath: type.codedata.lineRange.fileName, type, description: "" });
+        }
         props.onTypeChange(type);
     }
 

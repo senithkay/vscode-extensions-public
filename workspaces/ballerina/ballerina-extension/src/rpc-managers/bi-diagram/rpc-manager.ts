@@ -1189,6 +1189,25 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         const suggestedContent = (data as any).completions.at(0);
         return suggestedContent
     }
+
+    async createGraphqlClassType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
+        const projectUri = StateMachine.context().projectUri;
+        const filePath =  path.join(projectUri, params.filePath);
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient()
+                .createGraphqlClassType({ filePath , type: params.type, description: "" })
+                .then((updateTypeResponse: UpdateTypeResponse) => {
+                    console.log(">>> create graphql class type response", updateTypeResponse);
+                    Object.entries(updateTypeResponse.textEdits).forEach(([file, textEdits]) => {
+                        this.applyTextEdits(file, textEdits);
+                    });
+                    resolve(updateTypeResponse);
+                }).catch((error) => {
+                    console.log(">>> error fetching class type from ls", error);
+                    reject(error);
+                });
+        });
+    }
 }
 
 export async function fetchWithToken(url: string, options: RequestInit) {

@@ -70,6 +70,7 @@ import {
     addFunction,
     buildProject,
     createComponent,
+    createGraphqlClassType,
     createProject,
     deleteByComponentInfo,
     deleteFlowNode,
@@ -106,8 +107,8 @@ import {
     removeBreakpointFromSource,
     runProject,
     updateConfigVariables,
-    updateType,
-    updateImports
+    updateImports,
+    updateType
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -278,7 +279,11 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
     updateType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
         return this._messenger.sendRequest(updateType, HOST_EXTENSION, params);
     }
-    
+
+    createGraphqlClassType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
+        return this._messenger.sendRequest(createGraphqlClassType, HOST_EXTENSION, params);
+    }
+
     updateImports(params: UpdateImportsRequest): Promise<UpdateImportsResponse> {
         return this._messenger.sendRequest(updateImports, HOST_EXTENSION, params);
     }
