@@ -4965,7 +4965,7 @@ ${keyValuesXML}`;
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.checkDBDriver(className);
-            resolve(res);
+            resolve(res.isDriverAvailable);
         });
     }
 
