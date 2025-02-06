@@ -288,6 +288,11 @@ export class SizingVisitor implements BaseVisitor {
 
     endVisitFork(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
+
+        if (!node.branches) {
+            return;
+        }
+
         // first branch
         const firstBranchWidthViewState = node.branches.at(0)?.viewState;
         // last branch

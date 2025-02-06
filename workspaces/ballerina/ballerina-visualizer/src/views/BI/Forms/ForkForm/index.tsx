@@ -207,6 +207,11 @@ export function ForkForm(props: ForkFormProps) {
     };
 
     const removeWorker = (index: number) => {
+        // Prevent removal if this is the last branch
+        if (branches.length <= 2) {
+            return;
+        }
+
         // Remove the branch at the specified index
         const updatedBranches = branches.filter((_, i) => i !== index);
         setBranches(updatedBranches);
@@ -315,7 +320,7 @@ export function ForkForm(props: ForkFormProps) {
                                 openSubPanel={openSubPanel}
                                 targetLineRange={targetLineRange}
                                 fileName={fileName}
-                                onRemove={() => removeWorker(index)}
+                                onRemove={branches.length > 2 ? () => removeWorker(index) : undefined}
                                 onCompletionItemSelect={expressionEditor.onCompletionItemSelect}
                                 onCancel={expressionEditor.onCancel}
                                 onBlur={expressionEditor.onBlur}

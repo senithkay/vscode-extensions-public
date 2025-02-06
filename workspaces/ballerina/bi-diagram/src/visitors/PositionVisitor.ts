@@ -195,12 +195,7 @@ export class PositionVisitor implements BaseVisitor {
         const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
         node.viewState.x = centerX - node.viewState.lw;
 
-        if (node.branches.length < 2) {
-            console.error("If node should have 2 branches");
-            return;
-        }
-
-        node.branches.forEach((branch, index) => {
+        node.branches?.forEach((branch, index) => {
             if (index === 0) {
                 branch.viewState.x = centerX - node.viewState.clw;
             } else {

@@ -111,41 +111,20 @@ export class LinkTargetVisitor implements BaseVisitor {
 
     beginVisitEventStart(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
+
+        if (!node.codedata.lineRange) {
+            return;
+        }
         // out links
         const outLinks = this.getOutLinksFromNode(node);
         // find top level do block
-        const doBlock = this.flow.nodes.find((node) => node.codedata.node === "ERROR_HANDLER");
-        if (doBlock) {
-            const activeDoBranch = doBlock.branches.find((branch) => branch.label === this.topDoBranch);
-            if (activeDoBranch && this.topDoBranch === "Body") {
-                outLinks.forEach((outLink) => {
-                    outLink.setTarget({
-                        line: activeDoBranch.codedata.lineRange.startLine.line,
-                        offset: activeDoBranch.codedata.lineRange.startLine.offset + 1, // HACK: need to fix with LS extension
-                    });
-                    outLink.setTopNode(activeDoBranch);
-                });
-                return;
-            }
-            if (activeDoBranch && this.topDoBranch === "On Failure") {
-                outLinks.forEach((outLink) => {
-                    outLink.setTarget({
-                        line: activeDoBranch.codedata.lineRange.startLine.line,
-                        offset: activeDoBranch.codedata.lineRange.startLine.offset + 1, // HACK: need to fix with LS extension
-                    });
-                    outLink.setTopNode(activeDoBranch);
-                });
-                return;
-            }
-        } else {
-            outLinks.forEach((outLink) => {
-                outLink.setTarget({
-                    line: node.codedata.lineRange.startLine.line,
-                    offset: node.codedata.lineRange.startLine.offset + 1, // FIXME: need to fix with LS extension
-                });
-                outLink.setTopNode(node);
+        outLinks?.forEach((outLink) => {
+            outLink.setTarget({
+                line: node.codedata.lineRange.startLine.line,
+                offset: node.codedata.lineRange.startLine.offset + 1, // FIXME: need to fix with LS extension
             });
-        }
+            outLink.setTopNode(node);
+        });
     }
 
     beginVisitIf(node: FlowNode, parent?: FlowNode): void {
@@ -280,7 +259,7 @@ export class LinkTargetVisitor implements BaseVisitor {
     beginVisitFork(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
 
-        node.branches.forEach((branch, index) => {
+        node.branches?.forEach((branch, index) => {
             const outLinks = this.getOutLinksFromNode(branch.children.at(0));
             const link = outLinks.at(0);
             if (!link) {

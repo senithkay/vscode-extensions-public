@@ -9,7 +9,7 @@
 
 import { LAST_NODE, START_NODE } from "../resources/constants";
 import { getCustomNodeId } from "../utils/node";
-import { Flow, FlowNode, ViewState } from "../utils/types";
+import { Branch, Flow, FlowNode, ViewState } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
 export class InitVisitor implements BaseVisitor {
@@ -182,7 +182,20 @@ export class InitVisitor implements BaseVisitor {
     private visitForkNode(node: FlowNode, parent?: FlowNode): void {
         node.viewState = this.getDefaultViewState();
 
-        node.branches.forEach((branch, index) => {
+        // if node has no branches, create a new branch
+        if (!node.branches || node.branches.length === 0) {
+            const newBranch: Branch = {
+                label: "Empty",
+                kind: "block",
+                codedata: { node: "WORKER" },
+                repeatable: "ZERO_OR_MORE",
+                properties: {},
+                children: [],
+            };
+            node.branches = [newBranch];
+        }
+
+        node.branches?.forEach((branch, index) => {
             // add start node, end node to every branch
             const startNode: FlowNode = {
                 id: getCustomNodeId(node.id, START_NODE, index, branch.label),
