@@ -371,11 +371,13 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     }
 
     const handleCancelCompletions = () => {
+        updateCompletions.cancel();
         setCompletions([]);
     };
 
     const handleCloseCompletions = () => {
         lastCursorPosition.current = textFieldRef.current.inputElement.selectionStart;
+        updateCompletions.cancel();
         setCompletions([]);
         handleFocus(false);
     }
