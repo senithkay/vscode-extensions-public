@@ -99,6 +99,7 @@ export enum NodeTypes {
     BUTTON_NODE = "button-node",
     CODE_BLOCK_NODE = "code-block-node",
     END_NODE = "end-node",
+    ERROR_NODE = "error-node",
 }
 
 export const NODE_LINK = "node-link";
@@ -147,6 +148,7 @@ export const COMMENT_NODE_GAP = 30;
 export const COMMENT_NODE_CIRCLE_WIDTH = 8;
 
 // custom nodes
+export const START_CONTAINER = "startContainer";
 export const END_CONTAINER = "endContainer";
 export const START_NODE = "startNode";
 export const LAST_NODE = "lastNode";

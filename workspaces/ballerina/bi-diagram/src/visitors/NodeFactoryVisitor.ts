@@ -23,6 +23,7 @@ import {
     END_CONTAINER,
     LAST_NODE,
     NODE_GAP_X,
+    START_CONTAINER,
     WHILE_NODE_WIDTH,
 } from "../resources/constants";
 import { createNodesLink } from "../utils/diagram";
@@ -30,6 +31,7 @@ import { getBranchInLinkId, getBranchLabel, getCustomNodeId, reverseCustomNodeId
 import { Branch, FlowNode, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 import { EndNodeModel } from "../components/nodes/EndNode";
+import { ErrorNodeModel } from "../components/nodes/ErrorNode";
 
 export class NodeFactoryVisitor implements BaseVisitor {
     nodes: NodeModel[] = [];
@@ -396,16 +398,99 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
     beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
-        const nodeModel = new WhileNodeModel(node);
-        this.nodes.push(nodeModel);
-        this.updateNodeLinks(node, nodeModel);
+
+        // add empty node start of the error handler boundary
+        const containerStartEmptyNode = this.createEmptyNode(
+            getCustomNodeId(node.id, START_CONTAINER),
+            node.viewState.x + node.viewState.lw - EMPTY_NODE_WIDTH / 2,
+            node.viewState.y - EMPTY_NODE_WIDTH / 2
+        );
+        containerStartEmptyNode.setParentFlowNode(node);
+
+        this.nodes.push(containerStartEmptyNode);
+        this.updateNodeLinks(node, containerStartEmptyNode);
         this.addSuggestionsButton(node);
         this.lastNodeModel = undefined;
     }
 
     endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
-        this.visitContainerNode(node, WHILE_NODE_WIDTH);
+
+        const containerStartEmptyNodeModel = this.nodes.find(
+            (n) => n.getID() === getCustomNodeId(node.id, START_CONTAINER)
+        );
+        if (!containerStartEmptyNodeModel) {
+            console.error("Container node model not found", node);
+            return;
+        }
+
+        // assume that only the body branch exist
+        const branch = node.branches.at(0);
+
+        // Create branch's IN link
+        if (branch.children && branch.children.length > 0) {
+            const firstChildNodeModel = this.nodes.find((n) => n.getID() === branch.children.at(0).id);
+            if (firstChildNodeModel) {
+                const link = createNodesLink(containerStartEmptyNodeModel, firstChildNodeModel);
+                if (link) {
+                    this.links.push(link);
+                }
+            }
+        }
+
+        // create branch's OUT link
+        const containerNodeModel = new ErrorNodeModel(node);
+        this.nodes.push(containerNodeModel);
+        this.updateNodeLinks(node, containerNodeModel);
+        this.lastNodeModel = containerNodeModel;
+
+        if (
+            branch.children &&
+            branch.children.length === 1 &&
+            branch.children.find((n) => n.codedata.node === "EMPTY")
+        ) {
+            const branchEmptyNodeModel = branch.children.at(0);
+
+            let branchEmptyNode = this.createEmptyNode(
+                branchEmptyNodeModel.id,
+                node.viewState.x + WHILE_NODE_WIDTH / 2 - EMPTY_NODE_WIDTH / 2,
+                branchEmptyNodeModel.viewState.y,
+                true,
+                true
+            );
+            branchEmptyNode.setParentFlowNode(node);
+            const linkIn = createNodesLink(containerStartEmptyNodeModel, branchEmptyNode, {
+                showAddButton: false,
+            });
+            if (linkIn) {
+                this.links.push(linkIn);
+            }
+            const linkOut = createNodesLink(branchEmptyNode, containerNodeModel, {
+                showAddButton: false,
+                alignBottom: true,
+                showArrow: false,
+            });
+            if (linkOut) {
+                this.links.push(linkOut);
+            }
+            return;
+        }
+
+        const lastNode = branch.children.at(-1);
+        const lastChildNodeModel = this.getBranchEndNode(branch);
+        if (!lastChildNodeModel) {
+            console.error("Cannot find last child node model in branch", branch);
+            return;
+        }
+
+        const endLink = createNodesLink(lastChildNodeModel, containerNodeModel, {
+            alignBottom: true,
+            showAddButton: !lastNode.returning,
+            showArrow: false,
+        });
+        if (endLink) {
+            this.links.push(endLink);
+        }
     }
 
     beginVisitFork(node: FlowNode, parent?: FlowNode): void {

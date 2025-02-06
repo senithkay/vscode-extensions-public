@@ -178,12 +178,20 @@ export class PositionVisitor implements BaseVisitor {
 
     beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
-        this.beginVisitWhile(node, parent);
+        node.viewState.y = this.lastNodeY;
+        this.lastNodeY += NODE_GAP_Y;
+
+        const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
+        node.viewState.x = centerX - node.viewState.lw;
+
+        const branch = node.branches.at(0);
+        branch.viewState.y = this.lastNodeY;
+        branch.viewState.x = centerX - branch.viewState.clw;
     }
 
     endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
-        this.endVisitWhile(node, parent);
+        this.lastNodeY = node.viewState.y + node.viewState.ch + NODE_GAP_Y;
     }
 
     beginVisitFork(node: FlowNode, parent?: FlowNode): void {

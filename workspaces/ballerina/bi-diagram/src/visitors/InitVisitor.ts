@@ -177,6 +177,29 @@ export class InitVisitor implements BaseVisitor {
     beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
         this.visitContainerNode(node, parent);
+
+        // Add start node for On Failure branch if it doesn't exist
+        const onFailureBranch = node.branches.find((branch) => branch.codedata.node === "ON_FAILURE");
+        if (onFailureBranch && onFailureBranch.children && onFailureBranch.children.length > 0) {
+            // Check if first node is not already a start node
+            if (onFailureBranch.children[0].codedata.node !== "EVENT_START") {
+                const startNode: FlowNode = {
+                    id: getCustomNodeId(node.id, START_NODE, 0, "ON_FAILURE"),
+                    metadata: {
+                        label: "On Error",
+                        description: "",
+                    },
+                    codedata: {
+                        node: "EVENT_START",
+                        lineRange: onFailureBranch.codedata.lineRange,
+                    },
+                    branches: [],
+                    returning: false,
+                    viewState: this.getDefaultViewState(),
+                };
+                onFailureBranch.children.unshift(startNode);
+            }
+        }
     }
 
     private visitForkNode(node: FlowNode, parent?: FlowNode): void {
