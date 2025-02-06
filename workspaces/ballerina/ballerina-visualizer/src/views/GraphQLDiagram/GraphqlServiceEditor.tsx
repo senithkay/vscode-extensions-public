@@ -47,6 +47,7 @@ const GraphqlContainer = styled.div`
     width: 400px;
     height: 100%;
     background-color: ${Colors.SURFACE_BRIGHT};
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
 `;
 
 const TopBar = styled.div`
