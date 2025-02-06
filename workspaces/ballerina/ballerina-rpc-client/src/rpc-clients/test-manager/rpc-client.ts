@@ -10,7 +10,8 @@
  */
 import { TestManagerServiceAPI, GetTestFunctionRequest, AddOrUpdateTestFunctionRequest, 
     TestSourceEditResponse, GetTestFunctionResponse, 
-    getTestFunction, addTestFunction, updateTestFunction  } from "@wso2-enterprise/ballerina-core";
+    getTestFunction, addTestFunction, updateTestFunction,  
+    SourceUpdateResponse} from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 
@@ -25,11 +26,11 @@ export class TestManagerServiceRpcClient implements TestManagerServiceAPI {
         return this._messenger.sendRequest(getTestFunction, HOST_EXTENSION, params);
     }
 
-    addTestFunction(params: AddOrUpdateTestFunctionRequest): Promise<TestSourceEditResponse> {
+    addTestFunction(params: AddOrUpdateTestFunctionRequest): Promise<SourceUpdateResponse> {
         return this._messenger.sendRequest(addTestFunction, HOST_EXTENSION, params);
     }
 
-    updateTestFunction(params: AddOrUpdateTestFunctionRequest): Promise<TestSourceEditResponse> {
+    updateTestFunction(params: AddOrUpdateTestFunctionRequest): Promise<SourceUpdateResponse> {
         return this._messenger.sendRequest(updateTestFunction, HOST_EXTENSION, params);
     }
 }

@@ -17,7 +17,7 @@ import { BIHeader } from "../BIHeader";
 import { BodyText } from "../../styles";
 import { getFunctionParametersList } from "../../../utils/utils";
 import { FormField, Form, FormValues, Parameter } from "@wso2-enterprise/ballerina-side-panel";
-import { debounce, forEach } from "lodash";
+import { debounce, forEach, set } from "lodash";
 import { convertToVisibleTypes } from "../../../utils/bi";
 import { URI, Utils } from "vscode-uri";
 
@@ -123,7 +123,7 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
     const { rpcClient } = useRpcContext();
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
-
+    const [formFields, setFormFields] = useState<FormField[]>([]);
 
     // <------------- Expression Editor Util functions list start --------------->
     const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {
@@ -223,6 +223,29 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
         const res = await rpcClient.getBIDiagramRpcClient().createComponent({ type: "testFunctions", functionType: { name, returnType, parameters: paramList } });
         setIsLoading(res.response);
     };
+
+    useEffect(() => {
+      if (functionName && filePath) {
+        loadFunction();
+      } else{
+        loadEmptyForm();
+      }
+    }, []);
+
+    const loadFunction = async () => {
+        setIsLoading(true);
+        const res = await rpcClient.getTestManagerRpcClient().getTestFunction({ functionName, filePath });
+        console.log("Test Function: ", res);
+        let formFields = generateFormFields(res.function);
+        setFormFields(formFields);
+        setIsLoading(false);
+    }
+
+    const loadEmptyForm = async () => {
+      setIsLoading(true);
+      setFormFields([]);
+      setIsLoading(false);
+    }
 
     // Helper function to modify and set the visual information
     const handleParamChange = (param: Parameter) => {
@@ -336,7 +359,7 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
                     </BodyText>
                     <FormContainer>
                         <Form
-                            formFields={generateFormFields(sampleTestFunction())}
+                            formFields={formFields}
                             oneTimeForm={false}
                             expressionEditor={
                                 {
@@ -356,132 +379,3 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
     );
 }
 
-function sampleTestFunction() : TestFunction {
-    return {
-        "metadata": {
-          "label": "Test Function",
-          "description": "Test Function"
-        },
-        "codedata": {
-          "lineRange": {
-            "fileName": "tests/test1.bal",
-            "startLine": {
-              "line": 3,
-              "offset": 0
-            },
-            "endLine": {
-              "line": 6,
-              "offset": 1
-            }
-          }
-        },
-        "functionName": {
-          "metadata": {
-            "label": "Test Function",
-            "description": "Test function"
-          },
-          "valueType": "IDENTIFIER",
-          "value": "testFunction1",
-          "optional": false,
-          "editable": true,
-          "advanced": false
-        },
-        "returnType": {
-          "metadata": {
-            "label": "Return Type",
-            "description": "Return type of the function"
-          },
-          "valueType": "TYPE",
-          "optional": true,
-          "editable": true,
-          "advanced": true
-        },
-        "parameters": [
-          {
-            "type": {
-              "valueType": "TYPE",
-              "value": "string",
-              "optional": false,
-              "editable": true,
-              "advanced": false
-            },
-            "variable": {
-              "valueType": "IDENTIFIER",
-              "value": "a",
-              "optional": false,
-              "editable": true,
-              "advanced": false
-            },
-            "optional": false,
-            "editable": true,
-            "advanced": false
-          },
-          {
-            "type": {
-              "valueType": "TYPE",
-              "value": "string",
-              "optional": false,
-              "editable": true,
-              "advanced": false
-            },
-            "variable": {
-              "valueType": "IDENTIFIER",
-              "value": "b",
-              "optional": false,
-              "editable": true,
-              "advanced": false
-            },
-            "defaultValue": {
-              "valueType": "EXPRESSION",
-              "value": "\"default\"",
-              "optional": false,
-              "editable": true,
-              "advanced": false
-            },
-            "optional": false,
-            "editable": true,
-            "advanced": false
-          }
-        ],
-        "annotations": [
-          {
-            "metadata": {
-              "label": "Config",
-              "description": "Test Function Configurations"
-            },
-            "org": "ballerina",
-            "module": "test",
-            "name": "Config",
-            "fields": [
-              {
-                "metadata": {
-                  "label": "Groups",
-                  "description": "Groups to run"
-                },
-                "valueType": "EXPRESSION_SET",
-                "originalName": "groups",
-                "value": [
-                  "\"g1\""
-                ],
-                "optional": true,
-                "editable": true,
-                "advanced": false
-              },
-              {
-                "metadata": {
-                  "label": "Enabled",
-                  "description": "Enable/Disable the test"
-                },
-                "valueType": "FLAG",
-                "originalName": "enabled",
-                "value": true,
-                "optional": true,
-                "editable": true,
-                "advanced": false
-              }
-            ]
-          }
-        ],
-        "editable": true
-      }
-}

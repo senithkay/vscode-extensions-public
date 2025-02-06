@@ -7,11 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { GetTestFunctionRequest, GetTestFunctionResponse, AddOrUpdateTestFunctionRequest, 
-    TestSourceEditResponse } from "../../interfaces/extended-lang-client";
+import { GetTestFunctionRequest, GetTestFunctionResponse, AddOrUpdateTestFunctionRequest } from "../../interfaces/extended-lang-client";
+import { SourceUpdateResponse } from "../service-designer/interfaces";
 
 export interface TestManagerServiceAPI {    
-    updateTestFunction: (params: AddOrUpdateTestFunctionRequest) => Promise<TestSourceEditResponse>;
-    addTestFunction: (params: AddOrUpdateTestFunctionRequest) => Promise<TestSourceEditResponse>;
+    updateTestFunction: (params: AddOrUpdateTestFunctionRequest) => Promise<SourceUpdateResponse>;
+    addTestFunction: (params: AddOrUpdateTestFunctionRequest) => Promise<SourceUpdateResponse>;
     getTestFunction: (params: GetTestFunctionRequest) => Promise<GetTestFunctionResponse>;
 }
