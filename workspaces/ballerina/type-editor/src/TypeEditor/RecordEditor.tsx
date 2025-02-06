@@ -9,9 +9,10 @@
 
 import React, { useRef, useState } from 'react';
 import { Member, Type } from '@wso2-enterprise/ballerina-core';
-import { Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, Icon, CheckBox } from '@wso2-enterprise/ui-toolkit';
 import { Button } from '@wso2-enterprise/ui-toolkit';
 import { TextField } from '@wso2-enterprise/ui-toolkit';
+import { FieldEditor } from './FieldEditor';
 
 interface RecordEditorProps {
     type: Type;
@@ -22,25 +23,7 @@ interface RecordEditorProps {
 
 export const RecordEditor: React.FC<RecordEditorProps> = (props) => {
     const { type, onChange, onImportJson, onImportXml } = props;
-    const nameInputRefs = useRef<HTMLInputElement[]>([]);
-
-    const handleMemberNameChange = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newMembers: Member[] = [...type.members];
-        newMembers[index].name = e.target.value;
-        onChange({ ...type, members: newMembers });
-    };
-
-    const handleMemberTypeChange = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newMembers: Member[] = [...type.members];
-        newMembers[index].type = e.target.value;
-        onChange({ ...type, members: newMembers });
-    };
-
-    const handleDeleteMember = (index: number) => () => {
-        const newMembers = [...type.members];
-        newMembers.splice(index, 1);
-        onChange({ ...type, members: newMembers });
-    };
+    const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
 
     const addMember = () => {
         const memberCount = Object.keys(type.members).length;
@@ -63,35 +46,44 @@ export const RecordEditor: React.FC<RecordEditorProps> = (props) => {
         onImportXml();
     }
 
+    const deleteSelected = () => {
+        const newMembers = [...type.members];
+        newMembers.splice(selectedMembers.length, 1);
+        onChange({ ...type, members: newMembers });
+    }
+
+    const toggleSelected = (index: number) => () => {
+        setSelectedMembers([...selectedMembers, index]);
+    }
+
+    const handleMemberChange = (index: number) => (member: Member) => {
+        const newMembers = [...type.members];
+        newMembers[index] = member;
+        onChange({ ...type, members: newMembers });
+    }
+
     return (
         <div className="record-editor">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <h3>Record</h3>
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <Button appearance="icon">
-                        <Codicon name="arrow-circle-down" onClick={handleImportJson} /> JSON
+                        <Codicon name="arrow-circle-down" onClick={handleImportJson} />&nbsp;JSON
                     </Button>
                     <Button appearance="icon">
-                        <Codicon name="arrow-circle-down" onClick={handleImportXml} /> XML
+                        <Codicon name="arrow-circle-down" onClick={handleImportXml} />&nbsp;XML
                     </Button>
                     <Button appearance="icon" onClick={addMember}><Codicon name="add" /></Button>
+                    <Button appearance="icon" onClick={deleteSelected}><Codicon name="trash" /></Button>
+                    {/* <Button appearance="icon"><Codicon name="kebab-vertical" /></Button> */}
                 </div>
             </div>
             {type.members.map((member, index) => (
-                <div style={{ display: 'flex', gap: '8px' }}>
-                    <TextField
-                        value={member.name}
-                        ref={(el) => nameInputRefs.current[index] = el}
-                        onBlur={handleMemberNameChange(index)}
-                    />
-                    <TextField
-                        value={typeof member.type === 'string' ? member.type : member.type.name}
-                        onChange={handleMemberTypeChange(index)}
-                    />
-                    <Button appearance="icon"><Codicon name="case-sensitive" /></Button>
-                    <Button appearance="icon" onClick={handleDeleteMember(index)}><Codicon name="trash" /></Button>
-                </div>
-            ))}
-        </div>
+                <>
+                    <FieldEditor member={member} onChange={handleMemberChange(index)} onSelectedChanged={toggleSelected(index)} />
+                </>
+            ))
+            }
+        </div >
     );
 };
