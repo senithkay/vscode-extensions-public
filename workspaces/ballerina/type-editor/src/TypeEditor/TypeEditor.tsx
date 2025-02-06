@@ -203,6 +203,7 @@ export function TypeEditor(props: TypeEditorProps) {
 
                     {editorState === ConfigState.EDITOR_FORM &&
                         <RecordEditor
+                            isAnonymous={false}
                             type={type}
                             onChange={setType}
                             onImportJson={() => setEditorState(ConfigState.IMPORT_FROM_JSON)}

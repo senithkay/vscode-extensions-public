@@ -20,7 +20,7 @@ import {
 import { EntityFactory, EntityLinkFactory, EntityPortFactory } from '../components/entity-relationship';
 import { OverlayLayerFactory } from '../components/OverlayLoader';
 import { validate as validateUUID } from 'uuid';
-
+import { VerticalScrollCanvasAction } from '../actions/VerticalScrollCanvasAction';
 export const CELL_DIAGRAM_MIN_WIDTH = 400;
 export const CELL_DIAGRAM_MAX_WIDTH = 800;
 export const CELL_DIAGRAM_MIN_HEIGHT = 250;
@@ -39,13 +39,15 @@ export function createRenderPackageObject(projectPackages: IterableIterator<stri
 
 export function createEntitiesEngine(): DiagramEngine {
     const diagramEngine: DiagramEngine = createEngine({
-        registerDefaultPanAndZoomCanvasAction: true,
-        registerDefaultZoomCanvasAction: false
+        registerDefaultPanAndZoomCanvasAction: false,
+        registerDefaultZoomCanvasAction: false,
+
     });
     diagramEngine.getLinkFactories().registerFactory(new EntityLinkFactory());
     diagramEngine.getPortFactories().registerFactory(new EntityPortFactory());
     diagramEngine.getNodeFactories().registerFactory(new EntityFactory());
     diagramEngine.getLayerFactories().registerFactory(new OverlayLayerFactory());
+    diagramEngine.getActionEventBus().registerAction(new VerticalScrollCanvasAction());
     return diagramEngine;
 }
 
@@ -214,7 +216,7 @@ export function focusToNode(node: NodeModel, currentZoomLevel: number, diagramEn
 
         diagramEngine.getModel().setOffset(offsetX, offsetY);
         diagramEngine.repaintCanvas();
-   }
+    }
 }
 
 export const getAttributeType = (attr: Member | TypeFunctionModel): string => {
