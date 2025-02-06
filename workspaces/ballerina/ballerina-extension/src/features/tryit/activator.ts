@@ -30,17 +30,19 @@ Parameters:
 \`\`\`
 {{/if}}
 
+{{#if requestBody}}
+\`\`\`
+Request Body Schema:
+{{generateSchemaDescription requestBody}}
+\`\`\`
+{{/if}}
 */
 ###
 {{uppercase @key}} http://localhost:{{../../port}}{{trim ../../basePath}}{{{@../key}}}{{queryParams parameters}}
 {{#if parameters}}{{headerParams parameters}}{{/if}}
-
 {{#if requestBody}}
-Content-Type: application/json
-
-{
-    // Add request body here
-}
+Content-Type: {{getContentType requestBody}}
+{{generateRequestBody requestBody}}
 {{/if}}
 
 {{/each}}
@@ -165,7 +167,7 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
         }
 
         // Register Handlebars helpers
-        registerHandlebarsHelpers();
+        registerHandlebarsHelpers(openapiSpec);
 
         // Generate content using template
         const compiledTemplate = Handlebars.compile(TRYIT_TEMPLATE);
@@ -248,7 +250,7 @@ async function getServicePort(projectDir: string, service: ServiceInfo, openapiS
     return selected?.port;
 }
 
-function registerHandlebarsHelpers(): void {
+function registerHandlebarsHelpers(openapiSpec: OAISpec): void {
     if (!Handlebars.helpers.uppercase) {
         Handlebars.registerHelper('uppercase', (str: string) => str.toUpperCase());
     }
@@ -297,6 +299,157 @@ function registerHandlebarsHelpers(): void {
     if (!Handlebars.helpers.eq) {
         Handlebars.registerHelper('eq', (value1, value2) => value1 === value2);
     }
+
+    // Helper to get the content type from request body
+    if (!Handlebars.helpers.getContentType) {
+        Handlebars.registerHelper('getContentType', (requestBody) => {
+            const contentTypes = Object.keys(requestBody.content);
+            return contentTypes[0] || 'application/json';
+        });
+    }
+
+    // Helper to generate schema description
+    if (!Handlebars.helpers.generateSchemaDescription) {
+        Handlebars.registerHelper('generateSchemaDescription', function (requestBody) {
+            const contentType = Object.keys(requestBody.content)[0];
+            const schema = requestBody.content[contentType].schema;
+            // Pass the full OpenAPI spec context to resolve references
+            return generateSchemaDoc(schema, 0, openapiSpec);
+        });
+    }
+
+    // Helper to generate request body
+    if (!Handlebars.helpers.generateRequestBody) {
+        Handlebars.registerHelper('generateRequestBody', function (requestBody) {
+            const contentType = Object.keys(requestBody.content)[0];
+            const schema = requestBody.content[contentType].schema;
+            return new Handlebars.SafeString(JSON.stringify(generateSampleValue(schema, openapiSpec), null, 2));
+        });
+    }
+}
+
+
+
+function generateSchemaDoc(schema: Schema, depth: number, context: OAISpec): string {
+    const indent = '  '.repeat(depth);
+
+    // Handle schema reference
+    if ('$ref' in schema) {
+        const resolvedSchema = resolveSchemaRef(schema.$ref, context);
+        if (!resolvedSchema) {
+            return "";
+        }
+        return generateSchemaDoc(resolvedSchema, depth, context);
+    }
+
+    if (schema.type === 'object' && schema.properties) {
+        let doc = `${schema.type}:\n`;
+        for (const [propName, prop] of Object.entries(schema.properties)) {
+            const propSchema = '$ref' in prop ? resolveSchemaRef(prop.$ref, context) || prop : prop;
+            doc += `${indent}- ${propName} (${propSchema.type})${propSchema.description ? `: ${propSchema.description}` : ''}\n`;
+            if (propSchema.type === 'object' && 'properties' in propSchema) {
+                doc += generateSchemaDoc(propSchema, depth + 1, context);
+            } else if (propSchema.type === 'array' && 'items' in propSchema) {
+                doc += `${indent}  items: `;
+                doc += generateSchemaDoc(propSchema.items as Schema, depth + 1, context);
+            }
+        }
+        return doc;
+    } else if (schema.type === 'array') {
+        let doc = `${schema.type} of `;
+        if (schema.items) {
+            const itemsSchema = '$ref' in schema.items ? resolveSchemaRef(schema.items.$ref, context) || schema.items : schema.items;
+            doc += generateSchemaDoc(itemsSchema as Schema, depth + 1, context);
+        }
+        return doc;
+    }
+
+    return `${schema.type}\n`;
+}
+
+function generateSampleValue(schema: Schema, context: OAISpec): any {
+    // Handle schema reference
+    if (schema.$ref) {
+        const resolvedSchema = resolveSchemaRef(schema.$ref, context);
+        if (!resolvedSchema) {
+            return { error: `Reference not found: ${schema.$ref}` };
+        }
+        return generateSampleValue(resolvedSchema, context);
+    }
+
+    if (!schema.type) {
+        return {};
+    }
+
+    switch (schema.type) {
+        case 'object':
+            if (!schema.properties) {
+                return {};
+            }
+            const obj: Record<string, any> = {};
+            for (const [propName, prop] of Object.entries(schema.properties)) {
+                // Handle property references
+                const propSchema = '$ref' in prop ? resolveSchemaRef(prop.$ref, context) || prop : prop;
+                obj[propName] = generateSampleValue(propSchema as Schema, context);
+            }
+            return obj;
+
+        case 'array':
+            if (!schema.items) {
+                return [];
+            }
+            // Handle array item references
+            const itemsSchema = '$ref' in schema.items ? resolveSchemaRef(schema.items.$ref, context) || schema.items : schema.items;
+            return [generateSampleValue(itemsSchema as Schema, context)];
+        case 'string':
+            if (schema.enum && schema.enum.length > 0) {
+                return schema.enum[0];
+            }
+            if (schema.format) {
+                switch (schema.format) {
+                    case 'date':
+                        return "2024-02-06";
+                    case 'date-time':
+                        return "2024-02-06T12:00:00Z";
+                    case 'email':
+                        return "user@example.com";
+                    case 'uuid':
+                        return "123e4567-e89b-12d3-a456-426614174000";
+                    default:
+                        return "<string>";
+                }
+            }
+            return schema.default || "string";
+        case 'integer':
+        case 'number':
+            return schema.default || 0;
+        case 'boolean':
+            return schema.default || false;
+        case 'null':
+            return null;
+        default:
+            return undefined;
+    }
+}
+
+function resolveSchemaRef(ref: string, context: OAISpec): Schema | undefined {
+    if (!ref.startsWith('#/')) {
+        // Currently only supporting local references
+        return undefined;
+    }
+
+    const parts = ref.substring(2).split('/');
+    let current: any = context;
+
+    for (const part of parts) {
+        if (current && typeof current === 'object' && part in current) {
+            current = current[part];
+        } else {
+            return undefined;
+        }
+    }
+
+    return current as Schema;
 }
 
 // Service information interface
@@ -334,8 +487,14 @@ interface Info {
 }
 
 interface Schema {
-    type: string;
-    properties?: Record<string, Property>;
+    $ref?: string;
+    type?: string;
+    properties?: Record<string, Schema>;
+    items?: Schema;
+    description?: string;
+    format?: string;
+    default?: any;
+    enum?: any[];
 }
 
 interface Server {
