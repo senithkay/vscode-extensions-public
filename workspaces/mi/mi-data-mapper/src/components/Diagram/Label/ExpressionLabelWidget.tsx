@@ -95,7 +95,6 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
 
     const classes = useStyles();
     const { link, value, valueNode, context, deleteLink } = props.model;
-    const { addView, views } = context;
 
     const source = link?.getSourcePort() as InputOutputPortModel;
     const target = link?.getTargetPort() as InputOutputPortModel;
