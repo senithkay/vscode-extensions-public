@@ -15,7 +15,7 @@ import { EntityHead, EntityName } from '../styles';
 import { CtrlClickGo2Source } from '../../../common/CtrlClickHandler/CtrlClickGo2Source';
 import { DiagramContext } from '../../../common';
 import styled from '@emotion/styled';
-import { Button, Icon, Item, Menu, MenuItem, Popover, ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { Button, Item, Menu, MenuItem, Popover } from '@wso2-enterprise/ui-toolkit';
 import { MoreVertIcon } from '../../../../resources';
 
 interface ServiceHeadProps {
@@ -28,10 +28,10 @@ const MenuButton = styled(Button)`
     border-radius: 5px;
 `;
 
-const EditIconContainer = styled.div`
-    z-index: 1000;
-    cursor: pointer;
-`;
+// const EditIconContainer = styled.div`
+//     z-index: 1000;
+//     cursor: pointer;
+// `;
 
 const HeaderButtonsContainer = styled.div`
     display: flex;
@@ -60,7 +60,7 @@ const HeaderWrapper = styled.div`
 
 export function EntityHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected } = props;
-    const { setFocusedNodeId, selectedNodeId, setSelectedNodeId, onEditNode, goToSource } = useContext(DiagramContext);
+    const { setFocusedNodeId, setSelectedNodeId, onEditNode, goToSource } = useContext(DiagramContext);
     const headPorts = useRef<PortModel[]>([]);
 
     const displayName: string = node.getID()?.slice(node.getID()?.lastIndexOf(':') + 1);

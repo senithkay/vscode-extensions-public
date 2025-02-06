@@ -46,6 +46,7 @@ interface FormProps {
     openSubPanel?: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
+    onTypeChange?: (type: Type) => void;
 }
 
 export function FormGeneratorNew(props: FormProps) {
@@ -62,10 +63,12 @@ export function FormGeneratorNew(props: FormProps) {
         isActiveSubPanel,
         updatedExpressionField,
         isGraphqlEditor,
-        resetUpdatedExpressionField
+        resetUpdatedExpressionField,
+        onTypeChange
     } = props;
 
     const { rpcClient } = useRpcContext();
+    console.log("======FormGeneratorNew======,", fields)
 
     const [showRecordEditor, setShowRecordEditor] = useState(false);
 
@@ -82,7 +85,6 @@ export function FormGeneratorNew(props: FormProps) {
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
 
     const [fieldsValues, setFields] = useState<FormField[]>(fields);
-    // const [isReturnTypeField, setIsReturnTypeField] = useState(false);
 
     useEffect(() => {
         handleFormOpen();
@@ -348,14 +350,30 @@ export function FormGeneratorNew(props: FormProps) {
         });
     }
 
+    const handleTypeChange = async (type: Type) => {
+        setOpenTypeEditor(false);
+        
+        // Update fields to reflect the new type
+        const updatedFields = fieldsValues.map(field => {
+            if (field.key.includes('returnType')) {
+                return {
+                    ...field,
+                    value: type.name
+                };
+            }
+            return field;
+        });
+        
+        setFields(updatedFields);
+
+        // Notify parent component about type change
+        onTypeChange?.(type);
+    };
+
     const handleOpenRecordEditor = (isOpen: boolean, f: FormValues) => {
         if (isGraphqlEditor) {
-            // Check if the field that triggered this is a return type field
-            // const triggeringField = fields.find(field => f[field.key] !== undefined);
-            // const isReturnType = triggeringField?.key.includes('returnType');
-            // setIsReturnTypeField(isReturnType);
             setOpenTypeEditor(isOpen);
-            return;
+            // return;
         }
         // Get f.value and assign that value to field value
         const updatedFields = fields.map((field) => {
@@ -366,7 +384,6 @@ export function FormGeneratorNew(props: FormProps) {
             return updatedField;
         });
         setFields(updatedFields);
-        setShowRecordEditor(isOpen);
     };
 
     const defaultType = (): Type => {
@@ -455,10 +472,6 @@ export function FormGeneratorNew(props: FormProps) {
         // };
     }
 
-    const onTypeChange = async (type: Type) => {
-        setOpenTypeEditor(false);
-    }
-
     const onCloseTypeEditor = () => {
         setOpenTypeEditor(false);
     }
@@ -487,17 +500,22 @@ export function FormGeneratorNew(props: FormProps) {
         handleGetVisibleTypes,
         handleGetHelperPaneData
     ]);
+
+    const handleSubmit = (values: FormValues) => {
+        onSubmit(values);
+    };
+
     // default form
     return (
         <>
             {fields && fields.length > 0 && (
                 <Form
-                    formFields={fields}
+                    formFields={fieldsValues}
                     projectPath={projectPath}
                     openRecordEditor={handleOpenRecordEditor}
                     onCancelForm={onBack}
                     submitText={submitText}
-                    onSubmit={onSubmit}
+                    onSubmit={handleSubmit}
                     openView={handleOpenView}
                     openSubPanel={openSubPanel}
                     expressionEditor={expressionEditor}
@@ -523,7 +541,7 @@ export function FormGeneratorNew(props: FormProps) {
                         newType={true}
                         isGraphql={true}
                         rpcClient={rpcClient}
-                        onTypeChange={onTypeChange}
+                        onTypeChange={handleTypeChange}
                     />
                 </PanelContainer>
             }
