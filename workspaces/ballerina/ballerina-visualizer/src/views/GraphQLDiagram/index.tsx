@@ -38,6 +38,13 @@ const Title: React.FC<any> = styled.div`
     padding-right: 5px;
 `;
 
+const SpinnerContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+`;
+
 
 interface GraphQLDiagramProps {
     filePath: string;
@@ -179,7 +186,9 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
                             onTypeEdit={onTypeEdit}
                         />
                     ) : (
-                        <ProgressRing color={Colors.PRIMARY} />
+                        <SpinnerContainer>
+                            <ProgressRing color={Colors.PRIMARY} />
+                        </SpinnerContainer>
                     )}
                 </ViewContent>
             </View>
