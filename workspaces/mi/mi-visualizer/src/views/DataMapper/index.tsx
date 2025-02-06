@@ -61,8 +61,7 @@ export function DataMapper(props: DataMapperProps) {
                         filePath={filePath}
                         fileContent={fileContent}
                         functionName={functionName}
-                        inputTrees={dmIOTypes.inputTrees}
-                        outputTree={dmIOTypes.outputTree}
+                        dmIOTypes={dmIOTypes}
                         updateFileContent={updateFileContent}
                         configName={props.configName}
                     />
