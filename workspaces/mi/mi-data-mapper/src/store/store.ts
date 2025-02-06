@@ -10,7 +10,7 @@ import { create } from "zustand";
 import { Node } from "ts-morph";
 
 import { InputOutputPortModel } from "../components/Diagram/Port";
-import { IOType, TypeKind } from "@wso2-enterprise/mi-core";
+import { DMType, IOType, TypeKind } from "@wso2-enterprise/mi-core";
 import { View } from "../components/DataMapper/Views/DataMapperView";
 
 interface SubMappingConfig {
