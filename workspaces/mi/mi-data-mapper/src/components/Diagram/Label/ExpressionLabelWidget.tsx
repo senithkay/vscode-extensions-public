@@ -19,7 +19,7 @@ import { DiagnosticWidget } from '../Diagnostic/DiagnosticWidget';
 import { InputOutputPortModel, MappingType } from '../Port';
 import { expandArrayFn, getMappingType, isInputAccessExpr } from '../utils/common-utils';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
-import { generateArrayMapFunction } from '../utils/link-utils';
+import { generateArrayMapFunction, generateCustomFunction } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
 import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../store/store';
 import { CodeActionWidget } from '../CodeAction/CodeAction';
@@ -206,6 +206,23 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
         }
     };
 
+    const onClickMapViaCustomFn = async () => {
+        let targetExpr: Node = link.value;
+        const expr = target.typeWithValue?.value;
+        if (Node.isPropertyAssignment(expr)) {
+            targetExpr = expr.getInitializer();
+        } else {
+            targetExpr = expr;
+        }
+
+        const sourceFile = targetExpr.getSourceFile();
+        const customFunction = generateCustomFunction(source, target, sourceFile);
+        sourceFile.addFunction(customFunction);
+        targetExpr.replaceWithText(`${customFunction.name}(${targetExpr.getText()})`);
+        
+        await context.applyModifications(sourceFile.getFullText());
+    };
+
     const codeActions = [];
     if (mappingType === MappingType.ArrayToArray) {
         codeActions.push({
@@ -215,6 +232,11 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     } else if (mappingType === MappingType.ArrayToSingleton) {
         // TODO: Add impl
     }
+
+    codeActions.push({
+        title: "Map using custom function",
+        onClick: onClickMapViaCustomFn
+    });
 
     if (codeActions.length > 0) {
         elements.push(<div className={classes.separator} />);

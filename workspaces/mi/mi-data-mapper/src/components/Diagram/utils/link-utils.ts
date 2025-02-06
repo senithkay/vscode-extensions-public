@@ -11,6 +11,7 @@ import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 
 import { InputOutputPortModel, MappingType } from "../Port";
 import { getDefaultValue, getLinebreak, isQuotedString } from "./common-utils";
+import { SourceFile } from "ts-morph";
 
 export function isSourcePortArray(port: PortModel): boolean {
     if (port instanceof InputOutputPortModel) {
@@ -65,6 +66,41 @@ export function removePendingMappingTempLinkIfExists(link: LinkModel) {
 		targetPort.setPendingMappingType(MappingType.Default);
 		link.remove();
 	}
+}
+
+export function generateCustomFunction(source: InputOutputPortModel, target: InputOutputPortModel, sourceFile: SourceFile) {
+    let targetFieldName = target.field.fieldName;
+    let targetTypeWithName = target.typeWithValue;
+
+    while (targetTypeWithName?.type.fieldName === undefined) {
+        if (targetTypeWithName) {
+            targetTypeWithName = targetTypeWithName.parentType;
+            targetFieldName = `${targetTypeWithName?.type.fieldName}Item`;
+        } else {
+            targetFieldName = "output";
+            break;
+        }
+    }
+
+    const localFunctionNames = sourceFile.getFunctions().map(fn => fn.getName());
+    const importedFunctionNames = sourceFile.getImportDeclarations()
+    .flatMap(importDecl => importDecl.getNamedImports().map(namedImport => namedImport.getName()));
+  
+    let customFunctionName = `${source.field.fieldName}_${targetFieldName}`;
+    let i = 1;
+    while (localFunctionNames.includes(customFunctionName) || importedFunctionNames.includes(customFunctionName)) {
+        customFunctionName = `${source.field.fieldName}_${targetFieldName}_${++i}`;
+    }
+    
+    return {
+        name: customFunctionName,
+        parameters: [{ name: source.field.fieldName, type: source.field.typeName || source.field.kind }],
+        returnType: target.field.typeName || target.field.kind,
+        statements: [
+            `return ${source.field.fieldName};`
+        ]
+    }
+    
 }
 
 function fillWithDefaults(type: DMType): string {
