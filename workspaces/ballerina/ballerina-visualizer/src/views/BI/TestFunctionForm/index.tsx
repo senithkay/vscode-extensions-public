@@ -17,6 +17,7 @@ import { FormField, Form, FormValues, Parameter } from "@wso2-enterprise/balleri
 import { debounce, forEach, set } from "lodash";
 import { convertToVisibleTypes } from "../../../utils/bi";
 import { URI, Utils } from "vscode-uri";
+import { EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
 
 const FormContainer = styled.div`
     display: flex;
@@ -130,6 +131,7 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
     const [types, setTypes] = useState<CompletionItem[]>([]);
     const [formFields, setFormFields] = useState<FormField[]>([]);
     const [testFunction, setTestFunction] = useState<TestFunction>();
+    const [formTitle, setFormTitle] = useState<string>('Create New Test Case');
 
     // <------------- Expression Editor Util functions list start --------------->
     const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {
@@ -187,8 +189,10 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
 
     useEffect(() => {
         if (serviceType === 'UPDATE_TEST') {
+            setFormTitle('Update Test Case');
             loadFunction();
         } else {
+            setFormTitle('Create New Test Case');
             loadEmptyForm();
         }
     }, [functionName]);
@@ -218,14 +222,21 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
         const updatedTestFunction = fillFunctionModel(data);
         console.log("Test Function: ", updatedTestFunction);
         if (serviceType === 'UPDATE_TEST') {
-            const res = await rpcClient.getTestManagerRpcClient().updateTestFunction(
-                { function: updatedTestFunction, filePath });
-            // load the flow model
+            await rpcClient.getTestManagerRpcClient().updateTestFunction({ function: updatedTestFunction, filePath });
         } else {
-            const res = await rpcClient.getTestManagerRpcClient().addTestFunction(
-                { function: updatedTestFunction, filePath });
-            // load the flow model
+            await rpcClient.getTestManagerRpcClient().addTestFunction({ function: updatedTestFunction, filePath });
         }
+        const res = await rpcClient.getTestManagerRpcClient().getTestFunction(
+            { functionName: updatedTestFunction.functionName.value, filePath });
+        const nodePosition = {
+            startLine: res.function.codedata.lineRange.startLine.line,
+            startColumn: res.function.codedata.lineRange.startLine.offset,
+            endLine: res.function.codedata.lineRange.endLine.line,
+            endColumn: res.function.codedata.lineRange.endLine.offset
+        };
+        console.log("Node Position: ", nodePosition);
+        await rpcClient.getVisualizerRpcClient().openView(
+            { type: EVENT_TYPE.OPEN_VIEW, location: { position: nodePosition, documentUri: filePath } })
         setIsLoading(false);
     };
 
@@ -513,7 +524,7 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
             <ViewContent padding>
                 <BIHeader />
                 <Container>
-                    <Typography variant="h2">Create New Test Case</Typography>
+                    <Typography variant="h2">{formTitle}</Typography>
                     <BodyText>
                         Define a test case that can be used within the integration.
                     </BodyText>

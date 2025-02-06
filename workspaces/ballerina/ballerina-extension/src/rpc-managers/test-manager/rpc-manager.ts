@@ -56,12 +56,8 @@ export class TestServiceManagerRpcManager implements TestManagerServiceAPI {
             try {
                 const targetFile = params.filePath;
                 params.filePath = targetFile;
-                const targetPosition: NodePosition = {
-                    startLine: params.function.codedata.lineRange.startLine.line,
-                    startColumn: params.function.codedata.lineRange.startLine.offset
-                };
                 const res: TestSourceEditResponse = await context.langClient.addTestFunction(params);
-                const position = await this.updateSource(res, undefined, targetPosition);
+                const position = await this.updateSource(res, undefined);
                 const result: SourceUpdateResponse = {
                     filePath: targetFile,
                     position: position
