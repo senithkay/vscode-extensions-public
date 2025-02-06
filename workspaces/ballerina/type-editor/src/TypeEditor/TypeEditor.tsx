@@ -91,6 +91,14 @@ enum TypeKind {
 
 const undoRedoManager = new UndoRedoManager();
 
+// Add validation function
+const isValidBallerinaIdentifier = (name: string): boolean => {
+    // Ballerina identifiers must start with a letter or underscore
+    // and can contain letters, digits, and underscores
+    const regex = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+    return name.length > 0 && regex.test(name);
+};
+
 export function TypeEditor(props: TypeEditorProps) {
     console.log("===TypeEditorProps===", props);
     const [selectedTypeKind, setSelectedTypeKind] = useState<TypeKind>(() => {
@@ -139,13 +147,19 @@ export function TypeEditor(props: TypeEditorProps) {
     const [isNewType, setIsNewType] = useState<boolean>(props.newType);
     const nameInputRef = useRef<HTMLInputElement | null>(null);
     const [editorState, setEditorState] = useState<ConfigState>(ConfigState.EDITOR_FORM);
+    const [nameError, setNameError] = useState<string>("");
 
     useEffect(() => {
-        if (isNewType && nameInputRef.current) {
-            nameInputRef.current.focus();
-            nameInputRef.current.select();
+        if (type && isNewType) {
+            // Add a small delay to ensure the input is mounted
+            setTimeout(() => {
+                if (nameInputRef.current) {
+                    nameInputRef.current.focus();
+                    nameInputRef.current.select();
+                }
+            }, 100);
         }
-    }, [isNewType]);
+    }, []);
 
     const handleTypeKindChange = (value: string) => {
         // if the value is Service Class, the type kind should be CLASS
@@ -164,6 +178,10 @@ export function TypeEditor(props: TypeEditorProps) {
     };
 
     const onTypeChange = async (type: Type) => {
+        if (!isValidBallerinaIdentifier(type.name)) {
+            setNameError("Invalid name.");
+            return;
+        }
         const name = type.name;
         // IF type nodeKind is CLASS then we call graphqlEndpoint
         // TODO: for TypeDiagram we need to give a generic class creation
@@ -247,7 +265,15 @@ export function TypeEditor(props: TypeEditorProps) {
                             <TextField
                                 label="Name"
                                 value={type.name}
-                                onChange={(e) => setType({ ...type, name: e.target.value })}
+                                onChange={(e) => {
+                                    setType({ ...type, name: e.target.value });
+                                    setNameError("");  // Clear error when user types
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        onTypeChange(type);
+                                    }
+                                }}
                                 onFocus={(e) => e.target.select()}
                                 ref={nameInputRef}
                             />
