@@ -26,11 +26,12 @@ interface RemoveConnectorPageProps {
     connectorName: string;
     artifactId: string;
     version: string;
+    connectorPath: string;
     onRemoveSuccess: () => Promise<void>;
 }
 
 export function RemoveConnectorPage(props: RemoveConnectorPageProps) {
-    const { connectorName, artifactId, version, onRemoveSuccess } = props;
+    const { connectorName, artifactId, version, connectorPath, onRemoveSuccess } = props;
     const sidePanelContext = React.useContext(SidePanelContext);
     const { rpcClient } = useVisualizerContext();
     const [isRemoving, setIsRemoving] = React.useState(false);
@@ -41,38 +42,51 @@ export function RemoveConnectorPage(props: RemoveConnectorPageProps) {
 
             setIsRemoving(true);
 
-            const projectDetails = await rpcClient.getMiVisualizerRpcClient().getProjectDetails();
-            const connectorDependencies = projectDetails.dependencies.connectorDependencies;
+            if (connectorPath) {
+                // Remove imported connectors
+                await rpcClient.getMiDiagramRpcClient().removeConnector({ connectorPath: connectorPath });
+                const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
 
-            let pomRemoveSuccess: boolean;
+                if ((response === "Success" || !response.includes(artifactId))) {
+                    await onRemoveSuccess();
+                    setIsRemoving(false);
+                    sidepanelGoBack(sidePanelContext, 1);
+                } else {
+                    setIsFailedRemoving(true);
+                    setIsRemoving(false);
+                }
+            } else {
+                const projectDetails = await rpcClient.getMiVisualizerRpcClient().getProjectDetails();
+                const connectorDependencies = projectDetails.dependencies.connectorDependencies;
 
-            const removeDependency = async () => {
-                for (const d of connectorDependencies) {
-                    if (d.artifact === artifactId && d.version === version) {
-                        pomRemoveSuccess = await rpcClient.getMiVisualizerRpcClient().updatePomValues({
-                            pomValues: [{ range: d.range, value: '' }]
-                        });
+                let pomRemoveSuccess: boolean;
+
+                const removeDependency = async () => {
+                    for (const d of connectorDependencies) {
+                        if (d.artifact === artifactId && d.version === version) {
+                            pomRemoveSuccess = await rpcClient.getMiVisualizerRpcClient().updatePomValues({
+                                pomValues: [{ range: d.range, value: '' }]
+                            });
+                        }
                     }
                 }
+
+                await removeDependency();
+
+                // HACK: time to serve saved pom file to ls
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
+
+                if (pomRemoveSuccess && (response === "Success" || !response.includes(artifactId))) {
+                    await onRemoveSuccess();
+                    setIsRemoving(false);
+                    sidepanelGoBack(sidePanelContext, 1);
+                } else {
+                    setIsFailedRemoving(true);
+                    setIsRemoving(false);
+                }
             }
-
-            await removeDependency();
-
-            // HACK: time to serve saved pom file to ls
-            await new Promise(resolve => setTimeout(resolve, 500));
-
-            const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
-
-            if (pomRemoveSuccess && (response === "Success" || !response.includes(artifactId))) {
-                await onRemoveSuccess();
-                setIsRemoving(false);
-                sidepanelGoBack(sidePanelContext, 1);
-            } else {
-                setIsFailedRemoving(true);
-                setIsRemoving(false);
-            }
-
-
         } else {
             sidepanelGoBack(sidePanelContext);
         }
