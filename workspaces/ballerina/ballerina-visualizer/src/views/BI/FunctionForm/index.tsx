@@ -167,8 +167,9 @@ export function FunctionForm(props: FunctionFormProps) {
 function convertConfig(functionNode: FunctionNode): FormField[] {
     const formFields: FormField[] = [];
     const properties = functionNode.properties as NodeProperties;
-    for (const [key, property] of Object.entries(properties)) {
-
+    const keys = Object.keys(properties).sort(); // Sort keys alphabetically
+    for (const key of keys) {
+        const property = properties[key as keyof NodeProperties];
         const formField: FormField = {
             key: key,
             label: property?.metadata.label,
@@ -226,6 +227,7 @@ function convertConfig(functionNode: FunctionNode): FormField[] {
                 formFields: paramFiels,
                 handleParameter: handleParamChange
             }
+            formField.value = paramValuesExisting;
         }
 
         formFields.push(formField);

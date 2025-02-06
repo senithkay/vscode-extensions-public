@@ -465,7 +465,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                         .filter((field) => field.type !== "VIEW")
                         .map((field) => {
                             if (
-                                ((field.key === "variable" || field.key === "type") && prioritizeVariableField) ||
+                                ((field.key === "variable" || field.key === "type") && (prioritizeVariableField && variableField)) ||
                                 field.advanced
                             ) {
                                 return;
