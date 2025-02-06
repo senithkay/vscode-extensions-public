@@ -125,6 +125,14 @@ export function OutputFieldPreviewWidget(props: OutputFieldPreviewWidgetProps) {
                             {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
                         </Button>}
                         {label}
+                        {dmType.isRecursive && (
+                            <span
+                                className={classes.outputNodeValue}
+                                style={{ paddingInline: "3px" }}
+                                title="Recursive type">
+                                ∞
+                            </span>
+                        )}
                     </span>
                 </div>
             </Tooltip>

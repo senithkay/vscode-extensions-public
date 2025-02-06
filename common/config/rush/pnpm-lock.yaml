@@ -2896,6 +2896,7 @@ importers:
       cors-anywhere: ^0.4.4
       eslint: ^8.47.0
       fast-xml-parser: ~4.3.2
+      find-process: ~1.4.10
       fs-extra: ~11.2.0
       glob: ^10.3.3
       json-schema: 0.4.0
@@ -2954,6 +2955,7 @@ importers:
       copyfiles: 2.4.1
       cors-anywhere: 0.4.4
       fast-xml-parser: 4.3.5
+      find-process: 1.4.10
       fs-extra: 11.2.0
       json-schema: 0.4.0
       json-schema-to-ts: 3.0.1
@@ -36706,6 +36708,15 @@ packages:
   /find-index/0.1.1:
     resolution: {integrity: sha512-uJ5vWrfBKMcE6y2Z8834dwEZj9mNGxYa3t3I53OwFeuZ8D9oc2E5zcsrkuhX6h4iYrjhiv0T3szQmxlAV9uxDg==}
     dev: true
+
+  /find-process/1.4.10:
+    resolution: {integrity: sha512-ncYFnWEIwL7PzmrK1yZtaccN8GhethD37RzBHG6iOZoFYB4vSmLLXfeWJjeN5nMvCJMjOtBvBBF8OgxEcikiZg==}
+    hasBin: true
+    dependencies:
+      chalk: 4.1.2
+      commander: 12.1.0
+      loglevel: 1.9.2
+    dev: false
 
   /find-root/1.1.0:
     resolution: {integrity: sha512-NKfW6bec6GfKc0SGx1e07QZY9PE99u0Bft/0rzSD5k3sO/vwkVUpDUKVm5Gpp5Ue3YfShPFTX2070tDs5kB9Ng==}

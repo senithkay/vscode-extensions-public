@@ -10,7 +10,7 @@
 import React, { useCallback, useEffect, useReducer, useState } from "react";
 
 import { css } from "@emotion/css";
-import { DMType, Range } from "@wso2-enterprise/mi-core";
+import { DMType, IOTypeResponse, Range } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { FunctionDeclaration, PropertyAssignment, ReturnStatement } from "ts-morph";
 
@@ -84,8 +84,7 @@ const classes = {
 
 export interface MIDataMapperProps {
     fnST: FunctionDeclaration;
-    inputTrees: DMType[];
-    outputTree: DMType;
+    dmIOTypes: IOTypeResponse;
     fileContent: string;
     filePath: string;
     configName: string;
@@ -150,7 +149,8 @@ function MappingInProgressMessage() {
 }
 
 export function MIDataMapper(props: MIDataMapperProps) {
-    const { fnST, inputTrees, outputTree, fileContent, filePath, configName, applyModifications, isLoading, setIsLoading, isMapping, setIsMapping } = props;
+    const { fnST, dmIOTypes, fileContent, filePath, configName, applyModifications, isLoading, setIsLoading, isMapping, setIsMapping } = props;
+    const { inputTrees, outputTree, recursiveTypes } = dmIOTypes;
 
     const initialViews = [{
         targetFieldFQN: "",
@@ -213,7 +213,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
         const { diagnostics } = await getDiagnostics();
 
         const context = new DataMapperContext(
-            fnST, fnST, inputTrees, outputTree, views, subMappingTypes,
+            fnST, fnST, inputTrees, outputTree, recursiveTypes, subMappingTypes, views,
             diagnostics, addView, goToSource, applyModifications
         );
         const nodeInitVisitor = new NodeInitVisitor(context);

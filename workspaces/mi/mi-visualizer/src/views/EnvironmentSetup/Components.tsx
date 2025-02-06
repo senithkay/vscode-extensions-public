@@ -78,7 +78,7 @@ interface DownloadComponentProps {
 interface ButtonWithDescriptionProps {
     description: string;
     buttonText: string;
-    buttonDisabled: boolean;
+    buttonDisabled?: boolean;
     onClick: () => void;
     appearance?: 'primary' | 'secondary' | 'icon';
 }
@@ -114,7 +114,7 @@ const RuntimeStatus: React.FC<RuntimeStatusProps> = ({
             case 'mismatch':
                 return {
                     isValid: true,
-                    title: `${config.name} is available`,
+                    title: `${config.name} is not properly setup`,
                     description: `Note: Available ${config.name} (${pathDetails.version}) does not match the recommended version: ${recommendedVersion}`,
                     showDownload: true,
                     showVersion: true,
@@ -182,7 +182,7 @@ const DownloadComponent: React.FC<DownloadComponentProps> = ({ title, descriptio
     );
 };
 
-const ButtonWithDescription: React.FC<ButtonWithDescriptionProps> = ({ description, buttonText, buttonDisabled, onClick, appearance = "primary" }) => (
+const ButtonWithDescription: React.FC<ButtonWithDescriptionProps> = ({ description, buttonText, buttonDisabled = false, onClick, appearance = "primary" }) => (
     <>
         <StepDescription>{description}</StepDescription>
         <Column>
