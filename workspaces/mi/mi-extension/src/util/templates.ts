@@ -176,24 +176,22 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
         </plugins>
       </build>
       <properties>
-        <server.type>local</server.type>
-        <server.host>localhost</server.host>
-        <server.port>9008</server.port>
-        <server.path>/</server.path>
-        <server.version>\${project.runtime.version}</server.version>
-        <server.download.link>\${testServerDownloadLink}</server.download.link>
-      </properties>
-    </profile>
-    <profile>
-      <id>test</id>
-      <build/>
-      <properties>
         <server.type>\${test.server.type}</server.type>
         <server.host>\${test.server.host}</server.host>
         <server.port>\${test.server.port}</server.port>
         <server.path>\${test.server.path}</server.path>
         <server.version>\${test.server.version}</server.version>
         <server.download.link>\${test.server.download.link}</server.download.link>
+      </properties>
+    </profile>
+    <profile>
+      <id>test</id>
+      <build/>
+      <properties>
+        <server.type>\${testServerType}</server.type>
+        <server.host>\${testServerHost}</server.host>
+        <server.port>\${testServerPort}</server.port>
+        <server.path>\${testServerPath}</server.path>
       </properties>
     </profile>
     <profile>
