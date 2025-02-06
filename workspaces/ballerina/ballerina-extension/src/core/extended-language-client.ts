@@ -152,7 +152,9 @@ import {
     InlineDataMapperModelResponse,
     VisualizableFieldsRequest,
     VisualizableFieldsResponse,
-    AddArrayElementRequest
+    AddArrayElementRequest,
+    FunctionNodeRequest,
+    FunctionNodeResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -252,7 +254,8 @@ enum EXTENDED_APIS {
     BI_SERVICE_GET_TRIGGERS = 'serviceDesign/getTriggerModels',
     BI_DESIGN_MODEL = 'designModelService/getDesignModel',
     BI_UPDATE_IMPORTS = 'expressionEditor/importModule',
-    BI_ADD_FUNCTION = 'expressionEditor/functionCallTemplate'
+    BI_ADD_FUNCTION = 'expressionEditor/functionCallTemplate',
+    BI_EDIT_FUNCTION_NODE = 'flowDesignService/functionDefinition'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -760,6 +763,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getListeners(params: ListenersRequest): Promise<ListenersResponse> {
         return this.sendRequest<ListenersResponse>(EXTENDED_APIS.BI_SERVICE_GET_LISTENERS, params);
+    }
+
+    async getFunctionNode(params: FunctionNodeRequest): Promise<FunctionNodeResponse> {
+        return this.sendRequest<FunctionNodeResponse>(EXTENDED_APIS.BI_EDIT_FUNCTION_NODE, params);
     }
 
     async getListenerModel(params: ListenerModelRequest): Promise<ListenerModelResponse> {

@@ -50,7 +50,7 @@ const ServiceContainer = styled.div`
 `;
 
 const FunctionsContainer = styled.div`
-    max-height: 600px;
+    max-height: 550px;
     overflow: scroll;
 `;
 
