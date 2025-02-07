@@ -204,6 +204,9 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
             } else if (node instanceof ExpandedMappingHeaderNode) {
                 const nodeHeight = getExpandedMappingHeaderNodeHeight(node);
                 prevBottomY = computedY + (nodeHeight * (100/zoomLevel)) + GAP_BETWEEN_MAPPING_HEADER_NODE_AND_INPUT_NODE;
+            } else if (node instanceof LetClauseNode || node instanceof JoinClauseNode) {
+                const nodeHeight = getIONodeHeight(node.numberOfFields);
+                prevBottomY = computedY + (nodeHeight * (100/zoomLevel)) + GAP_BETWEEN_INPUT_NODES;
             }
         }
         if (node instanceof FromClauseNode) {
