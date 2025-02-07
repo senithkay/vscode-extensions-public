@@ -46,7 +46,9 @@ import {
     UpdateImportsRequest,
     UpdateImportsResponse,
     AddFunctionRequest,
-    AddFunctionResponse
+    AddFunctionResponse,
+    FunctionNodeRequest,
+    FunctionNodeResponse
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -106,4 +108,5 @@ export interface BIDiagramAPI {
     getDesignModel: () => Promise<BIDesignModelResponse>;
     updateImports: (params: UpdateImportsRequest) => Promise<UpdateImportsResponse>;
     addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
+    getFunctionNode: (params: FunctionNodeRequest) => Promise<FunctionNodeResponse>;
 }
