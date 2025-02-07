@@ -411,7 +411,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
             getCustomNodeId(node.id, START_CONTAINER),
             node.viewState.x + node.viewState.lw - EMPTY_NODE_WIDTH / 2,
             node.viewState.y - EMPTY_NODE_WIDTH / 2,
-            !node.viewState.hideContainer
+            !node.viewState.isTopLevel
         );
         containerStartEmptyNode.setParentFlowNode(node);
 

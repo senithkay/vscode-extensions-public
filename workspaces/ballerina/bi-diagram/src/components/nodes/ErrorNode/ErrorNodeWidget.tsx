@@ -181,6 +181,7 @@ export function ErrorNodeWidget(props: ErrorNodeWidgetProps) {
     const isMenuOpen = Boolean(anchorEl);
     const hasBreakpoint = model.hasBreakpoint();
     const isActiveBreakpoint = model.isActiveBreakpoint();
+    const hideContainer = model.node.viewState?.isTopLevel ?? false;
 
     useEffect(() => {
         if (model.node.suggested) {
@@ -314,12 +315,14 @@ export function ErrorNodeWidget(props: ErrorNodeWidgetProps) {
                     </Menu>
                 </Popover>
             </NodeStyles.Row>
-            <NodeStyles.Container
-                width={nodeViewState.clw + nodeViewState.crw + NODE_GAP_X / 2}
-                height={nodeViewState.ch - nodeViewState.h + CONTAINER_PADDING}
-                top={nodeViewState.y}
-                left={nodeViewState.x + nodeViewState.lw - nodeViewState.clw - NODE_GAP_X / 4}
-            ></NodeStyles.Container>
+            {!hideContainer && (
+                <NodeStyles.Container
+                    width={nodeViewState.clw + nodeViewState.crw + NODE_GAP_X / 2}
+                    height={nodeViewState.ch - nodeViewState.h + CONTAINER_PADDING}
+                    top={nodeViewState.y}
+                    left={nodeViewState.x + nodeViewState.lw - nodeViewState.clw - NODE_GAP_X / 4}
+                ></NodeStyles.Container>
+            )}
         </NodeStyles.Node>
     );
 }

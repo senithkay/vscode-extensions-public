@@ -14,7 +14,7 @@ import { BaseVisitor } from "./BaseVisitor";
 
 export class InitVisitor implements BaseVisitor {
     private skipChildrenVisit = false;
-    private flow;
+    private flow: Flow;
 
     constructor(model: Flow) {
         // console.log(">>> init visitor started");
@@ -199,6 +199,12 @@ export class InitVisitor implements BaseVisitor {
                 };
                 onFailureBranch.children.unshift(startNode);
             }
+        }
+
+        // hide container if the error handler is in top level
+        const errorNode = this.flow.nodes?.find((n) => n.codedata.node === "ERROR_HANDLER");
+        if (errorNode) {
+            errorNode.viewState.isTopLevel = true;
         }
     }
 

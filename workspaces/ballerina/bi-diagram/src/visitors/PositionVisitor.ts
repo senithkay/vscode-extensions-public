@@ -178,6 +178,12 @@ export class PositionVisitor implements BaseVisitor {
 
     beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
+
+        // if top level node, hide gap
+        if (node.viewState.isTopLevel) {
+            this.lastNodeY -= NODE_GAP_Y;
+        }
+
         node.viewState.y = this.lastNodeY;
         this.lastNodeY += NODE_GAP_Y;
 

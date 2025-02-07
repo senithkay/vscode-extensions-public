@@ -123,6 +123,8 @@ export type ViewState = {
     ch: number;  // container height
     // flow start node
     startNodeId?: string;
+    // is top level node
+    isTopLevel?: boolean;
 };
 
 // Add node target position metadata
