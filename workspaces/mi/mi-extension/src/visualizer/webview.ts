@@ -164,9 +164,14 @@ export class VisualizerWebview {
         // Check if PNG file exists
         if (fs.existsSync(path.join(iconPath, name + '.png'))) {
             iconPathUri = vscode.Uri.file(path.join(iconPath, name + '.png').toString());
-        } else {
-            // If PNG does not exist, use GIF
+        } else if (fs.existsSync(path.join(iconPath, name + '.svg'))) {
+            // Check for SVG
+            iconPathUri = vscode.Uri.file(path.join(iconPath, name + '.svg').toString());
+        } else if (fs.existsSync(path.join(iconPath, name + '.gif'))) {
+            // Use GIF
             iconPathUri = vscode.Uri.file(path.join(iconPath, name + '.gif').toString());
+        } else {
+            return undefined;
         }
 
         if (panel) {
