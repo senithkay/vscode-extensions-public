@@ -21,6 +21,7 @@ import {
     BICopilotContextRequest,
     BIDeleteByComponentInfoRequest,
     BIDeleteByComponentInfoResponse,
+    BIDesignModelResponse,
     BIDiagramAPI,
     BIFlowModelRequest,
     BIFlowModelResponse,
@@ -40,13 +41,10 @@ import {
     BI_COMMANDS,
     BreakpointRequest,
     ComponentRequest,
-    ComponentsRequest,
-    ComponentsResponse,
     ConfigVariableResponse,
     CreateComponentResponse,
     CurrentBreakpointsResponse,
     DIRECTORY_MAP,
-    BIDesignModelResponse,
     EVENT_TYPE,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -55,9 +53,11 @@ import {
     FlowNode,
     FormDidCloseParams,
     FormDidOpenParams,
+    FunctionNode,
+    FunctionNodeRequest,
+    FunctionNodeResponse,
     ImportStatement,
     ImportStatements,
-    OverviewFlow,
     ProjectComponentsResponse,
     ProjectImports,
     ProjectRequest,
@@ -76,7 +76,7 @@ import {
     VisibleTypesResponse,
     WorkspaceFolder,
     WorkspacesResponse,
-    buildProjectStructure,
+    buildProjectStructure
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import { writeFileSync } from "fs";
@@ -97,11 +97,11 @@ import { notifyBreakpointChange } from "../../RPCLayer";
 import { ballerinaExtInstance } from "../../core";
 import { BreakpointManager } from "../../features/debugger/breakpoint-manager";
 import { StateMachine, openView, updateView } from "../../stateMachine";
+import { getCompleteSuggestions } from '../../utils/ai/completions';
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure } from "../../utils/bi";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
-import { DATA_MAPPING_FILE_NAME, getDataMapperNodePosition } from "./utils";
-import {getCompleteSuggestions} from '../../utils/ai/completions';
+import { DATA_MAPPING_FILE_NAME, getFunctionNodePosition } from "./utils";
 
 export class BiDiagramRpcManager implements BIDiagramAPI {
 
@@ -146,18 +146,18 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async getSourceCode(params: BISourceCodeRequest): Promise<BISourceCodeResponse> {
         console.log(">>> requesting bi source code from ls", params);
-        const { flowNode, isDataMapperFormUpdate } = params;
+        const { flowNode, isFunctionNodeUpdate } = params;
         return new Promise((resolve) => {
             StateMachine.langClient()
                 .getSourceCode(params)
                 .then(async (model) => {
                     console.log(">>> bi source code from ls", model);
                     if (params?.isConnector) {
-                        await this.updateSource(model, flowNode, true, isDataMapperFormUpdate);
+                        await this.updateSource(model, flowNode, true, isFunctionNodeUpdate);
                         resolve(model);
                         commands.executeCommand("BI.project-explorer.refresh");
                     } else {
-                        this.updateSource(model, flowNode, false, isDataMapperFormUpdate);
+                        this.updateSource(model, flowNode, false, isFunctionNodeUpdate);
                         resolve(model);
                     }
                 })
@@ -172,9 +172,9 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async updateSource(
         params: BISourceCodeResponse,
-        flowNode?: FlowNode,
+        flowNode?: FlowNode | FunctionNode,
         isConnector?: boolean,
-        isDataMapperFormUpdate?: boolean
+        isFunctionNodeUpdate?: boolean
     ): Promise<void> {
         const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
 
@@ -236,8 +236,8 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                         await StateMachine.langClient().didOpen({
                             textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
                         });
-                    } else if (isDataMapperFormUpdate && fileUriString.endsWith(DATA_MAPPING_FILE_NAME)) {
-                        const functionPosition = getDataMapperNodePosition(flowNode.properties, syntaxTree);
+                    } else if (isFunctionNodeUpdate) {
+                        const functionPosition = getFunctionNodePosition(flowNode.properties, syntaxTree);
                         openView(EVENT_TYPE.OPEN_VIEW, {
                             documentUri: request.filePath,
                             position: functionPosition,
@@ -248,7 +248,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         } catch (error) {
             console.log(">>> error updating source", error);
         }
-        if (!isConnector && !isDataMapperFormUpdate) {
+        if (!isConnector && !isFunctionNodeUpdate) {
             updateView();
         }
     }
@@ -378,7 +378,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             console.log(">>> request get copilot context from ls", { request: copilotContextRequest });
             const copilotContext = await StateMachine.langClient().getCopilotContext(copilotContextRequest);
             console.log(">>> copilot context from ls", { response: copilotContext });
-            
+
             //TODO: Refactor this logic
             let suggestedContent;
             try {
@@ -424,8 +424,8 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                         suggestedContent = await this.getCompletionsWithHostedAI(token, copilotContext);
                     } else {
                         const resp = await getCompleteSuggestions({
-                            prefix:copilotContext.prefix,
-                            suffix:copilotContext.suffix,
+                            prefix: copilotContext.prefix,
+                            suffix: copilotContext.suffix,
                         });
                         console.log(">>> ai suggestion", { response: resp });
                         suggestedContent = resp.completions.at(0);
@@ -1087,6 +1087,19 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         console.log(">>> ai suggestion", { response: data });
         const suggestedContent = (data as any).completions.at(0);
         return suggestedContent;
+    }
+
+    async getFunctionNode(params: FunctionNodeRequest): Promise<FunctionNodeResponse> {
+        return new Promise((resolve) => {
+            StateMachine.langClient().getFunctionNode(params)
+                .then((response) => {
+                    resolve(response);
+                })
+                .catch((error) => {
+                    console.log(">>> Error getting function node", error);
+                    resolve(undefined);
+                });
+        });
     }
 }
 

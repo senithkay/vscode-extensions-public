@@ -152,14 +152,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
         }
 
         let balFilePath = path.join(workspaceFolderPath, req.filePath);
-        if (req.isTestCode) {
-            const testsFolderPath = path.join(workspaceFolderPath, "tests");
-            if (!fs.existsSync(testsFolderPath)) {
-                fs.mkdirSync(testsFolderPath, { recursive: true });
-            }
-            balFilePath = path.join(testsFolderPath, `test.bal`).toLowerCase();
-        }
-        
+
         const directory = path.dirname(balFilePath);
         if (!fs.existsSync(directory)) {
             fs.mkdirSync(directory, { recursive: true });

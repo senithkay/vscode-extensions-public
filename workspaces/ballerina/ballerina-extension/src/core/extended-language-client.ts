@@ -158,7 +158,8 @@ import {
     GetTestFunctionRequest,
     GetTestFunctionResponse,
     AddOrUpdateTestFunctionRequest,
-    TestSourceEditResponse
+    TestSourceEditResponse,
+    FunctionNodeResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -251,7 +252,7 @@ enum EXTENDED_APIS {
     BI_SERVICE_ADD_SERVICE = 'serviceDesign/addService',
     BI_SERVICE_UPDATE_SERVICE = 'serviceDesign/updateService',
     BI_SERVICE_GET_SERVICE_SOURCE = 'serviceDesign/getServiceFromSource',
-    BI_SERVICE_GET_RESOURCE = 'serviceDesign/getHttpResourceModel',
+    BI_SERVICE_GET_RESOURCE = 'serviceDesign/getFunctionModel',
     BI_SERVICE_ADD_RESOURCE = 'serviceDesign/addResource',
     BI_SERVICE_ADD_FUNCTION = 'serviceDesign/addFunction',
     BI_SERVICE_UPDATE_RESOURCE = 'serviceDesign/updateFunction',
@@ -264,6 +265,7 @@ enum EXTENDED_APIS {
     BI_GET_TEST_FUNCTION = 'testManagerService/getTestFunction',
     BI_ADD_TEST_FUNCTION = 'testManagerService/addTestFunction',
     BI_UPDATE_TEST_FUNCTION = 'testManagerService/updateTestFunction',
+    BI_EDIT_FUNCTION_NODE = 'flowDesignService/functionDefinition'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -793,6 +795,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getListeners(params: ListenersRequest): Promise<ListenersResponse> {
         return this.sendRequest<ListenersResponse>(EXTENDED_APIS.BI_SERVICE_GET_LISTENERS, params);
+    }
+
+    async getFunctionNode(params: FunctionNodeRequest): Promise<FunctionNodeResponse> {
+        return this.sendRequest<FunctionNodeResponse>(EXTENDED_APIS.BI_EDIT_FUNCTION_NODE, params);
     }
 
     async getListenerModel(params: ListenerModelRequest): Promise<ListenerModelResponse> {
