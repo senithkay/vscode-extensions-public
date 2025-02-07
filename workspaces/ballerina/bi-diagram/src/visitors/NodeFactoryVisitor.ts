@@ -101,6 +101,14 @@ export class NodeFactoryVisitor implements BaseVisitor {
         }
     }
 
+    private getBranchStartNode(branch: Branch): NodeModel | undefined {
+        let firstChildId = branch.children.at(0).id;
+        if (branch.children.at(0).codedata.node === "ERROR_HANDLER") {
+            firstChildId = getCustomNodeId(branch.children.at(0).id, START_CONTAINER);
+        }
+        return this.nodes.find((n) => n.getID() === firstChildId);
+    }
+
     private getBranchEndNode(branch: Branch): NodeModel | undefined {
         // get last child node model
         const lastNode = branch.children.at(-1);
@@ -114,7 +122,6 @@ export class NodeFactoryVisitor implements BaseVisitor {
         } else if (
             branch.children.at(-1).codedata.node === "WHILE" ||
             branch.children.at(-1).codedata.node === "FOREACH" ||
-            branch.children.at(-1).codedata.node === "ERROR_HANDLER" ||
             branch.children.at(-1).codedata.node === "FORK"
         ) {
             // if last child is WHILE or FOREACH, find endwhile node
@@ -183,7 +190,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
                 // this empty branch will be handled in OUT links
                 return;
             }
-            const firstChildNodeModel = this.nodes.find((n) => n.getID() === branch.children.at(0).id);
+            const firstChildNodeModel = this.getBranchStartNode(branch);
             if (!firstChildNodeModel) {
                 // check non empty children. empty branches will handel later in below logic
                 return;
@@ -311,7 +318,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
         // Create branch's IN link
         if (branch.children && branch.children.length > 0) {
-            const firstChildNodeModel = this.nodes.find((n) => n.getID() === branch.children.at(0).id);
+            const firstChildNodeModel = this.getBranchStartNode(branch);
             if (firstChildNodeModel) {
                 const link = createNodesLink(containerNodeModel, firstChildNodeModel);
                 if (link) {
@@ -403,7 +410,8 @@ export class NodeFactoryVisitor implements BaseVisitor {
         const containerStartEmptyNode = this.createEmptyNode(
             getCustomNodeId(node.id, START_CONTAINER),
             node.viewState.x + node.viewState.lw - EMPTY_NODE_WIDTH / 2,
-            node.viewState.y - EMPTY_NODE_WIDTH / 2
+            node.viewState.y - EMPTY_NODE_WIDTH / 2,
+            !node.viewState.hideContainer
         );
         containerStartEmptyNode.setParentFlowNode(node);
 
