@@ -76,7 +76,7 @@ export enum MACHINE_VIEW {
     UpdateExtension = "Update Extension",
     ManageDependencies = "Manage Dependencies",
     ManageConfigurables = "Manage Configurables",
-    Settings = "Project Settings",
+    ProjectInformationForm = "Project Information Form",
 }
 
 export enum AI_MACHINE_VIEW {

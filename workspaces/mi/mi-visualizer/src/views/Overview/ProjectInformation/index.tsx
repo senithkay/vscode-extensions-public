@@ -192,7 +192,7 @@ export function ProjectInformation(props: ProjectInformationProps) {
         rpcClient.getMiVisualizerRpcClient().openView({
             type: POPUP_EVENT_TYPE.OPEN_VIEW,
             location: {
-                view: MACHINE_VIEW.Settings,
+                view: MACHINE_VIEW.ProjectInformationForm,
                 customProps: componentType
             },
             

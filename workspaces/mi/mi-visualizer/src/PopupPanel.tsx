@@ -117,7 +117,7 @@ const PopupPanel = (props: { formState: PopupMachineStateValue, handleClose?: ()
                 case MACHINE_VIEW.ManageConfigurables:
                     setViewComponent(<ManageConfigurables onClose={props.handleClose} configurables={machineSate.customProps.configs} />);
                     break;
-                case MACHINE_VIEW.Settings:
+                case MACHINE_VIEW.ProjectInformationForm:
                     setViewComponent(<ProjectInformationForm selectedComponent={machineSate.customProps} onClose={props.handleClose} />);
                     break;
                 case MACHINE_VIEW.SequenceForm:
