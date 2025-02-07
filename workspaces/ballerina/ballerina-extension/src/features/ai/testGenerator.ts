@@ -20,11 +20,11 @@ import * as path from 'path';
 import * as child_process from 'child_process';
 import * as os from 'os';
 import { writeBallerinaFileDidOpen } from '../../utils/modification';
+import { refreshAccessToken } from '../../rpc-managers/ai-panel/utils';
 
 const balVersionRegex = new RegExp("^[0-9]{4}.[0-9]+.[0-9]+");
 
 let hasStopped: boolean = false;
-let abortController = new AbortController();
 const config = workspace.getConfiguration('ballerina');
 const BAL_HOME = config.get('home') as string;
 const PLUGIN_DEV_MODE = config.get('pluginDevMode') as boolean;
@@ -417,11 +417,21 @@ async function findBallerinaProjectRoot(dirPath: string): Promise<string | null>
 }
 
 const fetchWithTimeout = async (url, options, timeout = 100000): Promise<Response | ErrorCode> => {
-    abortController = new AbortController();
+    const abortController = new AbortController();
     const id = setTimeout(() => abortController.abort(), timeout);
     try {
-        const response = await fetch(url, { ...options, signal: abortController.signal });
-        clearTimeout(id);
+        let response = await fetch(url, { ...options, signal: abortController.signal });
+
+        if (response.status === 401) {
+            const newToken = await refreshAccessToken();
+            if (newToken) {
+                options.headers = {
+                    ...options.headers,
+                    Authorization: `Bearer ${newToken}`,
+                };
+                response = await fetch(url, { ...options, signal: abortController.signal });
+            }
+        }
         return response;
     } catch (error: any) {
         if (error.name === 'AbortError' && !hasStopped) {
@@ -431,6 +441,8 @@ const fetchWithTimeout = async (url, options, timeout = 100000): Promise<Respons
         } else {
             return UNKNOWN_ERROR;
         }
+    } finally {
+        clearTimeout(id);
     }
 };
 
