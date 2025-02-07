@@ -232,7 +232,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
 
     return (
         <div style={{ width: "auto", maxWidth: 1200, padding: "30px 60px 60px 60px" }}>
-            <Typography sx={{margin: "0 0 20px 20px"}} variant="h1">Project Settings</Typography>
+            <Typography sx={{ margin: "0 0 20px 20px" }} variant="h1">Project Settings</Typography>
             <SplitView defaultWidths={[25, 75]} dynamicContainerSx={{ overflow: "visible" }}>
                 {/* Left side tree view */}
                 <div style={{ padding: "10px 0 50px 0" }}>
@@ -336,194 +336,195 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                                 {...register("primaryDetails-projectVersion")}
                             />
 
-                        <Dropdown
-                            id='runtimeVersion'
-                            label="Runtime Version"
-                            required
-                            description="The runtime version of the project"
-                            descriptionSx={{ margin: "6px 0 8px" }}
-                            containerSx={fieldStyle}
-                            errorMsg={errors["primaryDetails-runtimeVersion"]?.message?.toString()}
-                            items={runtimeVersions}
-                            {...register("primaryDetails-runtimeVersion")}
-                        />
-                        {dirtyFields["primaryDetails-runtimeVersion"] && (
-                            <Banner
-                                icon={<Codicon name="warning" sx={{ fontSize: 12 }} />}
-                                type="warning"
-                                message={`The extension will restart after saving changes. You will need to set the server runtime again post-restart.${watch("primaryDetails-runtimeVersion") === "4.4.0" ? "\nPlugin versions will also be updated automatically to support the new runtime version." : ""}`}
+                            <Dropdown
+                                id='runtimeVersion'
+                                label="Runtime Version"
+                                required
+                                description="The runtime version of the project"
+                                descriptionSx={{ margin: "6px 0 8px" }}
+                                containerSx={fieldStyle}
+                                errorMsg={errors["primaryDetails-runtimeVersion"]?.message?.toString()}
+                                items={runtimeVersions}
+                                {...register("primaryDetails-runtimeVersion")}
                             />
-                        )}
+                            {dirtyFields["primaryDetails-runtimeVersion"] && (
+                                <Banner
+                                    icon={<Codicon name="warning" sx={{ fontSize: 12 }} />}
+                                    type="warning"
+                                    message={`The extension will restart after saving changes. You will have to set the server runtime again post-restart.\nPlugin versions will also be updated automatically to support the new runtime version.`}
+                                />
+                            )}
+                        </div>
+                        <Typography variant="h1" sx={sectionTitleStyle} > Build Details </Typography>
+                        <div ref={divRefs["Build Details"]} id="Build Details" style={fieldGroupStyle}>
+                            <TextField
+                                label="Base Image"
+                                required
+                                errorMsg={errors["buildDetails-dockerDetails-dockerFileBaseImage"]?.message?.toString()}
+                                description="The base image of the project"
+                                descriptionSx={{ margin: "8px 0" }}
+                                sx={fieldStyle}
+                                {...register("buildDetails-dockerDetails-dockerFileBaseImage")}
+                            />
+                            <TextField
+                                label="Docker Name"
+                                required
+                                errorMsg={errors["buildDetails-dockerDetails-dockerName"]?.message?.toString()}
+                                description="The name of the docker"
+                                descriptionSx={{ margin: "10px 0" }}
+                                sx={fieldStyle}
+                                {...register("buildDetails-dockerDetails-dockerName")}
+                            />
+                            <FormCheckBox
+                                label="Enable Cipher Tool"
+                                description="Enables the cipher tool"
+                                descriptionSx={{ margin: "10px 0" }}
+                                control={control}
+                                sx={fieldStyle}
+                                {...register("buildDetails-dockerDetails-enableCipherTool")}
+                            />
+                            <TextField
+                                label="Keystore Name"
+                                description="The name of the keystore"
+                                descriptionSx={{ margin: "8px 0" }}
+                                sx={fieldStyle}
+                                {...register("buildDetails-dockerDetails-keyStoreName")}
+                            />
+                            <TextField
+                                label="Keystore Alias"
+                                description="The alias of the keystore"
+                                descriptionSx={{ margin: "8px 0" }}
+                                sx={fieldStyle}
+                                {...register("buildDetails-dockerDetails-keyStoreAlias")}
+                            />
+                            <TextField
+                                label="Keystore Type"
+                                description="The type of the keystore"
+                                descriptionSx={{ margin: "8px 0" }}
+                                sx={fieldStyle}
+                                {...register("buildDetails-dockerDetails-keyStoreType")}
+                            />
+                            <TextField
+                                label="Keystore Password"
+                                type="password"
+                                description="The password of the keystore"
+                                descriptionSx={{ margin: "8px 0" }}
+                                sx={fieldStyle}
+                                {...register("buildDetails-dockerDetails-keyStorePassword")}
+                            />
+                            <TextField
+                                label="Maven Artifact Id"
+                                description="The artifact id of the maven"
+                                descriptionSx={{ margin: "8px 0" }}
+                                sx={fieldStyle}
+                                {...register("buildDetails-advanceDetails-projectArtifactId")}
+                            />
+                            <TextField
+                                label="Maven Group Id"
+                                description="The group id of the maven"
+                                descriptionSx={{ margin: "8px 0" }}
+                                sx={fieldStyle}
+                                {...register("buildDetails-advanceDetails-projectGroupId")}
+                            />
+                            <TextField
+                                label="CAR Plugin Version"
+                                description="The version of the car plugin"
+                                descriptionSx={{ margin: "8px 0" }}
+                                sx={fieldStyle}
+                                {...register("buildDetails-advanceDetails-pluginDetails-projectBuildPluginVersion")}
+                            />
+                            <TextField
+                                label="Unit Test Plugin Version"
+                                description="The version of the unit test plugin"
+                                descriptionSx={{ margin: "8px 0" }}
+                                sx={fieldStyle}
+                                {...register("buildDetails-advanceDetails-pluginDetails-unitTestPluginVersion")}
+                            />
+                            <TextField
+                                label="MI Config Mapper Plugin Version"
+                                description="The version of the mi config mapper plugin"
+                                descriptionSx={{ margin: "8px 0" }}
+                                sx={fieldStyle}
+                                {...register("buildDetails-advanceDetails-pluginDetails-miContainerPluginVersion")}
+                            />
+                        </div>
+                        <Typography variant="h1" sx={sectionTitleStyle} > Unit Test </Typography>
+                        <div ref={divRefs["Unit Test"]} id="Unit Test" style={fieldGroupStyle}>
+                            <TextField
+                                label="Server Host"
+                                description="The host of the server"
+                                descriptionSx={{ margin: "8px 0" }}
+                                sx={fieldStyle}
+                                {...register("unitTest-serverHost")}
+                            />
+                            <TextField
+                                label="Server Port"
+                                description="The port of the server"
+                                descriptionSx={{ margin: "8px 0" }}
+                                sx={fieldStyle}
+                                {...register("unitTest-serverPort")}
+                            />
+                            <TextField
+                                label="Server Path"
+                                description="The path of the server"
+                                descriptionSx={{ margin: "8px 0" }}
+                                sx={fieldStyle}
+                                {...register("unitTest-serverPath")}
+                            />
+                            <TextField
+                                label="Server Type"
+                                description="The type of the server"
+                                descriptionSx={{ margin: "8px 0" }}
+                                sx={fieldStyle}
+                                {...register("unitTest-serverType")}
+                            />
+                            <TextField
+                                label="Server Version"
+                                description="The version of the server"
+                                descriptionSx={{ margin: "8px 0" }}
+                                sx={fieldStyle}
+                                {...register("unitTest-serverVersion")}
+                            />
+                            <TextField
+                                label="Server Download Link"
+                                description="The download link of the server"
+                                descriptionSx={{ margin: "8px 0" }}
+                                sx={fieldStyle}
+                                {...register("unitTest-serverDownloadLink")}
+                            />
+                        </div>
+                        <Typography variant="h1" sx={sectionTitleStyle} > Advanced </Typography>
+                        <div ref={divRefs["Advanced"]} id="Advanced" style={{ ...fieldGroupStyle, paddingBottom: 0 }}>
+                            <FormCheckBox
+                                label="Legacy Expression Support"
+                                description="Enables the legacy expression support"
+                                descriptionSx={{ margin: "10px 0" }}
+                                control={control}
+                                sx={fieldStyle}
+                                {...register("advanced-legacyExpressionSupport")}
+                            />
+                        </div>
                     </div>
-                    <Typography variant="h1" sx={sectionTitleStyle} > Build Details </Typography>
-                    <div ref={divRefs["Build Details"]} id="Build Details" style={fieldGroupStyle}>
-                        <TextField
-                            label="Base Image"
-                            required
-                            errorMsg={errors["buildDetails-dockerDetails-dockerFileBaseImage"]?.message?.toString()}
-                            description="The base image of the project"
-                            descriptionSx={{ margin: "8px 0" }}
-                            sx={fieldStyle}
-                            {...register("buildDetails-dockerDetails-dockerFileBaseImage")}
-                        />
-                        <TextField
-                            label="Docker Name"
-                            required
-                            errorMsg={errors["buildDetails-dockerDetails-dockerName"]?.message?.toString()}
-                            description="The name of the docker"
-                            descriptionSx={{ margin: "10px 0" }}
-                            sx={fieldStyle}
-                            {...register("buildDetails-dockerDetails-dockerName")}
-                        />
-                        <FormCheckBox
-                            label="Enable Cipher Tool"
-                            description="Enables the cipher tool"
-                            descriptionSx={{ margin: "10px 0" }}
-                            control={control}
-                            sx={fieldStyle}
-                            {...register("buildDetails-dockerDetails-enableCipherTool")}
-                        />
-                        <TextField
-                            label="Keystore Name"
-                            description="The name of the keystore"
-                            descriptionSx={{ margin: "8px 0" }}
-                            sx={fieldStyle}
-                            {...register("buildDetails-dockerDetails-keyStoreName")}
-                        />
-                        <TextField
-                            label="Keystore Alias"
-                            description="The alias of the keystore"
-                            descriptionSx={{ margin: "8px 0" }}
-                            sx={fieldStyle}
-                            {...register("buildDetails-dockerDetails-keyStoreAlias")}
-                        />
-                        <TextField
-                            label="Keystore Type"
-                            description="The type of the keystore"
-                            descriptionSx={{ margin: "8px 0" }}
-                            sx={fieldStyle}
-                            {...register("buildDetails-dockerDetails-keyStoreType")}
-                        />
-                        <TextField
-                            label="Keystore Password"
-                            type="password"
-                            description="The password of the keystore"
-                            descriptionSx={{ margin: "8px 0" }}
-                            sx={fieldStyle}
-                            {...register("buildDetails-dockerDetails-keyStorePassword")}
-                        />
-                        <TextField
-                            label="Maven Artifact Id"
-                            description="The artifact id of the maven"
-                            descriptionSx={{ margin: "8px 0" }}
-                            sx={fieldStyle}
-                            {...register("buildDetails-advanceDetails-projectArtifactId")}
-                        />
-                        <TextField
-                            label="Maven Group Id"
-                            description="The group id of the maven"
-                            descriptionSx={{ margin: "8px 0" }}
-                            sx={fieldStyle}
-                            {...register("buildDetails-advanceDetails-projectGroupId")}
-                        />
-                        <TextField
-                            label="CAR Plugin Version"
-                            description="The version of the car plugin"
-                            descriptionSx={{ margin: "8px 0" }}
-                            sx={fieldStyle}
-                            {...register("buildDetails-advanceDetails-pluginDetails-projectBuildPluginVersion")}
-                        />
-                        <TextField
-                            label="Unit Test Plugin Version"
-                            description="The version of the unit test plugin"
-                            descriptionSx={{ margin: "8px 0" }}
-                            sx={fieldStyle}
-                            {...register("buildDetails-advanceDetails-pluginDetails-unitTestPluginVersion")}
-                        />
-                        <TextField
-                            label="MI Config Mapper Plugin Version"
-                            description="The version of the mi config mapper plugin"
-                            descriptionSx={{ margin: "8px 0" }}
-                            sx={fieldStyle}
-                            {...register("buildDetails-advanceDetails-pluginDetails-miContainerPluginVersion")}
-                        />
-                    </div>
-                    <Typography variant="h1" sx={sectionTitleStyle} > Unit Test </Typography>
-                    <div ref={divRefs["Unit Test"]} id="Unit Test" style={fieldGroupStyle}>
-                        <TextField
-                            label="Server Host"
-                            description="The host of the server"
-                            descriptionSx={{ margin: "8px 0" }}
-                            sx={fieldStyle}
-                            {...register("unitTest-serverHost")}
-                        />
-                        <TextField
-                            label="Server Port"
-                            description="The port of the server"
-                            descriptionSx={{ margin: "8px 0" }}
-                            sx={fieldStyle}
-                            {...register("unitTest-serverPort")}
-                        />
-                        <TextField
-                            label="Server Path"
-                            description="The path of the server"
-                            descriptionSx={{ margin: "8px 0" }}
-                            sx={fieldStyle}
-                            {...register("unitTest-serverPath")}
-                        />
-                        <TextField
-                            label="Server Type"
-                            description="The type of the server"
-                            descriptionSx={{ margin: "8px 0" }}
-                            sx={fieldStyle}
-                            {...register("unitTest-serverType")}
-                        />
-                        <TextField
-                            label="Server Version"
-                            description="The version of the server"
-                            descriptionSx={{ margin: "8px 0" }}
-                            sx={fieldStyle}
-                            {...register("unitTest-serverVersion")}
-                        />
-                        <TextField
-                            label="Server Download Link"
-                            description="The download link of the server"
-                            descriptionSx={{ margin: "8px 0" }}
-                            sx={fieldStyle}
-                            {...register("unitTest-serverDownloadLink")}
-                        />
-                    </div>
-                    <Typography variant="h1" sx={sectionTitleStyle} > Advanced </Typography>
-                    <div ref={divRefs["Advanced"]} id="Advanced" style={{ ...fieldGroupStyle, paddingBottom: 0 }}>
-                        <FormCheckBox
-                            label="Legacy Expression Support"
-                            description="Enables the legacy expression support"
-                            descriptionSx={{ margin: "10px 0" }}
-                            control={control}
-                            sx={fieldStyle}
-                            {...register("advanced-legacyExpressionSupport")}
-                        />
+                    <div style={{ position: "sticky", bottom: 0, zIndex: 20005, height: 40, backgroundColor: "var(--vscode-editor-background)" }}>
+                        {/* <TitleBoxShadow/> */}
+                        <FormActions>
+                            <Button
+                                appearance="secondary"
+                                onClick={handleCancel}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                appearance="primary"
+                                onClick={handleSubmit(handleFormSubmit)}
+                                disabled={!Object.keys(dirtyFields).length || isSubmitting || !isValid}
+                            >
+                                Save Changes
+                            </Button>
+                        </FormActions>
                     </div>
                 </div>
-                <div style={{ position: "sticky", bottom: 0, zIndex: 20005, height: 40, backgroundColor: "var(--vscode-editor-background)" }}>
-                    {/* <TitleBoxShadow/> */}
-                    <FormActions>
-                        <Button
-                            appearance="secondary"
-                            onClick={handleCancel}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            appearance="primary"
-                            onClick={handleSubmit(handleFormSubmit)}
-                            disabled={!Object.keys(dirtyFields).length || isSubmitting || !isValid}
-                        >
-                            Save Changes
-                        </Button>
-                    </FormActions>
-                </div>
-            </div>
-        </SplitView>
+            </SplitView>
+        </div>
     );
 }
