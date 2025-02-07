@@ -655,6 +655,7 @@ export function AIChat() {
             if (!tempStorage[filePath]) {
                 try {
                     originalContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath });
+                    console.log(originalContent);
                     tempStorage[filePath] = originalContent;
                     if (originalContent === "") {
                         emptyFiles.add(filePath);
