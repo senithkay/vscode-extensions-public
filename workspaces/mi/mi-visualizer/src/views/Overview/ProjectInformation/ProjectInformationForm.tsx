@@ -196,7 +196,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
             }
 
             if (dirtyFields["primaryDetails-runtimeVersion"]) {
-                await rpcClient?.getMiVisualizerRpcClient().updateCarPluginVersion();
+                await rpcClient.getMiVisualizerRpcClient().updateRuntimeVersionsInPom(watch("primaryDetails-runtimeVersion"));
                 await rpcClient.getMiVisualizerRpcClient().reloadWindow();
             } else {
                 props.onClose();
@@ -349,7 +349,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                             <Banner
                                 icon={<Codicon name="warning" sx={{ fontSize: 12 }} />}
                                 type="warning"
-                                message={`The extension will restart after saving changes. You will need to set the server runtime again post-restart.${watch("primaryDetails-runtimeVersion") === "4.4.0" ? "\nPlugin versions will also be updated automatically to support the new runtime version." : ""}`}
+                                message={`The extension will restart after saving changes. You will have to set the server runtime again post-restart.\nPlugin versions will also be updated automatically to support the new runtime version.`}
                             />
                         )}
                     </div>

@@ -125,6 +125,14 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
                             {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
                         </Button>}
                         {label}
+                        {dmType.isRecursive && (
+                            <span
+                                className={classes.outputNodeValue}
+                                style={{ paddingInline: "3px" }}
+                                title="Recursive type">
+                                ∞
+                            </span>
+                        )}
                     </span>
                     <span className={classes.outPort}>
                         {portOut && !portOut.isPreview &&

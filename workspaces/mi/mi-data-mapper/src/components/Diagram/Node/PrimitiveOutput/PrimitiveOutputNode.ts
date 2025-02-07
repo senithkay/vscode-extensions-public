@@ -64,7 +64,7 @@ export class PrimitiveOutputNode extends DataMapperNodeModel {
         if (this.dmType) {
             const { focusedST, functionST, views } = this.context;
             const isCollapsedField = useDMCollapsedFieldsStore.getState().isCollapsedField;
-            const valueEnrichedType = getEnrichedDMType(this.dmType, this.value);
+            const valueEnrichedType = getEnrichedDMType(this.dmType, this.value, this.context.recursiveTypes);
             const searchValue = useDMSearchStore.getState().outputSearch;
             const isMapFnAtPropAsmt = isMapFnAtPropAssignment(focusedST);
             const isMapFnAtRootRtn = views.length > 1 && isMapFnAtRootReturn(functionST, focusedST);

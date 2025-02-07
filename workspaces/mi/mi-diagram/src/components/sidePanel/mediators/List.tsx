@@ -175,14 +175,15 @@ export function Mediators(props: MediatorProps) {
         connectorName ? setExpandedModules([connectorName]) : initializeExpandedModules(allMediators);;
     };
 
-    const deleteConnector = async (connectorName: string,artifactId: string, version: string, iconUrl: string) => {
-        const downloadPage = <RemoveConnectorPage
+    const deleteConnector = async (connectorName: string,artifactId: string, version: string, iconUrl: string, connectorPath: string) => {
+        const removePage = <RemoveConnectorPage
             connectorName={connectorName}
             artifactId={artifactId}
             version={version}
+            connectorPath={connectorPath}
             onRemoveSuccess={reloadPalette} />;
 
-        sidepanelAddPage(sidePanelContext, downloadPage, FirstCharToUpperCase(connectorName), iconUrl);
+        sidepanelAddPage(sidePanelContext, removePage, FirstCharToUpperCase(connectorName), iconUrl);
     }
 
     const addModule = () => {
@@ -217,7 +218,9 @@ export function Mediators(props: MediatorProps) {
                             key={key}
                             title={FirstCharToUpperCase(key)}
                             isCollapsed={!expandedModules.includes(key)}
-                            connectorDetails={values["isConnector"] ? { artifactId: values["artifactId"], version: values["version"] } : undefined}
+                            connectorDetails={values["isConnector"] ? 
+                                { artifactId: values["artifactId"], version: values["version"], connectorPath: values["connectorPath"] } 
+                                : undefined}
                             onDelete={deleteConnector}>
                             {values["items"].map((mediator: Mediator) => (
                                 <GridButton
