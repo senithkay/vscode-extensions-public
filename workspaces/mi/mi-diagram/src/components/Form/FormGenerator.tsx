@@ -30,7 +30,6 @@ import {
     Keylookup,
     FormExpressionField,
     ExpressionField,
-    FormTokenEditor,
     CodeTextArea
 } from '.';
 import ExpressionEditor from '../sidePanel/expressionEditor/ExpressionEditor';
@@ -42,9 +41,22 @@ import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import ParameterManager from './GigaParamManager/ParameterManager';
 import { StringWithParamManagerComponent } from './StringWithParamManager';
 import { isLegacyExpression, isValueExpression } from './utils';
+import { Colors } from '../../resources/constants';
+import ReactMarkdown from 'react-markdown';
 
 const Field = styled.div`
     margin-bottom: 12px;
+`;
+
+const WarningBanner = styled.div`
+    background-color: ${Colors.WARNING};
+    color: #fff;
+    padding: 0 10px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-radius: 4px;
 `;
 
 export const cardStyle = {
@@ -743,6 +755,11 @@ export function FormGenerator(props: FormGeneratorProps) {
                         {formData.doc && <a href={formData.doc}><Icon name="question" isCodicon iconSx={{ fontSize: '18px' }} sx={{ marginLeft: '5px', cursor: 'help' }} /></a>}
                     </div>
                 )}
+                {formData.banner &&
+                    <WarningBanner>
+                        <ReactMarkdown>{formData.banner}</ReactMarkdown>
+                    </WarningBanner>
+                }
                 {renderForm(formData.elements)}
             </>
         )
