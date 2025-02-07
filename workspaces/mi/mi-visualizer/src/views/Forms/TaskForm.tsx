@@ -101,7 +101,6 @@ export function TaskForm(props: TaskFormProps) {
                 type: "TextField",
                 label: "Name",
                 defaultValue: "",
-                placeholder: "property_name",
                 isRequired: true
             },
             {
@@ -109,7 +108,6 @@ export function TaskForm(props: TaskFormProps) {
                 type: "TextField",
                 label: "Value",
                 defaultValue: "",
-                placeholder: "property_value",
                 isRequired: true
             }]
     }
