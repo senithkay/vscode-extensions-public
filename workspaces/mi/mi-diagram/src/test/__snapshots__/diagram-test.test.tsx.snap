@@ -22991,7 +22991,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="then-6-4"
-            style="top: 305px; left: 63px;"
+            style="top: 305px; left: 75px;"
           >
             <div
               class="port css-1fb31et"
@@ -23007,7 +23007,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="else-8-4"
-            style="top: 305px; left: 263px;"
+            style="top: 305px; left: 275px;"
           >
             <div
               class="port css-1fb31et"
@@ -23706,7 +23706,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="then-6-4"
-            style="top: 305px; left: 63px;"
+            style="top: 305px; left: 75px;"
           >
             <div
               class="port css-1fb31et"
@@ -23722,7 +23722,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="else-7-4"
-            style="top: 305px; left: 263px;"
+            style="top: 305px; left: 275px;"
           >
             <div
               class="port css-1fb31et"
@@ -67371,7 +67371,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="case-6-4"
-            style="top: 305px; left: 63px;"
+            style="top: 305px; left: 75px;"
           >
             <div
               class="port css-1fb31et"
@@ -67387,7 +67387,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="default-7-4"
-            style="top: 305px; left: 263px;"
+            style="top: 305px; left: 275px;"
           >
             <div
               class="port css-1fb31et"
@@ -68122,7 +68122,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="case-6-4"
-            style="top: 305px; left: 63px;"
+            style="top: 305px; left: 75px;"
           >
             <div
               class="port css-1fb31et"
@@ -68138,7 +68138,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="default-7-4"
-            style="top: 305px; left: 263px;"
+            style="top: 305px; left: 275px;"
           >
             <div
               class="port css-1fb31et"
@@ -68871,7 +68871,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="onAccept-22-4"
-            style="top: 305px; left: 63px;"
+            style="top: 305px; left: 75px;"
           >
             <div
               class="port css-1fb31et"
@@ -68887,7 +68887,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="onReject-23-4"
-            style="top: 305px; left: 263px;"
+            style="top: 305px; left: 275px;"
           >
             <div
               class="port css-1fb31et"
@@ -69586,7 +69586,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="onAccept-22-4"
-            style="top: 305px; left: 63px;"
+            style="top: 305px; left: 75px;"
           >
             <div
               class="port css-1fb31et"
@@ -69602,7 +69602,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="onReject-23-4"
-            style="top: 305px; left: 263px;"
+            style="top: 305px; left: 275px;"
           >
             <div
               class="port css-1fb31et"
