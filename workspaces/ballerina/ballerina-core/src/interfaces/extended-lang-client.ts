@@ -904,6 +904,8 @@ export interface ListenerModelFromCodeResponse {
     listener: ListenerModel;
 }
 export interface HttpResourceModelRequest {
+    type: "http",
+    functionName: "resource"
 }
 export interface HttpResourceModelResponse {
     function: FunctionModel;
