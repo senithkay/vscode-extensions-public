@@ -308,7 +308,7 @@ export const ERROR_MESSAGES = {
     ERROR_LOADING_MEDIATORS: "Error loading mediator data. Please try again.",
     ERROR_LOADING_TRYOUT: "Error loading tryout data. Please try again.",
     ERROR_TRYING_OUT_MEDIATOR: "Error trying out mediator. Please try again.",
-    ERROR_LOADING_PROJECT_OVERVIEW: "Error loading project settings. Please try again.",
+    ERROR_LOADING_PROJECT_OVERVIEW: "Error loading project overview. Please try again.",
     ERROR_LOADING_PROJECT_STRUCTURE: "Error loading project structure. Please try again.",
     ERROR_LOADING_MODULES: "Error loading module data. Please try again."
 }
