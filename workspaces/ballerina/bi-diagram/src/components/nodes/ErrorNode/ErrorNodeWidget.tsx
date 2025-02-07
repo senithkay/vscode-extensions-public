@@ -41,10 +41,10 @@ export namespace NodeStyles {
 
     export const Header = styled.div<{}>`
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         justify-content: center;
-        align-items: flex-start;
-        width: 100%;
+        align-items: center;
+        gap: 8px;
         position: absolute;
         padding: 8px;
         left: ${WHILE_NODE_WIDTH}px;
@@ -52,9 +52,6 @@ export namespace NodeStyles {
 
     export const StyledButton = styled(Button)`
         border-radius: 5px;
-        position: absolute;
-        top: -10px;
-        left: 52px;
     `;
 
     export const ErrorIcon = styled.div`
@@ -84,19 +81,7 @@ export namespace NodeStyles {
 
     export const Title = styled(StyledText)`
         max-width: ${NODE_WIDTH - 50}px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
         font-family: "GilmerMedium";
-    `;
-
-    export const Description = styled(StyledText)`
-        font-size: 12px;
-        max-width: ${NODE_WIDTH - 50}px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-family: monospace;
     `;
 
     export const Row = styled.div`
@@ -277,16 +262,13 @@ export function ErrorNodeWidget(props: ErrorNodeWidgetProps) {
                     </NodeStyles.Box>
                 </NodeStyles.Column>
                 <NodeStyles.Header>
-                    <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
-                    {model.node.properties?.condition && (
-                        <NodeStyles.Description>{model.node.properties.condition?.value}</NodeStyles.Description>
+                    <NodeStyles.Title>Error Handler</NodeStyles.Title>
+                    {!readOnly && (
+                        <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
+                            <MoreVertIcon />
+                        </NodeStyles.StyledButton>
                     )}
                 </NodeStyles.Header>
-                {!readOnly && (
-                    <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
-                        <MoreVertIcon />
-                    </NodeStyles.StyledButton>
-                )}
                 {hasError && (
                     <NodeStyles.ErrorIcon>
                         <DiagnosticsPopUp node={model.node} />
