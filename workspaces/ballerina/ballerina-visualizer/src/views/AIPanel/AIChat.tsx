@@ -745,7 +745,6 @@ export function AIChat() {
         });
 
         const diagnostics = await rpcClient.getAiPanelRpcClient().getTestDiagnostics(response);
-        console.log(diagnostics);
         if (diagnostics.diagnostics.length > 0) {
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
@@ -773,7 +772,7 @@ export function AIChat() {
         setIsLoading(false);
         setIsCodeLoading(false);
         assistant_response += `\n\n<code filename="tests/test.bal" type="test">\n\`\`\`ballerina\n${generatedTestCode}\n\`\`\`\n</code>`;
-        if (configToml !== "") {
+        if (configToml !== undefined && configToml !== "") {
             assistant_response += `\n\n<code filename="tests/Config.toml" type="test">\n\`\`\`ballerina\n${configToml}\n\`\`\`\n</code>`;
         }
         setMessages((prevMessages) => {
