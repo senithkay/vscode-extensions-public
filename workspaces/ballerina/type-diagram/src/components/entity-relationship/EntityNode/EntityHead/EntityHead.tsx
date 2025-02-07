@@ -17,6 +17,7 @@ import { DiagramContext } from '../../../common';
 import styled from '@emotion/styled';
 import { Button, Item, Menu, MenuItem, Popover } from '@wso2-enterprise/ui-toolkit';
 import { MoreVertIcon } from '../../../../resources';
+import { GraphQLIcon } from '../../../../resources/assets/icons/GraphqlIcon';
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
@@ -142,6 +143,11 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                 />
                 <HeaderWrapper>
                     <EntityNameContainer>
+                        {node.isGraphqlRoot && (
+                            <div style={{ marginRight: "5px", marginTop: "2px" }}>
+                                <GraphQLIcon />
+                            </div>
+                        )}
                         <EntityName
                             isClickable={isClickable}
                             onClick={handleOnClickOnEntityName}
