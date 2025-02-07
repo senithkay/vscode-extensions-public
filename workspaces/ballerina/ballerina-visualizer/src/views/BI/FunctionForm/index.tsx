@@ -143,9 +143,9 @@ export function FunctionForm(props: FunctionFormProps) {
             <ViewContent padding>
                 <BIHeader />
                 <Container>
-                    <Typography variant="h2">Create New Function</Typography>
+                    <Typography variant="h2">{functionName ? `Edit Function` : `Create New Function`}</Typography>
                     <BodyText>
-                        Define a function that can be used within the integration.
+                        {functionName ? `Edit the` : `Define a`} function that can be used within the integration.
                     </BodyText>
                     <FormContainer>
                         {filePath &&

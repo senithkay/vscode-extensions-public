@@ -718,7 +718,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     title={isResource ? ResourceDiagramTitle : FunctionDiagramTitle}
                     icon={isResource ? "bi-http-service" : "bi-function"}
                     iconSx={{ fontSize: "16px" }}
-                    onEdit={handleEdit}
+                    onEdit={isResource ? undefined : handleEdit}
                 ></ViewHeader>
                 {(showProgressIndicator || fetchingAiSuggestions) && model && <ProgressIndicator color={Colors.PRIMARY} />}
                 <ViewContent padding>
