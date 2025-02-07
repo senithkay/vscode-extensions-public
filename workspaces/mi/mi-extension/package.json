@@ -305,7 +305,7 @@
       },
       {
         "command": "MI.project-explorer.open-project-overview",
-        "title": "Open Project Settings",
+        "title": "Open Project Overview",
         "icon": "$(list-unordered)",
         "when": "false"
       },
