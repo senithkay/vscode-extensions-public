@@ -523,7 +523,10 @@ export function canConnectWithLinkConnector(
 }
 
 export function hasCallExpression(node: Node): boolean {
-    return Node.isPropertyAssignment(node) && Node.isCallExpression(node.getInitializer());
+    if (Node.isPropertyAssignment(node)) {
+        node = node.getInitializer();
+    }
+    return Node.isCallExpression(node);
 }
 
 export function hasElementAccessExpression(node: Node): boolean {

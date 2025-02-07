@@ -13,8 +13,8 @@ import { Button, Codicon, Icon, Tooltip } from '@wso2-enterprise/ui-toolkit';
 
 import { DataMapperPortWidget, IntermediatePortModel } from '../../Port';
 import { LinkConnectorNode } from './LinkConnectorNode';
-import { ElementAccessExpression, PropertyAssignment } from 'ts-morph';
-import { genArrayElementAccessRepr } from '../../utils/common-utils';
+import { Node, PropertyAssignment } from 'ts-morph';
+import { genArrayElementAccessRepr, getEditorLineAndColumn } from '../../utils/common-utils';
 
 export const renderPortWidget = (engine: DiagramEngine, port: IntermediatePortModel, label: string) => (
     <DataMapperPortWidget
@@ -24,7 +24,7 @@ export const renderPortWidget = (engine: DiagramEngine, port: IntermediatePortMo
     />
 );
 
-export const renderExpressionTooltip = () => (
+export const renderExpressionIcon = () => (
     <Tooltip
         content={"Expression"}
         position="bottom-end"
@@ -37,7 +37,22 @@ export const renderExpressionTooltip = () => (
     </Tooltip>
 );
 
-export const renderFunctionCallTooltip = () => (
+export const renderFunctionCallButton = (onClick: () => void, nodeValue: string) => (
+    <Button
+        appearance="icon"
+        onClick={onClick}
+        data-testid={`link-connector-fn-${nodeValue}`}
+        tooltip='Custom Function Call Expression'
+    >
+        <Icon
+            name={"function-icon"}
+            sx={{ cursor: "default" }}
+            iconSx={{ fontSize: "15px", color: "var(--vscode-input-placeholderForeground)" }}
+        />
+    </Button>
+);
+
+export const renderFunctionCallIcon = () => (
     <Tooltip
         content={"Function Call Expression"}
         position="bottom-end"
@@ -49,6 +64,28 @@ export const renderFunctionCallTooltip = () => (
         />
     </Tooltip>
 );
+
+export const renderIconButton = (node: LinkConnectorNode) => {
+    let expr = node.valueNode;
+    if (!expr.wasForgotten()) {
+        if (Node.isPropertyAssignment(expr)) {
+            expr = expr.getInitializer();
+        }
+        if (Node.isCallExpression(expr)) {
+            const functionDecl = expr.getSourceFile().getFunction(expr.getExpression().getSymbol()?.getName());
+            if (functionDecl) {
+                const onClickFunctionCall = () => {
+                    const range = getEditorLineAndColumn(functionDecl);
+                    node.context.goToSource(range);
+                }
+                return renderFunctionCallButton(onClickFunctionCall, node?.value);
+            } else {
+                return renderFunctionCallIcon();
+            }
+        }
+    }
+    return renderExpressionIcon();
+}
 
 
 export const renderEditButton = (onClick: () => void, nodeValue: string) => (

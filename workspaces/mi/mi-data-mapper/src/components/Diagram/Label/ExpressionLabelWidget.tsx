@@ -17,7 +17,7 @@ import { Node } from "ts-morph";
 
 import { DiagnosticWidget } from '../Diagnostic/DiagnosticWidget';
 import { InputOutputPortModel, MappingType } from '../Port';
-import { expandArrayFn, getMappingType, isInputAccessExpr } from '../utils/common-utils';
+import { expandArrayFn, getEditorLineAndColumn, getMappingType, isInputAccessExpr } from '../utils/common-utils';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { generateArrayMapFunction, generateCustomFunction } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
@@ -217,10 +217,12 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
 
         const sourceFile = targetExpr.getSourceFile();
         const customFunction = generateCustomFunction(source, target, sourceFile);
-        sourceFile.addFunction(customFunction);
+        const customFunctionDeclaration = sourceFile.addFunction(customFunction);
         targetExpr.replaceWithText(`${customFunction.name}(${targetExpr.getText()})`);
+        const range = getEditorLineAndColumn(customFunctionDeclaration);
         
         await context.applyModifications(sourceFile.getFullText());
+        context.goToSource(range);
     };
 
     const codeActions = [];
