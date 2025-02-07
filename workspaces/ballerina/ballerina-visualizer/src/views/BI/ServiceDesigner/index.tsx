@@ -50,7 +50,7 @@ const ServiceContainer = styled.div`
 `;
 
 const FunctionsContainer = styled.div`
-    max-height: 600px;
+    max-height: 550px;
     overflow: scroll;
 `;
 
@@ -127,9 +127,9 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     };
 
     const handleNewResourceFunction = () => {
-        rpcClient.getServiceDesignerRpcClient().getHttpResourceModel({}).then(res => {
-            console.log("New Function Model: ", res.resource);
-            setFunctionModel(res.resource);
+        rpcClient.getServiceDesignerRpcClient().getHttpResourceModel({ type: "http", functionName: "resource" }).then(res => {
+            console.log("New Function Model: ", res.function);
+            setFunctionModel(res.function);
             setIsNew(true);
             setShowForm(true);
         })

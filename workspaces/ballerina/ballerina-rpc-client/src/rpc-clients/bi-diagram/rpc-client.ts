@@ -20,6 +20,7 @@ import {
     BIConnectorsResponse,
     BIDeleteByComponentInfoRequest,
     BIDeleteByComponentInfoResponse,
+    BIDesignModelResponse,
     BIDiagramAPI,
     BIFlowModelResponse,
     BIGetEnclosedFunctionRequest,
@@ -38,13 +39,14 @@ import {
     ConfigVariableResponse,
     CreateComponentResponse,
     CurrentBreakpointsResponse,
-    BIDesignModelResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     ExpressionDiagnosticsRequest,
     ExpressionDiagnosticsResponse,
     FormDidCloseParams,
     FormDidOpenParams,
+    FunctionNodeRequest,
+    FunctionNodeResponse,
     ProjectComponentsResponse,
     ProjectImports,
     ProjectRequest,
@@ -81,6 +83,7 @@ import {
     getExpressionCompletions,
     getExpressionDiagnostics,
     getFlowModel,
+    getFunctionNode,
     getFunctions,
     getModuleNodes,
     getNodeTemplate,
@@ -264,5 +267,9 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {
         return this._messenger.sendRequest(addFunction, HOST_EXTENSION, params);
+    }
+
+    getFunctionNode(params: FunctionNodeRequest): Promise<FunctionNodeResponse> {
+        return this._messenger.sendRequest(getFunctionNode, HOST_EXTENSION, params);
     }
 }

@@ -7,19 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
-import { DIRECTORY_MAP, EVENT_TYPE, ProjectStructureArtifactResponse } from "@wso2-enterprise/ballerina-core";
-import { Button, TextField, Typography, View, ViewContent, ErrorBanner, FormGroup, Parameters, Dropdown, CompletionItem } from "@wso2-enterprise/ui-toolkit";
+import { useEffect, useState } from "react";
+import { FunctionNode, NodeProperties } from "@wso2-enterprise/ballerina-core";
+import { Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { css } from "@emotion/css";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { BIHeader } from "../BIHeader";
 import { BodyText } from "../../styles";
-import { getFunctionParametersList } from "../../../utils/utils";
-import { FormField, Form, FormValues, Parameter } from "@wso2-enterprise/ballerina-side-panel";
-import { debounce } from "lodash";
-import { convertToVisibleTypes } from "../../../utils/bi";
+import { FormField, FormValues, Parameter } from "@wso2-enterprise/ballerina-side-panel";
 import { URI, Utils } from "vscode-uri";
+import FormGeneratorNew from "../Forms/FormGeneratorNew";
 
 const FormContainer = styled.div`
     display: flex;
@@ -58,195 +55,198 @@ const Link = styled.a`
     color: var(--button-primary-background);
 `;
 
-export function FunctionForm() {
+interface FunctionFormProps {
+    fileName: string;
+    projectPath: string;
+    functionName: string;
+}
+
+export function FunctionForm(props: FunctionFormProps) {
     const { rpcClient } = useRpcContext();
-    const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
-    const [types, setTypes] = useState<CompletionItem[]>([]);
+    const { projectPath, fileName, functionName } = props;
 
+    const [functionFields, setFunctionFields] = useState<FormField[]>([]);
+    const [filePath, setFilePath] = useState<string>('');
+    const [functionNode, setFunctionNode] = useState<FunctionNode>(undefined);
 
-    // <------------- Expression Editor Util functions list start --------------->
-    const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {
-        let visibleTypes: CompletionItem[] = types;
-        if (!types.length) {
-            const context = await rpcClient.getVisualizerLocation();
-            let functionFilePath = Utils.joinPath(URI.file(context.projectUri), 'functions.bal');
-            const workspaceFiles = await rpcClient.getCommonRpcClient().getWorkspaceFiles({});
-            const isFilePresent = workspaceFiles.files.some(file => file.path === functionFilePath.fsPath);
-            if (!isFilePresent) {
-                functionFilePath = Utils.joinPath(URI.file(context.projectUri));
-            }
+    useEffect(() => {
+        setFilePath(Utils.joinPath(URI.file(projectPath), fileName).fsPath)
+        if (functionName) {
+            getExistingFunctionNode();
+        } else {
+            getFunctionNode();
+        }
+    }, []);
 
-            const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
-                filePath: functionFilePath.fsPath,
+    useEffect(() => {
+        functionNode && setFunctionFields(convertConfig(functionNode));
+    }, [functionNode]);
+
+    const getFunctionNode = async () => {
+        const res = await rpcClient
+            .getBIDiagramRpcClient()
+            .getNodeTemplate({
                 position: { line: 0, offset: 0 },
+                filePath: "",
+                id: { node: 'FUNCTION_DEFINITION' },
             });
+        const flowNode = res.flowNode;
+        setFunctionNode(flowNode);
+        console.log("Function Node: ", flowNode);
+    }
 
-            visibleTypes = convertToVisibleTypes(response.types);
-            setTypes(visibleTypes);
-        }
+    const getExistingFunctionNode = async () => {
+        const res = await rpcClient
+            .getBIDiagramRpcClient()
+            .getFunctionNode({
+                functionName,
+                fileName,
+                projectPath
+            });
+        const flowNode = res.functionDefinition;
+        setFunctionNode(flowNode);
+        console.log("Existing Function Node: ", flowNode);
+    }
 
-        const effectiveText = value.slice(0, cursorPosition);
-        const filteredTypes = visibleTypes.filter((type) => {
-            const lowerCaseText = effectiveText.toLowerCase();
-            const lowerCaseLabel = type.label.toLowerCase();
-
-            return lowerCaseLabel.includes(lowerCaseText);
-        });
-
-        setFilteredTypes(filteredTypes);
-        return { visibleTypes, filteredTypes };
-    }, 250);
-
-    const handleGetVisibleTypes = async (value: string, cursorPosition: number) => {
-        return await debouncedGetVisibleTypes(value, cursorPosition) as any;
-    };
-
-    const handleCompletionSelect = async () => {
-        debouncedGetVisibleTypes.cancel();
-        handleExpressionEditorCancel();
-    };
-
-    const handleExpressionEditorCancel = () => {
-        setFilteredTypes([]);
-        setTypes([]);
-    };
-
-    const handleExpressionEditorBlur = () => {
-        handleExpressionEditorCancel();
-    };
-    // <------------- Expression Editor Util functions list end --------------->
-
-    const paramFiels: FormField[] = [
-        {
-            key: `variable`,
-            label: 'Name',
-            type: 'string',
-            optional: false,
-            editable: true,
-            documentation: '',
-            value: '',
-            valueTypeConstraint: ""
-        },
-        {
-            key: `type`,
-            label: 'Type',
-            type: 'TYPE',
-            optional: false,
-            editable: true,
-            documentation: '',
-            value: '',
-            valueTypeConstraint: ""
-        },
-        {
-            key: `defaultable`,
-            label: 'Default Value',
-            type: 'string',
-            optional: true,
-            advanced: true,
-            editable: true,
-            documentation: '',
-            value: '',
-            valueTypeConstraint: ""
-        }
-    ];
-
-    const [isLoading, setIsLoading] = useState(false);
-
-    const handleFunctionCreate = async (data: FormValues) => {
+    const handleSubmit = async (data: FormValues) => {
         console.log("Function Form Data: ", data)
-        setIsLoading(true);
-        const name = data['functionName'];
-        const returnType = data['return'];
-        const params = data['params'];
-        const paramList = params ? getFunctionParametersList(params) : [];
-        const res = await rpcClient.getBIDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.FUNCTIONS, functionType: { name, returnType, parameters: paramList } });
-        setIsLoading(res.response);
+        const functionNodeCopy = { ...functionNode };
+        for (const [dataKey, dataValue] of Object.entries(data)) {
+            const properties = functionNodeCopy.properties as NodeProperties;
+            for (const [key, property] of Object.entries(properties)) {
+                if (dataKey === key) {
+                    if (property.valueType === "REPEATABLE_PROPERTY") {
+                        const baseConstraint = property.valueTypeConstraint;
+                        property.value = {};
+                        // Go through the parameters array
+                        for (const [repeatKey, repeatValue] of Object.entries(dataValue)) {
+                            // Create a deep copy for each iteration
+                            const valueConstraint = JSON.parse(JSON.stringify(baseConstraint));
+                            // Fill the values of the parameter constraint
+                            for (const [paramKey, param] of Object.entries((valueConstraint as any).value as NodeProperties)) {
+                                param.value = (repeatValue as any).formValues[paramKey];
+                            }
+                            (property.value as any)[(repeatValue as any).key] = valueConstraint;
+                        }
+                    } else {
+                        property.value = dataValue;
+                    }
+                }
+            }
+        }
+        console.log("Updated function node: ", functionNodeCopy);
+        const res = await rpcClient.getBIDiagramRpcClient().getSourceCode({ filePath, flowNode: functionNodeCopy, isFunctionNodeUpdate: true });
     };
-
-    // Helper function to modify and set the visual information
-    const handleParamChange = (param: Parameter) => {
-        const name = `${param.formValues['variable']}`;
-        const type = `${param.formValues['type']}`;
-        const defaultValue = Object.keys(param.formValues).indexOf('defaultable') > -1 && `${param.formValues['defaultable']}`;
-        let value = `${type} ${name}`;
-        if (defaultValue) {
-            value += ` = ${defaultValue}`;
-        }
-        return {
-            ...param,
-            key: name,
-            value: value
-        }
-    };
-
-    const currentFields: FormField[] = [
-        {
-            key: `functionName`,
-            label: 'Function Name',
-            type: 'IDENTIFIER',
-            optional: false,
-            editable: true,
-            advanced: false,
-            documentation: '',
-            value: '',
-            valueTypeConstraint: ""
-        },
-        {
-            key: `params`,
-            label: 'Parameters',
-            type: 'PARAM_MANAGER',
-            optional: false,
-            editable: true,
-            advanced: false,
-            documentation: '',
-            value: '',
-            paramManagerProps: {
-                paramValues: [],
-                formFields: paramFiels,
-                handleParameter: handleParamChange
-            },
-            valueTypeConstraint: ""
-        },
-        {
-            key: `return`,
-            label: 'Return Type',
-            type: 'TYPE',
-            optional: true,
-            advanced: true,
-            editable: true,
-            documentation: '',
-            value: '',
-            valueTypeConstraint: ""
-        }
-    ];
 
     return (
         <View>
             <ViewContent padding>
                 <BIHeader />
                 <Container>
-                    <Typography variant="h2">Create New Function</Typography>
+                    <Typography variant="h2">{functionName ? `Edit Function` : `Create New Function`}</Typography>
                     <BodyText>
-                        Define a function that can be used within the integration.
+                        {functionName ? `Edit the` : `Define a`} function that can be used within the integration.
                     </BodyText>
                     <FormContainer>
-                        <Form
-                            formFields={currentFields}
-                            oneTimeForm={true}
-                            expressionEditor={
-                                {
-                                    types: filteredTypes,
-                                    retrieveVisibleTypes: handleGetVisibleTypes,
-                                    onCompletionItemSelect: handleCompletionSelect,
-                                    onCancel: handleExpressionEditorCancel,
-                                    onBlur: handleExpressionEditorBlur
-                                }
-                            }
-                            onSubmit={!isLoading && handleFunctionCreate}
-                        />
+                        {filePath &&
+                            <FormGeneratorNew
+                                fileName={filePath}
+                                targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
+                                fields={functionFields}
+                                onSubmit={handleSubmit}
+                                submitText={functionName ? "Save" : "Create"}
+                            />
+                        }
                     </FormContainer>
                 </Container>
             </ViewContent>
         </View>
     );
 }
+
+function convertConfig(functionNode: FunctionNode): FormField[] {
+    const formFields: FormField[] = [];
+    const properties = functionNode.properties as NodeProperties;
+    const keys = Object.keys(properties).sort(); // Sort keys alphabetically
+    for (const key of keys) {
+        const property = properties[key as keyof NodeProperties];
+        const formField: FormField = {
+            key: key,
+            label: property?.metadata.label,
+            type: property.valueType,
+            documentation: property?.metadata.description || "",
+            valueType: property.valueType,
+            editable: property.editable,
+            optional: property.optional,
+            value: property.value as any,
+            advanced: property.advanced,
+            diagnostics: [],
+            valueTypeConstraint: ""
+        }
+
+        if (property.valueType === "REPEATABLE_PROPERTY") {
+            const paramFiels: FormField[] = [];
+            for (const [paramKey, param] of Object.entries((property.valueTypeConstraint as any).value as NodeProperties)) {
+                const paramField: FormField = {
+                    key: paramKey,
+                    label: param?.metadata.label,
+                    type: param.valueType,
+                    documentation: param?.metadata.description || "",
+                    valueType: param.valueType,
+                    editable: param.editable,
+                    optional: param.optional,
+                    value: param.value as any,
+                    advanced: param.advanced,
+                    diagnostics: [],
+                    valueTypeConstraint: ""
+                }
+                paramFiels.push(paramField);
+            }
+            formField.valueType = "PARAM_MANAGER";
+            formField.type = "PARAM_MANAGER";
+
+            const paramValuesExisting: Parameter[] = []
+            for (const [index, [paramValueKey, paramValue]] of Object.entries((property as any).value as NodeProperties).entries()) {
+                const name = (paramValue.value as any)['variable'].value;
+                const type = (paramValue.value as any)['type'].value;
+                let value = `${type} ${name} `;
+                paramValuesExisting.push({
+                    id: index,
+                    icon: "",
+                    key: paramValueKey,
+                    value: value,
+                    formValues: {
+                        variable: name,
+                        type: type
+                    }
+                })
+            }
+
+            formField.paramManagerProps = {
+                paramValues: paramValuesExisting,
+                formFields: paramFiels,
+                handleParameter: handleParamChange
+            }
+            formField.value = paramValuesExisting;
+        }
+
+        formFields.push(formField);
+    }
+    return formFields;
+}
+
+// Helper function to modify and set the visual information
+const handleParamChange = (param: Parameter) => {
+    const name = `${param.formValues['variable']}`;
+    const type = `${param.formValues['type']} `;
+    const defaultValue = Object.keys(param.formValues).indexOf('defaultable') > -1 && `${param.formValues['defaultable']} `;
+    let value = `${type} ${name} `;
+    if (defaultValue) {
+        value += ` = ${defaultValue} `;
+    }
+    return {
+        ...param,
+        key: name,
+        value: value
+    }
+};

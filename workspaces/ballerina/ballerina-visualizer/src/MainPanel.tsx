@@ -257,7 +257,7 @@ const MainPanel = () => {
                         setViewComponent(<MainForm />);
                         break;
                     case MACHINE_VIEW.BIFunctionForm:
-                        setViewComponent(<FunctionForm />);
+                        setViewComponent(<FunctionForm projectPath={value.projectUri} fileName={value?.identifier === "main" ? "automation.bal" : "functions.bal"} functionName={value?.identifier} />);
                         break;
                     case MACHINE_VIEW.ViewConfigVariables:
                         rpcClient.getVisualizerLocation().then((location) => {
