@@ -161,7 +161,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
             const connection = connectionData.connections.find((connection: any) => connection.name === connectionName);
             const connectionType = connection ? connection.connectionType : null;
 
-            const connectionIconPath = connectionType ? await rpcClient.getMiDiagramRpcClient().getIconPathUri({ 
+            const connectionIconPath = connectionType ? await rpcClient.getMiDiagramRpcClient().getIconPathUri({
                 path: path.join(connectorData.iconPath, 'connections'),
                 name: connectionType
             }) : iconPath;
