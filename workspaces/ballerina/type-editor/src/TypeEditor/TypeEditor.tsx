@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState, useRef } from "react";
-import { TextField, View, ViewContent, Dropdown, Button, SidePanelBody, ProgressRing, Divider, Icon, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { TextField, View, ViewContent, Dropdown, Button, SidePanelBody, ProgressRing, Divider, Icon, Codicon, CheckBox } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { Member, Type, UndoRedoManager, VisualizerLocation, TypeNodeKind } from "@wso2-enterprise/ballerina-core";
@@ -18,7 +18,7 @@ import { RecordEditor } from "./RecordEditor";
 import { EnumEditor } from "./EnumEditor";
 import { UnionEditor } from "./UnionEditor";
 import { ClassEditor } from "./ClassEditor";
-
+import { AdvancedOptions } from "./AdvancedOptions";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -148,7 +148,7 @@ export function TypeEditor(props: TypeEditorProps) {
     const nameInputRef = useRef<HTMLInputElement | null>(null);
     const [editorState, setEditorState] = useState<ConfigState>(ConfigState.EDITOR_FORM);
     const [nameError, setNameError] = useState<string>("");
-
+    const [closedRecord, setClosedRecord] = useState<boolean>(false);
     useEffect(() => {
         if (type && isNewType) {
             // Add a small delay to ensure the input is mounted
@@ -211,14 +211,17 @@ export function TypeEditor(props: TypeEditorProps) {
         switch (selectedTypeKind) {
             case TypeKind.RECORD:
                 return (
-                    <RecordEditor
-                        type={type}
-                        isAnonymous={false}
-                        onChange={setType}
-                        isGraphql={props.isGraphql}
-                        onImportJson={() => setEditorState(ConfigState.IMPORT_FROM_JSON)}
-                        onImportXml={() => setEditorState(ConfigState.IMPORT_FROM_XML)}
-                    />
+                    <>
+                        <RecordEditor
+                            type={type}
+                            isAnonymous={false}
+                            onChange={setType}
+                            isGraphql={props.isGraphql}
+                            onImportJson={() => setEditorState(ConfigState.IMPORT_FROM_JSON)}
+                            onImportXml={() => setEditorState(ConfigState.IMPORT_FROM_XML)}
+                        />
+                        <AdvancedOptions type={type} onChange={setType} />
+                    </>
                 );
             case TypeKind.ENUM:
                 return (
@@ -288,7 +291,8 @@ export function TypeEditor(props: TypeEditorProps) {
                             </S.Footer>
                         </>
                     }
-                    {editorState === ConfigState.IMPORT_FROM_JSON &&
+                    {
+                        editorState === ConfigState.IMPORT_FROM_JSON &&
                         <RecordFromJson
                             rpcClient={props.rpcClient}
                             name={type.name}
@@ -296,7 +300,8 @@ export function TypeEditor(props: TypeEditorProps) {
                             onImport={() => setEditorState(ConfigState.EDITOR_FORM)}
                         />
                     }
-                    {editorState === ConfigState.IMPORT_FROM_XML &&
+                    {
+                        editorState === ConfigState.IMPORT_FROM_XML &&
                         <RecordFromXml
                             rpcClient={props.rpcClient}
                             name={type.name}
@@ -304,8 +309,8 @@ export function TypeEditor(props: TypeEditorProps) {
                             onImport={() => setEditorState(ConfigState.EDITOR_FORM)}
                         />
                     }
-                </div>
+                </div >
             )}
-        </S.Container>
+        </S.Container >
     );
 }
