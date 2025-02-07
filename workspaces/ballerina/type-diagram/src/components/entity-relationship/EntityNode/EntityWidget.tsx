@@ -100,7 +100,7 @@ export function EntityWidget(props: EntityWidgetProps) {
                     <OperationSection>
                         <HighlightedButton onClick={onGraphqlEdit}>
                             <Codicon name="plus" />
-                            Create Root Types
+                            Create Operations
                         </HighlightedButton>
                     </OperationSection>
                 );

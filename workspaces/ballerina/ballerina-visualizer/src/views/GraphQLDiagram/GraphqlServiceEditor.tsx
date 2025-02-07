@@ -388,7 +388,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                         ))}
                         {categories.query?.length === 0 && (
                             <EmptyStateText variant="body2">
-                                No Query Root Type found
+                                No Query Operation found
                             </EmptyStateText>
                         )}
                     </OperationCard>
@@ -418,7 +418,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                         ))}
                         {categories.mutation?.length === 0 && (
                             <EmptyStateText variant="body2">
-                                No Mutation Root Type found
+                                No Mutation Operation found
                             </EmptyStateText>
                         )}
                     </OperationCard>
@@ -448,7 +448,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                         ))}
                         {categories.subscription?.length === 0 && (
                             <EmptyStateText variant="body2">
-                                No Subscription Root Type found
+                                No Subscription Operation found
                             </EmptyStateText>
                         )}
                     </OperationCard>
@@ -518,7 +518,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                         {serviceModel && (
                             <>
                                 <SidePanelTitleContainer>
-                                    {"Configure Root Types"}
+                                    {"Operations"}
                                     <StyledButton appearance="icon" onClick={onClose}>
                                         <Codicon name="close" />
                                     </StyledButton>
@@ -532,7 +532,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
             )}
             {functionModel && isNewForm && (
                 <PanelContainer
-                    title={"Add Root Type"}
+                    title={"Add Operation"}
                     show={isNewForm}
                     onClose={handleNewFunctionClose}
                     width={400}
@@ -548,7 +548,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
             )}
             {functionModel && isEdit && (
                 <PanelContainer
-                    title={"Edit Root Type"}
+                    title={"Edit Operation"}
                     show={isEdit}
                     onClose={handleEditFunctionClose}
                     width={400}
