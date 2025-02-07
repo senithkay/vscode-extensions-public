@@ -194,7 +194,24 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     console.error(">>> Error getting available nodes", response);
                     return;
                 }
-                const convertedCategories = convertBICategoriesToSidePanelCategories(response.categories as Category[]);
+                // filter out some categories that are not supported in the diagram
+                // TODO: these categories should be supported in the future
+                const notSupportedCategories = [
+                    "PARALLEL_FLOW",
+                    "LOCK",
+                    "START",
+                    "TRANSACTION",
+                    "COMMIT",
+                    "ROLLBACK",
+                    "RETRY",
+                ];
+                const filteredCategories = response.categories.map(category => ({
+                    ...category,
+                    items: category?.items?.filter(
+                        (item) => item && 'codedata' in item && !notSupportedCategories.includes((item as AvailableNode).codedata?.node)
+                    )
+                })).filter(category => category.items && category.items.length > 0) as Category[];
+                const convertedCategories = convertBICategoriesToSidePanelCategories(filteredCategories);
                 setCategories(convertedCategories);
                 initialCategoriesRef.current = convertedCategories; // Store initial categories
                 // add draft node to model
