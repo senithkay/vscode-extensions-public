@@ -420,7 +420,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
     <test.server.port>9008</test.server.port>
     <test.server.path>/</test.server.path>
     <test.server.version>\${project.runtime.version}</test.server.version>
-    <testServerDownloadLink>https://github.com/wso2/micro-integrator/releases/download/v\${project.runtime.version}/wso2mi-\${project.runtime.version}.zip</testServerDownloadLink>
+    <testServerDownloadLink>https://github.com/wso2/micro-integrator/releases/download/v\${test.server.version}/wso2mi-\${test.server.version}.zip</testServerDownloadLink>
     <maven.test.skip>false</maven.test.skip>
   </properties>
 </project>`;
