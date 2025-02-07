@@ -167,9 +167,8 @@ enum ConfigState {
 enum TypeKind {
     RECORD = "Record",
     ENUM = "Enum",
-    CLASS = "Class",
-    UNION = "Union",
-    INTERFACE = "Interface"
+    CLASS = "Service Class",
+    UNION = "Union"
 }
 
 const undoRedoManager = new UndoRedoManager();
