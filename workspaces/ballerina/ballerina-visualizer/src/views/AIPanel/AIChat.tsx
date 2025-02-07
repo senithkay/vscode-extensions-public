@@ -994,7 +994,7 @@ export function AIChat() {
         }
 
         assistant_response = `Record types generated from the ${attachments[0].name} file shown below.\n`;
-        assistant_response += `<code filename="${filePath}">\n\`\`\`ballerina\n${response.typesCode}\n\`\`\`\n</code>`;
+        assistant_response += `<code filename="${filePath}" type="ai_map">\n\`\`\`ballerina\n${response.typesCode}\n\`\`\`\n</code>`;
 
         setMessages((prevMessages) => {
             const newMessages = [...prevMessages];
