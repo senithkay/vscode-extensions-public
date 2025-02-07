@@ -1086,7 +1086,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         const data = await response.json();
         console.log(">>> ai suggestion", { response: data });
         const suggestedContent = (data as any).completions.at(0);
-        return suggestedContent
+        return suggestedContent;
     }
 }
 
