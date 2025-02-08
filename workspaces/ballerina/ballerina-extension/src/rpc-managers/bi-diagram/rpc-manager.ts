@@ -61,7 +61,7 @@ import {
     GetTypesResponse,
     ImportStatement,
     ImportStatements,
-    OverviewFlow,
+    ModelFromCodeRequest,
     ProjectComponentsResponse,
     ProjectImports,
     ProjectRequest,
@@ -69,6 +69,7 @@ import {
     ReadmeContentRequest,
     ReadmeContentResponse,
     STModification,
+    ServiceClassModelResponse,
     SignatureHelpRequest,
     SignatureHelpResponse,
     SyntaxTree,
@@ -104,11 +105,11 @@ import { notifyBreakpointChange } from "../../RPCLayer";
 import { ballerinaExtInstance } from "../../core";
 import { BreakpointManager } from "../../features/debugger/breakpoint-manager";
 import { StateMachine, openView, updateView } from "../../stateMachine";
-import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, sanitizeName } from "../../utils/bi";
+import { getCompleteSuggestions } from '../../utils/ai/completions';
+import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure } from "../../utils/bi";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
 import { DATA_MAPPING_FILE_NAME, getDataMapperNodePosition } from "./utils";
-import {getCompleteSuggestions} from '../../utils/ai/completions';
 
 export class BiDiagramRpcManager implements BIDiagramAPI {
 
@@ -1187,7 +1188,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         const data = await response.json();
         console.log(">>> ai suggestion", { response: data });
         const suggestedContent = (data as any).completions.at(0);
-        return suggestedContent
+        return suggestedContent;
     }
 
     async createGraphqlClassType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
@@ -1206,6 +1207,19 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     console.log(">>> error fetching class type from ls", error);
                     reject(error);
                 });
+        });
+    }
+
+    async getServiceClassModel(params: ModelFromCodeRequest): Promise<ServiceClassModelResponse> {
+        const projectUri = StateMachine.context().projectUri;
+        const filePath =  path.join(projectUri, params.filePath);
+        return new Promise(async (resolve) => {
+            try {
+                const res: ServiceClassModelResponse = await StateMachine.langClient().getServiceClassModel({ filePath, codedata: params.codedata });
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
         });
     }
 }

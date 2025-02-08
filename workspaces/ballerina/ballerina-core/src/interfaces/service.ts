@@ -46,10 +46,27 @@ export interface ServiceModel {
     codedata?: CodeData;
 }
 
+export interface ServiceClassModel { // for Ballerina Service Classes
+    id: number;
+    name: string;
+    type: string;
+    properties?: ConfigProperties;
+    functions?: FunctionModel[];
+    displayAnnotation?: DisplayAnnotation;
+    codedata?: CodeData;
+    fields?: FieldType[];
+}
+
+
+export interface FieldType extends ParameterModel {
+    codedata: CodeData;
+    isPrivate: boolean;
+    isFinal: boolean;
+}
 
 export interface FunctionModel {
     metadata?: MetaData;
-    kind: "REMOTE" | "RESOURCE" | "QUERY" | "MUTATION" | "SUBSCRIPTION" | "DEFAULT";
+    kind: "REMOTE" | "RESOURCE" | "QUERY" | "MUTATION" | "SUBSCRIPTION" | "DEFAULT" | "INIT";
     enabled: boolean;
     optional: boolean;
     editable: boolean;

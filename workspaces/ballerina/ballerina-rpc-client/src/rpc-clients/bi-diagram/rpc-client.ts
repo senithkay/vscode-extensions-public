@@ -49,12 +49,14 @@ import {
     GetTypeResponse,
     GetTypesRequest,
     GetTypesResponse,
+    ModelFromCodeRequest,
     ProjectComponentsResponse,
     ProjectImports,
     ProjectRequest,
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
+    ServiceClassModelResponse,
     SignatureHelpRequest,
     SignatureHelpResponse,
     UpdateConfigVariableRequest,
@@ -94,6 +96,7 @@ import {
     getProjectComponents,
     getProjectStructure,
     getReadmeContent,
+    getServiceClassModel,
     getSignatureHelp,
     getSourceCode,
     getType,
@@ -278,6 +281,10 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     updateType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
         return this._messenger.sendRequest(updateType, HOST_EXTENSION, params);
+    }
+
+    getServiceClassModel(params: ModelFromCodeRequest): Promise<ServiceClassModelResponse> {
+        return this._messenger.sendRequest(getServiceClassModel, HOST_EXTENSION, params);
     }
 
     createGraphqlClassType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {

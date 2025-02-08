@@ -52,7 +52,9 @@ import {
     UpdateImportsRequest,
     UpdateImportsResponse,
     AddFunctionRequest,
-    AddFunctionResponse
+    AddFunctionResponse,
+    ServiceClassModelResponse,
+    ModelFromCodeRequest
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -113,6 +115,7 @@ export interface BIDiagramAPI {
     getTypes: (params: GetTypesRequest) => Promise<GetTypesResponse>;
     getType: (params: GetTypeRequest) => Promise<GetTypeResponse>;
     updateType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
+    getServiceClassModel: (params: ModelFromCodeRequest) => Promise<ServiceClassModelResponse>;
     createGraphqlClassType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
     updateImports: (params: UpdateImportsRequest) => Promise<UpdateImportsResponse>;
     addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;

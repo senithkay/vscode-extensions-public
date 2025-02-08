@@ -161,7 +161,9 @@ import {
     VisualizableFieldsResponse,
     AddArrayElementRequest,
     FunctionModelRequest,
-    FunctionModelResponse
+    FunctionModelResponse,
+    ModelFromCodeRequest,
+    ServiceClassModelResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -272,6 +274,7 @@ enum EXTENDED_APIS {
     BI_SERVICE_ADD_FUNCTION = 'serviceDesign/addFunction',
     BI_SERVICE_UPDATE_RESOURCE = 'serviceDesign/updateFunction',
     BI_SERVICE_GET_TRIGGERS = 'serviceDesign/getTriggerModels',
+    BI_SERVICE_SERVICE_CLASS_MODEL = 'serviceDesign/getServiceClassModelFromSource',
     BI_DESIGN_MODEL = 'designModelService/getDesignModel',
     BI_UPDATE_IMPORTS = 'expressionEditor/importModule',
     BI_ADD_FUNCTION = 'expressionEditor/functionCallTemplate'
@@ -818,6 +821,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getServiceModelFromCode(params: ServiceModelFromCodeRequest): Promise<ServiceModelFromCodeResponse> {
         return this.sendRequest<ServiceModelFromCodeResponse>(EXTENDED_APIS.BI_SERVICE_GET_SERVICE_SOURCE, params);
+    }
+
+    async getServiceClassModel(params: ModelFromCodeRequest): Promise<ServiceClassModelResponse>{
+        return this.sendRequest<ServiceClassModelResponse>(EXTENDED_APIS.BI_SERVICE_SERVICE_CLASS_MODEL, params);
     }
 
     async getHttpResourceModel(params: HttpResourceModelRequest): Promise<HttpResourceModelResponse> {
