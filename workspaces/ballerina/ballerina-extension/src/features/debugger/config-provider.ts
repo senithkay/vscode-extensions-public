@@ -304,7 +304,6 @@ export function activateDebugConfigProvider(ballerinaExtInstance: BallerinaExten
 class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory {
     createDebugAdapterTracker(session: DebugSession): DebugAdapterTracker {
         return {
-
             onWillStartSession() {
                 new BreakpointManager();
             },
@@ -343,20 +342,21 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                         }
                     } else if (msg.command === "stackTrace") {
                         const uri = Uri.parse(msg.body.stackFrames[0].source.path);
+                        const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
 
-                        if (VisualizerWebview.currentPanel !== undefined) {
-
-                            const allTabs = window.tabGroups.all.flatMap(group => group.tabs);
-
-                            // Filter for tabs that are editor tabs and the tab with the debug hit
-                            const editorTabs = allTabs.filter(tab => tab.input instanceof TabInputText && tab.input.uri.fsPath === uri.fsPath);
-
-                            for (const tab of editorTabs) {
-                                await window.tabGroups.close(tab);
-                            }
+                        // Instead of closing editor tabs, arrange them side by side
+                        if (isWebviewPresent) {
+                            // Show webview on the side
+                            VisualizerWebview.currentPanel.getWebview().reveal(ViewColumn.Active, false);
+                            
+                            // Open or focus the text editor in the first column
+                            const document = await workspace.openTextDocument(uri);
+                            const editor = await window.showTextDocument(document, {
+                                viewColumn: ViewColumn.Beside,
+                                preserveFocus: true,
+                            });
                         }
 
-                        // get the current stack trace
                         const hitBreakpoint = msg.body.stackFrames[0];
                         console.log(" >>> active breakpoint stackTrace ", hitBreakpoint);
 
@@ -368,13 +368,9 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
 
                         BreakpointManager.getInstance().setActiveBreakpoint(clientBreakpoint);
 
-                        const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
-
                         if (isWebviewPresent) {
-                            VisualizerWebview?.currentPanel?.getWebview()?.reveal(ViewColumn.One, true);
                             await handleBreakpointVisualization(uri, clientBreakpoint);
                         }
-
                     } else if (msg.command === "continue" || msg.command === "next" || msg.command === "stepIn" || msg.command === "stepOut") {
                         // clear the active breakpoint
                         BreakpointManager.getInstance().setActiveBreakpoint(undefined);
@@ -396,12 +392,6 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                                 runFast(root, msg.body);
                             }
                         });
-                    } else if (msg.event === "stopped") {
-                        const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
-
-                        if (isWebviewPresent) {
-                            VisualizerWebview?.currentPanel?.getWebview()?.reveal(ViewColumn.One, true);
-                        }
                     } else if (msg.event === "output") {
                         if (msg.body.output === "Running executable\n") {
                             const workspaceRoot = workspace.workspaceFolders && workspace.workspaceFolders[0].uri.fsPath;
@@ -420,7 +410,6 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                                     commands.executeCommand('setContext', 'isBIProjectRunning', true);
                                 }
                             }
-
                         }
                     }
                 }
