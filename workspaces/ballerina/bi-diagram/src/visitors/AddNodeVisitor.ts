@@ -32,7 +32,7 @@ export class AddNodeVisitor implements BaseVisitor {
         // check flow nodes if one of them is target node, then add new node after the target node
         this.flow.nodes.forEach((flowNode) => {
             if (this.topNode && flowNode.id === this.topNode.id) {
-                console.log(">>> http-api add new node", { target: flowNode, new: this.newNode });
+                console.log(">>> add new node", { target: flowNode, new: this.newNode });
                 const index = this.flow.nodes.indexOf(flowNode);
                 this.flow.nodes.splice(index + 1, 0, this.newNode);
                 this.skipChildrenVisit = true;
@@ -40,29 +40,29 @@ export class AddNodeVisitor implements BaseVisitor {
         });
     }
 
-    // beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
-    //     if (this.skipChildrenVisit) {
-    //         return;
-    //     }
+    beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
+        if (this.skipChildrenVisit) {
+            return;
+        }
 
-    //     // check branches and if one of branches has target node, then add new node after the target node
-    //     node.branches.forEach((branch) => {
-    //         if (this.topBranch && isEqual(branch.codedata, this.topBranch.codedata)) {
-    //             // add new node to branch first children
-    //             branch.children.unshift(this.newNode);
-    //             this.skipChildrenVisit = true;
-    //         } else {
-    //             branch.children.forEach((child) => {
-    //                 if (this.topNode && child.id === this.topNode.id) {
-    //                     console.log(">>> do-error add new node", { target: child, new: this.newNode });
-    //                     const index = branch.children.indexOf(child);
-    //                     branch.children.splice(index + 1, 0, this.newNode);
-    //                     this.skipChildrenVisit = true;
-    //                 }
-    //             });
-    //         }
-    //     });
-    // }
+        // check branches and if one of branches has target node, then add new node after the target node
+        node.branches.forEach((branch) => {
+            if (this.topBranch && isEqual(branch.codedata, this.topBranch.codedata)) {
+                // add new node to branch first children
+                branch.children.unshift(this.newNode);
+                this.skipChildrenVisit = true;
+            } else {
+                branch.children.forEach((child) => {
+                    if (this.topNode && child.id === this.topNode.id) {
+                        console.log(">>> do-error add new node", { target: child, new: this.newNode });
+                        const index = branch.children.indexOf(child);
+                        branch.children.splice(index + 1, 0, this.newNode);
+                        this.skipChildrenVisit = true;
+                    }
+                });
+            }
+        });
+    }
 
     beginVisitIf(node: FlowNode, parent?: FlowNode): void {
         if (this.skipChildrenVisit) {
@@ -87,6 +87,30 @@ export class AddNodeVisitor implements BaseVisitor {
                 });
             }
         });
+    }
+
+    beginVisitWhile(node: FlowNode, parent?: FlowNode): void {
+        if (this.skipChildrenVisit) {
+            return;
+        }
+
+        this.beginVisitIf(node, parent);
+    }
+
+    beginVisitForeach(node: FlowNode, parent?: FlowNode): void {
+        if (this.skipChildrenVisit) {
+            return;
+        }
+
+        this.beginVisitIf(node, parent);
+    }
+
+    beginVisitFork(node: FlowNode, parent?: FlowNode): void {
+        if (this.skipChildrenVisit) {
+            return;
+        }
+
+        this.beginVisitIf(node, parent);
     }
 
     skipChildren(): boolean {
