@@ -321,6 +321,10 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                 if (message.type === "response") {
                     const msg = <DebugProtocol.Response>message;
                     if ((msg.command === "launch" || msg.command == "restart") && StateMachine.context().isBI) {
+                        // clear the active breakpoint
+                        BreakpointManager.getInstance().setActiveBreakpoint(undefined);
+                        notifyBreakpointChange();
+
                         // Trigger Try-It view when starting/restarting debug sessions in low-code mode
                         waitForBallerinaService(workspace.workspaceFolders![0].uri.fsPath).then(() => {
                             commands.executeCommand(PALETTE_COMMANDS.TRY_IT, true);
