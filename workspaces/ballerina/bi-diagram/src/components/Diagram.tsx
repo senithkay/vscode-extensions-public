@@ -7,11 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, memo } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
-import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { cloneDeep } from "lodash";
-import { Icon, NavigationWrapperCanvasWidget, Switch, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
 
 import {
     clearDiagramZoomAndPosition,
@@ -22,7 +21,7 @@ import {
     resetDiagramZoomAndPosition,
 } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
-import { Flow, NodeModel, FlowNode, Branch, NodeKind, LineRange, NodePosition, FlowNodeStyle } from "../utils/types";
+import { Flow, NodeModel, FlowNode, Branch, LineRange, NodePosition } from "../utils/types";
 import { traverseFlow } from "../utils/ast";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { NodeLinkModel } from "./NodeLink";
@@ -32,7 +31,7 @@ import { SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
 import { InitVisitor } from "../visitors/InitVisitor";
 import { LinkTargetVisitor } from "../visitors/LinkTargetVisitor";
-import { NODE_WIDTH, NodeTypes } from "../resources/constants";
+import { NodeTypes } from "../resources/constants";
 import Controls from "./Controls";
 import { CurrentBreakpointsResponse as BreakpointInfo } from "@wso2-enterprise/ballerina-core";
 import { BreakpointVisitor } from "../visitors/BreakpointVisitor";
@@ -93,6 +92,7 @@ export function Diagram(props: DiagramProps) {
     }, [model, showErrorFlow]);
 
     useEffect(() => {
+        console.log(">>> Init diagram model", model);
         return () => {
             clearDiagramZoomAndPosition();
         };
@@ -120,7 +120,7 @@ export function Diagram(props: DiagramProps) {
 
         const addTargetVisitor = new LinkTargetVisitor(model, nodes);
         traverseFlow(flowModel, addTargetVisitor);
-
+        console.log(">>> getDiagramData", { flowModel, nodes, links });
         return { nodes, links };
     };
 
@@ -225,3 +225,5 @@ export function Diagram(props: DiagramProps) {
         </>
     );
 }
+
+export const MemoizedDiagram = memo(Diagram);

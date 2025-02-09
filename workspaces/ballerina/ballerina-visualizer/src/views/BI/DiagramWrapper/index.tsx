@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { Switch, View } from "@wso2-enterprise/ui-toolkit";
 import { BIFlowDiagram } from "../FlowDiagram";
@@ -25,6 +25,9 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
 
     const [showSequenceDiagram, setShowSequenceDiagram] = useState(false);
     const [enableSequenceDiagram, setEnableSequenceDiagram] = useState(false);
+
+    // const diagramWrapperCount = useRef<number>(0);
+    // console.log(">>> DiagramWrapper", { diagramWrapperCount: diagramWrapperCount.current++ });
 
     useEffect(() => {
         rpcClient.getVisualizerLocation().then((location) => {

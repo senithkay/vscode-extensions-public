@@ -227,7 +227,6 @@ export class LinkTargetVisitor implements BaseVisitor {
             return;
         }
         const endContainerOutLinks = this.getOutLinksFromModel(endContainerModel);
-        console.log(">>> endContainerOutLinks", { endContainerModel, endContainerOutLinks });
         if (!endContainerOutLinks || endContainerOutLinks.length == 0) {
             console.log(">>> no end container out links", { node });
             return;
@@ -306,7 +305,6 @@ export class LinkTargetVisitor implements BaseVisitor {
             return;
         }
         const endContainerOutLinks = this.getOutLinksFromModel(containerNodeModel);
-        console.log(">>> endContainerOutLinks", { endContainerModel: containerNodeModel, endContainerOutLinks });
         if (!endContainerOutLinks || endContainerOutLinks.length == 0) {
             console.log(">>> no end container out links", { node });
             return;

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import {
     PanelContainer,
@@ -16,7 +16,7 @@ import {
     ExpressionFormField,
 } from "@wso2-enterprise/ballerina-side-panel";
 import styled from "@emotion/styled";
-import { Diagram } from "@wso2-enterprise/bi-diagram";
+import { MemoizedDiagram } from "@wso2-enterprise/bi-diagram";
 import {
     BIAvailableNodesRequest,
     Flow,
@@ -116,6 +116,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const selectedClientName = useRef<string>();
     const initialCategoriesRef = useRef<PanelCategory[]>([]);
     const showEditForm = useRef<boolean>(false);
+
+    // const flowDiagramCount = useRef<number>(0);
+    // console.log(">>> BIFlowDiagram", { flowDiagramCount: flowDiagramCount.current++ });
 
     useEffect(() => {
         getFlowModel();
@@ -727,6 +730,32 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         </>
     );
 
+    const memoizedDiagramProps = useMemo(() => ({
+        model: flowModel,
+        onAddNode: handleOnAddNode,
+        onAddNodePrompt: handleOnAddNodePrompt,
+        onDeleteNode: handleOnDeleteNode,
+        onAddComment: handleOnAddComment,
+        onNodeSelect: handleOnEditNode,
+        onConnectionSelect: handleOnEditConnection,
+        goToSource: handleOnGoToSource,
+        addBreakpoint: handleAddBreakpoint,
+        removeBreakpoint: handleRemoveBreakpoint,
+        openView: handleOpenView,
+        suggestions: {
+            fetching: fetchingAiSuggestions,
+            onAccept: onAcceptSuggestions,
+            onDiscard: onDiscardSuggestions,
+        },
+        projectPath,
+        breakpointInfo,
+    }), [
+        flowModel,
+        fetchingAiSuggestions,
+        projectPath,
+        breakpointInfo
+    ]);
+
     return (
         <>
             <View>
@@ -745,26 +774,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         </SpinnerContainer>
                     )}
                     {model && (
-                        <Diagram
-                            model={flowModel}
-                            onAddNode={handleOnAddNode}
-                            onAddNodePrompt={handleOnAddNodePrompt}
-                            onDeleteNode={handleOnDeleteNode}
-                            onAddComment={handleOnAddComment}
-                            onNodeSelect={handleOnEditNode}
-                            onConnectionSelect={handleOnEditConnection}
-                            goToSource={handleOnGoToSource}
-                            addBreakpoint={handleAddBreakpoint}
-                            removeBreakpoint={handleRemoveBreakpoint}
-                            openView={handleOpenView}
-                            suggestions={{
-                                fetching: fetchingAiSuggestions,
-                                onAccept: onAcceptSuggestions,
-                                onDiscard: onDiscardSuggestions,
-                            }}
-                            projectPath={projectPath}
-                            breakpointInfo={breakpointInfo}
-                        />
+                        <MemoizedDiagram {...memoizedDiagramProps} />
                     )}
                 </Container>
             </View>
