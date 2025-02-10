@@ -166,7 +166,8 @@ import {
     ServiceClassModelResponse,
     ClassFieldModifierRequest,
     SourceEditResponse,
-    ServiceClassSourceRequest
+    ServiceClassSourceRequest,
+    AddFieldRequest
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -280,6 +281,7 @@ enum EXTENDED_APIS {
     BI_SERVICE_GET_TRIGGERS = 'serviceDesign/getTriggerModels',
     BI_SERVICE_SERVICE_CLASS_MODEL = 'serviceDesign/getServiceClassModelFromSource',
     BI_UPDATE_CLASS_FIELD = 'serviceDesign/updateClassField',
+    BI_ADD_CLASS_FIELD = 'serviceDesign/addField',
     BI_DESIGN_MODEL = 'designModelService/getDesignModel',
     BI_UPDATE_IMPORTS = 'expressionEditor/importModule',
     BI_ADD_FUNCTION = 'expressionEditor/functionCallTemplate'
@@ -838,6 +840,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async updateClassField(params: ClassFieldModifierRequest): Promise<SourceEditResponse> {
         return this.sendRequest<SourceEditResponse>(EXTENDED_APIS.BI_UPDATE_CLASS_FIELD, params);
+    }
+
+    async addClassField(params: AddFieldRequest): Promise<SourceEditResponse> {
+        return this.sendRequest<SourceEditResponse>(EXTENDED_APIS.BI_ADD_CLASS_FIELD, params);
     }
 
     async getHttpResourceModel(params: HttpResourceModelRequest): Promise<HttpResourceModelResponse> {

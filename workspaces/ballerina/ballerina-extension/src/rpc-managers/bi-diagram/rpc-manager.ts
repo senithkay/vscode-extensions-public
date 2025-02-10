@@ -86,6 +86,7 @@ import {
     buildProjectStructure,
     TextEdit,
     SourceEditResponse,
+    AddFieldRequest,
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import { writeFileSync } from "fs";
@@ -1224,12 +1225,10 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async updateClassField(params: ClassFieldModifierRequest): Promise<SourceEditResponse> {
-        const projectUri = StateMachine.context().projectUri;
-        const filePath =  path.join(projectUri, params.filePath);
+    async updateClassField(params: ClassFieldModifierRequest): Promise<SourceEditResponse> {;
         return new Promise(async (resolve) => {
             try {
-                const res: SourceEditResponse = await StateMachine.langClient().updateClassField({ filePath, field: params.field });
+                const res: SourceEditResponse = await StateMachine.langClient().updateClassField(params);
                 Object.entries(res.textEdits).forEach(([file, textEdits]) => {
                     this.applyTextEdits(file, textEdits);
                 });
@@ -1246,6 +1245,20 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         return new Promise(async (resolve) => {
             try {
                 const res: SourceEditResponse = await StateMachine.langClient().updateServiceClass({ filePath, serviceClass: params.serviceClass });
+                Object.entries(res.textEdits).forEach(([file, textEdits]) => {
+                    this.applyTextEdits(file, textEdits);
+                });
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    async addClassField(params: AddFieldRequest): Promise<SourceEditResponse> {
+        return new Promise(async (resolve) => {
+            try {
+                const res: SourceEditResponse = await StateMachine.langClient().addClassField(params);
                 Object.entries(res.textEdits).forEach(([file, textEdits]) => {
                     this.applyTextEdits(file, textEdits);
                 });

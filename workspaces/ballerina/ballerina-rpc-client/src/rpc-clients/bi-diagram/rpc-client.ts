@@ -112,6 +112,7 @@ import {
     removeBreakpointFromSource,
     runProject,
     updateClassField,
+    addClassField,
     updateConfigVariables,
     updateImports,
     updateServiceClass,
@@ -294,6 +295,10 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     updateClassField(params: ClassFieldModifierRequest): Promise<SourceEditResponse> {
         return this._messenger.sendRequest(updateClassField, HOST_EXTENSION, params);
+    }
+
+    addClassField(params: ClassFieldModifierRequest): Promise<SourceEditResponse> {
+        return this._messenger.sendRequest(addClassField, HOST_EXTENSION, params);
     }
 
     updateServiceClass(params: ServiceClassSourceRequest): Promise<SourceEditResponse> {
