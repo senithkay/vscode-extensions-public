@@ -54,7 +54,9 @@ import {
     AddFunctionRequest,
     AddFunctionResponse,
     ServiceClassModelResponse,
-    ModelFromCodeRequest
+    ModelFromCodeRequest,
+    ClassFieldModifierRequest,
+    SourceEditResponse
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -116,6 +118,7 @@ export interface BIDiagramAPI {
     getType: (params: GetTypeRequest) => Promise<GetTypeResponse>;
     updateType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
     getServiceClassModel: (params: ModelFromCodeRequest) => Promise<ServiceClassModelResponse>;
+    updateClassField: (params: ClassFieldModifierRequest) => Promise<SourceEditResponse>;
     createGraphqlClassType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
     updateImports: (params: UpdateImportsRequest) => Promise<UpdateImportsResponse>;
     addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;

@@ -39,9 +39,8 @@ import {
     BISuggestedFlowModelRequest,
     BI_COMMANDS,
     BreakpointRequest,
+    ClassFieldModifierRequest,
     ComponentRequest,
-    ComponentsRequest,
-    ComponentsResponse,
     ConfigVariableResponse,
     CreateComponentResponse,
     CurrentBreakpointsResponse,
@@ -85,6 +84,7 @@ import {
     WorkspacesResponse,
     buildProjectStructure,
     TextEdit,
+    SourceEditResponse,
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import { writeFileSync } from "fs";
@@ -1216,6 +1216,22 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         return new Promise(async (resolve) => {
             try {
                 const res: ServiceClassModelResponse = await StateMachine.langClient().getServiceClassModel({ filePath, codedata: params.codedata });
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    async updateClassField(params: ClassFieldModifierRequest): Promise<SourceEditResponse> {
+        const projectUri = StateMachine.context().projectUri;
+        const filePath =  path.join(projectUri, params.filePath);
+        return new Promise(async (resolve) => {
+            try {
+                const res: SourceEditResponse = await StateMachine.langClient().updateClassField({ filePath, field: params.field });
+                Object.entries(res.textEdits).forEach(([file, textEdits]) => {
+                    this.applyTextEdits(file, textEdits);
+                });
                 resolve(res);
             } catch (error) {
                 console.log(error);

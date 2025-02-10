@@ -17,7 +17,7 @@ import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteComman
 import { Category, Flow, FlowNode, CodeData, ConfigVariable } from "./bi";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
 import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
-import { FunctionModel, ListenerModel, ServiceClassModel, ServiceModel } from "./service";
+import { FieldType, FunctionModel, ListenerModel, ServiceClassModel, ServiceModel } from "./service";
 import { CDModel } from "./component-diagram";
 import { IDMModel, Mapping } from "./inline-data-mapper";
 
@@ -877,6 +877,19 @@ export interface ServiceSourceCodeResponse {
     textEdits: {
         [key: string]: TextEdit[];
     };
+}
+
+export interface ClassFieldModifierRequest {
+    filePath: string;
+    field: FieldType;
+}
+
+export interface SourceEditResponse {
+    textEdits?: {
+        [key: string]: TextEdit[];
+    };
+    errorMsg?: string;
+    stacktrace?: string;
 }
 
 export interface FunctionModelRequest {

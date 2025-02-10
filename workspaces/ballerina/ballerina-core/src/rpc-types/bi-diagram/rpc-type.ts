@@ -51,7 +51,9 @@ import {
     AddFunctionRequest,
     AddFunctionResponse,
     ServiceClassModelResponse,
-    ModelFromCodeRequest
+    ModelFromCodeRequest,
+    ClassFieldModifierRequest,
+    SourceEditResponse
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -114,6 +116,7 @@ export const getTypes: RequestType<GetTypesRequest, GetTypesResponse> = { method
 export const getType: RequestType<GetTypeRequest, GetTypeResponse> = { method: `${_preFix}/getType` };
 export const updateType: RequestType<UpdateTypeRequest, UpdateTypeResponse> = { method: `${_preFix}/updateType` };
 export const getServiceClassModel: RequestType<ModelFromCodeRequest, ServiceClassModelResponse> = { method: `${_preFix}/getServiceClassModel` };
+export const updateClassField: RequestType<ClassFieldModifierRequest, SourceEditResponse> = { method: `${_preFix}/updateClassField` };
 export const createGraphqlClassType: RequestType<UpdateTypeRequest, UpdateTypeResponse> = { method: `${_preFix}/createGraphqlClassType` };
 export const updateImports: RequestType<UpdateImportsRequest, UpdateImportsResponse> = { method: `${_preFix}/updateImports` };
 export const addFunction: RequestType<AddFunctionRequest, AddFunctionResponse> = { method: `${_preFix}/addFunction` };

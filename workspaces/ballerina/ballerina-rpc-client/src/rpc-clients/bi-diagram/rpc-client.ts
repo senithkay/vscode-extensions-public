@@ -34,6 +34,7 @@ import {
     BISourceCodeRequest,
     BISourceCodeResponse,
     BreakpointRequest,
+    ClassFieldModifierRequest,
     ComponentRequest,
     ConfigVariableResponse,
     CreateComponentResponse,
@@ -59,6 +60,7 @@ import {
     ServiceClassModelResponse,
     SignatureHelpRequest,
     SignatureHelpResponse,
+    SourceEditResponse,
     UpdateConfigVariableRequest,
     UpdateConfigVariableResponse,
     UpdateTypeRequest,
@@ -109,6 +111,7 @@ import {
     openReadme,
     removeBreakpointFromSource,
     runProject,
+    updateClassField,
     updateConfigVariables,
     updateImports,
     updateType
@@ -285,6 +288,10 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     getServiceClassModel(params: ModelFromCodeRequest): Promise<ServiceClassModelResponse> {
         return this._messenger.sendRequest(getServiceClassModel, HOST_EXTENSION, params);
+    }
+
+    updateClassField(params: ClassFieldModifierRequest): Promise<SourceEditResponse> {
+        return this._messenger.sendRequest(updateClassField, HOST_EXTENSION, params);
     }
 
     createGraphqlClassType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
