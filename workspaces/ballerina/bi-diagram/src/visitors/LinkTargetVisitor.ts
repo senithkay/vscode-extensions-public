@@ -299,12 +299,14 @@ export class LinkTargetVisitor implements BaseVisitor {
             }
         });
 
-        const containerNodeModel = this.nodeModels.find((nodeModel) => nodeModel.getID() === node.id);
-        if (!containerNodeModel) {
+        const endContainerNodeModel = this.nodeModels.find(
+            (nodeModel) => nodeModel.getID() === getCustomNodeId(node.id, END_CONTAINER)
+        );
+        if (!endContainerNodeModel) {
             console.log(">>> error container node model not found", node);
             return;
         }
-        const endContainerOutLinks = this.getOutLinksFromModel(containerNodeModel);
+        const endContainerOutLinks = this.getOutLinksFromModel(endContainerNodeModel);
         if (!endContainerOutLinks || endContainerOutLinks.length == 0) {
             console.log(">>> no end container out links", { node });
             return;

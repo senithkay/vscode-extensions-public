@@ -10,8 +10,8 @@
 import { NodeModel } from "@projectstorm/react-diagrams";
 import { NodePortModel } from "../../NodePort";
 import { getNodeIdFromModel } from "../../../utils/node";
-import { NodeTypes } from "../../../resources/constants";
-import { FlowNode } from "../../../utils/types";
+import { NodeTypes, WHILE_NODE_WIDTH } from "../../../resources/constants";
+import { FlowNode, Branch } from "../../../utils/types";
 import _ from "lodash";
 import { NodeLinkModel } from "../../NodeLink";
 
@@ -20,14 +20,14 @@ export class ErrorNodeModel extends NodeModel {
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
 
-    constructor(node: FlowNode) {
+    constructor(node: FlowNode, branch: Branch) {
         super({
             id: getNodeIdFromModel(node),
             type: NodeTypes.ERROR_NODE,
             locked: true,
         });
         this.node = node;
-        this.setPosition(node.viewState.x, node.viewState.y + node.viewState.ch - node.viewState.h);
+        this.setPosition(branch.viewState.x + branch.viewState.clw - WHILE_NODE_WIDTH / 2, branch.viewState.y - WHILE_NODE_WIDTH);
         this.addInPort("in");
         this.addOutPort("out");
     }

@@ -119,6 +119,8 @@ export class NodeFactoryVisitor implements BaseVisitor {
         if (branch.children.at(-1).codedata.node === "IF") {
             // if last child is IF, find endIf node
             lastChildNodeModel = this.nodes.find((n) => n.getID() === `${lastNode.id}-endif`);
+        } else if (branch.children.at(-1).codedata.node === "ERROR_HANDLER") {
+            lastChildNodeModel = this.nodes.find((n) => n.getID() === getCustomNodeId(lastNode.id, END_CONTAINER));
         } else if (
             branch.children.at(-1).codedata.node === "WHILE" ||
             branch.children.at(-1).codedata.node === "FOREACH" ||
@@ -433,11 +435,15 @@ export class NodeFactoryVisitor implements BaseVisitor {
         }
 
         // assume that only the body branch exist
-        const branch = node.branches.at(0);
+        const bodyBranch = node.branches.find((branch) => branch.codedata.node === "BODY");
+        if (!bodyBranch) {
+            console.error("Body branch not found", node);
+            return;
+        }
 
         // Create branch's IN link
-        if (branch.children && branch.children.length > 0) {
-            const firstChildNodeModel = this.nodes.find((n) => n.getID() === branch.children.at(0).id);
+        if (bodyBranch.children && bodyBranch.children.length > 0) {
+            const firstChildNodeModel = this.nodes.find((n) => n.getID() === bodyBranch.children.at(0).id);
             if (firstChildNodeModel) {
                 const link = createNodesLink(containerStartEmptyNodeModel, firstChildNodeModel);
                 if (link) {
@@ -446,18 +452,28 @@ export class NodeFactoryVisitor implements BaseVisitor {
             }
         }
 
-        // create branch's OUT link
-        const containerNodeModel = new ErrorNodeModel(node);
-        this.nodes.push(containerNodeModel);
-        this.updateNodeLinks(node, containerNodeModel);
-        this.lastNodeModel = containerNodeModel;
+        const onFailureBranch = node.branches.find((branch) => branch.codedata.node === "ON_FAILURE");
+        if (!onFailureBranch) {
+            console.error("On failure branch not found", node);
+            return;
+        }
 
-        if (
-            branch.children &&
-            branch.children.length === 1 &&
-            branch.children.find((n) => n.codedata.node === "EMPTY")
-        ) {
-            const branchEmptyNodeModel = branch.children.at(0);
+        // create error node model
+        const containerNodeModel = new ErrorNodeModel(node, onFailureBranch);
+        this.nodes.push(containerNodeModel);
+
+        // create empty node for end of on failure branch
+        const endOnFailureEmptyNode = this.createEmptyNode(
+            getCustomNodeId(node.id, END_CONTAINER),
+            node.viewState.x + node.viewState.lw - EMPTY_NODE_WIDTH / 2,
+            node.viewState.y + node.viewState.ch - EMPTY_NODE_WIDTH / 2
+        );
+        this.nodes.push(endOnFailureEmptyNode);
+
+        this.lastNodeModel = endOnFailureEmptyNode;
+
+        if (bodyBranch.children && bodyBranch.children.at(0)?.codedata.node === "EMPTY") {
+            const branchEmptyNodeModel = bodyBranch.children.at(0);
 
             let branchEmptyNode = this.createEmptyNode(
                 branchEmptyNodeModel.id,
@@ -473,7 +489,20 @@ export class NodeFactoryVisitor implements BaseVisitor {
             if (linkIn) {
                 this.links.push(linkIn);
             }
-            const linkOut = createNodesLink(branchEmptyNode, containerNodeModel, {
+
+            // get last node
+            const lastNode = bodyBranch.children.at(-1);
+            if (!lastNode || reverseCustomNodeId(lastNode.id).label !== LAST_NODE) {
+                console.error("Last node not found", bodyBranch);
+                return;
+            }
+
+            // get last node model
+            const lastNodeModel = new EndNodeModel(lastNode.id); // TODO: use end node visitor to handle this
+            lastNodeModel.setPosition(lastNode.viewState.x, lastNode.viewState.y);
+            this.nodes.push(lastNodeModel);
+
+            const linkOut = createNodesLink(branchEmptyNode, lastNodeModel, {
                 showAddButton: false,
                 alignBottom: true,
                 showArrow: false,
@@ -481,23 +510,6 @@ export class NodeFactoryVisitor implements BaseVisitor {
             if (linkOut) {
                 this.links.push(linkOut);
             }
-            return;
-        }
-
-        const lastNode = branch.children.at(-1);
-        const lastChildNodeModel = this.getBranchEndNode(branch);
-        if (!lastChildNodeModel) {
-            console.error("Cannot find last child node model in branch", branch);
-            return;
-        }
-
-        const endLink = createNodesLink(lastChildNodeModel, containerNodeModel, {
-            alignBottom: true,
-            showAddButton: !lastNode.returning,
-            showArrow: false,
-        });
-        if (endLink) {
-            this.links.push(endLink);
         }
     }
 

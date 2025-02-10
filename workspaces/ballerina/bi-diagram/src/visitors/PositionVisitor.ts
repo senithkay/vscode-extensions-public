@@ -47,7 +47,7 @@ export class PositionVisitor implements BaseVisitor {
         node.viewState.y = this.lastNodeY;
         this.lastNodeY += node.viewState.h + NODE_GAP_Y;
 
-        if (parent?.codedata.node === "WORKER") {
+        if (parent?.codedata.node === "WORKER" || parent?.codedata.node === "ON_FAILURE") {
             const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
             node.viewState.x = centerX - node.viewState.lw;
         } else {
@@ -97,6 +97,17 @@ export class PositionVisitor implements BaseVisitor {
         if (!this.validateNode(node)) return;
         // `Body` is inside `Foreach` node
         this.lastNodeY = node.viewState.y;
+    }
+
+    beginVisitOnFailure(node: Branch, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        // Added `On Error` start node initial gap here
+        this.lastNodeY = node.viewState.y + NODE_GAP_Y / 2;
+        // update first child node position
+        // const firstChild = node.children.at(0);
+        // if (firstChild) {
+        //     firstChild.viewState.x = node.viewState.x + node.viewState.clw;
+        // }
     }
 
     beginVisitElse(node: Branch, parent?: FlowNode): void {
@@ -188,11 +199,20 @@ export class PositionVisitor implements BaseVisitor {
         this.lastNodeY += NODE_GAP_Y;
 
         const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
+        console.log(">>> centerX", {centerX, node, parent});
         node.viewState.x = centerX - node.viewState.lw;
 
-        const branch = node.branches.at(0);
-        branch.viewState.y = this.lastNodeY;
-        branch.viewState.x = centerX - branch.viewState.clw;
+        const bodyBranch = node.branches.find((branch) => branch.codedata.node === "BODY");
+        if (bodyBranch?.viewState) {
+            bodyBranch.viewState.y = this.lastNodeY;
+            bodyBranch.viewState.x = centerX - bodyBranch.viewState.clw;
+        }
+
+        const onFailureBranch = node.branches.find((branch) => branch.codedata.node === "ON_FAILURE");
+        if (onFailureBranch?.viewState) {
+            onFailureBranch.viewState.y = this.lastNodeY + bodyBranch.viewState.ch + NODE_GAP_Y;
+            onFailureBranch.viewState.x = centerX - onFailureBranch.viewState.clw;
+        }
     }
 
     endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {

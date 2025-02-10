@@ -176,36 +176,112 @@ export class InitVisitor implements BaseVisitor {
 
     beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
-        this.visitContainerNode(node, parent);
 
-        // Add start node for On Failure branch if it doesn't exist
-        const onFailureBranch = node.branches.find((branch) => branch.codedata.node === "ON_FAILURE");
-        if (onFailureBranch && onFailureBranch.children && onFailureBranch.children.length > 0) {
-            // Check if first node is not already a start node
-            if (onFailureBranch.children[0].codedata.node !== "EVENT_START") {
-                const startNode: FlowNode = {
-                    id: getCustomNodeId(node.id, START_NODE, 0, "ON_FAILURE"),
-                    metadata: {
-                        label: "On Error",
-                        description: "",
-                    },
-                    codedata: {
-                        node: "EVENT_START",
-                        lineRange: onFailureBranch.codedata.lineRange,
-                    },
-                    branches: [],
-                    returning: false,
-                    viewState: this.getDefaultViewState(),
-                };
-                onFailureBranch.children.unshift(startNode);
+        node.viewState = this.getDefaultViewState();
+        if (!node.branches || node.branches.length < 1) {
+            console.error("Branch node model not found");
+            return;
+        }
+
+        // Update Body branch with end node
+        const bodyBranch = node.branches.find((branch) => branch.codedata.node === "BODY");
+        if (!bodyBranch) {
+            console.error("Body branch not found", node);
+            return;
+        }
+
+        bodyBranch.viewState = this.getDefaultViewState();
+        // remove empty nodes if the body branch is not empty
+        if (bodyBranch.children && bodyBranch.children.length > 0) {
+            let emptyNodeIndex = bodyBranch.children.findIndex((child) => child.codedata.node === "EMPTY");
+            while (emptyNodeIndex >= 0) {
+                bodyBranch.children.splice(emptyNodeIndex, 1);
+                emptyNodeIndex = bodyBranch.children.findIndex((child) => child.codedata.node === "EMPTY");
             }
         }
 
-        // hide container if the error handler is in top level
-        const errorNode = this.flow.nodes?.find((n) => n.codedata.node === "ERROR_HANDLER");
-        if (errorNode) {
-            errorNode.viewState.isTopLevel = true;
+        // add empty node if the body branch is empty
+        if (!bodyBranch.children || bodyBranch.children.length === 0) {
+            // add empty node as `add new node` button
+            const emptyNode: FlowNode = {
+                id: getCustomNodeId(node.id, bodyBranch.label),
+                codedata: {
+                    node: "EMPTY",
+                },
+                returning: false,
+                metadata: { label: "", description: "" },
+                branches: [],
+                viewState: this.getDefaultViewState(),
+            };
+            bodyBranch.children.push(emptyNode);
         }
+
+        // add end node to the body branch
+        const bodyEndNode: FlowNode = {
+            id: getCustomNodeId(node.id, LAST_NODE, 0, "BODY"),
+            codedata: {
+                node: "EMPTY",
+            },
+            returning: false,
+            metadata: { label: "", description: "" },
+            branches: [],
+            viewState: this.getDefaultViewState(),
+        };
+        bodyBranch.children.push(bodyEndNode);
+
+        // Update On Failure branch with start and end node
+        const onFailureBranch = node.branches.find((branch) => branch.codedata.node === "ON_FAILURE");
+        if (!onFailureBranch) {
+            console.error("On failure branch not found", node);
+            return;
+        }
+        onFailureBranch.viewState = this.getDefaultViewState();
+        // Check if first node is not already a start node
+        const startNode: FlowNode = {
+            id: getCustomNodeId(node.id, START_NODE, 0, "ON_FAILURE"),
+            metadata: {
+                label: "On Error",
+                description: "",
+            },
+            codedata: {
+                node: "EVENT_START",
+                lineRange: onFailureBranch.codedata.lineRange,
+            },
+            branches: [],
+            returning: false,
+            viewState: this.getDefaultViewState(),
+        };
+        onFailureBranch.children.unshift(startNode);
+
+        // add end node to the error branch
+        const onFailureEndNode: FlowNode = {
+            id: getCustomNodeId(node.id, LAST_NODE, 0, "ON_FAILURE"),
+            codedata: {
+                node: "EMPTY",
+            },
+            returning: false,
+            metadata: { label: "", description: "" },
+            branches: [],
+            viewState: this.getDefaultViewState(),
+        };
+        onFailureBranch.children.push(onFailureEndNode);
+
+        // hide container if the error handler is in top level
+        // const errorNode = this.flow.nodes?.find((n) => n.codedata.node === "ERROR_HANDLER");
+        // if (errorNode) {
+        //     errorNode.viewState.isTopLevel = true;
+        // }
+    }
+
+    endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        // remove view state of error branch and its children to avoid visiting them
+        // const errorBranch = node.branches.find((branch) => branch.codedata.node === "ON_FAILURE");
+        // errorBranch.viewState = undefined;
+        // errorBranch.children.forEach((child) => {
+        //     child.viewState = undefined;
+        // });
+        this.endVisitNode(node, parent);
     }
 
     private visitForkNode(node: FlowNode, parent?: FlowNode): void {
@@ -260,17 +336,6 @@ export class InitVisitor implements BaseVisitor {
     beginVisitFork(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
         this.visitForkNode(node, parent);
-    }
-
-    endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
-        if (!this.validateNode(node)) return;
-        // remove view state of error branch and its children to avoid visiting them
-        const errorBranch = node.branches.find((branch) => branch.codedata.node === "ON_FAILURE");
-        errorBranch.viewState = undefined;
-        errorBranch.children.forEach((child) => {
-            child.viewState = undefined;
-        });
-        this.endVisitNode(node, parent);
     }
 
     skipChildren(): boolean {

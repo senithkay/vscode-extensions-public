@@ -183,8 +183,13 @@ export class SizingVisitor implements BaseVisitor {
         this.createBlockNode(node);
     }
 
-    // `Body` is inside `Foreach` node
+    // while, foreach, error handler
     endVisitBody(node: Branch, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.createBlockNode(node);
+    }
+
+    endVisitOnFailure(node: Branch, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
         this.createBlockNode(node);
     }
@@ -237,8 +242,7 @@ export class SizingVisitor implements BaseVisitor {
         if (!this.validateNode(node)) return;
         const width = COMMENT_NODE_WIDTH;
         const height = NODE_HEIGHT;
-        const containerWidth = width + NODE_WIDTH / 2;
-        this.setNodeSize(node, 0, width, height, 0, containerWidth);
+        this.setNodeSize(node, 0, width, height);
     }
 
     private visitContainerNode(node: FlowNode, topElementWidth: number) {
@@ -283,7 +287,40 @@ export class SizingVisitor implements BaseVisitor {
 
     endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
-        this.visitContainerNode(node, WHILE_NODE_WIDTH);
+        
+        let containerLeftWidth = 0;
+        let containerRightWidth = 0;
+        let containerHeight = 0;
+        if (node.branches && node.branches.length > 0) {
+            const bodyBranch = node.branches.find((branch) => branch.codedata.node === "BODY");
+            if (bodyBranch.viewState) {
+                containerLeftWidth = Math.max(containerLeftWidth, Math.max(bodyBranch.viewState.clw, NODE_GAP_X));
+                containerRightWidth = Math.max(containerRightWidth, Math.max(bodyBranch.viewState.crw, NODE_GAP_X));
+                containerHeight = bodyBranch.viewState.ch;
+            }
+            const onFailureBranch = node.branches.find((branch) => branch.codedata.node === "ON_FAILURE");
+            if (onFailureBranch.viewState) {
+                containerLeftWidth = Math.max(containerLeftWidth, Math.max(onFailureBranch.viewState.clw, NODE_GAP_X));
+                containerRightWidth = Math.max(containerRightWidth, Math.max(onFailureBranch.viewState.crw, NODE_GAP_X));
+                containerHeight = bodyBranch.viewState.ch + onFailureBranch.viewState.ch;
+            }
+        }
+        // add while node width and height
+        containerHeight += WHILE_NODE_WIDTH + NODE_GAP_Y * 2;
+        containerLeftWidth += NODE_GAP_X / 2;
+        containerRightWidth += NODE_GAP_X / 2;
+
+        const halfNodeWidth = WHILE_NODE_WIDTH / 2;
+        const nodeHeight = WHILE_NODE_WIDTH;
+        this.setNodeSize(
+            node,
+            halfNodeWidth,
+            halfNodeWidth,
+            nodeHeight,
+            containerLeftWidth,
+            containerRightWidth,
+            containerHeight
+        );
     }
 
     endVisitFork(node: FlowNode, parent?: FlowNode): void {
