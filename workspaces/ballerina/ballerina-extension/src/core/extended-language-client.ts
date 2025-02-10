@@ -159,7 +159,8 @@ import {
     GetTestFunctionResponse,
     AddOrUpdateTestFunctionRequest,
     TestSourceEditResponse,
-    FunctionNodeResponse
+    FunctionNodeResponse,
+    FunctionNodeRequest
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
