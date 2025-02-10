@@ -11,12 +11,12 @@ import { Type, ServiceClassModel, ModelFromCodeRequest, FieldType, FunctionModel
 import { Button, Codicon, Typography, TextField, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import { Colors } from "../../resources/constants";
+import { Colors } from "../../../resources/constants";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { LoadingContainer } from "../styles";
+import { LoadingContainer } from "../../styles";
 import { FunctionCard } from "./FunctionCard";
 import { VariableCard } from "./VariableCard";
-import { OperationForm } from "./OperationForm";
+import { OperationForm } from "../../GraphQLDiagram/OperationForm";
 import { VariableForm } from "./VariableForm";
 import { URI, Utils } from "vscode-uri";
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";

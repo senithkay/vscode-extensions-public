@@ -18,7 +18,7 @@ import styled from "@emotion/styled";
 import { GraphqlServiceEditor } from "./GraphqlServiceEditor";
 import { TypeEditor } from "@wso2-enterprise/type-editor";
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
-import { ClassTypeEditor } from "./ClassTypeEditor";
+import { ClassTypeEditor } from "../BI/ServiceClassEditor/ClassTypeEditor";
 
 const HeaderContainer = styled.div`
     align-items: center;

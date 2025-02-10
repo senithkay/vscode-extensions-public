@@ -235,15 +235,17 @@ export function TypeEditor(props: TypeEditorProps) {
     }, [isNewType]);
 
     const handleTypeKindChange = (value: string) => {
+        // if the value is Service Class, the type kind should be CLASS
+        const typeValue = value === "Service Class" ? "CLASS" : value;
         setSelectedTypeKind(value as TypeKind);
         // Always create a new type with the selected kind
         setType((currentType) => ({
             ...currentType!,
-            kind: value,
+            kind: typeValue,
             members: [] as Member[],
             codedata: {
                 ...currentType!.codedata, // Check the location of the type
-                node: value.toUpperCase() as TypeNodeKind
+                node: typeValue.toUpperCase() as TypeNodeKind
             }
         }));
     };

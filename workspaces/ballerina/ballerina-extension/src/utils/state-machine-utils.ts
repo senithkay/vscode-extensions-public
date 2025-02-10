@@ -37,7 +37,8 @@ export async function getView(documentUri: string, position: NodePosition, proje
                         view: MACHINE_VIEW.TypeDiagram,
                         documentUri: documentUri,
                         position: position,
-                        identifier: name
+                        identifier: name,
+                        projectUri: projectUri
                     }
                 };
             }

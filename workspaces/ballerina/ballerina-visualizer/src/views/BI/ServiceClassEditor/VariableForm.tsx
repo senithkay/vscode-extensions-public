@@ -9,7 +9,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FieldType, LineRange, Type } from '@wso2-enterprise/ballerina-core';
-import { FormGeneratorNew } from '../BI/Forms/FormGeneratorNew';
+import { FormGeneratorNew } from '../Forms/FormGeneratorNew';
 import { FormField, FormValues } from '@wso2-enterprise/ballerina-side-panel';
 
 interface VariableFormProps {
