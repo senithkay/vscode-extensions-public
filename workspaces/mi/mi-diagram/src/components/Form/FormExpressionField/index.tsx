@@ -321,11 +321,11 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
 
     const handleExpressionEditorChange = useCallback((expressionField: FormExpressionFieldValue) => {
         onChange({
-            ...value,
-            value: value.isExpression ? enrichExpressionValue(expressionField.value) : expressionField.value
+            ...expressionField,
+            value: expressionField.isExpression ? enrichExpressionValue(expressionField.value) : expressionField.value
         });
         cursorPositionRef.current = expressionField.value?.length ?? 0;
-    }, [value, onChange, retrieveCompletions]);
+    }, [onChange, enrichExpressionValue]);
     
     const handleOpenExpressionEditor = useCallback(() => {
         const extractedExpressionValue = extractExpressionValue(value.value);

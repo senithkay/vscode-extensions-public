@@ -536,7 +536,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
         if (!fs.existsSync(readmePath)) {
             // Create README.md if it doesn't exist
-            fs.writeFileSync(readmePath, "# Project Settings\n\nAdd your project description here.");
+            fs.writeFileSync(readmePath, "# Project Overview\n\nAdd your project description here.");
         }
 
         // Open README.md in the editor
@@ -636,32 +636,6 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
                 reject(error);
             }
         });
-    }
-    async updateCarPluginVersion(): Promise<boolean> {
-        const version = "5.2.88";
-        const pomFiles = await vscode.workspace.findFiles('pom.xml', '**/node_modules/**', 1);
-        if (pomFiles.length === 0) {
-            throw new Error('pom.xml not found.');
-        }
-        const pomContent = await vscode.workspace.openTextDocument(pomFiles[0]);
-        let xml = pomContent.getText();
-
-        const propertyTag = `<car.plugin.version>${version}</car.plugin.version>`;
-
-        const singleCarPluginRegex = /<car\.plugin\.version>.*?<\/car\.plugin\.version>/s;
-        if (singleCarPluginRegex.test(xml)) {
-            xml = xml.replace(singleCarPluginRegex, propertyTag);
-            fs.writeFileSync(pomFiles[0].fsPath, xml);
-            return true;
-        }
-        const multipleCarPluginRegex = /<plugin>[\s\S]*?vscode-car-plugin[\s\S]*?<version>(.*?)<\/version>[\s\S]*?<\/plugin>/g;
-        let match: RegExpExecArray | null;
-        while ((match = multipleCarPluginRegex.exec(xml)) !== null) {
-            const versionTag = match[1];
-            xml = xml.replace(versionTag, version);
-        }
-        fs.writeFileSync(pomFiles[0].fsPath, xml);
-        return true;
     }
 }
 
