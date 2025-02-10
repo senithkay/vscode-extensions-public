@@ -301,7 +301,7 @@ export class ExtendedLanguageClient extends LanguageClient {
     }
 
     async addDBDriver(req: AddDriverRequest): Promise<boolean> {
-        return this.sendRequest("synapse/addDBDriver", req);
+        return this.sendRequest("synapse/addDBDriver", { addDriverPath: req.driverPath, removeDriverPath: "", className: req.className });
     }
 
     async removeDBDriver(req: AddDriverRequest): Promise<RemoveDBDriverResponse> {

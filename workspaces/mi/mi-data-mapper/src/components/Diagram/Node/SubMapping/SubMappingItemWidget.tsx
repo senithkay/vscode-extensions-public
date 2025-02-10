@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ProgressRing, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 import { Block } from "ts-morph";
@@ -60,7 +60,7 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
     const isLastItem = index === subMappings.length - 1;
 
     const label = (
-        <span style={{ marginRight: "auto" }} data-testid={`sub-mapping-item-widget-label-${id}`}>
+        <TruncatedLabel style={{ marginRight: "auto" }} data-testid={`sub-mapping-item-widget-label-${id}`}>
             <span className={classes.valueLabel}>
                 <OutputSearchHighlight>{valueLabel ? valueLabel : id}</OutputSearchHighlight>
                 {typeName && ":"}
@@ -71,7 +71,7 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
                 </span>
             )}
 
-        </span>
+        </TruncatedLabel>
     );
 
     const onClickAddSubMappingAtTop = () => {

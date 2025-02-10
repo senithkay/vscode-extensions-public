@@ -16,6 +16,8 @@ export function escapeXml(text: string) {
     .replace(/"/g, '&quot;');
 };
 
+export const LATEST_CAR_PLUGIN_VERSION = "5.2.93";
+
 export const rootPomXmlContent = (projectName: string, groupID: string, artifactID: string, projectUuid: string, version: string, miVersion: string) => `<?xml version="1.0" encoding="UTF-8"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -176,12 +178,12 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
         </plugins>
       </build>
       <properties>
-        <server.type>local</server.type>
-        <server.host>localhost</server.host>
-        <server.port>9008</server.port>
-        <server.path>/</server.path>
-        <server.version>\${project.runtime.version}</server.version>
-        <server.download.link>\${testServerDownloadLink}</server.download.link>
+        <server.type>\${test.server.type}</server.type>
+        <server.host>\${test.server.host}</server.host>
+        <server.port>\${test.server.port}</server.port>
+        <server.path>\${test.server.path}</server.path>
+        <server.version>\${test.server.version}</server.version>
+        <server.download.link>\${test.server.download.link}</server.download.link>
       </properties>
     </profile>
     <profile>
@@ -358,12 +360,12 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
         </plugins>
       </build>
       <properties>
-        <server.type>local</server.type>
-        <server.host>localhost</server.host>
-        <server.port>9008</server.port>
-        <server.path>/</server.path>
-        <server.version>\${project.runtime.version}</server.version>
-        <server.download.link>\${testServerDownloadLink}</server.download.link>
+        <server.type>\${test.server.type}</server.type>
+        <server.host>\${test.server.host}</server.host>
+        <server.port>\${test.server.port}</server.port>
+        <server.path>\${test.server.path}</server.path>
+        <server.version>\${test.server.version}</server.version>
+        <server.download.link>\${test.server.download.link}</server.download.link>
       </properties>
     </profile>
   </profiles>
@@ -372,7 +374,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
       <plugin>
         <groupId>org.wso2.maven</groupId>
         <artifactId>synapse-unit-test-maven-plugin</artifactId>
-        <version>5.2.82</version>
+        <version>5.2.90</version>
         <executions>
           <execution>
             <id>synapse-unit-test</id>
@@ -411,7 +413,15 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
     <project.scm.id>integration-project</project.scm.id>
     <project.runtime.version>${miVersion}</project.runtime.version>
     <dockerfile.base.image>wso2/wso2mi:\${project.runtime.version}</dockerfile.base.image>
-    <car.plugin.version>5.2.88</car.plugin.version>
+    <car.plugin.version>5.2.93</car.plugin.version>
+    <car.plugin.version>${LATEST_CAR_PLUGIN_VERSION}</car.plugin.version>
+    <test.server.type>local</test.server.type>
+    <test.server.host>localhost</test.server.host>
+    <test.server.port>9008</test.server.port>
+    <test.server.path>/</test.server.path>
+    <test.server.version>\${project.runtime.version}</test.server.version>
+    <testServerDownloadLink>https://github.com/wso2/micro-integrator/releases/download/v\${test.server.version}/wso2mi-\${test.server.version}.zip</testServerDownloadLink>
+    <maven.test.skip>false</maven.test.skip>
   </properties>
 </project>`;
 

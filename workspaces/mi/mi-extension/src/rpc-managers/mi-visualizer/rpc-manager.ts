@@ -482,7 +482,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         const miPath = await downloadMI(miVersion);
         return miPath;
     }
-    async getSupportedMIVersionsHigherThan(miVersion:string): Promise<string[]> {
+    async getSupportedMIVersionsHigherThan(miVersion: string): Promise<string[]> {
         return getSupportedMIVersionsHigherThan(miVersion);
     }
     async setPathsInWorkSpace(request: SetPathRequest): Promise<PathDetailsResponse> {
@@ -536,7 +536,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
         if (!fs.existsSync(readmePath)) {
             // Create README.md if it doesn't exist
-            fs.writeFileSync(readmePath, "# Project Settings\n\nAdd your project description here.");
+            fs.writeFileSync(readmePath, "# Project Overview\n\nAdd your project description here.");
         }
 
         // Open README.md in the editor

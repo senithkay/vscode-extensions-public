@@ -75,7 +75,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
             this.isMapFn = isMapFnAtPropAsmt || isMapFnAtRootRtn;
 
             const isCollapsedField = useDMCollapsedFieldsStore.getState().isCollapsedField;
-            const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value);
+            const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value, this.context.recursiveTypes);
             this.dmType = type;
             this.typeName = getTypeName(valueEnrichedType.type);
 
@@ -189,7 +189,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
 
     async deleteField(field: Node, keepDefaultVal?: boolean) {
         const typeOfValue = getTypeOfValue(this.dmTypeWithValue, getPosition(field));
-        const defaultValue = getDefaultValue(typeOfValue.kind);
+        const defaultValue = getDefaultValue(typeOfValue);
 
         if (keepDefaultVal && !Node.isPropertyAssignment(field)) {
             field.replaceWithText(defaultValue);

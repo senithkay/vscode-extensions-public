@@ -7,6 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { ArrayLiteralExpression, AsExpression, Block, FunctionDeclaration, Node, ObjectLiteralExpression, PropertyAssignment, VariableDeclaration } from "ts-morph"
+import { cloneDeep } from "lodash";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
@@ -14,10 +15,11 @@ import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
 
 export function enrichAndProcessType(
     typeToBeProcessed: DMType,
-    node: Node
+    node: Node,
+    recursiveTypes: Record<string, DMType>
 ): [DMTypeWithValue, DMType] {
     let type = { ...typeToBeProcessed };
-    let valueEnrichedType = getEnrichedDMType(type, node);
+    let valueEnrichedType = getEnrichedDMType(type, node, recursiveTypes);
     return [valueEnrichedType, type];
 }
 
@@ -119,6 +121,7 @@ export function getTypeForVariable(
 export function getEnrichedDMType(
     type: DMType,
     node: Node | undefined,
+    recursiveTypes: Record<string, DMType>,
     parentType?: DMTypeWithValue,
     childrenTypes?: DMTypeWithValue[]
 ): DMTypeWithValue {
@@ -135,18 +138,25 @@ export function getEnrichedDMType(
         nextNode = node;
     }
 
+    if (type.isRecursive && valueNode) {
+        const recursiveType = type;
+        type = cloneDeep(recursiveTypes[recursiveType.typeName]);
+        type.fieldName = recursiveType.fieldName;
+        type.optional = recursiveType.optional;
+    }
+
     dmTypeWithValue = new DMTypeWithValue(type, valueNode, parentType, originalType);
 
     if (type.kind === TypeKind.Interface) {
-        addChildrenTypes(type, childrenTypes, nextNode, dmTypeWithValue);
+        addChildrenTypes(type, childrenTypes, nextNode, dmTypeWithValue, recursiveTypes);
     } else if (type.kind === TypeKind.Array && type?.memberType) {
         if (nextNode) {
-            addEnrichedArrayElements(nextNode, type, dmTypeWithValue, childrenTypes);
+            addEnrichedArrayElements(nextNode, type, dmTypeWithValue, recursiveTypes, childrenTypes);
         } else {
-            addArrayElements(type, parentType, dmTypeWithValue, childrenTypes);
+            addArrayElements(type, parentType, dmTypeWithValue, recursiveTypes, childrenTypes);
         }
     } else if (type.kind === TypeKind.Union) {
-        resolveUnionType(type, childrenTypes, nextNode, dmTypeWithValue);
+        resolveUnionType(type, childrenTypes, nextNode, dmTypeWithValue, recursiveTypes);
     }
 
     return dmTypeWithValue;
@@ -177,12 +187,13 @@ export function getDMTypeDim(dmType: DMType) {
 function getEnrichedPrimitiveType(
     field: DMType,
     node: Node,
+    recursiveTypes: Record<string, DMType>,
     parentType?: DMTypeWithValue,
     childrenTypes?: DMTypeWithValue[]
 ) {
     const members: ArrayElement[] = [];
 
-    const childType = getEnrichedDMType(field, node, parentType, childrenTypes);
+    const childType = getEnrichedDMType(field, node, recursiveTypes, parentType, childrenTypes);
 
     if (childType) {
         members.push({
@@ -197,6 +208,7 @@ function getEnrichedPrimitiveType(
 function getEnrichedArrayType(
     field: DMType,
     node: ArrayLiteralExpression,
+    recursiveTypes: Record<string, DMType>,
     parentType?: DMTypeWithValue,
     childrenTypes?: DMTypeWithValue[]
 ) {
@@ -208,7 +220,7 @@ function getEnrichedArrayType(
         const type = { ...field }; //TODO: need to check with nested case
 
         if (type) {
-            const childType = getEnrichedDMType(type, expr, parentType, childrenTypes);
+            const childType = getEnrichedDMType(type, expr, recursiveTypes, parentType, childrenTypes);
 
             if (childType) {
                 members.push({
@@ -275,13 +287,14 @@ function addChildrenTypes(
     type: DMType,
     childrenTypes: DMTypeWithValue[] | undefined,
     nextNode: Node | undefined,
-    dmTypeWithValue: DMTypeWithValue
+    dmTypeWithValue: DMTypeWithValue,
+    recursiveTypes: Record<string, DMType>
 ) {
     const fields = type.fields;
     const children = [...childrenTypes ? childrenTypes : []];
     if (fields && !!fields.length) {
         fields.map((field) => {
-            const childType = getEnrichedDMType(field, nextNode, dmTypeWithValue, childrenTypes);
+            const childType = getEnrichedDMType(field, nextNode, recursiveTypes, dmTypeWithValue, childrenTypes);
             children.push(childType);
         });
     }
@@ -292,22 +305,23 @@ function addEnrichedArrayElements(
     nextNode: Node,
     type: DMType,
     dmTypeWithValue: DMTypeWithValue,
+    recursiveTypes: Record<string, DMType>,
     childrenTypes?: DMTypeWithValue[]
 ) {
     if (Node.isObjectLiteralExpression(nextNode)) {
         if (type.memberType.kind === TypeKind.Interface) {
-            const childType = getEnrichedDMType(type.memberType, nextNode, dmTypeWithValue, childrenTypes);
+            const childType = getEnrichedDMType(type.memberType, nextNode, recursiveTypes, dmTypeWithValue, childrenTypes);
             dmTypeWithValue.elements = [{
                 member: childType,
                 elementNode: nextNode
             }];
         } else {
-            dmTypeWithValue.elements = getEnrichedPrimitiveType(type.memberType, nextNode, dmTypeWithValue);
+            dmTypeWithValue.elements = getEnrichedPrimitiveType(type.memberType, nextNode, recursiveTypes, dmTypeWithValue);
         }
     } else if (Node.isArrayLiteralExpression(nextNode)) {
-        dmTypeWithValue.elements = getEnrichedArrayType(type.memberType, nextNode, dmTypeWithValue);
+        dmTypeWithValue.elements = getEnrichedArrayType(type.memberType, nextNode, recursiveTypes, dmTypeWithValue);
     } else {
-        dmTypeWithValue.elements = getEnrichedPrimitiveType(type.memberType, nextNode, dmTypeWithValue);
+        dmTypeWithValue.elements = getEnrichedPrimitiveType(type.memberType, nextNode, recursiveTypes, dmTypeWithValue);
     }
 }
 
@@ -315,11 +329,12 @@ function addArrayElements(
     type: DMType,
     parentType: DMTypeWithValue,
     dmTypeWithValue: DMTypeWithValue,
+    recursiveTypes: Record<string, DMType>,
     childrenTypes?: DMTypeWithValue[]
 ) {
     if (type.memberType.kind === TypeKind.Interface) {
         const members: ArrayElement[] = [];
-        const childType = getEnrichedDMType(type.memberType, undefined, parentType, childrenTypes);
+        const childType = getEnrichedDMType(type.memberType, undefined, recursiveTypes, parentType, childrenTypes);
         members.push({
             member: childType,
             elementNode: undefined
@@ -332,7 +347,8 @@ function resolveUnionType(
     type: DMType,
     childrenTypes: DMTypeWithValue[] | undefined,
     nextNode: Node | undefined,
-    dmTypeWithValue: DMTypeWithValue
+    dmTypeWithValue: DMTypeWithValue,
+    recursiveTypes: Record<string, DMType>
 ) {
     const parentNode = nextNode?.getParent();
 
@@ -342,10 +358,11 @@ function resolveUnionType(
             (typeName ===
                 (parentNode?.getType().getSymbol()?.getName() || 
                 parentNode?.getType().getAliasSymbol()?.getName() ||
+                nextNode?.getType().getText() ||
                 nextNode?.getType().getBaseTypeOfLiteralType()?.getText()));
     });
 
     if (type.resolvedUnionType && Node.isAsExpression(parentNode)) {
-        addChildrenTypes(type.resolvedUnionType, childrenTypes, nextNode, dmTypeWithValue);
+        addChildrenTypes(type.resolvedUnionType, childrenTypes, nextNode, dmTypeWithValue, recursiveTypes);
     }
 }

@@ -62,7 +62,7 @@ const StepContainer = styled.div`
 export const EnvironmentSetup = () => {
     const { rpcClient } = useVisualizerContext();
     const [recommendedVersions, setRecommendedVersions] = useState<{ miVersion: string, javaVersion: string }>({ miVersion: "", javaVersion: "" });
-    const [isPomValid, setIsPomValid] = useState<boolean>(true);
+    const [miVersionStatus, setMiVersionStatus] = useState<"valid" | "missing" | "not-valid">("not-valid");
     const [isJavaDownloading, setIsJavaDownloading] = useState(false);
     const [isMIDownloading, setIsMIDownloading] = useState(false);
     const [javaProgress, setJavaProgress] = useState<number>(0);
@@ -76,9 +76,10 @@ export const EnvironmentSetup = () => {
 
     useEffect(() => {
         const fetchMIVersionAndSetup = async () => {
-            const { recommendedVersions, javaDetails, miDetails, isSupportedMIVersion, showDownloadButtons } =
+            const { recommendedVersions, javaDetails, miDetails, miVersionStatus, showDownloadButtons } =
                 await rpcClient.getMiVisualizerRpcClient().getProjectSetupDetails();
-            if (isSupportedMIVersion) {
+                setMiVersionStatus(miVersionStatus);
+            if (miVersionStatus === "valid") {
                 setRecommendedVersions(recommendedVersions);
                 setJavaPathDetails(javaDetails);
                 setPathDetails(miDetails);
@@ -88,7 +89,6 @@ export const EnvironmentSetup = () => {
                 const supportedMIVersions = supportedVersions.map((version: string) => ({ value: version, content: version }));
                 setSupportedMIVersions(supportedMIVersions);
                 setSelectedRuntimeVersion(supportedMIVersions[0].value);
-                setIsPomValid(false);
             }
         };
         fetchMIVersionAndSetup();
@@ -197,36 +197,42 @@ export const EnvironmentSetup = () => {
     function renderContinue() {
         const javaStatus = javaPathDetails?.status;
         const miStatus = miPathDetails?.status;
-        const isEnable = javaStatus !== "not-valid" && miStatus !== "not-valid";
-        const needSetup = javaStatus !== "valid" || miStatus !== "valid";
+        const canContinue = javaStatus !== "not-valid" && miStatus !== "not-valid";
+        const isProperlySetup = javaStatus === "valid" && miStatus === "valid";
         const bothNotFound = javaStatus === "not-valid" && miStatus === "not-valid";
-        const refreshDisabled = (javaStatus === "not-valid" || miStatus === "not-valid") || (isJavaDownloading || isMIDownloading)
-        if (isEnable && needSetup) {
-            return <ButtonWithDescription buttonDisabled={refreshDisabled}
-                onClick={refreshProject}
-                buttonText="Continue Anyway"
-                description="Project is not properly setup. You can continue anyway. However, the project may not work as expected."
-                appearance="secondary"
-            />
-        } else if (!needSetup) {
-            return <ButtonWithDescription buttonDisabled={refreshDisabled}
+
+        if (isProperlySetup) {
+            return <ButtonWithDescription 
                 onClick={refreshProject}
                 buttonText="Continue"
                 description="Project is properly setup. Click continue to open the project."
             />
-        } else if (bothNotFound && showDownloadButtons) {
+        }
+        if (canContinue) {
+            const javaDescription = "Warning: The recommended Java version for the runtime has not been used. While you can continue, please note that the project may not function as expected without the proper version."
+            const miDescription = "Warning: The runtime version configured in the developer environment does not match with the runtime version configured for the project. While you can continue, please note that the project may not function as expected without the proper version."
+            return <ButtonWithDescription 
+                onClick={refreshProject}
+                buttonText="Continue Anyway"
+                description={miStatus !== "valid" ? miDescription : javaDescription}
+                appearance="secondary"
+            />
+        }
+
+        if (bothNotFound && showDownloadButtons) {
             return <ButtonWithDescription buttonDisabled={isJavaDownloading || isMIDownloading}
                 onClick={handleDownload}
                 buttonText="Download Java & MI"
                 description="Download and setup the Java and Micro Integrator runtime."
             />
-        } else {
-            return <ButtonWithDescription buttonDisabled={true}
-                onClick={refreshProject}
-                buttonText="Continue"
-                description="Setup properly to continue."
-            />
         }
+
+        return <ButtonWithDescription buttonDisabled={true}
+            onClick={refreshProject}
+            buttonText="Continue"
+            description="Configure the Java and Micro Integrator runtime to continue."
+        />
+
     }
 
     const refreshProject = async () => {
@@ -245,14 +251,27 @@ export const EnvironmentSetup = () => {
         }
     }
 
+    const getHeadlineDescription = () => {
+        let javaStatus = javaPathDetails?.status;
+        let miStatus = miPathDetails?.status;
+
+        if (javaStatus === "valid" && miStatus === "valid") {
+            return `Micro Integrator ${recommendedVersions.miVersion} project is setup.`;
+        } else if (javaStatus !== "not-valid" && miStatus !== "not-valid") {
+            return `Micro Integrator ${recommendedVersions.miVersion} project in not properly setup.`;
+        } else {
+            return `Micro Integrator ${recommendedVersions.miVersion} is not setup.`;
+        }
+    }
+
     return (
         <Container>
             <TitlePanel>
                 <Headline>Micro Integrator (MI) for VS Code</Headline>
-                <HeadlineSecondary>Micro Integrator version {recommendedVersions.miVersion} is not setup.</HeadlineSecondary>
+                <HeadlineSecondary>{getHeadlineDescription()}</HeadlineSecondary>
             </TitlePanel>
 
-            {isPomValid ? (
+            {miVersionStatus === "valid" ? (
                 <>
                     <StepContainer>
                         {renderContinue()}
@@ -305,12 +324,9 @@ export const EnvironmentSetup = () => {
             ) : (
                 <>
                     <div>
-                        <p>
-                            Unsupported project runtime version detected in <code>pom.xml</code>.
-                        </p>
-                        <p>
-                            Update the runtime version in your <code>pom.xml</code> file to a supported version.
-                        </p>
+                        {miVersionStatus === "not-valid" && <p>Unsupported runtime version detected in the project configurations.</p>}
+                        {miVersionStatus === "missing" && <p>Runtime version not found in the project configurations.</p>}
+                        <p>Select the runtime version for the project</p>
                     </div>
 
                     <Dropdown

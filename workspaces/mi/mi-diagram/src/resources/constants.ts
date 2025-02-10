@@ -31,7 +31,7 @@ export enum DefaultColors {
 }
 
 export enum VSCodeColors {
-    PRIMARY = "var(--vscode-button-background)",
+    PRIMARY = "var(--vscode-progressBar-background)",
     ON_PRIMARY = "var(--vscode-button-foreground)",
     PRIMARY_CONTAINER = "var(--vscode-sideBar-background)",
 
@@ -56,6 +56,8 @@ export enum VSCodeColors {
     INPUT_OPTION_INACTIVE = "var(--vscode-inputOption-inactiveBackground)",
     INPUT_OPTION_HOVER = "var(--vscode-inputOption-hoverBackground)",
     INPUT_OPTION_ACTIVE_BORDER = "var(--vscode-inputOption-activeBorder)",
+
+    WARNING = "var(--vscode-editorWarning-foreground)",
 }
 
 export const Colors = {
@@ -91,6 +93,7 @@ export const Colors = {
     INPUT_OPTION_ACTIVE_BORDER: VSCodeColors.INPUT_OPTION_ACTIVE_BORDER,
 
     DEBUGGER_BREAKPOINT_BACKGROUND: DefaultColors.DEBUGGER_BREAKPOINT_BACKGROUND,
+    WARNING: VSCodeColors.WARNING,
 };
 
 export const SIDE_PANEL_WIDTH = 450;
@@ -308,7 +311,7 @@ export const ERROR_MESSAGES = {
     ERROR_LOADING_MEDIATORS: "Error loading mediator data. Please try again.",
     ERROR_LOADING_TRYOUT: "Error loading tryout data. Please try again.",
     ERROR_TRYING_OUT_MEDIATOR: "Error trying out mediator. Please try again.",
-    ERROR_LOADING_PROJECT_OVERVIEW: "Error loading project settings. Please try again.",
+    ERROR_LOADING_PROJECT_OVERVIEW: "Error loading project overview. Please try again.",
     ERROR_LOADING_PROJECT_STRUCTURE: "Error loading project structure. Please try again.",
     ERROR_LOADING_MODULES: "Error loading module data. Please try again."
 }

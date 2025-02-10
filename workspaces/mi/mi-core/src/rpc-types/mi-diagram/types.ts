@@ -1466,6 +1466,7 @@ export interface GetAvailableConnectorResponse {
 export interface ConnectorDependency {
     artifactId: string;
     version: string;
+    connectorPath?: string;
 }
 
 export interface UpdateConnectorRequest {
@@ -1909,6 +1910,7 @@ export interface GetMediatorsResponse {
         isConnector?: boolean;
         artifactId?: string;
         version?: string;
+        connectorPath?: string;
     };
 }
 

@@ -88,7 +88,10 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const [definition, setDefinition] = useState<GetDefinitionResponse>(undefined);
     const [canOpenView, setCanOpenView] = useState(false);
-    const description = getNodeDescription(node.stNode) || node.referenceName;
+    const referenceKey = node.referenceName?.split("=")[0];
+    const referenceValue = node.referenceName?.split("=")[1];
+    const isClickable = referenceKey !== "inSequence" && referenceKey !== "outSequence" && referenceKey !== "faultSequence" && node.stNode.tag !== "target";
+    const description = getNodeDescription(node.stNode) || referenceValue;
 
     useEffect(() => {
         if (node.mediatorName === MEDIATORS.DATAMAPPER) {
@@ -118,7 +121,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
             range
         });
 
-        const regex = /\s*(?:key|inSequence|outSequence|serviceName|sequence)\s*=\s*(['"])(.*?)\1/;
+        const regex = new RegExp(`\\s*${referenceKey}\\s*=\\s*(['"])(.*?)\\1`);
         const match = text?.text?.match(regex);
         if (match) {
             const keyPart = match[0].split("=")[0];
@@ -168,6 +171,10 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
     const handleOpenView = async (e?: any) => {
         if (e) e.stopPropagation();
 
+        if (!definition && node.mediatorName !== MEDIATORS.DATAMAPPER) {
+            return onClick(e);
+        }
+
         if (node.mediatorName === MEDIATORS.DATASERVICECALL) {
             node.openDSSServiceDesigner(rpcClient, definition.uri);
         } else if (node.mediatorName === MEDIATORS.DATAMAPPER) {
@@ -178,7 +185,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
     }
 
     const onClick = (e: any) => {
-        if (node.stNode.tag === "target") {
+        if (!isClickable) {
             return;
         }
         node.onClicked(e, node, rpcClient, sidePanelContext);

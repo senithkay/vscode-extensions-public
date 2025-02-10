@@ -10,7 +10,7 @@
 import React, { useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { Button, Codicon, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Tooltip, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 import classnames from "classnames";
 
@@ -62,7 +62,7 @@ export function OutputFieldPreviewWidget(props: OutputFieldPreviewWidgetProps) {
     const indentation = fields ? 0 : ((treeDepth + 1) * 16) + 8;
 
     const label = (
-        <span style={{ marginRight: "auto", opacity: 0.5  }}>
+        <TruncatedLabel style={{ marginRight: "auto", opacity: 0.5  }}>
             <span className={classes.valueLabel} style={{ marginLeft: indentation }}>
                 <OutputSearchHighlight>{fieldName}</OutputSearchHighlight>
                 {!dmType.optional && <span className={classes.requiredMark}>*</span>}
@@ -74,7 +74,7 @@ export function OutputFieldPreviewWidget(props: OutputFieldPreviewWidgetProps) {
                 </span>
             )}
 
-        </span>
+        </TruncatedLabel>
     );
 
     const handleExpand = () => {
@@ -125,6 +125,14 @@ export function OutputFieldPreviewWidget(props: OutputFieldPreviewWidgetProps) {
                             {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
                         </Button>}
                         {label}
+                        {dmType.isRecursive && (
+                            <span
+                                className={classes.outputNodeValue}
+                                style={{ paddingInline: "3px" }}
+                                title="Recursive type">
+                                ∞
+                            </span>
+                        )}
                     </span>
                 </div>
             </Tooltip>

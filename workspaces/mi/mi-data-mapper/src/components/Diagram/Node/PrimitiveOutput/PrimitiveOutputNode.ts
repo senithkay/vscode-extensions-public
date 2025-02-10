@@ -64,7 +64,7 @@ export class PrimitiveOutputNode extends DataMapperNodeModel {
         if (this.dmType) {
             const { focusedST, functionST, views } = this.context;
             const isCollapsedField = useDMCollapsedFieldsStore.getState().isCollapsedField;
-            const valueEnrichedType = getEnrichedDMType(this.dmType, this.value);
+            const valueEnrichedType = getEnrichedDMType(this.dmType, this.value, this.context.recursiveTypes);
             const searchValue = useDMSearchStore.getState().outputSearch;
             const isMapFnAtPropAsmt = isMapFnAtPropAssignment(focusedST);
             const isMapFnAtRootRtn = views.length > 1 && isMapFnAtRootReturn(functionST, focusedST);
@@ -171,7 +171,7 @@ export class PrimitiveOutputNode extends DataMapperNodeModel {
 
     async deleteField(field: Node) {
         const typeOfValue = this.isLocked && this.dmType?.memberType ? this.dmType.memberType : this.dmType;
-        const defaultValue = getDefaultValue(typeOfValue?.kind);
+        const defaultValue = getDefaultValue(typeOfValue);
         const updatedField = field.replaceWithText(defaultValue);
         await this.context.applyModifications(updatedField.getSourceFile().getFullText());
     }

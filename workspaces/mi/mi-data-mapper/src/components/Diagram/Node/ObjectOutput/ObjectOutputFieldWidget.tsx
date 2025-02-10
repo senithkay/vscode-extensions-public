@@ -10,7 +10,7 @@
 import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { Button, Codicon, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon, ProgressRing, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 import { Block, InterfaceDeclaration, Node, PropertySignature } from "ts-morph";
 import classnames from "classnames";
@@ -97,9 +97,9 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         && propertyAssignment.getInitializer();
     const hasValue = initializer
         && !!initializer.getText()
-        && initializer.getText() !== getDefaultValue(field.type.kind)
+        && initializer.getText() !== getDefaultValue(field.type)
         && initializer.getText() !== "null";
-    const hasDefaultValue = initializer && initializer.getText() === getDefaultValue(field.type.kind);
+    const hasDefaultValue = initializer && initializer.getText() === getDefaultValue(field.type); 
 
     const fields = isInterface && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
@@ -112,7 +112,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const handleAddValue = async () => {
         setIsLoading(true);
         try {
-            const defaultValue = getDefaultValue(field.type.kind);
+            const defaultValue = getDefaultValue(field.type);
             const fnBody = context.functionST.getBody() as Block;
             await createSourceForUserInput(field, objectLiteralExpr, defaultValue, fnBody, context.applyModifications);
         } finally {
@@ -123,7 +123,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const handleInitUnionTypeValue = async (resolvedUnionType: DMType) => {
         setIsLoading(true);
         try {
-            let initValue = getDefaultValue(resolvedUnionType.kind);
+            let initValue = getDefaultValue(resolvedUnionType);
             if (initValue === "{}" && resolvedUnionType.kind !== TypeKind.Object && resolvedUnionType.typeName) {
                 initValue += ` as ${resolvedUnionType.typeName}`;
             }
@@ -137,7 +137,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const handleInitUnionTypeArrayElement = async (resolvedUnionType: DMType) => {
         setIsLoading(true);
         try {
-            let initValue = getDefaultValue(resolvedUnionType.kind);
+            let initValue = getDefaultValue(resolvedUnionType);
             if (initValue === "{}" && resolvedUnionType.kind !== TypeKind.Object && resolvedUnionType.typeName) {
                 initValue += ` as ${resolvedUnionType.typeName}`;
             }
@@ -228,7 +228,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     }
 
     const label = (
-        <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
+        <TruncatedLabel style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
                 className={classnames(classes.valueLabel,
                     isDisabled && !hasHoveredParent ? classes.labelDisabled : ""
@@ -279,7 +279,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                     )}
                 </span>
             )}
-        </span>
+        </TruncatedLabel>
     );
 
     const initAsUnionTypeMenuItems: ValueConfigMenuItem[] =  field.type.unionTypes?.map((unionType)=>{
@@ -384,6 +384,14 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                             </FieldActionWrapper>
                         )}
                         {label}
+                        {field.type.isRecursive && (
+                            <span
+                                className={classes.outputNodeValue}
+                                style={{ paddingInline: "3px" }}
+                                title="Recursive type. Initialize to access child fields.">
+                                ∞
+                            </span>
+                        )}
                     </span>
                     {(!isDisabled || hasValue) && (
                         <>

@@ -67,11 +67,17 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
         setIsImporting(true);
         try {
             await rpcClient.getMiVisualizerRpcClient().importOpenAPISpec({ filePath: openApiDir });
+            
+            const newConnector: any = await waitForEvent();
+            if (newConnector?.isSuccess) {
+                props.onImportSuccess();
+            } else {
+                setIsFailedImport(true);
+            }
         } catch (error) {
             console.log(error);
         }
         setIsImporting(false);
-        props.onImportSuccess();
     };
 
     const importWithZip = async () => {
@@ -125,7 +131,7 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
     return (
         <>
             <FormView title={`Import Connector`} onClose={props.handlePopupClose ?? handleOnClose}>
-                <span>Please select an method to import a connector.</span>
+                <span>Please select a method to import a connector.</span>
                 <div style={{ display: 'flex', flexDirection: 'row', gap: '80px', margin: '0px 0px 20px 0' }}>
                     <label>
                         <input

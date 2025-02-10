@@ -83,7 +83,7 @@ import {
     ImportOpenAPISpecRequest,
     updateRuntimeVersionsInPom,
     PathDetailsResponse,
-    updateLegacyExpressionSupport,
+    updateLegacyExpressionSupport
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";

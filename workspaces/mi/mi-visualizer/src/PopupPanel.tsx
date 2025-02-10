@@ -33,6 +33,7 @@ import { TemplateWizard } from './views/Forms/TemplateForm';
 import { DatamapperForm } from './views/Forms/DatamapperForm';
 import { ManageConfigurables } from './views/Overview/ProjectInformation/ManageConfigurables';
 import { MessageStoreWizard } from './views/Forms/MessageStoreForm';
+import { DataServiceWizard } from './views/Forms/DataServiceForm/MainPanelForms';
 
 const ViewContainer = styled.div`
     
@@ -89,6 +90,10 @@ const PopupPanel = (props: { formState: PopupMachineStateValue, handleClose?: ()
                     break;
                 case MACHINE_VIEW.DssDataSourceForm:
                     setViewComponent(<DataServiceDataSourceWizard isPopup={true} path={machineSate.documentUri} datasource={machineSate.customProps.datasource} handlePopupClose={props.handleClose} />);
+                    break;
+                case MACHINE_VIEW.DataServiceForm:
+                    const dsPath = [machineSate.projectUri, 'src', 'main', 'wso2mi', 'artifacts', 'data-services'].join(machineSate.pathSeparator);
+                    setViewComponent(<DataServiceWizard isPopup={true} path={dsPath} handlePopupClose={props.handleClose} />);
                     break;
                 case MACHINE_VIEW.ConnectionForm:
                     setViewComponent(

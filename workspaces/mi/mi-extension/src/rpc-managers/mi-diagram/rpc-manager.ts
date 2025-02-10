@@ -3562,6 +3562,7 @@ ${endpointAttributes}
                 if (registryRoot === '') {
                     commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 } else {
+                    commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                     commands.executeCommand(COMMANDS.REFRESH_REGISTRY_COMMAND);
                 }
             }
@@ -4966,7 +4967,7 @@ ${keyValuesXML}`;
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.checkDBDriver(className);
-            resolve(res);
+            resolve(res.isDriverAvailable);
         });
     }
 

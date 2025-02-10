@@ -74,7 +74,7 @@ export class ArrayOutputNode extends DataMapperNodeModel {
             this.isMapFn = isMapFnAtPropAsmt || isMapFnAtRootRtn;
 
             const isCollapsedField = useDMCollapsedFieldsStore.getState().isCollapsedField;
-            const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value);
+            const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value, this.context.recursiveTypes);
             this.dmType = type;
             this.typeName = getTypeName(valueEnrichedType.type);
 
@@ -197,7 +197,7 @@ export class ArrayOutputNode extends DataMapperNodeModel {
         const typeOfValue = getTypeOfValue(this.dmTypeWithValue, getPosition(field));
 
         if (keepDefaultVal && !Node.isPropertyAssignment(field)) {
-            const replaceWith = getDefaultValue(typeOfValue.kind);
+            const replaceWith = getDefaultValue(typeOfValue);
             field.replaceWithText(replaceWith);
         }  else {
             const linkDeleteVisitor = new LinkDeletingVisitor(field, this.value);

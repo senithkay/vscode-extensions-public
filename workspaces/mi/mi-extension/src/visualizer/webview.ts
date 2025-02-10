@@ -16,11 +16,11 @@ import { getComposerJSFiles } from '../util';
 import { RPCLayer } from '../RPCLayer';
 import { extension } from '../MIExtensionContext';
 import { debounce } from 'lodash';
-import { navigate, refreshUI, StateMachine, stateService } from '../stateMachine';
+import { refreshUI, StateMachine } from '../stateMachine';
 import { MACHINE_VIEW, onDocumentSave } from '@wso2-enterprise/mi-core';
 import { COMMANDS, REFRESH_ENABLED_DOCUMENTS, SWAGGER_LANG_ID, SWAGGER_REL_DIR } from '../constants';
 import { AiPanelWebview } from '../ai-panel/webview';
-import { history, removeFromHistory } from './../history/activator';
+import { removeFromHistory } from './../history/activator';
 import { deleteSwagger, generateSwagger } from '../util/swagger';
 
 export class VisualizerWebview {
@@ -164,9 +164,14 @@ export class VisualizerWebview {
         // Check if PNG file exists
         if (fs.existsSync(path.join(iconPath, name + '.png'))) {
             iconPathUri = vscode.Uri.file(path.join(iconPath, name + '.png').toString());
-        } else {
-            // If PNG does not exist, use GIF
+        } else if (fs.existsSync(path.join(iconPath, name + '.svg'))) {
+            // Check for SVG
+            iconPathUri = vscode.Uri.file(path.join(iconPath, name + '.svg').toString());
+        } else if (fs.existsSync(path.join(iconPath, name + '.gif'))) {
+            // Use GIF
             iconPathUri = vscode.Uri.file(path.join(iconPath, name + '.gif').toString());
+        } else {
+            return undefined;
         }
 
         if (panel) {

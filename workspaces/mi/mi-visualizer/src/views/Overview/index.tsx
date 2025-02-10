@@ -171,22 +171,6 @@ export function Overview(props: OverviewProps) {
         rpcClient.getMiVisualizerRpcClient().openReadme();
     }
 
-    const handleEditProjectInformation = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({
-            type: POPUP_EVENT_TYPE.OPEN_VIEW,
-            location: {
-                view: MACHINE_VIEW.ProjectInformationForm,
-                type: "project"
-            },
-            
-            isPopup: true
-        });
-
-        rpcClient.onParentPopupSubmitted((data: ParentPopupData) => {
-            setPomTimestamp(pomTimestamp + 1);
-        });
-    }
-
     if (isLoading) {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>

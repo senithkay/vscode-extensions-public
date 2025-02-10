@@ -67,7 +67,7 @@ import {
     setPathsInWorkSpace,
     selectFolder,
     SetPathRequest,
-    updateLegacyExpressionSupport,
+    updateLegacyExpressionSupport
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiVisualizerRpcManager } from "./rpc-manager";
