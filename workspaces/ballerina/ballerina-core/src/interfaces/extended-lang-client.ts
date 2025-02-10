@@ -884,6 +884,12 @@ export interface ClassFieldModifierRequest {
     field: FieldType;
 }
 
+export interface AddFieldRequest {
+    filePath: string;
+    field: FieldType;
+    codedata: CodeData;
+}
+
 export interface SourceEditResponse {
     textEdits?: {
         [key: string]: TextEdit[];

@@ -187,22 +187,22 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
             let lsResponse;
             if (isNew) {
                 lsResponse = await rpcClient.getServiceDesignerRpcClient().addFunctionSourceCode({
-                    filePath: type.codedata.lineRange.fileName,
+                    filePath: serviceClassModel.codedata.lineRange.fileName,
                     codedata: {
                         lineRange: {
-                            startLine: { line: type.codedata.lineRange.startLine.line, offset: type.codedata.lineRange.startLine.offset },
-                            endLine: { line: type.codedata.lineRange.endLine.line, offset: type.codedata.lineRange.endLine.offset }
+                            startLine: { line: serviceClassModel.codedata.lineRange.startLine.line, offset: serviceClassModel.codedata.lineRange.startLine.offset },
+                            endLine: { line: serviceClassModel.codedata.lineRange.endLine.line, offset: serviceClassModel.codedata.lineRange.endLine.offset }
                         }
                     },
                     function: updatedFunction
                 });
             } else {
                 lsResponse = await rpcClient.getServiceDesignerRpcClient().updateResourceSourceCode({
-                    filePath: type.codedata.lineRange.fileName,
+                    filePath: serviceClassModel.codedata.lineRange.fileName,
                     codedata: {
                         lineRange: {
-                            startLine: { line: type.codedata.lineRange.startLine.line, offset: type.codedata.lineRange.startLine.offset },
-                            endLine: { line: type.codedata.lineRange.endLine.line, offset: type.codedata.lineRange.endLine.offset }
+                            startLine: { line: serviceClassModel.codedata.lineRange.startLine.line, offset: serviceClassModel.codedata.lineRange.startLine.offset },
+                            endLine: { line: serviceClassModel.codedata.lineRange.endLine.line, offset: serviceClassModel.codedata.lineRange.endLine.offset }
                         }
                     },
                     function: updatedFunction
@@ -224,13 +224,27 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
     };
 
     const handleVariableSave = async (updatedVariable: FieldType) => {
+
         try {
-            const lsResponse = await rpcClient.getBIDiagramRpcClient().updateClassField({
-                filePath: updatedVariable.codedata.lineRange.fileName,
-                field: updatedVariable
-            });
+            const currentFilePath = Utils.joinPath(URI.file(projectUri), serviceClassModel.codedata.lineRange.fileName).fsPath;
+            if (isNew) {
+
+                const lsResponse = await rpcClient.getBIDiagramRpcClient().addClassField({
+                    filePath: currentFilePath,
+                    field: updatedVariable
+                });
+
+            } else {
+                const lsResponse = await rpcClient.getBIDiagramRpcClient().updateClassField({
+                    filePath: currentFilePath,
+                    field: updatedVariable
+                });
+            }
+            if (isNew) {
+                setIsNew(false);
+            }
             setEditingVariable(undefined);
-            getServiceClassModel(); // Refresh the model
+            getServiceClassModel();
         } catch (error) {
             console.error('Error updating variable:', error);
         }
@@ -268,13 +282,12 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
     };
 
     const handleAddFunction = async (type: 'init' | 'resource' | 'remote') => {
-        // TODO: Implement function addition based on type
         const lsResponse = await rpcClient.getServiceDesignerRpcClient().getFunctionModel({
             type: 'object',
             functionName: type
         });
         if (lsResponse.function) {
-            // if resouce we need to update the models accessor valut to get and valueType to Identifier
+            // if resouce we need to update the models accessor value to get and valueType to Identifier
             if (type === 'resource' && lsResponse.function.accessor) {
                 lsResponse.function.accessor.value = 'get';
                 lsResponse.function.accessor.valueType = 'IDENTIFIER';
@@ -292,6 +305,90 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
         setEditingFunction(undefined);
         setIsNew(false);
     };
+
+    const handleAddVariable = () => {
+        // TODO: Add the LS call when its ready
+        const newVariable: FieldType = {
+            isPrivate: true,
+            isFinal: true,
+            codedata: {
+                lineRange: {
+                    fileName: serviceClassModel.codedata.lineRange.fileName,
+                    startLine: {
+                        line: serviceClassModel.codedata.lineRange.startLine.line,
+                        offset: serviceClassModel.codedata.lineRange.startLine.offset
+                    },
+                    endLine: {
+                        line: serviceClassModel.codedata.lineRange.endLine.line,
+                        offset: serviceClassModel.codedata.lineRange.endLine.offset
+                    }
+                },
+                inListenerInit: false,
+                isBasePath: false,
+                inDisplayAnnotation: false
+            },
+            type: {
+                metadata: {
+                    label: "Field Type",
+                    description: "The type of the field"
+                },
+                enabled: true,
+                editable: true,
+                value: "",
+                valueType: "TYPE",
+                isType: true,
+                optional: false,
+                advanced: false,
+                addNewButton: false
+            },
+            name: {
+                metadata: {
+                    label: "Field Name",
+                    description: "The name of the field"
+                },
+                enabled: true,
+                editable: true,
+                value: "",
+                valueType: "IDENTIFIER",
+                isType: false,
+                optional: false,
+                advanced: false,
+                addNewButton: false
+            },
+            defaultValue: {
+                metadata: {
+                    label: "Initial Value",
+                    description: "The initial value of the filed"
+                },
+                value: "",
+                enabled: false,
+                editable: true,
+                isType: false,
+                optional: false,
+                advanced: false,
+                addNewButton: false
+            },
+            enabled: true,
+            editable: false,
+            optional: false,
+            advanced: false
+        };
+        setIsNew(true);
+        setEditingVariable(newVariable);
+    };
+
+    const handleDeleteVariable = async (variable: FieldType) => {
+        const targetPosition: NodePosition = {
+            startLine: variable?.codedata?.lineRange?.startLine.line,
+            startColumn: variable?.codedata.lineRange?.startLine?.offset,
+            endLine: variable?.codedata.lineRange?.endLine?.line,
+            endColumn: variable?.codedata.lineRange?.endLine?.offset
+        }
+        const deleteAction: STModification = removeStatement(targetPosition);
+        const currentFilePath = Utils.joinPath(URI.file(projectUri), type.codedata.lineRange.fileName).fsPath;
+        await applyModifications(rpcClient, [deleteAction], currentFilePath);
+        getServiceClassModel();
+    }
 
     const hasInitFunction = serviceClassModel?.functions?.some(func => func.kind === 'INIT');
 
@@ -326,6 +423,7 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
                                 <Button
                                     appearance="icon"
                                     tooltip="Add Variable"
+                                    onClick={() => handleAddVariable()}
                                 >
                                     <Codicon name="add" />
                                 </Button>
@@ -336,7 +434,7 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
                                     key={index}
                                     fieldModel={field}
                                     onEditVariable={() => handleEditVariable(field)}
-                                    onDeleteVariable={() => { }}
+                                    onDeleteVariable={() => handleDeleteVariable(field)}
                                 />
                             ))}
                             {(!serviceClassModel.fields || serviceClassModel.fields.length === 0) && (
@@ -413,15 +511,15 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
             )}
             {editingFunction && serviceClassModel && (
                 <PanelContainer
-                    title={"Edit Function"}
+                    title={isNew ? "Add Function" : "Edit Function"}
                     show={true}
                     onClose={() => setEditingFunction(undefined)}
                     width={400}
                 >
                     <OperationForm
                         model={editingFunction}
-                        filePath={Utils.joinPath(URI.file(projectUri), type.codedata.lineRange.fileName).fsPath}
-                        lineRange={type.codedata.lineRange}
+                        filePath={Utils.joinPath(URI.file(projectUri), serviceClassModel.codedata.lineRange.fileName).fsPath}
+                        lineRange={serviceClassModel.codedata.lineRange}
                         onClose={handleCloseFunctionForm}
                         onSave={handleFunctionSave}
                     />
@@ -429,15 +527,15 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
             )}
             {editingVariable && serviceClassModel && (
                 <PanelContainer
-                    title={"Edit Variable"}
+                    title={isNew ? "Add Variable" : "Edit Variable"}
                     show={true}
                     onClose={() => setEditingVariable(undefined)}
                     width={400}
                 >
                     <VariableForm
                         model={editingVariable}
-                        filePath={Utils.joinPath(URI.file(projectUri), type.codedata.lineRange.fileName).fsPath}
-                        lineRange={type.codedata.lineRange}
+                        filePath={Utils.joinPath(URI.file(projectUri), serviceClassModel.codedata.lineRange.fileName).fsPath}
+                        lineRange={serviceClassModel.codedata.lineRange}
                         onClose={() => setEditingVariable(null)}
                         onSave={handleVariableSave}
                     />
