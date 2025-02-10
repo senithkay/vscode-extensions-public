@@ -348,7 +348,7 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                         if (isWebviewPresent) {
                             // Show webview on LHS
                             VisualizerWebview.currentPanel.getWebview().reveal(ViewColumn.Active, false);
-                            
+
                             // Open or focus the text editor next to the webview
                             const document = await workspace.openTextDocument(uri);
                             const editor = await window.showTextDocument(document, {
