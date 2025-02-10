@@ -33,6 +33,7 @@ import {
     ModelFromCodeRequest,
     ProjectRequest,
     ReadmeContentRequest,
+    ServiceClassSourceRequest,
     SignatureHelpRequest,
     UpdateConfigVariableRequest,
     UpdateTypeRequest,
@@ -82,7 +83,8 @@ import {
     updateConfigVariables,
     updateType,
     updateImports,
-    updateClassField
+    updateClassField,
+    updateServiceClass
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { BiDiagramRpcManager } from "./rpc-manager";
@@ -131,6 +133,7 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(updateType, (args: UpdateTypeRequest) => rpcManger.updateType(args));
     messenger.onRequest(getServiceClassModel, (args: ModelFromCodeRequest) => rpcManger.getServiceClassModel(args));
     messenger.onRequest(updateClassField, (args: ClassFieldModifierRequest) => rpcManger.updateClassField(args));
+    messenger.onRequest(updateServiceClass, (args: ServiceClassSourceRequest) => rpcManger.updateServiceClass(args));
     messenger.onRequest(createGraphqlClassType, (args: UpdateTypeRequest) => rpcManger.createGraphqlClassType(args));
     messenger.onRequest(updateImports, (args: UpdateImportsRequest) => rpcManger.updateImports(args));
     messenger.onRequest(addFunction, (args: AddFunctionRequest) => rpcManger.addFunction(args));

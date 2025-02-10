@@ -892,6 +892,11 @@ export interface SourceEditResponse {
     stacktrace?: string;
 }
 
+export interface ServiceClassSourceRequest {
+    filePath: string;
+    serviceClass: ServiceClassModel;
+}
+
 export interface FunctionModelRequest {
     type: string;
     functionName: string;

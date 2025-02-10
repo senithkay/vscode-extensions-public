@@ -114,7 +114,9 @@ import {
     updateClassField,
     updateConfigVariables,
     updateImports,
-    updateType
+    updateServiceClass,
+    updateType,
+    ServiceClassSourceRequest
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -292,6 +294,10 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     updateClassField(params: ClassFieldModifierRequest): Promise<SourceEditResponse> {
         return this._messenger.sendRequest(updateClassField, HOST_EXTENSION, params);
+    }
+
+    updateServiceClass(params: ServiceClassSourceRequest): Promise<SourceEditResponse> {
+        return this._messenger.sendRequest(updateServiceClass, HOST_EXTENSION, params);
     }
 
     createGraphqlClassType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {

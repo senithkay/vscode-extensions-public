@@ -69,6 +69,7 @@ import {
     ReadmeContentResponse,
     STModification,
     ServiceClassModelResponse,
+    ServiceClassSourceRequest,
     SignatureHelpRequest,
     SignatureHelpResponse,
     SyntaxTree,
@@ -1229,6 +1230,22 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         return new Promise(async (resolve) => {
             try {
                 const res: SourceEditResponse = await StateMachine.langClient().updateClassField({ filePath, field: params.field });
+                Object.entries(res.textEdits).forEach(([file, textEdits]) => {
+                    this.applyTextEdits(file, textEdits);
+                });
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    async updateServiceClass(params: ServiceClassSourceRequest): Promise<SourceEditResponse> {
+        const projectUri = StateMachine.context().projectUri;
+        const filePath =  path.join(projectUri, params.filePath);
+        return new Promise(async (resolve) => {
+            try {
+                const res: SourceEditResponse = await StateMachine.langClient().updateServiceClass({ filePath, serviceClass: params.serviceClass });
                 Object.entries(res.textEdits).forEach(([file, textEdits]) => {
                     this.applyTextEdits(file, textEdits);
                 });
