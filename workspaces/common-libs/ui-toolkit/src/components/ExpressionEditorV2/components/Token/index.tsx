@@ -34,6 +34,9 @@ import { Icon } from '../../../Icon/Icon';
 import { ThemeColors } from '../../../../styles/ThemeColours';
 import { HELPER_PANE_WITH_EDITOR_HEIGHT, HELPER_PANE_WITH_EDITOR_WIDTH } from '../../constants';
 import { TextArea } from '../../../TextArea/TextArea';
+import { Codicon } from '../../../Codicon/Codicon';
+import Typography from '../../../Typography/Typography';
+import { Divider } from '../../../Divider/Divider';
 
 /* Styles */
 namespace S {
@@ -147,6 +150,22 @@ namespace S {
         }
     `;
 
+    export const HelperPaneHeader = styled.div`
+        display: flex;
+        align-items: center;
+    `;
+
+    export const HelperPaneEditor = styled.div`
+        display: flex;
+        align-items: center;
+    `;
+
+    export const Adornment = styled.div`
+        padding-top: 3.75px;
+        padding-bottom: 2.5px;
+        height: 100%;
+    `;
+
     export const HelperPaneButtons = styled.div`
         margin-top: auto;
         display: flex;
@@ -158,6 +177,8 @@ namespace S {
 export const TokenEditor = ({
     value,
     actionButtons,
+    startAdornment,
+    endAdornment,
     onChange,
     getHelperPane,
     helperPaneOrigin,
@@ -464,8 +485,55 @@ export const TokenEditor = ({
     const getHelperPaneWithEditorComponent = (): JSX.Element => {
         return createPortal(
             <S.HelperPane ref={helperPaneContainerRef} sx={{ ...helperPanePosition }}>
+                {/* Title and close button */}
+                <S.HelperPaneHeader>
+                    <Icon 
+                        name="function-icon"
+                        sx={{
+                            backgroundColor: 'var(--vscode-button-background)',
+                            height: '16px',
+                            width: '22px',
+                            borderRadius: '2px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'default'
+                        }}
+                        iconSx={{
+                            fontSize: '12px',
+                            color: 'var(--vscode-button-foreground)'
+                        }}
+                    />
+                    <Typography variant='body1' sx={{ marginLeft: '4px' }}>Expression Editor</Typography>
+                    <Button
+                        appearance='icon'
+                        onClick={() => console.log("info")}
+                        sx={{ marginLeft: 'auto' }}
+                        tooltip='Edit Expression'
+                    >
+                        <Codicon name="info" />
+                    </Button>
+                    <Button
+                        appearance="icon"
+                        onClick={handleHelperPaneWithEditorClose}
+                        tooltip='Close helper pane'
+                    >
+                        <Codicon name="close" />
+                    </Button>
+                </S.HelperPaneHeader>
+
+                <Divider sx={{ margin: 0 }} />
+
                 {/* Editor to edit the token */}
-                <TextArea ref={textAreaRef} value={tokenValue} onTextChange={setTokenValue} rows={3} />
+                <S.HelperPaneEditor>
+                    <S.Adornment>
+                        {startAdornment}
+                    </S.Adornment>
+                    <TextArea ref={textAreaRef} value={tokenValue} onTextChange={setTokenValue} rows={2} />
+                    <S.Adornment>
+                        {endAdornment}
+                    </S.Adornment>
+                </S.HelperPaneEditor>
 
                 {/* Helper pane content */}
                 {getHelperPane(handleHelperPaneChange)}
@@ -483,7 +551,7 @@ export const TokenEditor = ({
                                 : handleHelperPaneWithEditorSave()
                         }
                     >
-                        Save
+                        Add
                     </Button>
                 </S.HelperPaneButtons>
 

@@ -17,6 +17,8 @@ export type ResizeHandleProps = {
 type TokenEditorBaseProps = {
     value: string;
     actionButtons?: ActionButtonType[];
+    startAdornment?: ReactNode;
+    endAdornment?: ReactNode;
     onChange: (value: string) => void;
     onFocus?: () => void;
     onBlur?: () => void;

@@ -13,14 +13,14 @@ import { ComponentMeta, ComponentStory } from "@storybook/react";
 
 import { TokenEditor } from ".";
 
-import { HELPER_PANE_HEIGHT, HELPER_PANE_WIDTH } from "../../constants";
+import { HELPER_PANE_HEIGHT } from "../../constants";
 import styled from "@emotion/styled";
 import { Button } from "../../../Button/Button";
 
 /* Styles */
 const HelperPane = styled.div`
     height: ${HELPER_PANE_HEIGHT}px;
-    width: ${HELPER_PANE_WIDTH}px;
+    width: auto;
     display: flex;
     flex-direction: column;
     gap: 8px;
