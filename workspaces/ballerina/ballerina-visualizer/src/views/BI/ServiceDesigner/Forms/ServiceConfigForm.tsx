@@ -7,12 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { Button, Codicon, FormGroup, Typography, CheckBox, RadioButtonGroup, ProgressRing, Divider, CompletionItem, LinkButton } from "@wso2-enterprise/ui-toolkit";
-import { Form, FormField, FormValues, TypeEditor } from "@wso2-enterprise/ballerina-side-panel";
-import { BallerinaTrigger, ComponentTriggerType, FormDiagnostics, FunctionField, TRIGGER_CHARACTERS, TriggerCharacter, ServiceModel, SubPanel } from "@wso2-enterprise/ballerina-core";
-import { debounce } from "lodash";
+import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { ServiceModel, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { URI, Utils } from "vscode-uri";
 import { BodyText } from "../../../styles";
@@ -96,7 +95,9 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     };
 
     const handleListenerForm = (panel: SubPanel) => {
-        openListenerForm && openListenerForm();
+        if (panel.view === SubPanelView.ADD_NEW_FORM) {
+            openListenerForm && openListenerForm();
+        }
     }
 
     return (

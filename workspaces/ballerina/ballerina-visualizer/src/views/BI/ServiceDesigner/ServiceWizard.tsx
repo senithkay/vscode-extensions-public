@@ -189,7 +189,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
                         }
                         {step === 1 && !saving &&
                             <>
-                                <ServiceConfigForm serviceModel={serviceModel} onSubmit={handleServiceSubmit} openListenerForm={existing && openListenerForm} formSubmitText={listeners?.hasListeners ? "Create" : undefined} />
+                                <ServiceConfigForm serviceModel={serviceModel} onSubmit={handleServiceSubmit} openListenerForm={existing && openListenerForm} formSubmitText={"Create"} />
                             </>
                         }
                         {step === 1 && saving &&
