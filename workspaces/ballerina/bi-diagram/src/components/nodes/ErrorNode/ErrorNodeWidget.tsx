@@ -303,26 +303,24 @@ export function ErrorNodeWidget(props: ErrorNodeWidgetProps) {
                     </Menu>
                 </Popover>
             </NodeStyles.Row>
-            {!hideContainer && (
-                <>
-                    {bodyBranchViewState && (
-                        <NodeStyles.Container
-                            width={nodeViewState.clw + nodeViewState.crw + NODE_GAP_X / 2}
-                            height={bodyBranchViewState.ch + NODE_GAP_Y + CONTAINER_PADDING}
-                            top={nodeViewState.y}
-                            left={nodeViewState.x + nodeViewState.lw - nodeViewState.clw - NODE_GAP_X / 4}
-                        ></NodeStyles.Container>
-                    )}
-                    {onFailureBranchViewState && (
-                        <NodeStyles.Container
-                            width={nodeViewState.clw + nodeViewState.crw + NODE_GAP_X / 2}
-                            height={onFailureBranchViewState.ch + NODE_GAP_Y + CONTAINER_PADDING}
-                            top={onFailureBranchViewState.y - CONTAINER_PADDING} 
-                            left={nodeViewState.x + nodeViewState.lw - nodeViewState.clw - NODE_GAP_X / 4}
-                        ></NodeStyles.Container>
-                    )}
-                </>
-            )}
+            <>
+                {bodyBranchViewState && !hideContainer && (
+                    <NodeStyles.Container
+                        width={nodeViewState.clw + nodeViewState.crw + NODE_GAP_X / 2}
+                        height={bodyBranchViewState.ch + NODE_GAP_Y + CONTAINER_PADDING}
+                        top={nodeViewState.y}
+                        left={nodeViewState.x + nodeViewState.lw - nodeViewState.clw - NODE_GAP_X / 4}
+                    ></NodeStyles.Container>
+                )}
+                {onFailureBranchViewState && (
+                    <NodeStyles.Container
+                        width={nodeViewState.clw + nodeViewState.crw + NODE_GAP_X / 2}
+                        height={onFailureBranchViewState.ch + NODE_GAP_Y + CONTAINER_PADDING}
+                        top={onFailureBranchViewState.y - CONTAINER_PADDING}
+                        left={nodeViewState.x + nodeViewState.lw - nodeViewState.clw - NODE_GAP_X / 4}
+                    ></NodeStyles.Container>
+                )}
+            </>
         </NodeStyles.Node>
     );
 }

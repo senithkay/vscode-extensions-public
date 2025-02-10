@@ -462,6 +462,16 @@ export class NodeFactoryVisitor implements BaseVisitor {
         const containerNodeModel = new ErrorNodeModel(node, onFailureBranch);
         this.nodes.push(containerNodeModel);
 
+        if (node.viewState.isTopLevel) {
+            // link last node of body branch to container node model
+            const lastNodeModel = this.getBranchEndNode(bodyBranch);
+            if (lastNodeModel) {
+                const link = createNodesLink(lastNodeModel, containerNodeModel);
+                if (link) {
+                    this.links.push(link);
+                }
+            }
+        }
         // create empty node for end of on failure branch
         const endOnFailureEmptyNode = this.createEmptyNode(
             getCustomNodeId(node.id, END_CONTAINER),

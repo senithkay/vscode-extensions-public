@@ -307,6 +307,9 @@ export class SizingVisitor implements BaseVisitor {
         }
         // add while node width and height
         containerHeight += WHILE_NODE_WIDTH + NODE_GAP_Y * 2;
+        if (node.viewState.isTopLevel) {
+            containerHeight += NODE_GAP_Y;
+        }
         containerLeftWidth += NODE_GAP_X / 2;
         containerRightWidth += NODE_GAP_X / 2;
 

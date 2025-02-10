@@ -183,6 +183,12 @@ export class InitVisitor implements BaseVisitor {
             return;
         }
 
+        // hide container if the error handler is in top level
+        const errorNode = this.flow.nodes?.find((n) => n.codedata.node === "ERROR_HANDLER");
+        if (errorNode) {
+            errorNode.viewState.isTopLevel = true;
+        }
+
         // Update Body branch with end node
         const bodyBranch = node.branches.find((branch) => branch.codedata.node === "BODY");
         if (!bodyBranch) {
@@ -216,18 +222,20 @@ export class InitVisitor implements BaseVisitor {
             bodyBranch.children.push(emptyNode);
         }
 
-        // add end node to the body branch
-        const bodyEndNode: FlowNode = {
-            id: getCustomNodeId(node.id, LAST_NODE, 0, "BODY"),
-            codedata: {
-                node: "EMPTY",
-            },
-            returning: false,
-            metadata: { label: "", description: "" },
-            branches: [],
-            viewState: this.getDefaultViewState(),
-        };
-        bodyBranch.children.push(bodyEndNode);
+        if (!node.viewState.isTopLevel) {
+            // add end node to the body branch
+            const bodyEndNode: FlowNode = {
+                id: getCustomNodeId(node.id, LAST_NODE, 0, "BODY"),
+                codedata: {
+                    node: "EMPTY",
+                },
+                returning: false,
+                metadata: { label: "", description: "" },
+                branches: [],
+                viewState: this.getDefaultViewState(),
+            };
+            bodyBranch.children.push(bodyEndNode);
+        }
 
         // Update On Failure branch with start and end node
         const onFailureBranch = node.branches.find((branch) => branch.codedata.node === "ON_FAILURE");
@@ -265,12 +273,6 @@ export class InitVisitor implements BaseVisitor {
             viewState: this.getDefaultViewState(),
         };
         onFailureBranch.children.push(onFailureEndNode);
-
-        // hide container if the error handler is in top level
-        // const errorNode = this.flow.nodes?.find((n) => n.codedata.node === "ERROR_HANDLER");
-        // if (errorNode) {
-        //     errorNode.viewState.isTopLevel = true;
-        // }
     }
 
     endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
