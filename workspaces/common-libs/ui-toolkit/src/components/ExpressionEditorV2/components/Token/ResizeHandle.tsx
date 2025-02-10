@@ -8,13 +8,15 @@
  */
 
 import React, { useCallback, useEffect, useRef } from 'react';
+
 import styled from '@emotion/styled';
+
 import { ResizeHandleProps } from '../../types';
 
 /* Styles */
 const StyledHandle = styled.div`
     position: absolute;
-    bottom: 2px;
+    bottom: 6px;
     right: 2px;
     width: 10px;
     height: 10px;

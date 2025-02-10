@@ -10,11 +10,6 @@
 import { MutableRefObject, ReactNode } from 'react';
 import { ActionButtonType, ExpressionEditorProps, ExpressionEditorRef, HelperPaneOrigin } from './common';
 
-export type HelperPanePosition = {
-    top: number;
-    left: number;
-}
-
 type HelperPaneConditionalProps = {
     // - Whether the helper pane is open
     isHelperPaneOpen: boolean;

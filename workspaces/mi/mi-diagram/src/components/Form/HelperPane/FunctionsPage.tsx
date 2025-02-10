@@ -7,46 +7,79 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Position } from 'vscode-languageserver-types';
 import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { HelperPaneFunctionInfo } from '@wso2-enterprise/mi-core';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { debounce } from 'lodash';
+import { filterHelperPaneFunctionCompletionItems } from '../FormExpressionField/utils';
 
 type FunctionsPageProps = {
-    isLoading: boolean;
-    functionInfo: HelperPaneFunctionInfo;
-    setFilterText: (filterText: string) => void;
+    position: Position;
     onChange: (value: string) => void;
 };
 
 export const FunctionsPage = ({
-    isLoading,
-    functionInfo,
-    setFilterText,
+    position,
     onChange
 }: FunctionsPageProps) => {
+    const { rpcClient } = useVisualizerContext();
     const firstRender = useRef<boolean>(true);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [functionInfo, setFunctionInfo] = useState<HelperPaneFunctionInfo | undefined>(undefined);
+    const [filteredFunctionInfo, setFilteredFunctionInfo] = useState<HelperPaneFunctionInfo | undefined>(undefined);
     const [searchValue, setSearchValue] = useState<string>('');
 
+    const getFunctionInfo = useCallback(() => {
+        setIsLoading(true);
+        setTimeout(() => {
+            rpcClient.getVisualizerState().then((machineView) => {
+                rpcClient.getMiDiagramRpcClient().getHelperPaneInfo({
+                    documentUri: machineView.documentUri,
+                    position: position,
+                })
+                .then((response) => {
+                    if (Object.keys(response.functions)?.length) {
+                        setFunctionInfo(response.functions);
+                        setFilteredFunctionInfo(response.functions);
+                    }
+                })
+                .finally(() => setIsLoading(false));
+            });
+        }, 1100);
+    }, [rpcClient, position]);
+    
+    
     useEffect(() => {
         if (firstRender.current) {
             firstRender.current = false;
-            setFilterText('');
+            getFunctionInfo();
         }
     }, []);
 
+    const debounceFilterFunctions = useCallback(
+        debounce((searchText: string) => {
+            setFilteredFunctionInfo(filterHelperPaneFunctionCompletionItems(functionInfo, searchText));
+            setIsLoading(false);
+        }, 1100),
+        [functionInfo, setFilteredFunctionInfo, setIsLoading, filterHelperPaneFunctionCompletionItems]
+    );
+    
     const handleSearch = (searchText: string) => {
-        setFilterText(searchText);
         setSearchValue(searchText);
+        setIsLoading(true);
+        debounceFilterFunctions(searchText);
     };
 
     const sortedFunctionInfo = useMemo(() => {
-        if (!functionInfo || Object.keys(functionInfo).length === 0) {
+        if (!filteredFunctionInfo || Object.keys(filteredFunctionInfo).length === 0) {
             return [];
         }
 
         // Sort the items in each group
         const functionInfoArrayWithSortedItems = [];
-        for (const [group, groupInfo] of Object.entries(functionInfo)) {
+        for (const [group, groupInfo] of Object.entries(filteredFunctionInfo)) {
             const sortedItems = groupInfo.items.sort((a, b) => a.label.localeCompare(b.label));
             functionInfoArrayWithSortedItems.push({
                 group,
@@ -59,7 +92,7 @@ export const FunctionsPage = ({
         const sortedFunctionInfo = functionInfoArrayWithSortedItems.sort((a, b) => a.group.localeCompare(b.group));
 
         return sortedFunctionInfo;
-    }, [functionInfo]);
+    }, [filteredFunctionInfo]);
 
     const handleFunctionItemClick = (insertText: string) => {
         const functionRegex = /^([a-zA-Z0-9_-]+)\((.*)\)/;
