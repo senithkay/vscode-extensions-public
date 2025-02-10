@@ -344,12 +344,12 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                         const uri = Uri.parse(msg.body.stackFrames[0].source.path);
                         const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
 
-                        // Instead of closing editor tabs, arrange them side by side
+                        // Instead of closing editor tab, arrange them side by side
                         if (isWebviewPresent) {
-                            // Show webview on the side
+                            // Show webview on LHS
                             VisualizerWebview.currentPanel.getWebview().reveal(ViewColumn.Active, false);
-                            
-                            // Open or focus the text editor in the first column
+
+                            // Open or focus the text editor next to the webview
                             const document = await workspace.openTextDocument(uri);
                             const editor = await window.showTextDocument(document, {
                                 viewColumn: ViewColumn.Beside,

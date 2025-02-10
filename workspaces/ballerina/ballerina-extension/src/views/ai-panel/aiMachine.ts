@@ -179,7 +179,7 @@ async function checkToken(context, event): Promise<UserToken> {
             if (token) {
                 if (token === '') {
                     resolve({ token: undefined, userToken: undefined });
-                    return
+                    return;
                 }
                 // const config = getPluginConfig();
                 // const ROOT_URL = config.get('rootUrl') as string;

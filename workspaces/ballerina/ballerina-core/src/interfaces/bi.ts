@@ -49,6 +49,17 @@ export type FlowNode = {
     isActiveBreakpoint?: boolean;
 };
 
+
+export type FunctionNode = {
+    id: string;
+    metadata: Metadata;
+    codedata: CodeData;
+    diagnostics?: Diagnostic;
+    properties?: NodeProperties;
+    flags?: number;
+    returning: boolean;
+};
+
 export type Metadata = {
     label: string;
     description: string;
@@ -64,7 +75,7 @@ export type Property = {
     metadata: Metadata;
     diagnostics?: Diagnostic;
     valueType: string;
-    value: string | ELineRange;
+    value: string | ELineRange | NodeProperties;
     optional: boolean;
     editable: boolean;
     advanced?: boolean;
@@ -221,6 +232,7 @@ export type NodePropertyKey =
     | "variable"
     | "defaultable"
     | "scope"
+    | "parameters"
     | "functionName";
 
 export type BranchKind = "block" | "worker";
@@ -263,6 +275,7 @@ export type NodeKind =
     | "ASSIGN"
     | "DATA_MAPPER"
     | "DATA_MAPPER_CALL"
+    | "FUNCTION_DEFINITION"
     | "CONFIG_VARIABLE";
 
 export type OverviewFlow = {

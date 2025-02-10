@@ -290,11 +290,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             filePath: model.fileName,
             queryMap: searchText.trim()
                 ? {
-                      q: searchText,
-                      limit: 12,
-                      offset: 0,
-                      includeAvailableFunctions: "true"
-                  }
+                    q: searchText,
+                    limit: 12,
+                    offset: 0,
+                    includeAvailableFunctions: "true"
+                }
                 : undefined,
         };
         console.log(">>> Search function request", request);
@@ -402,7 +402,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             .getSourceCode({
                 filePath: model.fileName,
                 flowNode: updatedNode,
-                isDataMapperFormUpdate: isDataMapperFormUpdate,
+                isFunctionNodeUpdate: isDataMapperFormUpdate,
             })
             .then((response) => {
                 console.log(">>> Updated source code", response);
@@ -647,6 +647,14 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
 
+    const handleEdit = () => {
+        const context: VisualizerLocation = {
+            view: MACHINE_VIEW.BIFunctionForm,
+            identifier: (props?.syntaxTree as ResourceAccessorDefinition).functionName.value,
+        };
+        rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
+    };
+
     const handleSubPanel = (subPanel: SubPanel) => {
         setSubPanel(subPanel);
     };
@@ -710,7 +718,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     title={isResource ? ResourceDiagramTitle : FunctionDiagramTitle}
                     icon={isResource ? "bi-http-service" : "bi-function"}
                     iconSx={{ fontSize: "16px" }}
-                    // onEdit={handleOnFormBack}
+                    onEdit={isResource ? undefined : handleEdit}
                 ></ViewHeader>
                 {(showProgressIndicator || fetchingAiSuggestions) && model && <ProgressIndicator color={Colors.PRIMARY} />}
                 <ViewContent padding>
