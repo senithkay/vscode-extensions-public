@@ -97,7 +97,7 @@ export function generateCustomFunction(source: InputOutputPortModel, target: Inp
         parameters: [{ name: source.field.fieldName, type: source.field.typeName || source.field.kind }],
         returnType: target.field.typeName || target.field.kind,
         statements: [
-            `return ${source.field.fieldName};`
+            `return ${getDefaultValue(target.field)};`
         ]
     }
     
