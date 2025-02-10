@@ -7,11 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useRef, useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import { Member, Type } from '@wso2-enterprise/ballerina-core';
-import { Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, Icon, CheckBox } from '@wso2-enterprise/ui-toolkit';
 import { Button } from '@wso2-enterprise/ui-toolkit';
 import { TextField } from '@wso2-enterprise/ui-toolkit';
+import { FieldEditor } from './FieldEditor';
 import styled from '@emotion/styled';
 
 
@@ -32,33 +33,16 @@ const SectionTitle = styled.div`
 
 interface RecordEditorProps {
     type: Type;
+    isAnonymous: boolean;
     onChange: (type: Type) => void;
     onImportJson: () => void;
     onImportXml: () => void;
     isGraphql?: boolean;
 }
 
-export const RecordEditor: React.FC<RecordEditorProps> = (props) => {
-    const { type, onChange, onImportJson, onImportXml, isGraphql } = props;
-    const nameInputRefs = useRef<HTMLInputElement[]>([]);
-
-    const handleMemberNameChange = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newMembers: Member[] = [...type.members];
-        newMembers[index].name = e.target.value;
-        onChange({ ...type, members: newMembers });
-    };
-
-    const handleMemberTypeChange = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newMembers: Member[] = [...type.members];
-        newMembers[index].type = e.target.value;
-        onChange({ ...type, members: newMembers });
-    };
-
-    const handleDeleteMember = (index: number) => () => {
-        const newMembers = [...type.members];
-        newMembers.splice(index, 1);
-        onChange({ ...type, members: newMembers });
-    };
+export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorProps>((props, ref) => {
+    const { type, isAnonymous = false, onChange, onImportJson, onImportXml, isGraphql } = props;
+    const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
 
     const addMember = () => {
         const memberCount = Object.keys(type.members).length;
@@ -73,6 +57,10 @@ export const RecordEditor: React.FC<RecordEditorProps> = (props) => {
         onChange({ ...type, members: [...type.members, newMember] });
     }
 
+    useImperativeHandle(ref, () => ({
+        addMember
+    }));
+
     const handleImportJson = () => {
         onImportJson();
     }
@@ -81,35 +69,49 @@ export const RecordEditor: React.FC<RecordEditorProps> = (props) => {
         onImportXml();
     }
 
+    const deleteSelected = () => {
+        const newMembers = type.members.filter((_, index) => !selectedMembers.includes(index));
+        setSelectedMembers([]);
+        onChange({ ...type, members: newMembers });
+    }
+
+    const onSelect = (index: number) => () => {
+        setSelectedMembers([...selectedMembers, index]);
+    }
+
+    const onDeselect = (index: number) => () => {
+        setSelectedMembers(selectedMembers.filter(i => i !== index));
+    }
+
+    const handleMemberChange = (index: number) => (member: Member) => {
+        const newMembers = [...type.members];
+        newMembers[index] = member;
+        onChange({ ...type, members: newMembers });
+    }
+
     return (
         <div className="record-editor">
-            <Header>
-                <SectionTitle>{'Record'}</SectionTitle>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                    <Button appearance="icon">
-                        <Codicon name="arrow-circle-down" onClick={handleImportJson} /> JSON
-                    </Button>
-                    <Button appearance="icon">
-                        <Codicon name="arrow-circle-down" onClick={handleImportXml} /> XML
-                    </Button>
-                    <Button appearance="icon" onClick={addMember}><Codicon name="add" /></Button>
-                </div>
+            {!isAnonymous &&
+                <Header>
+                    <SectionTitle>{'Record'}</SectionTitle>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        <Button appearance="icon">
+                            <Codicon name="arrow-circle-down" onClick={handleImportJson} />&nbsp;JSON
+                        </Button>
+                        <Button appearance="icon">
+                            <Codicon name="arrow-circle-down" onClick={handleImportXml} />&nbsp;XML
+                        </Button>
+                        <Button appearance="icon" onClick={addMember}><Codicon name="add" /></Button>
+                        <Button appearance="icon" onClick={deleteSelected}><Codicon name="trash" /></Button>
+                        {/* <Button appearance="icon"><Codicon name="kebab-vertical" /></Button> */}
+                    </div>
             </Header>
+            }
             {type.members.map((member, index) => (
-                <div style={{ display: 'flex', gap: '8px' }}>
-                    <TextField
-                        value={member.name}
-                        ref={(el) => nameInputRefs.current[index] = el}
-                        onBlur={handleMemberNameChange(index)}
-                    />
-                    <TextField
-                        value={typeof member.type === 'string' ? member.type : member.type.name}
-                        onChange={handleMemberTypeChange(index)}
-                    />
-                    <Button appearance="icon"><Codicon name="case-sensitive" /></Button>
-                    <Button appearance="icon" onClick={handleDeleteMember(index)}><Codicon name="trash" /></Button>
-                </div>
+                <>
+                    <FieldEditor selected={selectedMembers.includes(index)} member={member} onChange={handleMemberChange(index)} onSelect={onSelect(index)} onDeselect={onDeselect(index)} />
+                </>
             ))}
-        </div>
+        </div >
     );
-};
+});

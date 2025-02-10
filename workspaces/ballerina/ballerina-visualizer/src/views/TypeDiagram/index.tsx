@@ -138,7 +138,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
 
     const Header = () => (
         <HeaderContainer>
-            {focusedNodeId ? (<Title>Focused Type View : {focusedNodeId}</Title>) : (<Title>Type Diagram</Title>)}
+            {focusedNodeId ? (<Title>Type : {focusedNodeId}</Title>) : (<Title>Types</Title>)}
             {focusedNodeId ? (
                 <Button
                     appearance="primary"

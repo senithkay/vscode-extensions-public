@@ -282,6 +282,7 @@ export function TypeEditor(props: TypeEditorProps) {
                 return (
                     <RecordEditor
                         type={type}
+                        isAnonymous={false}
                         onChange={setType}
                         isGraphql={props.isGraphql}
                         onImportJson={() => setEditorState(ConfigState.IMPORT_FROM_JSON)}
