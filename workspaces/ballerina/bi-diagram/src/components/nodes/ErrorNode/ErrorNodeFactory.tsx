@@ -21,7 +21,7 @@ export class ErrorNodeFactory extends AbstractReactFactory<ErrorNodeModel, Diagr
     }
 
     generateModel(event: GenerateModelEvent): ErrorNodeModel {
-        return new ErrorNodeModel(event.initialConfig);
+        return new ErrorNodeModel(event.initialConfig, event.initialConfig.branch);
     }
 
     generateReactWidget(event: GenerateWidgetEvent<ErrorNodeModel>) {
