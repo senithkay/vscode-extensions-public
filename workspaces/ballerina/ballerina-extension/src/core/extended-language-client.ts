@@ -60,6 +60,8 @@ import {
     SyntaxTreeNodeParams,
     SyntaxTreeNode,
     ExecutorPositions,
+    TestsDiscoveryRequest,
+    TestsDiscoveryResponse,
     JsonToRecordParams,
     XMLToRecordParams,
     XMLToRecord,
@@ -153,8 +155,12 @@ import {
     VisualizableFieldsRequest,
     VisualizableFieldsResponse,
     AddArrayElementRequest,
-    FunctionNodeRequest,
-    FunctionNodeResponse
+    GetTestFunctionRequest,
+    GetTestFunctionResponse,
+    AddOrUpdateTestFunctionRequest,
+    TestSourceEditResponse,
+    FunctionNodeResponse,
+    FunctionNodeRequest
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -255,6 +261,11 @@ enum EXTENDED_APIS {
     BI_DESIGN_MODEL = 'designModelService/getDesignModel',
     BI_UPDATE_IMPORTS = 'expressionEditor/importModule',
     BI_ADD_FUNCTION = 'expressionEditor/functionCallTemplate',
+    BI_DISCOVER_TESTS_IN_PROJECT = 'testManagerService/discoverInProject',
+    BI_DISCOVER_TESTS_IN_FILE = 'testManagerService/discoverInFile',
+    BI_GET_TEST_FUNCTION = 'testManagerService/getTestFunction',
+    BI_ADD_TEST_FUNCTION = 'testManagerService/addTestFunction',
+    BI_UPDATE_TEST_FUNCTION = 'testManagerService/updateTestFunction',
     BI_EDIT_FUNCTION_NODE = 'flowDesignService/functionDefinition'
 }
 
@@ -586,6 +597,28 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
             return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.DOCUMENT_EXECUTOR_POSITIONS, params);
+    }
+
+    async getProjectTestFunctions(params: TestsDiscoveryRequest): Promise<TestsDiscoveryResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_DISCOVER_TESTS_IN_PROJECT, params);
+    }
+
+    async getFileTestFunctions(params: TestsDiscoveryRequest): Promise<TestsDiscoveryResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_DISCOVER_TESTS_IN_FILE, params);
+    }
+
+    async getTestFunction(params: GetTestFunctionRequest) : Promise<GetTestFunctionResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_GET_TEST_FUNCTION, params);
+    }
+
+    async addTestFunction(params: AddOrUpdateTestFunctionRequest) : 
+        Promise<TestSourceEditResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_ADD_TEST_FUNCTION, params);
+    }
+
+    async updateTestFunction(params: AddOrUpdateTestFunctionRequest) :
+        Promise<TestSourceEditResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_UPDATE_TEST_FUNCTION, params);
     }
 
     async getProjectDiagnostics(params: ProjectDiagnosticsRequest): Promise<ProjectDiagnosticsResponse | NOT_SUPPORTED_TYPE> {
