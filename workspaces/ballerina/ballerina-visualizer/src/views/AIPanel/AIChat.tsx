@@ -21,6 +21,7 @@ import {
     DataMappingRecord,
     PostProcessResponse,
 } from "@wso2-enterprise/ballerina-core";
+
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon } from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from "react-markdown";
@@ -35,9 +36,19 @@ import { findRegexMatches } from "../../utils/utils";
 import { Collapse } from "react-collapse";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 
-interface MarkdownRendererProps {
-    markdownContent: string;
-}
+import {
+    MarkdownRenderer,
+    Footer,
+    FlexRow,
+    AIChatView,
+    Header,
+    HeaderButtons,
+    Main,
+    ChatMessage,
+    Welcome,
+    Badge,
+    ResetsInBadge
+} from './styles'
 
 interface CodeBlock {
     filePath: string;
@@ -55,65 +66,6 @@ interface ApiResponse {
 }
 
 var chatArray: ChatEntry[] = [];
-
-const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) => {
-    return <ReactMarkdown>{markdownContent}</ReactMarkdown>;
-};
-
-const Footer = styled.footer({
-    padding: "20px",
-});
-
-const FlexRow = styled.div({
-    display: "flex",
-    flexDirection: "row",
-});
-
-const AIChatView = styled.div({
-    display: "flex",
-    flexDirection: "column",
-    height: "100%",
-});
-
-const Header = styled.header({
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: "10px",
-    gap: "10px",
-});
-
-const HeaderButtons = styled.div({
-    display: "flex",
-    justifyContent: "flex-end",
-    marginRight: "10px",
-});
-
-const Main = styled.main({
-    flex: 1,
-    flexDirection: "column",
-    overflowY: "auto",
-});
-
-const ChatMessage = styled.div({
-    padding: "20px",
-    borderTop: "1px solid var(--vscode-editorWidget-border)",
-});
-
-const Welcome = styled.div({
-    padding: "0 20px",
-});
-
-const Badge = styled.div`
-    padding: 5px;
-    margin-left: 10px;
-    display: inline-block;
-    text-align: left;
-`;
-
-const ResetsInBadge = styled.div`
-    font-size: 10px;
-`;
 
 // A string array to store all code blocks
 const codeBlocks: string[] = [];
@@ -144,7 +96,7 @@ const TEMPLATE_DATAMAP = [
     "generate mapping using input as <recordname(s)> and output as <recordname> using the function <functionname>",
     "generate mapping using input as <recordname(s)> and output as <recordname>",
 ];
-const TEMPLATE_TYPECREATOR = ["generate types using the given file content"];
+const TEMPLATE_TYPECREATOR = ["generate types using the given file"];
 
 // Use the constants in the commandToTemplate map
 const commandToTemplate = new Map<string, string[]>([
@@ -695,8 +647,9 @@ export function AIChat() {
     const handleAddAllCodeSegmentsToWorkspace = async (
         codeSegments: any,
         setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
-        isTestCode: boolean
+        command: string
     ) => {
+        console.log("Add to integration called. Command: ", command);
         for (let { segmentText, filePath } of codeSegments) {
             let originalContent = "";
             if (!tempStorage[filePath]) {
@@ -712,25 +665,30 @@ export function AIChat() {
                     tempStorage[filePath] = "";
                 }
             }
-            if (!["types.bal", "mappings.bal"].includes(filePath)) {
-                segmentText = `${segmentText}`;
-            } else {
+            if (command === "ai_map") {
                 segmentText = `${originalContent}\n${segmentText}`;
+            } else {
+                segmentText = `${segmentText}`;
+            }
+
+            let isTestCode = false;
+            if (command === "test") {
+                isTestCode = true;
             }
             await rpcClient
                 .getAiPanelRpcClient()
                 .addToProject({ filePath: filePath, content: segmentText, isTestCode: isTestCode });
         }
-        //TODO:Modify the function signature or comment this for datamapper working correctly
-        await rpcClient.getAiPanelRpcClient().applyDoOnFailBlocks();
         setIsCodeAdded(true);
     };
 
     const handleRevertChanges = async (
         codeSegments: any,
         setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
-        isTestCode: boolean
+        command: string
     ) => {
+        console.log("Revert integration called. Command: ", command);
+
         for (const { filePath } of codeSegments) {
             let originalContent = tempStorage[filePath];
             if (originalContent === "" && !initialFiles.has(filePath) && !emptyFiles.has(filePath)) {
@@ -741,6 +699,10 @@ export function AIChat() {
                     console.error(`Error deleting file ${filePath}:`, error);
                 }
             } else {
+                let isTestCode = false;
+                if (command === "test") {
+                    isTestCode = true;
+                }
                 const revertContent = emptyFiles.has(filePath) ? "" : originalContent;
                 await rpcClient
                     .getAiPanelRpcClient()
@@ -783,7 +745,6 @@ export function AIChat() {
         });
 
         const diagnostics = await rpcClient.getAiPanelRpcClient().getTestDiagnostics(response);
-        console.log(diagnostics);
         if (diagnostics.diagnostics.length > 0) {
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
@@ -810,9 +771,9 @@ export function AIChat() {
 
         setIsLoading(false);
         setIsCodeLoading(false);
-        assistant_response += `\n\n<code filename="tests/test.bal">\n\`\`\`ballerina\n${generatedTestCode}\n\`\`\`\n</code>`;
-        if (configToml !== "") {
-            assistant_response += `\n\n<code filename="tests/Config.toml">\n\`\`\`ballerina\n${configToml}\n\`\`\`\n</code>`;
+        assistant_response += `\n\n<code filename="tests/test.bal" type="test">\n\`\`\`ballerina\n${generatedTestCode}\n\`\`\`\n</code>`;
+        if (configToml !== undefined && configToml !== "") {
+            assistant_response += `\n\n<code filename="tests/Config.toml" type="test">\n\`\`\`ballerina\n${configToml}\n\`\`\`\n</code>`;
         }
         setMessages((prevMessages) => {
             const newMessages = [...prevMessages];
@@ -870,102 +831,115 @@ export function AIChat() {
             });
         });
 
-        try {
-            const inputs: DataMappingRecord[] = inputParams.map((param: string) => {
-                const isArray = param.endsWith("[]");
-                const recordName = param.replace(/\[\]$/, "");
-                const rec = recordMap.get(recordName);
+        const inputs: DataMappingRecord[] = inputParams.map((param: string) => {
+            const isArray = param.endsWith("[]");
+            const recordName = param.replace(/\[\]$/, "");
+            const rec = recordMap.get(recordName);
 
-                if (!rec) {
-                    if (recordName.includes(":")) {
-                        const [moduleName, alias] = recordName.split(":");
-                        const matchedImport = activeFileImports.find((imp) => recordName.startsWith(imp.alias));
-                        if (!matchedImport) {
-                            throw new Error(`Must import the module for "${recordName}".`);
+            if (!rec) {
+                if (recordName.includes(":")) {
+                    const [moduleName, alias] = recordName.split(":");
+                    const matchedImport = activeFileImports.find((imp) => {
+                        if (imp.alias) {
+                            // Match using alias if it exists
+                            return recordName.startsWith(imp.alias);
                         }
-                        importsMap.set(recordName, {
-                            moduleName: matchedImport.moduleName,
-                            alias: matchedImport.alias,
-                        });
-                        return { type: `${recordName}`, isArray, filePath: null };
-                    } else {
-                        throw new Error(`${recordName} is not defined.`);
+                        // If alias doesn't exist, match using the last part of the module name
+                        const moduleNameParts = imp.moduleName.split(".");
+                        const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
+                        return recordName.startsWith(inferredAlias);
+                    });
+
+                    if (!matchedImport) {
+                        throw new Error(`Must import the module for "${recordName}".`);
                     }
+                    // Use the actual alias if present, otherwise infer from the module name
+                    const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
+                    importsMap.set(recordName, {
+                        moduleName: matchedImport.moduleName,
+                        alias: resolvedAlias,
+                    });
+                    return { type: `${recordName}`, isArray, filePath: null };
+                } else {
+                    throw new Error(`${recordName} is not defined.`);
                 }
-                return { ...rec, isArray };
-            });
+            }
+            return { ...rec, isArray };
+        });
 
-            const outputRecordName = outputParam.replace(/\[\]$/, "");
-            const outputIsArray = outputParam.endsWith("[]");
-            let output = recordMap.get(outputRecordName);
+        const outputRecordName = outputParam.replace(/\[\]$/, "");
+        const outputIsArray = outputParam.endsWith("[]");
+        let output = recordMap.get(outputRecordName);
 
-            if (!output) {
-                if (outputRecordName.includes(":")) {
-                    const [moduleName, alias] = outputRecordName.split(":");
-                    const matchedImport = activeFileImports.find((imp) => outputRecordName.startsWith(imp.alias));
+        if (!output) {
+            if (outputRecordName.includes(":")) {
+                const [moduleName, alias] = outputRecordName.split(":");
+                    const matchedImport = activeFileImports.find((imp) => {
+                        if (imp.alias) {
+                            // Match using alias if it exists
+                            return outputRecordName.startsWith(imp.alias);
+                        }
+                        // If alias doesn't exist, match using the last part of the module name
+                        const moduleNameParts = imp.moduleName.split(".");
+                        const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
+                        return outputRecordName.startsWith(inferredAlias);
+                    });
+
                     if (!matchedImport) {
                         throw new Error(`Must import the module for "${outputRecordName}".`);
                     }
+                    // Use the actual alias if present, otherwise infer from the module name
+                    const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
                     importsMap.set(outputRecordName, {
                         moduleName: matchedImport.moduleName,
-                        alias: matchedImport.alias,
+                        alias: resolvedAlias,
                     });
                     output = { type: `${outputRecordName}`, isArray: outputIsArray, filePath: null };
-                } else {
-                    throw new Error(`${outputRecordName} is not defined.`);
-                }
             } else {
-                output = { ...output, isArray: outputIsArray };
+                throw new Error(`${outputRecordName} is not defined.`);
             }
-
-            const requestPayload: any = {
-                backendUri: "",
-                token: "",
-                inputRecordTypes: inputs,
-                outputRecordType: output,
-                functionName,
-                imports: Array.from(importsMap.values()),
-            };
-            if (attachments && attachments.length > 0) {
-                requestPayload.attachment = attachments;
-            }
-            const response = await rpcClient.getAiPanelRpcClient().getMappingsFromRecord(requestPayload);
-            setIsLoading(false);
-
-            assistant_response = `Mappings consist of the following:\n`;
-            if (inputParams.length === 1) {
-                assistant_response += `- **Input Record**: ${inputParams[0]}\n`;
-            } else {
-                assistant_response += `- **Input Records**: ${inputParams.join(", ")}\n`;
-            }
-            assistant_response += `- **Output Record**: ${outputParam}\n`;
-            assistant_response += `- **Function Name**: ${functionName}\n`;
-
-            let filePath = "mappings.bal";
-            let finalContent = response.mappingCode;
-            const needsImports = Array.from(importsMap.values()).length > 0;
-
-            if (needsImports) {
-                filePath = activeFile;
-                finalContent = `${fileContent}\n${response.mappingCode}`;
-            }
-            assistant_response += `<code filename="${filePath}">\n\`\`\`ballerina\n${finalContent}\n\`\`\`\n</code>`;
-
-            setMessages((prevMessages) => {
-                const newMessages = [...prevMessages];
-                newMessages[newMessages.length - 1].content = assistant_response;
-                return newMessages;
-            });
-        } catch (error) {
-            setIsLoading(false);
-            setMessages((prevMessages) => {
-                const newMessages = [...prevMessages];
-                newMessages[newMessages.length - 1].content += `Mappings generation failed: ${error}`;
-                newMessages[newMessages.length - 1].type = "Error";
-                return newMessages;
-            });
-            throw new Error("Failed to generate Mappings.");
+        } else {
+            output = { ...output, isArray: outputIsArray };
         }
+
+        const requestPayload: any = {
+            backendUri: "",
+            token: "",
+            inputRecordTypes: inputs,
+            outputRecordType: output,
+            functionName,
+            imports: Array.from(importsMap.values()),
+        };
+        if (attachments && attachments.length > 0) {
+            requestPayload.attachment = attachments;
+        }
+        const response = await rpcClient.getAiPanelRpcClient().getMappingsFromRecord(requestPayload);
+        setIsLoading(false);
+
+        assistant_response = `Mappings consist of the following:\n`;
+        if (inputParams.length === 1) {
+            assistant_response += `- **Input Record**: ${inputParams[0]}\n`;
+        } else {
+            assistant_response += `- **Input Records**: ${inputParams.join(", ")}\n`;
+        }
+        assistant_response += `- **Output Record**: ${outputParam}\n`;
+        assistant_response += `- **Function Name**: ${functionName}\n`;
+
+        let filePath = "mappings.bal";
+        let finalContent = response.mappingCode;
+        const needsImports = Array.from(importsMap.values()).length > 0;
+
+        if (needsImports) {
+            filePath = activeFile;
+            finalContent = `${fileContent}\n${response.mappingCode}`;
+        }
+        assistant_response += `<code filename="${filePath}" type="ai_map">\n\`\`\`ballerina\n${finalContent}\n\`\`\`\n</code>`;
+
+        setMessages((prevMessages) => {
+            const newMessages = [...prevMessages];
+            newMessages[newMessages.length - 1].content = assistant_response;
+            return newMessages;
+        });
         addChatEntry("user", message);
         addChatEntry("assistant", assistant_response);
     }
@@ -976,70 +950,57 @@ export function AIChat() {
         setIsLoading(true);
         let filePath = "types.bal";
 
-        try {
-            const projectComponents = await rpcClient.getBIDiagramRpcClient().getProjectComponents();
+        const projectComponents = await rpcClient.getBIDiagramRpcClient().getProjectComponents();
 
-            projectComponents.components.packages?.forEach((pkg) => {
-                pkg.modules?.forEach((mod) => {
-                    let filepath = pkg.filePath;
-                    if (mod.name !== undefined) {
-                        filepath += `modules/${mod.name}/`;
-                    }
-                    mod.records.forEach((rec) => {
-                        const recFilePath = filepath + rec.filePath;
-                        recordMap.set(rec.name, { type: rec.name, isArray: false, filePath: recFilePath });
-                    });
+        projectComponents.components.packages?.forEach((pkg) => {
+            pkg.modules?.forEach((mod) => {
+                let filepath = pkg.filePath;
+                if (mod.name !== undefined) {
+                    filepath += `modules/${mod.name}/`;
+                }
+                mod.records.forEach((rec) => {
+                    const recFilePath = filepath + rec.filePath;
+                    recordMap.set(rec.name, { type: rec.name, isArray: false, filePath: recFilePath });
                 });
             });
+        });
 
-            if (!attachments || attachments.length === 0) {
-                throw new Error(`Missing attachment`);
-            }
-
-            const requestPayload: any = {
-                backendUri: "",
-                token: token,
-                attachment: attachments,
-            };
-
-            const response = await rpcClient.getAiPanelRpcClient().getTypesFromRecord(requestPayload);
-            let typeContent = response.typesCode;
-            const newRecords = extractRecordTypes(typeContent);
-
-            let fileContent = "";
-            let fileExists = await rpcClient.getAiPanelRpcClient().getFileExists({ filePath: filePath });
-            if (fileExists) {
-                fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath });
-                typeContent = `${fileContent}\n${response.typesCode}`;
-            }
-
-            for (const record of newRecords) {
-                if (recordMap.has(record.name)) {
-                    throw new Error(`Record "${record.name}" already exists in the workspace.`);
-                }
-            }
-
-            assistant_response = `Record types generated from the ${attachments[0].name} file shown below.\n`;
-
-            assistant_response += `<code filename="${filePath}">\n\`\`\`ballerina\n${response.typesCode}\n\`\`\`\n</code>`;
-
-            setMessages((prevMessages) => {
-                const newMessages = [...prevMessages];
-                newMessages[newMessages.length - 1].content = assistant_response;
-                return newMessages;
-            });
-            setIsLoading(false);
-        } catch (error) {
-            setIsLoading(false);
-            setMessages((prevMessages) => {
-                const newMessages = [...prevMessages];
-                newMessages[newMessages.length - 1].content += `Type creation failed: ${error}`;
-                newMessages[newMessages.length - 1].type = "Error";
-                return newMessages;
-            });
-            throw new Error("Failed to generate types.");
+        if (!attachments || attachments.length === 0) {
+            throw new Error(`Missing attachment`);
         }
 
+        const requestPayload: any = {
+            backendUri: "",
+            token: token,
+            attachment: attachments,
+        };
+
+        const response = await rpcClient.getAiPanelRpcClient().getTypesFromRecord(requestPayload);
+        let typeContent = response.typesCode;
+        const newRecords = extractRecordTypes(typeContent);
+
+        let fileContent = "";
+        let fileExists = await rpcClient.getAiPanelRpcClient().getFileExists({ filePath: filePath });
+        if (fileExists) {
+            fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath });
+            typeContent = `${fileContent}\n${response.typesCode}`;
+        }
+
+        for (const record of newRecords) {
+            if (recordMap.has(record.name)) {
+                throw new Error(`Record "${record.name}" already exists in the workspace.`);
+            }
+        }
+
+        assistant_response = `Record types generated from the ${attachments[0].name} file shown below.\n`;
+        assistant_response += `<code filename="${filePath}" type="ai_map">\n\`\`\`ballerina\n${response.typesCode}\n\`\`\`\n</code>`;
+
+        setMessages((prevMessages) => {
+            const newMessages = [...prevMessages];
+            newMessages[newMessages.length - 1].content = assistant_response;
+            return newMessages;
+        });
+        setIsLoading(false);
         addChatEntry("user", message);
         addChatEntry("assistant", assistant_response);
     }
@@ -1056,8 +1017,8 @@ export function AIChat() {
         setIsCodeLoading(false);
     }
 
-    async function handleLogout() {
-        await rpcClient.getAiPanelRpcClient().logout();
+    async function handleSettings() {
+        await rpcClient.getAiPanelRpcClient().openSettings();
     }
 
     function handleClearChat(): void {
@@ -1105,9 +1066,9 @@ export function AIChat() {
                         <Codicon name="clear-all" />
                         &nbsp;&nbsp;Clear
                     </Button>
-                    <Button appearance="icon" onClick={() => handleLogout()} tooltip="Logout" disabled={true}>
-                        <Codicon name="sign-out" />
-                        &nbsp;&nbsp;Logout
+                    <Button appearance="icon" onClick={() => handleSettings()} tooltip="Settings">
+                        <Codicon name="settings-gear" />
+                        &nbsp;&nbsp;Settings
                     </Button>
                 </HeaderButtons>
             </Header>
@@ -1176,7 +1137,7 @@ export function AIChat() {
                                                 message={message}
                                                 buttonsActive={showGeneratingFiles}
                                                 isSyntaxError={isSyntaxError}
-                                                isTestCode={segment.isTestCode}
+                                                command={segment.command}
                                             />
                                         );
                                     }
@@ -1351,17 +1312,17 @@ interface CodeSectionProps {
     handleAddAllCodeSegmentsToWorkspace: (
         codeSegment: any,
         setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
-        isTestCode: boolean
+        command: string
     ) => void;
     handleRevertChanges: (
         codeSegment: any,
         setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
-        isTestCode: boolean
+        command: string
     ) => void;
     message: { role: string; content: string; type: string };
     buttonsActive: boolean;
     isSyntaxError: boolean;
-    isTestCode: boolean;
+    command: string;
 }
 
 const CodeSection: React.FC<CodeSectionProps> = ({
@@ -1373,12 +1334,16 @@ const CodeSection: React.FC<CodeSectionProps> = ({
     message,
     buttonsActive,
     isSyntaxError,
-    isTestCode,
+    command,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isCodeAdded, setIsCodeAdded] = useState(false);
 
     const language = "ballerina";
+    let isTestCode = false;
+    if (command === "test") {
+        isTestCode = true;
+    }
     let name = loading
         ? "Generating " + (isTestCode ? "Tests..." : "Integration...")
         : isTestCode
@@ -1404,7 +1369,7 @@ const CodeSection: React.FC<CodeSectionProps> = ({
                                         handleAddAllCodeSegmentsToWorkspace(
                                             allCodeSegments,
                                             setIsCodeAdded,
-                                            isTestCode
+                                            command
                                         );
                                     }}
                                     tooltip={
@@ -1422,7 +1387,7 @@ const CodeSection: React.FC<CodeSectionProps> = ({
                                     appearance="icon"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        handleRevertChanges(allCodeSegments, setIsCodeAdded, isTestCode);
+                                        handleRevertChanges(allCodeSegments, setIsCodeAdded, command);
                                     }}
                                     disabled={!buttonsActive}
                                 >
@@ -1616,28 +1581,34 @@ interface Segment {
     loading: boolean;
     text: string;
     fileName?: string;
-    isTestCode?: boolean;
+    command?: string;
     failed?: boolean;
+}
+
+function getCommand(command: string) {
+    if (!command) {
+        return "code";
+    } else {
+        return command.replaceAll(/"/g, "");
+    }
 }
 
 function splitHalfGeneratedCode(content: string): Segment[] {
     const segments: Segment[] = [];
     // Regex to capture filename and optional test attribute
-    const regex = /<code\s+filename="([^"]+)"(?:\s+test=(true|false))?>\s*```(\w+)\s*([\s\S]*?)$/g;
+    const regex = /<code\s+filename="([^"]+)"(?:\s+type=("test"|"ai_map"))?>\s*```(\w+)\s*([\s\S]*?)$/g;
     let match;
     let lastIndex = 0;
 
     while ((match = regex.exec(content)) !== null) {
-        const [fullMatch, fileName, testValue, language, code] = match;
-        const isTestCode = testValue === "true";
-
+        const [fullMatch, fileName, type, language, code] = match;
         if (match.index > lastIndex) {
             // Non-code segment before the current code block
             segments.push({
                 type: SegmentType.Text,
                 loading: false,
                 text: content.slice(lastIndex, match.index),
-                isTestCode: isTestCode,
+                command: getCommand(type),
             });
         }
 
@@ -1648,7 +1619,7 @@ function splitHalfGeneratedCode(content: string): Segment[] {
             loading: true,
             text: code,
             fileName: fileName,
-            isTestCode: isTestCode,
+            command: getCommand(type),
         });
 
         lastIndex = regex.lastIndex;
@@ -1671,7 +1642,7 @@ export function splitContent(content: string): Segment[] {
 
     // Combined regex to capture either <code ...>```<language> code ```</code> or <progress>Text</progress>
     const regex =
-        /<code\s+filename="([^"]+)"(?:\s+test=(true|false))?>\s*```(\w+)\s*([\s\S]*?)```\s*<\/code>|<progress>([\s\S]*?)<\/progress>|<attachment>([\s\S]*?)<\/attachment>|<error>([\s\S]*?)<\/error>/g;
+        /<code\s+filename="([^"]+)"(?:\s+type=("test"|"ai_map"))?>\s*```(\w+)\s*([\s\S]*?)```\s*<\/code>|<progress>([\s\S]*?)<\/progress>|<attachment>([\s\S]*?)<\/attachment>|<error>([\s\S]*?)<\/error>/g;
     let match;
     let lastIndex = 0;
 
@@ -1695,11 +1666,9 @@ export function splitContent(content: string): Segment[] {
         if (match[1]) {
             // <code> block matched
             const fileName = match[1];
-            const testValue = match[2];
+            const type = match[2];
             const language = match[3];
             const code = match[4];
-            const isTestCode = testValue === "true";
-
             updateLastProgressSegmentLoading();
             segments.push({
                 type: SegmentType.Code,
@@ -1707,7 +1676,7 @@ export function splitContent(content: string): Segment[] {
                 text: code,
                 fileName: fileName,
                 language: language,
-                isTestCode: isTestCode,
+                command: getCommand(type),
             });
         } else if (match[5]) {
             // <progress> block matched

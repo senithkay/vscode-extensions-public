@@ -50,6 +50,8 @@ export const TM_EVENT_PROJECT_ADD = "execute.project.add";
 // event for generating Cloud.toml for current project
 export const TM_EVENT_PROJECT_CLOUD = "execute.project.cloud";
 
+export const TM_EVENT_AUTH_COPILOT = "execute.auth.copilot";
+
 // events for language server
 export const TM_EVENT_LANG_SERVER = "kolab.langserver.event";
 export const TM_ERROR_LANG_SERVER = "kolab.langserver.error";

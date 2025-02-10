@@ -103,3 +103,7 @@ export function isCollapsed(portName: string, portType: "IN" | "OUT"): boolean {
     // Hence we explicitly check expandedFields for input header ports.
     return portType === "IN" ? collapsedFields.includes(portName) : !expandedFields.includes(portName);
 }
+
+export function fieldFQNFromPortName(portName: string): string {
+    return portName.split('.').slice(1).join('.');
+}

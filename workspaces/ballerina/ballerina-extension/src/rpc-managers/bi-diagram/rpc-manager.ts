@@ -21,6 +21,7 @@ import {
     BICopilotContextRequest,
     BIDeleteByComponentInfoRequest,
     BIDeleteByComponentInfoResponse,
+    BIDesignModelResponse,
     BIDiagramAPI,
     BIFlowModelRequest,
     BIFlowModelResponse,
@@ -40,13 +41,10 @@ import {
     BI_COMMANDS,
     BreakpointRequest,
     ComponentRequest,
-    ComponentsRequest,
-    ComponentsResponse,
     ConfigVariableResponse,
     CreateComponentResponse,
     CurrentBreakpointsResponse,
     DIRECTORY_MAP,
-    BIDesignModelResponse,
     EVENT_TYPE,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -55,9 +53,11 @@ import {
     FlowNode,
     FormDidCloseParams,
     FormDidOpenParams,
+    FunctionNode,
+    FunctionNodeRequest,
+    FunctionNodeResponse,
     ImportStatement,
     ImportStatements,
-    OverviewFlow,
     ProjectComponentsResponse,
     ProjectImports,
     ProjectRequest,
@@ -76,7 +76,7 @@ import {
     VisibleTypesResponse,
     WorkspaceFolder,
     WorkspacesResponse,
-    buildProjectStructure,
+    buildProjectStructure
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import { writeFileSync } from "fs";
@@ -97,10 +97,11 @@ import { notifyBreakpointChange } from "../../RPCLayer";
 import { ballerinaExtInstance } from "../../core";
 import { BreakpointManager } from "../../features/debugger/breakpoint-manager";
 import { StateMachine, openView, updateView } from "../../stateMachine";
-import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, sanitizeName } from "../../utils/bi";
+import { getCompleteSuggestions } from '../../utils/ai/completions';
+import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure } from "../../utils/bi";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
-import { DATA_MAPPING_FILE_NAME, getDataMapperNodePosition } from "./utils";
+import { DATA_MAPPING_FILE_NAME, getFunctionNodePosition } from "./utils";
 
 export class BiDiagramRpcManager implements BIDiagramAPI {
 
@@ -145,18 +146,18 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async getSourceCode(params: BISourceCodeRequest): Promise<BISourceCodeResponse> {
         console.log(">>> requesting bi source code from ls", params);
-        const { flowNode, isDataMapperFormUpdate } = params;
+        const { flowNode, isFunctionNodeUpdate } = params;
         return new Promise((resolve) => {
             StateMachine.langClient()
                 .getSourceCode(params)
                 .then(async (model) => {
                     console.log(">>> bi source code from ls", model);
                     if (params?.isConnector) {
-                        await this.updateSource(model, flowNode, true, isDataMapperFormUpdate);
+                        await this.updateSource(model, flowNode, true, isFunctionNodeUpdate);
                         resolve(model);
                         commands.executeCommand("BI.project-explorer.refresh");
                     } else {
-                        this.updateSource(model, flowNode, false, isDataMapperFormUpdate);
+                        this.updateSource(model, flowNode, false, isFunctionNodeUpdate);
                         resolve(model);
                     }
                 })
@@ -171,9 +172,9 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async updateSource(
         params: BISourceCodeResponse,
-        flowNode?: FlowNode,
+        flowNode?: FlowNode | FunctionNode,
         isConnector?: boolean,
-        isDataMapperFormUpdate?: boolean
+        isFunctionNodeUpdate?: boolean
     ): Promise<void> {
         const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
 
@@ -235,8 +236,8 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                         await StateMachine.langClient().didOpen({
                             textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
                         });
-                    } else if (isDataMapperFormUpdate && fileUriString.endsWith(DATA_MAPPING_FILE_NAME)) {
-                        const functionPosition = getDataMapperNodePosition(flowNode.properties, syntaxTree);
+                    } else if (isFunctionNodeUpdate) {
+                        const functionPosition = getFunctionNodePosition(flowNode.properties, syntaxTree);
                         openView(EVENT_TYPE.OPEN_VIEW, {
                             documentUri: request.filePath,
                             position: functionPosition,
@@ -247,7 +248,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         } catch (error) {
             console.log(">>> error updating source", error);
         }
-        if (!isConnector && !isDataMapperFormUpdate) {
+        if (!isConnector && !isFunctionNodeUpdate) {
             updateView();
         }
     }
@@ -315,7 +316,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     break;
                 case DIRECTORY_MAP.FUNCTIONS || DIRECTORY_MAP.DATA_MAPPERS:
                     res = await createBIFunction(params);
-                    break;
+                    break;  
                 default:
                     break;
             }
@@ -369,11 +370,6 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 resolve(undefined);
                 return;
             }
-            const token = await extension.context.secrets.get("BallerinaAIUser");
-            if (!token) {
-                resolve(undefined);
-                return;
-            }
             // get copilot context form ls
             const copilotContextRequest: BICopilotContextRequest = {
                 filePath: filePath,
@@ -383,48 +379,64 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             const copilotContext = await StateMachine.langClient().getCopilotContext(copilotContextRequest);
             console.log(">>> copilot context from ls", { response: copilotContext });
 
-            // get suggestions from ai
-            const requestBody = {
-                ...copilotContext,
-                prompt,
-                singleCompletion: false, // Remove setting and assign constant value since this is handled by the AI BE
-            };
-            const requestOptions = {
-                method: "POST",
-                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-                body: JSON.stringify(requestBody),
-            };
-            console.log(">>> request ai suggestion", { request: requestBody });
-            let response;
+            //TODO: Refactor this logic
+            let suggestedContent;
             try {
                 if (prompt) {
+                    const token = await extension.context.secrets.get("BallerinaAIUser");
+                    if (!token) {
+                        resolve(undefined);
+                        return;
+                    }
+                    // get suggestions from ai
+                    const requestBody = {
+                        ...copilotContext,
+                        prompt,
+                        singleCompletion: false, // Remove setting and assign constant value since this is handled by the AI BE
+                    };
+                    const requestOptions = {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                        body: JSON.stringify(requestBody),
+                    };
+                    console.log(">>> request ai suggestion", { request: requestBody });
                     // generate new nodes
-                    response = await fetchWithToken(BACKEND_API_URL_V2 + "/inline/generation", requestOptions);
+                    const response = await fetchWithToken(BACKEND_API_URL_V2 + "/inline/generation", requestOptions);
+                    if (!response.ok) {
+                        console.log(">>> ai completion api call failed ", response);
+                        return new Promise((resolve) => {
+                            resolve(undefined);
+                        });
+                    }
+                    const data = await response.json();
+                    console.log(">>> ai suggestion", { response: data });
+                    suggestedContent = (data as any).code;
                 } else {
                     // get next suggestion
-                    response = await fetchWithToken(BACKEND_API_URL_V2 + "/completion", requestOptions);
+                    const copilot_token = await extension.context.secrets.get("GITHUB_COPILOT_TOKEN");
+                    if (!copilot_token) {
+                        const token = await extension.context.secrets.get("BallerinaAIUser");
+                        if (!token) {
+                            //TODO: Do we need to prompt to login here? If so what? Copilot or Ballerina AI?
+                            resolve(undefined);
+                            return;
+                        }
+                        suggestedContent = await this.getCompletionsWithHostedAI(token, copilotContext);
+                    } else {
+                        const resp = await getCompleteSuggestions({
+                            prefix: copilotContext.prefix,
+                            suffix: copilotContext.suffix,
+                        });
+                        console.log(">>> ai suggestion", { response: resp });
+                        suggestedContent = resp.completions.at(0);
+                    }
+
                 }
             } catch (error) {
                 console.log(">>> error fetching ai suggestion", error);
                 return new Promise((resolve) => {
                     resolve(undefined);
                 });
-            }
-            if (!response.ok) {
-                console.log(">>> ai completion api call failed ", response);
-                return new Promise((resolve) => {
-                    resolve(undefined);
-                });
-            }
-            const data = await response.json();
-            console.log(">>> ai suggestion", { response: data });
-            let suggestedContent;
-            if (prompt) {
-                // get response code
-                suggestedContent = (data as any).code;
-            } else {
-                // get first completion
-                suggestedContent = (data as any).completions.at(0);
             }
             if (!suggestedContent) {
                 console.log(">>> ai suggested content not found");
@@ -1035,6 +1047,56 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 })
                 .catch((error) => {
                     console.log(">>> Error adding function", error);
+                    resolve(undefined);
+                });
+        });
+    }
+
+    async promptGithubCopilotAuthNotificaiton(): Promise<void> {
+        //TODO: Prevent multiple notifications
+        vscode.window.showInformationMessage(
+            'Ballerina Integrator supports visual completions with GitHub Copilot.',
+            'Authorize using GitHub Copilot'
+        ).then(selection => {
+            if (selection === 'Authorize using GitHub Copilot') {
+                commands.executeCommand('kolab.login.copilot');
+            }
+        });
+    }
+
+    async getCompletionsWithHostedAI(token, copilotContext): Promise<void> {
+        // get suggestions from ai
+        const requestBody = {
+            ...copilotContext,
+        };
+        const requestOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            body: JSON.stringify(requestBody),
+        };
+        console.log(">>> request ai suggestion", { request: requestBody });
+        // generate new nodes
+        const response = await fetchWithToken(BACKEND_API_URL_V2 + "/completion", requestOptions);
+        if (!response.ok) {
+            console.log(">>> ai completion api call failed ", response);
+            return new Promise((resolve) => {
+                resolve(undefined);
+            });
+        }
+        const data = await response.json();
+        console.log(">>> ai suggestion", { response: data });
+        const suggestedContent = (data as any).completions.at(0);
+        return suggestedContent;
+    }
+
+    async getFunctionNode(params: FunctionNodeRequest): Promise<FunctionNodeResponse> {
+        return new Promise((resolve) => {
+            StateMachine.langClient().getFunctionNode(params)
+                .then((response) => {
+                    resolve(response);
+                })
+                .catch((error) => {
+                    console.log(">>> Error getting function node", error);
                     resolve(undefined);
                 });
         });

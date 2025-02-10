@@ -23,13 +23,14 @@ import { OutputSearchHighlight } from "../commons/Search";
 import { ObjectOutputFieldWidget } from "../ObjectOutput/ObjectOutputFieldWidget";
 import { ValueConfigMenu, ValueConfigOption } from "../commons/ValueConfigButton";
 import { ValueConfigMenuItem } from "../commons/ValueConfigButton/ValueConfigMenuItem";
-import { getDefaultValue } from "../../utils/common-utils";
+import { fieldFQNFromPortName, getDefaultValue } from "../../utils/common-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 import { TreeBody } from "../commons/Tree/Tree";
 import { getTypeName } from "../../utils/type-utils";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
-import { addValue } from "../../utils/modification-utils";
+import { addValue, removeMapping } from "../../utils/modification-utils";
 import { PrimitiveOutputElementWidget } from "../PrimitiveOutput/PrimitiveOutputElementWidget";
+import { OutputBeforeInputNotification } from "../commons/OutputBeforeInputNotification";
 
 export interface ArrayOutputFieldWidgetProps {
     parentId: string;
@@ -39,7 +40,6 @@ export interface ArrayOutputFieldWidgetProps {
     context: IDataMapperContext;
     fieldIndex?: number;
     treeDepth?: number;
-    deleteField?: (node: Node) => Promise<void>;
     asOutput?: boolean;
     hasHoveredParent?: boolean;
 }
@@ -53,7 +53,6 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         context,
         fieldIndex,
         treeDepth = 0,
-        deleteField,
         asOutput,
         hasHoveredParent
     } = props;
@@ -62,6 +61,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const [isLoading, setLoading] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
+    const [hasOutputBeforeInput, setHasOutputBeforeInput] = useState(false);
     const [isAddingElement, setIsAddingElement] = useState(false);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
     const setExprBarFocusedPort = useDMExpressionBarStore(state => state.setFocusedPort);
@@ -69,17 +69,17 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const arrayField = field.member;
     const typeName = getTypeName(field);
 
-    let fieldFQN = parentId;
+    let portName = parentId;
     if (fieldIndex !== undefined) {
-        fieldFQN = `${parentId}.${fieldIndex}`
+        portName = `${parentId}.${fieldIndex}`
     }
     const fieldName = field?.variableName || '';
 
-    const portIn = getPort(`${fieldFQN}.IN`);
+    const portIn = getPort(`${portName}.IN`);
     const mapping = portIn && portIn.value;
     const { inputs, expression, elements, diagnostics } = mapping || {};
     const searchValue = useDMSearchStore.getState().outputSearch;
-    const hasElements = elements?.length > 0;
+    const hasElements = elements?.length > 0 && elements.some((element) => element.mappings.length > 0);
     const connectedViaLink = inputs?.length > 0;
 
     let expanded = true;
@@ -92,7 +92,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         indentation += 24;
     }
 
-    const hasDefaultValue = expression && getDefaultValue(arrayField.kind) === expression.trim();
+    const hasDefaultValue = expression && getDefaultValue(field.kind) === expression.trim();
     let isDisabled = portIn.descendantHasValue;
 
     if (!isDisabled && !hasDefaultValue) {
@@ -111,6 +111,10 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const handlePortState = (state: PortState) => {
         setPortState(state)
     };
+
+	const handlePortSelection = (outputBeforeInput: boolean) => {
+		setHasOutputBeforeInput(outputBeforeInput);
+	};
 
     const handleEditValue = () => {
         if (portIn)
@@ -180,15 +184,14 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                         <>
                             <TreeBody>
                                 <ObjectOutputFieldWidget
-                                    key={`arr-output-field-${fieldFQN}-${index}`}
+                                    key={`arr-output-field-${portName}-${index}`}
                                     engine={engine}
                                     field={arrayField}
                                     getPort={getPort}
-                                    parentId={fieldFQN}
+                                    parentId={portName}
                                     context={context}
                                     fieldIndex={index}
                                     treeDepth={treeDepth + 1}
-                                    deleteField={deleteField}
                                     hasHoveredParent={isHovered || hasHoveredParent}
                                 />
                             </TreeBody>
@@ -198,15 +201,14 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                 } else if (arrayField?.kind === TypeKind.Array) {
                     return (
                         <ArrayOutputFieldWidget
-                            key={`arr-output-field-${fieldFQN}-${index}`}
+                            key={`arr-output-field-${portName}-${index}`}
                             engine={engine}
                             field={arrayField}
                             getPort={getPort}
-                            parentId={fieldFQN}
+                            parentId={portName}
                             context={context}
                             fieldIndex={index}
                             treeDepth={treeDepth + 1}
-                            deleteField={deleteField}
                             hasHoveredParent={isHovered || hasHoveredParent}
                         />
                     )
@@ -217,14 +219,13 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                 }
                 return (
                     <PrimitiveOutputElementWidget
-                        key={`arr-output-field-${fieldFQN}-${index}`}
-                        parentId={fieldFQN}
+                        key={`arr-output-field-${portName}-${index}`}
+                        parentId={portName}
                         field={arrayField}
                         engine={engine}
                         getPort={getPort}
                         context={context}
                         fieldIndex={index}
-                        deleteField={deleteField}
                         isArrayElement={true}
                         hasHoveredParent={isHovered || hasHoveredParent}
                     />
@@ -236,6 +237,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const addElementButton = useMemo(() => {
         return (
             <Button
+                id={`add-array-element-${portName}`}
                 key={`array-widget-${portIn?.getName()}-add-element`}
                 className={classes.addArrayElementButton}
                 appearance="icon"
@@ -256,16 +258,16 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const handleExpand = () => {
         const collapsedFields = collapsedFieldsStore.fields;
         if (!expanded) {
-            collapsedFieldsStore.setFields(collapsedFields.filter((element) => element !== fieldFQN));
+            collapsedFieldsStore.setFields(collapsedFields.filter((element) => element !== portName));
         } else {
-            collapsedFieldsStore.setFields([...collapsedFields, fieldFQN]);
+            collapsedFieldsStore.setFields([...collapsedFields, portName]);
         }
     };
 
     const handleArrayInitialization = async () => {
         setLoading(true);
         try {
-            await addValue(fieldFQN, '[]', context);
+            await addValue(fieldFQNFromPortName(portName), '[]', context);
         } finally {
             setLoading(false);
         }
@@ -274,7 +276,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const handleArrayDeletion = async () => {
         setLoading(true);
         try {
-            // TODO: Implement
+            await removeMapping(fieldFQNFromPortName(portName), context);
         } finally {
             setLoading(false);
         }
@@ -299,7 +301,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
 
     const valConfigMenuItems: ValueConfigMenuItem[] = hasElements || hasDefaultValue
         ? [
-            { title: ValueConfigOption.EditValue, onClick: handleEditValue },
+            // { title: ValueConfigOption.EditValue, onClick: handleEditValue }, // TODO: Enable this after adding support for editing array values
             { title: ValueConfigOption.DeleteArray, onClick: handleArrayDeletion },
         ]
         : [
@@ -312,7 +314,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         >
             {!asOutput && (
                 <div
-                    id={"recordfield-" + fieldFQN}
+                    id={"recordfield-" + portName}
                     className={classnames(classes.ArrayFieldRow,
                         isDisabled ? classes.ArrayFieldRowDisabled : "",
                         (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",
@@ -328,6 +330,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                                 port={portIn}
                                 disable={isDisabled && expanded}
                                 handlePortState={handlePortState}
+                                hasFirstSelectOutput={handlePortSelection}
                                 dataTestId={`array-type-editable-record-field-${portIn.getName()}`}
                             />
                         )}
@@ -336,6 +339,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                         {(expression && !connectedViaLink) && (
                             <FieldActionWrapper>
                                 <Button
+                                    id={`expand-or-collapse-${portName}`}
                                     appearance="icon"
                                     sx={{ marginLeft: indentation }}
                                     onClick={handleExpand}
@@ -357,6 +361,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                             />
                         </FieldActionWrapper>
                     ))}
+                    {hasOutputBeforeInput && <OutputBeforeInputNotification />}
                 </div>
             )}
             {(expanded && expression) && (

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useCallback, useEffect, useMemo, useRef,useState } from "react";
+import { RefObject, useCallback, useEffect, useMemo, useRef,useState } from "react";
 import {
     EVENT_TYPE,
     FlowNode,
@@ -18,7 +18,6 @@ import {
     TRIGGER_CHARACTERS,
     TriggerCharacter,
     FormDiagnostics,
-    ConfigVariable,
     TextEdit,
     FunctionKind,
     SubPanelView,
@@ -29,23 +28,18 @@ import {
     convertBalCompletion,
     convertNodePropertiesToFormFields,
     convertToFnSignature,
-    convertToHelperPaneConfigurableVariable,
-    convertToHelperPaneFunction,
-    convertToHelperPaneVariable,
     convertToVisibleTypes,
     enrichFormPropertiesWithValueConstraint,
     extractFunctionInsertText,
     getFormProperties,
     removeDuplicateDiagnostics,
-    updateLineRange,
-    updateNodeProperties,
+    updateLineRange
 } from "../../../../utils/bi";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { RecordEditor } from "../../../RecordEditor/RecordEditor";
 import IfForm from "../IfForm";
-import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
-import { cloneDeep, debounce, set } from "lodash";
-import { URI, Utils } from "vscode-uri";
+import { CompletionItem, FormExpressionEditorRef } from "@wso2-enterprise/ui-toolkit";
+import { cloneDeep, debounce } from "lodash";
 import {
     createNodeWithUpdatedLineRange,
     processFormData,
@@ -53,6 +47,7 @@ import {
     updateNodeWithProperties
 } from "../form-utils";
 import ForkForm from "../ForkForm";
+import { getHelperPane } from "../../HelperPane"
 
 interface FormProps {
     fileName: string;
@@ -98,11 +93,6 @@ export function FormGenerator(props: FormProps) {
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
-    const [isLoadingHelperPaneInfo, setIsLoadingHelperPaneInfo] = useState<boolean>(false);
-    const [variableInfo, setVariableInfo] = useState<HelperPaneData>();
-    const [configVariableInfo, setConfigVariableInfo] = useState<HelperPaneData>();
-    const [functionInfo, setFunctionInfo] = useState<HelperPaneData>();
-    const [libraryBrowserInfo, setLibraryBrowserInfo] = useState<HelperPaneData>();
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
     const expressionOffsetRef = useRef<number>(0); // To track the expression offset on adding import statements
 
@@ -413,97 +403,6 @@ export function FormGenerator(props: FormProps) {
         setDiagnosticsInfo({ key, diagnostics: uniqueDiagnostics });
     }, 250), [rpcClient, fileName, targetLineRange, node]);
 
-    const getHelperPaneData = useCallback(
-        debounce((type: string, searchText: string) => {
-            const updatedTargetLineRange = updateLineRange(targetLineRange, expressionOffsetRef.current);
-            switch (type) {
-                case 'variables': {
-                    rpcClient
-                        .getBIDiagramRpcClient()
-                        .getVisibleVariableTypes({
-                            filePath: fileName,
-                            position: {
-                                line: updatedTargetLineRange.startLine.line,
-                                offset: updatedTargetLineRange.startLine.offset
-                            }
-                        })
-                        .then((response) => {
-                            if (response.categories?.length) {
-                                setVariableInfo(convertToHelperPaneVariable(response.categories));
-                            }
-                        })
-                        .then(() => setIsLoadingHelperPaneInfo(false));
-                    break;
-                }
-                case 'configurable': {
-                    rpcClient
-                        .getBIDiagramRpcClient()
-                        .getVisibleVariableTypes({
-                            filePath: fileName,
-                            position: {
-                                line: updatedTargetLineRange.startLine.line,
-                                offset: updatedTargetLineRange.startLine.offset
-                            }
-                        })
-                        .then((response) => {
-                            if (response.categories?.length) {
-                                setConfigVariableInfo(convertToHelperPaneConfigurableVariable(response.categories));
-                            }
-                        })
-                        .then(() => setIsLoadingHelperPaneInfo(false));
-                    break;
-                }
-                case 'functions': {
-                    rpcClient
-                        .getBIDiagramRpcClient()
-                        .getFunctions({
-                            position: updatedTargetLineRange,
-                            filePath: fileName,
-                            queryMap: {
-                                q: searchText.trim(),
-                                limit: 12,
-                                offset: 0
-                            }
-                        })
-                        .then((response) => {
-                            if (response.categories?.length) {
-                                setFunctionInfo(convertToHelperPaneFunction(response.categories));
-                            }
-                        })
-                        .then(() => setIsLoadingHelperPaneInfo(false));
-                    break;
-                }
-                case 'libraries': {
-                    rpcClient
-                        .getBIDiagramRpcClient()
-                        .getFunctions({
-                            position: updatedTargetLineRange,
-                            filePath: fileName,
-                            queryMap: {
-                                q: searchText.trim(),
-                                limit: 12,
-                                offset: 0,
-                                includeAvailableFunctions: "true"
-                            }
-                        })
-                        .then((response) => {
-                            if (response.categories?.length) {
-                                setLibraryBrowserInfo(convertToHelperPaneFunction(response.categories));
-                            }
-                        })
-                        .then(() => setIsLoadingHelperPaneInfo(false));
-                    break;
-                }
-            }
-        }, 1100),
-        [rpcClient, targetLineRange, fileName]
-    );
-
-    const handleGetHelperPaneData = useCallback((type: string, searchText: string) => {
-        setIsLoadingHelperPaneInfo(true);
-        getHelperPaneData(type, searchText);
-    }, [getHelperPaneData]);
-
     const handleCompletionItemSelect = async (value: string, additionalTextEdits?: TextEdit[]) => {
         if (additionalTextEdits?.[0].newText) {
             const response = await rpcClient.getBIDiagramRpcClient().updateImports({
@@ -535,86 +434,19 @@ export function FormGenerator(props: FormProps) {
         handleExpressionEditorCancel();
     };
 
-    function handleSaveConfigurables(values: any): void {
-
-        const variable: ConfigVariable = {
-            "id": "",
-            "metadata": {
-                "label": "Config",
-                "description": "Create a configurable variable"
-            },
-            "codedata": {
-                "node": "CONFIG_VARIABLE",
-                "lineRange": {
-                    "fileName": "config.bal",
-                    "startLine": {
-                        "line": 0,
-                        "offset": 0
-                    },
-                    "endLine": {
-                        "line": 0,
-                        "offset": 0
-                    }
-                }
-            },
-            "returning": false,
-            "properties": {
-                "type": {
-                    "metadata": {
-                        "label": "Type",
-                        "description": "Type of the variable"
-                    },
-                    "valueType": "TYPE",
-                    "value": "",
-                    "optional": false,
-                    "advanced": false,
-                    "editable": true
-                },
-                "variable": {
-                    "metadata": {
-                        "label": "Variable",
-                        "description": "Name of the variable"
-                    },
-                    "valueType": "IDENTIFIER",
-                    "value": "",
-                    "optional": false,
-                    "advanced": false,
-                    "editable": true,
-                },
-                "defaultable": {
-                    "metadata": {
-                        "label": "Default value",
-                        "description": "Default value for the config, if empty your need to provide a value at runtime"
-                    },
-                    "valueType": "EXPRESSION",
-                    "value": "",
-                    "optional": true,
-                    "advanced": true,
-                    "editable": true
-                }
-            },
-            branches: []
-        };
-
-        variable.properties.variable.value = values.confName;
-        variable.properties.defaultable.value =
-        values.confValue === "" || values.confValue === null ?
-                "?"
-                : '"' + values.confValue + '"';
-        variable.properties.defaultable.optional = true;
-        variable.properties.type.value = "anydata";
-
-        rpcClient.getVisualizerLocation().then((location) => {
-            rpcClient
-                .getBIDiagramRpcClient()
-                .updateConfigVariables({
-                    configVariable: variable,
-                    configFilePath: Utils.joinPath(URI.file(location.projectUri), 'config.bal').fsPath
-                })
-                .then((response: any) => {
-                    console.log(">>> Config variables------", response);
-                    getHelperPaneData('configurable', '');
-                });
+    const handleGetHelperPane = (
+        exprRef: RefObject<FormExpressionEditorRef>,
+        value: string,
+        onChange: (value: string, updatedCursorPosition: number) => void,
+        changeHelperPaneState: (isOpen: boolean) => void
+    ) => {
+        return getHelperPane({
+            fileName: fileName,
+            targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
+            exprRef: exprRef,
+            onClose: () => changeHelperPaneState(false),
+            currentValue: value,
+            onChange: onChange
         });
     }
 
@@ -626,30 +458,18 @@ export function FormGenerator(props: FormProps) {
             extractArgsFromFunction: extractArgsFromFunction,
             types: filteredTypes,
             retrieveVisibleTypes: handleGetVisibleTypes,
-            isLoadingHelperPaneInfo: isLoadingHelperPaneInfo,
-            variableInfo: variableInfo,
-            configVariableInfo: configVariableInfo,
-            functionInfo: functionInfo,
-            libraryBrowserInfo: libraryBrowserInfo,
-            getHelperPaneData: handleGetHelperPaneData,
-            onFunctionItemSelect: handleFunctionItemSelect,
+            getHelperPane: handleGetHelperPane,
             getExpressionFormDiagnostics: handleExpressionFormDiagnostics,
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
             onCancel: handleExpressionEditorCancel,
-            onSaveConfigurables: handleSaveConfigurables,
+            helperPaneOrigin: "left"
         } as FormExpressionEditorProps;
     }, [
         filteredCompletions,
         filteredTypes,
-        isLoadingHelperPaneInfo,
-        variableInfo,
-        configVariableInfo,
-        functionInfo,
-        libraryBrowserInfo,
         handleRetrieveCompletions,
         handleGetVisibleTypes,
-        handleGetHelperPaneData,
         handleFunctionItemSelect,
         handleExpressionFormDiagnostics
     ]);

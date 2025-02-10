@@ -60,6 +60,8 @@ import {
     SyntaxTreeNodeParams,
     SyntaxTreeNode,
     ExecutorPositions,
+    TestsDiscoveryRequest,
+    TestsDiscoveryResponse,
     JsonToRecordParams,
     XMLToRecordParams,
     XMLToRecord,
@@ -152,7 +154,13 @@ import {
     InlineDataMapperModelResponse,
     VisualizableFieldsRequest,
     VisualizableFieldsResponse,
-    AddArrayElementRequest
+    AddArrayElementRequest,
+    GetTestFunctionRequest,
+    GetTestFunctionResponse,
+    AddOrUpdateTestFunctionRequest,
+    TestSourceEditResponse,
+    FunctionNodeResponse,
+    FunctionNodeRequest
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -174,10 +182,6 @@ enum EXTENDED_APIS {
     DOCUMENT_TRIGGER_MODIFY = 'ballerinaDocument/triggerModify',
     SYMBOL_TYPE = 'ballerinaSymbol/type',
     CONNECTOR_CONNECTORS = 'ballerinaConnector/connectors',
-    TRIGGER_TRIGGERS = 'ballerinaTrigger/triggers',
-    TRIGGER_TRIGGER = 'ballerinaTrigger/trigger',
-    NEW_TRIGGER_TRIGGERS = 'ballerinaTrigger/triggersNew',
-    NEW_TRIGGER_TRIGGER = 'ballerinaTrigger/triggerNew',
     CONNECTOR_CONNECTOR = 'ballerinaConnector/connector',
     CONNECTOR_RECORD = 'ballerinaConnector/record',
     PACKAGE_COMPONENTS = 'ballerinaPackage/components',
@@ -249,14 +253,20 @@ enum EXTENDED_APIS {
     BI_SERVICE_ADD_SERVICE = 'serviceDesign/addService',
     BI_SERVICE_UPDATE_SERVICE = 'serviceDesign/updateService',
     BI_SERVICE_GET_SERVICE_SOURCE = 'serviceDesign/getServiceFromSource',
-    BI_SERVICE_GET_RESOURCE = 'serviceDesign/getHttpResourceModel',
+    BI_SERVICE_GET_RESOURCE = 'serviceDesign/getFunctionModel',
     BI_SERVICE_ADD_RESOURCE = 'serviceDesign/addResource',
     BI_SERVICE_ADD_FUNCTION = 'serviceDesign/addFunction',
     BI_SERVICE_UPDATE_RESOURCE = 'serviceDesign/updateFunction',
     BI_SERVICE_GET_TRIGGERS = 'serviceDesign/getTriggerModels',
     BI_DESIGN_MODEL = 'designModelService/getDesignModel',
     BI_UPDATE_IMPORTS = 'expressionEditor/importModule',
-    BI_ADD_FUNCTION = 'expressionEditor/functionCallTemplate'
+    BI_ADD_FUNCTION = 'expressionEditor/functionCallTemplate',
+    BI_DISCOVER_TESTS_IN_PROJECT = 'testManagerService/discoverInProject',
+    BI_DISCOVER_TESTS_IN_FILE = 'testManagerService/discoverInFile',
+    BI_GET_TEST_FUNCTION = 'testManagerService/getTestFunction',
+    BI_ADD_TEST_FUNCTION = 'testManagerService/addTestFunction',
+    BI_UPDATE_TEST_FUNCTION = 'testManagerService/updateTestFunction',
+    BI_EDIT_FUNCTION_NODE = 'flowDesignService/functionDefinition'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -412,20 +422,12 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<Connectors>(EXTENDED_APIS.CONNECTOR_CONNECTORS, params);
     }
 
-    async getTriggers(params: TriggersParams): Promise<Triggers | NOT_SUPPORTED_TYPE> {
-        return this.sendRequest<Triggers>(EXTENDED_APIS.NEW_TRIGGER_TRIGGERS, params);
-    }
-
     async getConnector(params: ConnectorRequest): Promise<ConnectorResponse | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_CONNECTOR);
         if (!isSupported) {
             return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest<Connector>(EXTENDED_APIS.CONNECTOR_CONNECTOR, params);
-    }
-
-    async getTrigger(params: TriggerParams): Promise<Trigger | NOT_SUPPORTED_TYPE> {
-        return this.sendRequest<Trigger>(EXTENDED_APIS.NEW_TRIGGER_TRIGGER, params);
     }
 
     async getRecord(params: RecordParams): Promise<BallerinaRecord | NOT_SUPPORTED_TYPE> {
@@ -595,6 +597,28 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
             return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest(EXTENDED_APIS.DOCUMENT_EXECUTOR_POSITIONS, params);
+    }
+
+    async getProjectTestFunctions(params: TestsDiscoveryRequest): Promise<TestsDiscoveryResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_DISCOVER_TESTS_IN_PROJECT, params);
+    }
+
+    async getFileTestFunctions(params: TestsDiscoveryRequest): Promise<TestsDiscoveryResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_DISCOVER_TESTS_IN_FILE, params);
+    }
+
+    async getTestFunction(params: GetTestFunctionRequest) : Promise<GetTestFunctionResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_GET_TEST_FUNCTION, params);
+    }
+
+    async addTestFunction(params: AddOrUpdateTestFunctionRequest) : 
+        Promise<TestSourceEditResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_ADD_TEST_FUNCTION, params);
+    }
+
+    async updateTestFunction(params: AddOrUpdateTestFunctionRequest) :
+        Promise<TestSourceEditResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_UPDATE_TEST_FUNCTION, params);
     }
 
     async getProjectDiagnostics(params: ProjectDiagnosticsRequest): Promise<ProjectDiagnosticsResponse | NOT_SUPPORTED_TYPE> {
@@ -772,6 +796,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getListeners(params: ListenersRequest): Promise<ListenersResponse> {
         return this.sendRequest<ListenersResponse>(EXTENDED_APIS.BI_SERVICE_GET_LISTENERS, params);
+    }
+
+    async getFunctionNode(params: FunctionNodeRequest): Promise<FunctionNodeResponse> {
+        return this.sendRequest<FunctionNodeResponse>(EXTENDED_APIS.BI_EDIT_FUNCTION_NODE, params);
     }
 
     async getListenerModel(params: ListenerModelRequest): Promise<ListenerModelResponse> {

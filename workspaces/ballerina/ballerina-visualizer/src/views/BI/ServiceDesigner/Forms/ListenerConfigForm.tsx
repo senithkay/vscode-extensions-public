@@ -46,7 +46,6 @@ interface ListenerConfigFormProps {
     listenerModel: ListenerModel;
     onSubmit?: (data: ListenerModel) => void;
     onBack?: () => void;
-    formRef?: React.Ref<unknown>;
     formSubmitText?: string;
 }
 
@@ -54,7 +53,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const { rpcClient } = useRpcContext();
 
     const [listenerFields, setListenerFields] = useState<FormField[]>([]);
-    const { listenerModel, onSubmit, onBack, formRef, formSubmitText = "Next" } = props;
+    const { listenerModel, onSubmit, onBack, formSubmitText = "Next" } = props;
     const [filePath, setFilePath] = useState<string>('');
 
     useEffect(() => {
@@ -95,7 +94,6 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                             </BodyText>
                             {filePath &&
                                 <FormGeneratorNew
-                                    ref={formRef}
                                     fileName={filePath}
                                     targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
                                     fields={listenerFields}
@@ -130,7 +128,7 @@ function convertConfig(listener: ListenerModel): FormField[] {
             valueTypeConstraint: expression.valueTypeConstraint,
             advanced: expression.advanced,
             diagnostics: [],
-            items: [""].concat(expression.items),
+            items: expression.items,
             placeholder: expression.placeholder
         }
         formFields.push(formField);

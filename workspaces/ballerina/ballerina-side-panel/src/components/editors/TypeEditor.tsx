@@ -19,7 +19,7 @@ import {
 import { FormField } from "../Form/types";
 import { useFormContext } from "../../context";
 import { Controller } from "react-hook-form";
-import {S} from "../editors/ExpressionEditor";
+import { S } from "./ExpressionEditor";
 import { sanitizeType } from "./utils";
 import { debounce } from "lodash";
 
@@ -100,7 +100,7 @@ export function TypeEditor(props: TypeEditorProps) {
     }
 
     const handleTypeEdit = (value: string) => {
-        handleOnTypeChange();
+        handleOnTypeChange && handleOnTypeChange();
     };
 
     const debouncedTypeEdit = debounce(handleTypeEdit, 300);

@@ -14,7 +14,6 @@ import { MACHINE_VIEW, PopupMachineStateValue, PopupVisualizerLocation } from "@
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
 import { Colors } from "./resources/constants";
-import TriggerWizard from "./views/BI/Trigger/AddTriggerWizard";
 import { ThemeColors, Overlay } from "@wso2-enterprise/ui-toolkit";
 import EditConnectionWizard from "./views/BI/Connection/EditConnectionWizard";
 
@@ -85,9 +84,6 @@ const PopupPanel = (props: PopupPanelProps) => {
                             </>
                         );
                     });
-                    break;
-                case MACHINE_VIEW.AddTriggerWizard:
-                    setViewComponent(<TriggerWizard onClose={onClose} />);
                     break;
                 default:
                     setViewComponent(null);

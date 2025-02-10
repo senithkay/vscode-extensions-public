@@ -122,13 +122,6 @@ export function ComponentListView() {
                     view: MACHINE_VIEW.BIFunctionForm,
                 }
             });
-        } else if (key === DIRECTORY_MAP.TRIGGERS) {
-            await rpcClient.getVisualizerRpcClient().openView({
-                type: EVENT_TYPE.OPEN_VIEW,
-                location: {
-                    view: MACHINE_VIEW.AddTriggerWizard,
-                }
-            });
         } else if (key === DIRECTORY_MAP.TYPES) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,

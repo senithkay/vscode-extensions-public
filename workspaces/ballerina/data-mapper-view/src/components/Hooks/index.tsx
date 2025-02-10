@@ -21,7 +21,13 @@ import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
 import { ErrorNodeKind } from '../DataMapper/Error/RenderingError';
 import { useDMSearchStore } from '../../store/store';
 import { ListConstructorNode, MappingConstructorNode, PrimitiveTypeNode, QueryExpressionNode, RequiredParamNode } from '../Diagram/Node';
-import { GAP_BETWEEN_INPUT_NODES, IO_NODE_DEFAULT_WIDTH, OFFSETS, VISUALIZER_PADDING } from '../Diagram/utils/constants';
+import {
+    GAP_BETWEEN_MAPPING_HEADER_NODE_AND_INPUT_NODE,
+    GAP_BETWEEN_INPUT_NODES,
+    IO_NODE_DEFAULT_WIDTH,
+    OFFSETS,
+    VISUALIZER_PADDING
+} from '../Diagram/utils/constants';
 import { FromClauseNode } from '../Diagram/Node/FromClause';
 import { UnionTypeNode } from '../Diagram/Node/UnionType';
 import { UnsupportedExprNodeKind, UnsupportedIONode } from '../Diagram/Node/UnsupportedIO';
@@ -34,7 +40,7 @@ import { EnumTypeNode } from '../Diagram/Node/EnumType';
 import { ExpandedMappingHeaderNode } from '../Diagram/Node/ExpandedMappingHeader';
 import { isDMSupported } from '../DataMapper/utils';
 import { FunctionDefinition, ModulePart } from '@wso2-enterprise/syntax-tree';
-import { getExpandedMappingHeaderNodeHeight, getIONodeHeight, isSameView } from '../Diagram/utils/diagram-utils';
+import { getExpandedMappingHeaderNodeHeight, getIONodeHeight, hasSameIntermediateClauses, isSameView } from '../Diagram/utils/diagram-utils';
 import { isInputNode, isOutputNode } from '../Diagram/Actions/utils';
 
 export const useProjectComponents = (langServerRpcClient: LangClientRpcClient, fileName: string): {
@@ -160,6 +166,7 @@ export const useDiagramModel = (
 export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: number, diagramModel: DiagramModel) => {
     const nodesClone = [...nodes];
     const prevNodes = diagramModel.getNodes() as DataMapperNodeModel[];
+    const filtersUnchanged = hasSameIntermediateClauses(nodesClone, prevNodes);
 
     let prevBottomY = 0;
 
@@ -187,7 +194,7 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
         ) {
             const x = OFFSETS.SOURCE_NODE.X;
             const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
-            let y = existingNode && sameView && existingNode.getY() !== 0 ? existingNode.getY() : computedY;
+            let y = existingNode && sameView && filtersUnchanged && existingNode.getY() !== 0 ? existingNode.getY() : computedY;
 
             node.setPosition(x, y);
 
@@ -196,13 +203,13 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
                 prevBottomY = computedY + nodeHeight;
             } else if (node instanceof ExpandedMappingHeaderNode) {
                 const nodeHeight = getExpandedMappingHeaderNodeHeight(node);
-                prevBottomY = computedY + (nodeHeight * (100/zoomLevel)) + 10;
+                prevBottomY = computedY + (nodeHeight * (100/zoomLevel)) + GAP_BETWEEN_MAPPING_HEADER_NODE_AND_INPUT_NODE;
             }
         }
         if (node instanceof FromClauseNode) {
             const x = OFFSETS.SOURCE_NODE.X;
             const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
-            let y = existingNode && sameView && existingNode.getY() !== 0 ? existingNode.getY() : computedY;
+            let y = existingNode && sameView && filtersUnchanged && existingNode.getY() !== 0 ? existingNode.getY() : computedY;
 
             node.setPosition(x, y);
             const nodeHeight = getIONodeHeight(node.numberOfFields);

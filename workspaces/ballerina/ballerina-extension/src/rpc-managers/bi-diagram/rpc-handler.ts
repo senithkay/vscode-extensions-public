@@ -22,11 +22,11 @@ import {
     BISourceCodeRequest,
     BreakpointRequest,
     ComponentRequest,
-    ComponentsRequest,
     ExpressionCompletionsRequest,
     ExpressionDiagnosticsRequest,
     FormDidCloseParams,
     FormDidOpenParams,
+    FunctionNodeRequest,
     ProjectRequest,
     ReadmeContentRequest,
     SignatureHelpRequest,
@@ -54,6 +54,7 @@ import {
     getExpressionCompletions,
     getExpressionDiagnostics,
     getFlowModel,
+    getFunctionNode,
     getFunctions,
     getModuleNodes,
     getNodeTemplate,
@@ -117,4 +118,5 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getDesignModel, () => rpcManger.getDesignModel());
     messenger.onRequest(updateImports, (args: UpdateImportsRequest) => rpcManger.updateImports(args));
     messenger.onRequest(addFunction, (args: AddFunctionRequest) => rpcManger.addFunction(args));
+    messenger.onRequest(getFunctionNode, (args: FunctionNodeRequest) => rpcManger.getFunctionNode(args));
 }
