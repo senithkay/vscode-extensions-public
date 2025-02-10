@@ -387,36 +387,6 @@ export function FormGeneratorNew(props: FormProps) {
     };
 
     const defaultType = (): Type => {
-        // For GraphQL return types, create a Class type
-        // if (isGraphqlEditor && isReturnTypeField) {
-        //     return {
-        //         name: "MyType",
-        //         editable: true,
-        //         metadata: {
-        //             label: "",
-        //             description: ""
-        //         },
-        //         codedata: {
-        //             lineRange: {
-        //                 startLine: {
-        //                     line: 0,
-        //                     offset: 0
-        //                 },
-        //                 endLine: {
-        //                     line: 0,
-        //                     offset: 0
-        //                 },
-        //                 fileName: "types.bal"
-        //             },
-        //             node: "CLASS"
-        //         },
-        //         properties: {},
-        //         members: [],
-        //         includes: [] as string[],
-        //         functions: []
-        //     };
-        // }
-
         return {
             name: "MyType",
             editable: true,
@@ -443,33 +413,6 @@ export function FormGeneratorNew(props: FormProps) {
             includes: [] as string[],
             functions: []
         };
-
-        // Default Record type for other cases
-        // return {
-        //     name: "MyType",
-        //     editable: true,
-        //     metadata: {
-        //         label: "",
-        //         description: ""
-        //     },
-        //     codedata: {
-        //         lineRange: {
-        //             startLine: {
-        //                 line: 0,
-        //                 offset: 0
-        //             },
-        //             endLine: {
-        //                 line: 0,
-        //                 offset: 0
-        //             },
-        //             fileName: "types.bal"
-        //         },
-        //         node: "RECORD"
-        //     },
-        //     properties: {},
-        //     members: [],
-        //     includes: [] as string[]
-        // };
     }
 
     const onCloseTypeEditor = () => {

@@ -84,23 +84,14 @@ const ClassNameField = styled.div`
     margin: 16px 0;
 `;
 
-const ButtonContainer = styled.div`
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
+export const Footer = styled.div<{}>`
     display: flex;
     gap: 8px;
-    z-index: 1;
-`;
-
-export const Footer = styled.div<{}>`
-display: flex;
-gap: 8px;
-flex-direction: row;
-justify-content: flex-end;
-align-items: center;
-margin-top: 8px;
-width: 100%;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 8px;
+    width: 100%;
 `;
 
 interface ClassTypeEditorProps {

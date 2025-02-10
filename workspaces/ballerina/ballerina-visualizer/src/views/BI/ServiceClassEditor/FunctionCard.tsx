@@ -48,27 +48,6 @@ const AccordionHeader = styled.div<HeaderProps>`
     grid-template-columns: 3fr 1fr;
 `;
 
-const LinkButtonWrapper = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    padding: 0 16px;
-
-    :hover {
-        outline: 1px solid var(--vscode-inputOption-activeBorder);
-    }
-`;
-
-const ButtonWrapper = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    font-size: 10px;
-    width: 40px;
-`;
-
 const MethodBox = styled.div<MethodProp>`
     display: flex;
     justify-content: center;
@@ -89,22 +68,11 @@ const MethodSection = styled.div`
     gap: 4px;
 `;
 
-const verticalIconStyles = {
-    transform: "rotate(90deg)",
-    ":hover": {
-        backgroundColor: "var(--vscode-welcomePage-tileHoverBackground)",
-    }
-};
-
 const ButtonSection = styled.div<ButtonSectionProps>`
     display: flex;
     align-items: center;
     margin-left: auto;
     gap: ${(p: ButtonSectionProps) => p.isExpanded ? "8px" : "6px"};
-`;
-
-const AccordionContent = styled.div`
-    padding: 10px;
 `;
 
 const MethodPath = styled.span`
@@ -113,31 +81,13 @@ const MethodPath = styled.span`
 `;
 
 const colors = {
-    "GET": '#3d7eff',
-    "PUT": '#fca130',
-    "POST": '#49cc90',
-    "DELETE": '#f93e3e',
-    "PATCH": '#986ee2',
-    "OPTIONS": '#0d5aa7',
-    "HEAD": '#9012fe'
+    "GET": '#3d7eff'
 }
 
 export function getColorByMethod(method: string) {
     switch (method.toUpperCase()) {
         case "GET":
             return colors.GET;
-        case "PUT":
-            return colors.PUT;
-        case "POST":
-            return colors.POST;
-        case "DELETE":
-            return colors.DELETE;
-        case "PATCH":
-            return colors.PATCH;
-        case "OPTIONS":
-            return colors.OPTIONS;
-        case "HEAD":
-            return colors.HEAD;
         default:
             return '#876036'; // Default color
     }

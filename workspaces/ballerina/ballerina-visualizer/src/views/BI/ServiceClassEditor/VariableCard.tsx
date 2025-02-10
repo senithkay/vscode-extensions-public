@@ -12,11 +12,6 @@ import { Codicon, Confirm, Icon } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { FieldType } from '@wso2-enterprise/ballerina-core';
 
-type MethodProp = {
-    color: string;
-    hasLeftMargin?: boolean;
-};
-
 type ContainerProps = {
     borderColor?: string;
     haveErrors?: boolean;
@@ -46,42 +41,6 @@ const AccordionHeader = styled.div<HeaderProps>`
     cursor: pointer;
     display: grid;
     grid-template-columns: 3fr 1fr;
-`;
-
-const LinkButtonWrapper = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    padding: 0 16px;
-
-    :hover {
-        outline: 1px solid var(--vscode-inputOption-activeBorder);
-    }
-`;
-
-const ButtonWrapper = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    font-size: 10px;
-    width: 40px;
-`;
-
-const MethodBox = styled.div<MethodProp>`
-    display: flex;
-    justify-content: center;
-    height: 25px;
-    min-width: 70px;
-    width: auto;
-    margin-left: ${(p: MethodProp) => p.hasLeftMargin ? "10px" : "0px"};
-    text-align: center;
-    padding: 3px 5px 3px 5px;
-    background-color: ${(p: MethodProp) => p.color};
-    color: #FFF;
-    align-items: center;
-    font-weight: bold;
 `;
 
 const MethodSection = styled.div`
