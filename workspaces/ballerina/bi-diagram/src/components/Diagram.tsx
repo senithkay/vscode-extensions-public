@@ -83,13 +83,14 @@ export function Diagram(props: DiagramProps) {
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
     const [showComponentPanel, setShowComponentPanel] = useState(false);
+    const [expandedErrorHandler, setExpandedErrorHandler] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         if (diagramEngine) {
             const { nodes, links } = getDiagramData();
             drawDiagram(nodes, links);
         }
-    }, [model, showErrorFlow]);
+    }, [model, showErrorFlow, expandedErrorHandler]);
 
     useEffect(() => {
         console.log(">>> Init diagram model", model);
@@ -101,7 +102,7 @@ export function Diagram(props: DiagramProps) {
     const getDiagramData = () => {
         let flowModel = cloneDeep(model);
 
-        const initVisitor = new InitVisitor(flowModel);
+        const initVisitor = new InitVisitor(flowModel, expandedErrorHandler);
         traverseFlow(flowModel, initVisitor);
         const sizingVisitor = new SizingVisitor();
         traverseFlow(flowModel, sizingVisitor);
@@ -173,6 +174,10 @@ export function Diagram(props: DiagramProps) {
         setShowErrorFlow(!showErrorFlow);
     };
 
+    const toggleErrorHandlerExpansion = (nodeId: string) => {
+        setExpandedErrorHandler((prev) => (prev === nodeId ? undefined : nodeId));
+    };
+
     const context: DiagramContextState = {
         flow: model,
         componentPanel: {
@@ -181,6 +186,8 @@ export function Diagram(props: DiagramProps) {
             hide: handleCloseComponentPanel,
         },
         showErrorFlow: showErrorFlow,
+        expandedErrorHandler: expandedErrorHandler,
+        toggleErrorHandlerExpansion: toggleErrorHandlerExpansion,
         onAddNode: onAddNode,
         onAddNodePrompt: onAddNodePrompt,
         onDeleteNode: onDeleteNode,

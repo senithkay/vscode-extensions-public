@@ -119,7 +119,10 @@ export class NodeFactoryVisitor implements BaseVisitor {
         if (branch.children.at(-1).codedata.node === "IF") {
             // if last child is IF, find endIf node
             lastChildNodeModel = this.nodes.find((n) => n.getID() === `${lastNode.id}-endif`);
-        } else if (branch.children.at(-1).codedata.node === "ERROR_HANDLER") {
+        } else if (
+            branch.children.at(-1).codedata.node === "ERROR_HANDLER" &&
+            branch.children.at(-1)?.branches.find((b) => b.codedata.node === "ON_FAILURE")?.viewState
+        ) {
             lastChildNodeModel = this.nodes.find((n) => n.getID() === getCustomNodeId(lastNode.id, END_CONTAINER));
         } else if (
             branch.children.at(-1).codedata.node === "WHILE" ||
@@ -441,6 +444,8 @@ export class NodeFactoryVisitor implements BaseVisitor {
             return;
         }
 
+        const onFailureBranch = node.branches.find((branch) => branch.codedata.node === "ON_FAILURE");
+
         // Create branch's IN link
         if (bodyBranch.children && bodyBranch.children.length > 0) {
             const firstChildNodeModel = this.nodes.find((n) => n.getID() === bodyBranch.children.at(0).id);
@@ -452,14 +457,8 @@ export class NodeFactoryVisitor implements BaseVisitor {
             }
         }
 
-        const onFailureBranch = node.branches.find((branch) => branch.codedata.node === "ON_FAILURE");
-        if (!onFailureBranch) {
-            console.error("On failure branch not found", node);
-            return;
-        }
-
         // create error node model
-        const containerNodeModel = new ErrorNodeModel(node, onFailureBranch);
+        const containerNodeModel = new ErrorNodeModel(node, bodyBranch);
         this.nodes.push(containerNodeModel);
 
         if (node.viewState.isTopLevel) {
@@ -472,15 +471,21 @@ export class NodeFactoryVisitor implements BaseVisitor {
                 }
             }
         }
-        // create empty node for end of on failure branch
-        const endOnFailureEmptyNode = this.createEmptyNode(
-            getCustomNodeId(node.id, END_CONTAINER),
-            node.viewState.x + node.viewState.lw - EMPTY_NODE_WIDTH / 2,
-            node.viewState.y + node.viewState.ch - EMPTY_NODE_WIDTH / 2
-        );
-        this.nodes.push(endOnFailureEmptyNode);
 
-        this.lastNodeModel = endOnFailureEmptyNode;
+        if (onFailureBranch?.viewState) {
+            // create empty node for end of on failure branch
+            const endOnFailureEmptyNode = this.createEmptyNode(
+                getCustomNodeId(node.id, END_CONTAINER),
+                node.viewState.x + node.viewState.lw - EMPTY_NODE_WIDTH / 2,
+                node.viewState.y + node.viewState.ch - EMPTY_NODE_WIDTH / 2
+            );
+            this.nodes.push(endOnFailureEmptyNode);
+
+            this.lastNodeModel = endOnFailureEmptyNode;
+        } else {
+            // collapsed mode
+            this.lastNodeModel = containerNodeModel;
+        }
 
         if (bodyBranch.children && bodyBranch.children.at(0)?.codedata.node === "EMPTY") {
             const branchEmptyNodeModel = bodyBranch.children.at(0);
@@ -498,6 +503,16 @@ export class NodeFactoryVisitor implements BaseVisitor {
             });
             if (linkIn) {
                 this.links.push(linkIn);
+            }
+
+            if (node.viewState.isTopLevel) {
+                const linkOut = createNodesLink(branchEmptyNode, containerNodeModel, {
+                    showAddButton: false,
+                    alignBottom: true,
+                });
+                if (linkIn && linkOut) {
+                    this.links.push(linkIn, linkOut);
+                }
             }
 
             // get last node

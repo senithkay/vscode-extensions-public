@@ -27,7 +27,10 @@ export class ErrorNodeModel extends NodeModel {
             locked: true,
         });
         this.node = node;
-        this.setPosition(branch.viewState.x + branch.viewState.clw - WHILE_NODE_WIDTH / 2, branch.viewState.y - WHILE_NODE_WIDTH);
+        this.setPosition(
+            branch.viewState.x + branch.viewState.clw - WHILE_NODE_WIDTH / 2,
+            branch.viewState.y + branch.viewState.ch
+        );
         this.addInPort("in");
         this.addOutPort("out");
     }

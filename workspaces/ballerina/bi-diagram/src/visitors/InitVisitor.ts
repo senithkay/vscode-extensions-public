@@ -15,10 +15,11 @@ import { BaseVisitor } from "./BaseVisitor";
 export class InitVisitor implements BaseVisitor {
     private skipChildrenVisit = false;
     private flow: Flow;
+    private expandedErrorHandler?: string;
 
-    constructor(model: Flow) {
-        // console.log(">>> init visitor started");
+    constructor(model: Flow, expandedErrorHandler?: string) {
         this.flow = model;
+        this.expandedErrorHandler = expandedErrorHandler;
     }
 
     private getDefaultViewState(): ViewState {
@@ -277,13 +278,18 @@ export class InitVisitor implements BaseVisitor {
 
     endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
-        // remove view state of error branch and its children to avoid visiting them
-        // const errorBranch = node.branches.find((branch) => branch.codedata.node === "ON_FAILURE");
-        // errorBranch.viewState = undefined;
-        // errorBranch.children.forEach((child) => {
-        //     child.viewState = undefined;
-        // });
-        this.endVisitNode(node, parent);
+        // Remove view state of error branch and its children when not expanded
+        const errorBranch = node.branches.find((branch) => branch.codedata.node === "ON_FAILURE");
+        if (errorBranch) {
+            // Only hide viewState if this error handler is not expanded
+            if (this.expandedErrorHandler !== node.id) {
+                errorBranch.viewState = undefined;
+                errorBranch.children.forEach((child) => {
+                    child.viewState = undefined;
+                });
+            }
+            this.endVisitNode(node, parent);
+        }
     }
 
     private visitForkNode(node: FlowNode, parent?: FlowNode): void {

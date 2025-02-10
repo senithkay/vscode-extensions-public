@@ -45,7 +45,6 @@ export namespace NodeStyles {
         flex-direction: row;
         justify-content: center;
         align-items: center;
-        gap: 8px;
         position: absolute;
         padding: 8px;
         left: ${WHILE_NODE_WIDTH}px;
@@ -161,7 +160,16 @@ export interface NodeWidgetProps extends Omit<ErrorNodeWidgetProps, "children"> 
 
 export function ErrorNodeWidget(props: ErrorNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { onNodeSelect, goToSource, onDeleteNode, addBreakpoint, removeBreakpoint, readOnly } = useDiagramContext();
+    const {
+        onNodeSelect,
+        goToSource,
+        onDeleteNode,
+        addBreakpoint,
+        removeBreakpoint,
+        readOnly,
+        expandedErrorHandler,
+        toggleErrorHandlerExpansion,
+    } = useDiagramContext();
 
     const [isHovered, setIsHovered] = React.useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
@@ -169,6 +177,7 @@ export function ErrorNodeWidget(props: ErrorNodeWidgetProps) {
     const hasBreakpoint = model.hasBreakpoint();
     const isActiveBreakpoint = model.isActiveBreakpoint();
     const hideContainer = model.node.viewState?.isTopLevel ?? false;
+    const isExpanded = expandedErrorHandler === model.node.id;
 
     useEffect(() => {
         if (model.node.suggested) {
@@ -180,7 +189,8 @@ export function ErrorNodeWidget(props: ErrorNodeWidgetProps) {
         if (event.metaKey) {
             onGoToSource();
         } else {
-            onNodeClick();
+            toggleErrorHandlerExpansion(model.node.id);
+            // onNodeClick(); // INFO: Commented external trigger not needed
         }
     };
 
@@ -220,9 +230,9 @@ export function ErrorNodeWidget(props: ErrorNodeWidgetProps) {
 
     const menuItems: Item[] = [
         {
-            id: "edit",
-            label: "Edit",
-            onClick: () => onNodeClick(),
+            id: "expand",
+            label: isExpanded ? "Hide Error Flow" : "Show Error Flow",
+            onClick: () => toggleErrorHandlerExpansion(model.node.id),
         },
         { id: "goToSource", label: "Source", onClick: () => onGoToSource() },
         { id: "delete", label: "Delete", onClick: () => deleteNode() },
@@ -245,8 +255,8 @@ export function ErrorNodeWidget(props: ErrorNodeWidgetProps) {
                         onClick={handleOnClick}
                         onMouseEnter={() => setIsHovered(true)}
                         onMouseLeave={() => setIsHovered(false)}
-                        selected={model.isSelected()}
-                        hovered={isHovered}
+                        selected={model.isSelected() || isExpanded}
+                        hovered={isHovered || isExpanded}
                         hasError={hasError}
                         isActiveBreakpoint={isActiveBreakpoint}
                         disabled={disabled}

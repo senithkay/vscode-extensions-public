@@ -210,9 +210,6 @@ export class PositionVisitor implements BaseVisitor {
         const onFailureBranch = node.branches.find((branch) => branch.codedata.node === "ON_FAILURE");
         if (onFailureBranch?.viewState) {
             onFailureBranch.viewState.y = this.lastNodeY + bodyBranch.viewState.ch + NODE_GAP_Y;
-            if (node.viewState.isTopLevel) {
-                onFailureBranch.viewState.y += NODE_GAP_Y;
-            }
             onFailureBranch.viewState.x = centerX - onFailureBranch.viewState.clw;
         }
     }
