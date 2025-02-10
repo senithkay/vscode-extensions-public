@@ -19,11 +19,11 @@ const TRYIT_TEMPLATE = `/*
 {{#each paths}}
 {{#each this}}
 /*
-**{{uppercase @key}} {{@../key}}**
+#### {{uppercase @key}} {{@../key}}**
 
 {{#if parameters}}
-\`\`\`
 Parameters:
+\`\`\`
 {{#each parameters}}
 - {{name}} ({{in}}){{#if required}} [Required]{{/if}}{{#if description}}: {{description}}{{/if}}
 {{/each}}
@@ -31,8 +31,8 @@ Parameters:
 {{/if}}
 
 {{#if requestBody}}
-\`\`\`
 Request Body: 
+\`\`\`
 {{generateSchemaDescription requestBody}}
 \`\`\`
 {{/if}}
@@ -40,6 +40,7 @@ Request Body:
 ###
 {{uppercase @key}} http://localhost:{{../../port}}{{trim ../../basePath}}{{{@../key}}}{{queryParams parameters}}{{#if parameters}}{{headerParams parameters}}{{/if}}
 {{#if requestBody}}Content-Type: {{getContentType requestBody}}
+
 {{generateRequestBody requestBody}}
 {{/if}}
 
@@ -319,9 +320,7 @@ function registerHandlebarsHelpers(openapiSpec: OAISpec): void {
     // Helper to generate request body
     if (!Handlebars.helpers.generateRequestBody) {
         Handlebars.registerHelper('generateRequestBody', function (requestBody) {
-            const contentType = Object.keys(requestBody.content)[0];
-            const schema = requestBody.content[contentType].schema;
-            return new Handlebars.SafeString(JSON.stringify(generateSampleValue(schema, openapiSpec), null, 2));
+            return new Handlebars.SafeString(generateRequestBody(requestBody, openapiSpec));
         });
     }
 }
@@ -373,6 +372,50 @@ function generateSchemaDoc(schema: Schema, depth: number, context: OAISpec): str
     }
 
     return `${schema.type}${schema.format ? ` (${schema.format})` : ''}\n`;
+}
+
+// Helper to get content type and generate appropriate payload
+function generateRequestBody(requestBody: RequestBody, context: OAISpec): string {
+    const contentType = Object.keys(requestBody.content)[0];
+    const schema = requestBody.content[contentType].schema;
+
+    switch (contentType) {
+        case 'application/json':
+            return `/* Modify the JSON payload as needed
+
+Expected schema:
+${generateSchemaDoc(schema, 1, context)}
+*/
+${JSON.stringify(generateSampleValue(schema, context), null, 2)}
+`;
+        case 'application/x-www-form-urlencoded':
+            return `/* Complete the form URL-encoded payload
+
+Expected schema:
+${generateSchemaDoc(schema, 1, context)}
+*/`;
+        case 'multipart/form-data':
+            return `/* Complete the multipart form data payload
+
+Expected schema:
+${generateSchemaDoc(schema, 1, context)}
+*/`;
+        case 'text/plain':
+            return `/* Enter your text content here
+
+Expected schema:
+${generateSchemaDoc(schema, 1, context)}
+*/`;
+        default:
+            if (contentType !== 'application/json') {
+                return `/* Complete the payload for content type: ${contentType}
+
+Expected schema:
+${generateSchemaDoc(schema, 1, context)}
+*/`;
+            }
+            return JSON.stringify(generateSampleValue(schema, context), null, 2);
+    }
 }
 
 function generateSampleValue(schema: Schema, context: OAISpec): any {
