@@ -19,7 +19,7 @@ const TRYIT_TEMPLATE = `/*
 {{#each paths}}
 {{#each this}}
 /*
-#### {{uppercase @key}} {{@../key}}**
+#### {{uppercase @key}} {{@../key}}
 
 {{#if parameters}}
 Parameters:
