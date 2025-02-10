@@ -268,7 +268,7 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
                 type: 'PARAM_MANAGER',
                 optional: false,
                 editable: true,
-                advanced: false,
+                advanced: true,
                 documentation: '',
                 value: '',
                 paramManagerProps: {
