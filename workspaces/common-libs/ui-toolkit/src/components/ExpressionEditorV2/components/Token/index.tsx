@@ -107,6 +107,10 @@ namespace S {
             cursor: pointer;
         }
 
+        .expression-token.clicked {
+            background-color: var(--button-primary-hover-background);
+        }
+
         .expression-token-close {
             opacity: 0.7;
             font-size: 12px;
@@ -243,6 +247,14 @@ export const TokenEditor = ({
                 // Open the helper pane
                 changeHelperPaneState?.(true);
                 
+                // Remove the clicked class from all tokens
+                tokens.forEach(token => {
+                    token.classList.remove('clicked');
+                });
+
+                // Add the clicked class to the clicked token
+                token.classList.add('clicked');
+
                 setTokenValue((e.target as HTMLSpanElement).textContent?.trim() || '');
                 textAreaRef.current?.focus();
                 selectedTokenRef.current = e.target as HTMLSpanElement;
@@ -529,7 +541,13 @@ export const TokenEditor = ({
                     <S.Adornment>
                         {startAdornment}
                     </S.Adornment>
-                    <TextArea ref={textAreaRef} value={tokenValue} onTextChange={setTokenValue} rows={2} />
+                    <TextArea
+                        ref={textAreaRef}
+                        value={tokenValue}
+                        onTextChange={setTokenValue}
+                        rows={2}
+                        sx={{ width: '100%' }}
+                    />
                     <S.Adornment>
                         {endAdornment}
                     </S.Adornment>
@@ -593,6 +611,19 @@ export const TokenEditor = ({
             currentNodeOffsetRef.current = range.startOffset;
         }
     };
+
+    useEffect(() => {
+        if (!isHelperPaneOpen) {
+            // Remove the clicked class from all tokens
+            const editor = editorRef.current;
+            if (editor) {
+                const tokens = editor.querySelectorAll('.expression-token');
+                tokens.forEach(token => {
+                    token.classList.remove('clicked');
+                });
+            }
+        }
+    }, [isHelperPaneOpen]);
 
     useEffect(() => {
         const handleOutsideClick = async (e: any) => {
