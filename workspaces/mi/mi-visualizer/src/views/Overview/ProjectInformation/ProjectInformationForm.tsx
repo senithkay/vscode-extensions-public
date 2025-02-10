@@ -11,7 +11,7 @@ import { ProjectDetailsResponse } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { useEffect, useRef, useState } from "react";
 
-import { Button, Dropdown, Banner, FormActions, OptionProps, ProgressIndicator, TextField, Codicon, SplitView, TreeView, Typography, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
+import { Button, Dropdown, Banner, FormActions, OptionProps, ProgressIndicator, TextField, Codicon, SplitView, TreeView, Typography, FormCheckBox, PasswordField } from "@wso2-enterprise/ui-toolkit";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Controller, useForm } from "react-hook-form";
@@ -404,9 +404,8 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                                 sx={fieldStyle}
                                 {...register("buildDetails-dockerDetails-keyStoreType")}
                             />
-                            <TextField
+                            <PasswordField
                                 label="Keystore Password"
-                                type="password"
                                 description="The password of the keystore"
                                 descriptionSx={{ margin: "8px 0" }}
                                 sx={fieldStyle}

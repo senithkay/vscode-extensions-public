@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { Dropdown, Button, TextField, FormCheckBox, TextArea, FormView, FormActions, FormGroup, CheckBox } from "@wso2-enterprise/ui-toolkit";
+import { Dropdown, Button, TextField, FormCheckBox, TextArea, FormView, FormActions, FormGroup, CheckBox, PasswordField } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { driverMap, engineOptions, propertyParamConfigs } from "./types";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
@@ -558,11 +558,8 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                                         required
                                         {...renderProps('username')}
                                     />
-                                    <TextField
+                                    <PasswordField
                                         label="Password"
-                                        size={100}
-                                        type="password"
-                                        required
                                         {...renderProps('password')}
                                     />
                                 </FormGroup>
