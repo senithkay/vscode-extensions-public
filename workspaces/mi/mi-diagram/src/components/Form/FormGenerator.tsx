@@ -30,7 +30,8 @@ import {
     Keylookup,
     FormExpressionField,
     ExpressionField,
-    CodeTextArea
+    CodeTextArea,
+    FormTokenEditor
 } from '.';
 import ExpressionEditor from '../sidePanel/expressionEditor/ExpressionEditor';
 import { handleOpenExprEditor, sidepanelGoBack } from '../sidePanel';
