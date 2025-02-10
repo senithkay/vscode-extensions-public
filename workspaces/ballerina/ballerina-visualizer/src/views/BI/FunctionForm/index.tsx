@@ -14,9 +14,10 @@ import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { BIHeader } from "../BIHeader";
 import { BodyText } from "../../styles";
-import { FormField, FormValues, Parameter } from "@wso2-enterprise/ballerina-side-panel";
+import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { URI, Utils } from "vscode-uri";
 import FormGeneratorNew from "../Forms/FormGeneratorNew";
+import { convertConfig } from "../../../utils/bi";
 
 const FormContainer = styled.div`
     display: flex;
@@ -33,37 +34,16 @@ const Container = styled.div`
     margin: 20px;
 `;
 
-const ButtonWrapper = styled.div`
-    margin-top: 20px;
-    width: 130px;
-`;
-
-const CardGrid = styled.div`
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin-top: 20px;
-    width: 100%;
-`;
-
-const Link = styled.a`
-    cursor: pointer;
-    font-size: 12px;
-    margin-left: auto;
-    margin-right: 15px;
-    margin-bottom: -5px;
-    color: var(--button-primary-background);
-`;
-
 interface FunctionFormProps {
     fileName: string;
     projectPath: string;
     functionName: string;
+    isDataMapper?: boolean;
 }
 
 export function FunctionForm(props: FunctionFormProps) {
     const { rpcClient } = useRpcContext();
-    const { projectPath, fileName, functionName } = props;
+    const { projectPath, fileName, functionName, isDataMapper } = props;
 
     const [functionFields, setFunctionFields] = useState<FormField[]>([]);
     const [filePath, setFilePath] = useState<string>('');
@@ -79,7 +59,7 @@ export function FunctionForm(props: FunctionFormProps) {
     }, []);
 
     useEffect(() => {
-        functionNode && setFunctionFields(convertConfig(functionNode));
+        functionNode && setFunctionFields(convertConfig(functionNode.properties));
     }, [functionNode]);
 
     const getFunctionNode = async () => {
@@ -88,7 +68,7 @@ export function FunctionForm(props: FunctionFormProps) {
             .getNodeTemplate({
                 position: { line: 0, offset: 0 },
                 filePath: "",
-                id: { node: 'FUNCTION_DEFINITION' },
+                id: { node: isDataMapper ? 'DATA_MAPPER_DEFINITION' : 'FUNCTION_DEFINITION' },
             });
         const flowNode = res.flowNode;
         setFunctionNode(flowNode);
@@ -134,8 +114,11 @@ export function FunctionForm(props: FunctionFormProps) {
                 }
             }
         }
+        if (isDataMapper) {
+            functionNodeCopy.codedata.node = "DATA_MAPPER_DEFINITION";
+        }
         console.log("Updated function node: ", functionNodeCopy);
-        const res = await rpcClient.getBIDiagramRpcClient().getSourceCode({ filePath, flowNode: functionNodeCopy, isFunctionNodeUpdate: true });
+        await rpcClient.getBIDiagramRpcClient().getSourceCode({ filePath, flowNode: functionNodeCopy, isFunctionNodeUpdate: true });
     };
 
     return (
@@ -163,90 +146,3 @@ export function FunctionForm(props: FunctionFormProps) {
         </View>
     );
 }
-
-function convertConfig(functionNode: FunctionNode): FormField[] {
-    const formFields: FormField[] = [];
-    const properties = functionNode.properties as NodeProperties;
-    const keys = Object.keys(properties).sort(); // Sort keys alphabetically
-    for (const key of keys) {
-        const property = properties[key as keyof NodeProperties];
-        const formField: FormField = {
-            key: key,
-            label: property?.metadata.label,
-            type: property.valueType,
-            documentation: property?.metadata.description || "",
-            valueType: property.valueType,
-            editable: property.editable,
-            optional: property.optional,
-            value: property.value as any,
-            advanced: property.advanced,
-            diagnostics: [],
-            valueTypeConstraint: ""
-        }
-
-        if (property.valueType === "REPEATABLE_PROPERTY") {
-            const paramFiels: FormField[] = [];
-            for (const [paramKey, param] of Object.entries((property.valueTypeConstraint as any).value as NodeProperties)) {
-                const paramField: FormField = {
-                    key: paramKey,
-                    label: param?.metadata.label,
-                    type: param.valueType,
-                    documentation: param?.metadata.description || "",
-                    valueType: param.valueType,
-                    editable: param.editable,
-                    optional: param.optional,
-                    value: param.value as any,
-                    advanced: param.advanced,
-                    diagnostics: [],
-                    valueTypeConstraint: ""
-                }
-                paramFiels.push(paramField);
-            }
-            formField.valueType = "PARAM_MANAGER";
-            formField.type = "PARAM_MANAGER";
-
-            const paramValuesExisting: Parameter[] = []
-            for (const [index, [paramValueKey, paramValue]] of Object.entries((property as any).value as NodeProperties).entries()) {
-                const name = (paramValue.value as any)['variable'].value;
-                const type = (paramValue.value as any)['type'].value;
-                let value = `${type} ${name} `;
-                paramValuesExisting.push({
-                    id: index,
-                    icon: "",
-                    key: paramValueKey,
-                    value: value,
-                    formValues: {
-                        variable: name,
-                        type: type
-                    }
-                })
-            }
-
-            formField.paramManagerProps = {
-                paramValues: paramValuesExisting,
-                formFields: paramFiels,
-                handleParameter: handleParamChange
-            }
-            formField.value = paramValuesExisting;
-        }
-
-        formFields.push(formField);
-    }
-    return formFields;
-}
-
-// Helper function to modify and set the visual information
-const handleParamChange = (param: Parameter) => {
-    const name = `${param.formValues['variable']}`;
-    const type = `${param.formValues['type']} `;
-    const defaultValue = Object.keys(param.formValues).indexOf('defaultable') > -1 && `${param.formValues['defaultable']} `;
-    let value = `${type} ${name} `;
-    if (defaultValue) {
-        value += ` = ${defaultValue} `;
-    }
-    return {
-        ...param,
-        key: name,
-        value: value
-    }
-};

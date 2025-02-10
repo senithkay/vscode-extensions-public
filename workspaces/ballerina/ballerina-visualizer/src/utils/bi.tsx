@@ -12,6 +12,8 @@ import {
     Item as PanelItem,
     FormField,
     FormValues,
+    ParameterValue,
+    Parameter,
 } from "@wso2-enterprise/ballerina-side-panel";
 import { AddNodeVisitor, RemoveNodeVisitor, NodeIcon, traverseFlow } from "@wso2-enterprise/bi-diagram";
 import {
@@ -151,6 +153,7 @@ export function convertNodePropertyToFormField(
         valueType: getFormFieldValueType(property),
         items: getFormFieldItems(property, connections),
         diagnostics: property.diagnostics?.diagnostics || [],
+        valueTypeConstraint: property.valueTypeConstraint,
     };
     return formField;
 }
@@ -475,7 +478,8 @@ export function convertTriggerFunctionsConfig(trigger: Trigger): Record<string, 
                         optional: expression?.optional,
                         type: expression?.typeName,
                         editable: true,
-                        value: expression.defaultTypeName
+                        value: expression.defaultTypeName,
+                        valueTypeConstraint: ""
                     }
                     formFields.push(formField);
                 }
@@ -645,4 +649,81 @@ export function extractFunctionInsertText(template: string): string {
     }
 
     return `${label}(`;
+}
+
+function createParameterValue(index: number, paramValueKey: string, paramValue: ParameterValue): Parameter {
+    const name = paramValue.value.variable.value;
+    const type = paramValue.value.type.value;
+    
+    return {
+        id: index,
+        icon: "",
+        key: paramValueKey,
+        value: `${type} ${name}`,
+        formValues: {
+            variable: name,
+            type: type
+        }
+    };
+}
+
+function handleRepeatableProperty(property: Property, formField: FormField): void {
+    const paramFields: FormField[] = [];
+
+    // Create parameter fields
+    for (const [paramKey, param] of Object.entries((property.valueTypeConstraint as any).value as NodeProperties)) {
+        const paramField = convertNodePropertyToFormField(paramKey, param);
+        paramFields.push(paramField);
+    }
+
+    // Set up parameter manager properties
+    formField.valueType = "PARAM_MANAGER";
+    formField.type = "PARAM_MANAGER";
+
+    // Create existing parameter values
+    const paramValues = Object.entries(property.value as NodeProperties).map(
+        ([paramValueKey, paramValue], index) => createParameterValue(index, paramValueKey, paramValue as ParameterValue)
+    );
+
+    formField.paramManagerProps = {
+        paramValues,
+        formFields: paramFields,
+        handleParameter: handleParamChange
+    };
+
+    formField.value = paramValues;
+
+    function handleParamChange(param: Parameter) {
+        const name = `${param.formValues['variable']}`;
+        const type = `${param.formValues['type']} `;
+        const defaultValue = Object.keys(param.formValues).indexOf('defaultable') > -1
+            && `${param.formValues['defaultable']} `;
+        let value = `${type} ${name} `;
+        if (defaultValue) {
+            value += ` = ${defaultValue} `;
+        }
+        return {
+            ...param,
+            key: name,
+            value: value
+        }
+    };
+}
+
+export function convertConfig(properties: NodeProperties): FormField[] {
+    const formFields: FormField[] = [];
+    const sortedKeys = Object.keys(properties).sort();
+
+    for (const key of sortedKeys) {
+        const property = properties[key as keyof NodeProperties];
+        const formField = convertNodePropertyToFormField(key, property);
+
+        if (property.valueType === "REPEATABLE_PROPERTY") {
+            handleRepeatableProperty(property, formField);
+        }
+
+        formFields.push(formField);
+    }
+
+    return formFields;
 }

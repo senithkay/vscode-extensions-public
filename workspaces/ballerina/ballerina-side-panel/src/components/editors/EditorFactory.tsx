@@ -51,16 +51,7 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
     } = props;
 
     if (field.type === "MULTIPLE_SELECT") {
-        let label: string;
-        switch (selectedNode) {
-            case "DATA_MAPPER":
-                label = "Add Another Input";
-                break;
-            default:
-                label = "Add Another";
-                break;
-        }
-        return <MultiSelectEditor field={field} label={label} openSubPanel={openSubPanel} />;
+        return <MultiSelectEditor field={field} label={"Add Another"} openSubPanel={openSubPanel} />;
     } else if (field.type === "CHOICE") {
         return <ChoiceForm field={field} />;
     } else if (field.type === "EXPRESSION_SET") {

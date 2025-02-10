@@ -31,10 +31,17 @@ export type FormField = {
     items?: string[];
     choices?: PropertyModel[];
     paramManagerProps?: ParamConfig;
-    valueTypeConstraint: string;
+    valueTypeConstraint: string | string[];
     groupNo?: number;
     groupName?: string;
     addNewButton?: boolean;
+};
+
+export type ParameterValue = {
+    value: {
+        variable: { value: string };
+        type: { value: string };
+    };
 };
 
 export type ExpressionFormField = {

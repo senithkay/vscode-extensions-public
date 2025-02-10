@@ -57,7 +57,6 @@ import ViewConfigurableVariables from "./views/BI/Configurables/ViewConfigurable
 import { ServiceWizard } from "./views/BI/ServiceDesigner/ServiceWizard";
 import { ServiceEditView } from "./views/BI/ServiceDesigner/ServiceEditView";
 import { ListenerEditView } from "./views/BI/ServiceDesigner/ListenerEditView";
-import { DataMapperForm } from "./views/BI/DataMapperForm";
 
 const globalStyles = css`
     *,
@@ -196,8 +195,11 @@ const MainPanel = () => {
                     case MACHINE_VIEW.BIDataMapperForm:
                         rpcClient.getVisualizerLocation().then((location) => {
                             setViewComponent(
-                                <DataMapperForm
-                                    filePath={Utils.joinPath(URI.file(location.projectUri), 'data_mappings.bal').fsPath}
+                                <FunctionForm
+                                    projectPath={value.projectUri}
+                                    fileName={"data_mappings.bal"}
+                                    functionName={value?.identifier}
+                                    isDataMapper={true}
                                 />
                             );
                         });
