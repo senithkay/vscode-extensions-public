@@ -8,8 +8,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { FunctionModel, LineRange, ParameterModel, PropertyModel, ConfigProperties, Type } from '@wso2-enterprise/ballerina-core';
-import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { FunctionModel, LineRange, ParameterModel, ConfigProperties, Type } from '@wso2-enterprise/ballerina-core';
 import { FormGeneratorNew } from '../BI/Forms/FormGeneratorNew';
 import { FormField, FormValues, Parameter } from '@wso2-enterprise/ballerina-side-panel';
 
@@ -31,15 +30,13 @@ export function OperationForm(props: OperationFormProps) {
         returnType: model.returnType.value || ''
     });
 
-    console.log("====Form Values==== ", formValues);
-
     const handleParamChange = (param: Parameter) => {
         const name = `${param.formValues['variable']}`;
         const type = `${param.formValues['type']}`;
-        const hasDefaultValue = Object.keys(param.formValues).includes('defaultable') && 
-            param.formValues['defaultable'] !== undefined && 
+        const hasDefaultValue = Object.keys(param.formValues).includes('defaultable') &&
+            param.formValues['defaultable'] !== undefined &&
             param.formValues['defaultable'] !== '';
-        
+
         const defaultValue = hasDefaultValue ? `${param.formValues['defaultable']}`.trim() : '';
         let value = `${type} ${name}`;
         if (defaultValue) {
@@ -55,13 +52,13 @@ export function OperationForm(props: OperationFormProps) {
     const getFunctionParametersList = (params: Parameter[]) => {
         const paramList: ParameterModel[] = [];
         const paramFields = convertSchemaToFormFields(model.schema);
-        
+
         params.forEach(param => {
             // Find matching field configurations from schema
             const typeField = paramFields.find(field => field.key === 'type');
             const nameField = paramFields.find(field => field.key === 'variable');
             const defaultField = paramFields.find(field => field.key === 'defaultable');
-    
+
             paramList.push({
                 kind: 'REQUIRED',
                 enabled: typeField?.enabled ?? true,
@@ -114,6 +111,7 @@ export function OperationForm(props: OperationFormProps) {
                 optional: false,
                 editable: model.name.editable,
                 advanced: model.name.advanced,
+                enabled: model.name.enabled,
                 documentation: model.name.metadata?.description || '',
                 value: formValues.name,
                 valueTypeConstraint: model.name.valueTypeConstraint || ''
@@ -138,7 +136,8 @@ export function OperationForm(props: OperationFormProps) {
                 label: model.returnType.metadata?.label || 'Return Type',
                 type: 'TYPE',
                 optional: false,
-                editable: true,
+                enabled: model.returnType.enabled,
+                editable: true, // model.returnType.editable FIX when LS is fixed
                 advanced: model.returnType.advanced,
                 documentation: model.returnType.metadata?.description || '',
                 value: formValues.returnType,
@@ -153,7 +152,7 @@ export function OperationForm(props: OperationFormProps) {
         setFormValues(data);
         const { name, returnType, parameters: params } = data;
         const paramList = params ? getFunctionParametersList(params) : [];
-        const newFunctionModel = {...model};
+        const newFunctionModel = { ...model };
         newFunctionModel.name.value = name;
         newFunctionModel.returnType.value = returnType;
         newFunctionModel.parameters = paramList;

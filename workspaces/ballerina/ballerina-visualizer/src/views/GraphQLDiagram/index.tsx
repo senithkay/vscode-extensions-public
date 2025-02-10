@@ -18,6 +18,7 @@ import styled from "@emotion/styled";
 import { GraphqlServiceEditor } from "./GraphqlServiceEditor";
 import { TypeEditor } from "@wso2-enterprise/type-editor";
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
+import { ClassTypeEditor } from "./ClassTypeEditor";
 
 const HeaderContainer = styled.div`
     align-items: center;
@@ -49,10 +50,11 @@ const SpinnerContainer = styled.div`
 interface GraphQLDiagramProps {
     filePath: string;
     position: NodePosition;
+    projectUri?: string;
 }
 
 export function GraphQLDiagram(props: GraphQLDiagramProps) {
-    const { filePath, position } = props;
+    const { filePath, position, projectUri } = props;
     const { rpcClient } = useRpcContext();
     // const [visualizerLocation, setVisualizerLocation] = useState<VisualizerLocation>();
     // const [graphqlModdel, setGraphqlModel] = useState<GraphqlDesignService>();
@@ -69,11 +71,18 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
     //     }
     // }, [rpcClient]);
 
+    rpcClient?.onProjectContentUpdated((state: boolean) => {
+        if (state) {
+            getGraphqlDesignModel();
+        }
+    });
+
     useEffect(() => {
         getGraphqlDesignModel();
     }, [position]);
 
     const getGraphqlDesignModel = async () => {
+        console.log("====Getting graphql Model", filePath, position);
         if (!rpcClient) {
             return;
         }
@@ -210,7 +219,7 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
                     onClose={() => setIsServiceEditorOpen(false)}
                 />
             }
-            {isTypeEditorOpen && editingType && (
+            {isTypeEditorOpen && editingType && editingType.codedata.node !== "CLASS" && (
                 <PanelContainer title={`Edit Type`} show={true} onClose={onTypeEditorClosed}>
                     <TypeEditor
                         type={editingType}
@@ -220,6 +229,10 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
                         isGraphql={true}
                     />
                 </PanelContainer>
+            )}
+            {/* TODO: Allow when ClassTypeEditor support the BE model */}
+            {isTypeEditorOpen && editingType && editingType.codedata.node === "CLASS" && (
+                <ClassTypeEditor onClose={onTypeEditorClosed} type={editingType} projectUri={projectUri}/>
             )}
         </>
         // <>
