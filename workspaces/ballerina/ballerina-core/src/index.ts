@@ -70,6 +70,8 @@ export * from "./rpc-types/ai-panel/interfaces";
 export * from "./rpc-types/inline-data-mapper";
 export * from "./rpc-types/inline-data-mapper/rpc-type";
 export * from "./rpc-types/inline-data-mapper/interfaces";
+export * from "./rpc-types/test-manager";
+export * from "./rpc-types/test-manager/rpc-type";
 
 // ------ History class and interface -------->
 export * from "./history";

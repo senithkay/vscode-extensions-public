@@ -386,6 +386,107 @@ export interface ExecutorPositions {
     executorPositions?: ExecutorPosition[];
 }
 
+// Test Manager related interfaces 
+
+export interface TestsDiscoveryRequest {
+    filePath: string;
+}
+
+export interface TestsDiscoveryResponse {
+    result?: Map<string, FunctionTreeNode[]>;
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
+export interface FunctionTreeNode {
+    functionName: string;
+    lineRange: FunctionLineRange;
+    kind: string;
+    groups: string[];
+}
+
+export interface FunctionLineRange {
+    fileName: string;
+    startLine: LinePosition;
+    endLine: LinePosition;
+}
+
+export interface GetTestFunctionRequest {
+    filePath: string;
+    functionName: string;
+}
+
+export interface AddOrUpdateTestFunctionRequest {
+    filePath: string;
+    function: TestFunction;
+}
+
+export interface TestSourceEditResponse {
+    textEdits?: {
+        [key: string]: TextEdit[];
+    };
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
+export interface GetTestFunctionResponse {
+    function?: TestFunction;
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
+export interface TestFunctionMetadata {
+    label?: string;
+    description?: string;
+}
+
+export interface Codedata {
+    lineRange?: FunctionLineRange;
+}
+
+export interface ValueProperty {
+    metadata?: TestFunctionMetadata;
+    codedata?: Codedata;
+    valueType?: string;
+    valueTypeConstraint?: any;
+    originalName?: string;
+    value?: any;
+    placeholder?: string;
+    optional?: boolean;
+    editable?: boolean;
+    advanced?: boolean;
+}
+
+export interface FunctionParameter {
+    type?: ValueProperty;
+    variable?: ValueProperty;
+    defaultValue?: ValueProperty;
+    optional?: boolean;
+    editable?: boolean;
+    advanced?: boolean;
+}
+
+export interface Annotation {
+    metadata?: TestFunctionMetadata;
+    codedata?: Codedata;
+    org?: string;
+    module?: string;
+    name?: string;
+    fields?: ValueProperty[];
+}
+
+export interface TestFunction {
+    metadata?: TestFunctionMetadata;
+    codedata?: Codedata;
+    functionName?: ValueProperty;
+    returnType?: ValueProperty;
+    parameters?: FunctionParameter[];
+    annotations?: Annotation[];
+    editable?: boolean;
+}
+
+// End of Test Manager related interfaces
+
 export interface JsonToRecordParams {
     jsonString: string;
     recordName: string;
