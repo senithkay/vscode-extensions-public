@@ -29,13 +29,6 @@ Parameters:
 {{/each}}
 \`\`\`
 {{/if}}
-
-{{#if requestBody}}
-Request Body: 
-\`\`\`
-{{generateSchemaDescription requestBody}}
-\`\`\`
-{{/if}}
 */
 ###
 {{uppercase @key}} http://localhost:{{../../port}}{{trim ../../basePath}}{{{@../key}}}{{queryParams parameters}}{{#if parameters}}{{headerParams parameters}}{{/if}}
@@ -378,43 +371,33 @@ function generateSchemaDoc(schema: Schema, depth: number, context: OAISpec): str
 function generateRequestBody(requestBody: RequestBody, context: OAISpec): string {
     const contentType = Object.keys(requestBody.content)[0];
     const schema = requestBody.content[contentType].schema;
+    const schemaDoc = generateSchemaDoc(schema, 1, context);
+    const isJson = contentType === 'application/json';
 
+    // Generate the comment block with schema documentation
+    const comment = `/* ${getCommentText(contentType)}
+
+Expected schema:
+${schemaDoc}
+*/`;
+
+    // For JSON, generate sample data. For other types, return empty string
+    const payload = isJson ? JSON.stringify(generateSampleValue(schema, context), null, 2) : '';
+    return `${comment}\n${payload}`;
+}
+
+function getCommentText(contentType: string): string {
     switch (contentType) {
         case 'application/json':
-            return `/* Modify the JSON payload as needed
-
-Expected schema:
-${generateSchemaDoc(schema, 1, context)}
-*/
-${JSON.stringify(generateSampleValue(schema, context), null, 2)}
-`;
+            return 'Modify the JSON payload as needed';
         case 'application/x-www-form-urlencoded':
-            return `/* Complete the form URL-encoded payload
-
-Expected schema:
-${generateSchemaDoc(schema, 1, context)}
-*/`;
+            return 'Complete the form URL-encoded payload';
         case 'multipart/form-data':
-            return `/* Complete the multipart form data payload
-
-Expected schema:
-${generateSchemaDoc(schema, 1, context)}
-*/`;
+            return 'Complete the multipart form data payload';
         case 'text/plain':
-            return `/* Enter your text content here
-
-Expected schema:
-${generateSchemaDoc(schema, 1, context)}
-*/`;
+            return 'Enter your text content here';
         default:
-            if (contentType !== 'application/json') {
-                return `/* Complete the payload for content type: ${contentType}
-
-Expected schema:
-${generateSchemaDoc(schema, 1, context)}
-*/`;
-            }
-            return JSON.stringify(generateSampleValue(schema, context), null, 2);
+            return `Complete the payload for content type: ${contentType}`;
     }
 }
 
