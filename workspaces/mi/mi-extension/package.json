@@ -305,7 +305,7 @@
       },
       {
         "command": "MI.project-explorer.open-project-overview",
-        "title": "Open Project Settings",
+        "title": "Open Project Overview",
         "icon": "$(list-unordered)",
         "when": "false"
       },
@@ -964,6 +964,7 @@
     "@apidevtools/json-schema-ref-parser": "11.6.1",
     "adm-zip": "~0.5.14",
     "@wso2-enterprise/mi-diagram": "workspace:*",
-    "upath": "~2.0.1"
+    "upath": "~2.0.1",
+    "find-process": "~1.4.10"
   }
 }

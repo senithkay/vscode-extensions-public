@@ -6441,7 +6441,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                       class="css-1wk9l6y"
                     >
                       <div
-                        class="css-1sgd2zu"
+                        class="css-1fvz8v9"
                       >
                         <i
                           class="fw-Call"
@@ -6915,7 +6915,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                       class="css-1wk9l6y"
                     >
                       <div
-                        class="css-1sgd2zu"
+                        class="css-1fvz8v9"
                       >
                         <i
                           class="fw-Call"
@@ -7391,7 +7391,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                       class="css-1gt6rr1"
                     >
                       <div
-                        class="css-1tyk8pj"
+                        class="css-znnhbi"
                       >
                         <i
                           class="fw-CallTemplate"
@@ -7797,7 +7797,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                       class="css-1gt6rr1"
                     >
                       <div
-                        class="css-1tyk8pj"
+                        class="css-znnhbi"
                       >
                         <i
                           class="fw-CallTemplate"
@@ -18585,7 +18585,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                       class="css-1wk9l6y"
                     >
                       <div
-                        class="css-gs8dxu"
+                        class="css-t7l6co"
                       >
                         <i
                           class="fw-Entitlement"
@@ -19539,7 +19539,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                       class="css-1wk9l6y"
                     >
                       <div
-                        class="css-gs8dxu"
+                        class="css-t7l6co"
                       >
                         <i
                           class="fw-Entitlement"
@@ -22991,7 +22991,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="then-6-4"
-            style="top: 305px; left: 63px;"
+            style="top: 305px; left: 75px;"
           >
             <div
               class="port css-1fb31et"
@@ -23007,7 +23007,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="else-8-4"
-            style="top: 305px; left: 263px;"
+            style="top: 305px; left: 275px;"
           >
             <div
               class="port css-1fb31et"
@@ -23706,7 +23706,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="then-6-4"
-            style="top: 305px; left: 63px;"
+            style="top: 305px; left: 75px;"
           >
             <div
               class="port css-1fb31et"
@@ -23722,7 +23722,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="else-7-4"
-            style="top: 305px; left: 263px;"
+            style="top: 305px; left: 275px;"
           >
             <div
               class="port css-1fb31et"
@@ -27436,7 +27436,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                       class="css-1wk9l6y"
                     >
                       <div
-                        class="css-1sgd2zu"
+                        class="css-1fvz8v9"
                       >
                         <i
                           class="fw-Call"
@@ -33291,7 +33291,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                       class="css-1gt6rr1"
                     >
                       <div
-                        class="css-1g2f6tx"
+                        class="css-1djxa7p"
                       >
                         <i
                           class="fw-NTLM"
@@ -33697,7 +33697,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                       class="css-1gt6rr1"
                     >
                       <div
-                        class="css-1g2f6tx"
+                        class="css-1djxa7p"
                       >
                         <i
                           class="fw-NTLM"
@@ -34105,7 +34105,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                       class="css-1gt6rr1"
                     >
                       <div
-                        class="css-r6p0xe"
+                        class="css-as7sio"
                       >
                         <i
                           class="fw-OAuth"
@@ -34511,7 +34511,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                       class="css-1gt6rr1"
                     >
                       <div
-                        class="css-r6p0xe"
+                        class="css-as7sio"
                       >
                         <i
                           class="fw-OAuth"
@@ -36141,7 +36141,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                       class="css-1gt6rr1"
                     >
                       <div
-                        class="css-1tyk8pj"
+                        class="css-znnhbi"
                       >
                         <i
                           class="fw-PropertyGroup"
@@ -36547,7 +36547,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                       class="css-1gt6rr1"
                     >
                       <div
-                        class="css-1tyk8pj"
+                        class="css-znnhbi"
                       >
                         <i
                           class="fw-PropertyGroup"
@@ -67371,7 +67371,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="case-6-4"
-            style="top: 305px; left: 63px;"
+            style="top: 305px; left: 75px;"
           >
             <div
               class="port css-1fb31et"
@@ -67387,7 +67387,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="default-7-4"
-            style="top: 305px; left: 263px;"
+            style="top: 305px; left: 275px;"
           >
             <div
               class="port css-1fb31et"
@@ -68122,7 +68122,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="case-6-4"
-            style="top: 305px; left: 63px;"
+            style="top: 305px; left: 75px;"
           >
             <div
               class="port css-1fb31et"
@@ -68138,7 +68138,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="default-7-4"
-            style="top: 305px; left: 263px;"
+            style="top: 305px; left: 275px;"
           >
             <div
               class="port css-1fb31et"
@@ -68871,7 +68871,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="onAccept-22-4"
-            style="top: 305px; left: 63px;"
+            style="top: 305px; left: 75px;"
           >
             <div
               class="port css-1fb31et"
@@ -68887,7 +68887,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="onReject-23-4"
-            style="top: 305px; left: 263px;"
+            style="top: 305px; left: 275px;"
           >
             <div
               class="port css-1fb31et"
@@ -69586,7 +69586,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="onAccept-22-4"
-            style="top: 305px; left: 63px;"
+            style="top: 305px; left: 75px;"
           >
             <div
               class="port css-1fb31et"
@@ -69602,7 +69602,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="onReject-23-4"
-            style="top: 305px; left: 263px;"
+            style="top: 305px; left: 275px;"
           >
             <div
               class="port css-1fb31et"

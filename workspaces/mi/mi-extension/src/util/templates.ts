@@ -16,6 +16,8 @@ export function escapeXml(text: string) {
     .replace(/"/g, '&quot;');
 };
 
+export const LATEST_CAR_PLUGIN_VERSION = "5.2.96";
+
 export const rootPomXmlContent = (projectName: string, groupID: string, artifactID: string, projectUuid: string, version: string, miVersion: string) => `<?xml version="1.0" encoding="UTF-8"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -107,6 +109,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
                   <excludeTransitive>true</excludeTransitive>
                   <!-- exclude dependencies which already available in MI -->
                   <excludeGroupIds>org.apache.synapse,org.apache.axis2</excludeGroupIds>
+                  <excludeTypes>zip</excludeTypes>
                 </configuration>
               </execution>
             </executions>
@@ -264,6 +267,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
                   <excludeTransitive>true</excludeTransitive>
                   <!-- exclude dependencies which already available in MI -->
                   <excludeGroupIds>org.apache.synapse,org.apache.axis2</excludeGroupIds>
+                  <excludeTypes>zip</excludeTypes>
                 </configuration>
               </execution>
             </executions>
@@ -411,13 +415,13 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
     <project.scm.id>integration-project</project.scm.id>
     <project.runtime.version>${miVersion}</project.runtime.version>
     <dockerfile.base.image>wso2/wso2mi:\${project.runtime.version}</dockerfile.base.image>
-    <car.plugin.version>5.2.93</car.plugin.version>
+    <car.plugin.version>${LATEST_CAR_PLUGIN_VERSION}</car.plugin.version>
     <test.server.type>local</test.server.type>
     <test.server.host>localhost</test.server.host>
     <test.server.port>9008</test.server.port>
     <test.server.path>/</test.server.path>
     <test.server.version>\${project.runtime.version}</test.server.version>
-    <testServerDownloadLink>https://github.com/wso2/micro-integrator/releases/download/v\${project.runtime.version}/wso2mi-\${project.runtime.version}.zip</testServerDownloadLink>
+    <testServerDownloadLink>https://github.com/wso2/micro-integrator/releases/download/v\${test.server.version}/wso2mi-\${test.server.version}.zip</testServerDownloadLink>
     <maven.test.skip>false</maven.test.skip>
   </properties>
 </project>`;

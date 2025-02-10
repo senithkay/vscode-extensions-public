@@ -47,6 +47,9 @@ async function downloadFile(url: string, filePath: string, progressCallback?: (d
     try {
         const response = await axios.get(url, {
             responseType: 'stream',
+            headers: {
+                "User-Agent": "Mozilla/5.0"
+            },
             onDownloadProgress: (progressEvent) => {
                 totalBytes = progressEvent.total!;
                 const formatSize = (sizeInBytes: number) => {
@@ -105,7 +108,7 @@ async function handleDownloadFile(rawFileLink: string, defaultDownloadsPath: str
 export function appendContent(path: string, content: string): Promise<boolean> {
     return new Promise((resolve) => {
         try {
-            fs.writeFileSync(path, content, { flag: 'a' }); 
+            fs.writeFileSync(path, content, { flag: 'a' });
             resolve(true);
         } catch (error) {
             console.error('Error appending content:', error);
@@ -206,7 +209,7 @@ export async function addNewEntryToArtifactXML(projectDir: string, artifactName:
             format: true,
         };
         const parser = new XMLParser(options);
-        const artifactXMLPath = isRegistry ? path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry','artifact.xml') : path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'artifact.xml');
+        const artifactXMLPath = isRegistry ? path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml') : path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'artifact.xml');
         if (!fs.existsSync(artifactXMLPath)) {
             fs.writeFileSync(artifactXMLPath, `<?xml version="1.0" encoding="UTF-8"?><artifacts></artifacts>`);
         }
@@ -817,7 +820,7 @@ export function findJavaFiles(folderPath): Map<string, string> {
             console.error(`Directory does not exist: ${currentPath}`);
             return results;
         }
-        
+
         const files = fs.readdirSync(currentPath);
         for (const file of files) {
             const filePath = path.join(currentPath, file);
@@ -853,7 +856,7 @@ export async function changeRootPomForClassMediator() {
     if (packagingValue.range) {
         await rpcManager.updatePomValues({ pomValues: [{ range: packagingValue.range, value: "jar" }] });
     }
-    
+
     const dependencies = [
         {
             groupId: "org.apache.synapse",
@@ -1017,13 +1020,13 @@ async function extractArchive(filePath: string, destination: string) {
         }
     } catch (error) {
         const errorMessage = (error instanceof Error) ? error.message : String(error);
-        
+
         if (errorMessage.includes("Unzip failed with code") && fs.existsSync(destination)) {
             fs.unlinkSync(filePath);
         }
-        
+
         if (errorMessage.includes("ENOENT")) {
-            window.showErrorMessage('unzip or tar command not found. Please install these to extract the archive.'); 
+            window.showErrorMessage('unzip or tar command not found. Please install these to extract the archive.');
         }
 
         throw new Error(`Error while extracting the archive: ${errorMessage}`);
