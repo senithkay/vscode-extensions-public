@@ -21,17 +21,14 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
 
     // get icon color
     switch (mediator?.toLowerCase()) {
-        case MEDIATORS.CALL.toLowerCase():
         case MEDIATORS.LOG.toLowerCase():
         case MEDIATORS.RESPOND.toLowerCase():
         case MEDIATORS.PROPERTY.toLowerCase():
         case MEDIATORS.VARIABLE.toLowerCase():
         case MEDIATORS.DROP.toLowerCase():
-        case MEDIATORS.CALLTEMPLATE.toLowerCase():
         case MEDIATORS.SEQUENCE.toLowerCase():
         case "target":    
         case MEDIATORS.RESOURCE.toLowerCase():
-        case MEDIATORS.PROPERTYGROUP.toLowerCase():
         case MEDIATORS.CACHE.toLowerCase():
         case MEDIATORS.THROTTLE.toLowerCase():
         case MEDIATORS.STORE.toLowerCase():
@@ -62,12 +59,6 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
             color = "#ff69d0";
             break;
 
-        case MEDIATORS.ENTITLEMENT.toLowerCase():
-        case MEDIATORS.OAUTH.toLowerCase():
-        case MEDIATORS.NTLM.toLowerCase():
-            color = "#ffc369";
-            break;
-
         case MEDIATORS.DATASERVICECALL.toLowerCase():
         case MEDIATORS.DBLOOKUP.toLowerCase():
         case MEDIATORS.DBREPORT.toLowerCase():
@@ -96,6 +87,12 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
         case MEDIATORS.CLONE.toLowerCase():
         case MEDIATORS.ITERATE.toLowerCase():
         case MEDIATORS.AGGREGATE.toLowerCase():
+        case MEDIATORS.PROPERTYGROUP.toLowerCase():
+        case MEDIATORS.CALL.toLowerCase():
+        case MEDIATORS.CALLTEMPLATE.toLowerCase():
+        case MEDIATORS.ENTITLEMENT.toLowerCase():
+        case MEDIATORS.OAUTH.toLowerCase():
+        case MEDIATORS.NTLM.toLowerCase():
             color = "#e0e0d8";
             break;
         default:
