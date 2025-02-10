@@ -11,7 +11,7 @@ import React, { CSSProperties, ReactNode, useCallback, useMemo, useState } from 
 import { Range } from 'vscode-languageserver-types';
 
 import styled from "@emotion/styled";
-import { ErrorBanner, RequiredFormInput, TokenEditor } from "@wso2-enterprise/ui-toolkit";
+import { ErrorBanner, RequiredFormInput, TokenEditor, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import { getHelperPane } from "../HelperPane";
 
@@ -31,6 +31,15 @@ namespace S {
         color: 'var(--vscode-editor-foreground)',
         textTransform: 'capitalize',
     });
+
+    export const AdornmentContainer = styled.div({
+        width: '22px',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'var(--vscode-inputOption-activeBackground)'
+    })
 }
 
 /**
@@ -93,9 +102,9 @@ export const FormTokenEditor = ({
     const actionButtons = useMemo(() => {
         return [
             {
-                tooltip: 'Open Helper View',
+                tooltip: 'Open Expression Editor',
                 iconType: 'icon' as const,
-                name: 'open-helper-pane',
+                name: 'function-icon',
                 onClick: () => handleChangeHelperPaneState(!isHelperPaneOpen)
             }
         ];
@@ -121,6 +130,20 @@ export const FormTokenEditor = ({
                 isHelperPaneOpen={isHelperPaneOpen}
                 changeHelperPaneState={setIsHelperPaneOpen}
                 getExpressionEditorIcon={getExpressionEditorIcon}
+                startAdornment={
+                    <S.AdornmentContainer>
+                        <Typography variant="h4" sx={{ margin: 0 }}>
+                            {"${"}
+                        </Typography>
+                    </S.AdornmentContainer>
+                }
+                endAdornment={
+                    <S.AdornmentContainer>
+                        <Typography variant="h4" sx={{ margin: 0 }}>
+                            {"}"}
+                        </Typography>
+                    </S.AdornmentContainer>
+                }
             />
             {errorMsg && <ErrorBanner errorMsg={errorMsg} />}
         </S.Container>
