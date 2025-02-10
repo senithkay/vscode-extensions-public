@@ -49,6 +49,7 @@ export namespace NodeStyles {
         position: absolute;
         padding: 8px;
         left: ${WHILE_NODE_WIDTH}px;
+        width: max-content;
     `;
 
     export const StyledButton = styled(Button)`
