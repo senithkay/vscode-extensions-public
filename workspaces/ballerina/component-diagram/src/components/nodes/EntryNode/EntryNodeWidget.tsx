@@ -18,6 +18,7 @@ import { HttpIcon, TaskIcon } from "../../../resources";
 import { MoreVertIcon } from "../../../resources/icons/nodes/MoreVertIcon";
 import { CDAutomation, CDFunction, CDService, CDResourceFunction } from "@wso2-enterprise/ballerina-core";
 import { getEntryNodeFunctionPortName } from "../../../utils/diagram";
+import { GraphQLIcon } from "../../../resources/icons/nodes/GraphqlIcon";
 export namespace NodeStyles {
     export type NodeStyleProp = {
         hovered: boolean;
@@ -190,6 +191,10 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
             case "automation":
                 return <TaskIcon />;
             case "service":
+                const serviceType = (model.node as CDService)?.type;
+                if (serviceType === "graphql:Service") {
+                    return <GraphQLIcon />;
+                }
                 return <ImageWithFallback imageUrl={(model.node as CDService).icon} fallbackEl={<HttpIcon />} />;
             default:
                 return <HttpIcon />;

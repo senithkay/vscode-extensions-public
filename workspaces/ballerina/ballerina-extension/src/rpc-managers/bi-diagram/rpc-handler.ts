@@ -21,6 +21,7 @@ import {
     BINodeTemplateRequest,
     BISourceCodeRequest,
     BreakpointRequest,
+    ClassFieldModifierRequest,
     ComponentRequest,
     ComponentsRequest,
     ExpressionCompletionsRequest,
@@ -29,8 +30,10 @@ import {
     FormDidOpenParams,
     GetTypeRequest,
     GetTypesRequest,
+    ModelFromCodeRequest,
     ProjectRequest,
     ReadmeContentRequest,
+    ServiceClassSourceRequest,
     SignatureHelpRequest,
     UpdateConfigVariableRequest,
     UpdateTypeRequest,
@@ -40,6 +43,7 @@ import {
     addFunction,
     buildProject,
     createComponent,
+    createGraphqlClassType,
     createProject,
     deleteByComponentInfo,
     deleteFlowNode,
@@ -63,6 +67,7 @@ import {
     getProjectComponents,
     getProjectStructure,
     getReadmeContent,
+    getServiceClassModel,
     getSignatureHelp,
     getSourceCode,
     getType,
@@ -77,7 +82,9 @@ import {
     runProject,
     updateConfigVariables,
     updateType,
-    updateImports
+    updateImports,
+    updateClassField,
+    updateServiceClass
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { BiDiagramRpcManager } from "./rpc-manager";
@@ -118,12 +125,16 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getBreakpointInfo, () => rpcManger.getBreakpointInfo());
     messenger.onRequest(getExpressionDiagnostics, (args: ExpressionDiagnosticsRequest) => rpcManger.getExpressionDiagnostics(args));
     messenger.onRequest(getAllImports, () => rpcManger.getAllImports());
-    messenger.onRequest(formDidOpen, (args: FormDidOpenParams) => rpcManger.formDidOpen(args));
-    messenger.onRequest(formDidClose, (args: FormDidCloseParams) => rpcManger.formDidClose(args));
+    messenger.onNotification(formDidOpen, (args: FormDidOpenParams) => rpcManger.formDidOpen(args));
+    messenger.onNotification(formDidClose, (args: FormDidCloseParams) => rpcManger.formDidClose(args));
     messenger.onRequest(getDesignModel, () => rpcManger.getDesignModel());
     messenger.onRequest(getTypes, (args: GetTypesRequest) => rpcManger.getTypes(args));
     messenger.onRequest(getType, (args: GetTypeRequest) => rpcManger.getType(args));
     messenger.onRequest(updateType, (args: UpdateTypeRequest) => rpcManger.updateType(args));
+    messenger.onRequest(getServiceClassModel, (args: ModelFromCodeRequest) => rpcManger.getServiceClassModel(args));
+    messenger.onRequest(updateClassField, (args: ClassFieldModifierRequest) => rpcManger.updateClassField(args));
+    messenger.onRequest(updateServiceClass, (args: ServiceClassSourceRequest) => rpcManger.updateServiceClass(args));
+    messenger.onRequest(createGraphqlClassType, (args: UpdateTypeRequest) => rpcManger.createGraphqlClassType(args));
     messenger.onRequest(updateImports, (args: UpdateImportsRequest) => rpcManger.updateImports(args));
     messenger.onRequest(addFunction, (args: AddFunctionRequest) => rpcManger.addFunction(args));
 }

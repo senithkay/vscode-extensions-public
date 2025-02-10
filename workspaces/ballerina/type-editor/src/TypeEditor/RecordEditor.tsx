@@ -13,6 +13,23 @@ import { Codicon, Icon, CheckBox } from '@wso2-enterprise/ui-toolkit';
 import { Button } from '@wso2-enterprise/ui-toolkit';
 import { TextField } from '@wso2-enterprise/ui-toolkit';
 import { FieldEditor } from './FieldEditor';
+import styled from '@emotion/styled';
+
+
+ const Header = styled.div`
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 8px;
+    `;
+
+const SectionTitle = styled.div`
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--vscode-editor-foreground);
+        margin-bottom: 4px;
+    `;
 
 interface RecordEditorProps {
     type: Type;
@@ -20,10 +37,11 @@ interface RecordEditorProps {
     onChange: (type: Type) => void;
     onImportJson: () => void;
     onImportXml: () => void;
+    isGraphql?: boolean;
 }
 
 export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorProps>((props, ref) => {
-    const { type, isAnonymous = false, onChange, onImportJson, onImportXml } = props;
+    const { type, isAnonymous = false, onChange, onImportJson, onImportXml, isGraphql } = props;
     const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
 
     const addMember = () => {
@@ -74,8 +92,8 @@ export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorPr
     return (
         <div className="record-editor">
             {!isAnonymous &&
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <h3>Record</h3>
+                <Header>
+                    <SectionTitle>{'Record'}</SectionTitle>
                     <div style={{ display: 'flex', gap: '8px' }}>
                         <Button appearance="icon">
                             <Codicon name="arrow-circle-down" onClick={handleImportJson} />&nbsp;JSON
@@ -87,7 +105,7 @@ export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorPr
                         <Button appearance="icon" onClick={deleteSelected}><Codicon name="trash" /></Button>
                         {/* <Button appearance="icon"><Codicon name="kebab-vertical" /></Button> */}
                     </div>
-                </div>
+            </Header>
             }
             {type.members.map((member, index) => (
                 <>

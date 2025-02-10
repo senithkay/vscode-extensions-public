@@ -161,7 +161,12 @@ import {
     VisualizableFieldsResponse,
     AddArrayElementRequest,
     FunctionModelRequest,
-    FunctionModelResponse
+    FunctionModelResponse,
+    ModelFromCodeRequest,
+    ServiceClassModelResponse,
+    ClassFieldModifierRequest,
+    SourceEditResponse,
+    ServiceClassSourceRequest
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -255,6 +260,7 @@ enum EXTENDED_APIS {
     BI_GET_TYPE = 'typesManager/getType',
     BI_UPDATE_TYPE = 'typesManager/updateType',
     BI_GET_GRAPHQL_TYPE = 'typesManager/getGraphqlType',
+    BI_CREATE_GRAPHQL_CLASS_TYPE = 'typesManager/createGraphqlClassType',
     BI_SERVICE_TRIGGER_MODELS = 'serviceDesign/getTriggerModels',
     BI_SERVICE_GET_LISTENERS = 'serviceDesign/getListeners',
     BI_SERVICE_GET_LISTENER = 'serviceDesign/getListenerModel',
@@ -266,11 +272,14 @@ enum EXTENDED_APIS {
     BI_SERVICE_ADD_SERVICE = 'serviceDesign/addService',
     BI_SERVICE_UPDATE_SERVICE = 'serviceDesign/updateService',
     BI_SERVICE_GET_SERVICE_SOURCE = 'serviceDesign/getServiceFromSource',
+    BI_SERVICE_UPDATE_SERVICE_CLASS = 'serviceDesign/updateServiceClass',
     BI_SERVICE_GET_RESOURCE = 'serviceDesign/getHttpResourceModel',
     BI_SERVICE_ADD_RESOURCE = 'serviceDesign/addResource',
     BI_SERVICE_ADD_FUNCTION = 'serviceDesign/addFunction',
     BI_SERVICE_UPDATE_RESOURCE = 'serviceDesign/updateFunction',
     BI_SERVICE_GET_TRIGGERS = 'serviceDesign/getTriggerModels',
+    BI_SERVICE_SERVICE_CLASS_MODEL = 'serviceDesign/getServiceClassModelFromSource',
+    BI_UPDATE_CLASS_FIELD = 'serviceDesign/updateClassField',
     BI_DESIGN_MODEL = 'designModelService/getDesignModel',
     BI_UPDATE_IMPORTS = 'expressionEditor/importModule',
     BI_ADD_FUNCTION = 'expressionEditor/functionCallTemplate'
@@ -819,6 +828,18 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<ServiceModelFromCodeResponse>(EXTENDED_APIS.BI_SERVICE_GET_SERVICE_SOURCE, params);
     }
 
+    async updateServiceClass(params: ServiceClassSourceRequest): Promise<SourceEditResponse> {
+        return this.sendRequest<SourceEditResponse>(EXTENDED_APIS.BI_SERVICE_UPDATE_SERVICE_CLASS, params);
+    }
+
+    async getServiceClassModel(params: ModelFromCodeRequest): Promise<ServiceClassModelResponse>{
+        return this.sendRequest<ServiceClassModelResponse>(EXTENDED_APIS.BI_SERVICE_SERVICE_CLASS_MODEL, params);
+    }
+
+    async updateClassField(params: ClassFieldModifierRequest): Promise<SourceEditResponse> {
+        return this.sendRequest<SourceEditResponse>(EXTENDED_APIS.BI_UPDATE_CLASS_FIELD, params);
+    }
+
     async getHttpResourceModel(params: HttpResourceModelRequest): Promise<HttpResourceModelResponse> {
         return this.sendRequest<HttpResourceModelResponse>(EXTENDED_APIS.BI_SERVICE_GET_RESOURCE, params);
     }
@@ -849,6 +870,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async updateType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
         return this.sendRequest<UpdateTypeResponse>(EXTENDED_APIS.BI_UPDATE_TYPE, params);
+    }
+
+    async createGraphqlClassType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
+        return this.sendRequest<UpdateTypeResponse>(EXTENDED_APIS.BI_CREATE_GRAPHQL_CLASS_TYPE, params);
     }
 
     async getGraphqlTypeModel(params: GetGraphqlTypeRequest): Promise<GetGraphqlTypeResponse> {

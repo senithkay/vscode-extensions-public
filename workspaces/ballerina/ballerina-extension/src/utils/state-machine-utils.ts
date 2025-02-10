@@ -18,7 +18,7 @@ import { FindConstructByIndexVisitor } from "./history/find-construct-by-index-v
 import { getConstructBodyString } from "./history/util";
 import { ballerinaExtInstance } from "../core";
 
-export async function getView(documentUri: string, position: NodePosition): Promise<HistoryEntry> {
+export async function getView(documentUri: string, position: NodePosition, projectUri?: string): Promise<HistoryEntry> {
 
     const req = getSTByRangeReq(documentUri, position);
     const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
@@ -37,7 +37,8 @@ export async function getView(documentUri: string, position: NodePosition): Prom
                         view: MACHINE_VIEW.TypeDiagram,
                         documentUri: documentUri,
                         position: position,
-                        identifier: name
+                        identifier: name,
+                        projectUri: projectUri
                     }
                 };
             }
@@ -87,7 +88,8 @@ export async function getView(documentUri: string, position: NodePosition): Prom
                         view: MACHINE_VIEW.GraphQLDiagram,
                         identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
                         documentUri: documentUri,
-                        position: position
+                        position: position,
+                        projectUri: projectUri
                     }
                 };
             } else {

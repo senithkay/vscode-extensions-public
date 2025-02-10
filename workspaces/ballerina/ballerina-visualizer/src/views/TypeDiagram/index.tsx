@@ -17,6 +17,7 @@ import styled from "@emotion/styled";
 import { Colors } from "../../resources/constants";
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { TypeEditor } from "@wso2-enterprise/type-editor";
+import { ClassTypeEditor } from "../BI/ServiceClassEditor/ClassTypeEditor";
 const HeaderContainer = styled.div`
     align-items: center;
     color: ${ThemeColors.ON_SURFACE};
@@ -37,10 +38,11 @@ export const Title: React.FC<any> = styled.div`
 
 interface TypeDiagramProps {
     selectedTypeId?: string;
+    projectUri?: string;
 }
 
 export function TypeDiagram(props: TypeDiagramProps) {
-    const { selectedTypeId } = props;
+    const { selectedTypeId, projectUri } = props;
     const { rpcClient } = useRpcContext();
     const commonRpcClient = rpcClient.getCommonRpcClient();
     const [visualizerLocation, setVisualizerLocation] = React.useState<VisualizerLocation>();
@@ -48,6 +50,8 @@ export function TypeDiagram(props: TypeDiagramProps) {
     const [typesModel, setTypesModel] = React.useState<Type[]>(undefined);
     const [editingTypeId, setEditingTypeId] = React.useState<string | undefined>(undefined);
     const [focusedNodeId, setFocusedNodeId] = React.useState<string | undefined>(undefined);
+    const [editingType, setEditingType] = React.useState<Type>();
+    
 
     useEffect(() => {
         if (rpcClient) {
@@ -106,12 +110,17 @@ export function TypeDiagram(props: TypeDiagramProps) {
     };
 
     const onTypeEdit = (typeId: string) => {
-        console.log(typeId);
+        const type = typesModel?.find((type) => type.name === typeId);
+        if (!type) {
+            return;
+        }
+        setEditingType(type);
         setEditingTypeId(typeId);
     }
 
     const onTypeEditorClosed = () => {
         setEditingTypeId(undefined);
+        setEditingType(undefined);
         setIsTypeCreatorOpen(false);
     }
 
@@ -184,6 +193,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
 
     const onTypeChange = async (type: Type) => {
         setEditingTypeId(undefined);
+        setEditingType(undefined);
         setIsTypeCreatorOpen(false);
     }
 
@@ -208,10 +218,13 @@ export function TypeDiagram(props: TypeDiagramProps) {
                 </ViewContent>
             </View>
             {/* Panel for editing and creating types */}
-            {(editingTypeId || isTypeCreatorOpen) && (
+            {(editingTypeId || isTypeCreatorOpen) && editingType?.codedata?.node !== "CLASS" &&  (
                 <PanelContainer title={editingTypeId ? `Edit Type` : "New Type"} show={true} onClose={onTypeEditorClosed}>
                     <TypeEditor type={findSelectedType(editingTypeId)} newType={editingTypeId ? false : true} rpcClient={rpcClient} onTypeChange={onTypeChange} />
                 </PanelContainer>
+            )}
+            {(editingTypeId || isTypeCreatorOpen) && editingType?.codedata?.node === "CLASS" && (
+                <ClassTypeEditor onClose={onTypeEditorClosed} type={editingType} projectUri={projectUri}/>
             )}
         </>
     );

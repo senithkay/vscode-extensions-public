@@ -15,8 +15,9 @@ import { EntityHead, EntityName } from '../styles';
 import { CtrlClickGo2Source } from '../../../common/CtrlClickHandler/CtrlClickGo2Source';
 import { DiagramContext } from '../../../common';
 import styled from '@emotion/styled';
-import { Button, Icon, Item, Menu, MenuItem, Popover, ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { Button, Item, Menu, MenuItem, Popover } from '@wso2-enterprise/ui-toolkit';
 import { MoreVertIcon } from '../../../../resources';
+import { GraphQLIcon } from '../../../../resources/assets/icons/GraphqlIcon';
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
@@ -28,10 +29,10 @@ const MenuButton = styled(Button)`
     border-radius: 5px;
 `;
 
-const EditIconContainer = styled.div`
-    z-index: 1000;
-    cursor: pointer;
-`;
+// const EditIconContainer = styled.div`
+//     z-index: 1000;
+//     cursor: pointer;
+// `;
 
 const HeaderButtonsContainer = styled.div`
     display: flex;
@@ -60,7 +61,7 @@ const HeaderWrapper = styled.div`
 
 export function EntityHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected } = props;
-    const { setFocusedNodeId, selectedNodeId, setSelectedNodeId, onEditNode, goToSource } = useContext(DiagramContext);
+    const { setFocusedNodeId, setSelectedNodeId, onEditNode, goToSource } = useContext(DiagramContext);
     const headPorts = useRef<PortModel[]>([]);
 
     const displayName: string = node.getID()?.slice(node.getID()?.lastIndexOf(':') + 1);
@@ -113,12 +114,18 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
         node.handleHover(headPorts.current, task);
     }
 
-    const isClickable = selectedNodeId !== node.getID();
+    const isClickable = true;
 
     const handleOnClickOnEntityName = () => {
-        if (isClickable) {
-            setSelectedNodeId(node.getID());
-            setFocusedNodeId(undefined);
+        setSelectedNodeId(node.getID());
+        setFocusedNodeId && setFocusedNodeId(undefined);
+        
+        if (onEditNode) {
+            if (node.isGraphqlRoot) {
+                onEditNode(node.getID(), true);
+            } else {
+                onEditNode(node.getID());
+            } 
         }
     }
 
@@ -136,6 +143,11 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                 />
                 <HeaderWrapper>
                     <EntityNameContainer>
+                        {node.isGraphqlRoot && (
+                            <div style={{ marginRight: "5px", marginTop: "2px" }}>
+                                <GraphQLIcon />
+                            </div>
+                        )}
                         <EntityName
                             isClickable={isClickable}
                             onClick={handleOnClickOnEntityName}
@@ -145,7 +157,7 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                         </EntityName>
                     </EntityNameContainer>
                     <HeaderButtonsContainer>
-                        {selectedNodeId === node.getID() && (
+                        {/* {selectedNodeId === node.getID() && (
                             <EditIconContainer>
                                 <Button
                                     appearance="icon"
@@ -158,7 +170,7 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                                     />
                                 </Button>
                             </EditIconContainer>
-                        )}
+                        )} */}
                         <MenuButton appearance="icon" onClick={handleOnMenuClick}>
                             <MoreVertIcon />
                         </MenuButton>

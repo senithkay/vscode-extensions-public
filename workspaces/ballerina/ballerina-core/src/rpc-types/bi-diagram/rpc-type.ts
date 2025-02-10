@@ -49,7 +49,12 @@ import {
     UpdateImportsRequest,
     UpdateImportsResponse,
     AddFunctionRequest,
-    AddFunctionResponse
+    AddFunctionResponse,
+    ServiceClassModelResponse,
+    ModelFromCodeRequest,
+    ClassFieldModifierRequest,
+    SourceEditResponse,
+    ServiceClassSourceRequest
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -111,5 +116,9 @@ export const getDesignModel: RequestType<void, BIDesignModelResponse> = { method
 export const getTypes: RequestType<GetTypesRequest, GetTypesResponse> = { method: `${_preFix}/getTypes` };
 export const getType: RequestType<GetTypeRequest, GetTypeResponse> = { method: `${_preFix}/getType` };
 export const updateType: RequestType<UpdateTypeRequest, UpdateTypeResponse> = { method: `${_preFix}/updateType` };
+export const getServiceClassModel: RequestType<ModelFromCodeRequest, ServiceClassModelResponse> = { method: `${_preFix}/getServiceClassModel` };
+export const updateClassField: RequestType<ClassFieldModifierRequest, SourceEditResponse> = { method: `${_preFix}/updateClassField` };
+export const updateServiceClass: RequestType<ServiceClassSourceRequest, SourceEditResponse> = { method: `${_preFix}/updateServiceClass` };
+export const createGraphqlClassType: RequestType<UpdateTypeRequest, UpdateTypeResponse> = { method: `${_preFix}/createGraphqlClassType` };
 export const updateImports: RequestType<UpdateImportsRequest, UpdateImportsResponse> = { method: `${_preFix}/updateImports` };
 export const addFunction: RequestType<AddFunctionRequest, AddFunctionResponse> = { method: `${_preFix}/addFunction` };

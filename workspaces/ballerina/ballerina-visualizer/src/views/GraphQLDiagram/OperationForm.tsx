@@ -7,10 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from 'react';
-import { FunctionModel, LineRange, ParameterModel, PropertyModel, ConfigProperties } from '@wso2-enterprise/ballerina-core';
-import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
-import FormGeneratorNew from '../BI/Forms/FormGeneratorNew';
+import React, { useState, useEffect } from 'react';
+import { FunctionModel, LineRange, ParameterModel, ConfigProperties, Type } from '@wso2-enterprise/ballerina-core';
+import { FormGeneratorNew } from '../BI/Forms/FormGeneratorNew';
 import { FormField, FormValues, Parameter } from '@wso2-enterprise/ballerina-side-panel';
 
 interface OperationFormProps {
@@ -22,17 +21,22 @@ interface OperationFormProps {
 }
 
 export function OperationForm(props: OperationFormProps) {
-    console.log("Operation Form Props: ", props.model);
+    console.log("OperationForm props: ", props);
     const { model, onSave, onClose, filePath, lineRange } = props;
+    const [fields, setFields] = useState<FormField[]>([]);
+    const [formValues, setFormValues] = useState<FormValues>({
+        name: model.name.value || '',
+        parameters: model.parameters.map((param, index) => convertParameterToParamValue(param, index)),
+        returnType: model.returnType.value || ''
+    });
 
-    // Helper function to modify and set the visual information
     const handleParamChange = (param: Parameter) => {
         const name = `${param.formValues['variable']}`;
         const type = `${param.formValues['type']}`;
-        const hasDefaultValue = Object.keys(param.formValues).includes('defaultable') && 
-        param.formValues['defaultable'] !== undefined && 
-        param.formValues['defaultable'] !== '';
-    
+        const hasDefaultValue = Object.keys(param.formValues).includes('defaultable') &&
+            param.formValues['defaultable'] !== undefined &&
+            param.formValues['defaultable'] !== '';
+
         const defaultValue = hasDefaultValue ? `${param.formValues['defaultable']}`.trim() : '';
         let value = `${type} ${name}`;
         if (defaultValue) {
@@ -44,130 +48,17 @@ export function OperationForm(props: OperationFormProps) {
             value: value
         }
     };
-    console.log("Schema Parameters:", model.schema);
-    // const paramFields: FormField[] = [
-    //     {
-    //         key: `variable`,
-    //         label: 'Name',
-    //         type: 'string',
-    //         optional: false,
-    //         editable: true,
-    //         documentation: '',
-    //         value: '',
-    //         valueTypeConstraint: ""
-    //     },
-    //     {
-    //         key: `type`,
-    //         label: 'Type',
-    //         type: 'TYPE',
-    //         optional: false,
-    //         editable: true,
-    //         documentation: '',
-    //         value: '',
-    //         valueTypeConstraint: ""
-    //     },
-    //     {
-    //         key: `defaultable`,
-    //         label: 'Default Value',
-    //         type: 'string',
-    //         optional: true,
-    //         advanced: true,
-    //         editable: true,
-    //         documentation: '',
-    //         value: '',
-    //         valueTypeConstraint: ""
-    //     }
-    // ];
-
-    const formFields: FormField[] = [
-        {
-            key: 'name',
-            label: model.name.metadata?.label || 'Operation Name',
-            type: 'IDENTIFIER',
-            optional: false,
-            editable: model.name.editable,
-            advanced: model.name.advanced,
-            documentation: model.name.metadata?.description || '',
-            value: model.name.value || '',
-            valueTypeConstraint: model.name.valueTypeConstraint || ''
-        },
-        {
-            key: 'params',
-            label: 'Parameters',
-            type: 'PARAM_MANAGER',
-            optional: false,
-            editable: true,
-            advanced: false,
-            documentation: '',
-            value: '',
-            paramManagerProps: {
-                paramValues: model.parameters.map((param, index) => convertParameterToParamValue(param, index)),
-                formFields: convertSchemaToFormFields(model.schema),
-                handleParameter: handleParamChange
-            },
-            valueTypeConstraint: ''
-        },
-        {
-            key: 'returnType',
-            label: model.returnType.metadata?.label || 'Return Type',
-            type: 'TYPE',
-            optional: false,
-            editable: true,
-            advanced: model.returnType.advanced,
-            documentation: model.returnType.metadata?.description || '',
-            value: model.returnType.value || '',
-            valueTypeConstraint: model.returnType.valueTypeConstraint || ''
-        }
-    ];
-
-    // const getFunctionParametersList = (params: Parameter[]) => {
-    //     const paramList: ParameterModel[] = [];
-    //     params.forEach(param => {
-    //         paramList.push({
-    //             kind: 'REQUIRED',
-    //             enabled: true,
-    //             editable: true,
-    //             advanced: false,
-    //             optional: false,
-    //             type: {
-    //                 value: param.formValues['type'] as string,
-    //                 valueType: 'TYPE',
-    //                 isType: true,
-    //                 optional: false,
-    //                 advanced: false,
-    //                 addNewButton: false
-    //             },
-    //             name: {
-    //                 value: param.formValues['variable'] as string,
-    //                 valueType: 'IDENTIFIER',
-    //                 isType: false,
-    //                 optional: false,
-    //                 advanced: false,
-    //                 addNewButton: false
-    //             },
-    //             defaultValue: {
-    //                 value: param.formValues['defaultable'] as string,
-    //                 valueType: 'string',
-    //                 isType: false,
-    //                 optional: false,
-    //                 advanced: false,
-    //                 addNewButton: false
-    //             }
-    //         });
-    //     })
-    //     return paramList;
-    // }
 
     const getFunctionParametersList = (params: Parameter[]) => {
         const paramList: ParameterModel[] = [];
         const paramFields = convertSchemaToFormFields(model.schema);
-        
+
         params.forEach(param => {
             // Find matching field configurations from schema
             const typeField = paramFields.find(field => field.key === 'type');
             const nameField = paramFields.find(field => field.key === 'variable');
             const defaultField = paramFields.find(field => field.key === 'defaultable');
-    
+
             paramList.push({
                 kind: 'REQUIRED',
                 enabled: typeField?.enabled ?? true,
@@ -209,33 +100,91 @@ export function OperationForm(props: OperationFormProps) {
         return paramList;
     }
 
-    const handleFunctionCreate = async (data: FormValues) => {
-        console.log("Function Form Data: ", data)
-        const name = data['name'];
-        const returnType = data['returnType'];
-        const params = data['params'];
+    // Initialize form fields
+    useEffect(() => {
+        console.log("Current form values:", formValues);
+        const initialFields = [
+            {
+                key: 'name',
+                label: model.name.metadata?.label || 'Operation Name',
+                type: 'IDENTIFIER',
+                optional: false,
+                editable: model.name.editable,
+                advanced: model.name.advanced,
+                enabled: model.name.enabled,
+                documentation: model.name.metadata?.description || '',
+                value: formValues.name,
+                valueTypeConstraint: model.name.valueTypeConstraint || ''
+            },
+            {
+                key: 'parameters',
+                label: 'Parameters',
+                type: 'PARAM_MANAGER',
+                optional: true,
+                editable: true,
+                documentation: '',
+                value: formValues.parameters,
+                paramManagerProps: {
+                    paramValues: Array.isArray(formValues.parameters) ? formValues.parameters : model.parameters.map((param, index) => convertParameterToParamValue(param, index)),
+                    formFields: convertSchemaToFormFields(model.schema),
+                    handleParameter: handleParamChange
+                },
+                valueTypeConstraint: ''
+            },
+            {
+                key: 'returnType',
+                label: model.returnType.metadata?.label || 'Return Type',
+                type: 'TYPE',
+                optional: false,
+                enabled: model.returnType.enabled,
+                editable: true, // model.returnType.editable FIX when LS is fixed
+                advanced: model.returnType.advanced,
+                documentation: model.returnType.metadata?.description || '',
+                value: formValues.returnType,
+                valueTypeConstraint: model.returnType.valueTypeConstraint || ''
+            }
+        ];
+        setFields(initialFields);
+    }, [model, formValues]);
+
+    const handleFunctionCreate = (data: FormValues) => {
+        console.log("Function create with data:", data);
+        setFormValues(data);
+        const { name, returnType, parameters: params } = data;
         const paramList = params ? getFunctionParametersList(params) : [];
-        // map the data to the function model
-        const newFunctionModel = {...model};
+        const newFunctionModel = { ...model };
         newFunctionModel.name.value = name;
         newFunctionModel.returnType.value = returnType;
         newFunctionModel.parameters = paramList;
-        console.log("New Function Model on Save: ", newFunctionModel);
         onSave(newFunctionModel);
     };
 
-    return (
-        <FormGeneratorNew
-            fileName={filePath}
-            targetLineRange={lineRange}
-            fields={formFields}
-            onSubmit={handleFunctionCreate}
-            onBack={onClose}
-            submitText="Save"
-        />
-    );
-} 
+    const handleTypeChange = (type: Type) => {
+        console.log("Type change with:", type.name);
+        // Preserve all existing form values when updating the type
+        setFormValues(prev => ({
+            ...prev,
+            returnType: type.name
+        }));
+    };
 
+    return (
+        <>
+            {fields.length > 0 && (
+                <FormGeneratorNew
+                    isGraphqlEditor={true}
+                    fileName={filePath}
+                    targetLineRange={lineRange}
+                    fields={fields}
+                    onSubmit={handleFunctionCreate}
+                    onBack={onClose}
+                    submitText="Save"
+                    onTypeChange={handleTypeChange}
+                />
+            )}
+        </>
+    );
+}
 
 export function convertSchemaToFormFields(schema: ConfigProperties): FormField[] {
     const formFields: FormField[] = [];
@@ -263,7 +212,7 @@ export function convertParameterToFormField(key: string, param: ParameterModel):
     return {
         key: key === "defaultValue" ? "defaultable" : key === "name" ? "variable" : key,
         label: param.metadata?.label,
-        type: param.valueType || 'TYPE',
+        type: param.valueType || 'string',
         optional: param.optional || false,
         editable: param.editable || false,
         advanced: key === "defaultValue" ? true : param.advanced,
@@ -272,9 +221,7 @@ export function convertParameterToFormField(key: string, param: ParameterModel):
         valueTypeConstraint: param?.valueTypeConstraint || '',
         enabled: param.enabled || true
     };
-
 }
-
 
 function convertParameterToParamValue(param: ParameterModel, index: number) {
     return {

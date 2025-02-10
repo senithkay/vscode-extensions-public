@@ -181,7 +181,7 @@ const MainPanel = () => {
                         setViewComponent(<ERDiagram />);
                         break;
                     case MACHINE_VIEW.TypeDiagram:
-                        setViewComponent(<TypeDiagram selectedTypeId={value?.identifier} />);
+                        setViewComponent(<TypeDiagram selectedTypeId={value?.identifier} projectUri={value?.projectUri} />);
                         break;
                     case MACHINE_VIEW.DataMapper:
                         setViewComponent(
@@ -203,7 +203,7 @@ const MainPanel = () => {
                         });
                         break;
                     case MACHINE_VIEW.GraphQLDiagram:
-                        setViewComponent(<GraphQLDiagram filePath={value?.documentUri} position={value?.position} />);
+                        setViewComponent(<GraphQLDiagram filePath={value?.documentUri} position={value?.position} projectUri={value?.projectUri}/>);
                         break;
                     case MACHINE_VIEW.SequenceDiagram:
                         setViewComponent(

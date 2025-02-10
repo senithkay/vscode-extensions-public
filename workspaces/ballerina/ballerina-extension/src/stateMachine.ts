@@ -223,7 +223,7 @@ const stateMachine = createMachine<MachineContext>(
                         history.push({ location: { view: MACHINE_VIEW.Overview, documentUri: context.documentUri } });
                         return resolve();
                     }
-                    const view = await getView(context.documentUri, context.position);
+                    const view = await getView(context.documentUri, context.position, context?.projectUri);
                     history.push(view);
                     return resolve();
                 } else {

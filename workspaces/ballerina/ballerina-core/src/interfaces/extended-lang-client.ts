@@ -17,7 +17,7 @@ import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteComman
 import { Category, Flow, FlowNode, CodeData, ConfigVariable } from "./bi";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
 import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
-import { FunctionModel, ListenerModel, ServiceModel } from "./service";
+import { FieldType, FunctionModel, ListenerModel, ServiceClassModel, ServiceModel } from "./service";
 import { CDModel } from "./component-diagram";
 import { IDMModel, Mapping } from "./inline-data-mapper";
 
@@ -879,9 +879,27 @@ export interface ServiceSourceCodeResponse {
     };
 }
 
+export interface ClassFieldModifierRequest {
+    filePath: string;
+    field: FieldType;
+}
+
+export interface SourceEditResponse {
+    textEdits?: {
+        [key: string]: TextEdit[];
+    };
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
+export interface ServiceClassSourceRequest {
+    filePath: string;
+    serviceClass: ServiceClassModel;
+}
+
 export interface FunctionModelRequest {
-    type : string;
-    functionName : string;
+    type: string;
+    functionName: string;
 }
 
 export interface FunctionModelResponse {
@@ -901,6 +919,19 @@ export interface ListenerModelFromCodeRequest {
     codedata: {
         lineRange: LineRange; // For the entire service
     };
+}
+
+export interface ModelFromCodeRequest {
+    filePath: string;
+    codedata: {
+        lineRange: LineRange;
+    };
+}
+
+export interface ServiceClassModelResponse {
+    model?: ServiceClassModel;
+    errorMsg?: string;
+    stacktrace?: string;
 }
 
 // <-------- Type Related ------->
@@ -937,7 +968,7 @@ export interface TypeMetadata {
 }
 
 export type TypeNodeKind = "RECORD" | "ENUM" | "ARRAY" | "UNION" | "ERROR" | "MAP" | "STREAM" | "FUTURE" |
-                            "TYPEDESC" | "CLASS" | "OBJECT" | "INTERSECTION" | "SERVICE_DECLARATION" | "TABLE" | "TUPLE";
+    "TYPEDESC" | "CLASS" | "OBJECT" | "INTERSECTION" | "SERVICE_DECLARATION" | "TABLE" | "TUPLE";
 // todo make this consistant
 export interface TypeCodeData {
     lineRange: LineRange;

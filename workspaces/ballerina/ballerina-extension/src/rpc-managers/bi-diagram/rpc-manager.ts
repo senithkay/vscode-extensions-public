@@ -39,9 +39,8 @@ import {
     BISuggestedFlowModelRequest,
     BI_COMMANDS,
     BreakpointRequest,
+    ClassFieldModifierRequest,
     ComponentRequest,
-    ComponentsRequest,
-    ComponentsResponse,
     ConfigVariableResponse,
     CreateComponentResponse,
     CurrentBreakpointsResponse,
@@ -61,7 +60,7 @@ import {
     GetTypesResponse,
     ImportStatement,
     ImportStatements,
-    OverviewFlow,
+    ModelFromCodeRequest,
     ProjectComponentsResponse,
     ProjectImports,
     ProjectRequest,
@@ -69,6 +68,8 @@ import {
     ReadmeContentRequest,
     ReadmeContentResponse,
     STModification,
+    ServiceClassModelResponse,
+    ServiceClassSourceRequest,
     SignatureHelpRequest,
     SignatureHelpResponse,
     SyntaxTree,
@@ -84,6 +85,7 @@ import {
     WorkspacesResponse,
     buildProjectStructure,
     TextEdit,
+    SourceEditResponse,
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import { writeFileSync } from "fs";
@@ -104,11 +106,11 @@ import { notifyBreakpointChange } from "../../RPCLayer";
 import { ballerinaExtInstance } from "../../core";
 import { BreakpointManager } from "../../features/debugger/breakpoint-manager";
 import { StateMachine, openView, updateView } from "../../stateMachine";
-import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, sanitizeName } from "../../utils/bi";
+import { getCompleteSuggestions } from '../../utils/ai/completions';
+import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure } from "../../utils/bi";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
 import { DATA_MAPPING_FILE_NAME, getDataMapperNodePosition } from "./utils";
-import {getCompleteSuggestions} from '../../utils/ai/completions';
 
 export class BiDiagramRpcManager implements BIDiagramAPI {
 
@@ -1188,6 +1190,70 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         console.log(">>> ai suggestion", { response: data });
         const suggestedContent = (data as any).completions.at(0);
         return suggestedContent;
+    }
+
+    async createGraphqlClassType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
+        const projectUri = StateMachine.context().projectUri;
+        const filePath =  path.join(projectUri, params.filePath);
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient()
+                .createGraphqlClassType({ filePath , type: params.type, description: "" })
+                .then((updateTypeResponse: UpdateTypeResponse) => {
+                    console.log(">>> create graphql class type response", updateTypeResponse);
+                    Object.entries(updateTypeResponse.textEdits).forEach(([file, textEdits]) => {
+                        this.applyTextEdits(file, textEdits);
+                    });
+                    resolve(updateTypeResponse);
+                }).catch((error) => {
+                    console.log(">>> error fetching class type from ls", error);
+                    reject(error);
+                });
+        });
+    }
+
+    async getServiceClassModel(params: ModelFromCodeRequest): Promise<ServiceClassModelResponse> {
+        const projectUri = StateMachine.context().projectUri;
+        const filePath =  path.join(projectUri, params.filePath);
+        return new Promise(async (resolve) => {
+            try {
+                const res: ServiceClassModelResponse = await StateMachine.langClient().getServiceClassModel({ filePath, codedata: params.codedata });
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    async updateClassField(params: ClassFieldModifierRequest): Promise<SourceEditResponse> {
+        const projectUri = StateMachine.context().projectUri;
+        const filePath =  path.join(projectUri, params.filePath);
+        return new Promise(async (resolve) => {
+            try {
+                const res: SourceEditResponse = await StateMachine.langClient().updateClassField({ filePath, field: params.field });
+                Object.entries(res.textEdits).forEach(([file, textEdits]) => {
+                    this.applyTextEdits(file, textEdits);
+                });
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    async updateServiceClass(params: ServiceClassSourceRequest): Promise<SourceEditResponse> {
+        const projectUri = StateMachine.context().projectUri;
+        const filePath =  path.join(projectUri, params.filePath);
+        return new Promise(async (resolve) => {
+            try {
+                const res: SourceEditResponse = await StateMachine.langClient().updateServiceClass({ filePath, serviceClass: params.serviceClass });
+                Object.entries(res.textEdits).forEach(([file, textEdits]) => {
+                    this.applyTextEdits(file, textEdits);
+                });
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
     }
 }
 

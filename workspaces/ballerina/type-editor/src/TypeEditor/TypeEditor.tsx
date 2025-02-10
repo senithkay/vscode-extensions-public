@@ -11,10 +11,13 @@ import React, { useEffect, useState, useRef } from "react";
 import { TextField, View, ViewContent, Dropdown, Button, SidePanelBody, ProgressRing, Divider, Icon, Codicon } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
-import { Member, Type, UndoRedoManager, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
+import { Member, Type, UndoRedoManager, VisualizerLocation, TypeNodeKind } from "@wso2-enterprise/ballerina-core";
 import { RecordFromJson } from "../RecordFromJson";
 import { RecordFromXml } from "../RecordFromXml";
 import { RecordEditor } from "./RecordEditor";
+import { EnumEditor } from "./EnumEditor";
+import { UnionEditor } from "./UnionEditor";
+import { ClassEditor } from "./ClassEditor";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -33,7 +36,7 @@ namespace S {
 
     export const CategoryRow = styled.div<{ showBorder?: boolean }>`
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         justify-content: flex-start;
         align-items: flex-start;
         gap: 12px;
@@ -148,10 +151,11 @@ namespace S {
 
 
 interface TypeEditorProps {
-    type: Type;
+    type?: Type;
     rpcClient: BallerinaRpcClient;
     onTypeChange: (type: Type) => void;
     newType: boolean;
+    isGraphql?: boolean;
 }
 
 enum ConfigState {
@@ -160,10 +164,63 @@ enum ConfigState {
     IMPORT_FROM_XML,
 }
 
+enum TypeKind {
+    RECORD = "Record",
+    ENUM = "Enum",
+    CLASS = "Service Class",
+    UNION = "Union"
+}
+
 const undoRedoManager = new UndoRedoManager();
 
 export function TypeEditor(props: TypeEditorProps) {
-    const [type, setType] = useState<Type | undefined>(props.type ? { ...props.type } : undefined);
+    console.log("===TypeEditorProps===", props);
+    const [selectedTypeKind, setSelectedTypeKind] = useState<TypeKind>(() => {
+        if (props.type) {
+            // Map the type's node kind to TypeKind enum
+            const nodeKind = props.type.codedata.node;
+            switch (nodeKind) {
+                case "RECORD":
+                    return TypeKind.RECORD;
+                case "ENUM":
+                    return TypeKind.ENUM;
+                case "CLASS":
+                    return TypeKind.CLASS;
+                case "UNION":
+                    return TypeKind.UNION;
+                default:
+                    return TypeKind.RECORD;
+            }
+        }
+        return TypeKind.RECORD;
+    });
+    const [type, setType] = useState<Type>(() => {
+        if (props.type) {
+            return props.type;
+        }
+        // Initialize with default type for new types
+        const defaultType = {
+            name: "",
+            members: [] as Member[],
+            editable: true,
+            metadata: {
+                description: "",
+                deprecated: false,
+                readonly: false,
+                label: ""
+            },
+            properties: {},
+            codedata: {
+                lineRange: {
+                    fileName: "types.bal",
+                    startLine: { line: 0, character: 0, offset: 0 },
+                    endLine: { line: 0, character: 0, offset: 0 }
+                },
+                node: "RECORD" as TypeNodeKind
+            }
+        };
+        return defaultType as unknown as Type;
+    });
     const [visualizerLocation, setVisualizerLocation] = React.useState<VisualizerLocation>();
     const nameInputRefs = useRef<(HTMLElement | null)[]>([]);
     const [isNewType, setIsNewType] = useState<boolean>(props.newType);
@@ -177,15 +234,87 @@ export function TypeEditor(props: TypeEditorProps) {
         }
     }, [isNewType]);
 
-
+    const handleTypeKindChange = (value: string) => {
+        // if the value is Service Class, the type kind should be CLASS
+        const typeValue = value === "Service Class" ? "CLASS" : value;
+        setSelectedTypeKind(value as TypeKind);
+        // Always create a new type with the selected kind
+        setType((currentType) => ({
+            ...currentType!,
+            kind: typeValue,
+            members: [] as Member[],
+            codedata: {
+                ...currentType!.codedata, // Check the location of the type
+                node: typeValue.toUpperCase() as TypeNodeKind
+            }
+        }));
+    };
 
     const onTypeChange = async (type: Type) => {
         const name = type.name;
+        // IF type nodeKind is CLASS then we call graphqlEndpoint
+        // TODO: for TypeDiagram we need to give a generic class creation
+        if (type.codedata.node === "CLASS") {
+            const response = await props.rpcClient
+            .getBIDiagramRpcClient()
+            .createGraphqlClassType({ filePath: type.codedata.lineRange.fileName, type, description: "" });
+
+        } else {
         const response = await props.rpcClient
             .getBIDiagramRpcClient()
             .updateType({ filePath: type.codedata.lineRange.fileName, type, description: "" });
+        }
         props.onTypeChange(type);
     }
+
+    console.log("===Type Model===", type);
+
+    const renderEditor = () => {
+        if (editorState === ConfigState.IMPORT_FROM_JSON) {
+            return null; // Handle JSON import
+        }
+        if (editorState === ConfigState.IMPORT_FROM_XML) {
+            return null; // Handle XML import
+        }
+
+        switch (selectedTypeKind) {
+            case TypeKind.RECORD:
+                return (
+                    <RecordEditor
+                        type={type}
+                        isAnonymous={false}
+                        onChange={setType}
+                        isGraphql={props.isGraphql}
+                        onImportJson={() => setEditorState(ConfigState.IMPORT_FROM_JSON)}
+                        onImportXml={() => setEditorState(ConfigState.IMPORT_FROM_XML)}
+                    />
+                );
+            case TypeKind.ENUM:
+                return (
+                    <EnumEditor
+                        type={type}
+                        onChange={setType}
+                    />
+                );
+            case TypeKind.UNION:
+                return (
+                    <UnionEditor
+                        type={type}
+                        onChange={setType}
+                        rpcClient={props.rpcClient}
+                    />
+                );
+            case TypeKind.CLASS:
+                return (
+                    <ClassEditor
+                        type={type}
+                        onChange={setType}
+                    />
+                );
+            default:
+                return <div>Editor for {selectedTypeKind} type is not implemented yet</div>;
+        }
+    };
 
     return (
         <S.Container>
@@ -193,29 +322,31 @@ export function TypeEditor(props: TypeEditorProps) {
                 <ProgressRing />
             ) : (
                 <div>
-                    <TextField
-                        label="Name"
-                        value={type.name}
-                        onChange={(e) => setType({ ...type, name: e.target.value })}
-                        onFocus={(e) => e.target.select()}
-                        ref={nameInputRef}
-                    />
-
-                    {editorState === ConfigState.EDITOR_FORM &&
-                        <RecordEditor
-                            isAnonymous={false}
-                            type={type}
-                            onChange={setType}
-                            onImportJson={() => setEditorState(ConfigState.IMPORT_FROM_JSON)}
-                            onImportXml={() => setEditorState(ConfigState.IMPORT_FROM_XML)}
+                    <S.CategoryRow>
+                        <Dropdown
+                            id="type-selector"
+                            label="Type"
+                            value={selectedTypeKind}
+                            items={Object.values(TypeKind).map((kind) => ({ label: kind, value: kind }))}
+                            onChange={(e) => handleTypeKindChange(e.target.value)}
                         />
-                    }
+                        <div style={{ flex: '1' }}>
+                        <TextField
+                            label="Name"
+                            value={type.name}
+                            onChange={(e) => setType({ ...type, name: e.target.value })}
+                            onFocus={(e) => e.target.select()}
+                            ref={nameInputRef}
+                        />
+                        </div>
+                    </S.CategoryRow>
+
+                    {renderEditor()}
                     <S.Footer>
                         <Button onClick={() => onTypeChange(type)}>Save</Button>
                     </S.Footer>
                 </div>
             )}
-
         </S.Container>
     );
 }

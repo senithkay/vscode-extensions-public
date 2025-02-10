@@ -8,14 +8,17 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { GraphqlDesignServiceParams, GraphqlDesignService, VisualizerLocation, Type, NodePosition, GetGraphqlTypeResponse, GetGraphqlTypeRequest } from "@wso2-enterprise/ballerina-core";
+import { GraphqlDesignServiceParams, GraphqlDesignService, VisualizerLocation, Type, NodePosition, GetGraphqlTypeResponse, GetGraphqlTypeRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { GraphqlDesignDiagram } from "@wso2-enterprise/ballerina-graphql-design-diagram";
 import { TypeDiagram as TypeDesignDiagram } from "@wso2-enterprise/type-diagram";
-import { ProgressRing, ThemeColors, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ProgressRing, ThemeColors, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import { Colors } from "../../resources/constants";
 import styled from "@emotion/styled";
 import { GraphqlServiceEditor } from "./GraphqlServiceEditor";
+import { TypeEditor } from "@wso2-enterprise/type-editor";
+import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
+import { ClassTypeEditor } from "../BI/ServiceClassEditor/ClassTypeEditor";
 
 const HeaderContainer = styled.div`
     align-items: center;
@@ -25,7 +28,7 @@ const HeaderContainer = styled.div`
     font-family: GilmerBold;
     font-size: 16px;
     height: 50px;
-    justify-content: space-between;
+    justify-content: flex-start;
     min-width: 350px;
     padding-inline: 10px;
     width: calc(100vw - 20px);
@@ -33,21 +36,32 @@ const HeaderContainer = styled.div`
 
 const Title: React.FC<any> = styled.div`
     color: ${ThemeColors.ON_SURFACE};
+    padding-right: 5px;
+`;
+
+const SpinnerContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
 `;
 
 
 interface GraphQLDiagramProps {
     filePath: string;
     position: NodePosition;
+    projectUri?: string;
 }
 
 export function GraphQLDiagram(props: GraphQLDiagramProps) {
-    const { filePath, position } = props;
+    const { filePath, position, projectUri } = props;
     const { rpcClient } = useRpcContext();
     // const [visualizerLocation, setVisualizerLocation] = useState<VisualizerLocation>();
     // const [graphqlModdel, setGraphqlModel] = useState<GraphqlDesignService>();
     const [graphqlTypeModel, setGraphqlTypeModel] = useState<GetGraphqlTypeResponse>();
     const [isServiceEditorOpen, setIsServiceEditorOpen] = useState<boolean>(false);
+    const [isTypeEditorOpen, setIsTypeEditorOpen] = useState(false);
+    const [editingType, setEditingType] = useState<Type>();
 
     // useEffect(() => {
     //     if (rpcClient) {
@@ -57,11 +71,18 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
     //     }
     // }, [rpcClient]);
 
+    rpcClient?.onProjectContentUpdated((state: boolean) => {
+        if (state) {
+            getGraphqlDesignModel();
+        }
+    });
+
     useEffect(() => {
         getGraphqlDesignModel();
     }, [position]);
 
     const getGraphqlDesignModel = async () => {
+        console.log("====Getting graphql Model", filePath, position);
         if (!rpcClient) {
             return;
         }
@@ -105,12 +126,46 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
         rpcClient.getCommonRpcClient().goToSource({ position: targetPosition });
     };
 
-    const onTypeEdit = (typeId: string, isGraphqlRoot?: boolean) => {
-        console.log(typeId, isGraphqlRoot);
+    const onTypeEdit = async (typeId: string, isGraphqlRoot?: boolean) => {
         if (isGraphqlRoot) {
             setIsServiceEditorOpen(true);
+            return;
         }
-        // Else open the respective type editor
+
+        // find the type by checking the references of graphqlTypeModel
+        const type = graphqlTypeModel?.refs.find((type) => type.name === typeId);
+        if (type) {
+            setEditingType(type);
+            setIsTypeEditorOpen(true);
+        } else {
+            console.error("Type not found");
+        }
+    }
+
+    const onTypeChange = async (type: Type) => {
+        setIsTypeEditorOpen(false);
+        setEditingType(undefined);
+    }
+
+    const onTypeEditorClosed = () => {
+        setIsTypeEditorOpen(false);
+        setEditingType(undefined);
+    }
+
+    const handleServiceEdit = async () => {
+        await rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.BIServiceConfigView,
+                position: {
+                    startLine: position?.startLine,
+                    startColumn: position?.startColumn,
+                    endLine: position?.endLine,
+                    endColumn: position?.endColumn
+                },
+                documentUri: filePath
+            },
+        });
     }
 
 
@@ -119,6 +174,16 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
             <View>
                 <HeaderContainer>
                     <Title>GraphQL Diagram</Title>
+                    <Button
+                        appearance="icon"
+                        onClick={handleServiceEdit}
+                        tooltip="Edit"
+                    >
+                        <Codicon
+                            name="edit"
+                        />
+                        &nbsp;Edit
+                    </Button>
                 </HeaderContainer>
                 <ViewContent>
                     {graphqlTypeModel ? (
@@ -130,7 +195,9 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
                             onTypeEdit={onTypeEdit}
                         />
                     ) : (
-                        <ProgressRing color={Colors.PRIMARY} />
+                        <SpinnerContainer>
+                            <ProgressRing color={Colors.PRIMARY} />
+                        </SpinnerContainer>
                     )}
                 </ViewContent>
             </View>
@@ -152,6 +219,21 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
                     onClose={() => setIsServiceEditorOpen(false)}
                 />
             }
+            {isTypeEditorOpen && editingType && editingType.codedata.node !== "CLASS" && (
+                <PanelContainer title={`Edit Type`} show={true} onClose={onTypeEditorClosed}>
+                    <TypeEditor
+                        type={editingType}
+                        rpcClient={rpcClient}
+                        onTypeChange={onTypeChange}
+                        newType={false}
+                        isGraphql={true}
+                    />
+                </PanelContainer>
+            )}
+            {/* TODO: Allow when ClassTypeEditor support the BE model */}
+            {isTypeEditorOpen && editingType && editingType.codedata.node === "CLASS" && (
+                <ClassTypeEditor onClose={onTypeEditorClosed} type={editingType} projectUri={projectUri}/>
+            )}
         </>
         // <>
         //     {visualizerLocation &&

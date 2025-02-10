@@ -34,6 +34,7 @@ import {
     BISourceCodeRequest,
     BISourceCodeResponse,
     BreakpointRequest,
+    ClassFieldModifierRequest,
     ComponentRequest,
     ConfigVariableResponse,
     CreateComponentResponse,
@@ -49,14 +50,17 @@ import {
     GetTypeResponse,
     GetTypesRequest,
     GetTypesResponse,
+    ModelFromCodeRequest,
     ProjectComponentsResponse,
     ProjectImports,
     ProjectRequest,
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
+    ServiceClassModelResponse,
     SignatureHelpRequest,
     SignatureHelpResponse,
+    SourceEditResponse,
     UpdateConfigVariableRequest,
     UpdateConfigVariableResponse,
     UpdateTypeRequest,
@@ -70,6 +74,7 @@ import {
     addFunction,
     buildProject,
     createComponent,
+    createGraphqlClassType,
     createProject,
     deleteByComponentInfo,
     deleteFlowNode,
@@ -93,6 +98,7 @@ import {
     getProjectComponents,
     getProjectStructure,
     getReadmeContent,
+    getServiceClassModel,
     getSignatureHelp,
     getSourceCode,
     getType,
@@ -105,9 +111,12 @@ import {
     openReadme,
     removeBreakpointFromSource,
     runProject,
+    updateClassField,
     updateConfigVariables,
+    updateImports,
+    updateServiceClass,
     updateType,
-    updateImports
+    ServiceClassSourceRequest
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -278,7 +287,23 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
     updateType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
         return this._messenger.sendRequest(updateType, HOST_EXTENSION, params);
     }
-    
+
+    getServiceClassModel(params: ModelFromCodeRequest): Promise<ServiceClassModelResponse> {
+        return this._messenger.sendRequest(getServiceClassModel, HOST_EXTENSION, params);
+    }
+
+    updateClassField(params: ClassFieldModifierRequest): Promise<SourceEditResponse> {
+        return this._messenger.sendRequest(updateClassField, HOST_EXTENSION, params);
+    }
+
+    updateServiceClass(params: ServiceClassSourceRequest): Promise<SourceEditResponse> {
+        return this._messenger.sendRequest(updateServiceClass, HOST_EXTENSION, params);
+    }
+
+    createGraphqlClassType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
+        return this._messenger.sendRequest(createGraphqlClassType, HOST_EXTENSION, params);
+    }
+
     updateImports(params: UpdateImportsRequest): Promise<UpdateImportsResponse> {
         return this._messenger.sendRequest(updateImports, HOST_EXTENSION, params);
     }

@@ -9,7 +9,7 @@
 
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
-import { Member,TypeFunctionModel } from '@wso2-enterprise/ballerina-core';
+import { Member, TypeFunctionModel } from '@wso2-enterprise/ballerina-core';
 import { EntityModel } from '../EntityModel';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
 
@@ -61,13 +61,15 @@ export function AttributeWidget(props: AttributeProps) {
                     engine={engine}
                 />
                 <AttributeName>{attribute.name}</AttributeName>
-                <AttributeType
-                    isAnonymous={false}
-                    isSelected={isSelected || isHovered}
-                    onClick={onClickOnType}
-                >
-                    {attributeType}
-                </AttributeType>
+                {node.entityObject?.codedata?.node !== 'UNION' &&
+                    <AttributeType
+                        isAnonymous={false}
+                        isSelected={isSelected || isHovered}
+                        onClick={onClickOnType}
+                    >
+                        {attributeType}
+                    </AttributeType>
+                }
                 {/* {isHovered && attribute.sourceLocation && editingEnabled &&
                         <NodeMenuWidget
                             background={Colors.SECONDARY}
