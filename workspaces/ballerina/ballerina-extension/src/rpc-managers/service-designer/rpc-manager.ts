@@ -300,7 +300,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             const context = StateMachine.context();
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
-                const targetFile = path.join(projectDir, params.codedata.lineRange?.fileName || 'main.bal');
+                const targetFile = path.join(projectDir, params?.filePath || 'main.bal');
                 params.filePath = targetFile;
                 const targetPosition: NodePosition = {
                     startLine: params.codedata.lineRange.startLine.line,
@@ -419,7 +419,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             const context = StateMachine.context();
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
-                const targetFile = path.join(projectDir, `main.bal`);
+                const targetFile = path.join(projectDir, params?.filePath || 'main.bal');
                 params.filePath = targetFile;
                 const targetPosition: NodePosition = {
                     startLine: params.codedata.lineRange.startLine.line,

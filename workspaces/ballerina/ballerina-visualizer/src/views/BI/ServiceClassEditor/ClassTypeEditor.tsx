@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Type, ServiceClassModel, ModelFromCodeRequest, FieldType, FunctionModel } from "@wso2-enterprise/ballerina-core";
+import { Type, ServiceClassModel, ModelFromCodeRequest, FieldType, FunctionModel, NodePosition, STModification, removeStatement, LineRange, EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
 import { Button, Codicon, Typography, TextField, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
@@ -20,6 +20,7 @@ import { OperationForm } from "../../GraphQLDiagram/OperationForm";
 import { VariableForm } from "./VariableForm";
 import { URI, Utils } from "vscode-uri";
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
+import { applyModifications } from "../../../utils/utils";
 
 
 const ServiceClassContainer = styled.div`
@@ -94,6 +95,30 @@ export const Footer = styled.div<{}>`
     width: 100%;
 `;
 
+const MenuContainer = styled.div`
+    width: 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 4px;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: ${Colors.SURFACE_BRIGHT};
+    border: 1px solid var(--vscode-panel-border);
+    border-radius: 4px;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+`;
+
+const MenuButton = styled(Button)`
+    width: 100%;
+    justify-content: flex-start;
+    padding: 6px 12px;
+    text-align: left;
+    height: 32px;
+`;
+
 interface ClassTypeEditorProps {
     type: Type;
     onClose: () => void;
@@ -101,11 +126,14 @@ interface ClassTypeEditorProps {
 }
 
 export function ClassTypeEditor(props: ClassTypeEditorProps) {
+    console.log("======Service Class Type Editor", props);
     const { onClose, type, projectUri } = props;
     const { rpcClient } = useRpcContext();
     const [serviceClassModel, setServiceClassModel] = useState<ServiceClassModel>();
     const [editingFunction, setEditingFunction] = useState<FunctionModel>(undefined);
     const [editingVariable, setEditingVariable] = useState<FieldType>(undefined);
+    const [showFunctionMenu, setShowFunctionMenu] = useState<boolean>(false);
+    const [isNew, setIsNew] = useState<boolean>(false);
 
 
     useEffect(() => {
@@ -134,15 +162,56 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
         setEditingFunction(func);
     };
 
+    const handleDeleteFunction = async (func: FunctionModel) => {
+        const targetPosition: NodePosition = {
+            startLine: func?.codedata?.lineRange?.startLine.line,
+            startColumn: func?.codedata.lineRange?.startLine?.offset,
+            endLine: func?.codedata?.lineRange?.endLine?.line,
+            endColumn: func?.codedata?.lineRange?.endLine?.offset
+        }
+        const deleteAction: STModification = removeStatement(targetPosition);
+        const currentFilePath = Utils.joinPath(URI.file(projectUri), type.codedata.lineRange.fileName).fsPath;
+        await applyModifications(rpcClient, [deleteAction], currentFilePath);
+        getServiceClassModel();
+    }
+
+    const onFunctionImplement = async (func: FunctionModel) => {
+        const lineRange: LineRange = func.codedata.lineRange;
+        const currentFilePath = Utils.joinPath(URI.file(projectUri), type.codedata.lineRange.fileName).fsPath;
+        const nodePosition: NodePosition = { startLine: lineRange.startLine.line, startColumn: lineRange.startLine.offset, endLine: lineRange.endLine.line, endColumn: lineRange.endLine.offset }
+        await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { position: nodePosition, documentUri: currentFilePath } })
+    }
+
     const handleFunctionSave = async (updatedFunction: FunctionModel) => {
         try {
-            const lsResponse = await rpcClient.getServiceDesignerRpcClient().updateResourceSourceCode({
-                filePath: updatedFunction.codedata.lineRange.fileName,
-                codedata: {
-                    lineRange: updatedFunction.codedata.lineRange
-                },
-                function: updatedFunction
-            });
+            let lsResponse;
+            if (isNew) {
+                lsResponse = await rpcClient.getServiceDesignerRpcClient().addFunctionSourceCode({
+                    filePath: type.codedata.lineRange.fileName,
+                    codedata: {
+                        lineRange: {
+                            startLine: { line: type.codedata.lineRange.startLine.line, offset: type.codedata.lineRange.startLine.offset },
+                            endLine: { line: type.codedata.lineRange.endLine.line, offset: type.codedata.lineRange.endLine.offset }
+                        }
+                    },
+                    function: updatedFunction
+                });
+            } else {
+                lsResponse = await rpcClient.getServiceDesignerRpcClient().updateResourceSourceCode({
+                    filePath: type.codedata.lineRange.fileName,
+                    codedata: {
+                        lineRange: {
+                            startLine: { line: type.codedata.lineRange.startLine.line, offset: type.codedata.lineRange.startLine.offset },
+                            endLine: { line: type.codedata.lineRange.endLine.line, offset: type.codedata.lineRange.endLine.offset }
+                        }
+                    },
+                    function: updatedFunction
+                });
+            }
+
+            if (isNew) {
+                setIsNew(false);
+            }
             setEditingFunction(null);
             getServiceClassModel(); // Refresh the model
         } catch (error) {
@@ -198,7 +267,34 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
         }
     };
 
-    console.log("======Service Class TYpe Filepath", (URI.file(projectUri), type.codedata.lineRange.fileName));
+    const handleAddFunction = async (type: 'init' | 'resource' | 'remote') => {
+        // TODO: Implement function addition based on type
+        const lsResponse = await rpcClient.getServiceDesignerRpcClient().getFunctionModel({
+            type: 'object',
+            functionName: type
+        });
+        if (lsResponse.function) {
+            // if resouce we need to update the models accessor valut to get and valueType to Identifier
+            if (type === 'resource' && lsResponse.function.accessor) {
+                lsResponse.function.accessor.value = 'get';
+                lsResponse.function.accessor.valueType = 'IDENTIFIER';
+            }
+
+            setIsNew(true);
+            setEditingFunction(lsResponse.function);
+            console.log(`Adding ${type} function`, lsResponse.function);
+
+            setShowFunctionMenu(false);
+        }
+    };
+
+    const handleCloseFunctionForm = () => {
+        setEditingFunction(undefined);
+        setIsNew(false);
+    };
+
+    const hasInitFunction = serviceClassModel?.functions?.some(func => func.kind === 'INIT');
+
     return (
         <>
             {!serviceClassModel && (
@@ -253,12 +349,39 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
                         <Section>
                             <SectionHeader>
                                 <SectionTitle>Functions</SectionTitle>
-                                <Button
-                                    appearance="icon"
-                                    tooltip="Add Function"
-                                >
-                                    <Codicon name="add" />
-                                </Button>
+                                <div style={{ position: 'relative' }}>
+                                    <Button
+                                        appearance="icon"
+                                        tooltip="Add Function"
+                                        onClick={() => setShowFunctionMenu(!showFunctionMenu)}
+                                    >
+                                        <Codicon name="add" />
+                                    </Button>
+                                    {showFunctionMenu && (
+                                        <MenuContainer>
+                                            {!hasInitFunction && (
+                                                <MenuButton
+                                                    appearance="secondary"
+                                                    onClick={() => handleAddFunction('init')}
+                                                >
+                                                    Init
+                                                </MenuButton>
+                                            )}
+                                            <MenuButton
+                                                appearance="secondary"
+                                                onClick={() => handleAddFunction('resource')}
+                                            >
+                                                Resource
+                                            </MenuButton>
+                                            <MenuButton
+                                                appearance="secondary"
+                                                onClick={() => handleAddFunction('remote')}
+                                            >
+                                                Remote
+                                            </MenuButton>
+                                        </MenuContainer>
+                                    )}
+                                </div>
                             </SectionHeader>
 
                             {serviceClassModel.functions?.map((func: FunctionModel, index: number) => (
@@ -266,8 +389,8 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
                                     functionModel={func}
                                     goToSource={() => { }}
                                     onEditFunction={() => handleEditFunction(func)}
-                                    onDeleteFunction={() => { }}
-                                    onFunctionImplement={() => { }}
+                                    onDeleteFunction={() => handleDeleteFunction(func)}
+                                    onFunctionImplement={() => onFunctionImplement(func)}
                                 />
                             ))}
                             {(!serviceClassModel.functions || serviceClassModel.functions.length === 0) && (
@@ -298,8 +421,8 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
                     <OperationForm
                         model={editingFunction}
                         filePath={Utils.joinPath(URI.file(projectUri), type.codedata.lineRange.fileName).fsPath}
-                        lineRange={editingFunction.codedata.lineRange}
-                        onClose={() => setEditingFunction(null)}
+                        lineRange={type.codedata.lineRange}
+                        onClose={handleCloseFunctionForm}
                         onSave={handleFunctionSave}
                     />
                 </PanelContainer>
