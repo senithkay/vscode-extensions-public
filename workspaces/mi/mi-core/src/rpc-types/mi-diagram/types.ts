@@ -1760,12 +1760,14 @@ export interface TestDbConnectionResponse {
 
 export interface CheckDBDriverResponse {
     isDriverAvailable: boolean;
-    driverVersion: string
+    driverVersion: string;
+    driverPath: string;
 }
 
 export interface AddDriverRequest {
+    addDriverPath: string;
+    removeDriverPath: string;
     className: string;
-    driverPath: string;
 }
 
 export interface RemoveDBDriverResponse {

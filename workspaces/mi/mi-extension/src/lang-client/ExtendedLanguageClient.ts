@@ -301,15 +301,15 @@ export class ExtendedLanguageClient extends LanguageClient {
     }
 
     async addDBDriver(req: AddDriverRequest): Promise<boolean> {
-        return this.sendRequest("synapse/addDBDriver", { addDriverPath: req.driverPath, removeDriverPath: "", className: req.className });
+        return this.sendRequest("synapse/addDBDriver", req);
     }
 
-    async removeDBDriver(req: AddDriverRequest): Promise<RemoveDBDriverResponse> {
-        return this.sendRequest("synapse/removeDBDriver", { req });
+    async removeDBDriver(req: AddDriverRequest): Promise<boolean> {
+        return this.sendRequest("synapse/removeDBDriver", req );
     }
 
-    async modifyDBDriver(req: AddDriverRequest): Promise<RemoveDBDriverResponse> {
-        return this.sendRequest("synapse/modifyDBDriver", { req });
+    async modifyDBDriver(req: AddDriverRequest): Promise<boolean> {
+        return this.sendRequest("synapse/modifyDBDriver", req );
     }
 
     async generateQueries(req: DSSQueryGenRequest): Promise<string> {

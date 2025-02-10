@@ -227,8 +227,7 @@ import {
     MiVersionResponse,
     SaveConfigRequest,
     SaveConfigResponse,
-    CheckDBDriverResponse,
-    RemoveDBDriverResponse
+    CheckDBDriverResponse
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -366,8 +365,8 @@ export const renameFile: NotificationType<FileRenameRequest> = { method: `${_pre
 export const openUpdateExtensionPage: NotificationType<void> = { method: `${_preFix}/openUpdateExtensionPage` };
 export const checkDBDriver: RequestType<string, CheckDBDriverResponse> = { method: `${_preFix}/checkDBDriver` };
 export const addDBDriver: RequestType<AddDriverRequest, boolean> = { method: `${_preFix}/addDBDriver` };
-export const removeDBDriver: RequestType<AddDriverRequest, RemoveDBDriverResponse> = { method: `${_preFix}/removeDBDriver` };
-export const modifyDBDriver: RequestType<AddDriverRequest, RemoveDBDriverResponse> = { method: `${_preFix}/modifyDBDriver` };
+export const removeDBDriver: RequestType<AddDriverRequest, boolean> = { method: `${_preFix}/removeDBDriver` };
+export const modifyDBDriver: RequestType<AddDriverRequest, boolean> = { method: `${_preFix}/modifyDBDriver` };
 export const generateDSSQueries: RequestType<ExtendedDSSQueryGenRequest, boolean> = { method: `${_preFix}/generateDSSQueries` };
 export const fetchDSSTables: RequestType<DSSFetchTablesRequest, DSSFetchTablesResponse> = { method: `${_preFix}/fetchDSSTables` };
 export const tryOutMediator: RequestType<MediatorTryOutRequest, MediatorTryOutResponse> = { method: `${_preFix}/tryOutMediator` };

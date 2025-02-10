@@ -63,12 +63,20 @@ export function DatabaseDriverForm(props: DatabaseDriverFormProps) {
     };
 
     const handleAddDriver = async () => {
-        const driverPath = await rpcClient.getMiDiagramRpcClient().addDriverToLib({ url: props.watch('driverPath') });
-        const validDriverAdded = await rpcClient.getMiDiagramRpcClient().addDBDriver({
-            className: props.watch('rdbms.driverClassName') ?? props.watch('driverClassName'),
-            driverPath: driverPath.path
-        });
-        setIsDriverValid(validDriverAdded);
+        const driveDir = await handleDriverDirSelection();
+        if (driveDir) {
+            const driverPath = await rpcClient.getMiDiagramRpcClient().addDriverToLib({ url: driveDir });
+            const validDriverAdded = await rpcClient.getMiDiagramRpcClient().addDBDriver({
+                addDriverPath: driverPath.path,
+                removeDriverPath: "",
+                className: props.watch('driverClassName')
+            });
+            setIsDriverValid(validDriverAdded);
+            if (validDriverAdded) {
+                const dbDriverResponse = await rpcClient.getMiDiagramRpcClient().checkDBDriver(props.watch('driverClassName'));
+                setDriverAvailable(dbDriverResponse.isDriverAvailable ? dbDriverResponse.driverVersion : "");
+            }
+        }
     }
 
     const handleDriverDirSelection = async () => {
@@ -78,14 +86,17 @@ export function DatabaseDriverForm(props: DatabaseDriverFormProps) {
     }
 
     const removeDriver = async () => {
-        const rootDir = (await rpcClient.getMiDiagramRpcClient().getWorkspaceRoot()).path;
-        const libDirectory = path.join(rootDir, 'deployment', 'libs');
-        const className = props.watch('rdbms.driverClassName') ?? props.watch('driverClassName');
+        const currentDriverPath = (await rpcClient.getMiDiagramRpcClient().checkDBDriver(props.watch('driverClassName'))).driverPath;
         const removeResponse = await rpcClient.getMiDiagramRpcClient().removeDBDriver({
-            className: props.watch('rdbms.driverClassName') ?? props.watch('driverClassName'), driverPath: libDirectory
+            addDriverPath: "",
+            removeDriverPath: currentDriverPath,
+            className: ""
         });
-        if (removeResponse.isDriverRemoved) {
+        if (removeResponse) {
+            await rpcClient.getMiDiagramRpcClient().deleteDriverFromLib({ url: currentDriverPath });
+            props.setValue("driverPath", null);
             setDriverAvailable("");
+            isDriverValid(null);
         }
     }
 
@@ -96,16 +107,26 @@ export function DatabaseDriverForm(props: DatabaseDriverFormProps) {
     }
 
     const modifyDriver = async () => {
+        const currentDriverPath = (await rpcClient.getMiDiagramRpcClient().checkDBDriver(props.watch('driverClassName'))).driverPath;
         const newDriverPath = await handleDriverDirSelection();
+        const newDriverLibPath = (await rpcClient.getMiDiagramRpcClient().addDriverToLib({ url: newDriverPath })).path;
         if (newDriverPath) {
             const removeResponse = await rpcClient.getMiDiagramRpcClient().modifyDBDriver({
-                className: props.watch('rdbms.driverClassName') ?? props.watch('driverClassName'), driverPath: newDriverPath
+                addDriverPath: newDriverLibPath,
+                removeDriverPath: currentDriverPath,
+                className: props.watch('driverClassName')
             });
 
-            if (!removeResponse.isDriverRemoved) {
-                props.setValue("driverPath", null);
+            await rpcClient.getMiDiagramRpcClient().deleteDriverFromLib({ url: currentDriverPath });
+            setIsDriverValid(removeResponse);
+
+            if (removeResponse) {
+                props.setValue("driverPath", newDriverLibPath);
+                const dbDriverResponse = await rpcClient.getMiDiagramRpcClient().checkDBDriver(props.watch('driverClassName'));
+                setDriverAvailable(dbDriverResponse.isDriverAvailable ? dbDriverResponse.driverVersion : "");
+            } else {
+                setDriverAvailable("");
             }
-            await fetchDBDriver();
         }
     }
 
@@ -144,21 +165,26 @@ export function DatabaseDriverForm(props: DatabaseDriverFormProps) {
             ) : (
                 <>
                     <FormGroup title="Select Database Driver" isCollapsed={continueWithoutDriver}>
-                        {isDriverValid === null ? (
+                        {isDriverValid === false ? (
                             <>
-                                <LocationSelector
-                                    label="Select Driver Directory"
-                                    selectedFile={props.watch("driverPath")}
-                                    required
-                                    onSelect={handleDriverDirSelection}
-                                    {...props.renderProps('driverPath')}
-                                />
-                                {props.watch('driverPath') &&
+                                <span>Error!</span>
+                                <span>The database driver selected does not contain the relevant driver
+                                    class of the datasource</span>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
                                     <Button
                                         appearance="secondary"
-                                        onClick={handleAddDriver}>
-                                        Add Driver
-                                    </Button>}
+                                        onClick={removeInvalidDriver}>
+                                        Remove
+                                    </Button>
+                                </div>
+                            </>
+                        ) :
+                            <>
+                                <Button
+                                    appearance="secondary"
+                                    onClick={handleAddDriver}>
+                                    Select Driver Location
+                                </Button>
                                 <span><b>Note:</b>
                                     <br />
                                     These drivers will only be used in the developer environment to enhance
@@ -166,23 +192,9 @@ export function DatabaseDriverForm(props: DatabaseDriverFormProps) {
                                     production environment when deploying the carbon application.
                                 </span>
                             </>
-                        ) : isDriverValid ? <span>Driver added successfully!</span> :
-                            isDriverValid === false && (
-                                <>
-                                    <span>Error!</span>
-                                    <span>The database driver selected does not contain the relevant driver
-                                        class of the datasource</span>
-                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                                        <Button
-                                            appearance="secondary"
-                                            onClick={removeInvalidDriver}>
-                                            Remove
-                                        </Button>
-                                    </div>
-                                </>
-                            )}
+                        }
                     </FormGroup>
-                    {!isDriverValid && (
+                    {isDriverValid === null && (
                         <CheckBox
                             checked={continueWithoutDriver}
                             label={"Continue without any database driver"}

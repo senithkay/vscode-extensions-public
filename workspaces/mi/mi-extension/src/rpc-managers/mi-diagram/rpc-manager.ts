@@ -4967,7 +4967,7 @@ ${keyValuesXML}`;
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.checkDBDriver(className);
-            resolve(res.isDriverAvailable);
+            resolve(res);
         });
     }
 
@@ -4979,7 +4979,7 @@ ${keyValuesXML}`;
         });
     }
 
-    async removeDBDriver(params: AddDriverRequest): Promise<RemoveDBDriverResponse> {
+    async removeDBDriver(params: AddDriverRequest): Promise<boolean> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.removeDBDriver(params);
@@ -4987,7 +4987,7 @@ ${keyValuesXML}`;
         });
     }
 
-    async modifyDBDriver(params: AddDriverRequest): Promise<RemoveDBDriverResponse> {
+    async modifyDBDriver(params: AddDriverRequest): Promise<boolean> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.modifyDBDriver(params);

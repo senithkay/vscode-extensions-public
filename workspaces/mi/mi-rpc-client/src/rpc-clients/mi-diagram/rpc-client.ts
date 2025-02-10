@@ -378,7 +378,6 @@ import {
     MiVersionResponse,
     getMIVersionFromPom,
     CheckDBDriverResponse,
-    RemoveDBDriverResponse,
     removeDBDriver,
     modifyDBDriver
 } from "@wso2-enterprise/mi-core";
@@ -924,11 +923,11 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(addDBDriver, HOST_EXTENSION, params);
     }
 
-    removeDBDriver(params: AddDriverRequest): Promise<RemoveDBDriverResponse> {
+    removeDBDriver(params: AddDriverRequest): Promise<boolean> {
         return this._messenger.sendRequest(removeDBDriver, HOST_EXTENSION, params);
     }
 
-    modifyDBDriver(params: AddDriverRequest): Promise<RemoveDBDriverResponse> {
+    modifyDBDriver(params: AddDriverRequest): Promise<boolean> {
         return this._messenger.sendRequest(modifyDBDriver, HOST_EXTENSION, params);
     }
 
