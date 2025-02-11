@@ -164,6 +164,19 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
         if (connectorData) {
             const connectorsWithIcons = await Promise.all(connectorData.connectors.map(async (connector) => {
                 const iconPathUri = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: connector.iconPath, name: "icon-small" });
+                const connectionEntries = await Promise.all(
+                    Object.entries(connector.connectionUiSchema).map(async ([connectionType, schemaPath]) => {
+                        const connectionIconPath = await rpcClient.getMiDiagramRpcClient().getIconPathUri({
+                            path: path.join(connector.iconPath, 'connections'),
+                            name: connectionType
+                        });
+                        return [
+                            connectionType,
+                            { schemaPath, iconPathUri: connectionIconPath.uri ?? iconPathUri.uri }
+                        ];
+                    })
+                );
+                connector.connectionUiSchema = Object.fromEntries(connectionEntries);
                 return { ...connector, iconPathUri };
             }));
             setLocalConnectors(connectorsWithIcons);
@@ -408,7 +421,7 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                     <>
                         <SampleGrid>
                             {displayedLocalConnectors && displayedLocalConnectors.map((connector: any) => (
-                                Object.entries(connector.connectionUiSchema).map(([connectionType, schemaPath]) => (
+                                Object.entries(connector.connectionUiSchema).map(([connectionType, connectionData]) => (
                                     (allowedConnectionTypes && !allowedConnectionTypes.some(
                                         type => type.toLowerCase() === connectionType.toLowerCase() // Ignore case on allowedtype check
                                     )) ? null : (
@@ -420,7 +433,7 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                                             <CardContent>
                                                 <IconContainer>
                                                     <img
-                                                        src={connector.iconPathUri.uri}
+                                                        src={(connectionData as any).iconPathUri}
                                                         alt="Icon"
                                                     />
                                                 </IconContainer>
@@ -455,11 +468,11 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                                                 <CardContent>
                                                     <IconContainer>
                                                         <img
-                                                            src={connector.iconUrl}
+                                                            src={connection.iconUrl}
                                                             alt="Icon"
                                                             onError={(e) => {
                                                                 const target = e.target as HTMLImageElement;
-                                                                target.src = connectorFailoverIconUrl
+                                                                target.src = connector.iconUrl || connector.connectorFailoverIconUrl;
                                                             }}
                                                         />
                                                     </IconContainer>
