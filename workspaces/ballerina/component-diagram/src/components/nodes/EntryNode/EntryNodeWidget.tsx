@@ -18,6 +18,7 @@ import { HttpIcon, TaskIcon } from "../../../resources";
 import { MoreVertIcon } from "../../../resources/icons/nodes/MoreVertIcon";
 import { CDAutomation, CDFunction, CDService, CDResourceFunction } from "@wso2-enterprise/ballerina-core";
 import { getEntryNodeFunctionPortName } from "../../../utils/diagram";
+import { GraphQLIcon } from "../../../resources/icons/nodes/GraphqlIcon";
 export namespace NodeStyles {
     export type NodeStyleProp = {
         hovered: boolean;
@@ -190,6 +191,10 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
             case "automation":
                 return <TaskIcon />;
             case "service":
+                const serviceType = (model.node as CDService)?.type;
+                if (serviceType === "graphql:Service") {
+                    return <GraphQLIcon />;
+                }
                 return <ImageWithFallback imageUrl={(model.node as CDService).icon} fallbackEl={<HttpIcon />} />;
             default:
                 return <HttpIcon />;
@@ -286,10 +291,21 @@ function FunctionBox(props: { func: CDFunction | CDResourceFunction; model: Entr
     const { func, model, engine } = props;
     const [isHovered, setIsHovered] = useState(false);
     const { onFunctionSelect } = useDiagramContext();
+    const isGraphQL = (model.node as CDService)?.type === 'graphql:Service';
 
     const handleOnClick = () => {
         onFunctionSelect(func);
     };
+
+    const getAccessorDisplay = (accessor: string, isGraphQL: boolean): string => {
+        if (!isGraphQL) {
+            return accessor;
+        }
+
+        if (accessor === 'get') return 'Query';
+        if (accessor === 'subscribe') return 'Subscription';
+        return accessor;
+    }
 
     return (
         <NodeStyles.FunctionBoxWrapper>
@@ -300,7 +316,12 @@ function FunctionBox(props: { func: CDFunction | CDResourceFunction; model: Entr
                 onMouseLeave={() => setIsHovered(false)}
             >
                 {(func as CDResourceFunction).accessor && (
-                    <NodeStyles.Accessor>{(func as CDResourceFunction).accessor}</NodeStyles.Accessor>
+                    <NodeStyles.Accessor>
+                        {getAccessorDisplay((func as CDResourceFunction).accessor, isGraphQL)}
+                    </NodeStyles.Accessor>
+                )}
+                {isGraphQL && !(func as CDResourceFunction).accessor && (func as CDFunction).name && (
+                    <NodeStyles.Accessor>Mutation</NodeStyles.Accessor>
                 )}
                 {(func as CDResourceFunction).path && (
                     <NodeStyles.Title hovered={isHovered}>/{(func as CDResourceFunction).path}</NodeStyles.Title>

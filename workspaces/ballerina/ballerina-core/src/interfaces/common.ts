@@ -32,6 +32,7 @@ export interface DocumentIdentifier {
 }
 
 export interface LineRange {
+    fileName?: string;
     startLine: LinePosition;
     endLine: LinePosition;
 }

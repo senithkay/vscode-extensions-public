@@ -272,7 +272,7 @@
         "description": "choreo-2",
         "default": {
           "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-          "fontCharacter": "\\f12a"
+          "fontCharacter": "\\f12b"
         }
       }
     }

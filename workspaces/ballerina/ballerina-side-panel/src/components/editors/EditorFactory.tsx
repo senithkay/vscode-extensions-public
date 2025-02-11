@@ -108,7 +108,7 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
         // Skip this property
         return <></>;
     } else if (field.type === "PARAM_MANAGER") {
-        return <ParamManagerEditor field={field} handleOnFieldFocus={handleOnFieldFocus} />;
+        return <ParamManagerEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus} />;
     } else {
         // Default to text editor
         // Readonly fields are also treated as text editor
