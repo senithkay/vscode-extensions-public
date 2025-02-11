@@ -124,9 +124,6 @@ export function FunctionForm(props: FunctionFormProps) {
                 }
             }
         }
-        // if (isDataMapper) {
-        //     functionNodeCopy.codedata.node = "DATA_MAPPER_DEFINITION";
-        // }
         console.log("Updated function node: ", functionNodeCopy);
         await rpcClient.getBIDiagramRpcClient().getSourceCode({ filePath, flowNode: functionNodeCopy, isFunctionNodeUpdate: true });
     };
