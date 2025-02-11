@@ -31,14 +31,40 @@ const ServiceClassContainer = styled.div`
     height: 100%;
     background-color: ${Colors.SURFACE_BRIGHT};
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
 `;
 
 const ServiceContainer = styled.div`
-    padding-right: 10px;
-    padding-left: 10px;
-    padding-top: 10px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 `;
 
+const HeaderSection = styled.div`
+    flex-shrink: 0;
+    padding: 0 10px;
+`;
+
+const ScrollableSection = styled.div`
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    gap: 16px;
+    padding: 0 10px;
+    overflow-y: auto;
+`;
+
+const Section = styled.div`
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+`;
+
+const ScrollableContent = styled.div`
+    overflow-y: auto;
+    min-height: 0;
+`;
 
 const StyledButton = styled(Button)`
         border-radius: 5px;
@@ -68,11 +94,7 @@ const SectionHeader = styled.div`
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
-`;
-
-const Section = styled.div`
-    margin: 24px 0;
+    margin-bottom: 10px;
 `;
 
 const EmptyStateText = styled(Typography)`
@@ -85,14 +107,14 @@ const ClassNameField = styled.div`
     margin: 16px 0;
 `;
 
-export const Footer = styled.div<{}>`
+export const Footer = styled.div`
     display: flex;
     gap: 8px;
     flex-direction: row;
     justify-content: flex-end;
     align-items: center;
-    margin-top: 8px;
-    width: 100%;
+    padding: 16px;
+    background-color: ${Colors.SURFACE_BRIGHT};
 `;
 
 const MenuContainer = styled.div`
@@ -413,100 +435,110 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
             {serviceClassModel && !editingFunction && !editingVariable && (
                 <ServiceClassContainer>
                     <ServiceContainer>
-                        <SidePanelTitleContainer>
-                            {"Configure Service Class Type"}
-                            <StyledButton appearance="icon" onClick={onClose}>
-                                <Codicon name="close" />
-                            </StyledButton>
-                        </SidePanelTitleContainer>
-                        <ClassNameField>
-                            <TextField
-                                label="Service Class Name"
-                                value={serviceClassModel.properties["name"].value}
-                                onChange={handleNameChange}
-                            />
-                        </ClassNameField>
-
-                        <Section>
-                            <SectionHeader>
-                                <SectionTitle>Variables</SectionTitle>
-                                <Button
-                                    appearance="icon"
-                                    tooltip="Add Variable"
-                                    onClick={() => handleAddVariable()}
-                                >
-                                    <Codicon name="add" />
-                                </Button>
-                            </SectionHeader>
-
-                            {serviceClassModel.fields?.map((field: FieldType, index: number) => (
-                                <VariableCard
-                                    key={index}
-                                    fieldModel={field}
-                                    onEditVariable={() => handleEditVariable(field)}
-                                    onDeleteVariable={() => handleDeleteVariable(field)}
+                        <HeaderSection>
+                            <SidePanelTitleContainer>
+                                {"Edit Service Class"}
+                                <StyledButton appearance="icon" onClick={onClose}>
+                                    <Codicon name="close" />
+                                </StyledButton>
+                            </SidePanelTitleContainer>
+                            <ClassNameField>
+                                <TextField
+                                    label="Service Class Name"
+                                    value={serviceClassModel.properties["name"].value}
+                                    onChange={handleNameChange}
                                 />
-                            ))}
-                            {(!serviceClassModel.fields || serviceClassModel.fields.length === 0) && (
-                                <EmptyStateText variant="body2">
-                                    No variables found
-                                </EmptyStateText>
-                            )}
-                        </Section>
+                            </ClassNameField>
+                        </HeaderSection>
 
-                        <Section>
-                            <SectionHeader>
-                                <SectionTitle>Functions</SectionTitle>
-                                <div style={{ position: 'relative' }}>
+                        <ScrollableSection>
+                            <Section>
+                                <SectionHeader>
+                                    <SectionTitle>Variables</SectionTitle>
                                     <Button
                                         appearance="icon"
-                                        tooltip="Add Function"
-                                        onClick={() => setShowFunctionMenu(!showFunctionMenu)}
+                                        tooltip="Add Variable"
+                                        onClick={() => handleAddVariable()}
                                     >
                                         <Codicon name="add" />
                                     </Button>
-                                    {showFunctionMenu && (
-                                        <MenuContainer>
-                                            {!hasInitFunction && (
+                                </SectionHeader>
+
+                                <ScrollableContent>
+                                    {serviceClassModel.fields?.map((field: FieldType, index: number) => (
+                                        <VariableCard
+                                            key={index}
+                                            fieldModel={field}
+                                            onEditVariable={() => handleEditVariable(field)}
+                                            onDeleteVariable={() => handleDeleteVariable(field)}
+                                        />
+                                    ))}
+                                    {(!serviceClassModel.fields || serviceClassModel.fields.length === 0) && (
+                                        <EmptyStateText variant="body2">
+                                            No variables found
+                                        </EmptyStateText>
+                                    )}
+                                </ScrollableContent>
+                            </Section>
+
+                            <Section>
+                                <SectionHeader>
+                                    <SectionTitle>Functions</SectionTitle>
+                                    <div style={{ position: 'relative' }}>
+                                        <Button
+                                            appearance="icon"
+                                            tooltip="Add Function"
+                                            onClick={() => setShowFunctionMenu(!showFunctionMenu)}
+                                        >
+                                            <Codicon name="add" />
+                                        </Button>
+                                        {showFunctionMenu && (
+                                            <MenuContainer>
+                                                {!hasInitFunction && (
+                                                    <MenuButton
+                                                        appearance="secondary"
+                                                        onClick={() => handleAddFunction('init')}
+                                                    >
+                                                        Init
+                                                    </MenuButton>
+                                                )}
                                                 <MenuButton
                                                     appearance="secondary"
-                                                    onClick={() => handleAddFunction('init')}
+                                                    onClick={() => handleAddFunction('resource')}
                                                 >
-                                                    Init
+                                                    Resource
                                                 </MenuButton>
-                                            )}
-                                            <MenuButton
-                                                appearance="secondary"
-                                                onClick={() => handleAddFunction('resource')}
-                                            >
-                                                Resource
-                                            </MenuButton>
-                                            <MenuButton
-                                                appearance="secondary"
-                                                onClick={() => handleAddFunction('remote')}
-                                            >
-                                                Remote
-                                            </MenuButton>
-                                        </MenuContainer>
-                                    )}
-                                </div>
-                            </SectionHeader>
+                                                <MenuButton
+                                                    appearance="secondary"
+                                                    onClick={() => handleAddFunction('remote')}
+                                                >
+                                                    Remote
+                                                </MenuButton>
+                                            </MenuContainer>
+                                        )}
+                                    </div>
+                                </SectionHeader>
 
-                            {serviceClassModel.functions?.map((func: FunctionModel, index: number) => (
-                                <FunctionCard
-                                    functionModel={func}
-                                    goToSource={() => { }}
-                                    onEditFunction={() => handleEditFunction(func)}
-                                    onDeleteFunction={() => handleDeleteFunction(func)}
-                                    onFunctionImplement={() => onFunctionImplement(func)}
-                                />
-                            ))}
-                            {(!serviceClassModel.functions || serviceClassModel.functions.length === 0) && (
-                                <EmptyStateText variant="body2">
-                                    No functions found
-                                </EmptyStateText>
-                            )}
-                        </Section>
+                                <ScrollableContent>
+                                    {serviceClassModel.functions?.map((func: FunctionModel, index: number) => (
+                                        <FunctionCard
+                                            key={index}
+                                            functionModel={func}
+                                            goToSource={() => { }}
+                                            onEditFunction={() => handleEditFunction(func)}
+                                            onDeleteFunction={() => handleDeleteFunction(func)}
+                                            onFunctionImplement={() => onFunctionImplement(func)}
+                                        />
+                                    ))}
+                                    {(!serviceClassModel.functions || serviceClassModel.functions.length === 0) && (
+                                        <EmptyStateText variant="body2">
+                                            No functions found
+                                        </EmptyStateText>
+                                    )}
+                                </ScrollableContent>
+                            </Section>
+                        </ScrollableSection>
+
                         <Footer>
                             <Button
                                 appearance="primary"
@@ -516,7 +548,6 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
                             </Button>
                         </Footer>
                     </ServiceContainer>
-
                 </ServiceClassContainer>
             )}
             {editingFunction && serviceClassModel && (
