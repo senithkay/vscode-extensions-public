@@ -18,7 +18,6 @@ import { css } from '@emotion/css';
 const useStyles = () => ({
     active: css({
         cursor: "default",
-        lineHeight: "unset",
         color: "inherit"
     }),
     link: css({

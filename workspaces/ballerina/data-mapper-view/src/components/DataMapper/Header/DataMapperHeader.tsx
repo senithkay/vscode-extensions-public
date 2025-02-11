@@ -11,7 +11,7 @@ import React from "react";
 
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import { SelectionState, ViewOption } from "../DataMapper";
 import AutoMapButton from "./AutoMapButton";
@@ -26,6 +26,7 @@ export interface DataMapperHeaderProps {
     isBI?: boolean;
     changeSelection: (mode: ViewOption, selection?: SelectionState, navIndex?: number) => void;
     onConfigOpen: () => void;
+    onEdit: () => void;
     onClose?: () => void;
     autoMapWithAI: () => Promise<void>;
 }
@@ -38,6 +39,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
         isBI,
         changeSelection,
         onConfigOpen,
+        onEdit,
         onClose,
         autoMapWithAI
     } = props;
@@ -49,12 +51,19 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
     return (
         <HeaderContainer>
             <BreadCrumb>
-                <Title> DATA MAPPER: </Title>
+                <Icon name="dataMapper" sx={{ paddingTop: "1px", marginRight: "5px" }} />
+                <Title variant="body3"> Data Mapper: </Title>
                 {!hasEditDisabled && (
                     <HeaderBreadcrumb
                         selection={selection}
                         changeSelection={changeSelection}
                     />
+                )}
+                {isBI && (
+                    <Button appearance="icon" onClick={onEdit} sx={{ marginLeft: "5px" }}>
+                        <Codicon name="edit" />
+                        <>Edit</>
+                    </Button>
                 )}
             </BreadCrumb>
             {!hasEditDisabled && !onClose && (
@@ -89,21 +98,20 @@ const HeaderContainer = styled.div`
     border-bottom: 1px solid rgba(102,103,133,0.15);
 `;
 
-const Title = styled.h3`
+const Title = styled(Typography)`
     margin: 0 10px 0 0;
-    color: var(--vscode-sideBarSectionHeader-foreground);
-    font-size: var(--vscode-font-size);
 `;
 
 const BreadCrumb = styled.div`
     width: 60%;
     display: flex;
+    align-items: center;
 `;
 
 const FilterBar = styled.div`
-  flex: 3;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  margin-right: 20px;
+    flex: 3;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-right: 20px;
 `;
