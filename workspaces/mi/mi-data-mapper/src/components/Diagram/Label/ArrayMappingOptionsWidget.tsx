@@ -139,23 +139,24 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
             id: "a2a-inner",
             label: getItemElement("a2a-inner", "Map Array Elements Individually"),
             onClick: onClickMapIndividualElements
-        },
-        {
-            id: "a2a-func",
-            label: getItemElement("a2a-func", "Map Using Custom Function"),
-            onClick: onClickMapWithCustomFunction
         }
     ];
 
     const a2sMenuItems: Item[] = [
         {
             id: "a2s-direct",
-            label: getItemElement("a2s-direct", "Access Singleton"),
+            label: getItemElement("a2s-direct", "Map with Accessing Element"),
             onClick: onClickMapArraysAccessSingleton
         }
     ];
 
     const menuItems = pendingMappingType === MappingType.ArrayToArray ? a2aMenuItems : a2sMenuItems;
+
+    menuItems.push({
+        id: "a2a-a2s-func",
+        label: getItemElement("a2a-a2s-func", "Map Using Custom Function"),
+        onClick: onClickMapWithCustomFunction
+    });
 
     return (
         <div className={classes.arrayMappingMenu}>

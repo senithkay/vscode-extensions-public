@@ -208,7 +208,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
 
     if (!isDisabled) {
         if (portIn?.parentModel
-            && (Object.values(portIn?.parentModel.links)
+            && (Object.values(portIn.parentModel.links)
             .filter(link => (link instanceof DataMapperLinkModel) && link.isActualLink).length > 0 
             || portIn?.parentModel.ancestorHasValue)
         ) {

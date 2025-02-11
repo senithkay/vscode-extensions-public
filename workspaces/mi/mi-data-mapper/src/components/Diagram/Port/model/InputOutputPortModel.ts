@@ -12,7 +12,7 @@ import { DMType } from "@wso2-enterprise/mi-core";
 import { DataMapperLinkModel } from "../../Link";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { IntermediatePortModel } from "../IntermediatePort";
-import { genArrayElementAccessSuffix, getMappingType, getValueType } from "../../utils/common-utils";
+import { getMappingType, getValueType, isPendingMappingRequired } from "../../utils/common-utils";
 import {
 	createSourceForMapping,
 	modifySourceForMultipleMappings,
@@ -75,15 +75,9 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 				const targetPort = lm.getTargetPort();
 				
 				const mappingType = getMappingType(sourcePort, targetPort);
-				if (mappingType === MappingType.ArrayToArray
-					|| mappingType === MappingType.ObjectToObject) {
+				if (isPendingMappingRequired(mappingType)) {
 					// Source update behavior is determined by the user when connecting arrays.
 					return;
-				}
-
-				let elementAccessSuffix = '';
-				if (mappingType === MappingType.ArrayToSingleton) {
-					elementAccessSuffix = genArrayElementAccessSuffix(sourcePort, targetPort);
 				}
 
 				const targetPortHasLinks = Object.values(targetPort.links)
@@ -91,11 +85,11 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 				const valueType = getValueType(lm);
 
 				if (valueType === ValueType.Default || (valueType === ValueType.NonEmpty && !targetPortHasLinks)) {
-					await updateExistingValue(sourcePort, targetPort, undefined, elementAccessSuffix);
+					await updateExistingValue(sourcePort, targetPort);
 				} else if (targetPortHasLinks) {
-					await modifySourceForMultipleMappings(lm, elementAccessSuffix);
+					await modifySourceForMultipleMappings(lm);
 				} else {
-					await createSourceForMapping(lm, undefined, elementAccessSuffix);
+					await createSourceForMapping(lm);
 				}
 			})
 		});
