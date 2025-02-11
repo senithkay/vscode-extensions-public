@@ -296,10 +296,8 @@ export class SizingVisitor implements BaseVisitor {
             if (bodyBranch.viewState) {
                 containerLeftWidth = Math.max(containerLeftWidth, Math.max(bodyBranch.viewState.clw, NODE_GAP_X));
                 containerRightWidth = Math.max(containerRightWidth, Math.max(bodyBranch.viewState.crw, NODE_GAP_X));
+                bodyBranch.viewState.ch += NODE_GAP_Y;
                 containerHeight = bodyBranch.viewState.ch;
-                if (node.viewState.isTopLevel) {
-                    bodyBranch.viewState.ch += NODE_GAP_Y;
-                }
             }
             const onFailureBranch = node.branches.find((branch) => branch.codedata.node === "ON_FAILURE");
             if (onFailureBranch.viewState) {
