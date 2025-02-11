@@ -41,6 +41,7 @@ import { BiDiagramRpcClient } from "./rpc-clients/bi-diagram/rpc-client";
 import { ConnectorWizardRpcClient } from "./rpc-clients/connector-wizard/rpc-client";
 import { SequenceDiagramRpcClient } from "./rpc-clients/sequence-diagram/rpc-client";
 import { InlineDataMapperRpcClient } from "./rpc-clients/inline-data-mapper/rpc-client";
+import { TestManagerServiceRpcClient } from "./rpc-clients";
 
 export class BallerinaRpcClient {
 
@@ -58,6 +59,7 @@ export class BallerinaRpcClient {
     private _aiPanel: AiPanelRpcClient;
     private _connectorWizard: ConnectorWizardRpcClient;
     private _inlineDataMapper: InlineDataMapperRpcClient;
+    private _testManager: TestManagerServiceRpcClient;
 
     constructor() {
         this.messenger = new Messenger(vscode);
@@ -75,6 +77,7 @@ export class BallerinaRpcClient {
         this._aiPanel = new AiPanelRpcClient(this.messenger);
         this._connectorWizard = new ConnectorWizardRpcClient(this.messenger);
         this._inlineDataMapper = new InlineDataMapperRpcClient(this.messenger);
+        this._testManager = new TestManagerServiceRpcClient(this.messenger);
     }
 
     getConnectorWizardRpcClient(): ConnectorWizardRpcClient {
@@ -87,6 +90,10 @@ export class BallerinaRpcClient {
 
     getServiceDesignerRpcClient(): ServiceDesignerRpcClient {
         return this._serviceDesigner;
+    }
+
+    getTestManagerRpcClient(): TestManagerServiceRpcClient {
+        return this._testManager;
     }
 
     getBIDiagramRpcClient(): BiDiagramRpcClient {

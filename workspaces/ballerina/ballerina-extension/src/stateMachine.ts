@@ -256,7 +256,17 @@ const stateMachine = createMachine<MachineContext>(
                     return resolve(selectedEntry.location);
                 }
 
-                const { location: { documentUri, position } = { documentUri: context.documentUri, position: undefined }, uid } = selectedEntry ?? {};
+                const defaultLocation = {
+                    documentUri: context.documentUri,
+                    position: undefined
+                };
+                const {
+                    location = defaultLocation,
+                    uid
+                } = selectedEntry ?? {};
+
+                const { documentUri, position } = location;
+
                 const node = documentUri && await StateMachine.langClient().getSyntaxTree({
                     documentIdentifier: {
                         uri: Uri.file(documentUri).toString()

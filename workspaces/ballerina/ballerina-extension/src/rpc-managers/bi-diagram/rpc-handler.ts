@@ -23,11 +23,11 @@ import {
     BreakpointRequest,
     ClassFieldModifierRequest,
     ComponentRequest,
-    ComponentsRequest,
     ExpressionCompletionsRequest,
     ExpressionDiagnosticsRequest,
     FormDidCloseParams,
     FormDidOpenParams,
+    FunctionNodeRequest,
     GetTypeRequest,
     GetTypesRequest,
     ModelFromCodeRequest,
@@ -62,6 +62,7 @@ import {
     getExpressionCompletions,
     getExpressionDiagnostics,
     getFlowModel,
+    getFunctionNode,
     getFunctions,
     getModuleNodes,
     getNodeTemplate,
@@ -140,4 +141,5 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(createGraphqlClassType, (args: UpdateTypeRequest) => rpcManger.createGraphqlClassType(args));
     messenger.onRequest(updateImports, (args: UpdateImportsRequest) => rpcManger.updateImports(args));
     messenger.onRequest(addFunction, (args: AddFunctionRequest) => rpcManger.addFunction(args));
+    messenger.onRequest(getFunctionNode, (args: FunctionNodeRequest) => rpcManger.getFunctionNode(args));
 }

@@ -143,8 +143,9 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
 
     const getServiceClassModel = async () => {
         if (!type) return;
+        const currentFilePath = Utils.joinPath(URI.file(projectUri), type.codedata.lineRange.fileName).fsPath;
         const serviceClassModelRequest: ModelFromCodeRequest = {
-            filePath: type.codedata.lineRange.fileName,
+            filePath: currentFilePath,
             codedata: {
                 lineRange: {
                     startLine: { line: type.codedata.lineRange.startLine.line, offset: type.codedata.lineRange.startLine.offset },
@@ -185,9 +186,10 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
     const handleFunctionSave = async (updatedFunction: FunctionModel) => {
         try {
             let lsResponse;
+            const currentFilePath = Utils.joinPath(URI.file(projectUri), serviceClassModel.codedata.lineRange.fileName).fsPath;
             if (isNew) {
                 lsResponse = await rpcClient.getServiceDesignerRpcClient().addFunctionSourceCode({
-                    filePath: serviceClassModel.codedata.lineRange.fileName,
+                    filePath: currentFilePath,
                     codedata: {
                         lineRange: {
                             startLine: { line: serviceClassModel.codedata.lineRange.startLine.line, offset: serviceClassModel.codedata.lineRange.startLine.offset },
@@ -198,7 +200,7 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
                 });
             } else {
                 lsResponse = await rpcClient.getServiceDesignerRpcClient().updateResourceSourceCode({
-                    filePath: serviceClassModel.codedata.lineRange.fileName,
+                    filePath: currentFilePath,
                     codedata: {
                         lineRange: {
                             startLine: { line: serviceClassModel.codedata.lineRange.startLine.line, offset: serviceClassModel.codedata.lineRange.startLine.offset },
@@ -253,8 +255,9 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
 
     const handleSave = async () => {
         try {
+            const currentFilePath = Utils.joinPath(URI.file(projectUri), type.codedata.lineRange.fileName).fsPath;
             const lsResponse = await rpcClient.getBIDiagramRpcClient().updateServiceClass({
-                filePath: type.codedata.lineRange.fileName,
+                filePath: currentFilePath,
                 serviceClass: serviceClassModel
             });
             onClose();
