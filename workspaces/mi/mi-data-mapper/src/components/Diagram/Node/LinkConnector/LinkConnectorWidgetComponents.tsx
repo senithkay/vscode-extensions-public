@@ -72,7 +72,7 @@ export const renderIconButton = (node: LinkConnectorNode) => {
             expr = expr.getInitializer();
         }
         if (Node.isCallExpression(expr)) {
-            const functionDecl = expr.getSourceFile().getFunction(expr.getExpression().getSymbol()?.getName());
+            const functionDecl = expr.getSourceFile().getFunction(expr.getExpression().getSymbol()?.getName() || "");
             if (functionDecl) {
                 const onClickFunctionCall = () => {
                     const range = getEditorLineAndColumn(functionDecl);
