@@ -134,6 +134,8 @@ export type ViewState = {
     ch: number;  // container height
     // flow start node
     startNodeId?: string;
+    // is top level node
+    isTopLevel?: boolean;
 };
 
 // Add node target position metadata
@@ -279,6 +281,14 @@ export type NodeKind =
     | "ASSIGN"
     | "DATA_MAPPER"
     | "DATA_MAPPER_CALL"
+    | "FORK"
+    | "WORKER"
+    | "WAIT"
+    | "START"
+    | "COMMIT"
+    | "ROLLBACK"
+    | "FAIL"
+    | "RETRY"
     | "FUNCTION_DEFINITION"
     | "CONFIG_VARIABLE";
 

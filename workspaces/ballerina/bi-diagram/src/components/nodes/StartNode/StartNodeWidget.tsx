@@ -13,6 +13,7 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { StartNodeModel } from "./StartNodeModel";
 import { Colors, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_PADDING, NODE_WIDTH } from "../../../resources/constants";
 import { FlowNode } from "../../../utils/types";
+import { Tooltip } from "@wso2-enterprise/ui-toolkit";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -49,7 +50,7 @@ export namespace NodeStyles {
     `;
 
     export const Title = styled(StyledText)`
-        max-width: ${NODE_WIDTH - 50}px;
+        max-width: ${(NODE_WIDTH/3) - 12}px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -77,7 +78,9 @@ export function StartNodeWidget(props: StartNodeWidgetProps) {
             // onMouseLeave={() => setIsHovered(false)}
         >
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
-            <NodeStyles.Title>Start</NodeStyles.Title>
+            <Tooltip content={model.node.metadata.label || "Start"}>
+                <NodeStyles.Title>{model.node.metadata.label || "Start"}</NodeStyles.Title>
+            </Tooltip>
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
         </NodeStyles.Node>
     );
