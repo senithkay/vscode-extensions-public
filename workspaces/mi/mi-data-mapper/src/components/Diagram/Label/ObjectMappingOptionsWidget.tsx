@@ -102,12 +102,12 @@ export function ObjectMappingOptionsWidget(props: ObjectMappingOptionsWidgetProp
     const o2oMenuItems: Item[] = [
         {
             id: "o2o-direct",
-            label: getItemElement("o2o-direct", "Map Object Directly"),
+            label: getItemElement("o2o-direct", "Map Directly"),
             onClick: onClickMapDirectly
         },
         {
             id: "o2o-func",
-            label: getItemElement("o2o-func", "Map Objects with Custom Function"),
+            label: getItemElement("o2o-func", "Map Using Custom Function"),
             onClick: onClickMapWithCustomFunction
         }
     ];

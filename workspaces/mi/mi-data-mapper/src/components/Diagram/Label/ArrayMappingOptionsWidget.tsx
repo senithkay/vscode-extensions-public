@@ -14,8 +14,8 @@ import { Codicon, Item, Menu, MenuItem } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
 
 import { InputOutputPortModel, MappingType, ValueType } from '../Port';
-import { genArrayElementAccessSuffix, getMapFnIndex, getMapFnViewLabel, getValueType } from '../utils/common-utils';
-import { generateArrayMapFunction } from '../utils/link-utils';
+import { genArrayElementAccessSuffix, getEditorLineAndColumn, getMapFnIndex, getMapFnViewLabel, getValueType } from '../utils/common-utils';
+import { generateArrayMapFunction, generateCustomFunction } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
 import { buildInputAccessExpr, createSourceForMapping, updateExistingValue } from '../utils/modification-utils';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
@@ -97,6 +97,26 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
         }
     }
 
+    const onClickMapWithCustomFunction = async () => {
+        if (targetPort instanceof InputOutputPortModel && sourcePort instanceof InputOutputPortModel) {
+
+            const inputAccessExpr = buildInputAccessExpr((link.getSourcePort() as InputOutputPortModel).fieldFQN);
+            const sourceFile = context.functionST.getSourceFile();
+            const customFunction = generateCustomFunction(sourcePort, targetPort, sourceFile);
+            const customFunctionDeclaration = sourceFile.addFunction(customFunction);
+            const range = getEditorLineAndColumn(customFunctionDeclaration);
+            const customFunctionCallExpr = `${customFunction.name}(${inputAccessExpr})`;
+          
+            if (isValueModifiable) {
+                await updateExistingValue(sourcePort, targetPort, customFunctionCallExpr);
+            } else {
+                await createSourceForMapping(link, customFunctionCallExpr);
+            }
+            context.goToSource(range);
+           
+        }
+    };
+
     const getItemElement = (id: string, label: string) => {
         return (
             <div
@@ -119,6 +139,11 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
             id: "a2a-inner",
             label: getItemElement("a2a-inner", "Map Array Elements Individually"),
             onClick: onClickMapIndividualElements
+        },
+        {
+            id: "a2a-func",
+            label: getItemElement("a2a-func", "Map Using Custom Function"),
+            onClick: onClickMapWithCustomFunction
         }
     ];
 

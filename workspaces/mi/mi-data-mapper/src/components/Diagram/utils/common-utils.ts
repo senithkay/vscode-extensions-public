@@ -335,6 +335,22 @@ export function getTypeName(field: DMType): string {
 	return typeName;
 }
 
+export function getTypeAnnotation(field: DMType): string {
+    if (!field) {
+		return '';
+	}
+
+	let typeName = field.typeName || field.kind;
+
+    if (field.kind === TypeKind.Array) {
+		typeName = `${getTypeAnnotation(field.memberType) || "any"}[]`;
+	} else if (field.kind === TypeKind.Union){
+        typeName = `(${field.unionTypes.map(unionType => getTypeAnnotation(unionType)).join(" | ")})`;
+    }
+
+	return typeName;
+}
+
 export function getMapFnViewLabel(targetPort: InputOutputPortModel, views: View[]): string {
     const { field, fieldFQN: fieldFQN } = targetPort;
     let label = fieldFQN;

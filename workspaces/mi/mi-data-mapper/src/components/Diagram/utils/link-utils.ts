@@ -10,7 +10,7 @@ import { LinkModel, PortModel } from "@projectstorm/react-diagrams-core";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 
 import { InputOutputPortModel, MappingType } from "../Port";
-import { getDefaultValue, getLinebreak, isQuotedString } from "./common-utils";
+import { getDefaultValue, getLinebreak, getTypeAnnotation, isQuotedString } from "./common-utils";
 import { SourceFile } from "ts-morph";
 
 export function isSourcePortArray(port: PortModel): boolean {
@@ -94,8 +94,8 @@ export function generateCustomFunction(sourcePort: InputOutputPortModel, targetP
     
     return {
         name: customFunctionName,
-        parameters: [{ name: sourcePort.field.fieldName, type: sourcePort.field.typeName || sourcePort.field.kind }],
-        returnType: targetPort.field.typeName || targetPort.field.kind,
+        parameters: [{ name: sourcePort.field.fieldName, type: getTypeAnnotation(sourcePort.field) }],
+        returnType: getTypeAnnotation(targetPort.field),
         statements: [
             `return ${getDefaultValue(targetPort.field)};`
         ]
