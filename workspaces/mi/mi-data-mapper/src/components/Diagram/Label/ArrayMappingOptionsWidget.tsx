@@ -59,7 +59,7 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
         ?.some(link => (link as DataMapperLinkModel)?.isActualLink);
 
     const isValueModifiable = valueType === ValueType.Default
-        || (valueType === ValueType.NonEmpty && !targetPortHasLinks);
+        || valueType === ValueType.NonEmpty;
     
     const onClickMapArrays = async () => {
         if (isValueModifiable) {

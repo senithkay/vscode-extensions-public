@@ -57,7 +57,7 @@ export function ObjectMappingOptionsWidget(props: ObjectMappingOptionsWidgetProp
         ?.some(link => (link as DataMapperLinkModel)?.isActualLink);
 
     const isValueModifiable = valueType === ValueType.Default
-        || (valueType === ValueType.NonEmpty && !targetPortHasLinks);
+        || valueType === ValueType.NonEmpty;
     
     const onClickMapDirectly = async () => {
         if (isValueModifiable) {
