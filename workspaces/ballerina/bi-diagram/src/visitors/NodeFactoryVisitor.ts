@@ -449,7 +449,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
         // Create branch's IN link
         if (bodyBranch.children && bodyBranch.children.length > 0) {
-            const firstChildNodeModel = this.nodes.find((n) => n.getID() === bodyBranch.children.at(0).id);
+            const firstChildNodeModel = this.getBranchStartNode(bodyBranch);
             if (firstChildNodeModel) {
                 const link = createNodesLink(containerStartEmptyNodeModel, firstChildNodeModel);
                 if (link) {
