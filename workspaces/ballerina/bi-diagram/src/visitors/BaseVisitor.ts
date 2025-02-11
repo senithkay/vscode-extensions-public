@@ -63,4 +63,16 @@ export interface BaseVisitor {
 
     beginVisitComment?(node: FlowNode, parent?: FlowNode): void;
     endVisitComment?(node: FlowNode, parent?: FlowNode): void;
+
+    beginVisitErrorHandler?(node: FlowNode, parent?: FlowNode): void;
+    endVisitErrorHandler?(node: FlowNode, parent?: FlowNode): void;
+
+    beginVisitOnFailure?(node: Branch, parent?: FlowNode): void;
+    endVisitOnFailure?(node: Branch, parent?: FlowNode): void;
+
+    beginVisitFork?(node: FlowNode, parent?: FlowNode): void;
+    endVisitFork?(node: FlowNode, parent?: FlowNode): void;
+
+    beginVisitWorker?(node: Branch, parent?: FlowNode): void;
+    endVisitWorker?(node: Branch, parent?: FlowNode): void;
 }

@@ -32,7 +32,7 @@ export class AddNodeVisitor implements BaseVisitor {
         // check flow nodes if one of them is target node, then add new node after the target node
         this.flow.nodes.forEach((flowNode) => {
             if (this.topNode && flowNode.id === this.topNode.id) {
-                console.log(">>> http-api add new node", { target: flowNode, new: this.newNode });
+                console.log(">>> add new node", { target: flowNode, new: this.newNode });
                 const index = this.flow.nodes.indexOf(flowNode);
                 this.flow.nodes.splice(index + 1, 0, this.newNode);
                 this.skipChildrenVisit = true;
@@ -87,6 +87,30 @@ export class AddNodeVisitor implements BaseVisitor {
                 });
             }
         });
+    }
+
+    beginVisitWhile(node: FlowNode, parent?: FlowNode): void {
+        if (this.skipChildrenVisit) {
+            return;
+        }
+
+        this.beginVisitIf(node, parent);
+    }
+
+    beginVisitForeach(node: FlowNode, parent?: FlowNode): void {
+        if (this.skipChildrenVisit) {
+            return;
+        }
+
+        this.beginVisitIf(node, parent);
+    }
+
+    beginVisitFork(node: FlowNode, parent?: FlowNode): void {
+        if (this.skipChildrenVisit) {
+            return;
+        }
+
+        this.beginVisitIf(node, parent);
     }
 
     skipChildren(): boolean {
