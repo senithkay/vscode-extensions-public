@@ -68,9 +68,9 @@ export function removePendingMappingTempLinkIfExists(link: LinkModel) {
 	}
 }
 
-export function generateCustomFunction(source: InputOutputPortModel, target: InputOutputPortModel, sourceFile: SourceFile) {
-    let targetFieldName = target.field.fieldName;
-    let targetTypeWithName = target.typeWithValue;
+export function generateCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, sourceFile: SourceFile) {
+    let targetFieldName = targetPort.field.fieldName;
+    let targetTypeWithName = targetPort.typeWithValue;
 
     while (targetTypeWithName?.type.fieldName === undefined) {
         if (targetTypeWithName) {
@@ -86,18 +86,18 @@ export function generateCustomFunction(source: InputOutputPortModel, target: Inp
     const importedFunctionNames = sourceFile.getImportDeclarations()
     .flatMap(importDecl => importDecl.getNamedImports().map(namedImport => namedImport.getName()));
   
-    let customFunctionName = `${source.field.fieldName}_${targetFieldName}`;
+    let customFunctionName = `${sourcePort.field.fieldName}_${targetFieldName}`;
     let i = 1;
     while (localFunctionNames.includes(customFunctionName) || importedFunctionNames.includes(customFunctionName)) {
-        customFunctionName = `${source.field.fieldName}_${targetFieldName}_${++i}`;
+        customFunctionName = `${sourcePort.field.fieldName}_${targetFieldName}_${++i}`;
     }
     
     return {
         name: customFunctionName,
-        parameters: [{ name: source.field.fieldName, type: source.field.typeName || source.field.kind }],
-        returnType: target.field.typeName || target.field.kind,
+        parameters: [{ name: sourcePort.field.fieldName, type: sourcePort.field.typeName || sourcePort.field.kind }],
+        returnType: targetPort.field.typeName || targetPort.field.kind,
         statements: [
-            `return ${getDefaultValue(target.field)};`
+            `return ${getDefaultValue(targetPort.field)};`
         ]
     }
     

@@ -9,17 +9,15 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { TypeKind } from '@wso2-enterprise/mi-core';
 import { Codicon, Item, Menu, MenuItem } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
 
-import { InputOutputPortModel, MappingType, ValueType } from '../Port';
-import { genArrayElementAccessSuffix, getMapFnIndex, getMapFnViewLabel, getValueType } from '../utils/common-utils';
-import { generateArrayMapFunction } from '../utils/link-utils';
+import { InputOutputPortModel, ValueType } from '../Port';
+import { getEditorLineAndColumn, getValueType } from '../utils/common-utils';
+import { generateCustomFunction } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
 import { buildInputAccessExpr, createSourceForMapping, updateExistingValue } from '../utils/modification-utils';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
-import { expandArrayFn } from '../utils/common-utils';
 
 export const useStyles = () => ({
     arrayMappingMenu: css({
@@ -69,23 +67,23 @@ export function ObjectMappingOptionsWidget(props: ObjectMappingOptionsWidgetProp
         }
     }
 
-    const onClickMapWithFunction = async () => {
-        if (targetPort instanceof InputOutputPortModel) {
-            const targetPortField = targetPort.field;
+    const onClickMapWithCustomFunction = async () => {
+        if (targetPort instanceof InputOutputPortModel && sourcePort instanceof InputOutputPortModel) {
 
-            if (targetPortField.kind === TypeKind.Array && targetPortField?.memberType) {
-                const inputAccessExpr = buildInputAccessExpr((link.getSourcePort() as InputOutputPortModel).fieldFQN);
-                let isSourceOptional = sourcePort instanceof InputOutputPortModel && sourcePort.field.optional;
-                const mapFnSrc = generateArrayMapFunction(inputAccessExpr, targetPortField.memberType, isSourceOptional);
-
-               expandArrayFn(sourcePort as InputOutputPortModel, targetPort as InputOutputPortModel, context);
-
-                if (isValueModifiable) {
-                    await updateExistingValue(sourcePort, targetPort, mapFnSrc);
-                } else {
-                    await createSourceForMapping(link, mapFnSrc);
-                }
+            const inputAccessExpr = buildInputAccessExpr((link.getSourcePort() as InputOutputPortModel).fieldFQN);
+            const sourceFile = context.functionST.getSourceFile();
+            const customFunction = generateCustomFunction(sourcePort, targetPort, sourceFile);
+            const customFunctionDeclaration = sourceFile.addFunction(customFunction);
+            const range = getEditorLineAndColumn(customFunctionDeclaration);
+            const customFunctionCallExpr = `${customFunction.name}(${inputAccessExpr})`;
+          
+            if (isValueModifiable) {
+                await updateExistingValue(sourcePort, targetPort, customFunctionCallExpr);
+            } else {
+                await createSourceForMapping(link, customFunctionCallExpr);
             }
+            context.goToSource(range);
+           
         }
     };
 
@@ -110,7 +108,7 @@ export function ObjectMappingOptionsWidget(props: ObjectMappingOptionsWidgetProp
         {
             id: "o2o-func",
             label: getItemElement("o2o-func", "Map Objects with Custom Function"),
-            onClick: onClickMapWithFunction
+            onClick: onClickMapWithCustomFunction
         }
     ];
 
