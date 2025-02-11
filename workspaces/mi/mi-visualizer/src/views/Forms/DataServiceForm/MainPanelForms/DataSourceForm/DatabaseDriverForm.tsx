@@ -39,6 +39,7 @@ export function DatabaseDriverForm(props: DatabaseDriverFormProps) {
     const [isFetchingDriver, setIsFetchingDriver] = useState(true);
 
     const isFormValid = continueWithoutDriver || isDriverValid || driverAvailable;
+    const className = props.watch('driverClassName') ?? props.watch('rdbms.driverClassName')
 
     useEffect(() => {
         const fetchDriverData = async () => {
@@ -58,7 +59,7 @@ export function DatabaseDriverForm(props: DatabaseDriverFormProps) {
     }, [props.watch('rdbms.useSecretAlias')]);
 
     const fetchDBDriver = async () => {
-        const dbDriverResponse = await rpcClient.getMiDiagramRpcClient().checkDBDriver(props.watch('driverClassName'));
+        const dbDriverResponse = await rpcClient.getMiDiagramRpcClient().checkDBDriver(className);
         setDriverAvailable(dbDriverResponse.isDriverAvailable ? dbDriverResponse.driverVersion : "");
     };
 
@@ -69,11 +70,11 @@ export function DatabaseDriverForm(props: DatabaseDriverFormProps) {
             const validDriverAdded = await rpcClient.getMiDiagramRpcClient().addDBDriver({
                 addDriverPath: driverPath.path,
                 removeDriverPath: "",
-                className: props.watch('driverClassName')
+                className: className
             });
             setIsDriverValid(validDriverAdded);
             if (validDriverAdded) {
-                const dbDriverResponse = await rpcClient.getMiDiagramRpcClient().checkDBDriver(props.watch('driverClassName'));
+                const dbDriverResponse = await rpcClient.getMiDiagramRpcClient().checkDBDriver(className);
                 setDriverAvailable(dbDriverResponse.isDriverAvailable ? dbDriverResponse.driverVersion : "");
             }
         }
@@ -86,7 +87,7 @@ export function DatabaseDriverForm(props: DatabaseDriverFormProps) {
     }
 
     const removeDriver = async () => {
-        const currentDriverPath = (await rpcClient.getMiDiagramRpcClient().checkDBDriver(props.watch('driverClassName'))).driverPath;
+        const currentDriverPath = (await rpcClient.getMiDiagramRpcClient().checkDBDriver(className)).driverPath;
         const removeResponse = await rpcClient.getMiDiagramRpcClient().removeDBDriver({
             addDriverPath: "",
             removeDriverPath: currentDriverPath,
@@ -107,14 +108,14 @@ export function DatabaseDriverForm(props: DatabaseDriverFormProps) {
     }
 
     const modifyDriver = async () => {
-        const currentDriverPath = (await rpcClient.getMiDiagramRpcClient().checkDBDriver(props.watch('driverClassName'))).driverPath;
+        const currentDriverPath = (await rpcClient.getMiDiagramRpcClient().checkDBDriver(className)).driverPath;
         const newDriverPath = await handleDriverDirSelection();
         const newDriverLibPath = (await rpcClient.getMiDiagramRpcClient().addDriverToLib({ url: newDriverPath })).path;
         if (newDriverPath) {
             const removeResponse = await rpcClient.getMiDiagramRpcClient().modifyDBDriver({
                 addDriverPath: newDriverLibPath,
                 removeDriverPath: currentDriverPath,
-                className: props.watch('driverClassName')
+                className: className
             });
 
             await rpcClient.getMiDiagramRpcClient().deleteDriverFromLib({ url: currentDriverPath });
@@ -122,7 +123,7 @@ export function DatabaseDriverForm(props: DatabaseDriverFormProps) {
 
             if (removeResponse) {
                 props.setValue("driverPath", newDriverLibPath);
-                const dbDriverResponse = await rpcClient.getMiDiagramRpcClient().checkDBDriver(props.watch('driverClassName'));
+                const dbDriverResponse = await rpcClient.getMiDiagramRpcClient().checkDBDriver(className);
                 setDriverAvailable(dbDriverResponse.isDriverAvailable ? dbDriverResponse.driverVersion : "");
             } else {
                 setDriverAvailable("");
