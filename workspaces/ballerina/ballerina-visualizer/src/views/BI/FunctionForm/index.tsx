@@ -49,6 +49,8 @@ export function FunctionForm(props: FunctionFormProps) {
     const [filePath, setFilePath] = useState<string>('');
     const [functionNode, setFunctionNode] = useState<FunctionNode>(undefined);
 
+    const formType = isDataMapper ? "Data Mapper" : "Function";
+
     useEffect(() => {
         setFilePath(Utils.joinPath(URI.file(projectPath), fileName).fsPath)
         if (functionName) {
@@ -56,10 +58,18 @@ export function FunctionForm(props: FunctionFormProps) {
         } else {
             getFunctionNode();
         }
-    }, []);
+    }, [fileName]);
 
     useEffect(() => {
-        functionNode && setFunctionFields(convertConfig(functionNode.properties));
+        const fields = functionNode ? convertConfig(functionNode.properties) : [];
+        
+        if (isDataMapper && fields.length > 0) {
+            fields.forEach((field) => {
+                field.optional = false;
+            });
+        }
+        
+        setFunctionFields(fields);
     }, [functionNode]);
 
     const getFunctionNode = async () => {
@@ -114,9 +124,9 @@ export function FunctionForm(props: FunctionFormProps) {
                 }
             }
         }
-        if (isDataMapper) {
-            functionNodeCopy.codedata.node = "DATA_MAPPER_DEFINITION";
-        }
+        // if (isDataMapper) {
+        //     functionNodeCopy.codedata.node = "DATA_MAPPER_DEFINITION";
+        // }
         console.log("Updated function node: ", functionNodeCopy);
         await rpcClient.getBIDiagramRpcClient().getSourceCode({ filePath, flowNode: functionNodeCopy, isFunctionNodeUpdate: true });
     };
@@ -126,9 +136,9 @@ export function FunctionForm(props: FunctionFormProps) {
             <ViewContent padding>
                 <BIHeader />
                 <Container>
-                    <Typography variant="h2">{functionName ? `Edit Function` : `Create New Function`}</Typography>
+                    <Typography variant="h2">{functionName ? `Edit ${formType}` : `Create New ${formType}`}</Typography>
                     <BodyText>
-                        {functionName ? `Edit the` : `Define a`} function that can be used within the integration.
+                        {functionName ? `Edit ${formType}` : `Define a new ${formType} that can be used within the integration`}.
                     </BodyText>
                     <FormContainer>
                         {filePath &&
@@ -138,6 +148,7 @@ export function FunctionForm(props: FunctionFormProps) {
                                 fields={functionFields}
                                 onSubmit={handleSubmit}
                                 submitText={functionName ? "Save" : "Create"}
+                                selectedNode={functionNode?.codedata?.node}
                             />
                         }
                     </FormContainer>

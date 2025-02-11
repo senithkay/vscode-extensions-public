@@ -15,7 +15,8 @@ import {
     SubPanel,
     VisualizerLocation,
     TRIGGER_CHARACTERS,
-    TriggerCharacter
+    TriggerCharacter,
+    NodeKind
 } from "@wso2-enterprise/ballerina-core";
 import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditorProps, HelperPaneData } from "@wso2-enterprise/ballerina-side-panel";
 import {
@@ -43,6 +44,7 @@ interface FormProps {
     openSubPanel?: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
+    selectedNode?: NodeKind;
 }
 
 export function FormGeneratorNew(props: FormProps) {
@@ -51,14 +53,13 @@ export function FormGeneratorNew(props: FormProps) {
         fields,
         targetLineRange,
         projectPath,
-        editForm,
         submitText,
         onBack,
         onSubmit,
         openSubPanel,
-        isActiveSubPanel,
         updatedExpressionField,
-        resetUpdatedExpressionField
+        resetUpdatedExpressionField,
+        selectedNode
     } = props;
 
     const { rpcClient } = useRpcContext();
@@ -398,6 +399,7 @@ export function FormGeneratorNew(props: FormProps) {
                     fileName={fileName}
                     updatedExpressionField={updatedExpressionField}
                     resetUpdatedExpressionField={resetUpdatedExpressionField}
+                    selectedNode={selectedNode}
                 />
             )}
             {showRecordEditor && (
