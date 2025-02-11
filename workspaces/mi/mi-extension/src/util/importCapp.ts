@@ -16,6 +16,7 @@ import { createFolderStructure, copyDockerResources } from '.';
 import { commands, Uri, window } from 'vscode';
 import { extension } from '../MIExtensionContext';
 import { XMLParser, XMLBuilder, X2jOptions, XmlBuilderOptions } from "fast-xml-parser";
+import { LATEST_MI_VERSION } from './onboardingUtils';
 const AdmZip = require('adm-zip');
 
 const parserOptions: X2jOptions = {
@@ -83,10 +84,12 @@ export async function importCapp(params: ImportProjectRequest): Promise<ImportPr
 
     if (projectName && groupId && artifactId && version) {
         const folderStructure: FileStructure = {
-            'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid, version),
+            'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid, version, LATEST_MI_VERSION),
+            '.env': '',
             'src': {
                 'main': {
                     'wso2mi': {
+                        'java': '',
                         'artifacts': {
                             'apis': '',
                             'endpoints': '',
@@ -108,6 +111,9 @@ export async function importCapp(params: ImportProjectRequest): Promise<ImportPr
                             },
                             'metadata': '',
                             'connectors': '',
+                            'conf': {
+                                'config.properties': ''
+                            },
                         },
                     },
                     'java': ''
@@ -128,7 +134,7 @@ export async function importCapp(params: ImportProjectRequest): Promise<ImportPr
             },
         };
 
-        createFolderStructure(directory, folderStructure);
+        await createFolderStructure(directory, folderStructure);
         copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), directory);
 
         console.log("Created project structure for project: " + projectName);

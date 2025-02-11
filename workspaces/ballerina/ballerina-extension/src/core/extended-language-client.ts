@@ -114,10 +114,45 @@ import {
     SignatureHelpRequest,
     SignatureHelpResponse,
     VisibleTypesRequest,
+    ReferenceLSRequest,
+    Reference,
     VisibleTypesResponse,
     BIDeleteByComponentInfoRequest,
     ExpressionDiagnosticsRequest,
-    ExpressionDiagnosticsResponse
+    ExpressionDiagnosticsResponse,
+    TriggerModelsRequest,
+    TriggerModelsResponse,
+    BIGetEnclosedFunctionRequest,
+    BIGetEnclosedFunctionResponse,
+    HttpResourceModelRequest,
+    HttpResourceModelResponse,
+    ListenerModelRequest,
+    ListenerModelResponse,
+    ListenerSourceCodeRequest,
+    ListenerSourceCodeResponse,
+    ListenersRequest,
+    ListenersResponse,
+    FunctionSourceCodeRequest,
+    ResourceSourceCodeResponse,
+    ServiceModelFromCodeRequest,
+    ServiceModelFromCodeResponse,
+    ServiceModelRequest,
+    ServiceModelResponse,
+    ServiceSourceCodeRequest,
+    BIDesignModelRequest,
+    BIDesignModelResponse,
+    ListenerModelFromCodeRequest,
+    ListenerModelFromCodeResponse,
+    AddFunctionRequest,
+    AddFunctionResponse,
+    UpdateImportsRequest,
+    InlineDataMapperModelRequest,
+    InlineDataMapperSourceRequest,
+    InlineDataMapperSourceResponse,
+    InlineDataMapperModelResponse,
+    VisualizableFieldsRequest,
+    VisualizableFieldsResponse,
+    AddArrayElementRequest
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -139,8 +174,6 @@ enum EXTENDED_APIS {
     DOCUMENT_TRIGGER_MODIFY = 'ballerinaDocument/triggerModify',
     SYMBOL_TYPE = 'ballerinaSymbol/type',
     CONNECTOR_CONNECTORS = 'ballerinaConnector/connectors',
-    TRIGGER_TRIGGERS = 'ballerinaTrigger/triggers',
-    TRIGGER_TRIGGER = 'ballerinaTrigger/trigger',
     CONNECTOR_CONNECTOR = 'ballerinaConnector/connector',
     CONNECTOR_RECORD = 'ballerinaConnector/record',
     PACKAGE_COMPONENTS = 'ballerinaPackage/components',
@@ -186,8 +219,13 @@ enum EXTENDED_APIS {
     BI_GEN_OPEN_API = 'flowDesignService/generateServiceFromOpenApiContract',
     BI_MODULE_NODES = 'flowDesignService/getModuleNodes',
     BI_GEN_ERROR_HANDLER = 'flowDesignService/addErrorHandler',
+    BI_GET_ENCLOSED_FUNCTION = 'flowDesignService/getEnclosedFunctionDef',
     BI_EXPRESSION_COMPLETIONS = 'expressionEditor/completion',
     VISIBLE_VARIABLE_TYPES = 'expressionEditor/visibleVariableTypes',
+    DATA_MAPPER_MAPPINGS = 'dataMapper/mappings',
+    DATA_MAPPER_GET_SOURCE = 'dataMapper/getSource',
+    DATA_MAPPER_VISUALIZABLE = 'dataMapper/visualizable',
+    DATA_MAPPER_ADD_ELEMENT = 'dataMapper/addElement',
     VIEW_CONFIG_VARIABLES = 'configEditor/getConfigVariables',
     UPDATE_CONFIG_VARIABLES = 'configEditor/updateConfigVariables',
     RUNNER_DIAGNOSTICS = 'ballerinaRunner/diagnostics',
@@ -195,7 +233,26 @@ enum EXTENDED_APIS {
     BI_GET_COMPONENTS_FROM_CONTENT = 'flowDesignService/getSuggestedComponents',
     BI_SIGNATURE_HELP = 'expressionEditor/signatureHelp',
     BI_VISIBLE_TYPES = 'expressionEditor/types',
-    BI_EXPRESSION_DIAGNOSTICS = 'expressionEditor/diagnostics'
+    REFERENCES = 'textDocument/references',
+    BI_EXPRESSION_DIAGNOSTICS = 'expressionEditor/diagnostics',
+    BI_SERVICE_TRIGGER_MODELS = 'serviceDesign/getTriggerModels',
+    BI_SERVICE_GET_LISTENERS = 'serviceDesign/getListeners',
+    BI_SERVICE_GET_LISTENER = 'serviceDesign/getListenerModel',
+    BI_SERVICE_ADD_LISTENER = 'serviceDesign/addListener',
+    BI_SERVICE_UPDATE_LISTENER = 'serviceDesign/updateListener',
+    BI_SERVICE_GET_LISTENER_SOURCE = 'serviceDesign/getListenerFromSource',
+    BI_SERVICE_GET_SERVICE = 'serviceDesign/getServiceModel',
+    BI_SERVICE_ADD_SERVICE = 'serviceDesign/addService',
+    BI_SERVICE_UPDATE_SERVICE = 'serviceDesign/updateService',
+    BI_SERVICE_GET_SERVICE_SOURCE = 'serviceDesign/getServiceFromSource',
+    BI_SERVICE_GET_RESOURCE = 'serviceDesign/getHttpResourceModel',
+    BI_SERVICE_ADD_RESOURCE = 'serviceDesign/addResource',
+    BI_SERVICE_ADD_FUNCTION = 'serviceDesign/addFunction',
+    BI_SERVICE_UPDATE_RESOURCE = 'serviceDesign/updateFunction',
+    BI_SERVICE_GET_TRIGGERS = 'serviceDesign/getTriggerModels',
+    BI_DESIGN_MODEL = 'designModelService/getDesignModel',
+    BI_UPDATE_IMPORTS = 'expressionEditor/importModule',
+    BI_ADD_FUNCTION = 'expressionEditor/functionCallTemplate'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -351,20 +408,12 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<Connectors>(EXTENDED_APIS.CONNECTOR_CONNECTORS, params);
     }
 
-    async getTriggers(params: TriggersParams): Promise<Triggers | NOT_SUPPORTED_TYPE> {
-        return this.sendRequest<Triggers>(EXTENDED_APIS.TRIGGER_TRIGGERS, params);
-    }
-
     async getConnector(params: ConnectorRequest): Promise<ConnectorResponse | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_CONNECTOR);
         if (!isSupported) {
             return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest<Connector>(EXTENDED_APIS.CONNECTOR_CONNECTOR, params);
-    }
-
-    async getTrigger(params: TriggerParams): Promise<Trigger | NOT_SUPPORTED_TYPE> {
-        return this.sendRequest<Trigger>(EXTENDED_APIS.TRIGGER_TRIGGER, params);
     }
 
     async getRecord(params: RecordParams): Promise<BallerinaRecord | NOT_SUPPORTED_TYPE> {
@@ -456,12 +505,23 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     }
 
     async getVisibleVariableTypes(params: VisibleVariableTypesParams): Promise<VisibleVariableTypes | NOT_SUPPORTED_TYPE> {
-        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.VISIBLE_VARIABLE_TYPES);
-        // if (!isSupported) {
-        //     return Promise.resolve(NOT_SUPPORTED);
-        // }
-        // return this.sendRequest<TypesFromSymbol>(EXTENDED_APIS.VISIBLE_VARIABLE_TYPES, params);
         return this.sendRequest<VisibleVariableTypes>(EXTENDED_APIS.VISIBLE_VARIABLE_TYPES, params);
+    }
+
+    async getInlineDataMapperMappings(params: InlineDataMapperModelRequest): Promise<InlineDataMapperModelResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest<InlineDataMapperModelResponse>(EXTENDED_APIS.DATA_MAPPER_MAPPINGS, params);
+    }
+
+    async getInlineDataMapperSource(params: InlineDataMapperSourceRequest): Promise<InlineDataMapperSourceResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest<InlineDataMapperSourceResponse>(EXTENDED_APIS.DATA_MAPPER_GET_SOURCE, params);
+    }
+
+    async getVisualizableFields(params: VisualizableFieldsRequest): Promise<VisualizableFieldsResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest<VisualizableFieldsResponse>(EXTENDED_APIS.DATA_MAPPER_VISUALIZABLE, params);
+    }
+
+    async addArrayElement(params: AddArrayElementRequest): Promise<InlineDataMapperSourceResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest<InlineDataMapperSourceResponse>(EXTENDED_APIS.DATA_MAPPER_ADD_ELEMENT, params);
     }
 
     async getGraphqlModel(params: GraphqlDesignServiceParams): Promise<GraphqlDesignService | NOT_SUPPORTED_TYPE> {
@@ -497,6 +557,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         if (!isSupported) {
             return Promise.resolve(NOT_SUPPORTED);
         }
+        const test = await this.sendRequest(EXTENDED_APIS.PACKAGE_COMPONENTS, params);
         return this.sendRequest(EXTENDED_APIS.PACKAGE_COMPONENTS, params);
     }
 
@@ -616,6 +677,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<BIGetFunctionsResponse>(EXTENDED_APIS.BI_GET_FUNCTIONS, params);
     }
 
+    async getEnclosedFunctionDef(params: BIGetEnclosedFunctionRequest): Promise<BIGetEnclosedFunctionResponse> {
+        return this.sendRequest<BIGetEnclosedFunctionResponse>(EXTENDED_APIS.BI_GET_ENCLOSED_FUNCTION, params);
+    }
+
     async getNodeTemplate(params: BINodeTemplateRequest): Promise<BINodeTemplateResponse> {
         return this.sendRequest<BINodeTemplateResponse>(EXTENDED_APIS.BI_NODE_TEMPLATE, params);
     }
@@ -664,7 +729,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     async getModuleNodes(params: BIModuleNodesRequest): Promise<BIModuleNodesResponse> {
         return this.sendRequest<BIModuleNodesResponse>(EXTENDED_APIS.BI_MODULE_NODES, params);
     }
-    
+
     async getComponentsFromContent(params: ComponentsFromContent): Promise<BallerinaProjectComponents> {
         return this.sendRequest<BallerinaProjectComponents>(EXTENDED_APIS.BI_GET_COMPONENTS_FROM_CONTENT, params);
     }
@@ -677,12 +742,84 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest(EXTENDED_APIS.BI_VISIBLE_TYPES, params);
     }
 
+    async getReferences(params: ReferenceLSRequest): Promise<Reference[]> {
+        return this.sendRequest(EXTENDED_APIS.REFERENCES, params);
+    }
+
     async addErrorHandler(params: BIModuleNodesRequest): Promise<BISourceCodeResponse> {
         return this.sendRequest(EXTENDED_APIS.BI_GEN_ERROR_HANDLER, params);
     }
 
     async getExpressionDiagnostics(params: ExpressionDiagnosticsRequest): Promise<ExpressionDiagnosticsResponse> {
         return this.sendRequest<ExpressionDiagnosticsResponse>(EXTENDED_APIS.BI_EXPRESSION_DIAGNOSTICS, params);
+    }
+
+    async getTriggerModels(params: TriggerModelsRequest): Promise<TriggerModelsResponse> {
+        return this.sendRequest<TriggerModelsResponse>(EXTENDED_APIS.BI_SERVICE_TRIGGER_MODELS, params);
+    }
+
+    async getListeners(params: ListenersRequest): Promise<ListenersResponse> {
+        return this.sendRequest<ListenersResponse>(EXTENDED_APIS.BI_SERVICE_GET_LISTENERS, params);
+    }
+
+    async getListenerModel(params: ListenerModelRequest): Promise<ListenerModelResponse> {
+        return this.sendRequest<ListenerModelResponse>(EXTENDED_APIS.BI_SERVICE_GET_LISTENER, params);
+    }
+
+    async addListenerSourceCode(params: ListenerSourceCodeRequest): Promise<ListenerSourceCodeResponse> {
+        return this.sendRequest<ListenerSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_ADD_LISTENER, params);
+    }
+
+    async updateListenerSourceCode(params: ListenerSourceCodeRequest): Promise<ListenerSourceCodeResponse> {
+        return this.sendRequest<ListenerSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_UPDATE_LISTENER, params);
+    }
+
+    async getListenerFromSourceCode(params: ListenerModelFromCodeRequest): Promise<ListenerModelFromCodeResponse> {
+        return this.sendRequest<ListenerModelFromCodeResponse>(EXTENDED_APIS.BI_SERVICE_GET_LISTENER_SOURCE, params);
+    }
+
+    async getServiceModel(params: ServiceModelRequest): Promise<ServiceModelResponse> {
+        return this.sendRequest<ServiceModelResponse>(EXTENDED_APIS.BI_SERVICE_GET_SERVICE, params);
+    }
+
+    async addServiceSourceCode(params: ServiceSourceCodeRequest): Promise<ListenerSourceCodeResponse> {
+        return this.sendRequest<ListenerSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_ADD_SERVICE, params);
+    }
+
+    async updateServiceSourceCode(params: ServiceSourceCodeRequest): Promise<ListenerSourceCodeResponse> {
+        return this.sendRequest<ListenerSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_UPDATE_SERVICE, params);
+    }
+
+    async getServiceModelFromCode(params: ServiceModelFromCodeRequest): Promise<ServiceModelFromCodeResponse> {
+        return this.sendRequest<ServiceModelFromCodeResponse>(EXTENDED_APIS.BI_SERVICE_GET_SERVICE_SOURCE, params);
+    }
+
+    async getHttpResourceModel(params: HttpResourceModelRequest): Promise<HttpResourceModelResponse> {
+        return this.sendRequest<HttpResourceModelResponse>(EXTENDED_APIS.BI_SERVICE_GET_RESOURCE, params);
+    }
+
+    async addResourceSourceCode(params: FunctionSourceCodeRequest): Promise<ResourceSourceCodeResponse> {
+        return this.sendRequest<ResourceSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_ADD_RESOURCE, params);
+    }
+
+    async addFunctionSourceCode(params: FunctionSourceCodeRequest): Promise<ResourceSourceCodeResponse> {
+        return this.sendRequest<ResourceSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_ADD_FUNCTION, params);
+    }
+
+    async updateResourceSourceCode(params: FunctionSourceCodeRequest): Promise<ResourceSourceCodeResponse> {
+        return this.sendRequest<ResourceSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_UPDATE_RESOURCE, params);
+    }
+
+    async getDesignModel(params: BIDesignModelRequest): Promise<BIDesignModelResponse> {
+        return this.sendRequest<BIDesignModelResponse>(EXTENDED_APIS.BI_DESIGN_MODEL, params);
+    }
+
+    async updateImports(params: UpdateImportsRequest): Promise<void> {
+        return this.sendRequest<void>(EXTENDED_APIS.BI_UPDATE_IMPORTS, params);
+    }
+
+    async addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {
+        return this.sendRequest<AddFunctionResponse>(EXTENDED_APIS.BI_ADD_FUNCTION, params);
     }
 
     // <------------ BI APIS END --------------->

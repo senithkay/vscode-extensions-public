@@ -76,7 +76,7 @@ export function ArrayEditor(props: ArrayEditorProps) {
 
     // Initialize with array values or empty array
     const initialValues = Array.isArray(field.value) ? field.value : [];
-    const [editorCount, setEditorCount] = useState(Math.max(initialValues.length, 1));
+    const [editorCount, setEditorCount] = useState(Math.max(initialValues.length, 0));
 
     // Watch all the individual text field values
     const values = [...Array(editorCount)]

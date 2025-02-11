@@ -42,9 +42,11 @@ import {
 } from "./constants";
 import { FocusedInputNode } from "../Node/FocusedInput";
 import { PrimitiveOutputNode } from "../Node/PrimitiveOutput";
-import { View } from "../../../components/DataMapper/Views/DataMapperView";
+import { SubMappingInfo, View } from "../../../components/DataMapper/Views/DataMapperView";
 import { DataMapperLinkModel } from "../Link";
 import { getDMTypeDim } from "./type-utils";
+import { IDataMapperContext } from "src/utils/DataMapperContext/DataMapperContext";
+import { getSourceNodeType } from "./node-utils";
 
 export function getInputAccessNodes(node: Node): (Identifier | ElementAccessExpression | PropertyAccessExpression)[] {
     const ipnutAccessNodeVisitor: InputAccessNodeFindingVisitor = new InputAccessNodeFindingVisitor();
@@ -320,11 +322,15 @@ export function getTypeName(field: DMType): string {
 		return '';
 	}
 
-	let typeName = field?.typeName || field.kind;
+	let typeName = field.typeName || field.kind;
 
     if (field.kind === TypeKind.Array && field?.memberType) {
 		typeName = `${getTypeName(field.memberType)}[]`;
-	}
+	} else if (field.kind === TypeKind.Union){
+        typeName = `${typeName} ( ${field.resolvedUnionType ? 
+            getTypeName(field.resolvedUnionType) : 
+            field.unionTypes.map(unionType => getTypeName(unionType)).join(" | ")} )`;
+    }
 
 	return typeName;
 }
@@ -390,7 +396,8 @@ export function isConnectedViaLink(field: Node) {
 	return (!!inputNodes.length || isIdentifier || isArrayFunction) && !isObjectLiteralExpr && !isArrayLiteralExpr;
 }
 
-export function getDefaultValue(typeKind: TypeKind): string {
+export function getDefaultValue(dmType: DMType): string {
+    const typeKind: TypeKind = dmType?.kind;
 	let draftParameter = "";
 	switch (typeKind) {
 		case TypeKind.String:
@@ -405,6 +412,9 @@ export function getDefaultValue(typeKind: TypeKind): string {
 		case TypeKind.Array:
 			draftParameter = `[]`;
 			break;
+        case TypeKind.Literal:
+            draftParameter = dmType?.typeName;
+            break;
 		default:
 			draftParameter = `{}`;
 			break;
@@ -417,7 +427,7 @@ export function isEmptyValue(position: NodePosition): boolean {
 }
 
 export function isDefaultValue(fieldType: DMType, value: string): boolean {
-	const defaultValue = getDefaultValue(fieldType.kind);
+	const defaultValue = getDefaultValue(fieldType);
     const targetValue =  value?.trim().replace(/(\r\n|\n|\r|\s)/g, "")
 	return targetValue === "null" ||  defaultValue === targetValue;
 }
@@ -770,10 +780,10 @@ export function getValueType(lm: DataMapperLinkModel): ValueType {
     if (typeWithValue?.value) {
         let expr = typeWithValue.value;
 
-        if (Node.isPropertyAssignment(expr)) {
+        if (!expr?.wasForgotten() && Node.isPropertyAssignment(expr)) {
             expr = expr.getInitializer();
         }
-        const value = expr?.getText();
+        const value = expr?.wasForgotten() ? undefined : expr?.getText();
         if (value !== undefined) {
             return isDefaultValue(typeWithValue.type, value) ? ValueType.Default : ValueType.NonEmpty;
         }
@@ -806,6 +816,73 @@ export function genArrayElementAccessSuffix(sourcePort: PortModel, targetPort: P
     }
     return '';
 };
+
+export function expandArrayFn(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, context: IDataMapperContext){
+    
+    const { addView, views } = context;
+    
+    let label = getMapFnViewLabel(targetPort, views);
+    let targetFieldFQN = targetPort.fieldFQN;
+    const isSourcePortSubMapping = sourcePort.portName.startsWith(SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX);
+
+    let sourceFieldFQN = isSourcePortSubMapping
+        ? sourcePort.fieldFQN
+        : sourcePort.fieldFQN.split('.').slice(1).join('.');
+    let mapFnIndex: number | undefined = undefined;
+    let prevViewSubMappingInfo: SubMappingInfo = undefined;
+
+    if (views.length > 1) {
+        const prevView = views[views.length - 1];
+
+        if (prevView.subMappingInfo) {
+            // Navigating into map function within focused sub-mapping view
+            prevViewSubMappingInfo = prevView.subMappingInfo;
+            const { mappingName: prevViewMappingName, mapFnIndex: prevViewMapFnIndex } = prevViewSubMappingInfo;
+            targetFieldFQN = targetFieldFQN ?? prevViewMappingName;
+        } else {
+            // Navigating into another map function within the current map function
+            if (!prevView.targetFieldFQN) {
+                // The visiting map function is declaired at the return statement of the current map function
+                if (!targetFieldFQN && targetPort.field.kind === TypeKind.Array) {
+                    // The root of the current map function is the return statement of the transformation function
+                    mapFnIndex = getMapFnIndex(views, prevView.targetFieldFQN);
+                }
+            } else {
+                if (!targetFieldFQN && targetPort.field.kind === TypeKind.Array) {
+                    // The visiting map function is declaired at the return statement of the current map function
+                    targetFieldFQN = prevView.targetFieldFQN;
+                    mapFnIndex = getMapFnIndex(views, prevView.targetFieldFQN);
+                } else {
+                    targetFieldFQN = `${prevView.targetFieldFQN}.${targetFieldFQN}`;
+                }
+            }
+        }
+        if (!!prevView.sourceFieldFQN) {
+            sourceFieldFQN = `${prevView.sourceFieldFQN}${sourceFieldFQN ? `.${sourceFieldFQN}` : ''}`;
+        }
+    } else {
+        // Navigating into the root map function
+        if (!targetFieldFQN && targetPort.field.kind === TypeKind.Array) {
+            // The visiting map function is the return statement of the transformation function
+            mapFnIndex = 0;
+        }
+    }
+
+    const sourceNodeType = getSourceNodeType(sourcePort);
+
+    const newView: View = { targetFieldFQN, sourceFieldFQN, sourceNodeType, label, mapFnIndex };
+
+    if (prevViewSubMappingInfo) {
+        const newViewSubMappingInfo = {
+            ...prevViewSubMappingInfo,
+            focusedOnSubMappingRoot: false,
+            mapFnIndex: prevViewSubMappingInfo.mapFnIndex !== undefined ? prevViewSubMappingInfo.mapFnIndex + 1 : 0
+        };
+        newView.subMappingInfo = newViewSubMappingInfo;
+    }
+
+    addView(newView);
+}
 
 function getRootInputAccessExpr(node: ElementAccessExpression | PropertyAccessExpression): Node {
     let expr = node.getExpression();

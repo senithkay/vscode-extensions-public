@@ -53,10 +53,13 @@ export const COMMANDS = {
     REFRESH_COMMAND: 'MI.project-explorer.refresh',
     REFRESH_REGISTRY_COMMAND: 'MI.registry-explorer.refresh',
     ADD_COMMAND: 'MI.project-explorer.add',
+    ADD_ARTIFACT_COMMAND: 'MI.project-explorer.add.artifact',
     ADD_TO_REGISTRY_COMMAND: 'MI.registry-explorer.add',
     ADD_API_COMMAND: 'MI.project-explorer.add-api',
+    ADD_RESOURCE_COMMAND: 'MI.project-explorer.add-resource',
     ADD_ENDPOINT_COMMAND: 'MI.project-explorer.add-endpoint',
     ADD_SEQUENCE_COMMAND: 'MI.project-explorer.add-sequence',
+    ADD_DATAMAPPER_COMMAND: 'MI.project-explorer.add-datamapper',
     ADD_INBOUND_ENDPOINT_COMMAND: 'MI.project-explorer.add-inbound-endpoint',
     ADD_PROXY_SERVICE_COMMAND: 'MI.project-explorer.add-proxy-service',
     ADD_TASK_COMMAND: 'MI.project-explorer.add-task',
@@ -79,6 +82,7 @@ export const COMMANDS = {
     EDIT_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.edit-class-mediator',
     DELETE_PROJECT_EXPLORER_ITEM: 'MI.project-explorer.delete',
     CHANGE_SERVER_PATH: 'MI.change.server',
+    CHANGE_JAVA_HOME: 'MI.change.java',
     BUILD_PROJECT: 'MI.build-project',
     CREATE_DOCKER_IMAGE: 'MI.create-docker-image',
     BUILD_AND_RUN_PROJECT: 'MI.build-and-run',
@@ -101,7 +105,7 @@ export const DEFAULT_PROJECT_VERSION = "1.0.0";
 
 export const READONLY_MAPPING_FUNCTION_NAME = "mapFunction";
 
-export const REFRESH_ENABLED_DOCUMENTS = ["SynapseXml", "typescript"];
+export const REFRESH_ENABLED_DOCUMENTS = ["SynapseXml", "typescript", "markdown"];
 
 export enum EndpointTypes {
     DEFAULT_ENDPOINT = "DEFAULT_ENDPOINT",
@@ -158,9 +162,12 @@ export enum MessageStoreTypes {
 export * from "./swagger";
 
 export const APIS = {
-    CONNECTOR: "https://apis.wso2.com/connector-store/connector-details"
+    CONNECTOR: "https://apis.wso2.com/connector-store/connector-details",
+    CONNECTORS_STORE: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?offset=0&product=MI&type=Connector&runtimeVersion=${version}",
+    CONNECTOR_SEARCH: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=10&offset=0&searchQuery=${searchValue}&type=Connector&product=MI&runtimeVersion=${version}"
 }
 
 export const DM_OPERATORS_FILE_NAME="dm-utils";
 export const DM_OPERATORS_IMPORT_NAME="dmUtils";
 export const LAST_EXPORTED_CAR_PATH = "last-exported-car-path";
+export const RUNTIME_VERSION_440 = "4.4.0";

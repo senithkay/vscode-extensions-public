@@ -22,7 +22,7 @@ export enum ColorThemeKind {
 export enum MACHINE_VIEW {
     Welcome = "Welcome to MI",
     ADD_ARTIFACT = "Add Artifact",
-    Overview = "MI Overview",
+    Overview = "Project Overview",
     UnsupportedProject = "Unsupported Project",
     Disabled = "MI Extension",
     Diagram = "MI Diagram",
@@ -40,8 +40,9 @@ export enum MACHINE_VIEW {
     RecipientEndPointForm = "Recipient Endpoint Form",
     TemplateEndPointForm = "Template Endpoint Form",
     SequenceForm = "Sequence Form",
-    InboundEPForm = "Inbound EP Form",
-    InboundEPView = "Inbound EP View",
+    DatamapperForm = "Datamapper Form",
+    InboundEPForm = "Event Integration Form",
+    InboundEPView = "Event Integration View",
     MessageProcessorForm = "Message Processor Form",
     ProxyServiceForm = "Proxy Service Form",
     TaskForm = "Task Form",
@@ -57,7 +58,7 @@ export enum MACHINE_VIEW {
     ProjectCreationForm = "Project Creation Form",
     ImportProjectForm = "Import Project Form",
     LocalEntryForm = "Local Entry Form",
-    RegistryResourceForm = "Registry Resource Creation Form",
+    RegistryResourceForm = "Resource Creation Form",
     RegistryMetadataForm = "Registry Metadata Form",
     MessageStoreForm = "Message Store Form",
     ClassMediatorForm = "ClassMediator Creation Form",
@@ -73,6 +74,9 @@ export enum MACHINE_VIEW {
     MockService = "Mock Service",
     LoggedOut = "Logged Out",
     UpdateExtension = "Update Extension",
+    ManageDependencies = "Manage Dependencies",
+    ManageConfigurables = "Manage Configurables",
+    ProjectInformationForm = "Project Information Form",
 }
 
 export enum AI_MACHINE_VIEW {
@@ -84,7 +88,7 @@ export enum AI_MACHINE_VIEW {
 export type MachineStateValue =
     | 'initialize' | 'projectDetected' | 'oldProjectDetected' | 'LSInit' | 'ready' | 'disabled'
     | { ready: 'viewReady' } | { ready: 'viewEditing' }
-    | { newProject: 'viewReady' };
+    | { newProject: 'viewReady' }| { environmentSetup: 'viewReady' };
 
 export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'updateExtension' | 'disabled';
 
@@ -110,6 +114,7 @@ export enum EVENT_TYPE {
     CLEAR_PROMPT = "CLEAR_PROMPT",
     FILE_EDIT = "FILE_EDIT",
     EDIT_DONE = "EDIT_DONE",
+    REFRESH_ENVIRONMENT = "REFRESH_ENVIRONMENT",
 }
 
 export enum POPUP_EVENT_TYPE {
@@ -143,9 +148,8 @@ export interface ErrorType {
 interface DataMapperProps {
     filePath: string;
     functionName?: string;
-    functionIOTypes?: string;
     fileContent?: string;
-    interfacesSource?: string;
+    nonMappingFileContent?: string;
     configName: string;
 }
 
@@ -168,6 +172,7 @@ export interface VisualizerLocation {
     dataMapperProps?: DataMapperProps;
     type?: string;
     connectorData?: any[];
+    previousContext?: any;
 }
 
 export interface PopupVisualizerLocation extends VisualizerLocation {

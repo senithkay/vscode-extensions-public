@@ -21,6 +21,7 @@ import { Connector } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";
 import { Body, Content, Description, Header, Name, OptionsMenu } from "../BaseNodeModel";
 import { FirstCharToUpperCase } from "../../../utils/commons";
+import path from "path";
 
 namespace S {
     export type NodeStyleProp = {
@@ -118,6 +119,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
     const [iconPath, setIconPath] = useState(null);
+    const [connectionIconPath, setConnectionIconPath] = useState(null);
     const [isHoveredConnector, setIsHoveredConnector] = React.useState(false);
     const [isConnectorSelected, setIsConnectorSelected] = React.useState(false);
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -150,6 +152,22 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
             const iconPath = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: connectorData.iconPath, name: "icon-small" });
             setIconPath(iconPath.uri);
 
+            const connectionData: any = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
+                documentUri: node.documentUri,
+                connectorName: node.stNode.tag.split(".")[0]
+            });
+
+            const connectionName = (node.stNode as Connector).configKey;
+            const connection = connectionData.connections.find((connection: any) => connection.name === connectionName);
+            const connectionType = connection ? connection.connectionType : null;
+
+            const connectionIconPath = connectionType ? await rpcClient.getMiDiagramRpcClient().getIconPathUri({
+                path: path.join(connectorData.iconPath, 'connections'),
+                name: connectionType
+            }) : iconPath;
+
+            setConnectionIconPath(connectionIconPath.uri ?? iconPath.uri);
+
         }
 
         fetchData();
@@ -181,7 +199,13 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
             });
 
             const operationName = node.stNode.tag.split(/\.(.+)/)[1];
-            const formJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: connectorData.uiSchemaPath, operation: operationName });
+            const connectorDetails = await rpcClient.getMiDiagramRpcClient().getMediator({
+                mediatorType: node.stNode.tag,
+                range: nodeRange,
+                documentUri: node.documentUri
+            });
+
+            const formJSON = connectorDetails;
 
             sidePanelContext.setSidePanelState({
                 isOpen: true,
@@ -189,8 +213,8 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                 nodeRange: nodeRange,
                 isEditing: true,
                 formValues: {
-                    form: formJSON.formJSON,
-                    title: `${connectorData.name} - ${operationName}`,
+                    form: formJSON,
+                    title: `${FirstCharToUpperCase(operationName)} Operation`,
                     uiSchemaPath: connectorData.uiSchemaPath,
                     parameters: (node.stNode as Connector).parameters ?? [],
                     connectorName: connectorData.name,
@@ -221,11 +245,9 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                     )}
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <div style={{ display: "flex", flexDirection: "row", width: NODE_DIMENSIONS.DEFAULT.WIDTH }}>
-                        {iconPath && (
-                            <S.IconContainer>
-                                <Icon name="connector" sx={{ height: 25, width: 25, fontSize: 25, color: "#D32F2F" }} />
-                            </S.IconContainer>
-                        )}
+                        {iconPath &&
+                            <S.IconContainer><img src={iconPath} alt="Icon" /></S.IconContainer>
+                        }
                         <div>
                             {isHovered && (
                                 <OptionsMenu appearance="icon" onClick={handleOnClickMenu}>
@@ -264,9 +286,9 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                                 strokeWidth={2}
                             />
 
-                            {iconPath && <g transform="translate(68,7)">
+                            {connectionIconPath && <g transform="translate(68,7)">
                                 <foreignObject width="25" height="25">
-                                    <img src={iconPath} alt="Icon" />
+                                    <img src={connectionIconPath} alt="Icon" />
                                 </foreignObject>
                             </g>}
 

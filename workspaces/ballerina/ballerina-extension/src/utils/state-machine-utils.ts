@@ -52,7 +52,7 @@ export async function getView(documentUri: string, position: NodePosition): Prom
             const connectionName = node.syntaxTree.typedBindingPattern.bindingPattern.variableName.value;
             if (!connectionName) {
                 // tslint:disable-next-line
-                console.error("Couldn't capture connection from STNode", {STNode : node.syntaxTree});
+                console.error("Couldn't capture connection from STNode", { STNode: node.syntaxTree });
             } else {
                 return {
                     location: {
@@ -61,6 +61,18 @@ export async function getView(documentUri: string, position: NodePosition): Prom
                     },
                 };
             }
+        }
+
+        if (STKindChecker.isListenerDeclaration(node.syntaxTree)) {
+            const listenerST = node.syntaxTree;
+            const variablePosition = listenerST.variableName.position;
+            return {
+                location: {
+                    view: MACHINE_VIEW.BIListenerConfigView,
+                    documentUri: documentUri,
+                    position: variablePosition
+                }
+            };
         }
 
         if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
@@ -84,8 +96,7 @@ export async function getView(documentUri: string, position: NodePosition): Prom
                         view: MACHINE_VIEW.ServiceDesigner,
                         identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
                         documentUri: documentUri,
-                        position: position,
-                        haveServiceType: haveServiceType
+                        position: position
                     }
                 };
             }
@@ -105,6 +116,7 @@ export async function getView(documentUri: string, position: NodePosition): Prom
         } else if (
             STKindChecker.isFunctionDefinition(node.syntaxTree)
             || STKindChecker.isResourceAccessorDefinition(node.syntaxTree)
+            || STKindChecker.isObjectMethodDefinition(node.syntaxTree)
         ) {
             if (StateMachine.context().isBI) {
                 return {
@@ -132,7 +144,7 @@ export async function getView(documentUri: string, position: NodePosition): Prom
 
         // config variables
 
-        if (STKindChecker.isConfigurableKeyword(node.syntaxTree.qualifiers[0]) && 
+        if (STKindChecker.isConfigurableKeyword(node.syntaxTree.qualifiers[0]) &&
             STKindChecker.isCaptureBindingPattern(node.syntaxTree.typedBindingPattern.bindingPattern)) {
             return {
                 location: {

@@ -22,9 +22,18 @@ import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
 import { DataServiceDataSourceWizard } from "./views/Forms/DataServiceForm/MainPanelForms/DataSourceForm/DatasourceForm";
 import path from 'path';
-import { ConnectorStore } from './views/Forms/ConnectionForm';
+import { ConnectionWizard } from './views/Forms/ConnectionForm';
 import AddConnection from './views/Forms/ConnectionForm/ConnectionFormGenerator';
 import { AddDriver } from './views/Popup/AddDriver';
+import { ManageDependencies } from './views/Overview/ProjectInformation/ManageDependencies';
+import { ProjectInformationForm } from './views/Overview/ProjectInformation/ProjectInformationForm';
+import { SequenceWizard } from './views/Forms/SequenceForm';
+import { RegistryResourceForm } from './views/Forms/RegistryResourceForm';
+import { TemplateWizard } from './views/Forms/TemplateForm';
+import { DatamapperForm } from './views/Forms/DatamapperForm';
+import { ManageConfigurables } from './views/Overview/ProjectInformation/ManageConfigurables';
+import { MessageStoreWizard } from './views/Forms/MessageStoreForm';
+import { DataServiceWizard } from './views/Forms/DataServiceForm/MainPanelForms';
 
 const ViewContainer = styled.div`
     
@@ -77,16 +86,20 @@ const PopupPanel = (props: { formState: PopupMachineStateValue, handleClose?: ()
                     setViewComponent(<TemplateEndpointWizard handlePopupClose={props.handleClose} isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} />);
                     break;
                 case MACHINE_VIEW.ConnectorStore:
-                    setViewComponent(<ConnectorStore handlePopupClose={props.handleClose} isPopup={true} path={machineSate.documentUri} />);
+                    setViewComponent(<ConnectionWizard handlePopupClose={props.handleClose} isPopup={true} path={machineSate.documentUri} allowedConnectionTypes={machineSate.customProps?.allowedConnectionTypes} />);
                     break;
                 case MACHINE_VIEW.DssDataSourceForm:
-                    setViewComponent(<DataServiceDataSourceWizard isPopup={true} path={machineSate.documentUri} datasource={machineSate.customProps.datasource} handlePopupClose={props.handleClose}/>);
+                    setViewComponent(<DataServiceDataSourceWizard isPopup={true} path={machineSate.documentUri} datasource={machineSate.customProps.datasource} handlePopupClose={props.handleClose} />);
+                    break;
+                case MACHINE_VIEW.DataServiceForm:
+                    const dsPath = [machineSate.projectUri, 'src', 'main', 'wso2mi', 'artifacts', 'data-services'].join(machineSate.pathSeparator);
+                    setViewComponent(<DataServiceWizard isPopup={true} path={dsPath} handlePopupClose={props.handleClose} />);
                     break;
                 case MACHINE_VIEW.ConnectionForm:
                     setViewComponent(
-                        <AddConnection 
+                        <AddConnection
                             connectionName={machineSate.customProps.connectionName}
-                            allowedConnectionTypes={machineSate.customProps.allowedConnectionTypes}
+                            connectionType={machineSate.customProps.connectionType}
                             connector={machineSate.customProps.connector}
                             fromSidePanel={machineSate.customProps.fromSidePanel}
                             isPopup={true}
@@ -97,6 +110,32 @@ const PopupPanel = (props: { formState: PopupMachineStateValue, handleClose?: ()
                     break;
                 case MACHINE_VIEW.AddDriverPopup:
                     setViewComponent(<AddDriver handlePopupClose={props.handleClose} path={machineSate.documentUri} identifier={machineSate.customProps.identifier} />);
+                    break;
+                case MACHINE_VIEW.ManageDependencies:
+                    setViewComponent(<ManageDependencies onClose={props.handleClose} dependencies={machineSate.customProps.dependencies} title={machineSate.customProps.title} />);
+                    break;
+                case MACHINE_VIEW.ManageConfigurables:
+                    setViewComponent(<ManageConfigurables onClose={props.handleClose} configurables={machineSate.customProps.configs} />);
+                    break;
+                case MACHINE_VIEW.ProjectInformationForm:
+                    setViewComponent(<ProjectInformationForm selectedComponent={machineSate.customProps} onClose={props.handleClose} />);
+                    break;
+                case MACHINE_VIEW.SequenceForm:
+                    setViewComponent(<SequenceWizard handlePopupClose={props.handleClose} isPopup={true} path={machineSate.documentUri} />);
+                    break;
+                case MACHINE_VIEW.RegistryResourceForm:
+                    setViewComponent(<RegistryResourceForm handlePopupClose={props.handleClose} isPopup={true} path={machineSate.documentUri} type={machineSate.customProps.type} />);
+                    break;
+                case MACHINE_VIEW.SequenceTemplateView:
+                    const rPath = [machineSate.projectUri, 'src', 'main', 'wso2mi', 'artifacts', 'templates'].join(machineSate.pathSeparator);
+                    setViewComponent(<TemplateWizard onCancel={props.handleClose} isPopup={true} path={rPath} type='Sequence Template' />);
+                    break;
+                case MACHINE_VIEW.DatamapperForm:
+                    setViewComponent(<DatamapperForm path={machineSate.projectUri} handlePopupClose={props.handleClose} isPopup={true} />);
+                    break;
+                case MACHINE_VIEW.MessageStoreForm:
+                    const dir = [machineSate.projectUri, "src", "main", "wso2mi", "artifacts", "messageStores"].join(machineSate.pathSeparator);
+                    setViewComponent(<MessageStoreWizard onClose={props.handleClose} path={dir} isPopup={true} />);
                     break;
                 default:
                     setViewComponent(null);

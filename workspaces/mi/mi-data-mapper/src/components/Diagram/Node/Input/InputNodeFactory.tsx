@@ -29,7 +29,7 @@ export class InputNodeFactory extends AbstractReactFactory<InputNode, DiagramEng
             return (
                 <InputSearchNoResultFound kind={SearchNoResultFoundKind.InputField} />
             );
-        } else if (event.model.dmType && event.model.dmType.kind === TypeKind.Interface) {
+        } else if (event.model.dmType && (event.model.dmType.kind === TypeKind.Interface || event.model.dmType.kind === TypeKind.Array)) {
             return (
                 <InputNodeWidget
                     engine={this.engine}

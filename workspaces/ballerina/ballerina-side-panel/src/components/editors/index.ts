@@ -14,3 +14,4 @@ export * from "./MultiSelectEditor";
 export * from "./ExpressionEditor";
 export * from "./ArrayEditor";
 export * from "./MapEditor";
+export * from "./FileSelect";

@@ -49,10 +49,18 @@ export * from './components/Accordion/Accordion';
 export * from './components/SyntaxHighlighter/SyntaxHighlighter';
 export * from './components/Drawer/Drawer';
 export * from './components/Alert/Alert';
-export * from './components/ExpressionBar/ExpressionBar';
 export * from './components/MultiSelect/MultiSelect';
-export * from './components/ExpressionBar/ExpressionBar';
 export * from './components/Toggle/Toggle';
+export * from './components/ExpressionEditorV2';
+export * from './components/PromptTextField/PromptTextField';
+export * from './components/Commons/Overlay';
+export * from './components/TreeView/TreeView';
+export * from './components/TreeView/TreeViewItem';
+export * from './components/SplitView/SplitView';
+export * from './components/Tabs/Tabs';
+export * from './components/PullUpButton/PullUPButton';
+export * from './components/TruncatedLabel/TruncatedLabel';
+export * from './components/PasswordField/PasswordField';
 
 export * from './components/SampleForm/Header/Header';
 export * from './components/SampleForm/HorizontalIcons/HorizontalIcons';
@@ -73,3 +81,6 @@ export * from './components/Alert/Alert';
 export * from './components/View';
 
 export * from './components/Commons/Overlay';
+export * from './components/Banner/Banner';
+
+export * from './components/ImageWithFallback';

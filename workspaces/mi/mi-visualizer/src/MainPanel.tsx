@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { EVENT_TYPE, POPUP_EVENT_TYPE, PopupMachineStateValue, MACHINE_VIEW, MachineStateValue, Platform } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { Overview } from './views/Overview';
 import { ServiceDesignerView } from './views/ServiceDesigner';
 import { DSSServiceDesignerView } from './views/Forms/DataServiceForm/ServiceDesigner';
 import { APIWizard, APIWizardProps } from './views/Forms/APIform';
@@ -39,7 +38,7 @@ import { ErrorBoundary, FormView } from '@wso2-enterprise/ui-toolkit';
 import PopupPanel from './PopupPanel';
 import { AddArtifactView } from './views/AddArtifact';
 import { SequenceTemplateView } from './views/Diagram/SequenceTemplate';
-import { ConnectorStore } from './views/Forms/ConnectionForm';
+import { ConnectionWizard } from './views/Forms/ConnectionForm';
 import { TestSuiteForm } from './views/Forms/Tests/TestSuiteForm';
 import { TestCaseForm } from './views/Forms/Tests/TestCaseForm';
 import { MockServiceForm } from './views/Forms/Tests/MockServices/MockServiceForm';
@@ -53,6 +52,8 @@ import { SamplesView } from './views/SamplesView';
 import { WelcomeView } from './views/WelcomeView';
 import { TaskView } from './views/Diagram/Task';
 import { InboundEPView } from './views/Diagram/InboundEndpoint';
+import { Overview } from './views/Overview';
+import { DatamapperForm } from './views/Forms/DatamapperForm';
 
 const MainContainer = styled.div`
     display: flex;
@@ -93,7 +94,6 @@ const ViewContainer = styled.div({});
 const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
     const { rpcClient, setIsLoading } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
-    const [showAIWindow, setShowAIWindow] = useState<boolean>(false);
     const [machineView, setMachineView] = useState<MACHINE_VIEW>();
     const [showNavigator, setShowNavigator] = useState<boolean>(true);
     const [formState, setFormState] = useState<PopupMachineStateValue>('initialize');
@@ -124,9 +124,7 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
     useEffect(() => {
         rpcClient.getVisualizerState().then((machineView) => {
             setMachineView(machineView.view);
-            if (viewComponent && machineView.view == MACHINE_VIEW.Overview) {
-                setShowAIWindow(true);
-            }
+            rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ['setContext', 'MI.showAddArtifact', viewComponent && machineView.view !== MACHINE_VIEW.ADD_ARTIFACT] });
         });
     }, [viewComponent]);
 
@@ -156,7 +154,7 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
             let shouldShowNavigator = true;
             switch (machineView?.view) {
                 case MACHINE_VIEW.Overview:
-                    setViewComponent(<Overview stateUpdated />);
+                    setViewComponent(<Overview />);
                     break;
                 case MACHINE_VIEW.ADD_ARTIFACT:
                     setViewComponent(<AddArtifactView />);
@@ -257,6 +255,9 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
                 case MACHINE_VIEW.SequenceForm:
                     setViewComponent(<SequenceWizard path={machineView.documentUri} />);
                     break;
+                case MACHINE_VIEW.DatamapperForm:
+                    setViewComponent(<DatamapperForm path={machineView.documentUri} />);
+                    break;
                 case MACHINE_VIEW.InboundEPForm:
                     setViewComponent(<InboundEPWizard
                         path={machineView.documentUri}
@@ -332,13 +333,13 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
                     break;
                 case MACHINE_VIEW.ConnectorStore:
                     setViewComponent(
-                        <ConnectorStore path={machineView.documentUri} />);
+                        <ConnectionWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.ConnectionForm:
                     setViewComponent(
                         <AddConnection
                             connectionName={machineView.customProps.connectionName}
-                            allowedConnectionTypes={machineView.customProps.allowedConnectionTypes}
+                            connectionType={machineView.customProps.connectionType}
                             connector={machineView.customProps}
                             path={machineView.documentUri} />);
                     break;

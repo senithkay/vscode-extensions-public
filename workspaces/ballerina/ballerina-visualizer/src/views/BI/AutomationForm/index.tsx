@@ -156,6 +156,7 @@ export function MainForm() {
             editable: true,
             documentation: '',
             value: '',
+            valueTypeConstraint: ""
         },
         {
             key: `type`,
@@ -165,6 +166,7 @@ export function MainForm() {
             editable: true,
             documentation: '',
             value: '',
+            valueTypeConstraint: ""
         },
         {
             key: `defaultable`,
@@ -174,7 +176,8 @@ export function MainForm() {
             advanced: true,
             editable: true,
             documentation: '',
-            value: ''
+            value: '',
+            valueTypeConstraint: ""
         }
     ];
 
@@ -203,6 +206,7 @@ export function MainForm() {
             editable: true,
             documentation: '',
             value: '',
+            valueTypeConstraint: 'string'
         },
         {
             key: `params`,
@@ -211,6 +215,7 @@ export function MainForm() {
             optional: false,
             editable: true,
             documentation: '',
+            valueTypeConstraint: '',
             value: '',
             paramManagerProps: {
                 paramValues: [],
@@ -240,9 +245,9 @@ export function MainForm() {
                                     oneTimeForm={true}
                                     expressionEditor={
                                         {
-                                            completions: filteredTypes,
+                                            types: filteredTypes,
                                             retrieveVisibleTypes: handleGetVisibleTypes,
-                                            onCompletionSelect: handleCompletionSelect,
+                                            onCompletionItemSelect: handleCompletionSelect,
                                             onCancel: handleExpressionEditorCancel,
                                             onBlur: handleExpressionEditorBlur
                                         }

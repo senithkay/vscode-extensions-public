@@ -9,7 +9,6 @@
 
 import { ApiCallNodeModel } from "../components/nodes/ApiCallNode";
 import { BaseNodeModel } from "../components/nodes/BaseNode";
-import { CodeBlockNodeModel } from "../components/nodes/CodeBlockNode";
 import { ButtonNodeModel } from "../components/nodes/ButtonNode";
 import { CommentNodeModel } from "../components/nodes/CommentNode";
 import { DraftNodeModel } from "../components/nodes/DraftNode/DraftNodeModel";
@@ -25,7 +24,6 @@ export type NodeModel =
     | DraftNodeModel
     | IfNodeModel
     | WhileNodeModel
-    | CodeBlockNodeModel
     | StartNodeModel
     | ApiCallNodeModel
     | CommentNodeModel

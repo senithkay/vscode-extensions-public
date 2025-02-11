@@ -12,13 +12,9 @@ import { Codicon, LinkButton } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { Colors } from "../../resources/constants";
 
-const CardContainer = styled.div<{ active?: boolean }>`
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: flex-start;
+const Card = styled.div<{ active?: boolean }>`
     gap: 16px;
-    width: 100%;
+    max-width: 42rem;
     padding: 16px;
     border-radius: 4px;
     border: 2px solid ${(props: { active: boolean }) => (props.active ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
@@ -28,6 +24,12 @@ const CardContainer = styled.div<{ active?: boolean }>`
         background-color: ${Colors.PRIMARY_CONTAINER};
         border: 2px solid ${Colors.PRIMARY};
     }
+`;
+
+const CardContainer = styled.div<{ active?: boolean }>`
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
 `;
 
 const Text = styled.p`
@@ -52,17 +54,20 @@ const Description = styled(Text)`
 `;
 
 const ContentContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    gap: 4px;
+    flex: 1;
 `;
 
 const IconContainer = styled.div`
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    max-width: 32px;
+    > div:first-child {
+        width: 32px;
+        height: 32px;
+        font-size: 28px;
+    }
 `;
 
 const ActionButton = styled(LinkButton)`
@@ -81,14 +86,16 @@ export interface ButtonCardProps {
 export function ButtonCard(props: ButtonCardProps) {
     const { title, caption, description, icon, active, onClick } = props;
     return (
-        <CardContainer onClick={onClick} active={active ?? false}>
-            {icon && <IconContainer>{icon}</IconContainer>}
-            <ContentContainer>
-                {caption && <Caption>{caption}</Caption>}
-                <Title>{title}</Title>
-                <Description>{description}</Description>
-            </ContentContainer>
-        </CardContainer>
+        <Card onClick={onClick} active={active ?? false}>
+            <CardContainer>
+                {icon && <IconContainer>{icon}</IconContainer>}
+                <ContentContainer>
+                    {caption && <Caption>{caption}</Caption>}
+                    <Title>{title}</Title>
+                    <Description>{description}</Description>
+                </ContentContainer>
+            </CardContainer>
+        </Card>
     );
 }
 

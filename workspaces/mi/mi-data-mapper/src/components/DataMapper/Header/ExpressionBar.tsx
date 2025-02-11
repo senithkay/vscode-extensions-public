@@ -9,12 +9,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Block, Node, ObjectLiteralExpression, PropertyAssignment, SyntaxKind, ts } from 'ts-morph';
+import { Block, Node, ObjectLiteralExpression, ts } from 'ts-morph';
 import { debounce } from 'lodash';
 
 import { css } from '@emotion/css';
 import { useMutation } from '@tanstack/react-query';
-import { ExpressionBar, CompletionItem, ExpressionBarRef, InputProps, Button, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { HeaderExpressionEditor, CompletionItem, HeaderExpressionEditorRef, InputProps, Button, Codicon } from '@wso2-enterprise/ui-toolkit';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 import { READONLY_MAPPING_FUNCTION_NAME } from './constants';
@@ -51,7 +51,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const { views, filePath, applyModifications } = props;
     const { rpcClient } = useVisualizerContext();
     const classes = useStyles();
-    const textFieldRef = useRef<ExpressionBarRef>(null);
+    const textFieldRef = useRef<HeaderExpressionEditorRef>(null);
     const lastCursorPosition = useRef<number | undefined>();
     const completionReqPosStart = useRef<number>(0);
     const completionReqPosEnd = useRef<number>(0);
@@ -329,7 +329,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 
             } else {
                 const newValue = value === ''
-                    ? getDefaultValue(lastFocusedPort.typeWithValue.type.kind)
+                    ? getDefaultValue(lastFocusedPort.typeWithValue.type)
                     : value;
                 targetExpr = focusedFieldValue;
                 const updatedNode = targetExpr.replaceWithText(newValue);
@@ -371,11 +371,13 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     }
 
     const handleCancelCompletions = () => {
+        updateCompletions.cancel();
         setCompletions([]);
     };
 
     const handleCloseCompletions = () => {
         lastCursorPosition.current = textFieldRef.current.inputElement.selectionStart;
+        updateCompletions.cancel();
         setCompletions([]);
         handleFocus(false);
     }
@@ -452,7 +454,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
     return (
         <div className={classes.exprBarContainer}>
-            <ExpressionBar
+            <HeaderExpressionEditor
                 id='expression-bar'
                 ref={textFieldRef}
                 disabled={disabled}
@@ -460,7 +462,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 placeholder={placeholder}
                 completions={completions}
                 inputProps={inputProps}
-                textBoxType='TextField'
                 autoSelectFirstItem={true}
                 onChange={handleChange}
                 extractArgsFromFunction={extractArgsFromFunction}

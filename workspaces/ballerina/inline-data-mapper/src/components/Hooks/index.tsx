@@ -17,7 +17,7 @@ import { DataMapperNodeModel } from '../Diagram/Node/commons/DataMapperNode';
 import { getIONodeHeight } from '../Diagram/utils/diagram-utils';
 import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
 import { ErrorNodeKind } from '../DataMapper/Error/DataMapperError';
-import { useDMCollapsedFieldsStore, useDMSearchStore } from '../../store/store';
+import { useDMCollapsedFieldsStore, useDMExpandedFieldsStore, useDMSearchStore } from '../../store/store';
 import { InputNode, ObjectOutputNode } from '../Diagram/Node';
 import { GAP_BETWEEN_INPUT_NODES, OFFSETS } from '../Diagram/utils/constants';
 import { InputDataImportNodeModel, OutputDataImportNodeModel } from '../Diagram/Node/DataImport/DataImportNode';
@@ -75,8 +75,9 @@ export const useDiagramModel = (
     const offSetY = diagramModel.getOffsetY();
     const noOfNodes = nodes.length;
     const context = nodes.find(node => node.context)?.context;
-    const { stNode } = context ?? {};
-    const collapsedFields = useDMCollapsedFieldsStore(state => state.collapsedFields); // Subscribe to collapsedFields
+    const { model } = context ?? {};
+    const collapsedFields = useDMCollapsedFieldsStore(state => state.fields); // Subscribe to collapsedFields
+    const expandedFields = useDMExpandedFieldsStore(state => state.fields); // Subscribe to expandedFields
     const { inputSearch, outputSearch } = useDMSearchStore();
 
     const genModel = async () => {
@@ -109,7 +110,13 @@ export const useDiagramModel = (
         isFetching,
         isError,
         refetch,
-    } = useQuery(['genModel', {noOfNodes, stNode, inputSearch, outputSearch, collapsedFields, newZoomLevel: zoomLevel}], () => genModel(), { networkMode: 'always' });
+    } = useQuery(
+            ['genModel',
+                {noOfNodes, model, inputSearch, outputSearch, collapsedFields, expandedFields, newZoomLevel: zoomLevel}
+            ],
+            () => genModel(),
+            { networkMode: 'always' }
+        );
 
     return { updatedModel, isFetching, isError, refetch };
 };

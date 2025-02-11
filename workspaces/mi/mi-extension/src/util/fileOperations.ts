@@ -7,21 +7,29 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Progress, window, ProgressLocation, commands, workspace, Uri, TextEditorRevealType, Selection, Range as VSCodeRange, ViewColumn, TextEditor } from "vscode";
+import { Progress, window, ProgressLocation, commands, workspace, Uri, TextEditorRevealType, Selection, Range as VSCodeRange, ViewColumn, TextEditor, WorkspaceEdit, Position } from "vscode";
 import * as fs from 'fs';
 import * as os from 'os';
 import axios from "axios";
 import * as path from 'path';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
-import { COMMANDS } from "../constants";
 import * as unzipper from 'unzipper';
-import { ListRegistryArtifactsResponse, Range, RegistryArtifact, UpdateRegistryMetadataRequest } from "@wso2-enterprise/mi-core";
+import { DownloadProgressData, ListRegistryArtifactsResponse, onDownloadProgress, Range, RegistryArtifact, UpdateRegistryMetadataRequest } from "@wso2-enterprise/mi-core";
 import { rm } from 'node:fs/promises';
 import { existsSync } from "fs";
+import { spawn } from "child_process";
+import { RPCLayer } from "../RPCLayer";
+import { VisualizerWebview } from "../visualizer/webview";
+import { MiVisualizerRpcManager } from "../rpc-managers/mi-visualizer/rpc-manager";
 
 interface ProgressMessage {
     message: string;
     increment?: number;
+}
+
+export function getFileName(filePath: string): string {
+    const fileNameWithExt = filePath.split('/').pop();
+    return fileNameWithExt?.split('.')[0] || '';
 }
 
 async function selectFileDownloadPath(): Promise<string> {
@@ -33,18 +41,39 @@ async function selectFileDownloadPath(): Promise<string> {
     return "";
 }
 
-async function downloadFile(url, filePath, progressCallback) {
+async function downloadFile(url: string, filePath: string, progressCallback?: (downloadProgress: DownloadProgressData) => void) {
     const writer = fs.createWriteStream(filePath);
     let totalBytes = 0;
     try {
         const response = await axios.get(url, {
             responseType: 'stream',
+            headers: {
+                "User-Agent": "Mozilla/5.0"
+            },
             onDownloadProgress: (progressEvent) => {
                 totalBytes = progressEvent.total!;
-                const progress = (progressEvent.loaded / totalBytes) * 100;
+                const formatSize = (sizeInBytes: number) => {
+                    const sizeInKB = sizeInBytes / 1024;
+                    if (sizeInKB < 1024) {
+                        return `${Math.floor(sizeInKB)} KB`;
+                    } else {
+                        return `${Math.floor(sizeInKB / 1024)} MB`;
+                    }
+                };
+                const progress: DownloadProgressData = {
+                    percentage: Math.round((progressEvent.loaded * 100) / totalBytes),
+                    downloadedAmount: formatSize(progressEvent.loaded),
+                    downloadSize: formatSize(totalBytes)
+                };
                 if (progressCallback) {
                     progressCallback(progress);
                 }
+                // Notify the visualizer
+                RPCLayer._messenger.sendNotification(
+                    onDownloadProgress,
+                    { type: 'webview', webviewType: VisualizerWebview.viewType },
+                    progress
+                );
             }
         });
         response.data.pipe(writer);
@@ -74,6 +103,18 @@ async function handleDownloadFile(rawFileLink: string, defaultDownloadsPath: str
         window.showErrorMessage(`Failed to download file: ${error}`);
     }
     progress.report({ message: "Download finished" });
+}
+
+export function appendContent(path: string, content: string): Promise<boolean> {
+    return new Promise((resolve) => {
+        try {
+            fs.writeFileSync(path, content, { flag: 'a' });
+            resolve(true);
+        } catch (error) {
+            console.error('Error appending content:', error);
+            resolve(false);
+        }
+    });
 }
 
 export async function handleOpenFile(sampleName: string, repoUrl: string) {
@@ -159,7 +200,7 @@ export async function handleOpenFile(sampleName: string, repoUrl: string) {
     * @param mediaType     The media type of the artifact.
     */
 export async function addNewEntryToArtifactXML(projectDir: string, artifactName: string, file: string,
-    artifactPath: string, mediaType: string, isCollection: boolean): Promise<boolean> {
+    artifactPath: string, mediaType: string, isCollection: boolean, isRegistry: boolean): Promise<boolean> {
     return new Promise(async (resolve) => {
         const options = {
             ignoreAttributes: false,
@@ -168,7 +209,7 @@ export async function addNewEntryToArtifactXML(projectDir: string, artifactName:
             format: true,
         };
         const parser = new XMLParser(options);
-        const artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
+        const artifactXMLPath = isRegistry ? path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml') : path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'artifact.xml');
         if (!fs.existsSync(artifactXMLPath)) {
             fs.writeFileSync(artifactXMLPath, `<?xml version="1.0" encoding="UTF-8"?><artifacts></artifacts>`);
         }
@@ -234,7 +275,12 @@ export async function removeEntryFromArtifactXML(projectDir: string, artifactPat
             format: true,
         };
         const parser = new XMLParser(options);
-        const artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
+        let artifactXMLPath;
+        if (path.normalize(artifactPath).includes(path.normalize("_system/governance/mi-resources"))) {
+            artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'artifact.xml');
+        } else {
+            artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
+        }
         if (!fs.existsSync(artifactXMLPath)) {
             resolve(false);
         }
@@ -377,6 +423,14 @@ export function getMediatypeAndFileExtension(templateType: string): { mediaType:
             mediaType = '';
             fileExtension = 'sql';
             break;
+        case "RB File":
+            mediaType = '';
+            fileExtension = 'rb';
+            break;
+        case "GROOVY File":
+            mediaType = '';
+            fileExtension = 'groovy';
+            break;
         case "JSON File":
             mediaType = 'application/json';
             fileExtension = 'json';
@@ -384,6 +438,14 @@ export function getMediatypeAndFileExtension(templateType: string): { mediaType:
         case "YAML File":
             mediaType = 'application/yaml';
             fileExtension = 'yaml';
+            break;
+        case "TEXT File":
+            mediaType = 'text/plain';
+            fileExtension = 'txt';
+            break;
+        case "XML File":
+            mediaType = 'application/xml';
+            fileExtension = 'xml';
             break;
         case "Local Entry":
             mediaType = 'application/vnd.wso2.esb.localentry';
@@ -474,14 +536,20 @@ export async function deleteRegistryResource(filePath: string): Promise<{ status
             if (platform === 'win32') {
                 tempPath = tempPath.replace(/\\/g, '/');
             }
-            tempPath = tempPath.replace('/src/main/wso2mi/resources/registry/', '');
-            var regPath = "";
-            if (tempPath.startsWith('gov')) {
-                regPath = '/_system/governance/';
-                regPath = regPath + tempPath.replace('gov/', '');
+            tempPath = path.normalize(tempPath);
+            if (tempPath.includes('/src/main/wso2mi/resources/registry/')) {
+                tempPath = tempPath.replace('/src/main/wso2mi/resources/registry/', '');
+                var regPath = "";
+                if (tempPath.startsWith('gov')) {
+                    regPath = '/_system/governance/';
+                    regPath = regPath + tempPath.replace('gov/', '');
+                } else {
+                    regPath = '/_system/config/';
+                    regPath = regPath + tempPath.replace('conf/', '');
+                }
             } else {
-                regPath = '/_system/config/';
-                regPath = regPath + tempPath.replace('conf/', '');
+                tempPath = tempPath.replace('/src/main/wso2mi/resources/', '');
+                var regPath = "/_system/governance/mi-resources/" + tempPath;
             }
             if (fs.lstatSync(filePath).isDirectory()) {
                 removeEntryFromArtifactXML(workspaceFolder, regPath, "");
@@ -492,7 +560,7 @@ export async function deleteRegistryResource(filePath: string): Promise<{ status
                 removeEntryFromArtifactXML(workspaceFolder, regPath, fileName);
                 fs.unlinkSync(filePath);
             }
-            resolve({ status: true, info: "Registry resource removed" });
+            resolve({ status: true, info: "Resource removed" });
         } else {
             resolve({ status: false, info: "Workspace not found" });
         }
@@ -505,13 +573,19 @@ export function deleteDataMapperResources(filePath: string): Promise<{ status: b
         const fileName = path.basename(filePath);
         if (projectDir && fileName.endsWith('.ts')) {
             const dmName = fileName.replace('.ts', '');
-            const inputSchemaRegPath = '/_system/governance/datamapper/' + dmName;
-            const outputSchemaRegPath = '/_system/governance/datamapper/' + dmName;
-            const configFileRegpath = '/_system/governance/datamapper/' + dmName;
-            removeEntryFromArtifactXML(projectDir, inputSchemaRegPath, dmName + '_inputSchema.json');
-            removeEntryFromArtifactXML(projectDir, outputSchemaRegPath, dmName + '_outputSchema.json');
-            removeEntryFromArtifactXML(projectDir, configFileRegpath, dmName + '.dmc');
-            workspace.fs.delete(Uri.parse(path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov/datamapper/' + dmName)), { recursive: true, useTrash: true });
+            let artifactXmlSavePath = '';
+            let projectDirPath = '';
+            if (path.normalize(filePath).includes(path.normalize(path.join('resources', 'datamapper')))) {
+                artifactXmlSavePath = '/_system/governance/mi-resources/datamapper/' + dmName
+                projectDirPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'datamapper', dmName);
+            } else {
+                artifactXmlSavePath = '/_system/governance/datamapper/' + dmName;
+                projectDirPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', dmName);
+            }
+            removeEntryFromArtifactXML(projectDir, artifactXmlSavePath, dmName + '_inputSchema.json');
+            removeEntryFromArtifactXML(projectDir, artifactXmlSavePath, dmName + '_outputSchema.json');
+            removeEntryFromArtifactXML(projectDir, artifactXmlSavePath, dmName + '.dmc');
+            workspace.fs.delete(Uri.parse(projectDirPath), { recursive: true, useTrash: true });
             resolve({ status: true, info: "Datamapper resources removed" });
         }
     });
@@ -563,15 +637,7 @@ export async function createMetadataFilesForRegistryCollection(collectionRoot: s
  */
 export function getAvailableRegistryResources(projectDir: string): ListRegistryArtifactsResponse {
     const result: RegistryArtifact[] = [];
-    var artifactXMLPath = path.join(projectDir, 'artifact.xml');
-    if (!projectDir.endsWith('registry')) {
-        const fileUri = Uri.file(projectDir);
-        const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
-        if (workspaceFolder) {
-            projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
-            artifactXMLPath = path.join(projectDir, 'artifact.xml');
-        }
-    }
+    var artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
     if (fs.existsSync(artifactXMLPath)) {
         const artifactXML = fs.readFileSync(artifactXMLPath, "utf8");
         const options = {
@@ -750,6 +816,11 @@ function getArtifactData(projectDir: string): [any, any[], string] {
 export function findJavaFiles(folderPath): Map<string, string> {
     const results = new Map();
     function traverse(currentPath) {
+        if (!fs.existsSync(currentPath)) {
+            console.error(`Directory does not exist: ${currentPath}`);
+            return results;
+        }
+
         const files = fs.readdirSync(currentPath);
         for (const file of files) {
             const filePath = path.join(currentPath, file);
@@ -778,63 +849,22 @@ export function findJavaFiles(folderPath): Map<string, string> {
  * Change the packaging of the root pom.xml file to the given value.
  * @param projectDir project directory.     
  */
-export function changeRootPomPackaging(projectDir: string, packaging: string) {
-    const pomXMLPath = path.join(projectDir, 'pom.xml');
-    if (fs.existsSync(pomXMLPath)) {
-        const pomXML = fs.readFileSync(pomXMLPath, "utf8");
-        const options = {
-            ignoreAttributes: false,
-            format: true,
-        };
-        const parser = new XMLParser(options);
-        const pomXMLData = parser.parse(pomXML);
-        pomXMLData["project"]["packaging"] = packaging;
-        const builder = new XMLBuilder(options);
-        const updatedXmlString = builder.build(pomXMLData);
-        fs.writeFileSync(pomXMLPath, updatedXmlString);
+export async function changeRootPomForClassMediator() {
+    const rpcManager = new MiVisualizerRpcManager();
+    const pomValues = await rpcManager.getProjectDetails();
+    const packagingValue = pomValues.primaryDetails.projectPackaging;
+    if (packagingValue.range) {
+        await rpcManager.updatePomValues({ pomValues: [{ range: packagingValue.range, value: "jar" }] });
     }
-}
 
-/**
- * Add Synapse depedency to the root pom.
- * @param projectDir project directory.
- */
-export function addSynapseDependency(projectDir: string) {
-    const pomXMLPath = path.join(projectDir, 'pom.xml');
-    if (fs.existsSync(pomXMLPath)) {
-        const pomXML = fs.readFileSync(pomXMLPath, "utf8");
-        const options = {
-            ignoreAttributes: false,
-            format: true,
-        };
-        const parser = new XMLParser(options);
-        const pomXMLData = parser.parse(pomXML);
-        const synapseDep = {
-            dependency: {
-                groupId: "org.apache.synapse",
-                artifactId: "synapse-core",
-                version: "4.0.0-wso2v20",
-            }
-        };
-        if (!pomXMLData.project.dependencies || pomXMLData.project.dependencies === '') {
-            pomXMLData.project.dependencies = [];
-            pomXMLData.project.dependencies.push(synapseDep);
-        } else if (!Array.isArray(pomXMLData.project.dependencies.dependency)) {
-            const dep = pomXMLData.project.dependencies.dependency;
-            if (dep.artifactId !== "synapse-core") {
-                pomXMLData.project.dependencies.dependency = [];
-                pomXMLData.project.dependencies.dependency.push(dep);
-                pomXMLData.project.dependencies.dependency.push(synapseDep.dependency);
-            }
-        } else {
-            if (pomXMLData.project.dependencies.dependency.filter(dep => dep.artifactId === "synapse-core").length === 0) {
-                pomXMLData.project.dependencies.dependency.push(synapseDep.dependency);
-            }
+    const dependencies = [
+        {
+            groupId: "org.apache.synapse",
+            artifact: "synapse-core",
+            version: "4.0.0-wso2v165"
         }
-        const builder = new XMLBuilder(options);
-        const updatedXmlString = builder.build(pomXMLData);
-        fs.writeFileSync(pomXMLPath, updatedXmlString);
-    }
+    ];
+    await rpcManager.updateDependencies({ dependencies });
 }
 
 /**
@@ -886,4 +916,131 @@ export function goToSource(filePath: string, position?: Range) {
         textEditor.revealRange(range, TextEditorRevealType.InCenter);
         textEditor.selection = new Selection(range.start, range.start);
     }
+}
+
+export async function downloadWithProgress(url: string, downloadPath: string, title: string) {
+    await window.withProgress({
+        location: ProgressLocation.Notification,
+        title: title,
+        cancellable: false
+    }, async (progress) => {
+        let lastPercentageReported = 0;
+        const handleProgress = (downloadProgress: DownloadProgressData) => {
+            const percentCompleted = downloadProgress.percentage;
+            if (percentCompleted > lastPercentageReported) {
+                progress.report({ increment: percentCompleted - lastPercentageReported, message: `${percentCompleted}% of ${downloadProgress.downloadSize}` });
+                lastPercentageReported = percentCompleted;
+            }
+        };
+        await downloadFile(url, downloadPath, handleProgress).catch((error) => {
+            if (fs.existsSync(downloadPath)) {
+                fs.unlinkSync(downloadPath);
+            }
+        });
+    });
+}
+
+export async function extractWithProgress(filePath: string, destination: string, title: string) {
+    await window.withProgress({
+        location: ProgressLocation.Notification,
+        title: title,
+        cancellable: false
+    }, async () => {
+        await extractArchive(filePath, destination);
+    });
+}
+export async function performTaskWithProgress(
+    task: () => Promise<void>,
+    title: string,
+    cancellable = false
+) {
+    await window.withProgress({
+        location: ProgressLocation.Notification,
+        title: title,
+        cancellable: cancellable,
+    }, async (progress, cancellationToken) => {
+
+        let cancelled = false;
+        cancellationToken.onCancellationRequested(() => {
+            cancelled = true;
+        });
+
+        try {
+            await task();
+        } catch (error) {
+            window.showErrorMessage(`Error while performing the task: ${error}`);
+        }
+    });
+}
+
+async function extractArchive(filePath: string, destination: string) {
+    const platform = process.platform;
+
+    function runCommand(command: string, args: string[] = [], options = {}) {
+        return new Promise<void>((resolve, reject) => {
+            const child = spawn(command, args, options);
+
+            child.stdout.on('data', (data) => {
+                console.log(`stdout: ${data}`);
+            });
+
+            child.stderr.on('data', (data) => {
+                console.error(`stderr: ${data}`);
+            });
+
+            child.on('error', (error) => {
+                reject(error);
+            });
+
+            child.on('close', (code) => {
+                if (code === 0) {
+                    resolve();
+                } else {
+                    reject(new Error(`Unzip failed with code ${code}`));
+                }
+            });
+        });
+    }
+
+    try {
+        if (filePath.endsWith('.zip')) {
+            if (platform === 'win32') {
+                await runCommand('powershell.exe', ['-NoProfile', '-Command', `Expand-Archive -Path "${filePath}" -DestinationPath "${destination}" -Force`]);
+            } else {
+                await runCommand('unzip', ['-o', filePath, '-d', destination]);
+            }
+        } else if (filePath.endsWith('.tar') || filePath.endsWith('.tar.gz') || filePath.endsWith('.tgz')) {
+            if (platform === 'win32') {
+                await runCommand('powershell.exe', ['-NoProfile', '-Command', `tar -xf "${filePath}" -C "${destination}"`]);
+            } else {
+                await runCommand('tar', ['-xf', filePath, '-C', destination]);
+            }
+        } else {
+            throw new Error('Unsupported file type');
+        }
+    } catch (error) {
+        const errorMessage = (error instanceof Error) ? error.message : String(error);
+
+        if (errorMessage.includes("Unzip failed with code") && fs.existsSync(destination)) {
+            fs.unlinkSync(filePath);
+        }
+
+        if (errorMessage.includes("ENOENT")) {
+            window.showErrorMessage('unzip or tar command not found. Please install these to extract the archive.');
+        }
+
+        throw new Error(`Error while extracting the archive: ${errorMessage}`);
+    }
+}
+export async function selectFolderDialog(title: string, defaultUri?: Uri): Promise<Uri | undefined> {
+    return window.showOpenDialog({
+        canSelectFiles: false,
+        canSelectFolders: true,
+        canSelectMany: false,
+        defaultUri: defaultUri,
+        openLabel: 'Select',
+        title: title
+    }).then((uris) => {
+        return uris ? uris[0] : undefined;
+    });
 }

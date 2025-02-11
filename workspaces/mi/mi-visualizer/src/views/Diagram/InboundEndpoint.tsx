@@ -40,7 +40,7 @@ export const InboundEPView = ({ path, model, diagnostics }: InboundEPViewProps) 
     return (
         <View>
             {model && model.name &&
-                <ViewHeader title={`Inbound Endpoint: ${model.name}`} icon='inbound-endpoint' onEdit={handleEditInboundEP} />
+                <ViewHeader title={`Event Integration: ${model.name}`} icon='inbound-endpoint' onEdit={handleEditInboundEP} />
             }
             {<ViewContent>
                 {model && model.name && model.sequence &&

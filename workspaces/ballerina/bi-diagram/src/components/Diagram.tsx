@@ -11,7 +11,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { cloneDeep } from "lodash";
-import { Switch } from "@wso2-enterprise/ui-toolkit";
+import { Icon, NavigationWrapperCanvasWidget, Switch, Tooltip } from "@wso2-enterprise/ui-toolkit";
 
 import {
     clearDiagramZoomAndPosition,
@@ -34,15 +34,21 @@ import { InitVisitor } from "../visitors/InitVisitor";
 import { LinkTargetVisitor } from "../visitors/LinkTargetVisitor";
 import { NODE_WIDTH, NodeTypes } from "../resources/constants";
 import Controls from "./Controls";
+import { CurrentBreakpointsResponse as BreakpointInfo } from "@wso2-enterprise/ballerina-core";
+import { BreakpointVisitor } from "../visitors/BreakpointVisitor";
+import { BaseNodeModel } from "./nodes/BaseNode";
 
 export interface DiagramProps {
     model: Flow;
-    onAddNode: (parent: FlowNode | Branch, target: LineRange) => void;
-    onDeleteNode: (node: FlowNode) => void;
-    onAddComment: (comment: string, target: LineRange) => void;
-    onNodeSelect: (node: FlowNode) => void;
-    onConnectionSelect: (connectionName: string) => void;
-    goToSource: (node: FlowNode) => void;
+    onAddNode?: (parent: FlowNode | Branch, target: LineRange) => void;
+    onAddNodePrompt?: (parent: FlowNode | Branch, target: LineRange, prompt: string) => void;
+    onDeleteNode?: (node: FlowNode) => void;
+    onAddComment?: (comment: string, target: LineRange) => void;
+    onNodeSelect?: (node: FlowNode) => void;
+    addBreakpoint?: (node: FlowNode) => void;
+    removeBreakpoint?: (node: FlowNode) => void;
+    onConnectionSelect?: (connectionName: string) => void;
+    goToSource?: (node: FlowNode) => void;
     openView?: (filePath: string, position: NodePosition) => void;
     // ai suggestions callbacks
     suggestions?: {
@@ -51,12 +57,15 @@ export interface DiagramProps {
         onDiscard(): void;
     };
     projectPath?: string;
+    breakpointInfo?: BreakpointInfo;
+    readOnly?: boolean;
 }
 
 export function Diagram(props: DiagramProps) {
     const {
         model,
         onAddNode,
+        onAddNodePrompt,
         onDeleteNode,
         onAddComment,
         onNodeSelect,
@@ -65,6 +74,10 @@ export function Diagram(props: DiagramProps) {
         openView,
         suggestions,
         projectPath,
+        addBreakpoint,
+        removeBreakpoint,
+        breakpointInfo,
+        readOnly,
     } = props;
 
     const [showErrorFlow, setShowErrorFlow] = useState(false);
@@ -82,7 +95,6 @@ export function Diagram(props: DiagramProps) {
 
     useEffect(() => {
         return () => {
-            console.log(">>> clear diagram position and zoom");
             clearDiagramZoomAndPosition();
         };
     }, []);
@@ -111,6 +123,10 @@ export function Diagram(props: DiagramProps) {
         traverseFlow(flowModel, sizingVisitor);
         const positionVisitor = new PositionVisitor();
         traverseFlow(flowModel, positionVisitor);
+        if (breakpointInfo) {
+            const breakpointVisitor = new BreakpointVisitor(breakpointInfo);
+            traverseFlow(flowModel, breakpointVisitor);
+        }
         // create diagram nodes and links
         const nodeVisitor = new NodeFactoryVisitor();
         traverseFlow(flowModel, nodeVisitor);
@@ -186,22 +202,46 @@ export function Diagram(props: DiagramProps) {
         },
         showErrorFlow: showErrorFlow,
         onAddNode: onAddNode,
+        onAddNodePrompt: onAddNodePrompt,
         onDeleteNode: onDeleteNode,
         onAddComment: onAddComment,
         onNodeSelect: onNodeSelect,
+        addBreakpoint: addBreakpoint,
+        removeBreakpoint: removeBreakpoint,
         onConnectionSelect: onConnectionSelect,
         goToSource: goToSource,
         openView: openView,
         suggestions: suggestions,
         projectPath: projectPath,
+        readOnly: onAddNode === undefined || onDeleteNode === undefined || onNodeSelect === undefined || readOnly,
+    };
+
+    const getActiveBreakpointNode = (nodes: NodeModel[]): NodeModel => {
+        const node = nodes.find((node) => {
+            const isValidType = node.getType() === NodeTypes.BASE_NODE
+                || node.getType() === NodeTypes.WHILE_NODE
+                || node.getType() === NodeTypes.IF_NODE
+                || node.getType() === NodeTypes.API_CALL_NODE;
+            return isValidType && (node as BaseNodeModel).isActiveBreakpoint();
+        });
+
+        return node;
     };
 
     return (
         <>
             {hasErrorFlow.current && (
                 <Switch
-                    leftLabel="Flow"
-                    rightLabel="On Error"
+                    leftLabel={
+                        <Tooltip content="Main Flow" position="top">
+                            <Icon name="bi-flowchart" sx={{ fontSize: "16px" }} />
+                        </Tooltip>
+                    }
+                    rightLabel={
+                        <Tooltip content="Error Flow" position="top">
+                            <Icon name="bi-shield-error" sx={{ fontSize: "16px" }} />
+                        </Tooltip>
+                    }
                     checked={showErrorFlow}
                     checkedColor="var(--vscode-button-background)"
                     enableTransition={true}
@@ -213,6 +253,8 @@ export function Diagram(props: DiagramProps) {
                         right: "20px",
                         zIndex: "2",
                         border: "unset",
+                        height: "40px",
+                        width: "100px",
                     }}
                     disabled={false}
                 />
@@ -221,7 +263,7 @@ export function Diagram(props: DiagramProps) {
             {diagramEngine && diagramModel && (
                 <DiagramContextProvider value={context}>
                     <DiagramCanvas>
-                        <CanvasWidget engine={diagramEngine} />
+                        <NavigationWrapperCanvasWidget diagramEngine={diagramEngine} focusedNode={getActiveBreakpointNode(diagramModel.getNodes() as NodeModel[])} />
                     </DiagramCanvas>
                 </DiagramContextProvider>
             )}

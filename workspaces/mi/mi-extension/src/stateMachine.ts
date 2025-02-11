@@ -30,6 +30,7 @@ import { fileURLToPath } from 'url';
 import path = require('path');
 import { activateTestExplorer } from './test-explorer/activator';
 import { DMProject } from './datamapper/DMProject';
+import { setupEnvironment } from './util/onboardingUtils';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -51,6 +52,10 @@ const stateMachine = createMachine<MachineContext>({
                 id: 'checkProject',
                 src: checkIfMiProject,
                 onDone: [
+                    {
+                        target: 'environmentSetup',
+                        cond: (context, event) => (event.data.isProject === true || event.data.isOldProject === true) && event.data.isEnvironmentSetUp === false,
+                    },
                     {
                         target: 'oldProjectDetected',
                         cond: (context, event) =>
@@ -214,7 +219,8 @@ const stateMachine = createMachine<MachineContext>({
                                 dataMapperProps: (context, event) => event.viewLocation.dataMapperProps,
                                 stNode: (context, event) => undefined,
                                 diagnostics: (context, event) => undefined,
-                                type: (context, event) => event.type
+                                type: (context, event) => event.type,
+                                previousContext: (context, event) => context
                             })
                         },
                         REPLACE_VIEW: {
@@ -286,6 +292,34 @@ const stateMachine = createMachine<MachineContext>({
                     }
                 }
             }
+        },
+        environmentSetup: {
+            initial: "viewLoading",
+            states: {
+                viewLoading: {
+                    invoke: [
+                        {
+                            src: 'openWebPanel',
+                            onDone: {
+                                target: 'viewReady'
+                            }
+                        },
+                        {
+                            src: 'focusProjectExplorer',
+                            onDone: {
+                                target: 'viewReady'
+                            }
+                        }
+                    ]
+                },
+                viewReady: {
+                    on: {
+                        REFRESH_ENVIRONMENT: {
+                            target: '#mi.initialize'
+                        }
+                    }
+                }
+            }
         }
     }
 }, {
@@ -352,14 +386,12 @@ const stateMachine = createMachine<MachineContext>({
                         const filePath = context.documentUri;
                         const functionName = DM_FUNCTION_NAME;
                         DMProject.refreshProject(filePath);
-                        const [fnSource, interfacesSrc] = getSources(filePath);
-                        const functionIOTypes = getFunctionIOTypes(filePath, functionName);
+                        const [fileContent, nonMappingFileContent] = getSources(filePath, functionName);
                         viewLocation.dataMapperProps = {
                             filePath: filePath,
                             functionName: functionName,
-                            functionIOTypes: functionIOTypes,
-                            fileContent: fnSource,
-                            interfacesSource: interfacesSrc,
+                            fileContent: fileContent,
+                            nonMappingFileContent: nonMappingFileContent,
                             configName: deriveConfigName(filePath)
                         };
                         viewLocation.view = MACHINE_VIEW.DataMapperView;
@@ -464,15 +496,22 @@ const stateMachine = createMachine<MachineContext>({
                     history.pop();
                 }
                 if (!context.view?.includes("Form")) {
-                    history.push({
+                    const ctx = context?.previousContext ? context?.previousContext : context;
+                    const historyStack = history.get();
+                    const lastEntry = historyStack[historyStack.length - 1];
+                    const newEntry = {
                         location: {
-                            view: context.view,
-                            documentUri: context.documentUri,
-                            position: context.position,
-                            identifier: context.identifier,
-                            dataMapperProps: context?.dataMapperProps
+                            view: ctx?.view,
+                            documentUri: ctx?.documentUri,
+                            position: ctx?.position,
+                            identifier: ctx?.identifier,
+                            dataMapperProps: ctx?.dataMapperProps
                         }
-                    });
+                    };
+
+                    if (!lastEntry || JSON.stringify(lastEntry) !== JSON.stringify(newEntry)) {
+                        history.push(newEntry);
+                    }
                 }
                 StateMachinePopup.resetState();
                 resolve(true);
@@ -494,6 +533,12 @@ const stateMachine = createMachine<MachineContext>({
             return new Promise(async (resolve, reject) => {
                 vscode.commands.executeCommand('setContext', 'MI.status', 'disabled');
                 updateProjectExplorer(context);
+                resolve(true);
+            });
+        },
+        focusProjectExplorer: (context, event) => {
+            return new Promise(async (resolve, reject) => {
+                vscode.commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
                 resolve(true);
             });
         }
@@ -536,9 +581,21 @@ export function navigate(entry?: HistoryEntry) {
             stateService.send({ type: "NAVIGATE", viewLocation: { view: MACHINE_VIEW.Overview } });
         }
     } else {
-        const location = historyStack[historyStack.length - 1].location;
+        const location = entry ? entry.location : historyStack[historyStack.length - 1].location;
         stateService.send({ type: "NAVIGATE", viewLocation: location });
     }
+}
+
+export function refreshUI() {
+    const context = StateMachine.context();
+    const location = {
+        view: context?.view,
+        documentUri: context?.documentUri,
+        position: context?.position,
+        identifier: context?.identifier,
+        dataMapperProps: context?.dataMapperProps
+    };
+    stateService.send({ type: "NAVIGATE", viewLocation: location });
 }
 
 function updateProjectExplorer(location: VisualizerLocation | undefined) {
@@ -572,7 +629,7 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
 async function checkIfMiProject() {
     log('Detecting project ' + new Date().toLocaleTimeString());
 
-    let isProject = false, isOldProject = false, displayOverview = true, emptyProject = false;
+    let isProject = false, isOldProject = false, displayOverview = true, emptyProject = false, isEnvironmentSetUp = false;
     let projectUri = '';
     try {
         // Check for pom.xml files excluding node_modules directory
@@ -624,15 +681,21 @@ async function checkIfMiProject() {
     }
 
     if (projectUri) {
+        isEnvironmentSetUp = await setupEnvironment(projectUri, isOldProject);
+        if (!isEnvironmentSetUp) {
+            vscode.commands.executeCommand('setContext', 'MI.status', 'notSetUp');
+        }
         // Log project path
         log(`Current workspace path: ${projectUri}`);
     }
 
     // Register Project Creation command in any of the above cases
-    vscode.commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
-        log('Create New Project');
-    });
+    if (!(await vscode.commands.getCommands()).includes(COMMANDS.CREATE_PROJECT_COMMAND)) {
+        vscode.commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
+            log('Create New Project');
+        });
+    }
 
     log('Project detection completed ' + new Date().toLocaleTimeString());
     return {
@@ -640,7 +703,8 @@ async function checkIfMiProject() {
         isOldProject,
         displayOverview,
         projectUri, // Return the path of the detected project
-        emptyProject
+        emptyProject,
+        isEnvironmentSetUp
     };
 }
 

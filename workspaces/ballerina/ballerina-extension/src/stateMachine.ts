@@ -11,7 +11,7 @@ import { generateUid, getComponentIdentifier, getNodeByIndex, getNodeByName, get
 import * as fs from 'fs';
 import * as path from 'path';
 import { extension } from './BalExtensionContext';
-import { BIDiagramRpcManager } from './rpc-managers/bi-diagram/rpc-manager';
+import { BiDiagramRpcManager } from './rpc-managers/bi-diagram/rpc-manager';
 import { StateMachineAI } from './views/ai-panel/aiMachine';
 import { StateMachinePopup } from './stateMachinePopup';
 
@@ -82,7 +82,8 @@ const stateMachine = createMachine<MachineContext>(
                             view: (context, event) => event.viewLocation.view,
                             documentUri: (context, event) => event.viewLocation.documentUri,
                             position: (context, event) => event.viewLocation.position,
-                            identifier: (context, event) => event.viewLocation.identifier
+                            identifier: (context, event) => event.viewLocation.identifier,
+                            serviceType: (context, event) => event.viewLocation.serviceType
                         })
                     }
                 }
@@ -115,8 +116,7 @@ const stateMachine = createMachine<MachineContext>(
                                     view: (context, event) => event.data.view,
                                     identifier: (context, event) => event.data.identifier,
                                     position: (context, event) => event.data.position,
-                                    syntaxTree: (context, event) => event.data.syntaxTree,
-                                    haveServiceType: (context, event) => event.data.haveServiceType,
+                                    syntaxTree: (context, event) => event.data.syntaxTree
                                 })
                             }
                         }
@@ -129,7 +129,8 @@ const stateMachine = createMachine<MachineContext>(
                                     view: (context, event) => event.viewLocation.view,
                                     documentUri: (context, event) => event.viewLocation.documentUri,
                                     position: (context, event) => event.viewLocation.position,
-                                    identifier: (context, event) => event.viewLocation.identifier
+                                    identifier: (context, event) => event.viewLocation.identifier,
+                                    serviceType: (context, event) => event.viewLocation.serviceType
                                 })
                             },
                             VIEW_UPDATE: {
@@ -138,7 +139,8 @@ const stateMachine = createMachine<MachineContext>(
                                     documentUri: (context, event) => event.viewLocation.documentUri,
                                     position: (context, event) => event.viewLocation.position,
                                     view: (context, event) => event.viewLocation.view,
-                                    identifier: (context, event) => event.viewLocation.identifier
+                                    identifier: (context, event) => event.viewLocation.identifier,
+                                    serviceType: (context, event) => event.viewLocation.serviceType
                                 })
                             },
                             FILE_EDIT: {
@@ -212,7 +214,7 @@ const stateMachine = createMachine<MachineContext>(
                 if (!context.view && context.langClient) {
                     if (!context.position || ("groupId" in context.position)) {
                         if (context.isBI) {
-                            const entryPoints = (await new BIDiagramRpcManager().getProjectStructure()).directoryMap[DIRECTORY_MAP.SERVICES].length;
+                            const entryPoints = (await new BiDiagramRpcManager().getProjectStructure()).directoryMap[DIRECTORY_MAP.SERVICES].length;
                             if (entryPoints === 0) {
                                 history.push({ location: { view: MACHINE_VIEW.Overview, documentUri: context.documentUri } });
                                 return resolve();

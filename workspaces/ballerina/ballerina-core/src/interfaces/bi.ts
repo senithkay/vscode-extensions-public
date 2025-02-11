@@ -10,6 +10,7 @@
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./common";
 import { Diagnostic as VSCodeDiagnostic } from "vscode-languageserver-types";
+import { ServiceModel } from "./service";
 
 export type { NodePosition };
 
@@ -44,6 +45,8 @@ export type FlowNode = {
     returning: boolean;
     suggested?: boolean;
     viewState?: ViewState;
+    hasBreakpoint?: boolean;
+    isActiveBreakpoint?: boolean;
 };
 
 export type Metadata = {
@@ -52,6 +55,9 @@ export type Metadata = {
     icon?: string;
     keywords?: string[];
     draft?: boolean; // for diagram draft nodes
+    data?: {
+        isDataMappedFunction?: boolean;
+    }
 };
 
 export type Property = {
@@ -108,11 +114,13 @@ export type ViewState = {
     // element view state
     x: number;
     y: number;
-    w: number;
-    h: number;
+    lw: number; // left width from center
+    rw: number; // right width from center
+    h: number;  // height
     // container view state
-    cw?: number;
-    ch?: number;
+    clw: number; // container left width from center 
+    crw: number; // container right width from center
+    ch: number;  // container height
     // flow start node
     startNodeId?: string;
 };
@@ -126,6 +134,7 @@ export type TargetMetadata = {
 
 export enum DIRECTORY_MAP {
     SERVICES = "services",
+    LISTENERS = "listeners",
     AUTOMATION = "automation",
     FUNCTIONS = "functions",
     TRIGGERS = "triggers",
@@ -133,6 +142,7 @@ export enum DIRECTORY_MAP {
     TYPES = "types",
     RECORDS = "records",
     CONFIGURATIONS = "configurations",
+    DATA_MAPPERS = "dataMappers",
 }
 
 export enum DIRECTORY_SUB_TYPE {
@@ -142,19 +152,28 @@ export enum DIRECTORY_SUB_TYPE {
     CONFIGURATION = "configuration",
     SERVICE = "service",
     AUTOMATION = "automation",
-    TRIGGER = "trigger"
+    TRIGGER = "trigger",
+    DATA_MAPPER = "dataMapper",
+}
+
+export enum FUNCTION_TYPE {
+    REGULAR = "regular",
+    EXPRESSION_BODIED = "expressionBodied",
+    ALL = "all",
 }
 
 export interface ProjectStructureResponse {
     directoryMap: {
         [DIRECTORY_MAP.SERVICES]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.AUTOMATION]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.LISTENERS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.FUNCTIONS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.TRIGGERS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.CONNECTIONS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.TYPES]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.RECORDS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.CONFIGURATIONS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.DATA_MAPPERS]: ProjectStructureArtifactResponse[];
     };
 }
 
@@ -166,6 +185,7 @@ export interface ProjectStructureArtifactResponse {
     context?: string;
     position?: NodePosition;
     st?: STNode;
+    serviceModel?: ServiceModel;
     resources?: ProjectStructureArtifactResponse[];
 }
 export type Item = Category | AvailableNode;
@@ -242,6 +262,7 @@ export type NodeKind =
     | "FUNCTION_CALL"
     | "ASSIGN"
     | "DATA_MAPPER"
+    | "DATA_MAPPER_CALL"
     | "CONFIG_VARIABLE";
 
 export type OverviewFlow = {

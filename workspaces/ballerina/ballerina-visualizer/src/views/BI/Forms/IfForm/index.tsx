@@ -7,25 +7,28 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button, Codicon, CompletionItem, ExpressionBarRef, LinkButton } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, CompletionItem, FormExpressionEditorRef, LinkButton } from "@wso2-enterprise/ui-toolkit";
 
 import {
     FlowNode,
     Branch,
     LineRange,
-    TRIGGER_CHARACTERS,
-    TriggerCharacter,
     SubPanel,
     SubPanelView,
     FormDiagnostics,
     Diagnostic
 } from "@wso2-enterprise/ballerina-core";
 import { Colors } from "../../../../resources/constants";
-import { FormValues, ExpressionEditor, ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
+import {
+    FormValues,
+    ExpressionEditor,
+    ExpressionFormField,
+    FormExpressionEditorProps
+} from "@wso2-enterprise/ballerina-side-panel";
 import { FormStyles } from "../styles";
-import { convertBalCompletion, convertNodePropertyToFormField, convertToFnSignature } from "../../../../utils/bi";
+import { convertNodePropertyToFormField, removeDuplicateDiagnostics } from "../../../../utils/bi";
 import { cloneDeep, debounce } from "lodash";
 import { RemoveEmptyNodesVisitor, traverseNode } from "@wso2-enterprise/bi-diagram";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -34,11 +37,12 @@ interface IfFormProps {
     fileName: string;
     node: FlowNode;
     targetLineRange: LineRange;
+    expressionEditor: FormExpressionEditorProps;
     onSubmit: (node?: FlowNode) => void;
     openSubPanel: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
-    isActiveSubPanel?: boolean;
+    subPanelView?: SubPanelView;
 }
 
 export function IfForm(props: IfFormProps) {
@@ -46,11 +50,12 @@ export function IfForm(props: IfFormProps) {
         fileName,
         node,
         targetLineRange,
+        expressionEditor,
         onSubmit,
         openSubPanel,
         updatedExpressionField,
         resetUpdatedExpressionField,
-        isActiveSubPanel,
+        subPanelView,
     } = props;
     const { 
         watch,
@@ -64,14 +69,29 @@ export function IfForm(props: IfFormProps) {
     } = useForm<FormValues>();
 
     const { rpcClient } = useRpcContext();
-    const [completions, setCompletions] = useState<CompletionItem[]>([]);
-    const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const [activeEditor, setActiveEditor] = useState<number>(0);
     const [branches, setBranches] = useState<Branch[]>(cloneDeep(node.branches));
-    const triggerCompletionOnNextRequest = useRef<boolean>(false);
     const [diagnosticsInfo, setDiagnosticsInfo] = useState<FormDiagnostics[] | undefined>(undefined);
 
-    const exprRef = useRef<ExpressionBarRef>(null);
+    const exprRef = useRef<FormExpressionEditorRef>(null);
+
+    const handleFormOpen = () => {
+        rpcClient
+            .getBIDiagramRpcClient()
+            .formDidOpen({ filePath: fileName })
+            .then(() => {
+                console.log(">>> If form opened");
+            });
+    };
+
+    const handleFormClose = () => {
+        rpcClient
+            .getBIDiagramRpcClient()
+            .formDidClose({ filePath: fileName })
+            .then(() => {
+                console.log(">>> If form closed");
+            });
+    };
 
     const hasElseBranch = branches.find(
         (branch) =>
@@ -100,12 +120,17 @@ export function IfForm(props: IfFormProps) {
     }, [updatedExpressionField]);
 
     useEffect(() => {
+        handleFormOpen();
         branches.forEach((branch, index) => {
             if (branch.properties?.condition) {
                 const conditionValue = branch.properties.condition.value;
                 setValue(`branch-${index}`, conditionValue || "");
             }
         });
+
+        return () => {
+            handleFormClose();
+        }
     }, []);
 
     const handleSetDiagnosticsInfo = (diagnostics: FormDiagnostics) => {
@@ -113,14 +138,7 @@ export function IfForm(props: IfFormProps) {
         setDiagnosticsInfo([...otherDiagnostics, diagnostics]);
     }
 
-    const handleExpressionEditorCancel = () => {
-        setFilteredCompletions([]);
-        setCompletions([]);
-        triggerCompletionOnNextRequest.current = false;
-    };
-
     const handleOnSave = (data: FormValues) => {
-        handleExpressionEditorCancel();
         if (node && targetLineRange) {
             let updatedNode = cloneDeep(node);
 
@@ -158,7 +176,6 @@ export function IfForm(props: IfFormProps) {
     };
 
     const addNewCondition = () => {
-        handleExpressionEditorCancel();
         // create new branch obj
         const newBranch: Branch = {
             label: "branch-" + branches.length,
@@ -190,7 +207,6 @@ export function IfForm(props: IfFormProps) {
     };
 
     const removeCondition = (index: number) => {
-        handleExpressionEditorCancel();
         // Don't remove if it's the first branch (Then) or last branch (Else)
         if (index === 0 || (hasElseBranch && index === branches.length - 1)) {
             return;
@@ -245,85 +261,7 @@ export function IfForm(props: IfFormProps) {
         setBranches(updatedBranches);
     };
 
-    const debouncedGetCompletions = debounce(
-        async (value: string, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
-            let expressionCompletions: CompletionItem[] = [];
-            const effectiveText = value.slice(0, offset);
-            const completionFetchText = effectiveText.match(/[a-zA-Z0-9_']+$/)?.[0] ?? "";
-            const endOfStatementRegex = /[\)\]]\s*$/;
-            if (offset > 0 && endOfStatementRegex.test(effectiveText)) {
-                // Case 1: When a character unrelated to triggering completions is entered
-                setCompletions([]);
-            } else if (
-                completions.length > 0 &&
-                completionFetchText.length > 0 &&
-                !triggerCharacter &&
-                !onlyVariables &&
-                !triggerCompletionOnNextRequest.current
-            ) {
-                // Case 2: When completions have already been retrieved and only need to be filtered
-                expressionCompletions = completions
-                    .filter((completion) => {
-                        const lowerCaseText = completionFetchText.toLowerCase();
-                        const lowerCaseLabel = completion.label.toLowerCase();
-
-                        return lowerCaseLabel.includes(lowerCaseText);
-                    })
-                    .sort((a, b) => a.sortText.localeCompare(b.sortText));
-            } else {
-                // Case 3: When completions need to be retrieved from the language server
-                // Retrieve completions from the ls
-                let completions = await rpcClient.getBIDiagramRpcClient().getExpressionCompletions({
-                    filePath: fileName,
-                    expression: value,
-                    startLine: targetLineRange.startLine,
-                    offset: offset,
-                    context: {
-                        triggerKind: triggerCharacter ? 2 : 1,
-                        triggerCharacter: triggerCharacter as TriggerCharacter,
-                    },
-                });
-
-                if (onlyVariables) {
-                    // If only variables are requested, filter out the completions based on the kind
-                    // 'kind' for variables = 6
-                    completions = completions?.filter((completion) => completion.kind === 6);
-                    triggerCompletionOnNextRequest.current = true;
-                } else {
-                    triggerCompletionOnNextRequest.current = false;
-                }
-
-                // Convert completions to the ExpressionBar format
-                let convertedCompletions: CompletionItem[] = [];
-                completions?.forEach((completion) => {
-                    if (completion.detail) {
-                        // HACK: Currently, completion with additional edits apart from imports are not supported
-                        // Completions that modify the expression itself (ex: member access)
-                        convertedCompletions.push(convertBalCompletion(completion));
-                    }
-                });
-                setCompletions(convertedCompletions);
-
-                if (triggerCharacter) {
-                    expressionCompletions = convertedCompletions;
-                } else {
-                    expressionCompletions = convertedCompletions
-                        .filter((completion) => {
-                            const lowerCaseText = completionFetchText.toLowerCase();
-                            const lowerCaseLabel = completion.label.toLowerCase();
-
-                            return lowerCaseLabel.includes(lowerCaseText);
-                        })
-                        .sort((a, b) => a.sortText.localeCompare(b.sortText));
-                }
-            }
-
-            setFilteredCompletions(expressionCompletions);
-        },
-        250
-    );
-
-    const handleExpressionDiagnostics = debounce(async (
+    const handleExpressionFormDiagnostics = useCallback(debounce(async (
         showDiagnostics: boolean,
         expression: string,
         key: string
@@ -345,47 +283,12 @@ export function IfForm(props: IfFormProps) {
             }
         });
 
-        handleSetDiagnosticsInfo({ key, diagnostics: response.diagnostics });
-    }, 250);
-
-    const handleGetCompletions = async (
-        value: string,
-        offset: number,
-        triggerCharacter?: string,
-        onlyVariables?: boolean
-    ) => {
-        await debouncedGetCompletions(value, offset, triggerCharacter, onlyVariables);
-
-        if (triggerCharacter) {
-            await debouncedGetCompletions.flush();
-        }
-    };
-
-    const extractArgsFromFunction = async (value: string, cursorPosition: number) => {
-        const signatureHelp = await rpcClient.getBIDiagramRpcClient().getSignatureHelp({
-            filePath: fileName,
-            expression: value,
-            startLine: targetLineRange.startLine,
-            offset: cursorPosition,
-            context: {
-                isRetrigger: false,
-                triggerKind: 1,
-            },
-        });
-
-        return convertToFnSignature(signatureHelp);
-    };
-
-    const handleExpressionEditorBlur = () => {
-        handleExpressionEditorCancel();
-    };
-
-    const handleCompletionSelect = async () => {
-        debouncedGetCompletions.cancel();
-        handleExpressionEditorCancel();
-    };
+        const uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
+        handleSetDiagnosticsInfo({ key, diagnostics: uniqueDiagnostics });
+    }, 250), [rpcClient, fileName, targetLineRange, node, handleSetDiagnosticsInfo]);
 
     const handleEditorFocus = (currentActive: number) => {
+        const isActiveSubPanel = subPanelView !== SubPanelView.UNDEFINED;
         if (isActiveSubPanel && activeEditor !== currentActive) {
             openSubPanel && openSubPanel({ view: SubPanelView.UNDEFINED });
         }
@@ -436,23 +339,33 @@ export function IfForm(props: IfFormProps) {
                     return (
                         <FormStyles.Row key={field.key}>
                             <ExpressionEditor
+                                /* Completion related props */
+                                completions={activeEditor === index ? expressionEditor.completions : []}
+                                triggerCharacters={expressionEditor.triggerCharacters}
+                                retrieveCompletions={expressionEditor.retrieveCompletions}
+                                extractArgsFromFunction={expressionEditor.extractArgsFromFunction}
+                                /* Helper pane related props */
+                                isLoadingHelperPaneInfo={expressionEditor.isLoadingHelperPaneInfo}
+                                variableInfo={expressionEditor.variableInfo}
+                                configVariableInfo={expressionEditor.configVariableInfo}
+                                functionInfo={expressionEditor.functionInfo}
+                                libraryBrowserInfo={expressionEditor.libraryBrowserInfo}
+                                getHelperPaneData={expressionEditor.getHelperPaneData}
+                                onFunctionItemSelect={expressionEditor.onFunctionItemSelect}
+                                /* Other props */
                                 ref={exprRef}
                                 control={control}
                                 field={field}
                                 watch={watch}
-                                completions={activeEditor === index ? filteredCompletions : []}
-                                triggerCharacters={TRIGGER_CHARACTERS}
-                                retrieveCompletions={handleGetCompletions}
-                                extractArgsFromFunction={extractArgsFromFunction}
-                                getExpressionDiagnostics={handleExpressionDiagnostics}
-                                onCompletionSelect={handleCompletionSelect}
-                                onCancel={handleExpressionEditorCancel}
+                                getExpressionFormDiagnostics={handleExpressionFormDiagnostics}
                                 onFocus={() => handleEditorFocus(index)}
-                                onBlur={handleExpressionEditorBlur}
                                 openSubPanel={openSubPanel}
                                 targetLineRange={targetLineRange}
                                 fileName={fileName}
                                 onRemove={index !== 0 && !branch.label.includes("Else") ? () => removeCondition(index) : undefined}
+                                onCompletionItemSelect={expressionEditor.onCompletionItemSelect}
+                                onCancel={expressionEditor.onCancel}
+                                onBlur={expressionEditor.onBlur}
                             />
                         </FormStyles.Row>
                     );

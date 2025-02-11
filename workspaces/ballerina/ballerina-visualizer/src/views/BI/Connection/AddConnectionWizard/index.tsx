@@ -61,7 +61,6 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
     const { rpcClient } = useRpcContext();
 
     const [currentStep, setCurrentStep] = useState<WizardStep>(WizardStep.CONNECTOR_LIST);
-    const [fields, setFields] = useState<FormField[]>([]);
     const [isPullingConnector, setIsPullingConnector] = useState<boolean>(false);
     const selectedConnectorRef = useRef<AvailableNode>();
     const selectedNodeRef = useRef<FlowNode>();
@@ -92,40 +91,21 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                 console.log(">>> Form properties", formProperties);
                 if (Object.keys(formProperties).length === 0) {
                     // add node to source code
-                    handleOnFormSubmit({});
+                    handleOnFormSubmit(response.flowNode);
                     return;
                 }
                 // get node properties
                 setCurrentStep(WizardStep.CONNECTION_CONFIG);
-                setFields(convertNodePropertiesToFormFields(formProperties));
             })
             .finally(() => {
                 setFetchingInfo(false);
             });
     };
 
-    const handleOnFormSubmit = async (data: FormValues) => {
-        console.log(">>> on form submit", data);
+    const handleOnFormSubmit = async (node: FlowNode) => {
+        console.log(">>> on form submit", node);
         if (selectedNodeRef.current) {
-            setIsPullingConnector(true);
-            let updatedNode: FlowNode = cloneDeep(selectedNodeRef.current);
-
-            if (selectedNodeRef.current.branches?.at(0)?.properties) {
-                // branch properties
-                // TODO: Handle multiple branches
-                const updatedNodeProperties = updateNodeProperties(
-                    data,
-                    selectedNodeRef.current.branches.at(0).properties
-                );
-                updatedNode.branches.at(0).properties = updatedNodeProperties;
-            } else if (selectedNodeRef.current.properties) {
-                // node properties
-                const updatedNodeProperties = updateNodeProperties(data, selectedNodeRef.current.properties);
-                updatedNode.properties = updatedNodeProperties;
-            } else {
-                console.error(">>> Error updating source code. No properties found");
-            }
-            console.log(">>> Updated node", updatedNode);
+            setIsPullingConnector(true);            
 
             // get connections.bal file path
             const visualizerLocation = await rpcClient.getVisualizerLocation();
@@ -140,9 +120,9 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
             }
 
             // node property scope is local. then use local file path and line position
-            if ((updatedNode.properties?.scope?.value as string)?.toLowerCase() === "local") {
+            if ((node.properties?.scope?.value as string)?.toLowerCase() === "local") {
                 connectionsFilePath = visualizerLocation.documentUri;
-                updatedNode.codedata.lineRange = {
+                node.codedata.lineRange = {
                     fileName: visualizerLocation.documentUri,
                     startLine: target,
                     endLine: target,
@@ -153,14 +133,13 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                 .getBIDiagramRpcClient()
                 .getSourceCode({
                     filePath: connectionsFilePath,
-                    flowNode: updatedNode,
+                    flowNode: node,
                     isConnector: true,
                 })
                 .then((response) => {
                     console.log(">>> Updated source code", response);
                     if (response.textEdits) {
                         // clear memory
-                        setFields([]);
                         selectedNodeRef.current = undefined;
                         onClose ? onClose() : gotoHome();
                     } else {
@@ -176,7 +155,6 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
 
     const handleOnBack = () => {
         setCurrentStep(WizardStep.CONNECTOR_LIST);
-        setFields([]);
     };
 
     const handleSubPanel = (subPanel: SubPanel) => {
@@ -193,8 +171,9 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
             case SubPanelView.INLINE_DATA_MAPPER:
                 return (
                     <InlineDataMapper
-                        filePath={subPanel.props?.inlineDataMapper?.filePath}
-                        range={subPanel.props?.inlineDataMapper?.range}
+                        onClosePanel={handleSubPanel}
+                        updateFormField={updateExpressionField}
+                        {...subPanel.props?.inlineDataMapper}
                     />
                 );
             case SubPanelView.HELPER_PANEL:
@@ -247,7 +226,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                         onClose={onClose}
                     />
                     {currentStep === WizardStep.CONNECTION_CONFIG && (
-                        <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3` }} />
+                        <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3`, zIndex: 2000 }} />
                     )}
                 </>
             )}
@@ -268,13 +247,11 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                         </BodyText>
                         <ConnectionConfigView
                             fileName={fileName}
-                            fields={fields}
                             selectedNode={selectedNodeRef.current}
                             onSubmit={handleOnFormSubmit}
                             updatedExpressionField={updatedExpressionField}
                             resetUpdatedExpressionField={handleResetUpdatedExpressionField}
                             openSubPanel={handleSubPanel}
-                            isActiveSubPanel={showSubPanel}
                         />
                     </>
                 </PanelContainer>
