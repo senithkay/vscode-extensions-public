@@ -208,7 +208,7 @@ export function DatabaseDriverForm(props: DatabaseDriverFormProps) {
                         <>
                             <Alert
                                 subTitle={
-                                    "These drivers will only be used in the developer environment to enhance the developer experience and therefore make sure to add them to the production environment when deploying the carbon application."
+                                    "You will not be able to test the database connection and perform resource generation for data services such inbuilt features as the relevant drivers does not exist in the developer environment."
                                 }
                                 title={"Note: "}
                                 variant="warning"
