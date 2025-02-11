@@ -988,7 +988,9 @@ export interface ClassFieldModifierRequest {
 export interface AddFieldRequest {
     filePath: string;
     field: FieldType;
-    codedata: CodeData;
+    codedata: {
+        lineRange: LineRange;
+    };
 }
 
 export interface SourceEditResponse {

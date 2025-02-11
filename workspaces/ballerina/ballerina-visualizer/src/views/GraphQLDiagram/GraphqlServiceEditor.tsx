@@ -35,9 +35,10 @@ const InfoSection = styled.div`
 `;
 
 const ServiceContainer = styled.div`
-    padding-right: 10px;
-    padding-left: 10px;
-    padding-top: 10px;
+    padding: 10px;
+    flex: 1;
+    overflow-y: auto;
+    
 `;
 
 const GraphqlContainer = styled.div`
@@ -48,6 +49,8 @@ const GraphqlContainer = styled.div`
     height: 100%;
     background-color: ${Colors.SURFACE_BRIGHT};
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
 `;
 
 const TopBar = styled.div`
@@ -83,9 +86,10 @@ const SidePanelTitleContainer = styled.div`
     justify-content: space-between;
     border-bottom: 1px solid var(--vscode-panel-border);
     font-size: 16px;
-    padding: 20px 0 20px 0;
+    padding: 20px 10px;
     font-family: GilmerBold;
     color: var(--vscode-editor-foreground);
+    background-color: ${Colors.SURFACE_BRIGHT};
 `;
 
 const OperationCard = styled.div`
@@ -507,26 +511,22 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
         <>
             {!isNewForm && !isEdit && (
                 <GraphqlContainer>
+                    {serviceModel && (
+                        <SidePanelTitleContainer>
+                            {"Operations"}
+                            <StyledButton appearance="icon" onClick={onClose}>
+                                <Codicon name="close" />
+                            </StyledButton>
+                        </SidePanelTitleContainer>
+                    )}
                     <ServiceContainer>
-
                         {!serviceModel &&
                             <LoadingContainer>
                                 <ProgressRing />
-                                <Typography variant="h3" sx={{ marginTop: '16px' }}>Loading Graphql Desginer...</Typography>
+                                <Typography variant="h3" sx={{ marginTop: '16px' }}>Loading Graphql Designer...</Typography>
                             </LoadingContainer>
                         }
-                        {serviceModel && (
-                            <>
-                                <SidePanelTitleContainer>
-                                    {"Operations"}
-                                    <StyledButton appearance="icon" onClick={onClose}>
-                                        <Codicon name="close" />
-                                    </StyledButton>
-                                </SidePanelTitleContainer>
-                                {renderOperations()}
-                            </>
-                        )}
-
+                        {serviceModel && renderOperations()}
                     </ServiceContainer>
                 </GraphqlContainer>
             )}
