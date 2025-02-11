@@ -11,7 +11,7 @@ import React, { useEffect, useState } from "react";
 import { Dropdown, Button, TextField, FormCheckBox, TextArea, FormView, FormActions, FormGroup, CheckBox, PasswordField } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { driverMap, engineOptions, propertyParamConfigs } from "./types";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
 import { dataSourceParams } from "./ParamTemplate";
 import ParamField from "./ParamField";
 import { ParamManager } from "@wso2-enterprise/mi-diagram";
@@ -23,6 +23,8 @@ import { TestConnectionForm } from "../DataServiceForm/MainPanelForms/DataSource
 
 export interface DataSourceFormProps {
     path: string;
+    isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 interface CommonObject {
@@ -394,7 +396,16 @@ export function DataSourceWizard(props: DataSourceFormProps) {
         }
 
         await rpcClient.getMiDiagramRpcClient().createDataSource(request);
-        handleCancel();
+
+        if (props.isPopup) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: POPUP_EVENT_TYPE.CLOSE_VIEW,
+                location: { view: null, recentIdentifier: request.name },
+                isPopup: true
+            });
+        } else {
+            handleCancel();
+        }
     }
 
     const generateDisplayValue = (paramValues: any) => {
