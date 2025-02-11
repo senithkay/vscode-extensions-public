@@ -8,7 +8,7 @@
  */
 
 import { Type, ServiceClassModel, ModelFromCodeRequest, FieldType, FunctionModel, NodePosition, STModification, removeStatement, LineRange, EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
-import { Button, Codicon, Typography, TextField, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Typography, TextField, ProgressRing, Menu, MenuItem, Popover, Item } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { Colors } from "../../../resources/constants";
@@ -117,30 +117,6 @@ export const Footer = styled.div`
     background-color: ${Colors.SURFACE_BRIGHT};
 `;
 
-const MenuContainer = styled.div`
-    width: 120px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: 4px;
-    position: absolute;
-    right: 0;
-    top: 100%;
-    background-color: ${Colors.SURFACE_BRIGHT};
-    border: 1px solid var(--vscode-panel-border);
-    border-radius: 4px;
-    z-index: 1000;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-`;
-
-const MenuButton = styled(Button)`
-    width: 100%;
-    justify-content: flex-start;
-    padding: 6px 12px;
-    text-align: left;
-    height: 32px;
-`;
-
 interface ClassTypeEditorProps {
     type: Type;
     onClose: () => void;
@@ -156,6 +132,7 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
     const [editingVariable, setEditingVariable] = useState<FieldType>(undefined);
     const [showFunctionMenu, setShowFunctionMenu] = useState<boolean>(false);
     const [isNew, setIsNew] = useState<boolean>(false);
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement | null>(null);
 
 
     useEffect(() => {
@@ -424,6 +401,34 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
 
     const hasInitFunction = serviceClassModel?.functions?.some(func => func.kind === 'INIT');
 
+    const menuItems: Item[] = [
+        {
+            id: "init",
+            label: "Init",
+            onClick: () => {
+                handleAddFunction('init');
+                setAnchorEl(null);
+            },
+            disabled: hasInitFunction
+        },
+        {
+            id: "resource",
+            label: "Resource",
+            onClick: () => {
+                handleAddFunction('resource');
+                setAnchorEl(null);
+            }
+        },
+        {
+            id: "remote",
+            label: "Remote",
+            onClick: () => {
+                handleAddFunction('remote');
+                setAnchorEl(null);
+            }
+        }
+    ];
+
     return (
         <>
             {!serviceClassModel && (
@@ -488,34 +493,34 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
                                         <Button
                                             appearance="icon"
                                             tooltip="Add Function"
-                                            onClick={() => setShowFunctionMenu(!showFunctionMenu)}
+                                            onClick={(e) => setAnchorEl(e.currentTarget)}
                                         >
                                             <Codicon name="add" />
                                         </Button>
-                                        {showFunctionMenu && (
-                                            <MenuContainer>
-                                                {!hasInitFunction && (
-                                                    <MenuButton
-                                                        appearance="secondary"
-                                                        onClick={() => handleAddFunction('init')}
-                                                    >
-                                                        Init
-                                                    </MenuButton>
-                                                )}
-                                                <MenuButton
-                                                    appearance="secondary"
-                                                    onClick={() => handleAddFunction('resource')}
-                                                >
-                                                    Resource
-                                                </MenuButton>
-                                                <MenuButton
-                                                    appearance="secondary"
-                                                    onClick={() => handleAddFunction('remote')}
-                                                >
-                                                    Remote
-                                                </MenuButton>
-                                            </MenuContainer>
-                                        )}
+                                        <Popover
+                                            open={Boolean(anchorEl)}
+                                            anchorEl={anchorEl}
+                                            handleClose={() => setAnchorEl(null)}
+                                            sx={{
+                                                padding: 0,
+                                                borderRadius: 0
+                                            }}
+                                            anchorOrigin={{
+                                                vertical: 'top',
+                                                horizontal: 'right'
+                                            }}
+                                            transformOrigin={{
+                                                vertical: 'top',
+                                                horizontal: 'right'
+                                            }}
+                                        >
+                                            <Menu>
+                                                {menuItems
+                                                    .map((item) => (
+                                                        <MenuItem key={item.id} item={item} />
+                                                    ))}
+                                            </Menu>
+                                        </Popover>
                                     </div>
                                 </SectionHeader>
 
