@@ -211,9 +211,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 const filteredCategories = response.categories.map(category => ({
                     ...category,
                     items: category?.items?.filter(
-                        (item) => item && 'codedata' in item && !notSupportedCategories.includes((item as AvailableNode).codedata?.node)
+                        (item) => !('codedata' in item) || !notSupportedCategories.includes((item as AvailableNode).codedata?.node)
                     )
-                })).filter(category => category.items && category.items.length > 0) as Category[];
+                })) as Category[];
                 const convertedCategories = convertBICategoriesToSidePanelCategories(filteredCategories);
                 setCategories(convertedCategories);
                 initialCategoriesRef.current = convertedCategories; // Store initial categories
