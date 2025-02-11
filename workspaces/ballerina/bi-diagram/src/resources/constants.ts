@@ -99,6 +99,7 @@ export enum NodeTypes {
     BUTTON_NODE = "button-node",
     CODE_BLOCK_NODE = "code-block-node",
     END_NODE = "end-node",
+    ERROR_NODE = "error-node",
 }
 
 export const NODE_LINK = "node-link";
@@ -122,10 +123,11 @@ export const NODE_GAP_X = 60;
 
 // custom nodes
 export const IF_NODE_WIDTH = 65;
-export const WHILE_NODE_WIDTH = 58;
+export const WHILE_NODE_WIDTH = 52;
 export const EMPTY_NODE_WIDTH = 16;
 export const EMPTY_NODE_CONTAINER_WIDTH = NODE_WIDTH / 2;
 export const END_NODE_WIDTH = 20;
+export const CONTAINER_PADDING = 8;
 
 // draft node
 export const DRAFT_NODE_WIDTH = NODE_WIDTH;
@@ -144,3 +146,9 @@ export const BUTTON_NODE_HEIGHT = 30;
 export const COMMENT_NODE_WIDTH = 200;
 export const COMMENT_NODE_GAP = 30;
 export const COMMENT_NODE_CIRCLE_WIDTH = 8;
+
+// custom nodes
+export const START_CONTAINER = "startContainer";
+export const END_CONTAINER = "endContainer";
+export const START_NODE = "startNode";
+export const LAST_NODE = "lastNode";

@@ -24,6 +24,7 @@ import { CheckBoxEditor } from "./CheckBoxEditor";
 import { ArrayEditor } from "./ArrayEditor";
 import { MapEditor } from "./MapEditor";
 import { ChoiceForm } from "./ChoiceForm";
+import { FormMapEditor } from "./FormMapEditor";
 
 interface FormFieldEditorProps {
     field: FormField;
@@ -108,7 +109,9 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
         // Skip this property
         return <></>;
     } else if (field.type === "PARAM_MANAGER") {
-        return <ParamManagerEditor field={field} handleOnFieldFocus={handleOnFieldFocus} />;
+        return <ParamManagerEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus} />;
+    } else if (field.type === "REPEATABLE_PROPERTY") {
+        return <FormMapEditor field={field} label={"Add Another Key-Value Pair"} />;
     } else {
         // Default to text editor
         // Readonly fields are also treated as text editor

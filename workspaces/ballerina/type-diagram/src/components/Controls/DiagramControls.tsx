@@ -7,14 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useContext } from 'react';
+import React from 'react';
 import styled from '@emotion/styled';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { toJpeg } from 'html-to-image';
 
-import { CanvasControlButton } from './ControlButtons/ControlButton';
-import { Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
-import { DiagramContext } from '../common/DiagramContext/DiagramContext';
+import { Codicon, Icon, ThemeColors } from '@wso2-enterprise/ui-toolkit';
 
 interface ControlProps {
     engine: DiagramEngine;
@@ -22,20 +20,68 @@ interface ControlProps {
     showProblemPanel: () => void;
 }
 
-export const ControlPanel: React.FC<any> = styled.div`
-    bottom: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    justify-content: space-between;
-    position: absolute;
-    right: 15px;
-    width: 32px;
-`;
+namespace ControlsStyles {
+    export const Container = styled.div`
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 8px;
+
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        z-index: 1000;
+    `;
+
+    export const GroupContainer = styled.div`
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 0;
+
+        & > *:not(:last-child) {
+            border-bottom: 1px solid ${ThemeColors.OUTLINE_VARIANT};
+        }
+
+        & > *:first-child {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        & > *:last-child {
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }
+
+        & > *:not(:first-child):not(:last-child) {
+            border-radius: 0;
+        }
+    `;
+
+    export const Button = styled.div`
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 8px;
+        border-radius: 4px;
+        background-color: ${ThemeColors.SURFACE};
+        fill: ${ThemeColors.ON_SURFACE};
+        width: 32px;
+        height: 32px;
+        cursor: pointer;
+
+        &:hover {
+            background-color: ${ThemeColors.SURFACE_CONTAINER};
+        }
+
+        &:active {
+            background-color: ${ThemeColors.SURFACE_CONTAINER};
+        }
+    `;
+}
 
 export function DiagramControls(props: ControlProps) {
-    const { engine, refreshDiagram, showProblemPanel } = props;
-    const { hasDiagnostics } = useContext(DiagramContext);
+    const { engine, refreshDiagram } = props;
 
     const downloadDiagram = () => {
         const canvas: HTMLDivElement = engine.getCanvas();
@@ -66,55 +112,24 @@ export function DiagramControls(props: ControlProps) {
     }
 
     return (
-        <ControlPanel >
-            {hasDiagnostics &&
-                <CanvasControlButton onClick={showProblemPanel} tooltipTitle={'Diagnostics were detected in the model.'}>
-                    <Codicon
-                        name="warning"
-                        sx={{ height: "fit-content", width: "fit-content" }}
-                        iconSx={{ fontWeight: "bolder", fontSize: "20px", color: "var(--vscode-inputValidation-errorBorder)" }}
-                    />
-                </CanvasControlButton>
-            }
-            <CanvasControlButton onClick={downloadDiagram} tooltipTitle={'Download'}>
-                <Icon
-                    name="import"
-                    sx={{ height: "fit-content", width: "fit-content" }}
-                    iconSx={{ fontWeight: "bolder", fontSize: "20px", color: "var(--vscode-input-placeholderForeground)" }}
-                />
-            </CanvasControlButton>
-
-            <CanvasControlButton onClick={refreshDiagram} tooltipTitle={'Refresh'}>
-                <Icon
-                    name="cached-round"
-                    sx={{ height: "fit-content", width: "fit-content" }}
-                    iconSx={{ fontWeight: "bolder", fontSize: "20px", color: "var(--vscode-input-placeholderForeground)" }}
-                />
-            </CanvasControlButton>
-
-            <CanvasControlButton onClick={zoomToFit} tooltipTitle={'Zoom to fit nodes'}>
-                <Icon
-                    name="fullscreen"
-                    sx={{ height: "fit-content", width: "fit-content" }}
-                    iconSx={{ fontWeight: "bolder", fontSize: "20px", color: "var(--vscode-input-placeholderForeground)" }}
-                />
-            </CanvasControlButton>
-
-            <div>
-                <CanvasControlButton onClick={() => { onZoom(true) }} tooltipTitle={'Zoom in'}>
-                    <Codicon name="add"
-                        iconSx={{ fontWeight: "bolder", fontSize: "17px", color: "var(--vscode-input-placeholderForeground)" }}
-                        sx={{ height: "fit-content", width: "fit-content" }}
-                    />
-                </CanvasControlButton>
-
-                <CanvasControlButton onClick={() => { onZoom(false) }} tooltipTitle={'Zoom out'}>
-                    <Codicon name="remove"
-                        iconSx={{ fontWeight: "bolder", fontSize: "17px", color: "var(--vscode-input-placeholderForeground)" }}
-                        sx={{ height: "fit-content", width: "fit-content" }}
-                    />
-                </CanvasControlButton>
-            </div>
-        </ControlPanel>
+        <ControlsStyles.Container>
+            <ControlsStyles.Button onClick={downloadDiagram} title='Download'>
+                <Icon name="import" iconSx={{ fontSize: "16px"}}/>
+            </ControlsStyles.Button>
+            <ControlsStyles.Button onClick={refreshDiagram} title='Refresh'>
+                <Icon name="cached-round" iconSx={{ fontSize: "16px"}}/>
+            </ControlsStyles.Button>
+            <ControlsStyles.Button onClick={zoomToFit} title='Zoom to fit nodes'>
+                <Icon name="fullscreen" iconSx={{ fontSize: "16px"}}/>
+            </ControlsStyles.Button>
+            <ControlsStyles.GroupContainer>
+                <ControlsStyles.Button onClick={() => onZoom(true)} title='Zoom in'>
+                    <Codicon name="add" iconSx={{ fontSize: "13px"}}/>
+                </ControlsStyles.Button>
+                <ControlsStyles.Button onClick={() => onZoom(false)} title='Zoom out'>
+                    <Codicon name="remove" iconSx={{ fontSize: "13px"}} />
+                </ControlsStyles.Button>
+            </ControlsStyles.GroupContainer>
+        </ControlsStyles.Container>
     )
 }

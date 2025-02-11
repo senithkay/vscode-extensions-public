@@ -17,7 +17,7 @@ import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteComman
 import { Category, Flow, FlowNode, CodeData, ConfigVariable, FunctionNode } from "./bi";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
 import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
-import { FunctionModel, ListenerModel, ServiceModel } from "./service";
+import { FieldType, FunctionModel, ListenerModel, ServiceClassModel, ServiceModel } from "./service";
 import { CDModel } from "./component-diagram";
 import { IDMModel, Mapping } from "./inline-data-mapper";
 
@@ -129,13 +129,6 @@ export interface DiagnosticsParams {
 export interface Diagnostics {
     uri: string;
     diagnostics: Diagnostic[];
-}
-
-export interface TypeParams {
-    documentIdentifier: {
-        uri: string;
-    };
-    position: LinePosition;
 }
 
 export interface ExpressionType {
@@ -986,6 +979,41 @@ export interface ServiceSourceCodeResponse {
         [key: string]: TextEdit[];
     };
 }
+
+export interface ClassFieldModifierRequest {
+    filePath: string;
+    field: FieldType;
+}
+
+export interface AddFieldRequest {
+    filePath: string;
+    field: FieldType;
+    codedata: {
+        lineRange: LineRange;
+    };
+}
+
+export interface SourceEditResponse {
+    textEdits?: {
+        [key: string]: TextEdit[];
+    };
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
+export interface ServiceClassSourceRequest {
+    filePath: string;
+    serviceClass: ServiceClassModel;
+}
+
+export interface FunctionModelRequest {
+    type: string;
+    functionName: string;
+}
+
+export interface FunctionModelResponse {
+    function: FunctionModel;
+}
 export interface ServiceModelFromCodeRequest {
     filePath: string;
     codedata: {
@@ -1001,6 +1029,141 @@ export interface ListenerModelFromCodeRequest {
         lineRange: LineRange; // For the entire service
     };
 }
+
+export interface ModelFromCodeRequest {
+    filePath: string;
+    codedata: {
+        lineRange: LineRange;
+    };
+}
+
+export interface ServiceClassModelResponse {
+    model?: ServiceClassModel;
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
+// <-------- Type Related ------->
+
+export interface Type {
+    name: string;
+    editable: boolean;
+    metadata: TypeMetadata;
+    codedata: TypeCodeData;
+    properties: Record<string, TypeProperty>;
+    members: Member[];
+    restMember?: Member;
+    includes?: string[];
+    functions?: TypeFunctionModel[];
+}
+
+type ServiceFunctionKind = "RESOURCE" | "REMOTE" | "FUNCTION";
+
+export interface TypeFunctionModel {
+    qualifiers: string[];
+    accessor: string;
+    kind: ServiceFunctionKind;
+    name?: string;
+    description?: string;
+    parameters: Member[];
+    restParameter?: Member;
+    returnType?: Type | string;
+    refs: string[];
+}
+
+export interface TypeMetadata {
+    label: string;
+    description: string;
+}
+
+export type TypeNodeKind = "RECORD" | "ENUM" | "ARRAY" | "UNION" | "ERROR" | "MAP" | "STREAM" | "FUTURE" |
+    "TYPEDESC" | "CLASS" | "OBJECT" | "INTERSECTION" | "SERVICE_DECLARATION" | "TABLE" | "TUPLE";
+// todo make this consistant
+export interface TypeCodeData {
+    lineRange: LineRange;
+    node: TypeNodeKind;
+}
+
+export interface TypeProperty {
+    metadata: TypeMetadata;
+    valueType: string;
+    value: string | string[]; // as required for qualifiers
+    optional: boolean;
+    editable: boolean;
+    advanced: boolean;
+}
+
+export interface Member {
+    kind: string;
+    refs: string[];
+    type: string | Type;
+    name?: string;
+    docs?: string;
+    defaultValue?: string;
+}
+
+export interface GetGraphqlTypeRequest {
+    filePath: string,
+    linePosition: LinePosition;
+}
+
+export interface GetGraphqlTypeResponse {
+    type: Type;
+    refs: Type[];
+}
+
+export interface GetTypesRequest {
+    filePath: string;
+}
+
+export interface GetTypeRequest {
+    filePath: string;
+    linePosition: LinePosition;
+}
+
+export interface UpdateTypeRequest {
+    filePath: string;
+    description: string;
+    type: Type;
+}
+
+export interface GetTypesResponse {
+    types: Type[];
+}
+
+export interface GetTypeResponse {
+    type: Type;
+}
+
+export interface TextEditRange {
+    start: {
+        line: number;
+        character: number;
+    };
+    end: {
+        line: number;
+        character: number;
+    };
+}
+
+export interface TextEdit {
+    range: TextEditRange;
+    newText: string;
+}
+
+export interface UpdateTypeResponse {
+    name: string;
+    textEdits: {
+        [filePath: string]: TextEdit[];
+    };
+}
+
+// <-------- Trigger Related ------->
+
+export interface TriggerFunctionResponse {
+
+}
+
 export interface ListenerModelFromCodeResponse {
     listener: ListenerModel;
 }
@@ -1080,6 +1243,9 @@ export interface BIInterface extends BaseLangClientInterface {
     getFunctionNode: (params: FunctionNodeRequest) => Promise<FunctionNodeResponse>;
 
     getDesignModel: (params: BIDesignModelRequest) => Promise<BIDesignModelResponse>;
+    getType: (params: GetTypeRequest) => Promise<GetTypeResponse>;
+    getTypes: (params: GetTypesRequest) => Promise<GetTypesResponse>;
+    updateType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
     updateImports: (params: UpdateImportsRequest) => Promise<void>;
     addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
 }
@@ -1094,7 +1260,6 @@ export interface ExtendedLangClientInterface extends BIInterface {
     getPackageComponentModels(params: ComponentModelsParams): Promise<ComponentModels>;
     getPersistERModel(params: PersistERModelParams): Promise<PersistERModel>;
     getDiagnostics(params: DiagnosticsParams): Promise<Diagnostics[] | NOT_SUPPORTED_TYPE>;
-    getType(params: TypeParams): Promise<ExpressionType | NOT_SUPPORTED_TYPE>;
     getConnectors(params: ConnectorsParams, reset?: boolean): Promise<Connectors | NOT_SUPPORTED_TYPE>;
     getConnector(params: ConnectorRequest): Promise<ConnectorResponse | NOT_SUPPORTED_TYPE>;
     getRecord(params: RecordParams): Promise<BallerinaRecord | NOT_SUPPORTED_TYPE>;

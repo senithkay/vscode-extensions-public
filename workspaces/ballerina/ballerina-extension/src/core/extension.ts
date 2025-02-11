@@ -175,6 +175,7 @@ export class BallerinaExtension {
                 "supportPositionalRenamePopup": "true"
             }
         };
+
         this.telemetryReporter = createTelemetryReporter(this);
         this.documentContext = new DocumentContext();
         this.codeServerContext = {
