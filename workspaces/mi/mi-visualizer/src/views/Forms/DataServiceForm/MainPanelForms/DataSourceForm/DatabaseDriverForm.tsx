@@ -7,11 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { useEffect, useState } from "react";
-import { FormGroup, Button, LocationSelector, CheckBox, FormActions, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { FormGroup, Button, CheckBox, FormActions, Codicon, ProgressRing, Alert } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import styled from "@emotion/styled";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import path from "path";
 
 const BrowseBtn = styled(VSCodeButton)`
     width: fit-content;
@@ -182,16 +181,17 @@ export function DatabaseDriverForm(props: DatabaseDriverFormProps) {
                         ) :
                             <>
                                 <Button
-                                    appearance="secondary"
+                                    appearance="primary"
                                     onClick={handleAddDriver}>
                                     Select Driver Location
                                 </Button>
-                                <span><b>Note:</b>
-                                    <br />
-                                    These drivers will only be used in the developer environment to enhance
-                                    the developer experience and therefore make sure to add them to the
-                                    production environment when deploying the carbon application.
-                                </span>
+                                <Alert
+                                    subTitle={
+                                        "These drivers will only be used in the developer environment to enhance the developer experience and therefore make sure to add them to the production environment when deploying the carbon application."
+                                    }
+                                    title={"Note: "}
+                                    variant="secondary"
+                                />
                             </>
                         }
                     </FormGroup>
@@ -206,12 +206,13 @@ export function DatabaseDriverForm(props: DatabaseDriverFormProps) {
                     )}
                     {continueWithoutDriver && (
                         <>
-                            <span><b>Note:</b>
-                                <br />
-                                You will not be able to use test database connection and perform resource
-                                generation for data services such inbuilt features as the relevant drivers
-                                does not exist in the developer environment.
-                            </span>
+                            <Alert
+                                subTitle={
+                                    "These drivers will only be used in the developer environment to enhance the developer experience and therefore make sure to add them to the production environment when deploying the carbon application."
+                                }
+                                title={"Note: "}
+                                variant="warning"
+                            />
                         </>
                     )}
                 </>
