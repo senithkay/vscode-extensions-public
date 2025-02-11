@@ -153,7 +153,9 @@ export enum DIRECTORY_MAP {
     TYPES = "types",
     RECORDS = "records",
     CONFIGURATIONS = "configurations",
-    DATA_MAPPERS = "dataMappers"
+    DATA_MAPPERS = "dataMappers",
+    ENUMS = "enums",
+    CLASSES = "classes"
 }
 
 export enum DIRECTORY_SUB_TYPE {
@@ -185,6 +187,8 @@ export interface ProjectStructureResponse {
         [DIRECTORY_MAP.RECORDS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.CONFIGURATIONS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.DATA_MAPPERS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.ENUMS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.CLASSES]: ProjectStructureArtifactResponse[];
     };
 }
 
