@@ -148,7 +148,7 @@ export function FunctionForm(props: FunctionFormProps) {
                         {functionName ? `Edit the` : `Define a`} function that can be used within the integration.
                     </BodyText>
                     <FormContainer>
-                        {filePath &&
+                        {filePath && functionFields.length > 0 &&
                             <FormGeneratorNew
                                 fileName={filePath}
                                 targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
