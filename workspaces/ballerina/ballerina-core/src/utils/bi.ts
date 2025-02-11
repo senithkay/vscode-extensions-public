@@ -102,7 +102,12 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
             console.log(error);
         }
 
-        const iconValue = comp.name.includes('-') && !serviceModel ? `${comp.name.split('-')[0]}-api` : icon;
+        let iconValue;
+        if (serviceModel?.listenerProtocol === "graphql") {
+            iconValue = "bi-graphql";
+        } else {
+            iconValue = comp.name.includes('-') && !serviceModel ? `${comp.name.split('-')[0]}-api` : icon;
+        }
 
         const fileEntry: ProjectStructureArtifactResponse = {
             name: dtype === DIRECTORY_MAP.SERVICES ? comp.name || comp.filePath.replace(".bal", "") : comp.name,
