@@ -50,6 +50,8 @@ import {
     UpdateImportsResponse,
     AddFunctionRequest,
     AddFunctionResponse,
+    FunctionNodeRequest,
+    FunctionNodeResponse,
     ServiceClassModelResponse,
     ModelFromCodeRequest,
     ClassFieldModifierRequest,
@@ -124,3 +126,4 @@ export const updateServiceClass: RequestType<ServiceClassSourceRequest, SourceEd
 export const createGraphqlClassType: RequestType<UpdateTypeRequest, UpdateTypeResponse> = { method: `${_preFix}/createGraphqlClassType` };
 export const updateImports: RequestType<UpdateImportsRequest, UpdateImportsResponse> = { method: `${_preFix}/updateImports` };
 export const addFunction: RequestType<AddFunctionRequest, AddFunctionResponse> = { method: `${_preFix}/addFunction` };
+export const getFunctionNode: RequestType<FunctionNodeRequest, FunctionNodeResponse> = { method: `${_preFix}/getFunctionNode` };

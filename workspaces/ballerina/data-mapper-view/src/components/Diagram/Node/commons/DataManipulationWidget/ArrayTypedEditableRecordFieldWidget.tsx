@@ -505,6 +505,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                     <span className={classes.label}>
                         {(hasValue && !connectedViaLink) && (
                             <Button
+                                id={`expand-or-collapse-${fieldId}`}
                                 appearance="icon"
                                 sx={{ marginLeft: indentation }}
                                 onClick={handleExpand}

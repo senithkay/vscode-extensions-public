@@ -11,7 +11,7 @@ import { runTests } from './lib/index';
 
 async function go() {
 	try {
-		const extensionDevelopmentPath = path.resolve(__dirname, '../../../');
+		const extensionDevelopmentPath = path.resolve(__dirname, '../../');
 		const extensionTestsPath = path.resolve(__dirname, '.');
 
 		await runTests({

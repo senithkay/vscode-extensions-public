@@ -53,6 +53,8 @@ import {
     UpdateImportsResponse,
     AddFunctionRequest,
     AddFunctionResponse,
+    FunctionNodeRequest,
+    FunctionNodeResponse,
     ServiceClassModelResponse,
     ModelFromCodeRequest,
     ClassFieldModifierRequest,
@@ -126,4 +128,5 @@ export interface BIDiagramAPI {
     createGraphqlClassType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
     updateImports: (params: UpdateImportsRequest) => Promise<UpdateImportsResponse>;
     addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
+    getFunctionNode: (params: FunctionNodeRequest) => Promise<FunctionNodeResponse>;
 }

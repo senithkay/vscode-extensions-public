@@ -23,6 +23,7 @@ export declare enum BallerinaComponentTypes {
 export enum SubPanelView {
     INLINE_DATA_MAPPER = "inlineDataMapper",
     HELPER_PANEL = "helperPanel",
+    ADD_NEW_FORM = "addNewForm",
     UNDEFINED = "undefined",
 }
 
