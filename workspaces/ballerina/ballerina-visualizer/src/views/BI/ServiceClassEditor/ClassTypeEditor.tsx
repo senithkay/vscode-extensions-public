@@ -233,7 +233,14 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
 
                 const lsResponse = await rpcClient.getBIDiagramRpcClient().addClassField({
                     filePath: currentFilePath,
-                    field: updatedVariable
+                    field: updatedVariable,
+                    codedata: {
+                        lineRange: {
+                            fileName: serviceClassModel.codedata.lineRange.fileName,
+                            startLine: { line: serviceClassModel.codedata.lineRange.startLine.line, offset: serviceClassModel.codedata.lineRange.startLine.offset },
+                            endLine: { line: serviceClassModel.codedata.lineRange.endLine.line, offset: serviceClassModel.codedata.lineRange.endLine.offset }
+                        }
+                    }
                 });
 
             } else {
