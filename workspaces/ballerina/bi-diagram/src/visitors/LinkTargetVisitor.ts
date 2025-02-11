@@ -274,7 +274,7 @@ export class LinkTargetVisitor implements BaseVisitor {
             return;
         }
 
-        const bodyBranch = node.branches.at(0);
+        const bodyBranch = node.branches?.find((branch) => branch.codedata.node === "BODY");
         if (!bodyBranch) {
             console.log(">>> no body branch", { node });
             return;
@@ -302,22 +302,36 @@ export class LinkTargetVisitor implements BaseVisitor {
         const endContainerNodeModel = this.nodeModels.find(
             (nodeModel) => nodeModel.getID() === getCustomNodeId(node.id, END_CONTAINER)
         );
-        if (!endContainerNodeModel) {
-            console.log(">>> error container node model not found", node);
-            return;
+        if (endContainerNodeModel) {
+            const endContainerOutLinks = this.getOutLinksFromModel(endContainerNodeModel);
+            if (!endContainerOutLinks || endContainerOutLinks.length == 0) {
+                console.log(">>> no end container out links", { node });
+                return;
+            }
+            endContainerOutLinks.forEach((outLink) => {
+                // set target position
+                if (outLink && node.codedata?.lineRange?.endLine) {
+                    outLink.setTarget(node.codedata.lineRange.endLine);
+                }
+                outLink.setTopNode(node);
+            });
         }
-        const endContainerOutLinks = this.getOutLinksFromModel(endContainerNodeModel);
-        if (!endContainerOutLinks || endContainerOutLinks.length == 0) {
-            console.log(">>> no end container out links", { node });
-            return;
-        }
-        const outLink = endContainerOutLinks.at(0);
 
-        // set target position
-        if (outLink && node.codedata?.lineRange?.endLine) {
-            outLink.setTarget(node.codedata.lineRange.endLine);
+        const errorNodeModel = this.nodeModels.find((nodeModel) => nodeModel.getID() === node.id);
+        if (errorNodeModel) {
+            const errorOutLinks = this.getOutLinksFromModel(errorNodeModel);
+            if (!errorOutLinks || errorOutLinks.length == 0) {
+                console.log(">>> no error out links", { node });
+                return;
+            }
+            errorOutLinks.forEach((outLink) => {
+                // set target position
+                if (outLink && node.codedata?.lineRange?.endLine) {
+                    outLink.setTarget(node.codedata.lineRange.endLine);
+                }
+                outLink.setTopNode(node);
+            });
         }
-        outLink.setTopNode(node);
     }
 
     beginVisitFork(node: FlowNode, parent?: FlowNode): void {

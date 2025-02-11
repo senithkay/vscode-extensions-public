@@ -223,21 +223,6 @@ export class InitVisitor implements BaseVisitor {
             bodyBranch.children.push(emptyNode);
         }
 
-        if (!node.viewState.isTopLevel) {
-            // add end node to the body branch
-            const bodyEndNode: FlowNode = {
-                id: getCustomNodeId(node.id, LAST_NODE, 0, "BODY"),
-                codedata: {
-                    node: "EMPTY",
-                },
-                returning: false,
-                metadata: { label: "", description: "" },
-                branches: [],
-                viewState: this.getDefaultViewState(),
-            };
-            bodyBranch.children.push(bodyEndNode);
-        }
-
         // Update On Failure branch with start and end node
         const onFailureBranch = node.branches.find((branch) => branch.codedata.node === "ON_FAILURE");
         if (!onFailureBranch) {

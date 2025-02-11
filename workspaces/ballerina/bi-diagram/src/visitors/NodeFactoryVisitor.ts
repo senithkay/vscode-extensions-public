@@ -23,6 +23,7 @@ import {
     END_CONTAINER,
     LAST_NODE,
     NODE_GAP_X,
+    NodeTypes,
     START_CONTAINER,
     WHILE_NODE_WIDTH,
 } from "../resources/constants";
@@ -504,33 +505,12 @@ export class NodeFactoryVisitor implements BaseVisitor {
             if (linkIn) {
                 this.links.push(linkIn);
             }
+        }
 
-            if (node.viewState.isTopLevel) {
-                const linkOut = createNodesLink(branchEmptyNode, containerNodeModel, {
-                    showAddButton: false,
-                    alignBottom: true,
-                });
-                if (linkIn && linkOut) {
-                    this.links.push(linkIn, linkOut);
-                }
-            }
-
-            // get last node
-            const lastNode = bodyBranch.children.at(-1);
-            if (!lastNode || reverseCustomNodeId(lastNode.id).label !== LAST_NODE) {
-                console.error("Last node not found", bodyBranch);
-                return;
-            }
-
-            // get last node model
-            const lastNodeModel = new EndNodeModel(lastNode.id); // TODO: use end node visitor to handle this
-            lastNodeModel.setPosition(lastNode.viewState.x, lastNode.viewState.y);
-            this.nodes.push(lastNodeModel);
-
-            const linkOut = createNodesLink(branchEmptyNode, lastNodeModel, {
-                showAddButton: false,
-                alignBottom: true,
-                showArrow: false,
+        const lastNodeModel = this.getBranchEndNode(bodyBranch);
+        if (lastNodeModel) {
+            const linkOut = createNodesLink(lastNodeModel, containerNodeModel, {
+                showAddButton: lastNodeModel.getType() !== NodeTypes.EMPTY_NODE,
             });
             if (linkOut) {
                 this.links.push(linkOut);
