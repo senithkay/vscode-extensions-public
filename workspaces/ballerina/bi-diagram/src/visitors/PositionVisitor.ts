@@ -103,11 +103,6 @@ export class PositionVisitor implements BaseVisitor {
         if (!this.validateNode(node)) return;
         // Added `On Error` start node initial gap here
         this.lastNodeY = node.viewState.y + NODE_GAP_Y / 2;
-        // update first child node position
-        // const firstChild = node.children.at(0);
-        // if (firstChild) {
-        //     firstChild.viewState.x = node.viewState.x + node.viewState.clw;
-        // }
     }
 
     beginVisitElse(node: Branch, parent?: FlowNode): void {
