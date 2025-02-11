@@ -217,6 +217,8 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     types.children = getComponents([
         ...components.directoryMap[DIRECTORY_MAP.TYPES],
         ...components.directoryMap[DIRECTORY_MAP.RECORDS],
+        ...components.directoryMap[DIRECTORY_MAP.ENUMS],
+        ...components.directoryMap[DIRECTORY_MAP.CLASSES]
     ], DIRECTORY_MAP.TYPES);
     entries.push(types);
 
@@ -285,7 +287,9 @@ function getComponents(items: ProjectStructureArtifactResponse[], itemType?: DIR
             [DIRECTORY_MAP.TRIGGERS]: DIRECTORY_SUB_TYPE.TRIGGER,
             [DIRECTORY_MAP.LISTENERS]: DIRECTORY_SUB_TYPE.TRIGGER,
             [DIRECTORY_MAP.RECORDS]: DIRECTORY_SUB_TYPE.TYPE,
-            [DIRECTORY_MAP.DATA_MAPPERS]: DIRECTORY_SUB_TYPE.DATA_MAPPER,
+            [DIRECTORY_MAP.ENUMS]: DIRECTORY_SUB_TYPE.TYPE,
+            [DIRECTORY_MAP.CLASSES]: DIRECTORY_SUB_TYPE.TYPE,
+            [DIRECTORY_MAP.DATA_MAPPERS]: DIRECTORY_SUB_TYPE.DATA_MAPPER
         };
 
         fileEntry.contextValue = contextValueMap[itemType] || comp.icon;

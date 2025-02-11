@@ -40,6 +40,7 @@ import {
     BISuggestedFlowModelRequest,
     BI_COMMANDS,
     BreakpointRequest,
+    ClassFieldModifierRequest,
     ComponentRequest,
     ConfigVariableResponse,
     CreateComponentResponse,
@@ -56,8 +57,13 @@ import {
     FunctionNode,
     FunctionNodeRequest,
     FunctionNodeResponse,
+    GetTypeRequest,
+    GetTypeResponse,
+    GetTypesRequest,
+    GetTypesResponse,
     ImportStatement,
     ImportStatements,
+    ModelFromCodeRequest,
     ProjectComponentsResponse,
     ProjectImports,
     ProjectRequest,
@@ -65,18 +71,25 @@ import {
     ReadmeContentRequest,
     ReadmeContentResponse,
     STModification,
+    ServiceClassModelResponse,
+    ServiceClassSourceRequest,
     SignatureHelpRequest,
     SignatureHelpResponse,
     SyntaxTree,
     UpdateConfigVariableRequest,
     UpdateConfigVariableResponse,
+    UpdateTypeRequest,
+    UpdateTypeResponse,
     UpdateImportsRequest,
     UpdateImportsResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspaceFolder,
     WorkspacesResponse,
-    buildProjectStructure
+    buildProjectStructure,
+    TextEdit,
+    SourceEditResponse,
+    AddFieldRequest,
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import { writeFileSync } from "fs";
@@ -253,6 +266,47 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         }
     }
 
+    async applyTextEdits(filePath: string, textEdits: TextEdit[]): Promise<void> {
+        const workspaceEdit = new vscode.WorkspaceEdit();
+        const fileUri = Uri.file(filePath);
+
+        for (const edit of textEdits) {
+            const range = new vscode.Range(
+                edit.range.start.line,
+                edit.range.start.character,
+                edit.range.end.line,
+                edit.range.end.character
+            );
+            workspaceEdit.replace(fileUri, range, edit.newText);
+            console.log(">>> edit");
+            console.log(edit.newText);
+            console.log(">>> end edit");
+        }
+
+        try {
+            await workspace.applyEdit(workspaceEdit);
+
+            // Notify language server about the changes
+            const document = await workspace.openTextDocument(fileUri);
+
+            console.log(">>> document");
+            console.log(document.getText());
+            console.log(">>> end document");
+            await StateMachine.langClient().didChange({
+                textDocument: {
+                    uri: fileUri.toString(),
+                    version: document.version
+                },
+                contentChanges: [{
+                    text: document.getText()
+                }]
+            });
+        } catch (error) {
+            console.error("Error applying text edits:", error);
+            throw error;
+        }
+    }
+
     async getAvailableNodes(params: BIAvailableNodesRequest): Promise<BIAvailableNodesResponse> {
         console.log(">>> requesting bi available nodes from ls", params);
         return new Promise((resolve) => {
@@ -316,7 +370,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     break;
                 case DIRECTORY_MAP.FUNCTIONS || DIRECTORY_MAP.DATA_MAPPERS:
                     res = await createBIFunction(params);
-                    break;
+                    break;  
                 default:
                     break;
             }
@@ -1022,6 +1076,59 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     return new Promise((resolve) => {
                         resolve(undefined);
                     });
+                }
+                );
+        });
+    }
+
+
+    async getTypes(params: GetTypesRequest): Promise<GetTypesResponse> {
+        const projectUri = StateMachine.context().projectUri;
+        const ballerinaFiles = await getBallerinaFiles(Uri.file(projectUri).fsPath);
+
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient()
+                .getTypes({ filePath: ballerinaFiles[0] })
+                .then((types) => {
+                    resolve(types);
+                }).catch((error) => {
+                    console.log(">>> error fetching types from ls", error);
+                    reject(error);
+                });
+        });
+    }
+
+    async updateType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
+        const projectUri = StateMachine.context().projectUri;
+        const filePath =  path.join(projectUri, params.filePath);
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient()
+                .updateType({ filePath , type: params.type, description: "" })
+                .then((updateTypeResponse: UpdateTypeResponse) => {
+                    console.log(">>> update type response", updateTypeResponse);
+                    // loop though all the files and update the type
+                    Object.entries(updateTypeResponse.textEdits).forEach(([file, textEdits]) => {
+                        this.applyTextEdits(file, textEdits);
+                    });
+                    resolve(updateTypeResponse);
+                }).catch((error) => {
+                    console.log(">>> error fetching types from ls", error);
+                    reject(error);
+                });
+        });
+    }
+
+    async getType(params: GetTypeRequest): Promise<GetTypeResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient()
+                .getType(params)
+                .then((type) => {
+                    console.log(">>> type from ls", type);
+                    resolve(type);
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching type from ls", error);
+                    reject(error);
                 });
         });
     }
@@ -1099,6 +1206,78 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     console.log(">>> Error getting function node", error);
                     resolve(undefined);
                 });
+        });
+    }
+
+    async createGraphqlClassType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
+        const projectUri = StateMachine.context().projectUri;
+        const filePath =  path.join(projectUri, params.filePath);
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient()
+                .createGraphqlClassType({ filePath , type: params.type, description: "" })
+                .then((updateTypeResponse: UpdateTypeResponse) => {
+                    console.log(">>> create graphql class type response", updateTypeResponse);
+                    Object.entries(updateTypeResponse.textEdits).forEach(([file, textEdits]) => {
+                        this.applyTextEdits(file, textEdits);
+                    });
+                    resolve(updateTypeResponse);
+                }).catch((error) => {
+                    console.log(">>> error fetching class type from ls", error);
+                    reject(error);
+                });
+        });
+    }
+
+    async getServiceClassModel(params: ModelFromCodeRequest): Promise<ServiceClassModelResponse> {
+        return new Promise(async (resolve) => {
+            try {
+                const res: ServiceClassModelResponse = await StateMachine.langClient().getServiceClassModel(params);
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    async updateClassField(params: ClassFieldModifierRequest): Promise<SourceEditResponse> {
+        return new Promise(async (resolve) => {
+            try {
+                const res: SourceEditResponse = await StateMachine.langClient().updateClassField(params);
+                Object.entries(res.textEdits).forEach(([file, textEdits]) => {
+                    this.applyTextEdits(file, textEdits);
+                });
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    async updateServiceClass(params: ServiceClassSourceRequest): Promise<SourceEditResponse> {
+        return new Promise(async (resolve) => {
+            try {
+                const res: SourceEditResponse = await StateMachine.langClient().updateServiceClass(params);
+                Object.entries(res.textEdits).forEach(([file, textEdits]) => {
+                    this.applyTextEdits(file, textEdits);
+                });
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    async addClassField(params: AddFieldRequest): Promise<SourceEditResponse> {
+        return new Promise(async (resolve) => {
+            try {
+                const res: SourceEditResponse = await StateMachine.langClient().addClassField(params);
+                Object.entries(res.textEdits).forEach(([file, textEdits]) => {
+                    this.applyTextEdits(file, textEdits);
+                });
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
         });
     }
 }

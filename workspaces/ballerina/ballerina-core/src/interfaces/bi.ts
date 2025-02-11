@@ -134,6 +134,8 @@ export type ViewState = {
     ch: number;  // container height
     // flow start node
     startNodeId?: string;
+    // is top level node
+    isTopLevel?: boolean;
 };
 
 // Add node target position metadata
@@ -154,6 +156,8 @@ export enum DIRECTORY_MAP {
     RECORDS = "records",
     CONFIGURATIONS = "configurations",
     DATA_MAPPERS = "dataMappers",
+    ENUMS = "enums",
+    CLASSES = "classes"
 }
 
 export enum DIRECTORY_SUB_TYPE {
@@ -185,6 +189,8 @@ export interface ProjectStructureResponse {
         [DIRECTORY_MAP.RECORDS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.CONFIGURATIONS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.DATA_MAPPERS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.ENUMS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.CLASSES]: ProjectStructureArtifactResponse[];
     };
 }
 
@@ -275,6 +281,14 @@ export type NodeKind =
     | "ASSIGN"
     | "DATA_MAPPER_DEFINITION"
     | "DATA_MAPPER_CALL"
+    | "FORK"
+    | "WORKER"
+    | "WAIT"
+    | "START"
+    | "COMMIT"
+    | "ROLLBACK"
+    | "FAIL"
+    | "RETRY"
     | "FUNCTION_DEFINITION"
     | "CONFIG_VARIABLE";
 

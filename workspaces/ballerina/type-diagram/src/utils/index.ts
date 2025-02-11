@@ -12,5 +12,5 @@ export {
     createRenderPackageObject,
 } from './utils';
 
-export { entityModeller, generateCompositionModel } from './model-mapper/entityModelMapper';
+export { entityModeller } from './model-mapper/entityModelMapper';
 

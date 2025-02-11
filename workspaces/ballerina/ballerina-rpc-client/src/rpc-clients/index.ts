@@ -16,3 +16,4 @@ export * from "./graphql-designer/rpc-client";
 export * from "./record-creator/rpc-client";
 export * from "./ai-panel/rpc-client";
 export * from "./connector-wizard/rpc-client";
+export * from "./test-manager/rpc-client";

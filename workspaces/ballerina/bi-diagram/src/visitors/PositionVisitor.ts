@@ -12,10 +12,12 @@ import {
     COMMENT_NODE_GAP,
     DIAGRAM_CENTER_X,
     DRAFT_NODE_BORDER_WIDTH,
+    LAST_NODE,
     NODE_GAP_X,
     NODE_GAP_Y,
     NODE_PADDING,
 } from "../resources/constants";
+import { reverseCustomNodeId } from "../utils/node";
 import { Branch, FlowNode } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
@@ -28,15 +30,33 @@ export class PositionVisitor implements BaseVisitor {
         // console.log(">>> position visitor started");
     }
 
+    private validateNode(node: FlowNode | Branch): boolean {
+        if (this.skipChildrenVisit) {
+            return false;
+        }
+        if (!node.viewState) {
+            // console.error(">>> Node view state is not defined", { node });
+            return false;
+        }
+        return true;
+    }
+
     beginVisitEventStart(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         // consider this as a start node
         node.viewState.y = this.lastNodeY;
         this.lastNodeY += node.viewState.h + NODE_GAP_Y;
 
-        node.viewState.x = this.diagramCenterX - node.viewState.rw;
+        if (parent?.codedata.node === "WORKER" || parent?.codedata.node === "ON_FAILURE") {
+            const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
+            node.viewState.x = centerX - node.viewState.lw;
+        } else {
+            node.viewState.x = this.diagramCenterX - node.viewState.rw;
+        }
     }
 
     beginVisitIf(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         node.viewState.y = this.lastNodeY;
         this.lastNodeY += node.viewState.h + (NODE_GAP_Y * 3) / 2;
 
@@ -64,23 +84,34 @@ export class PositionVisitor implements BaseVisitor {
     }
 
     endVisitIf(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.lastNodeY = node.viewState.y + node.viewState.ch + NODE_GAP_Y;
     }
 
     beginVisitConditional(node: Branch, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.lastNodeY = node.viewState.y;
     }
 
     beginVisitBody(node: Branch, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         // `Body` is inside `Foreach` node
         this.lastNodeY = node.viewState.y;
     }
 
+    beginVisitOnFailure(node: Branch, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        // Added `On Error` start node initial gap here
+        this.lastNodeY = node.viewState.y + NODE_GAP_Y / 2;
+    }
+
     beginVisitElse(node: Branch, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.lastNodeY = node.viewState.y;
     }
 
     beginVisitNode(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         if (!node.viewState.y) {
             node.viewState.y = this.lastNodeY;
         }
@@ -93,8 +124,9 @@ export class PositionVisitor implements BaseVisitor {
     }
 
     beginVisitEmpty(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         // add empty node end of the block
-        if (node.id.endsWith("-last")) {
+        if (reverseCustomNodeId(node.id).label === LAST_NODE) {
             node.viewState.y = this.lastNodeY;
             const centerX = parent ? parent.viewState.x + parent.viewState.lw : this.diagramCenterX;
             node.viewState.x = centerX - node.viewState.rw;
@@ -109,6 +141,7 @@ export class PositionVisitor implements BaseVisitor {
     }
 
     beginVisitComment(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         if (!node.viewState.y) {
             node.viewState.y = this.lastNodeY - COMMENT_NODE_GAP;
         }
@@ -121,27 +154,98 @@ export class PositionVisitor implements BaseVisitor {
     }
 
     beginVisitWhile(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         node.viewState.y = this.lastNodeY;
-        this.lastNodeY += node.viewState.h + NODE_GAP_Y * 2;
+        this.lastNodeY += node.viewState.h + NODE_GAP_Y;
 
         const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
         node.viewState.x = centerX - node.viewState.lw;
 
-        const branch = node.branches.find((branch) => branch.label === "Body");
+        // const branch = node.branches.find((branch) => branch.label === "Body");
+        const branch = node.branches.at(0);
         branch.viewState.y = this.lastNodeY;
         branch.viewState.x = centerX - branch.viewState.clw;
     }
 
     endVisitWhile(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.lastNodeY = node.viewState.y + node.viewState.ch + NODE_GAP_Y;
     }
 
     beginVisitForeach(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.beginVisitWhile(node, parent);
     }
 
     endVisitForeach(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
         this.endVisitWhile(node, parent);
+    }
+
+    beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+
+        // if top level node, hide gap
+        if (node.viewState.isTopLevel) {
+            this.lastNodeY -= NODE_GAP_Y;
+        }
+
+        node.viewState.y = this.lastNodeY;
+        this.lastNodeY += NODE_GAP_Y;
+
+        const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
+        node.viewState.x = centerX - node.viewState.lw;
+
+        const bodyBranch = node.branches.find((branch) => branch.codedata.node === "BODY");
+        if (bodyBranch?.viewState) {
+            bodyBranch.viewState.y = this.lastNodeY;
+            bodyBranch.viewState.x = centerX - bodyBranch.viewState.clw;
+        }
+
+        const onFailureBranch = node.branches.find((branch) => branch.codedata.node === "ON_FAILURE");
+        if (onFailureBranch?.viewState) {
+            onFailureBranch.viewState.y = this.lastNodeY + bodyBranch.viewState.ch + NODE_GAP_Y;
+            onFailureBranch.viewState.x = centerX - onFailureBranch.viewState.clw;
+        }
+    }
+
+    endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.lastNodeY = node.viewState.y + node.viewState.ch + NODE_GAP_Y;
+    }
+
+    beginVisitFork(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+
+        node.viewState.y = this.lastNodeY;
+        this.lastNodeY += node.viewState.h + NODE_GAP_Y;
+
+        const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
+        node.viewState.x = centerX - node.viewState.lw;
+
+        node.branches?.forEach((branch, index) => {
+            if (index === 0) {
+                branch.viewState.x = centerX - node.viewState.clw;
+            } else {
+                const previousBranch = node.branches.at(index - 1);
+                branch.viewState.x =
+                    previousBranch.viewState.x +
+                    previousBranch.viewState.clw +
+                    previousBranch.viewState.crw +
+                    NODE_GAP_X;
+            }
+            branch.viewState.y = this.lastNodeY;
+        });
+    }
+
+    endVisitFork(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.lastNodeY = node.viewState.y + node.viewState.ch + NODE_GAP_Y;
+    }
+
+    beginVisitWorker(node: Branch, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.lastNodeY = node.viewState.y;
     }
 
     skipChildren(): boolean {
@@ -157,6 +261,10 @@ export class PositionVisitor implements BaseVisitor {
 function getTopNodeCenter(node: FlowNode, parent: FlowNode, branchCenterX: number) {
     if (!parent) {
         console.error("Parent is not defined");
+        return;
+    }
+    if (!parent.viewState) {
+        console.error("Parent view state is not defined");
         return;
     }
     if (parent.codedata.node === "COMMENT") {

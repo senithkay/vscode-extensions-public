@@ -34,7 +34,8 @@ import {
     PopupMessage,
     MainForm,
     FunctionForm,
-    SetupView
+    SetupView,
+    TestFunctionForm
 } from "./views/BI";
 import { handleRedo, handleUndo } from "./utils/utils";
 import { FunctionDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
@@ -180,7 +181,7 @@ const MainPanel = () => {
                         setViewComponent(<ERDiagram />);
                         break;
                     case MACHINE_VIEW.TypeDiagram:
-                        setViewComponent(<TypeDiagram selectedRecordId={value?.identifier} />);
+                        setViewComponent(<TypeDiagram selectedTypeId={value?.identifier} projectUri={value?.projectUri} />);
                         break;
                     case MACHINE_VIEW.DataMapper:
                         setViewComponent(
@@ -205,7 +206,7 @@ const MainPanel = () => {
                         });
                         break;
                     case MACHINE_VIEW.GraphQLDiagram:
-                        setViewComponent(<GraphQLDiagram />);
+                        setViewComponent(<GraphQLDiagram filePath={value?.documentUri} position={value?.position} projectUri={value?.projectUri}/>);
                         break;
                     case MACHINE_VIEW.SequenceDiagram:
                         setViewComponent(
@@ -261,6 +262,13 @@ const MainPanel = () => {
                     case MACHINE_VIEW.BIFunctionForm:
                         setViewComponent(<FunctionForm projectPath={value.projectUri} fileName={value?.identifier === "main" ? "automation.bal" : "functions.bal"} functionName={value?.identifier} />);
                         break;
+                    case MACHINE_VIEW.BITestFunctionForm:
+                        setViewComponent(<TestFunctionForm 
+                            functionName={value?.identifier}
+                            filePath={value?.documentUri}
+                            serviceType={value?.serviceType}
+                        />);
+                        break;    
                     case MACHINE_VIEW.ViewConfigVariables:
                         rpcClient.getVisualizerLocation().then((location) => {
                             setViewComponent(

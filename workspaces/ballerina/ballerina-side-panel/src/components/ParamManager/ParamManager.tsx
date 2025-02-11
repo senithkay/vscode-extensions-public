@@ -36,6 +36,7 @@ export interface ParamConfig {
 export interface ParamManagerProps {
     paramConfigs: ParamConfig;
     onChange?: (parameters: ParamConfig) => void,
+    openRecordEditor?: (open: boolean) => void;
     readonly?: boolean;
     selectedNode?: NodeKind;
 }
@@ -71,11 +72,12 @@ const Label = styled.label`
 export interface ParamManagerEditorProps {
     field: FormField;
     handleOnFieldFocus?: (key: string) => void;
+    openRecordEditor?: (open: boolean) => void;
     selectedNode?: NodeKind;
 }
 
 export function ParamManagerEditor(props: ParamManagerEditorProps) {
-    const { field, selectedNode } = props;
+    const { field, openRecordEditor, selectedNode } = props;
     const { form } = useFormContext();
     const { control, setValue } = form;
     return (
@@ -100,7 +102,7 @@ export function ParamManagerEditor(props: ParamManagerEditorProps) {
                     <>
                         <ParamManager
                             paramConfigs={field.paramManagerProps}
-                            onChange={async (config: ParamConfig) => {
+                            openRecordEditor={openRecordEditor}onChange={async (config: ParamConfig) => {
                                 onChange(config.paramValues);
                             }}
                             selectedNode={selectedNode}
@@ -115,7 +117,7 @@ export function ParamManagerEditor(props: ParamManagerEditorProps) {
 }
 
 export function ParamManager(props: ParamManagerProps) {
-    const { paramConfigs, readonly, onChange, selectedNode } = props;
+    const { paramConfigs, readonly, onChange, openRecordEditor, selectedNode } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
     const [parameters, setParameters] = useState<Parameter[]>(paramConfigs.paramValues);
@@ -204,6 +206,7 @@ export function ParamManager(props: ParamManagerProps) {
                             paramFields={paramConfigs.formFields}
                             onSave={onSaveParam}
                             onCancelEdit={onParamEditCancel}
+                            openRecordEditor={openRecordEditor}
                         />
                     )
                 } else if ((editingSegmentId !== index)) {
