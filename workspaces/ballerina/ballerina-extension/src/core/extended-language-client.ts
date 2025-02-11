@@ -32,7 +32,6 @@ import {
     PersistERModelParams,
     PersistERModel,
     Diagnostics,
-    TypeParams,
     ExpressionType,
     ConnectorsParams,
     TriggersParams,
@@ -143,6 +142,14 @@ import {
     ServiceSourceCodeRequest,
     BIDesignModelRequest,
     BIDesignModelResponse,
+    GetTypesResponse,
+    GetTypesRequest,
+    UpdateTypeRequest,
+    UpdateTypeResponse,
+    GetGraphqlTypeRequest,
+    GetGraphqlTypeResponse,
+    GetTypeRequest,
+    GetTypeResponse,
     ListenerModelFromCodeRequest,
     ListenerModelFromCodeResponse,
     AddFunctionRequest,
@@ -160,7 +167,15 @@ import {
     AddOrUpdateTestFunctionRequest,
     TestSourceEditResponse,
     FunctionNodeResponse,
-    FunctionNodeRequest
+    FunctionNodeRequest,
+    ModelFromCodeRequest,
+    ServiceClassModelResponse,
+    ClassFieldModifierRequest,
+    SourceEditResponse,
+    ServiceClassSourceRequest,
+    AddFieldRequest,
+    FunctionModelRequest,
+    FunctionModelResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -243,6 +258,18 @@ enum EXTENDED_APIS {
     BI_VISIBLE_TYPES = 'expressionEditor/types',
     REFERENCES = 'textDocument/references',
     BI_EXPRESSION_DIAGNOSTICS = 'expressionEditor/diagnostics',
+    BI_TRIGGER_MODELS = 'triggerDesignService/getTriggerModels',
+    BI_TRIGGER_MODEL = 'triggerDesignService/getTriggerModel',
+    BI_TRIGGER_SOURCE_CODE = 'triggerDesignService/getSourceCode',
+    BI_TRIGGER_MODEL_FROM_CODE = 'triggerDesignService/getTriggerModelFromCode',
+    BI_TRIGGER_UPDATE_FROM_CODE = 'triggerDesignService/updateTrigger',
+    BI_TRIGGER_ADD_FUNCTION = 'triggerDesignService/addTriggerFunction',
+    BI_TRIGGER_UPDATE_FUNCTION = 'triggerDesignService/updateTriggerFunction',
+    BI_GET_TYPES = 'typesManager/getTypes',
+    BI_GET_TYPE = 'typesManager/getType',
+    BI_UPDATE_TYPE = 'typesManager/updateType',
+    BI_GET_GRAPHQL_TYPE = 'typesManager/getGraphqlType',
+    BI_CREATE_GRAPHQL_CLASS_TYPE = 'typesManager/createGraphqlClassType',
     BI_SERVICE_TRIGGER_MODELS = 'serviceDesign/getTriggerModels',
     BI_SERVICE_GET_LISTENERS = 'serviceDesign/getListeners',
     BI_SERVICE_GET_LISTENER = 'serviceDesign/getListenerModel',
@@ -250,14 +277,19 @@ enum EXTENDED_APIS {
     BI_SERVICE_UPDATE_LISTENER = 'serviceDesign/updateListener',
     BI_SERVICE_GET_LISTENER_SOURCE = 'serviceDesign/getListenerFromSource',
     BI_SERVICE_GET_SERVICE = 'serviceDesign/getServiceModel',
+    BI_SERVICE_GET_FUNCTION = 'serviceDesign/getFunctionModel',
     BI_SERVICE_ADD_SERVICE = 'serviceDesign/addService',
     BI_SERVICE_UPDATE_SERVICE = 'serviceDesign/updateService',
     BI_SERVICE_GET_SERVICE_SOURCE = 'serviceDesign/getServiceFromSource',
+    BI_SERVICE_UPDATE_SERVICE_CLASS = 'serviceDesign/updateServiceClass',
     BI_SERVICE_GET_RESOURCE = 'serviceDesign/getFunctionModel',
     BI_SERVICE_ADD_RESOURCE = 'serviceDesign/addResource',
     BI_SERVICE_ADD_FUNCTION = 'serviceDesign/addFunction',
     BI_SERVICE_UPDATE_RESOURCE = 'serviceDesign/updateFunction',
     BI_SERVICE_GET_TRIGGERS = 'serviceDesign/getTriggerModels',
+    BI_SERVICE_SERVICE_CLASS_MODEL = 'serviceDesign/getServiceClassModelFromSource',
+    BI_UPDATE_CLASS_FIELD = 'serviceDesign/updateClassField',
+    BI_ADD_CLASS_FIELD = 'serviceDesign/addField',
     BI_DESIGN_MODEL = 'designModelService/getDesignModel',
     BI_UPDATE_IMPORTS = 'expressionEditor/importModule',
     BI_ADD_FUNCTION = 'expressionEditor/functionCallTemplate',
@@ -399,9 +431,9 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return response;
     }
 
-    async getType(params: TypeParams): Promise<ExpressionType | NOT_SUPPORTED_TYPE> {
-        return this.sendRequest(EXTENDED_APIS.SYMBOL_TYPE, params);
-    }
+    // async getType(params: TypeParams): Promise<ExpressionType | NOT_SUPPORTED_TYPE> {
+    //     return this.sendRequest(EXTENDED_APIS.SYMBOL_TYPE, params);
+    // }
 
     async getConnectors(params: ConnectorsParams, reset?: boolean): Promise<Connectors | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_CONNECTORS);
@@ -822,6 +854,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<ServiceModelResponse>(EXTENDED_APIS.BI_SERVICE_GET_SERVICE, params);
     }
 
+    async getFunctionModel(params: FunctionModelRequest): Promise<FunctionModelResponse> {
+        return this.sendRequest<FunctionModelResponse>(EXTENDED_APIS.BI_SERVICE_GET_FUNCTION, params);
+    }
+
     async addServiceSourceCode(params: ServiceSourceCodeRequest): Promise<ListenerSourceCodeResponse> {
         return this.sendRequest<ListenerSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_ADD_SERVICE, params);
     }
@@ -832,6 +868,22 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getServiceModelFromCode(params: ServiceModelFromCodeRequest): Promise<ServiceModelFromCodeResponse> {
         return this.sendRequest<ServiceModelFromCodeResponse>(EXTENDED_APIS.BI_SERVICE_GET_SERVICE_SOURCE, params);
+    }
+
+    async updateServiceClass(params: ServiceClassSourceRequest): Promise<SourceEditResponse> {
+        return this.sendRequest<SourceEditResponse>(EXTENDED_APIS.BI_SERVICE_UPDATE_SERVICE_CLASS, params);
+    }
+
+    async getServiceClassModel(params: ModelFromCodeRequest): Promise<ServiceClassModelResponse>{
+        return this.sendRequest<ServiceClassModelResponse>(EXTENDED_APIS.BI_SERVICE_SERVICE_CLASS_MODEL, params);
+    }
+
+    async updateClassField(params: ClassFieldModifierRequest): Promise<SourceEditResponse> {
+        return this.sendRequest<SourceEditResponse>(EXTENDED_APIS.BI_UPDATE_CLASS_FIELD, params);
+    }
+
+    async addClassField(params: AddFieldRequest): Promise<SourceEditResponse> {
+        return this.sendRequest<SourceEditResponse>(EXTENDED_APIS.BI_ADD_CLASS_FIELD, params);
     }
 
     async getHttpResourceModel(params: HttpResourceModelRequest): Promise<HttpResourceModelResponse> {
@@ -852,6 +904,26 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getDesignModel(params: BIDesignModelRequest): Promise<BIDesignModelResponse> {
         return this.sendRequest<BIDesignModelResponse>(EXTENDED_APIS.BI_DESIGN_MODEL, params);
+    }
+    
+    async getTypes(params: GetTypesRequest): Promise<GetTypesResponse> {
+        return this.sendRequest<GetTypesResponse>(EXTENDED_APIS.BI_GET_TYPES, params);
+    }
+
+    async getType(params: GetTypeRequest): Promise<GetTypeResponse> {
+        return this.sendRequest<GetTypeResponse>(EXTENDED_APIS.BI_GET_TYPE, params);
+    }
+
+    async updateType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
+        return this.sendRequest<UpdateTypeResponse>(EXTENDED_APIS.BI_UPDATE_TYPE, params);
+    }
+
+    async createGraphqlClassType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
+        return this.sendRequest<UpdateTypeResponse>(EXTENDED_APIS.BI_CREATE_GRAPHQL_CLASS_TYPE, params);
+    }
+
+    async getGraphqlTypeModel(params: GetGraphqlTypeRequest): Promise<GetGraphqlTypeResponse> {
+        return this.sendRequest<GetGraphqlTypeResponse>(EXTENDED_APIS.BI_GET_GRAPHQL_TYPE, params);
     }
 
     async updateImports(params: UpdateImportsRequest): Promise<void> {

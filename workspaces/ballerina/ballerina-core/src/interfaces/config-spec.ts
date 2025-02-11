@@ -197,7 +197,7 @@ export enum WizardType {
     EXISTING
 }
 
-export function getType(type: string): PrimitiveBalType {
+export function getPrimitiveType(type: string): PrimitiveBalType {
     let typeString: PrimitiveBalType;
     switch (type) {
         case "var":
