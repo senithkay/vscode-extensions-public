@@ -12,7 +12,7 @@ import { DMType } from "@wso2-enterprise/mi-core";
 import { DataMapperLinkModel } from "../../Link";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { IntermediatePortModel } from "../IntermediatePort";
-import { genArrayElementAccessSuffix, getMappingType, getValueType, isConnectingArrays } from "../../utils/common-utils";
+import { genArrayElementAccessSuffix, getMappingType, getValueType } from "../../utils/common-utils";
 import {
 	createSourceForMapping,
 	modifySourceForMultipleMappings,
@@ -34,6 +34,7 @@ export enum ValueType {
 export enum MappingType {
 	ArrayToArray = "array-array",
 	ArrayToSingleton = "array-singleton",
+	ObjectToObject = "object-object",
 	Default = undefined // This is for non-array mappings currently
 }
 
@@ -74,7 +75,8 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 				const targetPort = lm.getTargetPort();
 				
 				const mappingType = getMappingType(sourcePort, targetPort);
-				if (mappingType === MappingType.ArrayToArray) {
+				if (mappingType === MappingType.ArrayToArray
+					|| mappingType === MappingType.ObjectToObject) {
 					// Source update behavior is determined by the user when connecting arrays.
 					return;
 				}

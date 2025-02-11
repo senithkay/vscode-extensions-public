@@ -758,6 +758,12 @@ export function isConnectingArrays(mappingType: MappingType): boolean {
     return mappingType === MappingType.ArrayToArray || mappingType === MappingType.ArrayToSingleton;
 }
 
+export function isPendingMappingRequired(mappingType: MappingType): boolean {
+    return mappingType === MappingType.ArrayToArray
+        || mappingType === MappingType.ArrayToSingleton
+        || mappingType === MappingType.ObjectToObject;
+}
+
 export function getMappingType(sourcePort: PortModel, targetPort: PortModel): MappingType {
 
     if (sourcePort instanceof InputOutputPortModel
@@ -771,6 +777,11 @@ export function getMappingType(sourcePort: PortModel, targetPort: PortModel): Ma
             const dimDelta = sourceDim - targetDim;
             if (dimDelta == 0) return MappingType.ArrayToArray;
             if (dimDelta > 0) return MappingType.ArrayToSingleton;
+        }
+
+        if ((sourcePort.field.kind === TypeKind.Object || sourcePort.field.kind === TypeKind.Interface) 
+            && (targetPort.field.kind === TypeKind.Object || targetPort.field.kind === TypeKind.Interface)) {
+            return MappingType.ObjectToObject;
         }
     }
 
