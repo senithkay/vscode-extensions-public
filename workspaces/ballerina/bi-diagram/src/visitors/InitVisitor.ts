@@ -184,9 +184,9 @@ export class InitVisitor implements BaseVisitor {
             return;
         }
 
-        // hide container if the error handler is in top level
-        const errorNode = this.flow.nodes?.find((n) => n.codedata.node === "ERROR_HANDLER");
-        if (errorNode) {
+        // hide container if the first node is a error handler
+        const errorNode = this.flow.nodes?.at(1);
+        if (errorNode && errorNode.codedata.node === "ERROR_HANDLER") {
             errorNode.viewState.isTopLevel = true;
         }
 
