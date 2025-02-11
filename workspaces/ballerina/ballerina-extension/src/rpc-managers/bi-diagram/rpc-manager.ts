@@ -1229,11 +1229,9 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
     }
 
     async getServiceClassModel(params: ModelFromCodeRequest): Promise<ServiceClassModelResponse> {
-        const projectUri = StateMachine.context().projectUri;
-        const filePath =  path.join(projectUri, params.filePath);
         return new Promise(async (resolve) => {
             try {
-                const res: ServiceClassModelResponse = await StateMachine.langClient().getServiceClassModel({ filePath, codedata: params.codedata });
+                const res: ServiceClassModelResponse = await StateMachine.langClient().getServiceClassModel(params);
                 resolve(res);
             } catch (error) {
                 console.log(error);
@@ -1241,7 +1239,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async updateClassField(params: ClassFieldModifierRequest): Promise<SourceEditResponse> {;
+    async updateClassField(params: ClassFieldModifierRequest): Promise<SourceEditResponse> {
         return new Promise(async (resolve) => {
             try {
                 const res: SourceEditResponse = await StateMachine.langClient().updateClassField(params);
@@ -1256,11 +1254,9 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
     }
 
     async updateServiceClass(params: ServiceClassSourceRequest): Promise<SourceEditResponse> {
-        const projectUri = StateMachine.context().projectUri;
-        const filePath =  path.join(projectUri, params.filePath);
         return new Promise(async (resolve) => {
             try {
-                const res: SourceEditResponse = await StateMachine.langClient().updateServiceClass({ filePath, serviceClass: params.serviceClass });
+                const res: SourceEditResponse = await StateMachine.langClient().updateServiceClass(params);
                 Object.entries(res.textEdits).forEach(([file, textEdits]) => {
                     this.applyTextEdits(file, textEdits);
                 });
