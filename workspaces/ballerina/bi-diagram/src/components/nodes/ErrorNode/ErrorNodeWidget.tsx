@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -10,7 +10,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { WhileNodeModel } from "./WhileNodeModel";
+import { ErrorNodeModel } from "./ErrorNodeModel";
 import {
     Colors,
     WHILE_NODE_WIDTH,
@@ -19,6 +19,7 @@ import {
     NODE_GAP_X,
     CONTAINER_PADDING,
     DRAFT_NODE_BORDER_WIDTH,
+    NODE_GAP_Y,
 } from "../../../resources/constants";
 import { Button, Item, Menu, MenuItem, Popover, Icon } from "@wso2-enterprise/ui-toolkit";
 import { FlowNode } from "../../../utils/types";
@@ -41,20 +42,17 @@ export namespace NodeStyles {
 
     export const Header = styled.div<{}>`
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         justify-content: center;
-        align-items: flex-start;
-        width: 100%;
+        align-items: center;
         position: absolute;
         padding: 8px;
         left: ${WHILE_NODE_WIDTH}px;
+        width: max-content;
     `;
 
     export const StyledButton = styled(Button)`
         border-radius: 5px;
-        position: absolute;
-        top: -10px;
-        left: 52px;
     `;
 
     export const ErrorIcon = styled.div`
@@ -84,19 +82,7 @@ export namespace NodeStyles {
 
     export const Title = styled(StyledText)`
         max-width: ${NODE_WIDTH - 50}px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
         font-family: "GilmerMedium";
-    `;
-
-    export const Description = styled(StyledText)`
-        font-size: 12px;
-        max-width: ${NODE_WIDTH - 50}px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-family: monospace;
     `;
 
     export const Row = styled.div`
@@ -164,23 +150,34 @@ export namespace NodeStyles {
     `;
 }
 
-interface WhileNodeWidgetProps {
-    model: WhileNodeModel;
+interface ErrorNodeWidgetProps {
+    model: ErrorNodeModel;
     engine: DiagramEngine;
     onClick?: (node: FlowNode) => void;
 }
 
-export interface NodeWidgetProps extends Omit<WhileNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<ErrorNodeWidgetProps, "children"> {}
 
-export function WhileNodeWidget(props: WhileNodeWidgetProps) {
+export function ErrorNodeWidget(props: ErrorNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { onNodeSelect, goToSource, onDeleteNode, addBreakpoint, removeBreakpoint, readOnly } = useDiagramContext();
+    const {
+        onNodeSelect,
+        goToSource,
+        onDeleteNode,
+        addBreakpoint,
+        removeBreakpoint,
+        readOnly,
+        expandedErrorHandler,
+        toggleErrorHandlerExpansion,
+    } = useDiagramContext();
 
     const [isHovered, setIsHovered] = React.useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(anchorEl);
     const hasBreakpoint = model.hasBreakpoint();
     const isActiveBreakpoint = model.isActiveBreakpoint();
+    const hideContainer = model.node.viewState?.isTopLevel ?? false;
+    const isExpanded = expandedErrorHandler === model.node.id;
 
     useEffect(() => {
         if (model.node.suggested) {
@@ -192,7 +189,8 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
         if (event.metaKey) {
             onGoToSource();
         } else {
-            onNodeClick();
+            toggleErrorHandlerExpansion(model.node.id);
+            // onNodeClick(); // INFO: Commented external trigger not needed
         }
     };
 
@@ -232,9 +230,9 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
 
     const menuItems: Item[] = [
         {
-            id: "edit",
-            label: "Edit",
-            onClick: () => onNodeClick(),
+            id: "expand",
+            label: isExpanded ? "Hide Error Flow" : "Show Error Flow",
+            onClick: () => toggleErrorHandlerExpansion(model.node.id),
         },
         { id: "goToSource", label: "Source", onClick: () => onGoToSource() },
         { id: "delete", label: "Delete", onClick: () => deleteNode() },
@@ -244,6 +242,11 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
     const hasError = nodeHasError(model.node);
     const nodeViewState = model.node.viewState;
 
+    const bodyBranchViewState = model.node.branches.find((branch) => branch.codedata.node === "BODY")?.viewState;
+    const onFailureBranchViewState = model.node.branches.find(
+        (branch) => branch.codedata.node === "ON_FAILURE"
+    )?.viewState;
+
     return (
         <NodeStyles.Node>
             <NodeStyles.Row>
@@ -252,8 +255,8 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                         onClick={handleOnClick}
                         onMouseEnter={() => setIsHovered(true)}
                         onMouseLeave={() => setIsHovered(false)}
-                        selected={model.isSelected()}
-                        hovered={isHovered}
+                        selected={model.isSelected() || isExpanded}
+                        hovered={isHovered || isExpanded}
                         hasError={hasError}
                         isActiveBreakpoint={isActiveBreakpoint}
                         disabled={disabled}
@@ -276,16 +279,13 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                     </NodeStyles.Box>
                 </NodeStyles.Column>
                 <NodeStyles.Header>
-                    <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
-                    {model.node.properties?.condition && (
-                        <NodeStyles.Description>{model.node.properties.condition?.value}</NodeStyles.Description>
+                    <NodeStyles.Title>Error Handler</NodeStyles.Title>
+                    {!readOnly && (
+                        <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
+                            <MoreVertIcon />
+                        </NodeStyles.StyledButton>
                     )}
                 </NodeStyles.Header>
-                {!readOnly && (
-                    <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
-                        <MoreVertIcon />
-                    </NodeStyles.StyledButton>
-                )}
                 {hasError && (
                     <NodeStyles.ErrorIcon>
                         <DiagnosticsPopUp node={model.node} />
@@ -314,12 +314,24 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                     </Menu>
                 </Popover>
             </NodeStyles.Row>
-            <NodeStyles.Container
-                width={nodeViewState.clw + nodeViewState.crw + NODE_GAP_X / 2}
-                height={nodeViewState.ch - nodeViewState.h + CONTAINER_PADDING}
-                top={nodeViewState.y + nodeViewState.h - CONTAINER_PADDING}
-                left={nodeViewState.x + nodeViewState.lw - nodeViewState.clw - NODE_GAP_X / 4}
-            ></NodeStyles.Container>
+            <>
+                {bodyBranchViewState && !hideContainer && (
+                    <NodeStyles.Container
+                        width={nodeViewState.clw + nodeViewState.crw + NODE_GAP_X / 2}
+                        height={bodyBranchViewState.ch + NODE_GAP_Y + CONTAINER_PADDING}
+                        top={nodeViewState.y}
+                        left={nodeViewState.x + nodeViewState.lw - nodeViewState.clw - NODE_GAP_X / 4}
+                    ></NodeStyles.Container>
+                )}
+                {onFailureBranchViewState && (
+                    <NodeStyles.Container
+                        width={nodeViewState.clw + nodeViewState.crw + NODE_GAP_X / 2}
+                        height={onFailureBranchViewState.ch + NODE_GAP_Y + CONTAINER_PADDING}
+                        top={onFailureBranchViewState.y - CONTAINER_PADDING}
+                        left={nodeViewState.x + nodeViewState.lw - nodeViewState.clw - NODE_GAP_X / 4}
+                    ></NodeStyles.Container>
+                )}
+            </>
         </NodeStyles.Node>
     );
 }
