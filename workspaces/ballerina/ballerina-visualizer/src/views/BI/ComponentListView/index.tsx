@@ -187,7 +187,22 @@ export function ComponentListView() {
                 <Container>
                     <AddPanel>
                         <PanelViewMore>
-                            <Title variant="h2">API</Title>
+                            <Divider />
+                            <Title variant="h2">Automation</Title>
+                            <BodyText>
+                                Explore automation options to streamline your integration processes.
+                            </BodyText>
+                            <CardGrid>
+                                <ButtonCard
+                                    icon={<Icon name="bi-task" />}
+                                    title="Automation"
+                                    description="Trigger your integration with a task. Perfect for scheduled or one-time jobs."
+                                    onClick={() => handleClick(DIRECTORY_MAP.AUTOMATION)}
+                                />
+                            </CardGrid>
+                        </PanelViewMore>
+                        <PanelViewMore>
+                            <Title variant="h2">API Integration</Title>
                             <BodyText>
                                 Explore and manage various components to enhance your integration capabilities.
                             </BodyText>
@@ -209,21 +224,6 @@ export function ComponentListView() {
                                     title="gRPC Service"
                                     description="High-performance, cross-platform communication."
                                     onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "grpc")}
-                                />
-                            </CardGrid>
-                        </PanelViewMore>
-                        <PanelViewMore>
-                            <Divider />
-                            <Title variant="h2">Automation</Title>
-                            <BodyText>
-                                Explore automation options to streamline your integration processes.
-                            </BodyText>
-                            <CardGrid>
-                                <ButtonCard
-                                    icon={<Icon name="bi-task" />}
-                                    title="Automation"
-                                    description="Trigger your integration with a task. Perfect for scheduled or one-time jobs."
-                                    onClick={() => handleClick(DIRECTORY_MAP.AUTOMATION)}
                                 />
                             </CardGrid>
                         </PanelViewMore>

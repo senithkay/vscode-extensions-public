@@ -200,6 +200,18 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     if (value) {
                         identifiers.push(value);
                     }
+                    if (params.service.properties[property].choices) {
+                        params.service.properties[property].choices.forEach(choice => {
+                            if (choice.properties) {
+                                Object.keys(choice.properties).forEach(subProperty => {
+                                    const subPropertyValue = choice.properties[subProperty].value;
+                                    if (subPropertyValue) {
+                                        identifiers.push(subPropertyValue);
+                                    }
+                                });
+                            }
+                        });
+                    }
                 }
                 const res: ListenerSourceCodeResponse = await context.langClient.addServiceSourceCode(params);
                 const position = await this.updateSource(res, identifiers);
@@ -364,7 +376,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 if (parseSuccess) {
                     (identifiers || targetPosition) && (syntaxTree as ModulePart).members.forEach(member => {
                         if (STKindChecker.isServiceDeclaration(member)) {
-                            if (identifiers && identifiers.every(id => id && member.source.includes(id))) {
+                            if (identifiers && identifiers.filter(id => id && member.source.includes(id)).length >= identifiers.length * 0.5) {
                                 position = member.position;
                             }
                             if (targetPosition && member.position.startLine === targetPosition.startLine && member.position.startColumn === targetPosition.startColumn) {
