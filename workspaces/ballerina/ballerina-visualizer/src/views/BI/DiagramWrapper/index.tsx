@@ -25,6 +25,7 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
 
     const [showSequenceDiagram, setShowSequenceDiagram] = useState(false);
     const [enableSequenceDiagram, setEnableSequenceDiagram] = useState(false);
+    const [loadingDiagram, setLoadingDiagram] = useState(false);
 
     useEffect(() => {
         rpcClient.getVisualizerLocation().then((location) => {
@@ -36,6 +37,14 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
 
     const handleToggleDiagram = () => {
         setShowSequenceDiagram(!showSequenceDiagram);
+    };
+
+    const handleUpdateDiagram = () => {
+        setLoadingDiagram(true);
+    };
+
+    const handleReadyDiagram = () => {
+        setLoadingDiagram(false);
     };
 
     return (
@@ -56,13 +65,18 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                         zIndex: "3",
                         border: "unset",
                     }}
-                    disabled={false}
+                    disabled={loadingDiagram}
                 />
             )}
             {showSequenceDiagram ? (
-                <BISequenceDiagram />
+                <BISequenceDiagram onUpdate={handleUpdateDiagram} onReady={handleReadyDiagram} />
             ) : (
-                <BIFlowDiagram syntaxTree={syntaxTree} projectPath={projectPath} />
+                <BIFlowDiagram
+                    syntaxTree={syntaxTree}
+                    projectPath={projectPath}
+                    onUpdate={handleUpdateDiagram}
+                    onReady={handleReadyDiagram}
+                />
             )}
         </View>
     );

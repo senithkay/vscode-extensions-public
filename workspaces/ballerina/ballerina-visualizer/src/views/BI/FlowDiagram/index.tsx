@@ -90,10 +90,12 @@ export enum SidePanelView {
 export interface BIFlowDiagramProps {
     syntaxTree: STNode; // INFO: this is used to make the diagram rerender when code changes
     projectPath: string;
+    onUpdate: () => void;
+    onReady: () => void;
 }
 
 export function BIFlowDiagram(props: BIFlowDiagramProps) {
-    const { syntaxTree, projectPath } = props;
+    const { syntaxTree, projectPath, onUpdate, onReady } = props;
     const { rpcClient } = useRpcContext();
 
     const [model, setModel] = useState<Flow>();
@@ -132,6 +134,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
 
     const getFlowModel = () => {
         setShowProgressIndicator(true);
+        onUpdate();
         rpcClient
             .getBIDiagramRpcClient()
             .getBreakpointInfo()
@@ -147,6 +150,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     })
                     .finally(() => {
                         setShowProgressIndicator(false);
+                        onReady();
                     });
             });
     };
@@ -208,11 +212,13 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     "ROLLBACK",
                     "RETRY",
                 ];
-                const filteredCategories = response.categories.map(category => ({
+                const filteredCategories = response.categories.map((category) => ({
                     ...category,
                     items: category?.items?.filter(
-                        (item) => !('codedata' in item) || !notSupportedCategories.includes((item as AvailableNode).codedata?.node)
-                    )
+                        (item) =>
+                            !("codedata" in item) ||
+                            !notSupportedCategories.includes((item as AvailableNode).codedata?.node)
+                    ),
                 })) as Category[];
                 const convertedCategories = convertBICategoriesToSidePanelCategories(filteredCategories);
                 setCategories(convertedCategories);
@@ -308,11 +314,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             filePath: model.fileName,
             queryMap: searchText.trim()
                 ? {
-                    q: searchText,
-                    limit: 12,
-                    offset: 0,
-                    includeAvailableFunctions: "true"
-                }
+                      q: searchText,
+                      limit: 12,
+                      offset: 0,
+                      includeAvailableFunctions: "true",
+                  }
                 : undefined,
         };
         console.log(">>> Search function request", request);
@@ -738,31 +744,29 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         </>
     );
 
-    const memoizedDiagramProps = useMemo(() => ({
-        model: flowModel,
-        onAddNode: handleOnAddNode,
-        onAddNodePrompt: handleOnAddNodePrompt,
-        onDeleteNode: handleOnDeleteNode,
-        onAddComment: handleOnAddComment,
-        onNodeSelect: handleOnEditNode,
-        onConnectionSelect: handleOnEditConnection,
-        goToSource: handleOnGoToSource,
-        addBreakpoint: handleAddBreakpoint,
-        removeBreakpoint: handleRemoveBreakpoint,
-        openView: handleOpenView,
-        suggestions: {
-            fetching: fetchingAiSuggestions,
-            onAccept: onAcceptSuggestions,
-            onDiscard: onDiscardSuggestions,
-        },
-        projectPath,
-        breakpointInfo,
-    }), [
-        flowModel,
-        fetchingAiSuggestions,
-        projectPath,
-        breakpointInfo
-    ]);
+    const memoizedDiagramProps = useMemo(
+        () => ({
+            model: flowModel,
+            onAddNode: handleOnAddNode,
+            onAddNodePrompt: handleOnAddNodePrompt,
+            onDeleteNode: handleOnDeleteNode,
+            onAddComment: handleOnAddComment,
+            onNodeSelect: handleOnEditNode,
+            onConnectionSelect: handleOnEditConnection,
+            goToSource: handleOnGoToSource,
+            addBreakpoint: handleAddBreakpoint,
+            removeBreakpoint: handleRemoveBreakpoint,
+            openView: handleOpenView,
+            suggestions: {
+                fetching: fetchingAiSuggestions,
+                onAccept: onAcceptSuggestions,
+                onDiscard: onDiscardSuggestions,
+            },
+            projectPath,
+            breakpointInfo,
+        }),
+        [flowModel, fetchingAiSuggestions, projectPath, breakpointInfo]
+    );
 
     return (
         <>
@@ -782,9 +786,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             <ProgressRing color={Colors.PRIMARY} />
                         </SpinnerContainer>
                     )}
-                    {model && (
-                        <MemoizedDiagram {...memoizedDiagramProps} />
-                    )}
+                    {model && <MemoizedDiagram {...memoizedDiagramProps} />}
                 </Container>
             </View>
             <PanelContainer
