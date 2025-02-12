@@ -111,6 +111,7 @@ export function ChoiceForm(props: ChoiceFormProps) {
                 {dynamicFields.map((dfield) => {
                     return (
                         <EditorFactory
+                            key={dfield.key}
                             field={dfield}
                         />
                     );
