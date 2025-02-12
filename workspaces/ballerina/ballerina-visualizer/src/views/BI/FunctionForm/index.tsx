@@ -87,7 +87,7 @@ export function FunctionForm(props: FunctionFormProps) {
             .getBIDiagramRpcClient()
             .getNodeTemplate({
                 position: { line: 0, offset: 0 },
-                filePath: "",
+                filePath: Utils.joinPath(URI.file(projectPath), fileName).fsPath,
                 id: { node: 'FUNCTION_DEFINITION' },
             });
         const flowNode = res.flowNode;
