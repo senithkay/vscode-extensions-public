@@ -22,13 +22,17 @@ import { NodeLinkModel } from "./NodeLink";
 import { InitVisitor } from "../visitors/InitVisitor";
 import { ConsoleColor, logger } from "../utils/logger";
 import { NodeTypes } from "../resources/constants";
+import { SqParticipant, SqParticipantType } from "@wso2-enterprise/ballerina-core";
 
 export interface DiagramProps {
     model: Flow;
+    onClickParticipant: (participant: SqParticipant) => void;
+    onAddParticipant: (kind: SqParticipantType) => void;
+    onReady: () => void;
 }
 
 export function Diagram(props: DiagramProps) {
-    const { model: flow } = props;
+    const { model: flow, onClickParticipant, onAddParticipant, onReady } = props;
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
     logger("diagram: flow model", ConsoleColor.AUTO, flow);
@@ -46,6 +50,12 @@ export function Diagram(props: DiagramProps) {
             console.error("Entry participant not found");
             return { nodes: [], links: [] };
         }
+
+        // flow.others change id numbers to be unique
+        flow.others = flow.others?.map((participant, index) => ({
+            ...participant,
+            id: "other-participant-" + (index + 1).toString(),
+        }));
 
         const initVisitor = new InitVisitor(flow);
         traverseParticipant(entryParticipant, initVisitor, flow);
@@ -91,25 +101,23 @@ export function Diagram(props: DiagramProps) {
             if (overlayLayer) {
                 diagramEngine.getModel().removeLayer(overlayLayer);
             }
-
-            // const hasPreviousPosition = hasDiagramZoomAndPosition();
-            // if (hasPreviousPosition) {
-            // reset canvas position to previous position
-            //     loadDiagramZoomAndPosition(diagramEngine);
-            // } else {
             // change canvas position to first node
             diagramEngine.zoomToFitNodes({
                 maxZoom: 1,
             });
-            // }
+            // Set zoom level to 100%
+            diagramEngine.getModel().setZoomLevel(100);
             diagramEngine.repaintCanvas();
             // update the diagram model state
             setDiagramModel(newDiagramModel);
+            onReady();
         }, 1000);
     };
 
     const context: DiagramContextState = {
         flow: flow,
+        onClickParticipant: onClickParticipant,
+        onAddParticipant: onAddParticipant,
     };
 
     return (
