@@ -7,9 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { NodePosition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import {
     EVENT_TYPE,
     LineRange,
@@ -17,28 +17,12 @@ import {
     ServiceModel,
     FunctionModel,
     STModification,
-    TriggerNode,
     removeStatement,
-    buildProjectStructure,
     DIRECTORY_MAP,
     ProjectStructureArtifactResponse,
     PropertyModel,
 } from "@wso2-enterprise/ballerina-core";
-import { BodyText, ViewWrapper } from "../../styles";
-import {
-    Codicon,
-    Container,
-    Divider,
-    Grid,
-    Icon,
-    LinkButton,
-    ProgressRing,
-    Typography,
-    View,
-    ViewContent,
-    ViewHeader,
-} from "@wso2-enterprise/ui-toolkit";
-import { BIHeader } from "../BIHeader";
+import { Codicon, Icon, LinkButton, ProgressRing, Typography, View } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { ResourceAccordion } from "./components/ResourceAccordion";
@@ -49,6 +33,7 @@ import { FunctionForm } from "./Forms/FunctionForm";
 import { applyModifications } from "../../../utils/utils";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { TitleBar } from "../../../components/TitleBar";
+import { LoadingRing } from "../../../components/Loader";
 
 const LoadingContainer = styled.div`
     display: flex;
@@ -323,21 +308,24 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 subtitle="Implement and configure your service"
                 actions={
                     <>
-                        {serviceModel && serviceModel.moduleName !== "http" && serviceModel.functions.some((func) => !func.enabled) && (
-                            <VSCodeButton appearance="primary" title="Add Function" onClick={handleNewFunction}>
-                                <Codicon name="add" sx={{ marginRight: 5 }} /> Function
+                        <VSCodeButton appearance="secondary" title="Edit Service" onClick={handleServiceEdit}>
+                            <Icon name="bi-edit" sx={{ marginRight: 8, fontSize: 16 }} /> Edit
+                        </VSCodeButton>
+                        {serviceModel && serviceModel.moduleName === "http" && (
+                            <VSCodeButton appearance="secondary" title="Export OpenAPI Spec" onClick={handleExportOAS}>
+                                <Icon name="bi-export" sx={{ marginRight: 8, fontSize: 16 }} /> Export
                             </VSCodeButton>
                         )}
-
+                        {serviceModel &&
+                            serviceModel.moduleName !== "http" &&
+                            serviceModel.functions.some((func) => !func.enabled) && (
+                                <VSCodeButton appearance="primary" title="Add Function" onClick={handleNewFunction}>
+                                    <Codicon name="add" sx={{ marginRight: 8 }} /> Function
+                                </VSCodeButton>
+                            )}
                         {serviceModel && serviceModel.moduleName === "http" && (
                             <VSCodeButton appearance="primary" title="Add Resource" onClick={handleNewResourceFunction}>
-                                <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
-                            </VSCodeButton>
-                        )}
-
-                        {serviceModel &&serviceModel.moduleName === "http" && (
-                            <VSCodeButton appearance="secondary" title="Export OAS" onClick={handleExportOAS}>
-                                <Codicon name="export" sx={{ marginRight: 5 }} /> Export OAS
+                                <Codicon name="add" sx={{ marginRight: 8 }} /> Resource
                             </VSCodeButton>
                         )}
                     </>
@@ -346,29 +334,13 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             <ServiceContainer>
                 {!serviceModel && (
                     <LoadingContainer>
-                        <ProgressRing />
-                        <Typography variant="h3" sx={{ marginTop: "16px" }}>
-                            Loading Service Designer...
-                        </Typography>
+                        <LoadingRing message="Loading Service..." />
                     </LoadingContainer>
                 )}
                 {isSaving && (
-                    <div
-                        style={{
-                            position: "fixed",
-                            top: 0,
-                            left: 0,
-                            width: "100vw",
-                            height: "100vh",
-                            backgroundColor: "rgba(0, 0, 0, 0.5)",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            zIndex: 9999,
-                        }}
-                    >
-                        <ProgressRing />
-                    </div>
+                    <LoadingContainer>
+                        <LoadingRing message="Saving..." />
+                    </LoadingContainer>
                 )}
                 {serviceModel && (
                     <>

@@ -31,6 +31,7 @@ namespace S {
         display: flex;
         flex-direction: column;
         gap: 20px;
+        height: calc(100vh - 70px);
     `;
 
     export const Row = styled.div<{}>`

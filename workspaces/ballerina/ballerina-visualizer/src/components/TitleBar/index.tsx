@@ -81,14 +81,19 @@ interface TitleBarProps {
     subtitleElement?: ReactNode;
     actions?: ReactNode;
     hideBack?: boolean;
+    onBack?: () => void; // Override back functionality
 }
 
 export function TitleBar(props: TitleBarProps) {
-    const { title, subtitle, subtitleElement, actions, hideBack } = props;
+    const { title, subtitle, subtitleElement, actions, hideBack, onBack } = props;
     const { rpcClient } = useRpcContext();
 
     const handleBackButtonClick = () => {
-        rpcClient.getVisualizerRpcClient().goBack();
+        if (onBack) {
+            onBack();
+        } else {
+            rpcClient.getVisualizerRpcClient().goBack();
+        }
     };
 
     return (

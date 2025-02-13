@@ -7,9 +7,31 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DIRECTORY_MAP, EVENT_TYPE, FunctionModel, LineRange, MACHINE_VIEW, ProjectStructureArtifactResponse, PropertyModel, ServiceModel, FunctionModelResponse, STModification, removeStatement } from "@wso2-enterprise/ballerina-core";
+import {
+    DIRECTORY_MAP,
+    EVENT_TYPE,
+    FunctionModel,
+    LineRange,
+    MACHINE_VIEW,
+    ProjectStructureArtifactResponse,
+    PropertyModel,
+    ServiceModel,
+    FunctionModelResponse,
+    STModification,
+    removeStatement,
+} from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon, Divider, Dropdown, Icon, LinkButton, ProgressRing, Typography, ViewHeader } from "@wso2-enterprise/ui-toolkit";
+import {
+    Button,
+    Codicon,
+    Divider,
+    Dropdown,
+    Icon,
+    LinkButton,
+    ProgressRing,
+    Typography,
+    ViewHeader,
+} from "@wso2-enterprise/ui-toolkit";
 import React, { useEffect, useState } from "react";
 import { LoadingContainer } from "../styles";
 import styled from "@emotion/styled";
@@ -21,12 +43,11 @@ import { Colors } from "../../resources/constants";
 import { NodePosition } from "../BI/ServiceDesigner/components/TypeBrowser/TypeBrowser";
 import { applyModifications } from "../../utils/utils";
 
-
 const InfoContainer = styled.div`
     display: flex;
     flex-direction: column;
     gap: 5px;
-    padding:  0 15px 15px 15px;
+    padding: 0 15px 15px 15px;
 `;
 
 const InfoSection = styled.div`
@@ -38,7 +59,6 @@ const ServiceContainer = styled.div`
     padding: 10px;
     flex: 1;
     overflow-y: auto;
-    
 `;
 
 const GraphqlContainer = styled.div`
@@ -60,12 +80,12 @@ const TopBar = styled.div`
 `;
 
 const Title = styled.div`
-        font-size: 14px;
-        font-family: GilmerBold;
-        text-wrap: nowrap;
-        &:first {
-            margin-top: 0;
-        }
+    font-size: 14px;
+    font-family: GilmerBold;
+    text-wrap: nowrap;
+    &:first {
+        margin-top: 0;
+    }
 `;
 
 const OperationHeader = styled.div`
@@ -76,8 +96,8 @@ const OperationHeader = styled.div`
     padding-bottom: 10px;
 `;
 const StyledButton = styled(Button)`
-        border-radius: 5px;
-    `;
+    border-radius: 5px;
+`;
 
 const SidePanelTitleContainer = styled.div`
     display: flex;
@@ -113,7 +133,7 @@ type FunctionTemapltes = {
     query: FunctionModel;
     mutation: FunctionModel;
     subscription: FunctionModel;
-}
+};
 
 interface GraphqlServiceEditorProps {
     filePath: string;
@@ -135,9 +155,8 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
     const [functionTemplates, setFunctionTemplates] = useState<FunctionTemapltes>({
         query: undefined,
         mutation: undefined,
-        subscription: undefined
+        subscription: undefined,
     });
-
 
     useEffect(() => {
         fetchServiceModel();
@@ -149,13 +168,13 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
             const [queryModel, mutationModel, subscriptionModel] = await Promise.all([
                 getFunctionModel("query"),
                 getFunctionModel("mutation"),
-                getFunctionModel("subscription")
+                getFunctionModel("subscription"),
             ]);
 
             setFunctionTemplates({
                 query: queryModel,
                 mutation: mutationModel,
-                subscription: subscriptionModel
+                subscription: subscriptionModel,
             });
         };
 
@@ -165,39 +184,42 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
     const getFunctionModel = async (type: string) => {
         const response: FunctionModelResponse = await rpcClient.getServiceDesignerRpcClient().getFunctionModel({
             type: "graphql",
-            functionName: type
+            functionName: type,
         });
 
         return response?.function;
-    }
-
+    };
 
     const fetchServiceModel = async (newFilePath?: string, linePosition?: NodePosition) => {
-        const reqLineRange: LineRange = linePosition ? {
-            startLine: {
-                line: linePosition.startLine,
-                offset: linePosition.startColumn
-            },
-            endLine: {
-                line: linePosition.endLine,
-                offset: linePosition.endColumn
-            }
-        } : lineRange;
-
+        const reqLineRange: LineRange = linePosition
+            ? {
+                  startLine: {
+                      line: linePosition.startLine,
+                      offset: linePosition.startColumn,
+                  },
+                  endLine: {
+                      line: linePosition.endLine,
+                      offset: linePosition.endColumn,
+                  },
+              }
+            : lineRange;
 
         const reqFilePath = newFilePath ? newFilePath : filePath;
 
-        rpcClient.getServiceDesignerRpcClient().getServiceModelFromCode({
-            filePath: reqFilePath, codedata: {
-                lineRange: reqLineRange
-            }
-        }).then(res => {
-            console.log("Service Model: ", res.service);
-            setServiceModel(res.service);
-
-        });
+        rpcClient
+            .getServiceDesignerRpcClient()
+            .getServiceModelFromCode({
+                filePath: reqFilePath,
+                codedata: {
+                    lineRange: reqLineRange,
+                },
+            })
+            .then((res) => {
+                console.log("Service Model: ", res.service);
+                setServiceModel(res.service);
+            });
         getProjectListeners();
-    }
+    };
 
     const getProjectListeners = () => {
         rpcClient
@@ -209,7 +231,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                     setProjectListeners(listeners);
                 }
             });
-    }
+    };
 
     const handleServiceEdit = async () => {
         await rpcClient.getVisualizerRpcClient().openView({
@@ -220,12 +242,12 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                     startLine: lineRange?.startLine?.line,
                     startColumn: lineRange?.startLine?.offset,
                     endLine: lineRange?.endLine?.line,
-                    endColumn: lineRange?.endLine?.offset
+                    endColumn: lineRange?.endLine?.offset,
                 },
-                documentUri: filePath
+                documentUri: filePath,
             },
         });
-    }
+    };
 
     const findIcon = (label: string) => {
         label = label.toLowerCase();
@@ -237,47 +259,60 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
             default:
                 return "info";
         }
-    }
+    };
 
     const handleOpenListener = (value: string) => {
-        const listenerValue = projectListeners.find(listener => listener.name === value);
+        const listenerValue = projectListeners.find((listener) => listener.name === value);
         if (listenerValue) {
             rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.BIListenerConfigView,
                     position: listenerValue.position,
-                    documentUri: listenerValue.path
-                }
+                    documentUri: listenerValue.path,
+                },
             });
         }
-    }
+    };
 
     const getAttributeComponent = (component: PropertyModel) => {
         const label = component.metadata.label.toLowerCase();
         switch (true) {
             case label.includes("listener"):
-                return (
-                    component.values?.length > 0 ? component.values.map((item, index) => (
-                        <LinkButton sx={{ fontSize: 12, padding: 8, gap: 4 }} key={`${index}-btn`} onClick={() => handleOpenListener(item)}>{item}</LinkButton>
-                    )) : <LinkButton sx={{ fontSize: 12, padding: 8, gap: 4 }} onClick={() => handleOpenListener(component.value)}>{component.value}</LinkButton>
-                )
+                return component.values?.length > 0 ? (
+                    component.values.map((item, index) => (
+                        <LinkButton
+                            sx={{ fontSize: 12, padding: 8, gap: 4 }}
+                            key={`${index}-btn`}
+                            onClick={() => handleOpenListener(item)}
+                        >
+                            {item}
+                        </LinkButton>
+                    ))
+                ) : (
+                    <LinkButton
+                        sx={{ fontSize: 12, padding: 8, gap: 4 }}
+                        onClick={() => handleOpenListener(component.value)}
+                    >
+                        {component.value}
+                    </LinkButton>
+                );
             case label.includes("path"):
                 return component.value;
             default:
                 return component.value;
         }
-    }
+    };
 
     const goToSource = (resource: FunctionModel) => {
         // rpcClient.getCommonRpcClient().goToSource({ position: position });
-    }
+    };
 
     const onEditOperation = (currentFun: FunctionModel) => {
         // Create a copy of the resource to avoid modifying the original
         const currentFuncModel = {
             ...currentFun,
-            parameters: currentFun.parameters.map(param => ({
+            parameters: currentFun.parameters.map((param) => ({
                 ...param,
                 type: {
                     ...param.type,
@@ -296,49 +331,56 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                     value: param.defaultValue?.value || "",
                     valueType: param.defaultValue?.valueType || "EXPRESSION",
                     isType: param.defaultValue?.isType !== undefined ? param.defaultValue.isType : false,
-                }
-            }))
+                },
+            })),
         };
         setFunctionModel(currentFuncModel);
         setIsEdit(true);
         // setShowForm(true);
-    }
+    };
 
     const onDeleteFunction = async (model: FunctionModel) => {
         const targetPosition: NodePosition = {
             startLine: model?.codedata?.lineRange?.startLine.line,
             startColumn: model?.codedata.lineRange?.startLine?.offset,
             endLine: model?.codedata?.lineRange?.endLine?.line,
-            endColumn: model?.codedata?.lineRange?.endLine?.offset
-        }
+            endColumn: model?.codedata?.lineRange?.endLine?.offset,
+        };
         const deleteAction: STModification = removeStatement(targetPosition);
         await applyModifications(rpcClient, [deleteAction]);
         fetchServiceModel();
-    }
+    };
 
     const onFunctionImplement = async (func: FunctionModel) => {
         const lineRange: LineRange = func.codedata.lineRange;
-        const nodePosition: NodePosition = { startLine: lineRange.startLine.line, startColumn: lineRange.startLine.offset, endLine: lineRange.endLine.line, endColumn: lineRange.endLine.offset }
-        await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { position: nodePosition, documentUri: filePath } })
-    }
+        const nodePosition: NodePosition = {
+            startLine: lineRange.startLine.line,
+            startColumn: lineRange.startLine.offset,
+            endLine: lineRange.endLine.line,
+            endColumn: lineRange.endLine.offset,
+        };
+        await rpcClient
+            .getVisualizerRpcClient()
+            .openView({ type: EVENT_TYPE.OPEN_VIEW, location: { position: nodePosition, documentUri: filePath } });
+    };
 
     const handleNewQueryOperation = () => {
         const queryModel = JSON.parse(JSON.stringify(functionTemplates.query));
-        queryModel.kind = 'QUERY';
+        queryModel.kind = "QUERY";
         setFunctionModel(queryModel);
         setIsNewForm(true);
     };
 
     const handleNewMutationOperation = () => {
         const mutationModel = JSON.parse(JSON.stringify(functionTemplates.mutation));
-        mutationModel.kind = 'MUTATION';
+        mutationModel.kind = "MUTATION";
         setFunctionModel(mutationModel);
         setIsNewForm(true);
     };
 
     const handleNewSubscriptionOperation = () => {
         const subscriptionModel = JSON.parse(JSON.stringify(functionTemplates.subscription));
-        subscriptionModel.kind = 'SUBSCRIPTION';
+        subscriptionModel.kind = "SUBSCRIPTION";
         setFunctionModel(subscriptionModel);
         setIsNewForm(true);
     };
@@ -347,18 +389,18 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
         const categories: { query: FunctionModel[]; mutation: FunctionModel[]; subscription: FunctionModel[] } = {
             query: [],
             mutation: [],
-            subscription: []
+            subscription: [],
         };
 
-        serviceModel?.functions.forEach(operation => {
+        serviceModel?.functions.forEach((operation) => {
             switch (operation.kind) {
-                case 'QUERY':
+                case "QUERY":
                     categories.query.push(operation);
                     break;
-                case 'MUTATION':
+                case "MUTATION":
                     categories.mutation.push(operation);
                     break;
-                case 'SUBSCRIPTION':
+                case "SUBSCRIPTION":
                     categories.subscription.push(operation);
                     break;
                 default:
@@ -372,11 +414,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                     <OperationCard>
                         <OperationHeader>
                             <Title>Query</Title>
-                            <Button
-                                appearance="icon"
-                                tooltip={"Add Query Type"}
-                                onClick={handleNewQueryOperation}
-                            >
+                            <Button appearance="icon" tooltip={"Add Query Type"} onClick={handleNewQueryOperation}>
                                 <Codicon name="add" />
                             </Button>
                         </OperationHeader>
@@ -391,9 +429,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                             />
                         ))}
                         {categories.query?.length === 0 && (
-                            <EmptyStateText variant="body2">
-                                No Query Operation found
-                            </EmptyStateText>
+                            <EmptyStateText variant="body2">No Query Operation found</EmptyStateText>
                         )}
                     </OperationCard>
                 </OperationSection>
@@ -421,9 +457,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                             />
                         ))}
                         {categories.mutation?.length === 0 && (
-                            <EmptyStateText variant="body2">
-                                No Mutation Operation found
-                            </EmptyStateText>
+                            <EmptyStateText variant="body2">No Mutation Operation found</EmptyStateText>
                         )}
                     </OperationCard>
                 </OperationSection>
@@ -451,9 +485,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                             />
                         ))}
                         {categories.subscription?.length === 0 && (
-                            <EmptyStateText variant="body2">
-                                No Subscription Operation found
-                            </EmptyStateText>
+                            <EmptyStateText variant="body2">No Subscription Operation found</EmptyStateText>
                         )}
                     </OperationCard>
                 </OperationSection>
@@ -464,13 +496,12 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
     const handleNewFunctionClose = () => {
         setIsNewForm(false);
         setFunctionModel(undefined);
-
-    }
+    };
 
     const handleEditFunctionClose = () => {
         setIsEdit(false);
         setFunctionModel(undefined);
-    }
+    };
 
     const handleFunctionSubmit = async (updatedModel: FunctionModel) => {
         try {
@@ -479,17 +510,17 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                 LsReponse = await rpcClient.getServiceDesignerRpcClient().updateResourceSourceCode({
                     filePath,
                     codedata: {
-                        lineRange: lineRange
+                        lineRange: lineRange,
                     },
-                    function: updatedModel
+                    function: updatedModel,
                 });
             } else {
                 LsReponse = await rpcClient.getServiceDesignerRpcClient().addFunctionSourceCode({
                     filePath,
                     codedata: {
-                        lineRange: lineRange
+                        lineRange: lineRange,
                     },
-                    function: updatedModel
+                    function: updatedModel,
                 });
             }
 
@@ -503,40 +534,29 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
             }
             setFunctionModel(undefined);
         } catch (error) {
-            console.error('Error handling submit:', error);
+            console.error("Error handling submit:", error);
         }
     };
 
     return (
         <>
             {!isNewForm && !isEdit && (
-                <GraphqlContainer>
-                    {serviceModel && (
-                        <SidePanelTitleContainer>
-                            {"Operations"}
-                            <StyledButton appearance="icon" onClick={onClose}>
-                                <Codicon name="close" />
-                            </StyledButton>
-                        </SidePanelTitleContainer>
-                    )}
+                <PanelContainer title={"GraphQL Operations"} show={true} onClose={onClose} width={400}>
                     <ServiceContainer>
-                        {!serviceModel &&
+                        {!serviceModel && (
                             <LoadingContainer>
                                 <ProgressRing />
-                                <Typography variant="h3" sx={{ marginTop: '16px' }}>Loading Graphql Designer...</Typography>
+                                <Typography variant="h3" sx={{ marginTop: "16px" }}>
+                                    Loading Graphql Designer...
+                                </Typography>
                             </LoadingContainer>
-                        }
+                        )}
                         {serviceModel && renderOperations()}
                     </ServiceContainer>
-                </GraphqlContainer>
+                </PanelContainer>
             )}
             {functionModel && isNewForm && (
-                <PanelContainer
-                    title={"Add Operation"}
-                    show={isNewForm}
-                    onClose={handleNewFunctionClose}
-                    width={400}
-                >
+                <PanelContainer title={"Add Operation"} show={isNewForm} onBack={handleNewFunctionClose} onClose={handleNewFunctionClose} width={400}>
                     <OperationForm
                         model={functionModel}
                         filePath={filePath}
@@ -547,12 +567,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                 </PanelContainer>
             )}
             {functionModel && isEdit && (
-                <PanelContainer
-                    title={"Edit Operation"}
-                    show={isEdit}
-                    onClose={handleEditFunctionClose}
-                    width={400}
-                >
+                <PanelContainer title={"Edit Operation"} show={isEdit} onClose={handleEditFunctionClose} width={400}>
                     <OperationForm
                         model={functionModel}
                         filePath={filePath}
