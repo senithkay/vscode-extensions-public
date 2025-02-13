@@ -11,6 +11,7 @@ import { LinePosition } from "../../interfaces/common";
 
 export type SqFlow = {
     participants: SqParticipant[];
+    others?: SqParticipant[];
     location: SqLocation;
 };
 

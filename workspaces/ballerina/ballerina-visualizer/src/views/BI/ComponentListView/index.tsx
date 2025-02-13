@@ -8,17 +8,22 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, TriggerModelsResponse, TriggerNode } from "@wso2-enterprise/ballerina-core";
+import {
+    DIRECTORY_MAP,
+    EVENT_TYPE,
+    MACHINE_VIEW,
+    TriggerModelsResponse,
+    TriggerNode,
+} from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Codicon, Divider, Icon, Typography, View, ViewContent, LinkButton } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { BIHeader } from "../BIHeader";
 import ButtonCard from "../../../components/ButtonCard";
 import { BodyText } from "../../styles";
 import { useVisualizerContext } from "../../../Context";
-import ServiceConfigView from "../Trigger/ServiceConfigView";
-import PullingModuleLoader from "../../Connectors/PackageLoader/Loader";
 import { Colors } from "../../../resources/constants";
+import { TitleBar } from "../../../components/TitleBar";
+import { TopNavigationBar } from "../../../components/TopNavigationBar";
 
 const LoadingContainer = styled.div`
     display: flex;
@@ -39,7 +44,7 @@ const AddPanel = styled.div({
     display: "flex",
     flexDirection: "column",
     gap: 25,
-    padding: 20,
+    padding: 16,
 });
 
 const PanelViewMore = styled.div({
@@ -91,7 +96,7 @@ export function ComponentListView() {
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.BIServiceWizard,
-                    serviceType: serviceType
+                    serviceType: serviceType,
                 },
             });
         } else if (key === DIRECTORY_MAP.DATA_MAPPERS) {
@@ -99,42 +104,42 @@ export function ComponentListView() {
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.BIDataMapperForm,
-                }
+                },
             });
         } else if (key === DIRECTORY_MAP.CONNECTIONS) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.AddConnectionWizard,
-                }
+                },
             });
         } else if (key === DIRECTORY_MAP.AUTOMATION) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.BIMainFunctionForm,
-                }
+                },
             });
         } else if (key === DIRECTORY_MAP.FUNCTIONS) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.BIFunctionForm,
-                }
+                },
             });
         } else if (key === DIRECTORY_MAP.TYPES) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.TypeDiagram,
-                }
+                },
             });
         } else if (key === DIRECTORY_MAP.CONFIGURATIONS) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.ViewConfigVariables,
-                }
+                },
             });
         } else {
             setPopupMessage(true);
@@ -175,23 +180,21 @@ export function ComponentListView() {
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
                 view: MACHINE_VIEW.BIServiceWizard,
-                serviceType: trigger.moduleName
+                serviceType: trigger.moduleName,
             },
         });
     };
 
     return (
         <View>
+            <TopNavigationBar />
+            <TitleBar title="Constructs" subtitle="Add a new construct to your integration" />
             <ViewContent padding>
-                <BIHeader />
                 <Container>
                     <AddPanel>
                         <PanelViewMore>
-                            <Divider />
                             <Title variant="h2">Automation</Title>
-                            <BodyText>
-                                Explore automation options to streamline your integration processes.
-                            </BodyText>
+                            <BodyText>Explore automation options to streamline your integration processes.</BodyText>
                             <CardGrid>
                                 <ButtonCard
                                     icon={<Icon name="bi-task" />}
@@ -231,57 +234,63 @@ export function ComponentListView() {
                             <Divider />
                             <Title variant="h2">Event Integration</Title>
                             <BodyText>
-                                Configure event-driven integrations for your project. Explore the available options below.
+                                Configure event-driven integrations for your project. Explore the available options
+                                below.
                             </BodyText>
                             <CardGrid>
-                                {triggers.local.filter(t => t.type === 'event').map((item, index) => {
-                                    return (
-                                        <ButtonCard
-                                            key={item.id}
-                                            title={item.name}
-                                            description={`${item.orgName}/${item.moduleName}`}
-                                            icon={getEntryNodeIcon(item)}
-                                            onClick={() => {
-                                                handleClick(DIRECTORY_MAP.SERVICES, item.moduleName)
-                                            }}
-                                        />
-                                    );
-                                })}
+                                {triggers.local
+                                    .filter((t) => t.type === "event")
+                                    .map((item, index) => {
+                                        return (
+                                            <ButtonCard
+                                                key={item.id}
+                                                title={item.name}
+                                                description={`${item.orgName}/${item.moduleName}`}
+                                                icon={getEntryNodeIcon(item)}
+                                                onClick={() => {
+                                                    handleClick(DIRECTORY_MAP.SERVICES, item.moduleName);
+                                                }}
+                                            />
+                                        );
+                                    })}
                                 <Card onClick={() => handleClick(DIRECTORY_MAP.TRIGGERS)}>
-                                    <LinkButton onClick={() => handleClick(DIRECTORY_MAP.TRIGGERS)}> View More</LinkButton>
+                                    <LinkButton onClick={() => handleClick(DIRECTORY_MAP.TRIGGERS)}>
+                                        {" "}
+                                        View More
+                                    </LinkButton>
                                 </Card>
                             </CardGrid>
                         </PanelViewMore>
                         <PanelViewMore>
                             <Divider />
                             <Title variant="h2">File Integration</Title>
-                            <BodyText>
-                                Select the file integration type that best suits your project's needs.
-                            </BodyText>
+                            <BodyText>Select the file integration type that best suits your project's needs.</BodyText>
                             <CardGrid>
-                                {triggers.local.filter(t => t.type === 'file').map((item, index) => {
-                                    return (
-                                        <ButtonCard
-                                            key={item.id}
-                                            title={item.name}
-                                            description={`${item.orgName}/${item.moduleName}`}
-                                            icon={
-                                                item.icon ? (
-                                                    <img
-                                                        src={item.icon}
-                                                        alt={item.name}
-                                                        style={{ width: "40px" }}
-                                                    />
-                                                ) : (
-                                                    <Codicon name="mail" />
-                                                )
-                                            }
-                                            onClick={() => {
-                                                handleOnSelect(item);
-                                            }}
-                                        />
-                                    );
-                                })}
+                                {triggers.local
+                                    .filter((t) => t.type === "file")
+                                    .map((item, index) => {
+                                        return (
+                                            <ButtonCard
+                                                key={item.id}
+                                                title={item.name}
+                                                description={`${item.orgName}/${item.moduleName}`}
+                                                icon={
+                                                    item.icon ? (
+                                                        <img
+                                                            src={item.icon}
+                                                            alt={item.name}
+                                                            style={{ width: "40px" }}
+                                                        />
+                                                    ) : (
+                                                        <Codicon name="mail" />
+                                                    )
+                                                }
+                                                onClick={() => {
+                                                    handleOnSelect(item);
+                                                }}
+                                            />
+                                        );
+                                    })}
                             </CardGrid>
                         </PanelViewMore>
                         <PanelViewMore>
@@ -330,7 +339,6 @@ export function ComponentListView() {
     );
 }
 
-
 // INFO: This is a temporary function to get the custom icon for the entry points.
 // TODO: This should be removed once the new icons are added to the BE API.
 export function getCustomEntryNodeIcon(type: string) {
@@ -355,7 +363,5 @@ export function getCustomEntryNodeIcon(type: string) {
 }
 // TODO: This should be removed once the new icons are added to the BE API.
 export function getEntryNodeIcon(item: TriggerNode) {
-    return (
-        getCustomEntryNodeIcon(item.moduleName) || <img src={item.icon} alt={item.name} style={{ width: "40px" }} />
-    );
+    return getCustomEntryNodeIcon(item.moduleName) || <img src={item.icon} alt={item.name} style={{ width: "40px" }} />;
 }

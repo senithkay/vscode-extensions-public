@@ -408,8 +408,7 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
             onClick: () => {
                 handleAddFunction('init');
                 setAnchorEl(null);
-            },
-            disabled: hasInitFunction
+            }
         },
         {
             id: "resource",
@@ -516,6 +515,7 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
                                         >
                                             <Menu>
                                                 {menuItems
+                                                    .filter(item => !(item.id === 'init' && hasInitFunction))
                                                     .map((item) => (
                                                         <MenuItem key={item.id} item={item} />
                                                     ))}

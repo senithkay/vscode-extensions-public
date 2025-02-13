@@ -33,10 +33,12 @@ export class GraphqlDesignerRpcManager implements GraphqlDiagramAPI {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             try {
+                console.log(">>> Fetching GraphqlTypeModel", params);
                 const res: GetGraphqlTypeResponse = await context.langClient.getGraphqlTypeModel(params);
                 resolve(res);
             } catch (error) {
                 console.log(">>> Error obtaining GraphqlTypeModel", error);
+                resolve(undefined);
             }
         });
     }

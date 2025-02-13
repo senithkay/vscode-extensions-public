@@ -42,10 +42,10 @@ import {
     convertFunctionCategoriesToSidePanelCategories,
     getContainerTitle,
 } from "../../../utils/bi";
-import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { View, ViewHeader, ProgressRing, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
+import { NodePosition, ResourceAccessorDefinition, STNode } from "@wso2-enterprise/syntax-tree";
+import { View, ProgressRing, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
-import { applyModifications, getColorByMethod, textToModifications } from "../../../utils/utils";
+import { applyModifications, textToModifications } from "../../../utils/utils";
 import FormGenerator from "../Forms/FormGenerator";
 import { InlineDataMapper } from "../../InlineDataMapper";
 import { Colors } from "../../../resources/constants";
@@ -67,7 +67,7 @@ interface ColoredTagProps {
     color: string;
 }
 
-const ColoredTag = styled(VSCodeTag)<ColoredTagProps>`
+const ColoredTag = styled(VSCodeTag) <ColoredTagProps>`
     ::part(control) {
         color: var(--button-primary-foreground);
         background-color: ${({ color }: ColoredTagProps) => color};
@@ -90,10 +90,12 @@ export enum SidePanelView {
 export interface BIFlowDiagramProps {
     syntaxTree: STNode; // INFO: this is used to make the diagram rerender when code changes
     projectPath: string;
+    onUpdate: () => void;
+    onReady: (fileName: string) => void;
 }
 
 export function BIFlowDiagram(props: BIFlowDiagramProps) {
-    const { syntaxTree, projectPath } = props;
+    const { syntaxTree, projectPath, onUpdate, onReady } = props;
     const { rpcClient } = useRpcContext();
 
     const [model, setModel] = useState<Flow>();
@@ -117,9 +119,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const initialCategoriesRef = useRef<PanelCategory[]>([]);
     const showEditForm = useRef<boolean>(false);
 
-    // const flowDiagramCount = useRef<number>(0);
-    // console.log(">>> BIFlowDiagram", { flowDiagramCount: flowDiagramCount.current++ });
-
     useEffect(() => {
         getFlowModel();
     }, [syntaxTree]);
@@ -132,6 +131,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
 
     const getFlowModel = () => {
         setShowProgressIndicator(true);
+        onUpdate();
         rpcClient
             .getBIDiagramRpcClient()
             .getBreakpointInfo()
@@ -143,10 +143,12 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     .then((model) => {
                         if (model?.flowModel) {
                             setModel(model.flowModel);
+                            onReady(model.flowModel.fileName);
                         }
                     })
                     .finally(() => {
                         setShowProgressIndicator(false);
+                        onReady(undefined);
                     });
             });
     };
@@ -208,11 +210,13 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     "ROLLBACK",
                     "RETRY",
                 ];
-                const filteredCategories = response.categories.map(category => ({
+                const filteredCategories = response.categories.map((category) => ({
                     ...category,
                     items: category?.items?.filter(
-                        (item) => !('codedata' in item) || !notSupportedCategories.includes((item as AvailableNode).codedata?.node)
-                    )
+                        (item) =>
+                            !("codedata" in item) ||
+                            !notSupportedCategories.includes((item as AvailableNode).codedata?.node)
+                    ),
                 })) as Category[];
                 const convertedCategories = convertBICategoriesToSidePanelCategories(filteredCategories);
                 setCategories(convertedCategories);
@@ -308,11 +312,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             filePath: model.fileName,
             queryMap: searchText.trim()
                 ? {
-                    q: searchText,
-                    limit: 12,
-                    offset: 0,
-                    includeAvailableFunctions: "true"
-                }
+                      q: searchText,
+                      limit: 12,
+                      offset: 0,
+                      includeAvailableFunctions: "true",
+                  }
                 : undefined,
         };
         console.log(">>> Search function request", request);
@@ -678,6 +682,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         const context: VisualizerLocation = {
             view: MACHINE_VIEW.BIFunctionForm,
             identifier: (props?.syntaxTree as ResourceAccessorDefinition).functionName.value,
+            documentUri: model.fileName
         };
         rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
@@ -720,59 +725,35 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         setUpdatedExpressionField(undefined);
     };
 
-    const method = (props?.syntaxTree as ResourceAccessorDefinition).functionName.value;
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
 
-    const isResource = STKindChecker.isResourceAccessorDefinition(props.syntaxTree);
-    const ResourceDiagramTitle = (
-        <>
-            <span>{"Resource"}:</span>
-            <ColoredTag color={getColorByMethod(method)}>{method}</ColoredTag>
-            <SubTitle>{getResourcePath(syntaxTree as ResourceAccessorDefinition)}</SubTitle>
-        </>
+    const memoizedDiagramProps = useMemo(
+        () => ({
+            model: flowModel,
+            onAddNode: handleOnAddNode,
+            onAddNodePrompt: handleOnAddNodePrompt,
+            onDeleteNode: handleOnDeleteNode,
+            onAddComment: handleOnAddComment,
+            onNodeSelect: handleOnEditNode,
+            onConnectionSelect: handleOnEditConnection,
+            goToSource: handleOnGoToSource,
+            addBreakpoint: handleAddBreakpoint,
+            removeBreakpoint: handleRemoveBreakpoint,
+            openView: handleOpenView,
+            suggestions: {
+                fetching: fetchingAiSuggestions,
+                onAccept: onAcceptSuggestions,
+                onDiscard: onDiscardSuggestions,
+            },
+            projectPath,
+            breakpointInfo,
+        }),
+        [flowModel, fetchingAiSuggestions, projectPath, breakpointInfo]
     );
-    const FunctionDiagramTitle = (
-        <>
-            <span>{"Function"}:</span>
-            <SubTitle>{method}</SubTitle>
-        </>
-    );
-
-    const memoizedDiagramProps = useMemo(() => ({
-        model: flowModel,
-        onAddNode: handleOnAddNode,
-        onAddNodePrompt: handleOnAddNodePrompt,
-        onDeleteNode: handleOnDeleteNode,
-        onAddComment: handleOnAddComment,
-        onNodeSelect: handleOnEditNode,
-        onConnectionSelect: handleOnEditConnection,
-        goToSource: handleOnGoToSource,
-        addBreakpoint: handleAddBreakpoint,
-        removeBreakpoint: handleRemoveBreakpoint,
-        openView: handleOpenView,
-        suggestions: {
-            fetching: fetchingAiSuggestions,
-            onAccept: onAcceptSuggestions,
-            onDiscard: onDiscardSuggestions,
-        },
-        projectPath,
-        breakpointInfo,
-    }), [
-        flowModel,
-        fetchingAiSuggestions,
-        projectPath,
-        breakpointInfo
-    ]);
 
     return (
         <>
             <View>
-                <ViewHeader
-                    title={isResource ? ResourceDiagramTitle : FunctionDiagramTitle}
-                    icon={isResource ? "bi-http-service" : "bi-function"}
-                    iconSx={{ fontSize: "16px" }}
-                    onEdit={isResource ? undefined : handleEdit}
-                ></ViewHeader>
                 {(showProgressIndicator || fetchingAiSuggestions) && model && (
                     <ProgressIndicator color={Colors.PRIMARY} />
                 )}
@@ -782,9 +763,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             <ProgressRing color={Colors.PRIMARY} />
                         </SpinnerContainer>
                     )}
-                    {model && (
-                        <MemoizedDiagram {...memoizedDiagramProps} />
-                    )}
+                    {model && <MemoizedDiagram {...memoizedDiagramProps} />}
                 </Container>
             </View>
             <PanelContainer
@@ -852,12 +831,4 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             </PanelContainer>
         </>
     );
-}
-
-function getResourcePath(resource: ResourceAccessorDefinition) {
-    let resourcePath = "";
-    resource.relativeResourcePath?.forEach((path, index) => {
-        resourcePath += STKindChecker.isResourcePathSegmentParam(path) ? path.source : path?.value;
-    });
-    return resourcePath;
 }

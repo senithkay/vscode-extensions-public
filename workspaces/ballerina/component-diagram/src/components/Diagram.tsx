@@ -16,7 +16,6 @@ import {
     createNodesLink,
     createPortNodeLink,
     generateEngine,
-    getEntryNodeFunctionPortName,
     sortItems,
 } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";

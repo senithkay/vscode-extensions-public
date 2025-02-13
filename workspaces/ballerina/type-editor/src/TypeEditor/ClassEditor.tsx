@@ -91,6 +91,10 @@ namespace S {
         margin-bottom: 4px;
         font-size: 12px;
         justify-content: space-between;
+        cursor: pointer;
+        &:hover {
+            background-color: var(--vscode-list-hoverBackground);
+        }
     `;
 
     export const ParameterInfo = styled.div`
@@ -123,6 +127,7 @@ export function ClassEditor({ type, onChange }: ClassEditorProps) {
         type: '',
         defaultValue: ''
     });
+    const [editingParamIndex, setEditingParamIndex] = useState<number | null>(null);
 
     const addFunction = () => {
         const functionCount = type.functions?.length || 0;
@@ -163,11 +168,29 @@ export function ClassEditor({ type, onChange }: ClassEditorProps) {
         });
     };
 
+    const openParameterForm = (functionIndex: number, paramIndex?: number) => {
+        if (paramIndex !== undefined) {
+            // Editing existing parameter
+            const param = type.functions[functionIndex].parameters[paramIndex];
+            setParameterForm({
+                name: String(param.name),
+                type: String(param.type),
+                defaultValue: param.defaultValue ? String(param.defaultValue) : ''
+            });
+            setEditingParamIndex(paramIndex);
+        } else {
+            // Adding new parameter
+            setParameterForm({ name: '', type: '', defaultValue: '' });
+            setEditingParamIndex(null);
+        }
+        setShowParameterForm(functionIndex);
+    };
+
     const handleParameterSave = (functionIndex: number) => {
         const updatedFunctions = [...(type.functions || [])];
         const currentFunction = updatedFunctions[functionIndex];
 
-        const newParameter = {
+        const updatedParameter = {
             kind: "PARAMETER" as const,
             refs: [] as string[],
             type: parameterForm.type,
@@ -179,10 +202,21 @@ export function ClassEditor({ type, onChange }: ClassEditorProps) {
             advanced: false
         };
 
-        updatedFunctions[functionIndex] = {
-            ...currentFunction,
-            parameters: [...(currentFunction.parameters || []), newParameter]
-        };
+        if (editingParamIndex !== null) {
+            // Update existing parameter
+            const updatedParameters = [...currentFunction.parameters];
+            updatedParameters[editingParamIndex] = updatedParameter;
+            updatedFunctions[functionIndex] = {
+                ...currentFunction,
+                parameters: updatedParameters
+            };
+        } else {
+            // Add new parameter
+            updatedFunctions[functionIndex] = {
+                ...currentFunction,
+                parameters: [...(currentFunction.parameters || []), updatedParameter]
+            };
+        }
 
         onChange({
             ...type,
@@ -192,6 +226,7 @@ export function ClassEditor({ type, onChange }: ClassEditorProps) {
         // Reset form and hide it
         setParameterForm({ name: '', type: '', defaultValue: '' });
         setShowParameterForm(null);
+        setEditingParamIndex(null);
     };
 
     const deleteParameter = (functionIndex: number, paramIndex: number) => {
@@ -237,7 +272,7 @@ export function ClassEditor({ type, onChange }: ClassEditorProps) {
                         <Button appearance="icon" onClick={() => deleteFunction(index)}><Codicon name="trash" /></Button>
                         <Button
                             appearance="icon"
-                            onClick={() => setShowParameterForm(index)}
+                            onClick={() => openParameterForm(index)}
                             tooltip='Add Parameter'
                         >
                             <Codicon name="add" />
@@ -248,7 +283,10 @@ export function ClassEditor({ type, onChange }: ClassEditorProps) {
                         <S.ParameterList>
                             <S.ParameterSubHeader>Parameters</S.ParameterSubHeader>
                             {func.parameters.map((param, paramIndex) => (
-                                <S.ParameterItem key={paramIndex}>
+                                <S.ParameterItem
+                                    key={paramIndex}
+                                    onClick={() => openParameterForm(index, paramIndex)}
+                                >
                                     <S.ParameterInfo>
                                         <span>{String(param.name)}</span>
                                         <S.ParameterType>{String(param.type)}</S.ParameterType>
@@ -258,7 +296,10 @@ export function ClassEditor({ type, onChange }: ClassEditorProps) {
                                     </S.ParameterInfo>
                                     <Button
                                         appearance="icon"
-                                        onClick={() => deleteParameter(index, paramIndex)}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            deleteParameter(index, paramIndex);
+                                        }}
                                     >
                                         <Codicon name="trash" />
                                     </Button>

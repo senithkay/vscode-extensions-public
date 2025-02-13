@@ -8,11 +8,11 @@
  */
 
 import React from "react";
-import { FitScreenIcon, MinusIcon, PlusIcon } from "../../resources";
 import styled from "@emotion/styled";
 import { Colors } from "../../resources/constants";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { loadDiagramZoomAndPosition, resetDiagramZoomAndPosition } from "../../utils/diagram";
+import { Icon } from "@wso2-enterprise/ui-toolkit";
 
 export namespace ControlsStyles {
     export const Container = styled.div`
@@ -96,14 +96,14 @@ export function Controls(props: ControlsProps) {
     return (
         <ControlsStyles.Container>
             <ControlsStyles.Button onClick={handleZoomToFit}>
-                <FitScreenIcon />
+                <Icon name="bi-fit-screen" sx={{ width: 16, height: 16, fontSize: 16 }} />
             </ControlsStyles.Button>
             <ControlsStyles.GroupContainer>
                 <ControlsStyles.Button onClick={() => onZoom(true)}>
-                    <PlusIcon />
+                    <Icon name="bi-plus" sx={{ width: 16, height: 16, fontSize: 16 }} />
                 </ControlsStyles.Button>
                 <ControlsStyles.Button onClick={() => onZoom(false)}>
-                    <MinusIcon />
+                    <Icon name="bi-minus" sx={{ width: 16, height: 16, fontSize: 16 }} />
                 </ControlsStyles.Button>
             </ControlsStyles.GroupContainer>
         </ControlsStyles.Container>

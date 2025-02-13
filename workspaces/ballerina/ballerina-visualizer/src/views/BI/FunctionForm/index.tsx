@@ -17,6 +17,9 @@ import { BodyText } from "../../styles";
 import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { URI, Utils } from "vscode-uri";
 import FormGeneratorNew from "../Forms/FormGeneratorNew";
+import { TitleBar } from "../../../components/TitleBar";
+import { TopNavigationBar } from "../../../components/TopNavigationBar";
+import { FormHeader } from "../../../components/FormHeader";
 import { convertConfig } from "../../../utils/bi";
 
 const FormContainer = styled.div`
@@ -24,14 +27,12 @@ const FormContainer = styled.div`
     flex-direction: column;
     max-width: 600px;
     gap: 20px;
-    margin-top: 20px;
 `;
 
 const Container = styled.div`
     display: "flex";
     flex-direction: "column";
     gap: 10;
-    margin: 20px;
 `;
 
 interface FunctionFormProps {
@@ -62,13 +63,13 @@ export function FunctionForm(props: FunctionFormProps) {
 
     useEffect(() => {
         const fields = functionNode ? convertConfig(functionNode.properties) : [];
-        
+
         if (isDataMapper && fields.length > 0) {
             fields.forEach((field) => {
                 field.optional = false;
             });
         }
-        
+
         setFunctionFields(fields);
     }, [functionNode]);
 
@@ -77,7 +78,7 @@ export function FunctionForm(props: FunctionFormProps) {
             .getBIDiagramRpcClient()
             .getNodeTemplate({
                 position: { line: 0, offset: 0 },
-                filePath: "",
+                filePath: Utils.joinPath(URI.file(projectPath), fileName).fsPath,
                 id: { node: isDataMapper ? 'DATA_MAPPER_DEFINITION' : 'FUNCTION_DEFINITION' },
             });
         const flowNode = res.flowNode;
@@ -130,13 +131,16 @@ export function FunctionForm(props: FunctionFormProps) {
 
     return (
         <View>
+            <TopNavigationBar />
+            <TitleBar title={formType} subtitle={`Manage ${isDataMapper ? "data mappers" : "functions"} in your integration`} />
             <ViewContent padding>
-                <BIHeader />
                 <Container>
-                    <Typography variant="h2">{functionName ? `Edit ${formType}` : `Create New ${formType}`}</Typography>
-                    <BodyText>
-                        {functionName ? `Edit ${formType}` : `Define a new ${formType} that can be used within the integration`}.
-                    </BodyText>
+                    {functionName && (
+                        <FormHeader title={`Edit ${formType}`} />
+                    )}
+                    {!functionName && (
+                        <FormHeader title={`Create New ${formType}`} subtitle={`Define a ${formType} that can be used within the integration.`} />
+                    )}
                     <FormContainer>
                         {filePath && functionFields.length > 0 &&
                             <FormGeneratorNew
