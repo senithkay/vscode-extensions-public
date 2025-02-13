@@ -96,7 +96,7 @@ export function TitleBar(props: TitleBarProps) {
             <LeftContainer>
                 {!hideBack && (
                     <IconButton onClick={handleBackButtonClick}>
-                        <Icon name="bi-arrow-back" iconSx={{ fontSize: "24px" }} />
+                        <Icon name="bi-arrow-back" iconSx={{ fontSize: "24px", color: "var(--vscode-foreground)" }} />
                     </IconButton>
                 )}
                 <TitleSection>

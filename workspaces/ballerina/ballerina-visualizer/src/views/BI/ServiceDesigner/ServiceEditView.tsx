@@ -111,7 +111,6 @@ export function ServiceEditView(props: ServiceEditViewProps) {
             <TopNavigationBar />
             <TitleBar title="Service" subtitle="Edit Service" />
             <ViewContent padding>
-                {/* <BIHeader /> */}
                 {!serviceModel &&
                     <LoadingContainer>
                         <ProgressRing />

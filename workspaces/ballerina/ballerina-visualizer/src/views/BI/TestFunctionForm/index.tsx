@@ -527,12 +527,7 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
             <TopNavigationBar />
             <TitleBar title="Test" subtitle="Create a new test for your integration" />
             <ViewContent padding>
-                {/* <BIHeader /> */}
                 <Container>
-                    {/* <Typography variant="h2">{formTitle}</Typography>
-                    <BodyText>
-                        Define a test case that can be used within the integration.
-                    </BodyText> */}
                     <FormHeader title={formTitle} subtitle={`Define a test case that can be used within the integration.`} />
                     <FormContainer>
                         <Form

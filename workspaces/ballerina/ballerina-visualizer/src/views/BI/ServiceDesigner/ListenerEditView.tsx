@@ -111,7 +111,6 @@ export function ListenerEditView(props: ListenerEditViewProps) {
             <TopNavigationBar />
             <TitleBar title="Listener" subtitle="Edit Listener" />
             <ViewContent padding>
-                {/* <BIHeader /> */}
                 {!listenerModel &&
                     <LoadingContainer>
                         <ProgressRing />

@@ -175,7 +175,6 @@ export function ServiceWizard(props: ServiceWizardProps) {
             <TopNavigationBar />
             <TitleBar title="Service" subtitle="Create a new service for your integration" />
             <ViewContent>
-                {/* <BIHeader /> */}
                 {!listenerModel &&
                     <LoadingContainer>
                         <ProgressRing />

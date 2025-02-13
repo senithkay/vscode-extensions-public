@@ -101,11 +101,11 @@ export function TopNavigationBar(props: TopNavigationBarProps) {
         <NavContainer>
             {onBack && (
                 <IconButton onClick={handleBack}>
-                    <Icon name="bi-arrow-back" />
+                    <Icon name="bi-arrow-back" iconSx={{ color: "var(--vscode-foreground)" }} />
                 </IconButton>
             )}
             <IconButton onClick={handleHome}>
-                <Icon name="bi-home" />
+                <Icon name="bi-home" iconSx={{ color: "var(--vscode-foreground)" }} />
             </IconButton>
             <BreadcrumbContainer>
                 {history.map((crumb, index) => (

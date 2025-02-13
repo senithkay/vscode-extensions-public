@@ -144,12 +144,7 @@ export function FunctionForm(props: FunctionFormProps) {
             <TopNavigationBar />
             <TitleBar title="Function" subtitle="Manage functions in your integration" />
             <ViewContent padding>
-                {/* <BIHeader /> */}
                 <Container>
-                    {/* <Typography variant="h2">{functionName ? `Edit Function` : `Create New Function`}</Typography>
-                    <BodyText>
-                        {functionName ? `Edit the` : `Define a`} function that can be used within the integration.
-                    </BodyText> */}
                     {functionName && (
                         <FormHeader title={`Edit Function`} subtitle={`Edit the function that can be used within the integration.`} />
                     )}
