@@ -82,7 +82,7 @@ export function ObjectMappingOptionsWidget(props: ObjectMappingOptionsWidgetProp
     const o2oMenuItems: Item[] = [
         {
             id: "o2o-direct",
-            label: getItemElement("o2o-direct", "Map Directly"),
+            label: getItemElement("o2o-direct", "Map Object Directly"),
             onClick: onClickMapDirectly
         },
         {
