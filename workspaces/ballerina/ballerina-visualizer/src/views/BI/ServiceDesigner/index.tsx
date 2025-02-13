@@ -22,14 +22,7 @@ import {
     ProjectStructureArtifactResponse,
     PropertyModel,
 } from "@wso2-enterprise/ballerina-core";
-import {
-    Codicon,
-    Icon,
-    LinkButton,
-    ProgressRing,
-    Typography,
-    View,
-} from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Icon, LinkButton, ProgressRing, Typography, View } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { ResourceAccordion } from "./components/ResourceAccordion";
@@ -314,21 +307,24 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 subtitle="Implement and configure your service"
                 actions={
                     <>
-                        {serviceModel && serviceModel.moduleName !== "http" && serviceModel.functions.some((func) => !func.enabled) && (
-                            <VSCodeButton appearance="primary" title="Add Function" onClick={handleNewFunction}>
-                                <Codicon name="add" sx={{ marginRight: 8 }} /> Function
+                        <VSCodeButton appearance="secondary" title="Edit Service" onClick={handleServiceEdit}>
+                            <Icon name="bi-edit" sx={{ marginRight: 8, fontSize: 16 }} /> Edit
+                        </VSCodeButton>
+                        {serviceModel && serviceModel.moduleName === "http" && (
+                            <VSCodeButton appearance="secondary" title="Export OpenAPI Spec" onClick={handleExportOAS}>
+                                <Icon name="bi-export" sx={{ marginRight: 8, fontSize: 16 }} /> Export
                             </VSCodeButton>
                         )}
-
+                        {serviceModel &&
+                            serviceModel.moduleName !== "http" &&
+                            serviceModel.functions.some((func) => !func.enabled) && (
+                                <VSCodeButton appearance="primary" title="Add Function" onClick={handleNewFunction}>
+                                    <Codicon name="add" sx={{ marginRight: 8 }} /> Function
+                                </VSCodeButton>
+                            )}
                         {serviceModel && serviceModel.moduleName === "http" && (
                             <VSCodeButton appearance="primary" title="Add Resource" onClick={handleNewResourceFunction}>
                                 <Codicon name="add" sx={{ marginRight: 8 }} /> Resource
-                            </VSCodeButton>
-                        )}
-
-                        {serviceModel &&serviceModel.moduleName === "http" && (
-                            <VSCodeButton appearance="secondary" title="Export OAS" onClick={handleExportOAS}>
-                                <Icon name="bi-export" sx={{ marginRight: 8, fontSize: 16 }} /> Export OAS
                             </VSCodeButton>
                         )}
                     </>
