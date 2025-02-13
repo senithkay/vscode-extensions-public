@@ -774,6 +774,44 @@ async function sendMappingFileUploadRequest(file: Blob): Promise<Response | Erro
     return response;
 }
 
+export async function searchDocumentation(message: string): Promise<string | ErrorCode> {
+    const BACKEND_API_URL ="https://d55e8fdd-f58b-44b7-9037-aef27b84efa2-dev.e1-us-east-azure.choreoapis.dev/ballerina-doc-assistant/doc-assistant-docker-buil/v1.0";
+    const response = await fetch(BACKEND_API_URL + "/askAssistant", {
+        method: "POST",
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            "query": `${message}`
+        })
+    });
+
+    if (response as Response) {
+        return await filterDocumentation(response as Response);
+    } else {
+        return UNKNOWN_ERROR;
+    }
+    
+}
+
+export async function filterDocumentation(resp: Response): Promise<string | ErrorCode> {
+    if (resp.status == 200 || resp.status == 201) {
+        const data = (await resp.json()) as any;
+        console.log("data",data.response);
+        const finalResponse = await (data.response).replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
+        return finalResponse;
+    }
+    if (resp.status == 404) {
+        return ENDPOINT_REMOVED;
+    }
+    if (resp.status == 400) {
+        const data = (await resp.json()) as any;
+        console.log(data);
+        return PARSING_ERROR;
+    } 
+}
+
 async function filterMappingResponse(resp: Response): Promise<string| ErrorCode> {
     if (resp.status == 200 || resp.status == 201) {
         const data = (await resp.json()) as any;

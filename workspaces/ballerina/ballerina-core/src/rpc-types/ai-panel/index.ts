@@ -48,4 +48,5 @@ export interface AIPanelAPI {
     isWSO2AISignedIn: () => Promise<boolean>;
     showSignInAlert: () => Promise<boolean>;
     markAlertShown: () => void;
+    getFromDocumentation: (content: string) => Promise<string>;
 }

@@ -85,6 +85,7 @@ export const COMMAND_SCAFFOLD = "/scaffold";
 export const COMMAND_TESTS = "/tests";
 export const COMMAND_DATAMAP = "/datamap";
 export const COMMAND_TYPECREATOR = "/typecreator";
+export const COMMAND_DOCUMENTATION = "/ask";
 
 // Define constants for command templates
 const TEMPLATE_SCAFFOLD = [
@@ -97,6 +98,7 @@ const TEMPLATE_DATAMAP = [
     "generate mapping using input as <recordname(s)> and output as <recordname>",
 ];
 const TEMPLATE_TYPECREATOR = ["generate types using the given file"];
+const TEMPLATE_DOCUMENTATION = ["have questions about the Ballerina programming language: <question>"];
 
 // Use the constants in the commandToTemplate map
 const commandToTemplate = new Map<string, string[]>([
@@ -104,6 +106,7 @@ const commandToTemplate = new Map<string, string[]>([
     [COMMAND_TESTS, TEMPLATE_TESTS],
     [COMMAND_DATAMAP, TEMPLATE_DATAMAP],
     [COMMAND_TYPECREATOR, TEMPLATE_TYPECREATOR],
+    [COMMAND_DOCUMENTATION, TEMPLATE_DOCUMENTATION]
 ]);
 
 //TODO: Add the files relevant to the commands
@@ -336,13 +339,14 @@ export function AIChat() {
 
     async function processContent(token: string, content: [string, AttachmentResult[]]) {
         const [message, attachments] = content;
-
+        console.log("Message: ", message);
         const commandKey = findCommand(message);
         if (commandKey) {
             const commandLength = commandKey.length;
             const messageBody = message.slice(commandLength).trim();
+            console.log("Message Body: ", messageBody);
             const parameters = extractParameters(commandKey, messageBody);
-            console.log(parameters);
+            console.log("Parameters: ", parameters);
 
             if (parameters) {
                 switch (commandKey) {
@@ -383,6 +387,9 @@ export function AIChat() {
                         }
                         break;
                     }
+                    case COMMAND_DOCUMENTATION: {
+                        await findInDocumentation(parameters.inputRecord[0], token);
+                    }
                 }
             } else {
                 throw new Error(
@@ -404,7 +411,7 @@ export function AIChat() {
         return "";
     }
 
-    function extractParameters(command: string, messageBody: string): MappingParameters | null {
+    function  extractParameters(command: string, messageBody: string): MappingParameters | null {
         const expectedTemplates = commandToTemplate.get(command);
         for (const template of expectedTemplates ?? []) {
             let pattern = template
@@ -412,7 +419,8 @@ export function AIChat() {
                 .replace(/<recordname\(s\)>/g, "([\\w:\\[\\]]+(?:[\\s,]+[\\w:\\[\\]]+)*)")
                 .replace(/<recordname>/g, "([\\w:\\[\\]]+)")
                 .replace(/<use-case>/g, "(.+?)")
-                .replace(/<functionname>/g, "(\\S+?)");
+                .replace(/<functionname>/g, "(\\S+?)")
+                .replace(/<question>/g, "(.+?)");
 
             const regex = new RegExp(`^${pattern}$`, "i");
             const match = messageBody.match(regex);
@@ -647,9 +655,8 @@ export function AIChat() {
     const handleAddAllCodeSegmentsToWorkspace = async (
         codeSegments: any,
         setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
-        command: string
+        isTestCode: boolean
     ) => {
-        console.log("Add to integration called. Command: ", command);
         for (let { segmentText, filePath } of codeSegments) {
             let originalContent = "";
             if (!tempStorage[filePath]) {
@@ -665,15 +672,10 @@ export function AIChat() {
                     tempStorage[filePath] = "";
                 }
             }
-            if (command === "ai_map") {
-                segmentText = `${originalContent}\n${segmentText}`;
-            } else {
+            if (!["types.bal", "mappings.bal"].includes(filePath)) {
                 segmentText = `${segmentText}`;
-            }
-
-            let isTestCode = false;
-            if (command === "test") {
-                isTestCode = true;
+            } else {
+                segmentText = `${originalContent}\n${segmentText}`;
             }
             await rpcClient
                 .getAiPanelRpcClient()
@@ -685,10 +687,8 @@ export function AIChat() {
     const handleRevertChanges = async (
         codeSegments: any,
         setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
-        command: string
+        isTestCode: boolean
     ) => {
-        console.log("Revert integration called. Command: ", command);
-
         for (const { filePath } of codeSegments) {
             let originalContent = tempStorage[filePath];
             if (originalContent === "" && !initialFiles.has(filePath) && !emptyFiles.has(filePath)) {
@@ -699,10 +699,6 @@ export function AIChat() {
                     console.error(`Error deleting file ${filePath}:`, error);
                 }
             } else {
-                let isTestCode = false;
-                if (command === "test") {
-                    isTestCode = true;
-                }
                 const revertContent = emptyFiles.has(filePath) ? "" : originalContent;
                 await rpcClient
                     .getAiPanelRpcClient()
@@ -771,9 +767,9 @@ export function AIChat() {
 
         setIsLoading(false);
         setIsCodeLoading(false);
-        assistant_response += `\n\n<code filename="tests/test.bal" type="test">\n\`\`\`ballerina\n${generatedTestCode}\n\`\`\`\n</code>`;
-        if (configToml !== undefined && configToml !== "") {
-            assistant_response += `\n\n<code filename="tests/Config.toml" type="test">\n\`\`\`ballerina\n${configToml}\n\`\`\`\n</code>`;
+        assistant_response += `\n\n<code filename="tests/test.bal">\n\`\`\`ballerina\n${generatedTestCode}\n\`\`\`\n</code>`;
+        if (configToml !== "") {
+            assistant_response += `\n\n<code filename="tests/Config.toml">\n\`\`\`ballerina\n${configToml}\n\`\`\`\n</code>`;
         }
         setMessages((prevMessages) => {
             const newMessages = [...prevMessages];
@@ -933,7 +929,7 @@ export function AIChat() {
             filePath = activeFile;
             finalContent = `${fileContent}\n${response.mappingCode}`;
         }
-        assistant_response += `<code filename="${filePath}" type="ai_map">\n\`\`\`ballerina\n${finalContent}\n\`\`\`\n</code>`;
+        assistant_response += `<code filename="${filePath}">\n\`\`\`ballerina\n${finalContent}\n\`\`\`\n</code>`;
 
         setMessages((prevMessages) => {
             const newMessages = [...prevMessages];
@@ -993,7 +989,7 @@ export function AIChat() {
         }
 
         assistant_response = `Record types generated from the ${attachments[0].name} file shown below.\n`;
-        assistant_response += `<code filename="${filePath}" type="ai_map">\n\`\`\`ballerina\n${response.typesCode}\n\`\`\`\n</code>`;
+        assistant_response += `<code filename="${filePath}">\n\`\`\`ballerina\n${response.typesCode}\n\`\`\`\n</code>`;
 
         setMessages((prevMessages) => {
             const newMessages = [...prevMessages];
@@ -1001,6 +997,35 @@ export function AIChat() {
             return newMessages;
         });
         setIsLoading(false);
+        addChatEntry("user", message);
+        addChatEntry("assistant", assistant_response);
+    }
+
+    
+    async function findInDocumentation(message: string, token: string) {
+        let assistant_response = "";
+        setIsLoading(true);
+        try{
+            console.log("Searching for: " + message, + "Token: ", token);
+            assistant_response = await rpcClient.getAiPanelRpcClient().getFromDocumentation(message);
+            console.log("Assistant Response: " + assistant_response);
+            setMessages((prevMessages) => {
+                const newMessages = [...prevMessages];
+                newMessages[newMessages.length - 1].content = assistant_response;
+                return newMessages;
+            });
+            setIsLoading(false);
+        } catch (error) {
+            setIsLoading(false);
+            setMessages((prevMessages) => {
+                const newMessages = [...prevMessages];
+                newMessages[newMessages.length - 1].content += `Failed fetching data from documentation: ${error}`;
+                newMessages[newMessages.length - 1].type = "Error";
+                return newMessages;
+            });
+            throw new Error("Failed fetching");
+        }
+
         addChatEntry("user", message);
         addChatEntry("assistant", assistant_response);
     }
@@ -1137,7 +1162,7 @@ export function AIChat() {
                                                 message={message}
                                                 buttonsActive={showGeneratingFiles}
                                                 isSyntaxError={isSyntaxError}
-                                                command={segment.command}
+                                                isTestCode={segment.isTestCode}
                                             />
                                         );
                                     }
@@ -1312,17 +1337,17 @@ interface CodeSectionProps {
     handleAddAllCodeSegmentsToWorkspace: (
         codeSegment: any,
         setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
-        command: string
+        isTestCode: boolean
     ) => void;
     handleRevertChanges: (
         codeSegment: any,
         setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
-        command: string
+        isTestCode: boolean
     ) => void;
     message: { role: string; content: string; type: string };
     buttonsActive: boolean;
     isSyntaxError: boolean;
-    command: string;
+    isTestCode: boolean;
 }
 
 const CodeSection: React.FC<CodeSectionProps> = ({
@@ -1334,16 +1359,12 @@ const CodeSection: React.FC<CodeSectionProps> = ({
     message,
     buttonsActive,
     isSyntaxError,
-    command,
+    isTestCode,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isCodeAdded, setIsCodeAdded] = useState(false);
 
     const language = "ballerina";
-    let isTestCode = false;
-    if (command === "test") {
-        isTestCode = true;
-    }
     let name = loading
         ? "Generating " + (isTestCode ? "Tests..." : "Integration...")
         : isTestCode
@@ -1369,7 +1390,7 @@ const CodeSection: React.FC<CodeSectionProps> = ({
                                         handleAddAllCodeSegmentsToWorkspace(
                                             allCodeSegments,
                                             setIsCodeAdded,
-                                            command
+                                            isTestCode
                                         );
                                     }}
                                     tooltip={
@@ -1387,7 +1408,7 @@ const CodeSection: React.FC<CodeSectionProps> = ({
                                     appearance="icon"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        handleRevertChanges(allCodeSegments, setIsCodeAdded, command);
+                                        handleRevertChanges(allCodeSegments, setIsCodeAdded, isTestCode);
                                     }}
                                     disabled={!buttonsActive}
                                 >
@@ -1581,34 +1602,28 @@ interface Segment {
     loading: boolean;
     text: string;
     fileName?: string;
-    command?: string;
+    isTestCode?: boolean;
     failed?: boolean;
-}
-
-function getCommand(command: string) {
-    if (!command) {
-        return "code";
-    } else {
-        return command.replaceAll(/"/g, "");
-    }
 }
 
 function splitHalfGeneratedCode(content: string): Segment[] {
     const segments: Segment[] = [];
     // Regex to capture filename and optional test attribute
-    const regex = /<code\s+filename="([^"]+)"(?:\s+type=("test"|"ai_map"))?>\s*```(\w+)\s*([\s\S]*?)$/g;
+    const regex = /<code\s+filename="([^"]+)"(?:\s+test=(true|false))?>\s*```(\w+)\s*([\s\S]*?)$/g;
     let match;
     let lastIndex = 0;
 
     while ((match = regex.exec(content)) !== null) {
-        const [fullMatch, fileName, type, language, code] = match;
+        const [fullMatch, fileName, testValue, language, code] = match;
+        const isTestCode = testValue === "true";
+
         if (match.index > lastIndex) {
             // Non-code segment before the current code block
             segments.push({
                 type: SegmentType.Text,
                 loading: false,
                 text: content.slice(lastIndex, match.index),
-                command: getCommand(type),
+                isTestCode: isTestCode,
             });
         }
 
@@ -1619,7 +1634,7 @@ function splitHalfGeneratedCode(content: string): Segment[] {
             loading: true,
             text: code,
             fileName: fileName,
-            command: getCommand(type),
+            isTestCode: isTestCode,
         });
 
         lastIndex = regex.lastIndex;
@@ -1642,7 +1657,7 @@ export function splitContent(content: string): Segment[] {
 
     // Combined regex to capture either <code ...>```<language> code ```</code> or <progress>Text</progress>
     const regex =
-        /<code\s+filename="([^"]+)"(?:\s+type=("test"|"ai_map"))?>\s*```(\w+)\s*([\s\S]*?)```\s*<\/code>|<progress>([\s\S]*?)<\/progress>|<attachment>([\s\S]*?)<\/attachment>|<error>([\s\S]*?)<\/error>/g;
+        /<code\s+filename="([^"]+)"(?:\s+test=(true|false))?>\s*```(\w+)\s*([\s\S]*?)```\s*<\/code>|<progress>([\s\S]*?)<\/progress>|<attachment>([\s\S]*?)<\/attachment>|<error>([\s\S]*?)<\/error>/g;
     let match;
     let lastIndex = 0;
 
@@ -1666,9 +1681,11 @@ export function splitContent(content: string): Segment[] {
         if (match[1]) {
             // <code> block matched
             const fileName = match[1];
-            const type = match[2];
+            const testValue = match[2];
             const language = match[3];
             const code = match[4];
+            const isTestCode = testValue === "true";
+
             updateLastProgressSegmentLoading();
             segments.push({
                 type: SegmentType.Code,
@@ -1676,7 +1693,7 @@ export function splitContent(content: string): Segment[] {
                 text: code,
                 fileName: fileName,
                 language: language,
-                command: getCommand(type),
+                isTestCode: isTestCode,
             });
         } else if (match[5]) {
             // <progress> block matched
