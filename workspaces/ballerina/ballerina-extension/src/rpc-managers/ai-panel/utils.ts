@@ -326,22 +326,25 @@ async function getMappingString(mapping: object, parameterDefinitions: Parameter
     let baseType: string = "";
     let baseTargetType: string = "";
     let modifiedOutput = parameterDefinitions["outputMetadata"];
+    const unionEnumIntersectionTypes = ["enum", "union", "intersection", "enum[]", 
+        "enum[]|()", "union[]", "union[]|()", "intersection[]", "intersection[]|()"];
+
+    let paths = parameters[0].split(".");
+    let recordObjectName: string = paths[0];
+
+    // Retrieve inputType
+    if (paths.length > 2) {
+        inputType = await getNestedType(paths.slice(1), parameterDefinitions["inputMetadata"][recordObjectName]);
+    } else {
+        inputType = parameterDefinitions["inputMetadata"][recordObjectName]["fields"][paths[1]]["typeName"];
+    }
+    baseType = inputType.replace("|()", "");
+    baseTargetType= targetType.replace("|()", "");
 
     if (operation === "DIRECT") {
         if (parameters.length > 1) {
             return "";
         }
-        let paths = parameters[0].split(".");
-        let recordObjectName: string = paths[0];
-        
-        // Retrieve inputType
-        if (paths.length > 2) {
-            inputType = await getNestedType(paths.slice(1), parameterDefinitions["inputMetadata"][recordObjectName]);
-        } else {
-            inputType = parameterDefinitions["inputMetadata"][recordObjectName]["fields"][paths[1]]["type"];
-        }
-        baseType = inputType.replace("|()", "");
-        baseTargetType= targetType.replace("|()", "");
         modifiedPaths = await accessMetadata(
             paths, 
             parameterDefinitions, 
@@ -349,7 +352,8 @@ async function getMappingString(mapping: object, parameterDefinitions: Parameter
             baseType, 
             baseTargetType,
             nestedKey, 
-            operation
+            operation,
+            unionEnumIntersectionTypes
         );
         for (let index = 0; index < modifiedPaths.length; index++) {
             if (index > 0 && modifiedPaths[index] === modifiedPaths[index - 1]) {
@@ -390,7 +394,7 @@ async function getMappingString(mapping: object, parameterDefinitions: Parameter
 
         const isStringInput = ["string", "string|()"].includes(inputType);
         const isStringTarget = ["string", "string|()"].includes(targetType);
-        if (inputType === targetType || inputType === baseTargetType) {
+        if (inputType === targetType || inputType === baseTargetType || unionEnumIntersectionTypes.includes(inputType)) {
             path = `${path}`;
         } else if (isStringInput) {
             const conversion = stringConversions[baseTargetType];
@@ -417,7 +421,6 @@ async function getMappingString(mapping: object, parameterDefinitions: Parameter
         if (parameters.length > 1) {
             return "";
         }
-        let paths = parameters[0].split(".");
         modifiedPaths = await accessMetadata(
             paths, 
             parameterDefinitions, 
@@ -438,7 +441,6 @@ async function getMappingString(mapping: object, parameterDefinitions: Parameter
         if (parameters.length > 2) {
             return "";
         }
-        let paths = parameters[0].split(".");
         modifiedPaths = await accessMetadata(
             paths, 
             parameterDefinitions, 
@@ -454,7 +456,7 @@ async function getMappingString(mapping: object, parameterDefinitions: Parameter
             }
             path = `${path}${modifiedPaths[index]}`;
         }
-        path = `re \`${parameters[1]}\`.split(${parameters[0]})`;
+        path = `re \`${parameters[1]}\`.split(${path})`;
     }
     return path;
 }
@@ -506,12 +508,17 @@ function navigateTypeInfo(
     let memberRecordFields: { [key: string]: any } = {};
     let temporaryRecord: RecordDefinitonObject | ErrorCode;
     let isNullable = false;
+    let isArray = false;
     let memberName: string;
 
     const handleMember = (member: any): string => {
         if (member.typeName === "record" && member.fields) {
             temporaryRecord = navigateTypeInfo(member.fields, false);
-            memberName = "record"; // TODO: Check with health-care records
+            if (member.hasOwnProperty("name") && !member.hasOwnProperty("typeName")) {
+                memberName = member.name;
+            } else {
+                memberName = "record";
+            }
             memberRecordFields = {
                 ...memberRecordFields,
                 ...(temporaryRecord as RecordDefinitonObject).recordFields
@@ -521,6 +528,7 @@ function navigateTypeInfo(
                 ...((temporaryRecord as RecordDefinitonObject).recordFieldsMetadata)
             };
         } else if (member.typeName === "array") {
+            isArray = true;
             if (member.memberType.hasOwnProperty("fields") && member.memberType.typeName === "record") {
                 temporaryRecord = navigateTypeInfo(member.memberType.fields, false);
                 memberName = `${member.memberType.typeName}[]`;
@@ -540,25 +548,69 @@ function navigateTypeInfo(
                     const memberTypeName = handleMember(innerMember);
                     memberTypes.push(memberTypeName);
                 }
-                memberName = `${member.memberType.name}[]`;
-                memberRecordFields = {
-                    ...memberRecordFields,
-                    ...(temporaryRecord as RecordDefinitonObject).recordFields
-                };
-                memberFieldsMetadata = {
-                    ...memberFieldsMetadata,
-                    ...((temporaryRecord as RecordDefinitonObject).recordFieldsMetadata)
-                };
+                memberName = `(${memberTypes.join("|")})[]`;
+            } else if (member.memberType.hasOwnProperty("members") && member.memberType.typeName === "enum") {
+                let memberTypeNames: string[] = [];
+                for (const innerMember of member.memberType.members) {
+                    const memberTypeName = handleMember(innerMember);
+                    memberTypeNames.push(memberTypeName);
+                }
+                memberName = `(${memberTypeNames.join("|")})[]`;
             } else if (member.memberType.hasOwnProperty("typeInfo")) {
-                memberName = "record[]"; // TODO: Check with health-care records
+                if (member.memberType.hasOwnProperty("name") && !member.memberType.hasOwnProperty("typeName")) {
+                    memberName = `${member.memberType.name}`;
+                } else {
+                    memberName = "record[]"; 
+                }
             } else {
                 memberName = `${member.memberType.typeName}[]`;
             }
+        } else if (member.typeName === "union" || member.typeName === "intersection" || member.typeName === "enum") {
+            let memberTypeNames: string[] = [];
+            for (const innerMember of member.members) {
+                const memberTypeName = handleMember(innerMember);
+                memberTypeNames.push(memberTypeName);
+            }
+            memberName = `${memberTypeNames.join("|")}`;
         } else if (member.typeName === "()") {
             memberName = member.typeName;
             isNullable = true;
         } else {
             memberName = member.typeName;
+            if (member.hasOwnProperty("name")) {
+                memberRecordFields = {
+                    ...memberRecordFields,
+                    [member.name]: {
+                        type: memberName,
+                        comment: ""
+                    }
+                };
+                memberFieldsMetadata = {
+                    ...memberFieldsMetadata,
+                    [member.name]: {
+                        typeName: memberName,
+                        type: memberName,
+                        typeInstance: member.name,
+                        nullable: isNill,
+                        optional: member.optional
+                    }
+                };
+            } else {
+                // Check if typeName is not one of the primitive types
+                const primitiveTypes = ["int", "string", "float", "boolean", "decimal", "readonly"];
+                if (!primitiveTypes.includes(memberName)) {
+                    memberFieldsMetadata = {
+                        ...memberFieldsMetadata,
+                        [memberName]: {
+                            typeName: memberName,
+                            type: memberName,
+                            typeInstance: memberName,
+                            nullable: isNill,
+                            optional: member.optional
+                        }
+                    };
+                }
+            }
         }
         return memberName;
     };
@@ -566,6 +618,8 @@ function navigateTypeInfo(
     for (const field of typeInfos) {
         memberRecordFields = {};
         memberFieldsMetadata = {};
+        isNullable = false;
+        isArray = false;
         let typeName = field.typeName;
         if (typeName) {
             if (typeName === "record") {
@@ -592,9 +646,9 @@ function navigateTypeInfo(
                     nullable: isNullable,
                     optional: field.optional,
                     typeName: resolvedTypeName,
-                    type: resolvedTypeName,
+                    type: isArray ? `${field.typeName}[]` : field.typeName,
                     typeInstance: field.name,
-                    ...(Object.keys(memberFieldsMetadata).length > 0 && { fields: memberFieldsMetadata })
+                    ...(Object.keys(memberFieldsMetadata).length > 0 && { members: memberFieldsMetadata })
                 };
             } else if (typeName === "array") {
                 if (field.memberType.hasOwnProperty("members") && 
@@ -604,16 +658,34 @@ function navigateTypeInfo(
                         const memberTypeName = handleMember(member);
                         memberTypeNames.push(memberTypeName);
                     }
-    
+                    const resolvedTypeName = memberTypeNames.join("|");
                     recordFields[field.name] = Object.keys(memberRecordFields).length > 0 
-                                            ? memberRecordFields : { type: `${field.memberType.name}[]`, comment: "" };
+                                            ? memberRecordFields : { type: `(${resolvedTypeName})[]`, comment: "" };
                     recordFieldsMetadata[field.name] = {
                         nullable: isNullable,
                         optional: field.optional,
-                        typeName: `${field.memberType.name}[]`,
-                        type: `${field.memberType.name}[]`,
+                        typeName: `(${resolvedTypeName})[]`,
+                        type: `${field.memberType.typeName}[]`,
                         typeInstance: field.name,
-                        ...(Object.keys(memberFieldsMetadata).length > 0 && { fields: memberFieldsMetadata })
+                        ...(Object.keys(memberFieldsMetadata).length > 0 && { members: memberFieldsMetadata })
+                    };
+                    continue;
+                } else if (field.memberType.hasOwnProperty("members")  && field.memberType.typeName === "enum") {
+                    let memberTypeNames: string[] = [];
+                    for (const member of field.memberType.members) {
+                        const memberTypeName = handleMember(member);
+                        memberTypeNames.push(memberTypeName);
+                    }
+                    const resolvedTypeName = memberTypeNames.join("|");
+                    recordFields[field.name] = Object.keys(memberRecordFields).length > 0 
+                                            ? memberRecordFields : { type: `${resolvedTypeName}[]`, comment: "" };
+                    recordFieldsMetadata[field.name] = {
+                        typeName: `(${resolvedTypeName})[]`,
+                        type: `${field.memberType.typeName}[]`,
+                        typeInstance: field.name,
+                        nullable: isNill,
+                        optional: field.optional,
+                        ...(Object.keys(memberFieldsMetadata).length > 0 && { members: memberFieldsMetadata })
                     };
                     continue;
                 } else if (field.memberType.hasOwnProperty("fields") && field.memberType.typeName === "record") {
@@ -629,7 +701,11 @@ function navigateTypeInfo(
                     };
                     continue;
                 } else if (field.memberType.hasOwnProperty("typeInfo")) {
-                    typeName = "record[]"; // TODO: Check with Health-care Records
+                    if (field.memberType.hasOwnProperty("name") && !field.memberType.hasOwnProperty("typeName")) {
+                        typeName = `${field.memberType.name}[]`;
+                    } else {
+                        typeName = "record[]";
+                    }
                 } else {
                     typeName = `${field.memberType.typeName}[]`;
                 }
@@ -641,15 +717,45 @@ function navigateTypeInfo(
                     nullable: isNill,
                     optional: field.optional
                 };
-            } else {
-                recordFields[field.name] = { type: typeName, comment: "" };
+            } else if (typeName === "enum") {
+                let memberTypeNames: string[] = [];
+                for (const member of field.members) {
+                    const memberTypeName = handleMember(member);
+                    memberTypeNames.push(memberTypeName);
+                }
+                const resolvedTypeName = memberTypeNames.join("|");
+                recordFields[field.name] = Object.keys(memberRecordFields).length > 0 
+                                            ? memberRecordFields : { type: `${resolvedTypeName}`, comment: "" };
                 recordFieldsMetadata[field.name] = {
-                    typeName: typeName,
-                    type: typeName,
-                    typeInstance: field.name,
                     nullable: isNill,
-                    optional: field.optional
+                    optional: field.optional,
+                    type: field.typeName,
+                    typeInstance: field.name,
+                    typeName: resolvedTypeName,
+                    ...(Object.keys(memberFieldsMetadata).length > 0 && { members: memberFieldsMetadata })
+
                 };
+            }
+            else {
+                if (field.hasOwnProperty("name")) {
+                    recordFields[field.name] = { type: typeName, comment: "" };
+                    recordFieldsMetadata[field.name] = {
+                        typeName: typeName,
+                        type: typeName,
+                        typeInstance: field.name,
+                        nullable: isNill,
+                        optional: field.optional
+                    };
+                } else {
+                    recordFields[typeName] = { type: "string", comment: "" };
+                    recordFieldsMetadata[typeName] = {
+                        typeName: typeName,
+                        type: "string",
+                        typeInstance: typeName,
+                        nullable: isNill,
+                        optional: field.optional
+                    };
+                }
             }
         } else {
             recordFields[field.name] = { type: field.typeInfo.name, comment: "" };
@@ -968,13 +1074,15 @@ async function accessMetadata(
     baseType: string,
     baseTargetType: string,
     nestedKey: string,
-    operation: string
+    operation: string,
+    unionEnumIntersectionTypes?: string[]
 ): Promise<string[]> {
     const newPath: string[] = [...paths];
     let outputObject: object;
     let isOutputNullable = false;
     let isOutputOptional = false;
     let isUsingDefault = false;
+    let defaultValue: string;
 
     // Resolve output metadata
     if (nestedKeyArray.length > 0) {
@@ -986,7 +1094,7 @@ async function accessMetadata(
         outputObject = modifiedOutput[nestedKey];
     }
 
-    const outputMetadataType = outputObject["type"];
+    const outputMetadataType = outputObject["typeName"];
     baseTargetType = outputMetadataType.replace("|()", "");
     isOutputNullable = outputObject["nullable"];
     isOutputOptional = outputObject["optional"];
@@ -997,36 +1105,66 @@ async function accessMetadata(
         let inputObject = await resolveMetadata(parameterDefinitions, paths, pathIndex, "inputMetadata");
         if (!inputObject) { throw new Error(`Field ${pathIndex} not found in metadata.`); }
 
-        const inputMetadataType = inputObject["type"];
         const isInputNullable = inputObject["nullable"];
         const isInputOptional = inputObject["optional"];
 
-        // Handle record types with nullable or optional conditions
-        if (inputObject.hasOwnProperty("fields") || operation === "LENGTH") {
+        if (inputObject.hasOwnProperty("members") || inputObject.hasOwnProperty("fields") || operation === "LENGTH") {
+            const inputMetadataType = inputObject["type"];
+            const metadataTypeName = inputObject["typeName"];
             const isInputRecordNullable = inputObject["nullable"];
             const isInputRecordOptional = inputObject["optional"];
             isUsingDefault = false;
             if (isInputRecordNullable || isInputRecordOptional) {
-                if (["record", "record|()", "readonly|record", "readonly|record|()"].includes(inputMetadataType)) {
-                    newPath[index] = `${paths[index]}?`;
-                    isUsingDefault = true;
+                const recordTypes = [
+                    "record", "record|()", "readonly|record", "readonly|record|()",
+                    "record[]", "record[]|()", "(readonly|record)[]", "(readonly|record)[]|()"
+                ];
+                // Handle record types
+                if (recordTypes.includes(metadataTypeName)) {
+                    if (!metadataTypeName.includes("[]")) {
+                        newPath[index] = `${paths[index]}?`;
+                        isUsingDefault = true;
+                    }
+                    if (metadataTypeName.includes("[]") && operation === "LENGTH") {
+                        let lastInputObject = await resolveMetadata(parameterDefinitions, paths, paths[paths.length - 1], "inputMetadata");
+                        let inputDataType = lastInputObject["typeName"].replace("|()", "");
+                        defaultValue = await getDefaultValue(inputDataType);
+                        newPath[paths.length - 1] = `${paths[paths.length - 1]}?:${defaultValue}`;
+                    }
+                    if (isInputRecordNullable && isInputRecordOptional) {
+                        newPath[index - 1] = `${paths[index - 1]}?`;
+                    }
+                // Handle enum, union, and intersection types    
+                } else if (unionEnumIntersectionTypes.includes(inputMetadataType)) {
+                    if (isInputRecordNullable && isInputRecordOptional) {
+                        newPath[index - 1] = `${paths[index - 1]}?`;
+                    }  
+                    if (!isOutputNullable && !isOutputOptional) {
+                        let typeName = inputMetadataType.includes("[]") 
+                            ? inputMetadataType.replace("|()", "") 
+                            : (inputObject as any).members[Object.keys((inputObject as any).members)[0]].typeName;
+                        
+                        let defaultValue = await getDefaultValue(typeName);
+                        newPath[paths.length - 1] = `${paths[paths.length - 1]}?:${defaultValue !== "void" ? defaultValue : JSON.stringify(typeName)}`;
+                    }
                 }
-                if (["record[]", "record[]|()", "readonly|record[]", "readonly|record[]|()"].includes(inputMetadataType) && operation === "LENGTH") {
-                    let lastInputObject = await resolveMetadata(parameterDefinitions, paths, paths[paths.length - 1], "inputMetadata");
-                    let inputDataType = lastInputObject["type"].replace("|()", "");
-                    let defaultValue = await getDefaultValue(inputDataType);
-                    newPath[paths.length - 1] = `${paths[paths.length - 1]}?:${defaultValue}`;
-                }
-
-                if (isInputRecordNullable && isInputRecordOptional) {
-                    newPath[index - 1] = `${paths[index - 1]}?`;
+            } else {
+                if (unionEnumIntersectionTypes.includes(inputMetadataType)) {
+                    if (!isOutputNullable && !isOutputOptional) {
+                        let typeName = inputMetadataType.includes("[]") 
+                            ? inputMetadataType.replace("|()", "") 
+                            : (inputObject as any).members[Object.keys((inputObject as any).members)[0]].typeName;
+                        
+                        let defaultValue = await getDefaultValue(typeName);
+                        newPath[paths.length - 1] = `${paths[paths.length - 1]}?:${defaultValue !== "void" ? defaultValue : JSON.stringify(typeName)}`;
+                    }
                 }
             }
         } else {
             if (isInputNullable && isInputOptional) {
                 newPath[index - 1] = `${paths[index - 1]}?`;
             }
-            let defaultValue = await getDefaultValue(baseType);
+            defaultValue = await getDefaultValue(baseType);
 
             if (isUsingDefault && !isOutputNullable && !isOutputOptional) {
                 newPath[index] = `${pathIndex}?:${defaultValue}`;
@@ -1065,7 +1203,10 @@ async function getDefaultValue(dataType: string): Promise<string> {
         case "decimal[]":
         case "boolean[]":
         case "record[]":
-        case "readonly|record[]":
+        case "(readonly|record)[]":
+        case "enum[]":
+        case "union[]":
+        case "intersection[]":
             return "[]";
         default:
             // change the following to a appropriate value
@@ -1079,21 +1220,23 @@ async function getNestedType(paths: string[], metadata: object): Promise<string>
         let cleanPath = paths[i].replace(/\?.*$/, "");
         if (currentMetadata["fields"] && currentMetadata["fields"][cleanPath]) {
             currentMetadata = currentMetadata["fields"][cleanPath];
+        } else if (currentMetadata["members"] && currentMetadata["members"][cleanPath]) {
+            currentMetadata = currentMetadata["members"][cleanPath];
         } else {
             throw new Error(`Field ${cleanPath} not found in metadata.`);
         }
     }
-    return currentMetadata["type"];
+    return currentMetadata["typeName"];
 }
 
 async function resolveMetadata(parameterDefinitions: ParameterMetadata | ErrorCode, nestedKeyArray: string[], key: string, metadataKey: "inputMetadata" | "outputMetadata"): Promise<object|null> {
     let metadata = parameterDefinitions[metadataKey];
     for (let nk of nestedKeyArray) {
-        if (metadata[nk] && metadata[nk]["fields"]) {
+        if (metadata[nk] && (metadata[nk]["fields"] || metadata[nk]["members"])) {
             if (nk === key){
                 return metadata[nk];
             }
-            metadata = metadata[nk]["fields"];
+            metadata = metadata[nk]["fields"] || metadata[nk]["members"];
         } else {
             return metadata[key];
         }
@@ -1110,6 +1253,9 @@ async function handleRecordArrays(key: string, nestedKey: string, responseRecord
     let combinedKey: string = "";
     let modifiedOutput: object;
     let outputMetadataType: string = "";
+    const arrayRecords = [
+        "record[]", "record[]|()", "(readonly|record)[]", "(readonly|record)[]|()"
+    ];
 
     for (let subObjectKey of subObjectKeys) {
         if (!nestedKey) {
@@ -1120,14 +1266,14 @@ async function handleRecordArrays(key: string, nestedKey: string, responseRecord
                 throw new Error(`Metadata not found for ${nestedKey}.`);
             }
         }
-        outputMetadataType = modifiedOutput["type"];
-        let isDeeplyNested = (["record[]", "record[]|()", "readonly|record[]", "readonly|record[]|()"].includes(outputMetadataType));
+        outputMetadataType = modifiedOutput["typeName"];
+        let isDeeplyNested = (arrayRecords.includes(outputMetadataType));
 
-        let { itemKey: currentItemKey, combinedKey: currentCombinedKey } = await extractKeys(responseRecord[subObjectKey], parameterDefinitions);
+        let { itemKey: currentItemKey, combinedKey: currentCombinedKey } = await extractKeys(responseRecord[subObjectKey], parameterDefinitions, arrayRecords);
         if (currentItemKey.includes('?')) {
             currentItemKey = currentItemKey.replace('?', '');
         }
-        if (modifiedOutput.hasOwnProperty("fields")) {
+        if (modifiedOutput.hasOwnProperty("fields") || modifiedOutput.hasOwnProperty("members")) {
             if (isDeeplyNested) {
                 const subArrayRecord = responseRecord[subObjectKey];
                 const isCombinedKeyModified = currentCombinedKey.endsWith('?');
@@ -1156,7 +1302,7 @@ async function handleRecordArrays(key: string, nestedKey: string, responseRecord
     if (formattedRecordsArray.length > 0 && itemKey && combinedKey) {
         const formattedRecords = formattedRecordsArray.join(",\n");
         const keyToReplace = combinedKey.endsWith('?') ? combinedKey.replace(/\?$/, '') : combinedKey;
-        const processedKeys = await processCombinedKey(combinedKey, parameterDefinitions);
+        const processedKeys = await processCombinedKey(combinedKey, parameterDefinitions, arrayRecords);
         const combinedKeyExpression = (processedKeys.isinputRecordArrayNullable || processedKeys.isinputRecordArrayOptional || processedKeys.isinputArrayNullable || processedKeys.isinputArrayOptional)
             ? `${keyToReplace} ?: []`
             : keyToReplace;
@@ -1190,7 +1336,8 @@ async function filterResponse(resp: Response): Promise<string | ErrorCode> {
 
 async function extractKeys(
     key: string,
-    parameterDefinitions: ParameterMetadata | ErrorCode
+    parameterDefinitions: ParameterMetadata | ErrorCode,
+    arrayRecords: string[]
 ): Promise<{
     itemKey: string;
     combinedKey: string;
@@ -1234,7 +1381,7 @@ async function extractKeys(
             .replace(/\.toString\(\)$/, '');
     }
     // Call the helper function to process parent keys
-    const processedKeys = await processParentKey(innerKey, parameterDefinitions);
+    const processedKeys = await processParentKey(innerKey, parameterDefinitions, arrayRecords);
     itemKey = processedKeys.itemKey;
     combinedKey = processedKeys.combinedKey;
     return { itemKey, combinedKey };
@@ -1243,6 +1390,7 @@ async function extractKeys(
 async function processParentKey(
     innerKey: string, 
     parameterDefinitions: ParameterMetadata | ErrorCode, 
+    arrayRecords: string[]
 ): Promise<{ 
     itemKey: string; 
     combinedKey: string; 
@@ -1273,9 +1421,9 @@ async function processParentKey(
         if (!modifiedInputs) {
             throw new Error(`Metadata not found for ${refinedParentKey[index]}.`);
         }
-        inputMetadataType = modifiedInputs["type"];
+        inputMetadataType = modifiedInputs["typeName"];
 
-        if (!isSet && (["record[]", "record[]|()", "readonly|record[]", "readonly|record[]|()"].includes(inputMetadataType))) {
+        if (!isSet && (arrayRecords.includes(inputMetadataType))) {
             itemKey = parentKey[index];
             combinedKey = parentKey.slice(0, index + 1).join(".");
             isSet = true;
@@ -1286,7 +1434,8 @@ async function processParentKey(
 
 async function processCombinedKey(
     combinedKey: string,
-    parameterDefinitions: ParameterMetadata | ErrorCode
+    parameterDefinitions: ParameterMetadata | ErrorCode,
+    arrayRecords: string[]
 ): Promise<{
     isinputRecordArrayNullable: boolean;
     isinputRecordArrayOptional: boolean;
@@ -1321,9 +1470,9 @@ async function processCombinedKey(
 
     currentNullable = modifiedInputs["nullable"];
     currentOptional = modifiedInputs["optional"];
-    inputMetadataType = modifiedInputs["type"];
+    inputMetadataType = modifiedInputs["typeName"];
 
-    if (!isSet && ["record[]", "record[]|()", "readonly|record[]", "readonly|record[]|()"].includes(inputMetadataType)) {
+    if (!isSet && arrayRecords.includes(inputMetadataType)) {
         isSet = true;
     }
 
@@ -1335,11 +1484,11 @@ async function processCombinedKey(
         // Check preceding elements for non-`record[]` types
         for (let nextIndex = index - 1; nextIndex >= 0; nextIndex--) {
             const nextModifiedInputs = await resolveMetadata(parameterDefinitions, refinedCombinedKeys, refinedCombinedKeys[nextIndex], "inputMetadata");
-            const nextMetadataType = nextModifiedInputs["type"];
+            const nextMetadataType = nextModifiedInputs["typeName"];
             const nextNullable = nextModifiedInputs["nullable"];
             const nextOptional = nextModifiedInputs["optional"];
 
-            if (!["record[]", "record[]|()", "readonly|record[]", "readonly|record[]|()"].includes(nextMetadataType)) {
+            if (!arrayRecords.includes(nextMetadataType)) {
                 if (nextNullable) { isinputArrayNullable = true; }
                 if (nextOptional) { isinputArrayOptional = true; }
             } else {
