@@ -71,8 +71,8 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 		const lm = new DataMapperLinkModel();
 		lm.registerListener({
 			targetPortChanged: (async () => {
-				const sourcePort = lm.getSourcePort();
-				const targetPort = lm.getTargetPort();
+				const sourcePort = lm.getSourcePort() as InputOutputPortModel;
+				const targetPort = lm.getTargetPort() as InputOutputPortModel;
 				
 				const mappingType = getMappingType(sourcePort, targetPort);
 				if (isPendingMappingRequired(mappingType)) {
@@ -82,14 +82,14 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 
 				const targetPortHasLinks = Object.values(targetPort.links)
 					?.some(link => (link as DataMapperLinkModel)?.isActualLink);
-				const valueType = getValueType(lm);
+				const valueType = getValueType(targetPort);
 
 				if (valueType === ValueType.Default || (valueType === ValueType.NonEmpty && !targetPortHasLinks)) {
 					await updateExistingValue(sourcePort, targetPort);
 				} else if (targetPortHasLinks) {
 					await modifySourceForMultipleMappings(lm);
 				} else {
-					await createSourceForMapping(lm);
+					await createSourceForMapping(sourcePort, targetPort);
 				}
 			})
 		});

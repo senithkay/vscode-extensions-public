@@ -10,8 +10,7 @@ import { LinkModel, PortModel } from "@projectstorm/react-diagrams-core";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 
 import { InputOutputPortModel, MappingType } from "../Port";
-import { getDefaultValue, getLinebreak, getTypeAnnotation, isQuotedString } from "./common-utils";
-import { SourceFile } from "ts-morph";
+import { getDefaultValue, getLinebreak, isQuotedString } from "./common-utils";
 
 export function isSourcePortArray(port: PortModel): boolean {
     if (port instanceof InputOutputPortModel) {
@@ -66,41 +65,6 @@ export function removePendingMappingTempLinkIfExists(link: LinkModel) {
 		targetPort.setPendingMappingType(MappingType.Default);
 		link.remove();
 	}
-}
-
-export function generateCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, sourceFile: SourceFile) {
-    let targetFieldName = targetPort.field.fieldName;
-    let targetTypeWithName = targetPort.typeWithValue;
-
-    while (targetTypeWithName?.type.fieldName === undefined) {
-        if (targetTypeWithName) {
-            targetTypeWithName = targetTypeWithName.parentType;
-            targetFieldName = `${targetTypeWithName?.type.fieldName}Item`;
-        } else {
-            targetFieldName = "output";
-            break;
-        }
-    }
-
-    const localFunctionNames = sourceFile.getFunctions().map(fn => fn.getName());
-    const importedFunctionNames = sourceFile.getImportDeclarations()
-    .flatMap(importDecl => importDecl.getNamedImports().map(namedImport => namedImport.getName()));
-  
-    let customFunctionName = `${sourcePort.field.fieldName}_${targetFieldName}`;
-    let i = 1;
-    while (localFunctionNames.includes(customFunctionName) || importedFunctionNames.includes(customFunctionName)) {
-        customFunctionName = `${sourcePort.field.fieldName}_${targetFieldName}_${++i}`;
-    }
-    
-    return {
-        name: customFunctionName,
-        parameters: [{ name: sourcePort.field.fieldName, type: getTypeAnnotation(sourcePort.field) }],
-        returnType: getTypeAnnotation(targetPort.field),
-        statements: [
-            `return ${getDefaultValue(targetPort.field)};`
-        ]
-    }
-    
 }
 
 function fillWithDefaults(type: DMType): string {

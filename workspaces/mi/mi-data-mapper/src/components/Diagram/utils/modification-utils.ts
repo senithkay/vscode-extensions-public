@@ -22,7 +22,7 @@ import {
 } from "ts-morph";
 
 import { DataMapperLinkModel } from "../Link";
-import { InputOutputPortModel, IntermediatePortModel } from "../Port";
+import { InputOutputPortModel, IntermediatePortModel, ValueType } from "../Port";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import {
 	getFieldIndexes,
@@ -31,27 +31,27 @@ import {
 	getPropertyAssignment,
 	getCallExprReturnStmt,
 	isEmptyValue,
-	isMapFunction
+	isMapFunction,
+	getDefaultValue,
+	getTypeAnnotation,
+	getEditorLineAndColumn,
+	getValueType
 } from "./common-utils";
 import { ArrayOutputNode, LinkConnectorNode, ObjectOutputNode } from "../Node";
 import { ExpressionLabelModel } from "../Label";
 import { DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { getPosition, isPositionsEquals } from "./st-utils";
 import { PrimitiveOutputNode } from "../Node/PrimitiveOutput";
+import { IDataMapperContext } from "src/utils/DataMapperContext/DataMapperContext";
 
-export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue?: string, suffix: string = '') {
-	if (!link.getSourcePort() || !link.getTargetPort()) {
-		return;
-	}
-
+export async function createSourceForMapping(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, rhsValue?: string, suffix: string = '') {
+	
 	let source = "";
 	let lhs = "";
 	let rhs = "";
 
-	const sourcePort = link.getSourcePort() as InputOutputPortModel;
-	const targetPort = link.getTargetPort() as InputOutputPortModel;
 	const targetNode = targetPort.getNode() as DataMapperNodeModel;
-	const fieldIndexes = targetPort && getFieldIndexes(targetPort);
+	const fieldIndexes = getFieldIndexes(targetPort);
 	const parentFieldNames: string[] = [];
 	const { applyModifications } = targetNode.context;
 
@@ -538,6 +538,59 @@ export function buildInputAccessExpr(fieldFqn: string): string {
 
 	return result.replace(/(?<!\?)\.\[/g, '['); // Replace occurrences of '.[' with '[' to handle consecutive bracketing
 }
+
+export async function mapUsingCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, context: IDataMapperContext, isValueModifiable: boolean) {
+	const inputAccessExpr = buildInputAccessExpr(sourcePort.fieldFQN);
+	const sourceFile = context.functionST.getSourceFile();
+	const customFunction = generateCustomFunction(sourcePort, targetPort, sourceFile);
+	const customFunctionDeclaration = sourceFile.addFunction(customFunction);
+	const range = getEditorLineAndColumn(customFunctionDeclaration);
+	const customFunctionCallExpr = `${customFunction.name}(${inputAccessExpr})`;
+
+	if (isValueModifiable) {
+		await updateExistingValue(sourcePort, targetPort, customFunctionCallExpr);
+	} else {
+		await createSourceForMapping(sourcePort, targetPort, customFunctionCallExpr);
+	}
+	context.goToSource(range);
+}
+
+
+function generateCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, sourceFile: SourceFile) {
+    let targetFieldName = targetPort.field.fieldName;
+    let targetTypeWithName = targetPort.typeWithValue;
+
+    while (targetTypeWithName?.type.fieldName === undefined) {
+        if (targetTypeWithName) {
+            targetTypeWithName = targetTypeWithName.parentType;
+            targetFieldName = `${targetTypeWithName?.type.fieldName}Item`;
+        } else {
+            targetFieldName = "output";
+            break;
+        }
+    }
+
+    const localFunctionNames = sourceFile.getFunctions().map(fn => fn.getName());
+    const importedFunctionNames = sourceFile.getImportDeclarations()
+    .flatMap(importDecl => importDecl.getNamedImports().map(namedImport => namedImport.getName()));
+  
+    let customFunctionName = `${sourcePort.field.fieldName}_${targetFieldName}`;
+    let i = 1;
+    while (localFunctionNames.includes(customFunctionName) || importedFunctionNames.includes(customFunctionName)) {
+        customFunctionName = `${sourcePort.field.fieldName}_${targetFieldName}_${++i}`;
+    }
+    
+    return {
+        name: customFunctionName,
+        parameters: [{ name: sourcePort.field.fieldName, type: getTypeAnnotation(sourcePort.field) }],
+        returnType: getTypeAnnotation(targetPort.field),
+        statements: [
+            `return ${getDefaultValue(targetPort.field)};`
+        ]
+    }
+    
+}
+
 
 function isMappedToRootArrayLiteralExpr(targetPort: InputOutputPortModel): boolean {
 	const targetExpr = targetPort?.typeWithValue?.value; // targetExpr is undefined when the body is missing the return statement

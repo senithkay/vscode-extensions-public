@@ -13,10 +13,8 @@ import { Codicon, Item, Menu, MenuItem } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
 
 import { InputOutputPortModel, ValueType } from '../Port';
-import { getEditorLineAndColumn, getValueType } from '../utils/common-utils';
-import { generateCustomFunction } from '../utils/link-utils';
-import { DataMapperLinkModel } from '../Link';
-import { buildInputAccessExpr, createSourceForMapping, updateExistingValue } from '../utils/modification-utils';
+import { getValueType } from '../utils/common-utils';
+import { createSourceForMapping, mapUsingCustomFunction, updateExistingValue } from '../utils/modification-utils';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 
 export const useStyles = () => ({
@@ -48,13 +46,11 @@ export interface ObjectMappingOptionsWidgetProps {
 
 export function ObjectMappingOptionsWidget(props: ObjectMappingOptionsWidgetProps) {
     const classes = useStyles();
-    const { link, pendingMappingType, context } = props.model;
+    const { link, context } = props.model;
 
-    const sourcePort = link.getSourcePort();
-    const targetPort = link?.getTargetPort();
-    const valueType = getValueType(link);
-    const targetPortHasLinks = Object.values(targetPort.links)
-        ?.some(link => (link as DataMapperLinkModel)?.isActualLink);
+    const sourcePort = link.getSourcePort() as InputOutputPortModel;
+    const targetPort = link?.getTargetPort() as InputOutputPortModel;
+    const valueType = getValueType(targetPort);
 
     const isValueModifiable = valueType === ValueType.Default
         || valueType === ValueType.NonEmpty;
@@ -63,28 +59,12 @@ export function ObjectMappingOptionsWidget(props: ObjectMappingOptionsWidgetProp
         if (isValueModifiable) {
             await updateExistingValue(sourcePort, targetPort);
         } else {
-            await createSourceForMapping(link);
+            await createSourceForMapping(sourcePort, targetPort);
         }
     }
 
-    const onClickMapWithCustomFunction = async () => {
-        if (targetPort instanceof InputOutputPortModel && sourcePort instanceof InputOutputPortModel) {
-
-            const inputAccessExpr = buildInputAccessExpr((link.getSourcePort() as InputOutputPortModel).fieldFQN);
-            const sourceFile = context.functionST.getSourceFile();
-            const customFunction = generateCustomFunction(sourcePort, targetPort, sourceFile);
-            const customFunctionDeclaration = sourceFile.addFunction(customFunction);
-            const range = getEditorLineAndColumn(customFunctionDeclaration);
-            const customFunctionCallExpr = `${customFunction.name}(${inputAccessExpr})`;
-          
-            if (isValueModifiable) {
-                await updateExistingValue(sourcePort, targetPort, customFunctionCallExpr);
-            } else {
-                await createSourceForMapping(link, customFunctionCallExpr);
-            }
-            context.goToSource(range);
-           
-        }
+    const onClickMapUsingCustomFunction = async () => {
+        await mapUsingCustomFunction(sourcePort, targetPort, context, isValueModifiable);
     };
 
     const getItemElement = (id: string, label: string) => {
@@ -108,7 +88,7 @@ export function ObjectMappingOptionsWidget(props: ObjectMappingOptionsWidgetProp
         {
             id: "o2o-func",
             label: getItemElement("o2o-func", "Map Using Custom Function"),
-            onClick: onClickMapWithCustomFunction
+            onClick: onClickMapUsingCustomFunction
         }
     ];
 

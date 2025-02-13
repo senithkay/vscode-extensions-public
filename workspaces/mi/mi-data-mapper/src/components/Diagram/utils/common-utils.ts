@@ -804,8 +804,8 @@ export function getMappingType(sourcePort: PortModel, targetPort: PortModel): Ma
     return MappingType.Default;
 }
 
-export function getValueType(lm: DataMapperLinkModel): ValueType {
-    const { typeWithValue } = lm.getTargetPort() as InputOutputPortModel;
+export function getValueType(targetPort: InputOutputPortModel): ValueType {
+    const { typeWithValue } = targetPort;
 
     if (typeWithValue?.value) {
         let expr = typeWithValue.value;
