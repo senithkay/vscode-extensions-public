@@ -542,7 +542,7 @@ export function buildInputAccessExpr(fieldFqn: string): string {
 export async function mapUsingCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, context: IDataMapperContext, isValueModifiable: boolean) {
 	const inputAccessExpr = buildInputAccessExpr(sourcePort.fieldFQN);
 	const sourceFile = context.functionST.getSourceFile();
-	const customFunction = generateCustomFunction(sourcePort, targetPort, sourceFile);
+	const customFunction = genCustomFunction(sourcePort, targetPort, sourceFile);
 	const customFunctionDeclaration = sourceFile.addFunction(customFunction);
 	const range = getEditorLineAndColumn(customFunctionDeclaration);
 	const customFunctionCallExpr = `${customFunction.name}(${inputAccessExpr})`;
@@ -556,7 +556,7 @@ export async function mapUsingCustomFunction(sourcePort: InputOutputPortModel, t
 }
 
 
-function generateCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, sourceFile: SourceFile) {
+function genCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, sourceFile: SourceFile) {
     let targetFieldName = targetPort.field.fieldName;
 	let targetTypeWithName = targetPort.typeWithValue;
 

@@ -167,7 +167,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
         ),
     ];
 
-    const onClickMapViaArrayFn = async () => {
+    const onClickMapViaArrayFunction = async () => {
         if (targetPort instanceof InputOutputPortModel) {
             const targetPortField = targetPort.field;
 
@@ -215,7 +215,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     if (mappingType === MappingType.ArrayToArray) {
         codeActions.push({
             title: "Map array elements individually",
-            onClick: onClickMapViaArrayFn
+            onClick: onClickMapViaArrayFunction
         });
     } else if (mappingType === MappingType.ArrayToSingleton) {
         // TODO: Add impl
