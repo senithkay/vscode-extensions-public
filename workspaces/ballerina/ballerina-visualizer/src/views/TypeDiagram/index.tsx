@@ -18,6 +18,9 @@ import { Colors } from "../../resources/constants";
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { TypeEditor } from "@wso2-enterprise/type-editor";
 import { ClassTypeEditor } from "../BI/ServiceClassEditor/ClassTypeEditor";
+import { TopNavigationBar } from "../../components/TopNavigationBar";
+import { TitleBar } from "../../components/TitleBar";
+
 const HeaderContainer = styled.div`
     align-items: center;
     color: ${ThemeColors.ON_SURFACE};
@@ -51,7 +54,6 @@ export function TypeDiagram(props: TypeDiagramProps) {
     const [editingTypeId, setEditingTypeId] = React.useState<string | undefined>(undefined);
     const [focusedNodeId, setFocusedNodeId] = React.useState<string | undefined>(undefined);
     const [editingType, setEditingType] = React.useState<Type>();
-    
 
     useEffect(() => {
         if (rpcClient) {
@@ -75,12 +77,13 @@ export function TypeDiagram(props: TypeDiagramProps) {
         setFocusedNodeId(undefined);
     }, [selectedTypeId]);
 
-
     const getComponentModel = async () => {
         if (!rpcClient || !visualizerLocation?.metadata?.recordFilePath) {
             return;
         }
-        const response = await rpcClient.getBIDiagramRpcClient().getTypes({ filePath: visualizerLocation?.metadata?.recordFilePath });
+        const response = await rpcClient
+            .getBIDiagramRpcClient()
+            .getTypes({ filePath: visualizerLocation?.metadata?.recordFilePath });
         setTypesModel(response.types);
         console.log(response);
     };
@@ -89,12 +92,12 @@ export function TypeDiagram(props: TypeDiagramProps) {
         if (!rpcClient) {
             return;
         }
-        await commonRpcClient.executeCommand({ commands: ['workbench.action.problems.focus'] });
-    }
+        await commonRpcClient.executeCommand({ commands: ["workbench.action.problems.focus"] });
+    };
 
     const addNewType = async () => {
         setIsTypeCreatorOpen(true);
-    }
+    };
 
     const handleOnGoToSource = (node: Type) => {
         if (!rpcClient || !node.codedata.lineRange) {
@@ -116,17 +119,17 @@ export function TypeDiagram(props: TypeDiagramProps) {
         }
         setEditingType(type);
         setEditingTypeId(typeId);
-    }
+    };
 
     const onTypeEditorClosed = () => {
         setEditingTypeId(undefined);
         setEditingType(undefined);
         setIsTypeCreatorOpen(false);
-    }
+    };
 
     const onSwitchToTypeDiagram = () => {
         setFocusedNodeId(undefined);
-    }
+    };
 
     const onFocusedNodeIdChange = (typeId: string) => {
         setFocusedNodeId(typeId);
@@ -134,29 +137,20 @@ export function TypeDiagram(props: TypeDiagramProps) {
         if (selectedTypeId) {
             setEditingTypeId(typeId);
         }
-    }
+    };
 
     const Header = () => (
         <HeaderContainer>
-            {focusedNodeId ? (<Title>Type : {focusedNodeId}</Title>) : (<Title>Types</Title>)}
+            {focusedNodeId ? <Title>Type : {focusedNodeId}</Title> : <Title>Types</Title>}
             {focusedNodeId ? (
-                <Button
-                    appearance="primary"
-                    onClick={onSwitchToTypeDiagram}
-                    tooltip="Switch to complete Type Diagram"
-                >
+                <Button appearance="primary" onClick={onSwitchToTypeDiagram} tooltip="Switch to complete Type Diagram">
                     <Codicon name="discard" sx={{ marginRight: 5 }} /> Switch to Type Diagram
                 </Button>
-            )
-                :
-                <Button
-                    appearance="primary"
-                    onClick={addNewType}
-                    tooltip="Add New Type"
-                >
+            ) : (
+                <Button appearance="primary" onClick={addNewType} tooltip="Add New Type">
                     <Codicon name="add" sx={{ marginRight: 5 }} /> Add Type
                 </Button>
-            }
+            )}
         </HeaderContainer>
     );
 
@@ -167,40 +161,49 @@ export function TypeDiagram(props: TypeDiagramProps) {
                 editable: true,
                 metadata: {
                     label: "",
-                    description: ""
+                    description: "",
                 },
                 codedata: {
                     lineRange: {
                         startLine: {
                             line: 0,
-                            offset: 0
+                            offset: 0,
                         },
                         endLine: {
                             line: 0,
-                            offset: 0
+                            offset: 0,
                         },
-                        fileName: "types.bal"
+                        fileName: "types.bal",
                     },
-                    node: "RECORD"
+                    node: "RECORD",
                 },
                 properties: {},
                 members: [],
-                includes: [] as string[]
+                includes: [] as string[],
             };
         }
         return typesModel.find((type: Type) => type.name === typeId);
-    }
+    };
 
     const onTypeChange = async (type: Type) => {
         setEditingTypeId(undefined);
         setEditingType(undefined);
         setIsTypeCreatorOpen(false);
-    }
+    };
 
     return (
         <>
             <View>
-                <Header />
+                <TopNavigationBar />
+                <TitleBar
+                    title="Types"
+                    subtitle="View and edit types in the project"
+                    actions={
+                        <Button appearance="primary" onClick={addNewType} tooltip="Add New Type">
+                            <Codicon name="add" sx={{ marginRight: 5 }} /> Add Type
+                        </Button>
+                    }
+                />
                 <ViewContent>
                     {typesModel ? (
                         <TypeDesignDiagram
@@ -218,13 +221,22 @@ export function TypeDiagram(props: TypeDiagramProps) {
                 </ViewContent>
             </View>
             {/* Panel for editing and creating types */}
-            {(editingTypeId || isTypeCreatorOpen) && editingType?.codedata?.node !== "CLASS" &&  (
-                <PanelContainer title={editingTypeId ? `Edit Type` : "New Type"} show={true} onClose={onTypeEditorClosed}>
-                    <TypeEditor type={findSelectedType(editingTypeId)} newType={editingTypeId ? false : true} rpcClient={rpcClient} onTypeChange={onTypeChange} />
+            {(editingTypeId || isTypeCreatorOpen) && editingType?.codedata?.node !== "CLASS" && (
+                <PanelContainer
+                    title={editingTypeId ? `Edit Type` : "New Type"}
+                    show={true}
+                    onClose={onTypeEditorClosed}
+                >
+                    <TypeEditor
+                        type={findSelectedType(editingTypeId)}
+                        newType={editingTypeId ? false : true}
+                        rpcClient={rpcClient}
+                        onTypeChange={onTypeChange}
+                    />
                 </PanelContainer>
             )}
             {(editingTypeId || isTypeCreatorOpen) && editingType?.codedata?.node === "CLASS" && (
-                <ClassTypeEditor onClose={onTypeEditorClosed} type={editingType} projectUri={projectUri}/>
+                <ClassTypeEditor onClose={onTypeEditorClosed} type={editingType} projectUri={projectUri} />
             )}
         </>
     );

@@ -9,31 +9,30 @@
 
 import React, { useState } from "react";
 import { DIRECTORY_MAP } from "@wso2-enterprise/ballerina-core";
-import { Typography, View, ViewContent, CompletionItem, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { View, ViewContent, CompletionItem, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { BIHeader } from "../BIHeader";
-import { BodyText } from "../../styles";
 import { getDataMapperParametersList } from "../../../utils/utils";
 import { Form, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { debounce } from "lodash";
 import { convertToVisibleTypes } from "../../../utils/bi";
 import { URI, Utils } from "vscode-uri";
 import { useDataMapperFormFields } from "../../../Hooks";
+import { TopNavigationBar } from "../../../components/TopNavigationBar";
+import { TitleBar } from "../../../components/TitleBar";
+import { FormHeader } from "../../../components/FormHeader";
 
 const FormContainer = styled.div`
     display: flex;
     flex-direction: column;
     max-width: 600px;
     gap: 20px;
-    margin-top: 20px;
 `;
 
 const Container = styled.div`
     display: "flex";
     flex-direction: "column";
     gap: 10;
-    margin: 20px;
 `;
 
 interface DataMapperFormProps {
@@ -129,13 +128,11 @@ export function DataMapperForm(props: DataMapperFormProps) {
 
     return (
         <View>
+            <TopNavigationBar />
+            <TitleBar title="Data Mapper" subtitle="Create a new data mapper for your integration" />
             <ViewContent padding>
-                <BIHeader />
                 <Container>
-                    <Typography variant="h2">Create New Data Mapper</Typography>
-                    <BodyText>
-                        Define a data mapper that can be used to transform data.
-                    </BodyText>
+                    <FormHeader title={`Create New Data Mapper`} subtitle={`Define a data mapper that can be used to transform data.`} />
                     <FormContainer>
                         <Form
                             formFields={formFields}

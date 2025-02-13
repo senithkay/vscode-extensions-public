@@ -16,6 +16,8 @@ import ListenerConfigForm from './Forms/ListenerConfigForm';
 import { BodyText, LoadingContainer } from '../../styles';
 import { BIHeader } from '../BIHeader';
 import { FormValues } from '@wso2-enterprise/ballerina-side-panel';
+import { TopNavigationBar } from '../../../components/TopNavigationBar';
+import { TitleBar } from '../../../components/TitleBar';
 
 const FORM_WIDTH = 600;
 
@@ -106,8 +108,9 @@ export function ListenerEditView(props: ListenerEditViewProps) {
 
     return (
         <View>
+            <TopNavigationBar />
+            <TitleBar title="Listener" subtitle="Edit Listener" />
             <ViewContent padding>
-                <BIHeader />
                 {!listenerModel &&
                     <LoadingContainer>
                         <ProgressRing />

@@ -17,12 +17,12 @@ import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { URI, Utils } from "vscode-uri";
 import { BodyText } from "../../../styles";
 import FormGeneratorNew from "../../Forms/FormGeneratorNew";
-
+import { FormHeader } from "../../../../components/FormHeader";
 const Container = styled.div`
-    padding: 0 20px 20px;
+    /* padding: 0 20px 20px; */
     max-width: 600px;
     > div:last-child {
-        padding: 20px 0;
+        /* padding: 20px 0; */
         > div:last-child {
             justify-content: flex-start;
         }
@@ -30,7 +30,7 @@ const Container = styled.div`
 `;
 
 const FormContainer = styled.div`
-    padding-top: 15px;
+    /* padding-top: 15px; */
     padding-bottom: 15px;
 `;
 
@@ -88,10 +88,11 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                 <>
                     {listenerFields.length > 0 &&
                         <FormContainer>
-                            <Typography variant="h2" sx={{ marginTop: '16px' }}>{listenerModel.displayAnnotation.label.charAt(0).toUpperCase() + listenerModel.displayAnnotation.label.slice(1)} Configuration</Typography>
+                            {/* <Typography variant="h2" sx={{ marginTop: '16px' }}>{listenerModel.displayAnnotation.label.charAt(0).toUpperCase() + listenerModel.displayAnnotation.label.slice(1)} Configuration</Typography>
                             <BodyText>
                                 {formSubmitText === "Save" ? editTitle : createTitle}
-                            </BodyText>
+                            </BodyText> */}
+                            <FormHeader title={`${listenerModel.displayAnnotation.label.charAt(0).toUpperCase() + listenerModel.displayAnnotation.label.slice(1)} Configuration`} subtitle={`${formSubmitText === "Save" ? editTitle : createTitle}`} />
                             {filePath &&
                                 <FormGeneratorNew
                                     fileName={filePath}

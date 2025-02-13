@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import createEngine, { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
+import createEngine, { DiagramEngine, DiagramModel, NodeModel } from "@projectstorm/react-diagrams";
 import { OverlayLayerFactory } from "../components/OverlayLayer";
 import { DagreEngine } from "../resources/dagre/DagreEngine";
 import { NodeLinkFactory } from "../components/NodeLink";
@@ -112,24 +112,6 @@ export function getCallerNodeId(parent: DiagramElement, ...suffixes: string[]) {
     return getNodeId(parent, ...suffixes);
 }
 
-// // create link between ports
-// export function createPortsLink(sourcePort: NodePortModel, targetPort: NodePortModel, options?: NodeLinkModelOptions) {
-//     const link = new NodeLinkModel(options);
-//     link.setSourcePort(sourcePort);
-//     link.setTargetPort(targetPort);
-//     sourcePort.addLink(link);
-//     return link;
-// }
-
-// // create link between nodes
-// export function createNodesLink(sourceNode: NodeModel, targetNode: NodeModel, options?: NodeLinkModelOptions) {
-//     const sourcePort = sourceNode.getRightPort();
-//     const targetPort = targetNode.getLeftPort();
-//     const link = createPortsLink(sourcePort, targetPort, options);
-//     link.setSourceNode(sourceNode);
-//     link.setTargetNode(targetNode);
-//     return link;
-// }
 
 // save diagram zoom level and position to local storage
 export const saveDiagramZoomAndPosition = (model: DiagramModel) => {
@@ -138,25 +120,46 @@ export const saveDiagramZoomAndPosition = (model: DiagramModel) => {
     const offsetY = model.getOffsetY();
 
     // Store them in localStorage
-    localStorage.setItem("diagram-zoom-level", JSON.stringify(zoomLevel));
-    localStorage.setItem("diagram-offset-x", JSON.stringify(offsetX));
-    localStorage.setItem("diagram-offset-y", JSON.stringify(offsetY));
+    localStorage.setItem("sq-diagram-zoom-level", JSON.stringify(zoomLevel));
+    localStorage.setItem("sq-diagram-offset-x", JSON.stringify(offsetX));
+    localStorage.setItem("sq-diagram-offset-y", JSON.stringify(offsetY));
 };
 
 // load diagram zoom level and position from local storage
-// export const loadDiagramZoomAndPosition = (engine: DiagramEngine) => {
-//     const zoomLevel = JSON.parse(localStorage.getItem("diagram-zoom-level") || "100");
-//     const offsetX = JSON.parse(localStorage.getItem("diagram-offset-x") || "0");
-//     const offsetY = JSON.parse(localStorage.getItem("diagram-offset-y") || "0");
+export const loadDiagramZoomAndPosition = (engine: DiagramEngine, node?: NodeModel) => {
+    const zoomLevel = JSON.parse(localStorage.getItem("sq-diagram-zoom-level") || "100");
 
-//     engine.getModel().setZoomLevel(zoomLevel);
-//     engine.getModel().setOffset(offsetX, offsetY);
-// };
+    const offsetX = JSON.parse(localStorage.getItem("sq-diagram-offset-x") || "0");
+    const offsetY = JSON.parse(localStorage.getItem("sq-diagram-offset-y") || "0");
+
+    engine.getModel().setZoomLevel(zoomLevel);
+    engine.getModel().setOffset(offsetX, offsetY);
+};
 
 // check local storage has zoom level and position
-// export const hasDiagramZoomAndPosition = () => {
-//     return localStorage.getItem("diagram-zoom-level") !== null;
-// };
+export const hasDiagramZoomAndPosition = (file: string) => {
+    return localStorage.getItem("sq-diagram-file-path") === file;
+};
+
+export const resetDiagramZoomAndPosition = (file?: string) => {
+    const container = document.getElementById("bi-diagram-canvas");
+    const containerWidth = container ? container.offsetWidth : window.innerWidth;
+    const center = containerWidth / 2;
+
+    if (file) {
+        localStorage.setItem("sq-diagram-file-path", file);
+    }
+    localStorage.setItem("sq-diagram-zoom-level", "100");
+    localStorage.setItem("sq-diagram-offset-x", center.toString());
+    localStorage.setItem("sq-diagram-offset-y", "0");
+};
+
+export const clearDiagramZoomAndPosition = () => {
+    localStorage.removeItem("sq-diagram-file-path");
+    localStorage.removeItem("sq-diagram-zoom-level");
+    localStorage.removeItem("sq-diagram-offset-x");
+    localStorage.removeItem("sq-diagram-offset-y");
+};
 
 // traverse utils
 export function getInitialNodeViewState(

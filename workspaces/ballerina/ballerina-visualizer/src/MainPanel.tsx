@@ -338,7 +338,7 @@ const MainPanel = () => {
         <>
             <Global styles={globalStyles} />
             <VisualizerContainer>
-                {navActive && <NavigationBar showHome={showHome} />}
+                {/* {navActive && <NavigationBar showHome={showHome} />} */}
                 {viewComponent && <ComponentViewWrapper>{viewComponent}</ComponentViewWrapper>}
                 {sidePanel !== "EMPTY" && sidePanel === "ADD_CONNECTION" && (
                     <ConnectorList applyModifications={applyModifications} />
