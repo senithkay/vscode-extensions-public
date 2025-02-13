@@ -16,33 +16,13 @@ import {
     MACHINE_VIEW,
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import {
-    Typography,
-    View,
-    ViewContent,
-    LinkButton,
-    Codicon,
-    ProgressRing,
-    Button,
-    Icon,
-} from "@wso2-enterprise/ui-toolkit";
+import { Typography, Codicon, ProgressRing, Button, Icon } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { BIHeader } from "../BIHeader";
 import { Colors } from "../../../resources/constants";
 import { getProjectFromResponse, parseSSEEvent, replaceCodeBlocks, splitContent } from "../../AIPanel/AIChat";
 import ComponentDiagram from "../ComponentDiagram";
-import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import ReactMarkdown from "react-markdown";
-import { TopNavigationBar } from "../../../components/TopNavigationBar";
-import { MainTitleBar } from "../../../components/MainTitleBar";
-
-const CardTitleContainer = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    border-bottom: 1px solid var(--vscode-dropdown-border);
-    padding: 5px 10px;
-`;
 
 const SpinnerContainer = styled.div`
     display: flex;
@@ -62,7 +42,6 @@ const Description = styled(Typography)`
 const ButtonContainer = styled.div`
     display: flex;
     align-items: flex-end;
-    gap: 8px;
 `;
 
 const EmptyStateContainer = styled.div`
@@ -89,7 +68,7 @@ const HeaderRow = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px;
+    padding: 16px 0 16px 16px;
     background: var(--vscode-editor-background);
     border-bottom: 1px solid var(--vscode-dropdown-border);
 `;
@@ -292,36 +271,6 @@ export function Overview(props: ComponentDiagramProps) {
         });
     }, [responseText]);
 
-    const handleOverviewGenerate = async () => {
-        fetchAiResponse();
-    };
-
-    const handleDiagramOnAccept = async () => {
-        setIsCodeGenerating(true);
-        setResponseText("");
-        // HACK: code is already added to the project. here just show feedback
-        setTimeout(() => {
-            setIsCodeGenerating(false);
-        }, 2000);
-    };
-
-    const handleDiagramOnReject = () => {
-        // INFO: forcefully clear the response text and files
-        if (!responseText) {
-            return;
-        }
-        const segments = splitContent(responseText);
-
-        segments.forEach((segment) => {
-            if (segment.isCode) {
-                let file = segment.fileName;
-                rpcClient.getAiPanelRpcClient().addToProject({ content: "", filePath: file });
-            }
-        });
-
-        setResponseText("");
-    };
-
     function isEmptyProject(): boolean {
         return Object.values(projectStructure.directoryMap || {}).every((array) => array.length === 0);
     }
@@ -466,13 +415,6 @@ export function Overview(props: ComponentDiagramProps) {
         });
     };
 
-    const handleReadmeGenerate = () => {
-        rpcClient.getBIDiagramRpcClient().openAIChat({
-            scafold: true,
-            readme: true,
-        });
-    };
-
     const handleEditReadme = () => {
         rpcClient.getBIDiagramRpcClient().openReadme();
     };
@@ -493,15 +435,12 @@ export function Overview(props: ComponentDiagramProps) {
                     <ProjectSubtitle>Integration</ProjectSubtitle>
                 </TitleContainer>
                 <ButtonContainer>
-                    <VSCodeButton appearance="icon" title="Run Integration" onClick={handlePlay}>
+                    <Button appearance="icon" onClick={handlePlay} buttonSx={{ padding: "4px 8px" }}>
                         <Codicon name="play" sx={{ marginRight: 5 }} /> Run
-                    </VSCodeButton>
-                    <VSCodeButton appearance="icon" title="Build Integration" onClick={handleBuild}>
+                    </Button>
+                    <Button appearance="icon" onClick={handleBuild} buttonSx={{ padding: "4px 8px" }}>
                         <Icon name="bi-build" sx={{ marginRight: 8, fontSize: 16 }} /> Build
-                    </VSCodeButton>
-                    {/* <VSCodeButton appearance="secondary" onClick={handleDeploy}>
-                        <Icon name="bi-deploy" sx={{ marginRight: 8, fontSize: 16 }} /> Deploy
-                    </VSCodeButton> */}
+                    </Button>
                 </ButtonContainer>
             </HeaderRow>
 
@@ -510,12 +449,12 @@ export function Overview(props: ComponentDiagramProps) {
                     <DiagramHeaderContainer>
                         <Title variant="h2">Design</Title>
                         <ActionContainer>
-                            <VSCodeButton appearance="icon" title="Generate with AI" onClick={handleGenerate}>
-                                <Codicon name="wand" sx={{ marginRight: 5 }} /> Generate
-                            </VSCodeButton>
-                            <VSCodeButton appearance="primary" onClick={handleAddConstruct}>
-                                <Codicon name="add" sx={{ marginRight: 5 }} /> Add Construct
-                            </VSCodeButton>
+                            <Button appearance="secondary" onClick={handleGenerate}>
+                                <Codicon name="wand" sx={{ marginRight: 8 }} /> Generate
+                            </Button>
+                            <Button appearance="primary" onClick={handleAddConstruct}>
+                                <Codicon name="add" sx={{ marginRight: 8 }} /> Add Construct
+                            </Button>
                         </ActionContainer>
                     </DiagramHeaderContainer>
                     <DiagramContent>
@@ -531,12 +470,12 @@ export function Overview(props: ComponentDiagramProps) {
                                     Start by adding constructs or use AI to generate your project structure
                                 </Typography>
                                 <ButtonContainer>
-                                    <VSCodeButton appearance="primary" onClick={handleAddConstruct}>
-                                        <Codicon name="add" sx={{ marginRight: 5 }} /> Add Construct
-                                    </VSCodeButton>
-                                    <VSCodeButton appearance="secondary" onClick={handleGenerate}>
-                                        <Codicon name="wand" sx={{ marginRight: 5 }} /> Generate with AI
-                                    </VSCodeButton>
+                                    <Button appearance="primary" onClick={handleAddConstruct}>
+                                        <Codicon name="add" sx={{ marginRight: 8 }} /> Add Construct
+                                    </Button>
+                                    <Button appearance="secondary" onClick={handleGenerate}>
+                                        <Codicon name="wand" sx={{ marginRight: 8 }} /> Generate with AI
+                                    </Button>
                                 </ButtonContainer>
                             </EmptyStateContainer>
                         ) : (
@@ -549,12 +488,13 @@ export function Overview(props: ComponentDiagramProps) {
                     <Title variant="h2">Deployment</Title>
                     <DeploymentContent>
                         <Description variant="body2">
-                            Easily deploy the integration to the cloud using Choreo. Click the Deploy button to continue with the deployment.
+                            Easily deploy the integration to the cloud using Choreo. Click the Deploy button to continue
+                            with the deployment.
                         </Description>
                         <DeployButtonContainer>
-                            <VSCodeButton appearance="primary" onClick={handleDeploy}>
-                                <Codicon name="cloud-upload" sx={{ marginRight: 5 }} /> Deploy
-                            </VSCodeButton>
+                            <Button appearance="primary" onClick={handleDeploy}>
+                                <Codicon name="cloud-upload" sx={{ marginRight: 8 }} /> Deploy
+                            </Button>
                         </DeployButtonContainer>
                     </DeploymentContent>
                 </SidePanel>
@@ -563,9 +503,9 @@ export function Overview(props: ComponentDiagramProps) {
             <FooterPanel>
                 <ReadmeHeaderContainer>
                     <Title variant="h2">README</Title>
-                    <VSCodeButton appearance="icon" title="Edit README" onClick={handleEditReadme}>
-                        <Codicon name="edit" sx={{ marginRight: 5 }} /> Edit
-                    </VSCodeButton>
+                    <Button appearance="icon" onClick={handleEditReadme} buttonSx={{ padding: "4px 8px" }}>
+                        <Icon name="bi-edit" sx={{ marginRight: 8, fontSize: 16 }} /> Edit
+                    </Button>
                 </ReadmeHeaderContainer>
                 <ReadmeContent>
                     {readmeContent ? (
