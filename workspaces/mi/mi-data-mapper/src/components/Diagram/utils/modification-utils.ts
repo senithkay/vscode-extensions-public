@@ -35,7 +35,8 @@ import {
 	getDefaultValue,
 	getTypeAnnotation,
 	getEditorLineAndColumn,
-	getValueType
+	getValueType,
+	genVariableNameFromIdentifier
 } from "./common-utils";
 import { ArrayOutputNode, LinkConnectorNode, ObjectOutputNode } from "../Node";
 import { ExpressionLabelModel } from "../Label";
@@ -558,17 +559,17 @@ export async function mapUsingCustomFunction(sourcePort: InputOutputPortModel, t
 
 function generateCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, sourceFile: SourceFile) {
     let targetFieldName = targetPort.field.fieldName;
-    let targetTypeWithName = targetPort.typeWithValue;
+	let targetTypeWithName = targetPort.typeWithValue;
 
-    while (targetTypeWithName?.type.fieldName === undefined) {
-        if (targetTypeWithName) {
-            targetTypeWithName = targetTypeWithName.parentType;
-            targetFieldName = `${targetTypeWithName?.type.fieldName}Item`;
-        } else {
-            targetFieldName = "output";
-            break;
-        }
-    }
+	while (!Boolean(targetTypeWithName?.type.fieldName)) {
+		if (targetTypeWithName) {
+			targetTypeWithName = targetTypeWithName.parentType;
+			targetFieldName = `${targetTypeWithName?.type.fieldName}Item`;
+		} else {
+			targetFieldName = genVariableNameFromIdentifier(targetPort.field.typeName || targetPort.field.kind);
+			break;
+		}
+	}
 
     const localFunctionNames = sourceFile.getFunctions().map(fn => fn.getName());
     const importedFunctionNames = sourceFile.getImportDeclarations()
@@ -590,6 +591,8 @@ function generateCustomFunction(sourcePort: InputOutputPortModel, targetPort: In
     }
     
 }
+
+
 
 
 function isMappedToRootArrayLiteralExpr(targetPort: InputOutputPortModel): boolean {
