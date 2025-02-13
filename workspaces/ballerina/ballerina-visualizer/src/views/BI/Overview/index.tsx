@@ -39,9 +39,15 @@ const Description = styled(Typography)`
     color: var(--vscode-descriptionForeground);
 `;
 
+const IconButtonContainer = styled.div`
+    display: flex;
+    align-items: flex-end;
+`;
+
 const ButtonContainer = styled.div`
     display: flex;
     align-items: flex-end;
+    gap: 8px;
 `;
 
 const EmptyStateContainer = styled.div`
@@ -434,14 +440,14 @@ export function Overview(props: ComponentDiagramProps) {
                     <ProjectTitle>{projectName}</ProjectTitle>
                     <ProjectSubtitle>Integration</ProjectSubtitle>
                 </TitleContainer>
-                <ButtonContainer>
+                <IconButtonContainer>
                     <Button appearance="icon" onClick={handlePlay} buttonSx={{ padding: "4px 8px" }}>
                         <Codicon name="play" sx={{ marginRight: 5 }} /> Run
                     </Button>
                     <Button appearance="icon" onClick={handleBuild} buttonSx={{ padding: "4px 8px" }}>
                         <Icon name="bi-build" sx={{ marginRight: 8, fontSize: 16 }} /> Build
                     </Button>
-                </ButtonContainer>
+                </IconButtonContainer>
             </HeaderRow>
 
             <MainContent>
@@ -449,7 +455,7 @@ export function Overview(props: ComponentDiagramProps) {
                     <DiagramHeaderContainer>
                         <Title variant="h2">Design</Title>
                         <ActionContainer>
-                            <Button appearance="secondary" onClick={handleGenerate}>
+                            <Button appearance="icon" onClick={handleGenerate}>
                                 <Codicon name="wand" sx={{ marginRight: 8 }} /> Generate
                             </Button>
                             <Button appearance="primary" onClick={handleAddConstruct}>
