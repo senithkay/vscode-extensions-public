@@ -66,6 +66,7 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
     const [showSequenceDiagram, setShowSequenceDiagram] = useState(false);
     const [enableSequenceDiagram, setEnableSequenceDiagram] = useState(false);
     const [loadingDiagram, setLoadingDiagram] = useState(false);
+    const [fileName, setFileName] = useState("");
 
     useEffect(() => {
         rpcClient.getVisualizerLocation().then((location) => {
@@ -83,15 +84,18 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
         setLoadingDiagram(true);
     };
 
-    const handleReadyDiagram = () => {
+    const handleReadyDiagram = (fileName?: string) => {
         setLoadingDiagram(false);
+        if (fileName) {
+            setFileName(fileName);
+        }
     };
 
-    const handleEdit = () => {
+    const handleEdit = (fileUri?: string) => {
         const context: VisualizerLocation = {
             view: MACHINE_VIEW.BIFunctionForm,
             identifier: (syntaxTree as ResourceAccessorDefinition).functionName.value,
-            documentUri: projectPath
+            documentUri: fileUri
         };
         rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
@@ -132,7 +136,7 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                         </SubTitleWrapper>
                     }
                     actions={
-                        <ActionButton appearance="secondary" onClick={handleEdit}>
+                        <ActionButton appearance="secondary" onClick={() => handleEdit(fileName)}>
                             <Icon name="bi-edit" sx={{ marginRight: 5, width: 16, height: 16, fontSize: 14 }} />
                             Edit
                         </ActionButton>

@@ -91,7 +91,7 @@ export interface BIFlowDiagramProps {
     syntaxTree: STNode; // INFO: this is used to make the diagram rerender when code changes
     projectPath: string;
     onUpdate: () => void;
-    onReady: () => void;
+    onReady: (fileName: string) => void;
 }
 
 export function BIFlowDiagram(props: BIFlowDiagramProps) {
@@ -119,9 +119,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const initialCategoriesRef = useRef<PanelCategory[]>([]);
     const showEditForm = useRef<boolean>(false);
 
-    // const flowDiagramCount = useRef<number>(0);
-    // console.log(">>> BIFlowDiagram", { flowDiagramCount: flowDiagramCount.current++ });
-
     useEffect(() => {
         getFlowModel();
     }, [syntaxTree]);
@@ -146,11 +143,12 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     .then((model) => {
                         if (model?.flowModel) {
                             setModel(model.flowModel);
+                            onReady(model.flowModel.fileName);
                         }
                     })
                     .finally(() => {
                         setShowProgressIndicator(false);
-                        onReady();
+                        onReady(undefined);
                     });
             });
     };
@@ -727,23 +725,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         setUpdatedExpressionField(undefined);
     };
 
-    // const method = (props?.syntaxTree as ResourceAccessorDefinition).functionName.value;
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
-
-    // const isResource = STKindChecker.isResourceAccessorDefinition(props.syntaxTree);
-    // const ResourceDiagramTitle = (
-    //     <>
-    //         <span>{"Resource"}:</span>
-    //         <ColoredTag color={getColorByMethod(method)}>{method}</ColoredTag>
-    //         <SubTitle>{getResourcePath(syntaxTree as ResourceAccessorDefinition)}</SubTitle>
-    //     </>
-    // );
-    // const FunctionDiagramTitle = (
-    //     <>
-    //         <span>{"Function"}:</span>
-    //         <SubTitle>{method}</SubTitle>
-    //     </>
-    // );
 
     const memoizedDiagramProps = useMemo(
         () => ({
@@ -772,12 +754,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     return (
         <>
             <View>
-                {/* <ViewHeader
-                    title={isResource ? ResourceDiagramTitle : FunctionDiagramTitle}
-                    icon={isResource ? "bi-http-service" : "bi-function"}
-                    iconSx={{ fontSize: "16px" }}
-                    onEdit={isResource ? undefined : handleEdit}
-                ></ViewHeader> */}
                 {(showProgressIndicator || fetchingAiSuggestions) && model && (
                     <ProgressIndicator color={Colors.PRIMARY} />
                 )}
