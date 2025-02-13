@@ -44,6 +44,7 @@ export function ParamEditor(props: ParamProps) {
                 onSubmit={handleOnSave}
                 onCancelForm={() => onCancelEdit(parameter)}
                 expressionEditor={expressionEditor}
+                submitText={"Add"}
             />
         </EditorContainer >
     );

@@ -1751,6 +1751,7 @@ function getFieldNameFromOutputPort(outputPort: RecordFieldPortModel): string {
 }
 
 export const getOptionalRecordField = (field: TypeField): TypeField | undefined => {
+	if (!field) return;
 	if (PrimitiveBalType.Record === field.typeName && field.optional) {
 		return field;
 	} else if (PrimitiveBalType.Union === field.typeName) {
