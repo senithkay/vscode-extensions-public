@@ -306,7 +306,7 @@ export function NodeList(props: NodeListProps) {
             <>
                 {groups.map((group, index) => {
                     const isConnectionCategory = group.title === "Connections";
-                    const isProjectFunctionsCategory = group.title === "Project";
+                    const isProjectFunctionsCategory = group.title === "Current Integration";
                     if ((!group || group.items.length === 0) && !isConnectionCategory && !isProjectFunctionsCategory) {
                         return null;
                     }

@@ -42,7 +42,6 @@ export namespace NodeStyles {
         flex-direction: row-reverse;
         align-items: center;
         gap: 12px;
-        width: 100%;
     `;
 
     export const Header = styled.div`

@@ -17,20 +17,21 @@ import { BodyText } from "../../styles";
 import { FormField, FormValues, Parameter } from "@wso2-enterprise/ballerina-side-panel";
 import { URI, Utils } from "vscode-uri";
 import FormGeneratorNew from "../Forms/FormGeneratorNew";
+import { TitleBar } from "../../../components/TitleBar";
+import { TopNavigationBar } from "../../../components/TopNavigationBar";
+import { FormHeader } from "../../../components/FormHeader";
 
 const FormContainer = styled.div`
     display: flex;
     flex-direction: column;
     max-width: 600px;
     gap: 20px;
-    margin-top: 20px;
 `;
 
 const Container = styled.div`
     display: "flex";
     flex-direction: "column";
     gap: 10;
-    margin: 20px;
 `;
 
 const ButtonWrapper = styled.div`
@@ -87,7 +88,7 @@ export function FunctionForm(props: FunctionFormProps) {
             .getBIDiagramRpcClient()
             .getNodeTemplate({
                 position: { line: 0, offset: 0 },
-                filePath: "",
+                filePath: Utils.joinPath(URI.file(projectPath), fileName).fsPath,
                 id: { node: 'FUNCTION_DEFINITION' },
             });
         const flowNode = res.flowNode;
@@ -140,15 +141,18 @@ export function FunctionForm(props: FunctionFormProps) {
 
     return (
         <View>
+            <TopNavigationBar />
+            <TitleBar title="Function" subtitle="Manage functions in your integration" />
             <ViewContent padding>
-                <BIHeader />
                 <Container>
-                    <Typography variant="h2">{functionName ? `Edit Function` : `Create New Function`}</Typography>
-                    <BodyText>
-                        {functionName ? `Edit the` : `Define a`} function that can be used within the integration.
-                    </BodyText>
+                    {functionName && (
+                        <FormHeader title={`Edit Function`} subtitle={`Edit the function that can be used within the integration.`} />
+                    )}
+                    {!functionName && (
+                        <FormHeader title={`Create New Function`} subtitle={`Define a function that can be used within the integration.`} />
+                    )}
                     <FormContainer>
-                        {filePath &&
+                        {filePath && functionFields.length > 0 &&
                             <FormGeneratorNew
                                 fileName={filePath}
                                 targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}

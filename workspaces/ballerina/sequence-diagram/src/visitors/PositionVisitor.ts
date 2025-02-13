@@ -66,10 +66,26 @@ export class PositionVisitor implements BaseVisitor {
         this.lastParticipantIndex = participant.viewState.xIndex;
     }
 
+    endVisitParticipant(participant: Participant): void {
+        // flow.others list as participants in the diagram
+        if (this.flow.others) {
+            this.flow.others.forEach((participant: Participant) => {
+                if (participant.viewState.xIndex) {
+                    participant.viewState.bBox.x =
+                        participant.viewState.xIndex * (PARTICIPANT_GAP_X + participant.viewState.bBox.w);
+                    this.lastParticipantIndex = participant.viewState.xIndex;
+                }
+            });
+        }
+    }
+
     gotoTargetParticipant(node: Node): void {
         if (node.targetId && this.flow?.participants) {
             // visit target participant
             const targetParticipant = this.flow.participants?.find((participant) => participant.id === node.targetId);
+            if (!targetParticipant) {
+                return;
+            }
             const nodeId = getNodeId(node);
             const positionVisitor = new PositionVisitor(this.flow, nodeId, this.lastInteractionY);
             traverseParticipant(targetParticipant, positionVisitor, this.flow);
@@ -96,7 +112,10 @@ export class PositionVisitor implements BaseVisitor {
 
         // update y with top margin
         this.lastInteractionY += INTERACTION_GAP_Y;
-        if (nodeViewState.points.start.participantId === this.entryParticipant.id && DiagramElementKindChecker.isParticipant(parent)) {
+        if (
+            nodeViewState.points.start.participantId === this.entryParticipant.id &&
+            DiagramElementKindChecker.isParticipant(parent)
+        ) {
             this.lastInteractionY += INTERACTION_GROUP_GAP_Y;
         }
 

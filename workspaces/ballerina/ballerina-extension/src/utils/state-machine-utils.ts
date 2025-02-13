@@ -43,6 +43,44 @@ export async function getView(documentUri: string, position: NodePosition, proje
                 };
             }
         }
+        if (STKindChecker.isClassDefinition(node.syntaxTree)) {
+            const classST = node.syntaxTree;
+            const name = classST.className?.value;
+            const module = classST.typeData?.symbol?.moduleID;
+            if (!name || !module) {
+                // tslint:disable-next-line
+                console.error('Couldn\'t generate class nodeId to render composition view', classST);
+            } else {
+                return {
+                    location: {
+                        view: MACHINE_VIEW.TypeDiagram,
+                        documentUri: documentUri,
+                        position: position,
+                        identifier: name,
+                        projectUri: projectUri
+                    }
+                };
+            }
+        }
+        if (STKindChecker.isEnumDeclaration(node.syntaxTree)) {
+            const enumST = node.syntaxTree;
+            const name = enumST?.identifier?.value;
+            const module = enumST.typeData?.symbol?.moduleID;
+            if (!name || !module) {
+                // tslint:disable-next-line
+                console.error('Couldn\'t generate enum nodeId to render composition view', enumST);
+            } else {
+                return {
+                    location: {
+                        view: MACHINE_VIEW.TypeDiagram,
+                        documentUri: documentUri,
+                        position: position,
+                        identifier: name,
+                        projectUri: projectUri
+                    }
+                };
+            }
+        }
         if (
             STKindChecker.isModuleVarDecl(node.syntaxTree) &&
             STKindChecker.isQualifiedNameReference(node.syntaxTree.typedBindingPattern.typeDescriptor) &&

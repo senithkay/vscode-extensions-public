@@ -29,17 +29,19 @@ import {
 } from "../../resources";
 import { NodeKind } from "../../utils/types";
 import { Icon } from "@wso2-enterprise/ui-toolkit";
+import { Colors } from "../../resources/constants";
 
 interface NodeIconProps {
     type: NodeKind;
+    size?: number;
 }
 
 export function NodeIcon(props: NodeIconProps) {
-    const { type } = props;
+    const { type, size = 16 } = props;
 
     switch (type) {
         case "IF":
-            return <BranchIcon />;
+            return <BranchIcon/>;
         case "EXPRESSION":
             return <CodeIcon />;
         case "REMOTE_ACTION_CALL":
@@ -53,7 +55,7 @@ export function NodeIcon(props: NodeIconProps) {
             return <VarIcon />;
         case "FOREACH":
         case "WHILE":
-            return <LoopIcon />;
+            return <Icon name="bi-loop" sx={{ fontSize: size, width: size, height: size }} />;
         case "BREAK":
             return <BreakIcon />;
         case "CONTINUE":
@@ -61,7 +63,7 @@ export function NodeIcon(props: NodeIconProps) {
         case "STOP":
             return <StopIcon />;
         case "ERROR_HANDLER":
-            return <SecurityIcon />;
+            return <Icon name="bi-shield" sx={{ stroke: Colors.ON_SURFACE, fontSize: size, width: size, height: size }} />;
         case "PANIC":
             return <BombIcon />;
         case "LOCK":
@@ -78,7 +80,21 @@ export function NodeIcon(props: NodeIconProps) {
         case "FUNCTION_CALL":
             return <FunctionIcon />;
         case "DATA_MAPPER_CALL":
-            return <Icon name="dataMapper" />;
+            return <Icon name="dataMapper" sx={{ fontSize: size, width: size, height: size }} />;
+        case "FORK":
+            return <Icon name="bi-parallel" sx={{ fontSize: size, width: size, height: size }} />;
+        case "WAIT":
+            return <Icon name="bi-wait" sx={{ fontSize: size, width: size, height: size }} />;
+        case "START":
+            return <Icon name="bi-start" sx={{ fontSize: size, width: size, height: size }} />;
+        case "COMMIT":
+            return <Icon name="bi-commit" sx={{ fontSize: size, width: size, height: size }} />;
+        case "ROLLBACK":
+            return <Icon name="bi-rollback" sx={{ fontSize: size, width: size, height: size }} />;
+        case "FAIL":
+            return <Icon name="bi-error" sx={{ fontSize: size, width: size, height: size }} />;
+        case "RETRY":
+            return <Icon name="bi-retry" sx={{ fontSize: size, width: size, height: size }} />;
         
         default:
             return <CodeIcon />;

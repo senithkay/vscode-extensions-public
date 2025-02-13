@@ -65,6 +65,9 @@ export function BIHeader(props: { showAI?: boolean, actions?: React.ReactNode[] 
     const [showAlert, setShowAlert] = React.useState(false);
 
     useEffect(() => {
+        rpcClient.getVisualizerRpcClient().getHistory().then(history => {
+            console.log(">>> history", history);
+        });
         rpcClient.getBIDiagramRpcClient().getWorkspaces().then(res => {
             setProjectName(res.workspaces[0].name);
         });
