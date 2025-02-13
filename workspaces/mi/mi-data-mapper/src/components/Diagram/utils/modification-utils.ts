@@ -36,7 +36,8 @@ import {
 	getTypeAnnotation,
 	getEditorLineAndColumn,
 	getValueType,
-	genVariableNameFromIdentifier
+	toFirstLetterLowerCase,
+	toFirstLetterUpperCase
 } from "./common-utils";
 import { ArrayOutputNode, LinkConnectorNode, ObjectOutputNode } from "../Node";
 import { ExpressionLabelModel } from "../Label";
@@ -566,7 +567,7 @@ function generateCustomFunction(sourcePort: InputOutputPortModel, targetPort: In
 			targetTypeWithName = targetTypeWithName.parentType;
 			targetFieldName = `${targetTypeWithName?.type.fieldName}Item`;
 		} else {
-			targetFieldName = genVariableNameFromIdentifier(targetPort.field.typeName || targetPort.field.kind);
+			targetFieldName = toFirstLetterLowerCase(targetPort.field.typeName || targetPort.field.kind);
 			break;
 		}
 	}
@@ -575,10 +576,14 @@ function generateCustomFunction(sourcePort: InputOutputPortModel, targetPort: In
     const importedFunctionNames = sourceFile.getImportDeclarations()
     .flatMap(importDecl => importDecl.getNamedImports().map(namedImport => namedImport.getName()));
   
-    let customFunctionName = `${sourcePort.field.fieldName}_${targetFieldName}`;
+	const formattedSourceFieldName = toFirstLetterLowerCase(sourcePort.field.fieldName);
+	const formattedTargetFieldName = toFirstLetterUpperCase(targetFieldName);
+    let customFunctionName = `${formattedSourceFieldName}To${formattedTargetFieldName}`;
     let i = 1;
     while (localFunctionNames.includes(customFunctionName) || importedFunctionNames.includes(customFunctionName)) {
-        customFunctionName = `${sourcePort.field.fieldName}_${targetFieldName}_${++i}`;
+        customFunctionName = `${formattedSourceFieldName}To${formattedTargetFieldName}${
+			isNaN(Number(formattedTargetFieldName.charAt(formattedTargetFieldName.length-1))) ? '' : '_'
+		}${++i}`;
     }
     
     return {
