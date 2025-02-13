@@ -127,7 +127,7 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
     const a2sMenuItems: Item[] = [
         {
             id: "a2s-direct",
-            label: getItemElement("a2s-direct", "Map with Accessing Element"),
+            label: getItemElement("a2s-direct", "Extract Single Element from Array"),
             onClick: onClickMapArraysAccessSingleton
         }
     ];
