@@ -33,6 +33,7 @@ import { FunctionForm } from "./Forms/FunctionForm";
 import { applyModifications } from "../../../utils/utils";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { TitleBar } from "../../../components/TitleBar";
+import { LoadingRing } from "../../../components/Loader";
 
 const LoadingContainer = styled.div`
     display: flex;
@@ -333,29 +334,13 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             <ServiceContainer>
                 {!serviceModel && (
                     <LoadingContainer>
-                        <ProgressRing />
-                        <Typography variant="h3" sx={{ marginTop: "16px" }}>
-                            Loading Service Designer...
-                        </Typography>
+                        <LoadingRing message="Loading Service..." />
                     </LoadingContainer>
                 )}
                 {isSaving && (
-                    <div
-                        style={{
-                            position: "fixed",
-                            top: 0,
-                            left: 0,
-                            width: "100vw",
-                            height: "100vh",
-                            backgroundColor: "rgba(0, 0, 0, 0.5)",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            zIndex: 9999,
-                        }}
-                    >
-                        <ProgressRing />
-                    </div>
+                    <LoadingContainer>
+                        <LoadingRing message="Saving..." />
+                    </LoadingContainer>
                 )}
                 {serviceModel && (
                     <>
