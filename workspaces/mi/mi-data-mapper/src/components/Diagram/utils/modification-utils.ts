@@ -15,14 +15,13 @@ import {
 	Node,
 	ObjectLiteralExpression,
 	PropertyAssignment,
-	PropertySignature,
 	ReturnStatement,
 	SourceFile,
 	TypeLiteralNode
 } from "ts-morph";
 
 import { DataMapperLinkModel } from "../Link";
-import { InputOutputPortModel, IntermediatePortModel, ValueType } from "../Port";
+import { InputOutputPortModel, IntermediatePortModel } from "../Port";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import {
 	getFieldIndexes,
@@ -35,7 +34,6 @@ import {
 	getDefaultValue,
 	getTypeAnnotation,
 	getEditorLineAndColumn,
-	getValueType,
 	toFirstLetterLowerCase,
 	toFirstLetterUpperCase
 } from "./common-utils";
