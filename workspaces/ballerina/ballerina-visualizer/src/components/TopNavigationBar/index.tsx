@@ -141,8 +141,10 @@ function getShortNames(name: string) {
         case "Add Test Function":
             return "Test Function";
         case "Service Wizard":
-            case "Service Config View":
+        case "Service Config View":
             return "Service";
+        case "Service Designer":
+            return "Service Designer";
         case "Listener Config View":
             return "Listener";
         case "Add Data Mapper":
@@ -153,7 +155,11 @@ function getShortNames(name: string) {
         case "View Config Variables":
         case "Edit Config Variables":
             return "Configurable Variables";
-            
+        case "Type Diagram":
+        case "Edit Type":
+        case "Add Type":
+            return "Types";
+
         default:
             return name;
     }

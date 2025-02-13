@@ -78,12 +78,13 @@ const IconButton = styled.div`
 interface TitleBarProps {
     title: string;
     subtitle?: string;
+    subtitleElement?: ReactNode;
     actions?: ReactNode;
     hideBack?: boolean;
 }
 
 export function TitleBar(props: TitleBarProps) {
-    const { title, subtitle, actions, hideBack } = props;
+    const { title, subtitle, subtitleElement, actions, hideBack } = props;
     const { rpcClient } = useRpcContext();
 
     const handleBackButtonClick = () => {
@@ -101,6 +102,7 @@ export function TitleBar(props: TitleBarProps) {
                 <TitleSection>
                     <Title>{title}</Title>
                     {subtitle && <SubTitle>{subtitle}</SubTitle>}
+                    {subtitleElement && subtitleElement}
                 </TitleSection>
             </LeftContainer>
             <RightContainer>{actions && <ActionsContainer>{actions}</ActionsContainer>}</RightContainer>
