@@ -193,8 +193,8 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
             if (!this.x || !this.y) {
                 this.x = x;
                 this.y = y;
-                super.setPosition(x, y);
             }
+            super.setPosition(x, y);
         }
     }
 }

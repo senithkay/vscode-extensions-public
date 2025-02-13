@@ -33,9 +33,9 @@ type HeaderProps = {
 const AccordionContainer = styled.div<ContainerProps>`
     margin-top: 10px;
     overflow: hidden;
-    background-color: var(--vscode-editorHoverWidget-background);
+    background-color: var(--vscode-editorHoverWidget-statusBarBackground);
     &:hover {
-        background-color: var(--vscode-list-hoverBackground);
+        background-color: var(--vscode-editorHoverWidget-border);
         cursor: pointer;
     }
     border: ${(p: ContainerProps) => p.haveErrors ? "1px solid red" : "none"};
