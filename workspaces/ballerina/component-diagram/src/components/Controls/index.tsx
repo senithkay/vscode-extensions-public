@@ -22,8 +22,8 @@ export namespace ControlsStyles {
         gap: 8px;
 
         position: fixed;
-        margin-top: 270px;
-        left: 20px;
+        margin-top: 342px;
+        left: 32px;
         margin-left: 10px;
         z-index: 1000;
     `;
