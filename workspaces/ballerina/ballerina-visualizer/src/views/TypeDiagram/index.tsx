@@ -195,15 +195,20 @@ export function TypeDiagram(props: TypeDiagramProps) {
         <>
             <View>
                 <TopNavigationBar />
-                <TitleBar
-                    title="Types"
-                    subtitle="View and edit types in the project"
-                    actions={
-                        <Button appearance="primary" onClick={addNewType} tooltip="Add New Type">
-                            <Codicon name="add" sx={{ marginRight: 5 }} /> Add Type
-                        </Button>
-                    }
-                />
+                {!focusedNodeId && (
+                    <TitleBar
+                        title="Types"
+                        subtitle={focusedNodeId || "View and edit types in the project"}
+                        actions={
+                            <Button appearance="primary" onClick={addNewType} tooltip="Add New Type">
+                                <Codicon name="add" sx={{ marginRight: 5 }} /> Add Type
+                            </Button>
+                        }
+                    />
+                )}
+                {focusedNodeId && (
+                    <TitleBar title={focusedNodeId} subtitle="Type" onBack={() => setFocusedNodeId(undefined)} />
+                )}
                 <ViewContent>
                     {typesModel ? (
                         <TypeDesignDiagram
