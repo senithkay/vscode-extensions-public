@@ -557,7 +557,7 @@ export async function mapUsingCustomFunction(sourcePort: InputOutputPortModel, t
 
 
 function genCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, sourceFile: SourceFile) {
-    let targetFieldName = targetPort.field.fieldName;
+	let targetFieldName = targetPort.field.fieldName;
 	let targetTypeWithName = targetPort.typeWithValue;
 
 	while (!Boolean(targetTypeWithName?.type.fieldName)) {
@@ -570,33 +570,29 @@ function genCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOu
 		}
 	}
 
-    const localFunctionNames = sourceFile.getFunctions().map(fn => fn.getName());
-    const importedFunctionNames = sourceFile.getImportDeclarations()
-    .flatMap(importDecl => importDecl.getNamedImports().map(namedImport => namedImport.getName()));
-  
+	const localFunctionNames = sourceFile.getFunctions().map(fn => fn.getName());
+	const importedFunctionNames = sourceFile.getImportDeclarations()
+		.flatMap(importDecl => importDecl.getNamedImports().map(namedImport => namedImport.getName()));
+
 	const formattedSourceFieldName = toFirstLetterLowerCase(sourcePort.field.fieldName);
 	const formattedTargetFieldName = toFirstLetterUpperCase(targetFieldName);
-    let customFunctionName = `${formattedSourceFieldName}To${formattedTargetFieldName}`;
-    let i = 1;
-    while (localFunctionNames.includes(customFunctionName) || importedFunctionNames.includes(customFunctionName)) {
-        customFunctionName = `${formattedSourceFieldName}To${formattedTargetFieldName}${
-			isNaN(Number(formattedTargetFieldName.charAt(formattedTargetFieldName.length-1))) ? '' : '_'
-		}${++i}`;
-    }
-    
-    return {
-        name: customFunctionName,
-        parameters: [{ name: sourcePort.field.fieldName, type: getTypeAnnotation(sourcePort.field) }],
-        returnType: getTypeAnnotation(targetPort.field),
-        statements: [
-            `return ${getDefaultValue(targetPort.field)};`
-        ]
-    }
-    
+	let customFunctionName = `${formattedSourceFieldName}To${formattedTargetFieldName}`;
+	let i = 1;
+	while (localFunctionNames.includes(customFunctionName) || importedFunctionNames.includes(customFunctionName)) {
+		customFunctionName = `${formattedSourceFieldName}To${formattedTargetFieldName}${isNaN(Number(formattedTargetFieldName.charAt(formattedTargetFieldName.length - 1))) ? '' : '_'
+			}${++i}`;
+	}
+
+	return {
+		name: customFunctionName,
+		parameters: [{ name: sourcePort.field.fieldName, type: getTypeAnnotation(sourcePort.field) }],
+		returnType: getTypeAnnotation(targetPort.field),
+		statements: [
+			`return ${getDefaultValue(targetPort.field)};`
+		]
+	}
+
 }
-
-
-
 
 function isMappedToRootArrayLiteralExpr(targetPort: InputOutputPortModel): boolean {
 	const targetExpr = targetPort?.typeWithValue?.value; // targetExpr is undefined when the body is missing the return statement
