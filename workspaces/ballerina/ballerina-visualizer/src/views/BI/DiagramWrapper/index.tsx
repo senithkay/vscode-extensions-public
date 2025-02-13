@@ -91,6 +91,7 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
         const context: VisualizerLocation = {
             view: MACHINE_VIEW.BIFunctionForm,
             identifier: (syntaxTree as ResourceAccessorDefinition).functionName.value,
+            documentUri: projectPath
         };
         rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
@@ -105,8 +106,6 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
         isResource = false;
         method = syntaxTree.functionName.value;
     }
-
-    console.log(">>> ", syntaxTree);
 
     return (
         <View>

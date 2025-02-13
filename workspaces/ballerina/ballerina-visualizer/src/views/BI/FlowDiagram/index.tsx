@@ -42,7 +42,7 @@ import {
     convertFunctionCategoriesToSidePanelCategories,
     getContainerTitle,
 } from "../../../utils/bi";
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, ResourceAccessorDefinition, STNode } from "@wso2-enterprise/syntax-tree";
 import { View, ProgressRing, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { applyModifications, textToModifications } from "../../../utils/utils";
@@ -67,7 +67,7 @@ interface ColoredTagProps {
     color: string;
 }
 
-const ColoredTag = styled(VSCodeTag)<ColoredTagProps>`
+const ColoredTag = styled(VSCodeTag) <ColoredTagProps>`
     ::part(control) {
         color: var(--button-primary-foreground);
         background-color: ${({ color }: ColoredTagProps) => color};
@@ -678,6 +678,15 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             position: position,
         };
         await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
+    };
+
+    const handleEdit = () => {
+        const context: VisualizerLocation = {
+            view: MACHINE_VIEW.BIFunctionForm,
+            identifier: (props?.syntaxTree as ResourceAccessorDefinition).functionName.value,
+            documentUri: model.fileName
+        };
+        rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
 
     const handleSubPanel = (subPanel: SubPanel) => {
