@@ -18,6 +18,7 @@ import AutoMapButton from "./AutoMapButton";
 import ConfigureButton from "./ConfigureButton";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
 import HeaderSearchBox from "./HeaderSearchBox";
+import EditButton from "./EditButton";
 
 export interface DataMapperHeaderProps {
     selection: SelectionState;
@@ -29,6 +30,7 @@ export interface DataMapperHeaderProps {
     onEdit: () => void;
     onClose?: () => void;
     autoMapWithAI: () => Promise<void>;
+    onBack?: () => void;
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
@@ -41,7 +43,8 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
         onConfigOpen,
         onEdit,
         onClose,
-        autoMapWithAI
+        autoMapWithAI,
+        onBack
     } = props;
 
     const handleAutoMap = async () => {
@@ -50,30 +53,27 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
 
     return (
         <HeaderContainer>
+            <IconButton onClick={onBack}>
+                <Icon name="bi-arrow-back" iconSx={{ fontSize: "24px", color: "var(--vscode-foreground)" }} />
+            </IconButton>
             <BreadCrumb>
-                <Icon name="dataMapper" sx={{ paddingTop: "1px", marginRight: "5px" }} />
-                <Title variant="body3"> Data Mapper: </Title>
+                <Title>Data Mapper</Title>
                 {!hasEditDisabled && (
                     <HeaderBreadcrumb
                         selection={selection}
                         changeSelection={changeSelection}
                     />
                 )}
-                {isBI && (
-                    <Button appearance="icon" onClick={onEdit} sx={{ marginLeft: "5px" }}>
-                        <Codicon name="edit" />
-                        <>Edit</>
-                    </Button>
-                )}
             </BreadCrumb>
             {!hasEditDisabled && !onClose && (
-                <>
+                <RightContainer>
                     <FilterBar>
                         <HeaderSearchBox selection={selection} />
                     </FilterBar>
                     <AutoMapButton onClick={handleAutoMap} />
                     {!isBI && <ConfigureButton onClick={onConfigOpen} />}
-                </>
+                    {isBI && <EditButton onClick={onEdit} />}
+                </RightContainer>
             )}
             {onClose && (
                 <VSCodeButton 
@@ -98,14 +98,18 @@ const HeaderContainer = styled.div`
     border-bottom: 1px solid rgba(102,103,133,0.15);
 `;
 
-const Title = styled(Typography)`
-    margin: 0 10px 0 0;
+const Title = styled.h2`
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--vscode-foreground);
 `;
 
 const BreadCrumb = styled.div`
     width: 60%;
     display: flex;
-    align-items: center;
+    align-items: baseline;
+    gap: 12px;
 `;
 
 const FilterBar = styled.div`
@@ -113,5 +117,26 @@ const FilterBar = styled.div`
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    margin-right: 20px;
+`;
+
+const IconButton = styled.div`
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 4px;
+
+    &:hover {
+        background-color: var(--vscode-toolbar-hoverBackground);
+    }
+
+    & > div:first-child {
+        width: 24px;
+        height: 24px;
+        font-size: 24px;
+    }
+`;
+
+const RightContainer = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 12px;
 `;

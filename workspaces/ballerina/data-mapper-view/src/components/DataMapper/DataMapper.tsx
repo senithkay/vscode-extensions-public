@@ -606,6 +606,10 @@ export function DataMapperC(props: DataMapperViewProps) {
         setErrorKind(kind);
     };
 
+    const handleBack = () => {
+        rpcClient.getVisualizerRpcClient()?.goBack();
+    };
+
     const cPanelProps = {
         fnST,
         targetPosition,
@@ -660,6 +664,7 @@ export function DataMapperC(props: DataMapperViewProps) {
                                 onClose={onClose}
                                 autoMapWithAI={autoMapWithAI}
                                 onEdit={onEdit}
+                                onBack={handleBack}
                             />
                         )}
                         {(!isFetchingDMMetaData && !isErrorDMMetaData) && !dMSupported && (
