@@ -17,6 +17,8 @@ import ServiceConfigForm from './Forms/ServiceConfigForm';
 import { BodyText, LoadingContainer } from '../../styles';
 import { BIHeader } from '../BIHeader';
 import { FormValues } from '@wso2-enterprise/ballerina-side-panel';
+import { TitleBar } from '../../../components/TitleBar';
+import { TopNavigationBar } from '../../../components/TopNavigationBar';
 
 const FORM_WIDTH = 600;
 
@@ -71,6 +73,11 @@ const ButtonWrapper = styled.div`
     justify-content: right;
 `;
 
+const StepperContainer = styled.div`
+    margin-top: 16px;
+    margin-left: 16px;
+    margin-bottom: 20px;
+`;
 
 export interface ServiceWizardProps {
     type: string;
@@ -165,8 +172,10 @@ export function ServiceWizard(props: ServiceWizardProps) {
 
     return (
         <View>
-            <ViewContent padding>
-                <BIHeader />
+            <TopNavigationBar />
+            <TitleBar title="Service" subtitle="Create a new service for your integration" />
+            <ViewContent>
+                {/* <BIHeader /> */}
                 {!listenerModel &&
                     <LoadingContainer>
                         <ProgressRing />
@@ -175,7 +184,11 @@ export function ServiceWizard(props: ServiceWizardProps) {
                 }
                 {listenerModel &&
                     <Container>
-                        {!listeners?.hasListeners && <Stepper alignment='flex-start' steps={defaultSteps} currentStep={step} />}
+                        {!listeners?.hasListeners && 
+                            <StepperContainer>
+                                <Stepper alignment='flex-start' steps={defaultSteps} currentStep={step}/>
+                            </StepperContainer>
+                        }
                         {step === 0 && !saving &&
                             <>
                                 <ListenerConfigForm listenerModel={listenerModel} onSubmit={handleListenerSubmit} onBack={creatingListener && onBack} formSubmitText={listeners?.hasListeners ? "Create" : undefined} />

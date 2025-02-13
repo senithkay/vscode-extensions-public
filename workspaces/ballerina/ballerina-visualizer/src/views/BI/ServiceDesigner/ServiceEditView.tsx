@@ -17,6 +17,8 @@ import ServiceConfigForm from './Forms/ServiceConfigForm';
 import { BodyText, LoadingContainer } from '../../styles';
 import { BIHeader } from '../BIHeader';
 import { FormValues } from '@wso2-enterprise/ballerina-side-panel';
+import { TitleBar } from '../../../components/TitleBar';
+import { TopNavigationBar } from '../../../components/TopNavigationBar';
 
 const FORM_WIDTH = 600;
 
@@ -106,8 +108,10 @@ export function ServiceEditView(props: ServiceEditViewProps) {
 
     return (
         <View>
+            <TopNavigationBar />
+            <TitleBar title="Service" subtitle="Edit Service" />
             <ViewContent padding>
-                <BIHeader />
+                {/* <BIHeader /> */}
                 {!serviceModel &&
                     <LoadingContainer>
                         <ProgressRing />

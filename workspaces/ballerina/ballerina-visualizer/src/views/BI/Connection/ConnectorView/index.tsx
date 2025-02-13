@@ -11,11 +11,20 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { AvailableNode, Category, FlowNode, Item } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon, ProgressRing, SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ProgressRing, SearchBox, Typography, View } from "@wso2-enterprise/ui-toolkit";
 import { cloneDeep, debounce } from "lodash";
 import ButtonCard from "../../../../components/ButtonCard";
 import { BodyText } from "../../../styles";
 import { ConnectorIcon } from "@wso2-enterprise/bi-diagram";
+import { TitleBar } from "../../../../components/TitleBar";
+import { TopNavigationBar } from "../../../../components/TopNavigationBar";
+
+const ViewWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+`;
 
 const Container = styled.div`
     padding: 0 20px;
@@ -88,7 +97,8 @@ export function ConnectorView(props: ConnectorViewProps) {
             .then((model) => {
                 console.log(">>> bi connectors", model);
                 setConnectors(model.categories);
-            }).finally(() => {
+            })
+            .finally(() => {
                 setIsSearching(false);
             });
     };
@@ -106,10 +116,11 @@ export function ConnectorView(props: ConnectorViewProps) {
             .then((model) => {
                 console.log(">>> bi searched connectors", model);
                 setConnectors(model.categories);
-            }).finally(() => {
+            })
+            .finally(() => {
                 setIsSearching(false);
             });
-    }
+    };
     const debouncedSearch = debounce(handleSearch, 1100);
 
     const handleOnSearch = (text: string) => {
@@ -148,105 +159,127 @@ export function ConnectorView(props: ConnectorViewProps) {
         return category;
     });
 
+    const isFullView = onClose === undefined;
+
     return (
-        <Container>
-            <TopBar>
-                <Typography variant="h2">Select a Connector</Typography>
-                {onClose && (
-                    <Button appearance="icon" onClick={onClose}>
-                        <Codicon name="close" />
-                    </Button>
-                )}
-            </TopBar>
-
-            <BodyText>
-                Select a connector to integrate with external services. Use search to quickly find the right one.
-            </BodyText>
-            <Row>
-                <StyledSearchInput
-                    value={searchText}
-                    placeholder="Search"
-                    autoFocus={true}
-                    onChange={handleOnSearch}
-                    size={60}
-                    sx={{ width: "100%" }}
-                />
-            </Row>
-            {(isSearching || fetchingInfo) && (
-                <ListContainer>
-                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
-                        <ProgressRing />
-                    </div>
-                </ListContainer>)}
-            {filteredCategories && filteredCategories.length > 0 && (
-                <ListContainer>
-                    {/* Default connectors of LS is hardcoded and is sent with categories with item field */}
-                    {filteredCategories[0]?.items ? (
-                        filteredCategories.map((category, index) => {
-                            return (
-                                <div key={category.metadata.label + index}>
-                                    <Typography variant="h3">{category.metadata.label}</Typography>
-                                    <GridContainer>
-                                        {category.items?.map((connector, index) => {
-                                            return (
-                                                <ButtonCard
-                                                    key={connector.metadata.label + index}
-                                                    title={capitalizeFirstLetter(connector.metadata.label)}
-                                                    description={
-                                                        (connector as AvailableNode).codedata.org +
-                                                        " / " +
-                                                        (connector as AvailableNode).codedata.module
-                                                    }
-                                                    icon={
-                                                        connector.metadata.icon ? (
-                                                            <ConnectorIcon node={connector as unknown as FlowNode} />
-                                                        ) : (
-                                                            <Codicon name="package" />
-                                                        )
-                                                    }
-                                                    onClick={() => {
-                                                        onSelectConnector(connector as AvailableNode);
-                                                    }}
-                                                />
-                                            );
-                                        })}
-                                    </GridContainer>
-                                </div>
-                            );
-                        })
-                    ) : (
-                        <GridContainer>
-                            {connectors.map((item, index) => {
-                                const connector = item as Item;
-                                return (
-                                    <ButtonCard
-                                        key={connector.metadata.label + index}
-                                        title={capitalizeFirstLetter(connector.metadata.label)}
-                                        description={
-                                            (connector as AvailableNode).codedata.org +
-                                            " / " +
-                                            (connector as AvailableNode).codedata.module
-                                        }
-                                        icon={
-                                            connector.metadata.icon ? (
-                                                <ConnectorIcon node={connector as unknown as FlowNode} />
-                                            ) : (
-                                                <Codicon name="package" />
-                                            )
-                                        }
-                                        onClick={() => {
-                                            onSelectConnector(connector as AvailableNode);
-                                        }}
-                                    />
-                                );
-                            })}
-
-                        </GridContainer>
-                    )}
-                </ListContainer>
+        <ViewWrapper>
+            {isFullView && (
+                <>
+                    <TopNavigationBar />
+                    <TitleBar
+                        title="Connectors"
+                        subtitle="Select a connector to integrate with external services"
+                    />
+                </>
             )}
-            {(!isSearching && connectors.length === 0) && <p>No connectors found</p>}
-        </Container>
+            <Container>
+                {!isFullView && (
+                    <>
+                        <TopBar>
+                            <Typography variant="h2">Select a Connector</Typography>
+                            {onClose && (
+                                <Button appearance="icon" onClick={onClose}>
+                                    <Codicon name="close" />
+                                </Button>
+                            )}
+                        </TopBar>
+
+                        <BodyText>
+                            Select a connector to integrate with external services. Use search to quickly find the right
+                            one.
+                        </BodyText>
+                    </>
+                )}
+                <Row>
+                    <StyledSearchInput
+                        value={searchText}
+                        placeholder="Search"
+                        autoFocus={true}
+                        onChange={handleOnSearch}
+                        size={60}
+                        sx={{ width: "100%" }}
+                    />
+                </Row>
+                {(isSearching || fetchingInfo) && (
+                    <ListContainer>
+                        <div
+                            style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}
+                        >
+                            <ProgressRing />
+                        </div>
+                    </ListContainer>
+                )}
+                {filteredCategories && filteredCategories.length > 0 && (
+                    <ListContainer>
+                        {/* Default connectors of LS is hardcoded and is sent with categories with item field */}
+                        {filteredCategories[0]?.items ? (
+                            filteredCategories.map((category, index) => {
+                                return (
+                                    <div key={category.metadata.label + index}>
+                                        <Typography variant="h3">{category.metadata.label}</Typography>
+                                        <GridContainer>
+                                            {category.items?.map((connector, index) => {
+                                                return (
+                                                    <ButtonCard
+                                                        key={connector.metadata.label + index}
+                                                        title={capitalizeFirstLetter(connector.metadata.label)}
+                                                        description={
+                                                            (connector as AvailableNode).codedata.org +
+                                                            " / " +
+                                                            (connector as AvailableNode).codedata.module
+                                                        }
+                                                        icon={
+                                                            connector.metadata.icon ? (
+                                                                <ConnectorIcon
+                                                                    node={connector as unknown as FlowNode}
+                                                                />
+                                                            ) : (
+                                                                <Codicon name="package" />
+                                                            )
+                                                        }
+                                                        onClick={() => {
+                                                            onSelectConnector(connector as AvailableNode);
+                                                        }}
+                                                    />
+                                                );
+                                            })}
+                                        </GridContainer>
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            <GridContainer>
+                                {connectors.map((item, index) => {
+                                    const connector = item as Item;
+                                    return (
+                                        <ButtonCard
+                                            key={connector.metadata.label + index}
+                                            title={capitalizeFirstLetter(connector.metadata.label)}
+                                            description={
+                                                (connector as AvailableNode).codedata.org +
+                                                " / " +
+                                                (connector as AvailableNode).codedata.module
+                                            }
+                                            icon={
+                                                connector.metadata.icon ? (
+                                                    <ConnectorIcon node={connector as unknown as FlowNode} />
+                                                ) : (
+                                                    <Codicon name="package" />
+                                                )
+                                            }
+                                            onClick={() => {
+                                                onSelectConnector(connector as AvailableNode);
+                                            }}
+                                        />
+                                    );
+                                })}
+                            </GridContainer>
+                        )}
+                    </ListContainer>
+                )}
+                {!isSearching && connectors.length === 0 && <p>No connectors found</p>}
+            </Container>
+        </ViewWrapper>
     );
 }
 

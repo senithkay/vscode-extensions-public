@@ -32,6 +32,8 @@ import { getProjectFromResponse, parseSSEEvent, replaceCodeBlocks, splitContent 
 import ComponentDiagram from "../ComponentDiagram";
 import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import ReactMarkdown from 'react-markdown';
+import { TopNavigationBar } from "../../../components/TopNavigationBar";
+import { MainTitleBar } from "../../../components/MainTitleBar";
 
 const CardTitleContainer = styled.div`
     display: flex;
@@ -476,7 +478,9 @@ export function Overview(props: ComponentDiagramProps) {
     return (
         <View>
             <ViewContent padding>
-                <BIHeader actions={getActionButtons()} />
+                {/* <BIHeader actions={getActionButtons()} /> */}
+                {/* <TopNavigationBar /> */}
+                <MainTitleBar title={projectName} subtitle="Integration Overview" actions={getActionButtons()} />
                 <Content>
                     <CardContainer>
                         <SectionHead title="Design" actions={getDesignActions()} />

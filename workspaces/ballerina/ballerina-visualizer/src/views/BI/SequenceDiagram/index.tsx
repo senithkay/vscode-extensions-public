@@ -22,7 +22,7 @@ const Container = styled.div`
 
 const ExperimentalLabel = styled.div`
     position: fixed;
-    top: 50px;
+    top: 120px;
     left: 12px;
     background-color: ${Colors.SURFACE_DIM};
     color: ${Colors.ON_SURFACE};

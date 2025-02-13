@@ -18,6 +18,9 @@ import { debounce, forEach, set } from "lodash";
 import { convertToVisibleTypes } from "../../../utils/bi";
 import { URI, Utils } from "vscode-uri";
 import { EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
+import { TitleBar } from "../../../components/TitleBar";
+import { TopNavigationBar } from "../../../components/TopNavigationBar";
+import { FormHeader } from "../../../components/FormHeader";
 
 const FormContainer = styled.div`
     display: flex;
@@ -521,13 +524,16 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
 
     return (
         <View>
+            <TopNavigationBar />
+            <TitleBar title="Test" subtitle="Create a new test for your integration" />
             <ViewContent padding>
-                <BIHeader />
+                {/* <BIHeader /> */}
                 <Container>
-                    <Typography variant="h2">{formTitle}</Typography>
+                    {/* <Typography variant="h2">{formTitle}</Typography>
                     <BodyText>
                         Define a test case that can be used within the integration.
-                    </BodyText>
+                    </BodyText> */}
+                    <FormHeader title={formTitle} subtitle={`Define a test case that can be used within the integration.`} />
                     <FormContainer>
                         <Form
                             formFields={formFields}

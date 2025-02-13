@@ -42,10 +42,10 @@ import {
     convertFunctionCategoriesToSidePanelCategories,
     getContainerTitle,
 } from "../../../utils/bi";
-import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { View, ViewHeader, ProgressRing, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { View, ProgressRing, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
-import { applyModifications, getColorByMethod, textToModifications } from "../../../utils/utils";
+import { applyModifications, textToModifications } from "../../../utils/utils";
 import FormGenerator from "../Forms/FormGenerator";
 import { InlineDataMapper } from "../../InlineDataMapper";
 import { Colors } from "../../../resources/constants";
@@ -680,14 +680,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
 
-    const handleEdit = () => {
-        const context: VisualizerLocation = {
-            view: MACHINE_VIEW.BIFunctionForm,
-            identifier: (props?.syntaxTree as ResourceAccessorDefinition).functionName.value,
-        };
-        rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
-    };
-
     const handleSubPanel = (subPanel: SubPanel) => {
         setSubPanel(subPanel);
     };
@@ -726,23 +718,23 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         setUpdatedExpressionField(undefined);
     };
 
-    const method = (props?.syntaxTree as ResourceAccessorDefinition).functionName.value;
+    // const method = (props?.syntaxTree as ResourceAccessorDefinition).functionName.value;
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
 
-    const isResource = STKindChecker.isResourceAccessorDefinition(props.syntaxTree);
-    const ResourceDiagramTitle = (
-        <>
-            <span>{"Resource"}:</span>
-            <ColoredTag color={getColorByMethod(method)}>{method}</ColoredTag>
-            <SubTitle>{getResourcePath(syntaxTree as ResourceAccessorDefinition)}</SubTitle>
-        </>
-    );
-    const FunctionDiagramTitle = (
-        <>
-            <span>{"Function"}:</span>
-            <SubTitle>{method}</SubTitle>
-        </>
-    );
+    // const isResource = STKindChecker.isResourceAccessorDefinition(props.syntaxTree);
+    // const ResourceDiagramTitle = (
+    //     <>
+    //         <span>{"Resource"}:</span>
+    //         <ColoredTag color={getColorByMethod(method)}>{method}</ColoredTag>
+    //         <SubTitle>{getResourcePath(syntaxTree as ResourceAccessorDefinition)}</SubTitle>
+    //     </>
+    // );
+    // const FunctionDiagramTitle = (
+    //     <>
+    //         <span>{"Function"}:</span>
+    //         <SubTitle>{method}</SubTitle>
+    //     </>
+    // );
 
     const memoizedDiagramProps = useMemo(
         () => ({
@@ -771,12 +763,12 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     return (
         <>
             <View>
-                <ViewHeader
+                {/* <ViewHeader
                     title={isResource ? ResourceDiagramTitle : FunctionDiagramTitle}
                     icon={isResource ? "bi-http-service" : "bi-function"}
                     iconSx={{ fontSize: "16px" }}
                     onEdit={isResource ? undefined : handleEdit}
-                ></ViewHeader>
+                ></ViewHeader> */}
                 {(showProgressIndicator || fetchingAiSuggestions) && model && (
                     <ProgressIndicator color={Colors.PRIMARY} />
                 )}
@@ -854,12 +846,4 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             </PanelContainer>
         </>
     );
-}
-
-function getResourcePath(resource: ResourceAccessorDefinition) {
-    let resourcePath = "";
-    resource.relativeResourcePath?.forEach((path, index) => {
-        resourcePath += STKindChecker.isResourcePathSegmentParam(path) ? path.source : path?.value;
-    });
-    return resourcePath;
 }

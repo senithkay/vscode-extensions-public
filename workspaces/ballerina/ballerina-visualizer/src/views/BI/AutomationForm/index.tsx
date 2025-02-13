@@ -9,44 +9,35 @@
 
 import React, { useEffect, useState } from "react";
 import { DIRECTORY_MAP, EVENT_TYPE, ProjectStructureArtifactResponse } from "@wso2-enterprise/ballerina-core";
-import { Button, TextField, Typography, View, ViewContent, ErrorBanner, RadioButtonGroup, FormGroup, Dropdown, ParamConfig, ParamManager, CompletionItem } from "@wso2-enterprise/ui-toolkit";
+import { View, ViewContent, CompletionItem, Button } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { css } from "@emotion/css";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { BIHeader } from "../BIHeader";
-import { BodyText } from "../../styles";
-import { getFunctionParametersList, parameterConfig } from "../../../utils/utils";
+import { getFunctionParametersList } from "../../../utils/utils";
 import { Form, FormField, FormValues, Parameter } from "@wso2-enterprise/ballerina-side-panel";
 import { debounce } from "lodash";
+import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { URI, Utils } from "vscode-uri";
 import { convertToVisibleTypes } from "../../../utils/bi";
+import { TitleBar } from "../../../components/TitleBar";
+import { FormHeader } from "../../../components/FormHeader";
+import { Banner } from "../../../components/Banner";
 
 const FormContainer = styled.div`
     display: flex;
     flex-direction: column;
     max-width: 600px;
     gap: 20px;
-    margin-top: 20px;
 `;
 
 const Container = styled.div`
     display: "flex";
     flex-direction: "column";
     gap: 10;
-    margin: 20px;
 `;
 
 const ButtonWrapper = styled.div`
     margin-top: 20px;
     width: 130px;
-`;
-
-const CardGrid = styled.div`
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin-top: 20px;
-    width: 100%;
 `;
 
 const Link = styled.a`
@@ -56,6 +47,14 @@ const Link = styled.a`
     margin-right: 15px;
     margin-bottom: -5px;
     color: var(--button-primary-background);
+`;
+
+const CardGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 20px;
+    width: 100%;
 `;
 
 export function MainForm() {
@@ -75,9 +74,9 @@ export function MainForm() {
         let visibleTypes: CompletionItem[] = types;
         if (!types.length) {
             const context = await rpcClient.getVisualizerLocation();
-            let functionFilePath = Utils.joinPath(URI.file(context.projectUri), 'functions.bal');
+            let functionFilePath = Utils.joinPath(URI.file(context.projectUri), "functions.bal");
             const workspaceFiles = await rpcClient.getCommonRpcClient().getWorkspaceFiles({});
-            const isFilePresent = workspaceFiles.files.some(file => file.path === functionFilePath.fsPath);
+            const isFilePresent = workspaceFiles.files.some((file) => file.path === functionFilePath.fsPath);
             if (!isFilePresent) {
                 functionFilePath = Utils.joinPath(URI.file(context.projectUri));
             }
@@ -103,7 +102,7 @@ export function MainForm() {
     }, 250);
 
     const handleGetVisibleTypes = async (value: string, cursorPosition: number) => {
-        return await debouncedGetVisibleTypes(value, cursorPosition) as any;
+        return (await debouncedGetVisibleTypes(value, cursorPosition)) as any;
     };
 
     const handleCompletionSelect = async () => {
@@ -123,18 +122,21 @@ export function MainForm() {
 
     const handleFunctionCreate = async (data: FormValues) => {
         setIsLoading(true);
-        const name = data['functionName'];
-        const params = data['params'];
+        const name = data["functionName"];
+        const params = data["params"];
         const paramList = params ? getFunctionParametersList(params) : [];
-        const res = await rpcClient.getBIDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.AUTOMATION, functionType: { name, parameters: paramList } });
+        const res = await rpcClient
+            .getBIDiagramRpcClient()
+            .createComponent({ type: DIRECTORY_MAP.AUTOMATION, functionType: { name, parameters: paramList } });
         setIsLoading(res.response);
     };
 
     const openAutomation = () => {
-        rpcClient
-            .getVisualizerRpcClient()
-            .openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: automation.path, position: automation.position } });
-    }
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: { documentUri: automation.path, position: automation.position },
+        });
+    };
 
     useEffect(() => {
         rpcClient
@@ -150,42 +152,43 @@ export function MainForm() {
     const paramFiels: FormField[] = [
         {
             key: `variable`,
-            label: 'Name',
-            type: 'string',
+            label: "Name",
+            type: "string",
             optional: false,
             editable: true,
-            documentation: '',
-            value: '',
-            valueTypeConstraint: ""
+            documentation: "",
+            value: "",
+            valueTypeConstraint: "",
         },
         {
             key: `type`,
-            label: 'Type',
-            type: 'Type',
+            label: "Type",
+            type: "Type",
             optional: false,
             editable: true,
-            documentation: '',
-            value: '',
-            valueTypeConstraint: ""
+            documentation: "",
+            value: "",
+            valueTypeConstraint: "",
         },
         {
             key: `defaultable`,
-            label: 'Default Value',
-            type: 'string',
+            label: "Default Value",
+            type: "string",
             optional: true,
             advanced: true,
             editable: true,
-            documentation: '',
-            value: '',
-            valueTypeConstraint: ""
-        }
+            documentation: "",
+            value: "",
+            valueTypeConstraint: "",
+        },
     ];
 
     // Helper function to modify and set the visual information
     const handleParamChange = (param: Parameter) => {
-        const name = `${param.formValues['variable']}`;
-        const type = `${param.formValues['type']}`;
-        const defaultValue = Object.keys(param.formValues).indexOf('defaultable') > -1 && `${param.formValues['defaultable']}`;
+        const name = `${param.formValues["variable"]}`;
+        const type = `${param.formValues["type"]}`;
+        const defaultValue =
+            Object.keys(param.formValues).indexOf("defaultable") > -1 && `${param.formValues["defaultable"]}`;
         let value = `${type} ${name}`;
         if (defaultValue) {
             value += ` = ${defaultValue}`;
@@ -193,70 +196,77 @@ export function MainForm() {
         return {
             ...param,
             key: name,
-            value: value
-        }
+            value: value,
+        };
     };
 
     const currentFields: FormField[] = [
         {
             key: `functionName`,
-            label: 'Automation Name',
-            type: 'string',
+            label: "Automation Name",
+            type: "string",
             optional: false,
             editable: true,
-            documentation: '',
-            value: '',
-            valueTypeConstraint: 'string'
+            documentation: "",
+            value: "",
+            valueTypeConstraint: "string",
         },
         {
             key: `params`,
-            label: 'Parameters',
-            type: 'PARAM_MANAGER',
+            label: "Parameters",
+            type: "PARAM_MANAGER",
             optional: false,
             editable: true,
-            documentation: '',
-            valueTypeConstraint: '',
-            value: '',
+            documentation: "",
+            valueTypeConstraint: "",
+            value: "",
             paramManagerProps: {
                 paramValues: [],
                 formFields: paramFiels,
-                handleParameter: handleParamChange
-            }
-        }
+                handleParameter: handleParamChange,
+            },
+        },
     ];
 
     return (
         <View>
+            <TopNavigationBar />
+            <TitleBar title="Automation" subtitle="Create a new automation for your integration" />
             <ViewContent padding>
-                <BIHeader />
                 <Container>
-                    {automation ?
-                        <Typography variant="h4">You have already created an automation. <Link onClick={openAutomation}>View Now</Link>
-                        </Typography>
-                        :
+                    {automation && (
+                        <Banner
+                            variant="info"
+                            message="An integration can only have one automation. You have already created an automation."
+                            actions={
+                                <>
+                                    <Button onClick={openAutomation}>View Automation</Button>
+                                </>
+                            }
+                        />
+                    )}
+                    {!automation && (
                         <>
-                            <Typography variant="h2">Create Automation</Typography>
-                            <BodyText>
-                                Implement an automation for either scheduled or manual jobs.
-                            </BodyText>
+                            <FormHeader
+                                title="Create an Automation"
+                                subtitle="Implement an automation for either scheduled or manual jobs."
+                            />
                             <FormContainer>
                                 <Form
                                     formFields={currentFields}
                                     oneTimeForm={true}
-                                    expressionEditor={
-                                        {
-                                            types: filteredTypes,
-                                            retrieveVisibleTypes: handleGetVisibleTypes,
-                                            onCompletionItemSelect: handleCompletionSelect,
-                                            onCancel: handleExpressionEditorCancel,
-                                            onBlur: handleExpressionEditorBlur
-                                        }
-                                    }
+                                    expressionEditor={{
+                                        types: filteredTypes,
+                                        retrieveVisibleTypes: handleGetVisibleTypes,
+                                        onCompletionItemSelect: handleCompletionSelect,
+                                        onCancel: handleExpressionEditorCancel,
+                                        onBlur: handleExpressionEditorBlur,
+                                    }}
                                     onSubmit={!isLoading && !automation && handleFunctionCreate}
                                 />
                             </FormContainer>
                         </>
-                    }
+                    )}
                 </Container>
             </ViewContent>
         </View>
