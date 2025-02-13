@@ -101,10 +101,7 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isColl
                     borderRadius: 2,
                     padding: '6px 10px',
                     width: 'auto',
-                    height: '32px',
-                    // '&:hover .download-icon': {
-                    //     visibility: 'visible'
-                    // }
+                    height: '32px'
                 }}
             >
                 <CardContent>
