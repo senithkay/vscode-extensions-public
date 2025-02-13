@@ -87,6 +87,12 @@ export function FormGeneratorNew(props: FormProps) {
     const [fieldsValues, setFields] = useState<FormField[]>(fields);
 
     useEffect(() => {
+        if (fields) {
+            setFields(fields);
+        }
+    }, [fields]);
+
+    useEffect(() => {
         handleFormOpen();
 
         return () => {
@@ -352,7 +358,7 @@ export function FormGeneratorNew(props: FormProps) {
 
     const handleTypeChange = async (type: Type) => {
         setOpenTypeEditor(false);
-        
+
         // Update fields to reflect the new type
         const updatedFields = fieldsValues.map(field => {
             if (field.key.includes('returnType')) {
@@ -363,7 +369,7 @@ export function FormGeneratorNew(props: FormProps) {
             }
             return field;
         });
-        
+
         setFields(updatedFields);
 
         // Notify parent component about type change
