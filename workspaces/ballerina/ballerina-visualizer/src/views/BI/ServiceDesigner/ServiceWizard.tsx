@@ -7,18 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
-import { DIRECTORY_MAP, EVENT_TYPE, ListenerModel, ListenersResponse, ServiceModel, NodePosition } from '@wso2-enterprise/ballerina-core';
-import { Button, Codicon, ComponentCard, Icon, TextField, Typography, Stepper, ProgressRing, View, ViewContent, CheckBox, AutoComplete } from '@wso2-enterprise/ui-toolkit';
+import { useEffect, useState } from 'react';
+import { EVENT_TYPE, ListenerModel, ListenersResponse, ServiceModel } from '@wso2-enterprise/ballerina-core';
+import { Stepper, View, ViewContent } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import ListenerConfigForm from './Forms/ListenerConfigForm';
 import ServiceConfigForm from './Forms/ServiceConfigForm';
-import { BodyText, LoadingContainer } from '../../styles';
-import { BIHeader } from '../BIHeader';
-import { FormValues } from '@wso2-enterprise/ballerina-side-panel';
+import { LoadingContainer } from '../../styles';
 import { TitleBar } from '../../../components/TitleBar';
 import { TopNavigationBar } from '../../../components/TopNavigationBar';
+import { LoadingRing } from '../../../components/Loader';
 
 const FORM_WIDTH = 600;
 
@@ -177,8 +176,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
             <ViewContent>
                 {!listenerModel &&
                     <LoadingContainer>
-                        <ProgressRing />
-                        <Typography variant="h3" sx={{ marginTop: '16px' }}>Loading...</Typography>
+                        <LoadingRing message="Loading listener..." />
                     </LoadingContainer>
                 }
                 {listenerModel &&
@@ -195,8 +193,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
                         }
                         {step === 0 && saving &&
                             <LoadingContainer>
-                                <ProgressRing />
-                                <Typography variant="h3" sx={{ marginTop: '16px' }}>Creating the listener...</Typography>
+                                <LoadingRing message="Saving listener..." />
                             </LoadingContainer>
                         }
                         {step === 1 && !saving &&
@@ -206,8 +203,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
                         }
                         {step === 1 && saving &&
                             <LoadingContainer>
-                                <ProgressRing />
-                                <Typography variant="h3" sx={{ marginTop: '16px' }}>Saving... Please wait</Typography>
+                                <LoadingRing message="Saving service..." />
                             </LoadingContainer>
                         }
                     </Container>
