@@ -23,6 +23,7 @@ import { InitVisitor } from "../visitors/InitVisitor";
 import { ConsoleColor, logger } from "../utils/logger";
 import { NodeTypes } from "../resources/constants";
 import { SqParticipant, SqParticipantType } from "@wso2-enterprise/ballerina-core";
+import { Controls } from "./Controls";
 
 export interface DiagramProps {
     model: Flow;
@@ -122,6 +123,7 @@ export function Diagram(props: DiagramProps) {
 
     return (
         <>
+            <Controls engine={diagramEngine} />
             {diagramEngine && diagramModel && (
                 <DiagramContextProvider value={context}>
                     <DiagramCanvas>
