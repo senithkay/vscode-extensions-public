@@ -88,6 +88,12 @@ export function FormGeneratorNew(props: FormProps) {
     const [fieldsValues, setFields] = useState<FormField[]>(fields);
 
     useEffect(() => {
+        if (fields) {
+            setFields(fields);
+        }
+    }, [fields]);
+
+    useEffect(() => {
         handleFormOpen();
 
         return () => {
