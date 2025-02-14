@@ -224,8 +224,8 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
 
     const getHelperPaneInfo = useCallback(debounce((type: string, filterText: string) => {
         rpcClient.getVisualizerState().then((machineView) => {
-            let position = nodeRange?.start == nodeRange?.end ? nodeRange.start :
-                { line: nodeRange.start.line, character: nodeRange.start.character + 1 };
+            let position = nodeRange ? (nodeRange?.start == nodeRange?.end ? nodeRange.start :
+                { line: nodeRange.start.line, character: nodeRange.start.character + 1 }) : undefined;
             rpcClient
                 .getMiDiagramRpcClient()
                 .getHelperPaneInfo({
