@@ -279,7 +279,7 @@ export type NodeKind =
     | "FUNCTION"
     | "FUNCTION_CALL"
     | "ASSIGN"
-    | "DATA_MAPPER"
+    | "DATA_MAPPER_DEFINITION"
     | "DATA_MAPPER_CALL"
     | "FORK"
     | "WORKER"

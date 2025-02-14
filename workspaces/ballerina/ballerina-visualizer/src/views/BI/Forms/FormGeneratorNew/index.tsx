@@ -16,7 +16,8 @@ import {
     VisualizerLocation,
     TRIGGER_CHARACTERS,
     TriggerCharacter,
-    Type
+    Type,
+    NodeKind
 } from "@wso2-enterprise/ballerina-core";
 import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditorProps, HelperPaneData, PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import {
@@ -47,6 +48,7 @@ interface FormProps {
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
     onTypeChange?: (type: Type) => void;
+    selectedNode?: NodeKind;
 }
 
 export function FormGeneratorNew(props: FormProps) {
@@ -55,16 +57,15 @@ export function FormGeneratorNew(props: FormProps) {
         fields,
         targetLineRange,
         projectPath,
-        editForm,
         submitText,
         onBack,
         onSubmit,
         openSubPanel,
-        isActiveSubPanel,
         updatedExpressionField,
         isGraphqlEditor,
         resetUpdatedExpressionField,
-        onTypeChange
+        onTypeChange,
+        selectedNode
     } = props;
 
     const { rpcClient } = useRpcContext();
@@ -352,7 +353,7 @@ export function FormGeneratorNew(props: FormProps) {
 
     const handleTypeChange = async (type: Type) => {
         setOpenTypeEditor(false);
-        
+
         // Update fields to reflect the new type
         const updatedFields = fieldsValues.map(field => {
             if (field.key.includes('returnType')) {
@@ -363,7 +364,7 @@ export function FormGeneratorNew(props: FormProps) {
             }
             return field;
         });
-        
+
         setFields(updatedFields);
 
         // Notify parent component about type change
@@ -466,6 +467,7 @@ export function FormGeneratorNew(props: FormProps) {
                     fileName={fileName}
                     updatedExpressionField={updatedExpressionField}
                     resetUpdatedExpressionField={resetUpdatedExpressionField}
+                    selectedNode={selectedNode}
                 />
             )}
             {showRecordEditor && !isGraphqlEditor && (
