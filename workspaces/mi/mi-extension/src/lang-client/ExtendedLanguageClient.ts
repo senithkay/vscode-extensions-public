@@ -136,6 +136,11 @@ export interface RangeFormatParams {
     workDoneToken?: CancellationToken;
 }
 
+export interface ArtifactType {
+    artifactType: string;
+    artifactFolder: string;
+}
+
 export class ExtendedLanguageClient extends LanguageClient {
 
     constructor(id: string, name: string, serverOptions: ServerOptions, clientOptions: LanguageClientOptions) {
@@ -189,6 +194,10 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async getArifactFiles(req: string): Promise<string[]> {
         return this.sendRequest("synapse/getArtifactFiles", { uri: Uri.file(req).toString() });
+    }
+
+    async getArtifactType(artifactFilePath: string): Promise<ArtifactType> {
+        return this.sendRequest("synapse/getArtifactType", { uri: artifactFilePath });
     }
 
     async getDefinition(params: GetDefinitionRequest): Promise<GetDefinitionResponse> {

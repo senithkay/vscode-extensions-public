@@ -2006,3 +2006,23 @@ export interface SaveConfigRequest {
 export interface SaveConfigResponse {
     success: boolean;
 }
+
+export interface CopyArtifactRequest {
+    sourceFilePath: string;
+    artifactType: string;
+    artifactFolder: string;
+}
+
+export interface CopyArtifactResponse {
+    success: boolean;
+    error?: string;
+}
+
+export interface GetArtifactTypeRequest {
+    filePath: string;
+}
+
+export interface GetArtifactTypeResponse {
+    artifactType: string;
+    artifactFolder: string;
+}

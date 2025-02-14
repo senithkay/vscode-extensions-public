@@ -264,7 +264,12 @@ import {
     removeConnector,
     TestConnectorConnectionRequest,
     testConnectorConnection,
-    getMIVersionFromPom
+    getMIVersionFromPom,
+    CopyArtifactRequest,
+    copyArtifact,
+    GetArtifactTypeRequest,
+    getArtifactType,
+    askImportFileDir
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -360,6 +365,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(downloadConnector, (args: DownloadConnectorRequest) => rpcManger.downloadConnector(args));
     messenger.onRequest(downloadInboundConnector, (args: DownloadInboundConnectorRequest) => rpcManger.downloadInboundConnector(args));
     messenger.onRequest(copyConnectorZip, (args: CopyConnectorZipRequest) => rpcManger.copyConnectorZip(args));
+    messenger.onRequest(copyArtifact, (args: CopyArtifactRequest) => rpcManger.copyArtifact(args));
+    messenger.onRequest(askImportFileDir, () => rpcManger.askImportFileDir());
     messenger.onRequest(removeConnector, (args: RemoveConnectorRequest) => rpcManger.removeConnector(args));
     messenger.onRequest(getAvailableConnectors, (args: GetAvailableConnectorRequest) => rpcManger.getAvailableConnectors(args));
     messenger.onNotification(updateConnectors, (args: UpdateConnectorRequest) => rpcManger.updateConnectors(args));
@@ -379,6 +386,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAllResourcePaths, () => rpcManger.getAllResourcePaths());
     messenger.onRequest(getConfigurableEntries, () => rpcManger.getConfigurableEntries());
     messenger.onRequest(getAllArtifacts, (args: GetAllArtifactsRequest) => rpcManger.getAllArtifacts(args));
+    messenger.onRequest(getArtifactType, (argas: GetArtifactTypeRequest) => rpcManger.getArtifactType(argas));
     messenger.onNotification(deleteArtifact, (args: DeleteArtifactRequest) => rpcManger.deleteArtifact(args));
     messenger.onRequest(getAllAPIcontexts, () => rpcManger.getAllAPIcontexts());
     messenger.onNotification(buildProject, () => rpcManger.buildProject());

@@ -226,7 +226,11 @@ import {
     TestConnectorConnectionRequest,
     MiVersionResponse,
     SaveConfigRequest,
-    SaveConfigResponse
+    SaveConfigResponse,
+    CopyArtifactRequest,
+    CopyArtifactResponse,
+    GetArtifactTypeRequest,
+    GetArtifactTypeResponse
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -320,6 +324,8 @@ export const rangeFormat: RequestType<RangeFormatRequest, ApplyEditResponse> = {
 export const downloadConnector: RequestType<DownloadConnectorRequest, DownloadConnectorResponse> = { method: `${_preFix}/downloadConnector` };
 export const downloadInboundConnector: RequestType<DownloadInboundConnectorRequest, DownloadInboundConnectorResponse> = { method: `${_preFix}/downloadInboundConnector` };
 export const copyConnectorZip: RequestType<CopyConnectorZipRequest, CopyConnectorZipResponse> = { method: `${_preFix}/copyConnectorZip` };
+export const copyArtifact: RequestType<CopyArtifactRequest, CopyArtifactResponse> = { method: `${_preFix}/copyArtifact` };
+export const askImportFileDir: RequestType<void, FileDirResponse> = { method: `${_preFix}/askImportFileDir` };
 export const getAvailableConnectors: RequestType<GetAvailableConnectorRequest, GetAvailableConnectorResponse> = { method: `${_preFix}/getAvailableConnectors` };
 export const updateConnectors: NotificationType<UpdateConnectorRequest> = { method: `${_preFix}/updateConnectors` };
 export const removeConnector: RequestType<RemoveConnectorRequest, RemoveConnectorResponse> = { method: `${_preFix}/removeConnector` };
@@ -339,6 +345,7 @@ export const getAllRegistryPaths: RequestType<GetAllRegistryPathsRequest, GetAll
 export const getAllResourcePaths: RequestType<void, GetAllResourcePathsResponse> = { method: `${_preFix}/getAllResourcePaths` };
 export const getConfigurableEntries: RequestType<void, GetConfigurableEntriesResponse> = { method: `${_preFix}/getConfigurableEntries` };
 export const getAllArtifacts: RequestType<GetAllArtifactsRequest, GetAllArtifactsResponse> = { method: `${_preFix}/getAllArtifacts` };
+export const getArtifactType: RequestType<GetArtifactTypeRequest, GetArtifactTypeResponse> = { method: `${_preFix}/getArtifactType` };
 export const deleteArtifact: NotificationType<DeleteArtifactRequest> = { method: `${_preFix}/deleteArtifact` };
 export const getAllAPIcontexts: RequestType<void, APIContextsResponse> = { method: `${_preFix}/getAllAPIcontexts` };
 export const buildProject: NotificationType<void> = { method: `${_preFix}/buildProject` };

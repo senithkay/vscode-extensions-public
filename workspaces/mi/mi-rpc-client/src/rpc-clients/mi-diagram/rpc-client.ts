@@ -376,7 +376,14 @@ import {
     testConnectorConnection,
     shutDownTryoutServer,
     MiVersionResponse,
-    getMIVersionFromPom
+    getMIVersionFromPom,
+    CopyArtifactRequest,
+    CopyArtifactResponse,
+    copyArtifact,
+    GetArtifactTypeRequest,
+    getArtifactType,
+    GetArtifactTypeResponse,
+    askImportFileDir,
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -744,6 +751,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(copyConnectorZip, HOST_EXTENSION, params)
     }
 
+    copyArtifact(params: CopyArtifactRequest): Promise<CopyArtifactResponse> {
+        return this._messenger.sendRequest(copyArtifact, HOST_EXTENSION, params);
+    }
+
+    askImportFileDir(): Promise<FileDirResponse> {
+        return this._messenger.sendRequest(askImportFileDir, HOST_EXTENSION);
+    }
+
     removeConnector(params: RemoveConnectorRequest): Promise<RemoveConnectorResponse> {
         return this._messenger.sendRequest(removeConnector, HOST_EXTENSION, params);
     }
@@ -818,6 +833,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getAllArtifacts(params: GetAllArtifactsRequest): Promise<GetAllArtifactsResponse> {
         return this._messenger.sendRequest(getAllArtifacts, HOST_EXTENSION, params);
+    }
+
+    getArtifactType(params: GetArtifactTypeRequest): Promise<GetArtifactTypeResponse> {
+        return this._messenger.sendRequest(getArtifactType, HOST_EXTENSION, params);
     }
 
     deleteArtifact(params: DeleteArtifactRequest): void {
