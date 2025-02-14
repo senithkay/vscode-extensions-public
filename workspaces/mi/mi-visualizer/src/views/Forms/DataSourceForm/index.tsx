@@ -480,7 +480,7 @@ export function DataSourceWizard(props: DataSourceFormProps) {
     };
 
     return (
-        <FormView title='Datasource' onClose={openOverview}>
+        <FormView title='Datasource' onClose={props.handlePopupClose ?? openOverview}>
             <FormProvider {...formMethods}>
                 {step === 1 ? (
                     <>
@@ -638,7 +638,7 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                         <FormActions>
                             <Button
                                 appearance="secondary"
-                                onClick={handleCancel}>
+                                onClick={props.handlePopupClose ?? handleCancel}>
                                 Cancel
                             </Button>
                             <Button
@@ -652,7 +652,7 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                     )
                 ) : (
                     <FormActions>
-                        <Button appearance="secondary" onClick={handleCancel}>
+                        <Button appearance="secondary" onClick={props.handlePopupClose ?? handleCancel}>
                             Cancel
                         </Button>
                         <Button disabled={!isDirty} onClick={handleSubmit(handleSave)}>
