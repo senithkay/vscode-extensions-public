@@ -32,6 +32,7 @@ export const OperationsWrapper = styled.div`
     flex-direction: column;
     color: #808080;
     gap: 5px;
+    cursor: default;
 `;
 
 export function ModuleSuggestions(props: ModuleSuggestionProps) {
@@ -110,7 +111,11 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
                                 <hr style={{ border: '1px solid #ccc', margin: '5px 0', width: '350px' }} />
                                 {values.version.operations.map((operation: ConnectorOperation) => (
                                     !operation.isHidden && (
-                                        <Tooltip content={operation.description} position='bottom' sx={{ zIndex: 2010 }}>
+                                        <Tooltip
+                                            content={operation.description}
+                                            position='bottom'
+                                            sx={{ zIndex: 2010 }}
+                                            containerSx={{ cursor: "default" }}>
                                             {FirstCharToUpperCase(operation.name)}
                                         </Tooltip>
                                     )

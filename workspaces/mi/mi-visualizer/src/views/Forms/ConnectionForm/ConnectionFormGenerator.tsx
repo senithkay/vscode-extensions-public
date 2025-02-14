@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { AutoComplete, Button, FormActions, FormView, TextField, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, FormActions, FormView, TextField, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { create } from 'xmlbuilder2';
@@ -43,6 +43,7 @@ export function AddConnection(props: AddConnectionProps) {
     const [connections, setConnections] = useState([]);
     const [connectionSuccess, setConnectionSuccess] = useState(null);
     const [isTesting, setIsTesting] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [connectionErrorMessage, setConnectionErrorMessage] = useState(null);
     const { control, handleSubmit, setValue, getValues, watch, reset, formState: { errors } } = useForm<any>();
     const [connectionType, setConnectionType] = useState(props.connectionType ?? "");
@@ -88,12 +89,14 @@ export function AddConnection(props: AddConnectionProps) {
         };
 
         (async () => {
+            setIsLoading(true);
             await fetchArtifacts();
             // Fetch connections and form data for connection creation
             if (!props.connectionName) {
                 await fetchConnections();
                 await fetchFormData();
             }
+            setIsLoading(false);
         })();
     }, [connectionType]);
 
@@ -402,47 +405,81 @@ export function AddConnection(props: AddConnectionProps) {
                 showButton={!props.connectionName}
                 id='Connection:'
             />}
-            {formData ? (
-                <>
-                    {ConnectionName}
+            {isLoading ? (
+                <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '20px' }}>
+                    <ProgressRing />
+                </div>
+            ) : (
+                formData ? (
                     <>
-                        <FormGenerator
-                            formData={formData}
-                            control={control}
-                            errors={errors}
-                            setValue={setValue}
-                            reset={reset}
-                            watch={watch}
-                            getValues={getValues}
-                            skipGeneralHeading={true}
-                            ignoreFields={["connectionName"]} />
-                        <FormActions>
-                            {formData.testConnectionEnabled && <div style={{ display: 'flex', alignItems: 'center', marginRight: 'auto' }}>
-                                <Button
-                                    appearance='secondary'
-                                    onClick={testConnection}
-                                    sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center'
-                                    }}
-                                    disabled={isTesting}
-                                >
-                                    Test Connection
-                                    {isTesting && (
-                                        <span style={{ display: 'flex', alignItems: 'center', marginLeft: '8px' }}>
-                                            <Codicon name="loading" iconSx={{ color: 'white' }} />
-                                        </span>
+                        {ConnectionName}
+                        <>
+                            <FormGenerator
+                                formData={formData}
+                                control={control}
+                                errors={errors}
+                                setValue={setValue}
+                                reset={reset}
+                                watch={watch}
+                                getValues={getValues}
+                                skipGeneralHeading={true}
+                                ignoreFields={["connectionName"]} />
+                            <FormActions>
+                                {formData.testConnectionEnabled && <div style={{ display: 'flex', alignItems: 'center', marginRight: 'auto' }}>
+                                    <Button
+                                        appearance='secondary'
+                                        onClick={testConnection}
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center'
+                                        }}
+                                        disabled={isTesting}
+                                    >
+                                        Test Connection
+                                        {isTesting && (
+                                            <span style={{ display: 'flex', alignItems: 'center', marginLeft: '8px' }}>
+                                                <Codicon name="loading" iconSx={{ color: 'white' }} />
+                                            </span>
+                                        )}
+                                    </Button>
+                                    {connectionSuccess !== null && (
+                                        connectionSuccess ? (
+                                            <Codicon name="pass" iconSx={{ color: 'green' }} sx={{ marginLeft: '10px' }} />
+                                        ) : (
+                                            <Codicon name="error" iconSx={{ color: 'red' }} sx={{ marginLeft: '10px' }} />
+                                        )
                                     )}
+                                </div>}
+                                <Button
+                                    appearance="secondary"
+                                    onClick={handleOnClose}
+                                >
+                                    Cancel
                                 </Button>
-                                {connectionSuccess !== null && (
-                                    connectionSuccess ? (
-                                        <Codicon name="pass" iconSx={{ color: 'green' }} sx={{ marginLeft: '10px' }} />
-                                    ) : (
-                                        <Codicon name="error" iconSx={{ color: 'red' }} sx={{ marginLeft: '10px' }} />
-                                    )
-                                )}
-                            </div>}
+                                <Button
+                                    appearance="primary"
+                                    onClick={handleSubmit(onAddConnection)}
+                                >
+                                    {props.connectionName ? "Update" : "Add"}
+                                </Button>
+                            </FormActions>
+                            {connectionErrorMessage && <span style={{ color: 'red' }}>
+                                {connectionErrorMessage}
+                            </span>}
+                        </>
+                    </>
+                ) : (
+                    // If no uiSchema is available, show param manager
+                    <>
+                        {ConnectionName}
+                        <ParamManagerContainer>
+                            <ParamManager
+                                paramConfigs={params}
+                                readonly={false}
+                                onChange={handleOnChange} />
+                        </ParamManagerContainer>
+                        <FormActions>
                             <Button
                                 appearance="secondary"
                                 onClick={handleOnClose}
@@ -451,41 +488,13 @@ export function AddConnection(props: AddConnectionProps) {
                             </Button>
                             <Button
                                 appearance="primary"
-                                onClick={handleSubmit(onAddConnection)}
+                                onClick={onAddInitConnection}
                             >
                                 {props.connectionName ? "Update" : "Add"}
                             </Button>
                         </FormActions>
-                        {connectionErrorMessage && <span style={{ color: 'red' }}>
-                            {connectionErrorMessage}
-                        </span>}
                     </>
-                </>
-            ) : (
-                // If no uiSchema is available, show param manager
-                <>
-                    {ConnectionName}
-                    <ParamManagerContainer>
-                        <ParamManager
-                            paramConfigs={params}
-                            readonly={false}
-                            onChange={handleOnChange} />
-                    </ParamManagerContainer>
-                    <FormActions>
-                        <Button
-                            appearance="secondary"
-                            onClick={handleOnClose}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            appearance="primary"
-                            onClick={onAddInitConnection}
-                        >
-                            {props.connectionName ? "Update" : "Add"}
-                        </Button>
-                    </FormActions>
-                </>
+                )
             )}
         </FormView>
     );

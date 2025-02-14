@@ -18,7 +18,7 @@ import { IntermediatePortModel } from '../Port/IntermediatePort';
 import { isInputNode, isLinkModel, isOutputNode } from '../Actions/utils';
 import { useDMExpressionBarStore } from '../../../store/store';
 import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../utils/constants';
-import { getMappingType, isConnectingArrays } from '../utils/common-utils';
+import { getMappingType, isPendingMappingRequired } from '../utils/common-utils';
 import { DataMapperLinkModel } from '../Link/DataMapperLink';
 import { removePendingMappingTempLinkIfExists } from '../utils/link-utils';
 import { DataMapperNodeModel } from '../Node/commons/DataMapperNode';
@@ -134,7 +134,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 										this.link?.setTargetPort(element);
 
 										const connectingMappingType = getMappingType(this.sourcePort, element);
-										if (isConnectingArrays(connectingMappingType)) {
+										if (isPendingMappingRequired(connectingMappingType)) {
 											const label = this.link.getLabels()
 												.find(label => label instanceof ExpressionLabelModel) as ExpressionLabelModel;
 											label.setPendingMappingType(connectingMappingType);
