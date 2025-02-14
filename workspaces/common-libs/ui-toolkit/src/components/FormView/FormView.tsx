@@ -18,6 +18,7 @@ interface FormViewProps {
     children: React.ReactNode;
     onClose: () => void; // Added onClose prop
     hideClose?: boolean;
+    maxWidth?: string;
     sx?: any;
 }
 
@@ -33,7 +34,7 @@ const FormViewContainer = styled.div<FormViewContainerProps & { className?: stri
     ${(props: FormViewContainerProps) => props.sx};
 `;
 
-export const FormView: React.FC<FormViewProps> = ({ title, children, onClose, hideClose, sx }) => {
+export const FormView: React.FC<FormViewProps> = ({ title, children, onClose, hideClose, sx, maxWidth }) => {
     const [isScrolling, setIsScrolling] = useState(false);
 
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -46,7 +47,7 @@ export const FormView: React.FC<FormViewProps> = ({ title, children, onClose, hi
 
     return (
         <FormViewContainer onScroll={handleScroll} className="form-view" sx={sx}>
-            <div style={{ maxWidth: '52em', margin: '0 auto' }}>
+            <div style={{ maxWidth: maxWidth ?? '52em', margin: '0 auto' }}>
                 <div style={{ margin: '0 15px' }}>
                     <div style={{
                         position: 'sticky',
