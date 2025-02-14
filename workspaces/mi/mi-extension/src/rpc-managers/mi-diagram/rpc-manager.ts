@@ -245,7 +245,11 @@ import {
     TestConnectorConnectionResponse,
     MiVersionResponse,
     CheckDBDriverResponse,
-    RemoveDBDriverResponse
+    RemoveDBDriverResponse,
+    CopyArtifactRequest,
+    CopyArtifactResponse,
+    GetArtifactTypeRequest,
+    GetArtifactTypeResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -3422,6 +3426,54 @@ ${endpointAttributes}
         }
     }
 
+    async askImportFileDir(): Promise<FileDirResponse> {
+        return new Promise(async (resolve) => {
+            const selectedFile = await askImportFileDir();
+            if (!selectedFile || selectedFile.length === 0) {
+                window.showErrorMessage('A file must be selected to import a artifact');
+                resolve({ path: "" });
+            } else {
+                const parentDir = selectedFile[0].fsPath;
+                resolve({ path: parentDir });
+            }
+        });
+    }
+
+    async copyArtifact(params: CopyArtifactRequest): Promise<CopyArtifactResponse> {
+        try {
+            const workspaceFolders = workspace.workspaceFolders;
+            if (!workspaceFolders) {
+                throw new Error('No workspace is currently open');
+            }
+            const rootPath = workspaceFolders[0].uri.fsPath;
+            const destinationDirectory = path.join(rootPath, 'src', 'main', 'wso2mi', 'artifacts', params.artifactFolder);
+            // Determine the destination file name
+            let desFileName = path.basename(params.sourceFilePath);
+            // If desFileName does nto contain .xml, append .xml
+            if (desFileName && !desFileName.endsWith('.xml')) {
+                desFileName += '.xml';
+            }
+            const destinationFilePath = path.join(destinationDirectory, desFileName);
+    
+            // Ensure the destination directory exists
+            await fs.promises.mkdir(destinationDirectory, { recursive: true });
+    
+            // Check if the destination file already exists
+            if (fs.existsSync(destinationFilePath)) {
+                return { success: false, error: 'File already exists' };
+            }
+    
+            // Copy the file from the source to the destination
+            const sourceFilePath = params.sourceFilePath; // Assuming this is provided in params
+            await fs.promises.copyFile(sourceFilePath, destinationFilePath);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            return { success: true }; // Return success response
+        } catch (error) {
+            console.error('Error copying artifact:', error);
+            return { success: false, error: error?.toString() as string };
+        }
+    }
+
     async getConnectorForm(params: GetConnectorFormRequest): Promise<GetConnectorFormResponse> {
         const { uiSchemaPath, operation } = params;
         const operationSchema = path.join(uiSchemaPath, `${operation}.json`);
@@ -4109,6 +4161,14 @@ ${keyValuesXML}`;
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getArifactFiles(params.path);
             resolve({ artifacts: res });
+        });
+    }
+
+    async getArtifactType(params: GetArtifactTypeRequest): Promise<GetArtifactTypeResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getArtifactType(params.filePath);
+            resolve({ artifactType: res.artifactType, artifactFolder: res.artifactFolder });
         });
     }
 
@@ -5193,5 +5253,16 @@ export async function askFilePath() {
         canSelectMany: false,
         defaultUri: Uri.file(os.homedir()),
         title: "Select a file",
+    });
+}
+
+export async function askImportFileDir() {
+    return await window.showOpenDialog({
+        canSelectFiles: true,
+        canSelectFolders: false,
+        canSelectMany: false,
+        defaultUri: Uri.file(os.homedir()),
+        title: "Select a xml file to import",
+        filters: { 'XML': ['xml'] }
     });
 }
