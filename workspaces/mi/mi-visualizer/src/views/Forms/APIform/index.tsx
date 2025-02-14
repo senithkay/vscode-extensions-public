@@ -125,6 +125,13 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
             .when("versionType", {
                 is: (value: string) => value === "context" || value === "url",
                 then: schema => schema.matches(/^([a-zA-z0-9.]+)$/, "Invalid version format"),
+            }).test('validateApiName', 'An artifact with same version already exists', function (value) {
+                const { apiName } = this.parent;
+                const fileName = value ? `${apiName}_v${value}` : apiName;
+                if (apiData) {
+                    return true;
+                }
+                return (!value) || !(workspaceFileNames.includes(fileName));
             }).test('validateArtifactName',
                 'An artifact with this artifact name and version already exists', function (value) {
                     const { apiName } = this.parent;
