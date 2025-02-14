@@ -227,6 +227,7 @@ import {
     MiVersionResponse,
     SaveConfigRequest,
     SaveConfigResponse,
+    CheckDBDriverResponse,
     CopyArtifactRequest,
     CopyArtifactResponse,
     GetArtifactTypeRequest,
@@ -369,8 +370,10 @@ export const markAsDefaultSequence: NotificationType<MarkAsDefaultSequenceReques
 export const getSubFolderNames: RequestType<GetSubFoldersRequest, GetSubFoldersResponse> = { method: `${_preFix}/getSubFolderNames` };
 export const renameFile: NotificationType<FileRenameRequest> = { method: `${_preFix}/renameFile` };
 export const openUpdateExtensionPage: NotificationType<void> = { method: `${_preFix}/openUpdateExtensionPage` };
-export const checkDBDriver: RequestType<string, boolean> = { method: `${_preFix}/checkDBDriver` };
+export const checkDBDriver: RequestType<string, CheckDBDriverResponse> = { method: `${_preFix}/checkDBDriver` };
 export const addDBDriver: RequestType<AddDriverRequest, boolean> = { method: `${_preFix}/addDBDriver` };
+export const removeDBDriver: RequestType<AddDriverRequest, boolean> = { method: `${_preFix}/removeDBDriver` };
+export const modifyDBDriver: RequestType<AddDriverRequest, boolean> = { method: `${_preFix}/modifyDBDriver` };
 export const generateDSSQueries: RequestType<ExtendedDSSQueryGenRequest, boolean> = { method: `${_preFix}/generateDSSQueries` };
 export const fetchDSSTables: RequestType<DSSFetchTablesRequest, DSSFetchTablesResponse> = { method: `${_preFix}/fetchDSSTables` };
 export const tryOutMediator: RequestType<MediatorTryOutRequest, MediatorTryOutResponse> = { method: `${_preFix}/tryOutMediator` };

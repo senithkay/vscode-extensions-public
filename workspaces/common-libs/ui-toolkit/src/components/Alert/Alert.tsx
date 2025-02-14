@@ -10,7 +10,7 @@
 import styled from "@emotion/styled";
 import React, { PropsWithChildren } from "react";
 
-type Variant = "primary" | "secondary" | "error";
+type Variant = "primary" | "secondary" | "error" | "warning";
 export interface AlertProps {
     title?: string;
     subTitle?: string;
@@ -32,6 +32,8 @@ const getBorderColor = (variant: Variant) => {
             return "var(--vscode-editorWidget-border)";
         case "error":
             return "var(--vscode-errorForeground)";
+        case "warning":
+            return "var(--vscode-editorWarning-foreground)";
     }
 }
 
@@ -43,6 +45,8 @@ const getBackgroundColor = (variant: Variant) => {
             return "transparent";
         case "error":
             return "var(--vscode-inputValidation-errorBackground)";
+        case "warning":
+            return "var(--vscode-inputValidation-warningBackground)";
     }
 }
 

@@ -33,6 +33,7 @@ import { createSourceForUserInput, modifyChildFieldsOptionality, modifyFieldOpti
 import { PrimitiveOutputElementWidget } from "../PrimitiveOutput/PrimitiveOutputElementWidget";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
 import { OutputFieldPreviewWidget } from "./OutputFieldPreviewWidget";
+import { DataMapperLinkModel } from "../../Link";
 
 export interface ArrayOutputFieldWidgetProps {
     parentId: string;
@@ -121,8 +122,10 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
             portIn.setDescendantHasValue();
             isDisabled = true;
         }
-        if (portIn.parentModel
-            && (Object.entries(portIn.parentModel.links).length > 0 || portIn.parentModel.ancestorHasValue)
+        if (portIn?.parentModel
+            && (Object.values(portIn.parentModel.links)
+            .filter(link => (link instanceof DataMapperLinkModel) && link.isActualLink).length > 0 
+            || portIn.parentModel.ancestorHasValue)
         ) {
             portIn.ancestorHasValue = true;
             isDisabled = true;

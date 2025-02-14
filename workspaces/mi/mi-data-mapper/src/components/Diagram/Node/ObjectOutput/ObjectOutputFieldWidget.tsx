@@ -29,6 +29,7 @@ import { ArrayOutputFieldWidget } from "../ArrayOutput/ArrayOuptutFieldWidget";
 import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
+import { DataMapperLinkModel } from "../../Link";
 
 export interface ObjectOutputFieldWidgetProps {
     parentId: string;
@@ -207,7 +208,9 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
 
     if (!isDisabled) {
         if (portIn?.parentModel
-            && (Object.entries(portIn?.parentModel.links).length > 0 || portIn?.parentModel.ancestorHasValue)
+            && (Object.values(portIn.parentModel.links)
+            .filter(link => (link instanceof DataMapperLinkModel) && link.isActualLink).length > 0 
+            || portIn?.parentModel.ancestorHasValue)
         ) {
             portIn.ancestorHasValue = true;
             isDisabled = true;

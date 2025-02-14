@@ -16,6 +16,7 @@ import { sidepanelAddPage } from "..";
 import { FirstCharToUpperCase } from "../../../utils/commons";
 import AddConnector from "../Pages/AddConnector";
 import { MACHINE_VIEW, POPUP_EVENT_TYPE, ParentPopupData } from "@wso2-enterprise/mi-core";
+import path from "path";
 
 const VersionTag = styled.div`
     color: #808080;
@@ -105,10 +106,11 @@ interface Connection {
     name: string;
     connectionType: string;
     path: string;
+    connectionIconPath?: string;
 }
 
 interface ConnectionsData {
-    [key: string]: { connections: Connection[], connectorData: any, iconPathUri: string };
+    [key: string]: { connections: Connection[], connectorData: any };
 }
 
 export interface ConnectorPageProps {
@@ -144,10 +146,21 @@ export function ConnectionPage(props: ConnectorPageProps) {
 
             const newConnectionInfo: ConnectionsData = Object.fromEntries(await Promise.all(
                 Object.keys(connectionData).map(async (key) => {
-                    const connections = connectionData[key].connections;
                     const connector = connectorData.connectors.find((connector: any) => connector.name === key);
+
                     const iconPath = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: connector.iconPath, name: "icon-small" });
-                    return [key, { connections, connectorData: connector, iconPathUri: iconPath.uri }];
+
+                    const connections = await Promise.all(connectionData[key].connections.map(async (connection: Connection) => {
+                        const connectionIconPath = connection.connectionType && await rpcClient.getMiDiagramRpcClient().getIconPathUri({
+                            path: path.join(connector.iconPath, 'connections'),
+                            name: connection.connectionType
+                        });
+                        return {
+                            ...connection,
+                            connectionIconPath: connectionIconPath.uri ?? iconPath.uri
+                        };
+                    }));
+                    return [key, { connections, connectorData: connector }];
                 })
             ));
 
@@ -391,7 +404,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
                                                                         <CardLabel>
                                                                             <IconContainer>
                                                                                 <img
-                                                                                    src={filteredConnections[key]?.iconPathUri}
+                                                                                    src={connection.connectionIconPath}
                                                                                     alt="Icon"
                                                                                     onError={(e) => {
                                                                                         const target = e.target as HTMLImageElement;
@@ -471,7 +484,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
                                                                                         >
                                                                                             <SmallIconContainer>
                                                                                                 <img
-                                                                                                    src={filteredConnections[key]?.iconPathUri}
+                                                                                                    src={connection.connectionIconPath}
                                                                                                     alt="Icon"
                                                                                                     onError={(e) => {
                                                                                                         const target = e.target as HTMLImageElement;
