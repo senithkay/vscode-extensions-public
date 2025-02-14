@@ -907,7 +907,7 @@ export function goToSource(filePath: string, position?: Range) {
 
     function openAndFocusTextDocument(filePath: string, range: VSCodeRange) {
         workspace.openTextDocument(filePath).then(sourceFile => {
-            window.showTextDocument(sourceFile, { preview: false, preserveFocus: false })
+            window.showTextDocument(sourceFile, { preview: false, preserveFocus: false, viewColumn: ViewColumn.Beside })
                 .then(textEditor => updateEditor(textEditor, range));
         });
     }
