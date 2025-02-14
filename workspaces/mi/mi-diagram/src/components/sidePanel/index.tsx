@@ -143,7 +143,8 @@ const SidePanelList = (props: SidePanelListProps) => {
                     const mediatorDetails = isStartNode ? undefined : await rpcClient.getMiDiagramRpcClient().getMediator({
                         mediatorType: sidePanelContext.tag,
                         range: sidePanelContext?.nodeRange,
-                        documentUri: props?.documentUri
+                        documentUri: props?.documentUri,
+                        isEdit: true
                     });
 
                     const title = isStartNode ? undefined : `Edit ${mediatorDetails?.title || sidePanelContext.tag}`;

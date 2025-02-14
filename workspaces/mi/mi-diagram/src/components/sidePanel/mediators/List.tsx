@@ -112,6 +112,8 @@ export function Mediators(props: MediatorProps) {
     const getMediator = async (mediator: Mediator, isMostPopular: boolean, icon?: React.ReactNode) => {
         const mediatorDetails = await rpcClient.getMiDiagramRpcClient().getMediator({
             mediatorType: mediator.tag,
+            documentUri: props.documentUri,
+            range: props.nodePosition
         });
 
         if (mediator.tag.includes('.')) {
