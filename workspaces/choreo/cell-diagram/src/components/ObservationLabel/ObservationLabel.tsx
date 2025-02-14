@@ -47,6 +47,10 @@ interface ObservationLabelProps {
     observations: Observations[];
 }
 
+function formatLatency(value: number): string {
+    return value < 1 ? `${(value * 1000).toFixed(2)} ms` : `${value.toFixed(2)} s`;
+}
+
 export function ObservationLabel({ observations }: ObservationLabelProps) {
     const { modelVersion } = useDiagramContext();
 
@@ -73,10 +77,10 @@ export function ObservationLabel({ observations }: ObservationLabelProps) {
                 name: "Error Percentage",
                 valueFn: (obs: Observations) => ((obs.errorCount * 100) / obs.requestCount).toFixed(2) + "%",
             },
-            { name: "Average Latency", valueFn: (obs: Observations) => obs.avgLatency.toFixed(2) + " s" },
-            { name: "99% Latency", valueFn: (obs: Observations) => obs.p99Latency.toFixed(2) + " s" },
-            { name: "90% Latency", valueFn: (obs: Observations) => obs.p90Latency.toFixed(2) + " s" },
-            { name: "50% Latency", valueFn: (obs: Observations) => obs.p50Latency.toFixed(2) + " s" },
+            { name: "Average Latency", valueFn: (obs: Observations) => formatLatency(obs.avgLatency) },
+            { name: "99% Latency", valueFn: (obs: Observations) => formatLatency(obs.p99Latency) },
+            { name: "90% Latency", valueFn: (obs: Observations) => formatLatency(obs.p90Latency) },
+            { name: "50% Latency", valueFn: (obs: Observations) => formatLatency(obs.p50Latency) },
         ];
     }
 
