@@ -133,6 +133,7 @@ export function VariableCard(params: VariableCardProps) {
                 anchorEl={confirmEl}
                 anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
                 transformOrigin={{ vertical: "top", horizontal: "right" }}
+                sx={{ zIndex: 3002 }}
             />
         </AccordionContainer>
     );
