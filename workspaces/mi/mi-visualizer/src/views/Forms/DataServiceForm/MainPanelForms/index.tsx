@@ -249,7 +249,7 @@ export function DataServiceWizard(props: DataServiceWizardProps) {
 
     return (
         <>
-            {showDatasourceComponent && <DataServiceDataSourceWizard datasource={datasource} setShowComponent={setShowDatasourceComponent} datasources={datasources} setValue={setValue} />}
+            {showDatasourceComponent && <DataServiceDataSourceWizard path={props.path} datasource={datasource} setShowComponent={setShowDatasourceComponent} datasources={datasources} setValue={setValue} />}
             {!showDatasourceComponent &&
                 <>
                     <FormView title='Data Service' onClose={handleCancel}>

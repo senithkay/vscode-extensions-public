@@ -1758,9 +1758,21 @@ export interface TestDbConnectionResponse {
     success: boolean;
 }
 
-export interface AddDriverRequest {
-    className: string;
+export interface CheckDBDriverResponse {
+    isDriverAvailable: boolean;
+    driverVersion: string;
     driverPath: string;
+}
+
+export interface AddDriverRequest {
+    addDriverPath: string;
+    removeDriverPath: string;
+    className: string;
+}
+
+export interface RemoveDBDriverResponse {
+    isDriverRemoved: boolean;
+    driverFilePath: string;
 }
 
 export interface CopyConnectorZipRequest {
