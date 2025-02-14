@@ -108,7 +108,7 @@ export function OperationForm(props: OperationFormProps) {
                 key: 'name',
                 label: model.name.metadata?.label || 'Operation Name',
                 type: 'IDENTIFIER',
-                optional: false,
+                optional: model.name.optional,
                 editable: model.name.editable,
                 advanced: model.name.advanced,
                 enabled: model.name.enabled,
@@ -135,7 +135,7 @@ export function OperationForm(props: OperationFormProps) {
                 key: 'returnType',
                 label: model.returnType.metadata?.label || 'Return Type',
                 type: 'TYPE',
-                optional: false,
+                optional: model.returnType.optional,
                 enabled: model.returnType.enabled,
                 editable: true, // model.returnType.editable FIX when LS is fixed
                 advanced: model.returnType.advanced,
