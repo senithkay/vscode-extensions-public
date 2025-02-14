@@ -108,6 +108,7 @@ export const ConfigsPage = ({ position, onChange }: ConfigsPageProps) => {
             if (success) {
                 // Retrieve the updated config info
                 clearForm();
+                getConfigInfo();
             }
         });
     };
