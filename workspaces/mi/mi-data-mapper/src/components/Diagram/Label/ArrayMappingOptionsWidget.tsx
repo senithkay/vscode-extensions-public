@@ -14,10 +14,10 @@ import { Codicon, Item, Menu, MenuItem } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
 
 import { InputOutputPortModel, MappingType, ValueType } from '../Port';
-import { genArrayElementAccessSuffix, getMapFnIndex, getMapFnViewLabel, getValueType } from '../utils/common-utils';
+import { genArrayElementAccessSuffix, getValueType } from '../utils/common-utils';
 import { generateArrayMapFunction } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
-import { buildInputAccessExpr, createSourceForMapping, updateExistingValue } from '../utils/modification-utils';
+import { buildInputAccessExpr, createSourceForMapping, mapUsingCustomFunction, updateExistingValue } from '../utils/modification-utils';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { expandArrayFn } from '../utils/common-utils';
 
@@ -52,20 +52,18 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
     const classes = useStyles();
     const { link, pendingMappingType, context } = props.model;
 
-    const sourcePort = link.getSourcePort();
-    const targetPort = link?.getTargetPort();
-    const valueType = getValueType(link);
-    const targetPortHasLinks = Object.values(targetPort.links)
-        ?.some(link => (link as DataMapperLinkModel)?.isActualLink);
+    const sourcePort = link.getSourcePort() as InputOutputPortModel;
+    const targetPort = link?.getTargetPort() as InputOutputPortModel;
+    const valueType = getValueType(targetPort);
 
     const isValueModifiable = valueType === ValueType.Default
-        || (valueType === ValueType.NonEmpty && !targetPortHasLinks);
+        || valueType === ValueType.NonEmpty;
     
     const onClickMapArrays = async () => {
         if (isValueModifiable) {
             await updateExistingValue(sourcePort, targetPort);
         } else {
-            await createSourceForMapping(link);
+            await createSourceForMapping(sourcePort, targetPort);
         }
     }
 
@@ -83,7 +81,7 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
                 if (isValueModifiable) {
                     await updateExistingValue(sourcePort, targetPort, mapFnSrc);
                 } else {
-                    await createSourceForMapping(link, mapFnSrc);
+                    await createSourceForMapping(sourcePort, targetPort, mapFnSrc);
                 }
             }
         }
@@ -93,9 +91,13 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
         if (isValueModifiable) {
             await updateExistingValue(sourcePort, targetPort, undefined, genArrayElementAccessSuffix(sourcePort, targetPort));
         } else {
-            await createSourceForMapping(link, undefined, genArrayElementAccessSuffix(sourcePort, targetPort));
+            await createSourceForMapping(sourcePort, targetPort, undefined, genArrayElementAccessSuffix(sourcePort, targetPort));
         }
     }
+
+    const onClickMapUsingCustomFunction = async () => {
+        await mapUsingCustomFunction(sourcePort, targetPort, context, isValueModifiable);
+    };
 
     const getItemElement = (id: string, label: string) => {
         return (
@@ -125,12 +127,18 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
     const a2sMenuItems: Item[] = [
         {
             id: "a2s-direct",
-            label: getItemElement("a2s-direct", "Access Singleton"),
+            label: getItemElement("a2s-direct", "Extract Single Element from Array"),
             onClick: onClickMapArraysAccessSingleton
         }
     ];
 
     const menuItems = pendingMappingType === MappingType.ArrayToArray ? a2aMenuItems : a2sMenuItems;
+
+    menuItems.push({
+        id: "a2a-a2s-func",
+        label: getItemElement("a2a-a2s-func", "Map Using Custom Function"),
+        onClick: onClickMapUsingCustomFunction
+    });
 
     return (
         <div className={classes.arrayMappingMenu}>
