@@ -1080,7 +1080,7 @@ export type TypeNodeKind = "RECORD" | "ENUM" | "ARRAY" | "UNION" | "ERROR" | "MA
     "TYPEDESC" | "CLASS" | "OBJECT" | "INTERSECTION" | "SERVICE_DECLARATION" | "TABLE" | "TUPLE";
 // todo make this consistant
 export interface TypeCodeData {
-    lineRange: LineRange;
+    lineRange?: LineRange;
     node: TypeNodeKind;
 }
 

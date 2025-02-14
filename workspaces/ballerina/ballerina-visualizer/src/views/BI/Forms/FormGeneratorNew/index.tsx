@@ -396,17 +396,6 @@ export function FormGeneratorNew(props: FormProps) {
                 description: ""
             },
             codedata: {
-                lineRange: {
-                    startLine: {
-                        line: 0,
-                        offset: 0
-                    },
-                    endLine: {
-                        line: 0,
-                        offset: 0
-                    },
-                    fileName: "types.bal"
-                },
                 node: "CLASS"
             },
             properties: {},
