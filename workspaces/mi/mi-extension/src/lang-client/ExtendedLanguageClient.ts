@@ -377,7 +377,7 @@ export class ExtendedLanguageClient extends LanguageClient {
         if (request.isEdit) {
             return this.sendRequest("synapse/getMediatorUISchemaWithValues", { documentIdentifier: { uri: Uri.file(request.documentUri).toString() }, position: request.range.start });
         }
-        return this.sendRequest("synapse/getMediatorUISchema", { documentIdentifier: { uri: Uri.file(request.documentUri).toString() }, position: request.range.start });
+        return this.sendRequest("synapse/getMediatorUISchema", { mediatorType: request.mediatorType, documentIdentifier: { uri: Uri.file(request.documentUri).toString() }, position: request.range.start });
     }
 
     async getConnectionSchema(request: GetConnectionSchemaRequest): Promise<GetConnectionSchemaResponse> {
