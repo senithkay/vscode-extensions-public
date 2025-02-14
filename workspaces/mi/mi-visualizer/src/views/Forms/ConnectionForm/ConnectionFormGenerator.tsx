@@ -415,7 +415,8 @@ export function AddConnection(props: AddConnectionProps) {
                             watch={watch}
                             getValues={getValues}
                             skipGeneralHeading={true}
-                            ignoreFields={["connectionName"]} />
+                            ignoreFields={["connectionName"]}
+                            range={{ start: { line: 0, character: 0 }, end: { line: 0, character: 0 } }} />
                         <FormActions>
                             {formData.testConnectionEnabled && <div style={{ display: 'flex', alignItems: 'center', marginRight: 'auto' }}>
                                 <Button
