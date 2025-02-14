@@ -25,6 +25,8 @@ import { getHelperPane } from '../HelperPane';
 import {
     enrichExpressionValue,
     extractExpressionValue,
+    filterHelperPaneCompletionItems,
+    filterHelperPaneFunctionCompletionItems,
     formatExpression,
     getExpressionValue,
     modifyCompletion
@@ -219,6 +221,54 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
 
         handleCancel();
     };
+
+    const getHelperPaneInfo = useCallback(debounce((type: string, filterText: string) => {
+        rpcClient.getVisualizerState().then((machineView) => {
+            let position = nodeRange ? (nodeRange?.start == nodeRange?.end ? nodeRange.start :
+                { line: nodeRange.start.line, character: nodeRange.start.character + 1 }) : undefined;
+            rpcClient
+                .getMiDiagramRpcClient()
+                .getHelperPaneInfo({
+                    documentUri: machineView.documentUri,
+                    position: position,
+                })
+                .then((response) => {
+                    switch (type) {
+                        case 'payload':
+                            setPayloadInfo(filterHelperPaneCompletionItems(response.payload, filterText));
+                            break;
+                        case 'variables':
+                            setVariableInfo(filterHelperPaneCompletionItems(response.variables, filterText));
+                            break;
+                        case 'properties':
+                            setPropertiesInfo(filterHelperPaneCompletionItems(response.properties, filterText));
+                            break;
+                        case 'functions':
+                            setFunctionInfo(filterHelperPaneFunctionCompletionItems(response.functions, filterText));
+                            break;
+                        case 'configs':
+                            setConfigInfo(filterHelperPaneCompletionItems(response.configs, filterText));
+                            break;
+                        case 'headers':
+                            setHeaderInfo(filterHelperPaneCompletionItems(response.headers, filterText));
+                            break;
+                        case 'params':
+                            setParamInfo(filterHelperPaneCompletionItems(response.params, filterText));
+                            break;
+                    }
+                })
+                .finally(() => {
+                    setIsLoadingHelperPaneInfo(false);
+                });
+        });
+    }, 300),
+        [rpcClient, nodeRange?.start]
+    );
+
+    const handleGetHelperPaneInfo = useCallback((type: string, filterText: string) => {
+        setIsLoadingHelperPaneInfo(true);
+        getHelperPaneInfo(type, filterText);
+    }, [getHelperPaneInfo]);
 
     const handleChangeHelperPaneState = (isOpen: boolean) => {
         setIsHelperPaneOpen(isOpen);
