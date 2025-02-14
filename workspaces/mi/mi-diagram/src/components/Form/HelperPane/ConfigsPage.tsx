@@ -151,7 +151,7 @@ export const ConfigsPage = ({
                         errorMsg={errors.configType?.message}
                         items={[
                             { id: '1', content: 'string', value: 'string' },
-                            { id: '2', content: 'cert', value: 'cert' }
+                            { id: '2', content: 'certificate', value: 'cert' }
                         ]}
                     />
                     <ButtonPanel>
