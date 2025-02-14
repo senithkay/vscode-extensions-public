@@ -570,15 +570,15 @@ function genCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOu
 		}
 	}
 
-	const localFunctionNames = sourceFile.getFunctions().map(fn => fn.getName());
-	const importedFunctionNames = sourceFile.getImportDeclarations()
-		.flatMap(importDecl => importDecl.getNamedImports().map(namedImport => namedImport.getName()));
+	const localFunctionNames = new Set(sourceFile.getFunctions().map(fn => fn.getName()));
+	const importedFunctionNames = new Set(sourceFile.getImportDeclarations()
+		.flatMap(importDecl => importDecl.getNamedImports().map(namedImport => namedImport.getName())));
 
 	const formattedSourceFieldName = toFirstLetterLowerCase(sourcePort.field.fieldName);
 	const formattedTargetFieldName = toFirstLetterUpperCase(targetFieldName);
 	let customFunctionName = `${formattedSourceFieldName}To${formattedTargetFieldName}`;
 	let i = 1;
-	while (localFunctionNames.includes(customFunctionName) || importedFunctionNames.includes(customFunctionName)) {
+	while (localFunctionNames.has(customFunctionName) || importedFunctionNames.has(customFunctionName)) {
 		customFunctionName = `${formattedSourceFieldName}To${formattedTargetFieldName}${isNaN(Number(formattedTargetFieldName.charAt(formattedTargetFieldName.length - 1))) ? '' : '_'
 			}${++i}`;
 	}
