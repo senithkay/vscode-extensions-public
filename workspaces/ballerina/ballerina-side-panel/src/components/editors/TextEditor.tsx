@@ -40,6 +40,7 @@ export function TextEditor(props: TextEditorProps) {
             errorMsg={errorMsg}
             onFocus={() => handleOnFieldFocus?.(field.key)}
             autoFocus={autoFocus}
+            value={field.value}
         />
     );
 }
