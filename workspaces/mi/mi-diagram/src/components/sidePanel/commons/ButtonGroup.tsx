@@ -8,7 +8,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Button, Codicon, ComponentCard, IconLabel, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, ComponentCard, Icon, IconLabel, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 import React, { useEffect, useState } from 'react';
 import { FirstCharToUpperCase } from '../../../utils/commons';
 import styled from '@emotion/styled';
@@ -53,7 +53,6 @@ const DownloadIconContainer = styled.div`
     border-radius: 2px;
     align-content: center;
     padding: 5px 5px 15px 12px;
-    visibility: hidden;
     &:hover, &.active {
         background-color: var(--vscode-pickerGroup-border);
     }
@@ -102,10 +101,7 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isColl
                     borderRadius: 2,
                     padding: '6px 10px',
                     width: 'auto',
-                    height: '32px',
-                    '&:hover .download-icon': {
-                        visibility: 'visible'
-                    }
+                    height: '32px'
                 }}
             >
                 <CardContent>
@@ -143,7 +139,7 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isColl
                             }
                             {onDownload &&
                                 <DownloadIconContainer onClick={onDownload} className="download-icon">
-                                    <Codicon name="desktop-download" iconSx={{ fontSize: 25 }} />
+                                    <Icon iconSx={{ fontSize: 25 }} name="import" />
                                 </DownloadIconContainer>
                             }
                             <Button appearance="icon" tooltip={collapsed ? 'Expand' : 'Collapse'}>

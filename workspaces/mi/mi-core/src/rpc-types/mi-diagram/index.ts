@@ -224,7 +224,12 @@ import {
     TestConnectorConnectionResponse,
     MiVersionResponse,
     SaveConfigRequest,
-    SaveConfigResponse
+    SaveConfigResponse,
+    CheckDBDriverResponse,
+    CopyArtifactRequest,
+    CopyArtifactResponse,
+    GetArtifactTypeRequest,
+    GetArtifactTypeResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -316,6 +321,8 @@ export interface MiDiagramAPI {
     rangeFormat: (params: RangeFormatRequest) => Promise<ApplyEditResponse>;
     downloadConnector: (params: DownloadConnectorRequest) => Promise<DownloadConnectorResponse>;
     copyConnectorZip: (params: CopyConnectorZipRequest) => Promise<CopyConnectorZipResponse>;
+    copyArtifact: (params: CopyArtifactRequest) => Promise<CopyArtifactResponse>;
+    askImportFileDir: () => Promise<FileDirResponse>;
     downloadInboundConnector: (params: DownloadInboundConnectorRequest) => Promise<DownloadInboundConnectorResponse>;
     getAvailableConnectors: (params: GetAvailableConnectorRequest) => Promise<GetAvailableConnectorResponse>;
     updateConnectors: (params: UpdateConnectorRequest) => void;
@@ -336,6 +343,7 @@ export interface MiDiagramAPI {
     getAllResourcePaths: () => Promise<GetAllResourcePathsResponse>;
     getConfigurableEntries: () => Promise<GetConfigurableEntriesResponse>;
     getAllArtifacts: (params: GetAllArtifactsRequest) => Promise<GetAllArtifactsResponse>;
+    getArtifactType: (params: GetArtifactTypeRequest) => Promise<GetArtifactTypeResponse>;
     deleteArtifact: (params: DeleteArtifactRequest) => void;
     getAllAPIcontexts: () => Promise<APIContextsResponse>;
     buildProject: () => void;
@@ -359,8 +367,10 @@ export interface MiDiagramAPI {
     getSubFolderNames: (path: GetSubFoldersRequest) => Promise<GetSubFoldersResponse>;
     renameFile: (params: FileRenameRequest) => Promise<void>;
     openUpdateExtensionPage: () => void;
-    checkDBDriver: (className: string) => Promise<boolean>;
+    checkDBDriver: (className: string) => Promise<CheckDBDriverResponse>;
     addDBDriver: (params: AddDriverRequest) => Promise<boolean>;
+    removeDBDriver: (params: AddDriverRequest) => Promise<boolean>;
+    modifyDBDriver: (params: AddDriverRequest) => Promise<boolean>;
     generateDSSQueries: (params: ExtendedDSSQueryGenRequest) => Promise<boolean>;
     fetchDSSTables: (params: DSSFetchTablesRequest) => Promise<DSSFetchTablesResponse>;
     tryOutMediator: (params: MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;

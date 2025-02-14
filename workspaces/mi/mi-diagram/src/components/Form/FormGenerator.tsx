@@ -109,6 +109,8 @@ export interface Element {
     initialSeparator?: string;
     secondarySeparator?: string;
     keyValueSeparator?: string;
+    viewIdentifier?: string;
+    viewDisplayName?: string;
     expressionType?: 'xpath/jsonPath' | 'synapse';
 }
 
@@ -571,6 +573,14 @@ export function FormGenerator(props: FormGeneratorProps) {
                             allowItemCreate={false}
                         />
                     </>);
+            case 'popUp':
+                return (
+                    <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", width: '100%', gap: '10px' }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                            <span>{element.helpTip}</span>
+                        </div>
+                    </div>
+                );
             // TODO: Add this back when the token editor is fixed
             // case 'expressionTextArea':
             //     return (

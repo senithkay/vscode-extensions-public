@@ -226,7 +226,12 @@ import {
     TestConnectorConnectionRequest,
     MiVersionResponse,
     SaveConfigRequest,
-    SaveConfigResponse
+    SaveConfigResponse,
+    CheckDBDriverResponse,
+    CopyArtifactRequest,
+    CopyArtifactResponse,
+    GetArtifactTypeRequest,
+    GetArtifactTypeResponse
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -320,6 +325,8 @@ export const rangeFormat: RequestType<RangeFormatRequest, ApplyEditResponse> = {
 export const downloadConnector: RequestType<DownloadConnectorRequest, DownloadConnectorResponse> = { method: `${_preFix}/downloadConnector` };
 export const downloadInboundConnector: RequestType<DownloadInboundConnectorRequest, DownloadInboundConnectorResponse> = { method: `${_preFix}/downloadInboundConnector` };
 export const copyConnectorZip: RequestType<CopyConnectorZipRequest, CopyConnectorZipResponse> = { method: `${_preFix}/copyConnectorZip` };
+export const copyArtifact: RequestType<CopyArtifactRequest, CopyArtifactResponse> = { method: `${_preFix}/copyArtifact` };
+export const askImportFileDir: RequestType<void, FileDirResponse> = { method: `${_preFix}/askImportFileDir` };
 export const getAvailableConnectors: RequestType<GetAvailableConnectorRequest, GetAvailableConnectorResponse> = { method: `${_preFix}/getAvailableConnectors` };
 export const updateConnectors: NotificationType<UpdateConnectorRequest> = { method: `${_preFix}/updateConnectors` };
 export const removeConnector: RequestType<RemoveConnectorRequest, RemoveConnectorResponse> = { method: `${_preFix}/removeConnector` };
@@ -339,6 +346,7 @@ export const getAllRegistryPaths: RequestType<GetAllRegistryPathsRequest, GetAll
 export const getAllResourcePaths: RequestType<void, GetAllResourcePathsResponse> = { method: `${_preFix}/getAllResourcePaths` };
 export const getConfigurableEntries: RequestType<void, GetConfigurableEntriesResponse> = { method: `${_preFix}/getConfigurableEntries` };
 export const getAllArtifacts: RequestType<GetAllArtifactsRequest, GetAllArtifactsResponse> = { method: `${_preFix}/getAllArtifacts` };
+export const getArtifactType: RequestType<GetArtifactTypeRequest, GetArtifactTypeResponse> = { method: `${_preFix}/getArtifactType` };
 export const deleteArtifact: NotificationType<DeleteArtifactRequest> = { method: `${_preFix}/deleteArtifact` };
 export const getAllAPIcontexts: RequestType<void, APIContextsResponse> = { method: `${_preFix}/getAllAPIcontexts` };
 export const buildProject: NotificationType<void> = { method: `${_preFix}/buildProject` };
@@ -362,8 +370,10 @@ export const markAsDefaultSequence: NotificationType<MarkAsDefaultSequenceReques
 export const getSubFolderNames: RequestType<GetSubFoldersRequest, GetSubFoldersResponse> = { method: `${_preFix}/getSubFolderNames` };
 export const renameFile: NotificationType<FileRenameRequest> = { method: `${_preFix}/renameFile` };
 export const openUpdateExtensionPage: NotificationType<void> = { method: `${_preFix}/openUpdateExtensionPage` };
-export const checkDBDriver: RequestType<string, boolean> = { method: `${_preFix}/checkDBDriver` };
+export const checkDBDriver: RequestType<string, CheckDBDriverResponse> = { method: `${_preFix}/checkDBDriver` };
 export const addDBDriver: RequestType<AddDriverRequest, boolean> = { method: `${_preFix}/addDBDriver` };
+export const removeDBDriver: RequestType<AddDriverRequest, boolean> = { method: `${_preFix}/removeDBDriver` };
+export const modifyDBDriver: RequestType<AddDriverRequest, boolean> = { method: `${_preFix}/modifyDBDriver` };
 export const generateDSSQueries: RequestType<ExtendedDSSQueryGenRequest, boolean> = { method: `${_preFix}/generateDSSQueries` };
 export const fetchDSSTables: RequestType<DSSFetchTablesRequest, DSSFetchTablesResponse> = { method: `${_preFix}/fetchDSSTables` };
 export const tryOutMediator: RequestType<MediatorTryOutRequest, MediatorTryOutResponse> = { method: `${_preFix}/tryOutMediator` };
