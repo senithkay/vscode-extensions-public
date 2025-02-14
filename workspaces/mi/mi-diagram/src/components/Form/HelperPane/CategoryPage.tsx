@@ -22,6 +22,7 @@ type CategoryPageProps = {
     setCurrentPage: (page: number) => void;
     onClose: () => void;
     onChange: (value: string) => void;
+    addFunction?: (value: string) => void;
 };
 
 const DataPanel = ({ setCurrentPage }: PanelPageProps) => {
@@ -40,7 +41,8 @@ const DataPanel = ({ setCurrentPage }: PanelPageProps) => {
 export const CategoryPage = ({
     position,
     setCurrentPage,
-    onChange
+    onChange,
+    addFunction
 }: CategoryPageProps) => {
     return (
         <>
@@ -53,7 +55,7 @@ export const CategoryPage = ({
                         <DataPanel setCurrentPage={setCurrentPage} />
                     </HelperPane.PanelView>
                     <HelperPane.PanelView id={1}>
-                        <FunctionsPage position={position} onChange={onChange} />
+                        <FunctionsPage position={position} onChange={onChange} addFunction={addFunction} />
                     </HelperPane.PanelView>
                     <HelperPane.PanelView id={2}>
                         <ConfigsPage position={position} onChange={onChange} />

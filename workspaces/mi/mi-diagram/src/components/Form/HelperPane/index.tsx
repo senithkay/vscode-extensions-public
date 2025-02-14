@@ -21,10 +21,11 @@ export type HelperPaneProps = {
     position: Position;
     onClose: () => void;
     onChange: (value: string) => void;
+    addFunction?: (value: string) => void;
     sx?: CSSProperties;
 };
 
-const HelperPaneEl = ({ position, sx, onClose, onChange }: HelperPaneProps) => {
+const HelperPaneEl = ({ position, sx, onClose, onChange, addFunction }: HelperPaneProps) => {
     const [currentPage, setCurrentPage] = useState<number>(0);
 
     return (
@@ -35,6 +36,7 @@ const HelperPaneEl = ({ position, sx, onClose, onChange }: HelperPaneProps) => {
                     setCurrentPage={setCurrentPage}
                     onClose={onClose}
                     onChange={onChange}
+                    addFunction={addFunction}
                 />
             )}
             {currentPage === 1 && (
@@ -80,7 +82,8 @@ export const getHelperPane = (
     position: Position,
     onClose: () => void,
     onChange: (value: string) => void,
+    addFunction?: (value: string) => void,
     sx?: CSSProperties
 ) => {
-    return <HelperPaneEl position={position} sx={sx} onClose={onClose} onChange={onChange} />;
+    return <HelperPaneEl position={position} sx={sx} onClose={onClose} onChange={onChange} addFunction={addFunction} />;
 };

@@ -84,8 +84,8 @@ export const FormTokenEditor = ({
     const handleChangeHelperPaneState = (isOpen: boolean) => {
         setIsHelperPaneOpen(isOpen);
     }
-    
-    const handleGetHelperPane = useCallback((onChange: (value: string) => void) => {
+
+    const handleGetHelperPane = useCallback((onChange: (value: string) => void, addFunction: (value: string) => void) => {
         const position =
             nodeRange?.start == nodeRange?.end
                 ? nodeRange.start
@@ -95,6 +95,7 @@ export const FormTokenEditor = ({
             position,
             () => handleChangeHelperPaneState(false),
             onChange,
+            addFunction,
             { width: 'auto', border: '1px solid var(--dropdown-border)' }
         );
     }, [nodeRange, handleChangeHelperPaneState, getHelperPane]);

@@ -18,11 +18,13 @@ import { filterHelperPaneFunctionCompletionItems } from '../FormExpressionField/
 type FunctionsPageProps = {
     position: Position;
     onChange: (value: string) => void;
+    addFunction?: (value: string) => void;
 };
 
 export const FunctionsPage = ({
     position,
-    onChange
+    onChange,
+    addFunction
 }: FunctionsPageProps) => {
     const { rpcClient } = useVisualizerContext();
     const firstRender = useRef<boolean>(true);
@@ -39,18 +41,18 @@ export const FunctionsPage = ({
                     documentUri: machineView.documentUri,
                     position: position,
                 })
-                .then((response) => {
-                    if (Object.keys(response.functions)?.length) {
-                        setFunctionInfo(response.functions);
-                        setFilteredFunctionInfo(response.functions);
-                    }
-                })
-                .finally(() => setIsLoading(false));
+                    .then((response) => {
+                        if (Object.keys(response.functions)?.length) {
+                            setFunctionInfo(response.functions);
+                            setFilteredFunctionInfo(response.functions);
+                        }
+                    })
+                    .finally(() => setIsLoading(false));
             });
         }, 1100);
     }, [rpcClient, position]);
-    
-    
+
+
     useEffect(() => {
         if (firstRender.current) {
             firstRender.current = false;
@@ -65,7 +67,7 @@ export const FunctionsPage = ({
         }, 1100),
         [functionInfo, setFilteredFunctionInfo, setIsLoading, filterHelperPaneFunctionCompletionItems]
     );
-    
+
     const handleSearch = (searchText: string) => {
         setSearchValue(searchText);
         setIsLoading(true);
@@ -95,6 +97,9 @@ export const FunctionsPage = ({
     }, [filteredFunctionInfo]);
 
     const handleFunctionItemClick = (insertText: string) => {
+        if (addFunction) {
+            return addFunction(insertText);
+        }
         const functionRegex = /^([a-zA-Z0-9_-]+)\((.*)\)/;
         const matches = insertText.match(functionRegex);
         const functionName = matches?.[1];
