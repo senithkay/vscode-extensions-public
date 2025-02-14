@@ -10,7 +10,7 @@
 import React, { useEffect, useState } from "react";
 import { EVENT_TYPE, MACHINE_VIEW, WorkspaceFolder } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { Button, Codicon, TextArea, Card, Typography, LinkButton, Divider } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TextArea, Card, Typography, LinkButton, Divider, Icon } from "@wso2-enterprise/ui-toolkit";
 import { Transition } from "@headlessui/react";
 import { css } from "@emotion/css";
 import styled from "@emotion/styled";
@@ -102,6 +102,24 @@ const transitionEffect = {
     leaveTo: css({
         opacity: 0,
     }),
+};
+
+const IconWrapper = styled.div`
+    height: 20px;
+    width: 20px;
+`;
+const TextWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+`;
+
+const BrowseBtnStyles = {
+    gap: 10,
+    marginRight: 20,
+    display: "flex",
+    flexDirection: "row"
 };
 
 export function AddArtifactView() {
@@ -225,7 +243,18 @@ export function AddArtifactView() {
 
     return (
         <View>
-            <ViewHeader title={"Add artifact"} icon="project" iconSx={{ fontSize: "15px" }}></ViewHeader>
+            <ViewHeader title={"Add artifact"} icon="project" iconSx={{ fontSize: "15px" }}>
+                <Button appearance="secondary" onClick={() => {
+                    rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.ImportArtifactForm } });
+                }}>
+                    <div style={BrowseBtnStyles}>
+                        <IconWrapper>
+                            <Icon name="import" iconSx={{ fontSize: 22 }} />
+                        </IconWrapper>
+                        <TextWrapper>Import Artifact</TextWrapper>
+                    </div>
+                </Button>
+            </ViewHeader>
             <ViewContent padding>
                 <Container>
                     <AddPanel>
