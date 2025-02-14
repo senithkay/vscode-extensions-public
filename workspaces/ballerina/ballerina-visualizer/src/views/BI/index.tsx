@@ -16,5 +16,4 @@ export { PopupMessage } from "./PopupMessage";
 export { MainForm } from "./AutomationForm";
 export { FunctionForm } from "./FunctionForm";
 export { SetupView } from "./SetupView";
-export { DataMapperForm } from "./DataMapperForm";
 export { TestFunctionForm } from "./TestFunctionForm";

@@ -12,7 +12,7 @@ import styled from '@emotion/styled';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { toJpeg } from 'html-to-image';
 
-import { Codicon, Icon, ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { Icon, ThemeColors } from '@wso2-enterprise/ui-toolkit';
 
 interface ControlProps {
     engine: DiagramEngine;
@@ -114,20 +114,20 @@ export function DiagramControls(props: ControlProps) {
     return (
         <ControlsStyles.Container>
             <ControlsStyles.Button onClick={downloadDiagram} title='Download'>
-                <Icon name="import" iconSx={{ fontSize: "16px"}}/>
+                <Icon name="bi-download" iconSx={{ fontSize: "16px"}}/>
             </ControlsStyles.Button>
             <ControlsStyles.Button onClick={refreshDiagram} title='Refresh'>
-                <Icon name="cached-round" iconSx={{ fontSize: "16px"}}/>
+                <Icon name="bi-retry" iconSx={{ fontSize: "16px"}}/>
             </ControlsStyles.Button>
             <ControlsStyles.Button onClick={zoomToFit} title='Zoom to fit nodes'>
-                <Icon name="fullscreen" iconSx={{ fontSize: "16px"}}/>
+                <Icon name="bi-fit-screen" iconSx={{ fontSize: "16px"}}/>
             </ControlsStyles.Button>
             <ControlsStyles.GroupContainer>
                 <ControlsStyles.Button onClick={() => onZoom(true)} title='Zoom in'>
-                    <Codicon name="add" iconSx={{ fontSize: "13px"}}/>
+                    <Icon name="bi-plus" iconSx={{ fontSize: "16px"}}/>
                 </ControlsStyles.Button>
                 <ControlsStyles.Button onClick={() => onZoom(false)} title='Zoom out'>
-                    <Codicon name="remove" iconSx={{ fontSize: "13px"}} />
+                    <Icon name="bi-minus" iconSx={{ fontSize: "16px"}} />
                 </ControlsStyles.Button>
             </ControlsStyles.GroupContainer>
         </ControlsStyles.Container>

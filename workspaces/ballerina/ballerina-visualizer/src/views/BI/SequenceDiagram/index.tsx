@@ -12,10 +12,24 @@ import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { SqFlow } from "@wso2-enterprise/ballerina-core";
 import { Diagram } from "@wso2-enterprise/sequence-diagram";
 import styled from "@emotion/styled";
+import { Colors } from "../../../resources/constants";
 
 const Container = styled.div`
     width: 100%;
     height: calc(100vh - 50px);
+    position: relative;
+`;
+
+const ExperimentalLabel = styled.div`
+    position: fixed;
+    top: 120px;
+    left: 12px;
+    background-color: ${Colors.SURFACE_DIM};
+    color: ${Colors.ON_SURFACE};
+    padding: 4px 8px;
+    font-size: 12px;
+    border-radius: 4px;
+    z-index: 1000;
 `;
 
 const MessageContainer = styled.div({
@@ -26,9 +40,15 @@ const MessageContainer = styled.div({
     alignItems: "center",
 });
 
-export function BISequenceDiagram() {
-    const { rpcClient } = useRpcContext();
+interface BISequenceDiagramProps {
+    onUpdate: () => void;
+    onReady: () => void;
+}
 
+export function BISequenceDiagram(props: BISequenceDiagramProps) {
+    const { onUpdate, onReady } = props;
+
+    const { rpcClient } = useRpcContext();
     const [flowModel, setModel] = useState<SqFlow>(undefined);
 
     useEffect(() => {
@@ -36,6 +56,7 @@ export function BISequenceDiagram() {
     }, []);
 
     const getSequenceModel = () => {
+        onUpdate();
         rpcClient
             .getSequenceDiagramRpcClient()
             .getSequenceModel()
@@ -44,6 +65,9 @@ export function BISequenceDiagram() {
                     setModel(model.sequenceDiagram);
                 }
                 // TODO: handle SequenceModelDiagnostic
+            })
+            .finally(() => {
+                // onReady();
             });
     };
 
@@ -52,7 +76,15 @@ export function BISequenceDiagram() {
     return (
         <>
             <Container>
-                {flowModel && <Diagram model={flowModel} />}
+                <ExperimentalLabel>Experimental</ExperimentalLabel>
+                {flowModel && (
+                    <Diagram
+                        model={flowModel}
+                        onClickParticipant={() => {}}
+                        onAddParticipant={() => {}}
+                        onReady={onReady}
+                    />
+                )}
                 {!flowModel && <MessageContainer>Loading sequence diagram ...</MessageContainer>}
             </Container>
         </>

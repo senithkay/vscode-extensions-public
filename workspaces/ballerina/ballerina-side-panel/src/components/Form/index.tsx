@@ -31,6 +31,7 @@ namespace S {
         display: flex;
         flex-direction: column;
         gap: 20px;
+        height: calc(100vh - 70px);
     `;
 
     export const Row = styled.div<{}>`
@@ -175,7 +176,6 @@ export interface FormProps {
     mergeFormDataWithFlowNode?: (data: FormValues, targetLineRange: LineRange) => FlowNode;
     handleVisualizableFields?: (filePath: string, flowNode: FlowNode, position: LinePosition) => void;
     visualizableFields?: string[];
-    isDataMapper?: boolean;
 }
 
 export const Form = forwardRef((props: FormProps, ref) => {
@@ -198,8 +198,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         resetUpdatedExpressionField,
         mergeFormDataWithFlowNode,
         handleVisualizableFields,
-        visualizableFields,
-        isDataMapper
+        visualizableFields
     } = props;
 
     const {
@@ -360,14 +359,16 @@ export const Form = forwardRef((props: FormProps, ref) => {
     ) => {
         // HACK: For variable nodes, update the type value in the node
         const isVariableNode = selectedNode === "VARIABLE";
-        await expressionEditor?.getExpressionFormDiagnostics(
-            showDiagnostics,
-            expression,
-            key,
-            handleSetDiagnosticsInfo,
-            isVariableNode,
-            watch("type")
-        );
+        if(expressionEditor?.getExpressionFormDiagnostics) {
+            await expressionEditor?.getExpressionFormDiagnostics(
+                showDiagnostics,
+                expression,
+                key,
+                handleSetDiagnosticsInfo,
+                isVariableNode,
+                watch("type")
+            );
+        }
     }
 
     // has advance fields
@@ -535,17 +536,9 @@ export const Form = forwardRef((props: FormProps, ref) => {
                 {onSubmit && (
                     <S.Footer>
                         {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  Cancel </Button>}
-                        {isDataMapper ? (
-                            <S.PrimaryButton
-                                onClick={handleSubmit((data) => handleOnSave({ ...data, isDataMapperFormUpdate: true }))}
-                            >
-                                Create Mapping
-                            </S.PrimaryButton>
-                        ) : (
-                            <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
-                                {submitText || "Save"}
-                            </S.PrimaryButton>
-                        )}
+                        <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
+                            {submitText || "Save"}
+                        </S.PrimaryButton>
                     </S.Footer>
                 )}
             </S.Container>

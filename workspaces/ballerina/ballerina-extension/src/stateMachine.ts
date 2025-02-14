@@ -381,8 +381,11 @@ export const StateMachine = {
     },
 };
 
-export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation) {
-    stateService.send({ type: type, viewLocation: viewLocation });
+export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation, resetHistory = false) {
+    if (resetHistory) {
+        history.clear();
+    }
+    stateService.send({ type: type, viewLocation: viewLocation});
 }
 
 export function updateView() {
