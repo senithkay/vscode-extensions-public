@@ -54,6 +54,7 @@ import { TaskView } from './views/Diagram/Task';
 import { InboundEPView } from './views/Diagram/InboundEndpoint';
 import { Overview } from './views/Overview';
 import { DatamapperForm } from './views/Forms/DatamapperForm';
+import { ImportArtfactForm } from './views/Forms/ImportArtifactForm';
 
 const MainContainer = styled.div`
     display: flex;
@@ -330,6 +331,9 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
                     break;
                 case MACHINE_VIEW.DataSourceForm:
                     setViewComponent(<DataSourceWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.ImportArtifactForm:
+                    setViewComponent(<ImportArtfactForm/>);
                     break;
                 case MACHINE_VIEW.ConnectorStore:
                     setViewComponent(

@@ -110,6 +110,8 @@ export interface Element {
     initialSeparator?: string;
     secondarySeparator?: string;
     keyValueSeparator?: string;
+    viewIdentifier?: string;
+    viewDisplayName?: string;
     expressionType?: 'xpath/jsonPath' | 'synapse';
 }
 
@@ -583,6 +585,14 @@ export function FormGenerator(props: FormGeneratorProps) {
                         required={isRequired}
                         errorMsg={errorMsg}
                     />
+                );
+            case 'popUp':
+                return (
+                    <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", width: '100%', gap: '10px' }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                            <span>{element.helpTip}</span>
+                        </div>
+                    </div>
                 );
             default:
                 return null;
