@@ -63,7 +63,9 @@ import {
     GetHelperPaneInfoResponse,
     GetHelperPaneInfoRequest,
     TestConnectorConnectionRequest,
-    TestConnectorConnectionResponse
+    TestConnectorConnectionResponse,
+    CheckDBDriverResponse,
+    RemoveDBDriverResponse
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -136,6 +138,11 @@ export interface RangeFormatParams {
     workDoneToken?: CancellationToken;
 }
 
+export interface ArtifactType {
+    artifactType: string;
+    artifactFolder: string;
+}
+
 export class ExtendedLanguageClient extends LanguageClient {
 
     constructor(id: string, name: string, serverOptions: ServerOptions, clientOptions: LanguageClientOptions) {
@@ -189,6 +196,10 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async getArifactFiles(req: string): Promise<string[]> {
         return this.sendRequest("synapse/getArtifactFiles", { uri: Uri.file(req).toString() });
+    }
+
+    async getArtifactType(artifactFilePath: string): Promise<ArtifactType> {
+        return this.sendRequest("synapse/getArtifactType", { uri: artifactFilePath });
     }
 
     async getDefinition(params: GetDefinitionRequest): Promise<GetDefinitionResponse> {
@@ -294,12 +305,20 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest("synapse/testDBConnection", req);
     }
 
-    async checkDBDriver(req: string): Promise<any> {
+    async checkDBDriver(req: string): Promise<CheckDBDriverResponse> {
         return this.sendRequest("synapse/checkDBDriver", { className: req });
     }
 
     async addDBDriver(req: AddDriverRequest): Promise<boolean> {
-        return this.sendRequest("synapse/addDBDriver", { addDriverPath: req.driverPath, removeDriverPath: "", className: req.className });
+        return this.sendRequest("synapse/addDBDriver", req);
+    }
+
+    async removeDBDriver(req: AddDriverRequest): Promise<boolean> {
+        return this.sendRequest("synapse/removeDBDriver", req );
+    }
+
+    async modifyDBDriver(req: AddDriverRequest): Promise<boolean> {
+        return this.sendRequest("synapse/modifyDBDriver", req );
     }
 
     async generateQueries(req: DSSQueryGenRequest): Promise<string> {

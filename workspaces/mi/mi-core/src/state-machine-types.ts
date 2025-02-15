@@ -63,6 +63,7 @@ export enum MACHINE_VIEW {
     MessageStoreForm = "Message Store Form",
     ClassMediatorForm = "ClassMediator Creation Form",
     DataSourceForm = "Data Source Creation Form",
+    ImportArtifactForm = "Add Artifact Form",
     AddDriverPopup = "Add Driver Popup",
     Samples = "Samples",
     ImportProject = "Import Project",

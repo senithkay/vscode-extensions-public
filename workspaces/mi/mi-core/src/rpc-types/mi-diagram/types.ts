@@ -1758,9 +1758,21 @@ export interface TestDbConnectionResponse {
     success: boolean;
 }
 
-export interface AddDriverRequest {
-    className: string;
+export interface CheckDBDriverResponse {
+    isDriverAvailable: boolean;
+    driverVersion: string;
     driverPath: string;
+}
+
+export interface AddDriverRequest {
+    addDriverPath: string;
+    removeDriverPath: string;
+    className: string;
+}
+
+export interface RemoveDBDriverResponse {
+    isDriverRemoved: boolean;
+    driverFilePath: string;
 }
 
 export interface CopyConnectorZipRequest {
@@ -2005,4 +2017,24 @@ export interface SaveConfigRequest {
 
 export interface SaveConfigResponse {
     success: boolean;
+}
+
+export interface CopyArtifactRequest {
+    sourceFilePath: string;
+    artifactType: string;
+    artifactFolder: string;
+}
+
+export interface CopyArtifactResponse {
+    success: boolean;
+    error?: string;
+}
+
+export interface GetArtifactTypeRequest {
+    filePath: string;
+}
+
+export interface GetArtifactTypeResponse {
+    artifactType: string;
+    artifactFolder: string;
 }

@@ -335,6 +335,22 @@ export function getTypeName(field: DMType): string {
 	return typeName;
 }
 
+export function getTypeAnnotation(field: DMType): string {
+    if (!field) {
+		return '';
+	}
+
+	let typeName = field.typeName || field.kind;
+
+    if (field.kind === TypeKind.Array) {
+		typeName = `${getTypeAnnotation(field.memberType) || "any"}[]`;
+	} else if (field.kind === TypeKind.Union){
+        typeName = `(${field.unionTypes.map(unionType => getTypeAnnotation(unionType)).join(" | ")})`;
+    }
+
+	return typeName;
+}
+
 export function getMapFnViewLabel(targetPort: InputOutputPortModel, views: View[]): string {
     const { field, fieldFQN: fieldFQN } = targetPort;
     let label = fieldFQN;
@@ -523,7 +539,10 @@ export function canConnectWithLinkConnector(
 }
 
 export function hasCallExpression(node: Node): boolean {
-    return Node.isPropertyAssignment(node) && Node.isCallExpression(node.getInitializer());
+    if (Node.isPropertyAssignment(node)) {
+        node = node.getInitializer();
+    }
+    return Node.isCallExpression(node);
 }
 
 export function hasElementAccessExpression(node: Node): boolean {
@@ -678,6 +697,14 @@ export function genVariableName(originalName: string, existingNames: string[]): 
 	return modifiedName;
 }
 
+export function toFirstLetterLowerCase(identifierName: string){
+    return identifierName.charAt(0).toLowerCase() + identifierName.slice(1);
+}
+
+export function toFirstLetterUpperCase(identifierName: string){
+    return identifierName.charAt(0).toUpperCase() + identifierName.slice(1);
+}
+
 export function isMapFnAtPropAssignment(focusedST: Node) {
     return  Node.isPropertyAssignment(focusedST)
         && Node.isCallExpression(focusedST.getInitializer())
@@ -755,6 +782,12 @@ export function isConnectingArrays(mappingType: MappingType): boolean {
     return mappingType === MappingType.ArrayToArray || mappingType === MappingType.ArrayToSingleton;
 }
 
+export function isPendingMappingRequired(mappingType: MappingType): boolean {
+    return mappingType === MappingType.ArrayToArray
+        || mappingType === MappingType.ArrayToSingleton
+        || mappingType === MappingType.ObjectToObject;
+}
+
 export function getMappingType(sourcePort: PortModel, targetPort: PortModel): MappingType {
 
     if (sourcePort instanceof InputOutputPortModel
@@ -769,13 +802,18 @@ export function getMappingType(sourcePort: PortModel, targetPort: PortModel): Ma
             if (dimDelta == 0) return MappingType.ArrayToArray;
             if (dimDelta > 0) return MappingType.ArrayToSingleton;
         }
+
+        if ((sourcePort.field.kind === TypeKind.Object || sourcePort.field.kind === TypeKind.Interface) 
+            && (targetPort.field.kind === TypeKind.Object || targetPort.field.kind === TypeKind.Interface)) {
+            return MappingType.ObjectToObject;
+        }
     }
 
     return MappingType.Default;
 }
 
-export function getValueType(lm: DataMapperLinkModel): ValueType {
-    const { typeWithValue } = lm.getTargetPort() as InputOutputPortModel;
+export function getValueType(targetPort: InputOutputPortModel): ValueType {
+    const { typeWithValue } = targetPort;
 
     if (typeWithValue?.value) {
         let expr = typeWithValue.value;

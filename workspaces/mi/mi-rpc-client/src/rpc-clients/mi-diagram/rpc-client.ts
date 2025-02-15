@@ -376,7 +376,17 @@ import {
     testConnectorConnection,
     shutDownTryoutServer,
     MiVersionResponse,
-    getMIVersionFromPom
+    getMIVersionFromPom,
+    CheckDBDriverResponse,
+    removeDBDriver,
+    modifyDBDriver,
+    CopyArtifactRequest,
+    CopyArtifactResponse,
+    copyArtifact,
+    GetArtifactTypeRequest,
+    getArtifactType,
+    GetArtifactTypeResponse,
+    askImportFileDir,
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -744,6 +754,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(copyConnectorZip, HOST_EXTENSION, params)
     }
 
+    copyArtifact(params: CopyArtifactRequest): Promise<CopyArtifactResponse> {
+        return this._messenger.sendRequest(copyArtifact, HOST_EXTENSION, params);
+    }
+
+    askImportFileDir(): Promise<FileDirResponse> {
+        return this._messenger.sendRequest(askImportFileDir, HOST_EXTENSION);
+    }
+
     removeConnector(params: RemoveConnectorRequest): Promise<RemoveConnectorResponse> {
         return this._messenger.sendRequest(removeConnector, HOST_EXTENSION, params);
     }
@@ -818,6 +836,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getAllArtifacts(params: GetAllArtifactsRequest): Promise<GetAllArtifactsResponse> {
         return this._messenger.sendRequest(getAllArtifacts, HOST_EXTENSION, params);
+    }
+
+    getArtifactType(params: GetArtifactTypeRequest): Promise<GetArtifactTypeResponse> {
+        return this._messenger.sendRequest(getArtifactType, HOST_EXTENSION, params);
     }
 
     deleteArtifact(params: DeleteArtifactRequest): void {
@@ -912,12 +934,20 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendNotification(openUpdateExtensionPage, HOST_EXTENSION);
     }
 
-    checkDBDriver(params: string): Promise<boolean> {
+    checkDBDriver(params: string): Promise<CheckDBDriverResponse> {
         return this._messenger.sendRequest(checkDBDriver, HOST_EXTENSION, params);
     }
 
     addDBDriver(params: AddDriverRequest): Promise<boolean> {
         return this._messenger.sendRequest(addDBDriver, HOST_EXTENSION, params);
+    }
+
+    removeDBDriver(params: AddDriverRequest): Promise<boolean> {
+        return this._messenger.sendRequest(removeDBDriver, HOST_EXTENSION, params);
+    }
+
+    modifyDBDriver(params: AddDriverRequest): Promise<boolean> {
+        return this._messenger.sendRequest(modifyDBDriver, HOST_EXTENSION, params);
     }
 
     generateDSSQueries(params: ExtendedDSSQueryGenRequest): Promise<boolean> {
