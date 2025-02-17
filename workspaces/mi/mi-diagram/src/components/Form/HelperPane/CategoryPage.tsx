@@ -8,8 +8,8 @@
  */
 
 import React from 'react';
+import { Position } from 'vscode-languageserver-types';
 import { Divider, HelperPane } from '@wso2-enterprise/ui-toolkit';
-import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '@wso2-enterprise/mi-core';
 import { FunctionsPage } from './FunctionsPage';
 import { ConfigsPage } from './ConfigsPage';
 
@@ -18,13 +18,11 @@ type PanelPageProps = {
 };
 
 type CategoryPageProps = {
-    isLoading: boolean;
-    functionInfo: HelperPaneFunctionInfo;
-    configInfo: HelperPaneCompletionItem[];
+    position: Position;
     setCurrentPage: (page: number) => void;
-    setFilterText: (type: string, filterText: string) => void;
     onClose: () => void;
     onChange: (value: string) => void;
+    addFunction?: (value: string) => void;
 };
 
 const DataPanel = ({ setCurrentPage }: PanelPageProps) => {
@@ -41,12 +39,10 @@ const DataPanel = ({ setCurrentPage }: PanelPageProps) => {
 };
 
 export const CategoryPage = ({
-    isLoading,
-    functionInfo,
-    configInfo,
+    position,
     setCurrentPage,
-    setFilterText,
-    onChange
+    onChange,
+    addFunction
 }: CategoryPageProps) => {
     return (
         <>
@@ -59,20 +55,10 @@ export const CategoryPage = ({
                         <DataPanel setCurrentPage={setCurrentPage} />
                     </HelperPane.PanelView>
                     <HelperPane.PanelView id={1}>
-                        <FunctionsPage
-                            isLoading={isLoading}
-                            functionInfo={functionInfo}
-                            setFilterText={(filterText) => setFilterText('functions', filterText)}
-                            onChange={onChange}
-                        />
+                        <FunctionsPage position={position} onChange={onChange} addFunction={addFunction} />
                     </HelperPane.PanelView>
                     <HelperPane.PanelView id={2}>
-                        <ConfigsPage
-                            isLoading={isLoading}
-                            configInfo={configInfo}
-                            setFilterText={(filterText) => setFilterText('configs', filterText)}
-                            onChange={onChange}
-                        />
+                        <ConfigsPage position={position} onChange={onChange} />
                     </HelperPane.PanelView>
                 </HelperPane.Panels>
             </HelperPane.Body>

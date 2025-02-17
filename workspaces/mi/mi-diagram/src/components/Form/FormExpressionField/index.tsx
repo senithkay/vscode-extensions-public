@@ -274,23 +274,29 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         setIsHelperPaneOpen(isOpen);
     }
 
-    const handleGetHelperPane = (value: string, onChange: (value: string, updatedCursorPosition: number) => void) => {
-        return getHelperPane(
-            isLoadingHelperPaneInfo,
-            payloadInfo,
-            variableInfo,
-            propertiesInfo,
-            functionInfo,
-            configInfo,
-            headerInfo,
-            paramInfo,
-            () => handleChangeHelperPaneState(false),
-            handleGetHelperPaneInfo,
-            value,
-            onChange,
-            expressionRef
-        );
-    }
+    const handleGetHelperPane = useCallback((currentValue: string, onChange: (value: string, updatedCursorPosition: number) => void) => {
+        const handleHelperPaneChange = (value: string) => {
+            const cursorPosition = expressionRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
+            const updatedValue = currentValue.slice(0, cursorPosition) + value + currentValue.slice(cursorPosition);
+            const updatedCursorPosition = cursorPosition + value.length;
+
+            // Update the value in the expression editor
+            onChange(updatedValue, updatedCursorPosition);
+            // Focus the expression editor
+            expressionRef.current?.focus();
+            // Set the cursor
+            expressionRef.current?.setCursor(updatedValue, updatedCursorPosition);
+            // Close the helper pane
+            handleChangeHelperPaneState(false);
+        };
+
+        const position = nodeRange ?
+            nodeRange?.start == nodeRange?.end
+                ? nodeRange.start
+                : { line: nodeRange.start.line, character: nodeRange.start.character + 1 } : undefined;
+
+        return getHelperPane(position, () => handleChangeHelperPaneState(false), handleHelperPaneChange);
+    }, [expressionRef.current, handleChangeHelperPaneState, nodeRange, getHelperPane]);
 
     const handleFunctionEdit = (functionName: string) => {
         // Open Expression Editor for xpath
