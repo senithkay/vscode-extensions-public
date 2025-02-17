@@ -202,7 +202,8 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
             const connectorDetails = await rpcClient.getMiDiagramRpcClient().getMediator({
                 mediatorType: node.stNode.tag,
                 range: nodeRange,
-                documentUri: node.documentUri
+                documentUri: node.documentUri,
+                isEdit: true
             });
 
             const formJSON = connectorDetails;
