@@ -15,22 +15,25 @@ import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import TryOutView from "../tryout/Tryout";
 import { useForm } from "react-hook-form";
 import { Colors } from "../../../resources/constants";
+import AddConnector from "../connectors/AddConnector";
 
 interface MediatorPageProps {
-    mediatorData: any;
+    mediatorData?: any;
+    connectorData?: any;
     mediatorType: string;
     nodeRange: Range;
     documentUri: string;
     isUpdate: boolean;
-    showMediaotrPanel: boolean;
+    showForm: boolean;
 }
 export function MediatorPage(props: MediatorPageProps) {
-    const { mediatorData, mediatorType, documentUri, nodeRange, isUpdate, showMediaotrPanel } = props;
+    const { mediatorData, connectorData, mediatorType, documentUri, nodeRange, isUpdate, showForm } = props;
     const [activeTab, setActiveTab] = React.useState("form");
     const { control, handleSubmit, setValue, getValues, watch, reset, formState: { dirtyFields, errors } } = useForm<any>({
         defaultValues: {
         }
     });
+    const canTryOut = (mediatorData || connectorData?.form)?.canTryOut;
 
     const onChangeTab = (tabId: string) => {
         if (activeTab === tabId) {
@@ -41,7 +44,7 @@ export function MediatorPage(props: MediatorPageProps) {
     return (
         <div>
             <VSCodePanels activeId={activeTab}>
-                {showMediaotrPanel && <VSCodePanelTab id="form" onClick={() => onChangeTab("form")}>Edit</VSCodePanelTab>}
+                {showForm && <VSCodePanelTab id="form" onClick={() => onChangeTab("form")}>Edit</VSCodePanelTab>}
                 <VSCodePanelTab id="tryout" onClick={() => onChangeTab("tryout")} style={{ alignItems: 'center' }}>
                     Tryout
                     {activeTab === "tryout" && <span style={{
@@ -57,8 +60,8 @@ export function MediatorPage(props: MediatorPageProps) {
                     </span>}
                 </VSCodePanelTab>
 
-                {showMediaotrPanel && <PanelContent id={"form"} >
-                    <MediatorForm
+                {showForm && <PanelContent id={"form"} >
+                    {mediatorData && <MediatorForm
                         control={control}
                         errors={errors}
                         setValue={setValue}
@@ -71,17 +74,38 @@ export function MediatorPage(props: MediatorPageProps) {
                         mediatorType={mediatorType}
                         isUpdate={isUpdate}
                         documentUri={documentUri}
-                        range={nodeRange} />
+                        range={nodeRange} />}
+
+                    {connectorData && <AddConnector
+                        control={control}
+                        errors={errors}
+                        setValue={setValue}
+                        reset={reset}
+                        watch={watch}
+                        getValues={getValues}
+                        dirtyFields={dirtyFields}
+                        handleSubmit={handleSubmit}
+                        formData={connectorData.form}
+                        nodePosition={nodeRange}
+                        documentUri={documentUri}
+                        connectorName={connectorData.connectorName}
+                        connectionName={connectorData.connectionName}
+                        operationName={connectorData.operationName}
+                        connectionType={connectorData.connectionType}
+                        parameters={connectorData.parameters}
+                    />}
+
                 </PanelContent>}
+
                 <PanelContent id={"tryout"}>
-                    {(!mediatorData || mediatorData.canTryOut) && <TryOutView
+                    {(!showForm || canTryOut) && <TryOutView
                         documentUri={documentUri}
                         nodeRange={nodeRange}
                         mediatorType={mediatorType}
                         getValues={getValues}
-                        isActive={activeTab === "tryout" || !showMediaotrPanel}
+                        isActive={activeTab === "tryout" || !showForm}
                     />}
-                    {(mediatorData && !mediatorData.canTryOut) && (
+                    {((mediatorData || connectorData) && !canTryOut) && (
                         <Typography variant="body2" sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                             <Icon name="warning" isCodicon /> Please update your MI runtime to the latest version to use the tryout feature.
                         </Typography>

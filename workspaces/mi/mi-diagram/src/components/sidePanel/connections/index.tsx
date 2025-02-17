@@ -8,15 +8,16 @@
  */
 
 import { Codicon, ComponentCard, IconLabel, LinkButton, Typography } from "@wso2-enterprise/ui-toolkit";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import SidePanelContext from "../SidePanelContexProvider";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { sidepanelAddPage } from "..";
 import { FirstCharToUpperCase } from "../../../utils/commons";
-import AddConnector from "../connectors/AddConnector";
 import { MACHINE_VIEW, POPUP_EVENT_TYPE, ParentPopupData } from "@wso2-enterprise/mi-core";
 import path from "path";
+import { MediatorPage } from "../mediators/Mediator";
+import { DEFAULT_ICON } from "../../../resources/constants";
 
 const VersionTag = styled.div`
     color: #808080;
@@ -321,17 +322,33 @@ export function ConnectionPage(props: ConnectorPageProps) {
         // Retrieve form
         const formJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: uiSchemaPath, operation: operation });
         const parameters = connectorData.actions.find((action: any) => action.name === operation)?.parameters || null;
+        const iconPath = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: connectorData.iconPath, name: "icon-small" });
 
-        const connecterForm = <AddConnector formData={(formJSON as any).formJSON}
-            nodePosition={sidePanelContext.nodeRange}
-            documentUri={props.documentUri}
-            connectorName={connectorData.name}
-            connectionName={connection.name}
-            operationName={operation}
-            connectionType={connection.connectionType}
-            parameters={parameters} />;
+        const icon = <img src={iconPath.uri}
+            alt="Icon"
+            onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = DEFAULT_ICON
+            }} />;
 
-        sidepanelAddPage(sidePanelContext, connecterForm, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`);
+        const page = <div style={{ padding: '20px' }}>
+            <MediatorPage
+                connectorData={{
+                    form: (formJSON as any).formJSON,
+                    connectorName: connectorData.name,
+                    connectionName: connection.name,
+                    operationName: operation,
+                    connectionType: connection.connectionType,
+                    parameters: parameters,
+                }}
+                mediatorType={sidePanelContext.tag}
+                isUpdate={false}
+                documentUri={props.documentUri}
+                nodeRange={props.nodePosition}
+                showForm={true}
+            />
+        </div>;
+        sidepanelAddPage(sidePanelContext, page, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`, icon);
     }
 
     const getConnectionLabel = (connectorName: string, connectionType: string) => {
