@@ -5,7 +5,6 @@ import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import SidePanelContext, { SidePanelPage } from './SidePanelContexProvider';
 import { HomePage } from './mediators';
 import { getAllDataServiceForms } from './mediators/Values';
-import AddConnector from './Pages/AddConnector';
 import { FirstCharToUpperCase } from '../../utils/commons';
 import ExpressionEditor from './expressionEditor/ExpressionEditor';
 import { ExpressionFieldValue } from '../..';
@@ -119,13 +118,19 @@ const SidePanelList = (props: SidePanelListProps) => {
 
             if (sidePanelContext.isEditing && sidePanelContext.operationName) {
                 if (sidePanelContext.operationName === "connector") {
-                    const form = <AddConnector
-                        formData={sidePanelContext.formValues.form}
-                        nodePosition={sidePanelContext.nodeRange}
+                    const page = <MediatorPage
+                        connectorData={{
+                            form: sidePanelContext.formValues.form,
+                            connectorName: sidePanelContext.formValues.connectorName,
+                            operationName: sidePanelContext.formValues.operationName,
+                        }}
+                        mediatorType={sidePanelContext.tag}
+                        isUpdate={true}
                         documentUri={props.documentUri}
-                        connectorName={sidePanelContext.formValues.connectorName}
-                        operationName={sidePanelContext.formValues.operationName} />;
-                    sidepanelAddPage(sidePanelContext, form, `Edit ${FirstCharToUpperCase(sidePanelContext.formValues.title)}`);
+                        nodeRange={props.nodePosition}
+                        showForm={true}
+                    />;
+                    sidepanelAddPage(sidePanelContext, page, `Edit ${FirstCharToUpperCase(sidePanelContext.formValues.title)}`, sidePanelContext.formValues.icon);
                 } else if (Object.values(DATA_SERVICE_NODES).includes(sidePanelContext.operationName)) {
                     const allForms = getAllDataServiceForms({
                         nodePosition: props.nodePosition,
@@ -155,7 +160,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                         isUpdate={true}
                         documentUri={props.documentUri}
                         nodeRange={props.nodePosition}
-                        showMediaotrPanel={!isStartNode}
+                        showForm={!isStartNode}
                     />;
                     sidepanelAddPage(sidePanelContext, page, title, icon);
                 }

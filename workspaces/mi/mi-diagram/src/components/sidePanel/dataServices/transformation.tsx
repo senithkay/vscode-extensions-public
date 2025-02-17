@@ -11,13 +11,12 @@ import React, { useEffect, useRef } from 'react';
 import { AutoComplete, Button, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
-import SidePanelContext from '../../SidePanelContexProvider';
-import { AddMediatorProps } from '../../../Form/common';
+import SidePanelContext from '../SidePanelContexProvider';
+import { AddMediatorProps } from '../../Form/common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Controller, useForm } from 'react-hook-form';
-import { sidepanelGoBack } from '../..';
-import { DATA_SERVICE } from "../../../../resources/constants";
-import { getDssQueryXml } from '../../../../utils/template-engine/mustach-templates/dataservice/ds-templates';
+import { sidepanelGoBack } from '..';
+import { getDssQueryXml } from '../../../utils/template-engine/mustach-templates/dataservice/ds-templates';
 
 const Error = styled.span`
    color: var(--vscode-errorForeground);

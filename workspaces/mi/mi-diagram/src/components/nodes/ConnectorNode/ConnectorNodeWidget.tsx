@@ -220,11 +220,12 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                     parameters: (node.stNode as Connector).parameters ?? [],
                     connectorName: connectorData.name,
                     operationName: operationName,
-                    connectionName: (node.stNode as Connector).configKey
+                    connectionName: (node.stNode as Connector).configKey,
+                    icon: iconPath,
                 },
-                iconPath: iconPath,
                 parentNode: node.mediatorName,
                 node: node,
+                tag: node.stNode.tag
             });
         }
     }

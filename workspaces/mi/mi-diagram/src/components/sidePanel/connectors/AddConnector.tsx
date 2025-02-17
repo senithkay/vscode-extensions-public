@@ -12,7 +12,6 @@ import { AutoComplete, Button, LinkButton, ProgressIndicator, Codicon } from '@w
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext, { clearSidePanelState } from '../SidePanelContexProvider';
-import { create } from 'xmlbuilder2';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { ParamConfig } from '../../Form/ParamManager/ParamManager';
 import { ExpressionField, ExpressionFieldValue } from '../../Form/ExpressionField/ExpressionInput';
@@ -25,6 +24,10 @@ const Field = styled.div`
    margin-bottom: 5px;
 `;
 
+const FormContainer = styled.div`
+    width: 100%;
+`;
+
 interface AddConnectorProps {
     formData: any;
     nodePosition: Range;
@@ -35,24 +38,21 @@ interface AddConnectorProps {
     connectionType?: string;
     fromConnectorStore?: boolean;
     parameters?: string[];
+    control: any;
+    errors: any;
+    setValue: any;
+    handleSubmit: any;
+    reset: any;
+    watch: any;
+    getValues: any;
+    dirtyFields: any;
 }
 
-interface Element {
-    inputType: any;
-    name: string | number;
-    displayName: any;
-    required: string;
-    helpTip: any;
-    comboValues?: any[];
-    defaultValue?: any;
-    allowedConnectionTypes?: string[];
-    enableCondition?: any[];
-}
 
 const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression', 'textOrExpression'];
 
 const AddConnector = (props: AddConnectorProps) => {
-    const { formData, nodePosition, documentUri } = props;
+    const { formData, nodePosition, control, errors, setValue, reset, watch, getValues, dirtyFields, handleSubmit, documentUri } = props;
     const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
 
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -60,7 +60,6 @@ const AddConnector = (props: AddConnectorProps) => {
     const [connections, setConnections] = useState([] as any);
     const handleOnCancelExprEditorRef = useRef(() => { });
     const [parameters, setParameters] = useState<string[]>(props.parameters);
-    const { control, handleSubmit, setValue, reset, formState: { dirtyFields, errors }, getValues, watch } = useForm();
 
     const paramConfigs: ParamConfig = {
         paramValues: [],
@@ -202,9 +201,6 @@ const AddConnector = (props: AddConnectorProps) => {
         return String(name).replace('.', '__dot__');
     }
 
-    function getOriginalName(name: string) {
-        return name.replace('__dot__', '.');
-    }
 
     function getInputType(formData: any, paramName: string): string {
         let inputType = null;
@@ -310,7 +306,7 @@ const AddConnector = (props: AddConnectorProps) => {
     }
 
     return (
-        <div style={{ padding: "20px" }}>
+        <FormContainer>
             {isLoading ?
                 <ProgressIndicator /> :
                 !formData ? (
@@ -438,7 +434,7 @@ const AddConnector = (props: AddConnectorProps) => {
                         </div>
                     </>
             }
-        </div>
+        </FormContainer>
     );
 };
 
