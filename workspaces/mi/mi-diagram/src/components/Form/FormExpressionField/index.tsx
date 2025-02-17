@@ -290,10 +290,10 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
             handleChangeHelperPaneState(false);
         };
 
-        const position =
+        const position = nodeRange ?
             nodeRange?.start == nodeRange?.end
                 ? nodeRange.start
-                : { line: nodeRange.start.line, character: nodeRange.start.character + 1 };
+                : { line: nodeRange.start.line, character: nodeRange.start.character + 1 } : undefined;
 
         return getHelperPane(position, () => handleChangeHelperPaneState(false), handleHelperPaneChange);
     }, [expressionRef.current, handleChangeHelperPaneState, nodeRange, getHelperPane]);
