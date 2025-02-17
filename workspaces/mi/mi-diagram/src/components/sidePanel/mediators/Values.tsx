@@ -9,10 +9,10 @@
 
 import React from "react"
 import { DATA_SERVICE_NODES } from "../../../resources/constants"
-import TransformationForm from "../Pages/dataService/transformation";
-import QueryForm from "../Pages/dataService/query";
-import InputMappingsForm from "../Pages/dataService/input-mapping";
-import OutputMappingsForm from "../Pages/dataService/output-mapping";
+import TransformationForm from "../dataServices/transformation";
+import QueryForm from "../dataServices/query";
+import InputMappingsForm from "../dataServices/input-mapping";
+import OutputMappingsForm from "../dataServices/output-mapping";
 
 export interface GetMediatorsProps {
     nodePosition: any;

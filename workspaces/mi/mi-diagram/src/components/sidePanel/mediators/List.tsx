@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Codicon, ErrorBanner, Icon, LinkButton, ProgressRing, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, ErrorBanner, LinkButton, ProgressRing } from '@wso2-enterprise/ui-toolkit';
 import React, { useEffect } from 'react';
 import SidePanelContext from '../SidePanelContexProvider';
 import { getMediatorIconsFromFont } from '../../../resources/icons/mediatorIcons/icons';
@@ -20,7 +20,6 @@ import { DEFAULT_ICON, ERROR_MESSAGES } from '../../../resources/constants';
 import { MediatorPage } from './Mediator';
 import { ModuleSuggestions } from './ModuleSuggestions';
 import { Modules } from '../modules/ModulesList';
-import AddConnector from '../Pages/AddConnector';
 import { RemoveConnectorPage } from './RemoveConnectorPage';
 
 interface MediatorProps {
@@ -114,17 +113,31 @@ export function Mediators(props: MediatorProps) {
             mediatorType: mediator.tag,
         });
 
+        let title, page;
         if (mediator.tag.includes('.')) {
-            const connecterForm = <AddConnector formData={mediatorDetails}
-                nodePosition={props.nodePosition}
-                documentUri={props.documentUri}
-                connectorName={mediator.tag[0]}
-                operationName={mediator.operationName} />;
+            title = mediator.operationName;
 
-            sidepanelAddPage(sidePanelContext, connecterForm, `Add ${FirstCharToUpperCase(mediator.operationName)} Operation`,
-                <div style={{ height: 30, width: 30, fontSize: 30 }}>{icon}</div>);
+            const connectotData = {
+                form: mediatorDetails,
+                name: mediator.tag.split('.')[0],
+                operationName: mediator.operationName
+            }
+
+            page =
+                <div style={{ padding: '20px' }}>
+                    <MediatorPage
+                        connectorData={connectotData}
+                        mediatorType={mediator.tag}
+                        isUpdate={false}
+                        documentUri={props.documentUri}
+                        nodeRange={props.nodePosition}
+                        showForm={true}
+                    />
+                </div>;
         } else {
-            const form =
+            title = mediatorDetails.title;
+            icon = getMediatorIconsFromFont(mediator.tag, isMostPopular);
+            page =
                 <div style={{ padding: '20px' }}>
                     <MediatorPage
                         mediatorData={mediatorDetails}
@@ -132,11 +145,11 @@ export function Mediators(props: MediatorProps) {
                         isUpdate={false}
                         documentUri={props.documentUri}
                         nodeRange={props.nodePosition}
-                        showMediaotrPanel={true}
+                        showForm={true}
                     />
                 </div>;
-            sidepanelAddPage(sidePanelContext, form, `Add ${mediatorDetails.title}`, getMediatorIconsFromFont(mediator.tag, isMostPopular));
         }
+        sidepanelAddPage(sidePanelContext, page, `Add ${FirstCharToUpperCase(title)}`, icon);
     }
 
     const initializeExpandedModules = (mediatorList: GetMediatorsResponse) => {
@@ -175,7 +188,7 @@ export function Mediators(props: MediatorProps) {
         connectorName ? setExpandedModules([connectorName]) : initializeExpandedModules(allMediators);;
     };
 
-    const deleteConnector = async (connectorName: string,artifactId: string, version: string, iconUrl: string, connectorPath: string) => {
+    const deleteConnector = async (connectorName: string, artifactId: string, version: string, iconUrl: string, connectorPath: string) => {
         const removePage = <RemoveConnectorPage
             connectorName={connectorName}
             artifactId={artifactId}
@@ -218,8 +231,8 @@ export function Mediators(props: MediatorProps) {
                             key={key}
                             title={FirstCharToUpperCase(key)}
                             isCollapsed={!expandedModules.includes(key)}
-                            connectorDetails={values["isConnector"] ? 
-                                { artifactId: values["artifactId"], version: values["version"], connectorPath: values["connectorPath"] } 
+                            connectorDetails={values["isConnector"] ?
+                                { artifactId: values["artifactId"], version: values["version"], connectorPath: values["connectorPath"] }
                                 : undefined}
                             onDelete={deleteConnector}>
                             {values["items"].map((mediator: Mediator) => (

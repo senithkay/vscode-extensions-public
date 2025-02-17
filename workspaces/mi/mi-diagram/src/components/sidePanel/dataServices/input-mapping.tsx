@@ -9,13 +9,13 @@
 
 import React, { useEffect, useRef } from 'react';
 import { Button, ComponentCard, ProgressIndicator, Typography } from '@wso2-enterprise/ui-toolkit';
-import SidePanelContext from '../../SidePanelContexProvider';
-import { AddMediatorProps, getParamManagerFromValues, getParamManagerValues } from '../../../Form/common';
+import SidePanelContext from '../SidePanelContexProvider';
+import { AddMediatorProps, getParamManagerFromValues, getParamManagerValues } from '../../Form/common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Controller, useForm } from 'react-hook-form';
-import { ParamConfig, ParamManager, ParamValue } from '../../../Form/ParamManager/ParamManager';
-import { sidepanelGoBack } from '../..';
-import { getDssQueryXml, getDssResourceQueryParamsXml } from '../../../../utils/template-engine/mustach-templates/dataservice/ds-templates';
+import { ParamConfig, ParamManager, ParamValue } from '../../Form/ParamManager/ParamManager';
+import { sidepanelGoBack } from '..';
+import { getDssQueryXml, getDssResourceQueryParamsXml } from '../../../utils/template-engine/mustach-templates/dataservice/ds-templates';
 
 const cardStyle = {
     display: "block",

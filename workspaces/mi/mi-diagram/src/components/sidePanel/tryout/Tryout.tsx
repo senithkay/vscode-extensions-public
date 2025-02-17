@@ -11,12 +11,12 @@ import React, { useEffect } from 'react';
 import { Button, ProgressIndicator, Typography, FormGroup, ErrorBanner, TextArea, Dropdown, ProgressRing, Tooltip, Icon, Alert } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { CodeTextArea } from '../../../Form/CodeTextArea';
+import { CodeTextArea } from '../../Form/CodeTextArea';
 import ReactJson, { InteractionProps } from 'react-json-view';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { Header, MediatorProperties, MediatorTryOutInfo, Params } from '@wso2-enterprise/mi-core';
-import { ERROR_MESSAGES, REACT_JSON_THEME } from '../../../../resources/constants';
-import { getParamManagerValues } from '../../../..';
+import { ERROR_MESSAGES, REACT_JSON_THEME } from '../../../resources/constants';
+import { getParamManagerValues } from '../../..';
 import { SetPayloads } from './SetPayloads';
 
 const TryoutContainer = styled.div`
