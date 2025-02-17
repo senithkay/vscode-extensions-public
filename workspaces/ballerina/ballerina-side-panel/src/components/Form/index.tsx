@@ -164,7 +164,7 @@ export interface FormProps {
     projectPath?: string;
     selectedNode?: NodeKind;
     onSubmit?: (data: FormValues) => void;
-    openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
+    openRecordEditor?: (isOpen: boolean, fields: FormValues, editingField?: FormField) => void;
     openView?: (filePath: string, position: NodePosition) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
     subPanelView?: SubPanelView;
@@ -282,8 +282,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
         triggerSave: () => handleSubmit(handleOnSave)(), // Call handleSubmit with the save function
     }));
 
-    const handleOpenRecordEditor = (open: boolean) => {
-        openRecordEditor?.(open, getValues());
+    const handleOpenRecordEditor = (open: boolean, typeField?: FormField) => {
+        openRecordEditor?.(open, getValues(), typeField);
     };
 
     const handleOnShowAdvancedOptions = () => {
@@ -452,7 +452,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                         {typeField && (
                             <EditorFactory
                                 field={typeField}
-                                openRecordEditor={openRecordEditor && handleOpenRecordEditor}
+                                openRecordEditor={openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, typeField))}
                                 openSubPanel={handleOpenSubPanel}
                                 handleOnFieldFocus={handleOnFieldFocus}
                                 handleOnTypeChange={handleOnTypeChange}
@@ -477,7 +477,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                         ref={exprRef}
                                         field={field}
                                         selectedNode={selectedNode}
-                                        openRecordEditor={openRecordEditor && handleOpenRecordEditor}
+                                        openRecordEditor={openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, field))}
                                         openSubPanel={handleOpenSubPanel}
                                         subPanelView={subPanelView}
                                         handleOnFieldFocus={handleOnFieldFocus}
@@ -522,7 +522,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                         <EditorFactory
                                             ref={exprRef}
                                             field={field}
-                                            openRecordEditor={openRecordEditor && handleOpenRecordEditor}
+                                            openRecordEditor={openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, field))}
                                             openSubPanel={handleOpenSubPanel}
                                             subPanelView={subPanelView}
                                             handleOnFieldFocus={handleOnFieldFocus}
