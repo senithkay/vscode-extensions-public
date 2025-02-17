@@ -39,7 +39,7 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
 
     if (projectName && groupId && artifactId && version) {
         const folderStructure: FileStructure = {
-            'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid, version, runtimeVersion ?? LATEST_MI_VERSION),
+            'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid, version, runtimeVersion ?? LATEST_MI_VERSION, ""),
             '.env': '',
             'src': {
                 'main': {
