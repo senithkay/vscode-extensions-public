@@ -175,6 +175,11 @@ export type ExpressionEditorRef = {
 
 export type HelperPaneOrigin = 'bottom' | 'left' | 'right';
 
+export type HelperPanePosition = {
+    top: number;
+    left: number;
+}
+
 export type ActionButtonType = {
     tooltip?: string;
     iconType: 'codicon' | 'icon';

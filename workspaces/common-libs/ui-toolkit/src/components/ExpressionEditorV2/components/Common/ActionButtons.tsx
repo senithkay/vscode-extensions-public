@@ -35,7 +35,7 @@ export const ActionButtons = forwardRef<HTMLDivElement, ActionButtonsProps>(
                                 name={actBtn.name}
                                 iconSx={{
                                     fontSize: '12px',
-                                    color: 'var(--vscode-button-background)'
+                                    color: 'var(--vscode-button-foreground)'
                                 }}
                                 sx={{ height: '14px', width: '16px' }}
                             />
@@ -47,7 +47,7 @@ export const ActionButtons = forwardRef<HTMLDivElement, ActionButtonsProps>(
                                 name={actBtn.name}
                                 iconSx={{
                                     fontSize: '12px',
-                                    color: 'var(--vscode-button-background)'
+                                    color: 'var(--vscode-button-foreground)'
                                 }}
                                 sx={{ height: '14px', width: '16px' }}
                             />
@@ -60,12 +60,18 @@ export const ActionButtons = forwardRef<HTMLDivElement, ActionButtonsProps>(
                             tooltip={actBtn.tooltip}
                             onClick={actBtn.onClick}
                             appearance="icon"
+                            sx={{
+                                'vscode-button:hover': {
+                                    backgroundColor: 'var(--button-primary-hover-background) !important'
+                                }
+                            }}
                             buttonSx={{
                                 height: '16px',
                                 width: '22px',
+                                borderRadius: '2px',
+                                backgroundColor: 'var(--vscode-button-background)',
                                 ...(isHelperPaneOpen && {
-                                    backgroundColor: 'var(--button-icon-hover-background)',
-                                    borderRadius: '2px'
+                                    backgroundColor: 'var(--button-primary-hover-background)'
                                 })
                             }}
                         >

@@ -16,20 +16,22 @@ import React, {
     useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+
 import styled from '@emotion/styled';
 import { Transition } from '@headlessui/react';
+
+import { Dropdown, FnSignatureEl } from '../Common';
+import { ActionButtons } from '../Common/ActionButtons';
+import HelperPane from '../Common/HelperPane';
+import { StyleBase, FnSignatureProps } from '../Common/types';
+
 import { ANIMATION } from '../../constants';
-import { CompletionItem } from '../../types/common';
-import { FormExpressionEditorRef, FormExpressionEditorElProps } from '../../types/form';
-import { addClosingBracketIfNeeded, checkCursorInFunction, getArrowPosition, getHelperPanePosition, setCursor } from '../../utils';
+import { FormExpressionEditorRef, FormExpressionEditorElProps, CompletionItem } from '../../types';
+import { addClosingBracketIfNeeded, checkCursorInFunction, getHelperPaneArrowPosition, getHelperPanePosition, setCursor } from '../../utils';
+
 import { Codicon } from '../../../Codicon/Codicon';
 import { ProgressIndicator } from '../../../ProgressIndicator/ProgressIndicator';
 import { AutoResizeTextArea } from '../../../TextArea/TextArea';
-import { FnSignatureEl } from '../Common/FnSignature';
-import { Dropdown } from '../Common';
-import { StyleBase, FnSignatureProps } from '../Common/types';
-import HelperPane from '../Common/HelperPane';
-import { ActionButtons } from '../Common/ActionButtons';
 
 /* Styled components */
 const Container = styled.div`
@@ -307,7 +309,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
 
     const getHelperPaneComponent = (): JSX.Element => {
         const helperPanePosition = getHelperPanePosition(containerRef, helperPaneOrigin);
-        const arrowPosition = getArrowPosition(containerRef, helperPaneOrigin, helperPanePosition);
+        const arrowPosition = getHelperPaneArrowPosition(containerRef, helperPaneOrigin, helperPanePosition);
         
         return (
             <DropdownContainer ref={helperPaneContainerRef} sx={{ ...helperPanePosition }}>
