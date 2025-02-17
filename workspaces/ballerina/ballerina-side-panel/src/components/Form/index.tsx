@@ -227,6 +227,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
             // Reset form with new values when formFields change
             const defaultValues: FormValues = {};
             const diagnosticsMap: FormDiagnostics[] = [];
+            const formValues = getValues();
+            console.log("Existing form values: ", formValues);
             formFields.forEach((field) => {
                 if (isDropdownField(field)) {
                     defaultValues[field.key] = getValueForDropdown(field) ?? "";
@@ -236,6 +238,9 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     defaultValues[field.key] = field.value ?? "";
                 }
 
+                if (formValues[field.key] !== undefined && formValues[field.key] !== "" && !field.value) {
+                    defaultValues[field.key] = formValues[field.key];
+                }
                 diagnosticsMap.push({ key: field.key, diagnostics: [] });
             });
             setDiagnosticsInfo(diagnosticsMap);
@@ -359,7 +364,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
     ) => {
         // HACK: For variable nodes, update the type value in the node
         const isVariableNode = selectedNode === "VARIABLE";
-        if(expressionEditor?.getExpressionFormDiagnostics) {
+        if (expressionEditor?.getExpressionFormDiagnostics) {
             await expressionEditor?.getExpressionFormDiagnostics(
                 showDiagnostics,
                 expression,
