@@ -18,7 +18,7 @@ export function escapeXml(text: string) {
 
 export const LATEST_CAR_PLUGIN_VERSION = "5.2.97";
 
-export const rootPomXmlContent = (projectName: string, groupID: string, artifactID: string, projectUuid: string, version: string, miVersion: string) => `<?xml version="1.0" encoding="UTF-8"?>
+export const rootPomXmlContent = (projectName: string, groupID: string, artifactID: string, projectUuid: string, version: string, miVersion: string, initialDependencies: string) => `<?xml version="1.0" encoding="UTF-8"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
@@ -424,6 +424,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
     <testServerDownloadLink>https://github.com/wso2/micro-integrator/releases/download/v\${test.server.version}/wso2mi-\${test.server.version}.zip</testServerDownloadLink>
     <maven.test.skip>false</maven.test.skip>
   </properties>
+  ${initialDependencies}
 </project>`;
 
 export const dockerfileContent = () => `ARG BASE_IMAGE

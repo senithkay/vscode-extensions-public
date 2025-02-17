@@ -81,6 +81,39 @@ export async function getMIVersionFromPom(): Promise<string | null> {
     const runtimeVersion = result?.project?.properties?.["project.runtime.version"];
     return runtimeVersion;
 }
+
+export function filterConnectorVersion(connectorName: string, connectors: any[]|undefined): string {
+    if (!connectors) {
+        return '';
+    }
+    for (const connector of connectors) {
+        if (connector.connectorName === connectorName) {
+            return connector.version.tagName;
+        }
+    }
+    return '';
+}
+
+export function generateInitialDependencies(httpConnectorVersion: string): string {
+    if (!httpConnectorVersion || httpConnectorVersion === '') {
+        return '';
+    }
+    return `<dependencies>
+        <dependency>
+            <groupId>org.wso2.integration.connector</groupId>
+            <artifactId>mi-connector-http</artifactId>
+            <version>${httpConnectorVersion}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>`
+}
+
 async function isMISetup(miVersion: string): Promise<boolean> {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
     if (workspaceFolder) {
