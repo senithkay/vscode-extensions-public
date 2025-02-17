@@ -119,7 +119,11 @@ const SidePanelList = (props: SidePanelListProps) => {
             if (sidePanelContext.isEditing && sidePanelContext.operationName) {
                 if (sidePanelContext.operationName === "connector") {
                     const page = <MediatorPage
-                        connectorData={sidePanelContext.formValues}
+                        connectorData={{
+                            form: sidePanelContext.formValues.form,
+                            connectorName: sidePanelContext.formValues.connectorName,
+                            operationName: sidePanelContext.formValues.operationName,
+                        }}
                         mediatorType={sidePanelContext.tag}
                         isUpdate={true}
                         documentUri={props.documentUri}
