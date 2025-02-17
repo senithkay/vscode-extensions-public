@@ -14,7 +14,7 @@ import SidePanelContext from "../SidePanelContexProvider";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { sidepanelAddPage } from "..";
 import { FirstCharToUpperCase } from "../../../utils/commons";
-import AddConnector from "../Pages/AddConnector";
+import AddConnector from "../connectors/AddConnector";
 import { MACHINE_VIEW, POPUP_EVENT_TYPE, ParentPopupData } from "@wso2-enterprise/mi-core";
 import path from "path";
 

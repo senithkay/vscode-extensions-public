@@ -5,7 +5,7 @@ import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import SidePanelContext, { SidePanelPage } from './SidePanelContexProvider';
 import { HomePage } from './mediators';
 import { getAllDataServiceForms } from './mediators/Values';
-import AddConnector from './Pages/AddConnector';
+import AddConnector from './connectors/AddConnector';
 import { FirstCharToUpperCase } from '../../utils/commons';
 import ExpressionEditor from './expressionEditor/ExpressionEditor';
 import { ExpressionFieldValue } from '../..';

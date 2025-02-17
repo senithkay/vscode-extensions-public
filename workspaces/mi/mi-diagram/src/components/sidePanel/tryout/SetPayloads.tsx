@@ -10,11 +10,11 @@
 import { Button, FormActions, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 import { Typography } from "@wso2-enterprise/ui-toolkit";
-import SidePanelContext, { clearSidePanelState } from "../../SidePanelContexProvider";
+import SidePanelContext, { clearSidePanelState } from "../SidePanelContexProvider";
 import React, { useEffect } from "react";
 import styled from "@emotion/styled";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import ParameterManager from "../../../Form/GigaParamManager/ParameterManager";
+import ParameterManager from "../../Form/GigaParamManager/ParameterManager";
 
 const TryoutContainer = styled.div`
     height: 100%;

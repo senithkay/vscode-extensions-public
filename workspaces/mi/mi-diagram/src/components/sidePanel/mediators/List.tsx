@@ -20,7 +20,7 @@ import { DEFAULT_ICON, ERROR_MESSAGES } from '../../../resources/constants';
 import { MediatorPage } from './Mediator';
 import { ModuleSuggestions } from './ModuleSuggestions';
 import { Modules } from '../modules/ModulesList';
-import AddConnector from '../Pages/AddConnector';
+import AddConnector from '../connectors/AddConnector';
 import { RemoveConnectorPage } from './RemoveConnectorPage';
 
 interface MediatorProps {
