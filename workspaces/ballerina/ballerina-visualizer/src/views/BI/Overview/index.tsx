@@ -88,8 +88,8 @@ const MainContent = styled.div`
 `;
 
 const MainPanel = styled.div<{ noPadding?: boolean }>`
-    background: var(--vscode-sideBar-background);
-    border: 1px solid var(--vscode-dropdown-border);
+    background: ${Colors.SURFACE};
+    border: 1px solid ${Colors.OUTLINE_VARIANT};
     border-radius: 4px;
     padding: ${(props: { noPadding: boolean; }) => (props.noPadding ? "0" : "16px")};
     overflow: auto;
@@ -98,16 +98,16 @@ const MainPanel = styled.div<{ noPadding?: boolean }>`
 `;
 
 const SidePanel = styled.div`
-    background: var(--vscode-sideBar-background);
-    border: 1px solid var(--vscode-dropdown-border);
+    background: ${Colors.SURFACE};
+    border: 1px solid ${Colors.OUTLINE_VARIANT};
     border-radius: 4px;
     padding: 16px;
     overflow: auto;
 `;
 
 const FooterPanel = styled.div`
-    background: var(--vscode-sideBar-background);
-    border: 1px solid var(--vscode-dropdown-border);
+    background: ${Colors.SURFACE};
+    border: 1px solid ${Colors.OUTLINE_VARIANT};
     border-radius: 4px;
     padding: 16px;
     overflow: auto;
