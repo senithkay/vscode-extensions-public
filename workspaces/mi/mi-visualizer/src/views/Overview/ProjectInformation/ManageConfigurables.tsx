@@ -46,7 +46,7 @@ export function ManageConfigurables(props: ManageConfigurablesProps) {
                 "label": "Type",
                 values: [
                     "string",
-                    "certificate",
+                    "cert",
                 ],
                 "defaultValue": "string",
                 "isRequired": true,
