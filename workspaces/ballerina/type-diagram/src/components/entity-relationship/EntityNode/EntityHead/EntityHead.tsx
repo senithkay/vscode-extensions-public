@@ -90,7 +90,7 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
     };
 
     const onFocusedView = () => {
-        setFocusedNodeId(node.getID());
+        setFocusedNodeId && setFocusedNodeId(node.getID());
         setAnchorEl(null);
     }
 
