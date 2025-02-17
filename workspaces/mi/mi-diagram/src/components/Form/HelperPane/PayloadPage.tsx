@@ -7,11 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
-import { HelperPaneCompletionItem } from '@wso2-enterprise/mi-core';
-import { Alert, COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
-import { getHelperPaneCompletionItem } from '../FormExpressionField/utils';
+import { debounce } from 'lodash';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { Position } from 'vscode-languageserver-types';
 import styled from '@emotion/styled';
+import { HelperPaneCompletionItem } from '@wso2-enterprise/mi-core';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { Alert, COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { filterHelperPaneCompletionItems, getHelperPaneCompletionItem } from '../FormExpressionField/utils';
 
 const InfoMessage = styled.div`
     margin-top: auto;
@@ -19,35 +22,65 @@ const InfoMessage = styled.div`
 `;
 
 type PayloadPageProps = {
-    isLoading: boolean;
-    payloadInfo: HelperPaneCompletionItem[];
+    position: Position;
     setCurrentPage: (page: number) => void;
-    setFilterText: (filterText: string) => void;
     onClose: () => void;
     onChange: (value: string) => void;
 };
 
 export const PayloadPage = ({
-    isLoading,
-    payloadInfo,
+    position,
     setCurrentPage,
-    setFilterText,
     onClose,
     onChange
 }: PayloadPageProps) => {
+    const { rpcClient } = useVisualizerContext();
     const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>('');
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [payloadInfo, setPayloadInfo] = useState<HelperPaneCompletionItem[]>([]);
+    const [filteredPayloadInfo, setFilteredPayloadInfo] = useState<HelperPaneCompletionItem[]>([]);
+
+    const getPayloads = useCallback(() => {
+        setIsLoading(true);
+        setTimeout(() => {
+            rpcClient.getVisualizerState().then((machineView) => {
+                rpcClient
+                    .getMiDiagramRpcClient()
+                    .getHelperPaneInfo({
+                        documentUri: machineView.documentUri,
+                        position: position,
+                    })
+                    .then((response) => {
+                        if (response.payload?.length) {
+                            setPayloadInfo(response.payload);
+                            setFilteredPayloadInfo(response.payload);
+                        }
+                    })
+                    .finally(() => setIsLoading(false));
+            });
+        }, 1100);
+    }, [rpcClient, position]);
 
     useEffect(() => {
         if (firstRender.current) {
             firstRender.current = false;
-            setFilterText('');
+            getPayloads();
         }
-    }, []);
+    }, [getPayloads]);
+
+    const debounceFilterPayloads = useCallback(
+        debounce((searchText: string) => {
+            setFilteredPayloadInfo(filterHelperPaneCompletionItems(payloadInfo, searchText));
+            setIsLoading(false);
+        }, 1100),
+        [payloadInfo, setFilteredPayloadInfo, setIsLoading, filterHelperPaneCompletionItems]
+    );
 
     const handleSearch = (searchText: string) => {
-        setFilterText(searchText);
         setSearchValue(searchText);
+        setIsLoading(true);
+        debounceFilterPayloads(searchText);
     };
 
     const getCompletionItemIcon = () => getIcon(COMPLETION_ITEM_KIND.Variable);
@@ -62,7 +95,7 @@ export const PayloadPage = ({
                 onSearch={handleSearch}
             />
             <HelperPane.Body loading={isLoading}>
-                {payloadInfo?.map((payload) => (
+                {filteredPayloadInfo?.map((payload) => (
                     getHelperPaneCompletionItem(payload, onChange, getCompletionItemIcon)
                 ))}
             </HelperPane.Body>

@@ -30,7 +30,8 @@ import {
     Keylookup,
     FormExpressionField,
     ExpressionField,
-    CodeTextArea
+    CodeTextArea,
+    FormTokenEditor
 } from '.';
 import ExpressionEditor from '../sidePanel/expressionEditor/ExpressionEditor';
 import { handleOpenExprEditor, sidepanelGoBack } from '../sidePanel';
@@ -109,6 +110,8 @@ export interface Element {
     initialSeparator?: string;
     secondarySeparator?: string;
     keyValueSeparator?: string;
+    viewIdentifier?: string;
+    viewDisplayName?: string;
     expressionType?: 'xpath/jsonPath' | 'synapse';
 }
 
@@ -506,7 +509,6 @@ export function FormGenerator(props: FormGeneratorProps) {
                 );
             }
             case 'codeTextArea':
-            case 'expressionTextArea':
                 return (
                     <CodeTextArea
                         {...field}
@@ -551,7 +553,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 return (
                     <>
                         <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: '100%', gap: '10px' }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                            <div style={{ display: "flex", alignItems: "center" }}>
                                 <label>{element.displayName}</label>
                                 {element.required === 'true' && <RequiredFormInput />}
                             </div>
@@ -571,20 +573,27 @@ export function FormGenerator(props: FormGeneratorProps) {
                             allowItemCreate={false}
                         />
                     </>);
-            // TODO: Add this back when the token editor is fixed
-            // case 'expressionTextArea':
-            //     return (
-            //         <FormTokenEditor
-            //             nodeRange={range}
-            //             value={field.value}
-            //             onChange={field.onChange}
-            //             placeholder={placeholder}
-            //             label={element.displayName}
-            //             labelAdornment={helpTipElement}
-            //             required={isRequired}
-            //             errorMsg={errorMsg}
-            //         />
-            //     );
+            case 'expressionTextArea':
+                return (
+                    <FormTokenEditor
+                        nodeRange={range}
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder={placeholder}
+                        label={element.displayName}
+                        labelAdornment={helpTipElement}
+                        required={isRequired}
+                        errorMsg={errorMsg}
+                    />
+                );
+            case 'popUp':
+                return (
+                    <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", width: '100%', gap: '10px' }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                            <span>{element.helpTip}</span>
+                        </div>
+                    </div>
+                );
             default:
                 return null;
         }

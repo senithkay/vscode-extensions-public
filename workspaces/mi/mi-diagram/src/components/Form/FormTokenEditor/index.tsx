@@ -7,16 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { debounce } from "lodash";
 import React, { CSSProperties, ReactNode, useCallback, useMemo, useState } from "react";
 import { Range } from 'vscode-languageserver-types';
 
 import styled from "@emotion/styled";
-import { HelperPaneFunctionInfo, HelperPaneCompletionItem } from "@wso2-enterprise/mi-core";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { ErrorBanner, RequiredFormInput, TokenEditor } from "@wso2-enterprise/ui-toolkit";
+import { ErrorBanner, RequiredFormInput, TokenEditor, Typography } from "@wso2-enterprise/ui-toolkit";
 
-import { filterHelperPaneCompletionItems, filterHelperPaneFunctionCompletionItems } from "../FormExpressionField/utils";
 import { getHelperPane } from "../HelperPane";
 
 namespace S {
@@ -35,6 +31,15 @@ namespace S {
         color: 'var(--vscode-editor-foreground)',
         textTransform: 'capitalize',
     });
+
+    export const AdornmentContainer = styled.div({
+        width: '22px',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'var(--vscode-inputOption-activeBackground)'
+    })
 }
 
 /**
@@ -70,98 +75,37 @@ export const FormTokenEditor = ({
     onChange,
     labelAdornment,
     label,
-    placeholder,
     required,
     errorMsg,
     sx
 }: FormTokenEditorProps) => {
-    const { rpcClient } = useVisualizerContext();
-    
     const [isHelperPaneOpen, setIsHelperPaneOpen] = useState<boolean>(false);
-    const [isLoadingHelperPaneInfo, setIsLoadingHelperPaneInfo] = useState<boolean>(false);
-    const [payloadInfo, setPayloadInfo] = useState<HelperPaneCompletionItem[]>(null);
-    const [variableInfo, setVariableInfo] = useState<HelperPaneCompletionItem[]>(null);
-    const [propertiesInfo, setPropertiesInfo] = useState<HelperPaneCompletionItem[]>(null);
-    const [functionInfo, setFunctionInfo] = useState<HelperPaneFunctionInfo>(null);
-    const [configInfo, setConfigInfo] = useState<HelperPaneCompletionItem[]>(null);
-    const [headerInfo, setHeaderInfo] = useState<HelperPaneCompletionItem[]>(null);
-    const [paramInfo, setParamInfo] = useState<HelperPaneCompletionItem[]>(null);
-    
-    const getHelperPaneInfo = useCallback(debounce((type: string, filterText: string) => {
-        rpcClient.getVisualizerState().then((machineView) => {
-            let position = nodeRange?.start == nodeRange?.end ? nodeRange.start :
-                { line: nodeRange.start.line, character: nodeRange.start.character + 1 };
-            rpcClient
-                .getMiDiagramRpcClient()
-                .getHelperPaneInfo({
-                    documentUri: machineView.documentUri,
-                    position: position,
-                })
-                .then((response) => {
-                    switch (type) {
-                        case 'payload':
-                            setPayloadInfo(filterHelperPaneCompletionItems(response.payload, filterText));
-                            break;
-                        case 'variables':
-                            setVariableInfo(filterHelperPaneCompletionItems(response.variables, filterText));
-                            break;
-                        case 'properties':
-                            setPropertiesInfo(filterHelperPaneCompletionItems(response.properties, filterText));
-                            break;
-                        case 'functions':
-                            setFunctionInfo(filterHelperPaneFunctionCompletionItems(response.functions, filterText));
-                            break;
-                        case 'configs':
-                            setConfigInfo(filterHelperPaneCompletionItems(response.configs, filterText));
-                            break;
-                        case 'headers':
-                            setHeaderInfo(filterHelperPaneCompletionItems(response.headers, filterText));
-                            break;
-                        case 'params':
-                            setParamInfo(filterHelperPaneCompletionItems(response.params, filterText));
-                            break;
-                    }
-                })
-                .finally(() => {
-                    setIsLoadingHelperPaneInfo(false);
-                });
-            });
-        }, 300),
-        [rpcClient, nodeRange?.start]
-    );
-
-    const handleGetHelperPaneInfo = useCallback((type: string, filterText: string) => {
-        setIsLoadingHelperPaneInfo(true);
-        getHelperPaneInfo(type, filterText);
-    }, [getHelperPaneInfo]);
 
     const handleChangeHelperPaneState = (isOpen: boolean) => {
         setIsHelperPaneOpen(isOpen);
     }
-    
-    const getHelperPaneEl = (currentValue: string, onValueChange: (value: string) => void) => {
+
+    const handleGetHelperPane = useCallback((onChange: (value: string) => void, addFunction: (value: string) => void) => {
+        const position = nodeRange ?
+            nodeRange?.start == nodeRange?.end
+                ? nodeRange.start
+                : { line: nodeRange.start.line, character: nodeRange.start.character + 1 } : undefined;
+
         return getHelperPane(
-            isLoadingHelperPaneInfo,
-            payloadInfo,
-            variableInfo,
-            propertiesInfo,
-            functionInfo,
-            configInfo,
-            headerInfo,
-            paramInfo,
+            position,
             () => handleChangeHelperPaneState(false),
-            handleGetHelperPaneInfo,
-            currentValue,
-            onValueChange
+            onChange,
+            addFunction,
+            { width: 'auto', border: '1px solid var(--dropdown-border)' }
         );
-    }
+    }, [nodeRange, handleChangeHelperPaneState, getHelperPane]);
 
     const actionButtons = useMemo(() => {
         return [
             {
-                tooltip: 'Open Helper View',
+                tooltip: 'Open Expression Editor',
                 iconType: 'icon' as const,
-                name: 'open-helper-pane',
+                name: 'function-icon',
                 onClick: () => handleChangeHelperPaneState(!isHelperPaneOpen)
             }
         ];
@@ -182,11 +126,25 @@ export const FormTokenEditor = ({
                 value={value}
                 onChange={onChange}
                 actionButtons={actionButtons}
-                getHelperPane={getHelperPaneEl}
+                getHelperPane={handleGetHelperPane}
                 helperPaneOrigin="left"
                 isHelperPaneOpen={isHelperPaneOpen}
                 changeHelperPaneState={setIsHelperPaneOpen}
                 getExpressionEditorIcon={getExpressionEditorIcon}
+                startAdornment={
+                    <S.AdornmentContainer>
+                        <Typography variant="h4" sx={{ margin: 0 }}>
+                            {"${"}
+                        </Typography>
+                    </S.AdornmentContainer>
+                }
+                endAdornment={
+                    <S.AdornmentContainer>
+                        <Typography variant="h4" sx={{ margin: 0 }}>
+                            {"}"}
+                        </Typography>
+                    </S.AdornmentContainer>
+                }
             />
             {errorMsg && <ErrorBanner errorMsg={errorMsg} />}
         </S.Container>

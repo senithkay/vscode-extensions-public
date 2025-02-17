@@ -245,7 +245,11 @@ import {
     TestConnectorConnectionResponse,
     MiVersionResponse,
     CheckDBDriverResponse,
-    RemoveDBDriverResponse
+    RemoveDBDriverResponse,
+    CopyArtifactRequest,
+    CopyArtifactResponse,
+    GetArtifactTypeRequest,
+    GetArtifactTypeResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -286,7 +290,7 @@ import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 import { importCapp } from "../../util/importCapp";
-import { getDefaultProjectPath, getMIVersionFromPom } from "../../util/onboardingUtils";
+import { filterConnectorVersion, generateInitialDependencies, getDefaultProjectPath, getMIVersionFromPom } from "../../util/onboardingUtils";
 import { Range as STRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 const AdmZip = require('adm-zip');
@@ -2855,9 +2859,12 @@ ${endpointAttributes}
         return new Promise(async (resolve) => {
             const projectUuid = uuidv4();
             const { directory, name, open, groupID, artifactID, version, miVersion } = params;
+            const connectorStoreResponse = await this.getStoreConnectorJSON(miVersion);
+            const httpConnectorVersion = filterConnectorVersion('HTTP', connectorStoreResponse.connectors);
+            const initialDependencies = generateInitialDependencies(httpConnectorVersion);
             const folderStructure: FileStructure = {
                 [name]: { // Project folder
-                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", artifactID ?? name, projectUuid, version ?? DEFAULT_PROJECT_VERSION, miVersion),
+                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", artifactID ?? name, projectUuid, version ?? DEFAULT_PROJECT_VERSION, miVersion, initialDependencies),
                     '.env': '',
                     'src': {
                         'main': {
@@ -3422,6 +3429,54 @@ ${endpointAttributes}
         }
     }
 
+    async askImportFileDir(): Promise<FileDirResponse> {
+        return new Promise(async (resolve) => {
+            const selectedFile = await askImportFileDir();
+            if (!selectedFile || selectedFile.length === 0) {
+                window.showErrorMessage('A file must be selected to import a artifact');
+                resolve({ path: "" });
+            } else {
+                const parentDir = selectedFile[0].fsPath;
+                resolve({ path: parentDir });
+            }
+        });
+    }
+
+    async copyArtifact(params: CopyArtifactRequest): Promise<CopyArtifactResponse> {
+        try {
+            const workspaceFolders = workspace.workspaceFolders;
+            if (!workspaceFolders) {
+                throw new Error('No workspace is currently open');
+            }
+            const rootPath = workspaceFolders[0].uri.fsPath;
+            const destinationDirectory = path.join(rootPath, 'src', 'main', 'wso2mi', 'artifacts', params.artifactFolder);
+            // Determine the destination file name
+            let desFileName = path.basename(params.sourceFilePath);
+            // If desFileName does nto contain .xml, append .xml
+            if (desFileName && !desFileName.endsWith('.xml')) {
+                desFileName += '.xml';
+            }
+            const destinationFilePath = path.join(destinationDirectory, desFileName);
+    
+            // Ensure the destination directory exists
+            await fs.promises.mkdir(destinationDirectory, { recursive: true });
+    
+            // Check if the destination file already exists
+            if (fs.existsSync(destinationFilePath)) {
+                return { success: false, error: 'File already exists' };
+            }
+    
+            // Copy the file from the source to the destination
+            const sourceFilePath = params.sourceFilePath; // Assuming this is provided in params
+            await fs.promises.copyFile(sourceFilePath, destinationFilePath);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            return { success: true }; // Return success response
+        } catch (error) {
+            console.error('Error copying artifact:', error);
+            return { success: false, error: error?.toString() as string };
+        }
+    }
+
     async getConnectorForm(params: GetConnectorFormRequest): Promise<GetConnectorFormResponse> {
         const { uiSchemaPath, operation } = params;
         const operationSchema = path.join(uiSchemaPath, `${operation}.json`);
@@ -3781,14 +3836,14 @@ ${endpointAttributes}
         });
     }
 
-    async getStoreConnectorJSON(): Promise<StoreConnectorJsonResponse> {
+    async getStoreConnectorJSON(miVersion?: string): Promise<StoreConnectorJsonResponse> {
         return new Promise(async (resolve) => {
             try {
                 if (connectorCache.has('inbound-connector-data') && connectorCache.has('outbound-connector-data') && connectorCache.has('connectors')) {
                     resolve({ inboundConnectors: connectorCache.get('inbound-connector-data'), outboundConnectors: connectorCache.get('outbound-connector-data'), connectors: connectorCache.get('connectors') });
                     return;
                 }
-                const runtimeVersion = await getMIVersionFromPom();
+                const runtimeVersion = miVersion ? miVersion: await getMIVersionFromPom();
 
                 const response = await fetch(APIS.CONNECTOR);
                 const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE.replace('${version}', runtimeVersion ?? ''));
@@ -4109,6 +4164,14 @@ ${keyValuesXML}`;
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getArifactFiles(params.path);
             resolve({ artifacts: res });
+        });
+    }
+
+    async getArtifactType(params: GetArtifactTypeRequest): Promise<GetArtifactTypeResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getArtifactType(params.filePath);
+            resolve({ artifactType: res.artifactType, artifactFolder: res.artifactFolder });
         });
     }
 
@@ -5193,5 +5256,16 @@ export async function askFilePath() {
         canSelectMany: false,
         defaultUri: Uri.file(os.homedir()),
         title: "Select a file",
+    });
+}
+
+export async function askImportFileDir() {
+    return await window.showOpenDialog({
+        canSelectFiles: true,
+        canSelectFolders: false,
+        canSelectMany: false,
+        defaultUri: Uri.file(os.homedir()),
+        title: "Select a xml file to import",
+        filters: { 'XML': ['xml'] }
     });
 }
