@@ -290,7 +290,7 @@ import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 import { importCapp } from "../../util/importCapp";
-import { getDefaultProjectPath, getMIVersionFromPom } from "../../util/onboardingUtils";
+import { filterConnectorVersion, generateInitialDependencies, getDefaultProjectPath, getMIVersionFromPom } from "../../util/onboardingUtils";
 import { Range as STRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 const AdmZip = require('adm-zip');
@@ -2859,9 +2859,12 @@ ${endpointAttributes}
         return new Promise(async (resolve) => {
             const projectUuid = uuidv4();
             const { directory, name, open, groupID, artifactID, version, miVersion } = params;
+            const connectorStoreResponse = await this.getStoreConnectorJSON(miVersion);
+            const httpConnectorVersion = filterConnectorVersion('HTTP', connectorStoreResponse.connectors);
+            const initialDependencies = generateInitialDependencies(httpConnectorVersion);
             const folderStructure: FileStructure = {
                 [name]: { // Project folder
-                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", artifactID ?? name, projectUuid, version ?? DEFAULT_PROJECT_VERSION, miVersion),
+                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", artifactID ?? name, projectUuid, version ?? DEFAULT_PROJECT_VERSION, miVersion, initialDependencies),
                     '.env': '',
                     'src': {
                         'main': {
@@ -3833,14 +3836,14 @@ ${endpointAttributes}
         });
     }
 
-    async getStoreConnectorJSON(): Promise<StoreConnectorJsonResponse> {
+    async getStoreConnectorJSON(miVersion?: string): Promise<StoreConnectorJsonResponse> {
         return new Promise(async (resolve) => {
             try {
                 if (connectorCache.has('inbound-connector-data') && connectorCache.has('outbound-connector-data') && connectorCache.has('connectors')) {
                     resolve({ inboundConnectors: connectorCache.get('inbound-connector-data'), outboundConnectors: connectorCache.get('outbound-connector-data'), connectors: connectorCache.get('connectors') });
                     return;
                 }
-                const runtimeVersion = await getMIVersionFromPom();
+                const runtimeVersion = miVersion ? miVersion: await getMIVersionFromPom();
 
                 const response = await fetch(APIS.CONNECTOR);
                 const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE.replace('${version}', runtimeVersion ?? ''));
