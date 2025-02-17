@@ -21,10 +21,9 @@ export namespace ControlsStyles {
         justify-content: center;
         gap: 8px;
 
-        position: fixed;
-        margin-top: 342px;
-        left: 32px;
-        margin-left: 10px;
+        position: absolute;
+        left: 12px;
+        bottom: 12px;
         z-index: 1000;
     `;
 

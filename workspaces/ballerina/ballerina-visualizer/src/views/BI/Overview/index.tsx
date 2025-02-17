@@ -87,11 +87,11 @@ const MainContent = styled.div`
     height: 60vh; // Takes majority of the viewport height
 `;
 
-const MainPanel = styled.div`
+const MainPanel = styled.div<{ noPadding?: boolean }>`
     background: var(--vscode-sideBar-background);
     border: 1px solid var(--vscode-dropdown-border);
     border-radius: 4px;
-    padding: 16px;
+    padding: ${(props: { noPadding: boolean; }) => (props.noPadding ? "0" : "16px")};
     overflow: auto;
     display: flex;
     flex-direction: column;
@@ -130,11 +130,12 @@ const EmptyReadmeContainer = styled.div`
     height: 100%;
 `;
 
-const DiagramHeaderContainer = styled.div`
+const DiagramHeaderContainer = styled.div<{ withPadding?: boolean }>`
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 16px;
+    padding: ${(props: { withPadding: boolean; }) => (props.withPadding ? "16px 16px 0 16px" : "0")};
 `;
 
 const DiagramContent = styled.div`
@@ -451,8 +452,8 @@ export function Overview(props: ComponentDiagramProps) {
             </HeaderRow>
 
             <MainContent>
-                <MainPanel>
-                    <DiagramHeaderContainer>
+                <MainPanel noPadding={true}>
+                    <DiagramHeaderContainer withPadding={true}>
                         <Title variant="h2">Design</Title>
                         <ActionContainer>
                             <Button appearance="icon" onClick={handleGenerate}>

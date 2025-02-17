@@ -11,12 +11,14 @@ import React from "react";
 import styled from "@emotion/styled";
 import { css, Global } from "@emotion/react";
 import { Colors } from "../resources/constants";
-import '../resources/assets/font/fonts.css';
+import "../resources/assets/font/fonts.css";
 
 export interface DiagramCanvasProps {
     color?: string;
     background?: string;
     children?: React.ReactNode;
+    onMouseEnter?: () => void;
+    onMouseLeave?: () => void;
 }
 
 export namespace DiagramStyles {
@@ -50,11 +52,16 @@ export namespace DiagramStyles {
 }
 
 export function DiagramCanvas(props: DiagramCanvasProps) {
-    const { color, background, children } = props;
+    const { color, background, children, onMouseEnter, onMouseLeave } = props;
     return (
         <>
             <Global styles={DiagramStyles.Expand} />
-            <DiagramStyles.Container background={background || Colors.SURFACE_BRIGHT} color={color || Colors.ON_SURFACE}>
+            <DiagramStyles.Container
+                background={background || Colors.SURFACE_BRIGHT}
+                color={color || Colors.ON_SURFACE}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
+            >
                 {children}
             </DiagramStyles.Container>
         </>
