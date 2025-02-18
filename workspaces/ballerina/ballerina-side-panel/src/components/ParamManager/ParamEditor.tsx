@@ -8,7 +8,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { EditorContainer } from './styles';
 import { Parameter } from './ParamManager';
@@ -30,6 +30,10 @@ export function ParamEditor(props: ParamProps) {
 
     const [fields, setFields] = useState<FormField[]>(paramFields);
 
+    useEffect(() => {
+        setFields(paramFields);
+    }, [paramFields]);
+
     const handleOnSave = (data: FormValues) => {
         setFields([]);
         parameter.formValues = data;
@@ -44,6 +48,7 @@ export function ParamEditor(props: ParamProps) {
                 onSubmit={handleOnSave}
                 onCancelForm={() => onCancelEdit(parameter)}
                 expressionEditor={expressionEditor}
+                submitText={"Add"}
             />
         </EditorContainer >
     );

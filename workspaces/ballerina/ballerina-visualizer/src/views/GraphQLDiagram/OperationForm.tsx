@@ -24,11 +24,6 @@ export function OperationForm(props: OperationFormProps) {
     console.log("OperationForm props: ", props);
     const { model, onSave, onClose, filePath, lineRange } = props;
     const [fields, setFields] = useState<FormField[]>([]);
-    const [formValues, setFormValues] = useState<FormValues>({
-        name: model.name.value || '',
-        parameters: model.parameters.map((param, index) => convertParameterToParamValue(param, index)),
-        returnType: model.returnType.value || ''
-    });
 
     const handleParamChange = (param: Parameter) => {
         const name = `${param.formValues['variable']}`;
@@ -102,18 +97,17 @@ export function OperationForm(props: OperationFormProps) {
 
     // Initialize form fields
     useEffect(() => {
-        console.log("Current form values:", formValues);
         const initialFields = [
             {
                 key: 'name',
                 label: model.name.metadata?.label || 'Operation Name',
                 type: 'IDENTIFIER',
-                optional: false,
+                optional: model.name.optional,
                 editable: model.name.editable,
                 advanced: model.name.advanced,
                 enabled: model.name.enabled,
                 documentation: model.name.metadata?.description || '',
-                value: formValues.name,
+                value: model.name.value,
                 valueTypeConstraint: model.name.valueTypeConstraint || ''
             },
             {
@@ -123,9 +117,9 @@ export function OperationForm(props: OperationFormProps) {
                 optional: true,
                 editable: true,
                 documentation: '',
-                value: formValues.parameters,
+                value: '',
                 paramManagerProps: {
-                    paramValues: Array.isArray(formValues.parameters) ? formValues.parameters : model.parameters.map((param, index) => convertParameterToParamValue(param, index)),
+                    paramValues: model.parameters.map((param, index) => convertParameterToParamValue(param, index)),
                     formFields: convertSchemaToFormFields(model.schema),
                     handleParameter: handleParamChange
                 },
@@ -135,21 +129,20 @@ export function OperationForm(props: OperationFormProps) {
                 key: 'returnType',
                 label: model.returnType.metadata?.label || 'Return Type',
                 type: 'TYPE',
-                optional: false,
+                optional: model.returnType.optional,
                 enabled: model.returnType.enabled,
                 editable: true, // model.returnType.editable FIX when LS is fixed
                 advanced: model.returnType.advanced,
                 documentation: model.returnType.metadata?.description || '',
-                value: formValues.returnType,
+                value: model.returnType.value,
                 valueTypeConstraint: model.returnType.valueTypeConstraint || ''
             }
         ];
         setFields(initialFields);
-    }, [model, formValues]);
+    }, [model]);
 
     const handleFunctionCreate = (data: FormValues) => {
         console.log("Function create with data:", data);
-        setFormValues(data);
         const { name, returnType, parameters: params } = data;
         const paramList = params ? getFunctionParametersList(params) : [];
         const newFunctionModel = { ...model };
@@ -157,15 +150,6 @@ export function OperationForm(props: OperationFormProps) {
         newFunctionModel.returnType.value = returnType;
         newFunctionModel.parameters = paramList;
         onSave(newFunctionModel);
-    };
-
-    const handleTypeChange = (type: Type) => {
-        console.log("Type change with:", type.name);
-        // Preserve all existing form values when updating the type
-        setFormValues(prev => ({
-            ...prev,
-            returnType: type.name
-        }));
     };
 
     return (
@@ -179,7 +163,6 @@ export function OperationForm(props: OperationFormProps) {
                     onSubmit={handleFunctionCreate}
                     onBack={onClose}
                     submitText="Save"
-                    onTypeChange={handleTypeChange}
                 />
             )}
         </>

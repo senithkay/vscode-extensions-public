@@ -263,6 +263,7 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
 
 function getComponents(items: ProjectStructureArtifactResponse[], itemType?: DIRECTORY_MAP): ProjectExplorerEntry[] {
     const entries: ProjectExplorerEntry[] = [];
+    const resetHistory = true;
     for (const comp of items) {
         const fileEntry = new ProjectExplorerEntry(
             comp.name,
@@ -273,7 +274,7 @@ function getComponents(items: ProjectStructureArtifactResponse[], itemType?: DIR
         fileEntry.command = {
             "title": "Visualize",
             "command": SHARED_COMMANDS.SHOW_VISUALIZER,
-            "arguments": [vscode.Uri.parse(comp.path), comp.position]
+            "arguments": [vscode.Uri.parse(comp.path), comp.position, resetHistory]
         };
 
         // Define a mapping for item types to context values

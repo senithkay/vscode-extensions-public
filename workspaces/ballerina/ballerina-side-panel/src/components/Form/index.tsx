@@ -31,6 +31,7 @@ namespace S {
         display: flex;
         flex-direction: column;
         gap: 20px;
+        height: calc(100vh - 70px);
     `;
 
     export const Row = styled.div<{}>`
@@ -163,7 +164,7 @@ export interface FormProps {
     projectPath?: string;
     selectedNode?: NodeKind;
     onSubmit?: (data: FormValues) => void;
-    openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
+    openRecordEditor?: (isOpen: boolean, fields: FormValues, editingField?: FormField) => void;
     openView?: (filePath: string, position: NodePosition) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
     subPanelView?: SubPanelView;
@@ -175,7 +176,6 @@ export interface FormProps {
     mergeFormDataWithFlowNode?: (data: FormValues, targetLineRange: LineRange) => FlowNode;
     handleVisualizableFields?: (filePath: string, flowNode: FlowNode, position: LinePosition) => void;
     visualizableFields?: string[];
-    isDataMapper?: boolean;
 }
 
 export const Form = forwardRef((props: FormProps, ref) => {
@@ -198,8 +198,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         resetUpdatedExpressionField,
         mergeFormDataWithFlowNode,
         handleVisualizableFields,
-        visualizableFields,
-        isDataMapper
+        visualizableFields
     } = props;
 
     const {
@@ -228,6 +227,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
             // Reset form with new values when formFields change
             const defaultValues: FormValues = {};
             const diagnosticsMap: FormDiagnostics[] = [];
+            const formValues = getValues();
+            console.log("Existing form values: ", formValues);
             formFields.forEach((field) => {
                 if (isDropdownField(field)) {
                     defaultValues[field.key] = getValueForDropdown(field) ?? "";
@@ -237,6 +238,9 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     defaultValues[field.key] = field.value ?? "";
                 }
 
+                if (formValues[field.key] !== undefined && formValues[field.key] !== "" && !field.value) {
+                    defaultValues[field.key] = formValues[field.key];
+                }
                 diagnosticsMap.push({ key: field.key, diagnostics: [] });
             });
             setDiagnosticsInfo(diagnosticsMap);
@@ -283,8 +287,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
         triggerSave: () => handleSubmit(handleOnSave)(), // Call handleSubmit with the save function
     }));
 
-    const handleOpenRecordEditor = (open: boolean) => {
-        openRecordEditor?.(open, getValues());
+    const handleOpenRecordEditor = (open: boolean, typeField?: FormField) => {
+        openRecordEditor?.(open, getValues(), typeField);
     };
 
     const handleOnShowAdvancedOptions = () => {
@@ -360,14 +364,16 @@ export const Form = forwardRef((props: FormProps, ref) => {
     ) => {
         // HACK: For variable nodes, update the type value in the node
         const isVariableNode = selectedNode === "VARIABLE";
-        await expressionEditor?.getExpressionFormDiagnostics(
-            showDiagnostics,
-            expression,
-            key,
-            handleSetDiagnosticsInfo,
-            isVariableNode,
-            watch("type")
-        );
+        if (expressionEditor?.getExpressionFormDiagnostics) {
+            await expressionEditor?.getExpressionFormDiagnostics(
+                showDiagnostics,
+                expression,
+                key,
+                handleSetDiagnosticsInfo,
+                isVariableNode,
+                watch("type")
+            );
+        }
     }
 
     // has advance fields
@@ -451,7 +457,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                         {typeField && (
                             <EditorFactory
                                 field={typeField}
-                                openRecordEditor={openRecordEditor && handleOpenRecordEditor}
+                                openRecordEditor={openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, typeField))}
                                 openSubPanel={handleOpenSubPanel}
                                 handleOnFieldFocus={handleOnFieldFocus}
                                 handleOnTypeChange={handleOnTypeChange}
@@ -476,7 +482,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                         ref={exprRef}
                                         field={field}
                                         selectedNode={selectedNode}
-                                        openRecordEditor={openRecordEditor && handleOpenRecordEditor}
+                                        openRecordEditor={openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, field))}
                                         openSubPanel={handleOpenSubPanel}
                                         subPanelView={subPanelView}
                                         handleOnFieldFocus={handleOnFieldFocus}
@@ -521,7 +527,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                         <EditorFactory
                                             ref={exprRef}
                                             field={field}
-                                            openRecordEditor={openRecordEditor && handleOpenRecordEditor}
+                                            openRecordEditor={openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, field))}
                                             openSubPanel={handleOpenSubPanel}
                                             subPanelView={subPanelView}
                                             handleOnFieldFocus={handleOnFieldFocus}
@@ -535,17 +541,9 @@ export const Form = forwardRef((props: FormProps, ref) => {
                 {onSubmit && (
                     <S.Footer>
                         {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  Cancel </Button>}
-                        {isDataMapper ? (
-                            <S.PrimaryButton
-                                onClick={handleSubmit((data) => handleOnSave({ ...data, isDataMapperFormUpdate: true }))}
-                            >
-                                Create Mapping
-                            </S.PrimaryButton>
-                        ) : (
-                            <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
-                                {submitText || "Save"}
-                            </S.PrimaryButton>
-                        )}
+                        <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
+                            {submitText || "Save"}
+                        </S.PrimaryButton>
                     </S.Footer>
                 )}
             </S.Container>

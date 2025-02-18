@@ -121,7 +121,12 @@ export function TypeEditor(props: TypeEditorProps) {
                 control={control}
                 name={field.key}
                 defaultValue={field.value}
-                rules={{ required: !field.optional && !field.placeholder }}
+                rules={{
+                    required: {
+                        value: !field.optional && !field.placeholder,
+                        message: `${field.label} is required`
+                    }
+                }}
                 render={({ field: { name, value, onChange }, fieldState: { error } }) => (
                     <div>
                         <FormExpressionEditor

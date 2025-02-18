@@ -23,27 +23,11 @@ import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { applyModifications } from "../../../utils/utils";
 
 
-const ServiceClassContainer = styled.div`
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: 400px;
-    height: 100%;
-    background-color: ${Colors.SURFACE_BRIGHT};
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-`;
-
 const ServiceContainer = styled.div`
     display: flex;
+    padding: 10px;
     flex-direction: column;
     height: 100%;
-`;
-
-const HeaderSection = styled.div`
-    flex-shrink: 0;
-    padding: 0 10px;
 `;
 
 const ScrollableSection = styled.div`
@@ -64,22 +48,6 @@ const Section = styled.div`
 const ScrollableContent = styled.div`
     overflow-y: auto;
     min-height: 0;
-`;
-
-const StyledButton = styled(Button)`
-        border-radius: 5px;
-    `;
-
-const SidePanelTitleContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid var(--vscode-panel-border);
-    font-size: 16px;
-    padding: 20px 0 20px 0;
-    font-family: GilmerBold;
-    color: var(--vscode-editor-foreground);
 `;
 
 const SectionTitle = styled.div`
@@ -105,6 +73,7 @@ const EmptyStateText = styled(Typography)`
 
 const ClassNameField = styled.div`
     margin: 16px 0;
+    padding: 0 10px;
 `;
 
 export const Footer = styled.div`
@@ -114,7 +83,6 @@ export const Footer = styled.div`
     justify-content: flex-end;
     align-items: center;
     padding: 16px;
-    background-color: ${Colors.SURFACE_BRIGHT};
 `;
 
 interface ClassTypeEditorProps {
@@ -124,13 +92,11 @@ interface ClassTypeEditorProps {
 }
 
 export function ClassTypeEditor(props: ClassTypeEditorProps) {
-    console.log("======Service Class Type Editor", props);
     const { onClose, type, projectUri } = props;
     const { rpcClient } = useRpcContext();
     const [serviceClassModel, setServiceClassModel] = useState<ServiceClassModel>();
     const [editingFunction, setEditingFunction] = useState<FunctionModel>(undefined);
     const [editingVariable, setEditingVariable] = useState<FieldType>(undefined);
-    const [showFunctionMenu, setShowFunctionMenu] = useState<boolean>(false);
     const [isNew, setIsNew] = useState<boolean>(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement | null>(null);
 
@@ -154,7 +120,6 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
         }
 
         const serviceClassModelResponse = await rpcClient.getBIDiagramRpcClient().getServiceClassModel(serviceClassModelRequest);
-        console.log("======Service Class Model", serviceClassModelResponse);
         setServiceClassModel(serviceClassModelResponse.model);
     }
 
@@ -306,7 +271,6 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
             setEditingFunction(lsResponse.function);
             console.log(`Adding ${type} function`, lsResponse.function);
 
-            setShowFunctionMenu(false);
         }
     };
 
@@ -408,8 +372,7 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
             onClick: () => {
                 handleAddFunction('init');
                 setAnchorEl(null);
-            },
-            disabled: hasInitFunction
+            }
         },
         {
             id: "resource",
@@ -438,23 +401,15 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
                 </LoadingContainer>
             )}
             {serviceClassModel && !editingFunction && !editingVariable && (
-                <ServiceClassContainer>
+                <PanelContainer title={"Edit Service Class"} show={true} onClose={onClose} width={400}>
                     <ServiceContainer>
-                        <HeaderSection>
-                            <SidePanelTitleContainer>
-                                {"Edit Service Class"}
-                                <StyledButton appearance="icon" onClick={onClose}>
-                                    <Codicon name="close" />
-                                </StyledButton>
-                            </SidePanelTitleContainer>
-                            <ClassNameField>
-                                <TextField
-                                    label="Service Class Name"
-                                    value={serviceClassModel.properties["name"].value}
-                                    onChange={handleNameChange}
-                                />
-                            </ClassNameField>
-                        </HeaderSection>
+                        <ClassNameField>
+                            <TextField
+                                label="Service Class Name"
+                                value={serviceClassModel.properties["name"].value}
+                                onChange={handleNameChange}
+                            />
+                        </ClassNameField>
 
                         <ScrollableSection>
                             <Section>
@@ -503,7 +458,9 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
                                             handleClose={() => setAnchorEl(null)}
                                             sx={{
                                                 padding: 0,
-                                                borderRadius: 0
+                                                borderRadius: 0,
+                                                zIndex: 3000
+
                                             }}
                                             anchorOrigin={{
                                                 vertical: 'top',
@@ -516,6 +473,7 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
                                         >
                                             <Menu>
                                                 {menuItems
+                                                    .filter(item => !(item.id === 'init' && hasInitFunction))
                                                     .map((item) => (
                                                         <MenuItem key={item.id} item={item} />
                                                     ))}
@@ -553,7 +511,7 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
                             </Button>
                         </Footer>
                     </ServiceContainer>
-                </ServiceClassContainer>
+                </PanelContainer>
             )}
             {editingFunction && serviceClassModel && (
                 <PanelContainer

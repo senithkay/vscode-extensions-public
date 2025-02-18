@@ -81,7 +81,7 @@ export namespace NodeStyles {
         }
     `;
 
-    export const Title = styled(StyledText)<NodeStyleProp>`
+    export const Title = styled(StyledText) <NodeStyleProp>`
         max-width: ${ENTRY_NODE_WIDTH - 80}px;
         white-space: nowrap;
         overflow: hidden;
@@ -145,7 +145,7 @@ export namespace NodeStyles {
         /* margin-right: -20px; */
     `;
 
-    export const FunctionBox = styled(NodeStyles.ServiceBox)<NodeStyleProp>`
+    export const FunctionBox = styled(NodeStyles.ServiceBox) <NodeStyleProp>`
         height: 40px;
         padding: 0 12px;
 
@@ -169,7 +169,7 @@ interface EntryNodeWidgetProps {
     engine: DiagramEngine;
 }
 
-export interface NodeWidgetProps extends Omit<EntryNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<EntryNodeWidgetProps, "children"> { }
 
 export function EntryNodeWidget(props: EntryNodeWidgetProps) {
     const { model, engine } = props;
@@ -248,7 +248,7 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
         <NodeStyles.Node>
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Box hovered={isHovered}>
-                <NodeStyles.ServiceBox onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+                <NodeStyles.ServiceBox onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)} onClick={handleOnClick}>
                     <NodeStyles.Icon>{getNodeIcon()}</NodeStyles.Icon>
                     <NodeStyles.Header hovered={isHovered} onClick={handleOnClick}>
                         <NodeStyles.Title hovered={isHovered}>{getNodeTitle()}</NodeStyles.Title>

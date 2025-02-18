@@ -9,14 +9,13 @@
 
 import React, { useRef, useState } from 'react';
 import { Type, TypeFunctionModel } from '@wso2-enterprise/ballerina-core';
-import { Codicon, Button, TextField } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, Button, TextField, LinkButton } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 
 namespace S {
     export const Container = styled.div`
         display: flex;
         flex-direction: column;
-        gap: 16px;
     `;
 
     export const Header = styled.div`
@@ -24,7 +23,8 @@ namespace S {
         align-items: center;
         justify-content: space-between;
         width: 100%;
-        padding: 8px;
+        padding: 8px 0px;
+        margin-bottom: 8px;
     `;
 
     export const SectionTitle = styled.div`
@@ -34,27 +34,77 @@ namespace S {
         margin-bottom: 4px;
     `;
 
+    export const FunctionContainer = styled.div`
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 8px;
+        gap: 0px;
+    `;
+
     export const FunctionRow = styled.div`
         display: flex;
         gap: 8px;
         align-items: center;
-        padding: 8px;
-        background-color: var(--vscode-editor-background);
-        border-radius: 4px;
     `;
 
-    export const FunctionList = styled.div`
+    export const ExpandIconButton = styled(Button)`
+        padding: 4px;
+        &:hover {
+            background: transparent;
+        }
+    `;
+
+    export const ParameterContainer = styled.div`
+        margin-left: 32px;
+        padding-left: 16px;
         display: flex;
         flex-direction: column;
         gap: 8px;
     `;
 
-    export const ParameterSection = styled.div`
-        margin-left: 24px;
-        padding: 8px;
+    export const AddParameterLink = styled(LinkButton)`
+        color: var(--vscode-textLink-foreground);
+        padding: 4px 0;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        &:hover {
+            color: var(--vscode-textLink-activeForeground);
+        }
+    `;
+
+    export const ParameterList = styled.div`
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-bottom: 8px;
+    `;
+
+    export const ParameterItem = styled.div`
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding: 4px 8px 4px 10px;
         background-color: var(--vscode-editor-background);
         border-radius: 4px;
-        margin-top: 8px;
+        font-size: 13px;
+        justify-content: space-between;
+        cursor: pointer;
+        &:hover {
+            background-color: var(--vscode-list-hoverBackground);
+        }
+    `;
+
+    export const ParameterInfo = styled.div`
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    `;
+
+    export const ParameterType = styled.span`
+        color: var(--vscode-descriptionForeground);
     `;
 
     export const ButtonGroup = styled.div`
@@ -68,39 +118,9 @@ namespace S {
         display: flex;
         flex-direction: column;
         gap: 8px;
-    `;
-
-    export const ParameterList = styled.div`
-        margin-left: 24px;
-        margin-top: 8px;
-    `;
-
-    export const ParameterSubHeader = styled.div`
-        font-size: 12px;
-        color: var(--vscode-descriptionForeground);
-        margin-bottom: 4px;
-    `;
-
-    export const ParameterItem = styled.div`
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        padding: 4px 8px;
         background-color: var(--vscode-editor-background);
         border-radius: 4px;
-        margin-bottom: 4px;
-        font-size: 12px;
-        justify-content: space-between;
-    `;
-
-    export const ParameterInfo = styled.div`
-        display: flex;
-        gap: 8px;
-        align-items: center;
-    `;
-
-    export const ParameterType = styled.span`
-        color: var(--vscode-descriptionForeground);
+        padding: 8px;
     `;
 }
 
@@ -118,11 +138,21 @@ interface ParameterFormData {
 export function ClassEditor({ type, onChange }: ClassEditorProps) {
     const nameInputRefs = useRef<HTMLInputElement[]>([]);
     const [showParameterForm, setShowParameterForm] = useState<number | null>(null);
+    const [expandedFunctions, setExpandedFunctions] = useState<number[]>([]);
     const [parameterForm, setParameterForm] = useState<ParameterFormData>({
         name: '',
         type: '',
         defaultValue: ''
     });
+    const [editingParamIndex, setEditingParamIndex] = useState<number | null>(null);
+
+    const toggleFunctionExpand = (index: number) => {
+        setExpandedFunctions(prev => 
+            prev.includes(index) 
+                ? prev.filter(i => i !== index)
+                : [...prev, index]
+        );
+    };
 
     const addFunction = () => {
         const functionCount = type.functions?.length || 0;
@@ -163,11 +193,29 @@ export function ClassEditor({ type, onChange }: ClassEditorProps) {
         });
     };
 
+    const openParameterForm = (functionIndex: number, paramIndex?: number) => {
+        if (paramIndex !== undefined) {
+            // Editing existing parameter
+            const param = type.functions[functionIndex].parameters[paramIndex];
+            setParameterForm({
+                name: String(param.name),
+                type: String(param.type),
+                defaultValue: param.defaultValue ? String(param.defaultValue) : ''
+            });
+            setEditingParamIndex(paramIndex);
+        } else {
+            // Adding new parameter
+            setParameterForm({ name: '', type: '', defaultValue: '' });
+            setEditingParamIndex(null);
+        }
+        setShowParameterForm(functionIndex);
+    };
+
     const handleParameterSave = (functionIndex: number) => {
         const updatedFunctions = [...(type.functions || [])];
         const currentFunction = updatedFunctions[functionIndex];
 
-        const newParameter = {
+        const updatedParameter = {
             kind: "PARAMETER" as const,
             refs: [] as string[],
             type: parameterForm.type,
@@ -179,10 +227,21 @@ export function ClassEditor({ type, onChange }: ClassEditorProps) {
             advanced: false
         };
 
-        updatedFunctions[functionIndex] = {
-            ...currentFunction,
-            parameters: [...(currentFunction.parameters || []), newParameter]
-        };
+        if (editingParamIndex !== null) {
+            // Update existing parameter
+            const updatedParameters = [...currentFunction.parameters];
+            updatedParameters[editingParamIndex] = updatedParameter;
+            updatedFunctions[functionIndex] = {
+                ...currentFunction,
+                parameters: updatedParameters
+            };
+        } else {
+            // Add new parameter
+            updatedFunctions[functionIndex] = {
+                ...currentFunction,
+                parameters: [...(currentFunction.parameters || []), updatedParameter]
+            };
+        }
 
         onChange({
             ...type,
@@ -192,6 +251,7 @@ export function ClassEditor({ type, onChange }: ClassEditorProps) {
         // Reset form and hide it
         setParameterForm({ name: '', type: '', defaultValue: '' });
         setShowParameterForm(null);
+        setEditingParamIndex(null);
     };
 
     const deleteParameter = (functionIndex: number, paramIndex: number) => {
@@ -221,8 +281,14 @@ export function ClassEditor({ type, onChange }: ClassEditorProps) {
             </S.Header>
 
             {type.functions?.map((func, index) => (
-                <div key={index}>
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                <S.FunctionContainer key={index}>
+                    <S.FunctionRow>
+                        <S.ExpandIconButton
+                            appearance="icon"
+                            onClick={() => toggleFunctionExpand(index)}
+                        >
+                            <Codicon name={expandedFunctions.includes(index) ? "chevron-down" : "chevron-right"} />
+                        </S.ExpandIconButton>
                         <TextField
                             value={func.name}
                             ref={(el) => nameInputRefs.current[index] = el}
@@ -235,75 +301,82 @@ export function ClassEditor({ type, onChange }: ClassEditorProps) {
                             placeholder="Type"
                         />
                         <Button appearance="icon" onClick={() => deleteFunction(index)}><Codicon name="trash" /></Button>
-                        <Button
-                            appearance="icon"
-                            onClick={() => setShowParameterForm(index)}
-                            tooltip='Add Parameter'
-                        >
-                            <Codicon name="add" />
-                        </Button>
-                    </div>
+                    </S.FunctionRow>
 
-                    {func.parameters && func.parameters.length > 0 && (
-                        <S.ParameterList>
-                            <S.ParameterSubHeader>Parameters</S.ParameterSubHeader>
-                            {func.parameters.map((param, paramIndex) => (
-                                <S.ParameterItem key={paramIndex}>
-                                    <S.ParameterInfo>
-                                        <span>{String(param.name)}</span>
-                                        <S.ParameterType>{String(param.type)}</S.ParameterType>
-                                        {param.defaultValue && (
-                                            <S.ParameterType>= {String(param.defaultValue)}</S.ParameterType>
-                                        )}
-                                    </S.ParameterInfo>
-                                    <Button
-                                        appearance="icon"
-                                        onClick={() => deleteParameter(index, paramIndex)}
-                                    >
-                                        <Codicon name="trash" />
-                                    </Button>
-                                </S.ParameterItem>
-                            ))}
-                        </S.ParameterList>
-                    )}
+                    {expandedFunctions.includes(index) && (
+                        <S.ParameterContainer>
+                            <S.AddParameterLink
+                                onClick={() => openParameterForm(index)}
+                            >
+                                <Codicon name="add" />
+                                Add Parameter
+                            </S.AddParameterLink>
 
-                    {showParameterForm === index && (
-                        <S.ParameterSection>
-                            <S.ParameterForm>
-                                <TextField
-                                    placeholder="Parameter Name"
-                                    value={parameterForm.name}
-                                    onChange={(e) => setParameterForm(prev => ({ ...prev, name: e.target.value }))}
-                                />
-                                <TextField
-                                    placeholder="Parameter Type"
-                                    value={parameterForm.type}
-                                    onChange={(e) => setParameterForm(prev => ({ ...prev, type: e.target.value }))}
-                                />
-                                <TextField
-                                    placeholder="Default Value"
-                                    value={parameterForm.defaultValue}
-                                    onChange={(e) => setParameterForm(prev => ({ ...prev, defaultValue: e.target.value }))}
-                                />
-                                <S.ButtonGroup>
-                                    <Button onClick={() => {
-                                        setShowParameterForm(null);
-                                        setParameterForm({ name: '', type: '', defaultValue: '' });
-                                    }}>
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        appearance="primary"
-                                        onClick={() => handleParameterSave(index)}
-                                        disabled={!parameterForm.name || !parameterForm.type}
-                                    >
-                                        Save
-                                    </Button>
-                                </S.ButtonGroup>
-                            </S.ParameterForm>
-                        </S.ParameterSection>
+                            {func.parameters && func.parameters.length > 0 && (
+                                <S.ParameterList>
+                                    {func.parameters.map((param, paramIndex) => (
+                                        <S.ParameterItem
+                                            key={paramIndex}
+                                            onClick={() => openParameterForm(index, paramIndex)}
+                                        >
+                                            <S.ParameterInfo>
+                                                <span>{String(param.name)}</span>
+                                                <S.ParameterType>{String(param.type)}</S.ParameterType>
+                                                {param.defaultValue && (
+                                                    <S.ParameterType>= {String(param.defaultValue)}</S.ParameterType>
+                                                )}
+                                            </S.ParameterInfo>
+                                            <Button
+                                                appearance="icon"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    deleteParameter(index, paramIndex);
+                                                }}
+                                            >
+                                                <Codicon name="trash" />
+                                            </Button>
+                                        </S.ParameterItem>
+                                    ))}
+                                </S.ParameterList>
+                            )}
+
+                            {showParameterForm === index && (
+                                <S.ParameterForm>
+                                    <TextField
+                                        placeholder="Parameter Name"
+                                        value={parameterForm.name}
+                                        onChange={(e) => setParameterForm(prev => ({ ...prev, name: e.target.value }))}
+                                    />
+                                    <TextField
+                                        placeholder="Parameter Type"
+                                        value={parameterForm.type}
+                                        onChange={(e) => setParameterForm(prev => ({ ...prev, type: e.target.value }))}
+                                    />
+                                    <TextField
+                                        placeholder="Default Value"
+                                        value={parameterForm.defaultValue}
+                                        onChange={(e) => setParameterForm(prev => ({ ...prev, defaultValue: e.target.value }))}
+                                    />
+                                    <S.ButtonGroup>
+                                        <Button onClick={() => {
+                                            setShowParameterForm(null);
+                                            setParameterForm({ name: '', type: '', defaultValue: '' });
+                                        }}>
+                                            Cancel
+                                        </Button>
+                                        <Button
+                                            appearance="primary"
+                                            onClick={() => handleParameterSave(index)}
+                                            disabled={!parameterForm.name || !parameterForm.type}
+                                        >
+                                            Save
+                                        </Button>
+                                    </S.ButtonGroup>
+                                </S.ParameterForm>
+                            )}
+                        </S.ParameterContainer>
                     )}
-                </div>
+                </S.FunctionContainer>
             ))}
         </S.Container>
     );

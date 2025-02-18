@@ -12,10 +12,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { Colors } from "../../resources/constants";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { loadDiagramZoomAndPosition, resetDiagramZoomAndPosition } from "../../utils/diagram";
-import { FitScreenIcon } from "../../resources/icons/FitScreenIcon";
-import { PlusIcon } from "../../resources/icons/nodes/PlusIcon";
-import { MinusIcon } from "../../resources/icons/MinusIcon";
+import { Icon } from "@wso2-enterprise/ui-toolkit";
 
 export namespace ControlsStyles {
     export const Container = styled.div`
@@ -25,8 +22,8 @@ export namespace ControlsStyles {
         gap: 8px;
 
         position: fixed;
-        margin-top: 270px;
-        left: 20px;
+        margin-top: 342px;
+        left: 32px;
         margin-left: 10px;
         z-index: 1000;
     `;
@@ -101,14 +98,14 @@ export function Controls(props: ControlsProps) {
     return (
         <ControlsStyles.Container>
             <ControlsStyles.Button onClick={handleZoomToFit}>
-                <FitScreenIcon />
+                <Icon name="bi-fit-screen" sx={{ width: 16, height: 16, fontSize: 16 }} />
             </ControlsStyles.Button>
             <ControlsStyles.GroupContainer>
                 <ControlsStyles.Button onClick={() => onZoom(true)}>
-                    <PlusIcon />
+                    <Icon name="bi-plus" sx={{ width: 16, height: 16, fontSize: 16 }} />
                 </ControlsStyles.Button>
                 <ControlsStyles.Button onClick={() => onZoom(false)}>
-                    <MinusIcon />
+                    <Icon name="bi-minus" sx={{ width: 16, height: 16, fontSize: 16 }} />
                 </ControlsStyles.Button>
             </ControlsStyles.GroupContainer>
         </ControlsStyles.Container>

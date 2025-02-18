@@ -16,6 +16,8 @@ import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
 import { RecordEditor, StatementEditorComponentProps } from "@wso2-enterprise/record-creator";
 import { useExperimentalEnabled } from "../../Hooks";
 import { LoadingRing } from "../../components/Loader";
+import { View } from "@wso2-enterprise/ui-toolkit";
+import { TopNavigationBar } from "../../components/TopNavigationBar";
 
 interface DataMapperProps {
     filePath: string;
@@ -61,16 +63,19 @@ export function DataMapper(props: DataMapperProps) {
     }
 
     return (
-        <DataMapperView
-            fnST={model}
-            filePath={filePath}
-            langServerRpcClient={langServerRpcClient}
-            libraryBrowserRpcClient={libraryBrowserRPCClient}
-            applyModifications={applyModifications}
-            goToFunction={goToFunction}
-            renderRecordPanel={renderRecordPanel}
-            isBI={isBI}
-            experimentalEnabled={experimentalEnabled}
-        />
+        <View>
+            <TopNavigationBar />
+            <DataMapperView
+                fnST={model}
+                filePath={filePath}
+                langServerRpcClient={langServerRpcClient}
+                libraryBrowserRpcClient={libraryBrowserRPCClient}
+                applyModifications={applyModifications}
+                goToFunction={goToFunction}
+                renderRecordPanel={renderRecordPanel}
+                isBI={isBI}
+                experimentalEnabled={experimentalEnabled}
+            />
+        </View>
     );
 };

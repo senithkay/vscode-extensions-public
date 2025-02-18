@@ -35,7 +35,7 @@ const SpinnerContainer = styled.div`
 `;
 
 const DiagramContainer = styled.div`
-    height: 400px;
+    height: 460px;
 `;
 
 interface ComponentDiagramProps {

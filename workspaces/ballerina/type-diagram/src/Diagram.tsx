@@ -46,65 +46,48 @@ export function TypeDiagram(props: TypeDiagramProps) {
 
     useEffect(() => {
         drawDiagram(focusedNodeId);
-    }, [typeModel, focusedNodeId]);
+    }, [typeModel, focusedNodeId, rootService]);
 
     useEffect(() => {
         setSelectedDiagramNode(selectedNodeId);
     }, [selectedNodeId]);
 
     const drawDiagram = (focusedNode?: string) => {
-        if (isGraphql && rootService) { // TODO: Refactor for graphql and types
-            const diagramModel = graphqlModeller(rootService, typeModel);
-            console.log("diagramModel", diagramModel);
-
-            if (diagramModel) {
-                diagramModel.addLayer(new OverlayLayerModel());
-                diagramEngine.setModel(diagramModel);
-                setDiagramModel(diagramModel);
-
-                // Always distribute first to properly layout the diagram
-                setTimeout(() => {
-                    dagreEngine.redistribute(diagramEngine.getModel());
-
-                    if (selectedNodeId) {
-                        const selectedModel = diagramEngine.getModel().getNode(selectedNodeId);
-                        focusToNode(selectedModel, diagramEngine.getModel().getZoomLevel(), diagramEngine);
-                    } else if (diagramEngine?.getCanvas()?.getBoundingClientRect) {
-                        diagramEngine.zoomToFitNodes({ margin: 10, maxZoom: 1 });
-                    }
-
-                    // Remove overlay and update model
-                    diagramEngine.getModel().removeLayer(diagramEngine.getModel().getLayers().find(layer => layer instanceof OverlayLayerModel));
-                    diagramEngine.setModel(diagramModel);
-                    diagramEngine.repaintCanvas();
-                }, 300);
-            }
+        let diagramModel;
+        
+        // Create diagram model based on type
+        if (isGraphql && rootService) {
+            console.log("Modeling  graphql diagram");
+            diagramModel = graphqlModeller(rootService, typeModel);
+        } else if (typeModel && !isGraphql) {
+            console.log("Modeling entity diagram");
+            diagramModel = entityModeller(typeModel, focusedNode);
         }
-        if (typeModel && !isGraphql) {
-            const diagramModel = entityModeller(typeModel, focusedNode);
-
-            if (diagramModel) {
-                diagramModel.addLayer(new OverlayLayerModel());
+    
+        if (diagramModel) {
+            // Setup initial model
+            diagramModel.addLayer(new OverlayLayerModel());
+            diagramEngine.setModel(diagramModel);
+            setDiagramModel(diagramModel);
+    
+            // Layout and focus handling
+            setTimeout(() => {
+                dagreEngine.redistribute(diagramEngine.getModel());
+    
+                if (selectedNodeId) {
+                    const selectedModel = diagramEngine.getModel().getNode(selectedNodeId);
+                    focusToNode(selectedModel, diagramEngine.getModel().getZoomLevel(), diagramEngine);
+                } else if (diagramEngine?.getCanvas()?.getBoundingClientRect) {
+                    diagramEngine.zoomToFitNodes({ margin: 10, maxZoom: 1 });
+                }
+    
+                // Cleanup and refresh
+                diagramEngine.getModel().removeLayer(
+                    diagramEngine.getModel().getLayers().find(layer => layer instanceof OverlayLayerModel)
+                );
                 diagramEngine.setModel(diagramModel);
-                setDiagramModel(diagramModel);
-
-                // Always distribute first to properly layout the diagram
-                setTimeout(() => {
-                    dagreEngine.redistribute(diagramEngine.getModel());
-
-                    if (selectedNodeId) {
-                        const selectedModel = diagramEngine.getModel().getNode(selectedNodeId);
-                        focusToNode(selectedModel, diagramEngine.getModel().getZoomLevel(), diagramEngine);
-                    } else if (diagramEngine?.getCanvas()?.getBoundingClientRect) {
-                        diagramEngine.zoomToFitNodes({ margin: 10, maxZoom: 1 });
-                    }
-
-                    // Remove overlay and update model
-                    diagramEngine.getModel().removeLayer(diagramEngine.getModel().getLayers().find(layer => layer instanceof OverlayLayerModel));
-                    diagramEngine.setModel(diagramModel);
-                    diagramEngine.repaintCanvas();
-                }, 300);
-            }
+                diagramEngine.repaintCanvas();
+            }, 300);
         }
     }
 

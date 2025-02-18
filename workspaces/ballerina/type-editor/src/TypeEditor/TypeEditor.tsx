@@ -211,11 +211,6 @@ export function TypeEditor(props: TypeEditorProps) {
             },
             properties: {},
             codedata: {
-                lineRange: {
-                    fileName: "types.bal",
-                    startLine: { line: 0, character: 0, offset: 0 },
-                    endLine: { line: 0, character: 0, offset: 0 }
-                },
                 node: "RECORD" as TypeNodeKind
             }
         };
@@ -257,12 +252,12 @@ export function TypeEditor(props: TypeEditorProps) {
         if (type.codedata.node === "CLASS") {
             const response = await props.rpcClient
             .getBIDiagramRpcClient()
-            .createGraphqlClassType({ filePath: type.codedata.lineRange.fileName, type, description: "" });
+            .createGraphqlClassType({ filePath: type.codedata?.lineRange?.fileName || 'types.bal', type, description: "" });
 
         } else {
         const response = await props.rpcClient
             .getBIDiagramRpcClient()
-            .updateType({ filePath: type.codedata.lineRange.fileName, type, description: "" });
+            .updateType({ filePath: type.codedata?.lineRange?.fileName || 'types.bal', type, description: "" });
         }
         props.onTypeChange(type);
     }
