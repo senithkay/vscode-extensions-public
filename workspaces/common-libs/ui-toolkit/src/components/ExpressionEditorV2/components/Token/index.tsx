@@ -691,6 +691,16 @@ export const TokenEditor = ({
                     tabIndex={0}
                     contentEditable
                     suppressContentEditableWarning
+                    onPaste={(e: React.ClipboardEvent<HTMLDivElement>) => {
+                        e.preventDefault();
+                        const text = e.clipboardData.getData('text/plain');
+                        const selection = window.getSelection();
+                        if (selection && selection.rangeCount > 0) {
+                            const range = selection.getRangeAt(0);
+                            range.deleteContents();
+                            range.insertNode(document.createTextNode(text));
+                        }
+                    }}
                 />
                 <ResizeHandle editorRef={editorRef} />
             </S.EditorWithHandle>
