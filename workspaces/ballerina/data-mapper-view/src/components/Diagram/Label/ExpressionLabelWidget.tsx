@@ -297,13 +297,17 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
             onClick: onClickConvertToQuery
         });
     } else if (arrayMappingType === ArrayMappingType.ArrayToSingleton) {
-        if (target instanceof RecordFieldPortModel && target.field.typeName === PrimitiveBalType.Record) {
-            // Add indexed query expression
-        } else {
+        const supportsAggregation = target instanceof RecordFieldPortModel
+            && (target.field.typeName === PrimitiveBalType.Int
+                || target.field.typeName === PrimitiveBalType.Float
+                || target.field.typeName === PrimitiveBalType.Decimal);
+        if (supportsAggregation) {
             additionalActions.push({
                 title: "Aggregate using Query",
                 onClick: onClickAggregateViaQuery
             });
+        } else {
+            // Add indexed query expression
         }
     }
 
