@@ -13,7 +13,7 @@
  * 
  */
 
-import { Type, Member } from '@wso2-enterprise/ballerina-core';
+import { Type } from '@wso2-enterprise/ballerina-core';
 
 //@ts-ignore
 export const parseType = (type: string): string | Type => {
@@ -34,6 +34,12 @@ export const parseType = (type: string): string | Type => {
             "codedata": {
                 "node": "UNION"
             },
+            "metadata": {
+                "label": '',
+                "description": ""
+            },
+            "name": "" ,
+            "properties": {},
             "members":
                 types.map(t => parseType(t)).map(t => {
                     if (typeof t === 'string') {
@@ -65,6 +71,12 @@ export const parseType = (type: string): string | Type => {
             "codedata": {
                 "node": "ARRAY"
             },
+            "metadata": {
+                "label": '',
+                "description": ""
+            },
+            "name": "" ,
+            "properties": {},
             "members": [
                 {
                     "kind": "TYPE",

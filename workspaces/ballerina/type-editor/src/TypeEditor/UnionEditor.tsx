@@ -23,6 +23,7 @@ namespace S {
         display: flex;
         gap: 8px;
         justify-content: space-between;
+        margin-bottom: 8px;
     `;
 
     export const Header = styled.div`
@@ -30,7 +31,9 @@ namespace S {
         align-items: center;
         justify-content: space-between;
         width: 100%;
-        padding: 8px;
+        padding: 8px 0px;
+        margin-bottom: 8px;
+
     `;
 
     export const SectionTitle = styled.div`
