@@ -1929,8 +1929,9 @@ export interface Mediator {
 
 export interface GetMediatorRequest {
     mediatorType: string;
-    documentUri?: string;
-    range?: Range;
+    documentUri: string;
+    range: Range;
+    isEdit?: boolean;
 }
 
 export interface GetMediatorResponse {
