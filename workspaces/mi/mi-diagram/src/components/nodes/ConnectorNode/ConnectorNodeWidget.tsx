@@ -268,25 +268,23 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
 
         const nodeRange = await getConnectionNodeRange();
 
+        const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
+            documentUri: node.documentUri,
+            connectorName: node.stNode.tag.split(".")[0]
+        });
+
+        const definition = await rpcClient?.getMiDiagramRpcClient().getDefinition({
+            document: {
+                uri: node.documentUri,
+            },
+            position: nodeRange.start
+        });
+
         if (e.ctrlKey || e.metaKey) {
-            // open code and highlight the selected node
-            rpcClient.getMiDiagramRpcClient().highlightCode({
-                range: nodeRange,
-                force: true,
-            });
+            // open file of selected connection
+            rpcClient.getMiDiagramRpcClient().openFile({ path: definition.uri, beside: true });
+
         } else if (node.isSelected()) {
-            const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
-                documentUri: node.documentUri,
-                connectorName: node.stNode.tag.split(".")[0]
-            });
-
-            const definition = await rpcClient?.getMiDiagramRpcClient().getDefinition({
-                document: {
-                    uri: node.documentUri,
-                },
-                position: nodeRange.start
-            });
-
             rpcClient.getMiVisualizerRpcClient().openView({
                 type: POPUP_EVENT_TYPE.OPEN_VIEW,
                 location: {
