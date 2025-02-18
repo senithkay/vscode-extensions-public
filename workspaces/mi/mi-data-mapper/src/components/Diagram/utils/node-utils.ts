@@ -49,7 +49,9 @@ export function createInputNodeForDmFunction(
         3. Tuple and union parameter types are not supported
     */
     const param = fnDecl.getParameters()[0];
-    const inputType = param && context.inputTrees.find(input => getTypeName(input) === param.getType().getSymbol()?.getName());
+    const inputType = param && context.inputTrees.find(input => 
+        getTypeName(input) === (param.getType().getSymbol()?.getName() || param.getType().getAliasSymbol()?.getName())
+    );
 
     if (inputType && hasFields(inputType)) {
         // Create input node
