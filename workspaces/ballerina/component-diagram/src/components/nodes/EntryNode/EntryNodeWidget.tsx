@@ -136,7 +136,6 @@ const FunctionBoxWrapper = styled.div`
     justify-content: center;
     align-items: center;
     color: ${ThemeColors.ON_SURFACE};
-    /* margin-right: -20px; */
 `;
 
 const StyledServiceBox = styled(ServiceBox)<NodeStyleProp>`
@@ -151,6 +150,19 @@ const StyledServiceBox = styled(ServiceBox)<NodeStyleProp>`
 
 const MenuButton = styled(Button)`
     border-radius: 5px;
+`;
+
+const ViewAllButton = styled(FunctionBoxWrapper)`
+    color: ${ThemeColors.PRIMARY};
+    height: 40px;
+    width: 100%;
+    cursor: pointer;
+    font-family: "GilmerMedium";
+    font-size: 14px;
+    &:hover {
+        border: 1px solid ${ThemeColors.PRIMARY};
+        border-radius: 8px;
+    }
 `;
 
 interface EntryNodeWidgetProps {
@@ -233,6 +245,9 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
         serviceFunctions.push(...(model.node as CDService).resourceFunctions);
     }
 
+    const hasMoreFunctions = serviceFunctions.length > 3;
+    const visibleFunctions = serviceFunctions.slice(0, hasMoreFunctions ? 2 : serviceFunctions.length);
+
     return (
         <Node>
             <TopPortWidget port={model.getPort("in")!} engine={engine} />
@@ -251,7 +266,7 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
                         <MoreVertIcon />
                     </MenuButton>
                 </ServiceBox>
-                {serviceFunctions?.map((serviceFunction) => (
+                {visibleFunctions.map((serviceFunction) => (
                     <FunctionBox
                         key={getEntryNodeFunctionPortName(serviceFunction)}
                         func={serviceFunction}
@@ -259,6 +274,11 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
                         engine={engine}
                     />
                 ))}
+                {hasMoreFunctions && (
+                    <ViewAllButton onClick={handleOnClick}>
+                        View all resources ({serviceFunctions.length})
+                    </ViewAllButton>
+                )}
             </Box>
             <Popover
                 open={isMenuOpen}
