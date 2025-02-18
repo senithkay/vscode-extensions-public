@@ -46,7 +46,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
 
     useEffect(() => {
         drawDiagram(focusedNodeId);
-    }, [typeModel, focusedNodeId]);
+    }, [typeModel, focusedNodeId, rootService]);
 
     useEffect(() => {
         setSelectedDiagramNode(selectedNodeId);

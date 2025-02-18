@@ -189,7 +189,6 @@ export function AIChat() {
                         if (storedChatArray) {
                             const chatArrayFromStorage = JSON.parse(storedChatArray);
                             chatArray = chatArrayFromStorage;
-
                             // Add the messages from the chat array to the view
                             setMessages((prevMessages) => [
                                 ...prevMessages,
@@ -605,10 +604,11 @@ export function AIChat() {
                 setMessages((prevMessages) => {
                     const newMessages = [...prevMessages];
                     newMessages[newMessages.length - 1].content +=
-                        "Unknown error occurred while streaming. Please retry";
+                        "\nUnknown error occurred while receiving the response.";
                     newMessages[newMessages.length - 1].type = "Error";
                     return newMessages;
                 });
+                assistant_response = "\nUnknown error occurred while receiving the response.";
                 throw new Error("Streaming error");
             }
         }

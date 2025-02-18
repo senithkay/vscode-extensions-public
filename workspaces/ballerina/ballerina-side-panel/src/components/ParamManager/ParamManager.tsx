@@ -102,7 +102,8 @@ export function ParamManagerEditor(props: ParamManagerEditorProps) {
                     <>
                         <ParamManager
                             paramConfigs={field.paramManagerProps}
-                            openRecordEditor={openRecordEditor}onChange={async (config: ParamConfig) => {
+                            openRecordEditor={openRecordEditor}
+                            onChange={async (config: ParamConfig) => {
                                 onChange(config.paramValues);
                             }}
                             selectedNode={selectedNode}
@@ -148,6 +149,10 @@ export function ParamManager(props: ParamManagerProps) {
         updatedParameters.push(newParams);
         setParameters(updatedParameters);
         setIsNew(true);
+        // Reset the formField values when adding a new parameter
+        paramConfigs.formFields.forEach(field => {
+            field.value = "";
+        });
     };
 
     const onDelete = (param: Parameter) => {
@@ -190,7 +195,7 @@ export function ParamManager(props: ParamManagerProps) {
 
     useEffect(() => {
         renderParams();
-    }, [parameters, editingSegmentId]);
+    }, [parameters, editingSegmentId, paramConfigs]);
 
     const renderParams = () => {
         const render: React.ReactElement[] = [];
@@ -198,7 +203,9 @@ export function ParamManager(props: ParamManagerProps) {
             .forEach((param, index) => {
                 if (editingSegmentId === index) {
                     paramConfigs.formFields.forEach(field => {
-                        field.value = param.formValues[field.key];
+                        if (param.formValues[field.key]) {
+                            field.value = param.formValues[field.key];
+                        }
                     })
                     render.push(
                         <ParamEditor

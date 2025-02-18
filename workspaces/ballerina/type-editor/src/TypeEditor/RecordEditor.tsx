@@ -21,7 +21,7 @@ import styled from '@emotion/styled';
         align-items: center;
         justify-content: space-between;
         width: 100%;
-        padding: 8px;
+        padding: 8px 0px;
     `;
 
 const SectionTitle = styled.div`

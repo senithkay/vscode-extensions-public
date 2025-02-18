@@ -135,6 +135,7 @@ export function OperationAccordion(params: OperationAccordionProps) {
                 anchorEl={confirmEl}
                 anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
                 transformOrigin={{ vertical: "top", horizontal: "right" }}
+                sx={{ zIndex: 3002}}
             />
         </AccordionContainer>
     );
