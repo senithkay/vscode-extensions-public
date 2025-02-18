@@ -88,7 +88,6 @@ const MainContent = styled.div`
 `;
 
 const MainPanel = styled.div<{ noPadding?: boolean }>`
-    background: ${ThemeColors.SURFACE};
     border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
     border-radius: 4px;
     padding: ${(props: { noPadding: boolean; }) => (props.noPadding ? "0" : "16px")};
@@ -98,7 +97,6 @@ const MainPanel = styled.div<{ noPadding?: boolean }>`
 `;
 
 const SidePanel = styled.div`
-    background: ${ThemeColors.SURFACE};
     border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
     border-radius: 4px;
     padding: 16px;
@@ -106,7 +104,6 @@ const SidePanel = styled.div`
 `;
 
 const FooterPanel = styled.div`
-    background: ${ThemeColors.SURFACE};
     border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
     border-radius: 4px;
     padding: 16px;

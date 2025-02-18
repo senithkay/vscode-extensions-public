@@ -45,7 +45,7 @@ const Container = styled.div`
     height: 100%;
     justify-content: center;
     width: 100%;
-    background-color: ${ThemeColors.SURFACE};
+    background-color: ${ThemeColors.SURFACE_DIM};
     z-index: 1000;
 `;
 
