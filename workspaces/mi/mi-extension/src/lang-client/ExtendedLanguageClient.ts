@@ -383,10 +383,10 @@ export class ExtendedLanguageClient extends LanguageClient {
     }
 
     async getMediator(request: GetMediatorRequest): Promise<GetMediatorResponse> {
-        if (request.documentUri && request.range) {
+        if (request.isEdit) {
             return this.sendRequest("synapse/getMediatorUISchemaWithValues", { documentIdentifier: { uri: Uri.file(request.documentUri).toString() }, position: request.range.start });
         }
-        return this.sendRequest("synapse/getMediatorUISchema", request);
+        return this.sendRequest("synapse/getMediatorUISchema", { mediatorType: request.mediatorType, documentIdentifier: { uri: Uri.file(request.documentUri).toString() }, position: request.range.start });
     }
 
     async getConnectionSchema(request: GetConnectionSchemaRequest): Promise<GetConnectionSchemaResponse> {

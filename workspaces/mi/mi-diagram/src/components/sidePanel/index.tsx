@@ -119,7 +119,11 @@ const SidePanelList = (props: SidePanelListProps) => {
             if (sidePanelContext.isEditing && sidePanelContext.operationName) {
                 if (sidePanelContext.operationName === "connector") {
                     const page = <MediatorPage
-                        connectorData={sidePanelContext.formValues}
+                        connectorData={{
+                            form: sidePanelContext.formValues.form,
+                            connectorName: sidePanelContext.formValues.connectorName,
+                            operationName: sidePanelContext.formValues.operationName,
+                        }}
                         mediatorType={sidePanelContext.tag}
                         isUpdate={true}
                         documentUri={props.documentUri}
@@ -144,7 +148,8 @@ const SidePanelList = (props: SidePanelListProps) => {
                     const mediatorDetails = isStartNode ? undefined : await rpcClient.getMiDiagramRpcClient().getMediator({
                         mediatorType: sidePanelContext.tag,
                         range: sidePanelContext?.nodeRange,
-                        documentUri: props?.documentUri
+                        documentUri: props?.documentUri,
+                        isEdit: true
                     });
 
                     const title = isStartNode ? undefined : `Edit ${mediatorDetails?.title || sidePanelContext.tag}`;
