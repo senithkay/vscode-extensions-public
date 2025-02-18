@@ -14,7 +14,6 @@ import { TypeDiagram as TypeDesignDiagram } from "@wso2-enterprise/type-diagram"
 import { RecordEditor } from "../RecordEditor/RecordEditor";
 import { Button, Codicon, ProgressRing, ThemeColors, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { Colors } from "../../resources/constants";
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { TypeEditor } from "@wso2-enterprise/type-editor";
 import { ClassTypeEditor } from "../BI/ServiceClassEditor/ClassTypeEditor";
@@ -221,7 +220,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
                             onTypeEdit={onTypeEdit}
                         />
                     ) : (
-                        <ProgressRing color={Colors.PRIMARY} />
+                        <ProgressRing color={ThemeColors.PRIMARY} />
                     )}
                 </ViewContent>
             </View>

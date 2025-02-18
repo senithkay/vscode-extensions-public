@@ -9,10 +9,9 @@
 
 import React from "react";
 import styled from "@emotion/styled";
-import { Colors } from "../../resources/constants";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { loadDiagramZoomAndPosition, resetDiagramZoomAndPosition } from "../../utils/diagram";
-import { Icon } from "@wso2-enterprise/ui-toolkit";
+import { Icon, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 export namespace ControlsStyles {
     export const Container = styled.div`
@@ -34,7 +33,7 @@ export namespace ControlsStyles {
         gap: 0;
 
         & > *:not(:last-child) {
-            border-bottom: 1px solid ${Colors.OUTLINE_VARIANT};
+            border-bottom: 1px solid ${ThemeColors.OUTLINE_VARIANT};
         }
 
         & > *:first-child {
@@ -58,18 +57,18 @@ export namespace ControlsStyles {
         align-items: center;
         padding: 8px;
         border-radius: 4px;
-        background-color: ${Colors.SURFACE};
-        fill: ${Colors.ON_SURFACE};
+        background-color: ${ThemeColors.SURFACE};
+        fill: ${ThemeColors.ON_SURFACE};
         width: 32px;
         height: 32px;
         cursor: pointer;
 
         &:hover {
-            background-color: ${Colors.SURFACE_CONTAINER};
+            background-color: ${ThemeColors.SURFACE_CONTAINER};
         }
 
         &:active {
-            background-color: ${Colors.SURFACE_CONTAINER};
+            background-color: ${ThemeColors.SURFACE_CONTAINER};
         }
     `;
 }

@@ -11,9 +11,9 @@ import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { StartNodeModel } from "./StartNodeModel";
-import { Colors, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_PADDING, NODE_WIDTH } from "../../../resources/constants";
+import { NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_PADDING, NODE_WIDTH } from "../../../resources/constants";
 import { FlowNode } from "../../../utils/types";
-import { Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Tooltip, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -30,10 +30,10 @@ export namespace NodeStyles {
         padding: 0 ${NODE_PADDING}px;
         border: ${NODE_BORDER_WIDTH}px solid
             ${(props: NodeStyleProp) =>
-                props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+                props.selected ? ThemeColors.PRIMARY : props.hovered ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT};
         border-radius: 40px;
-        background-color: ${Colors.SURFACE_DIM};
-        color: ${Colors.ON_SURFACE};
+        background-color: ${ThemeColors.SURFACE_DIM};
+        color: ${ThemeColors.ON_SURFACE};
         /* cursor: pointer; */
     `;
 

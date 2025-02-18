@@ -18,7 +18,7 @@ import {
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Typography, Codicon, ProgressRing, Button, Icon } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { Colors } from "../../../resources/constants";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { getProjectFromResponse, parseSSEEvent, replaceCodeBlocks, splitContent } from "../../AIPanel/AIChat";
 import ComponentDiagram from "../ComponentDiagram";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
@@ -88,8 +88,8 @@ const MainContent = styled.div`
 `;
 
 const MainPanel = styled.div<{ noPadding?: boolean }>`
-    background: ${Colors.SURFACE};
-    border: 1px solid ${Colors.OUTLINE_VARIANT};
+    background: ${ThemeColors.SURFACE};
+    border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
     border-radius: 4px;
     padding: ${(props: { noPadding: boolean; }) => (props.noPadding ? "0" : "16px")};
     overflow: auto;
@@ -98,16 +98,16 @@ const MainPanel = styled.div<{ noPadding?: boolean }>`
 `;
 
 const SidePanel = styled.div`
-    background: ${Colors.SURFACE};
-    border: 1px solid ${Colors.OUTLINE_VARIANT};
+    background: ${ThemeColors.SURFACE};
+    border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
     border-radius: 4px;
     padding: 16px;
     overflow: auto;
 `;
 
 const FooterPanel = styled.div`
-    background: ${Colors.SURFACE};
-    border: 1px solid ${Colors.OUTLINE_VARIANT};
+    background: ${ThemeColors.SURFACE};
+    border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
     border-radius: 4px;
     padding: 16px;
     overflow: auto;
@@ -397,7 +397,7 @@ export function Overview(props: ComponentDiagramProps) {
     if (!projectStructure) {
         return (
             <SpinnerContainer>
-                <ProgressRing color={Colors.PRIMARY} />
+                <ProgressRing color={ThemeColors.PRIMARY} />
             </SpinnerContainer>
         );
     }

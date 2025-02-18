@@ -16,12 +16,11 @@ import {
     TriggerNode,
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Codicon, Divider, Icon, Typography, View, ViewContent, LinkButton } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Divider, Icon, Typography, View, ViewContent, LinkButton, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import ButtonCard from "../../../components/ButtonCard";
 import { BodyText } from "../../styles";
 import { useVisualizerContext } from "../../../Context";
-import { Colors } from "../../../resources/constants";
 import { TitleBar } from "../../../components/TitleBar";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
 
@@ -65,12 +64,12 @@ const Title = styled(Typography)`
 `;
 
 const Card = styled.div`
-    border: 2px solid ${(props: { active: boolean }) => (props.active ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
-    background-color: ${(props: { active: boolean }) => (props.active ? Colors.PRIMARY_CONTAINER : Colors.SURFACE_DIM)};
+    border: 2px solid ${(props: { active: boolean }) => (props.active ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT)};
+    background-color: ${(props: { active: boolean }) => (props.active ? ThemeColors.PRIMARY_CONTAINER : ThemeColors.SURFACE_DIM)};
     cursor: pointer;
     &:hover {
-        background-color: ${Colors.PRIMARY_CONTAINER};
-        border: 2px solid ${Colors.PRIMARY};
+        background-color: ${ThemeColors.PRIMARY_CONTAINER};
+        border: 2px solid ${ThemeColors.PRIMARY};
     }
     display: flex;
     justify-content: center;

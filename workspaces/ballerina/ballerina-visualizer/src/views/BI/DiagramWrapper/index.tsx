@@ -9,7 +9,7 @@
 
 import { useEffect, useState } from "react";
 import { ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { Button, Icon, Switch, View } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, Switch, View, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { BIFlowDiagram } from "../FlowDiagram";
 import { BISequenceDiagram } from "../SequenceDiagram";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -33,8 +33,8 @@ const SubTitleWrapper = styled.div`
 `;
 
 const AccessorType = styled.span`
-    background-color: var(--vscode-editor-background);
-    color: var(--vscode-badge-foreground);
+    background-color: ${ThemeColors.SURFACE_BRIGHT};
+    color: ${ThemeColors.BADGE};
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 12px;
@@ -43,7 +43,7 @@ const AccessorType = styled.span`
 `;
 
 const Path = styled.span`
-    color: var(--vscode-foreground);
+    color: ${ThemeColors.ON_SURFACE};
     font-family: var(--vscode-editor-font-family);
     font-size: 13px;
 `;
