@@ -652,8 +652,9 @@ export function AIChat() {
     const handleAddAllCodeSegmentsToWorkspace = async (
         codeSegments: any,
         setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
-        isTestCode: boolean
+        command: string
     ) => {
+        console.log("Add to integration called. Command: ", command);
         for (let { segmentText, filePath } of codeSegments) {
             let originalContent = "";
             if (!tempStorage[filePath]) {
@@ -669,11 +670,18 @@ export function AIChat() {
                     tempStorage[filePath] = "";
                 }
             }
-            if (!["types.bal", "mappings.bal"].includes(filePath)) {
-                segmentText = `${segmentText}`;
-            } else {
+
+            if (command === "ai_map") {
                 segmentText = `${originalContent}\n${segmentText}`;
+            } else {
+                segmentText = `${segmentText}`;
             }
+
+            let isTestCode = false;
+            if (command === "test") {
+                isTestCode = true;
+            }
+
             await rpcClient
                 .getAiPanelRpcClient()
                 .addToProject({ filePath: filePath, content: segmentText, isTestCode: isTestCode });
@@ -684,10 +692,12 @@ export function AIChat() {
     const handleRevertChanges = async (
         codeSegments: any,
         setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
-        isTestCode: boolean
+        command: string
     ) => {
+        console.log("Revert integration called. Command: ", command);
+
         for (const { filePath } of codeSegments) {
-            let originalContent = tempStorage[filePath];
+            let originalContent = tempStorage[filePath];    
             if (originalContent === "" && !initialFiles.has(filePath) && !emptyFiles.has(filePath)) {
                 // Delete the file if it didn't initially exist in the workspace
                 try {
@@ -696,6 +706,10 @@ export function AIChat() {
                     console.error(`Error deleting file ${filePath}:`, error);
                 }
             } else {
+                let isTestCode = false;
+                if (command === "test") {
+                    isTestCode = true;
+                }
                 const revertContent = emptyFiles.has(filePath) ? "" : originalContent;
                 await rpcClient
                     .getAiPanelRpcClient()
@@ -764,9 +778,9 @@ export function AIChat() {
 
         setIsLoading(false);
         setIsCodeLoading(false);
-        assistant_response += `\n\n<code filename="tests/test.bal">\n\`\`\`ballerina\n${generatedTestCode}\n\`\`\`\n</code>`;
-        if (configToml !== "") {
-            assistant_response += `\n\n<code filename="tests/Config.toml">\n\`\`\`ballerina\n${configToml}\n\`\`\`\n</code>`;
+        assistant_response += `\n\n<code filename="tests/test.bal" type="test">\n\`\`\`ballerina\n${generatedTestCode}\n\`\`\`\n</code>`;
+        if (configToml !== undefined && configToml !== "") {
+            assistant_response += `\n\n<code filename="tests/Config.toml" type="test">\n\`\`\`ballerina\n${configToml}\n\`\`\`\n</code>`;
         }
         setMessages((prevMessages) => {
             const newMessages = [...prevMessages];
@@ -926,7 +940,7 @@ export function AIChat() {
             filePath = activeFile;
             finalContent = `${fileContent}\n${response.mappingCode}`;
         }
-        assistant_response += `<code filename="${filePath}">\n\`\`\`ballerina\n${finalContent}\n\`\`\`\n</code>`;
+        assistant_response += `<code filename="${filePath}" type="ai_map">\n\`\`\`ballerina\n${finalContent}\n\`\`\`\n</code>`;
 
         setMessages((prevMessages) => {
             const newMessages = [...prevMessages];
@@ -986,7 +1000,7 @@ export function AIChat() {
         }
 
         assistant_response = `Record types generated from the ${attachments[0].name} file shown below.\n`;
-        assistant_response += `<code filename="${filePath}">\n\`\`\`ballerina\n${response.typesCode}\n\`\`\`\n</code>`;
+        assistant_response += `<code filename="${filePath}" type="ai_map">\n\`\`\`ballerina\n${response.typesCode}\n\`\`\`\n</code>`;
 
         setMessages((prevMessages) => {
             const newMessages = [...prevMessages];
@@ -1159,7 +1173,7 @@ export function AIChat() {
                                                 message={message}
                                                 buttonsActive={showGeneratingFiles}
                                                 isSyntaxError={isSyntaxError}
-                                                isTestCode={segment.isTestCode}
+                                                command={segment.command}
                                             />
                                         );
                                     }
@@ -1334,17 +1348,17 @@ interface CodeSectionProps {
     handleAddAllCodeSegmentsToWorkspace: (
         codeSegment: any,
         setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
-        isTestCode: boolean
+        command: string
     ) => void;
     handleRevertChanges: (
         codeSegment: any,
         setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
-        isTestCode: boolean
+        command: string
     ) => void;
     message: { role: string; content: string; type: string };
     buttonsActive: boolean;
     isSyntaxError: boolean;
-    isTestCode: boolean;
+    command: string;
 }
 
 const CodeSection: React.FC<CodeSectionProps> = ({
@@ -1356,12 +1370,16 @@ const CodeSection: React.FC<CodeSectionProps> = ({
     message,
     buttonsActive,
     isSyntaxError,
-    isTestCode,
+    command,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isCodeAdded, setIsCodeAdded] = useState(false);
 
     const language = "ballerina";
+    let isTestCode = false;
+    if (command === "test") {
+        isTestCode = true;
+    }
     let name = loading
         ? "Generating " + (isTestCode ? "Tests..." : "Integration...")
         : isTestCode
@@ -1387,7 +1405,7 @@ const CodeSection: React.FC<CodeSectionProps> = ({
                                         handleAddAllCodeSegmentsToWorkspace(
                                             allCodeSegments,
                                             setIsCodeAdded,
-                                            isTestCode
+                                            command
                                         );
                                     }}
                                     tooltip={
@@ -1405,7 +1423,7 @@ const CodeSection: React.FC<CodeSectionProps> = ({
                                     appearance="icon"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        handleRevertChanges(allCodeSegments, setIsCodeAdded, isTestCode);
+                                        handleRevertChanges(allCodeSegments, setIsCodeAdded, command);
                                     }}
                                     disabled={!buttonsActive}
                                 >
@@ -1599,28 +1617,34 @@ interface Segment {
     loading: boolean;
     text: string;
     fileName?: string;
-    isTestCode?: boolean;
+    command?: string;
     failed?: boolean;
+}
+
+function getCommand(command: string) {
+    if (!command) {
+        return "code";
+    } else {
+        return command.replaceAll(/"/g, "");
+    }
 }
 
 function splitHalfGeneratedCode(content: string): Segment[] {
     const segments: Segment[] = [];
     // Regex to capture filename and optional test attribute
-    const regex = /<code\s+filename="([^"]+)"(?:\s+test=(true|false))?>\s*```(\w+)\s*([\s\S]*?)$/g;
+    const regex = /<code\s+filename="([^"]+)"(?:\s+type=("test"|"ai_map"))?>\s*```(\w+)\s*([\s\S]*?)$/g;
     let match;
     let lastIndex = 0;
 
     while ((match = regex.exec(content)) !== null) {
-        const [fullMatch, fileName, testValue, language, code] = match;
-        const isTestCode = testValue === "true";
-
+        const [fullMatch, fileName, type, language, code] = match;
         if (match.index > lastIndex) {
             // Non-code segment before the current code block
             segments.push({
                 type: SegmentType.Text,
                 loading: false,
                 text: content.slice(lastIndex, match.index),
-                isTestCode: isTestCode,
+                command: getCommand(type),
             });
         }
 
@@ -1631,7 +1655,7 @@ function splitHalfGeneratedCode(content: string): Segment[] {
             loading: true,
             text: code,
             fileName: fileName,
-            isTestCode: isTestCode,
+            command: getCommand(type),
         });
 
         lastIndex = regex.lastIndex;
@@ -1654,7 +1678,7 @@ export function splitContent(content: string): Segment[] {
 
     // Combined regex to capture either <code ...>```<language> code ```</code> or <progress>Text</progress>
     const regex =
-        /<code\s+filename="([^"]+)"(?:\s+test=(true|false))?>\s*```(\w+)\s*([\s\S]*?)```\s*<\/code>|<progress>([\s\S]*?)<\/progress>|<attachment>([\s\S]*?)<\/attachment>|<error>([\s\S]*?)<\/error>/g;
+        /<code\s+filename="([^"]+)"(?:\s+type=("test"|"ai_map"))?>\s*```(\w+)\s*([\s\S]*?)```\s*<\/code>|<progress>([\s\S]*?)<\/progress>|<attachment>([\s\S]*?)<\/attachment>|<error>([\s\S]*?)<\/error>/g;
     let match;
     let lastIndex = 0;
 
@@ -1678,11 +1702,9 @@ export function splitContent(content: string): Segment[] {
         if (match[1]) {
             // <code> block matched
             const fileName = match[1];
-            const testValue = match[2];
+            const type = match[2];
             const language = match[3];
             const code = match[4];
-            const isTestCode = testValue === "true";
-
             updateLastProgressSegmentLoading();
             segments.push({
                 type: SegmentType.Code,
@@ -1690,7 +1712,7 @@ export function splitContent(content: string): Segment[] {
                 text: code,
                 fileName: fileName,
                 language: language,
-                isTestCode: isTestCode,
+                command: getCommand(type),
             });
         } else if (match[5]) {
             // <progress> block matched
