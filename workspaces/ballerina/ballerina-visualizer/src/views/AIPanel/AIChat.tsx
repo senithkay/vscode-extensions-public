@@ -339,14 +339,11 @@ export function AIChat() {
 
     async function processContent(token: string, content: [string, AttachmentResult[]]) {
         const [message, attachments] = content;
-        console.log("Message: ", message);
         const commandKey = findCommand(message);
         if (commandKey) {
             const commandLength = commandKey.length;
             const messageBody = message.slice(commandLength).trim();
-            console.log("Message Body: ", messageBody);
             const parameters = extractParameters(commandKey, messageBody);
-            console.log("Parameters: ", parameters);
 
             if (parameters) {
                 switch (commandKey) {
