@@ -604,11 +604,11 @@ export function AIChat() {
                 setMessages((prevMessages) => {
                     const newMessages = [...prevMessages];
                     newMessages[newMessages.length - 1].content +=
-                        "\nUnknown occurred while recieving the response.";
+                        "\nUnknown error occurred while receiving the response.";
                     newMessages[newMessages.length - 1].type = "Error";
                     return newMessages;
                 });
-                assistant_response = "\nUnknown occurred while recieving the response.";
+                assistant_response = "\nUnknown error occurred while receiving the response.";
                 throw new Error("Streaming error");
             }
         }

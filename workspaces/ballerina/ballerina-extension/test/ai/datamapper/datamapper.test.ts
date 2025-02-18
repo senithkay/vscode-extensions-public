@@ -12,7 +12,7 @@ import { generateBallerinaCode } from '../../../src/rpc-managers/ai-panel/utils'
 import * as assert from 'assert';
 import * as fs from 'fs';
 
-const RESOURCES_PATH = path.join(__dirname, '..', '..', '..', '..','test', 'ai', 'datamapper', 'resources');
+const RESOURCES_PATH = path.resolve(__dirname, '../../../../test/ai/datamapper/resources');
 
 suite.only("AI Datamapper tests suite", () => {
     setup(done => {
