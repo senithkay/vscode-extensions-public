@@ -1,6 +1,6 @@
 import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 
-import { RecordFieldPortModel } from "../Port";
+import { MappingType, RecordFieldPortModel } from "../Port";
 import {
     findTypeByInfoFromStore,
     genVariableName,
@@ -11,7 +11,7 @@ import {
 } from "../utils/dm-utils";
 import { getSupportedUnionTypes } from "../utils/union-type-utils";
 
-import { PortModel } from "@projectstorm/react-diagrams-core";
+import { LinkModel, PortModel } from "@projectstorm/react-diagrams-core";
 
 export enum ClauseType {
     Select = "select",
@@ -65,4 +65,22 @@ export function generateQueryExpression(
     }
 
     return `from var ${itemName} in ${srcExpr.trim()}${isOptionalSource ? ' ?: []' : ''} ${clauseType} ${selectExpr}`
+}
+
+export function removePendingMappingTempLinkIfExists(link: LinkModel) {
+	const sourcePort = link.getSourcePort();
+	const targetPort = link.getTargetPort();
+
+	const pendingMappingType = sourcePort instanceof RecordFieldPortModel
+		&& targetPort instanceof RecordFieldPortModel
+		&& sourcePort.pendingMappingType
+		&& targetPort.pendingMappingType;
+
+	if (pendingMappingType) {
+		sourcePort?.fireEvent({}, "link-removed");
+		targetPort?.fireEvent({}, "link-removed");
+		sourcePort.setPendingMappingType(MappingType.Default);
+		targetPort.setPendingMappingType(MappingType.Default);
+		link.remove();
+	}
 }

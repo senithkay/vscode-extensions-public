@@ -6,6 +6,9 @@ import { container, injectable, singleton } from 'tsyringe';
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { EditableLabelWidget } from './ExpressionLabelWidget';
+import { MappingType } from '../Port';
+import { ArrayMappingOptionsWidget } from './ArrayMappingOptionsWidget';
+import { SubLinkLabelWidget } from './SubLinkLabelWidget';
 
 @injectable()
 @singleton()
@@ -19,6 +22,16 @@ export class ExpressionLabelFactory extends AbstractReactFactory<ExpressionLabel
 	}
 
 	generateReactWidget(event: GenerateWidgetEvent<ExpressionLabelModel>): JSX.Element {
+		const { pendingMappingType, isSubLinkLabel } = event.model;
+
+		if (pendingMappingType == MappingType.ArrayToArray) {
+			return <ArrayMappingOptionsWidget model={event.model}/>;
+		}
+
+		if (isSubLinkLabel) {
+			return <SubLinkLabelWidget model={event.model}  />;
+		}
+
 		return <EditableLabelWidget model={event.model} />;
 	}
 }

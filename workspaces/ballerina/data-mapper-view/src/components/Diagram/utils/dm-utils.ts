@@ -46,7 +46,7 @@ import { PortModel } from "@projectstorm/react-diagrams-core";
 
 import { useDMSearchStore, useDMStore } from "../../../store/store";
 import { isPositionsEquals } from "../../../utils/st-utils";
-import { DMNode } from "../../DataMapper/DataMapper";
+import { DMNode, ViewOption } from "../../DataMapper/DataMapper";
 import { ErrorNodeKind } from "../../DataMapper/Error/RenderingError";
 import { getLetExpression, getLetExpressions } from "../../DataMapper/LocalVarConfigPanel/local-var-mgt-utils";
 import { isArraysSupported } from "../../DataMapper/utils";
@@ -74,7 +74,7 @@ import { ListConstructorNode } from "../Node/ListConstructor";
 import { ModuleVariable, ModuleVariableNode, MODULE_VAR_SOURCE_NODE_TYPE } from "../Node/ModuleVariable";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { UnionTypeNode } from "../Node/UnionType";
-import { IntermediatePortModel, RecordFieldPortModel } from "../Port";
+import { IntermediatePortModel, MappingType, RecordFieldPortModel, ValueType } from "../Port";
 import { FromClauseBindingPatternFindingVisitor } from "../visitors/FromClauseBindingPatternFindingVisitor";
 import { InputNodeFindingVisitor } from "../visitors/InputNodeFindingVisitor";
 import { ModuleVariablesFindingVisitor } from "../visitors/ModuleVariablesFindingVisitor";
@@ -101,6 +101,8 @@ import { result } from "lodash";
 import { CustomAction } from "../CodeAction/CodeAction";
 import { FunctionCallFindingVisitor } from "../visitors/FunctionCallFindingVisitor";
 import { BaseModel } from "@projectstorm/react-canvas-core";
+import { getDMTypeDim } from "./type-utils";
+import { QueryParentFindingVisitor } from "../visitors/QueryParentFindingVisitor";
 
 export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: { name: string, isOptional: boolean }[] = [];
@@ -127,7 +129,7 @@ export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	return fieldsToReturn
 }
 
-export async function createSourceForMapping(link: DataMapperLinkModel) {
+export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue?: string) {
 	let source = "";
 	let lhs = "";
 	let rhs = "";
@@ -143,7 +145,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	const fieldIndexes = targetPort && getFieldIndexes(targetPort);
 	const { applyModifications } = targetNode.context;
 
-	rhs = sourcePort.fieldFQN;
+	rhs =  rhsValue || sourcePort.fieldFQN;
 
 	if (isMappedToPrimitiveTypePort(targetPort)
 		|| isMappedToRootListConstructor(targetPort)
@@ -512,19 +514,79 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 
 }
 
-export function replaceSpecificFieldValue(link: DataMapperLinkModel, modifications: STModification[]) {
-	const targetPort = link.getTargetPort() as RecordFieldPortModel;
-	const targetNode = targetPort.getNode();
+export async function updateExistingValue(sourcePort: PortModel, targetPort: PortModel, newValue?: string) {
+	const modifications = [];
+	let sourceField = newValue || sourcePort && sourcePort instanceof RecordFieldPortModel && sourcePort.fieldFQN;
+	modifications.push(getModificationForSpecificFieldValue(targetPort, sourceField));
+	replaceSpecificFieldValue(targetPort, modifications);
+}
+
+export function replaceSpecificFieldValue(targetPort: PortModel, modifications: STModification[]) {
+	const targetNode = (targetPort as RecordFieldPortModel).getNode();
 	const { context } = targetNode as DataMapperNodeModel;
 	void context.applyModifications(modifications);
 }
 
+export function expandArrayFn(node: QueryExpressionNode) {
+	let isExprBodyQuery: boolean;
+	let isSelectClauseQuery: boolean;
+
+	const { parentNode, value, context, targetPort: { fieldFQN } } = node;
+	const { selection, changeSelection } = context;
+	const selectedST = selection.selectedST.stNode;
+
+
+	let exprFnBody: ExpressionFunctionBody;
+	if (STKindChecker.isFunctionDefinition(selectedST) && STKindChecker.isExpressionFunctionBody(selectedST.functionBody)) {
+        exprFnBody = selectedST.functionBody;
+    }
+
+	if (STKindChecker.isBracedExpression(parentNode)) {
+		// Handle scenarios where user tries to expand into
+		// braced indexed query expressions which are at the function body level
+		const specificFieldFindingVisitor = new QueryParentFindingVisitor(value.position);
+		traversNode(selectedST, specificFieldFindingVisitor);
+		const specificField = specificFieldFindingVisitor.getSpecificField();
+		if (specificField && STKindChecker.isFunctionDefinition(specificField)) {
+			isExprBodyQuery = true;
+		}
+	} else if (exprFnBody && isRepresentFnBody(parentNode, exprFnBody)) {
+		isExprBodyQuery = true;
+	} else if (STKindChecker.isSelectClause(parentNode)
+		|| (STKindChecker.isSpecificField(parentNode)
+			&& STKindChecker.isQueryExpression(parentNode.valueExpr)
+			&& !isPositionsEquals(value.position, parentNode.valueExpr.position))
+	) {
+		isSelectClauseQuery = true;
+	}
+	let selectClauseIndex: number;
+	if (isSelectClauseQuery) {
+		const queryExprFindingVisitor = new QueryExprFindingVisitorByPosition(value.position);
+		traversNode(selectedST, queryExprFindingVisitor);
+		selectClauseIndex = queryExprFindingVisitor.getSelectClauseIndex();
+	}
+
+	const hasIndexedQuery = hasIndexedQueryExpr(parentNode);
+	const hasCollectClause = hasCollectClauseExpr(value);
+	const mappingType = getQueryExprMappingType(hasIndexedQuery, hasCollectClause);
+	changeSelection(ViewOption.EXPAND,
+		{
+			...selection,
+			selectedST: {
+				stNode: isExprBodyQuery || isSelectClauseQuery ? selectedST : parentNode,
+				fieldPath: isExprBodyQuery ? FUNCTION_BODY_QUERY : isSelectClauseQuery ? SELECT_CALUSE_QUERY : fieldFQN,
+				position: value.position,
+				index: selectClauseIndex,
+				mappingType: mappingType,
+			}
+		})
+}
+
 export function getModificationForSpecificFieldValue(
-	link: DataMapperLinkModel,
-	sourceField: string
+	targetPort: PortModel,
+	newSource: string
 ): STModification {
-	if (link.getTargetPort() && sourceField) {
-		const targetPort = link.getTargetPort() as RecordFieldPortModel;
+	if (targetPort instanceof RecordFieldPortModel) {
 		const editableRecordField = targetPort.editableRecordField;
 		let targetPosition: NodePosition;
 		if (editableRecordField?.value) {
@@ -539,7 +601,7 @@ export function getModificationForSpecificFieldValue(
 			return {
 				type: "INSERT",
 				config: {
-					"STATEMENT": sourceField,
+					"STATEMENT": newSource,
 				},
 				...targetPosition
 			};
@@ -884,6 +946,10 @@ export function getLinebreak(){
 		return "\r\n";
 	}
 	return "\n";
+}
+
+export function isConnectingArrays(mappingType: MappingType): boolean {
+    return mappingType === MappingType.ArrayToArray || mappingType === MappingType.ArrayToSingleton;
 }
 
 function getNextField(nextTypeMemberNodes: ArrayElement[],
@@ -1390,6 +1456,24 @@ export function isLinkModel(node: BaseModel) {
     return node instanceof DataMapperLinkModel;
 }
 
+export function getValueType(lm: DataMapperLinkModel): ValueType {
+	const editableRecordField = (lm.getTargetPort() as RecordFieldPortModel).editableRecordField;
+
+	if (editableRecordField?.value) {
+		let expr = editableRecordField.value;
+		if (STKindChecker.isSpecificField(expr)) {
+			expr = expr.valueExpr;
+		}
+		const innerExpr = getInnermostExpressionBody(expr);
+		const value: string = innerExpr?.value || innerExpr?.source;
+		if (value !== undefined) {
+			return isDefaultValue(editableRecordField.type, value) ? ValueType.Default : ValueType.NonEmpty;
+		}
+	}
+
+	return ValueType.Empty;
+}
+
 function getInnerExpr(node: FieldAccess | OptionalFieldAccess): STNode {
 	let valueExpr = node.expression;
 	while (valueExpr && (STKindChecker.isFieldAccess(valueExpr)
@@ -1682,6 +1766,56 @@ export function getLetClauseVarNames(letClause: LetClause): string[] {
 	}
 	return varNames;
 }
+
+export function getMappingType(sourcePort: PortModel, targetPort: PortModel): MappingType {
+
+    if (sourcePort instanceof RecordFieldPortModel
+        && targetPort instanceof RecordFieldPortModel
+        && targetPort.field && sourcePort.field) {
+            
+        const sourceDim = getDMTypeDim(sourcePort.field);
+        const targetDim = getDMTypeDim(targetPort.field);
+
+        if (sourceDim > 0) {
+            const dimDelta = sourceDim - targetDim;
+            if (dimDelta == 0) return MappingType.ArrayToArray;
+            if (dimDelta > 0) return MappingType.ArrayToSingleton;
+        }
+    }
+
+    return MappingType.Default;
+}
+
+export function buildInputAccessExpr(fieldFqn: string): string {
+	// Regular expression to match either quoted strings or non-quoted strings with dots
+	const regex = /"([^"]+)"|'([^"]+)'|([^".]+)/g;
+
+	const result = fieldFqn.replace(regex, (match, doubleQuoted, singleQuoted, unquoted) => {
+		if (doubleQuoted) {
+			return `["${doubleQuoted}"]`; // If the part is enclosed in double quotes, wrap it in square brackets
+		} else if (singleQuoted) {
+			return `['${singleQuoted}']`; // If the part is enclosed in single quotes, wrap it in square brackets
+		} else {
+			return unquoted; // Otherwise, leave the part unchanged
+		}
+	});
+
+	return result.replace(/(?<!\?)\.\[/g, '['); // Replace occurrences of '.[' with '[' to handle consecutive bracketing
+}
+
+export function genArrayElementAccessSuffix(sourcePort: PortModel, targetPort: PortModel) {
+    if (sourcePort instanceof RecordFieldPortModel && targetPort instanceof RecordFieldPortModel) {
+        let suffix = '';
+        const sourceDim = getDMTypeDim(sourcePort.field);
+        const targetDim = getDMTypeDim(targetPort.field);
+        const dimDelta = sourceDim - targetDim;
+        for (let i = 0; i < dimDelta; i++) {
+            suffix += '[0]';
+        }
+        return suffix;
+    }
+    return '';
+};
 
 function isMappedToPrimitiveTypePort(targetPort: RecordFieldPortModel): boolean {
 	return !isArrayOrRecord(targetPort.field)

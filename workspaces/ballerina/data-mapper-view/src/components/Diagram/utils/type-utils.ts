@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { AnydataType, PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
+import { AnydataType, PrimitiveBalType, TypeField, TypeKind } from "@wso2-enterprise/ballerina-core";
 import {
     ListConstructor,
     MappingConstructor,
@@ -252,6 +252,15 @@ export function constructTypeFromSTNode(node: STNode, fieldName?: string): TypeF
     }
 
     return type;
+}
+
+export function getDMTypeDim(dmType: TypeField) {
+    let dim = 0;
+    while (dmType.typeName == TypeKind.Array) {
+        dim++;
+        dmType = dmType.memberType;
+    }
+    return dim;
 }
 
 function getValueNodeAndNextNodeForParentType(node: STNode,

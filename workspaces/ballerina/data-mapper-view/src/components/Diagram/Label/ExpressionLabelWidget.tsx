@@ -37,6 +37,7 @@ import { handleCodeActions } from "../utils/ls-utils";
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
 import { QueryExprMappingType } from '../Node';
+import { useDMFocusedViewStateStore } from '../../../store/store';
 
 export interface EditableLabelWidgetProps {
     model: ExpressionLabelModel;
@@ -131,6 +132,8 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     const [codeActions, setCodeActions] = React.useState([]);
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
+    const focusedViewStore = useDMFocusedViewStateStore();
+
     const source = link?.getSourcePort()
     const target = link?.getTargetPort()
 
@@ -179,21 +182,17 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         if (linkModel.value
             && (STKindChecker.isFieldAccess(linkModel.value) || STKindChecker.isSimpleNameReference(linkModel.value))) {
 
-                let isOptionalSource = false;
-                const sourcePort = linkModel.getSourcePort();
-                const targetPort = linkModel.getTargetPort();
-
+                const sourcePort = linkModel.getSourcePort() as RecordFieldPortModel;
+                const targetPort = linkModel.getTargetPort() as RecordFieldPortModel;
+                
+                const isOptionalSource = sourcePort.field.optional;
                 let position = linkModel.value.position as NodePosition;
-                if (sourcePort instanceof RecordFieldPortModel && sourcePort.field.optional) {
-                    isOptionalSource = true;
-                }
-                if (targetPort instanceof RecordFieldPortModel) {
-                    const expr = targetPort.editableRecordField?.value;
-                    if (STKindChecker.isSpecificField(expr)) {
-                        position = expr.valueExpr.position as NodePosition;
-                    } else {
-                        position = expr.position as NodePosition;
-                    }
+
+                const expr = targetPort.editableRecordField?.value;
+                if (STKindChecker.isSpecificField(expr)) {
+                    position = expr.valueExpr.position as NodePosition;
+                } else {
+                    position = expr.position as NodePosition;
                 }
 
                 const localVariables = getLocalVariableNames(context.functionST);
@@ -211,6 +210,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
                     startLine: position.startLine
                 }];
                 void context.applyModifications(modifications);
+                focusedViewStore.setPortFQNs(sourcePort.fieldFQN, targetPort.fieldFQN);
         }
     };
 

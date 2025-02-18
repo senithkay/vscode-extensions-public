@@ -15,8 +15,10 @@ import { ModuleVariableNode } from "../Node/ModuleVariable";
 import { UnionTypeNode } from "../Node/UnionType";
 import { IntermediatePortModel } from '../Port';
 import { RecordFieldPortModel } from '../Port/model/RecordFieldPortModel';
-import { isLinkModel } from '../utils/dm-utils';
+import { getMappingType, isConnectingArrays, isLinkModel } from '../utils/dm-utils';
 import { DataMapperLinkModel } from '../Link';
+import { removePendingMappingTempLinkIfExists } from '../Link/link-utils';
+import { DataMapperNodeModel } from '../Node/commons/DataMapperNode';
 
 /**
  * This state is controlling the creation of a link.
@@ -24,6 +26,7 @@ import { DataMapperLinkModel } from '../Link';
 export class CreateLinkState extends State<DiagramEngine> {
 	sourcePort: PortModel;
 	link: LinkModel;
+	temporaryLink: LinkModel;
 
 	constructor(resetState: boolean = false) {
 		super({ name: 'create-new-link' });
@@ -79,6 +82,11 @@ export class CreateLinkState extends State<DiagramEngine> {
 						}
 					}
 
+					if (this.temporaryLink) {
+						removePendingMappingTempLinkIfExists(this.temporaryLink);
+						this.temporaryLink = undefined;
+					}
+
 					if (element instanceof PortModel && !this.sourcePort) {
 						if (element instanceof RecordFieldPortModel) {
 							if (element.portType === "OUT" && !element.isDisabled()) {
@@ -90,8 +98,9 @@ export class CreateLinkState extends State<DiagramEngine> {
 								const link = this.sourcePort.createLinkModel();
 								link.setSourcePort(this.sourcePort);
 								link.addLabel(new ExpressionLabelModel({
+									link: link as DataMapperLinkModel,
 									value: undefined,
-									context: undefined
+									context: (element.getNode() as DataMapperNodeModel).context
 								}));
 								this.link = link;
 
@@ -115,6 +124,15 @@ export class CreateLinkState extends State<DiagramEngine> {
 									if (this.sourcePort.canLinkToPort(element)) {
 
 										this.link?.setTargetPort(element);
+
+										const connectingMappingType = getMappingType(this.sourcePort, element);
+										if (isConnectingArrays(connectingMappingType)) {
+											const label = this.link.getLabels()
+												.find(label => label instanceof ExpressionLabelModel) as ExpressionLabelModel;
+											label.setPendingMappingType(connectingMappingType);
+											this.temporaryLink = this.link;
+										}
+
 										this.engine.getModel().addAll(this.link)
 										if (this.sourcePort instanceof RecordFieldPortModel) {
 											this.sourcePort.linkedPorts.forEach((linkedPort) => {

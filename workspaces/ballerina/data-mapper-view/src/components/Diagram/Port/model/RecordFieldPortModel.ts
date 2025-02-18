@@ -16,11 +16,14 @@ import {
 	createSourceForMapping,
 	generateDestructuringPattern,
 	getInnermostExpressionBody,
+	getMappingType,
 	getModificationForFromClauseBindingPattern,
 	getModificationForSpecificFieldValue,
+	getValueType,
 	isDefaultValue,
 	modifySpecificFieldSource,
-	replaceSpecificFieldValue
+	replaceSpecificFieldValue,
+	updateExistingValue
 } from "../../utils/dm-utils";
 import { IntermediatePortModel } from "../IntermediatePort";
 import { DataMapperNodeModel } from "../../Node/commons/DataMapperNode";
@@ -33,15 +36,22 @@ export interface RecordFieldNodeModelGenerics {
 
 export const FORM_FIELD_PORT = "form-field-port";
 
-enum ValueType {
+export enum ValueType {
 	Default,
 	Empty,
 	NonEmpty
 }
 
+export enum MappingType {
+	ArrayToArray = "array-array",
+	ArrayToSingleton = "array-singleton",
+	Default = "" // All other mapping types
+}
+
 export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFieldNodeModelGenerics> {
 
 	public linkedPorts: PortModel[];
+	public pendingMappingType: MappingType;
 
 	constructor(
 		public field: TypeField,
@@ -75,11 +85,17 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 				const targetPortHasLinks = Object.values(targetPort.links)
 					?.some(link => (link as DataMapperLinkModel)?.isActualLink);
 
-				const targetNode = targetPort.getNode() as DataMapperNodeModel;
-				const { position, mappingType, stNode } = targetNode.context.selection.selectedST;
-				const valueType = this.getValueType(lm);
+				const mappingType = getMappingType(sourcePort, targetPort);
+				if (mappingType === MappingType.ArrayToArray) {
+					// Source update behavior is determined by the user when connecting arrays.
+					return;
+				}
 
-				if (mappingType === QueryExprMappingType.A2SWithCollect && valueType !== ValueType.Empty) {
+				const targetNode = targetPort.getNode() as DataMapperNodeModel;
+				const { position, mappingType: queryExprMappingType, stNode } = targetNode.context.selection.selectedST;
+				const valueType = getValueType(lm);
+
+				if (queryExprMappingType === QueryExprMappingType.A2SWithCollect && valueType !== ValueType.Empty) {
 					const modifications = [];
 					let sourceField = sourcePort && sourcePort instanceof RecordFieldPortModel && sourcePort.fieldFQN;
 					const fieldParts = sourceField.split('.');
@@ -91,13 +107,10 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 					}
 					// by default, use the sum operator to aggregate the values
 					sourceField = `sum(${fieldParts[fieldParts.length - 1]})`;
-					modifications.push(getModificationForSpecificFieldValue(lm, sourceField));
-					replaceSpecificFieldValue(lm, modifications);
+					modifications.push(getModificationForSpecificFieldValue(targetPort, sourceField));
+					replaceSpecificFieldValue(targetPort, modifications);
 				} else if (valueType === ValueType.Default) {
-					const modifications = [];
-					let sourceField = sourcePort && sourcePort instanceof RecordFieldPortModel && sourcePort.fieldFQN;
-					modifications.push(getModificationForSpecificFieldValue(lm, sourceField));
-					replaceSpecificFieldValue(lm, modifications);
+					updateExistingValue(sourcePort, targetPort);
 				} else if (targetPortHasLinks) {
 					modifySpecificFieldSource(lm);
 				} else {
@@ -115,8 +128,12 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 		super.addLink(link);
 	}
 
-	addLinkedPort(port: PortModel): void{
+	addLinkedPort(port: PortModel): void {
 		this.linkedPorts.push(port);
+	}
+
+	setPendingMappingType(mappingType: MappingType): void {
+		this.pendingMappingType = mappingType;
 	}
 
 	setDescendantHasValue(): void {
