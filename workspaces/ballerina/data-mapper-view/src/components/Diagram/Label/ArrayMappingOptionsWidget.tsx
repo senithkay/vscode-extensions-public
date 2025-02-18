@@ -19,6 +19,7 @@ import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { buildInputAccessExpr, createSourceForMapping, genArrayElementAccessSuffix, getLocalVariableNames, getValueType, updateExistingValue } from '../utils/dm-utils';
 import { ClauseType, generateQueryExpression } from '../Link/link-utils';
 import { useDMFocusedViewStateStore } from '../../../store/store';
+import { canPerformAggregation } from '../utils/type-utils';
 
 export const useStyles = () => ({
     arrayMappingMenu: css({
@@ -69,33 +70,40 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
         }
     }
 
-    const onClickMapIndividualElements = async () => {
+    const onClickMapIndividualElements = async (clause: ClauseType = ClauseType.Select, isElementAccss?: boolean) => {
         if (targetPort instanceof RecordFieldPortModel && sourcePort instanceof RecordFieldPortModel) {
             const targetPortField = targetPort.field;
+            const isArrayType = targetPortField.typeName === TypeKind.Array && targetPortField?.memberType;
+            const isAggregation = clause === ClauseType.Collect;
 
-            if (targetPortField.typeName === TypeKind.Array && targetPortField?.memberType) {
+            if (isArrayType || isElementAccss || isAggregation) {
                 let isSourceOptional = sourcePort.field.optional;
                 const localVariables = getLocalVariableNames(context.functionST);
                 const inputAccessExpr = buildInputAccessExpr((link.getSourcePort() as RecordFieldPortModel).fieldFQN);
-                const mapFnSrc = generateQueryExpression(inputAccessExpr, targetPortField.memberType, isSourceOptional,
-                    ClauseType.Select, [...localVariables]);
+                const targetType = isElementAccss || isAggregation ? targetPortField : targetPortField.memberType;
+
+                const mapFnSrc = generateQueryExpression(
+                    inputAccessExpr, targetType, isSourceOptional, clause, [...localVariables]
+                );
 
                 focusedViewStore.setPortFQNs(sourcePort.fieldFQN, targetPort.fieldFQN);
 
+                const updatedMapFnSrc = isElementAccss ? `(${mapFnSrc})[0]` : mapFnSrc;
                 if (isValueModifiable) {
-                    await updateExistingValue(sourcePort, targetPort, mapFnSrc);
+                    await updateExistingValue(sourcePort, targetPort, updatedMapFnSrc);
                 } else {
-                    await createSourceForMapping(link, mapFnSrc);
+                    await createSourceForMapping(link, updatedMapFnSrc);
                 }
             }
         }
     };
 
     const onClickMapArraysAccessSingleton = async () => {
+        const newExpr = (sourcePort as RecordFieldPortModel).fieldFQN + genArrayElementAccessSuffix(sourcePort, targetPort);
         if (isValueModifiable) {
-            await updateExistingValue(sourcePort, targetPort, genArrayElementAccessSuffix(sourcePort, targetPort));
+            await updateExistingValue(sourcePort, targetPort, newExpr);
         } else {
-            await createSourceForMapping(link, genArrayElementAccessSuffix(sourcePort, targetPort));
+            await createSourceForMapping(link, newExpr);
         }
     }
 
@@ -127,10 +135,23 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
     const a2sMenuItems: Item[] = [
         {
             id: "a2s-direct",
-            label: getItemElement("a2s-direct", "Access Singleton"),
+            label: getItemElement("a2s-direct", "Map by accessing element"),
             onClick: onClickMapArraysAccessSingleton
+        },
+        {
+            id: "a2s-inner",
+            label: getItemElement("a2s-inner", "Map Array Elements Individually and access element"),
+            onClick: () => onClickMapIndividualElements(ClauseType.Select, true)
         }
     ];
+
+    if (canPerformAggregation(targetPort)) {
+        a2sMenuItems.push({
+            id: "a2a-aggregate",
+            label: getItemElement("a2a-aggregate", "Aggregate using Query"),
+            onClick: () => onClickMapIndividualElements(ClauseType.Collect)
+        });
+    }
 
     const menuItems = pendingMappingType === MappingType.ArrayToArray ? a2aMenuItems : a2sMenuItems;
 

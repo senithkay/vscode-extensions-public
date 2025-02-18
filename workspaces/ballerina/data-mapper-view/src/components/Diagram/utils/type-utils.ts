@@ -29,6 +29,8 @@ import {
     getInnermostExpressionBody
 } from "./dm-utils";
 import { resolveUnionType } from "./union-type-utils";
+import { RecordFieldPortModel } from "../Port";
+import { PortModel } from "@projectstorm/react-diagrams-core";
 
 export function enrichAndProcessType(typeToBeProcessed: TypeField, node: STNode,
                                      selectedST: STNode): [EditableRecordField, TypeField] {
@@ -262,6 +264,13 @@ export function getDMTypeDim(dmType: TypeField) {
     }
     return dim;
 }
+
+export function canPerformAggregation(targetPort: PortModel) {
+    return targetPort instanceof RecordFieldPortModel
+        && (targetPort.field.typeName === PrimitiveBalType.Int
+            || targetPort.field.typeName === PrimitiveBalType.Float
+            || targetPort.field.typeName === PrimitiveBalType.Decimal);
+};
 
 function getValueNodeAndNextNodeForParentType(node: STNode,
                                               parentType: EditableRecordField,

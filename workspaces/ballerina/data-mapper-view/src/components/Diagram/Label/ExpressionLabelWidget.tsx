@@ -38,6 +38,7 @@ import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
 import { QueryExprMappingType } from '../Node';
 import { useDMFocusedViewStateStore } from '../../../store/store';
+import { canPerformAggregation } from '../utils/type-utils';
 
 export interface EditableLabelWidgetProps {
     model: ExpressionLabelModel;
@@ -178,7 +179,12 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         });
     };
 
-    const applyQueryExpr = (linkModel: DataMapperLinkModel, targetRecord: TypeField, clause: ClauseType) => {
+    const applyQueryExpr = (
+        linkModel: DataMapperLinkModel,
+        targetRecord: TypeField,
+        clause: ClauseType,
+        isElementAccss?: boolean
+    ) => {
         if (linkModel.value
             && (STKindChecker.isFieldAccess(linkModel.value) || STKindChecker.isSimpleNameReference(linkModel.value))) {
 
@@ -202,7 +208,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
                 const modifications = [{
                     type: "INSERT",
                     config: {
-                        "STATEMENT": querySrc,
+                        "STATEMENT": isElementAccss ? `(${querySrc})[0]` : querySrc,
                     },
                     endColumn: position.endColumn,
                     endLine: position.endLine,
@@ -262,31 +268,50 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         ),
     ];
 
-    const onClickConvertToQuery = () => {
-        if (target instanceof RecordFieldPortModel) {
-            const targetPortField = target.field;
-            if (targetPortField.typeName === PrimitiveBalType.Array && targetPortField?.memberType) {
-                applyQueryExpr(link, targetPortField.memberType, ClauseType.Select);
-            } else if (targetPortField.typeName === PrimitiveBalType.Union){
-                const [type] = getFilteredUnionOutputTypes(targetPortField);
-                if (type.typeName === PrimitiveBalType.Array && type.memberType) {
-                    applyQueryExpr(link, type.memberType, ClauseType.Select);
-                }
-            }
+    const isArrayType = (type: TypeField): boolean => {
+        return type.typeName === PrimitiveBalType.Array && !!type.memberType;
+    };
+    
+    const handleArrayType = (
+        type: TypeField,
+        link: DataMapperLinkModel,
+        clauseType: ClauseType,
+        isElementAccss?: boolean
+    ) => {
+        if (isArrayType(type)) {
+            applyQueryExpr(link, type.memberType, clauseType, isElementAccss);
+        } else if (isElementAccss) {
+            applyQueryExpr(link, type, clauseType, isElementAccss);
+        }
+    };
+    
+    const onClickConvertToQuery = (isElementAccss?: boolean) => {
+        if (!(target instanceof RecordFieldPortModel)) {
+            return;
+        }
+    
+        const targetPortField = target.field;
+
+        if (targetPortField.typeName === PrimitiveBalType.Union) {
+            const [unionType] = getFilteredUnionOutputTypes(targetPortField);
+            handleArrayType(unionType, link, ClauseType.Select, isElementAccss);
+        } else {
+            handleArrayType(targetPortField, link, ClauseType.Select, isElementAccss);
         }
     };
 
     const onClickAggregateViaQuery = () => {
-        if (target instanceof RecordFieldPortModel) {
-            const targetPortField = target.field;
-            if (targetPortField.typeName === PrimitiveBalType.Union){
-                const [type] = getFilteredUnionOutputTypes(targetPortField);
-                if (type.typeName === PrimitiveBalType.Array && type.memberType) {
-                    applyQueryExpr(link, type.memberType, ClauseType.Collect);
-                }
-            } else {
-                applyQueryExpr(link, targetPortField, ClauseType.Collect);
-            }
+        if (!(target instanceof RecordFieldPortModel)) {
+            return;
+        }
+
+        const targetPortField = target.field;
+
+        if (targetPortField.typeName === PrimitiveBalType.Union) {
+            const [type] = getFilteredUnionOutputTypes(targetPortField);
+            handleArrayType(type, link, ClauseType.Collect);
+        } else {
+            handleArrayType(targetPortField, link, ClauseType.Collect);
         }
     };
 
@@ -297,18 +322,17 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
             onClick: onClickConvertToQuery
         });
     } else if (arrayMappingType === ArrayMappingType.ArrayToSingleton) {
-        const supportsAggregation = target instanceof RecordFieldPortModel
-            && (target.field.typeName === PrimitiveBalType.Int
-                || target.field.typeName === PrimitiveBalType.Float
-                || target.field.typeName === PrimitiveBalType.Decimal);
+        const supportsAggregation = canPerformAggregation(target);
         if (supportsAggregation) {
             additionalActions.push({
                 title: "Aggregate using Query",
                 onClick: onClickAggregateViaQuery
             });
-        } else {
-            // Add indexed query expression
         }
+        additionalActions.push({
+            title: "Convert to Query and Access Element",
+            onClick: () => onClickConvertToQuery(true)
+        });
     }
 
     if (codeActions.length > 0 || additionalActions.length > 0) {

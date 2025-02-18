@@ -86,7 +86,7 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 					?.some(link => (link as DataMapperLinkModel)?.isActualLink);
 
 				const mappingType = getMappingType(sourcePort, targetPort);
-				if (mappingType === MappingType.ArrayToArray) {
+				if (mappingType === MappingType.ArrayToArray || mappingType === MappingType.ArrayToSingleton) {
 					// Source update behavior is determined by the user when connecting arrays.
 					return;
 				}
