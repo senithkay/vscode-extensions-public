@@ -71,7 +71,6 @@ export interface SubLinkLabelWidgetProps {
     model: ExpressionLabelModel;
 }
 
-// now we can render all what we want in the label
 export function SubLinkLabelWidget(props: SubLinkLabelWidgetProps) {
     const [linkStatus, setLinkStatus] = useState<LinkState>(LinkState.LinkNotSelected);
     const [deleteInProgress, setDeleteInProgress] = useState(false);

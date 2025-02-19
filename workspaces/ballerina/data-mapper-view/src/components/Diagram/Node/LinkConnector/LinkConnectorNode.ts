@@ -171,8 +171,11 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                     lm.setSourcePort(sourcePort);
                     sourcePort.addLinkedPort(this.inPort);
                     sourcePort.addLinkedPort(this.targetMappedPort);
+                    const targetPortExpr = this.targetMappedPort?.editableRecordField?.value;
+                    const isSubLinkLabel = STKindChecker.isSpecificField(targetPortExpr)
+                        && !STKindChecker.isConditionalExpression(targetPortExpr.valueExpr);
 
-                    if (this.sourcePorts.length > 1) {
+                    if (this.sourcePorts.length > 1 && isSubLinkLabel) {
                         lm.addLabel(new ExpressionLabelModel({
                             link: lm,
                             value: undefined,
