@@ -170,6 +170,7 @@ export function ResponseEditor(props: ParamProps) {
                         value={response.createStatusCodeResponse?.metadata.description}
                         checked={response.createStatusCodeResponse?.value === "true"}
                         onChange={handleNamedTypeChange}
+                        sx={{ paddingLeft: "16px" }}
                     />
                     <>
                         {response.createStatusCodeResponse?.value === "true" &&
