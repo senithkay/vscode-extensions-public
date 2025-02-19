@@ -27,11 +27,12 @@ import { FormContext, Provider } from "../../context";
 import { formatJSONLikeString } from "./utils";
 
 namespace S {
-    export const Container = styled(SidePanelBody)`
+    export const Container = styled(SidePanelBody) <{ nestedForm?: boolean }>`
         display: flex;
         flex-direction: column;
         gap: 20px;
-        height: calc(100vh - 70px);
+        height: ${({ nestedForm }) => nestedForm ? 'unset' : 'calc(100vh - 100px)'};
+        overflow: ${({ nestedForm }) => nestedForm ? 'visible' : 'scroll'};
     `;
 
     export const Row = styled.div<{}>`
@@ -176,6 +177,7 @@ export interface FormProps {
     mergeFormDataWithFlowNode?: (data: FormValues, targetLineRange: LineRange) => FlowNode;
     handleVisualizableFields?: (filePath: string, flowNode: FlowNode, position: LinePosition) => void;
     visualizableFields?: string[];
+    nestedForm?: boolean;
 }
 
 export const Form = forwardRef((props: FormProps, ref) => {
@@ -198,7 +200,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
         resetUpdatedExpressionField,
         mergeFormDataWithFlowNode,
         handleVisualizableFields,
-        visualizableFields
+        visualizableFields,
+        nestedForm
     } = props;
 
     const {
@@ -443,7 +446,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
     // TODO: support multiple type fields
     return (
         <Provider {...contextValue}>
-            <S.Container>
+            <S.Container nestedForm={nestedForm}>
                 {prioritizeVariableField && variableField && (
                     <S.CategoryRow showBorder={true}>
                         {variableField &&
