@@ -44,7 +44,7 @@ export const locationStore = createStore(
 			},
 			getLocations: (projectHandle, orgHandle) => {
 				const projectKey = `${orgHandle}-${projectHandle}`;
-				return Object.keys(get().state.projectLocations?.[projectKey])
+				return Object.keys(get().state.projectLocations?.[projectKey] ?? {})
 					.map((fsPath) => ({ fsPath, componentItems: get().state.projectLocations?.[projectKey]?.[fsPath] }))
 					.filter((item) => existsSync(item.fsPath));
 			},

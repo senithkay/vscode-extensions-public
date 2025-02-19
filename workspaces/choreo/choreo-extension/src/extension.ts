@@ -22,6 +22,7 @@ import { authStore } from "./stores/auth-store";
 import { contextStore } from "./stores/context-store";
 import { dataCacheStore } from "./stores/data-cache-store";
 import { locationStore } from "./stores/location-store";
+import { ChoreoConfigurationProvider, addTerminalHandlers } from "./tarminal-handlers";
 import { activateTelemetry } from "./telemetry/telemetry";
 import { activateURIHandlers } from "./uri-handlers";
 import { activateActivityWebViews } from "./webviews/utils";
@@ -67,7 +68,8 @@ export async function activate(context: vscode.ExtensionContext) {
 			activateURIHandlers();
 			activateCodeLenses(context);
 			continueCreateComponent();
-
+			addTerminalHandlers();
+			context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("*", new ChoreoConfigurationProvider()));
 			getLogger().debug("Choreo Extension activated");
 		})
 		.catch((e) => {

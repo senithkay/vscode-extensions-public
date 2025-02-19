@@ -222,6 +222,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 		outputChanelMap.get(params.key)?.show();
 	});
 	messenger.onRequest(ViewRuntimeLogs, async ({ orgName, projectName, componentName, deploymentTrackName, envName, type }) => {
+		// todo: export the env from here
 		if (getChoreoEnv() !== "prod") {
 			window.showErrorMessage("Choreo extension currently displays runtime logs is only if 'Advanced.ChoreoEnvironment' is set to 'prod'");
 			return;
