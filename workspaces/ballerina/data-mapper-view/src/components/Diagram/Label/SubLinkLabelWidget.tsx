@@ -77,7 +77,8 @@ export function SubLinkLabelWidget(props: SubLinkLabelWidgetProps) {
     const [deleteInProgress, setDeleteInProgress] = useState(false);
     
     const classes = useStyles();
-    const { link, value, valueNode, context: { collapsedFields }, deleteLink } = props.model;
+    const { link, value, valueNode, context, deleteLink } = props.model;
+    const collapsedFields = context?.collapsedFields || [];
     const source = link?.getSourcePort();
     const target = link?.getTargetPort();
     
