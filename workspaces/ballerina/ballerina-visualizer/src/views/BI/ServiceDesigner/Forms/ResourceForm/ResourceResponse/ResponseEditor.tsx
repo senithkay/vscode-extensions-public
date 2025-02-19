@@ -180,6 +180,8 @@ export function ResponseEditor(props: ParamProps) {
                                     fields={currentFields}
                                     onBack={handleOnCancel}
                                     onSubmit={onTypeNameSubmit}
+                                    submitText={"Add"}
+                                    nestedForm={true}
                                 />
                             </>
                         }
@@ -190,6 +192,8 @@ export function ResponseEditor(props: ParamProps) {
                                 fields={typeField}
                                 onBack={handleOnCancel}
                                 onSubmit={onTypeValueSubmit}
+                                submitText={"Add"}
+                                nestedForm={true}
                             />
                         }
                     </>
@@ -203,6 +207,8 @@ export function ResponseEditor(props: ParamProps) {
                         fields={typeField}
                         onBack={handleOnCancel}
                         onSubmit={onTypeValueSubmit}
+                        submitText={"Save"}
+                        nestedForm={true}
                     />
                 </>
             }
