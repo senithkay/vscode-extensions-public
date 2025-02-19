@@ -23,9 +23,8 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Diagram } from "@wso2-enterprise/component-diagram";
-import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { ProgressRing, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { Colors } from "../../../resources/constants";
 
 const SpinnerContainer = styled.div`
     display: flex;
@@ -35,7 +34,7 @@ const SpinnerContainer = styled.div`
 `;
 
 const DiagramContainer = styled.div`
-    height: 460px;
+    height: 100%;
 `;
 
 interface ComponentDiagramProps {
@@ -152,7 +151,7 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
     if (!projectStructure) {
         return (
             <SpinnerContainer>
-                <ProgressRing color={Colors.PRIMARY} />
+                <ProgressRing color={ThemeColors.PRIMARY} />
             </SpinnerContainer>
         );
     }

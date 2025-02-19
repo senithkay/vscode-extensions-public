@@ -9,8 +9,7 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { ProgressRing } from '@wso2-enterprise/ui-toolkit';
-import { Colors } from '../../resources/constants';
+import { ProgressRing, ThemeColors } from '@wso2-enterprise/ui-toolkit';
 
 const LoadingContainer = styled.div<{ fullHeight?: boolean }>`
     display: flex;
@@ -36,7 +35,7 @@ interface LoadingViewProps {
 export function LoadingView({ message = 'Loading...', fullHeight = false }: LoadingViewProps) {
     return (
         <LoadingContainer fullHeight={fullHeight}>
-             <ProgressRing color={Colors.PRIMARY} />
+             <ProgressRing color={ThemeColors.PRIMARY} />
             <LoadingText>{message}</LoadingText>
         </LoadingContainer>
     );

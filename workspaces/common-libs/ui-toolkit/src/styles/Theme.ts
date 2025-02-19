@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-duplicate-enum-values */
 /**
  * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -27,10 +28,8 @@ export enum DefaultColors {
     OUTLINE_VARIANT = "#a8a8a8",
 
     ERROR = "#ED2633",
-
-    BLUE = "#1a85ff",
-    GREEN = "#388a34",
-    PURPLE = "#652d90",
+    BADGE = "#5567D5",
+    DEBUGGER_BREAKPOINT_BACKGROUND = "#ffcc004d",
 }
 
 export enum VSCodeColors {
@@ -41,6 +40,7 @@ export enum VSCodeColors {
     SECONDARY = "var(--vscode-editorLightBulb-foreground)",
     ON_SECONDARY = "var(--vscode-button-foreground)",
     SECONDARY_CONTAINER = "var(--vscode-sideBar-background)",
+    SECONDARY_BUTTON = "var(--vscode-button-secondaryBackground)",
 
     SURFACE_BRIGHT = "var(--vscode-editor-background)",
     SURFACE = "var(--vscode-sideBar-background)",
@@ -54,13 +54,10 @@ export enum VSCodeColors {
     OUTLINE_VARIANT = "var(--vscode-dropdown-border)",
 
     ERROR = "var(--vscode-errorForeground)",
-
-    BLUE = "var(--vscode-charts-blue)",
-    GREEN = "var(--vscode-charts-green)",
-    PURPLE = "var(--vscode-charts-purple)",
+    BADGE = "var(--vscode-badge-foreground)",
 }
 
-export const Colors = {
+export const ThemeColors = {
     PRIMARY: VSCodeColors.PRIMARY || DefaultColors.PRIMARY,
     ON_PRIMARY: VSCodeColors.ON_PRIMARY || DefaultColors.ON_PRIMARY,
     PRIMARY_CONTAINER: VSCodeColors.PRIMARY_CONTAINER || DefaultColors.PRIMARY_CONTAINER,
@@ -68,6 +65,7 @@ export const Colors = {
     SECONDARY: VSCodeColors.SECONDARY || DefaultColors.SECONDARY,
     ON_SECONDARY: VSCodeColors.ON_SECONDARY || DefaultColors.ON_SECONDARY,
     SECONDARY_CONTAINER: VSCodeColors.SECONDARY_CONTAINER || DefaultColors.SECONDARY_CONTAINER,
+    SECONDARY_BUTTON: VSCodeColors.SECONDARY_BUTTON || DefaultColors.SECONDARY,
 
     SURFACE_BRIGHT: VSCodeColors.SURFACE_BRIGHT || DefaultColors.SURFACE_BRIGHT,
     SURFACE: VSCodeColors.SURFACE || DefaultColors.SURFACE,
@@ -81,8 +79,6 @@ export const Colors = {
     OUTLINE_VARIANT: VSCodeColors.OUTLINE_VARIANT || DefaultColors.OUTLINE_VARIANT,
 
     ERROR: VSCodeColors.ERROR || DefaultColors.ERROR,
-
-    BLUE: VSCodeColors.BLUE || DefaultColors.BLUE,
-    GREEN: VSCodeColors.GREEN || DefaultColors.GREEN,
-    PURPLE: VSCodeColors.PURPLE || DefaultColors.PURPLE,
+    BADGE: VSCodeColors.BADGE,
+    DEBUGGER_BREAKPOINT_BACKGROUND: DefaultColors.DEBUGGER_BREAKPOINT_BACKGROUND,
 };

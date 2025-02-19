@@ -14,13 +14,13 @@ import {
     Codicon,
     FormExpressionEditorRef,
     LinkButton,
-    SidePanelBody,
+    ThemeColors,
+    SidePanelBody
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
 import { ExpressionFormField, FormExpressionEditorProps, FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
-import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
 import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, FlowNode, LinePosition } from "@wso2-enterprise/ballerina-core";
 import { FormContext, Provider } from "../../context";
@@ -51,7 +51,7 @@ namespace S {
         width: 100%;
         margin-top: 8px;
         padding-bottom: 14px;
-        border-bottom: ${({ showBorder }) => (showBorder ? `1px solid ${Colors.OUTLINE_VARIANT}` : "none")};
+        border-bottom: ${({ showBorder }) => (showBorder ? `1px solid ${ThemeColors.OUTLINE_VARIANT}` : "none")};
     `;
 
     export const CheckboxRow = styled.div<{}>`
@@ -500,7 +500,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 {!showAdvancedOptions && (
                                     <LinkButton
                                         onClick={handleOnShowAdvancedOptions}
-                                        sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}
+                                        sx={{ fontSize: 12, padding: 8, color: ThemeColors.PRIMARY, gap: 4 }}
                                     >
                                         <Codicon name={"chevron-down"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
                                         Expand
@@ -509,7 +509,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 {showAdvancedOptions && (
                                     <LinkButton
                                         onClick={handleOnHideAdvancedOptions}
-                                        sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}
+                                        sx={{ fontSize: 12, padding: 8, color: ThemeColors.PRIMARY, gap: 4 }}
                                     >
                                         <Codicon name={"chevron-up"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
                                         Collapsed

@@ -12,8 +12,7 @@ import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { SqFlow } from "@wso2-enterprise/ballerina-core";
 import { Diagram } from "@wso2-enterprise/sequence-diagram";
 import styled from "@emotion/styled";
-import { Colors } from "../../../resources/constants";
-
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 const Container = styled.div`
     width: 100%;
     height: calc(100vh - 50px);
@@ -24,8 +23,8 @@ const ExperimentalLabel = styled.div`
     position: fixed;
     top: 120px;
     left: 12px;
-    background-color: ${Colors.SURFACE_DIM};
-    color: ${Colors.ON_SURFACE};
+    background-color: ${ThemeColors.SURFACE_DIM};
+    color: ${ThemeColors.ON_SURFACE};
     padding: 4px 8px;
     font-size: 12px;
     border-radius: 4px;

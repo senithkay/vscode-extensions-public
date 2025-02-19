@@ -10,8 +10,9 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { PointNodeModel } from "./PointNodeModel";
-import { BORDER_WIDTH, Colors, EMPTY_NODE_WIDTH } from "../../../resources/constants";
+import { BORDER_WIDTH, EMPTY_NODE_WIDTH } from "../../../resources/constants";
 
 namespace PointNodeStyles {
     export const Node = styled.div`
@@ -31,12 +32,8 @@ namespace PointNodeStyles {
         width: ${EMPTY_NODE_WIDTH}px;
         height: ${EMPTY_NODE_WIDTH}px;
         border-radius: 50%;
-        border: ${BORDER_WIDTH}px solid ${(props: CircleStyleProp) => (props.show ? Colors.PRIMARY : "transparent")};
-        background-color: ${(props: CircleStyleProp) => (props.show ? Colors.PRIMARY_CONTAINER : "transparent")};
-        
-        /* opacity: 0.5;
-        border: none;
-        background-color: ${Colors.PRIMARY}; */
+        border: ${BORDER_WIDTH}px solid ${(props: CircleStyleProp) => (props.show ? ThemeColors.PRIMARY : "transparent")};
+        background-color: ${(props: CircleStyleProp) => (props.show ? ThemeColors.PRIMARY_CONTAINER : "transparent")};
     `;
 
     export const TopPortWidget = styled(PortWidget)``;

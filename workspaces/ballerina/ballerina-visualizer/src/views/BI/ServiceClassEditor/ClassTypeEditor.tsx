@@ -8,10 +8,9 @@
  */
 
 import { Type, ServiceClassModel, ModelFromCodeRequest, FieldType, FunctionModel, NodePosition, STModification, removeStatement, LineRange, EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
-import { Button, Codicon, Typography, TextField, ProgressRing, Menu, MenuItem, Popover, Item } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Typography, TextField, ProgressRing, Menu, MenuItem, Popover, Item, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import { Colors } from "../../../resources/constants";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { LoadingContainer } from "../../styles";
 import { FunctionCard } from "./FunctionCard";
@@ -66,7 +65,7 @@ const SectionHeader = styled.div`
 `;
 
 const EmptyStateText = styled(Typography)`
-    color: ${Colors.ON_SURFACE_VARIANT};
+    color: ${ThemeColors.ON_SURFACE_VARIANT};
     padding: 12px;
     text-align: center;
 `;

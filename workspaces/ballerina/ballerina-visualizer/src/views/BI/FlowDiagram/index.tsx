@@ -43,12 +43,11 @@ import {
     getContainerTitle,
 } from "../../../utils/bi";
 import { NodePosition, ResourceAccessorDefinition, STNode } from "@wso2-enterprise/syntax-tree";
-import { View, ProgressRing, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
+import { View, ProgressRing, ProgressIndicator, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { applyModifications, textToModifications } from "../../../utils/utils";
 import FormGenerator from "../Forms/FormGenerator";
 import { InlineDataMapper } from "../../InlineDataMapper";
-import { Colors } from "../../../resources/constants";
 import { HelperView } from "../HelperView";
 
 const Container = styled.div`
@@ -77,7 +76,7 @@ const ColoredTag = styled(VSCodeTag) <ColoredTagProps>`
 const SubTitle = styled.div`
     font-size: 14px;
     font-weight: 600;
-    color: ${Colors.ON_SURFACE};
+    color: ${ThemeColors.ON_SURFACE};
 `;
 
 export enum SidePanelView {
@@ -755,12 +754,12 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         <>
             <View>
                 {(showProgressIndicator || fetchingAiSuggestions) && model && (
-                    <ProgressIndicator color={Colors.PRIMARY} />
+                    <ProgressIndicator color={ThemeColors.PRIMARY} />
                 )}
                 <Container>
                     {!model && (
                         <SpinnerContainer>
-                            <ProgressRing color={Colors.PRIMARY} />
+                            <ProgressRing color={ThemeColors.PRIMARY} />
                         </SpinnerContainer>
                     )}
                     {model && <MemoizedDiagram {...memoizedDiagramProps} />}
