@@ -215,7 +215,7 @@ export function MainForm() {
             key: `params`,
             label: "Parameters",
             type: "PARAM_MANAGER",
-            optional: false,
+            optional: true,
             editable: true,
             documentation: "",
             valueTypeConstraint: "",
