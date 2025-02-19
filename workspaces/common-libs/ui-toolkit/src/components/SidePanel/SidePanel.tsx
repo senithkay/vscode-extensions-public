@@ -52,7 +52,7 @@ const SubPanelContainer = styled.div<SidePanelProps>`
     box-shadow: 0 5px 10px 0 var(--vscode-badge-background);
     background-color: var(--vscode-editor-background);
     color: var(--vscode-editor-foreground);
-    z-index: 1999;
+    z-index: 1000;
     opacity: ${(props: SidePanelProps) => props.isSubPanelOpen ? 1 : 0};
     transform: translateX(${(props: SidePanelProps) => props.alignment === 'left' 
         ? (props.isSubPanelOpen ? '0%' : '-100%') 
@@ -109,7 +109,7 @@ export const SidePanel: React.FC<SidePanelProps> = (props: SidePanelProps) => {
         <div id={id} className={className}>
             {visible && (
                 <>
-                    { overlay && isOpen && <Overlay sx={{background: colors.vscodeInputBackground, opacity: 0.4}} onClose={handleOverlayClose}/> }
+                    { overlay && isOpen && <Overlay sx={{background: colors.vscodeInputBackground, opacity: 0.4, zIndex: 2000}} onClose={handleOverlayClose}/> }
                     <SidePanelContainer isOpen={open} alignment={alignment} width={width} sx={sx} onTransitionEnd={handleTransitionEnd}>
                         {children}
                     </SidePanelContainer>

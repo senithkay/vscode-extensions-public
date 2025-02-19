@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import styled from "@emotion/styled";
-import React, { PropsWithChildren } from "react";
+import React, { forwardRef, PropsWithChildren } from "react";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 
 export interface ButtonWrapperProps {
@@ -40,16 +40,16 @@ export const ButtonWrapper = styled.div<ButtonWrapperProps>`
     ${(props: ButtonWrapperProps) => props.sx}
 `;
 
-export const Button: React.FC<PropsWithChildren<ButtonProps>> = (props: PropsWithChildren<ButtonProps>) => {
+export const Button = forwardRef<HTMLDivElement, PropsWithChildren<ButtonProps>>((props, ref) => {
     const { id, className, disabled, appearance = "primary", tooltip, children, onClick, sx, buttonSx } = props;
 
     return (
         // Workaround for button not being disabled when disabled prop is passed
-        <ButtonWrapper id={id} className={className} sx={sx}>
+        <ButtonWrapper ref={ref} id={id} className={className} sx={sx}>
             <VSCodeButton style={buttonSx} appearance={appearance} onClick={onClick} title={tooltip} disabled={(disabled ? true : undefined)}>
                 {children}
             </VSCodeButton>
         </ButtonWrapper>
     );
-};
-
+});
+Button.displayName = "Button";

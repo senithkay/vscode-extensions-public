@@ -11,8 +11,11 @@ import React, { useEffect, useMemo, useReducer, useState } from "react";
 
 import { css } from "@emotion/css";
 import {
+    EVENT_TYPE,
     FileListEntry,
-    GenerateMappingsResponse
+    GenerateMappingsResponse,
+    MACHINE_VIEW,
+    VisualizerLocation
 } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
@@ -273,6 +276,14 @@ export function DataMapperC(props: DataMapperViewProps) {
     const onConfigOpen = () => {
         setConfigPanelOpen(true);
     }
+
+    const onEdit = () => {
+        const context: VisualizerLocation = {
+            view: MACHINE_VIEW.BIDataMapperForm,
+            identifier: fnST.functionName.value,
+        };
+        rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
+    };
 
     const onConfigClose = () => {
         setConfigPanelOpen(false);
@@ -595,6 +606,10 @@ export function DataMapperC(props: DataMapperViewProps) {
         setErrorKind(kind);
     };
 
+    const handleBack = () => {
+        rpcClient.getVisualizerRpcClient()?.goBack();
+    };
+
     const cPanelProps = {
         fnST,
         targetPosition,
@@ -648,6 +663,8 @@ export function DataMapperC(props: DataMapperViewProps) {
                                 onConfigOpen={onConfigOpen}
                                 onClose={onClose}
                                 autoMapWithAI={autoMapWithAI}
+                                onEdit={onEdit}
+                                onBack={handleBack}
                             />
                         )}
                         {(!isFetchingDMMetaData && !isErrorDMMetaData) && !dMSupported && (

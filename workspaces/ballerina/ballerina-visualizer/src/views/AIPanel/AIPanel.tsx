@@ -17,6 +17,7 @@ import { SignInToCopilotMessage } from './SignInWindow';
 import { WaitingForLoginMessage } from './WaitingForSignIn';
 import { DisabledWindow } from './DisabledWindow';
 import DocumentOutput from './DocumentOutput';
+import { SettingsPanel } from './SettingsPanel';
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -55,6 +56,9 @@ const AIPanel = (props: { state: AIMachineStateValue }) => {
                     break;
                 case "disabled":
                     setViewComponent(<DisabledWindow />);
+                    break;
+                case "Settings":
+                    setViewComponent(<SettingsPanel />);
                     break;
                 default:
                     setViewComponent(<h1>{machineView.state}</h1>);

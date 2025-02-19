@@ -9,7 +9,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button, Codicon, CompletionItem, FormExpressionEditorRef, LinkButton } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, FormExpressionEditorRef, LinkButton, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 import {
     FlowNode,
@@ -20,7 +20,6 @@ import {
     FormDiagnostics,
     Diagnostic
 } from "@wso2-enterprise/ballerina-core";
-import { Colors } from "../../../../resources/constants";
 import {
     FormValues,
     ExpressionEditor,
@@ -28,7 +27,7 @@ import {
     FormExpressionEditorProps
 } from "@wso2-enterprise/ballerina-side-panel";
 import { FormStyles } from "../styles";
-import { convertNodePropertyToFormField } from "../../../../utils/bi";
+import { convertNodePropertyToFormField, removeDuplicateDiagnostics } from "../../../../utils/bi";
 import { cloneDeep, debounce } from "lodash";
 import { RemoveEmptyNodesVisitor, traverseNode } from "@wso2-enterprise/bi-diagram";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -42,7 +41,7 @@ interface IfFormProps {
     openSubPanel: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
-    isActiveSubPanel?: boolean;
+    subPanelView?: SubPanelView;
 }
 
 export function IfForm(props: IfFormProps) {
@@ -55,7 +54,7 @@ export function IfForm(props: IfFormProps) {
         openSubPanel,
         updatedExpressionField,
         resetUpdatedExpressionField,
-        isActiveSubPanel,
+        subPanelView,
     } = props;
     const { 
         watch,
@@ -283,10 +282,12 @@ export function IfForm(props: IfFormProps) {
             }
         });
 
-        handleSetDiagnosticsInfo({ key, diagnostics: response.diagnostics });
+        const uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
+        handleSetDiagnosticsInfo({ key, diagnostics: uniqueDiagnostics });
     }, 250), [rpcClient, fileName, targetLineRange, node, handleSetDiagnosticsInfo]);
 
     const handleEditorFocus = (currentActive: number) => {
+        const isActiveSubPanel = subPanelView !== SubPanelView.UNDEFINED;
         if (isActiveSubPanel && activeEditor !== currentActive) {
             openSubPanel && openSubPanel({ view: SubPanelView.UNDEFINED });
         }
@@ -337,6 +338,20 @@ export function IfForm(props: IfFormProps) {
                     return (
                         <FormStyles.Row key={field.key}>
                             <ExpressionEditor
+                                /* Completion related props */
+                                completions={activeEditor === index ? expressionEditor.completions : []}
+                                triggerCharacters={expressionEditor.triggerCharacters}
+                                retrieveCompletions={expressionEditor.retrieveCompletions}
+                                extractArgsFromFunction={expressionEditor.extractArgsFromFunction}
+                                /* Helper pane related props */
+                                isLoadingHelperPaneInfo={expressionEditor.isLoadingHelperPaneInfo}
+                                variableInfo={expressionEditor.variableInfo}
+                                configVariableInfo={expressionEditor.configVariableInfo}
+                                functionInfo={expressionEditor.functionInfo}
+                                libraryBrowserInfo={expressionEditor.libraryBrowserInfo}
+                                getHelperPaneData={expressionEditor.getHelperPaneData}
+                                onFunctionItemSelect={expressionEditor.onFunctionItemSelect}
+                                /* Other props */
                                 ref={exprRef}
                                 control={control}
                                 field={field}
@@ -347,14 +362,6 @@ export function IfForm(props: IfFormProps) {
                                 targetLineRange={targetLineRange}
                                 fileName={fileName}
                                 onRemove={index !== 0 && !branch.label.includes("Else") ? () => removeCondition(index) : undefined}
-                                completions={activeEditor === index ? expressionEditor.completions : []}
-                                triggerCharacters={expressionEditor.triggerCharacters}
-                                retrieveCompletions={expressionEditor.retrieveCompletions}
-                                variableInfo={expressionEditor.variableInfo}
-                                functionInfo={expressionEditor.functionInfo}
-                                libraryBrowserInfo={expressionEditor.libraryBrowserInfo}
-                                getHelperPaneData={expressionEditor.getHelperPaneData}
-                                extractArgsFromFunction={expressionEditor.extractArgsFromFunction}
                                 onCompletionItemSelect={expressionEditor.onCompletionItemSelect}
                                 onCancel={expressionEditor.onCancel}
                                 onBlur={expressionEditor.onBlur}
@@ -364,20 +371,20 @@ export function IfForm(props: IfFormProps) {
                 }
             })}
 
-            <LinkButton onClick={addNewCondition} sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
+            <LinkButton onClick={addNewCondition} sx={{ fontSize: 12, padding: 8, color: ThemeColors.PRIMARY, gap: 4 }}>
                 <Codicon name={"add"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
                 Add Else IF Block
             </LinkButton>
 
             {!hasElseBranch && (
-                <LinkButton onClick={addElseBlock} sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
+                <LinkButton onClick={addElseBlock} sx={{ fontSize: 12, padding: 8, color: ThemeColors.PRIMARY, gap: 4 }}>
                     <Codicon name={"add"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
                     Add Else Block
                 </LinkButton>
             )}
 
             {hasElseBranch && (
-                <LinkButton onClick={removeElseBlock} sx={{ fontSize: 12, padding: 8, color: Colors.ERROR, gap: 4 }}>
+                <LinkButton onClick={removeElseBlock} sx={{ fontSize: 12, padding: 8, color: ThemeColors.ERROR, gap: 4 }}>
                     <Codicon name={"chrome-minimize"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
                     Remove Else Block
                 </LinkButton>

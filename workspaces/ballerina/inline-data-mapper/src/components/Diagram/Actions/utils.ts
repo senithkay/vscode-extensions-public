@@ -10,17 +10,20 @@
 import { BaseModel } from "@projectstorm/react-canvas-core";
 import {
     ObjectOutputNode,
-    InputNode
+    InputNode,
+    ArrayOutputNode
 } from "../Node";
 import { IO_NODE_DEFAULT_WIDTH } from "../utils/constants";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
+import { DataMapperLinkModel } from "../Link";
 
 export const INPUT_NODES = [
     InputNode
 ];
 
 export const OUTPUT_NODES = [
-    ObjectOutputNode
+    ObjectOutputNode,
+    ArrayOutputNode
 ];
 
 export const INTERMEDIATE_NODES: typeof DataMapperNodeModel[] = [];
@@ -38,4 +41,8 @@ export function isOutputNode(node: BaseModel) {
 
 export function isIntermediateNode(node: BaseModel) {
     return INTERMEDIATE_NODES.some(nodeType => node instanceof nodeType);
+}
+
+export function isLinkModel(node: BaseModel) {
+    return node instanceof DataMapperLinkModel;
 }

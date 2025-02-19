@@ -23,12 +23,8 @@ export interface ExpressionLabelOptions extends BaseModelOptions {
 }
 
 export class ExpressionLabelModel extends LabelModel {
-	value?: string;
-	valueNode?: Node;
-	context: IDataMapperContext;
 	link?: DataMapperLinkModel;
-	field?: Node;
-	editorLabel?: string;
+	value?: string;
 	deleteLink?: () => void;
 
 	constructor(options: ExpressionLabelOptions = {}) {
@@ -36,12 +32,8 @@ export class ExpressionLabelModel extends LabelModel {
 			...options,
 			type: 'expression-label'
 		});
-		this.value = options.value || '';
-		this.valueNode = options.valueNode;
-		this.context = options.context;
 		this.link = options.link;
-		this.field = options.field;
-		this.editorLabel = options.editorLabel;
+		this.value = options.value || '';
 		this.updateSource = this.updateSource.bind(this);
 		this.deleteLink = options.deleteLink;
 	}

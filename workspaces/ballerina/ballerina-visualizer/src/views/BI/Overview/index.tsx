@@ -13,33 +13,16 @@ import {
     ProjectSource,
     ProjectStructureResponse,
     EVENT_TYPE,
-    MACHINE_VIEW
+    MACHINE_VIEW,
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import {
-    Typography,
-    View,
-    ViewContent,
-    LinkButton,
-    Codicon,
-    ProgressRing,
-    Button,
-} from "@wso2-enterprise/ui-toolkit";
+import { Typography, Codicon, ProgressRing, Button, Icon } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { BIHeader } from "../BIHeader";
-import { Colors } from "../../../resources/constants";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { getProjectFromResponse, parseSSEEvent, replaceCodeBlocks, splitContent } from "../../AIPanel/AIChat";
 import ComponentDiagram from "../ComponentDiagram";
-import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
-import ReactMarkdown from 'react-markdown';
-
-const CardTitleContainer = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    border-bottom: 1px solid var(--vscode-dropdown-border);
-    padding:5px 10px;
-`;
+import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import ReactMarkdown from "react-markdown";
 
 const SpinnerContainer = styled.div`
     display: flex;
@@ -48,72 +31,173 @@ const SpinnerContainer = styled.div`
     height: 100%;
 `;
 
-const Content = styled.div`
-    height: 100%;
-`;
-
-const ContentFooter = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-`;
-
 const Title = styled(Typography)`
     margin: 8px 0;
 `;
 
+const Description = styled(Typography)`
+    color: var(--vscode-descriptionForeground);
+`;
+
+const IconButtonContainer = styled.div`
+    display: flex;
+    align-items: flex-end;
+`;
+
 const ButtonContainer = styled.div`
     display: flex;
+    align-items: flex-end;
     gap: 8px;
 `;
 
-const Readme = styled.div`
-    padding: 16px;
-    overflow-y: auto;
-    min-height: 300px;
-    margin-bottom: 20px;
-`;
-
 const EmptyStateContainer = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 300px;
-    padding: 20px;
-    text-align: center;
 `;
 
-const CardContainer = styled.div`
-    border: 1px solid var(--vscode-dropdown-border);
-    border-radius: 5px;
-    margin-top: 24px;
+const PageLayout = styled.div`
+    height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 16px;
+    padding: 16px;
+`;
+
+const HeaderRow = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0 16px 16px;
+    background: var(--vscode-editor-background);
+    border-bottom: 1px solid var(--vscode-dropdown-border);
+`;
+
+const MainContent = styled.div`
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 16px;
+    min-height: 0; // Prevents grid blowout
+    height: 60vh; // Takes majority of the viewport height
+`;
+
+const MainPanel = styled.div<{ noPadding?: boolean }>`
+    border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
+    border-radius: 4px;
+    padding: ${(props: { noPadding: boolean; }) => (props.noPadding ? "0" : "16px")};
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+`;
+
+const SidePanel = styled.div`
+    border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
+    border-radius: 4px;
+    padding: 16px;
+    overflow: auto;
+`;
+
+const FooterPanel = styled.div`
+    border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
+    border-radius: 4px;
+    padding: 16px;
+    overflow: auto;
+    height: calc(40vh - 32px - 64px); // Remaining viewport height minus padding and gaps
+`;
+
+const ActionContainer = styled.div`
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+`;
+
+const EmptyReadmeContainer = styled.div`
+    display: flex;
+    margin-top: 50px;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    height: 100%;
+`;
+
+const DiagramHeaderContainer = styled.div<{ withPadding?: boolean }>`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: ${(props: { withPadding: boolean; }) => (props.withPadding ? "16px 16px 0 16px" : "0")};
+`;
+
+const DiagramContent = styled.div`
+    flex: 1;
+    min-height: 0; // Prevents flex blowout
+    position: relative;
+`;
+
+const DeploymentContent = styled.div`
+    margin-top: 16px;
+`;
+
+const DeployButtonContainer = styled.div`
+    margin-top: 16px;
+`;
+
+const ReadmeHeaderContainer = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+`;
+
+const ReadmeContent = styled.div`
+    margin-top: 16px;
+`;
+
+const TitleContainer = styled.div`
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+`;
+
+const ProjectTitle = styled.h1`
+    font-weight: bold;
+    font-size: 1.5rem;
+    text-transform: capitalize;
+    margin-bottom: 0;
+    margin-top: 0;
+    @media (min-width: 768px) {
+        font-size: 1.875rem;
+    }
+`;
+
+const ProjectSubtitle = styled.h2`
+    display: none;
+    font-weight: 200;
+    font-size: 1.5rem;
+    opacity: 0.3;
+    margin-bottom: 0;
+    margin-top: 0;
+    @media (min-width: 640px) {
+        display: block;
+    }
+
+    @media (min-width: 768px) {
+        font-size: 1.875rem;
+    }
 `;
 
 interface ComponentDiagramProps {
     //
 }
 
-
-interface SectionHeadProps {
-    title: string;
-    actions?: React.ReactNode[];
-}
-
-function SectionHead({ title, actions = [] }: SectionHeadProps) {
-    return (
-        <CardTitleContainer>
-            <Title variant="h2">{title}</Title>
-            <div style={{ marginLeft: 'auto', display: 'flex', gap: '10px', marginBottom: '8px' }}>
-                {actions}
-            </div>
-        </CardTitleContainer>
-    );
-}
-
-
 export function Overview(props: ComponentDiagramProps) {
-
     const { rpcClient } = useRpcContext();
     const [projectName, setProjectName] = React.useState<string>("");
     const [readmeContent, setReadmeContent] = React.useState<string>("");
@@ -156,9 +240,12 @@ export function Overview(props: ComponentDiagramProps) {
                 backendRootUri.current = res;
             });
 
-        rpcClient.getBIDiagramRpcClient().getReadmeContent().then((res) => {
-            setReadmeContent(res.content);
-        });
+        rpcClient
+            .getBIDiagramRpcClient()
+            .getReadmeContent()
+            .then((res) => {
+                setReadmeContent(res.content);
+            });
     };
 
     rpcClient?.onProjectContentUpdated((state: boolean) => {
@@ -188,43 +275,8 @@ export function Overview(props: ComponentDiagramProps) {
         });
     }, [responseText]);
 
-    const handleSaveOverview = (value: string) => {
-        rpcClient.getBIDiagramRpcClient().handleReadmeContent({ content: value, read: false });
-        setReadmeContent(value);
-    };
-
-    const handleOverviewGenerate = async () => {
-        fetchAiResponse();
-    };
-
-    const handleDiagramOnAccept = async () => {
-        setIsCodeGenerating(true);
-        setResponseText("");
-        // HACK: code is already added to the project. here just show feedback
-        setTimeout(() => {
-            setIsCodeGenerating(false);
-        }, 2000);
-    };
-
-    const handleDiagramOnReject = () => {
-        // INFO: forcefully clear the response text and files
-        if (!responseText) {
-            return;
-        }
-        const segments = splitContent(responseText);
-
-        segments.forEach((segment) => {
-            if (segment.isCode) {
-                let file = segment.fileName;
-                rpcClient.getAiPanelRpcClient().addToProject({ content: "", filePath: file });
-            }
-        });
-
-        setResponseText("");
-    };
-
     function isEmptyProject(): boolean {
-        return Object.values(projectStructure.directoryMap || {}).every(array => array.length === 0);
+        return Object.values(projectStructure.directoryMap || {}).every((array) => array.length === 0);
     }
 
     async function fetchAiResponse(isQuestion: boolean = false) {
@@ -339,52 +391,10 @@ export function Overview(props: ComponentDiagramProps) {
         }
     }
 
-    const generateButton = () => {
-        let component = (
-            <LinkButton
-                onClick={handleOverviewGenerate}
-                sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 8 }}
-            >
-                <Codicon name={"wand"} iconSx={{ fontSize: 16 }} sx={{ height: 16 }} />
-                Generate components using overview
-            </LinkButton>
-        );
-        if (isLoading) {
-            component = (
-                <LinkButton onClick={() => { }} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 8 }}>
-                    <ProgressRing sx={{ height: "16px", width: "16px" }} />
-                    {loadingMessage || "Reading project overview..."}
-                </LinkButton>
-            );
-        }
-        if (responseText) {
-            component = (
-                <ButtonContainer>
-                    <Button appearance="primary" onClick={handleDiagramOnAccept}>
-                        Accept
-                    </Button>
-                    <Button appearance="secondary" onClick={handleDiagramOnReject}>
-                        Reject
-                    </Button>
-                </ButtonContainer>
-            );
-            if (isCodeGenerating) {
-                component = (
-                    <LinkButton onClick={() => { }} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 8 }}>
-                        <ProgressRing sx={{ height: "16px", width: "16px" }} />
-                        Applying changes to the project...
-                    </LinkButton>
-                );
-            }
-        }
-
-        return component;
-    };
-
     if (!projectStructure) {
         return (
             <SpinnerContainer>
-                <ProgressRing color={Colors.PRIMARY} />
+                <ProgressRing color={ThemeColors.PRIMARY} />
             </SpinnerContainer>
         );
     }
@@ -405,14 +415,7 @@ export function Overview(props: ComponentDiagramProps) {
     const handleGenerate = () => {
         rpcClient.getBIDiagramRpcClient().openAIChat({
             scafold: true,
-            readme: false
-        });
-    };
-
-    const handleReadmeGenerate = () => {
-        rpcClient.getBIDiagramRpcClient().openAIChat({
-            scafold: true,
-            readme: true
+            readme: false,
         });
     };
 
@@ -428,101 +431,99 @@ export function Overview(props: ComponentDiagramProps) {
         rpcClient.getBIDiagramRpcClient().buildProject();
     };
 
-
-
-    const getActionButtons = (): React.ReactNode[] => {
-        return [
-            <VSCodeButton key="run" appearance="icon" title="Run" onClick={handlePlay}>
-                <Codicon name="play" sx={{ marginRight: 5 }} /> Run
-            </VSCodeButton>,
-            <VSCodeButton key="build" appearance="icon" title="Build" onClick={handleBuild}>
-                <Codicon name="package" sx={{ marginRight: 5 }} /> Build
-            </VSCodeButton>,
-            <VSCodeButton key="deploy" appearance="icon" title="Deploy" onClick={handleDeploy}>
-                <Codicon name="cloud-upload" sx={{ marginRight: 5 }} /> Deploy
-            </VSCodeButton>
-        ];
-    };
-
-    const getDesignActions = (): React.ReactNode[] => {
-        return [
-            <VSCodeButton key="generate" appearance="icon" title="Generate with AI" onClick={handleGenerate}>
-                <Codicon name="wand" sx={{ marginRight: 5 }} /> Generate
-            </VSCodeButton>,
-            <VSCodeButton key="add-construct" appearance="primary" title="Generate with AI" onClick={handleAddConstruct}>
-                <Codicon name="add" sx={{ marginRight: 5 }} /> Add Construct
-            </VSCodeButton>,
-        ];
-    };
-
-    const getReadmeActions = (): React.ReactNode[] => {
-        const buttons = [];
-        if (readmeContent && isEmptyProject()) {
-            buttons.push(
-                <VSCodeButton appearance="icon" title="Scaffold Integration with Readme" onClick={handleReadmeGenerate}>
-                    <Codicon name="wand" sx={{ marginRight: 5 }} /> Scaffold Integration with Readme
-                </VSCodeButton>
-            );
-        }
-        buttons.push(
-            <VSCodeButton appearance="icon" title="Edit Readme" onClick={handleEditReadme}>
-                <Codicon name="edit" sx={{ marginRight: 5 }} /> Edit
-            </VSCodeButton>
-        );
-        return buttons;
-    };
-
-    // TODO: Refactor this component with meaningful components
     return (
-        <View>
-            <ViewContent padding>
-                <BIHeader actions={getActionButtons()} />
-                <Content>
-                    <CardContainer>
-                        <SectionHead title="Design" actions={getDesignActions()} />
+        <PageLayout>
+            <HeaderRow>
+                <TitleContainer>
+                    <ProjectTitle>{projectName}</ProjectTitle>
+                    <ProjectSubtitle>Integration</ProjectSubtitle>
+                </TitleContainer>
+                <IconButtonContainer>
+                    <Button appearance="icon" onClick={handlePlay} buttonSx={{ padding: "4px 8px" }}>
+                        <Codicon name="play" sx={{ marginRight: 5 }} /> Run
+                    </Button>
+                    <Button appearance="icon" onClick={handleBuild} buttonSx={{ padding: "4px 8px" }}>
+                        <Icon name="bi-build" sx={{ marginRight: 8, fontSize: 16 }} /> Build
+                    </Button>
+                </IconButtonContainer>
+            </HeaderRow>
+
+            <MainContent>
+                <MainPanel noPadding={true}>
+                    <DiagramHeaderContainer withPadding={true}>
+                        <Title variant="h2">Design</Title>
+                        <ActionContainer>
+                            <Button appearance="icon" onClick={handleGenerate}>
+                                <Codicon name="wand" sx={{ marginRight: 8 }} /> Generate
+                            </Button>
+                            <Button appearance="primary" onClick={handleAddConstruct}>
+                                <Codicon name="add" sx={{ marginRight: 8 }} /> Add Construct
+                            </Button>
+                        </ActionContainer>
+                    </DiagramHeaderContainer>
+                    <DiagramContent>
                         {isEmptyProject() ? (
                             <EmptyStateContainer>
-                                <Typography variant="h3" sx={{ marginBottom: '16px' }}>
+                                <Typography variant="h3" sx={{ marginBottom: "16px" }}>
                                     Your project is empty
                                 </Typography>
-                                <Typography variant="body1" sx={{ marginBottom: '24px', color: 'var(--vscode-descriptionForeground)' }}>
+                                <Typography
+                                    variant="body1"
+                                    sx={{ marginBottom: "24px", color: "var(--vscode-descriptionForeground)" }}
+                                >
                                     Start by adding constructs or use AI to generate your project structure
                                 </Typography>
                                 <ButtonContainer>
-                                    <VSCodeButton appearance="primary" onClick={handleAddConstruct}>
-                                        <Codicon name="add" sx={{ marginRight: 5 }} /> Add Construct
-                                    </VSCodeButton>
-                                    <VSCodeButton appearance="secondary" onClick={handleGenerate}>
-                                        <Codicon name="wand" sx={{ marginRight: 5 }} /> Generate with AI
-                                    </VSCodeButton>
+                                    <Button appearance="primary" onClick={handleAddConstruct}>
+                                        <Codicon name="add" sx={{ marginRight: 8 }} /> Add Construct
+                                    </Button>
+                                    <Button appearance="secondary" onClick={handleGenerate}>
+                                        <Codicon name="wand" sx={{ marginRight: 8 }} /> Generate with AI
+                                    </Button>
                                 </ButtonContainer>
                             </EmptyStateContainer>
                         ) : (
                             <ComponentDiagram projectName={projectName} projectStructure={projectStructure} />
                         )}
-                    </CardContainer>
-                    <CardContainer>
-                        <SectionHead title="Readme" actions={getReadmeActions()} />
-                        <Readme>
-                            {readmeContent ? (
-                                <ReactMarkdown>{readmeContent}</ReactMarkdown>
-                            ) : (
-                                <div style={{ display: 'flex', marginTop: '20px', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                                    <Typography variant="h3" sx={{ marginBottom: '16px' }}>
-                                        Add a README
-                                    </Typography>
-                                    <Typography variant="body1" sx={{ marginBottom: '24px', color: 'var(--vscode-descriptionForeground)' }}>
-                                        Describe your integration and generate your constructs with AI
-                                    </Typography>
-                                    <VSCodeLink onClick={handleEditReadme}>
-                                        Add a README
-                                    </VSCodeLink>
-                                </div>
-                            )}
-                        </Readme>
-                    </CardContainer>
-                </Content>
-            </ViewContent>
-        </View>
+                    </DiagramContent>
+                </MainPanel>
+
+                <SidePanel>
+                    <Title variant="h2">Deployment</Title>
+                    <DeploymentContent>
+                        <Description variant="body2">
+                            Easily deploy the integration to the cloud using Choreo. Click the Deploy button to continue
+                            with the deployment.
+                        </Description>
+                        <DeployButtonContainer>
+                            <Button appearance="primary" onClick={handleDeploy}>
+                                <Codicon name="cloud-upload" sx={{ marginRight: 8 }} /> Deploy
+                            </Button>
+                        </DeployButtonContainer>
+                    </DeploymentContent>
+                </SidePanel>
+            </MainContent>
+
+            <FooterPanel>
+                <ReadmeHeaderContainer>
+                    <Title variant="h2">README</Title>
+                    <Button appearance="icon" onClick={handleEditReadme} buttonSx={{ padding: "4px 8px" }}>
+                        <Icon name="bi-edit" sx={{ marginRight: 8, fontSize: 16 }} /> Edit
+                    </Button>
+                </ReadmeHeaderContainer>
+                <ReadmeContent>
+                    {readmeContent ? (
+                        <ReactMarkdown>{readmeContent}</ReactMarkdown>
+                    ) : (
+                        <EmptyReadmeContainer>
+                            <Description variant="body2">
+                                Describe your integration and generate your constructs with AI
+                            </Description>
+                            <VSCodeLink onClick={handleEditReadme}>Add a README</VSCodeLink>
+                        </EmptyReadmeContainer>
+                    )}
+                </ReadmeContent>
+            </FooterPanel>
+        </PageLayout>
     );
 }

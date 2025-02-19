@@ -9,14 +9,13 @@
 
 import React, { ReactNode } from "react";
 import styled from "@emotion/styled";
-import { ExpressionFormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
 import { FlowNode, SubPanel } from "@wso2-enterprise/ballerina-core";
 import FormGenerator from "../../Forms/FormGenerator";
 
 const Container = styled.div`
     max-width: 600px;
-    max-height: calc(100% - 110px);
-    overflow: scroll;
+    height: calc(100% - 32px);
 `;
 
 export interface SidePanelProps {
@@ -37,12 +36,11 @@ export interface SidePanelProps {
 interface ConnectionConfigViewProps {
     fileName: string; // file path of `connection.bal`
     selectedNode: FlowNode;
-    onSubmit: (data: FormValues) => void;
+    onSubmit: (node?: FlowNode) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
     isActiveSubPanel?: boolean;
-
 }
 
 export function ConnectionConfigView(props: ConnectionConfigViewProps) {
@@ -53,18 +51,21 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
         openSubPanel,
         updatedExpressionField,
         resetUpdatedExpressionField,
-        isActiveSubPanel
     } = props;
+
+    const targetLineRange = selectedNode?.codedata?.lineRange || {
+        startLine: { line: 0, offset: 0 },
+        endLine: { line: 0, offset: 0 },
+    };
 
     return (
         <Container>
             <FormGenerator
                 fileName={fileName}
                 node={selectedNode}
-                targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
+                targetLineRange={targetLineRange}
                 onSubmit={onSubmit}
                 openSubPanel={openSubPanel}
-                isActiveSubPanel={isActiveSubPanel}
                 updatedExpressionField={updatedExpressionField}
                 resetUpdatedExpressionField={resetUpdatedExpressionField}
             />

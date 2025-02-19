@@ -18,6 +18,7 @@ import { ListenerNodeFactory } from "../components/nodes/ListenerNode/ListenerNo
 import { LISTENER_NODE_WIDTH, NodeTypes, NODE_GAP_X, ENTRY_NODE_WIDTH } from "../resources/constants";
 import { ListenerNodeModel } from "../components/nodes/ListenerNode";
 import { ConnectionNodeModel } from "../components/nodes/ConnectionNode";
+import { CDConnection, CDResourceFunction, CDFunction, CDService } from "@wso2-enterprise/ballerina-core";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -43,35 +44,38 @@ export function generateEngine(): DiagramEngine {
 export function autoDistribute(engine: DiagramEngine) {
     const model = engine.getModel();
 
-    const dagreEngine = genDagreEngine();
-    dagreEngine.redistribute(model);
+    // Get all nodes by type
+    const listenerNodes = model.getNodes().filter((node) => node.getType() === NodeTypes.LISTENER_NODE);
+    const entryNodes = model.getNodes().filter((node) => node.getType() === NodeTypes.ENTRY_NODE);
+    const connectionNodes = model.getNodes().filter((node) => node.getType() === NodeTypes.CONNECTION_NODE);
 
-    // reposition listener nodes
+    // Set X positions for each column
     const listenerX = 250;
-    model.getNodes().forEach((node) => {
-        if (node.getType() === NodeTypes.LISTENER_NODE) {
-            const listenerNode = node as ListenerNodeModel;
-            listenerNode.setPosition(listenerX, listenerNode.getY());
-            return;
-        }
-    });
-
-    // reposition all entrypoints
     const entryX = listenerX + LISTENER_NODE_WIDTH + NODE_GAP_X;
-    model.getNodes().forEach((node) => {
-        if (node.getType() === NodeTypes.ENTRY_NODE) {
-            const entryNode = node as EntryNodeModel;
-            entryNode.setPosition(entryX, entryNode.getY());
-        }
+    const connectionX = entryX + ENTRY_NODE_WIDTH + NODE_GAP_X;
+
+    // Position listeners while maintaining relative Y positions of their services
+    listenerNodes.forEach((node) => {
+        const listenerNode = node as ListenerNodeModel;
+        const attachedServices = listenerNode.node.attachedServices;
+
+        // Find the average Y position of attached services
+        const serviceNodes = entryNodes.filter((n) => attachedServices.includes(n.getID()));
+        const avgY = serviceNodes.reduce((sum, n) => sum + n.getY(), 0) / serviceNodes.length;
+
+        listenerNode.setPosition(listenerX, avgY);
     });
 
-    // reposition all connection nodes
-    const connectionX = entryX + ENTRY_NODE_WIDTH + NODE_GAP_X;
-    model.getNodes().forEach((node) => {
-        if (node.getType() === NodeTypes.CONNECTION_NODE) {
-            const connectionNode = node as ConnectionNodeModel;
-            connectionNode.setPosition(connectionX, connectionNode.getY());
-        }
+    // Update X positions for entry nodes while keeping their Y positions
+    entryNodes.forEach((node) => {
+        const entryNode = node as EntryNodeModel;
+        entryNode.setPosition(entryX, entryNode.getY());
+    });
+
+    // Position connection nodes
+    connectionNodes.forEach((node, index) => {
+        const connectionNode = node as ConnectionNodeModel;
+        connectionNode.setPosition(connectionX, node.getY());
     });
 
     engine.repaintCanvas();
@@ -89,12 +93,34 @@ export function genDagreEngine() {
     return new DagreEngine({
         graph: {
             rankdir: "LR",
-            nodesep: 100,
+            nodesep: 120,
             ranksep: 400,
             marginx: 100,
             marginy: 100,
             // ranker: "longest-path",
         },
+    });
+}
+
+export function sortItems(items: (CDService | CDConnection)[]) {
+    return [...items].sort((a, b) => {
+        if (!a.sortText && !b.sortText) return 0;
+        if (!a.sortText) return 1;
+        if (!b.sortText) return -1;
+
+        // Split the sortText into filename and number parts
+        const [aFile, aNum] = a.sortText.split(".bal");
+        const [bFile, bNum] = b.sortText.split(".bal");
+
+        // First compare filenames
+        if (aFile !== bFile) {
+            return aFile.localeCompare(bFile);
+        }
+
+        // If filenames are same, compare numbers
+        const aNumber = parseInt(aNum || "0", 10);
+        const bNumber = parseInt(bNum || "0", 10);
+        return aNumber - bNumber;
     });
 }
 
@@ -111,9 +137,24 @@ export function createPortsLink(sourcePort: NodePortModel, targetPort: NodePortM
 export function createNodesLink(sourceNode: NodeModel, targetNode: NodeModel, options?: NodeLinkModelOptions) {
     const sourcePort = sourceNode.getOutPort();
     const targetPort = targetNode.getInPort();
+    if (!sourcePort || !targetPort) {
+        return null;
+    }
     const link = createPortsLink(sourcePort, targetPort, options);
     link.setSourceNode(sourceNode);
     link.setTargetNode(targetNode);
+    return link;
+}
+
+// create link between port and node
+export function createPortNodeLink(port: NodePortModel, node: NodeModel, options?: NodeLinkModelOptions) {
+    const targetPort = node.getInPort();
+    if (!targetPort) {
+        return null;
+    }
+    const link = createPortsLink(port, targetPort, options);
+    link.setSourceNode(node);
+    link.setTargetNode(node);
     return link;
 }
 
@@ -160,10 +201,22 @@ export const centerDiagram = (engine: DiagramEngine) => {
     }
 };
 
-// export const getNodeId = (nodeType: string, id: string) => {
-//     return `${nodeType}-${id}`;
-// };
-
 export const getModelId = (nodeId: string) => {
     return nodeId.split("-").pop();
+};
+
+// calculate entry node height based on number of functions
+export const calculateEntryNodeHeight = (numFunctions: number) => {
+    const BASE_HEIGHT = 100;
+    const FUNCTION_HEIGHT = 30;
+    const PADDING = 4;
+
+    return BASE_HEIGHT + numFunctions * FUNCTION_HEIGHT + PADDING * 2;
+};
+
+export const getEntryNodeFunctionPortName = (func: CDFunction | CDResourceFunction) => {
+    if ((func as CDResourceFunction).accessor) {
+        return (func as CDResourceFunction).accessor + "-" + (func as CDResourceFunction).path;
+    }
+    return (func as CDFunction).name;
 };

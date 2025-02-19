@@ -15,12 +15,11 @@ import { css } from '@emotion/css';
 import classNames from "classnames";
 
 import { DiagnosticWidget } from '../Diagnostic/DiagnosticWidget';
-import { InputOutputPortModel } from '../Port';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { isSourcePortArray, isTargetPortArray } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
-import { useDMCollapsedFieldsStore } from '../../../store/store';
 import { CodeActionWidget } from '../CodeAction/CodeAction';
+import { set } from 'lodash';
 
 export interface ExpressionLabelWidgetProps {
     model: ExpressionLabelModel;
@@ -103,23 +102,25 @@ export enum ArrayMappingType {
     ArrayToSingleton
 }
 
-// now we can render all what we want in the label
 export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
-    const [linkStatus, setLinkStatus] = useState<LinkState>(LinkState.LinkNotSelected);
+    const [isTempLink, setIsTempLink] = useState<boolean>(false);
+    const [isLinkSelected, setIsLinkSelected] = useState<boolean>(false);
     const [arrayMappingType, setArrayMappingType] = React.useState<ArrayMappingType>(undefined);
     const [deleteInProgress, setDeleteInProgress] = useState(false);
 
-    const collapsedFieldsStore = useDMCollapsedFieldsStore();
-
     const classes = useStyles();
-    const { field, link, value, valueNode, context, deleteLink } = props.model;
+    const { link, value, deleteLink } = props.model;
     const diagnostic = link && link.hasError() ? link.diagnostics[0] || link.diagnostics[0] : null;
+
+    const handleLinkStatus = (isSelected: boolean) => {
+        setIsLinkSelected(isSelected);
+    }
 
     useEffect(() => {
         if (link) {
             link.registerListener({
                 selectionChanged(event) {
-                    setLinkStatus(event.isSelected ? LinkState.LinkSelected : LinkState.LinkNotSelected);
+                    handleLinkStatus(event.isSelected);
                 },
             });
             const isSourceArray = isSourcePortArray(source);
@@ -127,9 +128,15 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
             const mappingType = getArrayMappingType(isSourceArray, isTargetArray);
             setArrayMappingType(mappingType);
         } else {
-            setLinkStatus(LinkState.TemporaryLink);
+            setIsTempLink(true);
         }
-    }, [props.model]);
+    }, [link]);
+
+    useEffect(() => {
+        if (link) {
+            setIsLinkSelected(link.isSelected());
+        }
+    }, [link?.isSelected()]);
 
     const onClickDelete = (evt?: MouseEvent<HTMLDivElement>) => {
         if (evt) {
@@ -143,8 +150,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     };
 
     const onClickEdit = (evt?: MouseEvent<HTMLDivElement>) => {
-        // const range = getEditorLineAndColumn(field);
-        // context.goToSource(range);
+        // TODO: Implement
     };
 
     const loadingScreen = (
@@ -183,16 +189,11 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     ];
 
     const onClickMapViaArrayFn = async () => {
-        if (target instanceof InputOutputPortModel) {
-            const targetPortField = target.field;
-
-            if (targetPortField.kind === TypeKind.Array && targetPortField?.memberType) {
-                await applyArrayFunction(link, targetPortField.memberType);
-            }
-        }
+        // TODO: Implement
     };
 
     const applyArrayFunction = async (linkModel: DataMapperLinkModel, targetType: IDMType) => {
+        // TODO: Implement
     };
 
     const codeActions = [];
@@ -230,41 +231,11 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
         );
     }
 
-    let isSourceCollapsed = false;
-    let isTargetCollapsed = false;
-    const collapsedFields = collapsedFieldsStore.collapsedFields;
-
     const source = link?.getSourcePort();
     const target = link?.getTargetPort();
 
-    if (source instanceof InputOutputPortModel) {
-        if (source?.parentId) {
-            const fieldName = source.field.fieldName;
-            isSourceCollapsed = collapsedFields?.includes(`${source.parentId}.${fieldName}`)
-        } else {
-            isSourceCollapsed = collapsedFields?.includes(source.portName)
-        }
-    }
 
-    if (target instanceof InputOutputPortModel) {
-        if (target?.parentId) {
-            const fieldName = target.field.fieldName;
-            isTargetCollapsed = collapsedFields?.includes(`${target.parentId}.${fieldName}`)
-        } else {
-            isTargetCollapsed = collapsedFields?.includes(target.portName)
-        }
-    }
-
-    if (valueNode && isSourceCollapsed && isTargetCollapsed) {
-        // for direct links, disable link widgets if both sides are collapsed
-        return null
-    } else if (!valueNode && (isSourceCollapsed || isTargetCollapsed)) {
-        // for links with intermediary nodes,
-        // disable link widget if either source or target port is collapsed
-        return null;
-    }
-
-    return linkStatus === LinkState.TemporaryLink
+    return isTempLink
         ? (
             <div
                 className={classNames(
@@ -280,7 +251,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
                 data-testid={`expression-label-for-${link?.getSourcePort()?.getName()}-to-${link?.getTargetPort()?.getName()}`}
                 className={classNames(
                     classes.container,
-                    linkStatus === LinkState.LinkNotSelected && !deleteInProgress && classes.containerHidden
+                    !isLinkSelected && !deleteInProgress && classes.containerHidden
                 )}
             >
                 {elements}

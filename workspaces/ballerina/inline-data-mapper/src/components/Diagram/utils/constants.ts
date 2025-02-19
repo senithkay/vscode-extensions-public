@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 export const OBJECT_OUTPUT_TARGET_PORT_PREFIX = "objectOutput";
-export const OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX = "objectOutputFieldAdder";
+export const ARRAY_OUTPUT_TARGET_PORT_PREFIX = "arrayOutput";
 
 export const defaultModelOptions = { zoom: 90 };
 export const VISUALIZER_PADDING = 0;

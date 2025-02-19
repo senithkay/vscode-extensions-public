@@ -13,16 +13,29 @@ import { FlowNode } from "../../utils/types";
 
 interface ConnectorIconProps {
     node: FlowNode;
+    fallbackIcon?: React.ReactNode;
 }
 
-export function ConnectorIcon(props: ConnectorIconProps) {
-    const { node } = props;
+export function ConnectorIcon(props: ConnectorIconProps): React.ReactElement {
+    const { node, fallbackIcon } = props;
+    const [imageError, setImageError] = React.useState(false);
 
     const databaseClients = ["mysql", "postgres", "sqlite", "mssql", "oracle", "redis", "cassandra", "mongodb"];
-
-    if (node.metadata.icon && isValidUrl(node.metadata.icon)) {
-        return <img src={node.metadata.icon} alt={node.codedata.module} style={{ width: "24px" }} />;
+    if (node.metadata.icon && isValidUrl(node.metadata.icon) && !imageError) {
+        return (
+            <img 
+                src={node.metadata.icon} 
+                alt={node.codedata.module} 
+                style={{ width: "24px" }} 
+                onError={() => setImageError(true)}
+            />
+        );
     }
+
+    if (fallbackIcon && imageError) {
+        return <>{fallbackIcon}</>;
+    }
+    
     if (databaseClients.includes(node.codedata.module)) {
         return <DatabaseIcon />;
     }

@@ -99,9 +99,9 @@ export const textToModifications = (text: string, position: NodePosition): STMod
     ];
 };
 
-export const applyModifications = async (rpcClient: BallerinaRpcClient, modifications: STModification[]) => {
+export const applyModifications = async (rpcClient: BallerinaRpcClient, modifications: STModification[], sourceFilePath?: string) => {
     const langServerRPCClient = rpcClient.getLangClientRpcClient();
-    const filePath = (await rpcClient.getVisualizerLocation()).documentUri;
+    const filePath = sourceFilePath ? sourceFilePath : (await rpcClient.getVisualizerLocation()).documentUri;
 
     const { parseSuccess, source: newSource } = await langServerRPCClient?.stModify({
         astModifications: modifications,
@@ -154,6 +154,38 @@ export const getFunctionParametersList = (params: Parameter[]) => {
         });
     })
     return paramList;
+}
+
+export const getDataMapperParametersList = (params: string[]) => {
+    const paramList: FunctionParameters[] = [];
+    const paramNames: string[] = [];
+
+    params.forEach(param => {
+        const varName = lowercaseFirstLetter(param);
+        const generatedName = createUniqueName(varName);
+        paramNames.push(generatedName);
+
+        paramList.push({
+            type: param,
+            name: generatedName
+        });
+    })
+    return paramList;
+
+    function lowercaseFirstLetter(input: string): string {
+        if (!input) return input;
+        return input.charAt(0).toLowerCase() + input.slice(1);
+    }
+
+    function createUniqueName(name: string): string {
+        let newName = name;
+        let counter = 1;
+        while (paramNames.includes(newName)) {
+            newName = name + counter;
+            counter++;
+        }
+        return newName;
+    }
 }
 
 export function findRegexMatches(input: string): MatchResult[] {

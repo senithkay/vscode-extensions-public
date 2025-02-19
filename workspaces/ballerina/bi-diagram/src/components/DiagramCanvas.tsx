@@ -10,8 +10,9 @@
 import React from "react";
 import { css, Global } from "@emotion/react";
 import styled from "@emotion/styled";
-import { Colors } from "../resources/constants";
-import '../resources/assets/font/fonts.css';
+import "../resources/assets/font/fonts.css";
+import { useDiagramContext } from "./DiagramContext";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 export interface DiagramCanvasProps {
     color?: string;
@@ -20,10 +21,11 @@ export interface DiagramCanvasProps {
 }
 
 export namespace DiagramStyles {
-    export const Container = styled.div<{ color: string; background: string }>`
+    export const Container = styled.div<{ color: string; background: string; locked?: boolean }>`
         height: 100%;
         background-size: 50px 50px;
         display: flex;
+        pointer-events: ${(props) => (props.locked ? "none" : "auto")};
 
         > * {
             height: 100%;
@@ -31,9 +33,9 @@ export namespace DiagramStyles {
             width: 100%;
         }
 
-        background-image: radial-gradient(${Colors.SURFACE_CONTAINER} 10%, transparent 0px);
+        background-image: radial-gradient(${ThemeColors.SURFACE_CONTAINER} 10%, transparent 0px);
         background-size: 16px 16px;
-        background-color: ${Colors.SURFACE_BRIGHT};
+        background-color: ${ThemeColors.SURFACE_BRIGHT};
         font-family: "GilmerRegular";
     `;
 
@@ -48,10 +50,17 @@ export namespace DiagramStyles {
 
 export function DiagramCanvas(props: DiagramCanvasProps) {
     const { color, background, children } = props;
+    const { lockCanvas } = useDiagramContext();
+
     return (
         <>
             <Global styles={DiagramStyles.Expand} />
-            <DiagramStyles.Container id="bi-diagram-canvas" background={background || Colors.SURFACE_BRIGHT} color={color || Colors.ON_SURFACE}>
+            <DiagramStyles.Container
+                id="bi-diagram-canvas"
+                background={background || ThemeColors.SURFACE_BRIGHT}
+                color={color || ThemeColors.ON_SURFACE}
+                locked={lockCanvas}
+            >
                 {children}
             </DiagramStyles.Container>
         </>

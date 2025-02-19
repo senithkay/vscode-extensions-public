@@ -8,17 +8,21 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, TriggerModelsResponse, TriggerNode } from "@wso2-enterprise/ballerina-core";
+import {
+    DIRECTORY_MAP,
+    EVENT_TYPE,
+    MACHINE_VIEW,
+    TriggerModelsResponse,
+    TriggerNode,
+} from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Codicon, Divider, Icon, Typography, View, ViewContent, LinkButton } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Divider, Icon, Typography, View, ViewContent, LinkButton, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { BIHeader } from "../BIHeader";
 import ButtonCard from "../../../components/ButtonCard";
 import { BodyText } from "../../styles";
 import { useVisualizerContext } from "../../../Context";
-import ServiceConfigView from "../Trigger/ServiceConfigView";
-import PullingModuleLoader from "../../Connectors/PackageLoader/Loader";
-import { Colors } from "../../../resources/constants";
+import { TitleBar } from "../../../components/TitleBar";
+import { TopNavigationBar } from "../../../components/TopNavigationBar";
 
 const LoadingContainer = styled.div`
     display: flex;
@@ -39,7 +43,7 @@ const AddPanel = styled.div({
     display: "flex",
     flexDirection: "column",
     gap: 25,
-    padding: 20,
+    padding: 16,
 });
 
 const PanelViewMore = styled.div({
@@ -60,12 +64,12 @@ const Title = styled(Typography)`
 `;
 
 const Card = styled.div`
-    border: 2px solid ${(props: { active: boolean }) => (props.active ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
-    background-color: ${(props: { active: boolean }) => (props.active ? Colors.PRIMARY_CONTAINER : Colors.SURFACE_DIM)};
+    border: 2px solid ${(props: { active: boolean }) => (props.active ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT)};
+    background-color: ${(props: { active: boolean }) => (props.active ? ThemeColors.PRIMARY_CONTAINER : ThemeColors.SURFACE_DIM)};
     cursor: pointer;
     &:hover {
-        background-color: ${Colors.PRIMARY_CONTAINER};
-        border: 2px solid ${Colors.PRIMARY};
+        background-color: ${ThemeColors.PRIMARY_CONTAINER};
+        border: 2px solid ${ThemeColors.PRIMARY};
     }
     display: flex;
     justify-content: center;
@@ -85,12 +89,20 @@ export function ComponentListView() {
 
     const { setPopupMessage } = useVisualizerContext();
 
-    const handleClick = async (key: DIRECTORY_MAP) => {
+    const handleClick = async (key: DIRECTORY_MAP, serviceType?: string) => {
         if (key === DIRECTORY_MAP.SERVICES) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
-                    view: MACHINE_VIEW.BIServiceForm,
+                    view: MACHINE_VIEW.BIServiceWizard,
+                    serviceType: serviceType,
+                },
+            });
+        } else if (key === DIRECTORY_MAP.DATA_MAPPERS) {
+            await rpcClient.getVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.BIDataMapperForm,
                 },
             });
         } else if (key === DIRECTORY_MAP.CONNECTIONS) {
@@ -98,42 +110,35 @@ export function ComponentListView() {
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.AddConnectionWizard,
-                }
+                },
             });
         } else if (key === DIRECTORY_MAP.AUTOMATION) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.BIMainFunctionForm,
-                }
+                },
             });
         } else if (key === DIRECTORY_MAP.FUNCTIONS) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.BIFunctionForm,
-                }
-            });
-        } else if (key === DIRECTORY_MAP.TRIGGERS) {
-            await rpcClient.getVisualizerRpcClient().openView({
-                type: EVENT_TYPE.OPEN_VIEW,
-                location: {
-                    view: MACHINE_VIEW.AddTriggerWizard,
-                }
+                },
             });
         } else if (key === DIRECTORY_MAP.TYPES) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.TypeDiagram,
-                }
+                },
             });
         } else if (key === DIRECTORY_MAP.CONFIGURATIONS) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.ViewConfigVariables,
-                }
+                },
             });
         } else {
             setPopupMessage(true);
@@ -159,7 +164,7 @@ export function ComponentListView() {
             setTriggers(cacheTriggers);
         } else {
             rpcClient
-                .getTriggerWizardRpcClient()
+                .getServiceDesignerRpcClient()
                 .getTriggerModels({ query: "" })
                 .then((model) => {
                     console.log(">>> bi triggers", model);
@@ -170,100 +175,71 @@ export function ComponentListView() {
     };
 
     const handleOnSelect = async (trigger: TriggerNode) => {
-        if (!trigger) {
-            console.error(">>> Error selecting trigger. No codedata found");
-            return;
-        }
-        const response = await rpcClient.getTriggerWizardRpcClient().getTriggerModel({ id: trigger.id.toString() });
-        console.log(">>>Trigger by id", response);
-        setTrigger(response.trigger);
-    };
-
-    const [trigger, setTrigger] = useState<TriggerNode>(undefined);
-    const [isPullingConnector, setIsPullingConnector] = useState<boolean>(false);
-
-    const handleServiceFormSubmit = async (trigger: TriggerNode) => {
-        setIsPullingConnector(true);
-        await rpcClient.getTriggerWizardRpcClient().getTriggerSourceCode({ filePath: "", trigger });
-        setIsPullingConnector(false);
+        await rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.BIServiceWizard,
+                serviceType: trigger.moduleName,
+            },
+        });
     };
 
     return (
         <View>
+            <TopNavigationBar />
+            <TitleBar title="Constructs" subtitle="Add a new construct to your integration" />
             <ViewContent padding>
-                <BIHeader />
-                {trigger && isPullingConnector && (
-                    <LoadingContainer>
-                        <PullingModuleLoader />
-                        <Typography variant="h3" sx={{ marginTop: '16px' }}>Creating the trigger service</Typography>
-                        <Typography variant="h4" sx={{ marginTop: '8px' }}>This might take some time</Typography>
-                    </LoadingContainer>
-                )}
-                {trigger && !isPullingConnector && (
-                    <>
-                        <Typography variant="h2">{`Configure ${trigger?.displayName || ''} `}</Typography>
-                        <BodyText>
-                            Provide the necessary configuration details for the selected trigger to complete the setup.
-                        </BodyText>
-                        <ServiceConfigView
-                            triggerNode={trigger}
-                            onSubmit={handleServiceFormSubmit}
-                            onBack={() => setTrigger(undefined)}
-                        />
-                    </>
-                )}
-                {!trigger &&
-                    <Container>
-                        <AddPanel>
-                            <PanelViewMore>
-                                <Title variant="h2">API</Title>
-                                <BodyText>
-                                    Explore and manage various components to enhance your integration capabilities.
-                                </BodyText>
-                                <CardGrid>
-                                    <ButtonCard
-                                        icon={<Icon name="bi-http-service" />}
-                                        title="HTTP Service"
-                                        description="Handle web requests and responses."
-                                        onClick={() => handleClick(DIRECTORY_MAP.SERVICES)}
-                                    />
-                                    <ButtonCard
-                                        icon={<Icon name="bi-graphql" />}
-                                        title="GraphQL Service"
-                                        description="Flexible and efficient data queries."
-                                        onClick={() => setPopupMessage(true)}
-                                    />
-                                    <ButtonCard
-                                        icon={<Icon name="bi-grpc" />}
-                                        title="gRPC Service"
-                                        description="High-performance, cross-platform communication."
-                                        onClick={() => setPopupMessage(true)}
-                                    />
-                                </CardGrid>
-                            </PanelViewMore>
-                            <PanelViewMore>
-                                <Divider />
-                                <Title variant="h2">Automation</Title>
-                                <BodyText>
-                                    Explore automation options to streamline your integration processes.
-                                </BodyText>
-                                <CardGrid>
-                                    <ButtonCard
-                                        icon={<Icon name="bi-task" />}
-                                        title="Automation"
-                                        description="Trigger your integration with a task. Perfect for scheduled or one-time jobs."
-                                        onClick={() => handleClick(DIRECTORY_MAP.AUTOMATION)}
-                                    />
-                                </CardGrid>
-                            </PanelViewMore>
-                            <PanelViewMore>
-                                <Divider />
-                                <Title variant="h2">Event Integration</Title>
-                                <BodyText>
-                                    Configure event-driven integrations for your project. Explore the available options below.
-                                </BodyText>
-                                <CardGrid>
-                                    {triggers.local.filter(t => t.type === 'event').map((item, index) => {
+                <Container>
+                    <AddPanel>
+                        <PanelViewMore>
+                            <Title variant="h2">Automation</Title>
+                            <BodyText>Explore automation options to streamline your integration processes.</BodyText>
+                            <CardGrid>
+                                <ButtonCard
+                                    icon={<Icon name="bi-task" />}
+                                    title="Automation"
+                                    description="Trigger your integration with a task. Perfect for scheduled or one-time jobs."
+                                    onClick={() => handleClick(DIRECTORY_MAP.AUTOMATION)}
+                                />
+                            </CardGrid>
+                        </PanelViewMore>
+                        <PanelViewMore>
+                            <Title variant="h2">API Integration</Title>
+                            <BodyText>
+                                Explore and manage various components to enhance your integration capabilities.
+                            </BodyText>
+                            <CardGrid>
+                                <ButtonCard
+                                    icon={<Icon name="bi-http-service" />}
+                                    title="HTTP Service"
+                                    description="Handle web requests and responses."
+                                    onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "http")}
+                                />
+                                <ButtonCard
+                                    icon={<Icon name="bi-graphql" />}
+                                    title="GraphQL Service"
+                                    description="Flexible and efficient data queries."
+                                    onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "graphql")}
+                                />
+                                <ButtonCard
+                                    icon={<Icon name="bi-grpc" />}
+                                    title="gRPC Service"
+                                    description="High-performance, cross-platform communication."
+                                    onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "grpc")}
+                                />
+                            </CardGrid>
+                        </PanelViewMore>
+                        <PanelViewMore>
+                            <Divider />
+                            <Title variant="h2">Event Integration</Title>
+                            <BodyText>
+                                Configure event-driven integrations for your project. Explore the available options
+                                below.
+                            </BodyText>
+                            <CardGrid>
+                                {triggers.local
+                                    .filter((t) => t.type === "event")
+                                    .map((item, index) => {
                                         return (
                                             <ButtonCard
                                                 key={item.id}
@@ -271,24 +247,27 @@ export function ComponentListView() {
                                                 description={`${item.orgName}/${item.moduleName}`}
                                                 icon={getEntryNodeIcon(item)}
                                                 onClick={() => {
-                                                    handleOnSelect(item);
+                                                    handleClick(DIRECTORY_MAP.SERVICES, item.moduleName);
                                                 }}
                                             />
                                         );
                                     })}
-                                    <Card onClick={() => handleClick(DIRECTORY_MAP.TRIGGERS)}>
-                                        <LinkButton onClick={() => handleClick(DIRECTORY_MAP.TRIGGERS)}> View More</LinkButton>
-                                    </Card>
-                                </CardGrid>
-                            </PanelViewMore>
-                            <PanelViewMore>
-                                <Divider />
-                                <Title variant="h2">File Integration</Title>
-                                <BodyText>
-                                    Select the file integration type that best suits your project's needs.
-                                </BodyText>
-                                <CardGrid>
-                                    {triggers.local.filter(t => t.type === 'file').map((item, index) => {
+                                <Card onClick={() => handleClick(DIRECTORY_MAP.TRIGGERS)}>
+                                    <LinkButton onClick={() => handleClick(DIRECTORY_MAP.TRIGGERS)}>
+                                        {" "}
+                                        View More
+                                    </LinkButton>
+                                </Card>
+                            </CardGrid>
+                        </PanelViewMore>
+                        <PanelViewMore>
+                            <Divider />
+                            <Title variant="h2">File Integration</Title>
+                            <BodyText>Select the file integration type that best suits your project's needs.</BodyText>
+                            <CardGrid>
+                                {triggers.local
+                                    .filter((t) => t.type === "file")
+                                    .map((item, index) => {
                                         return (
                                             <ButtonCard
                                                 key={item.id}
@@ -311,49 +290,53 @@ export function ComponentListView() {
                                             />
                                         );
                                     })}
-                                </CardGrid>
-                            </PanelViewMore>
-                            <PanelViewMore>
-                                <Divider />
-                                <Title variant="h2">Other Artifacts</Title>
-                                <BodyText>
-                                    Manage additional components for your integration. Select from the options below.
-                                </BodyText>
-                                <CardGrid>
-                                    <ButtonCard
-                                        icon={<Icon name="bi-connection" />}
-                                        title="Connections"
-                                        description="Set up external service connections, like databases and APIs."
-                                        onClick={() => handleClick(DIRECTORY_MAP.CONNECTIONS)}
-                                    />
-                                    <ButtonCard
-                                        icon={<Icon name="bi-type" />}
-                                        title="Types"
-                                        description="Define and manage data types with JSON schema."
-                                        onClick={() => handleClick(DIRECTORY_MAP.TYPES)}
-                                    />
-                                    <ButtonCard
-                                        icon={<Icon name="bi-config" />}
-                                        title="Configurations"
-                                        description="Handle environment variables and secrets for your project."
-                                        onClick={() => handleClick(DIRECTORY_MAP.CONFIGURATIONS)}
-                                    />
-                                    <ButtonCard
-                                        icon={<Icon name="bi-function" />}
-                                        title="Functions"
-                                        description="Create reusable functions to streamline your integration logic."
-                                        onClick={() => handleClick(DIRECTORY_MAP.FUNCTIONS)}
-                                    />
-                                </CardGrid>
-                            </PanelViewMore>
-                        </AddPanel>
-                    </Container>
-                }
+                            </CardGrid>
+                        </PanelViewMore>
+                        <PanelViewMore>
+                            <Divider />
+                            <Title variant="h2">Other Artifacts</Title>
+                            <BodyText>
+                                Manage additional components for your integration. Select from the options below.
+                            </BodyText>
+                            <CardGrid>
+                                <ButtonCard
+                                    icon={<Icon name="bi-connection" />}
+                                    title="Connections"
+                                    description="Set up external service connections, like databases and APIs."
+                                    onClick={() => handleClick(DIRECTORY_MAP.CONNECTIONS)}
+                                />
+                                <ButtonCard
+                                    icon={<Icon name="dataMapper" />}
+                                    title="Data Mappers"
+                                    description="Create data mappings for reusable transformations"
+                                    onClick={() => handleClick(DIRECTORY_MAP.DATA_MAPPERS)}
+                                />
+                                <ButtonCard
+                                    icon={<Icon name="bi-type" />}
+                                    title="Types"
+                                    description="Define and manage data types with JSON schema."
+                                    onClick={() => handleClick(DIRECTORY_MAP.TYPES)}
+                                />
+                                <ButtonCard
+                                    icon={<Icon name="bi-config" />}
+                                    title="Configurations"
+                                    description="Handle environment variables and secrets for your project."
+                                    onClick={() => handleClick(DIRECTORY_MAP.CONFIGURATIONS)}
+                                />
+                                <ButtonCard
+                                    icon={<Icon name="bi-function" />}
+                                    title="Functions"
+                                    description="Create reusable functions to streamline your integration logic."
+                                    onClick={() => handleClick(DIRECTORY_MAP.FUNCTIONS)}
+                                />
+                            </CardGrid>
+                        </PanelViewMore>
+                    </AddPanel>
+                </Container>
             </ViewContent>
         </View>
     );
 }
-
 
 // INFO: This is a temporary function to get the custom icon for the entry points.
 // TODO: This should be removed once the new icons are added to the BE API.
@@ -379,7 +362,5 @@ export function getCustomEntryNodeIcon(type: string) {
 }
 // TODO: This should be removed once the new icons are added to the BE API.
 export function getEntryNodeIcon(item: TriggerNode) {
-    return (
-        getCustomEntryNodeIcon(item.moduleName) || <img src={item.icon} alt={item.name} style={{ width: "40px" }} />
-    );
+    return getCustomEntryNodeIcon(item.moduleName) || <img src={item.icon} alt={item.name} style={{ width: "40px" }} />;
 }

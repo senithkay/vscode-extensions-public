@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { SelectionBoxLayerFactory } from "@projectstorm/react-canvas-core";
 import {
@@ -27,14 +27,14 @@ import { DataMapperCanvasContainerWidget } from './Canvas/DataMapperCanvasContai
 import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
 import { DefaultState as LinkState } from './LinkState/DefaultState';
 import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
+import { LinkConnectorNode } from './Node';
 import { OverlayLayerFactory } from './OverlayLayer/OverlayLayerFactory';
 import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
 import { useDiagramModel, useRepositionedNodes } from '../Hooks';
 import { throttle } from 'lodash';
 import { defaultModelOptions } from './utils/constants';
-import { calculateZoomLevel } from './utils/diagram-utils';
 import { IONodesScrollCanvasAction } from './Actions/IONodesScrollCanvasAction';
-import { useDMExpressionBarStore } from '../../store/store';
+import { useDMExpressionBarStore, useDMSearchStore } from '../../store/store';
 import { isOutputNode } from './Actions/utils';
 import { InputOutputPortModel } from './Port';
 import * as Nodes from "./Node";
@@ -59,11 +59,11 @@ function initDiagramEngine() {
 	engine.getLayerFactories().registerFactory(new OverriddenLinkLayerFactory());
 	engine.getLayerFactories().registerFactory(new SelectionBoxLayerFactory());
 
-	// engine.getLabelFactories().registerFactory(new DefaultLabelFactory());
-	// engine.getNodeFactories().registerFactory(new DefaultNodeFactory());
-	// engine.getLinkFactories().registerFactory(new DefaultLinkFactory());
-	// engine.getLinkFactories().registerFactory(new PathFindingLinkFactory());
-	// engine.getPortFactories().registerFactory(new DefaultPortFactory());
+	engine.getLabelFactories().registerFactory(new DefaultLabelFactory() as any);
+	engine.getNodeFactories().registerFactory(new DefaultNodeFactory() as any);
+	engine.getLinkFactories().registerFactory(new DefaultLinkFactory() as any);
+	engine.getLinkFactories().registerFactory(new PathFindingLinkFactory() as any);
+	engine.getPortFactories().registerFactory(new DefaultPortFactory() as any);
 
 	// register the default interaction behaviours
 	engine.getStateMachine().pushState(new DefaultDiagramState());
@@ -71,6 +71,8 @@ function initDiagramEngine() {
 
 	engine.getNodeFactories().registerFactory(new Nodes.InputNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.ObjectOutputNodeFactory());
+	engine.getNodeFactories().registerFactory(new Nodes.ArrayOutputNodeFactory());
+	engine.getNodeFactories().registerFactory(new Nodes.LinkConnectorNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.DataImportNodeFactory());
 
 	engine.getPortFactories().registerFactory(new Ports.InputOutputPortFactory());
@@ -78,8 +80,8 @@ function initDiagramEngine() {
 
 	engine.getLabelFactories().registerFactory(new Labels.ExpressionLabelFactory());
 
-	// engine.getLinkFactories().registerFactory(new Links.DataMapperLinkFactory());
-	// engine.getLinkFactories().registerFactory(new Links.ArrowLinkFactory());
+	engine.getLinkFactories().registerFactory(new Links.DataMapperLinkFactory() as any);
+	engine.getLinkFactories().registerFactory(new Links.ArrowLinkFactory() as any);
 
 	engine.getActionEventBus().registerAction(new IONodesScrollCanvasAction());
 
@@ -100,12 +102,25 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 	const [, forceUpdate] = useState({});
 
-	const zoomLevel = calculateZoomLevel(screenWidth);
+	const getScreenWidthRef = useRef(() => screenWidth);
+	const devicePixelRatioRef = useRef(window.devicePixelRatio);
+
+	const { inputSearch, outputSearch } = useDMSearchStore.getState();
+
+	const zoomLevel = defaultModelOptions.zoom;
 
 	const repositionedNodes = useRepositionedNodes(nodes, zoomLevel, diagramModel);
 	const { updatedModel, isFetching } = useDiagramModel(repositionedNodes, diagramModel, onError, zoomLevel);
 
 	engine.setModel(diagramModel);
+
+	useEffect(() => {
+		engine.getStateMachine().pushState(new LinkState(true));
+	}, [inputSearch, outputSearch]);
+
+	useEffect(() => {
+		getScreenWidthRef.current = () => screenWidth;
+	}, [screenWidth]);
 
 	useEffect(() => {
         window.addEventListener('resize', handleResize);
@@ -123,21 +138,21 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	useEffect(() => {
 		if (!isFetching && engine.getModel()) {
 			const modelNodes = engine.getModel().getNodes();
-			// const nodesToUpdate = modelNodes.filter(node => 
-			// 	node instanceof LinkConnectorNode || node instanceof ArrayFnConnectorNode
-			// );
+			const nodesToUpdate = modelNodes.filter(node => 
+				node instanceof LinkConnectorNode
+			);
 
-			// nodesToUpdate.forEach((node: LinkConnectorNode | ArrayFnConnectorNode) => {
-			// 	node.initLinks();
-			// 	const targetPortPosition = node.targetPort?.getPosition();
-			// 	if (targetPortPosition) {
-			// 		node.setPosition(targetPortPosition.x - 180, targetPortPosition.y - 6.5);
-			// 	}
-			// });
+			nodesToUpdate.forEach((node: LinkConnectorNode) => {
+				node.initLinks();
+				const targetPortPosition = node.targetPort?.getPosition();
+				if (targetPortPosition) {
+					node.setPosition(targetPortPosition.x - 150, targetPortPosition.y - 6.5);
+				}
+			});
 	
-			// if (nodesToUpdate.length > 0) {
-			// 	forceUpdate({});
-			// }
+			if (nodesToUpdate.length > 0) {
+				forceUpdate({});
+			}
 
 			// Update the expression bar focused output port if any
 			const focusedPort = useDMExpressionBarStore.getState().focusedPort;
@@ -154,9 +169,12 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	const handleResize = throttle(() => {
 		const newScreenWidth = window.innerWidth;
-		if (newScreenWidth !== screenWidth) {
+		const newDevicePixelRatio = window.devicePixelRatio;
+
+		if (newDevicePixelRatio === devicePixelRatioRef.current && newScreenWidth !== getScreenWidthRef.current()) {
 			setScreenWidth(newScreenWidth);
 		}
+		devicePixelRatioRef.current = newDevicePixelRatio;
 	}, 100);
 
 	return (

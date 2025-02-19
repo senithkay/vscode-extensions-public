@@ -34,6 +34,7 @@ import {
     PostProcessRequest,
     PostProcessResponse,
     ProjectDiagnostics,
+    ProjectModule,
     ProjectSource,
     STModification,
     SourceFile,
@@ -53,6 +54,7 @@ import { NOT_SUPPORTED } from "../../core";
 import { generateDataMapping, generateTypeCreation } from "../../features/ai/dataMapping";
 import { generateTest, getDiagnostics } from "../../features/ai/testGenerator";
 import { StateMachine, updateView } from "../../stateMachine";
+import { loginGithubCopilot } from "../../utils/ai/auth";
 import { modifyFileContent, writeBallerinaFileDidOpen } from "../../utils/modification";
 import { StateMachineAI } from '../../views/ai-panel/aiMachine';
 import { MODIFIYING_ERROR, PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
@@ -79,12 +81,10 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async login(): Promise<void> {
-        // ADD YOUR IMPLEMENTATION HERE
         StateMachineAI.service().send(AI_EVENT_TYPE.LOGIN);
     }
 
     async logout(): Promise<void> {
-        // ADD YOUR IMPLEMENTATION HERE
         StateMachineAI.service().send(AI_EVENT_TYPE.LOGOUT);
     }
 
@@ -152,14 +152,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
         }
 
         let balFilePath = path.join(workspaceFolderPath, req.filePath);
-        if (req.isTestCode) {
-            const testsFolderPath = path.join(workspaceFolderPath, "tests");
-            if (!fs.existsSync(testsFolderPath)) {
-                fs.mkdirSync(testsFolderPath, { recursive: true });
-            }
-            balFilePath = path.join(testsFolderPath, `test.bal`).toLowerCase();
-        }
-        
+
         const directory = path.dirname(balFilePath);
         if (!fs.existsSync(directory)) {
             fs.mkdirSync(directory, { recursive: true });
@@ -300,7 +293,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
             return { error: MODIFIYING_ERROR };
         }
 
-        const fn = getFunction(syntaxTree as ModulePart, fnSt.functionName.value);
+        const fn = await getFunction(syntaxTree as ModulePart, fnSt.functionName.value);
 
         if (fn && fn.source !== oldSource) {
             modifyFileContent({ filePath, content: source });
@@ -359,7 +352,8 @@ export class AiPanelRpcManager implements AIPanelAPI {
 
         // Initialize the ProjectSource object
         const projectSource: ProjectSource = {
-            sourceFiles: []
+            sourceFiles: [],
+            projectModules: []
         };
 
         // Iterate through root-level sources
@@ -367,15 +361,21 @@ export class AiPanelRpcManager implements AIPanelAPI {
             projectSource.sourceFiles.push({ filePath, content });
         }
 
-        // // Iterate through module sources
-        // if (project.modules) {
-        //     for (const module of project.modules) {
-        //         for (const [fileName, content] of Object.entries(module.sources)) {
-        //             const filePath = `modules/${module.moduleName}/${fileName}`;
-        //             projectSource.sourceFiles.push({ filePath, content });
-        //         }
-        //     }
-        // }
+        // Iterate through module sources
+        if (project.modules) {
+            for (const module of project.modules) {
+                const projectModule: ProjectModule = {
+                    moduleName: module.moduleName,
+                    sourceFiles: []
+                };
+                for (const [fileName, content] of Object.entries(module.sources)) {
+                    // const filePath = `modules/${module.moduleName}/${fileName}`;
+                    // projectSource.sourceFiles.push({ filePath, content });
+                    projectModule.sourceFiles.push({ filePath: fileName, content });
+                }
+                projectSource.projectModules.push(projectModule);
+            }
+        }
 
         return projectSource;
     }
@@ -630,6 +630,60 @@ export class AiPanelRpcManager implements AIPanelAPI {
                 return fileName || '';  
             }
         }
+    }
+
+    async openSettings(): Promise<void> {
+        StateMachineAI.service().send(AI_EVENT_TYPE.SETUP);
+    }
+
+    async openChat(): Promise<void> {
+        StateMachineAI.service().send(AI_EVENT_TYPE.CHAT);
+    }
+
+    async promptGithubAuthorize(): Promise<boolean> {
+        return await loginGithubCopilot();
+        //Change state to notify?
+        // return true;
+    }
+
+    async promptWSO2AILogout(): Promise<boolean> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async isCopilotSignedIn(): Promise<boolean> {
+       const token = await extension.context.secrets.get('GITHUB_COPILOT_TOKEN');
+        if (token && token !== '') {
+            return true;
+        }
+        return false;
+    }
+
+    async isWSO2AISignedIn(): Promise<boolean> {
+        const token = await extension.context.secrets.get('BallerinaAIUser');
+        if (token && token !== '') {
+            return true;
+        }
+        return false;
+    }
+
+    async showSignInAlert(): Promise<boolean> {
+        const resp =  await extension.context.secrets.get('LOGIN_ALERT_SHOWN');
+        if (resp === 'true') {
+            return false;
+        }
+        const isWso2Signed = await this.isWSO2AISignedIn();
+
+        if (isWso2Signed) {
+            return false;
+        }
+        return true;
+    }
+
+    async markAlertShown(): Promise<void> {
+        // ADD YOUR IMPLEMENTATION HERE
+        // throw new Error('Not implemented');
+        await extension.context.secrets.store('LOGIN_ALERT_SHOWN', 'true');
     }
 }
 

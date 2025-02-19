@@ -7,9 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DiagnosticMessage, FormDiagnostics } from "@wso2-enterprise/ballerina-core";
+import { RefObject } from "react";
+import { DiagnosticMessage, FormDiagnostics, TextEdit, PropertyModel, LinePosition } from "@wso2-enterprise/ballerina-core";
 import { ParamConfig } from "../ParamManager/ParamManager";
-import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
+import { CompletionItem, FormExpressionEditorRef, HelperPaneOrigin } from "@wso2-enterprise/ui-toolkit";
 
 export type FormValues = {
     [key: string]: any;
@@ -28,16 +29,26 @@ export type FormField = {
     valueType?: string;
     diagnostics?: DiagnosticMessage[];
     items?: string[];
+    choices?: PropertyModel[];
     paramManagerProps?: ParamConfig;
-    valueTypeConstraint: string;
+    valueTypeConstraint: string | string[];
     groupNo?: number;
     groupName?: string;
+    addNewButton?: boolean;
+    enabled?: boolean;
+};
+
+export type ParameterValue = {
+    value: {
+        variable: { value: string };
+        type: { value: string };
+    };
 };
 
 export type ExpressionFormField = {
     key: string;
     value: string;
-    cursorPosition: number;
+    cursorPosition: LinePosition;
     isConfigured?: boolean
 };
 
@@ -45,6 +56,8 @@ export type HelperPaneCompletionItem = {
     label: string;
     type?: string;
     insertText: string;
+    kind?: string;
+    codedata?: any;
 }
 
 export type HelperPaneCompletionCategory = {
@@ -78,7 +91,7 @@ type FormCompletionConditionalProps = {
         triggerCharacter?: string,
         onlyVariables?: boolean
     ) => Promise<void>;
-    extractArgsFromFunction: (
+    extractArgsFromFunction?: (
         value: string,
         key: string,
         cursorPosition: number
@@ -102,18 +115,17 @@ type FormTypeConditionalProps = {
     retrieveVisibleTypes?: never;
 }
 
-type FormHelperPaneConditionalProps = { 
-    isLoadingHelperPaneInfo: boolean;
-    variableInfo: HelperPaneData;
-    functionInfo: HelperPaneData;
-    libraryBrowserInfo: HelperPaneData;
-    getHelperPaneData?: (type: string, filterText: string) => void;
+type FormHelperPaneConditionalProps = {
+    getHelperPane: (
+        exprRef: RefObject<FormExpressionEditorRef>,
+        value: string,
+        onChange: (value: string, updatedCursorPosition: number) => void,
+        changeHelperPaneState: (isOpen: boolean) => void,
+    ) => JSX.Element;
+    helperPaneOrigin?: HelperPaneOrigin;
 } | {
-    isLoadingHelperPaneInfo?: never;
-    variableInfo?: never;
-    functionInfo?: never;
-    libraryBrowserInfo?: never;
-    getHelperPaneData?: never;
+    getHelperPane?: never;
+    helperPaneOrigin?: never;
 }
 
 type FormExpressionEditorBaseProps = {
@@ -130,15 +142,16 @@ type FormExpressionEditorBaseProps = {
         shouldUpdateNode?: boolean,
         variableType?: string
     ) => Promise<void>;
-    onCompletionItemSelect?: (value: string) => Promise<void>;
+    onCompletionItemSelect?: (value: string, additionalTextEdits?: TextEdit[]) => Promise<void>;
     onFocus?: () => void | Promise<void>;
     onBlur?: () => void | Promise<void>;
     onCancel?: () => void;
     onSave?: (value: string) => void | Promise<void>;
     onRemove?: () => void;
+    onSaveConfigurables?: (values: any) => void;
 }
 
-export type FormExpressionEditorProps = 
+export type FormExpressionEditorProps =
     FormCompletionConditionalProps &
     FormTypeConditionalProps &
     FormHelperPaneConditionalProps &

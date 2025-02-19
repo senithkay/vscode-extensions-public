@@ -7,61 +7,50 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { IOType, Mapping } from '@wso2-enterprise/ballerina-core';
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
-import { MappingMetadata } from "../../Mappings/MappingMetadata";
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Port';
 import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { ObjectOutputFieldWidget } from "./ObjectOutputFieldWidget";
 import { useIONodesStyles } from '../../../styles';
-import {
-	useDMCollapsedFieldsStore,
-	useDMExpressionBarStore,
-	useDMIOConfigPanelStore
-} from '../../../../store/store';
+import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore } from '../../../../store/store';
 import { OutputSearchHighlight } from '../commons/Search';
-import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../../utils/constants';
+import { OutputBeforeInputNotification } from '../commons/OutputBeforeInputNotification';
 
 export interface ObjectOutputWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
-	dmTypeWithValue: DMTypeWithValue;
+	outputType: IOType;
 	typeName: string;
 	value: any;
 	engine: DiagramEngine;
 	getPort: (portId: string) => InputOutputPortModel;
 	context: IDataMapperContext;
-	mappings?: MappingMetadata[];
+	mappings?: Mapping[];
 	valueLabel?: string;
-	deleteField?: (node: any) => Promise<void>;
 	originalTypeName?: string;
 }
 
 export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const {
 		id,
-		dmTypeWithValue,
+		outputType,
 		typeName,
 		value,
 		engine,
 		getPort,
 		context,
-		valueLabel,
-		deleteField
+		valueLabel
 	} = props;
-	// const { views } = context;
-	// const focusedView = views[views.length - 1];
-	// const focuesOnSubMappingRoot = focusedView.subMappingInfo && focusedView.subMappingInfo.focusedOnSubMappingRoot;
-
 	const classes = useIONodesStyles();
 
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 	const [isHovered, setIsHovered] = useState(false);
-	const [hasFirstClickOnOutput, setHasFirstClickOnOutput] = useState(false);
+	const [hasOutputBeforeInput, setHasOutputBeforeInput] = useState(false);
 
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
@@ -71,14 +60,10 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		setIsSchemaOverridden: state.setIsSchemaOverridden
 	}));
 
-	const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
-
-	const { childrenTypes } = dmTypeWithValue;
-	const fields = childrenTypes || [];
+	const fields = outputType.fields || [];
 	const hasFields = fields.length > 0;
 
 	const portIn = getPort(`${id}.IN`);
-    const isExprBarFocused = exprBarFocusedPort?.getName() === portIn?.getName();
 
 	let expanded = true;
 	if ((portIn && portIn.collapsed)) {
@@ -89,16 +74,20 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const indentation = (portIn && (!hasFields || !expanded)) ? 0 : 24;
 
 	const handleExpand = () => {
-		const collapsedFields = collapsedFieldsStore.collapsedFields;
+		const collapsedFields = collapsedFieldsStore.fields;
         if (!expanded) {
-            collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== id));
+            collapsedFieldsStore.setFields(collapsedFields.filter((element) => element !== id));
         } else {
-            collapsedFieldsStore.setCollapsedFields([...collapsedFields, id]);
+            collapsedFieldsStore.setFields([...collapsedFields, id]);
         }
 	};
 
 	const handlePortState = (state: PortState) => {
 		setPortState(state)
+	};
+
+	const handlePortSelection = (outputBeforeInput: boolean) => {
+		setHasOutputBeforeInput(outputBeforeInput);
 	};
 
 	const onMouseEnter = () => {
@@ -138,7 +127,6 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 					id={"recordfield-" + id}
 					onMouseEnter={onMouseEnter}
 					onMouseLeave={onMouseLeave}
-					className={isExprBarFocused ? classes.treeLabelPortExprFocused : ""}
 				>
 					<span className={classes.inPort}>
 						{portIn && (
@@ -146,12 +134,14 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 								engine={engine}
 								port={portIn}
 								handlePortState={handlePortState}
+								hasFirstSelectOutput={handlePortSelection}
 								disable={isDisabled && !expanded}
 							/>)
 						}
 					</span>
 					<span className={classes.label}>
 						<Button
+							id={"expand-or-collapse-" + id} 
 							appearance="icon"
 							tooltip="Expand/Collapse"
 							sx={{ marginLeft: indentation }}
@@ -162,6 +152,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 						</Button>
 						{label}
 					</span>
+                    {hasOutputBeforeInput && <OutputBeforeInputNotification />}
 				</TreeHeader>
 				{(expanded && fields) && (
 					<TreeBody>
@@ -173,10 +164,8 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 									field={item}
 									getPort={getPort}
 									parentId={id}
-									parentObjectLiteralExpr={value}
 									context={context}
 									treeDepth={0}
-									deleteField={deleteField}
 									hasHoveredParent={isHovered}
 								/>
 							);

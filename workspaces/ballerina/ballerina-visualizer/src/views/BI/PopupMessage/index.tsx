@@ -9,8 +9,7 @@
 
 import React from "react";
 import styled from "@emotion/styled";
-import { Colors } from "../../../resources/constants";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 const ViewContainer = styled.div`
     position: fixed;
@@ -18,7 +17,7 @@ const ViewContainer = styled.div`
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 3000;
-    background-color: ${Colors.SURFACE_BRIGHT};
+    background-color: ${ThemeColors.SURFACE_BRIGHT};
     padding: 28px 56px;
     border-radius: 5px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);

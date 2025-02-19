@@ -9,14 +9,13 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 import styled from "@emotion/styled";
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 
 import HeaderSearchBox from "./HeaderSearchBox";
 
 export interface DataMapperHeaderProps {
     hasEditDisabled: boolean;
-    onClose?: () => void;
+    onClose: () => void;
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
@@ -28,7 +27,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                 <BreadCrumb>
                     <Title> DATA MAPPER </Title>
                 </BreadCrumb>
-                {!hasEditDisabled && !onClose && (
+                {!hasEditDisabled && (
                     <>
                         <IOFilterBar>
                             <HeaderSearchBox />
@@ -36,13 +35,9 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                     </>
                 )}
                 {onClose && (
-                    <VSCodeButton 
-                        appearance="icon"
-                        onClick={onClose}
-                        style={{ marginLeft: "15px" }}
-                    >
-                        <Codicon name="chrome-close" />
-                    </VSCodeButton>
+                    <Button appearance="icon" onClick={onClose} sx={{ marginLeft: "12px" }}>
+                        <Codicon name="close" />
+                    </Button>
                 )}
             </HeaderContent>
         </HeaderContainer>
@@ -50,7 +45,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
 }
 
 const HeaderContainer = styled.div`
-    height: 72px;
+    height: 54px;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -58,6 +53,7 @@ const HeaderContainer = styled.div`
 `;
 
 const HeaderContent = styled.div`
+    height: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;

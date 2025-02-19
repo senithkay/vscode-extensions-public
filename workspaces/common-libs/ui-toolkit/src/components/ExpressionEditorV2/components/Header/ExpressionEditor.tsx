@@ -15,10 +15,9 @@ import React, {
     useRef,
     useState,
 } from 'react';
-import { createPortal } from 'react-dom';
 import styled from '@emotion/styled';
 import { Transition } from '@headlessui/react';
-import { ANIMATION } from '../constants';
+import { ANIMATION } from '../../constants';
 import { CompletionItem } from '../../types/common';
 import { HeaderExpressionEditorProps, HeaderExpressionEditorRef } from '../../types/header';
 import { addClosingBracketIfNeeded, checkCursorInFunction, setCursor } from '../../utils';
@@ -27,6 +26,7 @@ import { ProgressIndicator } from '../../../ProgressIndicator/ProgressIndicator'
 import { TextField } from '../../../TextField/TextField';
 import { Dropdown, FnSignatureEl } from '../Common';
 import { StyleBase, FnSignatureProps } from '../Common/types';
+import { createPortal } from 'react-dom';
 
 /* Styled components */
 const Container = styled.div`
@@ -65,6 +65,7 @@ export const ExpressionEditor = forwardRef<HeaderExpressionEditorRef, HeaderExpr
         onDefaultCompletionSelect,
         onManualCompletionRequest,
         extractArgsFromFunction,
+        onFunctionEdit,
         useTransaction,
         // onFocus, TODO: Implement this
         onBlur,
@@ -85,7 +86,7 @@ export const ExpressionEditor = forwardRef<HeaderExpressionEditorRef, HeaderExpr
     const showCompletions = showDefaultCompletion || completions?.length > 0 || !!fnSignature;
     const isFocused = document.activeElement === inputRef.current;
 
-    const handleResize = throttle(() => {
+    const updatePosition = throttle(() => {
         if (elementRef.current) {
             const rect = elementRef.current.getBoundingClientRect();
             setDropdownElPosition({
@@ -96,10 +97,10 @@ export const ExpressionEditor = forwardRef<HeaderExpressionEditorRef, HeaderExpr
     }, 100);
 
     useEffect(() => {
-        handleResize();
-        window.addEventListener('resize', handleResize);
+        updatePosition();
+        window.addEventListener('resize', updatePosition);
         return () => {
-            window.removeEventListener('resize', handleResize);
+            window.removeEventListener('resize', updatePosition);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [elementRef, showCompletions]);
@@ -115,8 +116,10 @@ export const ExpressionEditor = forwardRef<HeaderExpressionEditorRef, HeaderExpr
 
     // This allows us to update the Function Signature UI
     const updateFnSignature = async (value: string, cursorPosition: number) => {
-        const fnSignature = await extractArgsFromFunction(value, cursorPosition);
-        setFnSignature(fnSignature);
+        if (extractArgsFromFunction) {
+            const fnSignature = await extractArgsFromFunction(value, cursorPosition);
+            setFnSignature(fnSignature);
+        }
     };
 
     const handleChange = async (text: string, cursorPosition?: number) => {
@@ -125,15 +128,20 @@ export const ExpressionEditor = forwardRef<HeaderExpressionEditorRef, HeaderExpr
         // Update the text field value
         await onChange(text, updatedCursorPosition);
 
-        if (extractArgsFromFunction) {
-            const cursorInFunction = checkCursorInFunction(text, updatedCursorPosition);
-            if (cursorInFunction) {
-                // Update function signature if the cursor is inside a function
-                await updateFnSignature(text, updatedCursorPosition);
-            } else if (fnSignature) {
-                // Clear the function signature if the cursor is not in a function
-                setFnSignature(undefined);
-            }
+        const { cursorInFunction, functionName } = checkCursorInFunction(text, updatedCursorPosition);
+        if (cursorInFunction) {
+            // Update function signature if the cursor is inside a function
+            await updateFnSignature(text, updatedCursorPosition);
+            // Update function name if the cursor is inside a function name
+            await onFunctionEdit?.(functionName);
+        } else if (fnSignature) {
+            // Clear the function signature if the cursor is not in a function
+            setFnSignature(undefined);
+        }
+
+        if (!cursorInFunction) {
+            // Clear the function name if the cursor is not in a function name
+            await onFunctionEdit?.(undefined);
         }
     };
 
@@ -148,7 +156,7 @@ export const ExpressionEditor = forwardRef<HeaderExpressionEditorRef, HeaderExpr
         const newTextValue = prefix + item.value + suffix;
 
         await handleChange(newTextValue, newCursorPosition);
-        onCompletionSelect && await onCompletionSelect(newTextValue);
+        onCompletionSelect && await onCompletionSelect(newTextValue, item);
         setCursor(inputRef, 'input', newTextValue, newCursorPosition);
     };
 
@@ -361,6 +369,7 @@ export const ExpressionEditor = forwardRef<HeaderExpressionEditorRef, HeaderExpr
     return (
         <Container ref={elementRef}>
             <StyledTextField
+                {...rest}
                 ref={inputRef as React.RefObject<HTMLInputElement>}
                 value={value}
                 onTextChange={handleChange}
@@ -368,10 +377,9 @@ export const ExpressionEditor = forwardRef<HeaderExpressionEditorRef, HeaderExpr
                 onBlur={handleTextFieldBlur}
                 sx={{ width: '100%', ...sx }}
                 disabled={disabled || isSavingExpression}
-                {...rest}
             />
             {isSavingExpression && <ProgressIndicator barWidth={6} sx={{ top: "100%" }} />}
-            {isFocused &&
+            {isFocused && 
                 createPortal(
                     <DropdownContainer ref={dropdownContainerRef} sx={{ ...dropdownElPosition }}>
                         <Transition show={showCompletions} {...ANIMATION}>
@@ -409,8 +417,7 @@ export const ExpressionEditor = forwardRef<HeaderExpressionEditorRef, HeaderExpr
                         </Transition>
                     </DropdownContainer>,
                     document.body
-                )
-            }
+                )}
         </Container>
     );
 });
