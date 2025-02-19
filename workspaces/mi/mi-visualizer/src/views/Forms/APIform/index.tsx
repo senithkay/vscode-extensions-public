@@ -306,7 +306,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 const xml = getXML(ARTIFACT_TEMPLATES.ADD_API, formValues);
                 createAPIParams = { ...createAPIParams, xmlData: xml, version: values.version }
             }
-
+            createAPIParams = { ...createAPIParams, projectDir: projectDir }
             const file = await rpcClient.getMiDiagramRpcClient().createAPI(createAPIParams);
             console.log("API created");
             rpcClient.getMiVisualizerRpcClient().log({ message: "API created successfully." });

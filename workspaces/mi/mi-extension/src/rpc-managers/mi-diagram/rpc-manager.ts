@@ -269,7 +269,7 @@ import { UnitTest } from "../../../../syntax-tree/lib/src";
 import { extension } from '../../MIExtensionContext';
 import { RPCLayer } from "../../RPCLayer";
 import { StateMachineAI } from '../../ai-panel/aiMachine';
-import { APIS, COMMANDS, DEFAULT_PROJECT_VERSION, LAST_EXPORTED_CAR_PATH, MI_COPILOT_BACKEND_URL, SWAGGER_REL_DIR } from "../../constants";
+import { APIS, COMMANDS, DEFAULT_PROJECT_VERSION, LAST_EXPORTED_CAR_PATH, MI_COPILOT_BACKEND_URL, RUNTIME_VERSION_440, SWAGGER_REL_DIR } from "../../constants";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { openSwaggerWebview } from "../../swagger/activate";
@@ -290,7 +290,7 @@ import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 import { importCapp } from "../../util/importCapp";
-import { filterConnectorVersion, generateInitialDependencies, getDefaultProjectPath, getMIVersionFromPom } from "../../util/onboardingUtils";
+import { compareVersions, filterConnectorVersion, generateInitialDependencies, getDefaultProjectPath, getMIVersionFromPom } from "../../util/onboardingUtils";
 import { Range as STRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 const AdmZip = require('adm-zip');
@@ -502,7 +502,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 swaggerDefPath,
                 wsdlType,
                 wsdlDefPath,
-                wsdlEndpointName
+                wsdlEndpointName,
+                projectDir
             } = params;
 
             const getSwaggerName = (swaggerDefPath: string) => {
@@ -513,12 +514,26 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             let response: GenerateAPIResponse = { apiXml: "", endpointXml: "" };
             if (!xmlData) {
                 const langClient = StateMachine.context().langClient!;
+                const projectDetailsRes = await langClient?.getProjectDetails();
+                const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
+                const isRegistrySupported = compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0;
+
+                const getPublishSwaggerPath = (swaggerDefPath: string) => {
+                    if (isRegistrySupported) {
+                        return `gov:swaggerFiles/${getSwaggerName(swaggerDefPath)}`;
+                    } else {
+                        return `gov:mi-resources/api-definitions/${getSwaggerName(swaggerDefPath)}`;
+                    }
+                }
+                if (!isRegistrySupported) {
+                    const swaggerArtifactName = `resources_api-definitions_${getSwaggerName(swaggerDefPath ?? '')}`.replace(/\./g, '_');
+                    addNewEntryToArtifactXML(projectDir ?? '', swaggerArtifactName, getSwaggerName(swaggerDefPath ?? ''), "/_system/governance/mi-resources/api-definitions", "application/yaml", false, false);
+                }
                 if (swaggerDefPath) {
                     response = await langClient.generateAPI({
                         apiName: name,
                         swaggerOrWsdlPath: swaggerDefPath,
-                        publishSwaggerPath:
-                            saveSwaggerDef ? `gov:swaggerFiles/${getSwaggerName(swaggerDefPath)}` : undefined,
+                        publishSwaggerPath: saveSwaggerDef ? getPublishSwaggerPath(swaggerDefPath) : undefined,
                         mode: "create.api.from.swagger"
                     });
                 } else if (wsdlDefPath) {
