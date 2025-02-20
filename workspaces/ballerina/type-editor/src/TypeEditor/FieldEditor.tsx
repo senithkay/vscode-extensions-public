@@ -1,9 +1,11 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Member, Type } from '@wso2-enterprise/ballerina-core';
-import { Button, CheckBox, Codicon, TextField } from '@wso2-enterprise/ui-toolkit';
+import { Button, CheckBox, Codicon, Icon, Position, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { parseType, typeToSource, defaultAnonymousRecordType } from './TypeUtil';
 import { RecordEditor } from './RecordEditor';
+import { TypeHelper } from '../TypeHelper';
+import { TYPE_HELPER_OPTIONS } from './constants';
 
 
 interface FieldEditorProps {
@@ -27,6 +29,11 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
     const { member, selected, onChange, onSelect, onDeselect } = props;
     const [panelOpened, setPanelOpened] = useState<boolean>(false);
     const recordEditorRef = useRef<{ addMember: () => void }>(null);
+    const typeFieldRef = useRef<HTMLInputElement>(null);
+    const typeHelperRef = useRef<HTMLDivElement>(null);
+    const [typeFieldCursorPosition, setTypeFieldCursorPosition] = useState<number>(0);
+    const [helperPaneOffset, setHelperPaneOffset] = useState<Position>({ top: 0, left: 0 });
+    const [helperPaneOpened, setHelperPaneOpened] = useState<boolean>(false);
 
     const handleMemberNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onChange({
@@ -40,6 +47,21 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
             ...member,
             type: e.target.value
         });
+    }
+
+    const handleTypeHelperChange = (newType: string, newCursorPosition: number) => {
+        onChange({
+            ...member,
+            type: newType
+        });
+        setTypeFieldCursorPosition(newCursorPosition);
+
+        // Focus the type field
+        typeFieldRef.current?.focus();
+        // Set cursor position
+        typeFieldRef.current?.shadowRoot
+            ?.querySelector('input')
+            ?.setSelectionRange(newCursorPosition, newCursorPosition);
     }
 
     const handleMemberDefaultValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,6 +94,56 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
         return false;
     }
 
+    const handleTypeFieldFocus = () => {
+        // If type helper is open, close it
+        if (helperPaneOpened) {
+            setHelperPaneOpened(false);
+        }
+
+        const rect = typeFieldRef.current.getBoundingClientRect();
+        const sidePanelLeft = window.innerWidth - 400; // Side panel width
+        const helperPaneLeftOffset = sidePanelLeft - rect.left;
+        setHelperPaneOffset({ top: 0, left: helperPaneLeftOffset });
+        setHelperPaneOpened(true);
+    }
+
+    const handleSelectionChange = () => {
+        const selection = window.getSelection();
+        if (!selection) {
+            return;
+        }
+
+        const range = selection.getRangeAt(0);
+
+        if (typeFieldRef.current.parentElement.contains(range.startContainer)) {
+            setTypeFieldCursorPosition(
+                typeFieldRef.current.shadowRoot.querySelector('input').selectionStart ?? 0
+            );
+        }
+    }
+
+    /* Track cursor position */
+    useEffect(() => {
+        const typeField = typeFieldRef.current;
+        if (!typeField) {
+            return;
+        }
+
+        document.addEventListener('selectionchange', handleSelectionChange);
+        return () => {
+            document.removeEventListener('selectionchange', handleSelectionChange);
+        }
+    }, [typeFieldRef.current]);
+
+    const handleTypeFieldBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        /* Prevent blur event when clicked on the type helper */
+        if (typeHelperRef.current.contains(e.relatedTarget as Node)) {
+            e.preventDefault();
+            e.stopPropagation();
+            typeFieldRef.current?.shadowRoot?.querySelector('input')?.focus();
+        }
+    }
+
     return (
         <>
             <div style={{ display: 'flex', gap: '8px' }}>
@@ -81,8 +153,11 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                     onBlur={handleMemberNameChange}
                 />
                 <TextField
+                    ref={typeFieldRef}
                     value={typeToSource(member.type)}
                     onChange={handleMemberTypeChange}
+                    onFocus={handleTypeFieldFocus}
+                    onBlur={handleTypeFieldBlur}
                 />
                 {isRecord(member.type) &&
                     <Button appearance="icon" onClick={() => recordEditorRef.current?.addMember()}>
@@ -112,6 +187,40 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                     />
                 </div>
             )}
+            <TypeHelper
+                ref={typeHelperRef}
+                typeFieldRef={typeFieldRef}
+                currentType={typeToSource(member.type)}
+                currentCursorPosition={typeFieldCursorPosition}
+                onChange={handleTypeHelperChange}
+                positionOffset={helperPaneOffset}
+                categories={[
+                    {
+                        category: 'Primitive Types',
+                        items: [
+                            {
+                                name: 'string',
+                                insertText: 'string',
+                                sortText: 'a'
+                            },
+                            {
+                                name: 'int',
+                                insertText: 'int',
+                                sortText: 'b'
+                            },
+                            {
+                                name: 'float',
+                                insertText: 'float',
+                                sortText: 'c'
+                            }
+                        ],
+                        sortText: 'a'
+                    }
+                ]}
+                options={TYPE_HELPER_OPTIONS}
+                open={helperPaneOpened}
+                onClose={() => setHelperPaneOpened(false)}
+            />
         </>
     );
 };
