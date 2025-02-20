@@ -558,7 +558,14 @@ export async function mapUsingCustomFunction(
 		await createSourceForMapping(sourcePort, targetPort, functionCallExpr);
 	}
 
-	context.goToSource(customFnPosition);
+	// Navigate to the data mapper function
+	// TODO: Instead creating custom function from the front-end, we should use a LS API to create the function
+	// and then navigate to the function by using the position returned by the LS API
+	context.goToSource({
+		...context.functionST.position,
+		endLine: context.functionST.position.startLine,
+		endColumn: context.functionST.position.startColumn
+	});
 }
 
 export function replaceSpecificFieldValue(targetPort: PortModel, modifications: STModification[]) {
