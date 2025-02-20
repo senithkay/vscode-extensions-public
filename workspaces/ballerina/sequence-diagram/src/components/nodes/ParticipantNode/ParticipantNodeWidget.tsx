@@ -10,9 +10,9 @@
 import React, { useContext } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { ParticipantNodeModel } from "./ParticipantNodeModel";
 import {
-    Colors,
     PARTICIPANT_NODE_WIDTH,
     PARTICIPANT_NODE_HEIGHT,
     PARTICIPANT_TAIL_MIN_HEIGHT,
@@ -21,7 +21,6 @@ import {
 import { FunctionIcon } from "../../../resources/icons/nodes/FunctionIcon";
 import { LinkIcon } from "../../../resources/icons/nodes/LinkIcon";
 import { DiagramContext } from "../../DiagramContext";
-import { SqParticipantType } from "@wso2-enterprise/ballerina-core";
 
 namespace ParticipantNodeStyles {
     export const Node = styled.div`
@@ -37,11 +36,11 @@ namespace ParticipantNodeStyles {
             }
 
             .participant-head {
-                border-color: ${Colors.PRIMARY};
+                border-color: ${ThemeColors.PRIMARY};
             }
 
             .participant-line {
-                stroke: ${Colors.PRIMARY};
+                stroke: ${ThemeColors.PRIMARY};
             }
         }
     `;
@@ -57,7 +56,7 @@ namespace ParticipantNodeStyles {
         transition:
             background-color 0.2s ease,
             opacity 0.2s ease;
-        background-color: ${Colors.PRIMARY};
+        background-color: ${ThemeColors.PRIMARY};
         opacity: 0;
         pointer-events: none;
     `;
@@ -79,9 +78,9 @@ namespace ParticipantNodeStyles {
         align-items: center;
         gap: 4px;
 
-        border: ${BORDER_WIDTH}px solid ${Colors.OUTLINE_VARIANT};
-        background-color: ${Colors.SURFACE_DIM};
-        color: ${Colors.ON_SURFACE};
+        border: ${BORDER_WIDTH}px solid ${ThemeColors.OUTLINE_VARIANT};
+        background-color: ${ThemeColors.SURFACE_DIM};
+        color: ${ThemeColors.ON_SURFACE};
         font-size: 12px;
         transition:
             border-color 0.2s ease,
@@ -193,7 +192,7 @@ export function ParticipantNodeWidget(props: ParticipantNodeWidgetProps) {
                     style={{
                         strokeWidth: 2,
                         strokeDasharray: "8,8",
-                        stroke: Colors.OUTLINE_VARIANT,
+                        stroke: ThemeColors.OUTLINE_VARIANT,
                         transition: "stroke 0.2s ease",
                     }}
                 />

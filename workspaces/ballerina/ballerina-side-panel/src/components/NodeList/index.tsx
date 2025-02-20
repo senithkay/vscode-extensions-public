@@ -21,7 +21,6 @@ import {
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { BackIcon, CloseIcon, LogIcon } from "../../resources";
-import { Colors } from "../../resources/constants";
 import { Category, Item, Node } from "./types";
 import { cloneDeep, debounce } from "lodash";
 import GroupList from "../GroupList";
@@ -57,7 +56,7 @@ namespace S {
         margin-top: 8px;
         margin-bottom: ${({ showBorder }) => (showBorder ? "20px" : "12px")};
         padding-bottom: 8px;
-        border-bottom: ${({ showBorder }) => (showBorder ? `1px solid ${Colors.OUTLINE_VARIANT}` : "none")};
+        border-bottom: ${({ showBorder }) => (showBorder ? `1px solid ${ThemeColors.OUTLINE_VARIANT}` : "none")};
     `;
 
     export const Row = styled.div<{}>`
@@ -108,7 +107,7 @@ namespace S {
         align-items: center;
         gap: 5px;
         padding: 5px;
-        border: 1px solid ${Colors.OUTLINE_VARIANT};
+        border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
         border-radius: 5px;
         height: 36px;
         cursor: ${({ enabled }) => (enabled ? "pointer" : "not-allowed")};
@@ -118,8 +117,8 @@ namespace S {
             ${({ enabled }) =>
             enabled &&
             `
-                background-color: ${Colors.PRIMARY_CONTAINER};
-                border: 1px solid ${Colors.PRIMARY};
+                background-color: ${ThemeColors.PRIMARY_CONTAINER};
+                border: 1px solid ${ThemeColors.PRIMARY};
             `}
         }
     `;
@@ -140,15 +139,15 @@ namespace S {
         & svg {
             height: 16px;
             width: 16px;
-            fill: ${Colors.ON_SURFACE};
-            stroke: ${Colors.ON_SURFACE};
+            fill: ${ThemeColors.ON_SURFACE};
+            stroke: ${ThemeColors.ON_SURFACE};
         }
     `;
 
     export const HorizontalLine = styled.hr`
         width: 100%;
         border: 0;
-        border-top: 1px solid ${Colors.OUTLINE_VARIANT};
+        border-top: 1px solid ${ThemeColors.OUTLINE_VARIANT};
     `;
 
     export const BackButton = styled(Button)`
@@ -172,13 +171,13 @@ namespace S {
         align-items: center;
         gap: 8px;
         padding: 6px 2px;
-        color: ${Colors.PRIMARY};
-        border: 1px dashed ${Colors.PRIMARY};
+        color: ${ThemeColors.PRIMARY};
+        border: 1px dashed ${ThemeColors.PRIMARY};
         border-radius: 5px;
         cursor: pointer;
         &:hover {
-            border: 1px solid ${Colors.PRIMARY};
-            background-color: ${Colors.PRIMARY_CONTAINER};
+            border: 1px solid ${ThemeColors.PRIMARY};
+            background-color: ${ThemeColors.PRIMARY_CONTAINER};
         }
     `;
 
@@ -408,7 +407,7 @@ export function NodeList(props: NodeListProps) {
                             leftLabel="Search"
                             rightLabel="Generate"
                             checked={showGeneratePanel}
-                            checkedColor={Colors.PRIMARY}
+                            checkedColor={ThemeColors.PRIMARY}
                             enableTransition={true}
                             onChange={() => {
                                 setShowGeneratePanel(!showGeneratePanel);

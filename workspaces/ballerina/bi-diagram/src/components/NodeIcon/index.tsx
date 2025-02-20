@@ -28,8 +28,7 @@ import {
     VarIcon,
 } from "../../resources";
 import { NodeKind } from "../../utils/types";
-import { Icon } from "@wso2-enterprise/ui-toolkit";
-import { Colors } from "../../resources/constants";
+import { Icon, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 interface NodeIconProps {
     type: NodeKind;
@@ -63,7 +62,7 @@ export function NodeIcon(props: NodeIconProps) {
         case "STOP":
             return <StopIcon />;
         case "ERROR_HANDLER":
-            return <Icon name="bi-shield" sx={{ stroke: Colors.ON_SURFACE, fontSize: size, width: size, height: size }} />;
+            return <Icon name="bi-shield" sx={{ stroke: ThemeColors.ON_SURFACE, fontSize: size, width: size, height: size }} />;
         case "PANIC":
             return <BombIcon />;
         case "LOCK":

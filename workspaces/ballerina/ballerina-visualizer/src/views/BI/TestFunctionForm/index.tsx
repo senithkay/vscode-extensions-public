@@ -8,13 +8,11 @@
  */
 
 import { useEffect, useState } from "react";
-import { Typography, View, ViewContent, CompletionItem } from "@wso2-enterprise/ui-toolkit";
+import { View, ViewContent, CompletionItem } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { BIHeader } from "../BIHeader";
-import { BodyText } from "../../styles";
 import { FormField, Form, FormValues, Parameter } from "@wso2-enterprise/ballerina-side-panel";
-import { debounce, forEach, set } from "lodash";
+import { debounce } from "lodash";
 import { convertToVisibleTypes } from "../../../utils/bi";
 import { URI, Utils } from "vscode-uri";
 import { EVENT_TYPE } from "@wso2-enterprise/ballerina-core";

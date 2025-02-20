@@ -151,7 +151,6 @@ export function ServiceWizard(props: ServiceWizardProps) {
                 position: res.position
             },
         });
-        setSaving(false);
     }
 
     const onBack = () => {
@@ -174,16 +173,16 @@ export function ServiceWizard(props: ServiceWizardProps) {
             <TopNavigationBar />
             <TitleBar title="Service" subtitle="Create a new service for your integration" />
             <ViewContent>
-                {!listenerModel &&
+                {!listenerModel && !listeners &&
                     <LoadingContainer>
                         <LoadingRing message="Loading listener..." />
                     </LoadingContainer>
                 }
                 {listenerModel &&
                     <Container>
-                        {!listeners?.hasListeners && 
+                        {!listeners?.hasListeners &&
                             <StepperContainer>
-                                <Stepper alignment='flex-start' steps={defaultSteps} currentStep={step}/>
+                                <Stepper alignment='flex-start' steps={defaultSteps} currentStep={step} />
                             </StepperContainer>
                         }
                         {step === 0 && !saving &&

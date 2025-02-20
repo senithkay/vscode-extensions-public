@@ -170,6 +170,7 @@ export function ResponseEditor(props: ParamProps) {
                         value={response.createStatusCodeResponse?.metadata.description}
                         checked={response.createStatusCodeResponse?.value === "true"}
                         onChange={handleNamedTypeChange}
+                        sx={{ paddingLeft: "16px" }}
                     />
                     <>
                         {response.createStatusCodeResponse?.value === "true" &&
@@ -180,6 +181,8 @@ export function ResponseEditor(props: ParamProps) {
                                     fields={currentFields}
                                     onBack={handleOnCancel}
                                     onSubmit={onTypeNameSubmit}
+                                    submitText={"Add"}
+                                    nestedForm={true}
                                 />
                             </>
                         }
@@ -190,6 +193,8 @@ export function ResponseEditor(props: ParamProps) {
                                 fields={typeField}
                                 onBack={handleOnCancel}
                                 onSubmit={onTypeValueSubmit}
+                                submitText={"Add"}
+                                nestedForm={true}
                             />
                         }
                     </>
@@ -203,6 +208,8 @@ export function ResponseEditor(props: ParamProps) {
                         fields={typeField}
                         onBack={handleOnCancel}
                         onSubmit={onTypeValueSubmit}
+                        submitText={"Save"}
+                        nestedForm={true}
                     />
                 </>
             }
