@@ -89,7 +89,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
 }
 
 const HeaderContainer = styled.div`
-    height: 50px;
+    height: 56px;
     display: flex;
     padding: 15px;
     background-color: var(--vscode-editorWidget-background);
@@ -110,6 +110,7 @@ const BreadCrumb = styled.div`
     display: flex;
     align-items: baseline;
     gap: 12px;
+    margin-left: 12px;
 `;
 
 const FilterBar = styled.div`
@@ -133,6 +134,10 @@ const IconButton = styled.div`
         height: 24px;
         font-size: 24px;
     }
+`;
+
+const LeftContainer = styled.div`
+    gap: 12px;
 `;
 
 const RightContainer = styled.div`
