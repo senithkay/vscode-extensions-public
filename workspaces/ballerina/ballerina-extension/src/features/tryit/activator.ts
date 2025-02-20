@@ -1,4 +1,4 @@
-import { commands } from "vscode";
+import { commands, window, workspace, FileSystemWatcher, Disposable } from "vscode";
 import { PALETTE_COMMANDS } from "../project/cmds/cmd-runner";
 import * as fs from 'fs';
 import * as path from 'path';
@@ -10,6 +10,7 @@ import { findRunningBallerinaProcesses } from "./utils";
 import { BallerinaProjectComponents, OpenAPISpec } from "@wso2-enterprise/ballerina-core";
 
 let langClient: ExtendedLangClient | undefined;
+let errorLogWatcher: FileSystemWatcher | undefined;
 
 const TRYIT_TEMPLATE = `/*
 ### Try Service: "{{info.title}}" (http://localhost:{{port}}{{trim basePath}})
@@ -42,9 +43,14 @@ Parameters:
 
 export function activateTryItCommand(ballerinaExtInstance: BallerinaExtension) {
     langClient = ballerinaExtInstance.langClient as ExtendedLangClient;
-    // register try it command handler
-    commands.registerCommand(PALETTE_COMMANDS.TRY_IT, async (withNotice: boolean = false) => {
+    // Register try it command handler
+    const disposable = commands.registerCommand(PALETTE_COMMANDS.TRY_IT, async (withNotice: boolean = false) => {
         await openTryItView(withNotice, ballerinaExtInstance);
+    });
+    
+    // Clean up when deactivated
+    return Disposable.from(disposable, {
+        dispose: disposeErrorWatcher
     });
 }
 
@@ -121,6 +127,9 @@ async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: 
     // Open the file as a notebook document
     const tryitFileUri = vscode.Uri.file(tryitFilePath);
     await vscode.commands.executeCommand('vscode.openWith', tryitFileUri, 'http');
+
+    // Setup the error log watcher
+    setupErrorLogWatcher(targetDir);
 }
 
 async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> {
@@ -489,6 +498,50 @@ function resolveSchemaRef(ref: string, context: OAISpec): Schema | undefined {
     }
 
     return current as Schema;
+}
+
+// Function to setup error log watching
+function setupErrorLogWatcher(targetDir: string) {
+    const errorLogPath = path.join(targetDir, 'httpyac_errors.log');
+
+    // Dispose existing watcher if any
+    disposeErrorWatcher();
+
+    if (!fs.existsSync(errorLogPath)) {
+        fs.writeFileSync(errorLogPath, '');
+    }
+
+    // Setup the file watcher Watch for changes in the error log file
+    errorLogWatcher = workspace.createFileSystemWatcher(errorLogPath);
+    errorLogWatcher.onDidChange(() => {
+        try {
+            const content = fs.readFileSync(errorLogPath, 'utf-8');
+            if (content.trim()) {
+               // Show a notification with "Show Details" button
+               window.showWarningMessage(
+                '',
+                'Show Details'
+            ).then(selection => {
+                if (selection === 'Show Details') {
+                    // Show the full error in an output channel
+                    const outputChannel = window.createOutputChannel('Try It Client Errors');
+                    outputChannel.appendLine(content.trim());
+                    outputChannel.show();
+                }
+            });
+            }
+        } catch (error) {
+            console.error('Error reading error log file:', error);
+        }
+    });
+}
+
+// cleanup function for the watcher
+function disposeErrorWatcher() {
+    if (errorLogWatcher) {
+        errorLogWatcher.dispose();
+        errorLogWatcher = undefined;
+    }
 }
 
 // Service information interface
