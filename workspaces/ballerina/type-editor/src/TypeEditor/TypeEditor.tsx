@@ -12,8 +12,8 @@ import { TextField, View, ViewContent, Dropdown, Button, SidePanelBody, Progress
 import styled from "@emotion/styled";
 import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { Member, Type, UndoRedoManager, VisualizerLocation, TypeNodeKind } from "@wso2-enterprise/ballerina-core";
-import { RecordFromJson } from "../RecordFromJson";
-import { RecordFromXml } from "../RecordFromXml";
+import { RecordFromJson } from "../RecordFromJson/RecordFromJson";
+import { RecordFromXml } from "../RecordFromXml/RecordFromXml";
 import { RecordEditor } from "./RecordEditor";
 import { EnumEditor } from "./EnumEditor";
 import { UnionEditor } from "./UnionEditor";
@@ -200,6 +200,13 @@ export function TypeEditor(props: TypeEditorProps) {
 
     console.log("===Type Model===", type);
 
+    const handleTypeImport = (types: Type[], isXml: boolean = false) => {
+        const importType = types[0];
+        importType.codedata = type.codedata;
+        setType(importType);
+        setEditorState(ConfigState.EDITOR_FORM);
+    }
+
     const renderEditor = () => {
         if (editorState === ConfigState.IMPORT_FROM_JSON) {
             return null; // Handle JSON import
@@ -297,7 +304,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             rpcClient={props.rpcClient}
                             name={type.name}
                             onCancel={() => setEditorState(ConfigState.EDITOR_FORM)}
-                            onImport={() => setEditorState(ConfigState.EDITOR_FORM)}
+                            onImport={handleTypeImport}
                         />
                     }
                     {
@@ -306,7 +313,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             rpcClient={props.rpcClient}
                             name={type.name}
                             onCancel={() => setEditorState(ConfigState.EDITOR_FORM)}
-                            onImport={() => setEditorState(ConfigState.EDITOR_FORM)}
+                            onImport={handleTypeImport}
                         />
                     }
                 </div >

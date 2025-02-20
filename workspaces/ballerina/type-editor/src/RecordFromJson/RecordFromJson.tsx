@@ -13,12 +13,12 @@ import styled from '@emotion/styled';
 import { FileSelect } from '../style';
 import { FileSelector } from '../components/FileSelector';
 import { BallerinaRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
-import { JsonToRecord } from '@wso2-enterprise/ballerina-core';
+import { JsonToRecord, Type, TypeDataWithReferences } from '@wso2-enterprise/ballerina-core';
 import { NOT_SUPPORTED_TYPE } from '@wso2-enterprise/ballerina-core';
 
 interface RecordFromJsonProps {
     name: string;
-    onImport: () => void;
+    onImport: (types: Type[]) => void;
     onCancel: () => void;
     rpcClient: BallerinaRpcClient;
 }
@@ -73,13 +73,14 @@ export const RecordFromJson = (props: RecordFromJsonProps) => {
     }
 
     const importJsonAsRecord = async () => {
-        const resp: JsonToRecord | NOT_SUPPORTED_TYPE = await rpcClient.getRecordCreatorRpcClient().convertJsonToRecord({
+        const resp: TypeDataWithReferences = await rpcClient.getRecordCreatorRpcClient().convertJsonToRecordType({
             jsonString: json,
             recordName: name,
             isClosed,
             isRecordTypeDesc: !isSeparateDefinitions,
+            prefix: ""
         });
-        console.log(resp);
+        onImport(resp.types.map((t) => t.type));
     }
 
     return (

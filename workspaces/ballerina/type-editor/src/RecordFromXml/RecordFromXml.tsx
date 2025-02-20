@@ -12,13 +12,13 @@ import { Button, SidePanelBody, TextArea } from '@wso2-enterprise/ui-toolkit';
 import { BallerinaRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import { FileSelect } from '../style';
 import { FileSelector } from '../components/FileSelector';
-import { NOT_SUPPORTED_TYPE } from '@wso2-enterprise/ballerina-core';
+import { NOT_SUPPORTED_TYPE, Type, TypeDataWithReferences } from '@wso2-enterprise/ballerina-core';
 import { XMLToRecord } from '@wso2-enterprise/ballerina-core';
 import styled from '@emotion/styled';
 
 interface RecordFromXmlProps {
     name: string;
-    onImport: () => void;
+    onImport: (types: Type[]) => void;
     onCancel: () => void;
     rpcClient: BallerinaRpcClient;
 }
@@ -55,10 +55,12 @@ export const RecordFromXml = (props: RecordFromXmlProps) => {
     }
 
     const importXmlAsRecord = async () => {
-        const resp: XMLToRecord | NOT_SUPPORTED_TYPE = await rpcClient.getRecordCreatorRpcClient().convertXMLToRecord({
+        const resp: TypeDataWithReferences = await rpcClient.getRecordCreatorRpcClient().convertXmlToRecordType({
             xmlValue: xml,
+            prefix: ""
         });
         console.log(resp);
+        onImport(resp.types.map((t) => t.type));
     }
 
     return (
