@@ -30,36 +30,56 @@ import {
     SignatureHelpResponse,
     TriggerNode,
     VisibleType,
+    Item,
+    FunctionKind,
+    functionKinds,
+    TRIGGER_CHARACTERS,
+    Diagnostic,
+    FUNCTION_TYPE
+} from "@wso2-enterprise/ballerina-core";
+import {
     HelperPaneVariableInfo,
     HelperPaneFunctionInfo,
     HelperPaneFunctionCategory,
-    Item,
     HelperPaneCompletionItem
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2-enterprise/ballerina-side-panel";
 import { SidePanelView } from "../views/BI/FlowDiagram";
 import React from "react";
 import { cloneDeep } from "lodash";
 import { COMPLETION_ITEM_KIND, CompletionItem, CompletionItemKind } from "@wso2-enterprise/ui-toolkit";
 
-function convertAvailableNodeToPanelNode(node: AvailableNode): PanelNode {
+function convertAvailableNodeToPanelNode(node: AvailableNode, functionType?: FUNCTION_TYPE): PanelNode {
+    // Check if node should be filtered based on function type
+    if (functionType === FUNCTION_TYPE.REGULAR && node.metadata.data?.isDataMappedFunction) {
+        return undefined;
+    }
+    if (functionType === FUNCTION_TYPE.EXPRESSION_BODIED && !node.metadata.data?.isDataMappedFunction) {
+        return undefined;
+    }
+
+    // Return common panel node structure
     return {
         id: node.codedata.node,
         label: node.metadata.label,
         description: node.metadata.description,
         enabled: node.enabled,
         metadata: node,
-        icon: <NodeIcon type={node.codedata.node} />,
+        icon: <NodeIcon type={functionType === FUNCTION_TYPE.EXPRESSION_BODIED ? "DATA_MAPPER_CALL" : node.codedata.node} />,
     };
 }
 
-function convertDiagramCategoryToSidePanelCategory(category: Category): PanelCategory {
+function convertDiagramCategoryToSidePanelCategory(category: Category, functionType?: FUNCTION_TYPE): PanelCategory {
+    if (category.metadata.label !== "Current Integration" && functionType === FUNCTION_TYPE.EXPRESSION_BODIED) {
+        // Skip out of scope data mapping functions
+        return;
+    }
     const items: PanelItem[] = category.items?.map((item) => {
         if ("codedata" in item) {
-            return convertAvailableNodeToPanelNode(item as AvailableNode);
-        } else {
+            return convertAvailableNodeToPanelNode(item as AvailableNode, functionType);
+        } else {            
             return convertDiagramCategoryToSidePanelCategory(item as Category);
         }
-    });
+    }).filter((item) => item !== undefined);
 
     // HACK: use the icon of the first item in the category
     const icon = category.items.at(0)?.metadata.icon;
@@ -73,7 +93,7 @@ function convertDiagramCategoryToSidePanelCategory(category: Category): PanelCat
 }
 
 export function convertBICategoriesToSidePanelCategories(categories: Category[]): PanelCategory[] {
-    const panelCategories = categories.map(convertDiagramCategoryToSidePanelCategory);
+    const panelCategories = categories.map((category) => convertDiagramCategoryToSidePanelCategory(category));
     const connectorCategory = panelCategories.find((category) => category.title === "Connections");
     if (connectorCategory && !connectorCategory.items.length) {
         connectorCategory.description = "No connections available. Click below to add a new connector.";
@@ -81,8 +101,10 @@ export function convertBICategoriesToSidePanelCategories(categories: Category[])
     return panelCategories;
 }
 
-export function convertFunctionCategoriesToSidePanelCategories(categories: Category[]): PanelCategory[] {
-    const panelCategories = categories.map(convertDiagramCategoryToSidePanelCategory);
+export function convertFunctionCategoriesToSidePanelCategories(categories: Category[], functionType: FUNCTION_TYPE): PanelCategory[] {
+    const panelCategories = categories
+        .map((category) => convertDiagramCategoryToSidePanelCategory(category, functionType))
+        .filter((category) => category !== undefined);
     const functionCategory = panelCategories.find((category) => category.title === "Project");
     if (functionCategory && !functionCategory.items.length) {
         functionCategory.description = "No functions defined. Click below to create a new function.";
@@ -185,6 +207,16 @@ export function getFormProperties(flowNode: FlowNode): NodeProperties {
     }
 
     return {};
+}
+
+export function getRegularFunctions(functions: Category[]): Category[] {
+    return functions;
+}
+
+export function getDataMappingFunctions(functions: Category[]): Category[] {
+    return functions
+        .filter((category) => category.metadata.label === "Current Integration")
+        .filter((category) => category.items.length > 0);
 }
 
 export function updateNodeProperties(values: FormValues, nodeProperties: NodeProperties): NodeProperties {
@@ -290,6 +322,7 @@ export function convertBalCompletion(completion: ExpressionCompletionItem): Comp
     const value = completion.filterText ?? completion.insertText;
     const description = completion.detail;
     const sortText = completion.sortText;
+    const additionalTextEdits = completion.additionalTextEdits;
 
     return {
         tag,
@@ -298,7 +331,50 @@ export function convertBalCompletion(completion: ExpressionCompletionItem): Comp
         description,
         kind,
         sortText,
+        additionalTextEdits
     };
+}
+
+export function updateLineRange(lineRange: LineRange, offset: number) {
+    if (
+        lineRange.startLine.line === 0 &&
+        lineRange.startLine.offset === 0 &&
+        lineRange.endLine.line === 0 &&
+        lineRange.endLine.offset === 0
+    ) {
+        return {
+            startLine: {
+                line: lineRange.startLine.line,
+                offset: lineRange.startLine.offset + offset
+            },
+            endLine: {
+                line: lineRange.endLine.line,
+                offset: lineRange.endLine.offset + offset
+            }
+        };
+    }
+    return lineRange;
+}
+
+/**
+ * Remove duplicate diagnostics based on the range and message
+ * @param diagnostics The diagnostics array to remove duplicates from
+ * @returns The unique diagnostics array
+ */
+export function removeDuplicateDiagnostics(diagnostics: Diagnostic[]) {
+    const uniqueDiagnostics = diagnostics?.filter((diagnostic, index, self) => {
+        return self.findIndex(item => {
+            const itemRange = item.range;
+            const diagnosticRange = diagnostic.range;
+            return itemRange.start.line === diagnosticRange.start.line &&
+                itemRange.start.character === diagnosticRange.start.character &&
+                itemRange.end.line === diagnosticRange.end.line &&
+                itemRange.end.character === diagnosticRange.end.character &&
+                item.message === diagnostic.message;
+        }) === index;
+    });
+
+    return uniqueDiagnostics;
 }
 
 // TRIGGERS RELATED HELPERS
@@ -472,6 +548,25 @@ export const convertToHelperPaneVariable = (variables: VisibleType[]): HelperPan
     });
 }
 
+export const filterHelperPaneVariables = (
+    variables: HelperPaneVariableInfo,
+    filterText: string
+): HelperPaneVariableInfo => {
+    const filteredCategories = variables.category.map((category) => {
+        const filteredItems = category.items.filter((item) =>
+            item.label.toLowerCase().includes(filterText.toLowerCase())
+        );
+        return {
+            ...category,
+            items: filteredItems,
+        };
+    });
+
+    return {
+        category: filteredCategories,
+    };
+};
+
 export const convertToHelperPaneConfigurableVariable = (variables: VisibleType[]): HelperPaneVariableInfo => {
     return ({
         category: variables
@@ -488,14 +583,25 @@ export const convertToHelperPaneConfigurableVariable = (variables: VisibleType[]
 }
 
 const isCategoryType = (item: Item): item is Category => {
-    return !!(item as Category)?.items?.length;
+    return !(item as AvailableNode)?.codedata;
 }
+
+const getFunctionItemKind = (category: string): FunctionKind => {
+    if (category.includes('Current')) {
+        return functionKinds.CURRENT;
+    } else if (category.includes('Imported')) {
+        return functionKinds.IMPORTED;
+    } else {
+        return functionKinds.AVAILABLE;
+    }
+};
 
 export const convertToHelperPaneFunction = (functions: Category[]): HelperPaneFunctionInfo => {
     const response: HelperPaneFunctionInfo = {
         category: []
     };
     for (const category of functions) {
+        const categoryKind = getFunctionItemKind(category.metadata.label);
         const items: HelperPaneCompletionItem[] = [];
         const subCategory: HelperPaneFunctionCategory[] = [];
         for (const categoryItem of category?.items) {
@@ -504,14 +610,18 @@ export const convertToHelperPaneFunction = (functions: Category[]): HelperPaneFu
                     label: categoryItem.metadata.label,
                     items: categoryItem.items.map((item) => ({
                         label: item.metadata.label,
-                        insertText: item.metadata.label
+                        insertText: item.metadata.label,
+                        kind: categoryKind,
+                        codedata: !isCategoryType(item) && item.codedata
                     }))
                 });
             } else {
                 items.push({
                     label: categoryItem.metadata.label,
-                    insertText: categoryItem.metadata.label
-                })
+                    insertText: categoryItem.metadata.label,
+                    kind: categoryKind,
+                    codedata: categoryItem.codedata
+                });
             }
         }
 
@@ -519,8 +629,20 @@ export const convertToHelperPaneFunction = (functions: Category[]): HelperPaneFu
             label: category.metadata.label,
             items: items.length ? items : undefined,
             subCategory: subCategory.length ? subCategory : undefined
-        }
+        };
         response.category.push(categoryItem);
     }
     return response;
+};
+
+export function extractFunctionInsertText(template: string): string {
+    const regex = new RegExp(`(?<label>[a-zA-Z0-9_'${TRIGGER_CHARACTERS.join('')}]+)\\(.*\\)$`);
+    const match = template.match(regex);
+    const label = match?.groups?.label;
+
+    if (!label) {
+        return template;
+    }
+
+    return `${label}(`;
 }

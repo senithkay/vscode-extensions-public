@@ -8,11 +8,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { PropsWithChildren, ReactNode } from "react";
+import { CSSProperties, PropsWithChildren, ReactNode } from "react";
+import { StyleBase } from "./common";
+import { HelperPaneOrigin } from "../../../types/common";
+
+export type ArrowProps = StyleBase & {
+    origin: HelperPaneOrigin;
+}
 
 export type LibraryBrowserProps = PropsWithChildren<{
-    isLoading?: boolean;
+    loading?: boolean;
     searchValue: string;
+    titleSx?: CSSProperties;
     onSearch: (searchTerm: string) => void;
     onClose: () => void;
 }>;
@@ -23,16 +30,21 @@ export type HelperPaneIconButtonProps = {
     onClick: () => void;
 }
 
-export type HelperPaneCompletionItemProps = {
+export type HelperPaneFooterProps = PropsWithChildren<{}>;
+
+export type HelperPaneCompletionItemProps = PropsWithChildren<{
+    indent?: boolean;
     label: string;
     type?: string;
     getIcon?: () => ReactNode;
     onClick: () => void;
-};
+}>;
 
 export type HelperPaneCategoryItemProps = {
     label: string;
+    labelSx?: CSSProperties;
     onClick: () => void;
+    getIcon?: () => ReactNode;
 };
 
 type CollapsibleConditionalProps = {
@@ -45,9 +57,26 @@ type CollapsibleConditionalProps = {
     collapsedItemsCount?: never;
 }
 
+export type LoadingItemProps = {
+    columns?: number;
+}
+
+export type PanelViewProps = PropsWithChildren<{
+    id: number;
+}>;
+
+export type PanelTabProps = {
+    id: number;
+    title: string;
+};
+
+export type PanelsProps = PropsWithChildren<{}>;
+
 export type HelperPaneSectionProps = PropsWithChildren<{
     title: string;
     columns?: number;
+    loading?: boolean;
+    titleSx?: CSSProperties;
 } & CollapsibleConditionalProps>;
 
 type SearchBoxConditionalProps = {
@@ -59,13 +88,16 @@ type SearchBoxConditionalProps = {
 }
 
 export type HelperPaneBodyProps = PropsWithChildren<{
-    isLoading?: boolean;
-}>;
+    loading?: boolean;
+} & StyleBase>;
 
 export type HelperPaneHeaderProps = SearchBoxConditionalProps & {
-    title: string;
+    title?: string;
+    titleSx?: CSSProperties;
     onBack?: () => void;
     onClose?: () => void;
 };
 
-export type HelperPaneProps = PropsWithChildren<{}>;
+export type HelperPaneProps = PropsWithChildren<{
+    sx?: CSSProperties;
+}>;

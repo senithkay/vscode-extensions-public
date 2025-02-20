@@ -146,10 +146,8 @@ async function showInputBox(paramName: string, value: string) {
 }
 
 async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: DebugConfiguration) {
-    let debuggeePort = config.debuggeePort;
-    if (!debuggeePort) {
-        debuggeePort = await findFreePort();
-    }
+    const debuggeePort = config.debuggeePort ?? await findFreePort();
+    config.debuggeePort = debuggeePort.toString();
 
     const ballerinaHome = ballerinaExtInstance.getBallerinaHome();
     config['ballerina.home'] = ballerinaHome;
@@ -246,11 +244,15 @@ async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: Debu
         }
     }
 
-    config.debuggeePort = debuggeePort.toString();
-
     if (!config.debugServer) {
         const debugServerPort = await findFreePort();
         config.debugServer = debugServerPort.toString();
+    }
+    
+    // Notify debug server that the debug session is started in low-code mode
+    const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
+    if (isWebviewPresent && StateMachine.context().isBI) {
+        config.lowCodeMode = true;
     }
     return config;
 }
@@ -316,15 +318,17 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
 
             // Debug Adapter -> VS Code
             onDidSendMessage: async (message: DebugProtocol.ProtocolMessage) => {
-                console.log("=====onDidSendMessage", message);
                 if (message.type === "response") {
                     const msg = <DebugProtocol.Response>message;
-
-                    if (msg.command === "setBreakpoints") {
+                    if ((msg.command === "launch" || msg.command == "restart") && StateMachine.context().isBI) {
+                        // Trigger Try-It view when starting/restarting debug sessions in low-code mode
+                        waitForBallerinaService(workspace.workspaceFolders![0].uri.fsPath).then((port) => {
+                            commands.executeCommand(PALETTE_COMMANDS.TRY_IT, true);
+                        });
+                    } else if (msg.command === "setBreakpoints") {
                         const breakpoints = msg.body.breakpoints;
                         // convert debug points to client breakpoints
                         if (breakpoints) {
-                            console.log("!=====breakpoints in setBreakpoints tracker", breakpoints);
                             const clientBreakpoints = breakpoints.map(bp => ({
                                 ...bp,
                                 line: bp.line - 1
@@ -336,18 +340,21 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                     } else if (msg.command === "stackTrace") {
                         const uri = Uri.parse(msg.body.stackFrames[0].source.path);
 
-                        const allTabs = window.tabGroups.all.flatMap(group => group.tabs);
+                        if (VisualizerWebview.currentPanel !== undefined) {
 
-                        // Filter for tabs that are editor tabs and the tab with the debug hit
-                        const editorTabs = allTabs.filter(tab => tab.input instanceof TabInputText && tab.input.uri.fsPath === uri.fsPath);
+                            const allTabs = window.tabGroups.all.flatMap(group => group.tabs);
 
-                        for (const tab of editorTabs) {
-                            await window.tabGroups.close(tab);
+                            // Filter for tabs that are editor tabs and the tab with the debug hit
+                            const editorTabs = allTabs.filter(tab => tab.input instanceof TabInputText && tab.input.uri.fsPath === uri.fsPath);
+
+                            for (const tab of editorTabs) {
+                                await window.tabGroups.close(tab);
+                            }
                         }
 
                         // get the current stack trace
                         const hitBreakpoint = msg.body.stackFrames[0];
-                        console.log("!=====hit breakpoint stackTrace in  tracker", hitBreakpoint);
+                        console.log(" >>> active breakpoint stackTrace ", hitBreakpoint);
 
                         const clientBreakpoint = {
                             ...hitBreakpoint,
@@ -457,7 +464,6 @@ async function handleBreakpointVisualization(uri: Uri, clientBreakpoint: DebugPr
         endColumn: res.endLine.offset
     };
     openView(EVENT_TYPE.OPEN_VIEW, newContext);
-    notifyBreakpointChange();
 }
 
 
@@ -692,9 +698,28 @@ async function stopRunFast(root: string): Promise<boolean> {
 }
 
 async function getCurrentRoot(): Promise<string> {
-    const file = getCurrentBallerinaFile();
+    let file: string | undefined;
+    try {
+        file = getCurrentBallerinaFile();
+    } catch (error) {
+        // ignore
+    }
+
+    // If no Ballerina files are open, safe to assume that the workspace root is same as the package root in BI mode.
+    if (!file && StateMachine.context().isBI) {
+        const workspaceRoot = getWorkspaceRoot();
+        if (!workspaceRoot) {
+            throw new Error("Unable to determine the current workspace root.");
+        }
+        return workspaceRoot;
+    }
+
     const currentProject = await getCurrentBallerinaProject(file);
     return (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) ? currentProject.path! : file;
+}
+
+function getWorkspaceRoot(): string | undefined {
+    return workspace.workspaceFolders?.[0]?.uri.fsPath;
 }
 
 function findFreePort(): Promise<number> {

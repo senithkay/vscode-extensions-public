@@ -16,7 +16,7 @@ import { JSONSchema3or4 } from 'to-json-schema';
 import * as ts from "typescript";
 import { DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME } from "../constants";
 import { DMProject } from '../datamapper/DMProject';
-import { navigate } from '../stateMachine';
+import { refreshUI } from '../stateMachine';
 import { IOType } from '@wso2-enterprise/mi-core';
 
 export function generateTSInterfacesFromSchemaFile(schema: JSONSchema3or4, schemaTitle: string, addMetaDataComment: boolean = true): Promise<string> {
@@ -27,8 +27,13 @@ export function generateTSInterfacesFromSchemaFile(schema: JSONSchema3or4, schem
 export async function updateTsFileIoTypes(dmName: string, sourcePath: string, schema: JSONSchema3or4, ioType: IOType): Promise<string> {
   const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
   if (workspaceFolder) {
-    const dataMapperConfigFolder = path.join(
-      workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
+    let dataMapperConfigFolder;
+    if (path.normalize(sourcePath).includes(path.normalize(path.join('wso2mi', 'resources', 'registry')))) {
+        dataMapperConfigFolder = path.join(
+            workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
+    } else {
+        dataMapperConfigFolder = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamapper');
+    }
     const tsFilepath = path.join(dataMapperConfigFolder, dmName, `${dmName}.ts`);
     const tsSource = getTsAST(tsFilepath);
     const tsSources = separateInterfacesWithComments(tsSource);
@@ -97,8 +102,13 @@ export async function updateTsFileIoTypes(dmName: string, sourcePath: string, sc
 export async function updateTsFileCustomTypes(dmName: string, sourcePath: string, schema: JSONSchema3or4, typeName: string): Promise<string> {
   const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
   if (workspaceFolder) {
-    const dataMapperConfigFolder = path.join(
-      workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
+    let dataMapperConfigFolder;
+    if (path.normalize(sourcePath).includes(path.normalize(path.join('wso2mi', 'resources', 'registry')))) {
+        dataMapperConfigFolder = path.join(
+            workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
+    } else {
+        dataMapperConfigFolder = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamapper');
+    }
     const tsFilepath = path.join(dataMapperConfigFolder, dmName, `${dmName}.ts`);
 
     const readAndConvertSchema = async (schema: JSONSchema3or4, title: string) => {
@@ -122,7 +132,7 @@ export async function updateTsFileCustomTypes(dmName: string, sourcePath: string
     sourceFile.insertText(interfaces[interfaces.length - 1]?.getEnd() + 1 || 0, "\n" + customInterfaceText);
     sourceFile.formatText();
     await sourceFile.save();
-    navigate();
+    refreshUI();
 
   }
   return "";

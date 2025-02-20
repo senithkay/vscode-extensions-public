@@ -14,7 +14,7 @@ import styled from "@emotion/styled";
 import { Controller, useForm } from 'react-hook-form';
 
 import { FileExtension, ImportType } from "./ImportDataForm";
-import { validateCSV, validateJSON, validateJSONSchema, validateXML } from "./ImportDataUtils";
+import { validateCSV, validateJSON, validateXML } from "./ImportDataUtils";
 
 const ErrorMessage = styled.span`
    color: var(--vscode-errorForeground);

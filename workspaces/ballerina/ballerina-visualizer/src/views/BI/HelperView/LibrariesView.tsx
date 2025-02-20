@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { BIGetFunctionsRequest, Category, LineRange, LogIcon, NodePosition } from "@wso2-enterprise/ballerina-core";
+import { BIGetFunctionsRequest, Category, FUNCTION_TYPE, LineRange, LogIcon, NodePosition } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Category as PanelCategory, GroupList, Node, ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
 
@@ -207,7 +207,9 @@ export function LibrariesView(props: LibrariesViewProps) {
             .getFunctions(request)
             .then((response) => {
                 console.log(">>> Searched List of functions", response);
-                setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
+                setCategories(
+                    convertFunctionCategoriesToSidePanelCategories(response.categories as Category[], FUNCTION_TYPE.ALL)
+                );
             })
             .finally(() => {
                 setIsSearching(false);
@@ -238,7 +240,9 @@ export function LibrariesView(props: LibrariesViewProps) {
             })
             .then((response) => {
                 console.log(">>> List of functions", response);
-                setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
+                setCategories(
+                    convertFunctionCategoriesToSidePanelCategories(response.categories as Category[], FUNCTION_TYPE.ALL)
+                );
             })
             .finally(() => {
                 setIsSearching(false);
@@ -259,7 +263,7 @@ export function LibrariesView(props: LibrariesViewProps) {
         const updateData: ExpressionFormField = {
             value: functionSignature + "(",
             key: editorKey,
-            cursorPosition: position.endLine.offset
+            cursorPosition: { line: position.endLine.line, offset: position.endLine.offset }
         }
         updateFormField(updateData);
     }

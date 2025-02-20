@@ -19,7 +19,6 @@ export default {
 const initialDefinition: OpenAPI = petstoreJSON as unknown as OpenAPI;
 export const ComponentNavigatorStory = () => {
     const [apiDefinition, setApiDefinition] = useState<OpenAPI>(initialDefinition);
-    const [selectedComponent, setSelectedComponent] = useState<string | undefined>("overview");
     const handleComponentNavigatorChange = (apiDef: OpenAPI) => {
         console.log("Component Navigator Change", apiDef);
         setApiDefinition({ ...apiDef })

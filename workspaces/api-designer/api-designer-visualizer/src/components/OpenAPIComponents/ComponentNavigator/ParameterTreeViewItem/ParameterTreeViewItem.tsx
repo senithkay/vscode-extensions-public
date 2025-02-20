@@ -11,6 +11,7 @@ import { RightPathContainerButtons } from '../ComponentNavigator';
 import styled from '@emotion/styled';
 import { useContext } from 'react';
 import { APIDesignerContext } from '../../../../APIDesignerContext';
+import { PathID } from '../../../../constants';
 
 const ParameterItemWrapper = styled.div`
     display: flex;
@@ -56,7 +57,7 @@ export function ParameterTreeViewItem(props: PathTreeViewItemProps) {
     };
 
     return (
-        <div onClick={() => onSelectedComponentIDChange(`parameters#-component#-${parameterName}`)}>
+        <div onClick={() => onSelectedComponentIDChange(`${PathID.PARAMETERS_COMPONENTS}${PathID.SEPERATOR}${parameterName}`)}>
             <TreeViewItem id={id} selectedId={selectedComponentID}>
                 <ParameterItemWrapper>
                     <Typography

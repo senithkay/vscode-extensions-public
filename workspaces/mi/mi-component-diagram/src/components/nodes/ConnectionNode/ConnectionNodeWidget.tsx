@@ -141,7 +141,7 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
     const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(menuAnchorEl);
 
-    const { onAddConnection, onConnectionSelect, onDeleteComponent } = useDiagramContext();
+    const { onConnectionSelect, onDeleteComponent } = useDiagramContext();
     // TODO: fix this database icon hack with icon prop from node model
     const databaseNames = [
         "MySQL",
@@ -156,14 +156,6 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
     ];
     const hasDatabaseName = databaseNames.some((name) => model.node.name.toLowerCase().includes(name.toLowerCase()));
 
-    const handleOnClick = () => {
-        if (model.node.id === NEW_CONNECTION) {
-            onAddConnection();
-        } else {
-            onConnectionSelect(model.node);
-        }
-    };
-
     const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
         event.stopPropagation();
         setMenuAnchorEl(event.currentTarget);
@@ -174,7 +166,7 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
     };
 
     const menuItems: Item[] = [
-        { id: "edit", label: "Edit", onClick: () => handleOnClick() },
+        { id: "view", label: "View", onClick: () => onConnectionSelect(model.node) },
         { id: "delete", label: "Delete", onClick: () => onDeleteComponent(model.node) }
     ];
 
@@ -183,7 +175,7 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
             hovered={isHovered}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            onClick={handleOnClick}
+            onClick={() => onConnectionSelect(model.node)}
         >
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Row hovered={isHovered}>

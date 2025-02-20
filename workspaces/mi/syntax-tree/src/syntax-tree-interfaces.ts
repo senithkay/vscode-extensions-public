@@ -9,6 +9,7 @@
 import { Diagnostic } from "vscode-languageserver-types";
 
 export interface STNode {
+    displayName: string;
     hasTextNode: boolean;
     selfClosed: boolean;
     textNode: string;
@@ -180,6 +181,12 @@ export interface Foreach extends STNode {
     sequenceAttribute: string;
     id: string;
     description: string;
+    version: string;
+    collection: string;
+    executeParallel: boolean;
+    resultTarget: string;
+    resultType: string;
+    counterVariableName: string;
 }
 
 export interface PayloadFactoryFormat extends STNode {
@@ -1006,6 +1013,35 @@ export interface Property extends STNode {
     action: string;
     value: string;
     expression: string;
+}
+
+export interface Variable extends STNode {
+    type: string;
+    description: string;
+    name: string;
+    action: string;
+    value: string;
+    expression: string;
+}
+
+export interface ScatterGather extends STNode {
+    targets: CloneTarget[];
+    executeParallel: boolean;
+    description: string;
+    valueExpression: string;
+    condition: string;
+    resultTarget: string;
+    variableName: string;
+    contentType: string;
+    completeTimeout: string;
+    minMessages: string;
+    maxMessages: string;
+}
+
+export interface ThrowError extends STNode {
+    type: string;
+    description: string;
+    errorMessage: string;
 }
 
 export interface APIHandlersHandlerProperty extends STNode {

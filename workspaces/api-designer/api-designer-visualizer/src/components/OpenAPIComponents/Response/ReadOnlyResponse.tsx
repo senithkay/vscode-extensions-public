@@ -69,7 +69,7 @@ export function ReadOnlyResponse(props: ResponseProps) {
                         }
                     />
                     <div id={selectedMediaType}>
-                        {selectedMediaType && (
+                        {selectedMediaType && response?.content && (
                             <ReadOnlyMediaType
                                 mediaType={response?.content[selectedMediaType]}
                                 key={selectedMediaType}

@@ -29,6 +29,17 @@ import {
     SwaggerProxyResponse,
     OpenExternalRequest,
     OpenExternalResponse,
+    ProjectOverviewResponse,
+    ReadmeContentResponse,
+    AddConfigurableRequest,
+    ProjectDetailsResponse,
+    UpdateDependenciesRequest,
+    UpdatePomValuesRequest,
+    UpdateConfigValuesRequest,
+    ImportOpenAPISpecRequest,
+    SetupDetails,
+    SetPathRequest,
+    PathDetailsResponse,
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -36,12 +47,14 @@ import { RequestType, NotificationType } from "vscode-messenger-common";
 const _preFix = "mi-visualizer";
 export const getWorkspaces: RequestType<void, WorkspacesResponse> = { method: `${_preFix}/getWorkspaces` };
 export const getProjectStructure: RequestType<ProjectStructureRequest, ProjectStructureResponse> = { method: `${_preFix}/getProjectStructure` };
-export const getCurrentThemeKind: RequestType<void, ColorThemeKind> = { method: `${_preFix}/getCurrentTheme` };
+export const getProjectOverview: RequestType<ProjectStructureRequest, ProjectOverviewResponse> = { method: `${_preFix}/getProjectOverview` };
+export const getCurrentThemeKind: RequestType<void, ColorThemeKind> = { method: `${_preFix}/getCurrentThemeKind` };
 export const openView: NotificationType<OpenViewRequest> = { method: `${_preFix}/openView` };
 export const reloadWindow: RequestType<void, void> = { method: `${_preFix}/reloadWindow` };
 export const goBack: NotificationType<void> = { method: `${_preFix}/goBack` };
 export const fetchSamplesFromGithub: RequestType<void, GettingStartedData> = { method: `${_preFix}/fetchSamplesFromGithub` };
 export const downloadSelectedSampleFromGithub: NotificationType<SampleDownloadRequest> = { method: `${_preFix}/downloadSelectedSampleFromGithub` };
+export const addConfigurable: RequestType<AddConfigurableRequest, void> = { method: `${_preFix}/addConfigurable` };
 export const getHistory: RequestType<void, HistoryEntryResponse> = { method: `${_preFix}/getHistory` };
 export const addToHistory: NotificationType<HistoryEntry> = { method: `${_preFix}/addToHistory` };
 export const goHome: NotificationType<void> = { method: `${_preFix}/goHome` };
@@ -56,3 +69,21 @@ export const showNotification: RequestType<NotificationRequest, NotificationResp
 export const getAvailableRuntimeServices: RequestType<void, RuntimeServicesResponse> = { method: `${_preFix}/getAvailableRuntimeServices` };
 export const sendSwaggerProxyRequest: RequestType<SwaggerProxyRequest, SwaggerProxyResponse> = { method: `${_preFix}/sendSwaggerProxyRequest` };
 export const openExternal: RequestType<OpenExternalRequest, OpenExternalResponse> = { method: `${_preFix}/openExternal` };
+export const importOpenAPISpec: RequestType<ImportOpenAPISpecRequest, void> = { method: `${_preFix}/importOpenAPISpec` };
+export const getReadmeContent: RequestType<void, ReadmeContentResponse> = { method: `${_preFix}/getReadmeContent` };
+export const openReadme: NotificationType<void> = { method: `${_preFix}/openReadme` };
+
+export const downloadJavaFromMI: RequestType<string, string> = { method: `${_preFix}/downloadJavaFromMI` };
+export const downloadMI: RequestType<string, string> = { method: `${_preFix}/downloadMI` };
+export const getSupportedMIVersionsHigherThan: RequestType<string, string[]> = { method: `${_preFix}/getSupportedMIVersionsHigherThan` };
+export const getProjectDetails: RequestType<void, ProjectDetailsResponse> = { method: `${_preFix}/getProjectDetails` };
+export const updateDependencies: RequestType<UpdateDependenciesRequest, boolean> = { method: `${_preFix}/updateDependencies` };
+export const updatePomValues: RequestType<UpdatePomValuesRequest, boolean> = { method: `${_preFix}/updatePomValues` };
+export const updateConfigFileValues: RequestType<UpdateConfigValuesRequest, boolean> = { method: `${_preFix}/updateConfigFileValues` };
+export const updateConnectorDependencies: RequestType<void, string> = { method: `${_preFix}/updateConnectorDependencies` };
+export const getProjectSetupDetails: RequestType<void, SetupDetails> = { method: `${_preFix}/getProjectSetupDetails` };
+export const updateRuntimeVersionsInPom: RequestType<string, boolean> = { method: `${_preFix}/updateRuntimeVersionsInPom` };
+export const setPathsInWorkSpace: RequestType<SetPathRequest, PathDetailsResponse> = { method: `${_preFix}/setPathsInWorkSpace` };
+export const selectFolder: RequestType<string, string | undefined> = { method: `${_preFix}/selectFolder` };
+export const updateLegacyExpressionSupport: RequestType<boolean, void> = { method: `${_preFix}/updateLegacyExpressionSupport` };
+export const isLegacyExpressionSupportEnabled: RequestType<void, boolean> = { method: `${_preFix}/isLegacyExpressionSupportEnabled` };

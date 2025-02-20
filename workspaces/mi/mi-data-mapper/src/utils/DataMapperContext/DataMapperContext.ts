@@ -18,8 +18,9 @@ export interface IDataMapperContext {
     focusedST: FocusedST;
     inputTrees: DMType[];
     outputTree: DMType;
-    views: View[];
+    recursiveTypes: Record<string, DMType>,
     subMappingTypes: Record<string, DMType>;
+    views: View[];
     diagnostics: DMDiagnostic[];
     addView: (view: View) => void;
     goToSource: (range: Range) => void;
@@ -33,8 +34,9 @@ export class DataMapperContext implements IDataMapperContext {
         public focusedST: FocusedST,
         public inputTrees: DMType[],
         public outputTree: DMType,
-        public views: View[] = [],
+        public recursiveTypes: Record<string, DMType>,
         public subMappingTypes: Record<string, DMType>,
+        public views: View[] = [],
         public diagnostics: DMDiagnostic[],
         public addView: (view: View) => void,
         public goToSource: (range: Range) => void,
