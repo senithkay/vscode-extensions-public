@@ -2,6 +2,19 @@
 
 WSO2 Micro Integrator Visual Studio Code extension (MI for VSCode) is a comprehensive integration solution that simplifies your digital transformation journey. It streamlines connectivity among applications, services, data, and the cloud using a user-friendly low-code graphical designing experience and revolutionizes your integration development workflow. As an integration developer, you can execute all the development lifecycle phases using this tool. When your integration solutions are production-ready, you can easily push the artifacts to your continuous integration/continuous deployment pipeline.
 
+## Prerequisites
+
+You need the following to work with the MI for VS Code extension.
+
+- Java Development Kit (JDK) version 21
+- WSO2 Micro Integrator (MI) 4.4.0 runtime
+
+If these are not installed on your local machine, the Micro Integrator for VS Code extension will automatically prompt you to download and configure them during the project creation step.
+
+If a different JDK or WSO2 MI version is installed on your local machine, you'll be prompted to download the required versions.
+
+If the required JDK and WSO2 MI versions are already installed, you can directly configure the Java Home and MI Home paths in this step.
+
 ## Launching the MI for VS Code Extension
 
 1. Launch VS Code with the Micro Integrator for Visual Studio Code (MI for VS Code) extension installed. When the extension is installed properly, you can see the Micro Integrator icon in the Activity Bar of the VS Code editor.
@@ -14,7 +27,7 @@ When you open the extension for the first time, you'll see the **Design View** p
 
 <img src="https://github.com/wso2/docs-mi/blob/main/en/docs/assets/img/develop/mi-for-vscode/getting-started.png?raw=true" width="100%" />
 
-To get started, you need to first create the integration project. You can either open a folder containing a MI project or create a new project. Alternatively, you can use an integration sample provided under Explore Samples, which will generate the required projects and files for a specific use case.
+To get started, you need to first create the integration project. You can either open a folder containing an integration project or create a new project. Alternatively, you can use an integration sample provided under Explore Samples, which will generate the required projects and files for a specific use case.
 
 ## Micro Integrator Project Explorer
 
