@@ -1,14 +1,14 @@
-# Choreo Extension for Visual Studio Code
+# WSO2 Platform Extension for Visual Studio Code
 
-The Choreo VS Code extension enhances your local development experience with [Choreo](https://wso2.com/choreo/) projects, providing comprehensive project and component management capabilities in VS Code. For more details, visit the [Choreo documentation](https://wso2.com/choreo/docs/).
+The WSO2 Platform VS Code extension enhances your local development experience with [Choreo](https://wso2.com/choreo/) projects, providing comprehensive project and component management capabilities in VS Code. For more details, visit the [Choreo documentation](https://wso2.com/choreo/docs/).
 
 ## Getting Started
 
 1. [Create an account on Choreo](https://console.choreo.dev/).
-2. Install the [Choreo VS Code extension](https://marketplace.visualstudio.com/items?itemName=WSO2.choreo).
+2. Install the [WSO2 Platform VS Code extension](https://marketplace.visualstudio.com/items?itemName=WSO2.platform).
 3. Sign in to Choreo via VS Code (see screenshot below).
 4. Refer to this [guide](https://wso2.com/choreo/docs/develop-components/develop-components-using-vs-code/#create-a-new-component) for instructions on creating a new component.
-
+<!-- 
 ## Feature List
 
 - **Manage Projects**: Work with Choreo [projects](https://wso2.com/choreo/docs/choreo-concepts/project/) directly in your VS Code workspace.
@@ -40,7 +40,7 @@ The Choreo VS Code extension enhances your local development experience with [Ch
 
 | ![component-details-view.png](./docs/choreo-extension/images/v2/logs.png) |
 | :-----------------------------------------------------------------------: |
-|                       _View component runtime logs_                       |
+|                       _View component runtime logs_                       | -->
 
 ## Documentation
 
