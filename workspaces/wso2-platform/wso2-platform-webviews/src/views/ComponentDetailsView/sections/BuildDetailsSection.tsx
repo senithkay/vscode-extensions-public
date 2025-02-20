@@ -9,6 +9,7 @@
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import {
 	type BuildKind,
 	ComponentDisplayType,
@@ -21,7 +22,6 @@ import {
 	getComponentKindRepoSource,
 	getTimeAgo,
 } from "@wso2-enterprise/wso2-platform-core";
-import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import classNames from "classnames";
 import React, { type ReactNode, type FC } from "react";
 import { Button } from "../../../components/Button";

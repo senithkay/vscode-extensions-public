@@ -10,7 +10,6 @@
 import { ChoreoBuildPackNames } from "./types/common.types";
 
 export const CommandIds = {
-	FocusChoreoProjectActivity: "platform.activity.project.focus",
 	SignIn: "wso2.platform.sign.in",
 	SignInWithAuthCode: "wso2.platform.sign.in.with.authCode",
 	SignOut: "wso2.platform.sign.out",

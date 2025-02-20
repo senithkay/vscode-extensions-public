@@ -25,7 +25,6 @@ import { locationStore } from "./stores/location-store";
 import { ChoreoConfigurationProvider, addTerminalHandlers } from "./tarminal-handlers";
 import { activateTelemetry } from "./telemetry/telemetry";
 import { activateURIHandlers } from "./uri-handlers";
-import { activateActivityWebViews } from "./webviews/utils";
 import { registerYamlLanguageServer } from "./yaml-ls";
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -64,7 +63,6 @@ export async function activate(context: vscode.ExtensionContext) {
 			authStore.getState().initAuth();
 
 			activateCmds(context);
-			activateActivityWebViews(context); // activity web views
 			activateURIHandlers();
 			activateCodeLenses(context);
 			continueCreateComponent();

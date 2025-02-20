@@ -65,9 +65,9 @@ export const BuildsSection: FC<Props> = (props) => {
 			queryClient.setQueryData(buildQueryKey, [{ status: { status: "Triggered" } } as BuildKind, ...currentBuilds]);
 			ChoreoWebViewAPI.getInstance().showInfoMsg("Build for selected commit has been successfully triggered");
 		},
-		onSettled:()=> {
+		onSettled: () => {
 			refetchBuilds();
-		}
+		},
 	});
 
 	const { mutate: selectCommitForBuild } = useMutation({

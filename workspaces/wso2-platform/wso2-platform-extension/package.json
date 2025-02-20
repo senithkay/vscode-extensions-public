@@ -122,56 +122,6 @@
         "icon": "$(preview)"
       }
     ],
-    "views": {
-      "wso2-platform": [
-        {
-          "id": "platform.activity.project",
-          "name": "Project",
-          "type": "webview"
-        }
-      ]
-    },
-    "menus": {
-      "view/title": [
-        {
-          "command": "wso2.platform.create.component",
-          "when": "view == platform.activity.project && isLoggedIn",
-          "group": "navigation"
-        },
-        {
-          "command": "wso2.platform.project.refresh",
-          "when": "view == platform.activity.project && isLoggedIn",
-          "group": "navigation"
-        },
-        {
-          "command": "wso2.platform.project.manage.context",
-          "when": "view == platform.activity.project && isLoggedIn",
-          "group": "project"
-        },
-        {
-          "command": "wso2.platform.open.external",
-          "when": "view == platform.activity.project && isLoggedIn && hasSelectedProject",
-          "group": "project"
-        },
-        {
-          "command": "wso2.platform.sign.out",
-          "when": "view == platform.activity.project && isLoggedIn",
-          "group": "sign-out"
-        }
-      ],
-      "webview/context": [
-        {
-          "command": "wso2.platform.open.external",
-          "when": "webviewId == platform.activity.project && webviewSection == 'componentListItem'",
-          "group": "access"
-        },
-        {
-          "command": "wso2.platform.delete.component",
-          "when": "webviewSection == 'componentListItem'",
-          "group": "destructive"
-        }
-      ]
-    },
     "configuration": {
       "type": "object",
       "title": "WSO2 Platform",

@@ -150,7 +150,6 @@ export const continueCreateComponent = () => {
 		const createCompParams: IComponentCreateFormParams = JSON.parse(compParams);
 		componentWizard = new ComponentFormView(ext.context.extensionUri, createCompParams);
 		componentWizard.getWebview()?.reveal();
-		commands.executeCommand(CommandIds.FocusChoreoProjectActivity);
 	}
 };
 

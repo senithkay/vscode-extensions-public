@@ -34,7 +34,7 @@ export class ChoreoConfigurationProvider implements vscode.DebugConfigurationPro
 export function addTerminalHandlers() {
 	window.onDidOpenTerminal(async (e) => {
 		if (e.name?.includes("[choreo-shell]")) {
-			let cliCommand = e.name.split("[choreo-shell]").pop()?.replaceAll(")","");
+			let cliCommand = e.name.split("[choreo-shell]").pop()?.replaceAll(")", "");
 			const terminalPath = (e.creationOptions as any)?.cwd;
 			const rpcPath = getChoreoExecPath();
 
@@ -88,8 +88,8 @@ export function addTerminalHandlers() {
 				await commands.executeCommand("workbench.action.terminal.sendSequence", {
 					text: `export CHOREO_ENV=${workspace.getConfiguration().get("Advanced.ChoreoEnvironment")} && ${rpcPath} ${cliCommand}\r\n`,
 				});
-				await delay(2000)
-				e.show()
+				await delay(2000);
+				e.show();
 			}
 		}
 	});
