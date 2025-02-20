@@ -3258,6 +3258,211 @@ importers:
       tslib: 2.6.2
       typescript: 5.3.3
 
+  ../../workspaces/wso2-platform/wso2-platform-core:
+    specifiers:
+      '@biomejs/biome': ^1.8.3
+      typescript: ^4.9.4
+      vscode-messenger-common: ^0.4.3
+      vscode-messenger-webview: ^0.4.3
+    dependencies:
+      vscode-messenger-common: 0.4.5
+      vscode-messenger-webview: 0.4.5
+    devDependencies:
+      '@biomejs/biome': 1.9.3
+      typescript: 4.9.5
+
+  ../../workspaces/wso2-platform/wso2-platform-extension:
+    specifiers:
+      '@biomejs/biome': ^1.8.3
+      '@playwright/test': ~1.37.0
+      '@types/byline': ^4.2.33
+      '@types/js-yaml': ^4.0.5
+      '@types/mocha': ~10.0.1
+      '@types/node': ^18.18.2
+      '@types/vscode': ^1.73.0
+      '@types/which': ^2.0.2
+      '@vscode-logging/logger': ^1.2.3
+      '@vscode-logging/types': ^0.1.4
+      '@vscode-logging/wrapper': ^1.0.2
+      '@vscode/extension-telemetry': ~0.9.4
+      '@vscode/iconv-lite-umd': ^0.7.0
+      '@vscode/vsce': ^2.30.0
+      '@vscode/webview-ui-toolkit': ^1.2.0
+      '@wso2-enterprise/choreo-core': workspace:*
+      '@wso2-enterprise/choreo-vscode-webviews': workspace:*
+      '@wso2-enterprise/playwright-vscode-tester': workspace:*
+      axios: ^1.7.2
+      byline: ^5.0.0
+      copy-webpack-plugin: ^11.0.0
+      copyfiles: ^2.4.1
+      del-cli: ^5.0.0
+      dotenv: ^16.0.3
+      file-type: ^18.2.1
+      js-yaml: ^4.1.0
+      jschardet: ^3.0.0
+      mocha: ^10.2.0
+      terser-webpack-plugin: ^5.3.10
+      ts-loader: ~9.4.4
+      typescript: ^4.9.4
+      vscode-extension-tester: ^5.9.1
+      vscode-jsonrpc: ^6.0.0
+      vscode-messenger: ^0.4.4
+      vscode-messenger-common: ^0.4.3
+      webpack: ^5.56.0
+      webpack-cli: ^4.10.0
+      webpack-permissions-plugin: ^1.0.9
+      which: ^3.0.0
+      yaml: ^2.6.0
+      zustand: ^4.5.2
+    dependencies:
+      '@vscode-logging/logger': 1.2.3
+      '@vscode-logging/types': 0.1.4
+      '@vscode-logging/wrapper': 1.0.2
+      '@vscode/extension-telemetry': 0.9.7
+      '@vscode/iconv-lite-umd': 0.7.0
+      '@vscode/webview-ui-toolkit': 1.4.0
+      '@wso2-enterprise/choreo-core': link:../../choreo/choreo-core
+      '@wso2-enterprise/choreo-vscode-webviews': link:../../choreo/choreo-webviews
+      byline: 5.0.0
+      dotenv: 16.4.5
+      file-type: 18.7.0
+      js-yaml: 4.1.0
+      jschardet: 3.0.0
+      vscode-jsonrpc: 6.0.0
+      vscode-messenger: 0.4.5
+      vscode-messenger-common: 0.4.5
+      which: 3.0.1
+      yaml: 2.6.0
+      zustand: 4.5.5
+    devDependencies:
+      '@biomejs/biome': 1.9.3
+      '@playwright/test': 1.37.1
+      '@types/byline': 4.2.36
+      '@types/js-yaml': 4.0.9
+      '@types/mocha': 10.0.6
+      '@types/node': 18.19.14
+      '@types/vscode': 1.86.0
+      '@types/which': 2.0.2
+      '@vscode/vsce': 2.32.0
+      '@wso2-enterprise/playwright-vscode-tester': link:../../common-libs/playwright-vscode-tester
+      axios: 1.7.7
+      copy-webpack-plugin: 11.0.0_webpack@5.90.1
+      copyfiles: 2.4.1
+      del-cli: 5.1.0
+      mocha: 10.2.0
+      terser-webpack-plugin: 5.3.10_webpack@5.90.1
+      ts-loader: 9.4.4_ahsu3n7nsuhdp6gozcsyrqnvra
+      typescript: 4.9.5
+      vscode-extension-tester: 5.10.0_4r5rv57huad4ctfiz6vn747ruu
+      webpack: 5.90.1_webpack-cli@4.10.0
+      webpack-cli: 4.10.0_webpack@5.90.1
+      webpack-permissions-plugin: 1.0.9
+
+  ../../workspaces/wso2-platform/wso2-platform-webviews:
+    specifiers:
+      '@biomejs/biome': ^1.8.3
+      '@formkit/auto-animate': 0.8.2
+      '@headlessui/react': ^2.1.2
+      '@hookform/resolvers': ^3.3.4
+      '@tanstack/react-query': ~4.28.0
+      '@tanstack/react-query-persist-client': ~4.28.0
+      '@types/classnames': ~2.3.1
+      '@types/js-yaml': ^4.0.5
+      '@types/lodash.debounce': ^4.0.6
+      '@types/node': ^18.18.2
+      '@types/react': ^18.2.28
+      '@types/react-dom': 18.2.13
+      '@types/swagger-ui-react': ^4.18.3
+      '@types/vscode-webview': ^1.57.1
+      '@vscode/webview-ui-toolkit': ^1.2.0
+      '@wso2-enterprise/choreo-core': workspace:*
+      '@wso2-enterprise/ui-toolkit': workspace:*
+      autoprefixer: ^10.4.19
+      classnames: ~2.3.2
+      clipboardy: ^4.0.0
+      copyfiles: ~2.4.1
+      css-loader: ^6.7.3
+      file-loader: ^6.2.0
+      js-yaml: ^4.1.0
+      lodash.debounce: ~4.0.8
+      node-sass: ^8.0.0
+      path: ^0.12.7
+      postcss: ^8.4.38
+      postcss-loader: ^8.1.1
+      prism-react-renderer: ^1.2.1
+      react: ^18.2.0
+      react-dom: ^18.2.0
+      react-hook-form: ^7.51.2
+      react-markdown: ^7.1.0
+      rehype-raw: ^6.1.0
+      remark-gfm: ^2.0.0
+      sass-loader: ^13.2.0
+      source-map-loader: ^4.0.1
+      style-loader: ^3.3.1
+      swagger-ui-react: ^5.17.9
+      tailwindcss: ^3.4.3
+      timezone-support: ^3.1.0
+      ts-loader: ^9.4.2
+      typescript: ^4.9.4
+      vscode-messenger-common: ^0.4.3
+      vscode-messenger-webview: ^0.4.3
+      webpack: ^5.75.0
+      webpack-cli: ^5.0.1
+      webpack-dev-server: ^4.11.1
+      zod: ^3.22.4
+    dependencies:
+      '@biomejs/biome': 1.9.3
+      '@formkit/auto-animate': 0.8.2
+      '@headlessui/react': 2.2.0_biqbaboplfbrettd7655fr4n2y
+      '@hookform/resolvers': 3.9.1_react-hook-form@7.53.0
+      '@tanstack/react-query': 4.28.0_biqbaboplfbrettd7655fr4n2y
+      '@tanstack/react-query-persist-client': 4.28.0_qfusmmwykmcbgdy37sd3cqxiry
+      '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
+      '@wso2-enterprise/choreo-core': link:../../choreo/choreo-core
+      '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
+      classnames: 2.3.3
+      clipboardy: 4.0.0
+      js-yaml: 4.1.0
+      lodash.debounce: 4.0.8
+      prism-react-renderer: 1.3.5_react@18.2.0
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      react-hook-form: 7.53.0_react@18.2.0
+      react-markdown: 7.1.2_eteh3so6nztr56vqc4nbg6qqla
+      rehype-raw: 6.1.1
+      remark-gfm: 2.0.0
+      swagger-ui-react: 5.17.14_jczjbtsmbzi7zofs22bstoer6y
+      timezone-support: 3.1.0
+      vscode-messenger-common: 0.4.5
+      vscode-messenger-webview: 0.4.5
+      zod: 3.23.8
+    devDependencies:
+      '@types/classnames': 2.3.1
+      '@types/js-yaml': 4.0.9
+      '@types/lodash.debounce': 4.0.9
+      '@types/node': 18.19.14
+      '@types/react': 18.2.55
+      '@types/react-dom': 18.2.13
+      '@types/swagger-ui-react': 4.18.3
+      '@types/vscode-webview': 1.57.5
+      autoprefixer: 10.4.20_postcss@8.4.40
+      copyfiles: 2.4.1
+      css-loader: 6.10.0_webpack@5.90.1
+      file-loader: 6.2.0_webpack@5.90.1
+      node-sass: 8.0.0
+      path: 0.12.7
+      postcss: 8.4.40
+      postcss-loader: 8.1.1_reycfd4tqzg6wamo3x23px4qmq
+      sass-loader: 13.3.3_5vfwtyrxapsrezsorrbf2pe7ey
+      source-map-loader: 4.0.2_webpack@5.90.1
+      style-loader: 3.3.4_webpack@5.90.1
+      tailwindcss: 3.4.13
+      ts-loader: 9.5.1_ahsu3n7nsuhdp6gozcsyrqnvra
+      typescript: 4.9.5
+      webpack: 5.90.1_webpack-cli@5.1.4
+      webpack-cli: 5.1.4_5nabick7x4u3vnr2pltk3mmvae
+      webpack-dev-server: 4.15.1_fsfaki5eyzmxu77y2afce3sch4
+
 packages:
 
   /@aashutoshrathi/word-wrap/1.2.6:

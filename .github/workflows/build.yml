@@ -14,6 +14,11 @@ on:
         type: boolean
         required: false
         default: false
+      wso2-platform:
+        description: Update WSO2 Platform extension version
+        type: boolean
+        required: false
+        default: false   
       choreo:
         description: Update Choreo extension version
         type: boolean
@@ -150,6 +155,7 @@ jobs:
           enableCache: ${{ inputs.enableCache }}
           ballerina: ${{ inputs.ballerina }}
           choreo: ${{ inputs.choreo }}
+          wso2-platform: ${{ inputs.wso2-platform }}
           api-chat: ${{ inputs.api-chat }}
           apk: ${{ inputs.apk }}
           bi: ${{ inputs.bi }}

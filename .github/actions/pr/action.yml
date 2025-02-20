@@ -15,6 +15,10 @@ inputs:
   bot_token:
     description: 'Ballerina bot token'
     required: true
+  wso2-platform:
+    description: 'Is WSO2 Plaform'
+    type: boolean
+    default: false
   choreo:
     description: 'Is Choreo'
     type: boolean
@@ -57,6 +61,11 @@ runs:
         if: ${{ inputs.ballerina == 'true' }}
         shell: bash
         run: git add workspaces/ballerina/*/*.json
+
+      - name: Add WSO2 Platform git changes
+        if: ${{ inputs.wso2-platform == 'true' }}
+        shell: bash
+        run: git add workspaces/wso2-platform/*/*.json
 
       - name: Add Choreo git changes
         if: ${{ inputs.choreo == 'true' }}

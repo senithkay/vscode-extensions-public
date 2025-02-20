@@ -11,6 +11,7 @@ on:
         options:
           - 'ballerina'
           - 'choreo'
+          - 'wso2-plaform'
           - 'api-chat'
           - 'apk'
           - 'micro-integrator'

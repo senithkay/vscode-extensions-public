@@ -245,6 +245,7 @@
      */
     "postRushBuild": [
       "cd workspaces/ballerina/ballerina-extension && pnpm run copyVSIXToRoot", 
+      "cd workspaces/wso2-platform/wso2-platform-extension && pnpm run copyVSIXToRoot", 
       "cd workspaces/choreo/choreo-extension && pnpm run copyVSIXToRoot", 
       "cd workspaces/api-chat/extension && pnpm run copyVSIXToRoot",
       "cd workspaces/mi/mi-extension && pnpm run copyVSIXToRoot",
@@ -438,6 +439,21 @@
       "packageName": "@wso2-enterprise/service-designer",
       "projectFolder": "workspaces/common-libs/service-designer",
       "versionPolicyName": "service-designer"
+    },
+    {
+      "packageName": "@wso2-enterprise/wso2-platform-core",
+      "projectFolder": "workspaces/wso2-platform/wso2-platform-core",
+      "versionPolicyName": "wso2-platform-extension"
+    },
+    {
+      "packageName": "platform",
+      "projectFolder": "workspaces/wso2-platform/wso2-platform-extension",
+      "versionPolicyName": "wso2-platform-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/wso2-platform-vscode-webviews",
+      "projectFolder": "workspaces/wso2-platform/wso2-platform-webviews",
+      "versionPolicyName": "wso2-platform-extension"
     },
     {
       "packageName": "@wso2-enterprise/choreo-core",

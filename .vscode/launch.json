@@ -101,6 +101,24 @@
             ]
         },
         {
+            "name": "WSO2 Platform Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "env": {
+                "WEB_VIEW_DEV_MODE": "true",
+                "WEB_VIEW_DEV_HOST": "http://localhost:3000/main.js",
+                "CELL_VIEW_DEV_MODE": "true",
+                "CELL_VIEW_DEV_HOST": "http://localhost:3001/cellDiagram.js"
+            },
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/wso2-platform/wso2-platform-extension"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/workspaces/wso2-platform/wso2-platform-extension/dist/**/*.js"
+            ],
+            "preLaunchTask": "npm: watch-wso2-platform"
+        },
+        {
             "name": "Choreo Extension",
             "type": "extensionHost",
             "request": "launch",

@@ -11,6 +11,11 @@ on:
         type: boolean
         required: true
         default: false
+      wso2-platform:
+        description: Release WSO2 Platform extension
+        type: boolean
+        required: true
+        default: false
       choreo:
         description: Release Choreo extension
         type: boolean
@@ -56,6 +61,7 @@ jobs:
       isPreRelease: ${{ inputs.isPreRelease }}
       enableCache: false
       ballerina: ${{ inputs.ballerina }}
+      wso2-platform: ${{ inputs.wso2-platform }}
       choreo: ${{ inputs.choreo }}
       api-chat: ${{ inputs.api-chat }}
       apk: ${{ inputs.apk }}
@@ -100,6 +106,11 @@ jobs:
             fileName=${file#*-}
             version=ballerina-${fileName%.*}
           fi  
+          if [[ "${{ github.event.inputs.wso2-platform }}" == "true" ]]; then
+            file=$(ls platform*.vsix)
+            fileName=${file#*-}
+            version=$version+platform-${fileName%.*}
+          fi  
           if [[ "${{ github.event.inputs.choreo }}" == "true" ]]; then
             file=$(ls choreo*.vsix)
             fileName=${file#*-}
@@ -136,6 +147,15 @@ jobs:
           token: ${{ secrets.PUBLISH_PAT }}
           chatAPI: ${{ steps.chat.outputs.chatAPI }}
 
+      - name: Create a release in wso2/platform-vscode repo
+        if: ${{ github.event.inputs.wso2-platform == 'true' }}
+        uses: ./.github/actions/release
+        with:
+          repo: wso2/platform-vscode
+          name: platform
+          token: ${{ secrets.PUBLISH_PAT }}
+          chatAPI: ${{ steps.chat.outputs.chatAPI }}
+      
       - name: Create a release in wso2/choreo-vscode repo
         if: ${{ github.event.inputs.choreo == 'true' }}
         uses: ./.github/actions/release
@@ -182,6 +202,7 @@ jobs:
           bot_token: ${{ secrets.BALLERINA_BOT_TOKEN }}
           ref_name: ${{ github.ref_name }}
           ballerina: ${{ inputs.ballerina }}
+          wso2-platform: ${{ inputs.wso2-platform }}
           choreo: ${{ inputs.choreo }}
           apk: ${{ inputs.apk }}
           apiChat: ${{ inputs.api-chat }}
