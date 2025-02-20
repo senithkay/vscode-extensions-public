@@ -6,10 +6,10 @@ WSO2 Micro Integrator Visual Studio Code extension (MI for VSCode) is a comprehe
 
 You need the following to work with the MI for VS Code extension.
 
-- Java Development Kit (JDK) version 21
-- WSO2 Micro Integrator (MI) 4.4.0 runtime
+- Java Development Kit (JDK)
+- WSO2 Micro Integrator (MI) runtime
 
-If these are not installed on your local machine, the Micro Integrator for VS Code extension will automatically prompt you to download and configure them during the project creation step.
+If these are not installed on your local machine, the Micro Integrator for VS Code extension will automatically prompt you to download and configure them during the project creation step, depending on the project runtime version.
 
 If a different JDK or WSO2 MI version is installed on your local machine, you'll be prompted to download the required versions.
 
