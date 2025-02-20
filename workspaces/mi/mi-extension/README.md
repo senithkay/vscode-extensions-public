@@ -15,7 +15,7 @@ If a different JDK or WSO2 MI version is installed on your local machine, you'll
 
 If the required JDK and WSO2 MI versions are already installed, you can directly configure the Java Home and MI Home paths in this step.
 
-## Launching the MI for VS Code Extension
+## Get Started
 
 1. Launch VS Code with the Micro Integrator for Visual Studio Code (MI for VS Code) extension installed. When the extension is installed properly, you can see the Micro Integrator icon in the Activity Bar of the VS Code editor.
 
