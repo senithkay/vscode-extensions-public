@@ -26,6 +26,7 @@ export const CommandIds = {
 	CreateProjectWorkspace: "wso2.platform.project.create.workspace",
 	CreateComponentDependency: "wso2.platform.component.create.dependency",
 	ViewDependency: "wso2.platform.component.view.dependency",
+	OpenCompSrcDir: "wso2.platform.open.component.src",
 	// TODO: add command & code lens to delete dependency
 };
 

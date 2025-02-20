@@ -97,51 +97,55 @@ export function activateURIHandlers() {
 
 					await waitForContextStoreToLoad();
 
-					const contextItems = contextStore.getState().getValidItems();
-					const isWithinDir = contextItems.find((item) => item.orgHandle === orgHandle && item.projectHandle === projectHandle);
-					if (isWithinDir) {
-						const selectedContext = contextStore.getState().state.selected;
-						if (selectedContext?.orgHandle !== orgHandle || selectedContext?.projectHandle !== projectHandle) {
-							contextStore.getState().onSetNewContext(org, project, isWithinDir.contextDirs[0]);
-						}
-						window.showInformationMessage(`You are already within the Choreo ${componentName ? "component" : "project"} directory`);
-						return;
-					}
-
-					const projectLocations = locationStore.getState().getLocations(projectHandle, orgHandle);
-
-					if (componentName) {
-						const filteredProjectLocations = projectLocations.filter((projectLocation) => {
-							if (projectLocation.componentItems.some((item) => item.component?.metadata?.name === componentName)) {
-								return true;
-							}
-						});
-						if (filteredProjectLocations.length > 0) {
-							const selectedPath = await getSelectedPath(filteredProjectLocations.map((item) => item.fsPath));
-							if (selectedPath) {
-								openProjectDirectory(selectedPath);
-							}
-						} else if (projectLocations.length > 0) {
-							const selectedPath = await getSelectedPath(projectLocations.map((item) => item.fsPath));
-							if (selectedPath) {
-								openProjectDirectory(selectedPath);
-							}
-						} else {
-							cloneOrOpenDirectory(org, project, componentName);
-						}
-					} else if (projectLocations.length > 0) {
-						const selectedPath = await getSelectedPath(projectLocations.map((item) => item.fsPath));
-						if (selectedPath) {
-							openProjectDirectory(selectedPath);
-						}
-					} else {
-						cloneOrOpenDirectory(org, project);
-					}
+					await cloneOrOpenDir(org, project, componentName);
 				});
 			}
 		},
 	});
 }
+
+export const cloneOrOpenDir = async (org: Organization, project: Project, componentName: string | null) => {
+	const contextItems = contextStore.getState().getValidItems();
+	const isWithinDir = contextItems.find((item) => item.orgHandle === org.handle && item.projectHandle === project.handler);
+	if (isWithinDir) {
+		const selectedContext = contextStore.getState().state.selected;
+		if (selectedContext?.orgHandle !== org.handle || selectedContext?.projectHandle !== project.handler) {
+			contextStore.getState().onSetNewContext(org, project, isWithinDir.contextDirs[0]);
+		}
+		window.showInformationMessage(`You are already within the Choreo ${componentName ? "component" : "project"} directory`);
+		return;
+	}
+
+	const projectLocations = locationStore.getState().getLocations(project.handler, org.handle);
+
+	if (componentName) {
+		const filteredProjectLocations = projectLocations.filter((projectLocation) => {
+			if (projectLocation.componentItems.some((item) => item.component?.metadata?.name === componentName)) {
+				return true;
+			}
+		});
+		if (filteredProjectLocations.length > 0) {
+			const selectedPath = await getSelectedPath(filteredProjectLocations.map((item) => item.fsPath));
+			if (selectedPath) {
+				openProjectDirectory(selectedPath);
+			}
+		} else if (projectLocations.length > 0) {
+			const selectedPath = await getSelectedPath(projectLocations.map((item) => item.fsPath));
+			if (selectedPath) {
+				openProjectDirectory(selectedPath);
+			}
+		} else {
+			cloneOrOpenDirectory(org, project, componentName);
+		}
+	} else if (projectLocations.length > 0) {
+		const selectedPath = await getSelectedPath(projectLocations.map((item) => item.fsPath));
+		if (selectedPath) {
+			openProjectDirectory(selectedPath);
+		}
+	} else {
+		cloneOrOpenDirectory(org, project);
+	}
+};
 
 const openProjectDirectory = async (openingPath: string, isComponent = false) => {
 	openDirectory(openingPath, `Where do you want to open the Choreo ${isComponent ? "component" : "project"} directory ${openingPath} ?`);

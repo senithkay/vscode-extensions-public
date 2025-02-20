@@ -120,6 +120,13 @@
         "shortTitle": "View dependency",
         "category": "WSO2",
         "icon": "$(preview)"
+      },
+      {
+        "command": "wso2.platform.open.component.src",
+        "title": "Open component source directory",
+        "shortTitle": "Open component source",
+        "category": "WSO2",
+        "icon": "$(repo-clone)"
       }
     ],
     "configuration": {
