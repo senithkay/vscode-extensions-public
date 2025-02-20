@@ -13,7 +13,13 @@ import { Codicon, Item, Menu, MenuItem } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
 
 import { RecordFieldPortModel, ValueType } from '../Port';
-import { createSourceForMapping, getValueType, mapUsingCustomFunction, updateExistingValue } from '../utils/dm-utils';
+import {
+    createSourceForMapping,
+    getValueType,
+    mapUsingCustomFunction,
+    modifySpecificFieldSource,
+    updateExistingValue
+} from '../utils/dm-utils';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 
 export const useStyles = () => ({
@@ -51,19 +57,18 @@ export function IncompatibleMappingOprionsWidget(props: IncompatibleMappingOprio
     const targetPort = link?.getTargetPort() as RecordFieldPortModel;
     const valueType = getValueType(link);
 
-    const isValueModifiable = valueType === ValueType.Default
-        || valueType === ValueType.NonEmpty;
-
     const onClickMapDirectly = async () => {
-        if (isValueModifiable) {
+        if (valueType === ValueType.Default) {
             await updateExistingValue(sourcePort, targetPort);
+        } else if (valueType === ValueType.NonEmpty) {
+            await modifySpecificFieldSource(sourcePort, targetPort, link.getID());
         } else {
             await createSourceForMapping(sourcePort, targetPort);
         }
     }
 
     const onClickMapUsingCustomFunction = async () => {
-        await mapUsingCustomFunction(sourcePort, targetPort, context);
+        await mapUsingCustomFunction(sourcePort, targetPort, link.getID(), context, valueType);
     };
 
     const getItemElement = (id: string, label: string) => {

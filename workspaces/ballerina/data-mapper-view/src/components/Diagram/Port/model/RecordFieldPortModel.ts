@@ -83,8 +83,12 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 		const lm = new DataMapperLinkModel();
 		lm.registerListener({
 			targetPortChanged: (async () => {
-				const sourcePort = lm.getSourcePort();
-				const targetPort = lm.getTargetPort();
+				if (!lm.getSourcePort() || !lm.getTargetPort()) {
+					return;
+				}
+				const sourcePort = lm.getSourcePort() as RecordFieldPortModel;
+				const targetPort = lm.getTargetPort() as RecordFieldPortModel;
+
 				const targetPortHasLinks = Object.values(targetPort.links)
 					?.some(link => (link as DataMapperLinkModel)?.isActualLink);
 
@@ -97,10 +101,9 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 				const targetNode = targetPort.getNode() as DataMapperNodeModel;
 				const { position, mappingType: queryExprMappingType, stNode } = targetNode.context.selection.selectedST;
 				const valueType = getValueType(lm);
-
 				if (queryExprMappingType === QueryExprMappingType.A2SWithCollect && valueType !== ValueType.Empty) {
 					const modifications = [];
-					let sourceField = sourcePort && sourcePort instanceof RecordFieldPortModel && sourcePort.fieldFQN;
+					let sourceField = sourcePort.fieldFQN;
 					const fieldParts = sourceField.split('.');
 					if ((sourcePort.getParent() as FromClauseNode).typeDef.typeName === PrimitiveBalType.Record) {
 						const bindingPatternSrc = generateDestructuringPattern(fieldParts.slice(1).join('.'));
@@ -115,14 +118,9 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 				} else if (valueType === ValueType.Default) {
 					updateExistingValue(sourcePort, targetPort);
 				} else if (targetPortHasLinks) {
-					modifySpecificFieldSource(lm);
+					modifySpecificFieldSource(sourcePort, targetPort, lm.getID());
 				} else {
-					if (!lm.getSourcePort() || !lm.getTargetPort()) {
-						return;
-					}
-					await createSourceForMapping(
-						lm.getSourcePort() as RecordFieldPortModel, lm.getTargetPort() as RecordFieldPortModel
-					);
+					await createSourceForMapping(sourcePort, targetPort);
 				}
 			})
 		});

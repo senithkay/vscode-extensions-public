@@ -424,91 +424,92 @@ export async function createSourceForUserInput(
 	}
 }
 
-export function modifySpecificFieldSource(link: DataMapperLinkModel) {
+export function modifySpecificFieldSource(
+	sourcePort: RecordFieldPortModel,
+	targetPort: RecordFieldPortModel,
+	newLinkId: string,
+	rhsValue?: string
+) {
 	let rhs = "";
 	const modifications: STModification[] = [];
-	const sourcePort = link.getSourcePort();
 	if (sourcePort && sourcePort instanceof RecordFieldPortModel) {
-		rhs = sourcePort.fieldFQN;
+		rhs = rhsValue || sourcePort.fieldFQN;
 	}
 
-	if (link.getTargetPort()) {
-		const targetPort = link.getTargetPort();
-		const targetNode = targetPort.getNode();
-		if (targetNode instanceof LinkConnectorNode) {
-			targetNode.value = targetNode.value + " + " + rhs;
-			targetNode.updateSource();
-		}
-		else {
-			let targetPos: NodePosition;
-			let targetType: TypeField;
-			Object.keys(targetPort.getLinks()).forEach((linkId) => {
-				if (linkId !== link.getID()) {
-					const targerPortLink = targetPort.getLinks()[linkId]
-					if (sourcePort instanceof IntermediatePortModel) {
-						if (sourcePort.getParent() instanceof LinkConnectorNode) {
-							targetPos = (sourcePort.getParent() as LinkConnectorNode).valueNode.position as NodePosition
-						}
-					} else if (targerPortLink.getLabels().length > 0) {
-						targetPos = (targerPortLink.getLabels()[0] as ExpressionLabelModel).valueNode.position as NodePosition;
-						targetType = getTypeFromStore(targetPos);
-					} else if (targetNode instanceof MappingConstructorNode
-						|| targetNode instanceof PrimitiveTypeNode
-						|| targetNode instanceof ListConstructorNode)
-					{
-						const linkConnector = targetNode
-							.getModel()
-							.getNodes()
-							.find(
-								(node) =>
-									node instanceof LinkConnectorNode &&
-									node.targetPort.portName === (targerPortLink.getTargetPort() as RecordFieldPortModel).portName
-							);
-						targetPos = (linkConnector as LinkConnectorNode).valueNode.position as NodePosition;
+	const targetNode = targetPort.getNode();
+	if (targetNode instanceof LinkConnectorNode) {
+		targetNode.value = targetNode.value + " + " + rhs;
+		targetNode.updateSource();
+	}
+	else {
+		let targetPos: NodePosition;
+		let targetType: TypeField;
+		Object.keys(targetPort.getLinks()).forEach((linkId) => {
+			if (linkId !== newLinkId) {
+				const targerPortLink = targetPort.getLinks()[linkId]
+				if (sourcePort instanceof IntermediatePortModel) {
+					if (sourcePort.getParent() instanceof LinkConnectorNode) {
+						targetPos = (sourcePort.getParent() as LinkConnectorNode).valueNode.position as NodePosition
 					}
-
+				} else if (targerPortLink.getLabels().length > 0) {
+					targetPos = (targerPortLink.getLabels()[0] as ExpressionLabelModel).valueNode.position as NodePosition;
+					targetType = getTypeFromStore(targetPos);
+				} else if (targetNode instanceof MappingConstructorNode
+					|| targetNode instanceof PrimitiveTypeNode
+					|| targetNode instanceof ListConstructorNode)
+				{
+					const linkConnector = targetNode
+						.getModel()
+						.getNodes()
+						.find(
+							(node) =>
+								node instanceof LinkConnectorNode &&
+								node.targetPort.portName === (targerPortLink.getTargetPort() as RecordFieldPortModel).portName
+						);
+					targetPos = (linkConnector as LinkConnectorNode).valueNode.position as NodePosition;
 				}
-			});
-			if (targetType &&
-				targetType.typeName === PrimitiveBalType.Json &&
-				(sourcePort as RecordFieldPortModel).field.typeName === PrimitiveBalType.Json) {
-				modifications.push({
-					type: "INSERT",
-					config: {
-						"STATEMENT": `value:mergeJson(${(targetNode as UnionTypeNode).recordField.value.source}, ${(sourcePort as RecordFieldPortModel).fieldFQN})`,
-					},
-					...targetPos
-				})
 
-				// add imports
-				modifications.push({
-					type: "IMPORT",
-					config: {
-						"TYPE": JSON_MERGE_MODULE_NAME,
-					},
-					startLine: 0,
-					startColumn: 0,
-					endLine: 0,
-					endColumn: 0
-				});
-
-				const { context } = targetNode as DataMapperNodeModel;
-				void context.applyModifications(modifications);
-			} else if (targetPos) {
-				modifications.push({
-					type: "INSERT",
-					config: {
-						"STATEMENT": " + " + rhs,
-					},
-					endColumn: targetPos.endColumn,
-					endLine: targetPos.endLine,
-					startColumn: targetPos.endColumn,
-					startLine: targetPos.endLine
-				});
 			}
+		});
+		if (targetType &&
+			targetType.typeName === PrimitiveBalType.Json &&
+			(sourcePort as RecordFieldPortModel).field.typeName === PrimitiveBalType.Json) {
+			modifications.push({
+				type: "INSERT",
+				config: {
+					"STATEMENT": `value:mergeJson(${(targetNode as UnionTypeNode).recordField.value.source}, ${(sourcePort as RecordFieldPortModel).fieldFQN})`,
+				},
+				...targetPos
+			})
+
+			// add imports
+			modifications.push({
+				type: "IMPORT",
+				config: {
+					"TYPE": JSON_MERGE_MODULE_NAME,
+				},
+				startLine: 0,
+				startColumn: 0,
+				endLine: 0,
+				endColumn: 0
+			});
+
 			const { context } = targetNode as DataMapperNodeModel;
 			void context.applyModifications(modifications);
+		} else if (targetPos) {
+			modifications.push({
+				type: "INSERT",
+				config: {
+					"STATEMENT": " + " + rhs,
+				},
+				endColumn: targetPos.endColumn,
+				endLine: targetPos.endLine,
+				startColumn: targetPos.endColumn,
+				startLine: targetPos.endLine
+			});
 		}
+		const { context } = targetNode as DataMapperNodeModel;
+		void context.applyModifications(modifications);
 	}
 
 }
@@ -523,7 +524,9 @@ export async function updateExistingValue(sourcePort: PortModel, targetPort: Por
 export async function mapUsingCustomFunction(
 	sourcePort: RecordFieldPortModel,
 	targetPort: RecordFieldPortModel,
-	context: IDataMapperContext
+	linkId: string,
+	context: IDataMapperContext,
+	valueType: ValueType
 ) {
 	const existingFunctions = context.moduleComponents.functions.map((fn) => fn.name);
 	const [functionName, functionSource] = generateCustomFunction(sourcePort, targetPort, existingFunctions);
@@ -546,7 +549,15 @@ export async function mapUsingCustomFunction(
 	});
 
 	await context.applyModifications(modifications);
-	await createSourceForMapping(sourcePort, targetPort, functionCallExpr);
+
+	if (valueType === ValueType.Default) {
+		await updateExistingValue(sourcePort, targetPort, functionCallExpr);
+	} else if (valueType === ValueType.NonEmpty) {
+		await modifySpecificFieldSource(sourcePort, targetPort, linkId, functionCallExpr);
+	} else {
+		await createSourceForMapping(sourcePort, targetPort, functionCallExpr);
+	}
+
 	context.goToSource({
 		startLine: customFnPosition.startLine,
 		startColumn: customFnPosition.startColumn,

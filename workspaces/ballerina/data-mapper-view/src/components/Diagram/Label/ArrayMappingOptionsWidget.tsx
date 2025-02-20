@@ -16,7 +16,7 @@ import { css } from '@emotion/css';
 import { MappingType, RecordFieldPortModel, ValueType } from '../Port';
 import { DataMapperLinkModel } from '../Link';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
-import { buildInputAccessExpr, createSourceForMapping, genArrayElementAccessSuffix, getLocalVariableNames, getValueType, mapUsingCustomFunction, updateExistingValue } from '../utils/dm-utils';
+import { buildInputAccessExpr, createSourceForMapping, genArrayElementAccessSuffix, getLocalVariableNames, getValueType, mapUsingCustomFunction, modifySpecificFieldSource, updateExistingValue } from '../utils/dm-utils';
 import { ClauseType, generateQueryExpression } from '../Link/link-utils';
 import { useDMFocusedViewStateStore } from '../../../store/store';
 import { canPerformAggregation } from '../utils/type-utils';
@@ -63,8 +63,10 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
         || (valueType === ValueType.NonEmpty && !targetPortHasLinks);
     
     const onClickMapArrays = async () => {
-        if (isValueModifiable) {
+        if (valueType === ValueType.Default) {
             await updateExistingValue(sourcePort, targetPort);
+        } else if (valueType === ValueType.NonEmpty) {
+            await modifySpecificFieldSource(sourcePort, targetPort, link.getID());
         } else {
             await createSourceForMapping(sourcePort, targetPort);
         }
@@ -100,15 +102,18 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
 
     const onClickMapArraysAccessSingleton = async () => {
         const newExpr = (sourcePort as RecordFieldPortModel).fieldFQN + genArrayElementAccessSuffix(sourcePort, targetPort);
-        if (isValueModifiable) {
+
+        if (valueType === ValueType.Default) {
             await updateExistingValue(sourcePort, targetPort, newExpr);
+        } else if (valueType === ValueType.NonEmpty) {
+            await modifySpecificFieldSource(sourcePort, targetPort, link.getID(), newExpr);
         } else {
             await createSourceForMapping(sourcePort, targetPort, newExpr);
         }
     }
 
     const onClickMapUsingCustomFunction = async () => {
-        await mapUsingCustomFunction(sourcePort, targetPort, context);
+        await mapUsingCustomFunction(sourcePort, targetPort, link.getID(), context, valueType);
     };
 
     const getItemElement = (id: string, label: string) => {
