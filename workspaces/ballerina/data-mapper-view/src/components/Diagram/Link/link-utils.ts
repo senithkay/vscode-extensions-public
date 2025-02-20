@@ -8,6 +8,7 @@ import {
     getDefaultValue,
     getLinebreak,
     getTypeName,
+    normalizeTypeName,
     toFirstLetterLowerCase,
     toFirstLetterUpperCase
 } from "../utils/dm-utils";
@@ -18,6 +19,11 @@ import { LinkModel } from "@projectstorm/react-diagrams-core";
 export enum ClauseType {
     Select = "select",
     Collect = "collect"
+}
+
+interface FunctionNameComponents {
+    sourceName: string;
+    targetName: string;
 }
 
 export function generateQueryExpression(
@@ -60,21 +66,52 @@ export function generateCustomFunction(
     targetPort: RecordFieldPortModel,
     existingFunctions: string[]
 ): [string, string] {
+    const nameComponents = generateFunctionNameComponents(sourcePort, targetPort);
+    const baseFunctionName = createBaseFunctionName(nameComponents);
+    const functionName = getUniqueFunctionName(baseFunctionName, existingFunctions);
+    
     const sourceType = getTypeName(sourcePort.field);
     const targetType = getTypeName(targetPort.field);
-    let functionName = `map${toFirstLetterUpperCase(sourceType)}To${toFirstLetterUpperCase(targetType)}`;
-    let functionNameIndex = 1;
-
-    while (existingFunctions.includes(functionName)) {
-        functionName = `map${toFirstLetterUpperCase(sourceType)}To${toFirstLetterUpperCase(targetType)}${functionNameIndex}`;
-        functionNameIndex++;
-    }
-
-    const functionSignature = `function ${functionName}(${sourceType} ${toFirstLetterLowerCase(sourceType)}) returns ${targetType} {
+    const paramName = toFirstLetterLowerCase(nameComponents.sourceName);
+    
+    const functionSignature = `function ${functionName}(${sourceType} ${paramName}) returns ${targetType} {
 
     }`;
 
     return [functionName, functionSignature];
+}
+
+function generateFunctionNameComponents(
+    sourcePort: RecordFieldPortModel,
+    targetPort: RecordFieldPortModel
+): FunctionNameComponents {
+    const sourceType = getTypeName(sourcePort.field);
+    const targetType = getTypeName(targetPort.field);
+    
+    return {
+        sourceName: normalizeTypeName(sourceType),
+        targetName: normalizeTypeName(targetType)
+    };
+}
+
+function createBaseFunctionName({ sourceName, targetName }: FunctionNameComponents): string {
+    return `map${toFirstLetterUpperCase(sourceName)}To${toFirstLetterUpperCase(targetName)}`;
+}
+
+function getUniqueFunctionName(baseName: string, existingFunctions: string[]): string {
+    if (!existingFunctions.includes(baseName)) {
+        return baseName;
+    }
+
+    let index = 1;
+    let functionName = baseName;
+    
+    while (existingFunctions.includes(functionName)) {
+        functionName = `${baseName}${index}`;
+        index++;
+    }
+    
+    return functionName;
 }
 
 export function removePendingMappingTempLinkIfExists(link: LinkModel) {

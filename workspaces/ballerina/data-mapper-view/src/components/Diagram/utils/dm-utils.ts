@@ -1055,6 +1055,29 @@ export function getTypeName(field: TypeField): string {
 	return getShortenedTypeName(typeName);
 }
 
+export function normalizeTypeName(typeName: string) {
+    // Handle union types first
+    if (typeName.includes('|')) {
+        const types = typeName.split('|').map(t => t.trim());
+        const transformedTypes = types.map(type => {
+            const arrayDim = (type.match(/\[]/g) || []).length;
+            const baseName = type.replace(/\[]/g, '');
+            return arrayDim > 0 ? `${baseName}${arrayDim}DArray` : baseName;
+        });
+        return transformedTypes.join('Or');
+    }
+
+    // Handle array types
+    const arrayDim = (typeName.match(/\[]/g) || []).length;
+    const baseName = typeName.replace(/\[]/g, '');
+    
+    if (arrayDim === 0) {
+        return baseName;
+    }
+    
+    return arrayDim === 1 ? `${baseName}Array` : `${baseName}${arrayDim}DArray`;
+}
+
 export function getDefaultValue(typeName: string): string {
 	let draftParameter = "";
 	switch (typeName) {

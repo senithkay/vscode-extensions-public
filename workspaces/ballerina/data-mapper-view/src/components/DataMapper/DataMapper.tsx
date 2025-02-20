@@ -209,7 +209,10 @@ export function DataMapperC(props: DataMapperViewProps) {
     const openedViaPlus = false;
     const updateActiveFile: (currentFile: FileListEntry) => void = undefined;
 
-    const { projectComponents, isFetching: isFetchingComponents } = useProjectComponents(langServerRpcClient, filePath);
+    const {
+        projectComponents,
+        isFetching: isFetchingComponents,
+    } = useProjectComponents(langServerRpcClient, filePath, fnST.source);
     const { 
         ballerinaVersion,
         dMSupported,
@@ -217,7 +220,10 @@ export function DataMapperC(props: DataMapperViewProps) {
         isFetching: isFetchingDMMetaData,
         isError: isErrorDMMetaData
     } = useDMMetaData(langServerRpcClient);
-    const { content, isFetching: isFetchingContent } = useFileContent(langServerRpcClient, filePath, fnST);
+    const {
+        content,
+        isFetching: isFetchingContent
+    } = useFileContent(langServerRpcClient, filePath, fnST);
 
     const targetPosition = fnST ? {
         ...fnST.position,

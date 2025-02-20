@@ -16,7 +16,7 @@ import { css } from '@emotion/css';
 import { MappingType, RecordFieldPortModel, ValueType } from '../Port';
 import { DataMapperLinkModel } from '../Link';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
-import { buildInputAccessExpr, createSourceForMapping, genArrayElementAccessSuffix, getLocalVariableNames, getValueType, updateExistingValue } from '../utils/dm-utils';
+import { buildInputAccessExpr, createSourceForMapping, genArrayElementAccessSuffix, getLocalVariableNames, getValueType, mapUsingCustomFunction, updateExistingValue } from '../utils/dm-utils';
 import { ClauseType, generateQueryExpression } from '../Link/link-utils';
 import { useDMFocusedViewStateStore } from '../../../store/store';
 import { canPerformAggregation } from '../utils/type-utils';
@@ -107,6 +107,10 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
         }
     }
 
+    const onClickMapUsingCustomFunction = async () => {
+        await mapUsingCustomFunction(sourcePort, targetPort, context);
+    };
+
     const getItemElement = (id: string, label: string) => {
         return (
             <div
@@ -154,6 +158,12 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
     }
 
     const menuItems = pendingMappingType === MappingType.ArrayToArray ? a2aMenuItems : a2sMenuItems;
+
+    menuItems.push({
+        id: "a2a-a2s-func",
+        label: getItemElement("a2a-a2s-func", "Map Using Custom Function"),
+        onClick: onClickMapUsingCustomFunction
+    });
 
     return (
         <div className={classes.arrayMappingMenu}>
