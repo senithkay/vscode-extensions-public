@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CommandIds, ComponentViewDrawers, getComponentKey } from "@wso2-enterprise/choreo-core";
+import { CommandIds, ComponentViewDrawers, getComponentKey } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, ViewColumn, commands, window } from "vscode";
 import { contextStore } from "../stores/context-store";
 import { webviewStateStore } from "../stores/webview-state-store";

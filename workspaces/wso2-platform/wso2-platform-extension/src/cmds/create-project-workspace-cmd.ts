@@ -10,7 +10,7 @@
 import { writeFileSync } from "fs";
 import * as os from "os";
 import * as path from "path";
-import { CommandIds, type ComponentKind, type Organization, type Project, type WorkspaceConfig } from "@wso2-enterprise/choreo-core";
+import { CommandIds, type ComponentKind, type Organization, type Project, type WorkspaceConfig } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, Uri, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
 import { contextStore } from "../stores/context-store";

@@ -24,7 +24,7 @@ import {
 	getRandomNumber,
 	makeURLSafe,
 	parseGitURL,
-} from "@wso2-enterprise/choreo-core";
+} from "@wso2-enterprise/wso2-platform-core";
 import React, { type FC, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";

@@ -39,7 +39,7 @@ import {
 	getTimeAgo,
 	getTypeForDisplayType,
 	toTitleCase,
-} from "@wso2-enterprise/choreo-core";
+} from "@wso2-enterprise/wso2-platform-core";
 import classNames from "classnames";
 import classnames from "classnames";
 import clipboardy from "clipboardy";

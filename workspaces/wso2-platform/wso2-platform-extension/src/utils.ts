@@ -19,7 +19,7 @@ import {
 	type ReadLocalEndpointsConfigResp,
 	type ReadLocalProxyConfigResp,
 	getRandomNumber,
-} from "@wso2-enterprise/choreo-core";
+} from "@wso2-enterprise/wso2-platform-core";
 import * as yaml from "js-yaml";
 import { Uri, commands, window, workspace } from "vscode";
 import { getLogger } from "./logger/logger";

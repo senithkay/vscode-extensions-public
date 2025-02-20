@@ -3288,9 +3288,9 @@ importers:
       '@vscode/iconv-lite-umd': ^0.7.0
       '@vscode/vsce': ^2.30.0
       '@vscode/webview-ui-toolkit': ^1.2.0
-      '@wso2-enterprise/choreo-core': workspace:*
-      '@wso2-enterprise/choreo-vscode-webviews': workspace:*
       '@wso2-enterprise/playwright-vscode-tester': workspace:*
+      '@wso2-enterprise/wso2-platform-core': workspace:*
+      '@wso2-enterprise/wso2-platform-vscode-webviews': workspace:*
       axios: ^1.7.2
       byline: ^5.0.0
       copy-webpack-plugin: ^11.0.0
@@ -3321,8 +3321,8 @@ importers:
       '@vscode/extension-telemetry': 0.9.7
       '@vscode/iconv-lite-umd': 0.7.0
       '@vscode/webview-ui-toolkit': 1.4.0
-      '@wso2-enterprise/choreo-core': link:../../choreo/choreo-core
-      '@wso2-enterprise/choreo-vscode-webviews': link:../../choreo/choreo-webviews
+      '@wso2-enterprise/wso2-platform-core': link:../wso2-platform-core
+      '@wso2-enterprise/wso2-platform-vscode-webviews': link:../wso2-platform-webviews
       byline: 5.0.0
       dotenv: 16.4.5
       file-type: 18.7.0
@@ -3375,8 +3375,8 @@ importers:
       '@types/swagger-ui-react': ^4.18.3
       '@types/vscode-webview': ^1.57.1
       '@vscode/webview-ui-toolkit': ^1.2.0
-      '@wso2-enterprise/choreo-core': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
+      '@wso2-enterprise/wso2-platform-core': workspace:*
       autoprefixer: ^10.4.19
       classnames: ~2.3.2
       clipboardy: ^4.0.0
@@ -3418,8 +3418,8 @@ importers:
       '@tanstack/react-query': 4.28.0_biqbaboplfbrettd7655fr4n2y
       '@tanstack/react-query-persist-client': 4.28.0_qfusmmwykmcbgdy37sd3cqxiry
       '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
-      '@wso2-enterprise/choreo-core': link:../../choreo/choreo-core
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
+      '@wso2-enterprise/wso2-platform-core': link:../wso2-platform-core
       classnames: 2.3.3
       clipboardy: 4.0.0
       js-yaml: 4.1.0

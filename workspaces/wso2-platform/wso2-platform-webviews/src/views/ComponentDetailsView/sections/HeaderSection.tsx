@@ -15,7 +15,7 @@ import {
 	getComponentKindRepoSource,
 	getComponentTypeText,
 	getTypeForDisplayType,
-} from "@wso2-enterprise/choreo-core";
+} from "@wso2-enterprise/wso2-platform-core";
 import React, { type FC } from "react";
 import { Button } from "../../../components/Button";
 import { Codicon } from "../../../components/Codicon";

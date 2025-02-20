@@ -21,7 +21,7 @@ import {
 	capitalizeFirstLetter,
 	makeURLSafe,
 	parseGitURL,
-} from "@wso2-enterprise/choreo-core";
+} from "@wso2-enterprise/wso2-platform-core";
 import * as yaml from "js-yaml";
 import { z } from "zod";
 import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";

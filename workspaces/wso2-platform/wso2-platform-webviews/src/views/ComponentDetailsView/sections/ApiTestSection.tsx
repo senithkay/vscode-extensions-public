@@ -9,7 +9,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import type { ComponentKind, Environment, Organization } from "@wso2-enterprise/choreo-core";
+import type { ComponentKind, Environment, Organization } from "@wso2-enterprise/wso2-platform-core";
 import classNames from "classnames";
 import clipboardy from "clipboardy";
 import React, { useMemo, useState, type FC } from "react";

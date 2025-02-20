@@ -20,7 +20,7 @@ import {
 	type ProjectBuildLogsData,
 	getComponentKindRepoSource,
 	getTimeAgo,
-} from "@wso2-enterprise/choreo-core";
+} from "@wso2-enterprise/wso2-platform-core";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import classNames from "classnames";
 import React, { type ReactNode, type FC } from "react";

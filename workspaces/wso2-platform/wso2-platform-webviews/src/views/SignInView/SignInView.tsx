@@ -8,7 +8,7 @@
  */
 
 import { useMutation } from "@tanstack/react-query";
-import { CommandIds } from "@wso2-enterprise/choreo-core";
+import { CommandIds } from "@wso2-enterprise/wso2-platform-core";
 import classNames from "classnames";
 import React, { type FC, type HTMLProps } from "react";
 import { Button } from "../../components/Button";

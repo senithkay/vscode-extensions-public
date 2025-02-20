@@ -8,7 +8,7 @@
  */
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { UserInfo } from "@wso2-enterprise/choreo-core";
+import type { UserInfo } from "@wso2-enterprise/wso2-platform-core";
 import { ErrorBanner, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import React, { type FC, type ReactNode, useContext, useEffect } from "react";
 import { ChoreoWebViewAPI } from "../utilities/vscode-webview-rpc";

@@ -16,7 +16,7 @@ import {
 	type NewComponentWebviewProps,
 	WebAppSPATypes,
 	getComponentTypeText,
-} from "@wso2-enterprise/choreo-core";
+} from "@wso2-enterprise/wso2-platform-core";
 import classNames from "classnames";
 import React, { type HTMLProps, type FC, type ReactNode, useMemo } from "react";
 import type { UseFormReturn } from "react-hook-form";

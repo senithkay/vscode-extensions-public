@@ -10,7 +10,7 @@
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
-import { EndpointType, type NewComponentWebviewProps } from "@wso2-enterprise/choreo-core";
+import { EndpointType, type NewComponentWebviewProps } from "@wso2-enterprise/wso2-platform-core";
 import React, { type FC, type ReactNode } from "react";
 import { type SubmitHandler, type UseFieldArrayAppend, type UseFieldArrayRemove, type UseFormReturn, useFieldArray, useWatch } from "react-hook-form";
 import type { z } from "zod";

@@ -1,7 +1,7 @@
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
-import type { ComponentKind, MarketplaceItem, Organization, Project } from "@wso2-enterprise/choreo-core";
+import type { ComponentKind, MarketplaceItem, Organization, Project } from "@wso2-enterprise/wso2-platform-core";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import classNames from "classnames";
 import debounce from "lodash.debounce";

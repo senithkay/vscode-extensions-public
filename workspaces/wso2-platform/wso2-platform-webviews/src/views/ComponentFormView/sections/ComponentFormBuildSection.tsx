@@ -15,7 +15,7 @@ import {
 	ChoreoImplementationType,
 	type NewComponentWebviewProps,
 	WebAppSPATypes,
-} from "@wso2-enterprise/choreo-core";
+} from "@wso2-enterprise/wso2-platform-core";
 import React, { type FC, type ReactNode, useEffect } from "react";
 import type { SubmitHandler, UseFormReturn } from "react-hook-form";
 import type { z } from "zod";

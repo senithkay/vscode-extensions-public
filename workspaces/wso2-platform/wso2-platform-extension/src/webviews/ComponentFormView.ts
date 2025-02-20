@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import type { NewComponentWebviewProps, Organization, Project } from "@wso2-enterprise/choreo-core";
+import type { NewComponentWebviewProps, Organization, Project } from "@wso2-enterprise/wso2-platform-core";
 import * as vscode from "vscode";
 import { ext } from "../extensionVariables";
 import { dataCacheStore } from "../stores/data-cache-store";

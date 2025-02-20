@@ -8,7 +8,7 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
-import { ComponentDisplayType, type ComponentKind, type ConnectionListItem, type Organization } from "@wso2-enterprise/choreo-core";
+import { ComponentDisplayType, type ComponentKind, type ConnectionListItem, type Organization } from "@wso2-enterprise/wso2-platform-core";
 import classNames from "classnames";
 import React, { type FC } from "react";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";

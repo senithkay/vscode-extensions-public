@@ -14,7 +14,7 @@ import {
 	type ComponentKind,
 	getComponentKindRepoSource,
 	getTypeForDisplayType,
-} from "@wso2-enterprise/choreo-core";
+} from "@wso2-enterprise/wso2-platform-core";
 import React, { type FC } from "react";
 import { type IRightPanelSectionItem, RightPanelSection, RightPanelSectionItem } from "./RightPanelSection";
 

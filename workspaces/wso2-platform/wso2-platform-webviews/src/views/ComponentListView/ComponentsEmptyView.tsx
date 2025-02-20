@@ -8,7 +8,7 @@
  */
 
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
-import { CommandIds, type ContextItemEnriched } from "@wso2-enterprise/choreo-core";
+import { CommandIds, type ContextItemEnriched } from "@wso2-enterprise/wso2-platform-core";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import React, { type FC } from "react";
 import { Button } from "../../components/Button";

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CommandIds, type ComponentKind, type Organization, type Project } from "@wso2-enterprise/choreo-core";
+import { CommandIds, type ComponentKind, type Organization, type Project } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, type QuickPickItem, QuickPickItemKind, Uri, commands, env, window } from "vscode";
 import { choreoEnvConfig } from "../config";
 import { ext } from "../extensionVariables";

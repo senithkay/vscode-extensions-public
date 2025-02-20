@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CommandIds, type ContextItemEnriched } from "@wso2-enterprise/choreo-core";
+import { CommandIds, type ContextItemEnriched } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, ProgressLocation, type QuickPickItem, QuickPickItemKind, commands, window } from "vscode";
 import { ext } from "../extensionVariables";
 import { authStore } from "../stores/auth-store";

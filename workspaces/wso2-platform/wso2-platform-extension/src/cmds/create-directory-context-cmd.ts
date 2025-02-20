@@ -19,7 +19,7 @@ import {
 	type UserInfo,
 	getComponentKindRepoSource,
 	parseGitURL,
-} from "@wso2-enterprise/choreo-core";
+} from "@wso2-enterprise/wso2-platform-core";
 import * as yaml from "js-yaml";
 import { type ExtensionContext, ProgressLocation, Uri, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";

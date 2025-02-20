@@ -20,7 +20,7 @@ import {
 	type Project,
 	getComponentKindRepoSource,
 	parseGitURL,
-} from "@wso2-enterprise/choreo-core";
+} from "@wso2-enterprise/wso2-platform-core";
 import * as yaml from "js-yaml";
 import { ProgressLocation, window, workspace } from "vscode";
 import { createStore } from "zustand";

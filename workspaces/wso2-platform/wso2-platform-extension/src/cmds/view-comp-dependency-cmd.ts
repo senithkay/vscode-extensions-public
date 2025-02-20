@@ -14,7 +14,7 @@ import {
 	type ConnectionListItem,
 	type ContextStoreComponentState,
 	getComponentKey,
-} from "@wso2-enterprise/choreo-core";
+} from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, ProgressLocation, ViewColumn, commands, window } from "vscode";
 import { ext } from "../extensionVariables";
 import { contextStore } from "../stores/context-store";

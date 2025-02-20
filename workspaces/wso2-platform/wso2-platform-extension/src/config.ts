@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import type { GHAppConfig } from "@wso2-enterprise/choreo-core";
+import type { GHAppConfig } from "@wso2-enterprise/wso2-platform-core";
 import { workspace } from "vscode";
 
 interface IChoreoEnvConfig {

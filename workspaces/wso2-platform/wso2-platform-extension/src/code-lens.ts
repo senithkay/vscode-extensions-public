@@ -8,7 +8,7 @@
  */
 
 import * as path from "path";
-import { CommandIds } from "@wso2-enterprise/choreo-core";
+import { CommandIds } from "@wso2-enterprise/wso2-platform-core";
 import * as vscode from "vscode";
 import * as yaml from "yaml";
 

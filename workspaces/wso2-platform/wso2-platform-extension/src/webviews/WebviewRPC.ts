@@ -80,7 +80,7 @@ import {
 	deepEqual,
 	getShortenedHash,
 	makeURLSafe,
-} from "@wso2-enterprise/choreo-core";
+} from "@wso2-enterprise/wso2-platform-core";
 import * as yaml from "js-yaml";
 import { ProgressLocation, QuickPickItemKind, Uri, type WebviewPanel, type WebviewView, commands, env, window } from "vscode";
 import * as vscode from "vscode";

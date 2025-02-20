@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import type { Project } from "@wso2-enterprise/choreo-core";
+import type { Project } from "@wso2-enterprise/wso2-platform-core";
 import { EventEmitter } from "vscode";
 
 interface IChoreoExtensionAPI {

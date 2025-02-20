@@ -9,7 +9,7 @@
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { GitProvider, type NewComponentWebviewProps, parseGitURL, toSentenceCase } from "@wso2-enterprise/choreo-core";
+import { GitProvider, type NewComponentWebviewProps, parseGitURL, toSentenceCase } from "@wso2-enterprise/wso2-platform-core";
 import React, { type FC, type ReactNode, useEffect } from "react";
 import type { SubmitHandler, UseFormReturn } from "react-hook-form";
 import type { z } from "zod";

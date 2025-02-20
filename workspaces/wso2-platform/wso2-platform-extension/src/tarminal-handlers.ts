@@ -1,4 +1,4 @@
-import type { ComponentKind, Environment } from "@wso2-enterprise/choreo-core";
+import type { ComponentKind, Environment } from "@wso2-enterprise/wso2-platform-core";
 import type vscode from "vscode";
 import { commands, window, workspace } from "vscode";
 import { getChoreoExecPath } from "./choreo-rpc/cli-install";

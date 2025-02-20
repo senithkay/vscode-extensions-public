@@ -10,7 +10,7 @@
 import { promises as fs, createReadStream } from "fs";
 import { basename, dirname, join, relative, sep } from "path";
 import type { Readable } from "stream";
-import { ChoreoComponentType, GitProvider, parseGitURL } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentType, GitProvider, parseGitURL } from "@wso2-enterprise/wso2-platform-core";
 import * as byline from "byline";
 import { type Disposable, type Event, EventEmitter, type ExtensionContext } from "vscode";
 import { getLogger } from "../logger/logger";

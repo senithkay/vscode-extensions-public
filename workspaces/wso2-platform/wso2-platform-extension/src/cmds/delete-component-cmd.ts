@@ -8,7 +8,7 @@
  */
 
 import { basename } from "path";
-import { CommandIds, type ComponentKind, type Organization, type Project, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
+import { CommandIds, type ComponentKind, type Organization, type Project, WorkspaceConfig } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, ProgressLocation, QuickPickItem, Uri, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
 import { contextStore } from "../stores/context-store";

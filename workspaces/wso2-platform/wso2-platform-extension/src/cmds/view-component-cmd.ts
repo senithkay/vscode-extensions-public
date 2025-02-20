@@ -9,7 +9,7 @@
 
 import { existsSync } from "fs";
 import * as path from "path";
-import { CommandIds, type ViewComponentDetailsReq, getComponentKindRepoSource } from "@wso2-enterprise/choreo-core";
+import { CommandIds, type ViewComponentDetailsReq, getComponentKindRepoSource } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, commands, window } from "vscode";
 import { contextStore } from "../stores/context-store";
 import { showComponentDetailsView } from "../webviews/ComponentDetailsView";

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { type ComponentKind, type Organization, type Project, type WebviewProps, getComponentKey } from "@wso2-enterprise/choreo-core";
+import { type ComponentKind, type Organization, type Project, type WebviewProps, getComponentKey } from "@wso2-enterprise/wso2-platform-core";
 import * as vscode from "vscode";
 import { ext } from "../extensionVariables";
 import { dataCacheStore } from "../stores/data-cache-store";

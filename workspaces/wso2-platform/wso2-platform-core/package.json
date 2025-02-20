@@ -1,7 +1,7 @@
 {
   "name": "@wso2-enterprise/wso2-platform-core",
   "version": "1.0.2",
-  "description": "Contains models related to Choreo APIs",
+  "description": "Contains models related to WSO2 Platform APIs",
   "main": "lib/index.js",
   "scripts": {
     "lint": "biome check .",

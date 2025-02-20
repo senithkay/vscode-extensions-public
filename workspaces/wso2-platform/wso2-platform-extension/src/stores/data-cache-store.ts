@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import type { CommitHistory, ComponentKind, DataCacheState, Environment, Organization, Project } from "@wso2-enterprise/choreo-core";
+import type { CommitHistory, ComponentKind, DataCacheState, Environment, Organization, Project } from "@wso2-enterprise/wso2-platform-core";
 import { createStore } from "zustand";
 import { persist } from "zustand/middleware";
 import { getGlobalStateStore } from "./store-utils";
