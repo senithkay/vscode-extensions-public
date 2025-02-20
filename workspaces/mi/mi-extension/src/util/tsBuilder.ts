@@ -183,9 +183,9 @@ function getInterfaceNameFromSource(source: ts.SourceFile): string {
   const visit = (node: ts.Node) => {
     if (ts.isInterfaceDeclaration(node)) {
       interfaceName = node.name.text;
-      return;
+      return true;
     }
-    ts.forEachChild(node, visit);
+    return ts.forEachChild(node, visit);
   };
   visit(source);
   return interfaceName;
