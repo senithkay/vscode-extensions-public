@@ -15,9 +15,9 @@ import { ModuleVariableNode } from "../Node/ModuleVariable";
 import { UnionTypeNode } from "../Node/UnionType";
 import { IntermediatePortModel } from '../Port';
 import { RecordFieldPortModel } from '../Port/model/RecordFieldPortModel';
-import { getMappingType, isConnectingArrays, isLinkModel } from '../utils/dm-utils';
+import { getMappingType, isLinkModel } from '../utils/dm-utils';
 import { DataMapperLinkModel } from '../Link';
-import { removePendingMappingTempLinkIfExists } from '../Link/link-utils';
+import { removePendingMappingTempLinkIfExists, userActionRequiredMapping } from '../Link/link-utils';
 import { DataMapperNodeModel } from '../Node/commons/DataMapperNode';
 
 /**
@@ -126,7 +126,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 										this.link?.setTargetPort(element);
 
 										const connectingMappingType = getMappingType(this.sourcePort, element);
-										if (isConnectingArrays(connectingMappingType)) {
+										if (userActionRequiredMapping(connectingMappingType)) {
 											const label = this.link.getLabels()
 												.find(label => label instanceof ExpressionLabelModel) as ExpressionLabelModel;
 											label.setPendingMappingType(connectingMappingType);

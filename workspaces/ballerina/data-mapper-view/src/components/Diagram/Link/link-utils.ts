@@ -7,29 +7,17 @@ import {
     getBalRecFieldName,
     getDefaultValue,
     getLinebreak,
-    getTypeName
+    getTypeName,
+    toFirstLetterLowerCase,
+    toFirstLetterUpperCase
 } from "../utils/dm-utils";
 import { getSupportedUnionTypes } from "../utils/union-type-utils";
 
-import { LinkModel, PortModel } from "@projectstorm/react-diagrams-core";
+import { LinkModel } from "@projectstorm/react-diagrams-core";
 
 export enum ClauseType {
     Select = "select",
     Collect = "collect"
-}
-
-export function isSourcePortArray(port: PortModel): boolean {
-    if (port instanceof RecordFieldPortModel) {
-        return port.field.typeName === PrimitiveBalType.Array;
-    }
-    return false;
-}
-
-export function isTargetPortArray(port: PortModel): boolean {
-    if (port instanceof RecordFieldPortModel) {
-        return port.field.typeName === PrimitiveBalType.Array;
-    }
-    return false;
 }
 
 export function generateQueryExpression(
@@ -67,6 +55,28 @@ export function generateQueryExpression(
     return `from var ${itemName} in ${srcExpr.trim()}${isOptionalSource ? ' ?: []' : ''} ${clauseType} ${selectExpr}`
 }
 
+export function generateCustomFunction(
+    sourcePort: RecordFieldPortModel,
+    targetPort: RecordFieldPortModel,
+    existingFunctions: string[]
+): [string, string] {
+    const sourceType = getTypeName(sourcePort.field);
+    const targetType = getTypeName(targetPort.field);
+    let functionName = `map${toFirstLetterUpperCase(sourceType)}To${toFirstLetterUpperCase(targetType)}`;
+    let functionNameIndex = 1;
+
+    while (existingFunctions.includes(functionName)) {
+        functionName = `map${toFirstLetterUpperCase(sourceType)}To${toFirstLetterUpperCase(targetType)}${functionNameIndex}`;
+        functionNameIndex++;
+    }
+
+    const functionSignature = `function ${functionName}(${sourceType} ${toFirstLetterLowerCase(sourceType)}) returns ${targetType} {
+
+    }`;
+
+    return [functionName, functionSignature];
+}
+
 export function removePendingMappingTempLinkIfExists(link: LinkModel) {
 	const sourcePort = link.getSourcePort();
 	const targetPort = link.getTargetPort();
@@ -83,4 +93,11 @@ export function removePendingMappingTempLinkIfExists(link: LinkModel) {
 		targetPort.setPendingMappingType(MappingType.Default);
 		link.remove();
 	}
+}
+
+export function userActionRequiredMapping(mappingType: MappingType): boolean {
+    return mappingType === MappingType.ArrayToArray
+        || mappingType === MappingType.ArrayToSingleton
+        || mappingType === MappingType.RecordToRecord
+        || mappingType === MappingType.UnionToAny;
 }

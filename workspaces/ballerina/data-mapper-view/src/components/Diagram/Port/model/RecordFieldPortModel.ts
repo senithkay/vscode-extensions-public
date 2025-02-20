@@ -29,6 +29,7 @@ import { IntermediatePortModel } from "../IntermediatePort";
 import { DataMapperNodeModel } from "../../Node/commons/DataMapperNode";
 import { QueryExprMappingType } from "../../Node";
 import { FromClauseNode } from "../../Node/FromClause";
+import { userActionRequiredMapping } from "../../Link/link-utils";
 
 export interface RecordFieldNodeModelGenerics {
 	PORT: RecordFieldPortModel;
@@ -45,6 +46,8 @@ export enum ValueType {
 export enum MappingType {
 	ArrayToArray = "array-array",
 	ArrayToSingleton = "array-singleton",
+	RecordToRecord = "record-record",
+	UnionToAny = "union-any",
 	Default = "" // All other mapping types
 }
 
@@ -86,8 +89,8 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 					?.some(link => (link as DataMapperLinkModel)?.isActualLink);
 
 				const mappingType = getMappingType(sourcePort, targetPort);
-				if (mappingType === MappingType.ArrayToArray || mappingType === MappingType.ArrayToSingleton) {
-					// Source update behavior is determined by the user when connecting arrays.
+				if (userActionRequiredMapping(mappingType)) {
+					// Source update behavior is determined by the user.
 					return;
 				}
 
@@ -114,7 +117,12 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 				} else if (targetPortHasLinks) {
 					modifySpecificFieldSource(lm);
 				} else {
-					await createSourceForMapping(lm);
+					if (!lm.getSourcePort() || !lm.getTargetPort()) {
+						return;
+					}
+					await createSourceForMapping(
+						lm.getSourcePort() as RecordFieldPortModel, lm.getTargetPort() as RecordFieldPortModel
+					);
 				}
 			})
 		});

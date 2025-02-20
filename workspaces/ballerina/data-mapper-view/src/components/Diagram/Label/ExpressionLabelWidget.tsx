@@ -17,20 +17,15 @@ import classNames from "classnames";
 import { CodeActionWidget } from '../CodeAction/CodeAction';
 import { DiagnosticWidget } from '../Diagnostic/Diagnostic';
 import { DataMapperLinkModel } from "../Link";
-import {
-    isSourcePortArray,
-    generateQueryExpression,
-    isTargetPortArray,
-    ClauseType
-} from '../Link/link-utils';
-import { RecordFieldPortModel } from '../Port';
+import { generateQueryExpression, ClauseType } from '../Link/link-utils';
+import { MappingType, RecordFieldPortModel } from '../Port';
 import {
     getBalRecFieldName,
     getFilteredUnionOutputTypes,
     getLocalVariableNames,
-    getArrayMappingType,
     getMappedFnNames,
-    getCollectClauseActions
+    getCollectClauseActions,
+    getMappingType
 } from '../utils/dm-utils';
 import { handleCodeActions } from "../utils/ls-utils";
 
@@ -117,11 +112,6 @@ export enum LinkState {
     LinkNotSelected
 }
 
-export enum ArrayMappingType {
-    ArrayToArray,
-    ArrayToSingleton
-}
-
 export const AggregationFunctions = ["avg", "count", "max", "min", "sum"];
 
 // now we can render all what we want in the label
@@ -129,7 +119,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     const { link, context, value, field, editorLabel, deleteLink } = props.model;
 
     const [linkStatus, setLinkStatus] = React.useState<LinkState>(LinkState.LinkNotSelected);
-    const [arrayMappingType, setArrayMappingType] = React.useState<ArrayMappingType>(undefined);
+    const [mappingType, setMappingType] = React.useState<MappingType>(undefined);
     const [codeActions, setCodeActions] = React.useState([]);
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
@@ -227,10 +217,8 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
                     setLinkStatus(event.isSelected ? LinkState.LinkSelected : LinkState.LinkNotSelected);
                 },
             });
-            const isSourceArray = isSourcePortArray(source);
-            const isTargetArray = isTargetPortArray(target);
-            const mappingType = getArrayMappingType(isSourceArray, isTargetArray);
-            setArrayMappingType(mappingType);
+            const mappingType = getMappingType(source, target);
+            setMappingType(mappingType);
         } else {
             setLinkStatus(LinkState.TemporaryLink);
         }
@@ -316,12 +304,12 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     };
 
     const additionalActions = [];
-    if (arrayMappingType === ArrayMappingType.ArrayToArray) {
+    if (mappingType === MappingType.ArrayToArray) {
         additionalActions.push({
             title: "Convert to Query",
             onClick: onClickConvertToQuery
         });
-    } else if (arrayMappingType === ArrayMappingType.ArrayToSingleton) {
+    } else if (mappingType === MappingType.ArrayToSingleton) {
         const supportsAggregation = canPerformAggregation(target);
         if (supportsAggregation) {
             additionalActions.push({

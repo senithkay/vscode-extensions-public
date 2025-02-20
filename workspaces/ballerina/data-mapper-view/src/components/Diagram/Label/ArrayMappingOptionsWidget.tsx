@@ -53,8 +53,8 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
     const { link, pendingMappingType, context } = props.model;
     const focusedViewStore = useDMFocusedViewStateStore();
 
-    const sourcePort = link.getSourcePort();
-    const targetPort = link?.getTargetPort();
+    const sourcePort = link.getSourcePort() as RecordFieldPortModel;
+    const targetPort = link?.getTargetPort() as RecordFieldPortModel;
     const valueType = getValueType(link);
     const targetPortHasLinks = Object.values(targetPort.links)
         ?.some(link => (link as DataMapperLinkModel)?.isActualLink);
@@ -66,7 +66,7 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
         if (isValueModifiable) {
             await updateExistingValue(sourcePort, targetPort);
         } else {
-            await createSourceForMapping(link);
+            await createSourceForMapping(sourcePort, targetPort);
         }
     }
 
@@ -92,7 +92,7 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
                 if (isValueModifiable) {
                     await updateExistingValue(sourcePort, targetPort, updatedMapFnSrc);
                 } else {
-                    await createSourceForMapping(link, updatedMapFnSrc);
+                    await createSourceForMapping(sourcePort, targetPort, updatedMapFnSrc);
                 }
             }
         }
@@ -103,7 +103,7 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
         if (isValueModifiable) {
             await updateExistingValue(sourcePort, targetPort, newExpr);
         } else {
-            await createSourceForMapping(link, newExpr);
+            await createSourceForMapping(sourcePort, targetPort, newExpr);
         }
     }
 
@@ -135,7 +135,7 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
     const a2sMenuItems: Item[] = [
         {
             id: "a2s-direct",
-            label: getItemElement("a2s-direct", "Map by accessing element"),
+            label: getItemElement("a2s-direct", "Extract Single Element from Array"),
             onClick: onClickMapArraysAccessSingleton
         },
         {

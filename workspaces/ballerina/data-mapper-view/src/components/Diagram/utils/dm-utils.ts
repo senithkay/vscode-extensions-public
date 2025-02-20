@@ -50,7 +50,7 @@ import { DMNode, ViewOption } from "../../DataMapper/DataMapper";
 import { ErrorNodeKind } from "../../DataMapper/Error/RenderingError";
 import { getLetExpression, getLetExpressions } from "../../DataMapper/LocalVarConfigPanel/local-var-mgt-utils";
 import { isArraysSupported } from "../../DataMapper/utils";
-import { ExpressionLabelModel, ArrayMappingType, AggregationFunctions } from "../Label";
+import { ExpressionLabelModel, AggregationFunctions } from "../Label";
 import { DataMapperLinkModel } from "../Link";
 import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../Mappings/FieldAccessToSpecificFied";
@@ -97,12 +97,13 @@ import { getModification } from "./modifications";
 import { TypeDescriptorStore } from "./type-descriptor-store";
 import { QueryExprFindingVisitorByPosition } from "../visitors/QueryExprFindingVisitorByPosition";
 import { NodeFindingVisitorByPosition } from "../visitors/NodeFindingVisitorByPosition";
-import { result } from "lodash";
 import { CustomAction } from "../CodeAction/CodeAction";
 import { FunctionCallFindingVisitor } from "../visitors/FunctionCallFindingVisitor";
 import { BaseModel } from "@projectstorm/react-canvas-core";
 import { getDMTypeDim } from "./type-utils";
 import { QueryParentFindingVisitor } from "../visitors/QueryParentFindingVisitor";
+import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
+import { generateCustomFunction } from "../Link/link-utils";
 
 export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: { name: string, isOptional: boolean }[] = [];
@@ -129,18 +130,16 @@ export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	return fieldsToReturn
 }
 
-export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue?: string) {
+export async function createSourceForMapping(
+	sourcePort: RecordFieldPortModel,
+	targetPort: RecordFieldPortModel,
+	rhsValue?: string
+) {
 	let source = "";
 	let lhs = "";
 	let rhs = "";
 	const modifications: STModification[] = [];
 
-	if (!link.getSourcePort() || !link.getTargetPort()) {
-		return;
-	}
-
-	const sourcePort = link.getSourcePort() as RecordFieldPortModel;
-	const targetPort = link.getTargetPort() as RecordFieldPortModel;
 	const targetNode = targetPort.getNode() as DataMapperNodeModel;
 	const fieldIndexes = targetPort && getFieldIndexes(targetPort);
 	const { applyModifications } = targetNode.context;
@@ -519,6 +518,39 @@ export async function updateExistingValue(sourcePort: PortModel, targetPort: Por
 	let sourceField = newValue || sourcePort && sourcePort instanceof RecordFieldPortModel && sourcePort.fieldFQN;
 	modifications.push(getModificationForSpecificFieldValue(targetPort, sourceField));
 	replaceSpecificFieldValue(targetPort, modifications);
+}
+
+export async function mapUsingCustomFunction(
+	sourcePort: RecordFieldPortModel,
+	targetPort: RecordFieldPortModel,
+	context: IDataMapperContext
+) {
+	const existingFunctions = context.moduleComponents.functions.map((fn) => fn.name);
+	const [functionName, functionSource] = generateCustomFunction(sourcePort, targetPort, existingFunctions);
+	const functionCallExpr = `${functionName}(${sourcePort.fieldFQN})`;
+
+	const modifications: STModification[] = [];
+
+	const customFnPosition: NodePosition = {
+		...context.functionST.position,
+		startLine: context.functionST.position.endLine,
+		startColumn: context.functionST.position.endColumn
+	}
+
+	modifications.push({
+		type: "INSERT",
+		config: {
+			"STATEMENT": functionSource,
+		},
+		...customFnPosition
+	});
+
+	await context.applyModifications(modifications);
+	await createSourceForMapping(sourcePort, targetPort, functionCallExpr);
+	context.goToSource({
+		startLine: customFnPosition.startLine,
+		startColumn: customFnPosition.startColumn,
+	});
 }
 
 export function replaceSpecificFieldValue(targetPort: PortModel, modifications: STModification[]) {
@@ -946,10 +978,6 @@ export function getLinebreak(){
 		return "\r\n";
 	}
 	return "\n";
-}
-
-export function isConnectingArrays(mappingType: MappingType): boolean {
-    return mappingType === MappingType.ArrayToArray || mappingType === MappingType.ArrayToSingleton;
 }
 
 function getNextField(nextTypeMemberNodes: ArrayElement[],
@@ -1394,17 +1422,6 @@ export function getRelativePathOfField(bindingPattern: STNode, targetIdentifier:
 	return path;
 }
 
-export function getArrayMappingType(isSourceArray: boolean, isTargetArray: boolean): ArrayMappingType {
-	let mappingType: ArrayMappingType;
-	if (isSourceArray && isTargetArray) {
-		mappingType = ArrayMappingType.ArrayToArray;
-	} else if (isSourceArray && !isTargetArray) {
-		mappingType = ArrayMappingType.ArrayToSingleton;
-	}
-
-	return mappingType;
-}
-
 export function getQueryExprMappingType(hasIndexedQuery: boolean, hasCollectClause: boolean): QueryExprMappingType {
 	if (hasIndexedQuery) {
 		return QueryExprMappingType.A2SWithSelect;
@@ -1472,6 +1489,14 @@ export function getValueType(lm: DataMapperLinkModel): ValueType {
 	}
 
 	return ValueType.Empty;
+}
+
+export function toFirstLetterLowerCase(identifierName: string){
+    return identifierName.charAt(0).toLowerCase() + identifierName.slice(1);
+}
+
+export function toFirstLetterUpperCase(identifierName: string){
+    return identifierName.charAt(0).toUpperCase() + identifierName.slice(1);
 }
 
 function getInnerExpr(node: FieldAccess | OptionalFieldAccess): STNode {
@@ -1773,14 +1798,19 @@ export function getMappingType(sourcePort: PortModel, targetPort: PortModel): Ma
         && targetPort instanceof RecordFieldPortModel
         && targetPort.field && sourcePort.field) {
             
-        const sourceDim = getDMTypeDim(sourcePort.field);
-        const targetDim = getDMTypeDim(targetPort.field);
+		const sourceDim = getDMTypeDim(sourcePort.field);
+		const targetDim = getDMTypeDim(targetPort.field);
 
-        if (sourceDim > 0) {
-            const dimDelta = sourceDim - targetDim;
-            if (dimDelta == 0) return MappingType.ArrayToArray;
-            if (dimDelta > 0) return MappingType.ArrayToSingleton;
-        }
+		if (sourceDim > 0) {
+			const dimDelta = sourceDim - targetDim;
+			if (dimDelta == 0) return MappingType.ArrayToArray;
+			if (dimDelta > 0) return MappingType.ArrayToSingleton;
+		} else if (sourcePort.field.typeName === PrimitiveBalType.Union) {
+			return MappingType.UnionToAny;
+		} else if (sourcePort.field.typeName === PrimitiveBalType.Record
+			&& targetPort.field.typeName === PrimitiveBalType.Record) {
+			return MappingType.RecordToRecord;
+		}
     }
 
     return MappingType.Default;

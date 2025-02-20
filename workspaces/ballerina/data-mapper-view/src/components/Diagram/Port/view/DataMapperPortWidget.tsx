@@ -93,16 +93,18 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 		color: portColor
 	};
 
-	if (isDisabled) {
+	const disabledPortWithLinks = isDisabled && hasLinks;
+
+	if (isDisabled && !hasLinks) {
 		return <RadioButtonUnchecked disabled={isDisabled} data-testid={dataTestId}/>;
-	} else if (disableNewLinking) {
+	} else if (disableNewLinking || disabledPortWithLinks) {
 		return (
 			<PortWidget
 				port={port}
 				engine={engine}
 			>
 				<DisabledNewLinkingPortContainer {...containerProps}>
-					{hasLinks ? <RadioButtonChecked /> : <RadioButtonUnchecked /> }
+					{hasLinks ? <RadioButtonChecked disabled={true} /> : <RadioButtonUnchecked disabled = {true} /> }
 				</DisabledNewLinkingPortContainer>
 			</PortWidget>
 		);
