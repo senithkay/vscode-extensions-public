@@ -81,6 +81,7 @@ export type Property = {
     advanced?: boolean;
     placeholder?: string;
     valueTypeConstraint?: string | string[];
+    lineRange?: ELineRange;
 };
 
 export type Diagnostic = {
