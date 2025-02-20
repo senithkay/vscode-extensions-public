@@ -21,6 +21,7 @@ import { convertToVisibleTypes } from "../../../utils/bi";
 import { TitleBar } from "../../../components/TitleBar";
 import { FormHeader } from "../../../components/FormHeader";
 import { Banner } from "../../../components/Banner";
+import FormGeneratorNew from "../Forms/FormGeneratorNew";
 
 const FormContainer = styled.div`
     display: flex;
@@ -68,6 +69,8 @@ export function MainForm() {
 
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
+
+    const [filePath, setFilePath] = useState<string>('');
 
     // <------------- Expression Editor Util functions list start --------------->
     const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {
@@ -147,6 +150,10 @@ export function MainForm() {
                     setAutomation(res.directoryMap[DIRECTORY_MAP.AUTOMATION][0]);
                 }
             });
+        rpcClient.getVisualizerLocation().then(context => {
+            let functionFilePath = Utils.joinPath(URI.file(context.projectUri), "main.bal").fsPath;
+            setFilePath(functionFilePath)
+        });
     }, []);
 
     const paramFiels: FormField[] = [
@@ -173,7 +180,7 @@ export function MainForm() {
         {
             key: `defaultable`,
             label: "Default Value",
-            type: "string",
+            type: "EXPRESSION",
             optional: true,
             advanced: true,
             editable: true,
@@ -252,18 +259,15 @@ export function MainForm() {
                                 subtitle="Implement an automation for either scheduled or manual jobs."
                             />
                             <FormContainer>
-                                <Form
-                                    formFields={currentFields}
-                                    oneTimeForm={true}
-                                    expressionEditor={{
-                                        types: filteredTypes,
-                                        retrieveVisibleTypes: handleGetVisibleTypes,
-                                        onCompletionItemSelect: handleCompletionSelect,
-                                        onCancel: handleExpressionEditorCancel,
-                                        onBlur: handleExpressionEditorBlur,
-                                    }}
-                                    onSubmit={!isLoading && !automation && handleFunctionCreate}
-                                />
+                                {filePath && currentFields.length > 0 &&
+                                    <FormGeneratorNew
+                                        fileName={filePath}
+                                        targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
+                                        fields={currentFields}
+                                        onSubmit={handleFunctionCreate}
+                                        submitText={"Create"}
+                                    />
+                                }
                             </FormContainer>
                         </>
                     )}
