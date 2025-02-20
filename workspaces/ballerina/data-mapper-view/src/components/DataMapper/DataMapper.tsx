@@ -268,7 +268,7 @@ export function DataMapperC(props: DataMapperViewProps) {
     const { rpcClient } = useRpcContext();
 
     const goToSource = (position: NodePosition) => {
-        rpcClient.getCommonRpcClient().goToSource({ position });
+        rpcClient.getCommonRpcClient().goToSource({ position, filePath });
     };
 
     const isOverlay = (!isFetchingDMMetaData && !isErrorDMMetaData) && (showDMOverlay || showLocalVarConfigPanel || autoMapInProgress);

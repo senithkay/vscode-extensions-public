@@ -558,10 +558,7 @@ export async function mapUsingCustomFunction(
 		await createSourceForMapping(sourcePort, targetPort, functionCallExpr);
 	}
 
-	context.goToSource({
-		startLine: customFnPosition.startLine,
-		startColumn: customFnPosition.startColumn,
-	});
+	context.goToSource(customFnPosition);
 }
 
 export function replaceSpecificFieldValue(targetPort: PortModel, modifications: STModification[]) {
