@@ -175,7 +175,8 @@ import {
     ServiceClassSourceRequest,
     AddFieldRequest,
     FunctionModelRequest,
-    FunctionModelResponse
+    FunctionModelResponse,
+    TypeDataWithReferences
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -204,6 +205,8 @@ enum EXTENDED_APIS {
     PACKAGE_CONFIG_SCHEMA = 'ballerinaPackage/configSchema',
     JSON_TO_RECORD_CONVERT = 'jsonToRecord/convert',
     XML_TO_RECORD_CONVERT = 'xmlToRecord/convert',
+    JSON_TO_RECORD_TYPE_CONVERT = 'jsonToRecordTypes/convert',
+    XML_TO_RECORD_TYPE_CONVERT = 'xmlToRecordTypes/convert',
     PARTIAL_PARSE_SINGLE_STATEMENT = 'partialParser/getSTForSingleStatement',
     PARTIAL_PARSE_EXPRESSION = 'partialParser/getSTForExpression',
     PARTIAL_PARSE_MODULE_MEMBER = 'partialParser/getSTForModuleMembers',
@@ -639,16 +642,16 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest(EXTENDED_APIS.BI_DISCOVER_TESTS_IN_FILE, params);
     }
 
-    async getTestFunction(params: GetTestFunctionRequest) : Promise<GetTestFunctionResponse | NOT_SUPPORTED_TYPE> {
+    async getTestFunction(params: GetTestFunctionRequest): Promise<GetTestFunctionResponse | NOT_SUPPORTED_TYPE> {
         return this.sendRequest(EXTENDED_APIS.BI_GET_TEST_FUNCTION, params);
     }
 
-    async addTestFunction(params: AddOrUpdateTestFunctionRequest) : 
+    async addTestFunction(params: AddOrUpdateTestFunctionRequest):
         Promise<TestSourceEditResponse | NOT_SUPPORTED_TYPE> {
         return this.sendRequest(EXTENDED_APIS.BI_ADD_TEST_FUNCTION, params);
     }
 
-    async updateTestFunction(params: AddOrUpdateTestFunctionRequest) :
+    async updateTestFunction(params: AddOrUpdateTestFunctionRequest):
         Promise<TestSourceEditResponse | NOT_SUPPORTED_TYPE> {
         return this.sendRequest(EXTENDED_APIS.BI_UPDATE_TEST_FUNCTION, params);
     }
@@ -675,6 +678,14 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async convertXMLToRecord(params: XMLToRecordParams): Promise<XMLToRecord | NOT_SUPPORTED_TYPE> {
         return this.sendRequest(EXTENDED_APIS.XML_TO_RECORD_CONVERT, params);
+    }
+
+    async convertJsonToRecordType(params: JsonToRecordParams): Promise<TypeDataWithReferences> {
+        return this.sendRequest(EXTENDED_APIS.JSON_TO_RECORD_TYPE_CONVERT, params);
+    }
+
+    async convertXmlToRecordType(params: XMLToRecordParams): Promise<TypeDataWithReferences> {
+        return this.sendRequest(EXTENDED_APIS.XML_TO_RECORD_TYPE_CONVERT, params);
     }
 
     async getBalShellResult(params: NoteBookCellOutputParams): Promise<NoteBookCellOutput | NOT_SUPPORTED_TYPE> {
@@ -874,7 +885,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<SourceEditResponse>(EXTENDED_APIS.BI_SERVICE_UPDATE_SERVICE_CLASS, params);
     }
 
-    async getServiceClassModel(params: ModelFromCodeRequest): Promise<ServiceClassModelResponse>{
+    async getServiceClassModel(params: ModelFromCodeRequest): Promise<ServiceClassModelResponse> {
         return this.sendRequest<ServiceClassModelResponse>(EXTENDED_APIS.BI_SERVICE_SERVICE_CLASS_MODEL, params);
     }
 
@@ -905,7 +916,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     async getDesignModel(params: BIDesignModelRequest): Promise<BIDesignModelResponse> {
         return this.sendRequest<BIDesignModelResponse>(EXTENDED_APIS.BI_DESIGN_MODEL, params);
     }
-    
+
     async getTypes(params: GetTypesRequest): Promise<GetTypesResponse> {
         return this.sendRequest<GetTypesResponse>(EXTENDED_APIS.BI_GET_TYPES, params);
     }
