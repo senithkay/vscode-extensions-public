@@ -70,10 +70,14 @@ export function generateCustomFunction(
     const baseFunctionName = createBaseFunctionName(nameComponents);
     const functionName = getUniqueFunctionName(baseFunctionName, existingFunctions);
     
-    const sourceType = getTypeName(sourcePort.field);
-    const targetType = getTypeName(targetPort.field);
-    const paramName = toFirstLetterLowerCase(nameComponents.sourceName);
-    
+    let sourceType = getTypeName(sourcePort.field);
+    let targetType = getTypeName(targetPort.field);
+    let paramName = toFirstLetterLowerCase(nameComponents.sourceName);
+
+    sourceType = formatRecordType(sourceType);
+    targetType = formatRecordType(targetType);
+    paramName = paramName === PrimitiveBalType.Record ? 'rec' : paramName;
+
     const functionSignature = `function ${functionName}(${sourceType} ${paramName}) returns ${targetType} {
 
     }`;
@@ -112,6 +116,10 @@ function getUniqueFunctionName(baseName: string, existingFunctions: string[]): s
     }
     
     return functionName;
+}
+
+function formatRecordType(type: string): string {
+    return type === PrimitiveBalType.Record ? `${type}{}` : type;
 }
 
 export function removePendingMappingTempLinkIfExists(link: LinkModel) {
