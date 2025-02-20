@@ -65,8 +65,9 @@ module.exports = {
 
       // Check URL path parameters
       const url = new URL(request.url);
-      const pathParamRegex = /\\{([^/}]+)\\}/g;
-      const pathMatches = [...url.pathname.matchAll(pathParamRegex)];
+      const decodedPath = decodeURIComponent(url.pathname);
+      const pathParamRegex = /[{]([^{}]+)[}]/g;
+      const pathMatches = [...decodedPath.matchAll(pathParamRegex)];
       
       pathMatches.forEach(match => {
         missingParams.path.push(match[1]);
