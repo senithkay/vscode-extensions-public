@@ -41,6 +41,48 @@ Parameters:
 {{/each}}
 {{/each}}`;
 
+const HTTPYAC_CONFIG_TEMPLATE = `
+const fs = require('fs');
+const path = require('path');
+
+// Define the log file path relative to the config file location
+const LOG_FILE_PATH = path.join(__dirname, 'httpyac_errors.log');
+
+module.exports = {
+  configureHooks: function (api) {
+    api.hooks.onRequest.addHook('validatePlaceholders', function (request) {
+      const missingParams = [];
+
+      // Check URL path and query parameters
+      const url = new URL(request.url);
+      if (url.pathname.includes('{?}')) {
+        missingParams.push('Path parameter');
+      }
+      
+      for (const [key, value] of url.searchParams.entries()) {
+        if (value === '{?}') {
+          missingParams.push(\`Query parameter: \${key}\`);
+        }
+      }
+
+      // Check headers
+      for (const [key, value] of Object.entries(request.headers || {})) {
+        if (value === '{?}') {
+          missingParams.push(\`Header: \${key}\`);
+        }
+      }
+
+      if (missingParams.length > 0) {
+        const errorMessage = \`Request to "\${request.url}" has the following missing required parameters:\\n\\n- \${missingParams.join('\\n- ')}\\n\\nPlease provide values for these parameters before sending the request.\`;
+        api.log.error(errorMessage);
+        
+        // Overwrite log file with latest error message
+        fs.writeFileSync(LOG_FILE_PATH, errorMessage, 'utf8');
+      }
+    });
+  }
+};`;
+
 export function activateTryItCommand(ballerinaExtInstance: BallerinaExtension) {
     langClient = ballerinaExtInstance.langClient as ExtendedLangClient;
     // Register try it command handler
@@ -115,6 +157,7 @@ async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: 
     const fileName = path.parse(selectedService.filePath).name;
     const tryitFileName = `tryit.${fileName}.http`;
     const tryitFilePath = path.join(targetDir, tryitFileName);
+    const configFilePath = path.join(targetDir, 'httpyac.config.js');
 
     const content = await generateTryItFileContent(workspaceRoot, selectedService);
     if (!content) {
@@ -123,6 +166,8 @@ async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: 
     }
 
     fs.writeFileSync(tryitFilePath, content);
+    fs.writeFileSync(configFilePath, HTTPYAC_CONFIG_TEMPLATE);
+
 
     // Open the file as a notebook document
     const tryitFileUri = vscode.Uri.file(tryitFilePath);
@@ -517,18 +562,18 @@ function setupErrorLogWatcher(targetDir: string) {
         try {
             const content = fs.readFileSync(errorLogPath, 'utf-8');
             if (content.trim()) {
-               // Show a notification with "Show Details" button
-               window.showWarningMessage(
-                '',
-                'Show Details'
-            ).then(selection => {
-                if (selection === 'Show Details') {
-                    // Show the full error in an output channel
-                    const outputChannel = window.createOutputChannel('Try It Client Errors');
-                    outputChannel.appendLine(content.trim());
-                    outputChannel.show();
-                }
-            });
+                // Show a notification with "Show Details" button
+                window.showWarningMessage(
+                    'The request contains missing required parameters. Please provide values for the placeholders before sending the request.',
+                    'Show Details'
+                ).then(selection => {
+                    if (selection === 'Show Details') {
+                        // Show the full error in an output channel
+                        const outputChannel = window.createOutputChannel('Kola Tryit - Log');
+                        outputChannel.appendLine(content.trim());
+                        outputChannel.show();
+                    }
+                });
             }
         } catch (error) {
             console.error('Error reading error log file:', error);
