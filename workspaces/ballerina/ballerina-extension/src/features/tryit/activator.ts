@@ -48,35 +48,58 @@ const path = require('path');
 // Define the log file path relative to the config file location
 const LOG_FILE_PATH = path.join(__dirname, 'httpyac_errors.log');
 
+// Helper function to format error groups
+const formatErrorGroup = (title, params) => {
+  if (params.length === 0) return '';
+  return \`\${title}:\\n\${params.map(p => \`  - \${p}\`).join('\\n')}\\n\`;
+};
+
 module.exports = {
   configureHooks: function (api) {
     api.hooks.onRequest.addHook('validatePlaceholders', function (request) {
-      const missingParams = [];
+      const missingParams = {
+        path: [],
+        query: [],
+        header: []
+      };
 
-      // Check URL path and query parameters
+      // Check URL path parameters
       const url = new URL(request.url);
-      if (url.pathname.includes('{?}')) {
-        missingParams.push('Path parameter');
-      }
+      const pathParamRegex = /\\{([^/}]+)\\}/g;
+      const pathMatches = [...url.pathname.matchAll(pathParamRegex)];
       
+      pathMatches.forEach(match => {
+        missingParams.path.push(match[1]);
+      });
+
+      // Check query parameters
       for (const [key, value] of url.searchParams.entries()) {
         if (value === '{?}') {
-          missingParams.push(\`Query parameter: \${key}\`);
+          missingParams.query.push(key);
         }
       }
 
       // Check headers
       for (const [key, value] of Object.entries(request.headers || {})) {
         if (value === '{?}') {
-          missingParams.push(\`Header: \${key}\`);
+          missingParams.header.push(key);
         }
       }
 
-      if (missingParams.length > 0) {
-        const errorMessage = \`Request to "\${request.url}" has the following missing required parameters:\\n\\n- \${missingParams.join('\\n- ')}\\n\\nPlease provide values for these parameters before sending the request.\`;
-        api.log.error(errorMessage);
-        
-        // Overwrite log file with latest error message
+      // Check if any parameters are missing
+      const hasMissingParams = Object.values(missingParams)
+        .some(group => group.length > 0);
+
+      if (hasMissingParams) {
+        const errorMessage = [
+          \`Request to "\${request.url}" has missing required parameters:\\n\`,
+          formatErrorGroup('Path Parameters', missingParams.path),
+          formatErrorGroup('Query Parameters', missingParams.query),
+          formatErrorGroup('Header Parameters', missingParams.header),
+          '\\nPlease provide values for these parameters before sending the request.'
+        ].filter(Boolean).join('\\n');
+
+        // Write to log file
         fs.writeFileSync(LOG_FILE_PATH, errorMessage, 'utf8');
       }
     });
