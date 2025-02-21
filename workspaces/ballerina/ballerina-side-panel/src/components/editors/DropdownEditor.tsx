@@ -14,13 +14,15 @@ import { Dropdown } from "@wso2-enterprise/ui-toolkit";
 import { FormField } from "../Form/types";
 import { capitalize, getValueForDropdown } from "./utils";
 import { useFormContext } from "../../context";
+import { SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 
 interface DropdownEditorProps {
     field: FormField;
+    openSubPanel?: (subPanel: SubPanel) => void;
 }
 
 export function DropdownEditor(props: DropdownEditorProps) {
-    const { field } = props;
+    const { field, openSubPanel } = props;
     const { form } = useFormContext();
     const { register } = form;
 
@@ -39,6 +41,7 @@ export function DropdownEditor(props: DropdownEditorProps) {
             disabled={!field.editable}
             sx={{ width: "100%" }}
             containerSx={{ width: "100%" }}
+            addNewBtnClick={field.addNewButton ? () => openSubPanel({ view: SubPanelView.ADD_NEW_FORM }) : undefined}
         />
     );
 }

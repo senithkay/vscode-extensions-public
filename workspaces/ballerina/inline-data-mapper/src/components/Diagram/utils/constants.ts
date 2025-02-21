@@ -8,7 +8,6 @@
  */
 export const OBJECT_OUTPUT_TARGET_PORT_PREFIX = "objectOutput";
 export const ARRAY_OUTPUT_TARGET_PORT_PREFIX = "arrayOutput";
-export const OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX = "objectOutputFieldAdder";
 
 export const defaultModelOptions = { zoom: 90 };
 export const VISUALIZER_PADDING = 0;

@@ -112,7 +112,6 @@ export function OutputTypePanel(props: OutputConfigWidgetProps) {
                         <ClickToEditContainer isInvalid={outputType.isUnsupported} onClick={!outputType.isUnsupported && handleShowOutputType}>
                             {label}
                         </ClickToEditContainer>
-                        <TypeName>{outputType?.isArray ? `${outputType.type}[]` : outputType.type}</TypeName>
                         <Box>
                             {!outputType.isUnsupported && (
                                 <EditButton

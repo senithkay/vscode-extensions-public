@@ -9,15 +9,15 @@
 
 import React, { useState } from "react";
 import styled from "@emotion/styled";
-import { Icon, Popover } from "@wso2-enterprise/ui-toolkit";
+import { Icon, Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { DiagnosticMessage, FlowNode, NodeProperties, Property } from "@wso2-enterprise/ballerina-core";
-import { Colors, NODE_WIDTH } from "../../resources/constants";
+import { NODE_WIDTH } from "../../resources/constants";
 
 const IconBtn = styled.div`
     width: 20px;
     height: 20px;
     font-size: 20px;
-    color: ${Colors.ERROR};
+    color: ${ThemeColors.ERROR};
 `;
 
 const PopupContainer = styled.div`
@@ -27,8 +27,8 @@ const PopupContainer = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
 
-    background-color: ${Colors.SURFACE_DIM};
-    color: ${Colors.ON_SURFACE};
+    background-color: ${ThemeColors.SURFACE_DIM};
+    color: ${ThemeColors.ON_SURFACE};
     padding: 8px;
     ul {
         margin: 0;
@@ -85,7 +85,7 @@ export function DiagnosticsPopUp(props: DiagnosticsPopUpProps) {
                 anchorEl={diagnosticsAnchorEl}
                 handleClose={handleOnDiagnosticsClose}
                 sx={{
-                    backgroundColor: Colors.SURFACE_DIM,
+                    backgroundColor: ThemeColors.SURFACE_DIM,
                 }}
             >
                 <PopupContainer>

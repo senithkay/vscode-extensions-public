@@ -14,22 +14,20 @@
 //      phase three - update visibleEndpoint object with position and add visibleEndpoints to every blockStatement
 // We need to remove these extra code blocks once VS Code plugin sync with latests changes.
 
-import React, { ReactNode, useContext, useState } from "react";
+import { ReactNode, useState } from "react";
 
 import { ModuleIcon } from "@wso2-enterprise/ballerina-low-code-diagram";
 import { STKindChecker, STNode, VisibleEndpoint } from "@wso2-enterprise/syntax-tree";
 
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { BallerinaConnectorInfo, FunctionDefinitionInfo, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-core";
-import { Button, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Typography, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "../../../Context";
 import { fetchConnectorInfo, getConnectorFromVisibleEp, getMatchingConnector, getTargetBlock } from "../ConnectorWizard/utils";
 import styled from "@emotion/styled";
-import { Colors } from "../../../resources/constants";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { ActionList } from "../ActionList";
 import { ActionForm } from "../ActionForm";
-import { applyModifications } from "../../../utils/utils";
 
 
 namespace S {
@@ -51,13 +49,13 @@ namespace S {
         align-items: center;
         gap: 5px;
         padding: 5px;
-        border: 1px solid ${Colors.OUTLINE_VARIANT};
+        border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
         border-radius: 5px;
         height: 36px;
         font-size: 14px;
         &:hover {    
-                background-color: ${Colors.PRIMARY_CONTAINER};
-                border: 1px solid ${Colors.PRIMARY};
+                background-color: ${ThemeColors.PRIMARY_CONTAINER};
+                border: 1px solid ${ThemeColors.PRIMARY};
         };
         cursor: 'pointer';
         margin: 5px;
@@ -79,8 +77,8 @@ namespace S {
         & svg {
             height: 16px;
             width: 16px;
-            fill: ${Colors.ON_SURFACE};
-            stroke: ${Colors.ON_SURFACE};
+            fill: ${ThemeColors.ON_SURFACE};
+            stroke: ${ThemeColors.ON_SURFACE};
         }
     `;
 

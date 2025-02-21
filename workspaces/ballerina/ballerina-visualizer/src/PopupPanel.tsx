@@ -13,7 +13,6 @@ import { URI, Utils } from "vscode-uri";
 import { MACHINE_VIEW, PopupMachineStateValue, PopupVisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
-import { Colors } from "./resources/constants";
 import { ThemeColors, Overlay } from "@wso2-enterprise/ui-toolkit";
 import EditConnectionWizard from "./views/BI/Connection/EditConnectionWizard";
 
@@ -24,7 +23,7 @@ const ViewContainer = styled.div`
     width: 400px;
     height: 100%;
     z-index: 3000;
-    background-color: ${Colors.SURFACE_BRIGHT};
+    background-color: ${ThemeColors.SURFACE_BRIGHT};
 `;
 
 const TopBar = styled.div`

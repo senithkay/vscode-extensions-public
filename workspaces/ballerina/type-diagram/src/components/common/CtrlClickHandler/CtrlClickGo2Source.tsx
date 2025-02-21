@@ -8,27 +8,19 @@
  */
 
 import React, { PropsWithChildren, useContext } from 'react';
-import { CMLocation as Location, NodePosition } from '@wso2-enterprise/ballerina-core';
+import { Type } from '@wso2-enterprise/ballerina-core';
 import { CtrlClickWrapper } from '@wso2-enterprise/ballerina-core';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
 
 interface CtrlClickProps {
-    location: Location;
+    node: Type;
 }
 
 export function CtrlClickGo2Source(props: PropsWithChildren<CtrlClickProps>) {
-    const { location, children } = props;
+    const { node, children } = props;
     const { goToSource } = useContext(DiagramContext);
     const handleOnClick = () => {
-        if (location.filePath && location.endPosition, location.startPosition) {
-            const nodePosition: NodePosition = {
-                startLine: location.startPosition.line,
-                startColumn: location.startPosition.offset,
-                endLine: location.endPosition.line,
-                endColumn: location.endPosition.offset
-            }
-            goToSource(location?.filePath, nodePosition);
-        }
+        goToSource(node);
     };
 
     return (

@@ -11,13 +11,13 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { ConfigVariable, EVENT_TYPE, FlowNode, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon, Icon, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
-import { BodyText } from "../../../styles";
-import { BIHeader } from "../../BIHeader";
+import { Button, Codicon, Icon, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
 import { EditForm } from "../EditConfigurableVariables";
 import { AddForm } from "../AddConfigurableVariables";
 import { DiagnosticsPopUp } from "../../../../components/DiagnosticsPopUp";
+import { TopNavigationBar } from "../../../../components/TopNavigationBar";
+import { TitleBar } from "../../../../components/TitleBar";
 
 const Container = styled.div`
     width: 100%;
@@ -234,24 +234,17 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
 
     return (
         <View>
+            <TopNavigationBar />
+            <TitleBar title="Configurable Variables" subtitle="View and manage configurable variables" actions={
+                <Button appearance="primary" onClick={handleAddConfigVariableFormOpen}>
+                    <Codicon name="add" sx={{ marginRight: 5 }} />Add Configurable Variable
+                </Button>
+            } />
             <ViewContent padding>
-                <BIHeader />
                 <Container>
-                    <Typography variant="h2">Configurable variables</Typography>
-                    <S.Row>
-                        <BodyText>
-                            View and manage configurable variables in the Ballerina project.
-                        </BodyText>
-
-                        <Button appearance="primary" onClick={handleAddConfigVariableFormOpen}>
-                            <Codicon name="add" sx={{ marginRight: 5 }} />Add Config Variables
-                        </Button>
-                    </S.Row>
-
                     {
                         configVariables.length > 0 && configVariables.map((variable, index) => {
                             return (
-
                                 <AccordionContainer data-testid="config-resources" key={index}>
                                     <AccordionHeader>
                                         <MethodSection>

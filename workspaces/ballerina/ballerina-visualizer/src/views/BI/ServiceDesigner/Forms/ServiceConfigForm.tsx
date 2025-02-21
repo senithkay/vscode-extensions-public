@@ -7,23 +7,23 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { Button, Codicon, FormGroup, Typography, CheckBox, RadioButtonGroup, ProgressRing, Divider, CompletionItem, LinkButton } from "@wso2-enterprise/ui-toolkit";
-import { Form, FormField, FormValues, TypeEditor } from "@wso2-enterprise/ballerina-side-panel";
-import { BallerinaTrigger, ComponentTriggerType, FormDiagnostics, FunctionField, TRIGGER_CHARACTERS, TriggerCharacter, ServiceModel, SubPanel } from "@wso2-enterprise/ballerina-core";
-import { debounce } from "lodash";
+import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { ServiceModel, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { URI, Utils } from "vscode-uri";
 import { BodyText } from "../../../styles";
 import { FormGeneratorNew } from "../../Forms/FormGeneratorNew";
+import { FormHeader } from "../../../../components/FormHeader";
 
 const Container = styled.div`
-    padding: 0 20px 20px;
+    /* padding: 0 20px 20px; */
     max-width: 600px;
     height: 100%;
     > div:last-child {
-        padding: 20px 0;
+        /* padding: 20px 0; */
         > div:last-child {
             justify-content: flex-start;
         }
@@ -31,7 +31,7 @@ const Container = styled.div`
 `;
 
 const FormContainer = styled.div`
-    padding-top: 15px;
+    /* padding-top: 15px; */
     padding-bottom: 15px;
 `;
 
@@ -57,7 +57,6 @@ interface ServiceConfigFormProps {
     onSubmit: (data: ServiceModel) => void;
     openListenerForm?: () => void;
     onBack?: () => void;
-    formRef?: React.Ref<unknown>;
     formSubmitText?: string;
 }
 
@@ -65,7 +64,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const { rpcClient } = useRpcContext();
 
     const [serviceFields, setServiceFields] = useState<FormField[]>([]);
-    const { serviceModel, onSubmit, onBack, formRef, openListenerForm, formSubmitText = "Next" } = props;
+    const { serviceModel, onSubmit, onBack, openListenerForm, formSubmitText = "Next" } = props;
     const [filePath, setFilePath] = useState<string>('');
 
     const createTitle = `Provide the necessary configuration details for the ${serviceModel.displayAnnotation.label} to complete the setup.`;
@@ -97,7 +96,9 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     };
 
     const handleListenerForm = (panel: SubPanel) => {
-        openListenerForm && openListenerForm();
+        if (panel.view === SubPanelView.ADD_NEW_FORM) {
+            openListenerForm && openListenerForm();
+        }
     }
 
     return (
@@ -106,13 +107,13 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                 <>
                     {serviceFields.length > 0 &&
                         <FormContainer>
-                            <Typography variant="h2" sx={{ marginTop: '16px' }}>{serviceModel.displayAnnotation.label} Configuration</Typography>
+                            {/* <Typography variant="h2" sx={{ marginTop: '16px' }}>{serviceModel.displayAnnotation.label} Configuration</Typography>
                             <BodyText>
                                 {formSubmitText === "Save" ? editTitle : createTitle}
-                            </BodyText>
+                            </BodyText> */}
+                            <FormHeader title={`${serviceModel.displayAnnotation.label} Configuration`} subtitle={`${formSubmitText === "Save" ? editTitle : createTitle}`} />
                             {filePath &&
                                 <FormGeneratorNew
-                                    ref={formRef}
                                     fileName={filePath}
                                     targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
                                     fields={serviceFields}
@@ -148,7 +149,7 @@ function convertConfig(listener: ServiceModel): FormField[] {
             valueTypeConstraint: expression.valueTypeConstraint,
             advanced: expression.advanced,
             diagnostics: [],
-            items: expression.valueType === "SINGLE_SELECT" ? [""].concat(expression.items) : expression.items || [expression.value],
+            items: expression.valueType === "SINGLE_SELECT" ? expression.items : expression.items || [expression.value],
             choices: expression.choices,
             placeholder: expression.placeholder,
             addNewButton: expression.addNewButton

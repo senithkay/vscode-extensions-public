@@ -79,7 +79,7 @@ export function ResourceForm(props: ResourceFormProps) {
 				<Divider />
 				<Parameters showPayload={(functionModel.accessor.value && functionModel.accessor.value.toUpperCase() !== "GET")} parameters={functionModel.parameters} onChange={handleParamChange} schemas={functionModel.schema} />
 				<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Responses</Typography>
-				<ResourceResponse method={functionModel.accessor.value as HTTP_METHOD} response={functionModel.returnType} onChange={handleResponseChange} />
+				<ResourceResponse method={functionModel.accessor.value.toUpperCase() as HTTP_METHOD} response={functionModel.returnType} onChange={handleResponseChange} />
 				<ActionButtons
 					primaryButton={{ text: "Save", onClick: handleSave, tooltip: "Save" }}
 					secondaryButton={{ text: "Cancel", onClick: onClose, tooltip: "Cancel" }}

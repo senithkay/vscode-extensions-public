@@ -31,12 +31,12 @@ import { HelperPanePosition, TokenEditorProps } from '../../types';
 import { Button } from '../../../Button/Button';
 import { Icon } from '../../../Icon/Icon';
 
-import { ThemeColors } from '../../../../styles/ThemeColours';
 import { HELPER_PANE_WITH_EDITOR_HEIGHT, HELPER_PANE_WITH_EDITOR_WIDTH } from '../../constants';
 import { Codicon } from '../../../Codicon/Codicon';
 import Typography from '../../../Typography/Typography';
 import { Divider } from '../../../Divider/Divider';
 import { MonacoEditor } from '../MonacoEditor';
+import { ThemeColors } from '../../../../styles/Theme';
 
 /* Styles */
 namespace S {
