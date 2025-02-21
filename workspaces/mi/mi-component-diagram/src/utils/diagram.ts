@@ -59,11 +59,10 @@ export function autoDistribute(engine: DiagramEngine) {
             const actorNode = model.getNode(node.getID() + ACTOR_SUFFIX);
             if (actorNode) {
                 const entryNode = node;
-                const entryNodeX = entryNode.getX();
                 const entryNodeY = entryNode.getY();
-                const newActorNodeX = entryNodeX - (NODE_GAP_Y + ACTOR_NODE_WIDTH);
+
                 const newActorNodeY = entryNodeY + (ENTRY_NODE_HEIGHT - ACTOR_NODE_WIDTH) / 2 - NODE_PADDING / 2;
-                actorNode.setPosition(newActorNodeX, newActorNodeY);
+                actorNode.setPosition(actorNode.getX() + 300, newActorNodeY);
                 return;
             }
         }
@@ -107,10 +106,10 @@ export function genDagreEngine() {
     return new DagreEngine({
         graph: {
             rankdir: "LR",
-            nodesep: 100,
+            nodesep: ENTRY_NODE_HEIGHT + NODE_GAP_Y,
             ranksep: 400,
-            marginx: 100,
-            marginy: 100,
+            marginx: -300,
+            marginy: 0,
             ranker: "longest-path",
         },
     });
@@ -142,16 +141,16 @@ export const saveDiagramZoomAndPosition = (model: DiagramModel) => {
     const offsetY = model.getOffsetY();
 
     // Store them in localStorage
-    localStorage.setItem("diagram-zoom-level", JSON.stringify(zoomLevel));
-    localStorage.setItem("diagram-offset-x", JSON.stringify(offsetX));
-    localStorage.setItem("diagram-offset-y", JSON.stringify(offsetY));
+    localStorage.setItem("component-diagram-zoom-level", JSON.stringify(zoomLevel));
+    localStorage.setItem("component-diagram-offset-x", JSON.stringify(offsetX));
+    localStorage.setItem("component-diagram-offset-y", JSON.stringify(offsetY));
 };
 
 // load diagram zoom level and position from local storage
 export const loadDiagramZoomAndPosition = (engine: DiagramEngine) => {
-    const zoomLevel = JSON.parse(localStorage.getItem("diagram-zoom-level") || "100");
-    const offsetX = JSON.parse(localStorage.getItem("diagram-offset-x") || "0");
-    const offsetY = JSON.parse(localStorage.getItem("diagram-offset-y") || "0");
+    const zoomLevel = JSON.parse(localStorage.getItem("component-diagram-zoom-level") || "100");
+    const offsetX = JSON.parse(localStorage.getItem("component-diagram-offset-x") || "0");
+    const offsetY = JSON.parse(localStorage.getItem("component-diagram-offset-y") || "0");
 
     engine.getModel().setZoomLevel(zoomLevel);
     engine.getModel().setOffset(offsetX, offsetY);
@@ -159,23 +158,16 @@ export const loadDiagramZoomAndPosition = (engine: DiagramEngine) => {
 
 // check local storage has zoom level and position
 export const hasDiagramZoomAndPosition = (file: string) => {
-    return localStorage.getItem("diagram-file-path") === file;
+    return localStorage.getItem("component-diagram-file-path") === file;
 };
 
 export const resetDiagramZoomAndPosition = (file?: string) => {
     if (file) {
-        localStorage.setItem("diagram-file-path", file);
+        localStorage.setItem("component-diagram-file-path", file);
     }
-    localStorage.setItem("diagram-zoom-level", "100");
-    localStorage.setItem("diagram-offset-x", "0");
-    localStorage.setItem("diagram-offset-y", "0");
-};
-
-export const centerDiagram = (engine: DiagramEngine) => {
-    if (engine.getCanvas()?.getBoundingClientRect) {
-        // zoom to fit nodes and center diagram
-        engine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
-    }
+    localStorage.setItem("component-diagram-zoom-level", "100");
+    localStorage.setItem("component-diagram-offset-x", "0");
+    localStorage.setItem("component-diagram-offset-y", "0");
 };
 
 export const getNodeId = (nodeType: string, id: string) => {
@@ -184,4 +176,17 @@ export const getNodeId = (nodeType: string, id: string) => {
 
 export const getModelId = (nodeId: string) => {
     return nodeId.split("-").pop();
+};
+
+export const centerDiagram = async (diagramEngine: DiagramEngine) => {
+    if (diagramEngine?.getCanvas()?.getBoundingClientRect()) {
+        const canvas = diagramEngine.getCanvas();
+        const zoomLevel = diagramEngine.getModel().getZoomLevel() / 100;
+        const noOfNodes = diagramEngine.getModel().getNodes().filter((node) => node.getType() === NodeTypes.ACTOR_NODE).length;
+        const nodeHeights = ((ENTRY_NODE_HEIGHT + NODE_GAP_Y) * noOfNodes) - NODE_GAP_Y;
+
+        diagramEngine.getModel().setOffsetX(50);
+        diagramEngine.getModel().setOffsetY(200 - (nodeHeights * zoomLevel) / 2);
+        diagramEngine.repaintCanvas();
+    }
 };

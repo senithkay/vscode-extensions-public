@@ -12,10 +12,10 @@ import React from "react";
 import styled from "@emotion/styled";
 import { Colors } from "../../resources/constants";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { loadDiagramZoomAndPosition, resetDiagramZoomAndPosition } from "../../utils/diagram";
 import { FitScreenIcon } from "../../resources/icons/FitScreenIcon";
 import { PlusIcon } from "../../resources/icons/nodes/PlusIcon";
 import { MinusIcon } from "../../resources/icons/MinusIcon";
+import { centerDiagram } from "../../utils/diagram";
 
 export namespace ControlsStyles {
     export const Container = styled.div`
@@ -24,10 +24,10 @@ export namespace ControlsStyles {
         justify-content: center;
         gap: 8px;
 
-        position: fixed;
-        margin-top: 270px;
-        left: 20px;
-        margin-left: 10px;
+        position: absolute;
+        margin-top: 30px;
+        right: 10px;
+        margin-right: 10px;
         z-index: 1000;
     `;
 
@@ -64,8 +64,8 @@ export namespace ControlsStyles {
         border-radius: 4px;
         background-color: ${Colors.SURFACE};
         fill: ${Colors.ON_SURFACE};
-        width: 32px;
-        height: 32px;
+        width: 20px;
+        height: 20px;
         cursor: pointer;
 
         &:hover {
@@ -87,8 +87,8 @@ export function Controls(props: ControlsProps) {
 
     const handleZoomToFit = () => {
         if (engine.getCanvas()?.getBoundingClientRect) {
-            engine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
-            engine.repaintCanvas();
+            engine.zoomToFitNodes({ margin: 0, maxZoom: 1 });
+            centerDiagram(engine);
         }
     };
 

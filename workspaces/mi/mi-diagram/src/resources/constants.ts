@@ -31,7 +31,7 @@ export enum DefaultColors {
 }
 
 export enum VSCodeColors {
-    PRIMARY = "var(--vscode-button-background)",
+    PRIMARY = "var(--vscode-progressBar-background)",
     ON_PRIMARY = "var(--vscode-button-foreground)",
     PRIMARY_CONTAINER = "var(--vscode-sideBar-background)",
 
@@ -56,6 +56,8 @@ export enum VSCodeColors {
     INPUT_OPTION_INACTIVE = "var(--vscode-inputOption-inactiveBackground)",
     INPUT_OPTION_HOVER = "var(--vscode-inputOption-hoverBackground)",
     INPUT_OPTION_ACTIVE_BORDER = "var(--vscode-inputOption-activeBorder)",
+
+    WARNING = "var(--vscode-editorWarning-foreground)",
 }
 
 export const Colors = {
@@ -91,7 +93,10 @@ export const Colors = {
     INPUT_OPTION_ACTIVE_BORDER: VSCodeColors.INPUT_OPTION_ACTIVE_BORDER,
 
     DEBUGGER_BREAKPOINT_BACKGROUND: DefaultColors.DEBUGGER_BREAKPOINT_BACKGROUND,
+    WARNING: VSCodeColors.WARNING,
 };
+
+export const SIDE_PANEL_WIDTH = 450;
 
 export const NODE_GAP = {
     START_X: 0,
@@ -122,6 +127,10 @@ export const NODE_DIMENSIONS = {
         DISABLED: {
             WIDTH: 24,
             HEIGHT: 24,
+        },
+        ACTIONED: {
+            WIDTH: 65,
+            HEIGHT: 30,
         }
     },
     CONDITION: {
@@ -150,8 +159,8 @@ export const NODE_DIMENSIONS = {
         },
     },
     END: {
-        WIDTH: 23,
-        HEIGHT: 21,
+        WIDTH: 24,
+        HEIGHT: 24,
     },
     PLUS: {
         WIDTH: 24,
@@ -174,32 +183,35 @@ export const NODE_DIMENSIONS = {
 export const MEDIATORS = {
     AGGREGATE: "Aggregate",
     CACHE: "Cache",
-    CALL: "Call Endpoint",
+    CALL: "Call",
     CALLOUT: "Callout",
-    CALLTEMPLATE: "Call Template",
+    CALLTEMPLATE: "Call-Template",
     CLONE: "Clone",
-    DATAMAPPER: "Data Mapper",
-    DATASERVICECALL: "Call Data Service",
+    DATAMAPPER: "DataMapper",
+    DATASERVICECALL: "dataServiceCall",
+    SCATTERGATHER: "Scatter-Gather",
     DROP: "Drop",
     ENRICH: "Enrich",
-    ENTITLEMENT: "Entitlement Service",
+    ENTITLEMENT: "EntitlementService",
     FASTXSLT: "FastXSLT",
-    FAULT: "Fault",
+    FAULT: "MakeFault",
     FILTER: "Filter",
-    FOREACHMEDIATOR: "ForEach",
+    FOREACHMEDIATOR: "Foreach",
     HEADER: "Header",
     ITERATE: "Iterate",
-    JSONTRANSFORM: "JSON Transform",
+    JSONTRANSFORM: "JsonTransform",
     LOG: "Log",
     LOOPBACK: "Loopback",
-    PAYLOAD: "Payload Factory",
+    PAYLOAD: "Payloadfactory",
     PROPERTY: "Property",
-    PROPERTYGROUP: "Property Group",
+    PROPERTYGROUP: "PropertyGroup",
+    VARIABLE: "Variable",
     RESPOND: "Respond",
     REWRITE: "Rewrite",
-    RULE: "Rule",
+    RULE: "brs:rule",
     SEND: "Send",
-    SEQUENCE: "Call Sequence",
+    SEQUENCE: "Sequence",
+    RESOURCE: "Resource",
     SMOOKS: "Smooks",
     STORE: "Store",
     SWITCH: "Switch",
@@ -210,20 +222,21 @@ export const MEDIATORS = {
     BEAN: "Bean",
     CLASS: "Class",
     COMMAND: "Command",
-    EJB: "Ejb",
+    EJB: "EJB",
     SCRIPT: "Script",
     SPRING: "Spring",
-    DBLOOKUP: "DB Lookup",
-    DBREPORT: "DB Report",
+    DBLOOKUP: "DBLookup",
+    DBREPORT: "DBReport",
     ENQUEUE: "Enqueue",
     EVENT: "Event",
     TRANSACTION: "Transaction",
-    CONDITIONALROUTER: "Conditional Router",
+    CONDITIONALROUTER: "ConditionalRouter",
     BAM: "Bam",
-    OAUTH: "OAuth",
-    BUILDER: "Builder",
-    PUBLISHEVENT: "Publish Event",
+    OAUTH: "oauthService",
+    BUILDER: "syn:builder",
+    PUBLISHEVENT: "PublishEvent",
     NTLM: "NTLM",
+    THROWERROR: "ThrowError",
 }
 
 export const ENDPOINTS = {
@@ -289,5 +302,37 @@ export const DATA_SERVICE = {
 }
 
 export const APIS = {
-    CONNECTOR: "https://apis.wso2.com/connector-store/connector-details"
+    CONNECTOR: "https://apis.wso2.com/connector-store/connector-details",
+    CONNECTORS_STORE: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?offset=0&product=MI&type=Connector&runtimeVersion=${version}",
+    CONNECTOR_SEARCH: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=10&offset=0&searchQuery=${searchValue}&type=Connector&product=MI&runtimeVersion=${version}"
 }
+
+export const ERROR_MESSAGES = {
+    ERROR_LOADING_MEDIATORS: "Error loading mediator data. Please try again.",
+    ERROR_LOADING_TRYOUT: "Error loading tryout data. Please try again.",
+    ERROR_TRYING_OUT_MEDIATOR: "Error trying out mediator. Please try again.",
+    ERROR_LOADING_PROJECT_OVERVIEW: "Error loading project overview. Please try again.",
+    ERROR_LOADING_PROJECT_STRUCTURE: "Error loading project structure. Please try again.",
+    ERROR_LOADING_MODULES: "Error loading module data. Please try again."
+}
+
+export const REACT_JSON_THEME = {
+    base00: "var(--webview-background)",
+    base01: "var(--webview-background-secondary)",
+    base02: "var(--webview-background-tertiary)",
+    base03: "var(--webview-text-color)",
+    base04: "var(--webview-accent-color)",
+    base05: "var(--webview-text-color)",
+    base06: "var(--webview-text-color)",
+    base07: "var(--webview-text-color)",
+    base08: "var(--webview-text-color)",
+    base09: "var(--webview-highlight-color)",
+    base0A: "var(--webview-highlight-color)",
+    base0B: "var(--webview-highlight-color)",
+    base0C: "var(--webview-highlight-color)",
+    base0D: "var(--webview-highlight-color)",
+    base0E: "var(--webview-highlight-color)",
+    base0F: "var(--webview-highlight-color)"
+};
+export const DEFAULT_ICON = "https://mi-connectors.wso2.com/icons/wordpress.gif";
+export const RUNTIME_VERSION_440 = "4.4.0";

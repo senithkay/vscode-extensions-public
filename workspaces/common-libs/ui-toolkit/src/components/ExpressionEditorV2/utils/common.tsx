@@ -73,3 +73,7 @@ export const getIcon = (kind: CompletionItemKind) => {
 
     return <Codicon name="symbol-variable" />;
 };
+
+export function getIsDarkThemeActive() {
+    return document.body.getAttribute('data-vscode-theme-kind')?.includes('dark') ?? false;
+}
