@@ -1,4 +1,4 @@
-import { commands } from "vscode";
+import { commands, window, workspace, FileSystemWatcher, Disposable } from "vscode";
 import { PALETTE_COMMANDS } from "../project/cmds/cmd-runner";
 import * as fs from 'fs';
 import * as path from 'path';
@@ -10,6 +10,7 @@ import { findRunningBallerinaProcesses } from "./utils";
 import { BallerinaProjectComponents, OpenAPISpec } from "@wso2-enterprise/ballerina-core";
 
 let langClient: ExtendedLangClient | undefined;
+let errorLogWatcher: FileSystemWatcher | undefined;
 
 const TRYIT_TEMPLATE = `/*
 ### Try Service: "{{info.title}}" (http://localhost:{{port}}{{trim basePath}})
@@ -56,11 +57,82 @@ const TRYIT_TEMPLATE = `/*
 {{/each}}
 {{/each}}`;
 
+const HTTPYAC_CONFIG_TEMPLATE = `
+const fs = require('fs');
+const path = require('path');
+
+// Define the log file path relative to the config file location
+const LOG_FILE_PATH = path.join(__dirname, 'httpyac_errors.log');
+
+// Helper function to format error groups
+const formatErrorGroup = (title, params) => {
+  if (params.length === 0) return '';
+  return \`\${title}:\\n\${params.map(p => \`  - \${p}\`).join('\\n')}\\n\`;
+};
+
+module.exports = {
+  configureHooks: function (api) {
+    api.hooks.onRequest.addHook('validatePlaceholders', function (request) {
+      const missingParams = {
+        path: [],
+        query: [],
+        header: []
+      };
+
+      // Check URL path parameters
+      const url = new URL(request.url);
+      const decodedPath = decodeURIComponent(url.pathname);
+      const pathParamRegex = /[{]([^{}]+)[}]/g;
+      const pathMatches = [...decodedPath.matchAll(pathParamRegex)];
+      
+      pathMatches.forEach(match => {
+        missingParams.path.push(match[1]);
+      });
+
+      // Check query parameters
+      for (const [key, value] of url.searchParams.entries()) {
+        if (value === '{?}') {
+          missingParams.query.push(key);
+        }
+      }
+
+      // Check headers
+      for (const [key, value] of Object.entries(request.headers || {})) {
+        if (value === '{?}') {
+          missingParams.header.push(key);
+        }
+      }
+
+      // Check if any parameters are missing
+      const hasMissingParams = Object.values(missingParams)
+        .some(group => group.length > 0);
+
+      if (hasMissingParams) {
+        const errorMessage = [
+          \`Request to "\${request.url}" has missing required parameters:\\n\`,
+          formatErrorGroup('Path Parameters', missingParams.path),
+          formatErrorGroup('Query Parameters', missingParams.query),
+          formatErrorGroup('Header Parameters', missingParams.header),
+          '\\nPlease provide values for these parameters before sending the request.'
+        ].filter(Boolean).join('\\n');
+
+        // Write to log file
+        fs.writeFileSync(LOG_FILE_PATH, errorMessage, 'utf8');
+      }
+    });
+  }
+};`;
+
 export function activateTryItCommand(ballerinaExtInstance: BallerinaExtension) {
     langClient = ballerinaExtInstance.langClient as ExtendedLangClient;
-    // register try it command handler
-    commands.registerCommand(PALETTE_COMMANDS.TRY_IT, async (withNotice: boolean = false) => {
+    // Register try it command handler
+    const disposable = commands.registerCommand(PALETTE_COMMANDS.TRY_IT, async (withNotice: boolean = false) => {
         await openTryItView(withNotice, ballerinaExtInstance);
+    });
+    
+    // Clean up when deactivated
+    return Disposable.from(disposable, {
+        dispose: disposeErrorWatcher
     });
 }
 
@@ -125,6 +197,7 @@ async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: 
     const fileName = path.parse(selectedService.filePath).name;
     const tryitFileName = `tryit.${fileName}.http`;
     const tryitFilePath = path.join(targetDir, tryitFileName);
+    const configFilePath = path.join(targetDir, 'httpyac.config.js');
 
     const content = await generateTryItFileContent(workspaceRoot, selectedService);
     if (!content) {
@@ -133,10 +206,15 @@ async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: 
     }
 
     fs.writeFileSync(tryitFilePath, content);
+    fs.writeFileSync(configFilePath, HTTPYAC_CONFIG_TEMPLATE);
+
 
     // Open the file as a notebook document
     const tryitFileUri = vscode.Uri.file(tryitFilePath);
     await vscode.commands.executeCommand('vscode.openWith', tryitFileUri, 'http');
+
+    // Setup the error log watcher
+    setupErrorLogWatcher(targetDir);
 }
 
 async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> {
@@ -522,6 +600,50 @@ function resolveSchemaRef(ref: string, context: OAISpec): Schema | undefined {
     }
 
     return current as Schema;
+}
+
+// Function to setup error log watching
+function setupErrorLogWatcher(targetDir: string) {
+    const errorLogPath = path.join(targetDir, 'httpyac_errors.log');
+
+    // Dispose existing watcher if any
+    disposeErrorWatcher();
+
+    if (!fs.existsSync(errorLogPath)) {
+        fs.writeFileSync(errorLogPath, '');
+    }
+
+    // Setup the file watcher Watch for changes in the error log file
+    errorLogWatcher = workspace.createFileSystemWatcher(errorLogPath);
+    errorLogWatcher.onDidChange(() => {
+        try {
+            const content = fs.readFileSync(errorLogPath, 'utf-8');
+            if (content.trim()) {
+                // Show a notification with "Show Details" button
+                window.showWarningMessage(
+                    'The request contains missing required parameters. Please provide values for the placeholders before sending the request.',
+                    'Show Details'
+                ).then(selection => {
+                    if (selection === 'Show Details') {
+                        // Show the full error in an output channel
+                        const outputChannel = window.createOutputChannel('Kola Tryit - Log');
+                        outputChannel.appendLine(content.trim());
+                        outputChannel.show();
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error reading error log file:', error);
+        }
+    });
+}
+
+// cleanup function for the watcher
+function disposeErrorWatcher() {
+    if (errorLogWatcher) {
+        errorLogWatcher.dispose();
+        errorLogWatcher = undefined;
+    }
 }
 
 // Service information interface
