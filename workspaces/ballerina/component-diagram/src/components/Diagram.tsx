@@ -16,7 +16,6 @@ import {
     createNodesLink,
     createPortNodeLink,
     generateEngine,
-    getEntryNodeFunctionPortName,
     sortItems,
 } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
@@ -60,6 +59,7 @@ export function Diagram(props: DiagramProps) {
     } = props;
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
+    const [showControls, setShowControls] = useState(false);
 
     useEffect(() => {
         if (diagramEngine) {
@@ -230,7 +230,10 @@ export function Diagram(props: DiagramProps) {
 
             {diagramEngine && diagramModel && (
                 <DiagramContextProvider value={context}>
-                    <DiagramCanvas>
+                    <DiagramCanvas
+                        onMouseEnter={() => setShowControls(true)}
+                        onMouseLeave={() => setShowControls(false)}
+                    >
                         <CanvasWidget engine={diagramEngine} />
                     </DiagramCanvas>
                 </DiagramContextProvider>

@@ -23,6 +23,7 @@ export const GAP_BETWEEN_FIELDS = 1;
 export const QUERY_EXPR_INTERMEDIATE_CLAUSE_HEIGHT = 40;
 export const GAP_BETWEEN_INTERMEDIATE_CLAUSES = 25;
 export const GAP_BETWEEN_INTERMEDIATE_CLAUSES_AND_NODE = 30;
+export const GAP_BETWEEN_MAPPING_HEADER_NODE_AND_INPUT_NODE = 50;
 
 export const AUTO_MAP_TIMEOUT_MS = 40000;
 export const AUTO_MAP_IN_PROGRESS_MSG = "Generating mappings for your transformation";

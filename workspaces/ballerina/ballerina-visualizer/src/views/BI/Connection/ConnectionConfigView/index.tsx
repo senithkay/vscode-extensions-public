@@ -9,14 +9,13 @@
 
 import React, { ReactNode } from "react";
 import styled from "@emotion/styled";
-import { ExpressionFormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
 import { FlowNode, SubPanel } from "@wso2-enterprise/ballerina-core";
 import FormGenerator from "../../Forms/FormGenerator";
 
 const Container = styled.div`
     max-width: 600px;
-    max-height: calc(100% - 110px);
-    overflow: scroll;
+    height: calc(100% - 32px);
 `;
 
 export interface SidePanelProps {

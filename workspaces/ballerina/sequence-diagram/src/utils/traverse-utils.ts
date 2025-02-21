@@ -197,7 +197,7 @@ export function traverseNode(node: Node, visitor: BaseVisitor, parent: DiagramEl
         beginVisitFn = visitor.beginVisitNode && visitor.beginVisitNode;
     }
 
-    if (beginVisitFn) {
+    if (beginVisitFn && node) {
         beginVisitFn.bind(visitor)(node, parent);
     }
 

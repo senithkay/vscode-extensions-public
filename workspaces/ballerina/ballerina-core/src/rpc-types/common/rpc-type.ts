@@ -27,7 +27,7 @@ import {
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "common";
-export const getTypes: RequestType<void, TypeResponse> = { method: `${_preFix}/getTypes` };
+export const getTypeCompletions: RequestType<void, TypeResponse> = { method: `${_preFix}/getTypeCompletions` };
 export const goToSource: NotificationType<GoToSourceRequest> = { method: `${_preFix}/goToSource` };
 export const getWorkspaceFiles: RequestType<WorkspaceFileRequest, WorkspacesFileResponse> = { method: `${_preFix}/getWorkspaceFiles` };
 export const getBallerinaDiagnostics: RequestType<BallerinaDiagnosticsRequest, BallerinaDiagnosticsResponse> = { method: `${_preFix}/getBallerinaDiagnostics` };
