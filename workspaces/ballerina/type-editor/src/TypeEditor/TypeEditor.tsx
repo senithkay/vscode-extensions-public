@@ -68,15 +68,6 @@ namespace S {
 }
 
 
-export const Footer = styled.div`
-    display: flex;
-    gap: 8px;
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 16px;
-`;
-
 const EditRow = styled.div`
     display: flex;
     gap: 8px;
