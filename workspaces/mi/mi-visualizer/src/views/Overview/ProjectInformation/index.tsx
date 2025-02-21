@@ -89,10 +89,10 @@ export function ProjectInformation(props: ProjectInformationProps) {
         });
     };
 
-    const openManageDependencies = (title: string, dependencies: DependencyDetails[]) => {
+    const openManageDependencies = (title: string, dependencies: DependencyDetails[], type: string) => {
         rpcClient.getMiVisualizerRpcClient().openView({
             type: POPUP_EVENT_TYPE.OPEN_VIEW,
-            location: { view: MACHINE_VIEW.ManageDependencies, customProps: { title, dependencies } },
+            location: { view: MACHINE_VIEW.ManageDependencies, customProps: { title, dependencies, type } },
             isPopup: true
         });
     }
@@ -111,7 +111,7 @@ export function ProjectInformation(props: ProjectInformationProps) {
 
     const { primaryDetails, buildDetails, dependencies, unitTest, configurables } = projectDetails;
 
-    function Dependencies(title: string, dependencies: DependencyDetails[], config: ParamConfig, onChange: (values: ParamConfig) => void) {
+    function Dependencies(title: string, dependencies: DependencyDetails[], type: string, config: ParamConfig, onChange: (values: ParamConfig) => void) {
         return <div>
             {!dependencies || dependencies.length === 0 ? <Typography sx={{margin: "10px 0 0", opacity: 0.6}}>No dependencies found</Typography> :
                 <ParamManager
@@ -130,7 +130,7 @@ export function ProjectInformation(props: ProjectInformationProps) {
                         onChange(values);
                     }}
                 />}
-            <VSCodeLink onClick={() => openManageDependencies(title, dependencies)}>
+            <VSCodeLink onClick={() => openManageDependencies(title, dependencies, type)}>
                 <div style={{
                     display: 'flex',
                     padding: '10px 0 0'
@@ -239,12 +239,12 @@ export function ProjectInformation(props: ProjectInformationProps) {
             <Divider />
 
             <Typography variant="h4" sx={{margin: "10px 0 12px", opacity: 0.8}}>Connector Dependencies</Typography>
-            {Dependencies("Connector Dependencies", dependencies?.connectorDependencies, connectorDependencies, setConnectorDependencies)}
+            {Dependencies("Connector Dependencies", dependencies?.connectorDependencies, "zip", connectorDependencies, setConnectorDependencies)}
 
             <Divider />
 
             <Typography variant="h4" sx={{margin: "10px 0 12px", opacity: 0.8}}>Other Dependencies</Typography>
-            {Dependencies("Other Dependencies", dependencies?.otherDependencies, otherDependencies, setOtherDependencies)}
+            {Dependencies("Other Dependencies", dependencies?.otherDependencies, "jar", otherDependencies, setOtherDependencies)}
 
             <Divider />
 
