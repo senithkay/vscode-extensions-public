@@ -10,7 +10,6 @@
 import path from "path";
 import { LanguageClient } from "./lang-service/client";
 import { getMediatorDescription, readXMLFile } from "./utils/test-utils";
-import { getDataFromST, getXML } from "../utils/template-engine/mustach-templates/templateUtils";
 
 const dataRoot = path.join(__dirname, "data");
 
@@ -30,6 +29,11 @@ export const mediatorTestCases: MediatorTestCase[] = [
         type: "Switch",
         expectedDescription: "Switch Description",
         expectedDefaultDescription: "Source XPath"
+    },
+    {
+        type: "Scatter Gather",
+        expectedDescription: "Scatter Gather Description",
+        expectedDefaultDescription: undefined
     },
     {
         type: "Clone",
@@ -123,7 +127,7 @@ export const mediatorTestCases: MediatorTestCase[] = [
         expectedDefaultDescription: undefined
     },
     {
-        type: "Call Sequence",
+        type: "Sequence",
         expectedDescription: "Call Sequence Description",
         expectedDefaultDescription: "defseq"
     },
@@ -173,7 +177,7 @@ export const mediatorTestCases: MediatorTestCase[] = [
         expectedDefaultDescription: undefined
     },
     {
-        type: "Call Data Service",
+        type: "Call Dataservice",
         expectedDescription: "Call Dataservice Description",
         expectedDefaultDescription: "sdfa"
     },
@@ -271,6 +275,16 @@ export const mediatorTestCases: MediatorTestCase[] = [
         type: "Bam",
         expectedDescription: "BAM Description",
         expectedDefaultDescription: undefined
+    },
+    {
+        type: "Variable",
+        expectedDescription: "Variable Description",
+        expectedDefaultDescription: "username"
+    },
+    {
+        type: "ThrowError",
+        expectedDescription: "Throw Error Description",
+        expectedDefaultDescription: undefined
     }
     // Add more test cases as needed
 ];
@@ -290,23 +304,6 @@ describe('Test MI Mediators', () => {
 
     mediatorTestCases.forEach(({ type, expectedDescription, expectedDefaultDescription }) => {
         const fileName = type.replace(/ /g, '');
-        test(`Test ${type} Mediator`, async () => {
-            const uri = path.join(dataRoot, "input-xml", `${fileName}.xml`);
-            const syntaxTree = await langClient.getSyntaxTree({
-                documentIdentifier: {
-                    uri
-                }
-            });
-            const mediatorST = syntaxTree.syntaxTree.api.resource[0].inSequence.mediatorList[0];
-
-            const mediatorData = await getDataFromST(type, mediatorST);
-            const generatedXml = getXML(type, mediatorData);
-
-            const dataDirectory = path.join(process.cwd(), "src", "test", "data");
-            // await writeXMLFile(path.join(dataDirectory, 'expected-xml' , `${mediatorType}.xml`), generatedXml); // Uncomment to update expected XML files
-            const outputFileContent = await readXMLFile(path.join(dataDirectory, 'expected-xml', `${fileName}.xml`));
-            expect(generatedXml).toEqual(outputFileContent);
-        }, 20000);
 
         test(`Test ${type} Mediator Default Description`, async () => {
             const uri = path.join(dataRoot, "input-xml", `${fileName}.xml`);

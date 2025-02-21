@@ -20,6 +20,7 @@ import CodeMirror from "@uiw/react-codemirror";
 import { xml } from "@codemirror/lang-xml";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { XMLValidator } from "fast-xml-parser";
+import cronValidator from 'cron-expression-validator';
 import path from "path";
 export interface Region {
     label: string;
@@ -100,7 +101,6 @@ export function TaskForm(props: TaskFormProps) {
                 type: "TextField",
                 label: "Name",
                 defaultValue: "",
-                placeholder: "property_name",
                 isRequired: true
             },
             {
@@ -108,7 +108,6 @@ export function TaskForm(props: TaskFormProps) {
                 type: "TextField",
                 label: "Value",
                 defaultValue: "",
-                placeholder: "property_value",
                 isRequired: true
             }]
     }
@@ -145,7 +144,11 @@ export function TaskForm(props: TaskFormProps) {
         }),
         triggerCron: yup.string().when('triggerType', {
             is: 'cron',
-            then: (schema) => schema.required("Trigger cron is required"),
+            then: (schema) => schema
+                .required("Trigger cron is required")
+                .test('validateCron', 'Invalid Quartz Cron expression', value => {
+                    return cronValidator.isValidCronExpression(value);
+                }),
             otherwise: (schema) => schema.notRequired().default(''),
         }),
         format: yup.mixed().oneOf(["soap11", "soap12", "pox", "get"]).default("soap12"),
@@ -188,10 +191,8 @@ export function TaskForm(props: TaskFormProps) {
                     reset({ ...taskRes, isCountUndefined: taskRes.triggerCount === null });
                     setSavedTaskName(taskRes.name);
                     if (taskRes.taskProperties) {
-                        setValue("format", taskRes.taskProperties.find((prop: any) => prop.key === "format")?.value);
                         setValue("message", taskRes.taskProperties.find((prop: any) => prop.key === "message")?.value);
                         setMessageIsXML(!taskRes.taskProperties.find((prop: any) => prop.key === "message")?.isLiteral);
-                        setValue("soapAction", taskRes.taskProperties.find((prop: any) => prop.key === "soapAction")?.value);
                         setValue("injectTo", taskRes.taskProperties.find((prop: any) => prop.key === "injectTo")?.value);
                         setValue("registryKey", taskRes.taskProperties.find((prop: any) => prop.key === "registryKey")?.value);
                         setValue("invokeHandlers", Boolean(taskRes.taskProperties.find((prop: any) => prop.key === "invokeHandlers")?.value));
@@ -199,7 +200,7 @@ export function TaskForm(props: TaskFormProps) {
                         setValue("sequenceName", taskRes.taskProperties.find((prop: any) => prop.key === "sequenceName")?.value);
                     }
 
-                    const keysToRemove = ["format", "message", "soapAction", "injectTo", "registryKey", "invokeHandlers", "proxyName", "sequenceName"];
+                    const keysToRemove = ["message", "injectTo", "registryKey", "invokeHandlers", "proxyName", "sequenceName"];
                     const filteredProperties = taskRes.taskProperties.filter((prop: any) => !keysToRemove.includes(prop.key));
                     paramConfigs.paramValues = [];
                     setParams(paramConfigs);
@@ -259,10 +260,8 @@ export function TaskForm(props: TaskFormProps) {
     };
 
     const handleCreateTask = async (values: any) => {
-        let taskProperties = [];
-        taskProperties.push({ key: "format", value: values.format, isLiteral: true });
+        let taskProperties: Array<{ key: string; value?: string; isLiteral?: boolean }> = [];
         taskProperties.push({ key: "message", value: values.message, isLiteral: !messageIsXML });
-        taskProperties.push({ key: "soapAction", value: values.soapAction, isLiteral: true });
         taskProperties.push({ key: "injectTo", value: values.injectTo, isLiteral: true });
         if (values.injectTo === "proxy") {
             taskProperties.push({ key: "proxyName", value: values.proxyName, isLiteral: true });
@@ -271,8 +270,12 @@ export function TaskForm(props: TaskFormProps) {
         taskProperties.push({ key: "invokeHandlers", value: values.invokeHandlers, isLiteral: true });
         let customProperties: any = [];
         params.paramValues.map((param: any) => {
-            customProperties.push({ key: param.paramValues[0].value, value: param.paramValues[1].value });
-        })
+            const paramKey = param.paramValues[0].value;
+            const existsInTaskProperties = taskProperties.some(task => task.key === paramKey);
+            if (!existsInTaskProperties) {
+                customProperties.push({ key: paramKey, value: param.paramValues[1].value });
+            }
+        });
         const taskRequest: CreateTaskRequest = {
             ...values,
             taskProperties: taskProperties,
