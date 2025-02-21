@@ -10,8 +10,9 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { BaseNodeModel } from "./BaseNodeModel";
-import { Colors, NODE_HEIGHT, NODE_WIDTH } from "../../../resources/constants";
+import { NODE_HEIGHT, NODE_WIDTH } from "../../../resources/constants";
 import { Node } from "../../../utils/types";
 
 export namespace BaseNodeStyles {
@@ -26,10 +27,10 @@ export namespace BaseNodeStyles {
         min-width: ${NODE_WIDTH}px;
         min-height: ${NODE_HEIGHT}px;
         padding: 0 8px;
-        border: 1.5px solid ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
+        border: 1.5px solid ${(props: NodeStyleProp) => (props.hovered ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT)};
         border-radius: 10px;
-        background-color: ${Colors.SURFACE_DIM};
-        color: ${Colors.ON_SURFACE};
+        background-color: ${ThemeColors.SURFACE_DIM};
+        color: ${ThemeColors.ON_SURFACE};
     `;
 
     export const TopPortWidget = styled(PortWidget)`

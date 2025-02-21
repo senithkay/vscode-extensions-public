@@ -9,7 +9,7 @@
 
 import { useEffect, useState } from "react";
 import { ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { Button, Icon, Switch, View } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, Switch, View, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { BIFlowDiagram } from "../FlowDiagram";
 import { BISequenceDiagram } from "../SequenceDiagram";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -33,8 +33,8 @@ const SubTitleWrapper = styled.div`
 `;
 
 const AccessorType = styled.span`
-    background-color: var(--vscode-editor-background);
-    color: var(--vscode-badge-foreground);
+    background-color: ${ThemeColors.SURFACE_BRIGHT};
+    color: ${ThemeColors.BADGE};
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 12px;
@@ -43,13 +43,13 @@ const AccessorType = styled.span`
 `;
 
 const Path = styled.span`
-    color: var(--vscode-foreground);
+    color: ${ThemeColors.ON_SURFACE};
     font-family: var(--vscode-editor-font-family);
     font-size: 13px;
 `;
 
 const Parameters = styled.span`
-    color: var(--vscode-textPreformat-foreground);
+    color: ${ThemeColors.PRIMARY};
     font-family: var(--vscode-editor-font-family);
     font-size: 13px;
 `;
@@ -95,13 +95,15 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
         const context: VisualizerLocation = {
             view: MACHINE_VIEW.BIFunctionForm,
             identifier: (syntaxTree as ResourceAccessorDefinition).functionName.value,
-            documentUri: fileUri
+            documentUri: fileUri,
         };
         rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
 
+    let isAutomation = false;
     let isResource = false;
     let method = "";
+    const parameters = getParameters(syntaxTree);
 
     if (STKindChecker.isResourceAccessorDefinition(syntaxTree)) {
         isResource = true;
@@ -111,27 +113,47 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
         method = syntaxTree.functionName.value;
     }
 
+    if (!isResource && method === "main") {
+        isAutomation = true;
+    }
+
     return (
         <View>
             <TopNavigationBar />
-            {isResource && (
+            {isResource && !isAutomation && (
                 <TitleBar
                     title={"Resource"}
                     subtitleElement={
                         <SubTitleWrapper>
                             <AccessorType>{method}</AccessorType>
                             <Path>{getResourcePath(syntaxTree)}</Path>
-                            <Parameters>({getParameters(syntaxTree)})</Parameters>
+                            {parameters && <Parameters>({parameters})</Parameters>}
                         </SubTitleWrapper>
                     }
                 />
             )}
-            {!isResource && (
+            {!isResource && !isAutomation && (
                 <TitleBar
                     title={"Function"}
                     subtitleElement={
                         <SubTitleWrapper>
                             <Path>{method}</Path>
+                            {parameters && <Parameters>({parameters})</Parameters>}
+                        </SubTitleWrapper>
+                    }
+                    actions={
+                        <ActionButton appearance="secondary" onClick={() => handleEdit(fileName)}>
+                            <Icon name="bi-edit" sx={{ marginRight: 5, width: 16, height: 16, fontSize: 14 }} />
+                            Edit
+                        </ActionButton>
+                    }
+                />
+            )}
+            {!isResource && isAutomation && (
+                <TitleBar
+                    title={"Automation"}
+                    subtitleElement={
+                        <SubTitleWrapper>
                             <Parameters>({getParameters(syntaxTree)})</Parameters>
                         </SubTitleWrapper>
                     }

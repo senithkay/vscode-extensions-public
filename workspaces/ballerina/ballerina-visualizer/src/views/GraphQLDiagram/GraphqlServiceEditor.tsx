@@ -29,6 +29,7 @@ import {
     Icon,
     LinkButton,
     ProgressRing,
+    ThemeColors,
     Typography,
     ViewHeader,
 } from "@wso2-enterprise/ui-toolkit";
@@ -39,7 +40,6 @@ import { OperationAccordion } from "./OperationAccordian";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { OperationForm } from "./OperationForm";
-import { Colors } from "../../resources/constants";
 import { NodePosition } from "../BI/ServiceDesigner/components/TypeBrowser/TypeBrowser";
 import { applyModifications } from "../../utils/utils";
 
@@ -67,7 +67,7 @@ const GraphqlContainer = styled.div`
     right: 0;
     width: 400px;
     height: 100%;
-    background-color: ${Colors.SURFACE_BRIGHT};
+    background-color: ${ThemeColors.SURFACE_BRIGHT};
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
@@ -109,11 +109,11 @@ const SidePanelTitleContainer = styled.div`
     padding: 20px 10px;
     font-family: GilmerBold;
     color: var(--vscode-editor-foreground);
-    background-color: ${Colors.SURFACE_BRIGHT};
+    background-color: ${ThemeColors.SURFACE_BRIGHT};
 `;
 
 const OperationCard = styled.div`
-    border: 1px solid ${Colors.OUTLINE_VARIANT};
+    border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
     border-radius: 6px;
     margin: 8px 0;
     padding: 8px;
@@ -124,7 +124,7 @@ const OperationSection = styled.div`
 `;
 
 const EmptyStateText = styled(Typography)`
-    color: ${Colors.ON_SURFACE_VARIANT};
+    color: ${ThemeColors.ON_SURFACE_VARIANT};
     padding: 12px;
     text-align: center;
 `;

@@ -18,7 +18,7 @@ import {
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Typography, Codicon, ProgressRing, Button, Icon } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { Colors } from "../../../resources/constants";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { getProjectFromResponse, parseSSEEvent, replaceCodeBlocks, splitContent } from "../../AIPanel/AIChat";
 import ComponentDiagram from "../ComponentDiagram";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
@@ -87,27 +87,24 @@ const MainContent = styled.div`
     height: 60vh; // Takes majority of the viewport height
 `;
 
-const MainPanel = styled.div`
-    background: var(--vscode-sideBar-background);
-    border: 1px solid var(--vscode-dropdown-border);
+const MainPanel = styled.div<{ noPadding?: boolean }>`
+    border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
     border-radius: 4px;
-    padding: 16px;
+    padding: ${(props: { noPadding: boolean; }) => (props.noPadding ? "0" : "16px")};
     overflow: auto;
     display: flex;
     flex-direction: column;
 `;
 
 const SidePanel = styled.div`
-    background: var(--vscode-sideBar-background);
-    border: 1px solid var(--vscode-dropdown-border);
+    border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
     border-radius: 4px;
     padding: 16px;
     overflow: auto;
 `;
 
 const FooterPanel = styled.div`
-    background: var(--vscode-sideBar-background);
-    border: 1px solid var(--vscode-dropdown-border);
+    border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
     border-radius: 4px;
     padding: 16px;
     overflow: auto;
@@ -130,11 +127,12 @@ const EmptyReadmeContainer = styled.div`
     height: 100%;
 `;
 
-const DiagramHeaderContainer = styled.div`
+const DiagramHeaderContainer = styled.div<{ withPadding?: boolean }>`
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 16px;
+    padding: ${(props: { withPadding: boolean; }) => (props.withPadding ? "16px 16px 0 16px" : "0")};
 `;
 
 const DiagramContent = styled.div`
@@ -396,7 +394,7 @@ export function Overview(props: ComponentDiagramProps) {
     if (!projectStructure) {
         return (
             <SpinnerContainer>
-                <ProgressRing color={Colors.PRIMARY} />
+                <ProgressRing color={ThemeColors.PRIMARY} />
             </SpinnerContainer>
         );
     }
@@ -451,8 +449,8 @@ export function Overview(props: ComponentDiagramProps) {
             </HeaderRow>
 
             <MainContent>
-                <MainPanel>
-                    <DiagramHeaderContainer>
+                <MainPanel noPadding={true}>
+                    <DiagramHeaderContainer withPadding={true}>
                         <Title variant="h2">Design</Title>
                         <ActionContainer>
                             <Button appearance="icon" onClick={handleGenerate}>

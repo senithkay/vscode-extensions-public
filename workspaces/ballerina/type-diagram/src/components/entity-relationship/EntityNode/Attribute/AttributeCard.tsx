@@ -72,7 +72,7 @@ export function AttributeWidget(props: AttributeProps) {
                 }
                 {/* {isHovered && attribute.sourceLocation && editingEnabled &&
                         <NodeMenuWidget
-                            background={Colors.SECONDARY}
+                            background={ThemeColors.SECONDARY}
                             location={attribute.sourceLocation}
                         />
                     } */}

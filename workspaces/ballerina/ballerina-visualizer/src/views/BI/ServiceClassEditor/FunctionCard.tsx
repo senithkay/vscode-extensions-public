@@ -177,6 +177,7 @@ export function FunctionCard(params: FunctionCardProps) {
                 anchorEl={confirmEl}
                 anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
                 transformOrigin={{ vertical: "top", horizontal: "right" }}
+                sx={{ zIndex: 3002 }}
             />
         </AccordionContainer>
     );

@@ -9,8 +9,7 @@
 
 import React, { ReactNode } from 'react';
 import styled from '@emotion/styled';
-import { Typography } from '@wso2-enterprise/ui-toolkit';
-import { Colors } from '../../resources/constants';
+import { Typography, ThemeColors } from '@wso2-enterprise/ui-toolkit';
 
 const BannerContainer = styled.div<{ variant?: 'info' | 'warning' | 'success' | 'error' }>`
     display: flex;
@@ -28,7 +27,7 @@ const BannerContainer = styled.div<{ variant?: 'info' | 'warning' | 'success' | 
                 return 'var(--vscode-testing-iconPassed)';
             case 'info':
             default:
-                return Colors.SURFACE_DIM;
+                return ThemeColors.SURFACE_DIM;
         }
     }};
 `;

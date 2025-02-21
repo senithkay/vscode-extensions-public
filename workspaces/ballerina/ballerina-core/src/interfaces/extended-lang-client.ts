@@ -486,6 +486,15 @@ export interface JsonToRecordParams {
     isRecordTypeDesc: boolean;
     isClosed: boolean;
     forceFormatRecordFields?: boolean;
+    prefix?: string;
+    filePathUri?: string;
+}
+
+export interface TypeDataWithReferences {
+    types: {
+        type: Type;
+        refs: string[];
+    }[];
 }
 
 export interface JsonToRecord {
@@ -498,6 +507,8 @@ export interface XMLToRecordParams {
     isRecordTypeDesc?: boolean;
     isClosed?: boolean;
     forceFormatRecordFields?: boolean;
+    prefix?: string;
+    filePath?: string;
 }
 
 export interface XMLToRecord {
@@ -1080,7 +1091,7 @@ export type TypeNodeKind = "RECORD" | "ENUM" | "ARRAY" | "UNION" | "ERROR" | "MA
     "TYPEDESC" | "CLASS" | "OBJECT" | "INTERSECTION" | "SERVICE_DECLARATION" | "TABLE" | "TUPLE";
 // todo make this consistant
 export interface TypeCodeData {
-    lineRange: LineRange;
+    lineRange?: LineRange;
     node: TypeNodeKind;
 }
 
@@ -1248,6 +1259,8 @@ export interface BIInterface extends BaseLangClientInterface {
     updateType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
     updateImports: (params: UpdateImportsRequest) => Promise<void>;
     addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
+    convertJsonToRecordType: (params: JsonToRecordParams) => Promise<TypeDataWithReferences>;
+    convertXmlToRecordType: (params: XMLToRecordParams) => Promise<TypeDataWithReferences>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {

@@ -21,7 +21,7 @@ import styled from '@emotion/styled';
         align-items: center;
         justify-content: space-between;
         width: 100%;
-        padding: 8px;
+        padding: 8px 0px;
     `;
 
 const SectionTitle = styled.div`
@@ -61,14 +61,6 @@ export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorPr
         addMember
     }));
 
-    const handleImportJson = () => {
-        onImportJson();
-    }
-
-    const handleImportXml = () => {
-        onImportXml();
-    }
-
     const deleteSelected = () => {
         const newMembers = type.members.filter((_, index) => !selectedMembers.includes(index));
         setSelectedMembers([]);
@@ -95,11 +87,11 @@ export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorPr
                 <Header>
                     <SectionTitle>{'Record'}</SectionTitle>
                     <div style={{ display: 'flex', gap: '8px' }}>
-                        <Button appearance="icon">
-                            <Codicon name="arrow-circle-down" onClick={handleImportJson} />&nbsp;JSON
+                        <Button appearance="icon" onClick={onImportJson}>
+                            <Codicon name="arrow-circle-down" />&nbsp;JSON
                         </Button>
-                        <Button appearance="icon">
-                            <Codicon name="arrow-circle-down" onClick={handleImportXml} />&nbsp;XML
+                        <Button appearance="icon" onClick={onImportXml}>
+                            <Codicon name="arrow-circle-down" />&nbsp;XML
                         </Button>
                         <Button appearance="icon" onClick={addMember}><Codicon name="add" /></Button>
                         <Button appearance="icon" onClick={deleteSelected}><Codicon name="trash" /></Button>

@@ -370,7 +370,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     break;
                 case DIRECTORY_MAP.FUNCTIONS || DIRECTORY_MAP.DATA_MAPPERS:
                     res = await createBIFunction(params);
-                    break;  
+                    break;
                 default:
                     break;
             }
@@ -1100,16 +1100,13 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async updateType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
         const projectUri = StateMachine.context().projectUri;
-        const filePath =  path.join(projectUri, params.filePath);
+        const filePath = path.join(projectUri, params.filePath);
         return new Promise((resolve, reject) => {
             StateMachine.langClient()
-                .updateType({ filePath , type: params.type, description: "" })
+                .updateType({ filePath, type: params.type, description: "" })
                 .then((updateTypeResponse: UpdateTypeResponse) => {
                     console.log(">>> update type response", updateTypeResponse);
-                    // loop though all the files and update the type
-                    Object.entries(updateTypeResponse.textEdits).forEach(([file, textEdits]) => {
-                        this.applyTextEdits(file, textEdits);
-                    });
+                    this.updateSource(updateTypeResponse);
                     resolve(updateTypeResponse);
                 }).catch((error) => {
                     console.log(">>> error fetching types from ls", error);
@@ -1211,15 +1208,13 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async createGraphqlClassType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
         const projectUri = StateMachine.context().projectUri;
-        const filePath =  path.join(projectUri, params.filePath);
+        const filePath = path.join(projectUri, params.filePath);
         return new Promise((resolve, reject) => {
             StateMachine.langClient()
-                .createGraphqlClassType({ filePath , type: params.type, description: "" })
+                .createGraphqlClassType({ filePath, type: params.type, description: "" })
                 .then((updateTypeResponse: UpdateTypeResponse) => {
                     console.log(">>> create graphql class type response", updateTypeResponse);
-                    Object.entries(updateTypeResponse.textEdits).forEach(([file, textEdits]) => {
-                        this.applyTextEdits(file, textEdits);
-                    });
+                    this.updateSource(updateTypeResponse);
                     resolve(updateTypeResponse);
                 }).catch((error) => {
                     console.log(">>> error fetching class type from ls", error);
@@ -1243,9 +1238,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         return new Promise(async (resolve) => {
             try {
                 const res: SourceEditResponse = await StateMachine.langClient().updateClassField(params);
-                Object.entries(res.textEdits).forEach(([file, textEdits]) => {
-                    this.applyTextEdits(file, textEdits);
-                });
+                this.updateSource({ textEdits: res.textEdits });
                 resolve(res);
             } catch (error) {
                 console.log(error);
@@ -1257,9 +1250,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         return new Promise(async (resolve) => {
             try {
                 const res: SourceEditResponse = await StateMachine.langClient().updateServiceClass(params);
-                Object.entries(res.textEdits).forEach(([file, textEdits]) => {
-                    this.applyTextEdits(file, textEdits);
-                });
+                this.updateSource({ textEdits: res.textEdits });
                 resolve(res);
             } catch (error) {
                 console.log(error);
@@ -1271,9 +1262,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         return new Promise(async (resolve) => {
             try {
                 const res: SourceEditResponse = await StateMachine.langClient().addClassField(params);
-                Object.entries(res.textEdits).forEach(([file, textEdits]) => {
-                    this.applyTextEdits(file, textEdits);
-                });
+                this.updateSource({ textEdits: res.textEdits });
                 resolve(res);
             } catch (error) {
                 console.log(error);

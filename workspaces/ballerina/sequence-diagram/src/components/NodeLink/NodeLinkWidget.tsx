@@ -11,8 +11,7 @@
 import React from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { NodeLinkModel } from "./NodeLinkModel";
-import { Colors } from "../../resources/constants";
-
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 interface NodeLinkWidgetProps {
     link: NodeLinkModel;
     engine: DiagramEngine;
@@ -24,7 +23,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
     const angle = (Math.atan2(end.getY() - start.getY(), end.getX() - start.getX()) * 180) / Math.PI;
     const upsideDown = angle > 90 || angle < -90;
 
-    const linkColor = link.variant ? Colors.PRIMARY : Colors.PRIMARY;
+    const linkColor = link.variant ? ThemeColors.PRIMARY : ThemeColors.PRIMARY;
 
     return (
         <g pointerEvents={"all"}>

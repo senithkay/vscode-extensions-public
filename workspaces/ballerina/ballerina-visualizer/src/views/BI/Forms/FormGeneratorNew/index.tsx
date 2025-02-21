@@ -47,8 +47,8 @@ interface FormProps {
     openSubPanel?: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
-    onTypeChange?: (type: Type) => void;
     selectedNode?: NodeKind;
+    nestedForm?: boolean;
 }
 
 export function FormGeneratorNew(props: FormProps) {
@@ -64,8 +64,8 @@ export function FormGeneratorNew(props: FormProps) {
         updatedExpressionField,
         isGraphqlEditor,
         resetUpdatedExpressionField,
-        onTypeChange,
-        selectedNode
+        selectedNode,
+        nestedForm
     } = props;
 
     const { rpcClient } = useRpcContext();
@@ -83,9 +83,16 @@ export function FormGeneratorNew(props: FormProps) {
     const [functionInfo, setFunctionInfo] = useState<HelperPaneData>();
     const [libraryBrowserInfo, setLibraryBrowserInfo] = useState<HelperPaneData>();
     const [openTypeEditor, setOpenTypeEditor] = useState<boolean>(false);
+    const [editingField, setEditingField] = useState<FormField>();
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
 
     const [fieldsValues, setFields] = useState<FormField[]>(fields);
+
+    useEffect(() => {
+        if (fields) {
+            setFields(fields);
+        }
+    }, [fields]);
 
     useEffect(() => {
         handleFormOpen();
@@ -354,27 +361,36 @@ export function FormGeneratorNew(props: FormProps) {
     const handleTypeChange = async (type: Type) => {
         setOpenTypeEditor(false);
 
-        // Update fields to reflect the new type
-        const updatedFields = fieldsValues.map(field => {
-            if (field.key.includes('returnType')) {
-                return {
-                    ...field,
-                    value: type.name
-                };
-            }
-            return field;
-        });
-
-        setFields(updatedFields);
-
-        // Notify parent component about type change
-        onTypeChange?.(type);
+        if (editingField) {
+            const updatedFields = fieldsValues.map(field => {
+                if (field.key === editingField.key) {
+                    // Only handle parameter type if editingField is a parameter
+                    if (editingField.type === 'PARAM_MANAGER' && field.type === 'PARAM_MANAGER' && field.paramManagerProps.formFields) {
+                        return {
+                            ...field,
+                            paramManagerProps: {
+                                ...field.paramManagerProps,
+                                formFields: field?.paramManagerProps?.formFields.map(subField =>
+                                    subField.key === 'type' ? { ...subField, value: type.name } : subField
+                                )
+                            }
+                        };
+                    }
+                    // Handle regular fields
+                    return {
+                        ...field,
+                        value: type.name
+                    };
+                }
+                return field;
+            });
+            setFields(updatedFields);
+        }
     };
 
-    const handleOpenRecordEditor = (isOpen: boolean, f: FormValues) => {
+    const handleOpenRecordEditor = (isOpen: boolean, f: FormValues, editingField: FormField) => {
         if (isGraphqlEditor) {
             setOpenTypeEditor(isOpen);
-            // return;
         }
         // Get f.value and assign that value to field value
         const updatedFields = fields.map((field) => {
@@ -385,6 +401,7 @@ export function FormGeneratorNew(props: FormProps) {
             return updatedField;
         });
         setFields(updatedFields);
+        setEditingField(editingField);
     };
 
     const defaultType = (): Type => {
@@ -396,17 +413,6 @@ export function FormGeneratorNew(props: FormProps) {
                 description: ""
             },
             codedata: {
-                lineRange: {
-                    startLine: {
-                        line: 0,
-                        offset: 0
-                    },
-                    endLine: {
-                        line: 0,
-                        offset: 0
-                    },
-                    fileName: "types.bal"
-                },
                 node: "CLASS"
             },
             properties: {},
@@ -454,6 +460,7 @@ export function FormGeneratorNew(props: FormProps) {
         <>
             {fields && fields.length > 0 && (
                 <Form
+                    nestedForm={nestedForm}
                     formFields={fieldsValues}
                     projectPath={projectPath}
                     openRecordEditor={handleOpenRecordEditor}
