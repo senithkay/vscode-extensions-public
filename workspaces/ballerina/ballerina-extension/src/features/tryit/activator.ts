@@ -22,12 +22,28 @@ const TRYIT_TEMPLATE = `/*
 #### {{uppercase @key}} {{@../key}}
 
 {{#if parameters}}
-Parameters:
-\`\`\`
-{{#each parameters}}
-- {{name}} ({{in}}){{#if required}} [Required]{{/if}}{{#if description}}: {{description}}{{/if}}
+{{#with (groupParams parameters)}}
+{{#if path}}
+**Path Parameters:**
+{{#each path}}
+- \`{{name}}\` [{{schema.type}}]{{#if description}} - {{description}}{{/if}}{{#if required}} (Required){{/if}}
 {{/each}}
-\`\`\`
+{{/if}}
+
+{{#if query}}
+**Query Parameters:**
+{{#each query}}
+- \`{{name}}\` [{{schema.type}}]{{#if description}} - {{description}}{{/if}}{{#if required}} (Required){{/if}}
+{{/each}}
+{{/if}}
+
+{{#if header}}
+**Header Parameters:**
+{{#each header}}
+- \`{{name}}\` [{{schema.type}}]{{#if description}} - {{description}}{{/if}}{{#if required}} (Required){{/if}}
+{{/each}}
+{{/if}}
+{{/with}}
 {{/if}}
 */
 ###
@@ -286,6 +302,23 @@ function registerHandlebarsHelpers(openapiSpec: OAISpec): void {
 
             return new Handlebars.SafeString(headerParams ? `\n${headerParams}` : '');
         });
+
+        // Helper to group parameters by type (path, query, header)
+        if (!Handlebars.helpers.groupParams) {
+            Handlebars.registerHelper('groupParams', function (parameters) {
+                if (!parameters || !parameters.length) {
+                    return {};
+                }
+
+                return parameters.reduce((acc: any, param) => {
+                    if (!acc[param.in]) {
+                        acc[param.in] = [];
+                    }
+                    acc[param.in].push(param);
+                    return acc;
+                }, {});
+            });
+        }
     }
 
     if (!Handlebars.helpers.eq) {
