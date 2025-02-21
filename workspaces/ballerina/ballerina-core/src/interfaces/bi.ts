@@ -278,6 +278,7 @@ export type NodeKind =
     | "COMMENT"
     | "FUNCTION"
     | "FUNCTION_CALL"
+    | "NP_FUNCTION_CALL"
     | "ASSIGN"
     | "DATA_MAPPER_DEFINITION"
     | "DATA_MAPPER_CALL"
