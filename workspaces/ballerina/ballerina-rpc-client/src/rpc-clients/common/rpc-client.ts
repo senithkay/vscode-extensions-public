@@ -27,7 +27,7 @@ import {
     executeCommand,
     experimentalEnabled,
     getBallerinaDiagnostics,
-    getTypes,
+    getTypeCompletions,
     getWorkspaceFiles,
     getWorkspaceRoot,
     goToSource,
@@ -45,8 +45,8 @@ export class CommonRpcClient implements CommonRPCAPI {
         this._messenger = messenger;
     }
 
-    getTypes(): Promise<TypeResponse> {
-        return this._messenger.sendRequest(getTypes, HOST_EXTENSION);
+    getTypeCompletions(): Promise<TypeResponse> {
+        return this._messenger.sendRequest(getTypeCompletions, HOST_EXTENSION);
     }
 
     goToSource(params: GoToSourceRequest): void {

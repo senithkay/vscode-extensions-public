@@ -57,6 +57,7 @@ export enum MACHINE_VIEW {
     EditConnectionWizard = "Edit Connection Wizard",
     BIMainFunctionForm = "Add Automation",
     BIFunctionForm = "Add Function",
+    BITestFunctionForm = "Add Test Function",
     BIServiceWizard = "Service Wizard",
     BIServiceConfigView = "Service Config View",
     BIListenerConfigView = "Listener Config View",
@@ -124,7 +125,7 @@ export const getPopupVisualizerState: RequestType<void, PopupVisualizerLocation>
 export const breakpointChanged: NotificationType<boolean> = { method: 'breakpointChanged' };
 
 // ------------------> AI Related state types <----------------------- 
-export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'disabled';
+export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'disabled' | 'Settings';
 
 export enum AI_EVENT_TYPE {
     LOGIN = "LOGIN",
@@ -136,6 +137,8 @@ export enum AI_EVENT_TYPE {
     DISPOSE = "DISPOSE",
     CANCEL = "CANCEL",
     RETRY = "RETRY",
+    SETUP = "SETUP",
+    CHAT = "CHAT",
 }
 
 export enum AI_MACHINE_VIEW {

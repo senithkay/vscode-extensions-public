@@ -259,6 +259,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 					</span>
 					<span className={classes.label}>
 						<Button
+							id={"expand-or-collapse-" + id}
 							appearance="icon"
 							tooltip="Expand/Collapse"
 							onClick={handleExpand}

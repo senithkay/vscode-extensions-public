@@ -29,7 +29,6 @@ import PullingModuleLoader from "../../../Connectors/PackageLoader/Loader";
 import { InlineDataMapper } from "../../../InlineDataMapper";
 import { HelperView } from "../../HelperView";
 import { BodyText } from "../../../styles";
-import { Colors } from "../../../../resources/constants";
 
 const Container = styled.div`
     width: 100%;
