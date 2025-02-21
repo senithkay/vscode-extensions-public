@@ -26,7 +26,7 @@ export * from "./cmds/cmd-runner";
 export function activate() {
     // activate ballerina test command
     activateTestRunner();
-
+    
     // activate ballerina build command
     activateBuildCommand();
 

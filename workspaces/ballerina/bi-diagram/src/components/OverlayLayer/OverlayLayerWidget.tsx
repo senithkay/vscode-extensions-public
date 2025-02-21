@@ -12,9 +12,8 @@ import { DiagramEngine } from "@projectstorm/react-diagrams";
 import styled from "@emotion/styled";
 
 import { OverlayLayerModel } from "./OverlayLayerModel";
-import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { ProgressRing, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { DiagramStyles } from "../DiagramCanvas";
-import { Colors } from "../../resources/constants";
 
 export interface NodeLayerWidgetProps {
     layer: OverlayLayerModel;
@@ -33,7 +32,7 @@ const Container = styled.div`
 export class OverlayLayerWidget extends React.Component<NodeLayerWidgetProps> {
     render() {
         return (
-            <DiagramStyles.Container background={Colors.SURFACE_BRIGHT} color={Colors.ON_SURFACE}>
+            <DiagramStyles.Container background={ThemeColors.SURFACE_BRIGHT} color={ThemeColors.ON_SURFACE}>
                 <Container>
                     <ProgressRing />
                 </Container>

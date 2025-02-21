@@ -11,11 +11,11 @@ import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import classnames from "classnames";
-import { Button, Icon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from "../../Port";
-import { findMappingByOutput, getDefaultValue } from "../../utils/common-utils";
+import { fieldFQNFromPortName, findMappingByOutput, getDefaultValue } from "../../utils/common-utils";
 import { OutputSearchHighlight } from "../commons/Search";
 import { ValueConfigMenu, ValueConfigOption } from "../commons/ValueConfigButton";
 import { useIONodesStyles } from "../../../styles";
@@ -23,6 +23,8 @@ import { useDMExpressionBarStore } from "../../../../store/store";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
 import { IOType } from "@wso2-enterprise/ballerina-core";
+import { removeMapping } from "../../utils/modification-utils";
+import { OutputBeforeInputNotification } from "../commons/OutputBeforeInputNotification";
 
 export interface PrimitiveOutputElementWidgetWidgetProps {
     parentId: string;
@@ -31,7 +33,6 @@ export interface PrimitiveOutputElementWidgetWidgetProps {
     getPort: (portId: string) => InputOutputPortModel;
     context: IDataMapperContext;
     fieldIndex?: number;
-    deleteField?: (node: Node) => Promise<void>;
     isArrayElement?: boolean;
     hasHoveredParent?: boolean;
 }
@@ -44,7 +45,6 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
         engine,
         context,
         fieldIndex,
-        deleteField,
         isArrayElement,
         hasHoveredParent
     } = props;
@@ -55,22 +55,24 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
         setExprBarFocusedPort: state.setFocusedPort
     }));
 
+    const [isLoading, setLoading] = useState(false);
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
+    const [hasOutputBeforeInput, setHasOutputBeforeInput] = useState(false);
 
     const typeName = field.kind;
     const fieldName = field?.variableName || '';
 
-    let fieldId = parentId;
+    let portName = parentId;
 
     if (fieldIndex !== undefined) {
-        fieldId = `${parentId}.${fieldIndex}${fieldName !== '' ? `.${fieldName}` : ''}`;
+        portName = `${parentId}.${fieldIndex}${fieldName !== '' ? `.${fieldName}` : ''}`;
     } else if (fieldName) {
-        fieldId = `${parentId}.${typeName}.${fieldName}`;
+        portName = `${parentId}.${typeName}.${fieldName}`;
     } else {
-        fieldId = `${parentId}.${typeName}`;
+        portName = `${parentId}.${typeName}`;
     }
 
-    const portIn = getPort(`${fieldId}.IN`);
+    const portIn = getPort(`${portName}.IN`);
     const isExprBarFocused = exprBarFocusedPort?.getName() === portIn?.getName();
     const mapping = portIn && portIn.value;
     const { expression, diagnostics } = mapping || {};
@@ -81,14 +83,22 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
     };
 
     const handleDelete = async () => {
-        // TODO: Implement delete field
+        setLoading(true);
+        try {
+            await removeMapping(fieldFQNFromPortName(portName), context);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const valueConfigMenuItems = useMemo(() => {
-        const items = [{
-            title: ValueConfigOption.EditValue,
-            onClick: handleEditValue
-        }];
+        const items = [
+            // {
+            //     title: ValueConfigOption.EditValue,
+            //     onClick: handleEditValue
+            // }
+            // TODO: Enable this after adding support for editing value
+        ];
         if (isArrayElement) {
             items.push({
                 title: ValueConfigOption.DeleteElement,
@@ -106,6 +116,10 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
     const handlePortState = (state: PortState) => {
         setPortState(state)
     };
+
+    const handlePortSelection = (outputBeforeInput: boolean) => {
+		setHasOutputBeforeInput(outputBeforeInput);
+	};
 
     const label = (
         <span style={{ marginRight: "auto" }} data-testid={`primitive-array-element-${portIn?.getName()}`}>
@@ -146,7 +160,7 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
         <>
             {expression && (
                 <div
-                    id={"recordfield-" + fieldId}
+                    id={"recordfield-" + portName}
                     className={classnames(classes.treeLabel,
                         (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",
                         hasHoveredParent ? classes.treeLabelParentHovered : "",
@@ -155,16 +169,26 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
                 >
                     <span className={classes.inPort}>
                         {portIn &&
-                            <DataMapperPortWidget engine={engine} port={portIn} handlePortState={handlePortState} />
+                            <DataMapperPortWidget
+                                engine={engine}
+                                port={portIn}
+                                handlePortState={handlePortState}
+                                hasFirstSelectOutput={handlePortSelection}
+                            />
                         }
                     </span>
                     <span className={classes.label}>{label}</span>
-                    <FieldActionWrapper>
-                        <ValueConfigMenu
-                            menuItems={valueConfigMenuItems}
-                            portName={portIn?.getName()}
-                        />
-                    </FieldActionWrapper>
+                    {(isLoading) ? (
+                        <ProgressRing />
+                    ) : (
+                        <FieldActionWrapper>
+                            <ValueConfigMenu
+                                menuItems={valueConfigMenuItems}
+                                portName={portIn?.getName()}
+                            />
+                        </FieldActionWrapper>
+                    )}
+                    {hasOutputBeforeInput && <OutputBeforeInputNotification />}
                 </div>
             )}
         </>

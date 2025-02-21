@@ -41,12 +41,20 @@ import {
     getShadowDiagnostics,
     getTestDiagnostics,
     getTypesFromRecord,
+    isCopilotSignedIn,
+    isWSO2AISignedIn,
     login,
     logout,
+    markAlertShown,
     notifyAIMappings,
+    openChat,
+    openSettings,
     postProcess,
+    promptGithubAuthorize,
     promptLogin,
+    promptWSO2AILogout,
     refreshAccessToken,
+    showSignInAlert,
     stopAIMappings,
     updateProject,
 } from "@wso2-enterprise/ballerina-core";
@@ -84,4 +92,12 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onNotification(applyDoOnFailBlocks, () => rpcManger.applyDoOnFailBlocks());
     messenger.onRequest(postProcess, (args: PostProcessRequest) => rpcManger.postProcess(args));
     messenger.onRequest(getActiveFile, () => rpcManger.getActiveFile());
+    messenger.onNotification(openSettings, () => rpcManger.openSettings());
+    messenger.onNotification(openChat, () => rpcManger.openChat());
+    messenger.onRequest(promptGithubAuthorize, () => rpcManger.promptGithubAuthorize());
+    messenger.onRequest(promptWSO2AILogout, () => rpcManger.promptWSO2AILogout());
+    messenger.onRequest(isCopilotSignedIn, () => rpcManger.isCopilotSignedIn());
+    messenger.onRequest(isWSO2AISignedIn, () => rpcManger.isWSO2AISignedIn());
+    messenger.onRequest(showSignInAlert, () => rpcManger.showSignInAlert());
+    messenger.onNotification(markAlertShown, () => rpcManger.markAlertShown());
 }

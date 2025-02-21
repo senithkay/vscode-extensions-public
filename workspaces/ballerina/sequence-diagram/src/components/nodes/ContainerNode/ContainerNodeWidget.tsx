@@ -11,8 +11,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { ContainerNodeModel } from "./ContainerNodeModel";
-import { Colors } from "../../../resources/constants";
-
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 // this node is represent the if-else block of a sequence diagram
 
 namespace ContainerNodeStyles {
@@ -43,7 +42,7 @@ export function ContainerNodeWidget(props: ContainerNodeWidgetProps) {
                 <rect
                     width={node.width}
                     height={node.height}
-                    stroke={Colors.PRIMARY}
+                    stroke={ThemeColors.PRIMARY}
                     strokeWidth={2.5}
                     fill="none"
                     rx="10"
@@ -56,7 +55,7 @@ export function ContainerNodeWidget(props: ContainerNodeWidgetProps) {
                         y={14}
                         textAnchor="left"
                         dominantBaseline="middle"
-                        fill={Colors.PRIMARY}
+                        fill={ThemeColors.PRIMARY}
                         fontFamily="monospace"
                     >
                         {node.label}
@@ -68,7 +67,7 @@ export function ContainerNodeWidget(props: ContainerNodeWidgetProps) {
                         y1={(node.height * node.breakpointPercent) / 100}
                         x2={node.width}
                         y2={(node.height * node.breakpointPercent) / 100}
-                        stroke={Colors.PRIMARY}
+                        stroke={ThemeColors.PRIMARY}
                         strokeWidth={2}
                         strokeDasharray="5,5"
                     />

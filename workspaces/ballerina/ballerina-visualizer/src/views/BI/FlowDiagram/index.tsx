@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import {
     PanelContainer,
@@ -16,7 +16,7 @@ import {
     ExpressionFormField,
 } from "@wso2-enterprise/ballerina-side-panel";
 import styled from "@emotion/styled";
-import { Diagram } from "@wso2-enterprise/bi-diagram";
+import { MemoizedDiagram } from "@wso2-enterprise/bi-diagram";
 import {
     BIAvailableNodesRequest,
     Flow,
@@ -33,7 +33,7 @@ import {
     SubPanel,
     SubPanelView,
     CurrentBreakpointsResponse as BreakpointInfo,
-    FUNCTION_TYPE
+    FUNCTION_TYPE,
 } from "@wso2-enterprise/ballerina-core";
 
 import {
@@ -42,19 +42,12 @@ import {
     convertFunctionCategoriesToSidePanelCategories,
     getContainerTitle,
 } from "../../../utils/bi";
-import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import {
-    View,
-    ViewContent,
-    ViewHeader,
-    ProgressRing,
-    ProgressIndicator,
-} from "@wso2-enterprise/ui-toolkit";
+import { NodePosition, ResourceAccessorDefinition, STNode } from "@wso2-enterprise/syntax-tree";
+import { View, ProgressRing, ProgressIndicator, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
-import { applyModifications, getColorByMethod, textToModifications } from "../../../utils/utils";
+import { applyModifications, textToModifications } from "../../../utils/utils";
 import FormGenerator from "../Forms/FormGenerator";
 import { InlineDataMapper } from "../../InlineDataMapper";
-import { Colors } from "../../../resources/constants";
 import { HelperView } from "../HelperView";
 
 const Container = styled.div`
@@ -83,7 +76,7 @@ const ColoredTag = styled(VSCodeTag) <ColoredTagProps>`
 const SubTitle = styled.div`
     font-size: 14px;
     font-weight: 600;
-    color: ${Colors.ON_SURFACE};
+    color: ${ThemeColors.ON_SURFACE};
 `;
 
 export enum SidePanelView {
@@ -96,10 +89,12 @@ export enum SidePanelView {
 export interface BIFlowDiagramProps {
     syntaxTree: STNode; // INFO: this is used to make the diagram rerender when code changes
     projectPath: string;
+    onUpdate: () => void;
+    onReady: (fileName: string) => void;
 }
 
 export function BIFlowDiagram(props: BIFlowDiagramProps) {
-    const { syntaxTree, projectPath } = props;
+    const { syntaxTree, projectPath, onUpdate, onReady } = props;
     const { rpcClient } = useRpcContext();
 
     const [model, setModel] = useState<Flow>();
@@ -135,20 +130,26 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
 
     const getFlowModel = () => {
         setShowProgressIndicator(true);
-        rpcClient.getBIDiagramRpcClient().getBreakpointInfo().then((response) => {
-            setBreakpointInfo(response);
-            rpcClient
-                .getBIDiagramRpcClient()
-                .getFlowModel()
-                .then((model) => {
-                    if (model?.flowModel) {
-                        setModel(model.flowModel);
-                    }
-                })
-                .finally(() => {
-                    setShowProgressIndicator(false);
-                });
-        });
+        onUpdate();
+        rpcClient
+            .getBIDiagramRpcClient()
+            .getBreakpointInfo()
+            .then((response) => {
+                setBreakpointInfo(response);
+                rpcClient
+                    .getBIDiagramRpcClient()
+                    .getFlowModel()
+                    .then((model) => {
+                        if (model?.flowModel) {
+                            setModel(model.flowModel);
+                            onReady(model.flowModel.fileName);
+                        }
+                    })
+                    .finally(() => {
+                        setShowProgressIndicator(false);
+                        onReady(undefined);
+                    });
+            });
     };
 
     const handleOnCloseSidePanel = () => {
@@ -197,7 +198,26 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     console.error(">>> Error getting available nodes", response);
                     return;
                 }
-                const convertedCategories = convertBICategoriesToSidePanelCategories(response.categories as Category[]);
+                // filter out some categories that are not supported in the diagram
+                // TODO: these categories should be supported in the future
+                const notSupportedCategories = [
+                    "PARALLEL_FLOW",
+                    "LOCK",
+                    "START",
+                    "TRANSACTION",
+                    "COMMIT",
+                    "ROLLBACK",
+                    "RETRY",
+                ];
+                const filteredCategories = response.categories.map((category) => ({
+                    ...category,
+                    items: category?.items?.filter(
+                        (item) =>
+                            !("codedata" in item) ||
+                            !notSupportedCategories.includes((item as AvailableNode).codedata?.node)
+                    ),
+                })) as Category[];
+                const convertedCategories = convertBICategoriesToSidePanelCategories(filteredCategories);
                 setCategories(convertedCategories);
                 initialCategoriesRef.current = convertedCategories; // Store initial categories
                 // add draft node to model
@@ -276,7 +296,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     setSuggestedModel(model.flowModel);
                     suggestedText.current = model.suggestion;
                 }
-            }).finally(() => {
+            })
+            .finally(() => {
                 setFetchingAiSuggestions(false);
             });
     };
@@ -293,7 +314,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                       q: searchText,
                       limit: 12,
                       offset: 0,
-                      includeAvailableFunctions: "true"
+                      includeAvailableFunctions: "true",
                   }
                 : undefined,
         };
@@ -336,7 +357,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     console.log(">>> List of functions", response);
                     setCategories(
                         convertFunctionCategoriesToSidePanelCategories(
-                            response.categories as Category[], FUNCTION_TYPE.REGULAR
+                            response.categories as Category[],
+                            FUNCTION_TYPE.REGULAR
                         )
                     );
                     setSidePanelView(SidePanelView.FUNCTION_LIST);
@@ -357,7 +379,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 .then((response) => {
                     setCategories(
                         convertFunctionCategoriesToSidePanelCategories(
-                            response.categories as Category[], FUNCTION_TYPE.EXPRESSION_BODIED
+                            response.categories as Category[],
+                            FUNCTION_TYPE.EXPRESSION_BODIED
                         )
                     );
                     setSidePanelView(SidePanelView.DATA_MAPPER_LIST);
@@ -402,7 +425,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             .getSourceCode({
                 filePath: model.fileName,
                 flowNode: updatedNode,
-                isDataMapperFormUpdate: isDataMapperFormUpdate,
+                isFunctionNodeUpdate: isDataMapperFormUpdate,
             })
             .then((response) => {
                 console.log(">>> Updated source code", response);
@@ -506,12 +529,10 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             topNodeRef.current = undefined;
             targetRef.current = node.codedata.lineRange;
         }
-        // setSidePanelView(SidePanelView.FORM);
-        // setShowSidePanel(true);
-        // return;
         if (!targetRef.current) {
             return;
         }
+
         setShowProgressIndicator(true);
         rpcClient
             .getBIDiagramRpcClient()
@@ -521,6 +542,15 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 id: node.codedata,
             })
             .then((response) => {
+                const nodesWithCustomForms = ["IF", "FORK"];
+                // if node doesn't have properties. don't show edit form
+                if (!response.flowNode.properties && !nodesWithCustomForms.includes(response.flowNode.codedata.node)) {
+                    console.log(">>> Node doesn't have properties. Don't show edit form", response.flowNode);
+                    setShowProgressIndicator(false);
+                    showEditForm.current = false;
+                    return;
+                }
+
                 nodeTemplateRef.current = response.flowNode;
                 showEditForm.current = true;
                 setSidePanelView(SidePanelView.FORM);
@@ -592,24 +622,24 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             filePath: model?.fileName,
             breakpoint: {
                 line: node.codedata.lineRange.startLine.line,
-                column: node.codedata.lineRange.startLine?.offset
-            }
+                column: node.codedata.lineRange.startLine?.offset,
+            },
         };
 
         rpcClient.getBIDiagramRpcClient().addBreakpointToSource(request);
-    }
+    };
 
     const handleRemoveBreakpoint = (node: FlowNode) => {
         const request = {
             filePath: model?.fileName,
             breakpoint: {
                 line: node.codedata.lineRange.startLine.line,
-                column: node.codedata.lineRange.startLine?.offset
-            }
+                column: node.codedata.lineRange.startLine?.offset,
+            },
         };
 
         rpcClient.getBIDiagramRpcClient().removeBreakpointFromSource(request);
-    }
+    };
 
     // ai suggestions callbacks
     const onAcceptSuggestions = () => {
@@ -645,6 +675,15 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             position: position,
         };
         await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
+    };
+
+    const handleEdit = () => {
+        const context: VisualizerLocation = {
+            view: MACHINE_VIEW.BIFunctionForm,
+            identifier: (props?.syntaxTree as ResourceAccessorDefinition).functionName.value,
+            documentUri: model.fileName
+        };
+        rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
 
     const handleSubPanel = (subPanel: SubPanel) => {
@@ -685,65 +724,46 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         setUpdatedExpressionField(undefined);
     };
 
-    const method = (props?.syntaxTree as ResourceAccessorDefinition).functionName.value;
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
 
-    const isResource = STKindChecker.isResourceAccessorDefinition(props.syntaxTree);
-    const ResourceDiagramTitle = (
-        <>
-            <span>{"Resource"}:</span>
-            <ColoredTag color={getColorByMethod(method)}>{method}</ColoredTag>
-            <SubTitle>{getResourcePath(syntaxTree as ResourceAccessorDefinition)}</SubTitle>
-        </>
-    );
-    const FunctionDiagramTitle = (
-        <>
-            <span>{"Function"}:</span>
-            <SubTitle>{method}</SubTitle>
-        </>
+    const memoizedDiagramProps = useMemo(
+        () => ({
+            model: flowModel,
+            onAddNode: handleOnAddNode,
+            onAddNodePrompt: handleOnAddNodePrompt,
+            onDeleteNode: handleOnDeleteNode,
+            onAddComment: handleOnAddComment,
+            onNodeSelect: handleOnEditNode,
+            onConnectionSelect: handleOnEditConnection,
+            goToSource: handleOnGoToSource,
+            addBreakpoint: handleAddBreakpoint,
+            removeBreakpoint: handleRemoveBreakpoint,
+            openView: handleOpenView,
+            suggestions: {
+                fetching: fetchingAiSuggestions,
+                onAccept: onAcceptSuggestions,
+                onDiscard: onDiscardSuggestions,
+            },
+            projectPath,
+            breakpointInfo,
+        }),
+        [flowModel, fetchingAiSuggestions, projectPath, breakpointInfo]
     );
 
     return (
         <>
             <View>
-                <ViewHeader
-                    title={isResource ? ResourceDiagramTitle : FunctionDiagramTitle}
-                    icon={isResource ? "bi-http-service" : "bi-function"}
-                    iconSx={{ fontSize: "16px" }}
-                    // onEdit={handleOnFormBack}
-                ></ViewHeader>
-                {(showProgressIndicator || fetchingAiSuggestions) && model && <ProgressIndicator color={Colors.PRIMARY} />}
-                <ViewContent padding>
-                    <Container>
-                        {!model && (
-                            <SpinnerContainer>
-                                <ProgressRing color={Colors.PRIMARY} />
-                            </SpinnerContainer>
-                        )}
-                        {model && (
-                            <Diagram
-                                model={flowModel}
-                                onAddNode={handleOnAddNode}
-                                onAddNodePrompt={handleOnAddNodePrompt}
-                                onDeleteNode={handleOnDeleteNode}
-                                onAddComment={handleOnAddComment}
-                                onNodeSelect={handleOnEditNode}
-                                onConnectionSelect={handleOnEditConnection}
-                                goToSource={handleOnGoToSource}
-                                addBreakpoint={handleAddBreakpoint}
-                                removeBreakpoint={handleRemoveBreakpoint}
-                                openView={handleOpenView}
-                                suggestions={{
-                                    fetching: fetchingAiSuggestions,
-                                    onAccept: onAcceptSuggestions,
-                                    onDiscard: onDiscardSuggestions,
-                                }}
-                                projectPath={projectPath}
-                                breakpointInfo={breakpointInfo}
-                            />
-                        )}
-                    </Container>
-                </ViewContent>
+                {(showProgressIndicator || fetchingAiSuggestions) && model && (
+                    <ProgressIndicator color={ThemeColors.PRIMARY} />
+                )}
+                <Container>
+                    {!model && (
+                        <SpinnerContainer>
+                            <ProgressRing color={ThemeColors.PRIMARY} />
+                        </SpinnerContainer>
+                    )}
+                    {model && <MemoizedDiagram {...memoizedDiagramProps} />}
+                </Container>
             </View>
             <PanelContainer
                 title={getContainerTitle(sidePanelView, selectedNodeRef.current, selectedClientName.current)}
@@ -781,7 +801,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         <NodeList
                             categories={categories}
                             onSelect={handleOnSelectNode}
-                            onSearchTextChange={(searchText) => handleSearchFunction(searchText, FUNCTION_TYPE.EXPRESSION_BODIED)}
+                            onSearchTextChange={(searchText) =>
+                                handleSearchFunction(searchText, FUNCTION_TYPE.EXPRESSION_BODIED)
+                            }
                             onClose={handleOnCloseSidePanel}
                             title={"Data Mappers"}
                             onBack={handleOnFormBack}
@@ -808,12 +830,4 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             </PanelContainer>
         </>
     );
-}
-
-function getResourcePath(resource: ResourceAccessorDefinition) {
-    let resourcePath = "";
-    resource.relativeResourcePath?.forEach((path, index) => {
-        resourcePath += STKindChecker.isResourcePathSegmentParam(path) ? path.source : path?.value;
-    });
-    return resourcePath;
 }
