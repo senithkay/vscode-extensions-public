@@ -23,7 +23,7 @@ import {
     ValidateBreakpointsResponse
 } from "@wso2-enterprise/mi-core";
 import * as vscode from "vscode";
-import { StateMachine, navigate, openView } from "../../stateMachine";
+import { StateMachine, refreshUI } from "../../stateMachine";
 
 export class MiDebuggerRpcManager implements MiDebuggerAPI {
     async validateBreakpoints(params: ValidateBreakpointsRequest): Promise<ValidateBreakpointsResponse> {
@@ -49,7 +49,7 @@ export class MiDebuggerRpcManager implements MiDebuggerAPI {
             const breakpoint = new vscode.SourceBreakpoint(
                 new vscode.Location(vscode.Uri.file(params.filePath), new vscode.Position(params.breakpoint.line, params.breakpoint?.column || 0)));
             vscode.debug.addBreakpoints([breakpoint]);
-            navigate();
+            refreshUI();
 
             resolve({ isBreakpointValid: true });
         });
@@ -126,6 +126,6 @@ export class MiDebuggerRpcManager implements MiDebuggerAPI {
             });
         }
 
-        navigate();
+        refreshUI();
     }
 }

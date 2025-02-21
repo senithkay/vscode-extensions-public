@@ -51,3 +51,7 @@ export const OFFSETS = {
     },
     INTERMEDIATE_CLAUSE_HEIGHT: 80
 }
+
+export const DATA_MAPPER_DOC_VERSION = "4.4.0"; // TODO: Replace this with "latest" after the release
+export const DATA_MAPPER_DOC_URL = `https://mi.docs.wso2.com/en/${DATA_MAPPER_DOC_VERSION}/reference/mediators/data-mapper-mediator/`;
+export const DATA_MAPPER_ARRAY_MAPPING_DOC_URL = `${DATA_MAPPER_DOC_URL}#array-mapping`;

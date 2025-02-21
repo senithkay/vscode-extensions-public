@@ -17,7 +17,7 @@ export class Overview {
     }
 
     public async init() {
-        const webview = await switchToIFrame("MI Overview", this._page)
+        const webview = await switchToIFrame("Project Settings", this._page)
         if (!webview) {
             throw new Error("Failed to switch to Overview iframe");
         }

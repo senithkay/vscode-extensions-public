@@ -95,8 +95,8 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     };
 
     const formTitle = !props.model
-        ? "Create new Listener"
-        : "Edit Listener : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
+        ? "Create Event Integration"
+        : "Edit Event Integration : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
 
 
     const transformParams = (params: any, reverse: boolean = false) => {
@@ -116,29 +116,38 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     }
 
     const selectConnector = async (connector: any) => {
-        // Download connector from store
-        setIsDownloading(true);
-        let downloadSuccess = false;
-        let attempts = 0;
-        let uischema;
+        // Check if uiSchema is available
+        const response = await rpcClient.getMiDiagramRpcClient().getInboundEPUischema({
+            connectorName: connector.name
+        });
 
-        while (!downloadSuccess && attempts < 3) {
-            try {
-                uischema = await rpcClient.getMiDiagramRpcClient().downloadInboundConnector({
-                    url: connector.download_url
-                });
-                await rpcClient.getMiDiagramRpcClient().saveInboundEPUischema({
-                    connectorName: uischema.uischema.name,
-                    uiSchema: JSON.stringify(uischema.uischema)
-                })
-                setConnectorSchema(uischema?.uischema);
-                downloadSuccess = true;
-            } catch (error) {
-                console.error('Error occurred while downloading connector:', error);
-                attempts++;
+        if (response?.uiSchema) {
+            setConnectorSchema(response?.uiSchema);
+        } else {
+            // Download connector from store
+            setIsDownloading(true);
+            let downloadSuccess = false;
+            let attempts = 0;
+            let uischema;
+
+            while (!downloadSuccess && attempts < 3) {
+                try {
+                    uischema = await rpcClient.getMiDiagramRpcClient().downloadInboundConnector({
+                        url: connector.download_url
+                    });
+                    await rpcClient.getMiDiagramRpcClient().saveInboundEPUischema({
+                        connectorName: uischema.uischema.name,
+                        uiSchema: JSON.stringify(uischema.uischema)
+                    })
+                    setConnectorSchema(uischema?.uischema);
+                    downloadSuccess = true;
+                } catch (error) {
+                    console.error('Error occurred while downloading connector:', error);
+                    attempts++;
+                }
             }
+            setIsDownloading(false);
         }
-        setIsDownloading(false);
     }
 
     const handleCreateInboundEP = async (values: any) => {
@@ -175,8 +184,17 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.InboundEPView, documentUri: sequencePath } });
     };
 
+    const openInboundEPView = (documentUri: string) => {
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.InboundEPView, documentUri: documentUri } });
+    };
+
     const handleOnClose = () => {
-        rpcClient.getMiVisualizerRpcClient().goBack();
+        const isNewTask = !props.model;
+        if (isNewTask) {
+            openOverview();
+        } else {
+            openInboundEPView(props.path);
+        }
     }
 
     return (
@@ -196,7 +214,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                         </LoaderWrapper>
                     ) : (
                         <>
-                            <span>Please select an inbound endpoint.</span>
+                            <span>Please select an event integration.</span>
                             <SampleGrid>
                                 {connectors ?
                                     connectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (

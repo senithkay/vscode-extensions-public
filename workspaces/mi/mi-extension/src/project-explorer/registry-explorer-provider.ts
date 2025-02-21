@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -160,6 +160,10 @@ function generateTreeDataOfRegistry(project: vscode.WorkspaceFolder, data: Proje
 		const regPath = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
 		const gov = resources['registry']['gov'];
 		const conf = resources['registry']['conf'];
+		// remove datamapper folder from gov 
+		if (gov && gov.folders) {
+			gov.folders = gov.folders.filter((folder: any) => folder.name !== 'datamapper');
+		}
 		const isCollapsibleGov = gov && ((gov.files && gov.files.length > 0) || (gov.folders && gov.folders.length > 0));
 		const isCollapsibleConf = conf && ((conf.files && conf.files.length > 0) || (conf.folders && conf.folders.length > 0));
 		if (gov) {
@@ -261,4 +265,3 @@ function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): Regist
 	}
 	return result;
 }
-
