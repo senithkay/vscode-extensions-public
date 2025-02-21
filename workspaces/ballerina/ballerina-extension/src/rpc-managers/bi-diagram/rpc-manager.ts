@@ -1313,6 +1313,8 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                             modificationList.push(stModification);
                         }
 
+                        modificationList.sort((a, b) => a.startLine - b.startLine);
+
                         if (modificationRequests[fileUri]) {
                             modificationRequests[fileUri].modifications.push(...modificationList);
                         } else {
@@ -1338,8 +1340,6 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                                     },
                                 ],
                             });
-
-
                         }
                     }
                 } catch (error) {
@@ -1347,7 +1347,6 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 }
                 updateView();
             }
-
         } catch (error) {
             console.error('Error in renameIdentifier:', error);
             throw error;
