@@ -40,11 +40,11 @@ export function NodeIcon(props: NodeIconProps) {
 
     switch (type) {
         case "IF":
-            return <BranchIcon/>;
+            return <BranchIcon />;
         case "EXPRESSION":
             return <CodeIcon />;
         case "REMOTE_ACTION_CALL":
-        case "RESOURCE_ACTION_CALL":    
+        case "RESOURCE_ACTION_CALL":
             return <CallIcon />;
         case "RETURN":
             return <ReturnIcon />;
@@ -62,7 +62,12 @@ export function NodeIcon(props: NodeIconProps) {
         case "STOP":
             return <StopIcon />;
         case "ERROR_HANDLER":
-            return <Icon name="bi-shield" sx={{ stroke: ThemeColors.ON_SURFACE, fontSize: size, width: size, height: size }} />;
+            return (
+                <Icon
+                    name="bi-shield"
+                    sx={{ stroke: ThemeColors.ON_SURFACE, fontSize: size, width: size, height: size }}
+                />
+            );
         case "PANIC":
             return <BombIcon />;
         case "LOCK":
@@ -78,6 +83,8 @@ export function NodeIcon(props: NodeIconProps) {
         case "FUNCTION":
         case "FUNCTION_CALL":
             return <FunctionIcon />;
+        case "NP_FUNCTION_CALL":
+            return <Icon name="bi-ai-function" sx={{ fontSize: size, width: size, height: size }} />;
         case "DATA_MAPPER_CALL":
             return <Icon name="dataMapper" sx={{ fontSize: size, width: size, height: size }} />;
         case "FORK":
@@ -94,7 +101,7 @@ export function NodeIcon(props: NodeIconProps) {
             return <Icon name="bi-error" sx={{ fontSize: size, width: size, height: size }} />;
         case "RETRY":
             return <Icon name="bi-retry" sx={{ fontSize: size, width: size, height: size }} />;
-        
+
         default:
             return <CodeIcon />;
     }
