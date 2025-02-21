@@ -8,7 +8,7 @@
  */
 import styled from "@emotion/styled";
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import React, { ComponentPropsWithRef } from "react";
+import React, { ComponentPropsWithRef, ReactNode } from "react";
 import { Control, Controller } from "react-hook-form";
 
 const Directions = {
@@ -18,6 +18,7 @@ const Directions = {
 
 export type CheckBoxProps = {
     label: string;
+    labelAdornment?: ReactNode;
     value?: string;
     checked: boolean;
     disabled?: boolean;
@@ -46,43 +47,82 @@ const CheckBoxContainer = styled.div<CheckBoxGroupProps>`
 
 export const StyledCheckBox = styled(VSCodeCheckbox)<CheckBoxProps>`
     --checkbox-border: var(--vscode-icon-foreground);
+    display: flex;
+    align-items: center;
     ${(props: CheckBoxProps) => props.sx};
 `;
 
-export const CheckBox = ({ label, value, checked, sx, disabled, onChange }: CheckBoxProps) => {
+const LabelContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 4px;
+`;
+export const CheckBox = ({ label, labelAdornment, value, sx, checked, onChange, disabled }: CheckBoxProps) => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onChange(e.target.checked);
     };
 
     return (
-        <StyledCheckBox key={`checkbox-${value}`} sx={sx} value={value} checked={checked} disabled={disabled} onClick={handleChange}>
-            {label}
+        <StyledCheckBox key={`checkbox-${value}`} sx={sx} value={value} checked={checked} onClick={handleChange} disabled={disabled}>
+            <LabelContainer>
+                <div style={{ color: "var(--vscode-editor-foreground)" }}>
+                    <label htmlFor={`${label}`}>{label}</label>
+                </div>
+                {labelAdornment && labelAdornment}
+            </LabelContainer>
         </StyledCheckBox>
     );
 };
 
+interface ContainerProps {
+    sx?: any;
+}
+const Description = styled.div<ContainerProps>`
+    color: var(--vscode-list-deemphasizedForeground);
+    margin-bottom: 4px;
+    text-align: left;
+    ${(props: ContainerProps) => props.sx};
+`;
 
 interface FormCheckBoxProps {
     name: string;
     label?: string;
+    labelAdornment?: ReactNode;
+    description?: string;
+    descriptionSx?: any;
+    sx?: any;
     control: Control<any>;
 }
 
-export const FormCheckBox: React.FC<FormCheckBoxProps> = ({ name, control, label }) => {
+const FormCheckBoxContainer = styled.div<ContainerProps>`
+    ${({ sx }: ContainerProps) => sx};
+`;
+
+export const FormCheckBox: React.FC<FormCheckBoxProps> = ({ name, control, label, labelAdornment, description, sx, descriptionSx }) => {
     return (
-        <Controller
-            name={name}
-            control={control}
-            render={({ field: { onChange, value: checked } }) => {
-                return (
-                    <CheckBox
-                        label={label}
-                        checked={checked}
-                        onChange={onChange}
-                    />
-                );
-            }}
-        />
+        <FormCheckBoxContainer sx={sx}>
+            <Controller
+                name={name}
+                control={control}
+                render={({ field: { onChange, value: checked } }) => {
+                    return (
+                        <div>
+                            {description && (
+                                <Description sx={descriptionSx}>
+                                    {description}
+                                </Description>
+                            )}
+                            <CheckBox
+                                label={label}
+                                labelAdornment={labelAdornment}
+                                checked={checked}
+                                onChange={onChange}
+                            />
+                        </div>
+                    );
+                }}
+            />
+        </FormCheckBoxContainer>
     );
 };
 

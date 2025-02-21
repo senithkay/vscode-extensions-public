@@ -15,7 +15,7 @@ import { PlusNodeModel } from "./PlusNodeModel";
 import { Colors } from "../../../resources/constants";
 import { keyframes } from "@emotion/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { getNewSubSequenceXml } from "../../../utils/template-engine/mustach-templates/templateUtils";
+import { Switch } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 namespace S {
     export const zoomIn = keyframes`
@@ -73,12 +73,20 @@ export function PlusNodeWidget(props: CallNodeWidgetProps) {
 
     const handleOnClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        visualizerContext.rpcClient.getMiDiagramRpcClient().applyEdit({
-            text: getNewSubSequenceXml(node.mediatorName, stNode),
+        visualizerContext.rpcClient.getMiDiagramRpcClient().updateMediator({
+            mediatorType: node.mediatorName.toLowerCase(),
+            values: { "newBranch": true, "numberOfCases": getNumberOfSwitchCases(stNode as Switch) },
             documentUri: node.documentUri,
             range: { start: stNode.range.endTagRange.start, end: stNode.range.endTagRange.start }
         });
     };
+
+    function getNumberOfSwitchCases(st: Switch) {
+        if (st._case) {
+            return st._case.length;
+        }
+        return 0;
+    }
 
     return (
         <S.Node

@@ -19,6 +19,13 @@ export enum DIAGRAM_KIND {
     INBOUND_ENDPOINT = "inboundEndpoint",
 }
 
+export declare enum DIRECTORY_MAP {
+    SERVICES = "services",
+    TRIGGERS = "triggers",
+    CONNECTIONS = "connections",
+    SCHEDULED_TASKS = "tasks"
+}
+
 export type SyntaxTreeMi = {
     [DIAGRAM_KIND.API]: API;
     [DIAGRAM_KIND.SEQUENCE]: NamedSequence;

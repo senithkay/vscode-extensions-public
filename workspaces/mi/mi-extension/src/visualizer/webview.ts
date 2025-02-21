@@ -16,11 +16,11 @@ import { getComposerJSFiles } from '../util';
 import { RPCLayer } from '../RPCLayer';
 import { extension } from '../MIExtensionContext';
 import { debounce } from 'lodash';
-import { navigate, StateMachine } from '../stateMachine';
+import { refreshUI, StateMachine } from '../stateMachine';
 import { MACHINE_VIEW, onDocumentSave } from '@wso2-enterprise/mi-core';
 import { COMMANDS, REFRESH_ENABLED_DOCUMENTS, SWAGGER_LANG_ID, SWAGGER_REL_DIR } from '../constants';
 import { AiPanelWebview } from '../ai-panel/webview';
-import { DMProject } from '../datamapper/DMProject';
+import { removeFromHistory } from './../history/activator';
 import { deleteSwagger, generateSwagger } from '../util/swagger';
 
 export class VisualizerWebview {
@@ -36,12 +36,14 @@ export class VisualizerWebview {
         RPCLayer.create(this._panel);
 
         // Handle the text change and diagram update with rpc notification
-        const refreshDiagram = debounce(async () => {
+        const refreshDiagram = debounce(async (refreshDiagram: boolean = true) => {
             if (this.getWebview()) {
                 if (!StateMachine.context().isOldProject) {
                     await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND); // Refresh the project explore view
                 }
-                navigate();
+                if (refreshDiagram) {
+                    refreshUI();
+                }
             }
         }, 500);
 
@@ -59,12 +61,15 @@ export class VisualizerWebview {
 
         vscode.workspace.onDidDeleteFiles(async function (event) {
             const projectRoot = StateMachine.context().projectUri!;
+            refreshDiagram(false);
+
             const apiDir = path.join(projectRoot, 'src', 'main', "wso2mi", "artifacts", "apis");
             event.files.forEach(file => {
                 const filePath = file?.fsPath;
                 if (filePath?.includes(apiDir)) {
                     deleteSwagger(filePath);
                 }
+                removeFromHistory(filePath);
             });
         }, extension.context);
 
@@ -98,7 +103,9 @@ export class VisualizerWebview {
                 generateSwagger(document.uri.fsPath);
             }
 
-            refreshDiagram();
+            if (currentView !== 'Connector Store Form') {
+                refreshDiagram();
+            }
         }, extension.context);
 
         this._panel.onDidChangeViewState(() => {
@@ -157,9 +164,14 @@ export class VisualizerWebview {
         // Check if PNG file exists
         if (fs.existsSync(path.join(iconPath, name + '.png'))) {
             iconPathUri = vscode.Uri.file(path.join(iconPath, name + '.png').toString());
-        } else {
-            // If PNG does not exist, use GIF
+        } else if (fs.existsSync(path.join(iconPath, name + '.svg'))) {
+            // Check for SVG
+            iconPathUri = vscode.Uri.file(path.join(iconPath, name + '.svg').toString());
+        } else if (fs.existsSync(path.join(iconPath, name + '.gif'))) {
+            // Use GIF
             iconPathUri = vscode.Uri.file(path.join(iconPath, name + '.gif').toString());
+        } else {
+            return undefined;
         }
 
         if (panel) {

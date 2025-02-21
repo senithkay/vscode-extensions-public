@@ -3,7 +3,7 @@
   "displayName": "Micro Integrator",
   "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
   "icon": "resources/images/wso2-micro-integrator-image.png",
-  "version": "1.1.7",
+  "version": "2.0.0",
   "publisher": "wso2",
   "engines": {
     "vscode": "^1.81.0"
@@ -132,6 +132,24 @@
             "type": "number",
             "default": 8290,
             "description": "Port to check the readiness of the MI server"
+          },
+          "MI.SERVER_PATH": {
+            "type": "string",
+            "default": "",
+            "description": "Location to store MI archives, considering the user's home directory",
+            "scope": "resource"
+          },
+          "MI.JAVA_HOME": {
+            "type": "string",
+            "default": "",
+            "description": "Java Home path",
+            "scope": "resource"
+          },
+          "MI.LEGACY_EXPRESSION_ENABLED": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable legacy expression support",
+            "scope": "resource"
           }
         }
       }
@@ -154,7 +172,8 @@
         {
           "id": "MI.registry-explorer",
           "name": "Registry Explorer",
-          "visibility": "collapsed"
+          "visibility": "collapsed",
+          "when": "MI.registry-explorer.isVisible"
         }
       ],
       "test": [
@@ -168,7 +187,17 @@
       {
         "view": "MI.project-explorer",
         "contents": "Loading...",
-        "when": "MI.status != 'unknownProject' && MI.status != 'projectLoaded' && MI.status != 'disabled'"
+        "when": "MI.status != 'unknownProject' && MI.status != 'projectLoaded' && MI.status != 'disabled' && MI.status != 'notSetUp'"
+      },
+      {
+        "view": "MI.project-explorer",
+        "contents": "No artifacts were found. Please add artifacts to your project to view them here.\n[Add artifact](command:MI.project-explorer.add.artifact)",
+        "when": "projectOpened && MI.status == 'projectLoaded' && MI.showAddArtifact"
+      },
+      {
+        "view": "MI.project-explorer",
+        "contents": "No artifacts were found. Please add artifacts to your project to view them here.",
+        "when": "projectOpened && MI.status == 'projectLoaded' && !MI.showAddArtifact"
       },
       {
         "view": "MI.project-explorer",
@@ -182,12 +211,17 @@
       },
       {
         "view": "MI.project-explorer",
-        "contents": "Some errors occured while activating the extension. Please check the output channel for more information.",
+        "contents": "Some errors occurred while activating the extension. Please check the output channel for more information.",
         "when": "MI.status == 'disabled'"
       },
       {
         "view": "testing",
         "contents": "[Add Unit Test](command:MI.test.add.suite)"
+      },
+      {
+        "view": "MI.project-explorer",
+        "contents": "Micro Integrator is not set up. Please set up the MI server and Java home to continue.",
+        "when": "MI.status == 'notSetUp'"
       }
     ],
     "commands": [
@@ -225,14 +259,14 @@
         "when": "MI.isRunning== 'true'"
       },
       {
-        "command": "MI.project-explorer.add",
-        "title": "Add Construct",
+        "command": "MI.project-explorer.add.artifact",
+        "title": "Add Artifact",
         "icon": "$(add)",
         "category": "MI"
       },
       {
         "command": "MI.registry-explorer.add",
-        "title": "Add to Registry",
+        "title": "Add to Resource",
         "icon": "$(add)",
         "category": "MI"
       },
@@ -251,6 +285,13 @@
       {
         "command": "MI.project-explorer.add-api",
         "title": "Add API",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
+        "command": "MI.project-explorer.add-resource",
+        "title": "Add Resource",
         "icon": "$(add)",
         "group": "navigation",
         "category": "MI"
@@ -418,6 +459,11 @@
         "category": "MI"
       },
       {
+        "command": "MI.change.java",
+        "title": "Set Java Home",
+        "category": "MI"
+      },
+      {
         "command": "MI.build-project",
         "title": "Build",
         "category": "MI"
@@ -479,6 +525,10 @@
         },
         {
           "command": "MI.project-explorer.add-api",
+          "when": "false"
+        },
+        {
+          "command": "MI.project-explorer.add-resource",
           "when": "false"
         },
         {
@@ -594,10 +644,6 @@
           "when": "false"
         },
         {
-          "command": "MI.project-explorer.add",
-          "when": "false"
-        },
-        {
           "command": "MI.registry-explorer.refresh",
           "when": "view == MI.registry-explorer && projectOpened",
           "group": "navigation"
@@ -615,7 +661,7 @@
           "group": "navigation"
         },
         {
-          "command": "MI.project-explorer.add",
+          "command": "MI.project-explorer.add.artifact",
           "when": "view == MI.project-explorer && projectOpened",
           "group": "navigation"
         },
@@ -649,7 +695,7 @@
         {
           "command": "MI.build-and-run",
           "group": "navigation@1",
-          "when": "MI.status == 'projectLoaded' && (isVisualizerActive || resourceLangId == SynapseXml)",
+          "when": "MI.status == 'projectLoaded' && (isVisualizerActive || resourceLangId == SynapseXml) && (MI.isRunning !== 'true')",
           "title": "Build and Run Project"
         }
       ],
@@ -688,6 +734,11 @@
         {
           "command": "MI.project-explorer.add-api",
           "when": "view == MI.project-explorer && viewItem == apis",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-resource",
+          "when": "view == MI.project-explorer && viewItem == resources",
           "group": "inline"
         },
         {
@@ -913,6 +964,7 @@
     "@apidevtools/json-schema-ref-parser": "11.6.1",
     "adm-zip": "~0.5.14",
     "@wso2-enterprise/mi-diagram": "workspace:*",
-    "upath": "~2.0.1"
+    "upath": "~2.0.1",
+    "find-process": "~1.4.10"
   }
 }

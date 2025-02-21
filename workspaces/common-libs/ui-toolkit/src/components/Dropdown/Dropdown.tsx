@@ -29,11 +29,14 @@ export interface DropdownProps extends ComponentProps<"select"> {
     isLoading?: boolean;
     isRequired?: boolean;
     label?: string;
+    labelAdornment?: ReactNode;
     items?: OptionProps[];
     errorMsg?: string;
     sx?: any;
     containerSx?: any;
     dropdownContainerSx?: any;
+    description?: string | ReactNode;
+    descriptionSx?: any;
     onValueChange?: (value: string) => void;
     addNewBtnLabel?: string;
     addNewBtnClick?: () => void;
@@ -68,6 +71,12 @@ const Label = styled.div<ContainerProps>`
     margin-bottom: 2px;
 `;
 
+const Description = styled.div<ContainerProps>`
+    color: var(--vscode-list-deemphasizedForeground);
+    margin-bottom: 4px;
+    text-align: left;
+    ${(props: ContainerProps) => props.sx};
+`;
 const LabelContainer = styled.div<ContainerProps>`
     display: flex;
     flex-direction: row;
@@ -87,7 +96,7 @@ const AddNewButton = styled(Button)`
 `;
 
 export const Dropdown = React.forwardRef<HTMLSelectElement, DropdownProps>((props, ref) => {
-    const { isLoading, isRequired, id, items, label, errorMsg, sx, containerSx, addNewBtnLabel, addNewBtnClick, dropdownContainerSx, ...rest } = props;
+    const { isLoading, isRequired, id, items, label, errorMsg, sx, containerSx, addNewBtnLabel, addNewBtnClick, description, descriptionSx, dropdownContainerSx, labelAdornment, ...rest } = props;
 
     const handleValueChange = (e: any) => {
         props.onValueChange && props.onValueChange(e.target.value);
@@ -105,6 +114,7 @@ export const Dropdown = React.forwardRef<HTMLSelectElement, DropdownProps>((prop
                             <Label>
                                 <label htmlFor={id}>{label}</label>
                                 {(isRequired) && (<RequiredFormInput />)}
+                                {labelAdornment && labelAdornment}
                             </Label>
                             {addNewBtnClick &&
                                 <AddNewButton
@@ -117,6 +127,11 @@ export const Dropdown = React.forwardRef<HTMLSelectElement, DropdownProps>((prop
                                 </AddNewButton>
                             }
                         </LabelContainer>
+                    )}
+                    {description && (
+                        <Description sx={descriptionSx}>
+                            {description}
+                        </Description>
                     )}
                     <VSCodeDropdown ref={ref} id={id} style={sx} {...rest} onChange={handleValueChange}>
                         {items?.map((item: OptionProps) => (
