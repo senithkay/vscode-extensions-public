@@ -25,7 +25,7 @@ const ButtonGrid = styled.div`
 `;
 
 const VersionTag = styled.div`
-    color: #808080;
+    color: var(--vscode-list-deemphasizedForeground);
     font-size: 10px;
     padding-left: 2px;
 `;
@@ -44,6 +44,23 @@ const CardLabel = styled.div`
     align-self: flex-start;
     width: 100%;
     gap: 10px;
+`;
+
+const DeleteIconContainer = styled.div`
+    width: 25px;
+    height: 10px;
+    cursor: pointer;
+    border-radius: 2px;
+    align-content: center;
+    padding: 5px 5px 15px 12px;
+    color: var(--vscode-list-deemphasizedForeground);
+    &:hover, &.active {
+        background-color: var(--vscode-pickerGroup-border);
+        color: var(--vscode-minimap-errorHighlight);
+    }
+    & img {
+        width: 25px;
+    }
 `;
 
 const DownloadIconContainer = styled.div`
@@ -131,15 +148,15 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isColl
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                             {connectorDetails &&
-                                <DownloadIconContainer 
+                                <DeleteIconContainer 
                                 onClick={() => onDelete(title, connectorDetails.artifactId, connectorDetails.version, iconUri, connectorDetails.connectorPath)} 
                                 className="download-icon">
-                                    <Codicon name="trash" iconSx={{ fontSize: 25 }} />
-                                </DownloadIconContainer>
+                                    <Codicon name="trash" iconSx={{ fontSize: 20 }} />
+                                </DeleteIconContainer>
                             }
                             {onDownload &&
                                 <DownloadIconContainer onClick={onDownload} className="download-icon">
-                                    <Icon iconSx={{ fontSize: 25 }} name="import" />
+                                    <Icon iconSx={{ color: 'var(--vscode-list-deemphasizedForeground)', fontSize: 25 }} name="import" />
                                 </DownloadIconContainer>
                             }
                             <Button appearance="icon" tooltip={collapsed ? 'Expand' : 'Collapse'}>

@@ -8,12 +8,11 @@
  */
 
 import { ComponentCard, IconLabel, FormView, TextField, Codicon, Typography, FormActions, Button } from "@wso2-enterprise/ui-toolkit";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { VSCodeLink, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import AddConnection from "./ConnectionFormGenerator";
-import { connectorFailoverIconUrl } from "../../../constants";
 import { ImportConnectorForm } from "./ImportConnector";
 import path from "path";
 
@@ -42,10 +41,9 @@ const IconContainer = styled.div`
     }
 `;
 
-const VersionTag = styled.div`
-    font-size: 13px;
-    padding-left: 2px;
-    text-align: start;
+const VersionTag = styled.span`
+    color: var(--vscode-list-deemphasizedForeground);
+    padding-left: 10px;
 `;
 
 const CardContent = styled.div`
@@ -62,6 +60,7 @@ const CardLabel = styled.div`
     flex-direction: row;
     align-self: flex-start;
     width: 100%;
+    height: 100%;
 `;
 
 const LabelContainer = styled.div`
@@ -69,6 +68,7 @@ const LabelContainer = styled.div`
     flex-direction: column;
     width: 100%;
     max-width: 130px;
+    justify-content: center;
     & > * {
         overflow: hidden;
         text-overflow: ellipsis;
@@ -78,11 +78,13 @@ const LabelContainer = styled.div`
     text-overflow: ellipsis;
     white-space: nowrap;
     text-align: center;
+    height: 100%;
 `;
 const SampleGrid = styled.div`
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
+    marginBottom
 `;
 
 const SearchStyle = {
@@ -419,84 +421,92 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                     </LoaderWrapper>
                 ) : (
                     <>
-                        <SampleGrid>
-                            {displayedLocalConnectors && displayedLocalConnectors.map((connector: any) => (
-                                Object.entries(connector.connectionUiSchema).map(([connectionType, connectionData]) => (
-                                    (allowedConnectionTypes && !allowedConnectionTypes.some(
-                                        type => type.toLowerCase() === connectionType.toLowerCase() // Ignore case on allowedtype check
-                                    )) ? null : (
-                                        <ComponentCard
-                                            key={connectionType}
-                                            onClick={() => selectConnectionType(connector, connectionType)}
-                                            sx={connectorCardStyle}
-                                        >
-                                            <CardContent>
-                                                <IconContainer>
-                                                    <img
-                                                        src={(connectionData as any).iconPathUri}
-                                                        alt="Icon"
-                                                    />
-                                                </IconContainer>
-                                                <CardLabel>
-                                                    <LabelContainer>
-                                                        <NameLabel>
-                                                            {capitalizeFirstChar(connectionType)}
-                                                        </NameLabel>
-                                                        <VersionTag>
-                                                            {`${capitalizeFirstChar(connector.name)} Connector`}
-                                                        </VersionTag>
-                                                        <VersionTag>
-                                                            {connector.version}
-                                                        </VersionTag>
-                                                    </LabelContainer>
-                                                </CardLabel>
-                                            </CardContent>
-                                        </ComponentCard>
-                                    )))))}
-                        </SampleGrid>
-                        {!allowedConnectionTypes && checkStoreConnectionsAvailable(displayedStoreConnectors, displayedLocalConnectors) &&
-                            <>
-                                <h4>In Store: </h4>
+
+                        {displayedLocalConnectors && displayedLocalConnectors.map((connector: any) => (
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                {!allowedConnectionTypes &&
+                                    <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: '10px' }}>
+                                        <h4>{capitalizeFirstChar(connector.name)} Connector</h4>
+                                        <VersionTag>{connector.version}</VersionTag>
+                                    </div>
+                                }
                                 <SampleGrid>
-                                    {displayedStoreConnectors.sort((a: any, b: any) => a.connectorRank - b.connectorRank).map((connector: any) => (
-                                        (connector.version.connections).map((connection: any) => (
+                                    {Object.entries(connector.connectionUiSchema).map(([connectionType, connectionData]) => (
+                                        (allowedConnectionTypes && !allowedConnectionTypes.some(
+                                            type => type.toLowerCase() === connectionType.toLowerCase() // Ignore case on allowedtype check
+                                        )) ? null : (
                                             <ComponentCard
-                                                key={connection.name}
-                                                onClick={() => selectStoreConnectionType(connector, connection.name)}
+                                                key={connectionType}
+                                                onClick={() => selectConnectionType(connector, connectionType)}
                                                 sx={connectorCardStyle}
                                             >
                                                 <CardContent>
                                                     <IconContainer>
                                                         <img
-                                                            src={connection.iconUrl}
+                                                            src={(connectionData as any).iconPathUri}
                                                             alt="Icon"
-                                                            onError={(e) => {
-                                                                const target = e.target as HTMLImageElement;
-                                                                target.src = connector.iconUrl || connector.connectorFailoverIconUrl;
-                                                            }}
                                                         />
                                                     </IconContainer>
                                                     <CardLabel>
                                                         <LabelContainer>
                                                             <NameLabel>
-                                                                {capitalizeFirstChar(connection.name)}
+                                                                {capitalizeFirstChar(connectionType)}
                                                             </NameLabel>
-                                                            <VersionTag>
-                                                                {`${capitalizeFirstChar(connector.connectorName)} Connector`}
-                                                            </VersionTag>
-                                                            <VersionTag>
-                                                                {connector.version.tagName}
-                                                            </VersionTag>
                                                         </LabelContainer>
                                                     </CardLabel>
                                                 </CardContent>
                                             </ComponentCard>
-                                        ))
-                                    )
-                                    )}
+                                        )))}
                                 </SampleGrid>
+                            </div>
+                        ))}
+
+                        {!allowedConnectionTypes && (
+                            <>
+                                <hr style={{ border: '1px solid #ccc', margin: '30px 0', width: '100%' }} />
+                                {checkStoreConnectionsAvailable(displayedStoreConnectors, displayedLocalConnectors) &&
+                                    <>
+                                        <h3>In Store: </h3>
+                                        {displayedStoreConnectors.sort((a: any, b: any) => a.connectorRank - b.connectorRank).map((connector: any) => (
+                                            (connector.version.connections?.length > 0) && <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '10px' }}>
+                                                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                                                    <h4>{connector.connectorName} Connector </h4>
+                                                    <VersionTag>{connector.version.tagName}</VersionTag>
+                                                </div>
+                                                <SampleGrid>
+                                                    {(connector.version.connections).map((connection: any) => (
+                                                        <ComponentCard
+                                                            key={connection.name}
+                                                            onClick={() => selectStoreConnectionType(connector, connection.name)}
+                                                            sx={connectorCardStyle}
+                                                        >
+                                                            <CardContent>
+                                                                <IconContainer>
+                                                                    <img
+                                                                        src={connection.iconUrl}
+                                                                        alt="Icon"
+                                                                        onError={(e) => {
+                                                                            const target = e.target as HTMLImageElement;
+                                                                            target.src = connector.iconUrl || connector.connectorFailoverIconUrl;
+                                                                        }}
+                                                                    />
+                                                                </IconContainer>
+                                                                <CardLabel>
+                                                                    <LabelContainer>
+                                                                        <NameLabel>
+                                                                            {capitalizeFirstChar(connection.name)}
+                                                                        </NameLabel>
+                                                                    </LabelContainer>
+                                                                </CardLabel>
+                                                            </CardContent>
+                                                        </ComponentCard>
+                                                    ))}
+                                                </SampleGrid>
+                                            </div>
+                                        ))}
+                                    </>}
                             </>
-                        }
+                        )}
                         {displayedStoreConnectors === undefined ? (
                             <LoaderWrapper>
                                 <ProgressRing />
@@ -598,7 +608,7 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                                         </FormActions>
                                     </div>
                                 )) : (
-                                <>
+                                <div style={{ gap: '0px' }}>
                                     {/* Search bar */}
                                     <TextField
                                         sx={SearchStyle}
@@ -612,7 +622,7 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                                         autoFocus={true}
                                     />
                                     <ConnectorList />
-                                </>
+                                </div>
                             )}
                         </FormView >
                     )
