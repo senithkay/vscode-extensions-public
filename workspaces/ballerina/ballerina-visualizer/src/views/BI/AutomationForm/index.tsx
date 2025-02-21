@@ -176,18 +176,7 @@ export function MainForm() {
             documentation: "",
             value: "",
             valueTypeConstraint: "",
-        },
-        {
-            key: `defaultable`,
-            label: "Default Value",
-            type: "EXPRESSION",
-            optional: true,
-            advanced: true,
-            editable: true,
-            documentation: "",
-            value: "",
-            valueTypeConstraint: "",
-        },
+        }
     ];
 
     // Helper function to modify and set the visual information
