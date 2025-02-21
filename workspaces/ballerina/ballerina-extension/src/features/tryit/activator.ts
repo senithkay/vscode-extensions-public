@@ -171,8 +171,8 @@ async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: 
     let selectedService: ServiceInfo;
     if (services.length > 1) {
         const quickPickItems = services.map(service => ({
-            label: `basepath: ${service.basePath}`,
-            description: `listener: ${service.listener}`,
+            label: `'${service.basePath}' on ${service.listener}`,
+            description: `HTTP Service`,
             service
         }));
 
