@@ -8,8 +8,7 @@
  */
 
 import React from "react";
-import { Button, SidePanel, SidePanelTitleContainer } from "@wso2-enterprise/ui-toolkit";
-import { Colors } from "../../resources/constants";
+import { Button, SidePanel, SidePanelTitleContainer, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { BackIcon, CloseIcon } from "../../resources";
 
@@ -41,7 +40,7 @@ export function PanelContainer(props: PanelContainerProps) {
             width={width || 400}
             sx={{
                 fontFamily: "GilmerRegular",
-                backgroundColor: Colors.SURFACE_DIM,
+                backgroundColor: ThemeColors.SURFACE_DIM,
                 boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)",
             }}
             subPanel={subPanel}

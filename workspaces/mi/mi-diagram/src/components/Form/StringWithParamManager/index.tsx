@@ -7,11 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState, ReactNode } from "react";
+import React, { forwardRef, useEffect, useState } from "react";
 import { Range } from 'vscode-languageserver-types';
-import { ComponentCard, RequiredFormInput, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { ComponentCard, RequiredFormInput, Typography } from "@wso2-enterprise/ui-toolkit";
 import ParameterManager, { Param } from "../GigaParamManager/ParameterManager";
 import { Element, cardStyle } from "../FormGenerator";
+import { FormTokenEditor } from "../FormTokenEditor";
 
 interface StringWithParamManagerProps {
     element: Element;
@@ -68,26 +69,20 @@ export const StringWithParamManagerComponent = forwardRef<HTMLDivElement, String
         'tableValue': 'propertyValue',
         'helpTip': element.helpTip,
         'placeholder': element.placeholder,
-        'required': isRequired
+        'required': isRequired,
+        'addParamText': 'Add Query Parameter',
+        'noDataText': 'No query parameters available',
     };
 
     return (<ComponentCard sx={cardStyle} disbaleHoverEffect>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Typography variant="h3">{element.displayName}</Typography>
-            {isRequired && (<RequiredFormInput />)}
-            <div style={{ paddingTop: '5px' }}>
-                {helpTipElement}
-            </div>
-        </div>
 
-        <TextField {...field}
+        <FormTokenEditor
+            sx={{ paddingTop: 20, fontSize: '1.17em',fontWeight: 'bold' }}
+            nodeRange={nodeRange}
             value={stringValue}
-            onChange={(e) => {
-                setStringValue(e.target.value);
-                setParamManagerParameters(generateParamManagerParameters(e.target.value, element.separatorPattern));
-            }}
+            onChange={setStringValue}
             labelAdornment={helpTipElement}
-            size={50}
+            label={element.displayName}
             placeholder={element.placeholder}
             required={isRequired}
             errorMsg={errorMsg}

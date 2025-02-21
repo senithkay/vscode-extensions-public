@@ -11,8 +11,7 @@ import React from "react";
 import { DownloadProgress } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import styled from "@emotion/styled";
-import { Button, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
-import { Colors } from "../../../resources/constants";
+import { Button, Icon, ProgressRing, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 const Wrapper = styled.div`
     height: calc(100vh - 100px);
@@ -125,9 +124,9 @@ export function SetupView(props: SetupViewProps) {
 
     const getIcon = (complete: boolean, loading: boolean) => {
         if (complete) {
-            return <Icon name="enable-inverse" iconSx={{ fontSize: "15px", color: Colors.PRIMARY, cursor: "default" }} />;
+            return <Icon name="enable-inverse" iconSx={{ fontSize: "15px", color: ThemeColors.PRIMARY, cursor: "default" }} />;
         } else if (loading) {
-            return <ProgressRing sx={{ height: "16px", width: "16px" }} color={Colors.PRIMARY} />;
+            return <ProgressRing sx={{ height: "16px", width: "16px" }} color={ThemeColors.PRIMARY} />;
         } else {
             return <Icon name="radio-button-unchecked" iconSx={{ fontSize: "16px", cursor: "default" }} />;
         }
@@ -201,7 +200,7 @@ export function SetupView(props: SetupViewProps) {
                 <StepContainer>
                     <Row>
                         <Column>
-                            <StepTitle color={Colors.ERROR}>Something went wrong while setting up Kola</StepTitle>
+                            <StepTitle color={ThemeColors.ERROR}>Something went wrong while setting up Kola</StepTitle>
                             <StepDescription>{progress.message}</StepDescription>
                             <StepDescription>
                                 Please check your internet connection or permissions and try again.

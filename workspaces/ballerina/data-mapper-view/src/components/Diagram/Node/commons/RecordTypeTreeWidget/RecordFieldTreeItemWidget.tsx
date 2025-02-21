@@ -120,6 +120,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
             >
                 <span className={classes.label}>
                     {fields && <Button
+                            id={"expand-or-collapse-" + fieldId}
                             appearance="icon"
                             tooltip="Expand/Collapse"
                             onClick={handleExpand}

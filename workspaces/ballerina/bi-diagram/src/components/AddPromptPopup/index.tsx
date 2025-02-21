@@ -11,8 +11,8 @@ import React, { useEffect, useState } from "react";
 import { FlowNode, Branch, LinePosition } from "../../utils/types";
 import { useDiagramContext } from "../DiagramContext";
 import styled from "@emotion/styled";
-import { Colors, NODE_PADDING, POPUP_BOX_WIDTH } from "../../resources/constants";
-import { Button, PromptTextField } from "@wso2-enterprise/ui-toolkit";
+import { NODE_PADDING, POPUP_BOX_WIDTH } from "../../resources/constants";
+import { Button, PromptTextField, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 export namespace PopupStyles {
     export const Container = styled.div`
@@ -23,8 +23,8 @@ export namespace PopupStyles {
         width: ${POPUP_BOX_WIDTH}px;
         padding: ${NODE_PADDING / 2}px ${NODE_PADDING}px;
         border-radius: 4px;
-        background-color: ${Colors.SURFACE};
-        color: ${Colors.ON_SURFACE};
+        background-color: ${ThemeColors.SURFACE};
+        color: ${ThemeColors.ON_SURFACE};
     `;
 
     export const Row = styled.div`
@@ -39,7 +39,7 @@ export namespace PopupStyles {
     export const InfoText = styled.div`
         font-size: 11px;
         font-family: monospace;
-        color: ${Colors.ON_SURFACE};
+        color: ${ThemeColors.ON_SURFACE};
         opacity: 0.7;
     `;
 }
