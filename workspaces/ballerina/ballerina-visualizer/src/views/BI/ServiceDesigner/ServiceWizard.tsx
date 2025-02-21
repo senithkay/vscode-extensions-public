@@ -7,16 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
-import { DIRECTORY_MAP, EVENT_TYPE, ListenerModel, ListenersResponse, ServiceModel, NodePosition } from '@wso2-enterprise/ballerina-core';
-import { Button, Codicon, ComponentCard, Icon, TextField, Typography, Stepper, ProgressRing, View, ViewContent, CheckBox, AutoComplete } from '@wso2-enterprise/ui-toolkit';
+import { useEffect, useState } from 'react';
+import { EVENT_TYPE, ListenerModel, ListenersResponse, ServiceModel } from '@wso2-enterprise/ballerina-core';
+import { Stepper, View, ViewContent } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import ListenerConfigForm from './Forms/ListenerConfigForm';
 import ServiceConfigForm from './Forms/ServiceConfigForm';
-import { BodyText, LoadingContainer } from '../../styles';
-import { BIHeader } from '../BIHeader';
-import { FormValues } from '@wso2-enterprise/ballerina-side-panel';
+import { LoadingContainer } from '../../styles';
+import { TitleBar } from '../../../components/TitleBar';
+import { TopNavigationBar } from '../../../components/TopNavigationBar';
+import { LoadingRing } from '../../../components/Loader';
 
 const FORM_WIDTH = 600;
 
@@ -71,6 +72,11 @@ const ButtonWrapper = styled.div`
     justify-content: right;
 `;
 
+const StepperContainer = styled.div`
+    margin-top: 16px;
+    margin-left: 16px;
+    margin-bottom: 20px;
+`;
 
 export interface ServiceWizardProps {
     type: string;
@@ -91,9 +97,6 @@ export function ServiceWizard(props: ServiceWizardProps) {
 
     const [saving, setSaving] = useState<boolean>(false);
     const [existingListener, setExistingListener] = useState<string>(undefined);
-
-    const listenerConfigForm = useRef<{ triggerSave: () => void }>(null);
-    const serviceConfigForm = useRef<{ triggerSave: () => void }>(null);
 
     useEffect(() => {
         rpcClient.getServiceDesignerRpcClient().getListeners({ filePath: "", moduleName: type }).then(res => {
@@ -138,22 +141,6 @@ export function ServiceWizard(props: ServiceWizardProps) {
         });
     };
 
-    const handleOnNext = () => {
-        if (existing && !creatingListener) {
-            handleListenerSubmit();
-        } else {
-            if (listenerConfigForm.current) {
-                listenerConfigForm.current.triggerSave();
-            }
-        }
-    }
-
-    const handleOnSave = () => {
-        if (serviceConfigForm.current) {
-            serviceConfigForm.current.triggerSave();
-        }
-    }
-
     const handleServiceSubmit = async (value: ServiceModel) => {
         setSaving(true);
         const res = await rpcClient.getServiceDesignerRpcClient().addServiceSourceCode({ filePath: "", service: value });
@@ -164,7 +151,6 @@ export function ServiceWizard(props: ServiceWizardProps) {
                 position: res.position
             },
         });
-        setSaving(false);
     }
 
     const onBack = () => {
@@ -184,37 +170,39 @@ export function ServiceWizard(props: ServiceWizardProps) {
 
     return (
         <View>
-            <ViewContent padding>
-                <BIHeader />
-                {!listenerModel &&
+            <TopNavigationBar />
+            <TitleBar title="Service" subtitle="Create a new service for your integration" />
+            <ViewContent>
+                {!listenerModel && !listeners &&
                     <LoadingContainer>
-                        <ProgressRing />
-                        <Typography variant="h3" sx={{ marginTop: '16px' }}>Loading...</Typography>
+                        <LoadingRing message="Loading listener..." />
                     </LoadingContainer>
                 }
                 {listenerModel &&
                     <Container>
-                        {!listeners?.hasListeners && <Stepper alignment='flex-start' steps={defaultSteps} currentStep={step} />}
+                        {!listeners?.hasListeners &&
+                            <StepperContainer>
+                                <Stepper alignment='flex-start' steps={defaultSteps} currentStep={step} />
+                            </StepperContainer>
+                        }
                         {step === 0 && !saving &&
                             <>
-                                <ListenerConfigForm formRef={listenerConfigForm} listenerModel={listenerModel} onSubmit={handleListenerSubmit} onBack={creatingListener && onBack} formSubmitText={listeners?.hasListeners ? "Create" : undefined} />
+                                <ListenerConfigForm listenerModel={listenerModel} onSubmit={handleListenerSubmit} onBack={creatingListener && onBack} formSubmitText={listeners?.hasListeners ? "Create" : undefined} />
                             </>
                         }
                         {step === 0 && saving &&
                             <LoadingContainer>
-                                <ProgressRing />
-                                <Typography variant="h3" sx={{ marginTop: '16px' }}>Creating the listener...</Typography>
+                                <LoadingRing message="Saving listener..." />
                             </LoadingContainer>
                         }
                         {step === 1 && !saving &&
                             <>
-                                <ServiceConfigForm formRef={serviceConfigForm} serviceModel={serviceModel} onSubmit={handleServiceSubmit} openListenerForm={existing && openListenerForm} formSubmitText={listeners?.hasListeners ? "Create" : undefined} />
+                                <ServiceConfigForm serviceModel={serviceModel} onSubmit={handleServiceSubmit} openListenerForm={existing && openListenerForm} formSubmitText={"Create"} />
                             </>
                         }
                         {step === 1 && saving &&
                             <LoadingContainer>
-                                <ProgressRing />
-                                <Typography variant="h3" sx={{ marginTop: '16px' }}>Saving... Please wait</Typography>
+                                <LoadingRing message="Saving service..." />
                             </LoadingContainer>
                         }
                     </Container>

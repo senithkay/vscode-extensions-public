@@ -102,6 +102,7 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
                 <span className={classes.label}>
                     {isRecord && hasFields && (
                         <Button
+                            id={"expand-or-collapse-" + id}
                             appearance="icon"
                             tooltip="Expand/Collapse"
                             onClick={handleExpand}

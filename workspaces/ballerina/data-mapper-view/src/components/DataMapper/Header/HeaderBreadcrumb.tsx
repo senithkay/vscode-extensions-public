@@ -15,22 +15,27 @@ import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { SelectionState, ViewOption } from "../DataMapper";
 import { css } from '@emotion/css';
 
-const useStyles = () => ({
-    active: css({
-        cursor: "default",
-        lineHeight: "unset",
-        color: "inherit"
-    }),
-    link: css({
-        cursor: "pointer",
+const useStyles = () => {
+    const baseStyle = {
         color: "inherit",
+        fontFamily: "var(--vscode-editor-font-family)",
+        fontSize: "13px"
+    };
 
-        "&:hover": {
-            color: "inherit"
-        },
-    })
-});
-
+    return {
+        active: css({
+            ...baseStyle,
+            cursor: "default"
+        }),
+        link: css({
+            ...baseStyle,
+            cursor: "pointer",
+            "&:hover": {
+                color: "var(--vscode-textLink-activeForeground)"
+            }
+        })
+    };
+};
 
 export interface HeaderBreadcrumbProps {
     selection: SelectionState;
@@ -85,8 +90,10 @@ export default function HeaderBreadcrumb(props: HeaderBreadcrumbProps) {
             maxItems={3}
             separator={<Codicon name="chevron-right" />}
         >
-            {links}
-            {activeLink}
+            {/* <div className={classes.path}> */}
+                {links}
+                {activeLink}
+            {/* </div> */}
         </Breadcrumbs>
     );
 }

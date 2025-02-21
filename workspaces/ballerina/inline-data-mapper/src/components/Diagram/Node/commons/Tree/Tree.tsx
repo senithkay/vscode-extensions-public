@@ -44,6 +44,7 @@ export const SharedContainer = styled.div`
 export const TreeHeader = styled.div((
     { isSelected, isDisabled }: { isSelected?: boolean, isDisabled?: boolean }
 ) => ({
+    position: 'relative',
     height: `${IO_NODE_HEADER_HEIGHT}px`,
     padding: '8px',
     background: 'none',

@@ -481,6 +481,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     <span className={classes.label}>
                         {fields && (
                             <Button
+                                id={"expand-or-collapse-" + fieldId}
                                 appearance="icon"
                                 tooltip="Expand/Collapse"
                                 sx={{ marginLeft: indentation }}

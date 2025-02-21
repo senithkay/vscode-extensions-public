@@ -11,10 +11,9 @@ import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { ButtonNodeModel } from "./ButtonNodeModel";
-import { BUTTON_NODE_HEIGHT, BUTTON_NODE_WIDTH, Colors, NODE_PADDING } from "../../../resources/constants";
-import { FlowNode } from "../../../utils/types";
+import { BUTTON_NODE_HEIGHT, BUTTON_NODE_WIDTH, NODE_PADDING } from "../../../resources/constants";
 import { useDiagramContext } from "../../DiagramContext";
-import { Button } from "@wso2-enterprise/ui-toolkit";
+import { Button, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 export namespace PopupStyles {
     export const Container = styled.div`
@@ -26,8 +25,8 @@ export namespace PopupStyles {
         height: ${BUTTON_NODE_HEIGHT}px;
         padding: 0 ${NODE_PADDING}px;
         border-radius: 4px;
-        background-color: ${Colors.SURFACE};
-        color: ${Colors.ON_SURFACE};
+        background-color: ${ThemeColors.SURFACE};
+        color: ${ThemeColors.ON_SURFACE};
     `;
 
     export const Row = styled.div`

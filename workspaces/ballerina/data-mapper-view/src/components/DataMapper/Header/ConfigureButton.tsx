@@ -23,7 +23,6 @@ const useStyles = () => ({
         "& > vscode-button": {
             textTransform: 'none',
             boxSizing: 'border-box',
-            color: 'var(--vscode-sideBarSectionHeader-foreground)',
             fontWeight: 300,
             height: '26px',
             marginLeft: '10px'

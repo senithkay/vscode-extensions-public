@@ -29,7 +29,7 @@ export interface WorkspaceFolder {
 }
 
 export interface ComponentRequest {
-    type: DIRECTORY_MAP;
+    type: DIRECTORY_MAP | "testFunctions";
     serviceType?: ComponentServiceType;
     functionType?: ComponentFunctionType;
 }
