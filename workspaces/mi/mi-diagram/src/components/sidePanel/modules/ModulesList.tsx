@@ -178,7 +178,8 @@ export function Modules(props: ModuleProps) {
                                 title={FirstCharToUpperCase(values.connectorName)}
                                 isCollapsed={true}
                                 iconUri={values.iconUrl}
-                                onDownload={() => downloadModule(values)}>
+                                onDownload={() => downloadModule(values)}
+                                disableGrid={true} >
                                 <OperationsList connector={values} allowVersionChange={true} setVersionForDownload={setVersion} />
                             </ButtonGroup >
                         </div >

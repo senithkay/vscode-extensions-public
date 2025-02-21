@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ComponentCard, IconLabel, FormView, TextField, Codicon, Typography, FormActions, Button } from "@wso2-enterprise/ui-toolkit";
+import { ComponentCard, IconLabel, FormView, TextField, Codicon, Typography, FormActions, Button, Divider } from "@wso2-enterprise/ui-toolkit";
 import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { VSCodeLink, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
@@ -426,7 +426,7 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 {!allowedConnectionTypes &&
                                     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: '10px' }}>
-                                        <h4>{capitalizeFirstChar(connector.name)} Connector</h4>
+                                        <Typography variant="h4">{capitalizeFirstChar(connector.name)} Connector</Typography>
                                         <VersionTag>{connector.version}</VersionTag>
                                     </div>
                                 }
@@ -463,14 +463,14 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
 
                         {!allowedConnectionTypes && (
                             <>
-                                <hr style={{ border: '1px solid #ccc', margin: '30px 0', width: '100%' }} />
+                                <Divider sx={{ margin: '30px 0px' }} />
                                 {checkStoreConnectionsAvailable(displayedStoreConnectors, displayedLocalConnectors) &&
                                     <>
-                                        <h3>In Store: </h3>
+                                        <Typography variant="h3">In Store: </Typography>
                                         {displayedStoreConnectors.sort((a: any, b: any) => a.connectorRank - b.connectorRank).map((connector: any) => (
                                             (connector.version.connections?.length > 0) && <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '10px' }}>
                                                 <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                                                    <h4>{connector.connectorName} Connector </h4>
+                                                    <Typography variant="h4">{connector.connectorName} Connector </Typography>
                                                     <VersionTag>{connector.version.tagName}</VersionTag>
                                                 </div>
                                                 <SampleGrid>

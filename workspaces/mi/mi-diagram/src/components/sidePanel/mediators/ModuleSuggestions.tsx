@@ -34,6 +34,7 @@ export const OperationsWrapper = styled.div`
     color: #808080;
     gap: 5px;
     cursor: default;
+    padding: 10px;
 `;
 
 export function ModuleSuggestions(props: ModuleSuggestionProps) {
@@ -107,7 +108,8 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
                             isCollapsed={true}
                             iconUri={values.iconUrl}
                             versionTag={values.version.tagName}
-                            onDownload={() => downloadModule(values)}>
+                            onDownload={() => downloadModule(values)}
+                            disableGrid={true} >
                             <OperationsList connector={values} />
                         </ButtonGroup >
                     </div >

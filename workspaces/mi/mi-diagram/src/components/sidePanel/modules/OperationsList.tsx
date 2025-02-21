@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { AutoComplete, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Divider, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import React, { useEffect, useState } from 'react';
 import { FirstCharToUpperCase } from '../../../utils/commons';
 import { ConnectorOperation } from '@wso2-enterprise/mi-core';
@@ -83,7 +83,7 @@ export function OperationsList(props: OperationsListProps) {
                     {operations?.length && (
                         <div style={{ display: 'flex', flexDirection: 'column', marginTop: '30px' }} >
                             Available Operations
-                            <hr style={{ border: '1px solid #ccc', margin: '5px 0', width: '350px' }} />
+                            <Divider sx={{ margin: '5px 0' }} />
                             {operations.map((operation: ConnectorOperation) => (
                                 !operation.isHidden && (
                                     <Tooltip

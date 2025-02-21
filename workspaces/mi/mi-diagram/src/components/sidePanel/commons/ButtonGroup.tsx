@@ -87,8 +87,19 @@ interface ButtonroupProps {
     onDownload?: any;
     connectorDetails?: ConnectorDependency;
     onDelete?: (connectorName: string, artifactId: string, version: string, iconUrl: string, connectorPath: string) => void;
+    disableGrid?: boolean;
 }
-export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isCollapsed = true, iconUri, versionTag, onDownload, connectorDetails, onDelete }) => {
+export const ButtonGroup: React.FC<ButtonroupProps> = ({
+    title,
+    children,
+    isCollapsed = true,
+    iconUri,
+    versionTag,
+    onDownload,
+    connectorDetails,
+    onDelete,
+    disableGrid
+}) => {
     const [collapsed, setCollapsed] = useState(isCollapsed);
 
     useEffect(() => {
@@ -148,9 +159,9 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isColl
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                             {connectorDetails &&
-                                <DeleteIconContainer 
-                                onClick={() => onDelete(title, connectorDetails.artifactId, connectorDetails.version, iconUri, connectorDetails.connectorPath)} 
-                                className="download-icon">
+                                <DeleteIconContainer
+                                    onClick={() => onDelete(title, connectorDetails.artifactId, connectorDetails.version, iconUri, connectorDetails.connectorPath)}
+                                    className="delete-icon">
                                     <Codicon name="trash" iconSx={{ fontSize: 20 }} />
                                 </DeleteIconContainer>
                             }
@@ -166,11 +177,15 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isColl
                     </CardLabel>
                 </CardContent>
             </ComponentCard>
-            {!collapsed &&
-                <ButtonGrid>
-                    {children}
-                </ButtonGrid>
-            }
+            {!collapsed && (
+                !disableGrid ?
+                    <ButtonGrid>
+                        {children}
+                    </ButtonGrid> :
+                    <>
+                        {children}
+                    </>
+            )}
         </div>
     );
 };
