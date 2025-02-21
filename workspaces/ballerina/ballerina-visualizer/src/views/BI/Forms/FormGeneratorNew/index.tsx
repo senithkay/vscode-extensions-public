@@ -237,12 +237,12 @@ export function FormGeneratorNew(props: FormProps) {
     const debouncedGetVisibleTypes = useCallback(debounce(async (value: string, cursorPosition: number) => {
         let visibleTypes: CompletionItem[] = types;
         if (!types.length) {
-            const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
+            const types = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
                 filePath: fileName,
                 position: targetLineRange.startLine,
             });
 
-            visibleTypes = convertToVisibleTypes(response.types);
+            visibleTypes = convertToVisibleTypes(types);
             setTypes(visibleTypes);
         }
 
