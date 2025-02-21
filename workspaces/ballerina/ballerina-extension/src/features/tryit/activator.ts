@@ -228,8 +228,8 @@ async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> 
     const services = response.designModel.services
         .filter(service => service.type.toLowerCase().includes('http'))
         .map(service => ({
-            name: service.displayName,
-            basePath: service.absolutePath,
+            name: service.displayName || service.absolutePath.startsWith('/') ? service.absolutePath.trim().substring(1) : service.absolutePath.trim(),
+            basePath: service.absolutePath.trim(),
             filePath: service.location.filePath,
             listener: service.attachedListeners.map(listener => response.designModel.listeners.find(l => l.uuid === listener)?.symbol).join(', ')
         }));
@@ -248,7 +248,8 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
         // Get service port
         const selectedPort = await getServicePort(projectDir, service, openapiSpec);
         if (!selectedPort) {
-            vscode.window.showErrorMessage('Failed to get the service port for the service');
+            vscode.window.showErrorMessage(`Failed to get the service port for the service: '${service.name}'`);
+            return undefined;
         }
 
         // Register Handlebars helpers
@@ -263,7 +264,8 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
             serviceName: service.name || 'Default'
         });
     } catch (error) {
-        vscode.window.showErrorMessage('An unexpected error occurred while generating the try-it file');
+        const message = error instanceof Error ? error.message : '';
+        vscode.window.showErrorMessage(`Failed to generate TryIt client content: ${message}`);
         return undefined;
     }
 }
@@ -283,16 +285,22 @@ async function getOpenAPIDefinition(langClient: any, service: ServiceInfo): Prom
         return undefined;
     }
 
-    const matchingDefinition = (openapiDefinitions as OpenAPISpec).content.find(content =>
-        path.basename(content.file) === path.basename(service.filePath)
+    const matchingDefinition = (openapiDefinitions as OpenAPISpec).content.filter(content =>
+        content.serviceName.toLowerCase() === service?.name.toLowerCase()
+        || (content.spec?.servers[0]?.url == undefined && service?.name === '') // TODO: Update the condition after fixing the issue in the OpenAPI tool https://github.com/ballerina-platform/ballerina-library/issues/7624
     );
 
-    if (!matchingDefinition) {
-        vscode.window.showErrorMessage(`No matching OpenAPI definition found for service: ${service.name}`);
+    if (matchingDefinition.length > 1) {
+        vscode.window.showErrorMessage(`Multiple matching OpenAPI definitions found for for service: ${service.basePath}`);
         return undefined;
     }
 
-    return matchingDefinition.spec as OAISpec;
+    if (!matchingDefinition) {
+        vscode.window.showErrorMessage(`No matching OpenAPI definition found for service: ${service.basePath}`);
+        return undefined;
+    }
+
+    return matchingDefinition[0].spec as OAISpec;
 }
 
 async function getServicePort(projectDir: string, service: ServiceInfo, openapiSpec: OAISpec): Promise<number | undefined> {
