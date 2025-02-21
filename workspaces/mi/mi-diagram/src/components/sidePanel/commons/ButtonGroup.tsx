@@ -70,8 +70,10 @@ const DownloadIconContainer = styled.div`
     border-radius: 2px;
     align-content: center;
     padding: 5px 5px 15px 12px;
+    color: var(--vscode-list-deemphasizedForeground);
     &:hover, &.active {
         background-color: var(--vscode-pickerGroup-border);
+        color: var(--vscode-progressBar-background);
     }
     & img {
         width: 25px;
@@ -167,7 +169,7 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({
                             }
                             {onDownload &&
                                 <DownloadIconContainer onClick={onDownload} className="download-icon">
-                                    <Icon iconSx={{ color: 'var(--vscode-list-deemphasizedForeground)', fontSize: 25 }} name="import" />
+                                    <Icon iconSx={{ fontSize: 25 }} name="import" />
                                 </DownloadIconContainer>
                             }
                             <Button appearance="icon" tooltip={collapsed ? 'Expand' : 'Collapse'}>
