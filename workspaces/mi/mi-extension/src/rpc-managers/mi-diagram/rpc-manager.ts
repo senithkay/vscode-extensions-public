@@ -2789,7 +2789,7 @@ ${endpointAttributes}
         if (!fs.lstatSync(params.path).isDirectory()) {
             const uri = Uri.file(params.path);
             workspace.openTextDocument(uri).then((document) => {
-                window.showTextDocument(document);
+                window.showTextDocument(document, params.beside ? ViewColumn.Beside : undefined);
             });
         }
     }
