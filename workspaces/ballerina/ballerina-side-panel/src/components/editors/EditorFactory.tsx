@@ -24,6 +24,7 @@ import { CheckBoxEditor } from "./CheckBoxEditor";
 import { ArrayEditor } from "./ArrayEditor";
 import { MapEditor } from "./MapEditor";
 import { ChoiceForm } from "./ChoiceForm";
+import { FormMapEditor } from "./FormMapEditor";
 
 interface FormFieldEditorProps {
     field: FormField;
@@ -51,16 +52,7 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
     } = props;
 
     if (field.type === "MULTIPLE_SELECT") {
-        let label: string;
-        switch (selectedNode) {
-            case "DATA_MAPPER":
-                label = "Add Another Input";
-                break;
-            default:
-                label = "Add Another";
-                break;
-        }
-        return <MultiSelectEditor field={field} label={label} openSubPanel={openSubPanel} />;
+        return <MultiSelectEditor field={field} label={"Add Another"} openSubPanel={openSubPanel} />;
     } else if (field.type === "CHOICE") {
         return <ChoiceForm field={field} />;
     } else if (field.type === "EXPRESSION_SET") {
@@ -79,7 +71,7 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
         return <FileSelect field={field} />;
     } else if (field.type === "SINGLE_SELECT" && field.editable) {
         // HACK:Single select field is treat as type editor for now
-        return <DropdownEditor field={field} />;
+        return <DropdownEditor field={field} openSubPanel={openSubPanel} />;
     } else if (!field.items && (field.key === "type" || field.type === "TYPE") && field.editable) {
         // Type field is a type editor
         return (
@@ -108,7 +100,9 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
         // Skip this property
         return <></>;
     } else if (field.type === "PARAM_MANAGER") {
-        return <ParamManagerEditor field={field} handleOnFieldFocus={handleOnFieldFocus} />;
+        return <ParamManagerEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus} selectedNode={selectedNode} />;
+    } else if (field.type === "REPEATABLE_PROPERTY") {
+        return <FormMapEditor field={field} label={"Add Another Key-Value Pair"} />;
     } else {
         // Default to text editor
         // Readonly fields are also treated as text editor

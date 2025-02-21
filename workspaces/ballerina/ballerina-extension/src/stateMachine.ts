@@ -223,7 +223,7 @@ const stateMachine = createMachine<MachineContext>(
                         history.push({ location: { view: MACHINE_VIEW.Overview, documentUri: context.documentUri } });
                         return resolve();
                     }
-                    const view = await getView(context.documentUri, context.position);
+                    const view = await getView(context.documentUri, context.position, context?.projectUri);
                     history.push(view);
                     return resolve();
                 } else {
@@ -256,7 +256,17 @@ const stateMachine = createMachine<MachineContext>(
                     return resolve(selectedEntry.location);
                 }
 
-                const { location: { documentUri, position } = { documentUri: context.documentUri, position: undefined }, uid } = selectedEntry ?? {};
+                const defaultLocation = {
+                    documentUri: context.documentUri,
+                    position: undefined
+                };
+                const {
+                    location = defaultLocation,
+                    uid
+                } = selectedEntry ?? {};
+
+                const { documentUri, position } = location;
+
                 const node = documentUri && await StateMachine.langClient().getSyntaxTree({
                     documentIdentifier: {
                         uri: Uri.file(documentUri).toString()
@@ -371,8 +381,11 @@ export const StateMachine = {
     },
 };
 
-export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation) {
-    stateService.send({ type: type, viewLocation: viewLocation });
+export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation, resetHistory = false) {
+    if (resetHistory) {
+        history.clear();
+    }
+    stateService.send({ type: type, viewLocation: viewLocation});
 }
 
 export function updateView() {

@@ -41,3 +41,11 @@ export const getTypesFromRecord: RequestType<GenerateTypesFromRecordRequest, Gen
 export const applyDoOnFailBlocks: NotificationType<void> = { method: `${_preFix}/applyDoOnFailBlocks` };
 export const postProcess: RequestType<PostProcessRequest, PostProcessResponse> = { method: `${_preFix}/postProcess` };
 export const getActiveFile: RequestType<void, string> = { method: `${_preFix}/getActiveFile` };
+export const openSettings: NotificationType<void> = { method: `${_preFix}/openSettings` };
+export const openChat: NotificationType<void> = { method: `${_preFix}/openChat` };
+export const promptGithubAuthorize: RequestType<void, boolean> = { method: `${_preFix}/promptGithubAuthorize` };
+export const promptWSO2AILogout: RequestType<void, boolean> = { method: `${_preFix}/promptWSO2AILogout` };
+export const isCopilotSignedIn: RequestType<void, boolean> = { method: `${_preFix}/isCopilotSignedIn` };
+export const isWSO2AISignedIn: RequestType<void, boolean> = { method: `${_preFix}/isWSO2AISignedIn` };
+export const showSignInAlert: RequestType<void, boolean> = { method: `${_preFix}/showSignInAlert` };
+export const markAlertShown: NotificationType<void> = { method: `${_preFix}/markAlertShown` };

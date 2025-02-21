@@ -239,7 +239,6 @@ export class NodeInitVisitor implements Visitor {
                                 )?.variableName?.value;
                                 const letClausePort = new DefaultPortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${letClauseValueLabel}`);
                                 expandedHeaderPorts.push(letClausePort);
-                                paramNode.addPort(letClausePort);
                             } else if (STKindChecker.isJoinClause(item)) {
                                 const paramNode = new JoinClauseNode(this.context, item as JoinClause);
                                 if (paramNode.getSourceType()){
@@ -248,7 +247,6 @@ export class NodeInitVisitor implements Visitor {
                                     const joinClauseValueLabel = ((item as JoinClause)?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.value;
                                     const joinClausePort = new DefaultPortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${joinClauseValueLabel}`);
                                     expandedHeaderPorts.push(joinClausePort);
-                                    paramNode.addPort(joinClausePort);
                                 }
                             }
                         }
@@ -359,7 +357,6 @@ export class NodeInitVisitor implements Visitor {
                                 )?.variableName?.value;
                                 const letClausePort = new DefaultPortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${letClauseValueLabel}`);
                                 expandedHeaderPorts.push(letClausePort);
-                                paramNode.addPort(letClausePort);
                             } else if (STKindChecker.isJoinClause(item)) {
                                 const paramNode = new JoinClauseNode(this.context, item as JoinClause);
                                 if (paramNode.getSourceType()){
@@ -368,7 +365,6 @@ export class NodeInitVisitor implements Visitor {
                                     const joinClauseValueLabel = ((item as JoinClause)?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.value;
                                     const joinClausePort = new DefaultPortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${joinClauseValueLabel}`);
                                     expandedHeaderPorts.push(joinClausePort);
-                                    paramNode.addPort(joinClausePort);
                                 }
                             }
                         }
@@ -669,7 +665,6 @@ export class NodeInitVisitor implements Visitor {
                         )?.variableName?.value;
                         const letClausePort = new DefaultPortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${letClauseValueLabel}`);
                         expandedHeaderPorts.push(letClausePort);
-                        paramNode.addPort(letClausePort);
                     } else if (STKindChecker.isJoinClause(item)) {
                         const paramNode = new JoinClauseNode(this.context, item as JoinClause);
                         if (paramNode.getSourceType()){
@@ -679,7 +674,6 @@ export class NodeInitVisitor implements Visitor {
                             const joinClauseValueLabel = ((item as JoinClause)?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.value;
                             const joinClausePort = new DefaultPortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${joinClauseValueLabel}`);
                             expandedHeaderPorts.push(joinClausePort);
-                            paramNode.addPort(joinClausePort);
                         }
                     }
                 }

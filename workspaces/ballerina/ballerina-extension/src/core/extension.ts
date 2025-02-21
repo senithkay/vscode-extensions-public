@@ -175,6 +175,7 @@ export class BallerinaExtension {
                 "supportPositionalRenamePopup": "true"
             }
         };
+
         this.telemetryReporter = createTelemetryReporter(this);
         this.documentContext = new DocumentContext();
         this.codeServerContext = {
@@ -634,7 +635,7 @@ export class BallerinaExtension {
             await fs.promises.chmod(this.getBallerinaCmd(), 0o555);
 
             // Set permissions for lib
-            await this.setPermissionsForDirectory(path.join(this.getBallerinaHome(), 'lib'), 0o555);
+            await this.setPermissionsForDirectory(path.join(this.getBallerinaHome(), 'lib'), 0o755);
 
             // Set permissions for all files in the distributions
             await this.setPermissionsForDirectory(path.join(this.getBallerinaHome(), 'distributions'), 0o555);
@@ -653,7 +654,6 @@ export class BallerinaExtension {
         for (const file of files) {
             const fullPath = path.join(directory, file);
             if (fs.statSync(fullPath).isDirectory()) {
-                await fs.promises.chmod(fullPath, permissions);
                 await this.setPermissionsForDirectory(fullPath, permissions);
             } else {
                 await fs.promises.chmod(fullPath, permissions);
