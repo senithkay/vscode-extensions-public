@@ -75,15 +75,9 @@ export const StringWithParamManagerComponent = forwardRef<HTMLDivElement, String
     };
 
     return (<ComponentCard sx={cardStyle} disbaleHoverEffect>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Typography variant="h3">{element.displayName}</Typography>
-            {isRequired && (<RequiredFormInput />)}
-            <div style={{ paddingTop: '5px' }}>
-                {helpTipElement}
-            </div>
-        </div>
 
         <FormTokenEditor
+            sx={{ paddingTop: 20, fontSize: '1.17em',fontWeight: 'bold' }}
             nodeRange={nodeRange}
             value={stringValue}
             onChange={setStringValue}
