@@ -18,13 +18,13 @@ import { BallerinaProject, PackageConfigSchema, ProjectDiagnosticsResponse } fro
 
 const DEBUG_RUN_COMMAND_ID = 'workbench.action.debug.run';
 
-export async function configGenerator(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean,isBi?: boolean): Promise<void> {
+export async function configGenerator(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean, isBi?: boolean): Promise<void> {
     let configFile: string = filePath;
     let packageName: string = 'packageName';
 
     if (!filePath || !filePath.toString().endsWith(CONFIG_FILE)) {
         const currentProject: BallerinaProject | undefined = isBi ? await getCurrentBIProject(configFile)
-        : await getCurrentBallerinaProjectFromContext(ballerinaExtInstance);
+            : await getCurrentBallerinaProjectFromContext(ballerinaExtInstance);
 
         if (!currentProject) {
             return;
@@ -107,7 +107,7 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
             }
             const haveRequired = newValues.filter(value => value.required);
             if (newValues.length > 0 && haveRequired.length > 0) {
-                await handleNewValues(packageName, newValues, configFile, updatedContent, uri, ignoreFile, ballerinaExtInstance, isCommand);
+                await handleNewValues(packageName, newValues, configFile, updatedContent, uri, ignoreFile, ballerinaExtInstance, isCommand, isBi);
             } else {
                 if (!isCommand) {
                     executeRunCommand(ballerinaExtInstance, configFile, isBi);
@@ -165,19 +165,20 @@ export async function getCurrentBIProject(projectPath: string): Promise<Ballerin
     return currentProject;
 }
 
-export async function handleNewValues(packageName: string, newValues: ConfigProperty[], configFile: string, updatedContent: string, uri: Uri, ignoreFile: string, ballerinaExtInstance: BallerinaExtension, isCommand: boolean): Promise<void> {
+export async function handleNewValues(packageName: string, newValues: ConfigProperty[], configFile: string, updatedContent: string, uri: Uri, ignoreFile: string, ballerinaExtInstance: BallerinaExtension, isCommand: boolean, isBi: boolean): Promise<void> {
     let result;
-    let btnTitle = 'Add to config';
+    let btnTitle = 'Update Config.toml';
     let message = 'There are missing mandatory configurables that are required to run the program.';
     if (!existsSync(configFile)) {
         btnTitle = 'Create Config.toml';
         message = 'There are mandatory configurables that are required to run the program.';
     }
-    const openConfigButton = { title: btnTitle, isCloseAffordance: true };
+    const openConfigButton = { title: btnTitle };
     const ignoreButton = { title: 'Run Anyway' };
+
     if (!isCommand) {
         await new Promise((resolve) => setTimeout(resolve, 500));
-        result = await window.showInformationMessage(message, { detail: "", modal: true }, openConfigButton, ignoreButton);
+        result = await window.showInformationMessage(message, { detail: "It is recommended to create/update the Config.toml with all mandatory configurables before running the program.", modal: true }, openConfigButton, ignoreButton);
     }
 
     const docLink = "https://ballerina.io/learn/provide-values-to-configurable-variables/#provide-via-toml-syntax";
@@ -215,7 +216,7 @@ export async function handleNewValues(packageName: string, newValues: ConfigProp
             window.showTextDocument(document, { preview: false });
         });
     } else if (!isCommand && result === ignoreButton) {
-        executeRunCommand(ballerinaExtInstance, configFile);
+        executeRunCommand(ballerinaExtInstance, configFile, isBi);
     }
 }
 
