@@ -178,7 +178,7 @@ export async function handleNewValues(packageName: string, newValues: ConfigProp
 
     if (!isCommand) {
         await new Promise((resolve) => setTimeout(resolve, 500));
-        result = await window.showInformationMessage(message, { detail: "It is recommended to create/update the Config.toml with all mandatory configurables before running the program.", modal: true }, openConfigButton, ignoreButton);
+        result = await window.showInformationMessage(message, { detail: "It is recommended to create/update the Config.toml with all mandatory configuration values before running the program.", modal: true }, openConfigButton, ignoreButton);
     }
 
     const docLink = "https://ballerina.io/learn/provide-values-to-configurable-variables/#provide-via-toml-syntax";
