@@ -23,13 +23,13 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { TextArea, Button, Switch, Icon, ProgressRing, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { TextArea, Button, Switch, Icon, ProgressRing, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from "react-markdown";
 
 import styled from "@emotion/styled";
 import AIChatInput from "./AIChatInput";
 import ProgressTextSegment from "./Components/ProgressTextSegment";
-import RoleContainer, { PreviewContainer } from "./Components/RoleContainter";
+import RoleContainer, { PreviewContainer, PreviewContainerDefault } from "./Components/RoleContainter";
 import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
 import AttachmentBox, { AttachmentsContainer } from "./Components/AttachmentBox";
 import { findRegexMatches } from "../../utils/utils";
@@ -81,14 +81,14 @@ var remaingTokenLessThanOne: boolean = false;
 var timeToReset: number;
 
 // Define constants for command keys
-export const COMMAND_SCAFFOLD = "/scaffold";
+export const COMMAND_GENERATE = "/generate";
 export const COMMAND_TESTS = "/tests";
 export const COMMAND_DATAMAP = "/datamap";
 export const COMMAND_TYPECREATOR = "/typecreator";
 export const COMMAND_DOCUMENTATION = "/ask";
 
 // Define constants for command templates
-const TEMPLATE_SCAFFOLD = [
+const TEMPLATE_GENERATE = [
     "generate code for the use-case: <use-case>",
     "generate an integration according to the given Readme file",
 ];
@@ -100,9 +100,14 @@ const TEMPLATE_DATAMAP = [
 const TEMPLATE_TYPECREATOR = ["generate types using the given file"];
 const TEMPLATE_DOCUMENTATION = ["have questions about the Ballerina programming language: <question>"];
 
+const DEFAULT_MENU_COMMANDS = [
+    { command: COMMAND_GENERATE + " write a hello world http service" },
+    { command: COMMAND_DOCUMENTATION + " how to write a concurrent application?" }
+]
+
 // Use the constants in the commandToTemplate map
 const commandToTemplate = new Map<string, string[]>([
-    [COMMAND_SCAFFOLD, TEMPLATE_SCAFFOLD],
+    [COMMAND_GENERATE, TEMPLATE_GENERATE],
     [COMMAND_TESTS, TEMPLATE_TESTS],
     [COMMAND_DATAMAP, TEMPLATE_DATAMAP],
     [COMMAND_TYPECREATOR, TEMPLATE_TYPECREATOR],
@@ -110,11 +115,12 @@ const commandToTemplate = new Map<string, string[]>([
 ]);
 
 //TODO: Add the files relevant to the commands
+//TODO: Need to see if mime checking is the way to go, .sql and .graphql returns empty here.
 export const getFileTypesForCommand = (command: string): string[] => {
     switch (command) {
-        case COMMAND_SCAFFOLD:
+        case COMMAND_GENERATE:
         case COMMAND_TESTS:
-            return ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml"];
+            return ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml", ".sql",".graphql", ""];
         case COMMAND_DATAMAP:
         case COMMAND_TYPECREATOR:
             return [
@@ -129,7 +135,7 @@ export const getFileTypesForCommand = (command: string): string[] => {
                 "application/msword",
             ];
         default:
-            return ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml"];
+            return ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml", ".sql",".graphql", ""];
     }
 };
 
@@ -179,7 +185,7 @@ export function AIChat() {
                     .getAiPanelRpcClient()
                     .getInitialPrompt()
                     .then((initPrompt: InitialPrompt) => {
-                        const command = COMMAND_SCAFFOLD;
+                        const command = COMMAND_GENERATE;
                         const template = commandToTemplate.get(command)?.[1];
                         if (initPrompt.exists) {
                             setUserInput(template ? command + " " + template : command);
@@ -346,7 +352,7 @@ export function AIChat() {
 
             if (parameters) {
                 switch (commandKey) {
-                    case COMMAND_SCAFFOLD: {
+                    case COMMAND_GENERATE: {
                         await processCodeGeneration(
                             token,
                             [
@@ -388,6 +394,21 @@ export function AIChat() {
                     }
                 }
             } else {
+                console.log("Query : "+ messageBody);
+                if (messageBody.trim() === "") {
+                    throw new Error('Error: Query is empty. Please enter a valid query')
+                }
+                if (commandKey === COMMAND_GENERATE) {
+                    await processCodeGeneration(
+                        token,
+                        [messageBody,attachments],
+                        message
+                    );
+                    return;
+                } else if (commandKey === COMMAND_DOCUMENTATION) {
+                    await findInDocumentation(messageBody, token);
+                    return;
+                }
                 throw new Error(
                     `Invalid template format for the \`${commandKey}\` command. ` +
                         `Please ensure you follow the correct template.`
@@ -458,6 +479,10 @@ export function AIChat() {
 
     async function processCodeGeneration(token: string, content: [string, AttachmentResult[]], message: string) {
         const [useCase, attachments] = content;
+        console.log("Process codegen")
+        console.log(useCase)
+        console.log(attachments)
+        console.log(message)
 
         let assistant_response = "";
         const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource();
@@ -1066,6 +1091,7 @@ export function AIChat() {
         //generateSuggestions();
 
         //clear the local storage
+        setUserInput("");
         localStorage.removeItem(`chatArray-AIGenerationChat-${projectUuid}`);
     }
 
@@ -1090,7 +1116,7 @@ export function AIChat() {
                 <Badge>
                     Remaining Free Usage: {"Unlimited"}
                     <br />
-                    <ResetsInBadge>{`Resets in: 30 days`}</ResetsInBadge>
+                    {/* <ResetsInBadge>{`Resets in: 30 days`}</ResetsInBadge> */}
                 </Badge>
                 <HeaderButtons>
                     <Button
@@ -1111,10 +1137,29 @@ export function AIChat() {
             <main style={{ flex: 1, overflowY: "auto" }}>
                 {Array.isArray(otherMessages) && otherMessages.length === 0 && (
                     <Welcome>
-                        <h3>
-                            Welcome to WSO2 Copilot <PreviewContainer>Preview</PreviewContainer>
-                        </h3>
-                        <p>What do you want to integrate today?</p>
+                        <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", marginTop: "100px" }}>
+                        <Icon name="bi-ai-agent" sx={{width:60, height:50}} iconSx={{ fontSize: "60px", color: "var(--vscode-foreground)", cursor:"default" }} />
+                        
+                        <div style={{display:"inline-flex"}}><h2>WSO2 Copilot</h2><PreviewContainerDefault>Preview</PreviewContainerDefault></div>
+                        <Typography
+                            variant="body1"
+                            sx={{ marginBottom: "24px", color: "var(--vscode-descriptionForeground)", textAlign: "center",maxWidth:350, fontSize:14 }}
+                        >
+                            WSO2 Copilot is powered by AI. It can make mistakes. Make sure to review the generated code before adding it to your integration.
+                        </Typography>
+                        <Typography
+                            variant="body1"
+                            sx={{ marginBottom: "14px", color: "var(--vscode-descriptionForeground)", textAlign: "center",maxWidth:350, fontSize:14 }}
+                        >
+                            Type / to use commands
+                        </Typography>
+                        <Typography
+                            variant="body1"
+                            sx={{ marginBottom: "24px", color: "var(--vscode-descriptionForeground)", textAlign: "center",maxWidth:350, fontSize:14, gap:10, display:"inline-flex",}}
+                        >
+                             <Icon isCodicon={true} name="new-file" iconSx={{cursor:"default"}}/> to attatch context
+                        </Typography>
+                    </div>
                     </Welcome>
                 )}
                 {otherMessages.map((message, index) => {
@@ -1249,6 +1294,33 @@ export function AIChat() {
                         </div>
                     </>
                 ))}
+                {Array.isArray(otherMessages) && otherMessages.length === 0 && (
+                    <FlexRow>
+                        <div
+                            style={{
+                                marginTop: "16px",
+                                marginBottom: "6px",
+                                marginLeft: "2px",
+                                color: "var(--vscode-descriptionForeground)"
+                            }}
+                        >
+                            {DEFAULT_MENU_COMMANDS.map(({ command }, index) => (
+                                <div key={index} style={{ marginBottom: "2px" }}>
+                                    <a
+                                        href="#"
+                                        style={{ textDecoration: "none", cursor: "pointer" }}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            setUserInput(command);
+                                        }}
+                                    >
+                                        {command}
+                                    </a>
+                                </div>
+                            ))}
+                        </div>
+                    </FlexRow>
+                )}
                 <FlexRow>
                     <AIChatInput
                         value={userInput}
