@@ -410,7 +410,7 @@ export function AIChat() {
                 .replace(/<servicename>/g, "(\\S+?)")
                 .replace(/<recordname\(s\)>/g, "([\\w:\\[\\]]+(?:[\\s,]+[\\w:\\[\\]]+)*)")
                 .replace(/<recordname>/g, "([\\w:\\[\\]]+)")
-                .replace(/<use-case>/g, "(.+?)")
+                .replace(/<use-case>/g, "([\\s\\S]+?)")
                 .replace(/<functionname>/g, "(\\S+?)");
 
             const regex = new RegExp(`^${pattern}$`, "i");
