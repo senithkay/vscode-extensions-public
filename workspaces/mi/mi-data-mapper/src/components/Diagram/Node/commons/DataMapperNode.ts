@@ -55,7 +55,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		unsafeParentId: string,
 		portPrefix?: string,
 		parent?: InputOutputPortModel,
-		collapsedFields?: string[],
+		isCollapsedField?: (fieldId: string, fieldKind: TypeKind) => boolean,
 		hidden?: boolean,
 		isOptional?: boolean
 	): number {
@@ -72,10 +72,10 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 			: fieldName || '';
 
 		const portName = portPrefix ? `${portPrefix}.${unsafeFieldFQN}` : unsafeFieldFQN;
-		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(portName);
+		const isCollapsed = !hidden && isCollapsedField && isCollapsedField(portName, dmType.kind);
 		const fieldPort = new InputOutputPortModel(
 			dmType, portName, portType, parentId, undefined,
-			undefined, fieldFQN, unsafeFieldFQN, parent, isCollapsed, hidden
+			undefined, fieldFQN, unsafeFieldFQN, parent, isCollapsed, hidden, false, false, false, false
 		);
 
 		this.addPort(fieldPort);
@@ -88,10 +88,16 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 				fields.forEach(subField => {
 					numberOfFields += this.addPortsForInputField(
 						subField, portType, fieldFQN, unsafeFieldFQN, portPrefix, fieldPort,
-						collapsedFields, isCollapsed ? true : hidden, subField.optional || isOptional
+						isCollapsedField, isCollapsed || hidden, subField.optional || isOptional
 					);
 				});
 			}
+		} else if (dmType.kind === TypeKind.Array) {
+			const arrItemField = {...dmType.memberType, fieldName: `<${dmType.fieldName}Item>`};
+			numberOfFields += this.addPortsForPreviewField(
+				arrItemField, portType, fieldFQN, unsafeFieldFQN, portPrefix, fieldPort,
+				isCollapsedField, isCollapsed || hidden, isOptional
+			);
 		}
 		return hidden ? 0 : numberOfFields;
 	}
@@ -103,7 +109,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		elementIndex?: number,
 		portPrefix?: string,
 		parent?: InputOutputPortModel,
-		collapsedFields?: string[],
+		isCollapsedField?: (fieldId: string, fieldKind: TypeKind) => boolean,
 		hidden?: boolean,
 		isWithinMapFunction?: boolean
 	) {
@@ -114,7 +120,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		}
 		const fieldFQN = parentId ? `${parentId}${fieldName && `.${fieldName}`}` : fieldName && fieldName;
 		const portName = portPrefix ? `${portPrefix}.${fieldFQN}` : fieldFQN;
-		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(portName);
+		const isCollapsed = !hidden && isCollapsedField && isCollapsedField(portName, field.type.kind);
 		const fieldPort = new InputOutputPortModel(
 			field.type, portName, type, parentId, elementIndex, field,
 			fieldFQN, fieldFQN, parent, isCollapsed, hidden, false, false, isWithinMapFunction
@@ -126,18 +132,86 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 			if (fields && !!fields.length) {
 				fields.forEach((subField) => {
 					this.addPortsForOutputField(subField, type, fieldFQN, undefined, portPrefix,
-						fieldPort, collapsedFields, isCollapsed ? true : hidden);
+						fieldPort, isCollapsedField, isCollapsed ? true : hidden);
+				});
+			}
+		} else if (field.type.kind === TypeKind.Union && field.type.resolvedUnionType?.kind === TypeKind.Interface) {
+			const fields = field?.childrenTypes;
+			if (fields && !!fields.length) {
+				fields.forEach((subField) => {
+					this.addPortsForOutputField(subField, type, fieldFQN, undefined, portPrefix,
+						fieldPort, isCollapsedField, isCollapsed ? true : hidden);
 				});
 			}
 		} else if (field.type.kind === TypeKind.Array) {
 			const elements: ArrayElement[] = field?.elements;
-			if (elements && !!elements.length) {
+			if (elements && !!elements.length && elements[0].elementNode) {
 				elements.forEach((element, index) => {
 					this.addPortsForOutputField(element.member, type, fieldFQN, index, portPrefix,
-						fieldPort, collapsedFields, isCollapsed ? true : hidden);
+						fieldPort, isCollapsedField, isCollapsed ? true : hidden);
 				});
+			} else {
+				const arrItemField = { ...field.type.memberType, fieldName: `<${field.type.fieldName}Item>` };
+				this.addPortsForPreviewField(
+					arrItemField, type, fieldFQN, fieldFQN, portPrefix, fieldPort,
+					isCollapsedField, isCollapsed || hidden, false
+				);
 			}
 		}
+	}
+
+	protected addPortsForPreviewField(
+		dmType: DMType,
+		portType: "IN" | "OUT",
+		parentId: string,
+		unsafeParentId: string,
+		portPrefix?: string,
+		parent?: InputOutputPortModel,
+		isCollapsedField?: (fieldId: string, fieldKind: TypeKind) => boolean,
+		hidden?: boolean,
+		isOptional?: boolean
+	): number {
+
+		const fieldName = dmType.fieldName;
+
+		const fieldFQN = parentId
+			? `${parentId}${fieldName && isOptional
+				? `?.${fieldName}`
+				: `.${fieldName}`}`
+			: fieldName && fieldName;
+		const unsafeFieldFQN = unsafeParentId
+			? `${unsafeParentId}.${fieldName}`
+			: fieldName || '';
+
+		const portName = portPrefix ? `${portPrefix}.${unsafeFieldFQN}` : unsafeFieldFQN;
+		const isCollapsed = !hidden && isCollapsedField && isCollapsedField(portName, dmType.kind);
+		const fieldPort = new InputOutputPortModel(
+			dmType, portName, portType, parentId, undefined,
+			undefined, fieldFQN, unsafeFieldFQN, parent, isCollapsed, hidden, false, false, false, true
+		);
+
+		this.addPort(fieldPort);
+
+		let numberOfFields = 1;
+		if (dmType.kind === TypeKind.Interface) {
+			const fields = dmType?.fields;
+
+			if (fields && !!fields.length) {
+				fields.forEach(subField => {
+					numberOfFields += this.addPortsForPreviewField(
+						subField, portType, fieldFQN, unsafeFieldFQN, portPrefix, fieldPort,
+						isCollapsedField, isCollapsed || hidden, subField.optional || isOptional
+					);
+				});
+			}
+		} else if (dmType.kind === TypeKind.Array) {
+			const arrItemField = {...dmType.memberType, fieldName: `<${dmType.fieldName}Item>`};
+			numberOfFields += this.addPortsForPreviewField(
+				arrItemField, portType, fieldFQN, unsafeFieldFQN, portPrefix, fieldPort,
+				isCollapsedField, isCollapsed || hidden, isOptional
+			);
+		}
+		return hidden ? 0 : numberOfFields;
 	}
 
 	protected addPortsForHeader(
@@ -145,7 +219,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		name: string,
 		portType: "IN" | "OUT",
 		portPrefix: string,
-		collapsedFields?: string[],
+		isCollapsedField?: (fieldId: string, fieldKind: TypeKind) => boolean,
 		field?: DMTypeWithValue,
 		isWithinMapFunction?: boolean,
 	): InputOutputPortModel {
@@ -154,7 +228,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		if (portPrefix) {
 			portName = name ? `${portPrefix}.${name}` : portPrefix;
 		}
-		const isCollapsed = collapsedFields && collapsedFields.includes(portName);
+		const isCollapsed = isCollapsedField && isCollapsedField(portName, dmType.kind);
 		const headerPort = new InputOutputPortModel(
 			dmType, portName, portType, undefined, undefined,
 			field, name, name, undefined, isCollapsed, false, false, false, isWithinMapFunction
@@ -168,12 +242,12 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	protected addOutputFieldAdderPort(
 		parentId: string,
 		parent?: InputOutputPortModel,
-		collapsedFields?: string[],
+		isCollapsedField?: (fieldId: string, fieldKind: TypeKind) => boolean,
 		hidden?: boolean,
 		isWithinMapFunction?: boolean
 	) {
 		const portName = OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX;
-		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(portName);
+		const isCollapsed = !hidden && isCollapsedField && isCollapsedField(portName, TypeKind.Object);
 		const fieldPort = new InputOutputPortModel(
 			undefined, portName, "IN", parentId, undefined, undefined,
 			undefined, undefined, parent, isCollapsed, hidden, false, false, isWithinMapFunction
@@ -185,12 +259,19 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		let foundMappings: MappingMetadata[] = [];
 		const currentFields = [...(parentFields ? parentFields : [])];
 		if (val) {
+			if (Node.isAsExpression(val)) {
+				val = val.getExpression();
+			}
+
 			if (Node.isObjectLiteralExpression(val)) {
 				val.getProperties().forEach((field) => {
 					foundMappings = [...foundMappings, ...this.genMappings(field, [...currentFields, val])];
 				});
 			} else if (Node.isPropertyAssignment(val) && val.getInitializer()) {
-				const initializer = val.getInitializer();
+				let initializer = val.getInitializer();
+				if (Node.isAsExpression(initializer)) {
+					initializer = initializer.getExpression();
+				}
 				const isObjectLiteralExpr = Node.isObjectLiteralExpression(initializer);
 				const isArrayLiteralExpr = Node.isArrayLiteralExpression(initializer);
 				if (isObjectLiteralExpr || isArrayLiteralExpr) {

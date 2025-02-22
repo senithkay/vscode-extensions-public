@@ -9,8 +9,7 @@
 
 
 import { css } from "@emotion/css";
-import { Colors } from "../../../../resources/constants";
-
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 export const useStyles = () => ({
     balModule: css({
         display: 'flex',
@@ -19,14 +18,14 @@ export const useStyles = () => ({
         justifyContent: 'center',
         boxSizing: 'border-box',
         height: '140px',
-        border: `1px solid ${Colors.OUTLINE_VARIANT}`,
-        backgroundColor: `${Colors.PRIMARY_CONTAINER}`,
+        border: `1px solid ${ThemeColors.OUTLINE_VARIANT}`,
+        backgroundColor: `${ThemeColors.PRIMARY_CONTAINER}`,
         borderRadius: '10px',
         padding: '16px',
         cursor: 'pointer',
         '&:hover': {
-            backgroundColor: `${Colors.PRIMARY_CONTAINER}`,
-            border: `1px solid ${Colors.PRIMARY}`
+            backgroundColor: `${ThemeColors.PRIMARY_CONTAINER}`,
+            border: `1px solid ${ThemeColors.PRIMARY}`
         },
     }),
     balModuleName: css({

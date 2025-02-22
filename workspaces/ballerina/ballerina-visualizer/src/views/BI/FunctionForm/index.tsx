@@ -9,11 +9,9 @@
 
 import { useEffect, useState } from "react";
 import { FunctionNode, NodeProperties } from "@wso2-enterprise/ballerina-core";
-import { Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
+import { View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { BIHeader } from "../BIHeader";
-import { BodyText } from "../../styles";
 import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { URI, Utils } from "vscode-uri";
 import FormGeneratorNew from "../Forms/FormGeneratorNew";

@@ -18,12 +18,15 @@ import { TypeChip } from "../Commons";
 import Form from "./Form";
 import * as yup from "yup";
 import AddToRegistry, { formatRegistryPath, getArtifactNamesAndRegistryPaths, saveToRegistry } from "../AddToRegistry";
+import { compareVersions } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
+import { RUNTIME_VERSION_440 } from "../../../constants";
 
 export interface WsdlEndpointWizardProps {
     path: string;
     type: string;
     isPopup?: boolean;
     handlePopupClose?: () => void;
+    handleChangeType?: () => void;
 }
 
 export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
@@ -153,6 +156,7 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
     const [savedEPName, setSavedEPName] = useState<string>("");
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
     const [prevName, setPrevName] = useState<string | null>(null);
+    const [isRegistryContentVisible, setIsRegistryContentVisible] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -198,6 +202,9 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
             const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
                 path: props.path,
             });
+            const response = await rpcClient.getMiVisualizerRpcClient().getProjectDetails();
+            const runtimeVersion = response.primaryDetails.runtimeVersion.value;
+            setIsRegistryContentVisible(compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0);
             setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
@@ -243,6 +250,10 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
     };
 
     const changeType = () => {
+        if (props.handleChangeType) {
+            props.handleChangeType();
+            return;
+        }
         rpcClient.getMiVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
@@ -286,7 +297,7 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
                 additionalParams={additionalParams}
                 setAdditionalParams={setAdditionalParams}
             />
-            {isNewEndpoint && (
+            {isRegistryContentVisible && isNewEndpoint && (
                 <>
                     <FormCheckBox
                         label="Save the endpoint in registry"

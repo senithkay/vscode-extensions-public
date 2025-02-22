@@ -300,7 +300,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
                     }
                 });
             } else {
-                this.setValue(this.value.replaceWithText(getDefaultValue(dmNode.dmType.kind)) as CallExpression);
+                this.setValue(this.value.replaceWithText(getDefaultValue(dmNode.dmType)) as CallExpression);
             }
         }
 

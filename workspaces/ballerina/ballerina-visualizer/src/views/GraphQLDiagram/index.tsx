@@ -28,7 +28,6 @@ import {
     Typography,
     Icon,
 } from "@wso2-enterprise/ui-toolkit";
-import { Colors } from "../../resources/constants";
 import styled from "@emotion/styled";
 import { GraphqlServiceEditor } from "./GraphqlServiceEditor";
 import { TypeEditor } from "@wso2-enterprise/type-editor";
@@ -189,7 +188,7 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
                 <ViewContent>
                     {isLoading ? (
                         <SpinnerContainer>
-                            <ProgressRing color={Colors.PRIMARY} />
+                            <ProgressRing color={ThemeColors.PRIMARY} />
                         </SpinnerContainer>
                     ) : error ? (
                         <SpinnerContainer>

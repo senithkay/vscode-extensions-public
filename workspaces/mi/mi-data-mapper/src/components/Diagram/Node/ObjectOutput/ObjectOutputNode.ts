@@ -74,8 +74,8 @@ export class ObjectOutputNode extends DataMapperNodeModel {
             const isMapFnAtRootRtn = views.length > 1 && isMapFnAtRootReturn(functionST, focusedST);
             this.isMapFn = isMapFnAtPropAsmt || isMapFnAtRootRtn;
 
-            const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
-            const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value);
+            const isCollapsedField = useDMCollapsedFieldsStore.getState().isCollapsedField;
+            const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value, this.context.recursiveTypes);
             this.dmType = type;
             this.typeName = getTypeName(valueEnrichedType.type);
 
@@ -83,24 +83,24 @@ export class ObjectOutputNode extends DataMapperNodeModel {
     
             const parentPort = this.addPortsForHeader(
                 this.dmType, this.rootName, "IN", OBJECT_OUTPUT_TARGET_PORT_PREFIX,
-                collapsedFields, valueEnrichedType, this.isMapFn
+                isCollapsedField, valueEnrichedType, this.isMapFn
             );
     
-            if (valueEnrichedType.type.kind === TypeKind.Interface) {
+            if (valueEnrichedType.type.kind === TypeKind.Interface || valueEnrichedType.type.kind === TypeKind.Union) {
                 this.dmTypeWithValue = valueEnrichedType;
 
-                if (this.dmTypeWithValue.childrenTypes.length) {
+                if (this.dmTypeWithValue.childrenTypes?.length) {
                     this.dmTypeWithValue.childrenTypes.forEach(field => {
                         this.addPortsForOutputField(
                             field, "IN", this.rootName, undefined, OBJECT_OUTPUT_TARGET_PORT_PREFIX,
-                            parentPort, collapsedFields, parentPort.collapsed, this.isMapFn
+                            parentPort, isCollapsedField, parentPort.collapsed, this.isMapFn
                         );
                     });
                 }
 
                 if (this.isSubMapping && focusedView.subMappingInfo.focusedOnSubMappingRoot) {
                     this.addOutputFieldAdderPort(
-                        this.rootName, parentPort, collapsedFields, parentPort.collapsed, this.isMapFn
+                        this.rootName, parentPort, isCollapsedField, parentPort.collapsed, this.isMapFn
                     );
                 }
             }
@@ -189,7 +189,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
 
     async deleteField(field: Node, keepDefaultVal?: boolean) {
         const typeOfValue = getTypeOfValue(this.dmTypeWithValue, getPosition(field));
-        const defaultValue = getDefaultValue(typeOfValue.kind);
+        const defaultValue = getDefaultValue(typeOfValue);
 
         if (keepDefaultVal && !Node.isPropertyAssignment(field)) {
             field.replaceWithText(defaultValue);

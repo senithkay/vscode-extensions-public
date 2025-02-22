@@ -17,7 +17,8 @@ import {
     ErrorBanner,
     FormExpressionEditor,
     FormExpressionEditorRef,
-    RequiredFormInput
+    RequiredFormInput,
+    ThemeColors
 } from '@wso2-enterprise/ui-toolkit';
 import { sanitizeType } from './utils';
 import { FormField, FormExpressionEditorProps } from '../Form/types';
@@ -28,7 +29,6 @@ import {
     SubPanelView,
     SubPanelViewProps
 } from '@wso2-enterprise/ballerina-core';
-import { Colors } from '../../resources/constants';
 
 type ContextAwareExpressionEditorProps = {
     field: FormField;
@@ -79,10 +79,10 @@ export namespace S {
     });
 
     export const Type = styled.div<{ isVisible: boolean }>(({ isVisible }) => ({
-        color: Colors.PRIMARY,
+        color: ThemeColors.PRIMARY,
         fontFamily: 'monospace',
         fontSize: '12px',
-        border: `1px solid ${Colors.PRIMARY}`,
+        border: `1px solid ${ThemeColors.PRIMARY}`,
         borderRadius: '999px',
         padding: '2px 8px',
         display: 'inline-block',

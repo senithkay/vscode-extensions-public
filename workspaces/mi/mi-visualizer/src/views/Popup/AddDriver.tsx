@@ -81,19 +81,16 @@ export function AddDriver(props: AddDriverProps) {
     const handleSave = async () => {
         let values: Dependency[] = getParamManagerValues(config);
 
-        const items = values.length === 0 ? dependencies : values;
-        for (let i = 0; i < items.length; i++) {
-            const value: any = values[i];
-            const dependency = dependencies[i];
-
-            await rpcClient.getMiDiagramRpcClient().updateDependencyInPom({
-                file: props.path,
-                groupId: value ? value[0] : undefined,
-                artifactId: value ? value[1] : undefined,
-                version: value ? value[2] : undefined,
-                range: dependency ? dependency.range : undefined
-            });
-        }
+        await rpcClient.getMiVisualizerRpcClient().updateDependencies({
+            dependencies: dependencies.map((dependency: any) => {
+                return {
+                    groupId: dependency.groupId,
+                    artifact: dependency.artifactId,
+                    version: dependency.version,
+                    type: 'jar',
+                };
+            })
+        });
         handleOnClose();
     };
 

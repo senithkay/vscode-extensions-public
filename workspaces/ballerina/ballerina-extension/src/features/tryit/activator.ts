@@ -1,4 +1,4 @@
-import { commands } from "vscode";
+import { commands, window, workspace, FileSystemWatcher, Disposable } from "vscode";
 import { PALETTE_COMMANDS } from "../project/cmds/cmd-runner";
 import * as fs from 'fs';
 import * as path from 'path';
@@ -7,12 +7,13 @@ import { BallerinaExtension, ExtendedLangClient } from "src/core";
 import { URI } from "vscode-uri";
 import Handlebars from "handlebars";
 import { findRunningBallerinaProcesses } from "./utils";
-import { BallerinaProjectComponents, OpenAPISpec } from "@wso2-enterprise/ballerina-core";
+import { BIDesignModelResponse, OpenAPISpec } from "@wso2-enterprise/ballerina-core";
 
 let langClient: ExtendedLangClient | undefined;
+let errorLogWatcher: FileSystemWatcher | undefined;
 
 const TRYIT_TEMPLATE = `/*
-### Try Service: "{{info.title}}" (http://localhost:{{port}}{{trim basePath}})
+### Try Service: "{{serviceName}}" (http://localhost:{{port}}{{trim basePath}})
 {{info.description}}
 */
 
@@ -22,12 +23,28 @@ const TRYIT_TEMPLATE = `/*
 #### {{uppercase @key}} {{@../key}}
 
 {{#if parameters}}
-Parameters:
-\`\`\`
-{{#each parameters}}
-- {{name}} ({{in}}){{#if required}} [Required]{{/if}}{{#if description}}: {{description}}{{/if}}
+{{#with (groupParams parameters)}}
+{{#if path}}
+**Path Parameters:**
+{{#each path}}
+- \`{{name}}\` [{{schema.type}}]{{#if description}} - {{description}}{{/if}}{{#if required}} (Required){{/if}}
 {{/each}}
-\`\`\`
+{{/if}}
+
+{{#if query}}
+**Query Parameters:**
+{{#each query}}
+- \`{{name}}\` [{{schema.type}}]{{#if description}} - {{description}}{{/if}}{{#if required}} (Required){{/if}}
+{{/each}}
+{{/if}}
+
+{{#if header}}
+**Header Parameters:**
+{{#each header}}
+- \`{{name}}\` [{{schema.type}}]{{#if description}} - {{description}}{{/if}}{{#if required}} (Required){{/if}}
+{{/each}}
+{{/if}}
+{{/with}}
 {{/if}}
 */
 ###
@@ -40,11 +57,82 @@ Parameters:
 {{/each}}
 {{/each}}`;
 
+const HTTPYAC_CONFIG_TEMPLATE = `
+const fs = require('fs');
+const path = require('path');
+
+// Define the log file path relative to the config file location
+const LOG_FILE_PATH = path.join(__dirname, 'httpyac_errors.log');
+
+// Helper function to format error groups
+const formatErrorGroup = (title, params) => {
+  if (params.length === 0) return '';
+  return \`\${title}:\\n\${params.map(p => \`  - \${p}\`).join('\\n')}\\n\`;
+};
+
+module.exports = {
+  configureHooks: function (api) {
+    api.hooks.onRequest.addHook('validatePlaceholders', function (request) {
+      const missingParams = {
+        path: [],
+        query: [],
+        header: []
+      };
+
+      // Check URL path parameters
+      const url = new URL(request.url);
+      const decodedPath = decodeURIComponent(url.pathname);
+      const pathParamRegex = /[{]([^{}]+)[}]/g;
+      const pathMatches = [...decodedPath.matchAll(pathParamRegex)];
+      
+      pathMatches.forEach(match => {
+        missingParams.path.push(match[1]);
+      });
+
+      // Check query parameters
+      for (const [key, value] of url.searchParams.entries()) {
+        if (value === '{?}') {
+          missingParams.query.push(key);
+        }
+      }
+
+      // Check headers
+      for (const [key, value] of Object.entries(request.headers || {})) {
+        if (value === '{?}') {
+          missingParams.header.push(key);
+        }
+      }
+
+      // Check if any parameters are missing
+      const hasMissingParams = Object.values(missingParams)
+        .some(group => group.length > 0);
+
+      if (hasMissingParams) {
+        const errorMessage = [
+          \`Request to "\${request.url}" has missing required parameters:\\n\`,
+          formatErrorGroup('Path Parameters', missingParams.path),
+          formatErrorGroup('Query Parameters', missingParams.query),
+          formatErrorGroup('Header Parameters', missingParams.header),
+          '\\nPlease provide values for these parameters before sending the request.'
+        ].filter(Boolean).join('\\n');
+
+        // Write to log file
+        fs.writeFileSync(LOG_FILE_PATH, errorMessage, 'utf8');
+      }
+    });
+  }
+};`;
+
 export function activateTryItCommand(ballerinaExtInstance: BallerinaExtension) {
     langClient = ballerinaExtInstance.langClient as ExtendedLangClient;
-    // register try it command handler
-    commands.registerCommand(PALETTE_COMMANDS.TRY_IT, async (withNotice: boolean = false) => {
+    // Register try it command handler
+    const disposable = commands.registerCommand(PALETTE_COMMANDS.TRY_IT, async (withNotice: boolean = false) => {
         await openTryItView(withNotice, ballerinaExtInstance);
+    });
+    
+    // Clean up when deactivated
+    return Disposable.from(disposable, {
+        dispose: disposeErrorWatcher
     });
 }
 
@@ -83,8 +171,8 @@ async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: 
     let selectedService: ServiceInfo;
     if (services.length > 1) {
         const quickPickItems = services.map(service => ({
-            label: service.name,
-            description: path.basename(service.filePath),
+            label: `'${service.basePath}' on ${service.listener}`,
+            description: `HTTP Service`,
             service
         }));
 
@@ -106,9 +194,9 @@ async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: 
         fs.mkdirSync(targetDir);
     }
 
-    const fileName = path.parse(selectedService.filePath).name;
-    const tryitFileName = `tryit.${fileName}.http`;
+    const tryitFileName = `tryit.http`;
     const tryitFilePath = path.join(targetDir, tryitFileName);
+    const configFilePath = path.join(targetDir, 'httpyac.config.js');
 
     const content = await generateTryItFileContent(workspaceRoot, selectedService);
     if (!content) {
@@ -117,10 +205,15 @@ async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: 
     }
 
     fs.writeFileSync(tryitFilePath, content);
+    fs.writeFileSync(configFilePath, HTTPYAC_CONFIG_TEMPLATE);
+
 
     // Open the file as a notebook document
     const tryitFileUri = vscode.Uri.file(tryitFilePath);
     await vscode.commands.executeCommand('vscode.openWith', tryitFileUri, 'http');
+
+    // Setup the error log watcher
+    setupErrorLogWatcher(targetDir);
 }
 
 async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> {
@@ -128,17 +221,17 @@ async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> 
         return [];
     }
 
-    const components: BallerinaProjectComponents = await langClient.getBallerinaProjectComponents({
-        documentIdentifiers: [{ uri: URI.file(projectDir).toString() }]
+    const response: BIDesignModelResponse = await langClient.getDesignModel({
+        projectPath: projectDir
     });
 
-    const services = components.packages
-        ?.flatMap(pkg => pkg.modules)
-        .flatMap(module => module.services)
-        .filter(service => service !== undefined)
+    const services = response.designModel.services
+        .filter(service => service.type.toLowerCase().includes('http'))
         .map(service => ({
-            name: service.name,
-            filePath: service.filePath
+            name: service.displayName || service.absolutePath.startsWith('/') ? service.absolutePath.trim().substring(1) : service.absolutePath.trim(),
+            basePath: service.absolutePath.trim(),
+            filePath: service.location.filePath,
+            listener: service.attachedListeners.map(listener => response.designModel.listeners.find(l => l.uuid === listener)?.symbol).join(', ')
         }));
 
     return services || [];
@@ -155,7 +248,8 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
         // Get service port
         const selectedPort = await getServicePort(projectDir, service, openapiSpec);
         if (!selectedPort) {
-            vscode.window.showErrorMessage('Failed to get the service port for the service');
+            vscode.window.showErrorMessage(`Failed to get the service port for the service: '${service.name}'`);
+            return undefined;
         }
 
         // Register Handlebars helpers
@@ -166,11 +260,12 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
         return compiledTemplate({
             ...openapiSpec,
             port: selectedPort.toString(),
-            basePath: service.name,
-            serviceName: service.name
+            basePath: service.basePath,
+            serviceName: service.name || 'Default'
         });
     } catch (error) {
-        vscode.window.showErrorMessage('An unexpected error occurred while generating the try-it file');
+        const message = error instanceof Error ? error.message : '';
+        vscode.window.showErrorMessage(`Failed to generate TryIt client content: ${message}`);
         return undefined;
     }
 }
@@ -190,16 +285,22 @@ async function getOpenAPIDefinition(langClient: any, service: ServiceInfo): Prom
         return undefined;
     }
 
-    const matchingDefinition = (openapiDefinitions as OpenAPISpec).content.find(content =>
-        path.basename(content.file) === path.basename(service.filePath)
+    const matchingDefinition = (openapiDefinitions as OpenAPISpec).content.filter(content =>
+        content.serviceName.toLowerCase() === service?.name.toLowerCase()
+        || (content.spec?.servers[0]?.url == undefined && service?.name === '') // TODO: Update the condition after fixing the issue in the OpenAPI tool https://github.com/ballerina-platform/ballerina-library/issues/7624
     );
 
-    if (!matchingDefinition) {
-        vscode.window.showErrorMessage(`No matching OpenAPI definition found for service: ${service.name}`);
+    if (matchingDefinition.length > 1) {
+        vscode.window.showErrorMessage(`Multiple matching OpenAPI definitions found for service: ${service.basePath}`);
         return undefined;
     }
 
-    return matchingDefinition.spec as OAISpec;
+    if (!matchingDefinition) {
+        vscode.window.showErrorMessage(`No matching OpenAPI definition found for service: ${service.basePath}`);
+        return undefined;
+    }
+
+    return matchingDefinition[0].spec as OAISpec;
 }
 
 async function getServicePort(projectDir: string, service: ServiceInfo, openapiSpec: OAISpec): Promise<number | undefined> {
@@ -286,6 +387,23 @@ function registerHandlebarsHelpers(openapiSpec: OAISpec): void {
 
             return new Handlebars.SafeString(headerParams ? `\n${headerParams}` : '');
         });
+
+        // Helper to group parameters by type (path, query, header)
+        if (!Handlebars.helpers.groupParams) {
+            Handlebars.registerHelper('groupParams', function (parameters) {
+                if (!parameters || !parameters.length) {
+                    return {};
+                }
+
+                return parameters.reduce((acc: any, param) => {
+                    if (!acc[param.in]) {
+                        acc[param.in] = [];
+                    }
+                    acc[param.in].push(param);
+                    return acc;
+                }, {});
+            });
+        }
     }
 
     if (!Handlebars.helpers.eq) {
@@ -364,7 +482,7 @@ function generateSchemaDoc(schema: Schema, depth: number, context: OAISpec): str
         return doc;
     }
 
-    return `${schema.type}${schema.format ? ` (${schema.format})` : ''}\n`;
+    return `${schema.type}${schema.format ? ` (${schema.format})` : ''}`;
 }
 
 // Helper to get content type and generate appropriate payload
@@ -374,16 +492,21 @@ function generateRequestBody(requestBody: RequestBody, context: OAISpec): string
     const schemaDoc = generateSchemaDoc(schema, 1, context);
     const isJson = contentType === 'application/json';
 
-    // Generate the comment block with schema documentation
-    const comment = `/* ${getCommentText(contentType)}
-
-Expected schema:
-${schemaDoc}
-*/`;
+    // Generate the comment block with schema documentation using line comments
+    const commentLines = [
+        `# ${getCommentText(contentType)}`
+    ];
+    if (schemaDoc.trim()) {
+        commentLines.push(
+            '#',
+            '# Expected schema:',
+            ...schemaDoc.split('\n').map(line => line.trim() ? `# ${line}` : '')
+        );
+    }
 
     // For JSON, generate sample data. For other types, return empty string
     const payload = isJson ? JSON.stringify(generateSampleValue(schema, context), null, 2) : '';
-    return `${comment}\n${payload}`;
+    return `${commentLines.join('\n')}\n${payload}`;
 }
 
 function getCommentText(contentType: string): string {
@@ -486,10 +609,56 @@ function resolveSchemaRef(ref: string, context: OAISpec): Schema | undefined {
     return current as Schema;
 }
 
+// Function to setup error log watching
+function setupErrorLogWatcher(targetDir: string) {
+    const errorLogPath = path.join(targetDir, 'httpyac_errors.log');
+
+    // Dispose existing watcher if any
+    disposeErrorWatcher();
+
+    if (!fs.existsSync(errorLogPath)) {
+        fs.writeFileSync(errorLogPath, '');
+    }
+
+    // Setup the file watcher Watch for changes in the error log file
+    errorLogWatcher = workspace.createFileSystemWatcher(errorLogPath);
+    errorLogWatcher.onDidChange(() => {
+        try {
+            const content = fs.readFileSync(errorLogPath, 'utf-8');
+            if (content.trim()) {
+                // Show a notification with "Show Details" button
+                window.showWarningMessage(
+                    'The request contains missing required parameters. Please provide values for the placeholders before sending the request.',
+                    'Show Details'
+                ).then(selection => {
+                    if (selection === 'Show Details') {
+                        // Show the full error in an output channel
+                        const outputChannel = window.createOutputChannel('Kola Tryit - Log');
+                        outputChannel.appendLine(content.trim());
+                        outputChannel.show();
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error reading error log file:', error);
+        }
+    });
+}
+
+// cleanup function for the watcher
+function disposeErrorWatcher() {
+    if (errorLogWatcher) {
+        errorLogWatcher.dispose();
+        errorLogWatcher = undefined;
+    }
+}
+
 // Service information interface
 interface ServiceInfo {
-    name: string;
+    name?: string;
+    basePath: string;
     filePath: string;
+    listener: string;
 }
 
 // Main OpenAPI specification interface

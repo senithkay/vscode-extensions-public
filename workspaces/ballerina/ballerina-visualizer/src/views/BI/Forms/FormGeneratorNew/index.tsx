@@ -48,6 +48,7 @@ interface FormProps {
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
     selectedNode?: NodeKind;
+    nestedForm?: boolean;
 }
 
 export function FormGeneratorNew(props: FormProps) {
@@ -63,7 +64,8 @@ export function FormGeneratorNew(props: FormProps) {
         updatedExpressionField,
         isGraphqlEditor,
         resetUpdatedExpressionField,
-        selectedNode
+        selectedNode,
+        nestedForm
     } = props;
 
     const { rpcClient } = useRpcContext();
@@ -368,7 +370,7 @@ export function FormGeneratorNew(props: FormProps) {
                             ...field,
                             paramManagerProps: {
                                 ...field.paramManagerProps,
-                                formFields : field?.paramManagerProps?.formFields.map(subField => 
+                                formFields: field?.paramManagerProps?.formFields.map(subField =>
                                     subField.key === 'type' ? { ...subField, value: type.name } : subField
                                 )
                             }
@@ -458,6 +460,7 @@ export function FormGeneratorNew(props: FormProps) {
         <>
             {fields && fields.length > 0 && (
                 <Form
+                    nestedForm={nestedForm}
                     formFields={fieldsValues}
                     projectPath={projectPath}
                     openRecordEditor={handleOpenRecordEditor}

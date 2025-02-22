@@ -7,18 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import {
     autoDistribute,
+    centerDiagram,
     createNodesLink,
     generateEngine,
     getModelId,
     getNodeId,
-    loadDiagramZoomAndPosition,
-    registerListeners,
-    resetDiagramZoomAndPosition,
 } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { Connection, EntryPoint, NodeModel, Project } from "../utils/types";
@@ -33,15 +31,14 @@ import Controls from "./Controls";
 
 export interface DiagramProps {
     project: Project;
-    onAddEntryPoint: () => void;
-    onAddConnection: () => void;
     onEntryPointSelect: (entryPoint: EntryPoint) => void;
+    onEntryPointGoToSource: (entryPoint: EntryPoint) => void;
     onConnectionSelect: (connection: Connection) => void;
     onDeleteComponent: (component: EntryPoint | Connection) => void;
 }
 
 export function Diagram(props: DiagramProps) {
-    const { project, onAddEntryPoint, onAddConnection, onEntryPointSelect, onConnectionSelect, onDeleteComponent } =
+    const { project, onEntryPointSelect, onEntryPointGoToSource, onConnectionSelect, onDeleteComponent } =
         props;
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
@@ -53,20 +50,6 @@ export function Diagram(props: DiagramProps) {
             autoDistribute(diagramEngine);
         }
     }, [project]);
-
-    useEffect(() => {
-        const handleResize = () => {
-            if (diagramEngine?.getCanvas()?.getBoundingClientRect) {
-                diagramEngine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
-                diagramEngine.repaintCanvas();
-            }
-        };
-
-        window.addEventListener("resize", handleResize);
-        return () => {
-            window.removeEventListener("resize", handleResize);
-        };
-    }, [diagramEngine, diagramModel]);
 
     const getDiagramData = () => {
         // generate diagram nodes and links
@@ -178,16 +161,15 @@ export function Diagram(props: DiagramProps) {
             }
             if (diagramEngine?.getCanvas()?.getBoundingClientRect) {
                 diagramEngine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
+                centerDiagram(diagramEngine);
             }
-            diagramEngine.repaintCanvas();
         }, 200);
     };
 
     const context: DiagramContextState = {
         project,
-        onAddEntryPoint,
-        onAddConnection,
         onEntryPointSelect,
+        onEntryPointGoToSource,
         onConnectionSelect,
         onDeleteComponent,
     };

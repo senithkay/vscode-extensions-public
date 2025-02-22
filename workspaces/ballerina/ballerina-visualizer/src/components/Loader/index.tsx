@@ -9,9 +9,8 @@
 
 import React from "react";
 import styled from "@emotion/styled";
-import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { ProgressRing, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { Typography } from "@wso2-enterprise/ui-toolkit";
-import { Colors } from "../../resources/constants";
 interface LoadingRingProps {
     message?: string;
 }
@@ -38,7 +37,7 @@ export const LoadingRing = ({ message }: LoadingRingProps) => {
 
     return (
         <ProgressContainer>
-            <ProgressRing color={Colors.PRIMARY}/>
+            <ProgressRing color={ThemeColors.PRIMARY}/>
             {message && (
                 <LoadingText variant="body2">
                     {message}

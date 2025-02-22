@@ -881,8 +881,8 @@ async function sendMappingFileUploadRequest(file: Blob): Promise<Response | Erro
 }
 
 export async function searchDocumentation(message: string): Promise<string | ErrorCode> {
-    const BACKEND_API_URL ="https://d55e8fdd-f58b-44b7-9037-aef27b84efa2-dev.e1-us-east-azure.choreoapis.dev/ballerina-doc-assistant/doc-assistant-docker-buil/v1.0";
-    const response = await fetch(BACKEND_API_URL + "/askAssistant", {
+    const BACKEND_API_URL ="https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/ballerina-copilot/documentation-assist/v1.0";
+    const response = await fetch(BACKEND_API_URL + "/documentation-assistant", {
         method: "POST",
         headers: {
             'Accept': 'application/json',

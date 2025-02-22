@@ -92,6 +92,6 @@ export function normalizeXML(xml: string): string {
  */
 export async function getMediatorDescription(mediatorType: string, st: any) {
     const mediatorST = st.syntaxTree.api.resource[0].inSequence.mediatorList[0];
-    const description = getNodeDescription(mediatorType, mediatorST);
+    const description = getNodeDescription(mediatorST);
     return description;
 }

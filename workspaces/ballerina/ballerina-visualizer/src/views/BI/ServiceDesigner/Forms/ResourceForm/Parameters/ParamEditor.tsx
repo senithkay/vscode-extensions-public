@@ -142,6 +142,8 @@ export function ParamEditor(props: ParamProps) {
                         fields={currentFields}
                         onBack={handleOnCancel}
                         onSubmit={onParameterSubmit}
+                        submitText={param.type.value ? "Save" : "Add"}
+                        nestedForm={true}
                     />
                 }
 
