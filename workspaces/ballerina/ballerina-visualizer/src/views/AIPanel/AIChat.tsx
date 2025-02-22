@@ -85,6 +85,7 @@ export const COMMAND_SCAFFOLD = "/scaffold";
 export const COMMAND_TESTS = "/tests";
 export const COMMAND_DATAMAP = "/datamap";
 export const COMMAND_TYPECREATOR = "/typecreator";
+export const COMMAND_DOCUMENTATION = "/ask";
 
 // Define constants for command templates
 const TEMPLATE_SCAFFOLD = [
@@ -97,6 +98,7 @@ const TEMPLATE_DATAMAP = [
     "generate mapping using input as <recordname(s)> and output as <recordname>",
 ];
 const TEMPLATE_TYPECREATOR = ["generate types using the given file"];
+const TEMPLATE_DOCUMENTATION = ["have questions about the Ballerina programming language: <question>"];
 
 // Use the constants in the commandToTemplate map
 const commandToTemplate = new Map<string, string[]>([
@@ -104,6 +106,7 @@ const commandToTemplate = new Map<string, string[]>([
     [COMMAND_TESTS, TEMPLATE_TESTS],
     [COMMAND_DATAMAP, TEMPLATE_DATAMAP],
     [COMMAND_TYPECREATOR, TEMPLATE_TYPECREATOR],
+    [COMMAND_DOCUMENTATION, TEMPLATE_DOCUMENTATION]
 ]);
 
 //TODO: Add the files relevant to the commands
@@ -335,13 +338,11 @@ export function AIChat() {
 
     async function processContent(token: string, content: [string, AttachmentResult[]]) {
         const [message, attachments] = content;
-
         const commandKey = findCommand(message);
         if (commandKey) {
             const commandLength = commandKey.length;
             const messageBody = message.slice(commandLength).trim();
             const parameters = extractParameters(commandKey, messageBody);
-            console.log(parameters);
 
             if (parameters) {
                 switch (commandKey) {
@@ -382,6 +383,9 @@ export function AIChat() {
                         }
                         break;
                     }
+                    case COMMAND_DOCUMENTATION: {
+                        await findInDocumentation(parameters.inputRecord[0], token);
+                    }
                 }
             } else {
                 throw new Error(
@@ -403,7 +407,7 @@ export function AIChat() {
         return "";
     }
 
-    function extractParameters(command: string, messageBody: string): MappingParameters | null {
+    function  extractParameters(command: string, messageBody: string): MappingParameters | null {
         const expectedTemplates = commandToTemplate.get(command);
         for (const template of expectedTemplates ?? []) {
             let pattern = template
@@ -411,7 +415,8 @@ export function AIChat() {
                 .replace(/<recordname\(s\)>/g, "([\\w:\\[\\]]+(?:[\\s,]+[\\w:\\[\\]]+)*)")
                 .replace(/<recordname>/g, "([\\w:\\[\\]]+)")
                 .replace(/<use-case>/g, "([\\s\\S]+?)")
-                .replace(/<functionname>/g, "(\\S+?)");
+                .replace(/<functionname>/g, "(\\S+?)")
+                .replace(/<question>/g, "(.+?)");
 
             const regex = new RegExp(`^${pattern}$`, "i");
             const match = messageBody.match(regex);
@@ -665,6 +670,7 @@ export function AIChat() {
                     tempStorage[filePath] = "";
                 }
             }
+
             if (command === "ai_map") {
                 segmentText = `${originalContent}\n${segmentText}`;
             } else {
@@ -675,6 +681,7 @@ export function AIChat() {
             if (command === "test") {
                 isTestCode = true;
             }
+
             await rpcClient
                 .getAiPanelRpcClient()
                 .addToProject({ filePath: filePath, content: segmentText, isTestCode: isTestCode });
@@ -690,7 +697,7 @@ export function AIChat() {
         console.log("Revert integration called. Command: ", command);
 
         for (const { filePath } of codeSegments) {
-            let originalContent = tempStorage[filePath];
+            let originalContent = tempStorage[filePath];    
             if (originalContent === "" && !initialFiles.has(filePath) && !emptyFiles.has(filePath)) {
                 // Delete the file if it didn't initially exist in the workspace
                 try {
@@ -1001,6 +1008,35 @@ export function AIChat() {
             return newMessages;
         });
         setIsLoading(false);
+        addChatEntry("user", message);
+        addChatEntry("assistant", assistant_response);
+    }
+
+    
+    async function findInDocumentation(message: string, token: string) {
+        let assistant_response = "";
+        setIsLoading(true);
+        try{
+            console.log("Searching for: " + message, + "Token: ", token);
+            assistant_response = await rpcClient.getAiPanelRpcClient().getFromDocumentation(message);
+            console.log("Assistant Response: " + assistant_response);
+            setMessages((prevMessages) => {
+                const newMessages = [...prevMessages];
+                newMessages[newMessages.length - 1].content = assistant_response;
+                return newMessages;
+            });
+            setIsLoading(false);
+        } catch (error) {
+            setIsLoading(false);
+            setMessages((prevMessages) => {
+                const newMessages = [...prevMessages];
+                newMessages[newMessages.length - 1].content += `Failed fetching data from documentation: ${error}`;
+                newMessages[newMessages.length - 1].type = "Error";
+                return newMessages;
+            });
+            throw new Error("Failed fetching");
+        }
+
         addChatEntry("user", message);
         addChatEntry("assistant", assistant_response);
     }
