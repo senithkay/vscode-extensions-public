@@ -291,7 +291,7 @@ async function getOpenAPIDefinition(langClient: any, service: ServiceInfo): Prom
     );
 
     if (matchingDefinition.length > 1) {
-        vscode.window.showErrorMessage(`Multiple matching OpenAPI definitions found for for service: ${service.basePath}`);
+        vscode.window.showErrorMessage(`Multiple matching OpenAPI definitions found for service: ${service.basePath}`);
         return undefined;
     }
 
