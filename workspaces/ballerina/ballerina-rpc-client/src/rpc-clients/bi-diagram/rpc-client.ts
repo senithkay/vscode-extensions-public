@@ -125,7 +125,8 @@ import {
     updateConfigVariables,
     updateImports,
     updateServiceClass,
-    updateType
+    updateType,
+    BuildMode
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -237,8 +238,8 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(getSignatureHelp, HOST_EXTENSION, params);
     }
 
-    buildProject(): void {
-        return this._messenger.sendNotification(buildProject, HOST_EXTENSION);
+    buildProject(params: BuildMode): void {
+        return this._messenger.sendNotification(buildProject, HOST_EXTENSION, params);
     }
 
     runProject(): void {
@@ -280,7 +281,7 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
     getDesignModel(): Promise<BIDesignModelResponse> {
         return this._messenger.sendRequest(getDesignModel, HOST_EXTENSION);
     }
-    
+
     getTypes(params: GetTypesRequest): Promise<GetTypesResponse> {
         return this._messenger.sendRequest(getTypes, HOST_EXTENSION, params);
     }

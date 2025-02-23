@@ -14,6 +14,7 @@ import {
     ProjectStructureResponse,
     EVENT_TYPE,
     MACHINE_VIEW,
+    BuildMode,
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Typography, Codicon, ProgressRing, Button, Icon } from "@wso2-enterprise/ui-toolkit";
@@ -97,9 +98,7 @@ const MainPanel = styled.div<{ noPadding?: boolean }>`
 `;
 
 const SidePanel = styled.div`
-    border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
-    border-radius: 4px;
-    padding: 16px;
+    padding: 0px 10px 10px 10px;
     overflow: auto;
 `;
 
@@ -144,6 +143,19 @@ const DiagramContent = styled.div`
 const DeploymentContent = styled.div`
     margin-top: 16px;
     min-width: 130px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    color: var(--vscode-descriptionForeground);
+
+    h3 {
+        margin: 0 0 16px 0;
+        color: inherit;
+    }
+
+    p {
+        color: inherit;
+    }
 `;
 
 const DeployButtonContainer = styled.div`
@@ -194,6 +206,156 @@ const ProjectSubtitle = styled.h2`
         font-size: 1.875rem;
     }
 `;
+
+const DeployButton = styled.div`
+    border: 1px solid var(--vscode-welcomePage-tileBorder);
+    cursor: default !important;
+    background: var(--vscode-welcomePage-tileBackground);
+    border-radius: 6px;
+    display: flex;
+    overflow: hidden;
+    width: 100%;
+    padding: 10px;
+    flex-direction: column;
+`;
+
+const DeploymentOptionContainer = styled.div<{ isExpanded: boolean }>`
+    cursor: pointer;
+    border: ${props => props.isExpanded ? '1px solid var(--vscode-welcomePage-tileBorder)' : 'none'};
+    background: ${props => props.isExpanded ? 'var(--vscode-welcomePage-tileBackground)' : 'transparent'};
+    border-radius: 6px;
+    display: flex;
+    overflow: hidden;
+    width: 100%;
+    padding: 10px;
+    flex-direction: column;
+    margin-bottom: 8px;
+
+    &:hover {
+        background: var(--vscode-welcomePage-tileHoverBackground);
+    }
+`;
+
+const DeploymentHeader = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0;
+    }
+`;
+
+const DeploymentBody = styled.div<{ isExpanded: boolean }>`
+    max-height: ${props => props.isExpanded ? '200px' : '0'};
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+    margin-top: ${props => props.isExpanded ? '8px' : '0'};
+`;
+
+interface DeploymentOptionProps {
+    title: string;
+    description: string;
+    buttonText: string;
+    isExpanded: boolean;
+    onToggle: () => void;
+    onDeploy: () => void;
+    learnMoreLink?: boolean;
+}
+
+function DeploymentOption({
+    title,
+    description,
+    buttonText,
+    isExpanded,
+    onToggle,
+    onDeploy,
+    learnMoreLink
+}: DeploymentOptionProps) {
+    return (
+        <DeploymentOptionContainer
+            isExpanded={isExpanded}
+            onClick={onToggle}
+        >
+            <DeploymentHeader>
+                <Codicon
+                    name={'circle-outline'}
+                    sx={{ color: isExpanded ? 'var(--vscode-textLink-foreground)' : 'inherit' }}
+                />
+                <h3>{title}</h3>
+            </DeploymentHeader>
+            <DeploymentBody isExpanded={isExpanded}>
+                <p style={{ marginTop: 8 }}>
+                    {description}
+                    {learnMoreLink && <> <VSCodeLink>Learn more</VSCodeLink></>}
+                </p>
+                <Button appearance="secondary" onClick={(e) => {
+                    e.stopPropagation();
+                    onDeploy();
+                }}>
+                    {buttonText}
+                </Button>
+            </DeploymentBody>
+        </DeploymentOptionContainer>
+    );
+}
+
+interface DeploymentOptionsProps {
+    handleDockerBuild: () => void;
+    handleJarBuild: () => void;
+    handleDeploy: () => void;
+}
+
+function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy }: DeploymentOptionsProps) {
+    const [expandedOptions, setExpandedOptions] = useState<Set<string>>(new Set(['cloud']));
+
+    const toggleOption = (option: string) => {
+        setExpandedOptions(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(option)) {
+                newSet.delete(option);
+            } else {
+                newSet.add(option);
+            }
+            return newSet;
+        });
+    };
+
+    return (
+        <div>
+            <Title variant="h3">Deployment Options</Title>
+
+            <DeploymentOption
+                title="Deploy to Devant"
+                description="Deploy your integration to the cloud using WSO2 Devant."
+                buttonText="Deploy to Cloud"
+                isExpanded={expandedOptions.has('cloud')}
+                onToggle={() => toggleOption('cloud')}
+                onDeploy={handleDeploy}
+                learnMoreLink={true}
+            />
+
+            <DeploymentOption
+                title="Deploy with Docker"
+                description="Create a Docker image of your integration and deploy it to any Docker-enabled system."
+                buttonText="Create Docker Image"
+                isExpanded={expandedOptions.has('docker')}
+                onToggle={() => toggleOption('docker')}
+                onDeploy={handleDockerBuild}
+            />
+
+            <DeploymentOption
+                title="Deploy on a VM"
+                description="Create a self-contained Ballerina executable and run it on any system with Java installed."
+                buttonText="Create Executable"
+                isExpanded={expandedOptions.has('vm')}
+                onToggle={() => toggleOption('vm')}
+                onDeploy={handleJarBuild}
+            />
+        </div>
+    );
+}
 
 interface ComponentDiagramProps {
     //
@@ -454,8 +616,12 @@ export function Overview(props: ComponentDiagramProps) {
         rpcClient.getBIDiagramRpcClient().runProject();
     };
 
-    const handleBuild = () => {
-        rpcClient.getBIDiagramRpcClient().buildProject();
+    const handleDockerBuild = () => {
+        rpcClient.getBIDiagramRpcClient().buildProject(BuildMode.DOCKER);
+    };
+
+    const handleJarBuild = () => {
+        rpcClient.getBIDiagramRpcClient().buildProject(BuildMode.JAR);
     };
 
     return (
@@ -467,10 +633,7 @@ export function Overview(props: ComponentDiagramProps) {
                 </TitleContainer>
                 <IconButtonContainer>
                     <Button appearance="icon" onClick={handlePlay} buttonSx={{ padding: "4px 8px" }}>
-                        <Codicon name="play" sx={{ marginRight: 5 }} /> Run
-                    </Button>
-                    <Button appearance="icon" onClick={handleBuild} buttonSx={{ padding: "4px 8px" }}>
-                        <Icon name="bi-build" sx={{ marginRight: 8, fontSize: 16 }} /> Build
+                        <Codicon name="play" sx={{ marginRight: 5 }} /> Run & Debug
                     </Button>
                 </IconButtonContainer>
             </HeaderRow>
@@ -538,6 +701,7 @@ export function Overview(props: ComponentDiagramProps) {
                             </Button>
                         </DeployButtonContainer>
                     </DeploymentContent>
+                    <DeploymentOptions handleDockerBuild={handleDockerBuild} handleJarBuild={handleJarBuild} handleDeploy={handleDeploy} />
                 </SidePanel>
             </MainContent>
 

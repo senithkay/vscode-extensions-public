@@ -79,7 +79,8 @@ import {
     FormDidOpenParams,
     FormDidCloseParams,
     EndOfFileRequest,
-    RecordsInWorkspaceMentions
+    RecordsInWorkspaceMentions,
+    BuildMode
 } from "./interfaces";
 
 export interface BIDiagramAPI {
@@ -108,7 +109,7 @@ export interface BIDiagramAPI {
     deployProject: () => void;
     openAIChat: (params: AIChatRequest) => void;
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
-    buildProject: () => void;
+    buildProject: (mode: BuildMode) => void;
     runProject: () => void;
     getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
     addBreakpointToSource: (params: BreakpointRequest) => void;

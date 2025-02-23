@@ -91,6 +91,7 @@ import {
     updateImports,
     updateServiceClass,
     updateType,
+    BuildMode
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { BiDiagramRpcManager } from "./rpc-manager";
@@ -122,7 +123,7 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(deployProject, () => rpcManger.deployProject());
     messenger.onNotification(openAIChat, (args: AIChatRequest) => rpcManger.openAIChat(args));
     messenger.onRequest(getSignatureHelp, (args: SignatureHelpRequest) => rpcManger.getSignatureHelp(args));
-    messenger.onNotification(buildProject, () => rpcManger.buildProject());
+    messenger.onNotification(buildProject, (args: BuildMode) => rpcManger.buildProject(args));
     messenger.onNotification(runProject, () => rpcManger.runProject());
     messenger.onRequest(getVisibleTypes, (args: VisibleTypesRequest) => rpcManger.getVisibleTypes(args));
     messenger.onNotification(addBreakpointToSource, (args: BreakpointRequest) => rpcManger.addBreakpointToSource(args));

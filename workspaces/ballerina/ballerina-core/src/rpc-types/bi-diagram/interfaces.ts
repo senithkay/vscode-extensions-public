@@ -155,3 +155,7 @@ export interface FormDidCloseParams {
 export interface EndOfFileRequest {
     filePath: string;
 }
+export enum BuildMode {
+    JAR = "jar",
+    DOCKER = "docker"
+}

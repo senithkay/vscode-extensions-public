@@ -76,7 +76,8 @@ import {
     FormDidOpenParams,
     FormDidCloseParams,
     EndOfFileRequest,
-    RecordsInWorkspaceMentions
+    RecordsInWorkspaceMentions,
+    BuildMode
 } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -106,7 +107,7 @@ export const renameIdentifier: RequestType<RenameIdentifierRequest, void> = { me
 export const deployProject: NotificationType<void> = { method: `${_preFix}/deployProject` };
 export const openAIChat: NotificationType<AIChatRequest> = { method: `${_preFix}/openAIChat` };
 export const getSignatureHelp: RequestType<SignatureHelpRequest, SignatureHelpResponse> = { method: `${_preFix}/getSignatureHelp` };
-export const buildProject: NotificationType<void> = { method: `${_preFix}/buildProject` };
+export const buildProject: NotificationType<BuildMode> = { method: `${_preFix}/buildProject` };
 export const runProject: NotificationType<void> = { method: `${_preFix}/runProject` };
 export const getVisibleTypes: RequestType<VisibleTypesRequest, VisibleTypesResponse> = { method: `${_preFix}/getVisibleTypes` };
 export const addBreakpointToSource: NotificationType<BreakpointRequest> = { method: `${_preFix}/addBreakpointToSource` };
