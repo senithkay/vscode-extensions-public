@@ -120,7 +120,7 @@ export const getFileTypesForCommand = (command: string): string[] => {
     switch (command) {
         case COMMAND_GENERATE:
         case COMMAND_TESTS:
-            return ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml", ".sql",".graphql", ""];
+            return ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml", ".sql", ".graphql", ""];
         case COMMAND_DATAMAP:
         case COMMAND_TYPECREATOR:
             return [
@@ -135,7 +135,7 @@ export const getFileTypesForCommand = (command: string): string[] => {
                 "application/msword",
             ];
         default:
-            return ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml", ".sql",".graphql", ""];
+            return ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml", ".sql", ".graphql", ""];
     }
 };
 
@@ -394,14 +394,13 @@ export function AIChat() {
                     }
                 }
             } else {
-                console.log("Query : "+ messageBody);
                 if (messageBody.trim() === "") {
                     throw new Error('Error: Query is empty. Please enter a valid query')
                 }
                 if (commandKey === COMMAND_GENERATE) {
                     await processCodeGeneration(
                         token,
-                        [messageBody,attachments],
+                        [messageBody, attachments],
                         message
                     );
                     return;
@@ -411,7 +410,7 @@ export function AIChat() {
                 }
                 throw new Error(
                     `Invalid template format for the \`${commandKey}\` command. ` +
-                        `Please ensure you follow the correct template.`
+                    `Please ensure you follow the correct template.`
                 );
             }
         } else {
@@ -428,7 +427,7 @@ export function AIChat() {
         return "";
     }
 
-    function  extractParameters(command: string, messageBody: string): MappingParameters | null {
+    function extractParameters(command: string, messageBody: string): MappingParameters | null {
         const expectedTemplates = commandToTemplate.get(command);
         for (const template of expectedTemplates ?? []) {
             let pattern = template
@@ -479,10 +478,6 @@ export function AIChat() {
 
     async function processCodeGeneration(token: string, content: [string, AttachmentResult[]], message: string) {
         const [useCase, attachments] = content;
-        console.log("Process codegen")
-        console.log(useCase)
-        console.log(attachments)
-        console.log(message)
 
         let assistant_response = "";
         const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource();
@@ -722,7 +717,7 @@ export function AIChat() {
         console.log("Revert integration called. Command: ", command);
 
         for (const { filePath } of codeSegments) {
-            let originalContent = tempStorage[filePath];    
+            let originalContent = tempStorage[filePath];
             if (originalContent === "" && !initialFiles.has(filePath) && !emptyFiles.has(filePath)) {
                 // Delete the file if it didn't initially exist in the workspace
                 try {
@@ -906,27 +901,27 @@ export function AIChat() {
         if (!output) {
             if (outputRecordName.includes(":")) {
                 const [moduleName, alias] = outputRecordName.split(":");
-                    const matchedImport = activeFileImports.find((imp) => {
-                        if (imp.alias) {
-                            // Match using alias if it exists
-                            return outputRecordName.startsWith(imp.alias);
-                        }
-                        // If alias doesn't exist, match using the last part of the module name
-                        const moduleNameParts = imp.moduleName.split(".");
-                        const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
-                        return outputRecordName.startsWith(inferredAlias);
-                    });
-
-                    if (!matchedImport) {
-                        throw new Error(`Must import the module for "${outputRecordName}".`);
+                const matchedImport = activeFileImports.find((imp) => {
+                    if (imp.alias) {
+                        // Match using alias if it exists
+                        return outputRecordName.startsWith(imp.alias);
                     }
-                    // Use the actual alias if present, otherwise infer from the module name
-                    const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
-                    importsMap.set(outputRecordName, {
-                        moduleName: matchedImport.moduleName,
-                        alias: resolvedAlias,
-                    });
-                    output = { type: `${outputRecordName}`, isArray: outputIsArray, filePath: null };
+                    // If alias doesn't exist, match using the last part of the module name
+                    const moduleNameParts = imp.moduleName.split(".");
+                    const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
+                    return outputRecordName.startsWith(inferredAlias);
+                });
+
+                if (!matchedImport) {
+                    throw new Error(`Must import the module for "${outputRecordName}".`);
+                }
+                // Use the actual alias if present, otherwise infer from the module name
+                const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
+                importsMap.set(outputRecordName, {
+                    moduleName: matchedImport.moduleName,
+                    alias: resolvedAlias,
+                });
+                output = { type: `${outputRecordName}`, isArray: outputIsArray, filePath: null };
             } else {
                 throw new Error(`${outputRecordName} is not defined.`);
             }
@@ -1037,11 +1032,11 @@ export function AIChat() {
         addChatEntry("assistant", assistant_response);
     }
 
-    
+
     async function findInDocumentation(message: string, token: string) {
         let assistant_response = "";
         setIsLoading(true);
-        try{
+        try {
             console.log("Searching for: " + message, + "Token: ", token);
             assistant_response = await rpcClient.getAiPanelRpcClient().getFromDocumentation(message);
             console.log("Assistant Response: " + assistant_response);
@@ -1138,28 +1133,28 @@ export function AIChat() {
                 {Array.isArray(otherMessages) && otherMessages.length === 0 && (
                     <Welcome>
                         <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", marginTop: "100px" }}>
-                        <Icon name="bi-ai-agent" sx={{width:60, height:50}} iconSx={{ fontSize: "60px", color: "var(--vscode-foreground)", cursor:"default" }} />
-                        
-                        <div style={{display:"inline-flex"}}><h2>WSO2 Copilot</h2><PreviewContainerDefault>Preview</PreviewContainerDefault></div>
-                        <Typography
-                            variant="body1"
-                            sx={{ marginBottom: "24px", color: "var(--vscode-descriptionForeground)", textAlign: "center",maxWidth:350, fontSize:14 }}
-                        >
-                            WSO2 Copilot is powered by AI. It can make mistakes. Make sure to review the generated code before adding it to your integration.
-                        </Typography>
-                        <Typography
-                            variant="body1"
-                            sx={{ marginBottom: "14px", color: "var(--vscode-descriptionForeground)", textAlign: "center",maxWidth:350, fontSize:14 }}
-                        >
-                            Type / to use commands
-                        </Typography>
-                        <Typography
-                            variant="body1"
-                            sx={{ marginBottom: "24px", color: "var(--vscode-descriptionForeground)", textAlign: "center",maxWidth:350, fontSize:14, gap:10, display:"inline-flex",}}
-                        >
-                             <Icon isCodicon={true} name="new-file" iconSx={{cursor:"default"}}/> to attatch context
-                        </Typography>
-                    </div>
+                            <Icon name="bi-ai-agent" sx={{ width: 60, height: 50 }} iconSx={{ fontSize: "60px", color: "var(--vscode-foreground)", cursor: "default" }} />
+
+                            <div style={{ display: "inline-flex" }}><h2>WSO2 Copilot</h2><PreviewContainerDefault>Preview</PreviewContainerDefault></div>
+                            <Typography
+                                variant="body1"
+                                sx={{ marginBottom: "24px", color: "var(--vscode-descriptionForeground)", textAlign: "center", maxWidth: 350, fontSize: 14 }}
+                            >
+                                WSO2 Copilot is powered by AI. It can make mistakes. Make sure to review the generated code before adding it to your integration.
+                            </Typography>
+                            <Typography
+                                variant="body1"
+                                sx={{ marginBottom: "14px", color: "var(--vscode-descriptionForeground)", textAlign: "center", maxWidth: 350, fontSize: 14 }}
+                            >
+                                Type / to use commands
+                            </Typography>
+                            <Typography
+                                variant="body1"
+                                sx={{ marginBottom: "24px", color: "var(--vscode-descriptionForeground)", textAlign: "center", maxWidth: 350, fontSize: 14, gap: 10, display: "inline-flex", }}
+                            >
+                                <Icon isCodicon={true} name="new-file" iconSx={{ cursor: "default" }} /> to attatch context
+                            </Typography>
+                        </div>
                     </Welcome>
                 )}
                 {otherMessages.map((message, index) => {
@@ -1455,8 +1450,8 @@ const CodeSection: React.FC<CodeSectionProps> = ({
     let name = loading
         ? "Generating " + (isTestCode ? "Tests..." : "Integration...")
         : isTestCode
-        ? "Ballerina Tests"
-        : "Ballerina Integration";
+            ? "Ballerina Tests"
+            : "Ballerina Integration";
 
     const allCodeSegments = splitContent(message.content)
         .filter((segment) => segment.type === SegmentType.Code)
