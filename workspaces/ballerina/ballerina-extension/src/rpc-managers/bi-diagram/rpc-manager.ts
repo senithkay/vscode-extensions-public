@@ -657,21 +657,15 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async createChoreoComponent(name: string, type: "service" | "manualTask" | "scheduleTask"): Promise<void> {
-        const params = {
-            initialValues: {
-                name,
-                type,
-                buildPackLang: "ballerina",
-            },
-        };
-
-        await commands.executeCommand("wso2.choreo.create.component", params);
-    }
-
     deployProject(): void {
         // Show a quick pick to select deployment option
-        this.createChoreoComponent("test", "service");
+        const params = {
+            type: "service", // Assuming this is a valid enum value
+            buildPackLang: "ballerina", // Example language
+            name: path.basename(StateMachine.context().projectUri),
+            componentDir: StateMachine.context().projectUri
+        };
+        commands.executeCommand("wso2.platform.create.component", params);
     }
 
     openAIChat(params: AIChatRequest): void {
