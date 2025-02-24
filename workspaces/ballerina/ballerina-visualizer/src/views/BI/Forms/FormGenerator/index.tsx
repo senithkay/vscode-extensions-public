@@ -59,6 +59,7 @@ import {
 } from "../form-utils";
 import ForkForm from "../ForkForm";
 import { getHelperPane } from "../../HelperPane"
+import { FormTypeEditor } from "../../TypeEditor";
 
 interface TypeEditorState {
     isOpen: boolean;
@@ -102,7 +103,6 @@ export function FormGenerator(props: FormProps) {
     const { rpcClient } = useRpcContext();
 
     const [fields, setFields] = useState<FormField[]>([]);
-    const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false });
     const [visualizableFields, setVisualizableFields] = useState<string[]>([]);
 
     /* Expression editor related state and ref variables */
@@ -112,6 +112,9 @@ export function FormGenerator(props: FormProps) {
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
     const expressionOffsetRef = useRef<number>(0); // To track the expression offset on adding import statements
+
+    const [openTypeEditor, setOpenTypeEditor] = useState<boolean>(false);
+    const [editingField, setEditingField] = useState<FormField>();
 
     useEffect(() => {
         if (!node) {
@@ -223,7 +226,9 @@ export function FormGenerator(props: FormProps) {
         await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
 
-    const handleOpenTypeEditor = (isOpen: boolean, f: FormValues, editingField?: FormField) => {
+    const handleOpenTypeEditor = (isOpen: boolean, f: FormValues, editingField: FormField) => {
+        setOpenTypeEditor(isOpen);
+
         // Get f.value and assign that value to field value
         const updatedFields = fields.map((field) => {
             const updatedField = { ...field };
@@ -233,7 +238,7 @@ export function FormGenerator(props: FormProps) {
             return updatedField;
         });
         setFields(updatedFields);
-        setTypeEditorState({ isOpen, fieldKey: editingField?.key });
+        setEditingField(editingField);
     };
 
     /* Expression editor related functions */
@@ -489,6 +494,60 @@ export function FormGenerator(props: FormProps) {
         });
     }
 
+    /* Type editor related functions */
+    const defaultType = (): Type => {
+        return {
+            name: "MyType",
+            editable: true,
+            metadata: {
+                label: "",
+                description: ""
+            },
+            codedata: {
+                node: "CLASS"
+            },
+            properties: {},
+            members: [],
+            includes: [] as string[],
+            functions: []
+        };
+    }
+
+    const handleTypeChange = async (type: Type) => {
+        setOpenTypeEditor(false);
+
+        if (editingField) {
+            const updatedFields = fields.map(field => {
+                if (field.key === editingField.key) {
+                    // Only handle parameter type if editingField is a parameter
+                    if (editingField.type === 'PARAM_MANAGER' && field.type === 'PARAM_MANAGER' && field.paramManagerProps.formFields) {
+                        return {
+                            ...field,
+                            paramManagerProps: {
+                                ...field.paramManagerProps,
+                                formFields: field?.paramManagerProps?.formFields.map(subField =>
+                                    subField.key === 'type' ? { ...subField, value: type.name } : subField
+                                )
+                            }
+                        };
+                    }
+                    // Handle regular fields
+                    return {
+                        ...field,
+                        value: type.name
+                    };
+                }
+                return field;
+            });
+            setFields(updatedFields);
+        }
+    };
+
+    const onCloseTypeEditor = () => {
+        setOpenTypeEditor(false);
+    }
+    /* Type editor related functions ends here */
+
     const expressionEditor = useMemo(() => {
         return {
             completions: filteredCompletions,
@@ -509,9 +568,13 @@ export function FormGenerator(props: FormProps) {
         filteredCompletions,
         filteredTypes,
         handleRetrieveCompletions,
+        extractArgsFromFunction,
         handleGetVisibleTypes,
-        handleFunctionItemSelect,
-        handleExpressionFormDiagnostics
+        handleGetHelperPane,
+        handleExpressionFormDiagnostics,
+        handleCompletionItemSelect,
+        handleExpressionEditorBlur,
+        handleExpressionEditorCancel
     ]);
 
     const fetchVisualizableFields = async (filePath: string, flowNode: FlowNode, position: LinePosition) => {
@@ -587,19 +650,16 @@ export function FormGenerator(props: FormProps) {
                     disableSaveButton={disableSaveButton}
                 />
             )}
-            {typeEditorState.isOpen && (
-                <PanelContainer
-                    title={"New Type"}
-                    show={true}
-                    onClose={onTypeEditorClosed}
-                >
-                    <TypeEditor
+            {openTypeEditor &&
+                <PanelContainer title={"New Type"} show={true} onClose={onCloseTypeEditor}>
+                    <FormTypeEditor
+                        type={defaultType()}
                         newType={true}
-                        rpcClient={rpcClient}
-                        onTypeChange={onTypeChange}
+                        isGraphql={true}
+                        onTypeChange={handleTypeChange}
                     />
                 </PanelContainer>
-            )}
+            }
         </>
     );
 }

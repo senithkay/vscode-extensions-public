@@ -40,6 +40,8 @@ import {
 } from "../../../../utils/bi";
 import { debounce, set } from "lodash";
 import { getHelperPane } from "../../HelperPane";
+import { RecordEditor } from "../../../RecordEditor/RecordEditor";
+import { FormTypeEditor } from "../../TypeEditor";
 
 interface TypeEditorState {
     isOpen: boolean;
@@ -54,7 +56,6 @@ interface FormProps {
     submitText?: string;
     onBack?: () => void;
     editForm?: boolean;
-    isGraphqlEditor?: boolean;
     onSubmit: (data: FormValues) => void;
     isActiveSubPanel?: boolean;
     openSubPanel?: (subPanel: SubPanel) => void;
@@ -75,7 +76,6 @@ export function FormGeneratorNew(props: FormProps) {
         onSubmit,
         openSubPanel,
         updatedExpressionField,
-        isGraphqlEditor,
         resetUpdatedExpressionField,
         selectedNode,
         nestedForm
@@ -83,8 +83,6 @@ export function FormGeneratorNew(props: FormProps) {
 
     const { rpcClient } = useRpcContext();
     console.log("======FormGeneratorNew======,", fields)
-
-    const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false });
 
     /* Expression editor related state and ref variables */
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
@@ -341,7 +339,9 @@ export function FormGeneratorNew(props: FormProps) {
         }
     };
 
-    const handleOpenTypeEditor = (isOpen: boolean, f: FormValues, editingField?: FormField) => {
+    const handleOpenTypeEditor = (isOpen: boolean, f: FormValues, editingField: FormField) => {
+        setOpenTypeEditor(isOpen);
+
         // Get f.value and assign that value to field value
         const updatedFields = fields.map((field) => {
             const updatedField = { ...field };
@@ -461,9 +461,16 @@ export function FormGeneratorNew(props: FormProps) {
                     selectedNode={selectedNode}
                 />
             )}
-            {typeEditorState.isOpen && (
-                renderTypeEditor(isGraphqlEditor)
-            )}
+            {openTypeEditor &&
+                <PanelContainer title={"New Type"} show={true} onClose={onCloseTypeEditor}>
+                    <FormTypeEditor
+                        type={defaultType()}
+                        newType={true}
+                        isGraphql={true}
+                        onTypeChange={handleTypeChange}
+                    />
+                </PanelContainer>
+            }
         </>
     );
 }
