@@ -207,10 +207,12 @@ export function DataMapperC(props: DataMapperViewProps) {
         experimentalEnabled
     } = props;
     const openedViaPlus = false;
-    const goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void = undefined;
     const updateActiveFile: (currentFile: FileListEntry) => void = undefined;
 
-    const { projectComponents, isFetching: isFetchingComponents } = useProjectComponents(langServerRpcClient, filePath);
+    const {
+        projectComponents,
+        isFetching: isFetchingComponents,
+    } = useProjectComponents(langServerRpcClient, filePath, fnST.source);
     const { 
         ballerinaVersion,
         dMSupported,
@@ -218,7 +220,10 @@ export function DataMapperC(props: DataMapperViewProps) {
         isFetching: isFetchingDMMetaData,
         isError: isErrorDMMetaData
     } = useDMMetaData(langServerRpcClient);
-    const { content, isFetching: isFetchingContent } = useFileContent(langServerRpcClient, filePath, fnST);
+    const {
+        content,
+        isFetching: isFetchingContent
+    } = useFileContent(langServerRpcClient, filePath, fnST);
 
     const targetPosition = fnST ? {
         ...fnST.position,
@@ -261,6 +266,10 @@ export function DataMapperC(props: DataMapperViewProps) {
     const typeStore = TypeDescriptorStore.getInstance();
     const typeStoreStatus = typeStore.getStatus();
     const { rpcClient } = useRpcContext();
+
+    const goToSource = (position: NodePosition) => {
+        rpcClient.getCommonRpcClient().goToSource({ position, filePath });
+    };
 
     const isOverlay = (!isFetchingDMMetaData && !isErrorDMMetaData) && (showDMOverlay || showLocalVarConfigPanel || autoMapInProgress);
 
@@ -360,10 +369,11 @@ export function DataMapperC(props: DataMapperViewProps) {
 
     const importStatements = useMemo(() => content ? content[1] : [], [content, isFetchingContent]);
 
-    const moduleVariables = useMemo(() => {
+    const moduleComponents = useMemo(() => {
         const moduleVars = [];
         const consts = [];
         const enums = [];
+        const functions = [];
         if (projectComponents && projectComponents.packages) {
             for (const pkg of projectComponents.packages) {
                 for (const mdl of pkg.modules) {
@@ -379,6 +389,9 @@ export function DataMapperC(props: DataMapperViewProps) {
                             enum: enumType,
                         });
                     }
+                    for (const fn of mdl.functions) {
+                        functions.push(fn);
+                    }
                 }
             }
         }
@@ -386,6 +399,7 @@ export function DataMapperC(props: DataMapperViewProps) {
             moduleVarDecls: moduleVars,
             constDecls: consts,
             enumDecls: enums,
+            functions: functions
         };
     }, [projectComponents, isFetchingComponents]);
 
@@ -494,7 +508,7 @@ export function DataMapperC(props: DataMapperViewProps) {
                     selection,
                     langServerRpcClient,
                     currentFile,
-                    moduleVariables,
+                    moduleComponents,
                     handleSelectedST,
                     goToSource,
                     diagnostics,
