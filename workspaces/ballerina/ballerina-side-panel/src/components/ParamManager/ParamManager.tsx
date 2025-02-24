@@ -209,8 +209,10 @@ export function ParamManager(props: ParamManagerProps) {
                     newParamConfig.formFields.forEach(field => {
                         if (param.formValues[field.key]) {
                             field.value = param.formValues[field.key];
-                            field.editable = param.identifierEditable;
-                            field.lineRange = param.identifierRange;
+                            if (field.key === "variable") {
+                                field.editable = param.identifierEditable;
+                                field.lineRange = param.identifierRange;
+                            }
                         }
                     })
                     render.push(
