@@ -20,8 +20,8 @@ import {
 import classnames from "classnames";
 import { Diagnostic } from "vscode-languageserver-types";
 import { URI } from "vscode-uri";
-import { useDMStore } from "../../../../../store/store";
 
+import { useDMStore } from "../../../../../store/store";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { DiagnosticTooltip } from "../../../Diagnostic/DiagnosticTooltip/DiagnosticTooltip";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
@@ -126,8 +126,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const handleAddValue = async () => {
         setIsLoading(true);
         try {
-            let typeName = field.type?.typeName;
-            if (!typeName) {
+            let targetTypeName = field.type?.typeName;
+            if (!targetTypeName) {
                 const typeInfo = field.type.typeInfo;
                 const langClient = await langServerRpcClient;
                 const typesRes = await langClient.getTypeFromExpression({
@@ -148,10 +148,10 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                 });
                 for (const { type } of typesRes.types) {
                     const matchingType = getMatchingType(type, typeInfo);
-                    typeName = matchingType ? matchingType.typeName : typeName;
+                    targetTypeName = matchingType ? matchingType.typeName : targetTypeName;
                 }
             }
-            const defaultValue = getDefaultValue(typeName);
+            const defaultValue = getDefaultValue(targetTypeName);
             await createSourceForUserInput(field, mappingConstruct, defaultValue, applyModifications);
         } finally {
             setIsLoading(false);
