@@ -39,6 +39,7 @@ import {
     getAiPanelState,
     getBackendURL,
     getFileExists,
+    getFromDocumentation,
     getFromFile,
     getGeneratedTest,
     getInitialPrompt,
@@ -222,5 +223,9 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     markAlertShown(): void {
         return this._messenger.sendNotification(markAlertShown, HOST_EXTENSION);
+    }
+
+    getFromDocumentation(content: string): Promise<string> {
+        return this._messenger.sendRequest(getFromDocumentation, HOST_EXTENSION, content);
     }
 }

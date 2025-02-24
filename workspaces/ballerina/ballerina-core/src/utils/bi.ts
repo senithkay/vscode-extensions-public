@@ -113,6 +113,10 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
             iconValue = comp.name.includes('-') && !serviceModel ? `${comp.name.split('-')[0]}-api` : icon;
         }
 
+        if (!comp.name && serviceModel) {
+            comp.name = `${serviceModel?.listenerProtocol}:Service`
+        }
+
         const fileEntry: ProjectStructureArtifactResponse = {
             name: dtype === DIRECTORY_MAP.SERVICES ? comp.name || comp.filePath.replace(".bal", "") : comp.name,
             path: componentFile,
