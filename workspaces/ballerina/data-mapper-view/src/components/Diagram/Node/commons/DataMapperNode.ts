@@ -236,7 +236,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		if (valNode) {
 			const inputNodes = getInputNodes(valNode);
 			const valueExpr = STKindChecker.isCheckExpression(valNode) ? valNode.expression : valNode;
-			const isExprBodiedFunc = STKindChecker.isFunctionCall(valueExpr) && getFnDefForFnCall(valueExpr);
+			const innerExpr = getInnermostExpressionBody(valueExpr);
+			const isExprBodiedFunc = STKindChecker.isFunctionCall(innerExpr) && getFnDefForFnCall(innerExpr);
 			if (inputNodes.length === 1
 				&& !isComplexExpression(valNode)
 				&& !STKindChecker.isQueryExpression(valNode)
