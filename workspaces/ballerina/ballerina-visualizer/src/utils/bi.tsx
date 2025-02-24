@@ -247,6 +247,8 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode, cli
                 activeNode.codedata?.node === "RESOURCE_ACTION_CALL"
             ) {
                 return `${clientName || activeNode.properties.connection.value} → ${activeNode.metadata.label}`;
+            } else if (activeNode.codedata?.node === "DATA_MAPPER_CALL") {
+                return `${activeNode.codedata?.module ? activeNode.codedata?.module + " :" : ""} ${activeNode.codedata.symbol}`;
             }
             return `${activeNode.codedata?.module ? activeNode.codedata?.module + " :" : ""} ${activeNode.metadata.label
                 }`;
