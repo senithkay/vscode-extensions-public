@@ -39,6 +39,7 @@ export enum VSCodeColors {
     ON_SECONDARY = "var(--vscode-button-foreground)",
     SECONDARY_CONTAINER = "var(--vscode-sideBar-background)",
     SECONDARY_BUTTON = "var(--button-secondary-background)",
+    SECONDARY_TEXT = "var(--vscode-list-deemphasizedForeground)",
 
     SURFACE_BRIGHT = "var(--vscode-editor-background)",
     SURFACE = "var(--vscode-sideBar-background)",
@@ -52,6 +53,8 @@ export enum VSCodeColors {
 
     ERROR = "var(--vscode-errorForeground)",
 
+    DELETE_ICON = "var(--vscode-minimap-errorHighlight)",
+
     INPUT_OPTION_ACTIVE = "var(--vscode-inputOption-activeBackground)",
     INPUT_OPTION_INACTIVE = "var(--vscode-inputOption-inactiveBackground)",
     INPUT_OPTION_HOVER = "var(--vscode-inputOption-hoverBackground)",
@@ -59,7 +62,7 @@ export enum VSCodeColors {
 
     WARNING = "var(--vscode-editorWarning-foreground)",
 
-    SECONDARY_TEXT = "var(--vscode-list-deemphasizedForeground)",
+    BUTTON_HOVER = "var(--vscode-pickerGroup-border)"
 }
 
 export const Colors = {
@@ -89,6 +92,8 @@ export const Colors = {
 
     ERROR: VSCodeColors.ERROR || DefaultColors.ERROR,
 
+    DELETE_ICON: VSCodeColors.DELETE_ICON,
+
     INPUT_OPTION_ACTIVE: VSCodeColors.INPUT_OPTION_ACTIVE,
     INPUT_OPTION_INACTIVE: VSCodeColors.INPUT_OPTION_INACTIVE,
     INPUT_OPTION_HOVER: VSCodeColors.INPUT_OPTION_HOVER,
@@ -96,7 +101,10 @@ export const Colors = {
 
     DEBUGGER_BREAKPOINT_BACKGROUND: DefaultColors.DEBUGGER_BREAKPOINT_BACKGROUND,
     WARNING: VSCodeColors.WARNING,
+
     SECONDARY_TEXT: VSCodeColors.SECONDARY_TEXT,
+
+    BUTTON_HOVER: VSCodeColors.BUTTON_HOVER
 };
 
 export const SIDE_PANEL_WIDTH = 450;

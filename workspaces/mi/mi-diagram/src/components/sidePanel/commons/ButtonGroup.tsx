@@ -55,8 +55,8 @@ const DeleteIconContainer = styled.div`
     padding: 5px 5px 15px 12px;
     color: ${Colors.SECONDARY_TEXT};
     &:hover, &.active {
-        background-color: var(--vscode-pickerGroup-border);
-        color: var(--vscode-minimap-errorHighlight);
+        background-color: ${Colors.BUTTON_HOVER};
+        color: ${Colors.DELETE_ICON};
     }
     & img {
         width: 25px;
@@ -72,8 +72,8 @@ const DownloadIconContainer = styled.div`
     padding: 5px 5px 15px 12px;
     color: ${Colors.SECONDARY_TEXT};
     &:hover, &.active {
-        background-color: var(--vscode-pickerGroup-border);
-        color: var(--vscode-progressBar-background);
+        background-color: ${Colors.BUTTON_HOVER};
+        color: ${Colors.PRIMARY};
     }
     & img {
         width: 25px;
