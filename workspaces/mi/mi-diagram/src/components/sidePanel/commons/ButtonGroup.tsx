@@ -70,7 +70,7 @@ const DownloadIconContainer = styled.div`
     border-radius: 2px;
     align-content: center;
     padding: 5px 5px 15px 12px;
-    color: v${Colors.SECONDARY_TEXT};
+    color: ${Colors.SECONDARY_TEXT};
     &:hover, &.active {
         background-color: var(--vscode-pickerGroup-border);
         color: var(--vscode-progressBar-background);
