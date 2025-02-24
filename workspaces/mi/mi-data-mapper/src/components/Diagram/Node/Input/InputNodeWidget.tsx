@@ -22,7 +22,6 @@ import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore } from '../../../../
 import { getTypeName } from "../../utils/common-utils";
 import { ARRAY_FILTER_NODE_PREFIX } from "../../utils/constants";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import FieldActionWrapper from "../commons/FieldActionWrapper";
 export interface InputNodeWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
     dmType: DMType;
@@ -136,20 +135,19 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
                     <span className={classes.nodeType}>{nodeHeaderSuffix}</span>
                 </span>
                 {focusOnRoot && (
-                    <FieldActionWrapper>
-                        <Button
-                            appearance="icon"
-                            data-testid={"open-change-schema-btn"}
-                            tooltip="Change input type"
-                            sx={{ marginRight: "5px" }}
-                            onClick={handleChangeSchema}
-                        >
-                            <Codicon
-                                name="edit"
-                                iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
-                            />
-                        </Button>
-                    </FieldActionWrapper>
+                    <Button
+                        appearance="icon"
+                        data-testid={"open-change-schema-btn"}
+                        tooltip="Change input type"
+                        sx={{ marginRight: "5px" }}
+                        onClick={handleChangeSchema}
+                        data-field-action
+                    >
+                        <Codicon
+                            name="edit"
+                            iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
+                        />
+                    </Button>
                 )}
                 <span className={classes.outPort}>
                     {portOut &&

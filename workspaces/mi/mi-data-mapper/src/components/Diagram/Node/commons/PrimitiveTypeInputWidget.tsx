@@ -19,7 +19,6 @@ import { getTypeName } from "../../utils/common-utils";
 import { useDMIOConfigPanelStore } from "../../../../store/store";
 import { Button, Codicon, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import FieldActionWrapper from "./FieldActionWrapper";
 
 export interface PrimitiveTypeItemWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -82,20 +81,19 @@ export function PrimitiveTypeInputWidget(props: PrimitiveTypeItemWidgetProps) {
                     <span className={classes.nodeType}>{nodeHeaderSuffix}</span>
                 </span>
                 {focusOnRoot && (
-                    <FieldActionWrapper>
-                        <Button
-                            appearance="icon"
-                            data-testid={"open-change-schema-btn"}
-                            tooltip="Change input type"
-                            sx={{ marginRight: "5px" }}
-                            onClick={handleChangeSchema}
-                        >
-                            <Codicon
-                                name="edit"
-                                iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
-                            />
-                        </Button>
-                    </FieldActionWrapper>
+                    <Button
+                        appearance="icon"
+                        data-testid={"open-change-schema-btn"}
+                        tooltip="Change input type"
+                        sx={{ marginRight: "5px" }}
+                        onClick={handleChangeSchema}
+                        data-field-action
+                    >
+                        <Codicon
+                            name="edit"
+                            iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
+                        />
+                    </Button>
                 )}
                 <span className={classes.outPort}>
                     {portOut &&
