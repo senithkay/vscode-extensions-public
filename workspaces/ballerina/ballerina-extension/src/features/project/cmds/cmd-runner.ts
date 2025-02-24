@@ -76,7 +76,7 @@ export enum MESSAGES {
     INVALID_XML_RESPONSE = "XML response is invalid."
 }
 
-export const CONFIG_FILE = 'Config.toml';
+export const BAL_CONFIG_FILE = 'Config.toml';
 export const BAL_TOML = "Ballerina.toml";
 const TERMINAL_NAME = 'Terminal';
 const BAL_CONFIG_FILES = 'BAL_CONFIG_FILES';
