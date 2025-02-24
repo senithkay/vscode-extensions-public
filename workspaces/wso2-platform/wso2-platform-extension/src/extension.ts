@@ -85,13 +85,13 @@ export async function activate(context: vscode.ExtensionContext) {
 
 function registerPreInitHandlers(): any {
 	workspace.onDidChangeConfiguration(async ({ affectsConfiguration }: ConfigurationChangeEvent) => {
-		if (affectsConfiguration("Advanced.ChoreoEnvironment") || affectsConfiguration("Advanced.RpcPath")) {
+		if (affectsConfiguration("WSO2.Platform.Advanced.ChoreoEnvironment") || affectsConfiguration("WSO2.Platform.Advanced.RpcPath")) {
 			const selection = await window.showInformationMessage(
 				"Choreo extension configuration changed. Please restart vscode for changes to take effect.",
 				"Restart Now",
 			);
 			if (selection === "Restart Now") {
-				if (affectsConfiguration("Advanced.ChoreoEnvironment")) {
+				if (affectsConfiguration("WSO2.Platform.Advanced.ChoreoEnvironment")) {
 					authStore.getState().logout();
 				}
 				commands.executeCommand("workbench.action.reloadWindow");

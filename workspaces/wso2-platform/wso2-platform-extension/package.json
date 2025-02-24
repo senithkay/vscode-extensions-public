@@ -133,7 +133,7 @@
       "type": "object",
       "title": "WSO2 Platform",
       "properties": {
-        "Logging.loggingLevel": {
+        "WSO2.Platform.Logging.loggingLevel": {
           "type": "string",
           "enum": [
             "off",
@@ -149,14 +149,14 @@
           "order": 1,
           "scope": "window"
         },
-        "Logging.sourceLocationTracking": {
+        "WSO2.Platform.Logging.sourceLocationTracking": {
           "type": "boolean",
           "default": false,
           "description": "Should Source Code Location Info be added to log entries, DANGER - May be very slow, only use in debugging scenarios",
           "order": 1,
           "scope": "window"
         },
-        "Advanced.ChoreoEnvironment": {
+        "WSO2.Platform.Advanced.ChoreoEnvironment": {
           "type": "string",
           "enum": [
             "prod",
@@ -167,13 +167,13 @@
           "description": "The WSO2 Platform Enviornment to use",
           "scope": "window"
         },
-        "Advanced.RpcPath": {
+        "WSO2.Platform.Advanced.RpcPath": {
           "type": "string",
           "default": "",
           "description": "The path to Choreo RPC server",
           "scope": "window"
         },
-        "FeaturePreview.ProxyCreation": {
+        "WSO2.Platform.FeaturePreview.ProxyCreation": {
           "type": "boolean",
           "default": false,
           "description": "Enable proxy creation from GitHub repository",

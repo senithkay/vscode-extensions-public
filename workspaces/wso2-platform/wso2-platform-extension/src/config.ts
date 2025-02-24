@@ -65,7 +65,7 @@ class ChoreoEnvConfig {
 	}
 }
 
-const choreoEnv = process.env.TEST_CHOREO_EXT_ENV ?? workspace.getConfiguration().get("Advanced.ChoreoEnvironment");
+const choreoEnv = process.env.TEST_CHOREO_EXT_ENV ?? workspace.getConfiguration().get("WSO2.Platform.Advanced.ChoreoEnvironment");
 
 let pickedEnvConfig: IChoreoEnvConfig;
 

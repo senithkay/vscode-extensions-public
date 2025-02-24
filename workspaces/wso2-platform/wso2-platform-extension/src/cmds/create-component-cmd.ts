@@ -62,7 +62,7 @@ export function createNewComponentCommand(context: ExtensionContext) {
 							{ label: getComponentTypeText(ChoreoComponentType.ScheduledTask), value: ChoreoComponentType.ScheduledTask },
 							{ label: getComponentTypeText(ChoreoComponentType.ManualTrigger), value: ChoreoComponentType.ManualTrigger },
 						];
-						const isProxyCreateEnabled = workspace.getConfiguration().get<boolean>("FeaturePreview.ProxyCreation");
+						const isProxyCreateEnabled = workspace.getConfiguration().get<boolean>("WSO2.Platform.FeaturePreview.ProxyCreation");
 						if (isProxyCreateEnabled) {
 							// check proxy item order from console, when adding it back
 							typeQuickPicks.push({ label: getComponentTypeText(ChoreoComponentType.ApiProxy), value: ChoreoComponentType.ApiProxy });

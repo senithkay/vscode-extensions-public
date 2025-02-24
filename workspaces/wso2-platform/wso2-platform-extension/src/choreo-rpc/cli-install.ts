@@ -22,7 +22,7 @@ export const getCliVersion = (): string => {
 
 export const getChoreoExecPath = () => {
 	const OS = os.platform();
-	const executablePath = workspace.getConfiguration().get<string>("Advanced.RpcPath");
+	const executablePath = workspace.getConfiguration().get<string>("WSO2.Platform.Advanced.RpcPath");
 	if (executablePath) {
 		if (OS === "win32" && !executablePath.endsWith(".exe")) {
 			return `${executablePath}.exe`;
@@ -34,7 +34,7 @@ export const getChoreoExecPath = () => {
 };
 
 export const getChoreoEnv = (): string => {
-	return workspace.getConfiguration().get<string>("Advanced.ChoreoEnvironment") || "prod";
+	return workspace.getConfiguration().get<string>("WSO2.Platform.Advanced.ChoreoEnvironment") || "prod";
 };
 
 const getChoreoBinPath = () => {

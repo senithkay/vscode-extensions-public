@@ -86,7 +86,7 @@ export function addTerminalHandlers() {
 					}
 				}
 				await commands.executeCommand("workbench.action.terminal.sendSequence", {
-					text: `export CHOREO_ENV=${workspace.getConfiguration().get("Advanced.ChoreoEnvironment")} && ${rpcPath} ${cliCommand}\r\n`,
+					text: `export CHOREO_ENV=${workspace.getConfiguration().get("WSO2.Platform.Advanced.ChoreoEnvironment")} && ${rpcPath} ${cliCommand}\r\n`,
 				});
 				await delay(2000);
 				e.show();

@@ -35,8 +35,8 @@ function setLogger(newLogger: IVSCodeExtLogger): void {
 	childLogger = new TelemetryWrapper(loggerImpel, getTelemetryReporter());
 }
 
-const LOGGING_LEVEL_PROP = "Logging.loggingLevel";
-const SOURCE_LOCATION_PROP = "Logging.sourceLocationTracking";
+const LOGGING_LEVEL_PROP = "WSO2.Platform.Logging.loggingLevel";
+const SOURCE_LOCATION_PROP = "WSO2.Platform.Logging.sourceLocationTracking";
 
 export async function initLogger(context: ExtensionContext): Promise<void> {
 	const meta = JSON.parse(await readFile(resolve(context.extensionPath, "package.json"), "utf8"));
