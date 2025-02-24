@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FunctionNode, NodeProperties } from "@wso2-enterprise/ballerina-core";
 import { View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
@@ -48,7 +48,7 @@ export function FunctionForm(props: FunctionFormProps) {
     const [filePath, setFilePath] = useState<string>('');
     const [functionNode, setFunctionNode] = useState<FunctionNode>(undefined);
 
-    const formType = isDataMapper ? "Data Mapper" : "Function";
+    const formType = useRef(isDataMapper ? "Data Mapper" : "Function");
 
     useEffect(() => {
         setFilePath(Utils.joinPath(URI.file(projectPath), fileName).fsPath)
@@ -60,8 +60,12 @@ export function FunctionForm(props: FunctionFormProps) {
     }, [fileName]);
 
     useEffect(() => {
-        const fields = functionNode ? convertConfig(functionNode.properties) : [];
-
+        let fields = functionNode ? convertConfig(functionNode.properties) : [];
+        if (functionNode?.properties.functionName.value === "main") {
+            formType.current = "Automation";
+            const automationFields = fields.filter(field => field.key !== "functionName" && field.key !== "type");
+            fields = automationFields;
+        }
         if (isDataMapper && fields.length > 0) {
             fields.forEach((field) => {
                 field.optional = false;
@@ -130,14 +134,14 @@ export function FunctionForm(props: FunctionFormProps) {
     return (
         <View>
             <TopNavigationBar />
-            <TitleBar title={formType} subtitle={`Manage ${isDataMapper ? "data mappers" : "functions"} in your integration`} />
+            <TitleBar title={formType.current} subtitle={`Manage ${isDataMapper ? "data mappers" : "functions"} in your integration`} />
             <ViewContent padding>
                 <Container>
                     {functionName && (
-                        <FormHeader title={`Edit ${formType}`} />
+                        <FormHeader title={`Edit ${formType.current}`} />
                     )}
                     {!functionName && (
-                        <FormHeader title={`Create New ${formType}`} subtitle={`Define a ${formType} that can be used within the integration.`} />
+                        <FormHeader title={`Create New ${formType.current}`} subtitle={`Define a ${formType.current} that can be used within the integration.`} />
                     )}
                     <FormContainer>
                         {filePath && functionFields.length > 0 &&
