@@ -404,7 +404,7 @@ export function FormGenerator(props: FormProps) {
     }, 250), [rpcClient, fileName, targetLineRange, node]);
 
     const handleCompletionItemSelect = async (value: string, additionalTextEdits?: TextEdit[]) => {
-        if (additionalTextEdits?.[0].newText) {
+        if (additionalTextEdits?.[0]?.newText) {
             const response = await rpcClient.getBIDiagramRpcClient().updateImports({
                 filePath: fileName,
                 importStatement: additionalTextEdits[0].newText
