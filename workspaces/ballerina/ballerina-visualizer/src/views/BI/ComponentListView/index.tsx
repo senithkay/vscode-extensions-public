@@ -198,13 +198,13 @@ export function ComponentListView() {
                                 <ButtonCard
                                     icon={<Icon name="bi-task" />}
                                     title="Automation"
-                                    description="Trigger your integration with a task. Perfect for scheduled or one-time jobs."
+                                    description="Trigger your integration with a task. Perfect for scheduled/one-time jobs."
                                     onClick={() => handleClick(DIRECTORY_MAP.AUTOMATION)}
                                 />
                             </CardGrid>
                         </PanelViewMore>
                         <PanelViewMore>
-                            <Title variant="h2">API Integration</Title>
+                            <Title variant="h2">Integration as API</Title>
                             <BodyText>
                                 Explore and manage various components to enhance your integration capabilities.
                             </BodyText>
@@ -221,12 +221,13 @@ export function ComponentListView() {
                                     description="Flexible and efficient data queries."
                                     onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "graphql")}
                                 />
-                                <ButtonCard
+                                {/* TODO: Add this when GRPC is working */}
+                                {/* <ButtonCard
                                     icon={<Icon name="bi-grpc" />}
                                     title="gRPC Service"
                                     description="High-performance, cross-platform communication."
                                     onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "grpc")}
-                                />
+                                /> */}
                             </CardGrid>
                         </PanelViewMore>
                         <PanelViewMore>
