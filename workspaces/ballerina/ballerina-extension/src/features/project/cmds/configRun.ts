@@ -10,7 +10,7 @@
 import { commands, languages, Uri, window } from "vscode";
 import { BALLERINA_COMMANDS, getRunCommand, PALETTE_COMMANDS, runCommand } from "./cmd-runner";
 import { ballerinaExtInstance } from "../../../core";
-import { configGenerator } from "../../config-generator/configGenerator";
+import { prepareAndGenerateConfig } from "../../config-generator/configGenerator";
 import { getConfigCompletions } from "../../config-generator/utils";
 
 
@@ -27,11 +27,15 @@ function activateConfigRunCommand() {
     });
 
     commands.registerCommand(PALETTE_COMMANDS.CONFIG_CREATE_COMMAND, async () => {
-        const currentProject = ballerinaExtInstance.getDocumentContext().getCurrentProject();
-        const filePath = window.activeTextEditor.document;
-        const path = filePath.uri.fsPath;
-        configGenerator(ballerinaExtInstance, currentProject ? currentProject.path! : path, true);
-        return;
+        try {
+            const currentProject = ballerinaExtInstance.getDocumentContext().getCurrentProject();
+            const filePath = window.activeTextEditor.document;
+            const path = filePath.uri.fsPath;
+            prepareAndGenerateConfig(ballerinaExtInstance, currentProject ? currentProject.path! : path, true);
+            return;
+        } catch (error) {
+            throw new Error("Unable to create Config.toml file. Try again with a valid Ballerina file open in the editor.");
+        }
     });
 
     languages.registerCompletionItemProvider({ language: 'toml' }, {

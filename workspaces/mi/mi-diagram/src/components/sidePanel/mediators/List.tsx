@@ -236,7 +236,8 @@ export function Mediators(props: MediatorProps) {
                             connectorDetails={values["isConnector"] ?
                                 { artifactId: values["artifactId"], version: values["version"], connectorPath: values["connectorPath"] }
                                 : undefined}
-                            onDelete={deleteConnector}>
+                            onDelete={deleteConnector}
+                            versionTag={values.version}>
                             {values["items"].map((mediator: Mediator) => (
                                 <GridButton
                                     key={mediator.title}

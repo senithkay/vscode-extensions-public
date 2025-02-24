@@ -19,6 +19,7 @@ import { ConnectorOperation } from '@wso2-enterprise/mi-core';
 import { debounce } from 'lodash';
 import { APIS } from '../../../resources/constants';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { OperationsList } from '../modules/OperationsList';
 
 interface ModuleSuggestionProps {
     documentUri: string;
@@ -33,6 +34,7 @@ export const OperationsWrapper = styled.div`
     color: #808080;
     gap: 5px;
     cursor: default;
+    padding: 10px;
 `;
 
 export function ModuleSuggestions(props: ModuleSuggestionProps) {
@@ -74,6 +76,7 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
     const downloadModule = (module: any) => {
         const downloadPage = <DownloadPage
             module={module}
+            selectedVersion={module.version.tagName}
             onDownloadSuccess={props.reloadMediatorPalette}
             documentUri={props.documentUri} />;
 
@@ -105,22 +108,9 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
                             isCollapsed={true}
                             iconUri={values.iconUrl}
                             versionTag={values.version.tagName}
-                            onDownload={() => downloadModule(values)}>
-                            <OperationsWrapper>
-                                Available Operations
-                                <hr style={{ border: '1px solid #ccc', margin: '5px 0', width: '350px' }} />
-                                {values.version.operations.map((operation: ConnectorOperation) => (
-                                    !operation.isHidden && (
-                                        <Tooltip
-                                            content={operation.description}
-                                            position='bottom'
-                                            sx={{ zIndex: 2010 }}
-                                            containerSx={{ cursor: "default" }}>
-                                            {FirstCharToUpperCase(operation.name)}
-                                        </Tooltip>
-                                    )
-                                ))}
-                            </OperationsWrapper>
+                            onDownload={() => downloadModule(values)}
+                            disableGrid={true} >
+                            <OperationsList connector={values} />
                         </ButtonGroup >
                     </div >
                 ))
