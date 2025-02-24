@@ -15,6 +15,7 @@ import { createDirectoryContextCommand } from "./create-directory-context-cmd";
 import { createProjectWorkspaceCommand } from "./create-project-workspace-cmd";
 import { deleteComponentCommand } from "./delete-component-cmd";
 import { manageProjectContextCommand } from "./manage-dir-context-cmd";
+import { openCompSrcCommand } from "./open-comp-src-cmd";
 import { openInConsoleCommand } from "./open-in-console-cmd";
 import { refreshContextCommand } from "./refresh-directory-context-cmd";
 import { signInCommand } from "./sign-in-cmd";
@@ -22,7 +23,6 @@ import { signInWithAuthCodeCommand } from "./sign-in-with-code-cmd";
 import { signOutCommand } from "./sign-out-cmd";
 import { viewComponentDependencyCommand } from "./view-comp-dependency-cmd";
 import { viewComponentCommand } from "./view-component-cmd";
-import { openCompSrcCommand } from "./open-comp-src-cmd";
 
 export function activateCmds(context: ExtensionContext) {
 	createNewComponentCommand(context);
@@ -39,5 +39,5 @@ export function activateCmds(context: ExtensionContext) {
 	createDirectoryContextCommand(context);
 	createComponentDependencyCommand(context);
 	viewComponentDependencyCommand(context);
-	openCompSrcCommand(context)
+	openCompSrcCommand(context);
 }

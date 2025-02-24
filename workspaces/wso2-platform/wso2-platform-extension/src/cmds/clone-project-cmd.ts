@@ -144,8 +144,9 @@ export function cloneRepoCommand(context: ExtensionContext) {
 
 						// set context.yaml
 						updateContextFile(clonedResp[0].clonedPath, authStore.getState().state.userInfo!, selectedProject, selectedOrg, projectCache);
-
-						await openClonedDirectory(clonedResp[0].clonedPath);
+						const subDir = matchingComp?.spec?.source ? getComponentKindRepoSource(matchingComp?.spec?.source)?.path || "" : "";
+						const subDirFullPath = join(clonedResp[0].clonedPath, subDir);
+						await openClonedDirectory(subDirFullPath);
 					} else if (repoSet.size > 1) {
 						const parsedRepos = Array.from(repoSet).map((item) => parseGitURL(item));
 						if (parsedRepos.some((item) => !item)) {

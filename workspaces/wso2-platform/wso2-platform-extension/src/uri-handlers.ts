@@ -7,7 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CommandIds, type Organization, type Project } from "@wso2-enterprise/wso2-platform-core";
+import { join } from "path";
+import { CommandIds, type Organization, type Project, getComponentKindRepoSource } from "@wso2-enterprise/wso2-platform-core";
 import { ProgressLocation, type ProviderResult, type QuickPickItem, type Uri, commands, window, workspace } from "vscode";
 import { ResponseError } from "vscode-jsonrpc";
 import { ErrorCode } from "./choreo-rpc/constants";
@@ -119,6 +120,9 @@ export const cloneOrOpenDir = async (org: Organization, project: Project, compon
 	const projectLocations = locationStore.getState().getLocations(project.handler, org.handle);
 
 	if (componentName) {
+		const componentCache = dataCacheStore?.getState().getComponents(org.handle, project.handler);
+		const matchingComp = componentCache?.find((item) => item.metadata.name === componentName);
+		const subDir = matchingComp?.spec?.source ? getComponentKindRepoSource(matchingComp?.spec?.source)?.path || "" : "";
 		const filteredProjectLocations = projectLocations.filter((projectLocation) => {
 			if (projectLocation.componentItems.some((item) => item.component?.metadata?.name === componentName)) {
 				return true;
@@ -127,15 +131,15 @@ export const cloneOrOpenDir = async (org: Organization, project: Project, compon
 		if (filteredProjectLocations.length > 0) {
 			const selectedPath = await getSelectedPath(filteredProjectLocations.map((item) => item.fsPath));
 			if (selectedPath) {
-				openProjectDirectory(selectedPath);
+				openProjectDirectory(join(selectedPath, subDir), !!matchingComp);
 			}
 		} else if (projectLocations.length > 0) {
 			const selectedPath = await getSelectedPath(projectLocations.map((item) => item.fsPath));
 			if (selectedPath) {
-				openProjectDirectory(selectedPath);
+				openProjectDirectory(join(selectedPath, subDir), !!matchingComp);
 			}
 		} else {
-			cloneOrOpenDirectory(org, project, componentName);
+			commands.executeCommand(CommandIds.CloneProject, { organization: org, project, componentName });
 		}
 	} else if (projectLocations.length > 0) {
 		const selectedPath = await getSelectedPath(projectLocations.map((item) => item.fsPath));
@@ -143,7 +147,7 @@ export const cloneOrOpenDir = async (org: Organization, project: Project, compon
 			openProjectDirectory(selectedPath);
 		}
 	} else {
-		cloneOrOpenDirectory(org, project);
+		commands.executeCommand(CommandIds.CloneProject, { organization: org, project, componentName });
 	}
 };
 

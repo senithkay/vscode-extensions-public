@@ -224,7 +224,9 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 	messenger.onRequest(ViewRuntimeLogs, async ({ orgName, projectName, componentName, deploymentTrackName, envName, type }) => {
 		// todo: export the env from here
 		if (getChoreoEnv() !== "prod") {
-			window.showErrorMessage("Choreo extension currently displays runtime logs is only if 'WSO2.Platform.Advanced.ChoreoEnvironment' is set to 'prod'");
+			window.showErrorMessage(
+				"Choreo extension currently displays runtime logs is only if 'WSO2.Platform.Advanced.ChoreoEnvironment' is set to 'prod'",
+			);
 			return;
 		}
 		const args = ["logs", "-t", type, "-o", orgName, "-p", projectName, "-c", componentName, "-d", deploymentTrackName, "-e", envName, "-f"];
