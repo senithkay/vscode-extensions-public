@@ -230,19 +230,17 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         }
     };
 
-    const hasValueWithoutLink = value && !connectedViaLink;
-    const hasDefaultValue = value && getDefaultValue(field.type.typeName) === value.trim();
-
     useEffect(() => {
         if (!isDisabled) {
             if (portIn?.parentModel && (Object.entries(portIn?.parentModel.links).length > 0 || portIn?.parentModel.ancestorHasValue)) {
                 portIn.ancestorHasValue = true;
                 setIsDisabled(true);
             }
-            if (hasValue
-                && !connectedViaLink
-                && !hasDefaultValue
-                && ((isArray && !STKindChecker.isQueryExpression(specificField.valueExpr)) || isRecord || hasValueWithoutLink)) {
+            const isConnectedViaQueryExpr = hasValue && STKindChecker.isQueryExpression(specificField.valueExpr);
+            const isInitializedRecord = isRecord && hasValue && !connectedViaLink;
+            const isInitializedArray = isArray && hasValue && !connectedViaLink;
+
+            if (isConnectedViaQueryExpr || isInitializedRecord || isInitializedArray) {
                 portIn?.setDescendantHasValue();
                 setIsDisabled(true);
             }
