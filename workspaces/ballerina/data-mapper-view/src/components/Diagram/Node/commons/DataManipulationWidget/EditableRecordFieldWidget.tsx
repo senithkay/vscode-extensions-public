@@ -19,6 +19,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 import { Diagnostic } from "vscode-languageserver-types";
+import { URI } from "vscode-uri";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { DiagnosticTooltip } from "../../../Diagnostic/DiagnosticTooltip/DiagnosticTooltip";
@@ -30,6 +31,7 @@ import {
     getExprBodyFromTypeCastExpression,
     getFieldName,
     getInnermostExpressionBody,
+    getMatchingType,
     getNewFieldAdditionModification,
     getTypeName,
     isConnectedViaLink,
@@ -118,7 +120,32 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const handleAddValue = async () => {
         setIsLoading(true);
         try {
-            const defaultValue = getDefaultValue(field.type.typeName);
+            let typeName = field.type?.typeName;
+            if (!typeName) {
+                const typeInfo = field.type.typeInfo;
+                const langClient = await context.langServerRpcClient;
+                const typesRes = await langClient.getTypeFromExpression({
+                    documentIdentifier: {
+                        uri: URI.file(context.filePath).toString()
+                    },
+                    expressionRanges: [{
+                        startLine: {
+                            line: field.parentType.value.position.startLine,
+                            offset: field.parentType.value.position.startColumn
+                        },
+                        endLine: {
+                            line: field.parentType.value.position.endLine,
+                            offset: field.parentType.value.position.endColumn
+                        },
+                        filePath: URI.file(context.filePath).toString()
+                    }]
+                });
+                for (const { type } of typesRes.types) {
+                    const matchingType = getMatchingType(type, typeInfo);
+                    typeName = matchingType ? matchingType.typeName : typeName;
+                }
+            }
+            const defaultValue = getDefaultValue(typeName);
             await createSourceForUserInput(field, mappingConstruct, defaultValue, context.applyModifications);
         } finally {
             setIsLoading(false);

@@ -1635,7 +1635,33 @@ export function getCollectClauseActions(
 	});
 }
 
-function isTypeMatch(type: TypeField, typeInfo: NonPrimitiveBal): boolean {
+export function getMatchingType(type: TypeField, typeInfo: NonPrimitiveBal): TypeField {
+	if (isTypeMatch(type, typeInfo)) {
+		return type;
+	} else if (type.typeName === PrimitiveBalType.Record) {
+		for (const field of type.fields) {
+			const matchingType = getMatchingType(field, typeInfo);
+			if (matchingType) {
+				return matchingType;
+			}
+		}
+	} else if (type.typeName === PrimitiveBalType.Array && type.memberType) {
+		if (isTypeMatch(type.memberType, typeInfo)) {
+			return type.memberType;
+		} else if (type.memberType?.typeName === PrimitiveBalType.Record) {
+			for (const field of type.memberType.fields) {
+				const matchingType = getMatchingType(field, typeInfo);
+				if (matchingType) {
+					return matchingType;
+				}
+			}
+		}
+	}
+
+	return undefined;
+}
+
+export function isTypeMatch(type: TypeField, typeInfo: NonPrimitiveBal): boolean {
 	return (
 		type.typeInfo &&
 		type.typeInfo.orgName === typeInfo.orgName &&
