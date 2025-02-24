@@ -12,7 +12,7 @@ import { Button, Codicon, ComponentCard, Icon, IconLabel, Tooltip, Typography } 
 import React, { useEffect, useState } from 'react';
 import { FirstCharToUpperCase } from '../../../utils/commons';
 import styled from '@emotion/styled';
-import { DEFAULT_ICON } from '../../../resources/constants';
+import { Colors, DEFAULT_ICON } from '../../../resources/constants';
 import { ConnectorDependency } from '@wso2-enterprise/mi-core';
 
 
@@ -25,7 +25,7 @@ const ButtonGrid = styled.div`
 `;
 
 const VersionTag = styled.div`
-    color: #808080;
+    color: ${Colors.SECONDARY_TEXT};
     font-size: 10px;
     padding-left: 2px;
 `;
@@ -46,6 +46,23 @@ const CardLabel = styled.div`
     gap: 10px;
 `;
 
+const DeleteIconContainer = styled.div`
+    width: 25px;
+    height: 10px;
+    cursor: pointer;
+    border-radius: 2px;
+    align-content: center;
+    padding: 5px 5px 15px 12px;
+    color: ${Colors.SECONDARY_TEXT};
+    &:hover, &.active {
+        background-color: ${Colors.BUTTON_HOVER};
+        color: ${Colors.DELETE_ICON};
+    }
+    & img {
+        width: 25px;
+    }
+`;
+
 const DownloadIconContainer = styled.div`
     width: 35px;
     height: 25px;
@@ -53,8 +70,10 @@ const DownloadIconContainer = styled.div`
     border-radius: 2px;
     align-content: center;
     padding: 5px 5px 15px 12px;
+    color: ${Colors.SECONDARY_TEXT};
     &:hover, &.active {
-        background-color: var(--vscode-pickerGroup-border);
+        background-color: ${Colors.BUTTON_HOVER};
+        color: ${Colors.PRIMARY};
     }
     & img {
         width: 25px;
@@ -70,8 +89,19 @@ interface ButtonroupProps {
     onDownload?: any;
     connectorDetails?: ConnectorDependency;
     onDelete?: (connectorName: string, artifactId: string, version: string, iconUrl: string, connectorPath: string) => void;
+    disableGrid?: boolean;
 }
-export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isCollapsed = true, iconUri, versionTag, onDownload, connectorDetails, onDelete }) => {
+export const ButtonGroup: React.FC<ButtonroupProps> = ({
+    title,
+    children,
+    isCollapsed = true,
+    iconUri,
+    versionTag,
+    onDownload,
+    connectorDetails,
+    onDelete,
+    disableGrid
+}) => {
     const [collapsed, setCollapsed] = useState(isCollapsed);
 
     useEffect(() => {
@@ -131,11 +161,11 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isColl
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                             {connectorDetails &&
-                                <DownloadIconContainer 
-                                onClick={() => onDelete(title, connectorDetails.artifactId, connectorDetails.version, iconUri, connectorDetails.connectorPath)} 
-                                className="download-icon">
-                                    <Codicon name="trash" iconSx={{ fontSize: 25 }} />
-                                </DownloadIconContainer>
+                                <DeleteIconContainer
+                                    onClick={() => onDelete(title, connectorDetails.artifactId, connectorDetails.version, iconUri, connectorDetails.connectorPath)}
+                                    className="delete-icon">
+                                    <Codicon name="trash" iconSx={{ fontSize: 20 }} />
+                                </DeleteIconContainer>
                             }
                             {onDownload &&
                                 <DownloadIconContainer onClick={onDownload} className="download-icon">
@@ -149,11 +179,15 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isColl
                     </CardLabel>
                 </CardContent>
             </ComponentCard>
-            {!collapsed &&
-                <ButtonGrid>
-                    {children}
-                </ButtonGrid>
-            }
+            {!collapsed && (
+                !disableGrid ?
+                    <ButtonGrid>
+                        {children}
+                    </ButtonGrid> :
+                    <>
+                        {children}
+                    </>
+            )}
         </div>
     );
 };
