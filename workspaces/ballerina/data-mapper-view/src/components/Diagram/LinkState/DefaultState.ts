@@ -24,6 +24,7 @@ import { UnionTypeNode } from "../Node/UnionType";
 import { LinkOverayContainerID } from '../OverriddenLinkLayer/LinkOverlayPortal';
 
 import { CreateLinkState } from './CreateLinkState';
+import { removePendingMappingTempLinkIfExists } from '../Link/link-utils';
 
 export class DefaultState extends State<DiagramEngine> {
 	dragCanvas: DragCanvasState;
@@ -56,6 +57,8 @@ export class DefaultState extends State<DiagramEngine> {
 							// Clicked on a link overlay item or a diagnostic tooltip,
 							// hence, do not propagate as a canvas drag
 						} else if (dmCanvasContainer) {
+							// deselect links when clicking on the canvas
+							this.deselectLinks();
 							this.transitionWithEvent(this.dragCanvas, event);
 						}
 					}
@@ -113,11 +116,20 @@ export class DefaultState extends State<DiagramEngine> {
 					// On esc press unselect any selected link
 					if ((actionEvent.event as any).keyCode === 27) {
 						this.engine.getModel().getLinks().forEach((link) => {
-							link.setSelected(false);
+							this.deselectLinks();
 						});
 					}
 				}
 			})
 		);
+	}
+
+	deselectLinks() {
+		this.engine.getModel().getLinks().forEach((link) => {
+			link.setSelected(false);
+			link.getSourcePort()?.fireEvent({}, "link-unselected");
+			link.getTargetPort()?.fireEvent({}, "link-unselected");
+			removePendingMappingTempLinkIfExists(link);
+		});
 	}
 }
