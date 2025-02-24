@@ -367,7 +367,9 @@ export function TypeEditor(props: TypeEditorProps) {
                                 onChange={(e) => handleTypeKindChange(e.target.value)}
                             />
                         )}
-                        {!isNewType && !isEditing && !type.properties["name"].editable && (
+                        {/*TODO: Enable this check when the LS is supported, !type.properties["name"].editable
+                         With this edit button will also be shown while the field is editable to avoid not rendering the field */}
+                        {!isNewType && !isEditing && (
                             <InputWrapper>
                                 <TextFieldWrapper>
                                     <TextField
