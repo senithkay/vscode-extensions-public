@@ -22,6 +22,8 @@ import { TitleBar } from "../../../components/TitleBar";
 import { FormHeader } from "../../../components/FormHeader";
 import { Banner } from "../../../components/Banner";
 import FormGeneratorNew from "../Forms/FormGeneratorNew";
+import { LoadingContainer } from "../../styles";
+import { LoadingRing } from "../../../components/Loader";
 
 const FormContainer = styled.div`
     display: flex;
@@ -60,68 +62,10 @@ const CardGrid = styled.div`
 
 export function MainForm() {
     const { rpcClient } = useRpcContext();
-    // const [name, setName] = useState("");
-    // const [cron, setCron] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [automation, setAutomation] = useState<ProjectStructureArtifactResponse>(null);
-    // const [error, setError] = useState("");
-    // const [params, setParams] = useState(parameterConfig);
-
-    const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
-    const [types, setTypes] = useState<CompletionItem[]>([]);
 
     const [filePath, setFilePath] = useState<string>('');
-
-    // <------------- Expression Editor Util functions list start --------------->
-    const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {
-        let visibleTypes: CompletionItem[] = types;
-        if (!types.length) {
-            const context = await rpcClient.getVisualizerLocation();
-            let functionFilePath = Utils.joinPath(URI.file(context.projectUri), "functions.bal");
-            const workspaceFiles = await rpcClient.getCommonRpcClient().getWorkspaceFiles({});
-            const isFilePresent = workspaceFiles.files.some((file) => file.path === functionFilePath.fsPath);
-            if (!isFilePresent) {
-                functionFilePath = Utils.joinPath(URI.file(context.projectUri));
-            }
-            const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
-                filePath: functionFilePath.fsPath,
-                position: { line: 0, offset: 0 },
-            });
-
-            visibleTypes = convertToVisibleTypes(response.types);
-            setTypes(visibleTypes);
-        }
-
-        const effectiveText = value.slice(0, cursorPosition);
-        const filteredTypes = visibleTypes.filter((type) => {
-            const lowerCaseText = effectiveText.toLowerCase();
-            const lowerCaseLabel = type.label.toLowerCase();
-
-            return lowerCaseLabel.includes(lowerCaseText);
-        });
-
-        setFilteredTypes(filteredTypes);
-        return { visibleTypes, filteredTypes };
-    }, 250);
-
-    const handleGetVisibleTypes = async (value: string, cursorPosition: number) => {
-        return (await debouncedGetVisibleTypes(value, cursorPosition)) as any;
-    };
-
-    const handleCompletionSelect = async () => {
-        debouncedGetVisibleTypes.cancel();
-        handleExpressionEditorCancel();
-    };
-
-    const handleExpressionEditorCancel = () => {
-        setFilteredTypes([]);
-        setTypes([]);
-    };
-
-    const handleExpressionEditorBlur = () => {
-        handleExpressionEditorCancel();
-    };
-    // <------------- Expression Editor Util functions list end --------------->
 
     const handleFunctionCreate = async (data: FormValues) => {
         setIsLoading(true);
@@ -148,6 +92,7 @@ export function MainForm() {
                 if (res.directoryMap[DIRECTORY_MAP.AUTOMATION].length > 0) {
                     setAutomation(res.directoryMap[DIRECTORY_MAP.AUTOMATION][0]);
                 }
+                setIsLoading(false);
             });
         rpcClient.getVisualizerLocation().then(context => {
             let functionFilePath = Utils.joinPath(URI.file(context.projectUri), "main.bal").fsPath;
@@ -222,7 +167,12 @@ export function MainForm() {
             <TitleBar title="Automation" subtitle="Create a new automation for your integration" />
             <ViewContent padding>
                 <Container>
-                    {automation && (
+                    {isLoading && (
+                        <LoadingContainer>
+                            <LoadingRing message="Loading..." />
+                        </LoadingContainer>
+                    )}
+                    {!isLoading && automation && (
                         <Banner
                             variant="info"
                             message="An integration can only have one automation. You have already created an automation."
@@ -233,7 +183,7 @@ export function MainForm() {
                             }
                         />
                     )}
-                    {!automation && (
+                    {!isLoading && !automation && (
                         <>
                             <FormHeader
                                 title="Create an Automation"
