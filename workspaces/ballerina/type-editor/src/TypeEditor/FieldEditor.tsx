@@ -4,11 +4,11 @@ import { Button, CheckBox, Codicon, Icon, Position, TextField } from '@wso2-ente
 import styled from '@emotion/styled';
 import { parseType, typeToSource, defaultAnonymousRecordType } from './TypeUtil';
 import { RecordEditor } from './RecordEditor';
-import { TypeHelper } from '../TypeHelper';
-import { TYPE_HELPER_OPTIONS } from './constants';
-
+import { TypeHelper, TypeHelperCategory, TypeHelperOperator } from '../TypeHelper';
 
 interface FieldEditorProps {
+    categories: TypeHelperCategory[];
+    operators: TypeHelperOperator[];
     member: Member;
     selected: boolean;
     onChange: (member: Member) => void;
@@ -26,7 +26,7 @@ const ButtonActive = styled.div<{}>`
 `;
 
 export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
-    const { member, selected, onChange, onSelect, onDeselect } = props;
+    const { member, selected, onChange, onSelect, onDeselect, categories, operators } = props;
     const [panelOpened, setPanelOpened] = useState<boolean>(false);
     const recordEditorRef = useRef<{ addMember: () => void }>(null);
     const typeFieldRef = useRef<HTMLInputElement>(null);
@@ -95,11 +95,6 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
     }
 
     const handleTypeFieldFocus = () => {
-        // If type helper is open, close it
-        if (helperPaneOpened) {
-            setHelperPaneOpened(false);
-        }
-
         const rect = typeFieldRef.current.getBoundingClientRect();
         const sidePanelLeft = window.innerWidth - 400; // Side panel width
         const helperPaneLeftOffset = sidePanelLeft - rect.left;
@@ -184,6 +179,8 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                         onChange={(type: Type) => onChange({ ...member, type })}
                         onImportJson={() => { }}
                         onImportXml={() => { }}
+                        categories={categories}
+                        operators={operators}
                     />
                 </div>
             )}
@@ -194,30 +191,8 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                 currentCursorPosition={typeFieldCursorPosition}
                 onChange={handleTypeHelperChange}
                 positionOffset={helperPaneOffset}
-                categories={[
-                    {
-                        category: 'Primitive Types',
-                        items: [
-                            {
-                                name: 'string',
-                                insertText: 'string',
-                                sortText: 'a'
-                            },
-                            {
-                                name: 'int',
-                                insertText: 'int',
-                                sortText: 'b'
-                            },
-                            {
-                                name: 'float',
-                                insertText: 'float',
-                                sortText: 'c'
-                            }
-                        ],
-                        sortText: 'a'
-                    }
-                ]}
-                options={TYPE_HELPER_OPTIONS}
+                categories={categories}
+                operators={operators}
                 open={helperPaneOpened}
                 onClose={() => setHelperPaneOpened(false)}
             />

@@ -19,6 +19,7 @@ import { EnumEditor } from "./EnumEditor";
 import { UnionEditor } from "./UnionEditor";
 import { ClassEditor } from "./ClassEditor";
 import { AdvancedOptions } from "./AdvancedOptions";
+import { TypeHelperCategory, TypeHelperOperator } from "../TypeHelper";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -103,6 +104,8 @@ interface TypeEditorProps {
     onTypeChange: (type: Type) => void;
     newType: boolean;
     isGraphql?: boolean;
+    categories: TypeHelperCategory[];
+    operators: TypeHelperOperator[];
 }
 
 enum ConfigState {
@@ -306,6 +309,8 @@ export function TypeEditor(props: TypeEditorProps) {
                             isGraphql={isGraphql}
                             onImportJson={() => setEditorState(ConfigState.IMPORT_FROM_JSON)}
                             onImportXml={() => setEditorState(ConfigState.IMPORT_FROM_XML)}
+                            categories={props.categories}
+                            operators={props.operators}
                         />
                         <AdvancedOptions type={type} onChange={setType} />
                     </>

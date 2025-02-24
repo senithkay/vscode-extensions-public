@@ -14,7 +14,7 @@ import { Button } from '@wso2-enterprise/ui-toolkit';
 import { TextField } from '@wso2-enterprise/ui-toolkit';
 import { FieldEditor } from './FieldEditor';
 import styled from '@emotion/styled';
-import { TypeHelper } from '../TypeHelper';
+import { TypeHelperCategory, TypeHelperOperator } from '../TypeHelper';
 
 
  const Header = styled.div`
@@ -33,6 +33,8 @@ const SectionTitle = styled.div`
     `;
 
 interface RecordEditorProps {
+    categories: TypeHelperCategory[];
+    operators: TypeHelperOperator[];
     type: Type;
     isAnonymous: boolean;
     onChange: (type: Type) => void;
@@ -42,7 +44,7 @@ interface RecordEditorProps {
 }
 
 export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorProps>((props, ref) => {
-    const { type, isAnonymous = false, onChange, onImportJson, onImportXml, isGraphql } = props;
+    const { type, isAnonymous = false, onChange, onImportJson, onImportXml, isGraphql, categories, operators } = props;
     const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
 
     const addMember = () => {
@@ -102,7 +104,16 @@ export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorPr
             }
             {type.members.map((member, index) => (
                 <>
-                    <FieldEditor key={index} selected={selectedMembers.includes(index)} member={member} onChange={handleMemberChange(index)} onSelect={onSelect(index)} onDeselect={onDeselect(index)} />
+                    <FieldEditor
+                        key={index}
+                        selected={selectedMembers.includes(index)}
+                        member={member}
+                        onChange={handleMemberChange(index)}
+                        onSelect={onSelect(index)}
+                        onDeselect={onDeselect(index)}
+                        categories={categories}
+                        operators={operators}
+                    />
                 </>
             ))}
         </div >

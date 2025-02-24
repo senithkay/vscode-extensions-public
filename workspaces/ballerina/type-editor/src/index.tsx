@@ -8,3 +8,4 @@
  */
 
 export { TypeEditor } from "./TypeEditor/TypeEditor";
+export type { TypeHelperCategory, TypeHelperOperator } from "./TypeHelper";

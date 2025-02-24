@@ -8,15 +8,15 @@
  */
 
 import { throttle } from 'lodash';
-import React, { forwardRef, ReactNode, RefObject, useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, ReactNode, RefObject, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import styled from '@emotion/styled';
 import { Transition } from '@headlessui/react';
 import {
     ARROW_HEIGHT,
-    COMPLETION_ITEM_KIND,
     Codicon,
+    CompletionItemKind,
     HelperPane,
     Position,
     Typography,
@@ -31,9 +31,10 @@ type HelperItem = {
     name: string;
     insertText: string;
     sortText: string;
+    type: CompletionItemKind;
 };
 
-type HelperCategory = {
+export type TypeHelperCategory = {
     category: string;
     items: HelperItem[];
     sortText: string;
@@ -49,7 +50,7 @@ type InsertTypeConditionalProps = {
     insertLocation?: never;
 }
 
-export type TypeHelperOption = InsertTypeConditionalProps & {
+export type TypeHelperOperator = InsertTypeConditionalProps & {
     name: string;
     getIcon: () => ReactNode;
 };
@@ -58,9 +59,9 @@ type TypeHelperProps = {
     // Reference to the focused type field element
     typeFieldRef: RefObject<HTMLElement>;
     // Array of helper categories containing insertable items
-    categories: HelperCategory[];
-    // Array of helper options for type field completion
-    options: TypeHelperOption[];
+    categories: TypeHelperCategory[];
+    // Array of helper operators for type field completion
+    operators: TypeHelperOperator[];
     // Offset position of the helper pane
     positionOffset?: Position;
     // Whether the helper pane is open
@@ -95,13 +96,13 @@ namespace S {
         ${(props) => props.sx && { ...props.sx }}
     `;
 
-    export const OptionContainer = styled.div`
+    export const OperatorContainer = styled.div`
         display: flex;
         flex-direction: column;
         gap: 8px;
     `;
 
-    export const Option = styled.div`
+    export const Operator = styled.div`
         display: flex;
         align-items: flex-start;
         gap: 8px;
@@ -153,7 +154,7 @@ export const TypeHelper = forwardRef<HTMLDivElement, TypeHelperProps>((props, re
     const {
         typeFieldRef,
         categories,
-        options,
+        operators,
         positionOffset = { top: 0, left: 0 },
         open,
         currentType,
@@ -161,11 +162,14 @@ export const TypeHelper = forwardRef<HTMLDivElement, TypeHelperProps>((props, re
         onChange,
         onClose
     } = props;
+        const typeHelperRef = useRef<HTMLDivElement>(null);
         const [searchValue, setSearchValue] = useState<string>('');
         const [position, setPosition] = useState<Record<string, Position>>({
             helperPane: { top: 0, left: 0 },
             arrow: { top: 0, left: 0 }
         });
+
+        useImperativeHandle(ref, () => typeHelperRef.current);
     
         const updatePosition = throttle(() => {
             if (typeFieldRef.current) {
@@ -188,12 +192,12 @@ export const TypeHelper = forwardRef<HTMLDivElement, TypeHelperProps>((props, re
             // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [open, positionOffset]);
     
-        const handleOptionClick = (option: TypeHelperOption) => {
-            if (option.insertType === 'global') {
-                if (option.insertLocation === 'start') {
-                    onChange(option.insertText + ' ' + currentType.trimStart(), currentCursorPosition + option.insertText.length + 1);
+        const handleOperatorClick = (operator: TypeHelperOperator) => {
+            if (operator.insertType === 'global') {
+                if (operator.insertLocation === 'start') {
+                    onChange(operator.insertText + ' ' + currentType.trimStart(), currentCursorPosition + operator.insertText.length + 1);
                 } else {
-                    onChange(currentType.trimEnd() + option.insertText, currentCursorPosition);
+                    onChange(currentType.trimEnd() + operator.insertText, currentCursorPosition);
                 }
             } else {
                 const suffixRegex = /^[a-zA-Z0-9_']*/;
@@ -202,8 +206,8 @@ export const TypeHelper = forwardRef<HTMLDivElement, TypeHelperProps>((props, re
                 if (suffixMatch) {
                     const newCursorPosition = currentCursorPosition + suffixMatch[0].length;
                     onChange(
-                        currentType.slice(0, newCursorPosition) + option.insertText + currentType.slice(newCursorPosition),
-                        newCursorPosition + option.insertText.length
+                        currentType.slice(0, newCursorPosition) + operator.insertText + currentType.slice(newCursorPosition),
+                        newCursorPosition + operator.insertText.length
                     );
                 }
             }
@@ -241,13 +245,31 @@ export const TypeHelper = forwardRef<HTMLDivElement, TypeHelperProps>((props, re
     
             return sortedCategoriesAndItems;
         }, [categories]);
+
+        /* Close the helper pane on outside click */
+        useEffect(() => {
+            const handleOutsideClick = (e: MouseEvent) => {
+                if (
+                    !typeHelperRef.current.contains(e.target as Node)
+                    && !typeFieldRef.current.parentElement.contains(e.target as Node)
+                ) {
+                    onClose();
+                }
+            };
+            
+            document.addEventListener('mousedown', handleOutsideClick);
+
+            return () => {
+                document.removeEventListener('mousedown', handleOutsideClick);
+            };
+        }, [typeFieldRef.current, onClose]);
     
         return (
             <>
                 {/* If a type field is focused */}
                 {typeFieldRef.current &&
                     createPortal(
-                        <S.Container tabIndex={0} ref={ref} sx={position.helperPane}>
+                        <S.Container tabIndex={0} ref={typeHelperRef} sx={position.helperPane}>
                             <Transition show={open} {...ANIMATION}>
                                 <HelperPane sx={{ height: '100vh' }}>
                                     <HelperPane.Header
@@ -260,7 +282,7 @@ export const TypeHelper = forwardRef<HTMLDivElement, TypeHelperProps>((props, re
                                     <HelperPane.Body>
                                         <HelperPane.Panels>
                                             {/* Type helper tabs */}
-                                            <HelperPane.PanelTab title="Type" id={0} />
+                                            <HelperPane.PanelTab title="Types" id={0} />
                                             <HelperPane.PanelTab title="Operators" id={1} />
     
                                             {/* Type helper panel views */}
@@ -277,9 +299,7 @@ export const TypeHelper = forwardRef<HTMLDivElement, TypeHelperProps>((props, re
                                                                 <HelperPane.CompletionItem
                                                                     key={`${category.category}-${item.name}`}
                                                                     label={item.name}
-                                                                    getIcon={() =>
-                                                                        getIcon(COMPLETION_ITEM_KIND.TypeParameter)
-                                                                    }
+                                                                    getIcon={() => getIcon(item.type)}
                                                                     onClick={() => handleCompletionItemClick(item)}
                                                                 />
                                                             ))}
@@ -287,18 +307,18 @@ export const TypeHelper = forwardRef<HTMLDivElement, TypeHelperProps>((props, re
                                                     ))}
                                             </HelperPane.PanelView>
                                             <HelperPane.PanelView id={1}>
-                                                <S.OptionContainer>
-                                                    {options?.length > 0 &&
-                                                        options.map((option) => (
-                                                            <S.Option
-                                                                key={option.name}
-                                                                onClick={() => handleOptionClick(option)}
+                                                <S.OperatorContainer>
+                                                    {operators?.length > 0 &&
+                                                        operators.map((operator) => (
+                                                            <S.Operator
+                                                                key={operator.name}
+                                                                onClick={() => handleOperatorClick(operator)}
                                                             >
-                                                                <S.OptionIcon>{option.getIcon()}</S.OptionIcon>
-                                                                <Typography variant="body3">{option.name}</Typography>
-                                                            </S.Option>
+                                                                <S.OptionIcon>{operator.getIcon()}</S.OptionIcon>
+                                                                <Typography variant="body3">{operator.name}</Typography>
+                                                            </S.Operator>
                                                         ))}
-                                                </S.OptionContainer>
+                                                </S.OperatorContainer>
                                             </HelperPane.PanelView>
                                         </HelperPane.Panels>
                                     </HelperPane.Body>
