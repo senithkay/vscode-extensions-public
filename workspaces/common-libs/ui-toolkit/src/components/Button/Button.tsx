@@ -41,12 +41,12 @@ export const ButtonWrapper = styled.div<ButtonWrapperProps>`
 `;
 
 export const Button = forwardRef<HTMLDivElement, PropsWithChildren<ButtonProps>>((props, ref) => {
-    const { id, className, disabled, appearance = "primary", tooltip, children, onClick, sx, buttonSx } = props;
+    const { id, className, disabled, appearance = "primary", tooltip, children, onClick, sx, buttonSx, ...rest } = props;
 
     return (
         // Workaround for button not being disabled when disabled prop is passed
         <ButtonWrapper ref={ref} id={id} className={className} sx={sx}>
-            <VSCodeButton style={buttonSx} appearance={appearance} onClick={onClick} title={tooltip} disabled={(disabled ? true : undefined)}>
+            <VSCodeButton style={buttonSx} appearance={appearance} onClick={onClick} title={tooltip} disabled={(disabled ? true : undefined)} {...rest}>
                 {children}
             </VSCodeButton>
         </ButtonWrapper>
