@@ -18,7 +18,7 @@ export function signInCommand(context: ExtensionContext) {
 		commands.registerCommand(CommandIds.SignIn, async () => {
 			try {
 				getLogger().debug("Signing in to Choreo");
-				const callbackUrl = await vscode.env.asExternalUri(vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.choreo/signin`));
+				const callbackUrl = await vscode.env.asExternalUri(vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.platform/signin`));
 
 				console.log("Generating Choreo login URL for ", callbackUrl.toString());
 				const loginUrl = await window.withProgress({ title: "Generating Login URL...", location: ProgressLocation.Notification }, async () => {
