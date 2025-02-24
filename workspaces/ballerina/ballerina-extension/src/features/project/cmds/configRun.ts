@@ -27,11 +27,15 @@ function activateConfigRunCommand() {
     });
 
     commands.registerCommand(PALETTE_COMMANDS.CONFIG_CREATE_COMMAND, async () => {
-        const currentProject = ballerinaExtInstance.getDocumentContext().getCurrentProject();
-        const filePath = window.activeTextEditor.document;
-        const path = filePath.uri.fsPath;
-        prepareAndGenerateConfig(ballerinaExtInstance, currentProject ? currentProject.path! : path, true);
-        return;
+        try {
+            const currentProject = ballerinaExtInstance.getDocumentContext().getCurrentProject();
+            const filePath = window.activeTextEditor.document;
+            const path = filePath.uri.fsPath;
+            prepareAndGenerateConfig(ballerinaExtInstance, currentProject ? currentProject.path! : path, true);
+            return;
+        } catch (error) {
+            throw new Error("Unable to create Config.toml file. Try again with a valid Ballerina file open in the editor.");
+        }
     });
 
     languages.registerCompletionItemProvider({ language: 'toml' }, {
