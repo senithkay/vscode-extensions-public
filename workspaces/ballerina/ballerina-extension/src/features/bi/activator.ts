@@ -10,13 +10,13 @@ import { commands } from "vscode";
 import { BI_COMMANDS, BIDeleteByComponentInfoRequest, ComponentInfo, DIRECTORY_SUB_TYPE, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "../../core";
 import { openView } from "../../stateMachine";
-import { configGenerator } from "../config-generator/configGenerator";
+import { generateConfigToml } from "../config-generator/configGenerator";
 import { StateMachine } from "../../stateMachine";
 import { BiDiagramRpcManager } from "../../rpc-managers/bi-diagram/rpc-manager";
 
 export function activate(context: BallerinaExtension) {
     commands.registerCommand(BI_COMMANDS.BI_RUN_PROJECT, () => {
-        configGenerator(context, StateMachine.context().projectUri, false, true);
+        generateConfigToml(context, StateMachine.context().projectUri, false, true);
     });
 
     commands.registerCommand(BI_COMMANDS.ADD_CONNECTIONS, () => {

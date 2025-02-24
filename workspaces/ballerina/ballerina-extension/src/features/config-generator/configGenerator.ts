@@ -18,7 +18,7 @@ import { BallerinaProject, PackageConfigSchema, ProjectDiagnosticsResponse } fro
 
 const DEBUG_RUN_COMMAND_ID = 'workbench.action.debug.run';
 
-export async function configGenerator(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean, isBi?: boolean): Promise<void> {
+export async function generateConfigToml(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean, isBi?: boolean): Promise<void> {
     let configFile: string = filePath;
     let packageName: string = 'packageName';
 
@@ -233,7 +233,7 @@ async function executeRunCommand(ballerinaExtInstance: BallerinaExtension, fileP
     }
 }
 
-async function hasProjectContainsErrors(langClient: ExtendedLangClient, path: string) : Promise<boolean> {
+async function hasProjectContainsErrors(langClient: ExtendedLangClient, path: string): Promise<boolean> {
     const res = await langClient.getProjectDiagnostics({
         projectRootIdentifier: {
             uri: "file://" + ballerinaExtInstance.getDocumentContext().getCurrentProject().path

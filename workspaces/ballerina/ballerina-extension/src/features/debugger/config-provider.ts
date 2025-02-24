@@ -467,8 +467,7 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
     constructor(ballerinaExtInstance: BallerinaExtension) {
         this.ballerinaExtInstance = ballerinaExtInstance;
     }
-    createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined):
-        Thenable<DebugAdapterDescriptor> {
+    async createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined): Promise<DebugAdapterDescriptor> {
         if (session.configuration.noDebug && StateMachine.context().isBI) {
             return new Promise((resolve) => {
                 resolve(new DebugAdapterInlineImplementation(new BIRunAdapter()));
@@ -495,26 +494,28 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
 
         log(`Starting debug adapter: '${this.ballerinaExtInstance.getBallerinaCmd()} start-debugger-adapter ${port.toString()}`);
 
-        return new Promise<void>((resolve) => {
-            serverProcess.stdout.on('data', (data) => {
-                if (data.toString().includes('Debug server started')) {
-                    resolve();
-                }
-                log(`${data}`);
-            });
+        try {
+            await new Promise<void>((resolve) => {
+                serverProcess.stdout.on('data', (data) => {
+                    if (data.toString().includes('Debug server started')) {
+                        resolve();
+                    }
+                    log(`${data}`);
+                });
 
-            serverProcess.stderr.on('data', (data) => {
-                debugLog(`${data}`);
+                serverProcess.stderr.on('data', (data) => {
+                    debugLog(`${data}`);
+                });
             });
-        }).then(() => {
             sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER);
             this.registerLogTraceNotificationHandler(session);
             return new DebugAdapterServer(port);
-        }).catch((error) => {
-            sendTelemetryException(ballerinaExtInstance, error, CMP_DEBUGGER);
-            return Promise.reject(error);
-        });
+        } catch (error) {
+            sendTelemetryException(ballerinaExtInstance, error as Error, CMP_DEBUGGER);
+            return await Promise.reject(error);
+        }
     }
+
     private registerLogTraceNotificationHandler(session: DebugSession) {
         const langClient = ballerinaExtInstance.langClient;
         const notificationHandler = langClient.onNotification('$/logTrace', (params: any) => {

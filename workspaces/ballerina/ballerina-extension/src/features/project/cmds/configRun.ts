@@ -10,7 +10,7 @@
 import { commands, languages, Uri, window } from "vscode";
 import { BALLERINA_COMMANDS, getRunCommand, PALETTE_COMMANDS, runCommand } from "./cmd-runner";
 import { ballerinaExtInstance } from "../../../core";
-import { configGenerator } from "../../config-generator/configGenerator";
+import { generateConfigToml } from "../../config-generator/configGenerator";
 import { getConfigCompletions } from "../../config-generator/utils";
 
 
@@ -30,7 +30,7 @@ function activateConfigRunCommand() {
         const currentProject = ballerinaExtInstance.getDocumentContext().getCurrentProject();
         const filePath = window.activeTextEditor.document;
         const path = filePath.uri.fsPath;
-        configGenerator(ballerinaExtInstance, currentProject ? currentProject.path! : path, true);
+        generateConfigToml(ballerinaExtInstance, currentProject ? currentProject.path! : path, true);
         return;
     });
 
