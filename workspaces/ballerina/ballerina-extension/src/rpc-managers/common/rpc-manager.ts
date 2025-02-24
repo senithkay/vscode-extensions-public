@@ -39,7 +39,7 @@ import { goToSource } from "../../utils";
 import { askFilePath, askProjectPath, getUpdatedSource } from "./utils";
 
 export class CommonRpcManager implements CommonRPCAPI {
-    async getTypes(): Promise<TypeResponse> {
+    async getTypeCompletions(): Promise<TypeResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             const completionParams: CompletionParams = {
@@ -201,7 +201,7 @@ export class CommonRpcManager implements CommonRPCAPI {
     async getWorkspaceRoot(): Promise<WorkspaceRootResponse> {
         return new Promise(async (resolve) => {
             const workspaceFolders = workspace.workspaceFolders;
-            resolve ( workspaceFolders ? { path: workspaceFolders[0].uri.fsPath } : { path: "" });
+            resolve(workspaceFolders ? { path: workspaceFolders[0].uri.fsPath } : { path: "" });
         });
     }
 }

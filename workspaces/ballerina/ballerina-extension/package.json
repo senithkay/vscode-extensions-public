@@ -2,7 +2,7 @@
     "name": "kolab",
     "displayName": "KolaB",
     "description": "KolaB Extension for Kola.",
-    "version": "0.4.2",
+    "version": "0.4.4",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
@@ -332,11 +332,6 @@
                 "category": "Ballerina"
             },
             {
-                "command": "kolab.project.test",
-                "title": "Test",
-                "category": "Ballerina"
-            },
-            {
                 "command": "kolab.project.build",
                 "title": "Build",
                 "category": "Ballerina"
@@ -349,6 +344,16 @@
             {
                 "command": "kolab.create.cloud",
                 "title": "Create Cloud.toml",
+                "category": "Ballerina"
+            },
+            {
+                "command": "kolab.login.copilot",
+                "title": "Authorize Github Copilot",
+                "category": "Ballerina"
+            },
+            {
+                "command": "kolab.reset.bi",
+                "title": "Reset BI Auth",
                 "category": "Ballerina"
             },
             {
@@ -395,6 +400,12 @@
             {
                 "command": "kolab.show.visualizer",
                 "title": "Show Visualizer",
+                "icon": "$(distro-design-view)",
+                "category": "Ballerina"
+            },
+            {
+                "command": "kolab.test.edit.case",
+                "title": "Edit test case",
                 "icon": "$(distro-design-view)",
                 "category": "Ballerina"
             },
@@ -540,6 +551,24 @@
                 "category": "BI"
             },
             {
+                "command": "BI.test.edit.function",
+                "title": "View test flow",
+                "icon": "$(distro-design-view)",
+                "category": "BI"
+            },
+            {
+                "command": "BI.test.edit.function.def",
+                "title": "Edit test function definition",
+                "icon": "$(edit)",
+                "category": "BI"
+            },
+            {
+                "command": "BI.test.add.function",
+                "title": "Add test case",
+                "icon": "$(add)",
+                "category": "BI"
+            },
+            {
                 "command": "BI.view.typeDiagram",
                 "title": "Type Diagram",
                 "category": "BI"
@@ -617,6 +646,12 @@
                 }
             ]
         },
+        "viewsWelcome": [
+            {
+                "view": "testing",
+                "contents": "[Add Unit Test](command:BI.test.add.function)"
+            }
+        ],
         "viewsContainers": {
             "panel": [
                 {
@@ -627,10 +662,32 @@
             ]
         },
         "menus": {
+            "testing/item/context": [
+                {
+                    "command": "BI.test.edit.function.def",
+                    "group": "inline",
+                    "when": "testId not in testGroups"
+                },
+                {
+                    "command": "BI.test.edit.function",
+                    "group": "inline",
+                    "when": "testId not in testGroups"
+                },
+                {
+                    "command": "BI.test.add.function",
+                    "group": "inline",
+                    "when": "testId in testGroups"
+                }
+            ],
             "view/title": [
                 {
                     "command": "kolab.notebook.refreshVariableView",
                     "when": "view == ballerinaViewVariables",
+                    "group": "navigation"
+                },
+                {
+                    "command": "BI.test.add.function",
+                    "when": "view == workbench.view.testing",
                     "group": "navigation"
                 }
             ],
@@ -818,21 +875,21 @@
                 "description": "design-view",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f144"
+                    "fontCharacter": "\\f163"
                 }
             },
             "distro-start": {
                 "description": "start",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f1b8"
+                    "fontCharacter": "\\f1d7"
                 }
             },
             "distro-debug": {
                 "description": "debug",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f13f"
+                    "fontCharacter": "\\f15e"
                 }
             },
             "distro-source-view": {
@@ -846,7 +903,7 @@
                 "description": "persist-diagram",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f193"
+                    "fontCharacter": "\\f1b2"
                 }
             },
             "distro-cached-rounded": {

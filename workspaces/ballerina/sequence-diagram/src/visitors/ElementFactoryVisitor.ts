@@ -62,6 +62,23 @@ export class ElementFactoryVisitor implements BaseVisitor {
         this.nodes.push(nodeModel);
     }
 
+    endVisitParticipant(participant: Participant): void {
+        // flow.others list as participants in the diagram
+        if (this.flow.others) {
+            this.flow.others.forEach((participant: Participant) => {
+                if (participant.viewState) {
+                    const nodeModel = new ParticipantNodeModel(participant);
+                    nodeModel.setPosition(participant.viewState.bBox.x, participant.viewState.bBox.y);
+                    nodeModel.updateDimensions({
+                        width: participant.viewState.bBox.w,
+                        height: participant.viewState.bBox.h,
+                    });
+                    this.nodes.push(nodeModel);
+                }
+            });
+        }
+    }
+
     beginVisitNode(node: Node, parent?: DiagramElement): void {
         if (!node.viewStates) {
             console.warn(">> View state not found for interaction", node);
@@ -183,6 +200,9 @@ export class ElementFactoryVisitor implements BaseVisitor {
         if (node.targetId && this.flow?.participants) {
             // visit target participant
             const targetParticipant = this.flow.participants?.find((participant) => participant.id === node.targetId);
+            if (!targetParticipant) {
+                return;
+            }
             const nodeId = getNodeId(node);
             const elementVisitor = new ElementFactoryVisitor(this.flow, nodeId);
             traverseParticipant(targetParticipant, elementVisitor, this.flow);

@@ -24,6 +24,10 @@ const Field = styled.div`
    margin-bottom: 5px;
 `;
 
+const FormContainer = styled.div`
+    width: 100%;
+`;
+
 interface AddConnectorProps {
     formData: any;
     nodePosition: Range;
@@ -302,7 +306,7 @@ const AddConnector = (props: AddConnectorProps) => {
     }
 
     return (
-        <div>
+        <FormContainer>
             {isLoading ?
                 <ProgressIndicator /> :
                 !formData ? (
@@ -430,7 +434,7 @@ const AddConnector = (props: AddConnectorProps) => {
                         </div>
                     </>
             }
-        </div>
+        </FormContainer>
     );
 };
 

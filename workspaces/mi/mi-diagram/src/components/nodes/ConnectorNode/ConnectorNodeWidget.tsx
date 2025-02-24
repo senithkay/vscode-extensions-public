@@ -22,6 +22,7 @@ import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";
 import { Body, Content, Description, Header, Name, OptionsMenu } from "../BaseNodeModel";
 import { FirstCharToUpperCase } from "../../../utils/commons";
 import path from "path";
+import { MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
 
 namespace S {
     export type NodeStyleProp = {
@@ -183,6 +184,39 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
         setIsPopoverOpen(false);
     }
 
+    const getConnectionNodeRange = async () => {
+        const text = await rpcClient?.getMiDiagramRpcClient().getTextAtRange({
+            documentUri: node.documentUri,
+            range: node.stNode.range.startTagRange
+        });
+
+        const lastQuoteIndex = text.text.lastIndexOf('"') !== -1 ? text.text.lastIndexOf('"') : text.text.lastIndexOf("'");
+        const textBeforeLastQuote = text.text.substring(0, lastQuoteIndex + 1);
+
+        const configKeyLines = textBeforeLastQuote.split('\n');
+        const connectionNameLine = configKeyLines?.[configKeyLines.length - 1];
+
+        const firstQuoteIndex = connectionNameLine?.indexOf('"') !== -1 ? connectionNameLine?.indexOf('"') : connectionNameLine?.indexOf("'");
+
+        const newlineCount = configKeyLines.length - 1;
+
+        const connectionNameStartPosition = {
+            line: node.stNode.range.startTagRange.start.line + newlineCount,
+            character: newlineCount === 0 ? node.stNode.range.startTagRange.start.character + firstQuoteIndex + 1
+                 : firstQuoteIndex + 1
+        }
+
+        const connectionNameEndPosition = {
+            line: node.stNode.range.startTagRange.start.line + newlineCount,
+            character: newlineCount === 0 ? node.stNode.range.startTagRange.start.character + firstQuoteIndex + (node.stNode as Connector).configKey.length + 1
+                : firstQuoteIndex + (node.stNode as Connector).configKey.length + 1
+        }
+
+        const nodeRange = { start: connectionNameStartPosition, end: connectionNameEndPosition };
+
+        return nodeRange;
+    }
+
     const handleOnClick = async (e: any) => {
         e.stopPropagation();
         const nodeRange = { start: node.stNode.range.startTagRange.start, end: node.stNode.range.endTagRange.end || node.stNode.range.startTagRange.end };
@@ -202,7 +236,8 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
             const connectorDetails = await rpcClient.getMiDiagramRpcClient().getMediator({
                 mediatorType: node.stNode.tag,
                 range: nodeRange,
-                documentUri: node.documentUri
+                documentUri: node.documentUri,
+                isEdit: true
             });
 
             const formJSON = connectorDetails;
@@ -225,6 +260,43 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                 parentNode: node.mediatorName,
                 node: node,
                 tag: node.stNode.tag
+            });
+        }
+    }
+
+    const handleOnConnectionClick = async (e: any) => {
+        e.stopPropagation();
+
+        const nodeRange = await getConnectionNodeRange();
+
+        const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
+            documentUri: node.documentUri,
+            connectorName: node.stNode.tag.split(".")[0]
+        });
+
+        const definition = await rpcClient?.getMiDiagramRpcClient().getDefinition({
+            document: {
+                uri: node.documentUri,
+            },
+            position: nodeRange.start
+        });
+
+        if (e.ctrlKey || e.metaKey) {
+            // open file of selected connection
+            rpcClient.getMiDiagramRpcClient().openFile({ path: definition.uri, beside: true });
+
+        } else if (node.isSelected()) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: POPUP_EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    documentUri: definition.uri,
+                    view: MACHINE_VIEW.ConnectionForm,
+                    customProps: {
+                        connectionName: (node.stNode as Connector).configKey,
+                        connector: connectorData
+                    }
+                },
+                isPopup: true
             });
         }
     }
@@ -274,7 +346,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                 <S.CircleContainer
                     onMouseEnter={() => setIsHoveredConnector(true)}
                     onMouseLeave={() => setIsHoveredConnector(false)}
-                    onClick={(e) => handleOnClick(e)}
+                    onClick={(e) => handleOnConnectionClick(e)}
                 >
                     <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} >
                         <svg width="110" height="50" viewBox="0 0 103 40">

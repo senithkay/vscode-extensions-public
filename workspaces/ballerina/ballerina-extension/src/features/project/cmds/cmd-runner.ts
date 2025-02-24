@@ -18,6 +18,8 @@ export enum PALETTE_COMMANDS {
     BUILD = 'kolab.project.build',
     PACK = 'kolab.project.pack',
     CLOUD = 'kolab.create.cloud',
+    LOGIN_COPILOT = "kolab.login.copilot",
+    RESET_BI = "kolab.reset.bi",
     DOC = 'kolab.project.doc',
     FOCUS_EXPLORER = 'ballerinaExplorerTreeView.focus',
     RUN_CMD = 'kolab.project.run.cmd',

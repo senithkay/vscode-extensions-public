@@ -31,7 +31,7 @@ export const UNKNOWN_ERROR: ErrorCode = {
 
 export const MODIFIYING_ERROR: ErrorCode = {
     code: 5,
-    message: "An unknown error occurred while generating mappings."
+    message: "An unknown error occurred while generating mappings. Please try again"
 };
 
 export const USER_ABORTED: ErrorCode = {
@@ -53,3 +53,9 @@ export const INVALID_PARAMETER_TYPE_MULTIPLE_ARRAY: ErrorCode = {
     code: 9,
     message: "AI data mapper only supports mappings between single input and output arrays."
 };
+
+export const INVALID_TYPE_CONVERSION: ErrorCode = {
+    code: 10,
+    message: "Invalid type conversion. Cannot convert between incompatible types."
+};
+

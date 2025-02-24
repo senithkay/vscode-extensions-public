@@ -9,13 +9,12 @@
 
 import React, { useEffect, useState } from "react";
 
-import { Button, Codicon, Dropdown } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Dropdown, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
 import { FormField } from "../Form/types";
 import { getValueForDropdown } from "./utils";
 import { useFormContext } from "../../context";
-import { Colors } from "../../resources/constants";
 import { SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 
 namespace S {
@@ -62,7 +61,7 @@ namespace S {
 
     export const DeleteButton = styled(Button)`
         & > vscode-button {
-            color: ${Colors.ERROR};
+            color: ${ThemeColors.ERROR};
         }
     `;
 }
@@ -126,7 +125,7 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
                     <S.AddNewButton
                         appearance='icon'
                         aria-label="add"
-                        onClick={() => openSubPanel({ view: SubPanelView.UNDEFINED })}
+                        onClick={() => openSubPanel({ view: SubPanelView.ADD_NEW_FORM })}
                     >
                         <Codicon name="add" />
                         {field.label.slice(0, -1)}

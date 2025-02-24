@@ -553,9 +553,8 @@ export function FormGenerator(props: FormGeneratorProps) {
                 return (
                     <>
                         <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: '100%', gap: '10px' }}>
-                            <div style={{ display: "flex", alignItems: "center" }}>
-                                <label>{element.displayName}</label>
-                                {element.required === 'true' && <RequiredFormInput />}
+                            <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                                <label>{element.displayName}{element.required === 'true' && '*'}</label>
                             </div>
                             <LinkButton onClick={() => addNewConnection()}>
                                 <Codicon name="plus" />Add new connection
@@ -674,6 +673,9 @@ export function FormGenerator(props: FormGeneratorProps) {
                             validate: (value) => {
                                 if (!value || (typeof value === 'object' && !value.value)) {
                                     return "This field is required";
+                                }
+                                if ('isExpression' in value && value.isExpression && (!value.value || value.value.replace(/\s/g, '') === '${}')) {
+                                    return "Expression is required";
                                 }
                                 return true;
                             },

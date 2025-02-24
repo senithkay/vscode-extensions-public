@@ -27,7 +27,9 @@ export async function buildProjectStructure(projectDir: string, langClient: Exte
             [DIRECTORY_MAP.TYPES]: [],
             [DIRECTORY_MAP.CONFIGURATIONS]: [],
             [DIRECTORY_MAP.RECORDS]: [],
-            [DIRECTORY_MAP.DATA_MAPPERS]: []
+            [DIRECTORY_MAP.DATA_MAPPERS]: [],
+            [DIRECTORY_MAP.ENUMS]: [],
+            [DIRECTORY_MAP.CLASSES]: []
         }
     };
     const components = await langClient.getBallerinaProjectComponents({
@@ -47,6 +49,8 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
             response.directoryMap[DIRECTORY_MAP.CONNECTIONS].push(...await getComponents(langClient, module.moduleVariables, pkg.filePath, "connection", DIRECTORY_MAP.CONNECTIONS));
             response.directoryMap[DIRECTORY_MAP.TYPES].push(...await getComponents(langClient, module.types, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.RECORDS].push(...await getComponents(langClient, module.records, pkg.filePath, "type"));
+            response.directoryMap[DIRECTORY_MAP.ENUMS].push(...await getComponents(langClient, module.enums, pkg.filePath, "type"));
+            response.directoryMap[DIRECTORY_MAP.CLASSES].push(...await getComponents(langClient, module.classes, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.CONFIGURATIONS].push(...await getComponents(langClient, module.configurableVariables, pkg.filePath, "config"));
         }
     }
@@ -102,7 +106,16 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
             console.log(error);
         }
 
-        const iconValue = comp.name.includes('-') && !serviceModel ? `${comp.name.split('-')[0]}-api` : icon;
+        let iconValue;
+        if (serviceModel?.listenerProtocol === "graphql") {
+            iconValue = "bi-graphql";
+        } else {
+            iconValue = comp.name.includes('-') && !serviceModel ? `${comp.name.split('-')[0]}-api` : icon;
+        }
+
+        if (!comp.name && serviceModel) {
+            comp.name = `${serviceModel?.listenerProtocol}:Service`
+        }
 
         const fileEntry: ProjectStructureArtifactResponse = {
             name: dtype === DIRECTORY_MAP.SERVICES ? comp.name || comp.filePath.replace(".bal", "") : comp.name,

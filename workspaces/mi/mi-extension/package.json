@@ -3,7 +3,7 @@
   "displayName": "Micro Integrator",
   "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
   "icon": "resources/images/wso2-micro-integrator-image.png",
-  "version": "1.9.0",
+  "version": "2.0.0",
   "publisher": "wso2",
   "engines": {
     "vscode": "^1.81.0"
@@ -867,7 +867,7 @@
         "description": "design-view",
         "default": {
           "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-          "fontCharacter": "\\f144"
+          "fontCharacter": "\\f163"
         }
       }
     }
