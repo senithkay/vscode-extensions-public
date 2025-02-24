@@ -7,13 +7,13 @@ import { BallerinaExtension, ExtendedLangClient } from "src/core";
 import { URI } from "vscode-uri";
 import Handlebars from "handlebars";
 import { findRunningBallerinaProcesses } from "./utils";
-import { BallerinaProjectComponents, OpenAPISpec } from "@wso2-enterprise/ballerina-core";
+import { BIDesignModelResponse, OpenAPISpec } from "@wso2-enterprise/ballerina-core";
 
 let langClient: ExtendedLangClient | undefined;
 let errorLogWatcher: FileSystemWatcher | undefined;
 
 const TRYIT_TEMPLATE = `/*
-### Try Service: "{{info.title}}" (http://localhost:{{port}}{{trim basePath}})
+### Try Service: "{{serviceName}}" (http://localhost:{{port}}{{trim basePath}})
 {{info.description}}
 */
 
@@ -171,8 +171,8 @@ async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: 
     let selectedService: ServiceInfo;
     if (services.length > 1) {
         const quickPickItems = services.map(service => ({
-            label: service.name,
-            description: path.basename(service.filePath),
+            label: `'${service.basePath}' on ${service.listener}`,
+            description: `HTTP Service`,
             service
         }));
 
@@ -194,8 +194,7 @@ async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: 
         fs.mkdirSync(targetDir);
     }
 
-    const fileName = path.parse(selectedService.filePath).name;
-    const tryitFileName = `tryit.${fileName}.http`;
+    const tryitFileName = `tryit.http`;
     const tryitFilePath = path.join(targetDir, tryitFileName);
     const configFilePath = path.join(targetDir, 'httpyac.config.js');
 
@@ -222,17 +221,17 @@ async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> 
         return [];
     }
 
-    const components: BallerinaProjectComponents = await langClient.getBallerinaProjectComponents({
-        documentIdentifiers: [{ uri: URI.file(projectDir).toString() }]
+    const response: BIDesignModelResponse = await langClient.getDesignModel({
+        projectPath: projectDir
     });
 
-    const services = components.packages
-        ?.flatMap(pkg => pkg.modules)
-        .flatMap(module => module.services)
-        .filter(service => service !== undefined)
+    const services = response.designModel.services
+        .filter(service => service.type.toLowerCase().includes('http'))
         .map(service => ({
-            name: service.name,
-            filePath: service.filePath
+            name: service.displayName || service.absolutePath.startsWith('/') ? service.absolutePath.trim().substring(1) : service.absolutePath.trim(),
+            basePath: service.absolutePath.trim(),
+            filePath: service.location.filePath,
+            listener: service.attachedListeners.map(listener => response.designModel.listeners.find(l => l.uuid === listener)?.symbol).join(', ')
         }));
 
     return services || [];
@@ -249,7 +248,8 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
         // Get service port
         const selectedPort = await getServicePort(projectDir, service, openapiSpec);
         if (!selectedPort) {
-            vscode.window.showErrorMessage('Failed to get the service port for the service');
+            vscode.window.showErrorMessage(`Failed to get the service port for the service: '${service.name}'`);
+            return undefined;
         }
 
         // Register Handlebars helpers
@@ -260,11 +260,12 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
         return compiledTemplate({
             ...openapiSpec,
             port: selectedPort.toString(),
-            basePath: service.name,
-            serviceName: service.name
+            basePath: service.basePath,
+            serviceName: service.name || 'Default'
         });
     } catch (error) {
-        vscode.window.showErrorMessage('An unexpected error occurred while generating the try-it file');
+        const message = error instanceof Error ? error.message : '';
+        vscode.window.showErrorMessage(`Failed to generate TryIt client content: ${message}`);
         return undefined;
     }
 }
@@ -284,16 +285,22 @@ async function getOpenAPIDefinition(langClient: any, service: ServiceInfo): Prom
         return undefined;
     }
 
-    const matchingDefinition = (openapiDefinitions as OpenAPISpec).content.find(content =>
-        path.basename(content.file) === path.basename(service.filePath)
+    const matchingDefinition = (openapiDefinitions as OpenAPISpec).content.filter(content =>
+        content.serviceName.toLowerCase() === service?.name.toLowerCase()
+        || (content.spec?.servers[0]?.url == undefined && service?.name === '') // TODO: Update the condition after fixing the issue in the OpenAPI tool https://github.com/ballerina-platform/ballerina-library/issues/7624
     );
 
-    if (!matchingDefinition) {
-        vscode.window.showErrorMessage(`No matching OpenAPI definition found for service: ${service.name}`);
+    if (matchingDefinition.length > 1) {
+        vscode.window.showErrorMessage(`Multiple matching OpenAPI definitions found for service: ${service.basePath}`);
         return undefined;
     }
 
-    return matchingDefinition.spec as OAISpec;
+    if (!matchingDefinition) {
+        vscode.window.showErrorMessage(`No matching OpenAPI definition found for service: ${service.basePath}`);
+        return undefined;
+    }
+
+    return matchingDefinition[0].spec as OAISpec;
 }
 
 async function getServicePort(projectDir: string, service: ServiceInfo, openapiSpec: OAISpec): Promise<number | undefined> {
@@ -648,8 +655,10 @@ function disposeErrorWatcher() {
 
 // Service information interface
 interface ServiceInfo {
-    name: string;
+    name?: string;
+    basePath: string;
     filePath: string;
+    listener: string;
 }
 
 // Main OpenAPI specification interface
