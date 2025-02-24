@@ -12,7 +12,7 @@ import { Button, Codicon, ComponentCard, Icon, IconLabel, Tooltip, Typography } 
 import React, { useEffect, useState } from 'react';
 import { FirstCharToUpperCase } from '../../../utils/commons';
 import styled from '@emotion/styled';
-import { DEFAULT_ICON } from '../../../resources/constants';
+import { Colors, DEFAULT_ICON } from '../../../resources/constants';
 import { ConnectorDependency } from '@wso2-enterprise/mi-core';
 
 
@@ -25,7 +25,7 @@ const ButtonGrid = styled.div`
 `;
 
 const VersionTag = styled.div`
-    color: var(--vscode-list-deemphasizedForeground);
+    color: ${Colors.SECONDARY_TEXT};
     font-size: 10px;
     padding-left: 2px;
 `;
@@ -53,7 +53,7 @@ const DeleteIconContainer = styled.div`
     border-radius: 2px;
     align-content: center;
     padding: 5px 5px 15px 12px;
-    color: var(--vscode-list-deemphasizedForeground);
+    color: ${Colors.SECONDARY_TEXT};
     &:hover, &.active {
         background-color: var(--vscode-pickerGroup-border);
         color: var(--vscode-minimap-errorHighlight);
@@ -70,7 +70,7 @@ const DownloadIconContainer = styled.div`
     border-radius: 2px;
     align-content: center;
     padding: 5px 5px 15px 12px;
-    color: var(--vscode-list-deemphasizedForeground);
+    color: v${Colors.SECONDARY_TEXT};
     &:hover, &.active {
         background-color: var(--vscode-pickerGroup-border);
         color: var(--vscode-progressBar-background);

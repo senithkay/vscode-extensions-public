@@ -58,6 +58,8 @@ export enum VSCodeColors {
     INPUT_OPTION_ACTIVE_BORDER = "var(--vscode-inputOption-activeBorder)",
 
     WARNING = "var(--vscode-editorWarning-foreground)",
+
+    SECONDARY_TEXT = "var(--vscode-list-deemphasizedForeground)",
 }
 
 export const Colors = {
@@ -94,6 +96,7 @@ export const Colors = {
 
     DEBUGGER_BREAKPOINT_BACKGROUND: DefaultColors.DEBUGGER_BREAKPOINT_BACKGROUND,
     WARNING: VSCodeColors.WARNING,
+    SECONDARY_TEXT: VSCodeColors.SECONDARY_TEXT,
 };
 
 export const SIDE_PANEL_WIDTH = 450;

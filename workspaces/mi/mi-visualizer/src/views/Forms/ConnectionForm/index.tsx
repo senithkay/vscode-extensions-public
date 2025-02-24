@@ -15,6 +15,7 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import AddConnection from "./ConnectionFormGenerator";
 import { ImportConnectorForm } from "./ImportConnector";
 import path from "path";
+import { Colors } from "@wso2-enterprise/mi-diagram/lib/resources/constants";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -42,7 +43,7 @@ const IconContainer = styled.div`
 `;
 
 const VersionTag = styled.span`
-    color: var(--vscode-list-deemphasizedForeground);
+    color: ${Colors.SECONDARY_TEXT};
     padding-left: 10px;
 `;
 
