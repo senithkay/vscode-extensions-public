@@ -125,12 +125,11 @@ export function MainForm() {
 
     const handleFunctionCreate = async (data: FormValues) => {
         setIsLoading(true);
-        const name = data["functionName"];
         const params = data["params"];
         const paramList = params ? getFunctionParametersList(params) : [];
         const res = await rpcClient
             .getBIDiagramRpcClient()
-            .createComponent({ type: DIRECTORY_MAP.AUTOMATION, functionType: { name, parameters: paramList } });
+            .createComponent({ type: DIRECTORY_MAP.AUTOMATION, functionType: { parameters: paramList } });
         setIsLoading(res.response);
     };
 
@@ -170,12 +169,14 @@ export function MainForm() {
         {
             key: `type`,
             label: "Type",
-            type: "Type",
+            type: 'SINGLE_SELECT',
             optional: false,
             editable: true,
-            documentation: "",
+            documentation: '',
             value: "",
+            items: ["string", "int", "float", "decimal"],
             valueTypeConstraint: "",
+            addNewButton: false
         }
     ];
 
@@ -198,22 +199,13 @@ export function MainForm() {
 
     const currentFields: FormField[] = [
         {
-            key: `functionName`,
-            label: "Automation Name",
-            type: "string",
-            optional: false,
-            editable: true,
-            documentation: "",
-            value: "",
-            valueTypeConstraint: "string",
-        },
-        {
             key: `params`,
             label: "Parameters",
             type: "PARAM_MANAGER",
             optional: true,
+            advanced: true,
             editable: true,
-            documentation: "",
+            documentation: "Parameters allow dynamic input values, making automation adaptable to different execution needs.",
             valueTypeConstraint: "",
             value: "",
             paramManagerProps: {
