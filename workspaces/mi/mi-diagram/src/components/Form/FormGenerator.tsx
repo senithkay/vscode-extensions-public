@@ -674,7 +674,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                                 if (!value || (typeof value === 'object' && !value.value)) {
                                     return "This field is required";
                                 }
-                                if ('isExpression' in value && value.isExpression && (!value.value || value.value.replace(/\s/g, '') === '${}')) {
+                                if (typeof value === 'object' && 'isExpression' in value && value.isExpression && (!value.value || value.value.replace(/\s/g, '') === '${}')) {
                                     return "Expression is required";
                                 }
                                 return true;
