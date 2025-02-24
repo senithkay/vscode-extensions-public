@@ -1258,6 +1258,9 @@ export function findTypeByInfoFromStore(typeInfo: NonPrimitiveBal): TypeField {
 	const recordTypeDescriptors = TypeDescriptorStore.getInstance();
 
 	for (const type of recordTypeDescriptors.typeDescriptors.values()) {
+		if (!type) {
+			return undefined;
+		}
 		if (isTypeMatch(type, typeInfo)) {
 			return type;
 		} else if (type.typeName === PrimitiveBalType.Array && type.memberType) {

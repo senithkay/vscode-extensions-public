@@ -19,7 +19,7 @@ import { DataMapperNodeModel } from '../Diagram/Node/commons/DataMapperNode';
 import { getErrorKind } from '../Diagram/utils/dm-utils';
 import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
 import { ErrorNodeKind } from '../DataMapper/Error/RenderingError';
-import { useDMSearchStore } from '../../store/store';
+import { useDMSearchStore, useDMStore } from '../../store/store';
 import { ListConstructorNode, MappingConstructorNode, PrimitiveTypeNode, QueryExpressionNode, RequiredParamNode } from '../Diagram/Node';
 import {
     GAP_BETWEEN_MAPPING_HEADER_NODE_AND_INPUT_NODE,
@@ -275,6 +275,7 @@ export const useFileContent = (langServerRpcClient: LangClientRpcClient, filePat
     refetch: any;
 } => {
     const { source, position } = fnST;
+    const dmStore = useDMStore();
     const fetchContent = async () : Promise<[string, string[]]> => {
         const importStatements: string[] = [];
         try {
@@ -285,6 +286,7 @@ export const useFileContent = (langServerRpcClient: LangClientRpcClient, filePat
             modulePart?.imports.map((importDeclaration: any) => (
                 importStatements.push(importDeclaration.source.trim())
             ));
+            dmStore.setImports(importStatements);
             return [modulePart.source, importStatements];
         } catch (networkError: any) {
             console.error('Error while fetching content', networkError);
