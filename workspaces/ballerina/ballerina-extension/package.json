@@ -120,6 +120,11 @@
                         "default": true,
                         "description": "Enable semantic highlighting for Ballerina source."
                     },
+                    "kolab.enableNaturalProgramming": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Enable natural programming for Ballerina source."
+                    },
                     "kolab.enablePerformanceForecast": {
                         "type": "boolean",
                         "default": true,
@@ -446,6 +451,11 @@
             {
                 "command": "kolab.pasteAsRecord",
                 "title": "Paste JSON as Record",
+                "category": "Ballerina"
+            },
+            {
+                "command": "kolab.verifyDocs",
+                "title": "Check drift between code and documentation",
                 "category": "Ballerina"
             },
             {

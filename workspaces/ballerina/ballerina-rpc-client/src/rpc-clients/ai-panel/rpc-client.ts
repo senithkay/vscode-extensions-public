@@ -38,6 +38,7 @@ import {
     getActiveFile,
     getAiPanelState,
     getBackendURL,
+    getDriftDiagnosticContents,
     getFileExists,
     getFromDocumentation,
     getFromFile,
@@ -51,6 +52,7 @@ import {
     getTestDiagnostics,
     getTypesFromRecord,
     isCopilotSignedIn,
+    isRequirementsSpecificationFileExist,
     isWSO2AISignedIn,
     login,
     logout,
@@ -227,5 +229,13 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     getFromDocumentation(content: string): Promise<string> {
         return this._messenger.sendRequest(getFromDocumentation, HOST_EXTENSION, content);
+    }
+
+    isRequirementsSpecificationFileExist(filePath: string): Promise<boolean> {
+        return this._messenger.sendRequest(isRequirementsSpecificationFileExist, HOST_EXTENSION, filePath);
+    }
+
+    getDriftDiagnosticContents(projectPath: string): Promise<string> {
+        return this._messenger.sendRequest(getDriftDiagnosticContents, HOST_EXTENSION, projectPath);
     }
 }

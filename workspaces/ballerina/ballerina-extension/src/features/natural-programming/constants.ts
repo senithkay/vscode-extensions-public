@@ -1,0 +1,11 @@
+export const DOCUMENTATION_DRIFT_CHECK_ENDPOINT = "/drift/documentation/code";
+export const DOCUMENTATION_COMMENTS_DRIFT_CHECK_ENDPOINT = "/drift/doc-comments/code";
+export const DEVELOPER_OVERVIEW_FILENAME = "development.md";
+export const NATURAL_PROGRAMMING_PATH = "natural-programming";
+export const DEVELOPER_OVERVIEW_RELATIVE_PATH = `${NATURAL_PROGRAMMING_PATH}/${DEVELOPER_OVERVIEW_FILENAME}`;
+export const REQUIREMENT_DOC_PREFIX = "requirements.";
+export const REQUIREMENT_TEXT_DOCUMENT = `${REQUIREMENT_DOC_PREFIX}txt`;
+export const REQUIREMENT_MD_DOCUMENT = `${REQUIREMENT_DOC_PREFIX}md`;
+export const README_FILE_NAME_LOWERCASE = "readme.md";
+export const COMMAND_SHOW_TEXT = "extension.showTextOptions";
+export const DIAGNOSTIC_ID = "NLE001";

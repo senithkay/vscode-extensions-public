@@ -58,7 +58,15 @@ import { loginGithubCopilot } from "../../utils/ai/auth";
 import { modifyFileContent, writeBallerinaFileDidOpen } from "../../utils/modification";
 import { StateMachineAI } from '../../views/ai-panel/aiMachine';
 import { MODIFIYING_ERROR, PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
-import { getFunction, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, processMappings, refreshAccessToken, searchDocumentation } from "./utils";
+import {
+    NATURAL_PROGRAMMING_DIR_NAME, REQUIREMENT_DOC_PREFIX,
+    REQUIREMENT_MD_DOCUMENT,
+    REQUIREMENT_TEXT_DOCUMENT,
+    REQ_KEY
+} from "./constants";
+import { getFunction, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, processMappings, refreshAccessToken, searchDocumentation, requirementsSpecification } from "./utils";
+import { getLLMDiagnosticArrayAsString } from "../../features/natural-programming/utils";
+
 export let hasStopped: boolean = false;
 
 export class AiPanelRpcManager implements AIPanelAPI {
@@ -690,6 +698,21 @@ export class AiPanelRpcManager implements AIPanelAPI {
         // throw new Error('Not implemented');
         await extension.context.secrets.store('LOGIN_ALERT_SHOWN', 'true');
     }
+
+    async isRequirementsSpecificationFileExist(filePath: string): Promise<boolean> {
+        const dirPath = path.join(filePath, "natural-programming");
+
+        if (!fs.existsSync(dirPath) || !fs.lstatSync(dirPath).isDirectory()) {
+            return false; // Directory doesn't exist or isn't a folder
+        }
+
+        const files = fs.readdirSync(dirPath);
+        return Promise.resolve(files.some(file => file.toLowerCase().startsWith("requirements.")));
+    }
+
+    async getDriftDiagnosticContents(projectPath: string): Promise<string> {
+        return getLLMDiagnosticArrayAsString(projectPath);
+    }
 }
 
 function getModifiedAssistantResponse(originalAssistantResponse: string, tempDir: string, project: ProjectSource) : string {
@@ -962,6 +985,28 @@ async function getCurrentProjectSource(): Promise<BallerinaProject> {
         if (file.endsWith('.bal') || file.toLowerCase() === "readme.md") {
             const filePath = path.join(projectRoot, file);
             project.sources[file] = await fs.promises.readFile(filePath, 'utf-8');
+        }
+    }
+
+    const naturalProgrammingDirectory = projectRoot + `/${NATURAL_PROGRAMMING_DIR_NAME}`;
+    if (fs.existsSync(naturalProgrammingDirectory)) {
+        const reqFiles = fs.readdirSync(naturalProgrammingDirectory);
+        for (const file of reqFiles) {
+            const filePath = path.join(projectRoot, `${NATURAL_PROGRAMMING_DIR_NAME}`, file);
+            if (file.toLowerCase() == REQUIREMENT_TEXT_DOCUMENT || file.toLowerCase() == REQUIREMENT_MD_DOCUMENT) {
+                project.sources[REQ_KEY] = await fs.promises.readFile(filePath, 'utf-8');
+                continue;
+            } else if (file.toLowerCase().startsWith(REQUIREMENT_DOC_PREFIX)) {
+                const requirements = await requirementsSpecification(filePath);
+                if (!isErrorCode(requirements)) {
+                    project.sources[REQ_KEY] = requirements.toString();
+                    continue;
+                }
+
+                // TODO: Handle this properly.
+                // project.sources[REQ_KEY] = ""
+                throw UNKNOWN_ERROR;
+            }
         }
     }
 
