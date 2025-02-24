@@ -76,7 +76,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	// activateStatusBarItem();
 	commands.registerCommand(CommandIds.OpenWalkthrough, () => {
-		commands.executeCommand("workbench.action.openWalkthrough", "wso2.choreo#choreo.getStarted", false);
+		commands.executeCommand("workbench.action.openWalkthrough", "wso2.platform#choreo.getStarted", false);
 	});
 	registerPreInitHandlers();
 	registerYamlLanguageServer();

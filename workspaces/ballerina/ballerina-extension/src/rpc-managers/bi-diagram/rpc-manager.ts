@@ -699,7 +699,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             },
         };
 
-        await commands.executeCommand("wso2.choreo.create.component", params);
+        await commands.executeCommand("wso2.platform.create.component", params);
     }
 
     deployProject(): void {
