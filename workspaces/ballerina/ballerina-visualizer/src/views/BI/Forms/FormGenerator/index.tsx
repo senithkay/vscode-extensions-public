@@ -75,6 +75,7 @@ interface FormProps {
     targetLineRange: LineRange;
     projectPath?: string;
     editForm?: boolean;
+    isGraphql?: boolean;
     onSubmit: (node?: FlowNode, isDataMapper?: boolean) => void;
     subPanelView?: SubPanelView;
     openSubPanel?: (subPanel: SubPanel) => void;
@@ -92,6 +93,7 @@ export function FormGenerator(props: FormProps) {
         clientName,
         targetLineRange,
         projectPath,
+        isGraphql,
         onSubmit,
         openSubPanel,
         subPanelView,
@@ -439,20 +441,6 @@ export function FormGenerator(props: FormProps) {
         handleExpressionEditorCancel();
     };
 
-    const handleFunctionItemSelect = async (item: HelperPaneCompletionItem) => {
-        const response = await rpcClient.getBIDiagramRpcClient().addFunction({
-            filePath: fileName,
-            codedata: item.codedata,
-            kind: item.kind as FunctionKind
-        })
-
-        if (response.template) {
-            return extractFunctionInsertText(response.template);
-        }
-
-        return "";
-    }
-
     const handleExpressionEditorBlur = () => {
         handleExpressionEditorCancel();
     };
@@ -655,7 +643,7 @@ export function FormGenerator(props: FormProps) {
                     <FormTypeEditor
                         type={defaultType()}
                         newType={true}
-                        isGraphql={true}
+                        isGraphql={isGraphql}
                         onTypeChange={handleTypeChange}
                     />
                 </PanelContainer>

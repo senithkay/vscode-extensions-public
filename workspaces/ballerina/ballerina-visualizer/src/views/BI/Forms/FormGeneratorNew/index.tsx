@@ -56,6 +56,7 @@ interface FormProps {
     submitText?: string;
     onBack?: () => void;
     editForm?: boolean;
+    isGraphql?: boolean;
     onSubmit: (data: FormValues) => void;
     isActiveSubPanel?: boolean;
     openSubPanel?: (subPanel: SubPanel) => void;
@@ -74,6 +75,7 @@ export function FormGeneratorNew(props: FormProps) {
         submitText,
         onBack,
         onSubmit,
+        isGraphql,
         openSubPanel,
         updatedExpressionField,
         resetUpdatedExpressionField,
@@ -466,7 +468,7 @@ export function FormGeneratorNew(props: FormProps) {
                     <FormTypeEditor
                         type={defaultType()}
                         newType={true}
-                        isGraphql={true}
+                        isGraphql={isGraphql}
                         onTypeChange={handleTypeChange}
                     />
                 </PanelContainer>
