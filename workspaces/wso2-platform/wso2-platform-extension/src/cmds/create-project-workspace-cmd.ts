@@ -82,19 +82,6 @@ export function createProjectWorkspaceCommand(context: ExtensionContext) {
 	);
 }
 
-export const showProjectWorkspaceCreateNotification = async () => {
-	if (!workspace.workspaceFile && contextStore.getState().getValidItems().length > 0) {
-		if (!ext.context.workspaceState.get("shown-workspace-create-notification")) {
-			ext.context.workspaceState.update("shown-workspace-create-notification", "true");
-			window.showInformationMessage("Choreo project detected. Would you like to open it within a workspace", "Create workspace").then((resp) => {
-				if (resp === "Create workspace") {
-					commands.executeCommand(CommandIds.CreateProjectWorkspace);
-				}
-			});
-		}
-	}
-};
-
 export const createWorkspaceFile = (workspaceFileDirFsPath: string, project: Project, items: { component: ComponentKind; fsPath: string }[]) => {
 	const workspaceFile: WorkspaceConfig = {
 		folders:

@@ -145,16 +145,7 @@ export function cloneRepoCommand(context: ExtensionContext) {
 						// set context.yaml
 						updateContextFile(clonedResp[0].clonedPath, authStore.getState().state.userInfo!, selectedProject, selectedOrg, projectCache);
 
-						const workspaceFilePath = createWorkspaceFile(
-							clonedResp[0].clonedPath,
-							selectedProject,
-							components?.map((item) => ({
-								component: item,
-								fsPath: join(clonedResp[0].clonedPath, getComponentKindRepoSource(item.spec.source).path),
-							})) ?? [],
-						);
-
-						await openClonedDirectory(workspaceFilePath);
+						await openClonedDirectory(clonedResp[0].clonedPath);
 					} else if (repoSet.size > 1) {
 						const parsedRepos = Array.from(repoSet).map((item) => parseGitURL(item));
 						if (parsedRepos.some((item) => !item)) {
@@ -163,7 +154,7 @@ export function cloneRepoCommand(context: ExtensionContext) {
 
 						const { dirPath: projectDirPath } = createDirectory(selectedCloneDir.fsPath, selectedProject.name);
 
-						const clonedResp = await cloneRepositoryWithProgress(
+						await cloneRepositoryWithProgress(
 							projectDirPath,
 							Array.from(repoSet).map((selectedRepoUrl) => {
 								const parsedRepo = parseGitURL(selectedRepoUrl);
@@ -180,32 +171,7 @@ export function cloneRepoCommand(context: ExtensionContext) {
 							}),
 						);
 
-						// set context.yaml
-						const workspaceFolders: { component: ComponentKind; fsPath: string }[] = [];
-						for (const clonedRespItem of clonedResp) {
-							updateContextFile(clonedRespItem.clonedPath, authStore.getState().state.userInfo!, selectedProject, selectedOrg, projectCache);
-
-							for (const item of components) {
-								const componentRepo = parseGitURL(getComponentKindRepoSource(item.spec.source).repo);
-								const dirRepo = parseGitURL(clonedRespItem.gitUrl);
-								if (
-									componentRepo &&
-									dirRepo &&
-									componentRepo[0] === dirRepo[0] &&
-									componentRepo[1] === dirRepo[1] &&
-									componentRepo[2] === dirRepo[2]
-								) {
-									workspaceFolders.push({
-										component: item,
-										fsPath: join(clonedRespItem.clonedPath, getComponentKindRepoSource(item.spec.source).path),
-									});
-								}
-							}
-						}
-
-						const workspaceFilePath = createWorkspaceFile(projectDirPath, selectedProject, workspaceFolders);
-
-						await openClonedDirectory(workspaceFilePath);
+						await openClonedDirectory(projectDirPath);
 					}
 				}
 			} catch (err: any) {

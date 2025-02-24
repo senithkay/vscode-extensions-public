@@ -39,7 +39,7 @@ export function openCompSrcCommand(context: ExtensionContext) {
 								dataCacheStore
 									.getState()
 									.getProjects(selectedOrg.handle)
-									.find((item) => item.handler === params?.project || item.name === params?.project) ||
+									.find((item) => item.handler === params?.project || item.name === params?.project || item.id === params?.component) ||
 								(await selectProject(
 									selectedOrg,
 									`Loading projects from '${selectedOrg.name}'`,

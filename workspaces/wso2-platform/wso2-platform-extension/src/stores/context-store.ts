@@ -25,7 +25,6 @@ import * as yaml from "js-yaml";
 import { ProgressLocation, window, workspace } from "vscode";
 import { createStore } from "zustand";
 import { persist } from "zustand/middleware";
-import { showProjectWorkspaceCreateNotification } from "../cmds/create-project-workspace-cmd";
 import { ext } from "../extensionVariables";
 import { getGitRemotes, getGitRoot } from "../git/util";
 import { isSubpath } from "../utils";
@@ -71,8 +70,6 @@ export const contextStore = createStore(
 					}
 				} catch (err) {
 					set(({ state }) => ({ state: { ...state, loading: false, error: err as Error } }));
-				} finally {
-					showProjectWorkspaceCreateNotification();
 				}
 			},
 			getValidItems: () => Object.values(get().state.items).filter((item) => item.org && item.project),
@@ -198,7 +195,6 @@ const getSelected = (items: { [key: string]: ContextItemEnriched }, prevSelected
 
 	const openKey: string | null | undefined = ext.context.globalState.get("open-local-repo");
 	if (openKey) {
-		ext.context.workspaceState.update("shown-workspace-create-notification", null);
 		const selected = items[openKey];
 		if (selected?.org && selected?.project) {
 			return selected;
