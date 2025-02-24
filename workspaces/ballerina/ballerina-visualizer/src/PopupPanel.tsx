@@ -22,7 +22,7 @@ const ViewContainer = styled.div`
     right: 0;
     width: 400px;
     height: 100%;
-    z-index: 3000;
+    z-index: 2000;
     background-color: ${ThemeColors.SURFACE_BRIGHT};
 `;
 
