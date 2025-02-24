@@ -8,7 +8,7 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { AIVisualizerState, AddToProjectRequest, GetFromFileRequest, DeleteFromProjectRequest, GenerateMappingsRequest, GenerateMappingsResponse, NotifyAIMappingsRequest, ProjectSource, ProjectDiagnostics, InitialPrompt, GenerateTestRequest, GeneratedTestSource, GenerateMappingsFromRecordRequest, GenerateMappingFromRecordResponse, PostProcessRequest, PostProcessResponse, GenerateTypesFromRecordRequest, GenerateTypesFromRecordResponse } from "./interfaces";
+import { AIVisualizerState, AddToProjectRequest, GetFromFileRequest, DeleteFromProjectRequest, GenerateMappingsRequest, GenerateMappingsResponse, NotifyAIMappingsRequest, ProjectSource, ProjectDiagnostics, InitialPrompt, GenerateTestRequest, GeneratedTestSource, GenerateMappingsFromRecordRequest, GenerateMappingFromRecordResponse, PostProcessRequest, PostProcessResponse, GenerateTypesFromRecordRequest, GenerateTypesFromRecordResponse, AIChatSummary } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "ai-panel";
@@ -41,7 +41,6 @@ export const getTypesFromRecord: RequestType<GenerateTypesFromRecordRequest, Gen
 export const applyDoOnFailBlocks: NotificationType<void> = { method: `${_preFix}/applyDoOnFailBlocks` };
 export const postProcess: RequestType<PostProcessRequest, PostProcessResponse> = { method: `${_preFix}/postProcess` };
 export const getActiveFile: RequestType<void, string> = { method: `${_preFix}/getActiveFile` };
-export const getFromDocumentation: RequestType<string, string> = { method: `${_preFix}/getFromDocumentation` };
 export const openSettings: NotificationType<void> = { method: `${_preFix}/openSettings` };
 export const openChat: NotificationType<void> = { method: `${_preFix}/openChat` };
 export const promptGithubAuthorize: RequestType<void, boolean> = { method: `${_preFix}/promptGithubAuthorize` };
@@ -50,3 +49,5 @@ export const isCopilotSignedIn: RequestType<void, boolean> = { method: `${_preFi
 export const isWSO2AISignedIn: RequestType<void, boolean> = { method: `${_preFix}/isWSO2AISignedIn` };
 export const showSignInAlert: RequestType<void, boolean> = { method: `${_preFix}/showSignInAlert` };
 export const markAlertShown: NotificationType<void> = { method: `${_preFix}/markAlertShown` };
+export const getFromDocumentation: RequestType<string, string> = { method: `${_preFix}/getFromDocumentation` };
+export const addChatSummary: NotificationType<AIChatSummary> = { method: `${_preFix}/addChatSummary` };

@@ -9,6 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    AIChatSummary,
     AIPanelAPI,
     AIVisualizerState,
     AI_EVENT_TYPE,
@@ -38,7 +39,7 @@ import {
     ProjectSource,
     STModification,
     SourceFile,
-    SyntaxTree
+    SyntaxTree,
 } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as crypto from 'crypto';
@@ -689,6 +690,14 @@ export class AiPanelRpcManager implements AIPanelAPI {
         // ADD YOUR IMPLEMENTATION HERE
         // throw new Error('Not implemented');
         await extension.context.secrets.store('LOGIN_ALERT_SHOWN', 'true');
+    }
+
+    async addChatSummary(filepathAndSummary: AIChatSummary): Promise<void> {
+        const filepath = filepathAndSummary.filepath;
+        const summary = filepathAndSummary.summary;
+
+        const developerMdPath = path.join(filepath, "natural-programming", "development.md");
+        fs.writeFileSync(developerMdPath, summary);
     }
 }
 

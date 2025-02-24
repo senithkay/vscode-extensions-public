@@ -9,6 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    AIChatSummary,
     AIPanelAPI,
     AIVisualizerState,
     AddToProjectRequest,
@@ -28,6 +29,7 @@ import {
     PostProcessResponse,
     ProjectDiagnostics,
     ProjectSource,
+    addChatSummary,
     addToProject,
     applyDoOnFailBlocks,
     checkSyntaxError,
@@ -227,5 +229,9 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     getFromDocumentation(content: string): Promise<string> {
         return this._messenger.sendRequest(getFromDocumentation, HOST_EXTENSION, content);
+    }
+
+    addChatSummary(filepathAndSummary: AIChatSummary): void {
+        return this._messenger.sendNotification(addChatSummary, HOST_EXTENSION, filepathAndSummary);
     }
 }

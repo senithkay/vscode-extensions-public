@@ -71,6 +71,7 @@ var chatArray: ChatEntry[] = [];
 const codeBlocks: string[] = [];
 var projectUuid = "";
 var backendRootUri = "";
+var chatLocation = "";
 
 let controller = new AbortController();
 let signal = controller.signal;
@@ -158,6 +159,7 @@ export function AIChat() {
     async function fetchBackendUrl() {
         try {
             backendRootUri = await rpcClient.getAiPanelRpcClient().getBackendURL();
+            chatLocation = (await rpcClient.getVisualizerLocation()).projectUri;
             // Do something with backendRootUri
         } catch (error) {
             console.error("Failed to fetch backend URL:", error);
@@ -686,8 +688,41 @@ export function AIChat() {
                 .getAiPanelRpcClient()
                 .addToProject({ filePath: filePath, content: segmentText, isTestCode: isTestCode });
         }
+
+        const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
+        const response = await fetchWithToken(
+            backendRootUri + "/prompt/summarize",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(chatArray),
+                signal: signal,
+            },
+            rpcClient
+        );
+
         setIsCodeAdded(true);
+        await rpcClient.getAiPanelRpcClient().addChatSummary({summary: await streamToString(response.body), filepath: chatLocation})
     };
+
+    async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
+        const reader = stream.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let result = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) {
+            break;
+          }
+          result += decoder.decode(value, { stream: true });
+        }
+
+        return result;
+      }
 
     const handleRevertChanges = async (
         codeSegments: any,
