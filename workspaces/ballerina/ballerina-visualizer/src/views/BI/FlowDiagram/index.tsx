@@ -607,6 +607,15 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         });
     };
 
+    const handleOnAddDataMapper = () => {
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.BIDataMapperForm,
+            },
+        });
+    };
+
     const handleOnGoToSource = (node: FlowNode) => {
         const targetPosition: NodePosition = {
             startLine: node.codedata.lineRange.startLine.line,
@@ -804,6 +813,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             onSearchTextChange={(searchText) =>
                                 handleSearchFunction(searchText, FUNCTION_TYPE.EXPRESSION_BODIED)
                             }
+                            onAddFunction={handleOnAddDataMapper}
                             onClose={handleOnCloseSidePanel}
                             title={"Data Mappers"}
                             onBack={handleOnFormBack}
