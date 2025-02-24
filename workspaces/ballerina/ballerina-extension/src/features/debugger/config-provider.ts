@@ -52,6 +52,7 @@ import { BreakpointManager } from './breakpoint-manager';
 import { notifyBreakpointChange } from '../../RPCLayer';
 import { VisualizerWebview } from '../../views/visualizer/webview';
 import { URI } from 'vscode-uri';
+import { prepareAndGenerateConfig } from '../config-generator/configGenerator';
 
 const BALLERINA_COMMAND = "ballerina.command";
 const EXTENDED_CLIENT_CAPABILITIES = "capabilities";
@@ -464,10 +465,15 @@ async function handleBreakpointVisualization(uri: Uri, clientBreakpoint: DebugPr
 class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFactory {
     private ballerinaExtInstance: BallerinaExtension;
     private notificationHandler: Disposable | null = null;
+
     constructor(ballerinaExtInstance: BallerinaExtension) {
         this.ballerinaExtInstance = ballerinaExtInstance;
     }
+
     async createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined): Promise<DebugAdapterDescriptor> {
+        // Check if config generation is required before starting the debug session
+        await prepareAndGenerateConfig(ballerinaExtInstance, session.configuration.script, false, StateMachine.context().isBI, false);
+
         if (session.configuration.noDebug && StateMachine.context().isBI) {
             return new Promise((resolve) => {
                 resolve(new DebugAdapterInlineImplementation(new BIRunAdapter()));

@@ -18,11 +18,11 @@ import { BallerinaProject, PackageConfigSchema, ProjectDiagnosticsResponse } fro
 
 const DEBUG_RUN_COMMAND_ID = 'workbench.action.debug.run';
 
-export async function generateConfigToml(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean, isBi?: boolean): Promise<void> {
+export async function prepareAndGenerateConfig(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean, isBi?: boolean, executeRun?: boolean): Promise<void> {
     const configRequirement: ConfigRequirementResult = await checkConfigGenerationRequired(ballerinaExtInstance, filePath, isBi);
 
     if (!configRequirement.needsConfig) {
-        if (!isCommand) {
+        if (!isCommand && executeRun) {
             executeRunCommand(ballerinaExtInstance, filePath, isBi);
         }
         return;
