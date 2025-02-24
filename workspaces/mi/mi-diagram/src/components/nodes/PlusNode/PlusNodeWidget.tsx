@@ -70,15 +70,21 @@ export function PlusNodeWidget(props: CallNodeWidgetProps) {
     const [isHovered, setIsHovered] = React.useState(false);
     const visualizerContext = useVisualizerContext();
     const stNode = node.getStNode();
+    const [isClicked, setIsClicked] = React.useState(false);
 
     const handleOnClick = (e: React.MouseEvent) => {
         e.stopPropagation();
+
+        if (isClicked) {
+            return;
+        }
         visualizerContext.rpcClient.getMiDiagramRpcClient().updateMediator({
             mediatorType: node.mediatorName.toLowerCase(),
             values: { "newBranch": true, "numberOfCases": getNumberOfSwitchCases(stNode as Switch) },
             documentUri: node.documentUri,
             range: { start: stNode.range.endTagRange.start, end: stNode.range.endTagRange.start }
         });
+        setIsClicked(true);
     };
 
     function getNumberOfSwitchCases(st: Switch) {
@@ -103,7 +109,7 @@ export function PlusNodeWidget(props: CallNodeWidgetProps) {
                     d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
                 />
                 <path
-                    fill={isHovered ? Colors.SECONDARY : Colors.ON_SURFACE}
+                    fill={isHovered && !isClicked ? Colors.SECONDARY : Colors.ON_SURFACE}
                     d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
                 />
             </svg>
