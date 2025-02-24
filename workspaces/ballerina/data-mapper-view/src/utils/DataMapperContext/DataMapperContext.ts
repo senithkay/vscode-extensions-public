@@ -6,12 +6,22 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-types";
 
 import { ExpressionInfo, SelectionState, ViewOption } from "../../components/DataMapper/DataMapper";
 import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
-import { HistoryEntry, STModification } from "@wso2-enterprise/ballerina-core";
+import { ComponentInfo, HistoryEntry, STModification } from "@wso2-enterprise/ballerina-core";
+
+export interface ModuleComponents {
+    moduleVarDecls: ComponentInfo[];
+    constDecls: ComponentInfo[];
+    enumDecls: {
+        filePath: string;
+        enum: ComponentInfo;
+    }[];
+    functions: ComponentInfo[];
+};
 
 export interface IDataMapperContext {
     functionST: FunctionDefinition;
@@ -23,9 +33,9 @@ export interface IDataMapperContext {
         path: string,
         size: number
     };
-    moduleVariables: any;
+    moduleComponents: ModuleComponents;
     changeSelection: (mode: ViewOption, selection?: SelectionState) => void;
-    goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void;
+    goToSource: (position: NodePosition) => void;
     diagnostics: Diagnostic[];
     enableStatementEditor: (expressionInfo: ExpressionInfo) => void;
     collapsedFields: string[];
@@ -55,9 +65,9 @@ export class DataMapperContext implements IDataMapperContext {
             path: string,
             size: number
         },
-        public moduleVariables: any,
+        public moduleComponents: ModuleComponents,
         public changeSelection: (mode: ViewOption, selection?: SelectionState) => void,
-        public goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void,
+        public goToSource: (position: NodePosition) => void,
         public diagnostics: Diagnostic[],
         public enableStatementEditor: (expressionInfo: ExpressionInfo) => void,
         public collapsedFields: string[],

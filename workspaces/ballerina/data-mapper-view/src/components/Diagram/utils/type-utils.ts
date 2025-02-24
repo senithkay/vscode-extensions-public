@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { AnydataType, PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
+import { AnydataType, PrimitiveBalType, TypeField, TypeKind } from "@wso2-enterprise/ballerina-core";
 import {
     ListConstructor,
     MappingConstructor,
@@ -29,6 +29,8 @@ import {
     getInnermostExpressionBody
 } from "./dm-utils";
 import { resolveUnionType } from "./union-type-utils";
+import { RecordFieldPortModel } from "../Port";
+import { PortModel } from "@projectstorm/react-diagrams-core";
 
 export function enrichAndProcessType(typeToBeProcessed: TypeField, node: STNode,
                                      selectedST: STNode): [EditableRecordField, TypeField] {
@@ -253,6 +255,22 @@ export function constructTypeFromSTNode(node: STNode, fieldName?: string): TypeF
 
     return type;
 }
+
+export function getDMTypeDim(dmType: TypeField) {
+    let dim = 0;
+    while (dmType.typeName == TypeKind.Array) {
+        dim++;
+        dmType = dmType.memberType;
+    }
+    return dim;
+}
+
+export function canPerformAggregation(targetPort: PortModel) {
+    return targetPort instanceof RecordFieldPortModel
+        && (targetPort.field.typeName === PrimitiveBalType.Int
+            || targetPort.field.typeName === PrimitiveBalType.Float
+            || targetPort.field.typeName === PrimitiveBalType.Decimal);
+};
 
 function getValueNodeAndNextNodeForParentType(node: STNode,
                                               parentType: EditableRecordField,

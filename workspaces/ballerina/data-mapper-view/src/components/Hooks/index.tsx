@@ -43,7 +43,7 @@ import { FunctionDefinition, ModulePart } from '@wso2-enterprise/syntax-tree';
 import { getExpandedMappingHeaderNodeHeight, getIONodeHeight, hasSameIntermediateClauses, isSameView } from '../Diagram/utils/diagram-utils';
 import { isInputNode, isOutputNode } from '../Diagram/Actions/utils';
 
-export const useProjectComponents = (langServerRpcClient: LangClientRpcClient, fileName: string): {
+export const useProjectComponents = (langServerRpcClient: LangClientRpcClient, fileName: string, fnSrc: string): {
     projectComponents: BallerinaProjectComponents;
     isFetching: boolean;
     isError: boolean;
@@ -69,7 +69,7 @@ export const useProjectComponents = (langServerRpcClient: LangClientRpcClient, f
         isFetching,
         isError,
         refetch,
-    } = useQuery(['fetchProjectComponents'], () => fetchProjectComponents(), { networkMode: 'always' });
+    } = useQuery(['fetchProjectComponents', {fnSrc}], () => fetchProjectComponents(), { networkMode: 'always' });
 
     return { projectComponents, isFetching, isError, refetch };
 };

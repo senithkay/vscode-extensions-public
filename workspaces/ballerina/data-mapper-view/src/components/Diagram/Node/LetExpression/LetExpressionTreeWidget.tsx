@@ -91,13 +91,11 @@ export function LetExpressionTreeWidget(props: LetExpressionTreeWidgetProps) {
             ) : !isWithinQuery && !searchValue && (
                 <Button
                     className={classes.addLocalVariableButton}
-                    appearance='icon'
-                    aria-label="add"
                     onClick={onClick}
-                    data-testid={"add-local-variable-btn"}
+                    appearance="secondary"
                 >
-                    <Codicon name="add" iconSx={{ color: "var(--button-primary-foreground)"}} />
-                    <div>Add Sub Mapping</div>
+                     <Codicon name="add" />
+                    Add Sub Mapping
                 </Button>
             )}
         </>
