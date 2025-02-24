@@ -1261,12 +1261,9 @@ export function findTypeByInfoFromStore(typeInfo: NonPrimitiveBal): TypeField {
 		if (!type) {
 			return undefined;
 		}
-		if (isTypeMatch(type, typeInfo)) {
-			return type;
-		} else if (type.typeName === PrimitiveBalType.Array && type.memberType) {
-			if (isTypeMatch(type.memberType, typeInfo)) {
-				return type.memberType;
-			}
+		const matchingType = getMatchingType(type, typeInfo);
+		if (matchingType) {
+			return matchingType;
 		}
 	}
 
