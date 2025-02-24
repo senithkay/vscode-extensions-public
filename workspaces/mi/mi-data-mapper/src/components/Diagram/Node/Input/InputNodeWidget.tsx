@@ -21,18 +21,21 @@ import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore } from '../../../../store/store';
 import { getTypeName } from "../../utils/common-utils";
 import { ARRAY_FILTER_NODE_PREFIX } from "../../utils/constants";
-
+import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import FieldActionWrapper from "../commons/FieldActionWrapper";
 export interface InputNodeWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
     dmType: DMType;
     engine: DiagramEngine;
     getPort: (portId: string) => InputOutputPortModel;
+    context: IDataMapperContext;
     valueLabel?: string;
     nodeHeaderSuffix?: string;
 }
 
 export function InputNodeWidget(props: InputNodeWidgetProps) {
-    const { engine, dmType, id, getPort, valueLabel, nodeHeaderSuffix } = props;
+    const { engine, dmType, id, getPort, context, valueLabel, nodeHeaderSuffix } = props;
+    const focusOnRoot = context.views.length === 1 || undefined;
     
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
@@ -99,7 +102,7 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
         setIsHovered(false);
     };
 
-    const onRightClick = (event: React.MouseEvent) => {
+    const handleChangeSchema = (event: React.MouseEvent) => {
         event.preventDefault(); 
         setIOConfigPanelType(IOType.Input);
         setIsSchemaOverridden(true);
@@ -107,7 +110,7 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
     };
 
     return (
-        <TreeContainer data-testid={`${id}-node`} onContextMenu={onRightClick}>
+        <TreeContainer data-testid={`${id}-node`} onContextMenu={focusOnRoot && handleChangeSchema}>
             <div className={classes.filterPortWrap}>
                 {invisiblePort && <PortWidget port={invisiblePort} engine={engine} />}
             </div>
@@ -132,6 +135,22 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
                     {label}
                     <span className={classes.nodeType}>{nodeHeaderSuffix}</span>
                 </span>
+                {focusOnRoot && (
+                    <FieldActionWrapper>
+                        <Button
+                            appearance="icon"
+                            data-testid={"open-change-schema-btn"}
+                            tooltip="Change input type"
+                            sx={{ marginRight: "5px" }}
+                            onClick={handleChangeSchema}
+                        >
+                            <Codicon
+                                name="edit"
+                                iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
+                            />
+                        </Button>
+                    </FieldActionWrapper>
+                )}
                 <span className={classes.outPort}>
                     {portOut &&
                         <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />

@@ -17,19 +17,23 @@ import { TreeContainer, TreeHeader } from './Tree/Tree';
 import { useIONodesStyles } from "../../../styles";
 import { getTypeName } from "../../utils/common-utils";
 import { useDMIOConfigPanelStore } from "../../../../store/store";
-import { TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
+import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import FieldActionWrapper from "./FieldActionWrapper";
 
 export interface PrimitiveTypeItemWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
     dmType: DMType;
     engine: DiagramEngine;
     getPort: (portId: string) => InputOutputPortModel;
+    context: IDataMapperContext;
     valueLabel?: string;
     nodeHeaderSuffix?: string;
 }
 
 export function PrimitiveTypeInputWidget(props: PrimitiveTypeItemWidgetProps) {
-    const { engine, dmType, id, getPort, valueLabel, nodeHeaderSuffix } = props;
+    const { engine, dmType, id, getPort, context, valueLabel, nodeHeaderSuffix } = props;
+    const focusOnRoot = context.views.length === 1 || undefined;
 
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 
@@ -63,7 +67,7 @@ export function PrimitiveTypeInputWidget(props: PrimitiveTypeItemWidgetProps) {
         </TruncatedLabel>
     );
 
-    const onRightClick = (event: React.MouseEvent) => {
+    const handleChangeSchema = (event: React.MouseEvent) => {
         event.preventDefault(); 
         setIOConfigPanelType(IOType.Input);
         setIsSchemaOverridden(true);
@@ -71,12 +75,28 @@ export function PrimitiveTypeInputWidget(props: PrimitiveTypeItemWidgetProps) {
     };
 
     return (
-        <TreeContainer data-testid={`${id}-node`} onContextMenu={onRightClick}>
+        <TreeContainer data-testid={`${id}-node`} onContextMenu={focusOnRoot && handleChangeSchema}>
             <TreeHeader id={"recordfield-" + id} isSelected={portState !== PortState.Unselected}>
                 <span className={classes.label}>
                     {label}
                     <span className={classes.nodeType}>{nodeHeaderSuffix}</span>
                 </span>
+                {focusOnRoot && (
+                    <FieldActionWrapper>
+                        <Button
+                            appearance="icon"
+                            data-testid={"open-change-schema-btn"}
+                            tooltip="Change input type"
+                            sx={{ marginRight: "5px" }}
+                            onClick={handleChangeSchema}
+                        >
+                            <Codicon
+                                name="edit"
+                                iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
+                            />
+                        </Button>
+                    </FieldActionWrapper>
+                )}
                 <span className={classes.outPort}>
                     {portOut &&
                         <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
