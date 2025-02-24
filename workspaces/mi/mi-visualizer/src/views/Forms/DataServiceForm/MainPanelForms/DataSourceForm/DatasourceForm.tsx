@@ -694,7 +694,7 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
     const showNextButton = watch('dataSourceType') === 'RDBMS' && step === 1;
 
     const onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
-        openPopup(rpcClient, "datasource", fetchItems, handleValueChange, props.path.replace('dataServices', 'dataSources'), { type: "dataSource" });
+        openPopup(rpcClient, "datasource", fetchItems, handleValueChange, props.path.replace('data-services', 'data-sources'), { type: "dataSource" });
     };
 
     return (
