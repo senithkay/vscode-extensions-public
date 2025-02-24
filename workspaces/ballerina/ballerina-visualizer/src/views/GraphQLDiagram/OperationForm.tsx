@@ -218,6 +218,8 @@ function convertParameterToParamValue(param: ParameterModel, index: number) {
             type: param.type.value,
             defaultable: param.defaultValue?.value || ''
         },
-        icon: 'symbol-variable'
+        icon: 'symbol-variable',
+        identifierEditable: param.name?.editable,
+        identifierRange: param.name.codedata?.lineRange
     };
 }
