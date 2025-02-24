@@ -17,7 +17,7 @@ import { getUserInfoForCmd, selectOrg, selectProject } from "./cmd-utils";
 export function openCompSrcCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(
-			CommandIds.CloneProject,
+			CommandIds.OpenCompSrcDir,
 			async (params: { org: Organization | string; project: Project | string; component: string }) => {
 				try {
 					const userInfo = await getUserInfoForCmd("clone project repository");
