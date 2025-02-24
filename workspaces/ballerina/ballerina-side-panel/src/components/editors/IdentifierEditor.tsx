@@ -34,7 +34,7 @@ const TextFieldWrapper = styled.div`
 `;
 
 const EditButton = styled(Button)`
-    margin-top: 40px;
+    margin-top: 39px;
 `;
 
 const ButtonGroup = styled.div`
@@ -174,8 +174,8 @@ export function IdentifierEditor(props: IdentifierEditorProps) {
                             autoFocus={autoFocus}
                         />
                     </TextFieldWrapper>
-                    <EditButton appearance="icon" onClick={startEditing}>
-                        <Icon name="bi-edit" />
+                    <EditButton appearance="icon" onClick={startEditing} tooltip="Rename">
+                        <Icon name="bi-edit" sx={{ width: 18, height: 18, fontSize: 18 }}/>
                     </EditButton>
                 </InputWrapper>
             )}

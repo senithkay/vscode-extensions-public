@@ -88,7 +88,7 @@ const TextFieldWrapper = styled.div`
 `;
 
 const EditButton = styled(Button)`
-    margin-top: 42px;
+    margin-top: 39px;
 `;
 
 const ButtonGroup = styled.div`
@@ -380,8 +380,8 @@ export function TypeEditor(props: TypeEditorProps) {
                                         readOnly={!type.properties["name"].editable}
                                     />
                                 </TextFieldWrapper>
-                                <EditButton appearance="icon" onClick={startEditing}>
-                                    <Icon name="editIcon" />
+                                <EditButton appearance="icon" onClick={startEditing} tooltip="Rename">
+                                    <Icon name="bi-edit" sx={{ width: 18, height: 18, fontSize: 18 }}/>
                                 </EditButton>
                             </InputWrapper>
                         )}
