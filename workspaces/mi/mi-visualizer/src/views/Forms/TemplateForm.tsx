@@ -277,7 +277,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
                 isPopup: true
             });
         }
-        handleCancel();
+        openSequence(result.path);
     };
 
     const handleCancel = () => {
@@ -289,6 +289,12 @@ export function TemplateWizard(props: TemplateWizardProps) {
             location: { view: MACHINE_VIEW.Overview }
         });
     };
+
+    const openSequence = (path: string) => {
+        rpcClient.getMiVisualizerRpcClient().openView({ 
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: { view: MACHINE_VIEW.SequenceTemplateView, documentUri: path } });
+    }
 
     const clearEndpointType = () => {
         setEndpointType("");

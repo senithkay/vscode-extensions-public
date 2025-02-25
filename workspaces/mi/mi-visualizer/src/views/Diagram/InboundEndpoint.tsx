@@ -61,7 +61,7 @@ export const InboundEPView = ({ path, model, diagnostics }: InboundEPViewProps) 
                     />
                 }
                 {
-                    (!model.sequenceModel) &&
+                    (!model?.sequenceModel) &&
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                         <Codicon name="error" sx={{ height: "100px", width: "100px" }} iconSx={{ fontSize: 100, color: "var(--vscode-errorForeground)" }} />
                         <Typography variant="h4" sx={{ textAlign: 'center' }}>
