@@ -39,6 +39,7 @@ export enum VSCodeColors {
     ON_SECONDARY = "var(--vscode-button-foreground)",
     SECONDARY_CONTAINER = "var(--vscode-sideBar-background)",
     SECONDARY_BUTTON = "var(--button-secondary-background)",
+    SECONDARY_TEXT = "var(--vscode-list-deemphasizedForeground)",
 
     SURFACE_BRIGHT = "var(--vscode-editor-background)",
     SURFACE = "var(--vscode-sideBar-background)",
@@ -52,12 +53,16 @@ export enum VSCodeColors {
 
     ERROR = "var(--vscode-errorForeground)",
 
+    DELETE_ICON = "var(--vscode-minimap-errorHighlight)",
+
     INPUT_OPTION_ACTIVE = "var(--vscode-inputOption-activeBackground)",
     INPUT_OPTION_INACTIVE = "var(--vscode-inputOption-inactiveBackground)",
     INPUT_OPTION_HOVER = "var(--vscode-inputOption-hoverBackground)",
     INPUT_OPTION_ACTIVE_BORDER = "var(--vscode-inputOption-activeBorder)",
 
     WARNING = "var(--vscode-editorWarning-foreground)",
+
+    BUTTON_HOVER = "var(--vscode-pickerGroup-border)"
 }
 
 export const Colors = {
@@ -87,6 +92,8 @@ export const Colors = {
 
     ERROR: VSCodeColors.ERROR || DefaultColors.ERROR,
 
+    DELETE_ICON: VSCodeColors.DELETE_ICON,
+
     INPUT_OPTION_ACTIVE: VSCodeColors.INPUT_OPTION_ACTIVE,
     INPUT_OPTION_INACTIVE: VSCodeColors.INPUT_OPTION_INACTIVE,
     INPUT_OPTION_HOVER: VSCodeColors.INPUT_OPTION_HOVER,
@@ -94,6 +101,10 @@ export const Colors = {
 
     DEBUGGER_BREAKPOINT_BACKGROUND: DefaultColors.DEBUGGER_BREAKPOINT_BACKGROUND,
     WARNING: VSCodeColors.WARNING,
+
+    SECONDARY_TEXT: VSCodeColors.SECONDARY_TEXT,
+
+    BUTTON_HOVER: VSCodeColors.BUTTON_HOVER
 };
 
 export const SIDE_PANEL_WIDTH = 450;
@@ -303,8 +314,9 @@ export const DATA_SERVICE = {
 
 export const APIS = {
     CONNECTOR: "https://apis.wso2.com/connector-store/connector-details",
-    CONNECTORS_STORE: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?offset=0&product=MI&type=Connector&runtimeVersion=${version}",
-    CONNECTOR_SEARCH: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=10&offset=0&searchQuery=${searchValue}&type=Connector&product=MI&runtimeVersion=${version}"
+    CONNECTORS_STORE: "https://apis.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?offset=0&product=MI&type=Connector&runtimeVersion=${version}",
+    CONNECTOR_SEARCH: "https://apis.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=10&offset=0&searchQuery=${searchValue}&type=Connector&product=MI&runtimeVersion=${version}",
+    CONNECTOR_VERSION: "https://apis.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/${repoName}/versions/${versionId}?runtimeVersion=4.3.0&product=MI"
 }
 
 export const ERROR_MESSAGES = {

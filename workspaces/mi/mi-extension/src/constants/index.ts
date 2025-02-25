@@ -59,6 +59,8 @@ export const COMMANDS = {
     ADD_RESOURCE_COMMAND: 'MI.project-explorer.add-resource',
     ADD_ENDPOINT_COMMAND: 'MI.project-explorer.add-endpoint',
     ADD_SEQUENCE_COMMAND: 'MI.project-explorer.add-sequence',
+    MARK_SEQUENCE_AS_DEFAULT: 'MI.project-explorer.markAsDefaultSequence',
+    UNMARK_SEQUENCE_AS_DEFAULT: 'MI.project-explorer.unmarkAsDefaultSequence',
     ADD_DATAMAPPER_COMMAND: 'MI.project-explorer.add-datamapper',
     ADD_INBOUND_ENDPOINT_COMMAND: 'MI.project-explorer.add-inbound-endpoint',
     ADD_PROXY_SERVICE_COMMAND: 'MI.project-explorer.add-proxy-service',
@@ -163,8 +165,8 @@ export * from "./swagger";
 
 export const APIS = {
     CONNECTOR: "https://apis.wso2.com/connector-store/connector-details",
-    CONNECTORS_STORE: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?offset=0&product=MI&type=Connector&runtimeVersion=${version}",
-    CONNECTOR_SEARCH: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=10&offset=0&searchQuery=${searchValue}&type=Connector&product=MI&runtimeVersion=${version}"
+    CONNECTORS_STORE: "https://apis.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?offset=0&product=MI&type=Connector&runtimeVersion=${version}",
+    CONNECTOR_SEARCH: "https://apis.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=10&offset=0&searchQuery=${searchValue}&type=Connector&product=MI&runtimeVersion=${version}"
 }
 
 export const DM_OPERATORS_FILE_NAME="dm-utils";

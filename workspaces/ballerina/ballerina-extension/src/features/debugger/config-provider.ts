@@ -52,6 +52,7 @@ import { BreakpointManager } from './breakpoint-manager';
 import { notifyBreakpointChange } from '../../RPCLayer';
 import { VisualizerWebview } from '../../views/visualizer/webview';
 import { URI } from 'vscode-uri';
+import { prepareAndGenerateConfig, cleanAndValidateProject } from '../config-generator/configGenerator';
 
 const BALLERINA_COMMAND = "ballerina.command";
 const EXTENDED_CLIENT_CAPABILITIES = "capabilities";
@@ -464,11 +465,18 @@ async function handleBreakpointVisualization(uri: Uri, clientBreakpoint: DebugPr
 class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFactory {
     private ballerinaExtInstance: BallerinaExtension;
     private notificationHandler: Disposable | null = null;
+
     constructor(ballerinaExtInstance: BallerinaExtension) {
         this.ballerinaExtInstance = ballerinaExtInstance;
     }
-    createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined):
-        Thenable<DebugAdapterDescriptor> {
+
+    async createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined): Promise<DebugAdapterDescriptor> {
+        // Check if the project contains errors(and fix the possible ones) before starting the debug session
+        const langClient = ballerinaExtInstance.langClient;
+        await cleanAndValidateProject(langClient, session.configuration.script);
+
+        // Check if config generation is required before starting the debug session
+        await prepareAndGenerateConfig(ballerinaExtInstance, session.configuration.script, false, StateMachine.context().isBI, false);
         if (session.configuration.noDebug && StateMachine.context().isBI) {
             return new Promise((resolve) => {
                 resolve(new DebugAdapterInlineImplementation(new BIRunAdapter()));
@@ -495,26 +503,28 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
 
         log(`Starting debug adapter: '${this.ballerinaExtInstance.getBallerinaCmd()} start-debugger-adapter ${port.toString()}`);
 
-        return new Promise<void>((resolve) => {
-            serverProcess.stdout.on('data', (data) => {
-                if (data.toString().includes('Debug server started')) {
-                    resolve();
-                }
-                log(`${data}`);
-            });
+        try {
+            await new Promise<void>((resolve) => {
+                serverProcess.stdout.on('data', (data) => {
+                    if (data.toString().includes('Debug server started')) {
+                        resolve();
+                    }
+                    log(`${data}`);
+                });
 
-            serverProcess.stderr.on('data', (data) => {
-                debugLog(`${data}`);
+                serverProcess.stderr.on('data', (data) => {
+                    debugLog(`${data}`);
+                });
             });
-        }).then(() => {
             sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER);
             this.registerLogTraceNotificationHandler(session);
             return new DebugAdapterServer(port);
-        }).catch((error) => {
-            sendTelemetryException(ballerinaExtInstance, error, CMP_DEBUGGER);
-            return Promise.reject(error);
-        });
+        } catch (error) {
+            sendTelemetryException(ballerinaExtInstance, error as Error, CMP_DEBUGGER);
+            return await Promise.reject(error);
+        }
     }
+
     private registerLogTraceNotificationHandler(session: DebugSession) {
         const langClient = ballerinaExtInstance.langClient;
         const notificationHandler = langClient.onNotification('$/logTrace', (params: any) => {
