@@ -436,6 +436,7 @@ export function FormGenerator(props: FormProps) {
 
     const handleGetHelperPane = (
         exprRef: RefObject<FormExpressionEditorRef>,
+        defaultValue: string,
         value: string,
         onChange: (value: string, updatedCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void
@@ -445,6 +446,7 @@ export function FormGenerator(props: FormProps) {
             targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
             exprRef: exprRef,
             onClose: () => changeHelperPaneState(false),
+            defaultValue: defaultValue,
             currentValue: value,
             onChange: onChange
         });

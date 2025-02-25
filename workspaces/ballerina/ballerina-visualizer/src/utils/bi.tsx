@@ -550,7 +550,7 @@ export const convertToHelperPaneVariable = (variables: VisibleType[]): HelperPan
                 label: variable.name,
                 items: variable.types.map((item) => ({
                     label: item.name,
-                    type: item.type.value,
+                    type: item.type.typeName,
                     insertText: item.name
                 }))
             }))

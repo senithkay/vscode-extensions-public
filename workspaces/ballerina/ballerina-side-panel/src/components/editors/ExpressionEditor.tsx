@@ -258,7 +258,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
     }
 
     const handleGetHelperPane = (value: string, onChange: (value: string, updatedCursorPosition: number) => void) => {
-        return getHelperPane?.(exprRef, value, onChange, handleChangeHelperPaneState);
+        return getHelperPane?.(exprRef, field.placeholder, value, onChange, handleChangeHelperPaneState);
     }
 
     const updateSubPanelData = (value: string) => {

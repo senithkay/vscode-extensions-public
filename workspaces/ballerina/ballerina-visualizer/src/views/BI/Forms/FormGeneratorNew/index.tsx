@@ -267,6 +267,7 @@ export function FormGeneratorNew(props: FormProps) {
 
     const handleGetHelperPane = (
         exprRef: RefObject<FormExpressionEditorRef>,
+        defaultValue: string,
         value: string,
         onChange: (value: string, updatedCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void
@@ -276,6 +277,7 @@ export function FormGeneratorNew(props: FormProps) {
             targetLineRange: targetLineRange,
             exprRef: exprRef,
             onClose: () => changeHelperPaneState(false),
+            defaultValue: defaultValue,
             currentValue: value,
             onChange: onChange
         });

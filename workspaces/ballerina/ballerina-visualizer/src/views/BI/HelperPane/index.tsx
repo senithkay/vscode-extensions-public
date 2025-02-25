@@ -19,6 +19,7 @@ export type HelperPaneProps = {
     targetLineRange: LineRange;
     exprRef: RefObject<FormExpressionEditorRef>;
     onClose: () => void;
+    defaultValue: string;
     currentValue: string;
     onChange: (value: string, updatedCursorPosition: number) => void;
 };
@@ -28,6 +29,7 @@ const HelperPaneEl = ({
     targetLineRange,
     exprRef,
     onClose,
+    defaultValue,
     currentValue,
     onChange
 }: HelperPaneProps) => {
@@ -61,6 +63,7 @@ const HelperPaneEl = ({
                     <SuggestionsPage
                         fileName={fileName}
                         targetLineRange={targetLineRange}
+                        defaultValue={defaultValue}
                         onChange={handleChange}
                     />
                 </HelperPane.PanelView>
@@ -92,12 +95,13 @@ const HelperPaneEl = ({
  * @param targetLineRange Modified line range of the expression editor
  * @param exprRef Ref object of the expression editor
  * @param onClose Function to close the helper pane
+ * @param defaultValue Default value for the expression editor
  * @param currentValue Current value of the expression editor
  * @param onChange Function to handle changes in the expression editor
  * @returns JSX.Element Helper pane element
  */
 export const getHelperPane = (props: HelperPaneProps) => {
-    const { fileName, targetLineRange, exprRef, onClose, currentValue, onChange } = props;
+    const { fileName, targetLineRange, exprRef, onClose, defaultValue, currentValue, onChange } = props;
 
     return (
         <HelperPaneEl
@@ -105,6 +109,7 @@ export const getHelperPane = (props: HelperPaneProps) => {
             targetLineRange={targetLineRange}
             exprRef={exprRef}
             onClose={onClose}
+            defaultValue={defaultValue}
             currentValue={currentValue}
             onChange={onChange}
         />

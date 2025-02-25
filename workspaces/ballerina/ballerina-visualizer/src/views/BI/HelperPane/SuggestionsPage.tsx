@@ -11,17 +11,18 @@ import { debounce } from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LineRange } from "@wso2-enterprise/ballerina-core";
 import { HelperPaneVariableInfo } from "@wso2-enterprise/ballerina-side-panel";
-import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from "@wso2-enterprise/ui-toolkit";
+import { COMPLETION_ITEM_KIND, CompletionItemKind, getIcon, HelperPane } from "@wso2-enterprise/ui-toolkit";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { convertToHelperPaneVariable, filterHelperPaneVariables } from "../../../utils/bi";
 
 type SuggestionsPageProps = {
     fileName: string;
     targetLineRange: LineRange;
+    defaultValue: string;
     onChange: (value: string) => void;
 };
 
-export const SuggestionsPage = ({ fileName, targetLineRange, onChange }: SuggestionsPageProps) => {
+export const SuggestionsPage = ({ fileName, targetLineRange, defaultValue, onChange }: SuggestionsPageProps) => {
     const { rpcClient } = useRpcContext();
     const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>("");
@@ -81,6 +82,18 @@ export const SuggestionsPage = ({ fileName, targetLineRange, onChange }: Suggest
                 titleSx={{ fontFamily: "GilmerRegular" }}
             />
             <HelperPane.Body loading={isLoading}>
+                {defaultValue && defaultValue !== '""' && (
+                    <HelperPane.Section
+                        title="Suggestions"
+                        titleSx={{ fontFamily: "GilmerMedium" }}
+                    >
+                        <HelperPane.CompletionItem
+                            label={defaultValue}
+                            onClick={() => onChange(defaultValue)}
+                            getIcon={() => getIcon(COMPLETION_ITEM_KIND.Snippet)}
+                        />
+                    </HelperPane.Section>
+                )}
                 {filteredVariableInfo?.category.map((category) => (
                     <HelperPane.Section
                         title={category.label}
@@ -92,7 +105,7 @@ export const SuggestionsPage = ({ fileName, targetLineRange, onChange }: Suggest
                                 label={item.label}
                                 type={item.type}
                                 onClick={() => onChange(item.label)}
-                                getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
+                                getIcon={() => getIcon(item.type as CompletionItemKind)}
                             />
                         ))}
                     </HelperPane.Section>
