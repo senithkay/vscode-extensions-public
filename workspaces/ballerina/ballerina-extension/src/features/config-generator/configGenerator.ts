@@ -18,7 +18,7 @@ import { BallerinaProject, PackageConfigSchema, ProjectDiagnosticsResponse } fro
 
 const DEBUG_RUN_COMMAND_ID = 'workbench.action.debug.run';
 
-export async function prepareAndGenerateConfig(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean, isBi?: boolean, executeRun?: boolean): Promise<void> {
+export async function prepareAndGenerateConfig(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean, isBi?: boolean, executeRun: boolean = true): Promise<void> {
     const configRequirement: ConfigRequirementResult = await checkConfigGenerationRequired(ballerinaExtInstance, filePath, isBi);
 
     if (!configRequirement.needsConfig) {
