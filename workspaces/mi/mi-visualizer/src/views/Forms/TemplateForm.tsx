@@ -284,7 +284,6 @@ export function TemplateWizard(props: TemplateWizardProps) {
         if (props.onCancel) {
             return props.onCancel();
         }
-        
         rpcClient.getMiVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
             location: { view: MACHINE_VIEW.Overview }
@@ -292,7 +291,9 @@ export function TemplateWizard(props: TemplateWizardProps) {
     };
 
     const openSequence = (path: string) => {
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.SequenceTemplateView, documentUri: path } });
+        rpcClient.getMiVisualizerRpcClient().openView({ 
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: { view: MACHINE_VIEW.SequenceTemplateView, documentUri: path } });
     }
 
     const clearEndpointType = () => {
