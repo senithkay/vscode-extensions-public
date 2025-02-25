@@ -12,7 +12,7 @@ import { AttachmentHandler } from "./attachmentHandler";
 import { getFileTypesForCommand } from "../views/AIPanel/AIChat";
 import { validateFileSize, validateFileType, readFileAsText } from "./attachmentUtils";
 
-export class ScaffoldAttachment implements AttachmentHandler {
+export class GenerateAttachment implements AttachmentHandler {
     private validFileTypes: string[];
 
     constructor(private command: string) {
