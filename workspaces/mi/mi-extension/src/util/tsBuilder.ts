@@ -19,8 +19,8 @@ import { DMProject } from '../datamapper/DMProject';
 import { refreshUI } from '../stateMachine';
 import { IOType } from '@wso2-enterprise/mi-core';
 
-export function generateTSInterfacesFromSchemaFile(schema: JSONSchema3or4, schemaTitle: string, addMetaDataComment: boolean = true): Promise<string> {
-  const ts = compile(schema, "Schema", schemaTitle, { bannerComment: "" }, addMetaDataComment);
+export function generateTSInterfacesFromSchemaFile(schema: JSONSchema3or4, schemaTitle: string, addMetaDataComment: boolean = true, usedNames?: Set<string>): Promise<string> {
+  const ts = compile(schema, "Schema", schemaTitle, { bannerComment: "" }, addMetaDataComment, usedNames);
   return ts;
 }
 
@@ -38,6 +38,7 @@ export async function updateTsFileIoTypes(dmName: string, sourcePath: string, sc
     const tsSource = getTsAST(tsFilepath);
     const tsSources = separateInterfacesWithComments(tsSource);
     const functionSource = getFunctionFromSource(tsSource, "mapFunction");
+    const usedNames = getUsedNames(tsSource);
     let tsContent = "";
 
     const inputSchemaTitle = getTitleFromComment(tsSources, IOType.Input);
@@ -53,7 +54,8 @@ export async function updateTsFileIoTypes(dmName: string, sourcePath: string, sc
         schema.type = "object";
         schema.properties = schema.items[0].properties;
       }
-      const tsInterfaces = schema ? await generateTSInterfacesFromSchemaFile(schema, schemaTitle)
+      usedNames.delete(schema.title);
+      const tsInterfaces = schema ? await generateTSInterfacesFromSchemaFile(schema, schemaTitle, true, usedNames)
         : `interface ${defaultTitle} {\n}\n\n`;
       return { tsInterfaces, isSchemaArray, schemaTitle };
     };
@@ -183,9 +185,9 @@ function getInterfaceNameFromSource(source: ts.SourceFile): string {
   const visit = (node: ts.Node) => {
     if (ts.isInterfaceDeclaration(node)) {
       interfaceName = node.name.text;
-      return;
+      return true;
     }
-    ts.forEachChild(node, visit);
+    return ts.forEachChild(node, visit);
   };
   visit(source);
   return interfaceName;
@@ -259,4 +261,28 @@ function getFunctionMetaDataComment(inputSchemaTitle: string, outputSchemaTitle:
   let functionName = `map_S_${getTitleSegment(inputSchemaTitle)}_S_${getTitleSegment(outputSchemaTitle)}`;
   let inputVariable = `input${inputSchemaTitle.replace(":", "_")}`;
   return `/**\n * functionName : ${functionName}\n * inputVariable : ${inputVariable}\n*/\n`;
+}
+
+function getUsedNames(source: ts.SourceFile): Set<string> {
+  const names = new Set<string>();
+
+  const addName = (identifire: string) => {
+    // Should remove this check if interface names are allowed to start with lower case
+    if (!identifire.match(/^[a-z]/)) {
+      names.add(identifire);
+    }
+  };
+
+  const visit = (node: ts.Node) => {
+    if(ts.isInterfaceDeclaration(node)) {
+      addName(node.name.text);
+      return;
+    }
+    if (ts.isIdentifier(node)) {
+      addName(node.text);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return names;
 }

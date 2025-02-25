@@ -90,6 +90,8 @@ import {
     TextEdit,
     SourceEditResponse,
     AddFieldRequest,
+    RenameRequest,
+    RenameIdentifierRequest,
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import { writeFileSync } from "fs";
@@ -1268,6 +1270,87 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 console.log(error);
             }
         });
+    }
+
+    async renameIdentifier(params: RenameIdentifierRequest): Promise<void> {
+        const projectUri = StateMachine.context().projectUri;
+        const filePath = path.join(projectUri, params.fileName);
+
+        const fileUri = Uri.file(filePath).toString();
+        const request: RenameRequest = {
+            textDocument: {
+                uri: fileUri
+            },
+            position: params.position,
+            newName: params.newName
+        };
+
+        try {
+            const workspaceEdit = await StateMachine.langClient().rename(request);
+
+            if (workspaceEdit && 'changes' in workspaceEdit && workspaceEdit.changes) {
+                const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
+
+                for (const [key, value] of Object.entries(workspaceEdit.changes)) {
+                    const fileUri = key;
+                    const edits = value;
+
+                    if (edits && edits.length > 0) {
+                        const modificationList: STModification[] = [];
+
+                        for (const edit of edits) {
+                            const stModification: STModification = {
+                                startLine: edit.range.start.line,
+                                startColumn: edit.range.start.character,
+                                endLine: edit.range.end.line,
+                                endColumn: edit.range.end.character,
+                                type: "INSERT",
+                                isImport: false,
+                                config: {
+                                    STATEMENT: edit.newText,
+                                },
+                            };
+                            modificationList.push(stModification);
+                        }
+
+                        modificationList.sort((a, b) => a.startLine - b.startLine);
+
+                        if (modificationRequests[fileUri]) {
+                            modificationRequests[fileUri].modifications.push(...modificationList);
+                        } else {
+                            modificationRequests[fileUri] = { filePath: Uri.parse(fileUri).fsPath, modifications: modificationList };
+                        }
+                    }
+                }
+
+                try {
+                    for (const [fileUriString, request] of Object.entries(modificationRequests)) {
+                        const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
+                            documentIdentifier: { uri: fileUriString },
+                            astModifications: request.modifications,
+                        })) as SyntaxTree;
+
+                        if (parseSuccess) {
+                            writeFileSync(request.filePath, source);
+                            await StateMachine.langClient().didChange({
+                                textDocument: { uri: fileUriString, version: 1 },
+                                contentChanges: [
+                                    {
+                                        text: source,
+                                    },
+                                ],
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.log(">>> error updating source", error);
+                }
+                updateView();
+            }
+        } catch (error) {
+            console.error('Error in renameIdentifier:', error);
+            throw error;
+        }
     }
 }
 

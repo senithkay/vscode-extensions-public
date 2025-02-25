@@ -8,7 +8,7 @@
  */
 
 import { RefObject } from "react";
-import { DiagnosticMessage, FormDiagnostics, TextEdit, PropertyModel, LinePosition } from "@wso2-enterprise/ballerina-core";
+import { DiagnosticMessage, FormDiagnostics, TextEdit, PropertyModel, LinePosition, LineRange  } from "@wso2-enterprise/ballerina-core";
 import { ParamConfig } from "../ParamManager/ParamManager";
 import { CompletionItem, FormExpressionEditorRef, HelperPaneOrigin } from "@wso2-enterprise/ui-toolkit";
 
@@ -36,6 +36,7 @@ export type FormField = {
     groupName?: string;
     addNewButton?: boolean;
     enabled?: boolean;
+    lineRange?: LineRange;
 };
 
 export type ParameterValue = {
