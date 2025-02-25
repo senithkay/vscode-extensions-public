@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Codicon, ErrorBanner, LinkButton, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, ErrorBanner, LinkButton, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import React, { useEffect } from 'react';
 import SidePanelContext from '../SidePanelContexProvider';
 import { getMediatorIconsFromFont } from '../../../resources/icons/mediatorIcons/icons';
@@ -239,29 +239,35 @@ export function Mediators(props: MediatorProps) {
                             onDelete={deleteConnector}
                             versionTag={values.version}>
                             {values["items"].map((mediator: Mediator) => (
-                                <GridButton
-                                    key={mediator.title}
-                                    title={mediator.title}
-                                    description={mediator.description}
-                                    icon={
-                                        mediator.iconPath ?
-                                            <img src={mediator.iconPath}
+                                <Tooltip content={mediator?.tooltip} position='bottom' key={mediator.title}>
+                                    <GridButton
+                                        key={mediator.title}
+                                        title={mediator.title}
+                                        description={mediator.description}
+                                        icon={
+                                            mediator.iconPath ?
+                                                <img 
+                                                    src={mediator.iconPath}
+                                                    alt="Icon"
+                                                    onError={(e) => {
+                                                        const target = e.target as HTMLImageElement;
+                                                        target.src = DEFAULT_ICON
+                                                    }} 
+                                                /> :
+                                                getMediatorIconsFromFont(mediator.tag, key === "most popular")
+                                        }
+                                        onClick={() => getMediator(mediator, key === "most popular",
+                                            <img 
+                                                src={mediator.iconPath}
                                                 alt="Icon"
                                                 onError={(e) => {
                                                     const target = e.target as HTMLImageElement;
                                                     target.src = DEFAULT_ICON
-                                                }} /> :
-                                            getMediatorIconsFromFont(mediator.tag, key === "most popular")
-                                    }
-                                    onClick={() => getMediator(mediator, key === "most popular",
-                                        <img src={mediator.iconPath}
-                                            alt="Icon"
-                                            onError={(e) => {
-                                                const target = e.target as HTMLImageElement;
-                                                target.src = DEFAULT_ICON
-                                            }} />
-                                    )}
-                                />
+                                                }} 
+                                            />
+                                        )}
+                                    />
+                                </Tooltip>
                             ))}
                         </ButtonGroup >
                     </div>
