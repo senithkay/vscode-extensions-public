@@ -691,14 +691,6 @@ export class AiPanelRpcManager implements AIPanelAPI {
         await extension.context.secrets.store('LOGIN_ALERT_SHOWN', 'true');
     }
 
-    // async getFromDocumentation(content: DocAssistantResponse): Promise<string> {
-    //     const response = await searchDocumentation(content);
-    //      return response.toString();
-    // }
-    // async getFromDocumentation(content: string): Promise<string> {
-    //     // ADD YOUR IMPLEMENTATION HERE
-    //     throw new Error('Not implemented');
-    // }
 }
 
 function getModifiedAssistantResponse(originalAssistantResponse: string, tempDir: string, project: ProjectSource) : string {

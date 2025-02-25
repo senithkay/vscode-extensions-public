@@ -24,6 +24,8 @@ import {
 
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
+import ReactMarkdown from "react-markdown"
+
 import styled from "@emotion/styled";
 import AIChatInput from "./AIChatInput";
 import ProgressTextSegment from "./Components/ProgressTextSegment";
