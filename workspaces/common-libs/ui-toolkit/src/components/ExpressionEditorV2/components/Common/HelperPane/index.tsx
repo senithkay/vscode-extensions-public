@@ -182,6 +182,7 @@ const CompletionItemWithoutCollapseContainer = styled.div`
     display: flex;
     align-items: center;
     gap: 8px;
+    overflow: hidden;
 
     &:hover {
         background-color: var(--vscode-list-hoverBackground);
@@ -507,7 +508,7 @@ const CompletionItem: React.FC<HelperPaneCompletionItemProps> = ({ getIcon, inde
     return (
         <CompletionItemOuterContainer indent={indent}>
             <CompletionItemContainer>
-                <CompletionItemWithoutCollapseContainer onClick={onClick}>
+                <CompletionItemWithoutCollapseContainer title={label} onClick={onClick}>
                     {getIcon && getIcon()}
                     <Typography variant="body3" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {label}
