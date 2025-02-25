@@ -447,7 +447,7 @@ export class BallerinaExtension {
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             const releasesResponse = await axios.get(this.ballerinaKolaReleaseUrl);
             const releases = releasesResponse.data;
-            const tags = releases.map((release: any) => release.tag_name).filter((tag: string) => tag.startsWith("v2201.11.0-bi-pack"));
+            const tags = releases.map((release: any) => release.tag_name).filter((tag: string) => tag.includes("bi-pack"));
             if (tags.length === 0) {
                 throw new Error('No Kola distribution found in the releases');
             }

@@ -104,14 +104,24 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	abstract initLinks(): void;
 	// extend this class to add link init, port init logics
 
-	protected addPortsForInputRecordField(field: TypeField, type: "IN" | "OUT", parentId: string,
-		                                     portPrefix?: string,
-		                                     parent?: RecordFieldPortModel,
-		                                     collapsedFields?: string[],
-		                                     hidden?: boolean,
-		                                     isOptional?: boolean): number {
+	protected addPortsForInputRecordField(
+		field: TypeField, type: "IN" | "OUT", parentId: string,
+		portPrefix?: string,
+		parent?: RecordFieldPortModel,
+		collapsedFields?: string[],
+		hidden?: boolean,
+		isOptional?: boolean
+	): number {
+
 		const fieldName = field?.name ? getBalRecFieldName(field.name) : '';
-		const fieldFQN = parentId ? `${parentId}${fieldName && isOptional ? `?.${fieldName}` : `.${fieldName}`}` : fieldName && fieldName;
+
+		if (fieldName.startsWith("$missingNode$")) {
+			return;
+		}
+
+		const fieldFQN = parentId
+			? `${parentId}${fieldName && isOptional ? `?.${fieldName}`: `.${fieldName}`}`
+			: fieldName && fieldName;
 		const portName = portPrefix ? `${portPrefix}.${fieldFQN}` : fieldFQN;
 		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(portName);
 		const fieldPort = new RecordFieldPortModel(
@@ -137,15 +147,21 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		return hidden ? 0 : numberOfFields;
 	}
 
-	protected addPortsForOutputRecordField(field: EditableRecordField, type: "IN" | "OUT",
-		                                      parentId: string, elementIndex?: number,
-		                                      portPrefix?: string,
-		                                      parent?: RecordFieldPortModel,
-		                                      collapsedFields?: string[],
-		                                      hidden?: boolean,
-		                                      isWithinSelectClause?: boolean
+	protected addPortsForOutputRecordField(
+		field: EditableRecordField, type: "IN" | "OUT",
+		parentId: string, elementIndex?: number,
+		portPrefix?: string,
+		parent?: RecordFieldPortModel,
+		collapsedFields?: string[],
+		hidden?: boolean,
+		isWithinSelectClause?: boolean
 	) {
 		const fieldName = getFieldName(field);
+
+		if (fieldName.startsWith("$missingNode$")) {
+			return;
+		}
+
 		if (elementIndex !== undefined) {
 			parentId = parentId ? `${parentId}.${elementIndex}` : elementIndex.toString();
 		}
@@ -176,13 +192,21 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		}
 	}
 
-	protected addPortsForHeaderField(field: TypeField, name: string,
-		                                type: "IN" | "OUT",
-		                                portPrefix: string,
-		                                collapsedFields?: string[],
-		                                isWithinSelectClause?: boolean,
-		                                editableRecordField?: EditableRecordField): RecordFieldPortModel {
+	protected addPortsForHeaderField(
+		field: TypeField, name: string,
+		type: "IN" | "OUT",
+		portPrefix: string,
+		collapsedFields?: string[],
+		isWithinSelectClause?: boolean,
+		editableRecordField?: EditableRecordField
+	): RecordFieldPortModel {
+
 		const fieldName = getBalRecFieldName(name);
+
+		if (fieldName.startsWith("$missingNode$")) {
+			return;
+		}
+
 		let portName = fieldName;
 		if (portPrefix) {
 			portName = fieldName ? `${portPrefix}.${fieldName}` : portPrefix;
