@@ -81,6 +81,7 @@ export type Property = {
     advanced?: boolean;
     placeholder?: string;
     valueTypeConstraint?: string | string[];
+    codedata?: CodeData;
 };
 
 export type Diagnostic = {
@@ -94,7 +95,7 @@ export type DiagnosticMessage = {
 };
 
 export type CodeData = {
-    node: NodeKind;
+    node?: NodeKind;
     org?: string;
     module?: string;
     object?: string;

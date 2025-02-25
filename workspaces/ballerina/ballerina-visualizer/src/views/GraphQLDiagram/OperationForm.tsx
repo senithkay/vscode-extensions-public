@@ -108,7 +108,8 @@ export function OperationForm(props: OperationFormProps) {
                 enabled: model.name.enabled,
                 documentation: model.name.metadata?.description || '',
                 value: model.name.value,
-                valueTypeConstraint: model.name.valueTypeConstraint || ''
+                valueTypeConstraint: model.name.valueTypeConstraint || '',
+                lineRange: model?.name?.codedata?.lineRange
             },
             {
                 key: 'parameters',
@@ -202,7 +203,8 @@ export function convertParameterToFormField(key: string, param: ParameterModel):
         documentation: param.metadata?.description || '',
         value: param.value || '',
         valueTypeConstraint: param?.valueTypeConstraint || '',
-        enabled: param.enabled || true
+        enabled: param.enabled || true,
+        lineRange: param?.codedata?.lineRange
     };
 }
 
@@ -216,6 +218,8 @@ function convertParameterToParamValue(param: ParameterModel, index: number) {
             type: param.type.value,
             defaultable: param.defaultValue?.value || ''
         },
-        icon: 'symbol-variable'
+        icon: 'symbol-variable',
+        identifierEditable: param.name?.editable,
+        identifierRange: param.name.codedata?.lineRange
     };
 }

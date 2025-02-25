@@ -78,7 +78,7 @@ function convertDiagramCategoryToSidePanelCategory(category: Category, functionT
     const items: PanelItem[] = category.items?.map((item) => {
         if ("codedata" in item) {
             return convertAvailableNodeToPanelNode(item as AvailableNode, functionType);
-        } else {            
+        } else {
             return convertDiagramCategoryToSidePanelCategory(item as Category);
         }
     }).filter((item) => item !== undefined);
@@ -154,6 +154,7 @@ export function convertNodePropertyToFormField(
         items: getFormFieldItems(property, connections),
         diagnostics: property.diagnostics?.diagnostics || [],
         valueTypeConstraint: property.valueTypeConstraint,
+        lineRange: property?.codedata?.lineRange
     };
     return formField;
 }
@@ -247,6 +248,8 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode, cli
                 activeNode.codedata?.node === "RESOURCE_ACTION_CALL"
             ) {
                 return `${clientName || activeNode.properties.connection.value} → ${activeNode.metadata.label}`;
+            } else if (activeNode.codedata?.node === "DATA_MAPPER_CALL") {
+                return `${activeNode.codedata?.module ? activeNode.codedata?.module + " :" : ""} ${activeNode.codedata.symbol}`;
             }
             return `${activeNode.codedata?.module ? activeNode.codedata?.module + " :" : ""} ${activeNode.metadata.label
                 }`;
@@ -654,12 +657,16 @@ export function extractFunctionInsertText(template: string): string {
 function createParameterValue(index: number, paramValueKey: string, paramValue: ParameterValue): Parameter {
     const name = paramValue.value.variable.value;
     const type = paramValue.value.type.value;
-    
+    const variableLineRange = (paramValue.value.variable as any).codedata?.lineRange;
+    const variableEditable = (paramValue.value.variable as any).editable;
+
     return {
         id: index,
         icon: "",
         key: paramValueKey,
         value: `${type} ${name}`,
+        identifierEditable: variableEditable,
+        identifierRange: variableLineRange,
         formValues: {
             variable: name,
             type: type
