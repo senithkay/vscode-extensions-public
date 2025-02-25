@@ -57,7 +57,8 @@ import {
     ClassFieldModifierRequest,
     SourceEditResponse,
     ServiceClassSourceRequest,
-    AddFieldRequest
+    AddFieldRequest,
+    RenameIdentifierRequest
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -102,6 +103,7 @@ export const updateConfigVariables: RequestType<UpdateConfigVariableRequest, Upd
 export const getModuleNodes: RequestType<void, BIModuleNodesResponse> = { method: `${_preFix}/getModuleNodes` };
 export const getReadmeContent: RequestType<void, ReadmeContentResponse> = { method: `${_preFix}/getReadmeContent` };
 export const openReadme: NotificationType<void> = { method: `${_preFix}/openReadme` };
+export const renameIdentifier: RequestType<RenameIdentifierRequest, void> = { method: `${_preFix}/renameIdentifier` };
 export const deployProject: NotificationType<void> = { method: `${_preFix}/deployProject` };
 export const openAIChat: NotificationType<AIChatRequest> = { method: `${_preFix}/openAIChat` };
 export const getSignatureHelp: RequestType<SignatureHelpRequest, SignatureHelpResponse> = { method: `${_preFix}/getSignatureHelp` };

@@ -60,7 +60,8 @@ import {
     ClassFieldModifierRequest,
     SourceEditResponse,
     ServiceClassSourceRequest,
-    AddFieldRequest
+    AddFieldRequest,
+    RenameIdentifierRequest
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -104,6 +105,7 @@ export interface BIDiagramAPI {
     getModuleNodes: () => Promise<BIModuleNodesResponse>;
     getReadmeContent: () => Promise<ReadmeContentResponse>;
     openReadme: () => void;
+    renameIdentifier: (params: RenameIdentifierRequest) => Promise<void>;
     deployProject: () => void;
     openAIChat: (params: AIChatRequest) => void;
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
