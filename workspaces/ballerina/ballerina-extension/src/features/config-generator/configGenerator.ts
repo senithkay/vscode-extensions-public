@@ -267,7 +267,7 @@ export async function handleNewValues(packageName: string, newValues: ConfigProp
 
 async function executeRunCommand(ballerinaExtInstance: BallerinaExtension, filePath: string, isBi?: boolean) {
     if (ballerinaExtInstance.enabledRunFast() || isBi) {
-        const projectHasErrors = await projectContainsErrors(ballerinaExtInstance.langClient, filePath);
+        const projectHasErrors = await cleanAndValidateProject(ballerinaExtInstance.langClient, filePath);
         if (projectHasErrors) {
             window.showErrorMessage("Project contains errors. Please fix them and try again.");
         } else {
@@ -278,10 +278,10 @@ async function executeRunCommand(ballerinaExtInstance: BallerinaExtension, fileP
     }
 }
 
-async function projectContainsErrors(langClient: ExtendedLangClient, path: string): Promise<boolean> {
+export async function cleanAndValidateProject(langClient: ExtendedLangClient, path: string): Promise<boolean> {
     try {
         // Get initial project diagnostics
-        const projectPath = ballerinaExtInstance.getDocumentContext().getCurrentProject().path;
+        const projectPath = ballerinaExtInstance.getDocumentContext().getCurrentProject().path || path;
         let response: ProjectDiagnosticsResponse = await langClient.getProjectDiagnostics({
             projectRootIdentifier: {
                 uri: `file://${projectPath}`
