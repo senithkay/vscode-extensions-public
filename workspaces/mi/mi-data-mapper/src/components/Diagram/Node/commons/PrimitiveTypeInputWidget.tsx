@@ -73,9 +73,9 @@ export function PrimitiveTypeInputWidget(props: PrimitiveTypeItemWidgetProps) {
     };
 
     const onRightClick = (event: React.MouseEvent) => {
-		event.preventDefault();
-		if (focusedOnRoot) handleChangeSchema();
-	};
+        event.preventDefault();
+        if (focusedOnRoot) handleChangeSchema();
+    };
 
     return (
         <TreeContainer data-testid={`${id}-node`} onContextMenu={onRightClick}>
