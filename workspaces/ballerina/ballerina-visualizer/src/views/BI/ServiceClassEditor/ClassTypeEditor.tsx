@@ -20,11 +20,13 @@ import { VariableForm } from "./VariableForm";
 import { URI, Utils } from "vscode-uri";
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { applyModifications } from "../../../utils/utils";
+import { Icon } from "@wso2-enterprise/ui-toolkit";
 
 
 const ServiceContainer = styled.div`
     display: flex;
-    padding: 10px;
+    padding: 10px 20px;
+    gap: 16px;
     flex-direction: column;
     height: 100%;
 `;
@@ -32,26 +34,26 @@ const ServiceContainer = styled.div`
 const ScrollableSection = styled.div`
     display: flex;
     flex-direction: column;
-    min-height: 0;
     gap: 16px;
-    padding: 0 10px;
     overflow-y: auto;
+    height: 100%;
+    flex: 1;
 `;
 
 const Section = styled.div`
     display: flex;
     flex-direction: column;
-    min-height: 0;
+    min-height: 75px;
 `;
 
 const ScrollableContent = styled.div`
     overflow-y: auto;
-    min-height: 0;
+    min-height: 55px;
 `;
 
 const SectionTitle = styled.div`
     font-size: 14px;
-    font-family: GilmerBold;
+    font-family: GilmerRegular;
     margin-bottom: 10px;
     padding: 8px 0;
 `;
@@ -70,11 +72,6 @@ const EmptyStateText = styled(Typography)`
     text-align: center;
 `;
 
-const ClassNameField = styled.div`
-    margin: 16px 0;
-    padding: 0 10px;
-`;
-
 export const Footer = styled.div`
     display: flex;
     gap: 8px;
@@ -82,6 +79,52 @@ export const Footer = styled.div`
     justify-content: flex-end;
     align-items: center;
     padding: 16px;
+`;
+
+const EditRow = styled.div`
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    width: 100%;
+`;
+
+const InputWrapper = styled.div`
+    position: relative;
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+`;
+
+const TextFieldWrapper = styled.div`
+    flex: 1;
+`;
+
+const EditButton = styled(Button)`
+    margin-top: 39px;
+`;
+
+const ButtonGroup = styled.div`
+    display: flex;
+    gap: 8px;
+    margin-bottom: 2px; 
+`;
+
+const StyledButton = styled(Button)`
+    font-size: 14px;
+`;
+
+const WarningText = styled(Typography)`
+    color: var(--vscode-textLink-foreground);
+    font-size: 12px;
+    margin-top: 4px;
+`;
+
+const EditableRow = styled.div`
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+    flex-direction: column;
 `;
 
 interface ClassTypeEditorProps {
@@ -98,6 +141,9 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
     const [editingVariable, setEditingVariable] = useState<FieldType>(undefined);
     const [isNew, setIsNew] = useState<boolean>(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement | null>(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [tempName, setTempName] = useState("");
+    const classNameField = serviceClassModel?.properties["name"];
 
 
     useEffect(() => {
@@ -391,6 +437,50 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
         }
     ];
 
+    const startEditing = () => {
+        setTempName(serviceClassModel.properties["name"].value);
+        setIsEditing(true);
+    };
+
+    const cancelEditing = () => {
+        setIsEditing(false);
+        setTempName("");
+    };
+
+    const editServiceClassName = async () => {
+        if (!tempName || tempName === serviceClassModel.properties["name"].value) {
+            cancelEditing();
+            return;
+        }
+
+        try {
+            await rpcClient.getBIDiagramRpcClient().renameIdentifier({
+                fileName: serviceClassModel.codedata.lineRange.fileName,
+                position: {
+                    line: serviceClassModel.properties["name"].codedata.lineRange.startLine.line,
+                    character: serviceClassModel.properties["name"].codedata.lineRange.startLine.offset
+                },
+                newName: tempName
+            });
+
+            setServiceClassModel({
+                ...serviceClassModel,
+                name: tempName,
+                properties: {
+                    ...serviceClassModel.properties,
+                    name: {
+                        ...serviceClassModel.properties["name"],
+                        value: tempName
+                    }
+                }
+            });
+
+            cancelEditing();
+        } catch (error) {
+            console.error('Error renaming service class:', error);
+        }
+    };
+
     return (
         <>
             {!serviceClassModel && (
@@ -402,14 +492,65 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
             {serviceClassModel && !editingFunction && !editingVariable && (
                 <PanelContainer title={"Edit Service Class"} show={true} onClose={onClose} width={400}>
                     <ServiceContainer>
-                        <ClassNameField>
-                            <TextField
-                                label="Service Class Name"
-                                value={serviceClassModel.properties["name"].value}
-                                onChange={handleNameChange}
-                            />
-                        </ClassNameField>
+                        {!classNameField.editable && !isEditing && (
+                            <InputWrapper>
+                                <TextFieldWrapper>
+                                    <TextField
+                                        id={classNameField.value}
+                                        name={classNameField.value}
+                                        value={classNameField.value}
+                                        label={classNameField.metadata.label}
+                                        required={!classNameField.optional}
+                                        description={classNameField.metadata.description}
+                                        placeholder={classNameField.placeholder}
+                                        readOnly={!classNameField.editable}
+                                    />
+                                </TextFieldWrapper>
+                                <EditButton appearance="icon" onClick={startEditing} tooltip="Rename">
+                                    <Icon name="bi-edit" sx={{ width: 18, height: 18, fontSize: 18 }}/>
+                                </EditButton>
+                            </InputWrapper>
+                        )}
+                        {isEditing && (
+                            <>
+                                <EditableRow>
+                                    <EditRow>
+                                        <TextFieldWrapper>
+                                            <TextField
+                                                id={classNameField.value}
+                                                label={classNameField.metadata.label}
+                                                value={tempName}
+                                                onChange={(e) => setTempName(e.target.value)}
+                                                description={classNameField.metadata.description}
+                                                required={!classNameField.optional}
+                                                placeholder={classNameField.placeholder}
+                                                autoFocus
+                                            />
+                                        </TextFieldWrapper>
+                                        <ButtonGroup>
+                                            <StyledButton
+                                                appearance="secondary"
+                                                onClick={cancelEditing}
+                                            >
+                                                Cancel
+                                            </StyledButton>
+                                            <StyledButton
+                                                appearance="primary"
+                                                onClick={editServiceClassName}
+                                                disabled={!tempName || tempName === serviceClassModel.properties["name"].value}
+                                            >
+                                                Save
+                                            </StyledButton>
+                                        </ButtonGroup>
+                                    </EditRow>
 
+                                    <WarningText variant="body3">
+                                        Note: Renaming will update all references across the project
+                                    </WarningText>
+                                </EditableRow>
+
+                            </>
+                        )}
                         <ScrollableSection>
                             <Section>
                                 <SectionHeader>
@@ -500,15 +641,6 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
                                 </ScrollableContent>
                             </Section>
                         </ScrollableSection>
-
-                        <Footer>
-                            <Button
-                                appearance="primary"
-                                onClick={handleSave}
-                            >
-                                Save
-                            </Button>
-                        </Footer>
                     </ServiceContainer>
                 </PanelContainer>
             )}

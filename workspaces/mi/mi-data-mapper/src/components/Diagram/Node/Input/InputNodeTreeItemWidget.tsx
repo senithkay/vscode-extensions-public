@@ -10,7 +10,7 @@
 import React, { useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Tooltip, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 import classnames from "classnames";
 
@@ -19,6 +19,8 @@ import { InputSearchHighlight } from "../commons/Search";
 import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore } from '../../../../store/store';
 import { getTypeName } from "../../utils/common-utils";
+import { pad } from "lodash";
+import { DATA_MAPPER_ARRAY_MAPPING_DOC_URL } from "../../utils/constants";
 
 
 export interface InputNodeTreeItemWidgetProps {
@@ -48,9 +50,12 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
 
     if (dmType.kind === TypeKind.Interface) {
         fields = dmType.fields;
+    } else if (dmType.kind === TypeKind.Array) {
+        fields = [{...dmType.memberType, fieldName: `<${dmType.fieldName}Item>`}];
     }
 
     let expanded = true;
+
     if (portOut && portOut.collapsed) {
         expanded = false;
     }
@@ -58,7 +63,7 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
     const indentation = fields ? 0 : ((treeDepth + 1) * 16) + 8;
 
     const label = (
-        <span style={{ marginRight: "auto" }}>
+        <TruncatedLabel style={{ marginRight: "auto", opacity: (portOut && portOut.isPreview) ? 0.5 : 1 }}>
             <span className={classes.valueLabel} style={{ marginLeft: indentation }}>
                 <InputSearchHighlight>{fieldName}</InputSearchHighlight>
                 {dmType.optional && "?"}
@@ -70,15 +75,14 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
                 </span>
             )}
 
-        </span>
+        </TruncatedLabel>
     );
 
     const handleExpand = () => {
-        const collapsedFields = collapsedFieldsStore.collapsedFields;
         if (!expanded) {
-            collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== fieldId));
+            collapsedFieldsStore.expandField(fieldId, dmType.kind);
         } else {
-            collapsedFieldsStore.setCollapsedFields([...collapsedFields, fieldId]);
+            collapsedFieldsStore.collapseField(fieldId, dmType.kind);
         }
     };
 
@@ -96,18 +100,23 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
 
     return (
         <>
-            <div
-                id={"recordfield-" + fieldId}
-                className={classnames(classes.treeLabel,
-                    (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",
-                    hasHoveredParent ? classes.treeLabelParentHovered : ""
-                )}
-                onMouseEnter={onMouseEnter}
-                onMouseLeave={onMouseLeave}
+            <Tooltip
+                content={(portOut && portOut.isPreview) ? (<span>Please map parent field first. <a href={DATA_MAPPER_ARRAY_MAPPING_DOC_URL}>Learn more</a></span>) : ""}
+                sx={{ fontSize: "12px" }}
+                containerSx={{ width: "100%" }}
             >
-                <span className={classes.label}>
-                    {fields && <Button
-                            id={"expand-or-collapse-" + fieldId} 
+                <div
+                    id={"recordfield-" + fieldId}
+                    className={classnames(classes.treeLabel,
+                        (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",
+                        hasHoveredParent ? classes.treeLabelParentHovered : ""
+                    )}
+                    onMouseEnter={onMouseEnter}
+                    onMouseLeave={onMouseLeave}
+                >
+                    <span className={classes.label}>
+                        {fields && <Button
+                            id={"expand-or-collapse-" + fieldId}
                             appearance="icon"
                             tooltip="Expand/Collapse"
                             onClick={handleExpand}
@@ -115,14 +124,23 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
                         >
                             {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
                         </Button>}
-                    {label}
-                </span>
-                <span className={classes.outPort}>
-                    {portOut &&
-                        <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
-                    }
-                </span>
-            </div>
+                        {label}
+                        {dmType.isRecursive && (
+                            <span
+                                className={classes.outputNodeValue}
+                                style={{ paddingInline: "3px" }}
+                                title="Recursive type">
+                                ∞
+                            </span>
+                        )}
+                    </span>
+                    <span className={classes.outPort}>
+                        {portOut && !portOut.isPreview &&
+                            <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
+                        }
+                    </span>
+                </div>
+            </Tooltip>
             {fields && expanded &&
                 fields.map((subField, index) => {
                     return (

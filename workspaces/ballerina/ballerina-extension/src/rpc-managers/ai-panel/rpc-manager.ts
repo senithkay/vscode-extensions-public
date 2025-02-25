@@ -58,7 +58,7 @@ import { loginGithubCopilot } from "../../utils/ai/auth";
 import { modifyFileContent, writeBallerinaFileDidOpen } from "../../utils/modification";
 import { StateMachineAI } from '../../views/ai-panel/aiMachine';
 import { MODIFIYING_ERROR, PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
-import { getFunction, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, processMappings, refreshAccessToken } from "./utils";
+import { getFunction, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, processMappings, refreshAccessToken, searchDocumentation } from "./utils";
 export let hasStopped: boolean = false;
 
 export class AiPanelRpcManager implements AIPanelAPI {
@@ -632,6 +632,11 @@ export class AiPanelRpcManager implements AIPanelAPI {
         }
     }
 
+    async getFromDocumentation(content: string): Promise<string> {
+        const response = await searchDocumentation(content);
+        return response.toString();
+    }
+
     async openSettings(): Promise<void> {
         StateMachineAI.service().send(AI_EVENT_TYPE.SETUP);
     }
@@ -804,15 +809,21 @@ async function addMissingImports(diagnosticsResult: Diagnostics[]): Promise<bool
     for (const diagnostic of diagnosticsResult) {
         const fielUri = diagnostic.uri;
         for (const diag of diagnostic.diagnostics) {
-            //undefined module 'io'(BCE2000)
+            // undefined module 'io'(BCE2000)
             if (diag.code !== "BCE2000") {
                 continue;
             }
             const module = getContentInsideQuotes(diag.message);
-            modifications.push({ fileUri: fielUri, moduleName: module });
+            if (module === null) {
+                continue;
+            }
+            // Prevent duplicate entries
+            if (!modifications.some(mod => mod.fileUri === fielUri && mod.moduleName === module)) {
+                modifications.push({ fileUri: fielUri, moduleName: module });
+            }
         }
     }
-
+    //TODO: Replace with code acction
     for (const mod of modifications) {
         const fileUri = mod.fileUri;
         const moduleName = mod.moduleName;
@@ -825,6 +836,10 @@ async function addMissingImports(diagnosticsResult: Diagnostics[]): Promise<bool
             importStatement = `import ballerina/log;\n`;
         } else if (moduleName == 'runtime') {
             importStatement = `import ballerina/lang.runtime;\n`;
+        } else if (moduleName == 'sql') {
+            importStatement = `import ballerina/sql;\n`;
+        } else if (moduleName == 'time') {
+            importStatement = `import ballerina/time;\n`;
         } else {
             continue;
         }

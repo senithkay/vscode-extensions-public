@@ -10,21 +10,15 @@
 import * as React from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { ExpressionFunctionBody, STKindChecker, traversNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 
-import { ViewOption } from "../../../DataMapper/DataMapper";
 import { DataMapperPortWidget } from '../../Port';
-import { FUNCTION_BODY_QUERY, SELECT_CALUSE_QUERY } from "../../utils/constants";
-import { getQueryExprMappingType, hasCollectClauseExpr, hasIndexedQueryExpr, isRepresentFnBody } from "../../utils/dm-utils";
-import { QueryParentFindingVisitor } from '../../visitors/QueryParentFindingVisitor';
+import { expandArrayFn } from "../../utils/dm-utils";
 
 import {
     QueryExpressionNode,
 } from './QueryExpressionNode';
 import { Button, Codicon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
-import { isPositionsEquals } from '../../../../utils/st-utils';
-import { QueryExprFindingVisitorByPosition } from '../../visitors/QueryExprFindingVisitorByPosition';
 import { useIntermediateNodeStyles } from '../../../styles';
 
 export interface QueryExprAsSFVNodeWidgetProps {
@@ -34,59 +28,9 @@ export interface QueryExprAsSFVNodeWidgetProps {
 
 export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) {
     const { node, engine } = props;
-    const { stNode: selectedST } = node.context.selection.selectedST;
-    let exprFnBody: ExpressionFunctionBody;
-    if (STKindChecker.isFunctionDefinition(selectedST) && STKindChecker.isExpressionFunctionBody(selectedST.functionBody)) {
-        exprFnBody = selectedST.functionBody;
-    }
     const classes = useIntermediateNodeStyles();
 
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
-
-    const onClickOnExpand = () => {
-        let isExprBodyQuery: boolean;
-        let isSelectClauseQuery: boolean;
-
-        if (STKindChecker.isBracedExpression(node.parentNode)) {
-            // Handle scenarios where user tries to expand into
-            // braced indexed query expressions which are at the function body level
-            const specificFieldFindingVisitor = new QueryParentFindingVisitor(node.value.position);
-            traversNode(node.context.selection.selectedST.stNode, specificFieldFindingVisitor);
-            const specificField = specificFieldFindingVisitor.getSpecificField();
-            if (specificField && STKindChecker.isFunctionDefinition(specificField)) {
-                isExprBodyQuery = true;
-            }
-        } else if (exprFnBody && isRepresentFnBody(node.parentNode, exprFnBody)) {
-            isExprBodyQuery = true;
-        } else if (STKindChecker.isSelectClause(node.parentNode)
-            || (STKindChecker.isSpecificField(node.parentNode)
-                && STKindChecker.isQueryExpression(node.parentNode.valueExpr)
-                && !isPositionsEquals(node.value.position, node.parentNode.valueExpr.position))
-        ) {
-            isSelectClauseQuery = true;
-        }
-        let selectClauseIndex: number;
-        if (isSelectClauseQuery) {
-            const queryExprFindingVisitor = new QueryExprFindingVisitorByPosition(node.value.position);
-            traversNode(selectedST, queryExprFindingVisitor);
-            selectClauseIndex = queryExprFindingVisitor.getSelectClauseIndex();
-        }
-
-        const hasIndexedQuery = hasIndexedQueryExpr(node.parentNode);
-        const hasCollectClause = hasCollectClauseExpr(node.value);
-        const mappingType = getQueryExprMappingType(hasIndexedQuery, hasCollectClause);
-        node.context.changeSelection(ViewOption.EXPAND,
-            {
-                ...node.context.selection,
-                selectedST: {
-                    stNode: isExprBodyQuery || isSelectClauseQuery ? node.context.selection.selectedST.stNode : node.parentNode,
-                    fieldPath: isExprBodyQuery ? FUNCTION_BODY_QUERY : isSelectClauseQuery ? SELECT_CALUSE_QUERY : node.targetFieldFQN,
-                    position: node.value.position,
-                    index: selectClauseIndex,
-                    mappingType: mappingType,
-                }
-            })
-    }
 
     const deleteQueryLink = async () => {
         setDeleteInProgress(true);
@@ -108,8 +52,8 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
                         </Tooltip>
                         <Button
                             appearance="icon"
-                            tooltip="Go to query"
-                            onClick={onClickOnExpand}
+                            tooltip="Map array elements"
+                            onClick={() => expandArrayFn(node)}
                             data-testid={`expand-query-${node?.targetFieldFQN}`}
                         >
                             <Codicon name="export" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />

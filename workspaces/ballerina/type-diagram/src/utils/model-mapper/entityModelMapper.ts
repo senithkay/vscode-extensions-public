@@ -15,15 +15,21 @@ function createEntityNodes(components: Type[], selectedEntityId?: string, isGrap
     let entityNodes = new Map<string, EntityModel>();
 
     const createNode = (component: Type) => {
-        const node = new EntityModel(component.name, component);
-        if (selectedEntityId && component.name === selectedEntityId) {
+        let componentName = component.name;
+
+        if (isGraphqlRoot && !component.name) {
+            componentName = "Root";
+        }
+
+        const node = new EntityModel(componentName, component);
+        if (selectedEntityId && componentName === selectedEntityId) {
             node.isRootEntity = true;
         }
         if (isGraphqlRoot) {
             node.isGraphqlRoot = true;
         }
 
-        entityNodes.set(component.name, node);
+        entityNodes.set(componentName, node);
     };
 
     components.forEach(createNode);

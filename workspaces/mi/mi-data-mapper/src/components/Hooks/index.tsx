@@ -60,7 +60,11 @@ export const useRepositionedNodes = (
             const x = OFFSETS.SOURCE_NODE.X;
             const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
             const hasArrayFilterNode = nodesClone.some(node => node instanceof ArrayFilterNode);
-            let y = exisitingNode && sameView && (!hasArrayFilterNode || filtersUnchanged) && exisitingNode.getY() !== 0 ? exisitingNode.getY() : computedY;
+            const utilizeExistingY = exisitingNode && sameView
+                && (!hasArrayFilterNode || filtersUnchanged)
+                && exisitingNode.getY() !== 0
+                && !(node instanceof SubMappingNode);
+            let y = utilizeExistingY ? exisitingNode.getY() : computedY;
             node.setPosition(x, y);
             if (node instanceof InputNode) {
                 const nodeHeight = getIONodeHeight(node.numberOfFields);
@@ -103,7 +107,12 @@ export const useDiagramModel = (
     const { focusedST, views } = context ?? {};
 	const focusedSrc = focusedST ? focusedST.getText() : undefined;
     const lastView = views ? views[views.length - 1] : undefined;
-    const collapsedFields = useDMCollapsedFieldsStore(state => state.collapsedFields); // Subscribe to collapsedFields
+
+    const {collapsedObjectFields, expandedArrayFields} = useDMCollapsedFieldsStore(state => ({
+        collapsedObjectFields: state.collapsedObjectFields,
+        expandedArrayFields: state.expandedArrayFields
+    })); // Subscribe to collapsedFields
+
     const { inputSearch, outputSearch } = useDMSearchStore();
     const prevScreenWidth = useRef(screenWidth);
 
@@ -162,7 +171,7 @@ export const useDiagramModel = (
         refetch,
     } = useQuery([
         'genModel',
-        { noOfNodes, focusedSrc, lastView, inputSearch, outputSearch, collapsedFields, screenWidth }
+        { noOfNodes, focusedSrc, lastView, inputSearch, outputSearch, collapsedObjectFields, expandedArrayFields, screenWidth }
     ], () => genModel(), { networkMode: 'always' });
 
     return { updatedModel, isFetching, isError, refetch };

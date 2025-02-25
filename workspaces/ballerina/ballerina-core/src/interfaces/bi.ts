@@ -81,6 +81,7 @@ export type Property = {
     advanced?: boolean;
     placeholder?: string;
     valueTypeConstraint?: string | string[];
+    codedata?: CodeData;
 };
 
 export type Diagnostic = {
@@ -94,7 +95,7 @@ export type DiagnosticMessage = {
 };
 
 export type CodeData = {
-    node: NodeKind;
+    node?: NodeKind;
     org?: string;
     module?: string;
     object?: string;
@@ -278,6 +279,7 @@ export type NodeKind =
     | "COMMENT"
     | "FUNCTION"
     | "FUNCTION_CALL"
+    | "NP_FUNCTION_CALL"
     | "ASSIGN"
     | "DATA_MAPPER_DEFINITION"
     | "DATA_MAPPER_CALL"

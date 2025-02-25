@@ -144,7 +144,6 @@ export default function HeaderSearchBox(props: SearchBoxProps) {
     return (
         <TextField
             id={`search-${searchOptions}`}
-            autoFocus={true}
             icon={{ iconComponent: filterIcon, position: "start" }}
             placeholder={`filter input and output fields`}
             value={searchTermRef.current}

@@ -10,6 +10,8 @@ import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 
 import { QueryExpressionNode, QUERY_EXPR_NODE_TYPE } from './QueryExpressionNode';
 import { QueryExpressionNodeWidget } from './QueryExpressionNodeWidget';
+import { expandArrayFn } from '../../utils/dm-utils';
+import { useDMFocusedViewStateStore } from '../../../../store/store';
 
 @injectable()
 @singleton()
@@ -19,6 +21,15 @@ export class QueryExpressionNodeFactory extends AbstractReactFactory<QueryExpres
 	}
 
 	generateReactWidget(event: { model: QueryExpressionNode; }): JSX.Element {
+		const { sourcePortFQN, targetPortFQN, resetFocusedViewState } = useDMFocusedViewStateStore.getState();
+		const { sourcePort: queryExprSrcPort, targetPort: queryExprTgtPort } = event.model;
+
+		if (queryExprSrcPort?.fieldFQN === sourcePortFQN && queryExprTgtPort?.fieldFQN === targetPortFQN) {
+			// Handle automatic navigation to the focused node
+			resetFocusedViewState();
+			expandArrayFn(event.model);
+		}
+
 		const inputPortHasLinks = Object.keys(event.model.inPort.links).length;
 		const outputPortHasLinks = Object.keys(event.model.outPort.links).length;
 		if (inputPortHasLinks && outputPortHasLinks) {
