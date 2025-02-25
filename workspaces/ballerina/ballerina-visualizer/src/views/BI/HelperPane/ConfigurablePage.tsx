@@ -210,14 +210,13 @@ export const ConfigurablePage = ({
                 onSearch={handleSearch}
                 titleSx={{ fontFamily: "GilmerRegular" }}
             />
-            <HelperPane.Body>
+            <HelperPane.Body loading={isLoading}>
                 {!isFormVisible ? (
                     <>
                         {filteredConfigurableInfo?.category.map((category) => (
                             <HelperPane.Section
                                 key={category.label}
                                 title={category.label}
-                                loading={isLoading}
                                 titleSx={{ fontFamily: "GilmerMedium" }}
                             >
                                 {category.items.map((item) => (
