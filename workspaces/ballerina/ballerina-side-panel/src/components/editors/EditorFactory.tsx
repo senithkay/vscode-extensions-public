@@ -25,6 +25,8 @@ import { ArrayEditor } from "./ArrayEditor";
 import { MapEditor } from "./MapEditor";
 import { ChoiceForm } from "./ChoiceForm";
 import { FormMapEditor } from "./FormMapEditor";
+import { IdentifierEditor } from "./IdentifierEditor";
+import { ReadonlyField } from "./ReadonlyField";
 
 interface FormFieldEditorProps {
     field: FormField;
@@ -103,6 +105,10 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
         return <ParamManagerEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus} selectedNode={selectedNode} />;
     } else if (field.type === "REPEATABLE_PROPERTY") {
         return <FormMapEditor field={field} label={"Add Another Key-Value Pair"} />;
+    } else if (field.type === "IDENTIFIER" && !field.editable && field?.lineRange) {
+        return <IdentifierEditor field={field} handleOnFieldFocus={handleOnFieldFocus} autoFocus={autoFocus} />;
+    } else if (field.type !== "IDENTIFIER" && !field.editable) {
+        return <ReadonlyField field={field} />;
     } else {
         // Default to text editor
         // Readonly fields are also treated as text editor
