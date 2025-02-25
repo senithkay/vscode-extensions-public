@@ -24,6 +24,8 @@ export interface Parameter {
     key: string;
     value: string;
     icon: string;
+    identifierEditable: boolean;
+    identifierRange: any;
 }
 
 
@@ -138,7 +140,9 @@ export function ParamManager(props: ParamManagerProps) {
             formValues: paramInfo,
             key: "",
             value: "",
-            icon: ""
+            icon: "",
+            identifierEditable: true,
+            identifierRange: undefined
         };
     };
 
@@ -149,10 +153,6 @@ export function ParamManager(props: ParamManagerProps) {
         updatedParameters.push(newParams);
         setParameters(updatedParameters);
         setIsNew(true);
-        // Reset the formField values when adding a new parameter
-        paramConfigs.formFields.forEach(field => {
-            field.value = "";
-        });
     };
 
     const onDelete = (param: Parameter) => {
@@ -202,15 +202,23 @@ export function ParamManager(props: ParamManagerProps) {
         parameters
             .forEach((param, index) => {
                 if (editingSegmentId === index) {
-                    paramConfigs.formFields.forEach(field => {
+                    const newParamConfig = {
+                        ...paramConfigs,
+                        formFields: paramConfigs.formFields.map(field => ({ ...field }))
+                    };
+                    newParamConfig.formFields.forEach(field => {
                         if (param.formValues[field.key]) {
                             field.value = param.formValues[field.key];
+                            if (field.key === "variable") {
+                                field.editable = param.identifierEditable;
+                                field.lineRange = param.identifierRange;
+                            }
                         }
                     })
                     render.push(
                         <ParamEditor
                             parameter={param}
-                            paramFields={paramConfigs.formFields}
+                            paramFields={newParamConfig.formFields}
                             onSave={onSaveParam}
                             onCancelEdit={onParamEditCancel}
                             openRecordEditor={openRecordEditor}

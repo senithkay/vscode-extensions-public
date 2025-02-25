@@ -48,7 +48,7 @@ export function ParamEditor(props: ParamProps) {
                 onSubmit={handleOnSave}
                 onCancelForm={() => onCancelEdit(parameter)}
                 expressionEditor={expressionEditor}
-                submitText={"Add"}
+                submitText={parameter.key ? 'Save' : 'Add'}
                 nestedForm={true}
             />
         </EditorContainer >
