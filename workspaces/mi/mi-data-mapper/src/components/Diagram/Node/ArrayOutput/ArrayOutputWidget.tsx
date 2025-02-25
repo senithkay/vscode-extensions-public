@@ -53,7 +53,8 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 	} = props;
 	const { views } = context;
 	const focusedView = views[views.length - 1];
-	const focusedOnSubMappingRoot = focusedView.subMappingInfo && focusedView.subMappingInfo.focusedOnSubMappingRoot;
+	const focusedOnSubMappingRoot = focusedView.subMappingInfo?.focusedOnSubMappingRoot;
+	const focusedOnRoot = views.length === 1;
 
 	const classes = useIONodesStyles();
 
@@ -168,25 +169,6 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 
 	};
 
-
-	const onRightClick = (event: React.MouseEvent) => {
-		event.preventDefault();
-		if (focusedOnSubMappingRoot) {
-			onSubMappingEditBtnClick();
-		} else {
-			setIOConfigPanelType(IOType.Output);
-			setIsSchemaOverridden(true);
-			setIsIOConfigPanelOpen(true);
-		}
-	};
-
-	const onSubMappingEditBtnClick = () => {
-		setSubMappingConfig({
-			...subMappingConfig,
-			isSMConfigPanelOpen: true
-		});
-	};
-
 	const handleModifyChildFieldsOptionality = async (isOptional: boolean) => {
 		try {
 			await modifyChildFieldsOptionality(dmTypeWithValue, isOptional, context.functionST.getSourceFile(), context.applyModifications);
@@ -194,6 +176,24 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 			console.error(error);
 		}
 	};
+
+	const handleChangeSchema = () => {
+		if (focusedOnSubMappingRoot) {
+			setSubMappingConfig({
+				...subMappingConfig,
+				isSMConfigPanelOpen: true
+			});
+		} else {
+			setIOConfigPanelType(IOType.Output);
+			setIsSchemaOverridden(true);
+			setIsIOConfigPanelOpen(true);
+		}
+	};
+	
+	const onRightClick = (event: React.MouseEvent) => {
+		event.preventDefault();
+		if (focusedOnRoot || focusedOnSubMappingRoot) handleChangeSchema();
+	}
 
 	const label = (
 		<TruncatedLabel style={{ marginRight: "auto" }}>
@@ -262,20 +262,19 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 						</FieldActionWrapper>
 						{label}
 					</span>
-					{focusedOnSubMappingRoot && (
-						<FieldActionWrapper>
-							<Button
-								appearance="icon"
-								data-testid={"edit-sub-mapping-btn"}
-								tooltip="Edit name and type of the sub mapping "
-								onClick={onSubMappingEditBtnClick}
-							>
-								<Codicon
-									name="settings-gear"
-									iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
-								/>
-							</Button>
-						</FieldActionWrapper>
+					{(focusedOnRoot || focusedOnSubMappingRoot) && (
+						<Button
+							appearance="icon"
+							data-testid={"change-schema-btn"}
+							tooltip={focusedOnRoot ? "Change output schema" : "Edit name and type of the sub mapping"}
+							onClick={handleChangeSchema}
+							data-field-action
+						>
+							<Codicon
+								name="edit"
+								iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
+							/>
+						</Button>
 					)}
 					{(isLoading) ? (
 						<ProgressRing />
