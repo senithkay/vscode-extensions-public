@@ -132,7 +132,7 @@ export function OperationForm(props: OperationFormProps) {
                 type: 'TYPE',
                 optional: model.returnType.optional,
                 enabled: model.returnType.enabled,
-                editable: true, // model.returnType.editable FIX when LS is fixed
+                editable: model.returnType.editable,
                 advanced: model.returnType.advanced,
                 documentation: model.returnType.metadata?.description || '',
                 value: model.returnType.value,
