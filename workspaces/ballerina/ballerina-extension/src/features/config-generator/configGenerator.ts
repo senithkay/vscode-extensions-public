@@ -14,7 +14,10 @@ import { BallerinaExtension, ballerinaExtInstance, ExtendedLangClient } from "..
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
 import { generateExistingValues, parseTomlToConfig, typeOfComment } from "./utils";
 import { ConfigProperty, ConfigTypes, Constants, Property } from "./model";
-import { BallerinaProject, PackageConfigSchema, ProjectDiagnosticsResponse } from "@wso2-enterprise/ballerina-core";
+import { BallerinaProject, PackageConfigSchema, ProjectDiagnosticsResponse, SyntaxTree } from "@wso2-enterprise/ballerina-core";
+import { CodeAction, Diagnostic, TextDocumentEdit } from "vscode-languageserver-types";
+import { modifyFileContent } from "../../utils/modification";
+import { fileURLToPath } from "url";
 
 const DEBUG_RUN_COMMAND_ID = 'workbench.action.debug.run';
 
@@ -276,15 +279,74 @@ async function executeRunCommand(ballerinaExtInstance: BallerinaExtension, fileP
 }
 
 async function hasProjectContainsErrors(langClient: ExtendedLangClient, path: string): Promise<boolean> {
-    const res = await langClient.getProjectDiagnostics({
+    let response: ProjectDiagnosticsResponse = await langClient.getProjectDiagnostics({
         projectRootIdentifier: {
             uri: "file://" + ballerinaExtInstance.getDocumentContext().getCurrentProject().path
         }
-    }) as ProjectDiagnosticsResponse;
-    if (res.errorDiagnosticMap && Object.keys(res.errorDiagnosticMap).length > 0) {
-        return true;
+    });
+
+    if (response.errorDiagnosticMap) {
+        for (const [filePath, diagnostics] of Object.entries(response.errorDiagnosticMap)) {
+            const diagnostic: Diagnostic = diagnostics.find(diagnostic => diagnostic.code === "BCE2002");
+            const codeActions: CodeAction[] = await langClient.codeAction({
+                textDocument: {
+                    uri: filePath
+                },
+                range: {
+                    start: {
+                        line: diagnostic.range.start.line,
+                        character: diagnostic.range.start.character
+                    },
+                    end: {
+                        line: diagnostic.range.end.line,
+                        character: diagnostic.range.end.character
+                    }
+                },
+                context: {
+                    diagnostics: [diagnostic]
+                }
+            });
+
+            const action = codeActions.find(action => action.title === "Remove all unused imports");
+            if (action.edit) {
+                const docEdit: TextDocumentEdit = action.edit.documentChanges[0] as TextDocumentEdit;
+                const syntaxTree = await langClient.stModify({
+                    documentIdentifier: {
+                        uri: docEdit.textDocument.uri
+                    },
+                    astModifications: docEdit.edits.map(edit => {
+                        return {
+                            startLine: edit.range.start.line,
+                            startColumn: edit.range.start.character,
+                            endLine: edit.range.end.line,
+                            endColumn: edit.range.end.character,
+                            type: "INSERT",
+                            isImport: true,
+                            config: {
+                                STATEMENT: edit.newText,
+                            }
+                        };
+                    })
+                });
+
+                const { source } = syntaxTree as SyntaxTree;
+                const absolutePath = fileURLToPath(filePath);
+                await modifyFileContent({ filePath: absolutePath, content: source });
+            }
+        }
+
+        response = await langClient.getProjectDiagnostics({
+            projectRootIdentifier: {
+                uri: "file://" + ballerinaExtInstance.getDocumentContext().getCurrentProject().path
+            }
+        });
+
+        if (response.errorDiagnosticMap && Object.keys(response.errorDiagnosticMap).length > 0) {
+            return true;
+        }
+
+        return false;
     }
-    return false;
 }
 
 function updateConfigToml(newValues: ConfigProperty[], updatedContent, configPath) {
