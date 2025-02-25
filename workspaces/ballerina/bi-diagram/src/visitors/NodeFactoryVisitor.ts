@@ -511,7 +511,6 @@ export class NodeFactoryVisitor implements BaseVisitor {
         if (lastNodeModel) {
             const linkOut = createNodesLink(lastNodeModel, containerNodeModel, {
                 showAddButton: lastNodeModel.getID() !== getCustomNodeId(node.id, bodyBranch.label),
-                brokenLine: true,
                 showArrow: false,
             });
             if (linkOut) {
