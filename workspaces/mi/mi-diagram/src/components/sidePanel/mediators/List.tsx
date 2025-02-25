@@ -232,7 +232,7 @@ export function Mediators(props: MediatorProps) {
                         <ButtonGroup
                             key={key}
                             title={FirstCharToUpperCase(key)}
-                            isCollapsed={!expandedModules.includes(key)}
+                            isCollapsed={props.searchValue ? false : !expandedModules.includes(key)}
                             connectorDetails={values["isConnector"] ?
                                 { artifactId: values["artifactId"], version: values["version"], connectorPath: values["connectorPath"] }
                                 : undefined}
