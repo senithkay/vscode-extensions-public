@@ -1925,6 +1925,7 @@ export interface Mediator {
     icon: string;
     operationName?: string;
     iconPath?: string;
+    tooltip?: string;
 }
 
 export interface GetMediatorRequest {
