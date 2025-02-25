@@ -473,7 +473,8 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
     async createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined): Promise<DebugAdapterDescriptor> {
         // Check if the project contains errors(and fix the possible ones) before starting the debug session
         const langClient = ballerinaExtInstance.langClient;
-        await cleanAndValidateProject(langClient, session.configuration.script);
+        const projectRoot = await getCurrentRoot();
+        await cleanAndValidateProject(langClient, projectRoot);
 
         // Check if config generation is required before starting the debug session
         await prepareAndGenerateConfig(ballerinaExtInstance, session.configuration.script, false, StateMachine.context().isBI, false);
