@@ -8,11 +8,31 @@
  */
 
 import React from "react";
-import { storiesOf } from "@storybook/react";
+import { Meta, StoryFn } from "@storybook/react";
 import { CellDiagram } from "../Diagram";
 import { Project } from "../types";
 import { Container, componentMenu, handleComponentDoubleClick } from "./utils";
 
+const meta: Meta<typeof CellDiagram> = {
+    title: "Project",
+    component: CellDiagram,
+    argTypes: {
+        showControls: {
+            control: "boolean",
+            defaultValue: false
+        },
+        animation: {
+            control: "boolean",
+            defaultValue: false
+        },
+        previewMode: {
+            control: "boolean",
+            defaultValue: false
+        }
+    }
+};
+
+export default meta;
 
 const simpleModel: Project = {
     id: "110ec58a-a0f2-4ac4-8393-c866d813b8d1",
@@ -1218,42 +1238,69 @@ const observationsModelV2: Project = {
     modelVersion: "0.4.0",
 };
 
-storiesOf("Project", module).add("Component links", () => (
+export const ComponentLinks: StoryFn<typeof CellDiagram> = (args) => (
     <Container>
         <CellDiagram
+            {...args}
             project={simpleModel}
-            showControls={false}
-            animation={false}
             onComponentDoubleClick={handleComponentDoubleClick}
         />
     </Container>
-));
+);
 
-storiesOf("Project", module).add("With unused configurations", () => (
-    <Container>
-        <CellDiagram project={complexModel} onComponentDoubleClick={handleComponentDoubleClick} />
-    </Container>
-));
-
-storiesOf("Project", module).add("With observability data", () => (
+export const WithUnusedConfigurations: StoryFn<typeof CellDiagram> = (args) => (
     <Container>
         <CellDiagram
+            {...args}
+            project={complexModel}
+            onComponentDoubleClick={handleComponentDoubleClick}
+        />
+    </Container>
+);
+
+export const WithObservabilityData: StoryFn<typeof CellDiagram> = (args) => (
+    <Container>
+        <CellDiagram
+            {...args}
             project={observationsModel}
-            showControls={true}
             componentMenu={componentMenu}
             onComponentDoubleClick={handleComponentDoubleClick}
         />
     </Container>
-));
+);
 
-storiesOf("Project", module).add("With observability data v2", () => (
+export const WithObservabilityDataV2: StoryFn<typeof CellDiagram> = (args) => (
     <Container>
         <CellDiagram
+            {...args}
             project={observationsModelV2}
-            showControls={true}
             componentMenu={componentMenu}
             onComponentDoubleClick={handleComponentDoubleClick}
             modelVersion="v2"
         />
     </Container>
-));
+);
+
+ComponentLinks.args = {
+    showControls: false,
+    animation: false,
+    previewMode: true
+};
+
+WithUnusedConfigurations.args = {
+    showControls: false,
+    animation: false,
+    previewMode: false
+};
+
+WithObservabilityData.args = {
+    showControls: true,
+    animation: false,
+    previewMode: false
+};
+
+WithObservabilityDataV2.args = {
+    showControls: true,
+    animation: false,
+    previewMode: false
+};

@@ -10,7 +10,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
-import CircularProgress from "@mui/material/CircularProgress";
 import {
     generateEngine,
     getComponentDiagramWidth,
@@ -27,6 +26,7 @@ import { CustomTooltips, DiagramLayer, MoreVertMenuItem, ObservationSummary, Pro
 import { CellModel } from "../components/Cell/CellNode/CellModel";
 import { DiagramLayers } from "../components/Controls/DiagramLayers";
 import { DiagramLegend } from "../components/Controls/DiagramLegend";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 export { DiagramLayer } from "../types";
 export type { MoreVertMenuItem, Project } from "../types";
@@ -40,6 +40,7 @@ export interface ProjectDiagramProps {
     customTooltips?: CustomTooltips;
     modelVersion?: string;
     onComponentDoubleClick?: (componentId: string) => void;
+    previewMode?: boolean;
 }
 
 export function ProjectDiagram(props: ProjectDiagramProps) {
@@ -52,6 +53,7 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
         customTooltips,
         modelVersion,
         onComponentDoubleClick,
+        previewMode = false,
     } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(generateEngine);
@@ -178,7 +180,10 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
             manualDistribute(model);
             if (diagramEngine.getCanvas()?.getBoundingClientRect) {
                 // zoom to fit nodes and center diagram
-                diagramEngine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
+                diagramEngine.zoomToFitNodes({ 
+                    margin: previewMode ? 10 : 40, 
+                    maxZoom: previewMode ? 0.5 : 1 
+                });
             }
             // remove preloader overlay layer
             const overlayLayer = diagramEngine
@@ -222,7 +227,7 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
         }, 8);
     };
 
-    const showDiagramLayers = (showControls && observationSummary.current?.requestCount.max > 0) || false;
+    const showDiagramLayers = (showControls && observationSummary.current?.requestCount.max > 0 && !previewMode) || false;
 
     const ctx = {
         selectedNodeId,
@@ -235,18 +240,27 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
         setSelectedNodeId,
         setFocusedNodeId,
         onComponentDoubleClick,
+        previewMode
     };
 
     const handleCanvasClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        if (previewMode && onComponentDoubleClick) {
+            // In preview mode, clicking anywhere on the canvas should trigger the onComponentDoubleClick
+            onComponentDoubleClick(MAIN_CELL);
+            return;
+        }
+        
         if (focusedNodeId && event.target === diagramEngine.getCanvas()) {
             setFocusedNodeId("");
         }
     };
 
+
+
     return (
         <Container>
             <CellDiagramContext {...ctx}>
-                <DiagramContainer onClick={handleCanvasClick}>
+                <DiagramContainer onClick={handleCanvasClick} className={previewMode ? "preview-mode" : ""}>
                     {diagramEngine?.getModel() && diagramModel ? (
                         <>
                             <CanvasWidget
