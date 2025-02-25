@@ -34,7 +34,7 @@ export interface InputNodeWidgetProps {
 
 export function InputNodeWidget(props: InputNodeWidgetProps) {
     const { engine, dmType, id, getPort, context, valueLabel, nodeHeaderSuffix } = props;
-    const focusOnRoot = context.views.length === 1 || undefined;
+    const focusedOnRoot = context.views.length === 1;
     
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
@@ -101,15 +101,19 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
         setIsHovered(false);
     };
 
-    const handleChangeSchema = (event: React.MouseEvent) => {
-        event.preventDefault(); 
+    const handleChangeSchema = () => {
         setIOConfigPanelType(IOType.Input);
         setIsSchemaOverridden(true);
         setIsIOConfigPanelOpen(true);
     };
 
+    const onRightClick = (event: React.MouseEvent) => {
+		event.preventDefault();
+		if (focusedOnRoot) handleChangeSchema();
+	};
+
     return (
-        <TreeContainer data-testid={`${id}-node`} onContextMenu={focusOnRoot && handleChangeSchema}>
+        <TreeContainer data-testid={`${id}-node`} onContextMenu={onRightClick}>
             <div className={classes.filterPortWrap}>
                 {invisiblePort && <PortWidget port={invisiblePort} engine={engine} />}
             </div>
@@ -134,11 +138,11 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
                     {label}
                     <span className={classes.nodeType}>{nodeHeaderSuffix}</span>
                 </span>
-                {focusOnRoot && (
+                {focusedOnRoot && (
                     <Button
                         appearance="icon"
-                        data-testid={"open-change-schema-btn"}
-                        tooltip="Change input type"
+                        data-testid={"change-input-schema-btn"}
+                        tooltip="Change input schema"
                         sx={{ marginRight: "5px" }}
                         onClick={handleChangeSchema}
                         data-field-action

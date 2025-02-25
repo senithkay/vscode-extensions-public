@@ -32,7 +32,7 @@ export interface PrimitiveTypeItemWidgetProps {
 
 export function PrimitiveTypeInputWidget(props: PrimitiveTypeItemWidgetProps) {
     const { engine, dmType, id, getPort, context, valueLabel, nodeHeaderSuffix } = props;
-    const focusOnRoot = context.views.length === 1 || undefined;
+    const focusedOnRoot = context.views.length === 1 || undefined;
 
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 
@@ -66,25 +66,29 @@ export function PrimitiveTypeInputWidget(props: PrimitiveTypeItemWidgetProps) {
         </TruncatedLabel>
     );
 
-    const handleChangeSchema = (event: React.MouseEvent) => {
-        event.preventDefault(); 
+    const handleChangeSchema = () => {
         setIOConfigPanelType(IOType.Input);
         setIsSchemaOverridden(true);
         setIsIOConfigPanelOpen(true);
     };
 
+    const onRightClick = (event: React.MouseEvent) => {
+		event.preventDefault();
+		if (focusedOnRoot) handleChangeSchema();
+	};
+
     return (
-        <TreeContainer data-testid={`${id}-node`} onContextMenu={focusOnRoot && handleChangeSchema}>
+        <TreeContainer data-testid={`${id}-node`} onContextMenu={onRightClick}>
             <TreeHeader id={"recordfield-" + id} isSelected={portState !== PortState.Unselected}>
                 <span className={classes.label}>
                     {label}
                     <span className={classes.nodeType}>{nodeHeaderSuffix}</span>
                 </span>
-                {focusOnRoot && (
+                {focusedOnRoot && (
                     <Button
                         appearance="icon"
                         data-testid={"open-change-schema-btn"}
-                        tooltip="Change input type"
+                        tooltip="Change input schema"
                         sx={{ marginRight: "5px" }}
                         onClick={handleChangeSchema}
                         data-field-action
