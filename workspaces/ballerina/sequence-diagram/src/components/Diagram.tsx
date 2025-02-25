@@ -52,6 +52,9 @@ export function Diagram(props: DiagramProps) {
             return { nodes: [], links: [] };
         }
 
+        // skip others
+        flow.others = []; // TODO: remove this from API
+
         // flow.others change id numbers to be unique
         flow.others = flow.others?.map((participant, index) => ({
             ...participant,
