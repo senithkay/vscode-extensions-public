@@ -163,8 +163,8 @@ export * from "./swagger";
 
 export const APIS = {
     CONNECTOR: "https://apis.wso2.com/connector-store/connector-details",
-    CONNECTORS_STORE: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?offset=0&product=MI&type=Connector&runtimeVersion=${version}",
-    CONNECTOR_SEARCH: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=10&offset=0&searchQuery=${searchValue}&type=Connector&product=MI&runtimeVersion=${version}"
+    CONNECTORS_STORE: "https://apis.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?offset=0&product=MI&type=Connector&runtimeVersion=${version}",
+    CONNECTOR_SEARCH: "https://apis.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=10&offset=0&searchQuery=${searchValue}&type=Connector&product=MI&runtimeVersion=${version}"
 }
 
 export const DM_OPERATORS_FILE_NAME="dm-utils";
