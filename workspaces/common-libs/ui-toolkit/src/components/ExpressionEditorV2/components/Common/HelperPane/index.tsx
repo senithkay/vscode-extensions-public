@@ -178,11 +178,15 @@ const HorizontalLine = styled.div`
     flex: 1 1 auto;
 `;
 
-const CompletionItemWithoutCollapseContainer = styled.div`
+const CompletionItemWithoutCollapseContainer = styled.div<{ isParent: boolean }>`
     display: flex;
     align-items: center;
     gap: 8px;
     overflow: hidden;
+
+    ${({ isParent }: { isParent: boolean }) => !isParent && `
+        flex: 1 1 auto;
+    `}
 
     &:hover {
         background-color: var(--vscode-list-hoverBackground);
@@ -508,7 +512,11 @@ const CompletionItem: React.FC<HelperPaneCompletionItemProps> = ({ getIcon, inde
     return (
         <CompletionItemOuterContainer indent={indent}>
             <CompletionItemContainer>
-                <CompletionItemWithoutCollapseContainer title={label} onClick={onClick}>
+                <CompletionItemWithoutCollapseContainer
+                    title={label}
+                    isParent={completionItems.length > 0}
+                    onClick={onClick}
+                >
                     {getIcon && getIcon()}
                     <Typography variant="body3" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {label}
