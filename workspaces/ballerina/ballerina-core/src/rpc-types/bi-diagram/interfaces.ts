@@ -41,7 +41,7 @@ export interface ComponentServiceType {
     specPath?: string;
 }
 export interface ComponentFunctionType {
-    name: string;
+    name?: string;
     parameters: FunctionParameters[],
     returnType?: string;
     cron?: string;

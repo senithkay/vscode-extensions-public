@@ -21,11 +21,11 @@ import React, {
 } from "react";
 import styled from "@emotion/styled";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
-import { COMMAND_DATAMAP, COMMAND_SCAFFOLD, COMMAND_TESTS, COMMAND_TYPECREATOR, getFileTypesForCommand } from "../AIPanel/AIChat";
+import { COMMAND_DATAMAP, COMMAND_GENERATE, COMMAND_TESTS, COMMAND_TYPECREATOR, getFileTypesForCommand } from "../AIPanel/AIChat";
 import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
 import AttachmentBox, { AttachmentsContainer } from "./Components/AttachmentBox";
 import { DataMapperAttachment } from "../../utils/datamapperAttachment";
-import { ScaffoldAttachment } from "../../utils/scaffoldAttachment";
+import { GenerateAttachment } from "../../utils/generateAttachment";
 import { TestAttachment } from "../../utils/testAttachment";
 
 // Styled Components
@@ -565,14 +565,14 @@ const AIChatInput: React.FC<AIChatInputProps> = ({ value = "", baseCommands, onS
             case COMMAND_TYPECREATOR:
                 attachmentHandler = new DataMapperAttachment(activeCommand);
                 break;
-            case COMMAND_SCAFFOLD:
-                attachmentHandler = new ScaffoldAttachment(activeCommand);
+            case COMMAND_GENERATE:
+                attachmentHandler = new GenerateAttachment(activeCommand);
                 break;
             case COMMAND_TESTS:
                 attachmentHandler = new TestAttachment(activeCommand);
                 break;
             default:
-                attachmentHandler = new ScaffoldAttachment(activeCommand); 
+                attachmentHandler = new GenerateAttachment(activeCommand); 
         }
         const results = await attachmentHandler.handleFileAttach(e);
         setAttachments((prevAttachments) => {
@@ -607,7 +607,7 @@ const AIChatInput: React.FC<AIChatInputProps> = ({ value = "", baseCommands, onS
                         onChange={setInputValue}
                         onInput={handleInputChange}
                         onKeyDown={handleKeyDown}
-                        placeholder="Ask BI Copilot"
+                        placeholder="Describe your integration..."
                     />
                     {/* 3. Attachments Display */}
                     {attachments.length > 0 && (

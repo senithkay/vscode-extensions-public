@@ -1,35 +1,29 @@
 import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 
-import { RecordFieldPortModel } from "../Port";
+import { MappingType, RecordFieldPortModel } from "../Port";
 import {
     findTypeByInfoFromStore,
     genVariableName,
     getBalRecFieldName,
     getDefaultValue,
     getLinebreak,
-    getTypeName
+    getTypeName,
+    normalizeTypeName,
+    toFirstLetterLowerCase,
+    toFirstLetterUpperCase
 } from "../utils/dm-utils";
 import { getSupportedUnionTypes } from "../utils/union-type-utils";
 
-import { PortModel } from "@projectstorm/react-diagrams-core";
+import { LinkModel } from "@projectstorm/react-diagrams-core";
 
 export enum ClauseType {
     Select = "select",
     Collect = "collect"
 }
 
-export function isSourcePortArray(port: PortModel): boolean {
-    if (port instanceof RecordFieldPortModel) {
-        return port.field.typeName === PrimitiveBalType.Array;
-    }
-    return false;
-}
-
-export function isTargetPortArray(port: PortModel): boolean {
-    if (port instanceof RecordFieldPortModel) {
-        return port.field.typeName === PrimitiveBalType.Array;
-    }
-    return false;
+interface FunctionNameComponents {
+    sourceName: string;
+    targetName: string;
 }
 
 export function generateQueryExpression(
@@ -65,4 +59,90 @@ export function generateQueryExpression(
     }
 
     return `from var ${itemName} in ${srcExpr.trim()}${isOptionalSource ? ' ?: []' : ''} ${clauseType} ${selectExpr}`
+}
+
+export function generateCustomFunction(
+    sourcePort: RecordFieldPortModel,
+    targetPort: RecordFieldPortModel,
+    existingFunctions: string[]
+): [string, string] {
+    const nameComponents = generateFunctionNameComponents(sourcePort, targetPort);
+    const baseFunctionName = createBaseFunctionName(nameComponents);
+    const functionName = getUniqueFunctionName(baseFunctionName, existingFunctions);
+    
+    let sourceType = getTypeName(sourcePort.field);
+    let targetType = getTypeName(targetPort.field);
+    let paramName = toFirstLetterLowerCase(nameComponents.sourceName);
+
+    sourceType = formatRecordType(sourceType);
+    targetType = formatRecordType(targetType);
+    paramName = paramName === PrimitiveBalType.Record ? 'rec' : paramName;
+
+    const functionSignature = `function ${functionName}(${sourceType} ${paramName}) returns ${targetType} {
+
+    }`;
+
+    return [functionName, functionSignature];
+}
+
+function generateFunctionNameComponents(
+    sourcePort: RecordFieldPortModel,
+    targetPort: RecordFieldPortModel
+): FunctionNameComponents {
+    const sourceType = getTypeName(sourcePort.field);
+    const targetType = getTypeName(targetPort.field);
+    
+    return {
+        sourceName: normalizeTypeName(sourceType),
+        targetName: normalizeTypeName(targetType)
+    };
+}
+
+function createBaseFunctionName({ sourceName, targetName }: FunctionNameComponents): string {
+    return `map${toFirstLetterUpperCase(sourceName)}To${toFirstLetterUpperCase(targetName)}`;
+}
+
+function getUniqueFunctionName(baseName: string, existingFunctions: string[]): string {
+    if (!existingFunctions.includes(baseName)) {
+        return baseName;
+    }
+
+    let index = 1;
+    let functionName = baseName;
+    
+    while (existingFunctions.includes(functionName)) {
+        functionName = `${baseName}${index}`;
+        index++;
+    }
+    
+    return functionName;
+}
+
+function formatRecordType(type: string): string {
+    return type === PrimitiveBalType.Record ? `${type}{}` : type;
+}
+
+export function removePendingMappingTempLinkIfExists(link: LinkModel) {
+	const sourcePort = link.getSourcePort();
+	const targetPort = link.getTargetPort();
+
+	const pendingMappingType = sourcePort instanceof RecordFieldPortModel
+		&& targetPort instanceof RecordFieldPortModel
+		&& sourcePort.pendingMappingType
+		&& targetPort.pendingMappingType;
+
+	if (pendingMappingType) {
+		sourcePort?.fireEvent({}, "link-removed");
+		targetPort?.fireEvent({}, "link-removed");
+		sourcePort.setPendingMappingType(MappingType.Default);
+		targetPort.setPendingMappingType(MappingType.Default);
+		link.remove();
+	}
+}
+
+export function userActionRequiredMapping(mappingType: MappingType): boolean {
+    return mappingType === MappingType.ArrayToArray
+        || mappingType === MappingType.ArrayToSingleton
+        || mappingType === MappingType.RecordToRecord
+        || mappingType === MappingType.UnionToAny;
 }

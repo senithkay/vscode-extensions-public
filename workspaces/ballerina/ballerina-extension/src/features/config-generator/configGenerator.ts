@@ -9,7 +9,7 @@
 
 import { window, Uri, commands, workspace } from "vscode";
 import { existsSync, openSync, readFileSync, writeFile } from "fs";
-import { BAL_TOML, CONFIG_FILE, PALETTE_COMMANDS } from "../project";
+import { BAL_TOML, BAL_CONFIG_FILE, PALETTE_COMMANDS } from "../project";
 import { BallerinaExtension, ballerinaExtInstance, ExtendedLangClient } from "../../core";
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
 import { generateExistingValues, parseTomlToConfig, typeOfComment } from "./utils";
@@ -18,104 +18,140 @@ import { BallerinaProject, PackageConfigSchema, ProjectDiagnosticsResponse } fro
 
 const DEBUG_RUN_COMMAND_ID = 'workbench.action.debug.run';
 
-export async function configGenerator(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean,isBi?: boolean): Promise<void> {
-    let configFile: string = filePath;
-    let packageName: string = 'packageName';
+export async function prepareAndGenerateConfig(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean, isBi?: boolean, executeRun?: boolean): Promise<void> {
+    const configRequirement: ConfigRequirementResult = await checkConfigGenerationRequired(ballerinaExtInstance, filePath, isBi);
 
-    if (!filePath || !filePath.toString().endsWith(CONFIG_FILE)) {
-        const currentProject: BallerinaProject | undefined = isBi ? await getCurrentBIProject(configFile)
+    if (!configRequirement.needsConfig) {
+        if (!isCommand && executeRun) {
+            executeRunCommand(ballerinaExtInstance, filePath, isBi);
+        }
+        return;
+    }
+
+    const { context, newValues, updatedContent } = configRequirement;
+    if (!context || !newValues) {
+        return;
+    }
+
+    const uri = Uri.file(context.configFilePath);
+    const ignoreFile = `${context.projectPath}/.gitignore`;
+
+    await handleNewValues(
+        context.packageName,
+        newValues,
+        context.configFilePath,
+        updatedContent,
+        uri,
+        ignoreFile,
+        ballerinaExtInstance,
+        isCommand,
+        isBi
+    );
+}
+
+export async function checkConfigGenerationRequired(ballerinaExtInstance: BallerinaExtension, filePath: string, isBi?: boolean): Promise<ConfigRequirementResult> {
+    // Return early if config file is provided
+    if (filePath && filePath.toString().endsWith(BAL_CONFIG_FILE)) {
+        return { needsConfig: false };
+    }
+
+    // Get current project
+    const currentProject: BallerinaProject | undefined = isBi
+        ? await getCurrentBIProject(filePath)
         : await getCurrentBallerinaProjectFromContext(ballerinaExtInstance);
 
-        if (!currentProject) {
-            return;
+    if (!currentProject) {
+        return { needsConfig: false };
+    }
+
+    ballerinaExtInstance.getDocumentContext().setCurrentProject(currentProject);
+
+    // TODO: How to pass config values to single files
+    if (currentProject.kind === 'SINGLE_FILE_PROJECT') {
+        return { needsConfig: false };
+    }
+
+    const context: ConfigGenerationContext = {
+        packageName: currentProject.packageName!,
+        projectPath: currentProject.path,
+        configFilePath: `${currentProject.path}/${BAL_CONFIG_FILE}`
+    };
+
+    // Get config schema
+    try {
+        const response = await ballerinaExtInstance.langClient?.getBallerinaProjectConfigSchema({
+            documentIdentifier: {
+                uri: Uri.file(`${currentProject.path}/${BAL_TOML}`).toString()
+            }
+        });
+
+        if (response && 'configSchema' in response) {
+            context.configSchema = response as PackageConfigSchema;
+        } else {
+            return { needsConfig: false };
         }
 
-        ballerinaExtInstance.getDocumentContext().setCurrentProject(currentProject);
-
-        if (!isCommand && currentProject.kind === 'SINGLE_FILE_PROJECT') {
-            // TODO: How to pass config values to single files
-            executeRunCommand(ballerinaExtInstance, configFile, isBi);
-            return;
+        if (!context.configSchema?.configSchema || Object.keys(context.configSchema.configSchema.properties).length === 0) {
+            return { needsConfig: false };
         }
 
-        filePath = `${currentProject.path}/${BAL_TOML}`;
-
-        packageName = currentProject.packageName!;
-
-        try {
-            const response = await ballerinaExtInstance.langClient?.getBallerinaProjectConfigSchema({
-                documentIdentifier: {
-                    uri: Uri.file(filePath).toString()
-                }
-            });
-
-            const data = response as PackageConfigSchema;
-            if (data.configSchema === undefined || data.configSchema === null) {
-                window.showErrorMessage('Unable to generate the configurables: Error while retrieving the configurable schema.');
-                return Promise.reject();
+        // Find organization name and package configs
+        const props: object = context.configSchema.configSchema.properties;
+        let orgName: string;
+        for (const key of Object.keys(props)) {
+            if (props[key].properties[context.packageName]) {
+                orgName = props[key].properties;
+                break;
             }
+        }
 
-            const configSchema = data.configSchema;
-            if (!isCommand && Object.keys(configSchema.properties).length === 0) {
-                executeRunCommand(ballerinaExtInstance, configFile, isBi);
-                return;
-            }
+        if (!orgName) {
+            return { needsConfig: false };
+        }
 
-            const props: object = configSchema.properties;
-            let orgName;
-            for (const key of Object.keys(props)) {
-                if (props[key].properties[packageName]) {
-                    orgName = props[key].properties;
-                    break;
-                }
-            }
+        const configs: Property = orgName[context.packageName];
 
-            if (!isCommand && !orgName) {
-                executeRunCommand(ballerinaExtInstance, configFile, isBi);
-                return;
-            }
+        if (configs.required?.length === 0) {
+            return { needsConfig: false };
+        }
 
-            const configs: Property = orgName[packageName];
+        // Check existing configs
+        const newValues: ConfigProperty[] = [];
+        let updatedContent = '';
 
-            if (!isCommand && configs.required?.length === 0) {
-                executeRunCommand(ballerinaExtInstance, configFile, isBi);
-                return;
-            }
+        if (existsSync(context.configFilePath)) {
+            const tomlContent: string = readFileSync(Uri.file(context.configFilePath).fsPath, 'utf8');
+            const existingConfigs: object = generateExistingValues(
+                parseTomlToConfig(tomlContent),
+                orgName,
+                context.packageName
+            );
+            context.existingConfigs = existingConfigs;
 
-            configFile = `${currentProject.path}/${CONFIG_FILE}`;
-            const ignoreFile = `${currentProject.path}/.gitignore`;
-            const uri = Uri.file(configFile);
+            const obj = existingConfigs['[object Object]'][context.packageName];
 
-            const newValues: ConfigProperty[] = [];
-            let updatedContent = '';
-
-            if (existsSync(configFile)) {
-                const tomlContent: string = readFileSync(uri.fsPath, 'utf8');
-                // TODO: There is an issue when parsing the toml file where we have variables after object definitions using [] notations and it takes
-                // the rest of the variables below that as attributes of that object.
-                const existingConfigs: object = generateExistingValues(parseTomlToConfig(tomlContent), orgName, packageName);
-                const obj = existingConfigs['[object Object]'][packageName];
-
-                if (Object.keys(obj).length > 0 || tomlContent.length > 0) {
-                    findPropertyValues(configs, newValues, obj, tomlContent);
-                    updatedContent = tomlContent + '\n';
-                } else {
-                    findPropertyValues(configs, newValues);
-                }
+            if (Object.keys(obj).length > 0 || tomlContent.length > 0) {
+                findPropertyValues(configs, newValues, obj, tomlContent);
+                updatedContent = tomlContent + '\n';
             } else {
                 findPropertyValues(configs, newValues);
             }
-            const haveRequired = newValues.filter(value => value.required);
-            if (newValues.length > 0 && haveRequired.length > 0) {
-                await handleNewValues(packageName, newValues, configFile, updatedContent, uri, ignoreFile, ballerinaExtInstance, isCommand);
-            } else {
-                if (!isCommand) {
-                    executeRunCommand(ballerinaExtInstance, configFile, isBi);
-                }
-            }
-        } catch (error) {
-            console.error('Error while generating config:', error);
+        } else {
+            findPropertyValues(configs, newValues);
         }
+
+        const haveRequired = newValues.filter(value => value.required);
+
+        return {
+            needsConfig: newValues.length > 0 && haveRequired.length > 0,
+            context,
+            newValues,
+            updatedContent
+        };
+
+    } catch (error) {
+        console.error('Error while checking config generation requirement:', error);
+        return { needsConfig: false };
     }
 }
 
@@ -165,19 +201,26 @@ export async function getCurrentBIProject(projectPath: string): Promise<Ballerin
     return currentProject;
 }
 
-export async function handleNewValues(packageName: string, newValues: ConfigProperty[], configFile: string, updatedContent: string, uri: Uri, ignoreFile: string, ballerinaExtInstance: BallerinaExtension, isCommand: boolean): Promise<void> {
+export async function handleNewValues(packageName: string, newValues: ConfigProperty[], configFile: string, updatedContent: string, uri: Uri, ignoreFile: string, ballerinaExtInstance: BallerinaExtension, isCommand: boolean, isBi: boolean): Promise<void> {
     let result;
-    let btnTitle = 'Add to config';
-    let message = 'There are missing mandatory configurables that are required to run the program.';
+    let btnTitle: string;
+    let message: string;
+
     if (!existsSync(configFile)) {
+        message = 'Missing Config.toml file';
         btnTitle = 'Create Config.toml';
-        message = 'There are mandatory configurables that are required to run the program.';
+    } else {
+        message = 'Missing required configurations in Config.toml file';
+        btnTitle = 'Update Config.toml';
     }
-    const openConfigButton = { title: btnTitle, isCloseAffordance: true };
+
+    const openConfigButton = { title: btnTitle };
     const ignoreButton = { title: 'Run Anyway' };
+    const details = "It is recommended to create/update the Config.toml with all mandatory configuration values before running the program.";
+
     if (!isCommand) {
         await new Promise((resolve) => setTimeout(resolve, 500));
-        result = await window.showInformationMessage(message, { detail: "", modal: true }, openConfigButton, ignoreButton);
+        result = await window.showInformationMessage(message, { detail: details, modal: true }, openConfigButton, ignoreButton);
     }
 
     const docLink = "https://ballerina.io/learn/provide-values-to-configurable-variables/#provide-via-toml-syntax";
@@ -188,8 +231,8 @@ export async function handleNewValues(packageName: string, newValues: ConfigProp
             if (existsSync(ignoreFile)) {
                 const ignoreUri = Uri.file(ignoreFile);
                 let ignoreContent: string = readFileSync(ignoreUri.fsPath, 'utf8');
-                if (!ignoreContent.includes(CONFIG_FILE)) {
-                    ignoreContent += `\n${CONFIG_FILE}\n`;
+                if (!ignoreContent.includes(BAL_CONFIG_FILE)) {
+                    ignoreContent += `\n${BAL_CONFIG_FILE}\n`;
                     writeFile(ignoreUri.fsPath, ignoreContent, function (error) {
                         if (error) {
                             return window.showErrorMessage('Unable to update the .gitIgnore file: ' + error);
@@ -215,7 +258,7 @@ export async function handleNewValues(packageName: string, newValues: ConfigProp
             window.showTextDocument(document, { preview: false });
         });
     } else if (!isCommand && result === ignoreButton) {
-        executeRunCommand(ballerinaExtInstance, configFile);
+        executeRunCommand(ballerinaExtInstance, configFile, isBi);
     }
 }
 
@@ -232,7 +275,7 @@ async function executeRunCommand(ballerinaExtInstance: BallerinaExtension, fileP
     }
 }
 
-async function hasProjectContainsErrors(langClient: ExtendedLangClient, path: string) : Promise<boolean> {
+async function hasProjectContainsErrors(langClient: ExtendedLangClient, path: string): Promise<boolean> {
     const res = await langClient.getProjectDiagnostics({
         projectRootIdentifier: {
             uri: "file://" + ballerinaExtInstance.getDocumentContext().getCurrentProject().path
@@ -388,4 +431,19 @@ function getObjectConfigValue(comment: { value: string }, name: string, property
         });
     }
     return newConfigValue;
+}
+
+export interface ConfigGenerationContext {
+    packageName: string;
+    projectPath: string;
+    configFilePath: string;
+    configSchema?: PackageConfigSchema;
+    existingConfigs?: object;
+}
+
+export interface ConfigRequirementResult {
+    needsConfig: boolean;
+    context?: ConfigGenerationContext;
+    newValues?: ConfigProperty[];
+    updatedContent?: string;
 }

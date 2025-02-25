@@ -232,11 +232,12 @@ export function Mediators(props: MediatorProps) {
                         <ButtonGroup
                             key={key}
                             title={FirstCharToUpperCase(key)}
-                            isCollapsed={!expandedModules.includes(key)}
+                            isCollapsed={props.searchValue ? false : !expandedModules.includes(key)}
                             connectorDetails={values["isConnector"] ?
                                 { artifactId: values["artifactId"], version: values["version"], connectorPath: values["connectorPath"] }
                                 : undefined}
-                            onDelete={deleteConnector}>
+                            onDelete={deleteConnector}
+                            versionTag={values.version}>
                             {values["items"].map((mediator: Mediator) => (
                                 <Tooltip content={mediator?.tooltip} position='bottom' key={mediator.title}>
                                     <GridButton
