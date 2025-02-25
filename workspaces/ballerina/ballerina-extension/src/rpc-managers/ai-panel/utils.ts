@@ -902,11 +902,19 @@ export async function searchDocumentation(message: string): Promise<string | Err
 }
 
 export async function filterDocumentation(resp: Response): Promise<string | ErrorCode> {
+    let responseContent: string;
     if (resp.status == 200 || resp.status == 201) {
         const data = (await resp.json()) as any;
         console.log("data",data.response);
-        const finalResponse = await (data.response).replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
-        return finalResponse;
+        const finalResponse = await (data.response.content).replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
+        const referenceSources = data.response.references;
+        if (referenceSources.length > 0) {
+            responseContent = `${finalResponse}  \nreference sources:  \n${referenceSources.join('  \n')}`;
+        }else{
+            responseContent = finalResponse;
+        }
+
+        return responseContent;
     }
     if (resp.status == 404) {
         return ENDPOINT_REMOVED;

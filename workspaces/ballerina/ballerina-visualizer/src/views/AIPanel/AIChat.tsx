@@ -24,11 +24,10 @@ import {
 
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon } from "@wso2-enterprise/ui-toolkit";
-import ReactMarkdown from "react-markdown";
-
 import styled from "@emotion/styled";
 import AIChatInput from "./AIChatInput";
 import ProgressTextSegment from "./Components/ProgressTextSegment";
+import BallerinaCodeBlock from "./Components/BallerinaCodeBlock";
 import RoleContainer, { PreviewContainer } from "./Components/RoleContainter";
 import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
 import AttachmentBox, { AttachmentsContainer } from "./Components/AttachmentBox";
@@ -49,6 +48,7 @@ import {
     Badge,
     ResetsInBadge
 } from './styles'
+import ReferenceDropdown from "./Components/ReferenceDropdown";
 
 interface CodeBlock {
     filePath: string;
@@ -98,7 +98,7 @@ const TEMPLATE_DATAMAP = [
     "generate mapping using input as <recordname(s)> and output as <recordname>",
 ];
 const TEMPLATE_TYPECREATOR = ["generate types using the given file"];
-const TEMPLATE_DOCUMENTATION = ["have questions about the Ballerina programming language: <question>"];
+const TEMPLATE_DOCUMENTATION = ["Find reliable answers to your ballerina questions: <question>"];
 
 // Use the constants in the commandToTemplate map
 const commandToTemplate = new Map<string, string[]>([
@@ -1015,14 +1015,32 @@ export function AIChat() {
     
     async function findInDocumentation(message: string, token: string) {
         let assistant_response = "";
+        let formatted_response =";"
         setIsLoading(true);
         try{
             console.log("Searching for: " + message, + "Token: ", token);
             assistant_response = await rpcClient.getAiPanelRpcClient().getFromDocumentation(message);
-            console.log("Assistant Response: " + assistant_response);
+            //console.log("Assistant Response: " + assistant_response);
+            
+            formatted_response = assistant_response.replace(
+                /```ballerina\s*([\s\S]+?)\s*```/g,
+                '<inlineCode>$1<inlineCode>'
+            );
+
+            const referenceRegex = /reference sources:\s*((?:<https?:\/\/[^\s>]+>\s*)+)/;
+            const match = formatted_response.match(referenceRegex);
+            
+            if (match) {
+                const references = match[1].trim().split(/\s+/);
+                const referencesTag = `<references>${JSON.stringify(references)}<references>`;
+                formatted_response = formatted_response.replace(referenceRegex, referencesTag);
+            }
+
+            console.log("Formatted Response: " + formatted_response);
+
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
-                newMessages[newMessages.length - 1].content = assistant_response;
+                newMessages[newMessages.length - 1].content = formatted_response;
                 return newMessages;
             });
             setIsLoading(false);
@@ -1038,8 +1056,9 @@ export function AIChat() {
         }
 
         addChatEntry("user", message);
-        addChatEntry("assistant", assistant_response);
+        addChatEntry("assistant", formatted_response);
     }
+
 
     async function handleStop() {
         // Abort the fetch
@@ -1209,6 +1228,15 @@ export function AIChat() {
                                             {segment.text}
                                         </div>
                                     );
+                                } else if(segment.type === SegmentType.InlineCode) {
+                                    return(
+                                        <BallerinaCodeBlock key={i} code={segment.text} />
+                                    )
+                                } else if(segment.type === SegmentType.References) {
+                                    return(
+                                        <ReferenceDropdown key={i} links={JSON.parse(segment.text)} />
+                                    )
+                                    
                                 } else {
                                     if (message.type === "Error") {
                                         return (
@@ -1609,6 +1637,8 @@ enum SegmentType {
     Progress = "Progress",
     Attachment = "Attachment",
     Error = "Error",
+    InlineCode = "InlineCode",
+    References = "References"
 }
 
 interface Segment {
@@ -1678,7 +1708,7 @@ export function splitContent(content: string): Segment[] {
 
     // Combined regex to capture either <code ...>```<language> code ```</code> or <progress>Text</progress>
     const regex =
-        /<code\s+filename="([^"]+)"(?:\s+type=("test"|"ai_map"))?>\s*```(\w+)\s*([\s\S]*?)```\s*<\/code>|<progress>([\s\S]*?)<\/progress>|<attachment>([\s\S]*?)<\/attachment>|<error>([\s\S]*?)<\/error>/g;
+        /<code\s+filename="([^"]+)"(?:\s+type=("test"|"ai_map"))?>\s*```(\w+)\s*([\s\S]*?)```\s*<\/code>|<progress>([\s\S]*?)<\/progress>|<attachment>([\s\S]*?)<\/attachment>|<error>([\s\S]*?)<\/error>|<inlineCode>([\s\S]*?)<inlineCode>|<references>([\s\S]*?)<references>/g;
     let match;
     let lastIndex = 0;
 
@@ -1751,6 +1781,18 @@ export function splitContent(content: string): Segment[] {
                 loading: false,
                 text: errorMessage,
             });
+        }else if (match[8]) {
+            segments.push({
+                type: SegmentType.InlineCode,
+                text: match[8].trim(),
+                loading: false
+            });
+        } else if (match[9]) {
+            segments.push({
+                type: SegmentType.References,
+                text: match[9].trim(),
+                loading: false
+            })
         }
 
         // Update lastIndex to the end of the current match
