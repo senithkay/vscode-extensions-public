@@ -41,7 +41,8 @@ export function VariableForm(props: VariableFormProps) {
                 advanced: model.name.advanced,
                 documentation: model.name.metadata?.description,
                 value: formValues.name,
-                valueTypeConstraint: model.name?.valueTypeConstraint || ''
+                valueTypeConstraint: model.name?.valueTypeConstraint || '',
+                lineRange: model?.name?.codedata?.lineRange
             },
             {
                 key: 'returnType',
