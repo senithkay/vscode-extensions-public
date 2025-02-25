@@ -267,7 +267,7 @@ export async function handleNewValues(packageName: string, newValues: ConfigProp
 
 async function executeRunCommand(ballerinaExtInstance: BallerinaExtension, filePath: string, isBi?: boolean) {
     if (ballerinaExtInstance.enabledRunFast() || isBi) {
-        const projectHasErrors = await hasProjectContainsErrors(ballerinaExtInstance.langClient, filePath);
+        const projectHasErrors = await projectContainsErrors(ballerinaExtInstance.langClient, filePath);
         if (projectHasErrors) {
             window.showErrorMessage("Project contains errors. Please fix them and try again.");
         } else {
@@ -278,74 +278,69 @@ async function executeRunCommand(ballerinaExtInstance: BallerinaExtension, fileP
     }
 }
 
-async function hasProjectContainsErrors(langClient: ExtendedLangClient, path: string): Promise<boolean> {
-    let response: ProjectDiagnosticsResponse = await langClient.getProjectDiagnostics({
-        projectRootIdentifier: {
-            uri: "file://" + ballerinaExtInstance.getDocumentContext().getCurrentProject().path
-        }
-    });
-
-    if (response.errorDiagnosticMap) {
-        for (const [filePath, diagnostics] of Object.entries(response.errorDiagnosticMap)) {
-            const diagnostic: Diagnostic = diagnostics.find(diagnostic => diagnostic.code === "BCE2002");
-            const codeActions: CodeAction[] = await langClient.codeAction({
-                textDocument: {
-                    uri: filePath
-                },
-                range: {
-                    start: {
-                        line: diagnostic.range.start.line,
-                        character: diagnostic.range.start.character
-                    },
-                    end: {
-                        line: diagnostic.range.end.line,
-                        character: diagnostic.range.end.character
-                    }
-                },
-                context: {
-                    diagnostics: [diagnostic]
-                }
-            });
-
-            const action = codeActions.find(action => action.title === "Remove all unused imports");
-            if (action.edit) {
-                const docEdit: TextDocumentEdit = action.edit.documentChanges[0] as TextDocumentEdit;
-                const syntaxTree = await langClient.stModify({
-                    documentIdentifier: {
-                        uri: docEdit.textDocument.uri
-                    },
-                    astModifications: docEdit.edits.map(edit => {
-                        return {
-                            startLine: edit.range.start.line,
-                            startColumn: edit.range.start.character,
-                            endLine: edit.range.end.line,
-                            endColumn: edit.range.end.character,
-                            type: "INSERT",
-                            isImport: true,
-                            config: {
-                                STATEMENT: edit.newText,
-                            }
-                        };
-                    })
-                });
-
-                const { source } = syntaxTree as SyntaxTree;
-                const absolutePath = fileURLToPath(filePath);
-                await modifyFileContent({ filePath: absolutePath, content: source });
-            }
-        }
-
-        response = await langClient.getProjectDiagnostics({
+async function projectContainsErrors(langClient: ExtendedLangClient, path: string): Promise<boolean> {
+    try {
+        // Get initial project diagnostics
+        const projectPath = ballerinaExtInstance.getDocumentContext().getCurrentProject().path;
+        let response: ProjectDiagnosticsResponse = await langClient.getProjectDiagnostics({
             projectRootIdentifier: {
-                uri: "file://" + ballerinaExtInstance.getDocumentContext().getCurrentProject().path
+                uri: `file://${projectPath}`
             }
         });
 
-        if (response.errorDiagnosticMap && Object.keys(response.errorDiagnosticMap).length > 0) {
-            return true;
+        if (!response.errorDiagnosticMap || Object.keys(response.errorDiagnosticMap).length === 0) {
+            return false;
         }
 
-        return false;
+        // Process each file with diagnostics
+        for (const [filePath, diagnostics] of Object.entries(response.errorDiagnosticMap)) {
+            // Filter the unused import diagnostics
+            const diagnostic = diagnostics.find(d => d.code === "BCE2002");
+            if (!diagnostic) continue;
+            const codeActions = await langClient.codeAction({
+                textDocument: { uri: filePath },
+                range: {
+                    start: diagnostic.range.start,
+                    end: diagnostic.range.end
+                },
+                context: { diagnostics: [diagnostic] }
+            });
+
+            // Find and apply the appropriate code action
+            const action = codeActions.find(action => action.title === "Remove all unused imports");
+            if (!action?.edit?.documentChanges?.length) continue;
+            const docEdit = action.edit.documentChanges[0] as TextDocumentEdit;
+
+            // Apply modifications to syntax tree
+            const syntaxTree = await langClient.stModify({
+                documentIdentifier: { uri: docEdit.textDocument.uri },
+                astModifications: docEdit.edits.map(edit => ({
+                    startLine: edit.range.start.line,
+                    startColumn: edit.range.start.character,
+                    endLine: edit.range.end.line,
+                    endColumn: edit.range.end.character,
+                    type: "INSERT",
+                    isImport: true,
+                    config: { STATEMENT: edit.newText }
+                }))
+            });
+
+            // Update file content
+            const { source } = syntaxTree as SyntaxTree;
+            const absolutePath = fileURLToPath(filePath);
+            await modifyFileContent({ filePath: absolutePath, content: source });
+        }
+
+        // Check if errors still exist after fixes
+        const updatedResponse: ProjectDiagnosticsResponse = await langClient.getProjectDiagnostics({
+            projectRootIdentifier: {
+                uri: `file://${projectPath}`
+            }
+        });
+
+        return updatedResponse.errorDiagnosticMap && updatedResponse.errorDiagnosticMap.size > 0;
+    } catch (error) {
+        return true;
     }
 }
 
