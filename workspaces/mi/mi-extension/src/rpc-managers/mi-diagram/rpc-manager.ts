@@ -1605,6 +1605,7 @@ ${endpointAttributes}
                         response.taskProperties = response.taskProperties.filter(prop => prop.key !== "message");
                         if (message[0]["@_"]["@_value"] === undefined) {
                             delete message[0]["@_"];
+                            removeXmlns(message[0]);
                             let xml = builder.build(message[0]);
                             response.taskProperties.push({
                                 key: "message",
@@ -5157,6 +5158,21 @@ ${keyValuesXML}`;
     }
 }
 
+function removeXmlns(jsonObj) {
+    if (Array.isArray(jsonObj)) {
+        jsonObj.forEach(item => removeXmlns(item));
+    } else if (jsonObj && typeof jsonObj === 'object') {
+        Object.keys(jsonObj).forEach(key => {
+            if (key.startsWith("@_xmlns")) {
+                const newKey = key.replace(/^@_/, '');
+                jsonObj[newKey] = jsonObj[key];
+                delete jsonObj[key];
+            } else {
+                removeXmlns(jsonObj[key]);
+            }
+        });
+    }
+}
 
 export async function askProjectPath() {
     return await window.showOpenDialog({
