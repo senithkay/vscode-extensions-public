@@ -13,18 +13,15 @@ import { LineRange } from "@wso2-enterprise/ballerina-core";
 import { HelperPaneVariableInfo } from "@wso2-enterprise/ballerina-side-panel";
 import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from "@wso2-enterprise/ui-toolkit";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { HELPER_PANE_PAGE, HelperPanePageType } from ".";
 import { convertToHelperPaneVariable, filterHelperPaneVariables } from "../../../utils/bi";
 
-type VariablesPageProps = {
+type SuggestionsPageProps = {
     fileName: string;
     targetLineRange: LineRange;
-    setCurrentPage: (page: HelperPanePageType) => void;
-    onClose: () => void;
     onChange: (value: string) => void;
 };
 
-export const VariablesPage = ({ fileName, targetLineRange, setCurrentPage, onClose, onChange }: VariablesPageProps) => {
+export const SuggestionsPage = ({ fileName, targetLineRange, onChange }: SuggestionsPageProps) => {
     const { rpcClient } = useRpcContext();
     const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>("");
@@ -127,9 +124,6 @@ export const VariablesPage = ({ fileName, targetLineRange, setCurrentPage, onClo
     return (
         <>
             <HelperPane.Header
-                title="Variables"
-                onBack={() => setCurrentPage(HELPER_PANE_PAGE.CATEGORY)}
-                onClose={onClose}
                 searchValue={searchValue}
                 onSearch={handleSearch}
                 titleSx={{ fontFamily: "GilmerRegular" }}
