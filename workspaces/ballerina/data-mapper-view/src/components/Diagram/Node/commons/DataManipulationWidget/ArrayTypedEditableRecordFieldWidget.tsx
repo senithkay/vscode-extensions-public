@@ -477,7 +477,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         <div
             className={classnames(
                 classes.treeLabelArray,
-                hasHoveredParent ? classes.treeLabelParentHovered : ""
+                hasHoveredParent ? classes.treeLabelParentHovered : "",
+                (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : ""
             )}
         >
             {!isReturnTypeDesc && (
@@ -485,7 +486,6 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                     id={"recordfield-" + fieldId}
                     className={classnames(classes.ArrayFieldRow,
                         isDisabled ? classes.ArrayFieldRowDisabled : "",
-                        (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",
                         hasHoveredParent ? classes.treeLabelParentHovered : ""
                     )}
                     onMouseEnter={onMouseEnter}
@@ -505,6 +505,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                     <span className={classes.label}>
                         {(hasValue && !connectedViaLink) && (
                             <Button
+                                id={`expand-or-collapse-${fieldId}`}
                                 appearance="icon"
                                 sx={{ marginLeft: indentation }}
                                 onClick={handleExpand}

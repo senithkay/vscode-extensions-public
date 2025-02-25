@@ -12,6 +12,8 @@ import {
     Item as PanelItem,
     FormField,
     FormValues,
+    ParameterValue,
+    Parameter,
 } from "@wso2-enterprise/ballerina-side-panel";
 import { AddNodeVisitor, RemoveNodeVisitor, NodeIcon, traverseFlow } from "@wso2-enterprise/bi-diagram";
 import {
@@ -30,6 +32,7 @@ import {
     SignatureHelpResponse,
     TriggerNode,
     VisibleType,
+    VisibleTypeItem,
     Item,
     FunctionKind,
     functionKinds,
@@ -46,7 +49,7 @@ import {
 import { SidePanelView } from "../views/BI/FlowDiagram";
 import React from "react";
 import { cloneDeep } from "lodash";
-import { COMPLETION_ITEM_KIND, CompletionItem, CompletionItemKind } from "@wso2-enterprise/ui-toolkit";
+import { COMPLETION_ITEM_KIND, CompletionItem, CompletionItemKind, convertCompletionItemKind } from "@wso2-enterprise/ui-toolkit";
 
 function convertAvailableNodeToPanelNode(node: AvailableNode, functionType?: FUNCTION_TYPE): PanelNode {
     // Check if node should be filtered based on function type
@@ -64,7 +67,7 @@ function convertAvailableNodeToPanelNode(node: AvailableNode, functionType?: FUN
         description: node.metadata.description,
         enabled: node.enabled,
         metadata: node,
-        icon: <NodeIcon type={functionType === FUNCTION_TYPE.EXPRESSION_BODIED ? "DATA_MAPPER_CALL" : node.codedata.node} />,
+        icon: <NodeIcon type={functionType === FUNCTION_TYPE.EXPRESSION_BODIED ? "DATA_MAPPER_CALL" : node.codedata.node} size={16} />,
     };
 }
 
@@ -76,7 +79,7 @@ function convertDiagramCategoryToSidePanelCategory(category: Category, functionT
     const items: PanelItem[] = category.items?.map((item) => {
         if ("codedata" in item) {
             return convertAvailableNodeToPanelNode(item as AvailableNode, functionType);
-        } else {            
+        } else {
             return convertDiagramCategoryToSidePanelCategory(item as Category);
         }
     }).filter((item) => item !== undefined);
@@ -151,6 +154,8 @@ export function convertNodePropertyToFormField(
         valueType: getFormFieldValueType(property),
         items: getFormFieldItems(property, connections),
         diagnostics: property.diagnostics?.diagnostics || [],
+        valueTypeConstraint: property.valueTypeConstraint,
+        lineRange: property?.codedata?.lineRange
     };
     return formField;
 }
@@ -244,6 +249,8 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode, cli
                 activeNode.codedata?.node === "RESOURCE_ACTION_CALL"
             ) {
                 return `${clientName || activeNode.properties.connection.value} → ${activeNode.metadata.label}`;
+            } else if (activeNode.codedata?.node === "DATA_MAPPER_CALL") {
+                return `${activeNode.codedata?.module ? activeNode.codedata?.module + " :" : ""} ${activeNode.codedata.symbol}`;
             }
             return `${activeNode.codedata?.module ? activeNode.codedata?.module + " :" : ""} ${activeNode.metadata.label
                 }`;
@@ -475,7 +482,8 @@ export function convertTriggerFunctionsConfig(trigger: Trigger): Record<string, 
                         optional: expression?.optional,
                         type: expression?.typeName,
                         editable: true,
-                        value: expression.defaultTypeName
+                        value: expression.defaultTypeName,
+                        valueTypeConstraint: ""
                     }
                     formFields.push(formField);
                 }
@@ -518,11 +526,12 @@ export function convertToFnSignature(signatureHelp: SignatureHelpResponse) {
     };
 }
 
-export function convertToVisibleTypes(visibleTypes: string[]): CompletionItem[] {
-    return visibleTypes.map((type) => ({
-        label: type,
-        value: type,
-        kind: COMPLETION_ITEM_KIND.TypeParameter,
+export function convertToVisibleTypes(types: VisibleTypeItem[]): CompletionItem[] {
+    return types.map((type) => ({
+        label: type.label,
+        value: type.insertText,
+        kind: convertCompletionItemKind(type.kind),
+        insertText: type.insertText,
     }));
 }
 
@@ -541,7 +550,7 @@ export const convertToHelperPaneVariable = (variables: VisibleType[]): HelperPan
                 label: variable.name,
                 items: variable.types.map((item) => ({
                     label: item.name,
-                    type: item.type.value,
+                    type: item.type.typeName,
                     insertText: item.name
                 }))
             }))
@@ -645,4 +654,85 @@ export function extractFunctionInsertText(template: string): string {
     }
 
     return `${label}(`;
+}
+
+function createParameterValue(index: number, paramValueKey: string, paramValue: ParameterValue): Parameter {
+    const name = paramValue.value.variable.value;
+    const type = paramValue.value.type.value;
+    const variableLineRange = (paramValue.value.variable as any).codedata?.lineRange;
+    const variableEditable = (paramValue.value.variable as any).editable;
+
+    return {
+        id: index,
+        icon: "",
+        key: paramValueKey,
+        value: `${type} ${name}`,
+        identifierEditable: variableEditable,
+        identifierRange: variableLineRange,
+        formValues: {
+            variable: name,
+            type: type
+        }
+    };
+}
+
+function handleRepeatableProperty(property: Property, formField: FormField): void {
+    const paramFields: FormField[] = [];
+
+    // Create parameter fields
+    for (const [paramKey, param] of Object.entries((property.valueTypeConstraint as any).value as NodeProperties)) {
+        const paramField = convertNodePropertyToFormField(paramKey, param);
+        paramFields.push(paramField);
+    }
+
+    // Set up parameter manager properties
+    formField.valueType = "PARAM_MANAGER";
+    formField.type = "PARAM_MANAGER";
+
+    // Create existing parameter values
+    const paramValues = Object.entries(property.value as NodeProperties).map(
+        ([paramValueKey, paramValue], index) => createParameterValue(index, paramValueKey, paramValue as ParameterValue)
+    );
+
+    formField.paramManagerProps = {
+        paramValues,
+        formFields: paramFields,
+        handleParameter: handleParamChange
+    };
+
+    formField.value = paramValues;
+
+    function handleParamChange(param: Parameter) {
+        const name = `${param.formValues['variable']}`;
+        const type = `${param.formValues['type']} `;
+        const defaultValue = Object.keys(param.formValues).indexOf('defaultable') > -1
+            && `${param.formValues['defaultable']} `;
+        let value = `${type} ${name} `;
+        if (defaultValue) {
+            value += ` = ${defaultValue} `;
+        }
+        return {
+            ...param,
+            key: name,
+            value: value
+        }
+    };
+}
+
+export function convertConfig(properties: NodeProperties): FormField[] {
+    const formFields: FormField[] = [];
+    const sortedKeys = Object.keys(properties).sort();
+
+    for (const key of sortedKeys) {
+        const property = properties[key as keyof NodeProperties];
+        const formField = convertNodePropertyToFormField(key, property);
+
+        if (property.valueType === "REPEATABLE_PROPERTY") {
+            handleRepeatableProperty(property, formField);
+        }
+
+        formFields.push(formField);
+    }
+
+    return formFields;
 }

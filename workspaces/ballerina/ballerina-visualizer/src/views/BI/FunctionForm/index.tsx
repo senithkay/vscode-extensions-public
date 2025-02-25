@@ -7,243 +7,153 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
-import { DIRECTORY_MAP, EVENT_TYPE, ProjectStructureArtifactResponse } from "@wso2-enterprise/ballerina-core";
-import { Button, TextField, Typography, View, ViewContent, ErrorBanner, FormGroup, Parameters, Dropdown, CompletionItem } from "@wso2-enterprise/ui-toolkit";
+import { useEffect, useRef, useState } from "react";
+import { FunctionNode, NodeProperties } from "@wso2-enterprise/ballerina-core";
+import { View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { css } from "@emotion/css";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { BIHeader } from "../BIHeader";
-import { BodyText } from "../../styles";
-import { getFunctionParametersList } from "../../../utils/utils";
-import { FormField, Form, FormValues, Parameter } from "@wso2-enterprise/ballerina-side-panel";
-import { debounce } from "lodash";
-import { convertToVisibleTypes } from "../../../utils/bi";
+import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { URI, Utils } from "vscode-uri";
+import FormGeneratorNew from "../Forms/FormGeneratorNew";
+import { TitleBar } from "../../../components/TitleBar";
+import { TopNavigationBar } from "../../../components/TopNavigationBar";
+import { FormHeader } from "../../../components/FormHeader";
+import { convertConfig } from "../../../utils/bi";
 
 const FormContainer = styled.div`
     display: flex;
     flex-direction: column;
     max-width: 600px;
     gap: 20px;
-    margin-top: 20px;
 `;
 
 const Container = styled.div`
     display: "flex";
     flex-direction: "column";
     gap: 10;
-    margin: 20px;
 `;
 
-const ButtonWrapper = styled.div`
-    margin-top: 20px;
-    width: 130px;
-`;
+interface FunctionFormProps {
+    fileName: string;
+    projectPath: string;
+    functionName: string;
+    isDataMapper?: boolean;
+}
 
-const CardGrid = styled.div`
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin-top: 20px;
-    width: 100%;
-`;
-
-const Link = styled.a`
-    cursor: pointer;
-    font-size: 12px;
-    margin-left: auto;
-    margin-right: 15px;
-    margin-bottom: -5px;
-    color: var(--button-primary-background);
-`;
-
-export function FunctionForm() {
+export function FunctionForm(props: FunctionFormProps) {
     const { rpcClient } = useRpcContext();
-    const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
-    const [types, setTypes] = useState<CompletionItem[]>([]);
+    const { projectPath, fileName, functionName, isDataMapper } = props;
 
+    const [functionFields, setFunctionFields] = useState<FormField[]>([]);
+    const [filePath, setFilePath] = useState<string>('');
+    const [functionNode, setFunctionNode] = useState<FunctionNode>(undefined);
 
-    // <------------- Expression Editor Util functions list start --------------->
-    const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {
-        let visibleTypes: CompletionItem[] = types;
-        if (!types.length) {
-            const context = await rpcClient.getVisualizerLocation();
-            let functionFilePath = Utils.joinPath(URI.file(context.projectUri), 'functions.bal');
-            const workspaceFiles = await rpcClient.getCommonRpcClient().getWorkspaceFiles({});
-            const isFilePresent = workspaceFiles.files.some(file => file.path === functionFilePath.fsPath);
-            if (!isFilePresent) {
-                functionFilePath = Utils.joinPath(URI.file(context.projectUri));
-            }
+    const formType = useRef(isDataMapper ? "Data Mapper" : "Function");
 
-            const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
-                filePath: functionFilePath.fsPath,
-                position: { line: 0, offset: 0 },
+    useEffect(() => {
+        setFilePath(Utils.joinPath(URI.file(projectPath), fileName).fsPath)
+        if (functionName) {
+            getExistingFunctionNode();
+        } else {
+            getFunctionNode();
+        }
+    }, [fileName]);
+
+    useEffect(() => {
+        let fields = functionNode ? convertConfig(functionNode.properties) : [];
+        if (functionNode?.properties.functionName.value === "main") {
+            formType.current = "Automation";
+            const automationFields = fields.filter(field => field.key !== "functionName" && field.key !== "type");
+            fields = automationFields;
+        }
+        if (isDataMapper && fields.length > 0) {
+            fields.forEach((field) => {
+                field.optional = false;
             });
-
-            visibleTypes = convertToVisibleTypes(response.types);
-            setTypes(visibleTypes);
         }
 
-        const effectiveText = value.slice(0, cursorPosition);
-        const filteredTypes = visibleTypes.filter((type) => {
-            const lowerCaseText = effectiveText.toLowerCase();
-            const lowerCaseLabel = type.label.toLowerCase();
+        setFunctionFields(fields);
+    }, [functionNode]);
 
-            return lowerCaseLabel.includes(lowerCaseText);
-        });
+    const getFunctionNode = async () => {
+        const res = await rpcClient
+            .getBIDiagramRpcClient()
+            .getNodeTemplate({
+                position: { line: 0, offset: 0 },
+                filePath: Utils.joinPath(URI.file(projectPath), fileName).fsPath,
+                id: { node: isDataMapper ? 'DATA_MAPPER_DEFINITION' : 'FUNCTION_DEFINITION' },
+            });
+        const flowNode = res.flowNode;
+        setFunctionNode(flowNode);
+        console.log("Function Node: ", flowNode);
+    }
 
-        setFilteredTypes(filteredTypes);
-        return { visibleTypes, filteredTypes };
-    }, 250);
+    const getExistingFunctionNode = async () => {
+        const res = await rpcClient
+            .getBIDiagramRpcClient()
+            .getFunctionNode({
+                functionName,
+                fileName,
+                projectPath
+            });
+        const flowNode = res.functionDefinition;
+        setFunctionNode(flowNode);
+        console.log("Existing Function Node: ", flowNode);
+    }
 
-    const handleGetVisibleTypes = async (value: string, cursorPosition: number) => {
-        return await debouncedGetVisibleTypes(value, cursorPosition) as any;
-    };
-
-    const handleCompletionSelect = async () => {
-        debouncedGetVisibleTypes.cancel();
-        handleExpressionEditorCancel();
-    };
-
-    const handleExpressionEditorCancel = () => {
-        setFilteredTypes([]);
-        setTypes([]);
-    };
-
-    const handleExpressionEditorBlur = () => {
-        handleExpressionEditorCancel();
-    };
-    // <------------- Expression Editor Util functions list end --------------->
-
-    const paramFiels: FormField[] = [
-        {
-            key: `variable`,
-            label: 'Name',
-            type: 'string',
-            optional: false,
-            editable: true,
-            documentation: '',
-            value: '',
-            valueTypeConstraint: ""
-        },
-        {
-            key: `type`,
-            label: 'Type',
-            type: 'TYPE',
-            optional: false,
-            editable: true,
-            documentation: '',
-            value: '',
-            valueTypeConstraint: ""
-        },
-        {
-            key: `defaultable`,
-            label: 'Default Value',
-            type: 'string',
-            optional: true,
-            advanced: true,
-            editable: true,
-            documentation: '',
-            value: '',
-            valueTypeConstraint: ""
-        }
-    ];
-
-    const [isLoading, setIsLoading] = useState(false);
-
-    const handleFunctionCreate = async (data: FormValues) => {
+    const handleSubmit = async (data: FormValues) => {
         console.log("Function Form Data: ", data)
-        setIsLoading(true);
-        const name = data['functionName'];
-        const returnType = data['return'];
-        const params = data['params'];
-        const paramList = params ? getFunctionParametersList(params) : [];
-        const res = await rpcClient.getBIDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.FUNCTIONS, functionType: { name, returnType, parameters: paramList } });
-        setIsLoading(res.response);
+        const functionNodeCopy = { ...functionNode };
+        for (const [dataKey, dataValue] of Object.entries(data)) {
+            const properties = functionNodeCopy.properties as NodeProperties;
+            for (const [key, property] of Object.entries(properties)) {
+                if (dataKey === key) {
+                    if (property.valueType === "REPEATABLE_PROPERTY") {
+                        const baseConstraint = property.valueTypeConstraint;
+                        property.value = {};
+                        // Go through the parameters array
+                        for (const [repeatKey, repeatValue] of Object.entries(dataValue)) {
+                            // Create a deep copy for each iteration
+                            const valueConstraint = JSON.parse(JSON.stringify(baseConstraint));
+                            // Fill the values of the parameter constraint
+                            for (const [paramKey, param] of Object.entries((valueConstraint as any).value as NodeProperties)) {
+                                param.value = (repeatValue as any).formValues[paramKey];
+                            }
+                            (property.value as any)[(repeatValue as any).key] = valueConstraint;
+                        }
+                    } else {
+                        property.value = dataValue;
+                    }
+                }
+            }
+        }
+        console.log("Updated function node: ", functionNodeCopy);
+        await rpcClient.getBIDiagramRpcClient().getSourceCode({ filePath, flowNode: functionNodeCopy, isFunctionNodeUpdate: true });
     };
-
-    // Helper function to modify and set the visual information
-    const handleParamChange = (param: Parameter) => {
-        const name = `${param.formValues['variable']}`;
-        const type = `${param.formValues['type']}`;
-        const defaultValue = Object.keys(param.formValues).indexOf('defaultable') > -1 && `${param.formValues['defaultable']}`;
-        let value = `${type} ${name}`;
-        if (defaultValue) {
-            value += ` = ${defaultValue}`;
-        }
-        return {
-            ...param,
-            key: name,
-            value: value
-        }
-    };
-
-    const currentFields: FormField[] = [
-        {
-            key: `functionName`,
-            label: 'Function Name',
-            type: 'IDENTIFIER',
-            optional: false,
-            editable: true,
-            advanced: false,
-            documentation: '',
-            value: '',
-            valueTypeConstraint: ""
-        },
-        {
-            key: `params`,
-            label: 'Parameters',
-            type: 'PARAM_MANAGER',
-            optional: false,
-            editable: true,
-            advanced: false,
-            documentation: '',
-            value: '',
-            paramManagerProps: {
-                paramValues: [],
-                formFields: paramFiels,
-                handleParameter: handleParamChange
-            },
-            valueTypeConstraint: ""
-        },
-        {
-            key: `return`,
-            label: 'Return Type',
-            type: 'TYPE',
-            optional: true,
-            advanced: true,
-            editable: true,
-            documentation: '',
-            value: '',
-            valueTypeConstraint: ""
-        }
-    ];
 
     return (
         <View>
+            <TopNavigationBar />
+            <TitleBar title={formType.current} subtitle={`Manage ${isDataMapper ? "data mappers" : "functions"} in your integration`} />
             <ViewContent padding>
-                <BIHeader />
                 <Container>
-                    <Typography variant="h2">Create New Function</Typography>
-                    <BodyText>
-                        Define a function that can be used within the integration.
-                    </BodyText>
+                    {functionName && (
+                        <FormHeader title={`Edit ${formType.current}`} />
+                    )}
+                    {!functionName && (
+                        <FormHeader title={`Create New ${formType.current}`} subtitle={`Define a ${formType.current} that can be used within the integration.`} />
+                    )}
                     <FormContainer>
-                        <Form
-                            formFields={currentFields}
-                            oneTimeForm={true}
-                            expressionEditor={
-                                {
-                                    types: filteredTypes,
-                                    retrieveVisibleTypes: handleGetVisibleTypes,
-                                    onCompletionItemSelect: handleCompletionSelect,
-                                    onCancel: handleExpressionEditorCancel,
-                                    onBlur: handleExpressionEditorBlur
-                                }
-                            }
-                            onSubmit={!isLoading && handleFunctionCreate}
-                        />
+                        {filePath && functionFields.length > 0 &&
+                            <FormGeneratorNew
+                                fileName={filePath}
+                                targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
+                                fields={functionFields}
+                                onSubmit={handleSubmit}
+                                submitText={functionName ? "Save" : "Create"}
+                                selectedNode={functionNode?.codedata?.node}
+                            />
+                        }
                     </FormContainer>
                 </Container>
             </ViewContent>

@@ -175,6 +175,7 @@ export class BallerinaExtension {
                 "supportPositionalRenamePopup": "true"
             }
         };
+
         this.telemetryReporter = createTelemetryReporter(this);
         this.documentContext = new DocumentContext();
         this.codeServerContext = {
@@ -444,7 +445,7 @@ export class BallerinaExtension {
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             const releasesResponse = await axios.get(this.ballerinaKolaReleaseUrl);
             const releases = releasesResponse.data;
-            const tags = releases.map((release: any) => release.tag_name).filter((tag: string) => tag.startsWith("v2201.11.0-bi-pack"));
+            const tags = releases.map((release: any) => release.tag_name).filter((tag: string) => tag.includes("bi-pack"));
             if (tags.length === 0) {
                 throw new Error('No Kola distribution found in the releases');
             }
@@ -634,7 +635,7 @@ export class BallerinaExtension {
             await fs.promises.chmod(this.getBallerinaCmd(), 0o555);
 
             // Set permissions for lib
-            await this.setPermissionsForDirectory(path.join(this.getBallerinaHome(), 'lib'), 0o555);
+            await this.setPermissionsForDirectory(path.join(this.getBallerinaHome(), 'lib'), 0o755);
 
             // Set permissions for all files in the distributions
             await this.setPermissionsForDirectory(path.join(this.getBallerinaHome(), 'distributions'), 0o555);
@@ -653,7 +654,6 @@ export class BallerinaExtension {
         for (const file of files) {
             const fullPath = path.join(directory, file);
             if (fs.statSync(fullPath).isDirectory()) {
-                await fs.promises.chmod(fullPath, permissions);
                 await this.setPermissionsForDirectory(fullPath, permissions);
             } else {
                 await fs.promises.chmod(fullPath, permissions);

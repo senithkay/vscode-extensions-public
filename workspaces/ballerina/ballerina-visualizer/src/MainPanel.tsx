@@ -34,7 +34,8 @@ import {
     PopupMessage,
     MainForm,
     FunctionForm,
-    SetupView
+    SetupView,
+    TestFunctionForm
 } from "./views/BI";
 import { handleRedo, handleUndo } from "./utils/utils";
 import { FunctionDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
@@ -57,7 +58,6 @@ import ViewConfigurableVariables from "./views/BI/Configurables/ViewConfigurable
 import { ServiceWizard } from "./views/BI/ServiceDesigner/ServiceWizard";
 import { ServiceEditView } from "./views/BI/ServiceDesigner/ServiceEditView";
 import { ListenerEditView } from "./views/BI/ServiceDesigner/ListenerEditView";
-import { DataMapperForm } from "./views/BI/DataMapperForm";
 
 const globalStyles = css`
     *,
@@ -82,7 +82,7 @@ const PopUpContainer = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 2100;
+    z-index: 2000;
 `;
 
 const MainPanel = () => {
@@ -181,7 +181,7 @@ const MainPanel = () => {
                         setViewComponent(<ERDiagram />);
                         break;
                     case MACHINE_VIEW.TypeDiagram:
-                        setViewComponent(<TypeDiagram selectedRecordId={value?.identifier} />);
+                        setViewComponent(<TypeDiagram selectedTypeId={value?.identifier} projectUri={value?.projectUri} />);
                         break;
                     case MACHINE_VIEW.DataMapper:
                         setViewComponent(
@@ -196,14 +196,17 @@ const MainPanel = () => {
                     case MACHINE_VIEW.BIDataMapperForm:
                         rpcClient.getVisualizerLocation().then((location) => {
                             setViewComponent(
-                                <DataMapperForm
-                                    filePath={Utils.joinPath(URI.file(location.projectUri), 'data_mappings.bal').fsPath}
+                                <FunctionForm
+                                    projectPath={value.projectUri}
+                                    fileName={"data_mappings.bal"}
+                                    functionName={value?.identifier}
+                                    isDataMapper={true}
                                 />
                             );
                         });
                         break;
                     case MACHINE_VIEW.GraphQLDiagram:
-                        setViewComponent(<GraphQLDiagram />);
+                        setViewComponent(<GraphQLDiagram filePath={value?.documentUri} position={value?.position} projectUri={value?.projectUri} />);
                         break;
                     case MACHINE_VIEW.SequenceDiagram:
                         setViewComponent(
@@ -257,7 +260,15 @@ const MainPanel = () => {
                         setViewComponent(<MainForm />);
                         break;
                     case MACHINE_VIEW.BIFunctionForm:
-                        setViewComponent(<FunctionForm />);
+                        const fileName = value?.documentUri ? URI.parse(value.documentUri).path.split('/').pop() : 'functions.bal';
+                        setViewComponent(<FunctionForm projectPath={value.projectUri} fileName={fileName} functionName={value?.identifier} />);
+                        break;
+                    case MACHINE_VIEW.BITestFunctionForm:
+                        setViewComponent(<TestFunctionForm
+                            functionName={value?.identifier}
+                            filePath={value?.documentUri}
+                            serviceType={value?.serviceType}
+                        />);
                         break;
                     case MACHINE_VIEW.ViewConfigVariables:
                         rpcClient.getVisualizerLocation().then((location) => {
@@ -329,7 +340,7 @@ const MainPanel = () => {
         <>
             <Global styles={globalStyles} />
             <VisualizerContainer>
-                {navActive && <NavigationBar showHome={showHome} />}
+                {/* {navActive && <NavigationBar showHome={showHome} />} */}
                 {viewComponent && <ComponentViewWrapper>{viewComponent}</ComponentViewWrapper>}
                 {sidePanel !== "EMPTY" && sidePanel === "ADD_CONNECTION" && (
                     <ConnectorList applyModifications={applyModifications} />

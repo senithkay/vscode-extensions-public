@@ -1,0 +1,16 @@
+{
+    "id": {
+        "operation": "DIRECT",
+        "targetType": "int",
+        "parameters": [
+            "person.id"
+        ]
+    },
+    "name": {
+        "operation": "DIRECT",
+        "targetType": "string",
+        "parameters": [
+            "person.name"
+        ]
+    }
+}

@@ -3,7 +3,7 @@
   "displayName": "Micro Integrator",
   "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
   "icon": "resources/images/wso2-micro-integrator-image.png",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "publisher": "wso2",
   "engines": {
     "vscode": "^1.81.0"
@@ -444,6 +444,16 @@
         "icon": "$(delete)"
       },
       {
+        "command": "MI.project-explorer.markAsDefaultSequence",
+        "title": "Set as Automation Sequence",
+        "icon": "$(star)"
+      },
+      {
+        "command": "MI.project-explorer.unmarkAsDefaultSequence",
+        "title": "Unset as Automation Sequence",
+        "icon": "$(star-full)"
+      },
+      {
         "command": "project-explorer.view",
         "title": "View"
       },
@@ -601,6 +611,14 @@
         },
         {
           "command": "MI.project-explorer.delete",
+          "when": "false"
+        },
+        {
+          "command": "MI.project-explorer.markAsDefaultSequence",
+          "when": "false"
+        },
+        {
+          "command": "MI.project-explorer.unmarkAsDefaultSequence",
           "when": "false"
         },
         {
@@ -827,6 +845,16 @@
           "key": "delete"
         },
         {
+          "command": "MI.project-explorer.markAsDefaultSequence",
+          "when": "view == MI.project-explorer && viewItem == sequence",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.unmarkAsDefaultSequence",
+          "when": "view == MI.project-explorer && viewItem == sequence-main",
+          "group": "inline"
+        },
+        {
           "command": "MI.test.edit.mock-service",
           "group": "inline",
           "when": "view == MI.mock-services"
@@ -867,7 +895,7 @@
         "description": "design-view",
         "default": {
           "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-          "fontCharacter": "\\f144"
+          "fontCharacter": "\\f163"
         }
       }
     }

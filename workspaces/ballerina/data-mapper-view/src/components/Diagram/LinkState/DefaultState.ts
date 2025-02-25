@@ -24,6 +24,7 @@ import { UnionTypeNode } from "../Node/UnionType";
 import { LinkOverayContainerID } from '../OverriddenLinkLayer/LinkOverlayPortal';
 
 import { CreateLinkState } from './CreateLinkState';
+import { removePendingMappingTempLinkIfExists } from '../Link/link-utils';
 
 export class DefaultState extends State<DiagramEngine> {
 	dragCanvas: DragCanvasState;
@@ -43,6 +44,8 @@ export class DefaultState extends State<DiagramEngine> {
 				type: InputType.MOUSE_DOWN,
 				fire: (event: ActionEvent<MouseEvent>) => {
 					const element = this.engine.getActionEventBus().getModelForEvent(event);
+					const isExpandOrCollapse = (event.event.target as Element)
+						.closest('div[id^="expand-or-collapse"]');
 
 					// the canvas was clicked on, transition to the dragging canvas state
 					if (!element) {
@@ -54,11 +57,13 @@ export class DefaultState extends State<DiagramEngine> {
 							// Clicked on a link overlay item or a diagnostic tooltip,
 							// hence, do not propagate as a canvas drag
 						} else if (dmCanvasContainer) {
+							// deselect links when clicking on the canvas
+							this.deselectLinks();
 							this.transitionWithEvent(this.dragCanvas, event);
 						}
 					}
 					// initiate dragging a new link
-					else if (element instanceof PortModel || element instanceof DataMapperNodeModel) {
+					else if (element instanceof PortModel || element instanceof DataMapperNodeModel && !isExpandOrCollapse) {
 						return;
 					}
 					// move the items (and potentially link points)
@@ -75,7 +80,7 @@ export class DefaultState extends State<DiagramEngine> {
 				fire: (actionEvent: ActionEvent<MouseEvent>) => {
 					const element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
 					const isExpandOrCollapse = (actionEvent.event.target as Element)
-						.closest('button[id^="button-wrapper"]');
+						.closest('button[id^="expand-or-collapse"]');
 					const isAddElement = (actionEvent.event.target as Element)
 						.closest('button[id^="add-array-element"]');
 					const isAddLocalVariable = (actionEvent.event.target as Element)
@@ -111,11 +116,20 @@ export class DefaultState extends State<DiagramEngine> {
 					// On esc press unselect any selected link
 					if ((actionEvent.event as any).keyCode === 27) {
 						this.engine.getModel().getLinks().forEach((link) => {
-							link.setSelected(false);
+							this.deselectLinks();
 						});
 					}
 				}
 			})
 		);
+	}
+
+	deselectLinks() {
+		this.engine.getModel().getLinks().forEach((link) => {
+			link.setSelected(false);
+			link.getSourcePort()?.fireEvent({}, "link-unselected");
+			link.getTargetPort()?.fireEvent({}, "link-unselected");
+			removePendingMappingTempLinkIfExists(link);
+		});
 	}
 }

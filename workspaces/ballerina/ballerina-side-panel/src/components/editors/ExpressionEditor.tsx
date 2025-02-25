@@ -17,7 +17,8 @@ import {
     ErrorBanner,
     FormExpressionEditor,
     FormExpressionEditorRef,
-    RequiredFormInput
+    RequiredFormInput,
+    ThemeColors
 } from '@wso2-enterprise/ui-toolkit';
 import { sanitizeType } from './utils';
 import { FormField, FormExpressionEditorProps } from '../Form/types';
@@ -28,7 +29,6 @@ import {
     SubPanelView,
     SubPanelViewProps
 } from '@wso2-enterprise/ballerina-core';
-import { Colors } from '../../resources/constants';
 
 type ContextAwareExpressionEditorProps = {
     field: FormField;
@@ -79,10 +79,10 @@ export namespace S {
     });
 
     export const Type = styled.div<{ isVisible: boolean }>(({ isVisible }) => ({
-        color: Colors.PRIMARY,
+        color: ThemeColors.PRIMARY,
         fontFamily: 'monospace',
         fontSize: '12px',
-        border: `1px solid ${Colors.PRIMARY}`,
+        border: `1px solid ${ThemeColors.PRIMARY}`,
         borderRadius: '999px',
         padding: '2px 8px',
         display: 'inline-block',
@@ -116,6 +116,18 @@ export namespace S {
         font-size: 10px;
         margin: 0;
         color: var(--vscode-button-background);
+    `;
+
+    export const AddNewButton = styled(Button)`
+        & > vscode-button {
+            color: var(--vscode-textLink-activeForeground);
+            border-radius: 0px;
+            padding: 3px 5px;
+            margin-top: 4px;
+        };
+        & > vscode-button > * {
+            margin-right: 6px;
+        };
     `;
 }
 
@@ -191,6 +203,20 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
 
     const handleFocus = async () => {
         setFocused(true);
+
+        // Retrive completions
+        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
+        cursorPositionRef.current = cursorPosition;
+        const triggerCharacter =
+            cursorPosition > 0
+                ? triggerCharacters.find((char) => fieldValue[cursorPosition - 1] === char)
+                : undefined;
+        if (triggerCharacter) {
+            await retrieveCompletions(fieldValue, field.key, cursorPosition, triggerCharacter);
+        } else {
+            await retrieveCompletions(fieldValue, field.key, cursorPosition);
+        }
+
         // Trigger actions on focus
         await onFocus?.();
         handleOnFieldFocus?.(field.key);
@@ -223,18 +249,20 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
 
     const handleInlineDataMapperOpen = (isUpdate: boolean) => {
         if (subPanelView === SubPanelView.INLINE_DATA_MAPPER && !isUpdate) {
-            openSubPanel({view: SubPanelView.UNDEFINED});
+            openSubPanel({ view: SubPanelView.UNDEFINED });
         } else {
-            handleOpenSubPanel(SubPanelView.INLINE_DATA_MAPPER, { inlineDataMapper: {
-                filePath: effectiveFileName,
-                flowNode: undefined, // This will be updated in the Form component
-                position: {
-                    line: effectiveTargetLineRange.startLine.line,
-                    offset: effectiveTargetLineRange.startLine.offset,
-                },
-                propertyKey: field.key,
-                editorKey: field.key
-            }});
+            handleOpenSubPanel(SubPanelView.INLINE_DATA_MAPPER, {
+                inlineDataMapper: {
+                    filePath: effectiveFileName,
+                    flowNode: undefined, // This will be updated in the Form component
+                    position: {
+                        line: effectiveTargetLineRange.startLine.line,
+                        offset: effectiveTargetLineRange.startLine.offset,
+                    },
+                    propertyKey: field.key,
+                    editorKey: field.key
+                }
+            });
             handleOnFieldFocus?.(field.key);
         }
     };
@@ -244,7 +272,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
     }
 
     const handleGetHelperPane = (value: string, onChange: (value: string, updatedCursorPosition: number) => void) => {
-        return getHelperPane?.(exprRef, value, onChange, handleChangeHelperPaneState);
+        return getHelperPane?.(exprRef, field.placeholder, value, onChange, handleChangeHelperPaneState);
     }
 
     const updateSubPanelData = (value: string) => {

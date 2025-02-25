@@ -445,6 +445,7 @@ export interface ShowErrorMessageRequest {
 
 export interface OpenDiagramRequest {
     path: string;
+    beside?: boolean;
 }
 
 export interface CreateAPIResponse {
@@ -1924,6 +1925,7 @@ export interface Mediator {
     icon: string;
     operationName?: string;
     iconPath?: string;
+    tooltip?: string;
 }
 
 export interface GetMediatorRequest {

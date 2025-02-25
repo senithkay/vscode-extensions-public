@@ -18,6 +18,7 @@ import { activateDebugConfigProvider } from './features/debugger';
 import { activate as activateProjectFeatures } from './features/project';
 import { activate as activateEditorSupport } from './features/editor-support';
 import { activate as activateTesting } from './features/testing/activator';
+import { activate as activateBITesting } from './features/test-explorer/activator';
 import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams, FeatureState } from 'vscode-languageclient';
 import { ExtendedLangClient } from './core/extended-language-client';
 import { activate as activateNotebook } from './views/notebook';
@@ -109,9 +110,6 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         // Activate editor support
         activateEditorSupport(ballerinaExtInstance);
 
-        // Activate Ballerina Testing
-        activateTesting(ballerinaExtInstance);
-
         // <------------ MAIN FEATURES ----------->
         // Enable Ballerina by examples
         activateBBE(ballerinaExtInstance);
@@ -119,6 +117,12 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         if (StateMachine.context().isBI) {
             //Enable BI Feature
             activateBIFeatures(ballerinaExtInstance);
+
+            // Enable Ballerina Testing Explorer
+            activateBITesting(ballerinaExtInstance);
+        } else {
+            // Activate Ballerina Testing
+            activateTesting(ballerinaExtInstance);
         }
 
         // Enable Ballerina Notebook
@@ -131,9 +135,6 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         // Enable Ballerina Telemetry listener
         activateTelemetryListener(ballerinaExtInstance);
 
-        //TOOD: Remove. Temp workaround to disable auth
-        extension.context.secrets.store('BallerinaAIUser', 'abc');
-        extension.context.secrets.store('BallerinaAIRefreshToken', 'abc');
         //activate ai panel
         activateAiPanel(ballerinaExtInstance);
 

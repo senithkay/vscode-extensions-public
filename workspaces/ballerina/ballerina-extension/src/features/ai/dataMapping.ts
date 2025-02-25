@@ -102,7 +102,7 @@ async function getUpdatedFunctionSource(
       throw new Error("Error modifying syntax tree");
     }
   
-    const fn = getFunction(
+    const fn = await getFunction(
       syntaxTree as ModulePart,
       funcDefinitionNode.functionName.value
     );

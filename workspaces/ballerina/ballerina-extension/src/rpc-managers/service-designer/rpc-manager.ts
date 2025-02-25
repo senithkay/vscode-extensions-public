@@ -12,6 +12,8 @@ import {
     DIRECTORY_MAP,
     ExportOASRequest,
     ExportOASResponse,
+    FunctionModelRequest,
+    FunctionModelResponse,
     FunctionSourceCodeRequest,
     HttpResourceModelRequest,
     HttpResourceModelResponse,
@@ -198,6 +200,18 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     if (value) {
                         identifiers.push(value);
                     }
+                    if (params.service.properties[property].choices) {
+                        params.service.properties[property].choices.forEach(choice => {
+                            if (choice.properties) {
+                                Object.keys(choice.properties).forEach(subProperty => {
+                                    const subPropertyValue = choice.properties[subProperty].value;
+                                    if (subPropertyValue) {
+                                        identifiers.push(subPropertyValue);
+                                    }
+                                });
+                            }
+                        });
+                    }
                 }
                 const res: ListenerSourceCodeResponse = await context.langClient.addServiceSourceCode(params);
                 const position = await this.updateSource(res, identifiers);
@@ -297,9 +311,6 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             try {
-                const projectDir = path.join(StateMachine.context().projectUri);
-                const targetFile = path.join(projectDir, `main.bal`);
-                params.filePath = targetFile;
                 const targetPosition: NodePosition = {
                     startLine: params.codedata.lineRange.startLine.line,
                     startColumn: params.codedata.lineRange.startLine.offset
@@ -307,7 +318,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 const res: ResourceSourceCodeResponse = await context.langClient.updateResourceSourceCode(params);
                 const position = await this.updateSource(res, undefined, targetPosition);
                 const result: SourceUpdateResponse = {
-                    filePath: targetFile,
+                    filePath: params.filePath,
                     position: position
                 };
                 resolve(result);
@@ -365,7 +376,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 if (parseSuccess) {
                     (identifiers || targetPosition) && (syntaxTree as ModulePart).members.forEach(member => {
                         if (STKindChecker.isServiceDeclaration(member)) {
-                            if (identifiers && identifiers.every(id => id && member.source.includes(id))) {
+                            if (identifiers && identifiers.filter(id => id && member.source.includes(id)).length >= identifiers.length * 0.5) {
                                 position = member.position;
                             }
                             if (targetPosition && member.position.startLine === targetPosition.startLine && member.position.startColumn === targetPosition.startColumn) {
@@ -416,9 +427,6 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             try {
-                const projectDir = path.join(StateMachine.context().projectUri);
-                const targetFile = path.join(projectDir, `main.bal`);
-                params.filePath = targetFile;
                 const targetPosition: NodePosition = {
                     startLine: params.codedata.lineRange.startLine.line,
                     startColumn: params.codedata.lineRange.startLine.offset
@@ -426,7 +434,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 const res: ResourceSourceCodeResponse = await context.langClient.addFunctionSourceCode(params);
                 const position = await this.updateSource(res, undefined, targetPosition);
                 const result: SourceUpdateResponse = {
-                    filePath: targetFile,
+                    filePath: params.filePath,
                     position: position
                 };
                 resolve(result);
@@ -444,6 +452,18 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 resolve(res);
             } catch (error) {
                 console.log(error);
+            }
+        });
+    }
+
+    async getFunctionModel(params: FunctionModelRequest): Promise<FunctionModelResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const res: FunctionModelResponse = await context.langClient.getFunctionModel(params);
+                resolve(res);
+            } catch (error) {
+                console.log(">>> error fetching function model", error);
             }
         });
     }

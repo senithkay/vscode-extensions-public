@@ -17,7 +17,9 @@ export default function Default() {
 
     return (
         <div className={classes.root}>
-            <ErrorGenSvg />
+            <div className={classes.errorImg}>
+                <ErrorGenSvg />
+            </div>
             <Typography variant="h4" className={classes.errorTitle}>
                 A problem occurred while rendering the Data Mapper.
             </Typography>

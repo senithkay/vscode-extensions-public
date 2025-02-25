@@ -43,10 +43,25 @@ import {
     BIGetEnclosedFunctionRequest,
     BIGetEnclosedFunctionResponse,
     BIDesignModelResponse,
+    GetTypesResponse,
+    UpdateTypeResponse,
+    GetTypesRequest,
+    UpdateTypeRequest,
+    GetTypeRequest,
+    GetTypeResponse,
     UpdateImportsRequest,
     UpdateImportsResponse,
     AddFunctionRequest,
-    AddFunctionResponse
+    AddFunctionResponse,
+    FunctionNodeRequest,
+    FunctionNodeResponse,
+    ServiceClassModelResponse,
+    ModelFromCodeRequest,
+    ClassFieldModifierRequest,
+    SourceEditResponse,
+    ServiceClassSourceRequest,
+    AddFieldRequest,
+    RenameIdentifierRequest
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -90,6 +105,7 @@ export interface BIDiagramAPI {
     getModuleNodes: () => Promise<BIModuleNodesResponse>;
     getReadmeContent: () => Promise<ReadmeContentResponse>;
     openReadme: () => void;
+    renameIdentifier: (params: RenameIdentifierRequest) => Promise<void>;
     deployProject: () => void;
     openAIChat: (params: AIChatRequest) => void;
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
@@ -104,6 +120,15 @@ export interface BIDiagramAPI {
     formDidOpen: (params: FormDidOpenParams) => Promise<void>;
     formDidClose: (params: FormDidCloseParams) => Promise<void>;
     getDesignModel: () => Promise<BIDesignModelResponse>;
+    getTypes: (params: GetTypesRequest) => Promise<GetTypesResponse>;
+    getType: (params: GetTypeRequest) => Promise<GetTypeResponse>;
+    updateType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
+    getServiceClassModel: (params: ModelFromCodeRequest) => Promise<ServiceClassModelResponse>;
+    updateClassField: (params: ClassFieldModifierRequest) => Promise<SourceEditResponse>;
+    addClassField: (params: AddFieldRequest) => Promise<SourceEditResponse>;
+    updateServiceClass: (params: ServiceClassSourceRequest) => Promise<SourceEditResponse>;
+    createGraphqlClassType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
     updateImports: (params: UpdateImportsRequest) => Promise<UpdateImportsResponse>;
     addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
+    getFunctionNode: (params: FunctionNodeRequest) => Promise<FunctionNodeResponse>;
 }

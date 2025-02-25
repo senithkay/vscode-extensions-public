@@ -20,6 +20,7 @@ import {
     BIConnectorsResponse,
     BIDeleteByComponentInfoRequest,
     BIDeleteByComponentInfoResponse,
+    BIDesignModelResponse,
     BIDiagramAPI,
     BIFlowModelResponse,
     BIGetEnclosedFunctionRequest,
@@ -34,27 +35,38 @@ import {
     BISourceCodeRequest,
     BISourceCodeResponse,
     BreakpointRequest,
+    ClassFieldModifierRequest,
     ComponentRequest,
     ConfigVariableResponse,
     CreateComponentResponse,
     CurrentBreakpointsResponse,
-    BIDesignModelResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     ExpressionDiagnosticsRequest,
     ExpressionDiagnosticsResponse,
     FormDidCloseParams,
     FormDidOpenParams,
+    FunctionNodeRequest,
+    FunctionNodeResponse,
+    GetTypeRequest,
+    GetTypeResponse,
+    GetTypesRequest,
+    GetTypesResponse,
+    ModelFromCodeRequest,
     ProjectComponentsResponse,
     ProjectImports,
     ProjectRequest,
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
+    ServiceClassModelResponse,
     SignatureHelpRequest,
     SignatureHelpResponse,
+    SourceEditResponse,
     UpdateConfigVariableRequest,
     UpdateConfigVariableResponse,
+    UpdateTypeRequest,
+    UpdateTypeResponse,
     UpdateImportsRequest,
     UpdateImportsResponse,
     VisibleTypesRequest,
@@ -64,6 +76,7 @@ import {
     addFunction,
     buildProject,
     createComponent,
+    createGraphqlClassType,
     createProject,
     deleteByComponentInfo,
     deleteFlowNode,
@@ -81,14 +94,18 @@ import {
     getExpressionCompletions,
     getExpressionDiagnostics,
     getFlowModel,
+    getFunctionNode,
     getFunctions,
     getModuleNodes,
     getNodeTemplate,
     getProjectComponents,
     getProjectStructure,
     getReadmeContent,
+    getServiceClassModel,
     getSignatureHelp,
     getSourceCode,
+    getType,
+    getTypes,
     getVisibleTypes,
     getVisibleVariableTypes,
     getWorkspaces,
@@ -97,8 +114,16 @@ import {
     openReadme,
     removeBreakpointFromSource,
     runProject,
+    updateClassField,
+    addClassField,
     updateConfigVariables,
-    updateImports
+    updateImports,
+    updateServiceClass,
+    updateType,
+    ServiceClassSourceRequest,
+    AddFieldRequest,
+    RenameIdentifierRequest,
+    renameIdentifier
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -202,6 +227,10 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendNotification(openReadme, HOST_EXTENSION);
     }
 
+    renameIdentifier(params: RenameIdentifierRequest): Promise<void> {
+        return this._messenger.sendRequest(renameIdentifier, HOST_EXTENSION, params);
+    }
+
     deployProject(): void {
         return this._messenger.sendNotification(deployProject, HOST_EXTENSION);
     }
@@ -257,6 +286,38 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
     getDesignModel(): Promise<BIDesignModelResponse> {
         return this._messenger.sendRequest(getDesignModel, HOST_EXTENSION);
     }
+    
+    getTypes(params: GetTypesRequest): Promise<GetTypesResponse> {
+        return this._messenger.sendRequest(getTypes, HOST_EXTENSION, params);
+    }
+
+    getType(params: GetTypeRequest): Promise<GetTypeResponse> {
+        return this._messenger.sendRequest(getType, HOST_EXTENSION, params);
+    }
+
+    updateType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
+        return this._messenger.sendRequest(updateType, HOST_EXTENSION, params);
+    }
+
+    getServiceClassModel(params: ModelFromCodeRequest): Promise<ServiceClassModelResponse> {
+        return this._messenger.sendRequest(getServiceClassModel, HOST_EXTENSION, params);
+    }
+
+    updateClassField(params: ClassFieldModifierRequest): Promise<SourceEditResponse> {
+        return this._messenger.sendRequest(updateClassField, HOST_EXTENSION, params);
+    }
+
+    addClassField(params: AddFieldRequest): Promise<SourceEditResponse> {
+        return this._messenger.sendRequest(addClassField, HOST_EXTENSION, params);
+    }
+
+    updateServiceClass(params: ServiceClassSourceRequest): Promise<SourceEditResponse> {
+        return this._messenger.sendRequest(updateServiceClass, HOST_EXTENSION, params);
+    }
+
+    createGraphqlClassType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
+        return this._messenger.sendRequest(createGraphqlClassType, HOST_EXTENSION, params);
+    }
 
     updateImports(params: UpdateImportsRequest): Promise<UpdateImportsResponse> {
         return this._messenger.sendRequest(updateImports, HOST_EXTENSION, params);
@@ -264,5 +325,9 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {
         return this._messenger.sendRequest(addFunction, HOST_EXTENSION, params);
+    }
+
+    getFunctionNode(params: FunctionNodeRequest): Promise<FunctionNodeResponse> {
+        return this._messenger.sendRequest(getFunctionNode, HOST_EXTENSION, params);
     }
 }

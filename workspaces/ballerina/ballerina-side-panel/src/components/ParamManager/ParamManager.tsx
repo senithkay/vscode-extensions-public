@@ -12,12 +12,11 @@ import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { ParamEditor } from './ParamEditor';
 import { ParamItem } from './ParamItem';
-import { Codicon, LinkButton, Typography } from '@wso2-enterprise/ui-toolkit';
-import { FormProps } from '../Form';
+import { Codicon, ErrorBanner, LinkButton, RequiredFormInput } from '@wso2-enterprise/ui-toolkit';
 import { FormField, FormValues } from '../Form/types';
 import { Controller } from 'react-hook-form';
 import { useFormContext } from '../../context';
-import { FlowNode } from '@wso2-enterprise/ballerina-core';
+import { NodeKind } from '@wso2-enterprise/ballerina-core';
 
 export interface Parameter {
     id: number;
@@ -25,6 +24,8 @@ export interface Parameter {
     key: string;
     value: string;
     icon: string;
+    identifierEditable: boolean;
+    identifierRange: any;
 }
 
 
@@ -37,7 +38,9 @@ export interface ParamConfig {
 export interface ParamManagerProps {
     paramConfigs: ParamConfig;
     onChange?: (parameters: ParamConfig) => void,
+    openRecordEditor?: (open: boolean) => void;
     readonly?: boolean;
+    selectedNode?: NodeKind;
 }
 
 const AddButtonWrapper = styled.div`
@@ -49,28 +52,66 @@ const ParamContainer = styled.div`
     width: 100%;
 `;
 
+const HeaderContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+`;
+
+const Description = styled.div`
+    color: var(--vscode-list-deemphasizedForeground);
+`;
+
+const LabelContainer = styled.label`
+    display: flex;
+    align-items: center;
+`;
+
+const Label = styled.label`
+    color: var(--vscode-editor-foreground);
+`;
+
 export interface ParamManagerEditorProps {
     field: FormField;
     handleOnFieldFocus?: (key: string) => void;
+    openRecordEditor?: (open: boolean) => void;
+    selectedNode?: NodeKind;
 }
 
 export function ParamManagerEditor(props: ParamManagerEditorProps) {
-    const { field } = props;
+    const { field, openRecordEditor, selectedNode } = props;
     const { form } = useFormContext();
     const { control, setValue } = form;
     return (
         <ParamContainer>
-            <Typography variant='h4'>Parameters</Typography>
+            <HeaderContainer>
+                <LabelContainer>
+                    <Label>{field.label}</Label>
+                    {!field.optional && <RequiredFormInput />}
+                </LabelContainer>
+                <Description>{field.documentation}</Description>
+            </HeaderContainer>
             <Controller
                 control={control}
                 name={field.key}
-                render={({ field: { onChange } }) => (
-                    <ParamManager
-                        paramConfigs={field.paramManagerProps}
-                        onChange={async (config: ParamConfig) => {
-                            onChange(config.paramValues);
-                        }}
-                    />
+                rules={{
+                    required: {
+                        value: !field.optional && !field.placeholder,
+                        message: `${selectedNode === "DATA_MAPPER_DEFINITION" ? 'Input type' : field.label} is required`
+                    }
+                }}
+                render={({ field: { onChange }, fieldState: { error } }) => (
+                    <>
+                        <ParamManager
+                            paramConfigs={field.paramManagerProps}
+                            openRecordEditor={openRecordEditor}
+                            onChange={async (config: ParamConfig) => {
+                                onChange(config.paramValues);
+                            }}
+                            selectedNode={selectedNode}
+                        />
+                        {error && <ErrorBanner errorMsg={error.message.toString()} />}
+                    </>
                 )}
             />
         </ParamContainer>
@@ -79,7 +120,7 @@ export function ParamManagerEditor(props: ParamManagerEditorProps) {
 }
 
 export function ParamManager(props: ParamManagerProps) {
-    const { paramConfigs, readonly, onChange } = props;
+    const { paramConfigs, readonly, onChange, openRecordEditor, selectedNode } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
     const [parameters, setParameters] = useState<Parameter[]>(paramConfigs.paramValues);
@@ -99,7 +140,9 @@ export function ParamManager(props: ParamManagerProps) {
             formValues: paramInfo,
             key: "",
             value: "",
-            icon: ""
+            icon: "",
+            identifierEditable: true,
+            identifierRange: undefined
         };
     };
 
@@ -152,22 +195,33 @@ export function ParamManager(props: ParamManagerProps) {
 
     useEffect(() => {
         renderParams();
-    }, [parameters, editingSegmentId]);
+    }, [parameters, editingSegmentId, paramConfigs]);
 
     const renderParams = () => {
         const render: React.ReactElement[] = [];
         parameters
             .forEach((param, index) => {
                 if (editingSegmentId === index) {
-                    paramConfigs.formFields.forEach(field => {
-                        field.value = param.formValues[field.key];
+                    const newParamConfig = {
+                        ...paramConfigs,
+                        formFields: paramConfigs.formFields.map(field => ({ ...field }))
+                    };
+                    newParamConfig.formFields.forEach(field => {
+                        if (param.formValues[field.key]) {
+                            field.value = param.formValues[field.key];
+                            if (field.key === "variable") {
+                                field.editable = param.identifierEditable;
+                                field.lineRange = param.identifierRange;
+                            }
+                        }
                     })
                     render.push(
                         <ParamEditor
                             parameter={param}
-                            paramFields={paramConfigs.formFields}
+                            paramFields={newParamConfig.formFields}
                             onSave={onSaveParam}
                             onCancelEdit={onParamEditCancel}
+                            openRecordEditor={openRecordEditor}
                         />
                     )
                 } else if ((editingSegmentId !== index)) {
@@ -191,7 +245,7 @@ export function ParamManager(props: ParamManagerProps) {
                 <AddButtonWrapper>
                     <LinkButton sx={readonly && { color: "var(--vscode-badge-background)" }} onClick={!readonly && onAddClick} >
                         <Codicon name="add" />
-                        <>Add Parameter</>
+                        <>{`Add ${selectedNode === "DATA_MAPPER_DEFINITION" ? "Input" : "Parameter"}`}</>
                     </LinkButton>
                 </AddButtonWrapper>
             )}

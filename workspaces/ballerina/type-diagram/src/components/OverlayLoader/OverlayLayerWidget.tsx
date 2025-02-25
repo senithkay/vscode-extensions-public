@@ -21,6 +21,7 @@ export interface NodeLayerWidgetProps {
 const Container = styled.div`
 	align-items: center;
 	background-image: radial-gradient(circle at 0.5px 0.5px, var(--vscode-textBlockQuote-border) 1px, transparent 0);
+	background-color: var(--vscode-editor-background);
 	display: flex;
 	flex-direction: row;
 	height: 100%;

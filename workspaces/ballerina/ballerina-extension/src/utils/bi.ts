@@ -7,13 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { exec } from "child_process";
-import { window, commands, workspace, Uri, TextDocument } from "vscode";
+import { window, commands, workspace, Uri } from "vscode";
 import * as fs from 'fs';
 import path from "path";
-import { BallerinaTrigger, ComponentRequest, CreateComponentResponse, createFunctionSignature, createImportStatement, createServiceDeclartion, createTrigger, DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, NodePosition, STModification, SyntaxTreeResponse, Trigger } from "@wso2-enterprise/ballerina-core";
-import { StateMachine, history, openView, updateView } from "../stateMachine";
+import { BallerinaProjectComponents, ComponentRequest, CreateComponentResponse, createFunctionSignature, EVENT_TYPE, NodePosition, STModification, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
+import { StateMachine, history, openView } from "../stateMachine";
 import { applyModifications, modifyFileContent, writeBallerinaFileDidOpen } from "./modification";
 import { ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { URI } from "vscode-uri";
 
 export const README_FILE = "readme.md";
 export const FUNCTIONS_FILE = "functions.bal";
@@ -143,6 +144,10 @@ bi = true
     const mainBal = path.join(projectRoot, 'main.bal');
     writeBallerinaFileDidOpen(mainBal, EMPTY);
 
+    // Create functions.bal file
+    const functionsBal = path.join(projectRoot, 'functions.bal');
+    writeBallerinaFileDidOpen(functionsBal, EMPTY);
+
     // Create datamappings.bal file
     const datamappingsBalPath = path.join(projectRoot, 'data_mappings.bal');
     writeBallerinaFileDidOpen(datamappingsBalPath, EMPTY);
@@ -167,7 +172,21 @@ bi = true
 export async function createBIAutomation(params: ComponentRequest): Promise<CreateComponentResponse> {
     return new Promise(async (resolve) => {
         const functionFile = await handleAutomationCreation(params);
-        openView(EVENT_TYPE.OPEN_VIEW, { documentUri: functionFile, position: { startLine: 5, startColumn: 0, endLine: 12, endColumn: 1 } });
+        const components = await StateMachine.langClient().getBallerinaProjectComponents({
+            documentIdentifiers: [{ uri: URI.file(StateMachine.context().projectUri).toString() }]
+        }) as BallerinaProjectComponents;
+        const position: NodePosition = {};
+        for (const pkg of components.packages) {
+            for (const module of pkg.modules) {
+                module.automations.forEach(func => {
+                    position.startColumn = func.startColumn;
+                    position.startLine = func.startLine;
+                    position.endLine = func.endLine;
+                    position.endColumn = func.endColumn;
+                })
+            }
+        }
+        openView(EVENT_TYPE.OPEN_VIEW, { documentUri: functionFile, position });
         history.clear();
         commands.executeCommand("BI.project-explorer.refresh");
         resolve({ response: true, error: "" });
@@ -201,9 +220,6 @@ export async function createBIFunction(params: ComponentRequest): Promise<Create
 
 // <---------- Task Source Generation START-------->
 export async function handleAutomationCreation(params: ComponentRequest) {
-    const displayAnnotation = `@display {
-    label: "${params.functionType.name}"
-}`;
     let paramList = '';
     const paramLength = params.functionType.parameters.length;
     if (paramLength > 0) {
@@ -218,7 +234,6 @@ export async function handleAutomationCreation(params: ComponentRequest) {
     let funcSignature = `public function main(${paramList}) returns error? {`;
     const balContent = `import ballerina/log;
 
-${displayAnnotation}
 ${funcSignature}
     do {
 

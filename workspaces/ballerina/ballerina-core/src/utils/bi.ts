@@ -11,6 +11,7 @@ import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { ComponentInfo } from "../interfaces/ballerina";
 import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse } from "../interfaces/bi";
 import { BallerinaProjectComponents, ExtendedLangClientInterface, SyntaxTree } from "../interfaces/extended-lang-client";
+import { CDModel } from "../interfaces/component-diagram";
 import { URI, Utils } from "vscode-uri";
 import { LineRange } from "../interfaces/common";
 import { ServiceModel } from "../interfaces/service";
@@ -27,26 +28,76 @@ export async function buildProjectStructure(projectDir: string, langClient: Exte
             [DIRECTORY_MAP.TYPES]: [],
             [DIRECTORY_MAP.CONFIGURATIONS]: [],
             [DIRECTORY_MAP.RECORDS]: [],
-            [DIRECTORY_MAP.DATA_MAPPERS]: []
+            [DIRECTORY_MAP.DATA_MAPPERS]: [],
+            [DIRECTORY_MAP.ENUMS]: [],
+            [DIRECTORY_MAP.CLASSES]: []
         }
     };
     const components = await langClient.getBallerinaProjectComponents({
         documentIdentifiers: [{ uri: URI.file(projectDir).toString() }]
     });
-    await traverseComponents(components, result, langClient);
+    const componentModel = await langClient.getDesignModel({
+        projectPath: projectDir
+    });
+    await traverseComponents(components, result, langClient, componentModel?.designModel);
     return result;
 }
 
-async function traverseComponents(components: BallerinaProjectComponents, response: ProjectStructureResponse, langClient: ExtendedLangClientInterface) {
+async function traverseComponents(components: BallerinaProjectComponents, response: ProjectStructureResponse, langClient: ExtendedLangClientInterface, designModel: CDModel) {
+
+    const designServices: ComponentInfo[] = [];
+
+    if (designModel) {
+        designModel?.services.forEach(service => {
+            const resources: ComponentInfo[] = [];
+            service.resourceFunctions.forEach(func => {
+                const resourceInfo: ComponentInfo = {
+                    name: `${func.accessor} - ${func.path}`,
+                    filePath: func.location.filePath.split('/').pop(),
+                    startLine: func.location.startLine.line,
+                    startColumn: func.location.startLine.offset,
+                    endLine: func.location.endLine.line,
+                    endColumn: func.location.endLine.offset,
+                }
+                resources.push(resourceInfo);
+            })
+
+            service.remoteFunctions.forEach(func => {
+                const resourceInfo: ComponentInfo = {
+                    name: func.name,
+                    filePath: func.location.filePath.split('/').pop(),
+                    startLine: func.location.startLine.line,
+                    startColumn: func.location.startLine.offset,
+                    endLine: func.location.endLine.line,
+                    endColumn: func.location.endLine.offset,
+                }
+                resources.push(resourceInfo);
+            })
+
+            const serviceInfo: ComponentInfo = {
+                name: service.absolutePath ? service.absolutePath : service.type,
+                filePath: service.location.filePath.split('/').pop(),
+                startLine: service.location.startLine.line,
+                startColumn: service.location.startLine.offset,
+                endLine: service.location.endLine.line,
+                endColumn: service.location.endLine.offset,
+                resources
+            }
+            designServices.push(serviceInfo);
+        });
+    }
+
     for (const pkg of components.packages) {
         for (const module of pkg.modules) {
             response.directoryMap[DIRECTORY_MAP.AUTOMATION].push(...await getComponents(langClient, module.automations, pkg.filePath, "task", DIRECTORY_MAP.AUTOMATION));
-            response.directoryMap[DIRECTORY_MAP.SERVICES].push(...await getComponents(langClient, module.services, pkg.filePath, "http-service", DIRECTORY_MAP.SERVICES));
+            response.directoryMap[DIRECTORY_MAP.SERVICES].push(...await getComponents(langClient, designServices.length > 0 ? designServices : module.services, pkg.filePath, "http-service", DIRECTORY_MAP.SERVICES));
             response.directoryMap[DIRECTORY_MAP.LISTENERS].push(...await getComponents(langClient, module.listeners, pkg.filePath, "http-service", DIRECTORY_MAP.LISTENERS));
             response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(...await getComponents(langClient, module.functions, pkg.filePath, "function"));
             response.directoryMap[DIRECTORY_MAP.CONNECTIONS].push(...await getComponents(langClient, module.moduleVariables, pkg.filePath, "connection", DIRECTORY_MAP.CONNECTIONS));
             response.directoryMap[DIRECTORY_MAP.TYPES].push(...await getComponents(langClient, module.types, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.RECORDS].push(...await getComponents(langClient, module.records, pkg.filePath, "type"));
+            response.directoryMap[DIRECTORY_MAP.ENUMS].push(...await getComponents(langClient, module.enums, pkg.filePath, "type"));
+            response.directoryMap[DIRECTORY_MAP.CLASSES].push(...await getComponents(langClient, module.classes, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.CONFIGURATIONS].push(...await getComponents(langClient, module.configurableVariables, pkg.filePath, "config"));
         }
     }
@@ -102,7 +153,16 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
             console.log(error);
         }
 
-        const iconValue = comp.name.includes('-') && !serviceModel ? `${comp.name.split('-')[0]}-api` : icon;
+        let iconValue;
+        if (serviceModel?.listenerProtocol === "graphql") {
+            iconValue = "bi-graphql";
+        } else {
+            iconValue = comp.name.includes('-') && !serviceModel ? `${comp.name.split('-')[0]}-api` : icon;
+        }
+
+        if (!comp.name && serviceModel) {
+            comp.name = `${serviceModel?.listenerProtocol}:Service`
+        }
 
         const fileEntry: ProjectStructureArtifactResponse = {
             name: dtype === DIRECTORY_MAP.SERVICES ? comp.name || comp.filePath.replace(".bal", "") : comp.name,

@@ -29,7 +29,7 @@ export interface WorkspaceFolder {
 }
 
 export interface ComponentRequest {
-    type: DIRECTORY_MAP;
+    type: DIRECTORY_MAP | "testFunctions";
     serviceType?: ComponentServiceType;
     functionType?: ComponentFunctionType;
 }
@@ -41,7 +41,7 @@ export interface ComponentServiceType {
     specPath?: string;
 }
 export interface ComponentFunctionType {
-    name: string;
+    name?: string;
     parameters: FunctionParameters[],
     returnType?: string;
     cron?: string;

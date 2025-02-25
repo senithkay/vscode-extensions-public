@@ -21,22 +21,30 @@ import {
     BINodeTemplateRequest,
     BISourceCodeRequest,
     BreakpointRequest,
+    ClassFieldModifierRequest,
     ComponentRequest,
-    ComponentsRequest,
     ExpressionCompletionsRequest,
     ExpressionDiagnosticsRequest,
     FormDidCloseParams,
     FormDidOpenParams,
+    FunctionNodeRequest,
+    GetTypeRequest,
+    GetTypesRequest,
+    ModelFromCodeRequest,
     ProjectRequest,
     ReadmeContentRequest,
+    ServiceClassSourceRequest,
     SignatureHelpRequest,
     UpdateConfigVariableRequest,
+    UpdateTypeRequest,
     UpdateImportsRequest,
     VisibleTypesRequest,
     addBreakpointToSource,
+    addClassField,
     addFunction,
     buildProject,
     createComponent,
+    createGraphqlClassType,
     createProject,
     deleteByComponentInfo,
     deleteFlowNode,
@@ -54,14 +62,18 @@ import {
     getExpressionCompletions,
     getExpressionDiagnostics,
     getFlowModel,
+    getFunctionNode,
     getFunctions,
     getModuleNodes,
     getNodeTemplate,
     getProjectComponents,
     getProjectStructure,
     getReadmeContent,
+    getServiceClassModel,
     getSignatureHelp,
     getSourceCode,
+    getType,
+    getTypes,
     getVisibleTypes,
     getVisibleVariableTypes,
     getWorkspaces,
@@ -71,7 +83,13 @@ import {
     removeBreakpointFromSource,
     runProject,
     updateConfigVariables,
-    updateImports
+    updateType,
+    updateImports,
+    updateClassField,
+    updateServiceClass,
+    AddFieldRequest,
+    renameIdentifier,
+    RenameIdentifierRequest
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { BiDiagramRpcManager } from "./rpc-manager";
@@ -101,6 +119,7 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getModuleNodes, () => rpcManger.getModuleNodes());
     messenger.onRequest(getReadmeContent, () => rpcManger.getReadmeContent());
     messenger.onNotification(openReadme, () => rpcManger.openReadme());
+    messenger.onRequest(renameIdentifier, (args: RenameIdentifierRequest) => rpcManger.renameIdentifier(args));
     messenger.onNotification(deployProject, () => rpcManger.deployProject());
     messenger.onNotification(openAIChat, (args: AIChatRequest) => rpcManger.openAIChat(args));
     messenger.onRequest(getSignatureHelp, (args: SignatureHelpRequest) => rpcManger.getSignatureHelp(args));
@@ -112,9 +131,18 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getBreakpointInfo, () => rpcManger.getBreakpointInfo());
     messenger.onRequest(getExpressionDiagnostics, (args: ExpressionDiagnosticsRequest) => rpcManger.getExpressionDiagnostics(args));
     messenger.onRequest(getAllImports, () => rpcManger.getAllImports());
-    messenger.onRequest(formDidOpen, (args: FormDidOpenParams) => rpcManger.formDidOpen(args));
-    messenger.onRequest(formDidClose, (args: FormDidCloseParams) => rpcManger.formDidClose(args));
+    messenger.onNotification(formDidOpen, (args: FormDidOpenParams) => rpcManger.formDidOpen(args));
+    messenger.onNotification(formDidClose, (args: FormDidCloseParams) => rpcManger.formDidClose(args));
     messenger.onRequest(getDesignModel, () => rpcManger.getDesignModel());
+    messenger.onRequest(getTypes, (args: GetTypesRequest) => rpcManger.getTypes(args));
+    messenger.onRequest(getType, (args: GetTypeRequest) => rpcManger.getType(args));
+    messenger.onRequest(updateType, (args: UpdateTypeRequest) => rpcManger.updateType(args));
+    messenger.onRequest(getServiceClassModel, (args: ModelFromCodeRequest) => rpcManger.getServiceClassModel(args));
+    messenger.onRequest(updateClassField, (args: ClassFieldModifierRequest) => rpcManger.updateClassField(args));
+    messenger.onRequest(addClassField, (args: AddFieldRequest) => rpcManger.addClassField(args));
+    messenger.onRequest(updateServiceClass, (args: ServiceClassSourceRequest) => rpcManger.updateServiceClass(args));
+    messenger.onRequest(createGraphqlClassType, (args: UpdateTypeRequest) => rpcManger.createGraphqlClassType(args));
     messenger.onRequest(updateImports, (args: UpdateImportsRequest) => rpcManger.updateImports(args));
     messenger.onRequest(addFunction, (args: AddFunctionRequest) => rpcManger.addFunction(args));
+    messenger.onRequest(getFunctionNode, (args: FunctionNodeRequest) => rpcManger.getFunctionNode(args));
 }

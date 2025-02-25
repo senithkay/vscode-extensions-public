@@ -8,12 +8,11 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { Button, Codicon, TextField } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TextField, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
 import { FormField } from "../Form/types";
 import { useFormContext } from "../../context";
-import { Colors } from "../../resources/constants";
 
 // Reusing the same styled components namespace
 namespace S {
@@ -65,7 +64,7 @@ namespace S {
 
     export const DeleteButton = styled(Button)`
         & > vscode-button {
-            color: ${Colors.ERROR};
+            color: ${ThemeColors.ERROR};
         }
     `;
 }

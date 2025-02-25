@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { AnydataType, PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
+import { AnydataType, PrimitiveBalType, TypeField, TypeKind } from "@wso2-enterprise/ballerina-core";
 import {
     ListConstructor,
     MappingConstructor,
@@ -29,9 +29,15 @@ import {
     getInnermostExpressionBody
 } from "./dm-utils";
 import { resolveUnionType } from "./union-type-utils";
+import { RecordFieldPortModel } from "../Port";
+import { PortModel } from "@projectstorm/react-diagrams-core";
 
-export function enrichAndProcessType(typeToBeProcessed: TypeField, node: STNode,
-                                     selectedST: STNode): [EditableRecordField, TypeField] {
+export function enrichAndProcessType(
+    typeToBeProcessed: TypeField,
+    node: STNode,
+    selectedST: STNode
+): [EditableRecordField, TypeField] {
+
     let type = {...typeToBeProcessed};
     let valueEnrichedType = getEnrichedRecordType(type, node, selectedST);
     const [updatedType, isUpdated] = addMissingTypes(valueEnrichedType);
@@ -42,18 +48,24 @@ export function enrichAndProcessType(typeToBeProcessed: TypeField, node: STNode,
     return [valueEnrichedType, type];
 }
 
-export function getEnrichedRecordType(type: TypeField,
-                                      node: STNode,
-                                      selectedST: STNode,
-                                      parentType?: EditableRecordField,
-                                      childrenTypes?: EditableRecordField[]): EditableRecordField {
+export function getEnrichedRecordType(
+    type: TypeField,
+    node: STNode,
+    selectedST: STNode,
+    parentType?: EditableRecordField,
+    childrenTypes?: EditableRecordField[],
+    isRecursiveType?: boolean
+): EditableRecordField {
+
     let editableRecordField: EditableRecordField = null;
     let valueNode: STNode;
     let nextNode: STNode;
     let originalType: TypeField = type;
+    let isRecursive = isRecursiveType;
 
     if (!type.typeName && type?.typeInfo) {
         type = findTypeByInfoFromStore(type.typeInfo) || type;
+        isRecursive = true;
     }
     if (type.typeName === PrimitiveBalType.Union && type?.resolvedUnionType && !Array.isArray(type?.resolvedUnionType)) {
         originalType = type;
@@ -69,33 +81,36 @@ export function getEnrichedRecordType(type: TypeField,
 
     editableRecordField = new EditableRecordField(type, valueNode, parentType, originalType);
 
-    if (type.typeName === PrimitiveBalType.Record) {
-        addChildrenTypes(type, childrenTypes, nextNode, selectedST, editableRecordField);
-    } else if (type.typeName === PrimitiveBalType.Array && type?.memberType) {
+    if (type.typeName === PrimitiveBalType.Record && (!isRecursiveType || node)) {
+        addChildrenTypes(type, childrenTypes, nextNode, selectedST, editableRecordField, isRecursive);
+    } else if (type.typeName === PrimitiveBalType.Array && type?.memberType && (!isRecursiveType || node)) {
         if (nextNode) {
-            addEnrichedArrayElements(nextNode, type, selectedST, editableRecordField, childrenTypes);
+            addEnrichedArrayElements(nextNode, type, selectedST, editableRecordField, childrenTypes, isRecursive);
         } else {
-            addArrayElements(type, parentType, selectedST, editableRecordField, childrenTypes);
+            addArrayElements(type, parentType, selectedST, editableRecordField, childrenTypes, isRecursive);
         }
     }
 
     const [updatedType, hasEnrichedWithUnionType] = addResolvedUnionTypes(editableRecordField)
     if (hasEnrichedWithUnionType) {
         type = updatedType;
-        editableRecordField = getEnrichedRecordType(type, node, selectedST, parentType, childrenTypes);
+        editableRecordField = getEnrichedRecordType(type, node, selectedST, parentType, childrenTypes, isRecursive);
     }
 
     return editableRecordField;
 }
 
-export function getEnrichedPrimitiveType(field: TypeField,
-                                         node: STNode,
-                                         selectedST: STNode,
-                                         parentType?: EditableRecordField,
-                                         childrenTypes?: EditableRecordField[]) {
+export function getEnrichedPrimitiveType(
+    field: TypeField,
+    node: STNode,
+    selectedST: STNode,
+    parentType?: EditableRecordField,
+    childrenTypes?: EditableRecordField[],
+    isRecursiveType?: boolean
+) {
     const members: ArrayElement[] = [];
 
-    const childType = getEnrichedRecordType(field, node, selectedST, parentType, childrenTypes);
+    const childType = getEnrichedRecordType(field, node, selectedST, parentType, childrenTypes, isRecursiveType);
 
     if (childType) {
         members.push({
@@ -107,18 +122,21 @@ export function getEnrichedPrimitiveType(field: TypeField,
     return members;
 }
 
-export function getEnrichedArrayType(field: TypeField,
-                                     node: ListConstructor,
-                                     selectedST: STNode,
-                                     parentType?: EditableRecordField,
-                                     childrenTypes?: EditableRecordField[],
-                                     isSelectClauseExpr?: boolean) {
+export function getEnrichedArrayType(
+    field: TypeField,
+    node: ListConstructor,
+    selectedST: STNode,
+    parentType?: EditableRecordField,
+    childrenTypes?: EditableRecordField[],
+    isSelectClauseExpr?: boolean,
+    isRecursiveType?: boolean
+) {
     const members: ArrayElement[] = [];
 
     const expressions = node.expressions.filter((expr) => !STKindChecker.isCommaToken(expr));
     const fields = new Array(expressions.length).fill(field);
     if (isSelectClauseExpr && field.typeName === PrimitiveBalType.Array) {
-        return getEnrichedPrimitiveType(field, node, selectedST, parentType, childrenTypes);
+        return getEnrichedPrimitiveType(field, node, selectedST, parentType, childrenTypes, isRecursiveType);
     } else if (field.typeName === PrimitiveBalType.Union && Array.isArray(field.resolvedUnionType)) {
         field.resolvedUnionType.forEach((type, index) => {
             if (type) {
@@ -132,7 +150,7 @@ export function getEnrichedArrayType(field: TypeField,
     expressions.forEach((expr, index) => {
         const type = fields[index];
         if (type) {
-            const childType = getEnrichedRecordType(type, expr, selectedST, parentType, childrenTypes);
+            const childType = getEnrichedRecordType(type, expr, selectedST, parentType, childrenTypes, isRecursiveType);
 
             if (childType) {
                 members.push({
@@ -155,7 +173,7 @@ export function addMissingTypes(field: EditableRecordField): [TypeField, boolean
         type = constructTypeFromSTNode(value, type?.name);
         hasTypeUpdated = true;
     } else if (type.typeName === PrimitiveBalType.Record) {
-        type.fields = field.childrenTypes.map((child) => {
+        type.fields = field.childrenTypes?.map((child) => {
             const [updatedType, isUpdated] = addMissingTypes(child);
             hasTypeUpdated = hasTypeUpdated || isUpdated;
             return updatedType;
@@ -183,14 +201,14 @@ export function addResolvedUnionTypes(field: EditableRecordField): [TypeField, b
             hasTypeUpdated = true;
         }
     } else if (type.typeName === PrimitiveBalType.Record) {
-        type.fields = field.childrenTypes.map((child) => {
+        type.fields = field.childrenTypes?.map((child) => {
             const [updatedType, isUpdated] = addResolvedUnionTypes(child);
             hasTypeUpdated = hasTypeUpdated || isUpdated;
             return updatedType;
         });
     } else if (type.typeName === PrimitiveBalType.Array) {
         if (type.memberType.typeName === PrimitiveBalType.Union && value) {
-            type.memberType.resolvedUnionType = field.elements.map(element => {
+            type.memberType.resolvedUnionType = field.elements?.map(element => {
                 const [updatedType, isUpdated] = addResolvedUnionTypes(element.member);
                 hasTypeUpdated = hasTypeUpdated || isUpdated;
                 element.member.type = updatedType;
@@ -254,10 +272,29 @@ export function constructTypeFromSTNode(node: STNode, fieldName?: string): TypeF
     return type;
 }
 
-function getValueNodeAndNextNodeForParentType(node: STNode,
-                                              parentType: EditableRecordField,
-                                              originalType: TypeField,
-                                              selectedST: STNode): [STNode, STNode] {
+export function getDMTypeDim(dmType: TypeField) {
+    let dim = 0;
+    while (dmType.typeName == TypeKind.Array) {
+        dim++;
+        dmType = dmType.memberType;
+    }
+    return dim;
+}
+
+export function canPerformAggregation(targetPort: PortModel) {
+    return targetPort instanceof RecordFieldPortModel
+        && (targetPort.field.typeName === PrimitiveBalType.Int
+            || targetPort.field.typeName === PrimitiveBalType.Float
+            || targetPort.field.typeName === PrimitiveBalType.Decimal);
+};
+
+function getValueNodeAndNextNodeForParentType(
+    node: STNode,
+    parentType: EditableRecordField,
+    originalType: TypeField,
+    selectedST: STNode
+): [STNode, STNode] {
+
     const innerExpr = getInnermostExpressionBody(node);
     if (innerExpr && STKindChecker.isMappingConstructor(innerExpr)) {
         const specificField: SpecificField = innerExpr.fields.find((val) =>
@@ -309,27 +346,35 @@ function getNextNodeForNoParentType(node: STNode): STNode {
     return node;
 }
 
-function addChildrenTypes(type: TypeField,
-                          childrenTypes: EditableRecordField[],
-                          nextNode: STNode,
-                          selectedST: STNode,
-                          editableRecordField: EditableRecordField) {
+function addChildrenTypes(
+    type: TypeField,
+    childrenTypes: EditableRecordField[],
+    nextNode: STNode,
+    selectedST: STNode,
+    editableRecordField: EditableRecordField,
+    isRecursiveType?: boolean
+) {
     const fields = type.fields;
     const children = [...childrenTypes ? childrenTypes : []];
     if (fields && !!fields.length) {
         fields.map((field) => {
-            const childType = getEnrichedRecordType(field, nextNode, selectedST, editableRecordField, childrenTypes);
+            const childType = getEnrichedRecordType(
+                field, nextNode, selectedST, editableRecordField, childrenTypes, isRecursiveType
+            );
             children.push(childType);
         });
     }
     editableRecordField.childrenTypes = children;
 }
 
-function addEnrichedArrayElements(nextNode: STNode,
-                                  type: TypeField,
-                                  selectedST: STNode,
-                                  editableRecordField: EditableRecordField,
-                                  childrenTypes?: EditableRecordField[]) {
+function addEnrichedArrayElements(
+    nextNode: STNode,
+    type: TypeField,
+    selectedST: STNode,
+    editableRecordField: EditableRecordField,
+    childrenTypes?: EditableRecordField[],
+    isRecursiveType?: boolean
+) {
     const innerExpr = getInnermostExpressionBody(nextNode);
 
     if (STKindChecker.isQueryExpression(innerExpr)) {
@@ -338,48 +383,52 @@ function addEnrichedArrayElements(nextNode: STNode,
 
         if (STKindChecker.isMappingConstructor(selectClauseExpr)) {
             const childType = getEnrichedRecordType(type.memberType, selectClauseExpr,
-                selectedST, editableRecordField, childrenTypes);
+                selectedST, editableRecordField, childrenTypes, isRecursiveType);
             editableRecordField.elements = [{
                 member: childType,
                 elementNode: nextNode
             }];
         } else if (STKindChecker.isListConstructor(selectClauseExpr)) {
             editableRecordField.elements = getEnrichedArrayType(type.memberType, selectClauseExpr,
-                selectedST, editableRecordField, undefined, true);
+                selectedST, editableRecordField, undefined, true, isRecursiveType);
         } else {
             editableRecordField.elements = getEnrichedPrimitiveType(type.memberType, selectClauseExpr,
-                selectedST, editableRecordField);
+                selectedST, editableRecordField, undefined, isRecursiveType);
         }
     } else if (STKindChecker.isMappingConstructor(innerExpr)) {
         if (type.memberType.typeName === PrimitiveBalType.Record) {
             const childType = getEnrichedRecordType(type.memberType, innerExpr,
-                selectedST, editableRecordField, childrenTypes);
+                selectedST, editableRecordField, childrenTypes, isRecursiveType);
             editableRecordField.elements = [{
                 member: childType,
                 elementNode: nextNode
             }];
         } else {
             editableRecordField.elements = getEnrichedPrimitiveType(type.memberType, innerExpr,
-                selectedST, editableRecordField);
+                selectedST, editableRecordField, undefined, isRecursiveType);
         }
     } else if (STKindChecker.isListConstructor(innerExpr)) {
         editableRecordField.elements = getEnrichedArrayType(type.memberType, innerExpr,
-            selectedST, editableRecordField);
+            selectedST, editableRecordField, undefined, isRecursiveType);
     } else {
         editableRecordField.elements = getEnrichedPrimitiveType(type.memberType, innerExpr,
-            selectedST, editableRecordField);
+            selectedST, editableRecordField, undefined, isRecursiveType);
     }
 }
 
-function addArrayElements(type: TypeField,
-                          parentType: EditableRecordField,
-                          selectedST: STNode,
-                          editableRecordField: EditableRecordField,
-                          childrenTypes?: EditableRecordField[]) {
+function addArrayElements(
+    type: TypeField,
+    parentType: EditableRecordField,
+    selectedST: STNode,
+    editableRecordField: EditableRecordField,
+    childrenTypes?: EditableRecordField[],
+    isRecursiveType?: boolean
+) {
     if (type.memberType.typeName === PrimitiveBalType.Record) {
         const members: ArrayElement[] = [];
-        const childType = getEnrichedRecordType(type.memberType, undefined,
-            selectedST, parentType, childrenTypes);
+        const childType = getEnrichedRecordType(
+            type.memberType, undefined, selectedST, parentType, childrenTypes, isRecursiveType
+        );
         members.push({
             member: childType,
             elementNode: undefined

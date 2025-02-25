@@ -16,21 +16,22 @@ import {
     VisualizerLocation,
     TRIGGER_CHARACTERS,
     TriggerCharacter,
+    Type,
+    NodeKind
 } from "@wso2-enterprise/ballerina-core";
-import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditorProps, HelperPaneData } from "@wso2-enterprise/ballerina-side-panel";
+import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditorProps, HelperPaneData, PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import {
     convertBalCompletion,
-    convertToHelperPaneFunction,
-    convertToHelperPaneVariable,
     convertToVisibleTypes,
 } from "../../../../utils/bi";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { CompletionItem, FormExpressionEditorRef } from "@wso2-enterprise/ui-toolkit";
 import { debounce } from "lodash";
 import { getHelperPane } from "../../HelperPane";
+import { RecordEditor } from "../../../RecordEditor/RecordEditor";
+import { TypeEditor } from "@wso2-enterprise/type-editor";
 
 interface FormProps {
-    ref?: React.Ref<unknown>;
     fileName: string;
     fields: FormField[];
     targetLineRange: LineRange;
@@ -38,31 +39,35 @@ interface FormProps {
     submitText?: string;
     onBack?: () => void;
     editForm?: boolean;
-    onSubmit: (data: FormValues, refKey?: string) => void;
+    isGraphqlEditor?: boolean;
+    onSubmit: (data: FormValues) => void;
     isActiveSubPanel?: boolean;
     openSubPanel?: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
+    selectedNode?: NodeKind;
+    nestedForm?: boolean;
 }
 
 export function FormGeneratorNew(props: FormProps) {
     const {
-        ref,
         fileName,
         fields,
         targetLineRange,
         projectPath,
-        editForm,
         submitText,
         onBack,
         onSubmit,
         openSubPanel,
-        isActiveSubPanel,
         updatedExpressionField,
-        resetUpdatedExpressionField
+        isGraphqlEditor,
+        resetUpdatedExpressionField,
+        selectedNode,
+        nestedForm
     } = props;
 
     const { rpcClient } = useRpcContext();
+    console.log("======FormGeneratorNew======,", fields)
 
     const [showRecordEditor, setShowRecordEditor] = useState(false);
 
@@ -71,11 +76,17 @@ export function FormGeneratorNew(props: FormProps) {
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
-    const [isLoadingHelperPaneInfo, setIsLoadingHelperPaneInfo] = useState<boolean>(false);
-    const [variableInfo, setVariableInfo] = useState<HelperPaneData>();
-    const [functionInfo, setFunctionInfo] = useState<HelperPaneData>();
-    const [libraryBrowserInfo, setLibraryBrowserInfo] = useState<HelperPaneData>();
+    const [openTypeEditor, setOpenTypeEditor] = useState<boolean>(false);
+    const [editingField, setEditingField] = useState<FormField>();
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
+
+    const [fieldsValues, setFields] = useState<FormField[]>(fields);
+
+    useEffect(() => {
+        if (fields) {
+            setFields(fields);
+        }
+    }, [fields]);
 
     useEffect(() => {
         handleFormOpen();
@@ -220,12 +231,12 @@ export function FormGeneratorNew(props: FormProps) {
     const debouncedGetVisibleTypes = useCallback(debounce(async (value: string, cursorPosition: number) => {
         let visibleTypes: CompletionItem[] = types;
         if (!types.length) {
-            const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
+            const types = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
                 filePath: fileName,
                 position: targetLineRange.startLine,
             });
 
-            visibleTypes = convertToVisibleTypes(response.types);
+            visibleTypes = convertToVisibleTypes(types);
             setTypes(visibleTypes);
         }
 
@@ -244,77 +255,6 @@ export function FormGeneratorNew(props: FormProps) {
         await debouncedGetVisibleTypes(value, cursorPosition);
     }, [debouncedGetVisibleTypes]);
 
-
-    const getHelperPaneData = useCallback(
-        (type: string, searchText: string) => {
-            setIsLoadingHelperPaneInfo(true);
-            switch (type) {
-                case 'variables': {
-                    rpcClient
-                        .getBIDiagramRpcClient()
-                        .getVisibleVariableTypes({
-                            filePath: fileName,
-                            position: {
-                                line: targetLineRange.startLine.line,
-                                offset: targetLineRange.startLine.offset
-                            }
-                        })
-                        .then((response) => {
-                            if (response.categories?.length) {
-                                setVariableInfo(convertToHelperPaneVariable(response.categories));
-                            }
-                        })
-                        .then(() => setIsLoadingHelperPaneInfo(false));
-                    break;
-                }
-                case 'functions': {
-                    rpcClient
-                        .getBIDiagramRpcClient()
-                        .getFunctions({
-                            position: targetLineRange,
-                            filePath: fileName,
-                            queryMap: {
-                                q: searchText.trim(),
-                                limit: 12,
-                                offset: 0
-                            }
-                        })
-                        .then((response) => {
-                            if (response.categories?.length) {
-                                setFunctionInfo(convertToHelperPaneFunction(response.categories));
-                            }
-                        })
-                        .then(() => setIsLoadingHelperPaneInfo(false));
-                    break;
-                }
-                case 'libraries': {
-                    rpcClient
-                        .getBIDiagramRpcClient()
-                        .getFunctions({
-                            position: targetLineRange,
-                            filePath: fileName,
-                            queryMap: {
-                                q: searchText.trim(),
-                                limit: 12,
-                                offset: 0,
-                                includeAvailableFunctions: "true"
-                            }
-                        })
-                        .then((response) => {
-                            if (response.categories?.length) {
-                                setLibraryBrowserInfo(convertToHelperPaneFunction(response.categories));
-                            }
-                        })
-                        .then(() => setIsLoadingHelperPaneInfo(false));
-                    break;
-                }
-            }
-        },
-        [rpcClient, targetLineRange, fileName]
-    );
-
-    const handleGetHelperPaneData = useCallback(debounce(getHelperPaneData, 1100), [getHelperPaneData]);
-
     const handleCompletionItemSelect = async () => {
         debouncedRetrieveCompletions.cancel();
         debouncedGetVisibleTypes.cancel();
@@ -327,6 +267,7 @@ export function FormGeneratorNew(props: FormProps) {
 
     const handleGetHelperPane = (
         exprRef: RefObject<FormExpressionEditorRef>,
+        defaultValue: string,
         value: string,
         onChange: (value: string, updatedCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void
@@ -336,9 +277,78 @@ export function FormGeneratorNew(props: FormProps) {
             targetLineRange: targetLineRange,
             exprRef: exprRef,
             onClose: () => changeHelperPaneState(false),
+            defaultValue: defaultValue,
             currentValue: value,
             onChange: onChange
         });
+    }
+
+    const handleTypeChange = async (type: Type) => {
+        setOpenTypeEditor(false);
+
+        if (editingField) {
+            const updatedFields = fieldsValues.map(field => {
+                if (field.key === editingField.key) {
+                    // Only handle parameter type if editingField is a parameter
+                    if (editingField.type === 'PARAM_MANAGER' && field.type === 'PARAM_MANAGER' && field.paramManagerProps.formFields) {
+                        return {
+                            ...field,
+                            paramManagerProps: {
+                                ...field.paramManagerProps,
+                                formFields: field?.paramManagerProps?.formFields.map(subField =>
+                                    subField.key === 'type' ? { ...subField, value: type.name } : subField
+                                )
+                            }
+                        };
+                    }
+                    // Handle regular fields
+                    return {
+                        ...field,
+                        value: type.name
+                    };
+                }
+                return field;
+            });
+            setFields(updatedFields);
+        }
+    };
+
+    const handleOpenRecordEditor = (isOpen: boolean, f: FormValues, editingField: FormField) => {
+        if (isGraphqlEditor) {
+            setOpenTypeEditor(isOpen);
+        }
+        // Get f.value and assign that value to field value
+        const updatedFields = fields.map((field) => {
+            const updatedField = { ...field };
+            if (f[field.key]) {
+                updatedField.value = f[field.key];
+            }
+            return updatedField;
+        });
+        setFields(updatedFields);
+        setEditingField(editingField);
+    };
+
+    const defaultType = (): Type => {
+        return {
+            name: "MyType",
+            editable: true,
+            metadata: {
+                label: "",
+                description: ""
+            },
+            codedata: {
+                node: "CLASS"
+            },
+            properties: {},
+            members: [],
+            includes: [] as string[],
+            functions: []
+        };
+    }
+
+    const onCloseTypeEditor = () => {
+        setOpenTypeEditor(false);
     }
 
     const expressionEditor = useMemo(() => {
@@ -357,25 +367,30 @@ export function FormGeneratorNew(props: FormProps) {
     }, [
         filteredCompletions,
         filteredTypes,
-        isLoadingHelperPaneInfo,
-        variableInfo,
-        functionInfo,
-        libraryBrowserInfo,
         handleRetrieveCompletions,
         handleGetVisibleTypes,
-        handleGetHelperPaneData
+        handleGetHelperPane,
+        handleCompletionItemSelect,
+        handleExpressionEditorBlur,
+        handleExpressionEditorCancel
     ]);
+
+    const handleSubmit = (values: FormValues) => {
+        onSubmit(values);
+    };
+
     // default form
     return (
         <>
             {fields && fields.length > 0 && (
                 <Form
-                    ref={ref}
-                    formFields={fields}
+                    nestedForm={nestedForm}
+                    formFields={fieldsValues}
                     projectPath={projectPath}
+                    openRecordEditor={handleOpenRecordEditor}
                     onCancelForm={onBack}
                     submitText={submitText}
-                    onSubmit={onSubmit}
+                    onSubmit={handleSubmit}
                     openView={handleOpenView}
                     openSubPanel={openSubPanel}
                     expressionEditor={expressionEditor}
@@ -383,8 +398,30 @@ export function FormGeneratorNew(props: FormProps) {
                     fileName={fileName}
                     updatedExpressionField={updatedExpressionField}
                     resetUpdatedExpressionField={resetUpdatedExpressionField}
+                    selectedNode={selectedNode}
                 />
             )}
+            {showRecordEditor && !isGraphqlEditor && (
+                <RecordEditor
+                    fields={fields}
+                    isRecordEditorOpen={showRecordEditor}
+                    onClose={() => setShowRecordEditor(false)}
+                    updateFields={(updatedFields) => setFields(updatedFields)}
+                    rpcClient={rpcClient}
+                />
+            )}
+            {isGraphqlEditor && openTypeEditor &&
+                <PanelContainer title={"New Type"} show={true} onClose={onCloseTypeEditor}>
+                    <TypeEditor
+                        type={defaultType()}
+                        newType={true}
+                        isGraphql={true}
+                        rpcClient={rpcClient}
+                        onTypeChange={handleTypeChange}
+                    />
+                </PanelContainer>
+            }
+
         </>
     );
 }

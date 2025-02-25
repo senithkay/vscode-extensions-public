@@ -14,23 +14,25 @@ import {
     Codicon,
     FormExpressionEditorRef,
     LinkButton,
-    SidePanelBody,
+    ThemeColors,
+    SidePanelBody
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
 import { ExpressionFormField, FormExpressionEditorProps, FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
-import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
 import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, FlowNode, LinePosition } from "@wso2-enterprise/ballerina-core";
 import { FormContext, Provider } from "../../context";
 import { formatJSONLikeString } from "./utils";
 
 namespace S {
-    export const Container = styled(SidePanelBody)`
+    export const Container = styled(SidePanelBody) <{ nestedForm?: boolean }>`
         display: flex;
         flex-direction: column;
         gap: 20px;
+        height: ${({ nestedForm }) => nestedForm ? 'unset' : 'calc(100vh - 100px)'};
+        overflow: ${({ nestedForm }) => nestedForm ? 'visible' : 'scroll'};
     `;
 
     export const Row = styled.div<{}>`
@@ -50,7 +52,7 @@ namespace S {
         width: 100%;
         margin-top: 8px;
         padding-bottom: 14px;
-        border-bottom: ${({ showBorder }) => (showBorder ? `1px solid ${Colors.OUTLINE_VARIANT}` : "none")};
+        border-bottom: ${({ showBorder }) => (showBorder ? `1px solid ${ThemeColors.OUTLINE_VARIANT}` : "none")};
     `;
 
     export const CheckboxRow = styled.div<{}>`
@@ -156,15 +158,14 @@ namespace S {
     `;
 }
 export interface FormProps {
-    refKey?: string;
     formFields: FormField[];
     submitText?: string;
     targetLineRange?: LineRange; // TODO: make them required after connector wizard is fixed
     fileName?: string; // TODO: make them required after connector wizard is fixed
     projectPath?: string;
     selectedNode?: NodeKind;
-    onSubmit?: (data: FormValues, refKey?: string) => void;
-    openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
+    onSubmit?: (data: FormValues) => void;
+    openRecordEditor?: (isOpen: boolean, fields: FormValues, editingField?: FormField) => void;
     openView?: (filePath: string, position: NodePosition) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
     subPanelView?: SubPanelView;
@@ -176,12 +177,11 @@ export interface FormProps {
     mergeFormDataWithFlowNode?: (data: FormValues, targetLineRange: LineRange) => FlowNode;
     handleVisualizableFields?: (filePath: string, flowNode: FlowNode, position: LinePosition) => void;
     visualizableFields?: string[];
-    isDataMapper?: boolean;
+    nestedForm?: boolean;
 }
 
 export const Form = forwardRef((props: FormProps, ref) => {
     const {
-        refKey,
         formFields,
         projectPath,
         selectedNode,
@@ -201,7 +201,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         mergeFormDataWithFlowNode,
         handleVisualizableFields,
         visualizableFields,
-        isDataMapper
+        nestedForm
     } = props;
 
     const {
@@ -230,6 +230,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
             // Reset form with new values when formFields change
             const defaultValues: FormValues = {};
             const diagnosticsMap: FormDiagnostics[] = [];
+            const formValues = getValues();
+            console.log("Existing form values: ", formValues);
             formFields.forEach((field) => {
                 if (isDropdownField(field)) {
                     defaultValues[field.key] = getValueForDropdown(field) ?? "";
@@ -239,6 +241,9 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     defaultValues[field.key] = field.value ?? "";
                 }
 
+                if (formValues[field.key] !== undefined && formValues[field.key] !== "" && !field.value) {
+                    defaultValues[field.key] = formValues[field.key];
+                }
                 diagnosticsMap.push({ key: field.key, diagnostics: [] });
             });
             setDiagnosticsInfo(diagnosticsMap);
@@ -276,8 +281,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
     console.log(">>> form fields", { formFields, values: getValues() });
 
     const handleOnSave = (data: FormValues) => {
-        console.log(">>> saved form fields", { data, refKey });
-        onSubmit && onSubmit(data, refKey);
+        console.log(">>> saved form fields", { data });
+        onSubmit && onSubmit(data);
     };
 
     // Expose a method to trigger the save
@@ -285,8 +290,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
         triggerSave: () => handleSubmit(handleOnSave)(), // Call handleSubmit with the save function
     }));
 
-    const handleOpenRecordEditor = (open: boolean) => {
-        openRecordEditor?.(open, getValues());
+    const handleOpenRecordEditor = (open: boolean, typeField?: FormField) => {
+        openRecordEditor?.(open, getValues(), typeField);
     };
 
     const handleOnShowAdvancedOptions = () => {
@@ -362,14 +367,16 @@ export const Form = forwardRef((props: FormProps, ref) => {
     ) => {
         // HACK: For variable nodes, update the type value in the node
         const isVariableNode = selectedNode === "VARIABLE";
-        await expressionEditor?.getExpressionFormDiagnostics(
-            showDiagnostics,
-            expression,
-            key,
-            handleSetDiagnosticsInfo,
-            isVariableNode,
-            watch("type")
-        );
+        if (expressionEditor?.getExpressionFormDiagnostics) {
+            await expressionEditor?.getExpressionFormDiagnostics(
+                showDiagnostics,
+                expression,
+                key,
+                handleSetDiagnosticsInfo,
+                isVariableNode,
+                watch("type")
+            );
+        }
     }
 
     // has advance fields
@@ -439,7 +446,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
     // TODO: support multiple type fields
     return (
         <Provider {...contextValue}>
-            <S.Container>
+            <S.Container nestedForm={nestedForm}>
                 {prioritizeVariableField && variableField && (
                     <S.CategoryRow showBorder={true}>
                         {variableField &&
@@ -453,7 +460,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                         {typeField && (
                             <EditorFactory
                                 field={typeField}
-                                openRecordEditor={openRecordEditor && handleOpenRecordEditor}
+                                openRecordEditor={openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, typeField))}
                                 openSubPanel={handleOpenSubPanel}
                                 handleOnFieldFocus={handleOnFieldFocus}
                                 handleOnTypeChange={handleOnTypeChange}
@@ -467,7 +474,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                         .filter((field) => field.type !== "VIEW")
                         .map((field) => {
                             if (
-                                ((field.key === "variable" || field.key === "type") && prioritizeVariableField) ||
+                                ((field.key === "variable" || field.key === "type") && (prioritizeVariableField && variableField)) ||
                                 field.advanced
                             ) {
                                 return;
@@ -478,7 +485,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                         ref={exprRef}
                                         field={field}
                                         selectedNode={selectedNode}
-                                        openRecordEditor={openRecordEditor && handleOpenRecordEditor}
+                                        openRecordEditor={openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, field))}
                                         openSubPanel={handleOpenSubPanel}
                                         subPanelView={subPanelView}
                                         handleOnFieldFocus={handleOnFieldFocus}
@@ -496,7 +503,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 {!showAdvancedOptions && (
                                     <LinkButton
                                         onClick={handleOnShowAdvancedOptions}
-                                        sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}
+                                        sx={{ fontSize: 12, padding: 8, color: ThemeColors.PRIMARY, gap: 4 }}
                                     >
                                         <Codicon name={"chevron-down"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
                                         Expand
@@ -505,7 +512,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 {showAdvancedOptions && (
                                     <LinkButton
                                         onClick={handleOnHideAdvancedOptions}
-                                        sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}
+                                        sx={{ fontSize: 12, padding: 8, color: ThemeColors.PRIMARY, gap: 4 }}
                                     >
                                         <Codicon name={"chevron-up"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
                                         Collapsed
@@ -523,7 +530,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                         <EditorFactory
                                             ref={exprRef}
                                             field={field}
-                                            openRecordEditor={openRecordEditor && handleOpenRecordEditor}
+                                            openRecordEditor={openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, field))}
                                             openSubPanel={handleOpenSubPanel}
                                             subPanelView={subPanelView}
                                             handleOnFieldFocus={handleOnFieldFocus}
@@ -537,17 +544,9 @@ export const Form = forwardRef((props: FormProps, ref) => {
                 {onSubmit && (
                     <S.Footer>
                         {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  Cancel </Button>}
-                        {isDataMapper ? (
-                            <S.PrimaryButton
-                                onClick={handleSubmit((data) => handleOnSave({ ...data, isDataMapperFormUpdate: true }))}
-                            >
-                                Create Mapping
-                            </S.PrimaryButton>
-                        ) : (
-                            <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
-                                {submitText || "Save"}
-                            </S.PrimaryButton>
-                        )}
+                        <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
+                            {submitText || "Save"}
+                        </S.PrimaryButton>
                     </S.Footer>
                 )}
             </S.Container>

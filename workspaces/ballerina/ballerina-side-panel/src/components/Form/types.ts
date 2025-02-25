@@ -8,7 +8,7 @@
  */
 
 import { RefObject } from "react";
-import { DiagnosticMessage, FormDiagnostics, TextEdit, PropertyModel, LinePosition } from "@wso2-enterprise/ballerina-core";
+import { DiagnosticMessage, FormDiagnostics, TextEdit, PropertyModel, LinePosition, LineRange  } from "@wso2-enterprise/ballerina-core";
 import { ParamConfig } from "../ParamManager/ParamManager";
 import { CompletionItem, FormExpressionEditorRef, HelperPaneOrigin } from "@wso2-enterprise/ui-toolkit";
 
@@ -31,10 +31,19 @@ export type FormField = {
     items?: string[];
     choices?: PropertyModel[];
     paramManagerProps?: ParamConfig;
-    valueTypeConstraint: string;
+    valueTypeConstraint: string | string[];
     groupNo?: number;
     groupName?: string;
     addNewButton?: boolean;
+    enabled?: boolean;
+    lineRange?: LineRange;
+};
+
+export type ParameterValue = {
+    value: {
+        variable: { value: string };
+        type: { value: string };
+    };
 };
 
 export type ExpressionFormField = {
@@ -110,6 +119,7 @@ type FormTypeConditionalProps = {
 type FormHelperPaneConditionalProps = {
     getHelperPane: (
         exprRef: RefObject<FormExpressionEditorRef>,
+        defaultValue: string,
         value: string,
         onChange: (value: string, updatedCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void,
