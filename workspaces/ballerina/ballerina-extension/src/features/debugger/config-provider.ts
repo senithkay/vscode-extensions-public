@@ -52,7 +52,7 @@ import { BreakpointManager } from './breakpoint-manager';
 import { notifyBreakpointChange } from '../../RPCLayer';
 import { VisualizerWebview } from '../../views/visualizer/webview';
 import { URI } from 'vscode-uri';
-import { prepareAndGenerateConfig } from '../config-generator/configGenerator';
+import { prepareAndGenerateConfig, cleanAndValidateProject } from '../config-generator/configGenerator';
 
 const BALLERINA_COMMAND = "ballerina.command";
 const EXTENDED_CLIENT_CAPABILITIES = "capabilities";
@@ -471,9 +471,12 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
     }
 
     async createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined): Promise<DebugAdapterDescriptor> {
+        // Check if the project contains errors(and fix the possible ones) before starting the debug session
+        const langClient = ballerinaExtInstance.langClient;
+        await cleanAndValidateProject(langClient, session.configuration.script);
+
         // Check if config generation is required before starting the debug session
         await prepareAndGenerateConfig(ballerinaExtInstance, session.configuration.script, false, StateMachine.context().isBI, false);
-
         if (session.configuration.noDebug && StateMachine.context().isBI) {
             return new Promise((resolve) => {
                 resolve(new DebugAdapterInlineImplementation(new BIRunAdapter()));
