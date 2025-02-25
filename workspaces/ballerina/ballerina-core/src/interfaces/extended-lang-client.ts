@@ -868,9 +868,17 @@ export interface VisibleTypesRequest {
     position: LinePosition;
 }
 
-export interface VisibleTypesResponse {
-    types: string[];
+export interface VisibleTypeItem {
+    insertText: string;
+    kind: number;
+    label: string;
+    labelDetails: {
+        description: string;
+        detail: string;
+    }
 }
+
+export type VisibleTypesResponse = VisibleTypeItem[];
 
 export interface ReferenceLSRequest {
     textDocument: {
