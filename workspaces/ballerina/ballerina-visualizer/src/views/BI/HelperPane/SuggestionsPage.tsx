@@ -73,54 +73,6 @@ export const SuggestionsPage = ({ fileName, targetLineRange, onChange }: Suggest
         debounceFilterVariables(searchText);
     };
 
-    const getModuleVariables = useCallback(() => {
-        const moduleVariables = filteredVariableInfo?.category.filter(
-            (category) => category.label === "Module Variables"
-        );
-
-        if (!moduleVariables?.[0].items?.length) {
-            return undefined;
-        }
-
-        return (
-            <>
-                {moduleVariables[0].items.map((item, index) => (
-                    <HelperPane.CompletionItem
-                        key={`module-${index}`}
-                        label={item.label}
-                        type={item.type}
-                        onClick={() => onChange(item.label)}
-                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
-                    />
-                ))}
-            </>
-        );
-    }, [filteredVariableInfo, onChange, getIcon]);
-
-    const getLocalVariables = useCallback(() => {
-        const localVariables = filteredVariableInfo?.category.filter(
-            (category) => category.label === "Local Variables"
-        );
-
-        if (!localVariables?.[0].items?.length) {
-            return undefined;
-        }
-
-        return (
-            <>
-                {localVariables[0].items.map((item, index) => (
-                    <HelperPane.CompletionItem
-                        key={`local-${index}`}
-                        label={item.label}
-                        type={item.type}
-                        onClick={() => onChange(item.label)}
-                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
-                    />
-                ))}
-            </>
-        );
-    }, [filteredVariableInfo, onChange, getIcon]);
-
     return (
         <>
             <HelperPane.Header
@@ -128,21 +80,23 @@ export const SuggestionsPage = ({ fileName, targetLineRange, onChange }: Suggest
                 onSearch={handleSearch}
                 titleSx={{ fontFamily: "GilmerRegular" }}
             />
-            <HelperPane.Body>
-                <HelperPane.Section
-                    title="Local Variables"
-                    loading={isLoading}
-                    titleSx={{ fontFamily: "GilmerMedium" }}
-                >
-                    {getLocalVariables()}
-                </HelperPane.Section>
-                <HelperPane.Section
-                    title="Module Variables"
-                    loading={isLoading}
-                    titleSx={{ fontFamily: "GilmerMedium" }}
-                >
-                    {getModuleVariables()}
-                </HelperPane.Section>
+            <HelperPane.Body loading={isLoading}>
+                {filteredVariableInfo?.category.map((category) => (
+                    <HelperPane.Section
+                        title={category.label}
+                        titleSx={{ fontFamily: "GilmerMedium" }}
+                    >
+                        {category.items.map((item) => (
+                            <HelperPane.CompletionItem
+                                key={`${category.label}-${item.label}`}
+                                label={item.label}
+                                type={item.type}
+                                onClick={() => onChange(item.label)}
+                                getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
+                            />
+                        ))}
+                    </HelperPane.Section>
+                ))}
             </HelperPane.Body>
         </>
     );

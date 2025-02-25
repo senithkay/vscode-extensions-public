@@ -7,14 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane } from "@wso2-enterprise/ui-toolkit";
-import { LibraryBrowser } from "./LibraryBrowser";
-import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from "@wso2-enterprise/ballerina-side-panel";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { LineRange, FunctionKind } from "@wso2-enterprise/ballerina-core";
-import { convertToHelperPaneFunction, extractFunctionInsertText } from "../../../utils/bi";
-import { debounce } from "lodash";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { LibraryBrowser } from './LibraryBrowser';
+import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '@wso2-enterprise/ballerina-side-panel';
+import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { LineRange, FunctionKind } from '@wso2-enterprise/ballerina-core';
+import { convertToHelperPaneFunction, extractFunctionInsertText } from '../../../utils/bi';
+import { debounce } from 'lodash';
 
 type FunctionsPageProps = {
     fileName: string;
@@ -26,7 +26,7 @@ type FunctionsPageProps = {
 export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: FunctionsPageProps) => {
     const { rpcClient } = useRpcContext();
     const firstRender = useRef<boolean>(true);
-    const [searchValue, setSearchValue] = useState<string>("");
+    const [searchValue, setSearchValue] = useState<string>('');
     const [isLibraryBrowserOpen, setIsLibraryBrowserOpen] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [functionInfo, setFunctionInfo] = useState<HelperPaneFunctionInfo | undefined>(undefined);
@@ -43,8 +43,8 @@ export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: 
                         q: searchText.trim(),
                         limit: 12,
                         offset: 0,
-                        ...(!!includeAvailableFunctions && { includeAvailableFunctions }),
-                    },
+                        ...(!!includeAvailableFunctions && { includeAvailableFunctions })
+                    }
                 })
                 .then((response) => {
                     if (response.categories?.length) {
@@ -72,20 +72,20 @@ export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: 
         const response = await rpcClient.getBIDiagramRpcClient().addFunction({
             filePath: fileName,
             codedata: item.codedata,
-            kind: item.kind as FunctionKind,
+            kind: item.kind as FunctionKind
         });
 
         if (response.template) {
             return extractFunctionInsertText(response.template);
         }
 
-        return "";
+        return '';
     };
 
     useEffect(() => {
         if (firstRender.current) {
             firstRender.current = false;
-            fetchFunctionInfo("");
+            fetchFunctionInfo('');
         }
     }, []);
 
@@ -94,7 +94,7 @@ export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: 
 
         // Search functions
         if (isLibraryBrowserOpen) {
-            fetchFunctionInfo(searchText, "true");
+            fetchFunctionInfo(searchText, 'true');
         } else {
             fetchFunctionInfo(searchText);
         }
@@ -106,90 +106,64 @@ export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: 
         onClose();
     };
 
-    const getCurrentIntegrationFunctions = useCallback(() => {
-        const currentIntegrationFunctions = functionInfo?.category.filter(
-            (category) => category.label === "Current Integration"
-        );
-
-        if (!currentIntegrationFunctions?.[0].items?.length) {
-            return undefined;
-        }
-
-        return (
-            <>
-                {currentIntegrationFunctions[0].items.map((item) => (
-                    <HelperPane.CompletionItem
-                        key={`current-${item.label}`}
-                        label={item.label}
-                        type={item.type}
-                        onClick={async () => await handleFunctionItemSelect(item)}
-                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
-                    />
-                ))}
-            </>
-        );
-    }, [functionInfo, handleFunctionItemSelect, getIcon]);
-
-    const getImportedFunctions = useCallback(() => {
-        const importedFunctions = functionInfo?.category.filter(
-            (category) => category.label === "Imported Functions"
-        );
-
-        if (!importedFunctions?.[0].subCategory?.length) {
-            return undefined;
-        }
-
-        return (
-            <>
-                {importedFunctions[0].subCategory.map((subCategory) => (
-                    <HelperPane.SubSection
-                        key={`imported-${subCategory.label}`}
-                        title={subCategory.label}
-                        collapsible
-                        defaultCollapsed
-                        columns={2}
-                        collapsedItemsCount={6}
-                    >
-                        {subCategory.items?.map((item) => (
-                            <HelperPane.CompletionItem
-                                key={`imported-${subCategory.label}-${item.label}`}
-                                label={item.label}
-                                onClick={async () => await handleFunctionItemSelect(item)}
-                                getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
-                            />
-                        ))}
-                </HelperPane.SubSection>
-                ))}
-            </>
-        );
-    }, [functionInfo, handleFunctionItemSelect, getIcon])
-
     return (
         <>
             <HelperPane.Header
                 searchValue={searchValue}
                 onSearch={handleFunctionSearch}
-                titleSx={{ fontFamily: "GilmerRegular" }}
+                titleSx={{ fontFamily: 'GilmerRegular' }}
             />
-            <HelperPane.Body>
-                <HelperPane.Section
-                    title="Current Integration"
-                    collapsible
-                    defaultCollapsed
-                    columns={2}
-                    collapsedItemsCount={6}
-                    loading={isLoading}
-                    titleSx={{ fontFamily: "GilmerMedium" }}
-                >
-                    {getCurrentIntegrationFunctions()}
-                </HelperPane.Section>
-                <HelperPane.Section
-                    title="Imported Functions"
-                    loading={isLoading}
-                    titleSx={{ fontFamily: "GilmerMedium" }}
-                >
-                    {getImportedFunctions()}
-                </HelperPane.Section>
+            <HelperPane.Body loading={isLoading}>
+                {functionInfo?.category.map((category) => {
+                    /* If no sub category found */
+                    if (!category.subCategory) {
+                        return (
+                            <HelperPane.Section
+                                title={category.label}
+                                collapsible
+                                defaultCollapsed
+                                columns={2}
+                                collapsedItemsCount={6}
+                                titleSx={{ fontFamily: 'GilmerMedium' }}
+                            >
+                                {category.items.map((item) => (
+                                    <HelperPane.CompletionItem
+                                        key={`${category.label}-${item.label}`}
+                                        label={item.label}
+                                        type={item.type}
+                                        onClick={async () => await handleFunctionItemSelect(item)}
+                                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
+                                    />
+                                ))}
+                            </HelperPane.Section>
+                        );
+                    }
+
+                    /* If sub category found */
+                    return (
+                        <HelperPane.Section title={category.label} titleSx={{ fontFamily: 'GilmerMedium' }}>
+                            {category.subCategory.map((subCategory) => (
+                                <HelperPane.SubSection
+                                    key={`${category.label}-${subCategory.label}`}
+                                    title={subCategory.label}
+                                    collapsible
+                                    defaultCollapsed
+                                    columns={2}
+                                    collapsedItemsCount={6}
+                                >
+                                    {subCategory.items?.map((item) => (
+                                        <HelperPane.CompletionItem
+                                            key={`${category.label}-${subCategory.label}-${item.label}`}
+                                            label={item.label}
+                                            onClick={async () => await handleFunctionItemSelect(item)}
+                                            getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
+                                        />
+                                    ))}
+                                </HelperPane.SubSection>
+                            ))}
+                        </HelperPane.Section>
+                    );
+                })}
             </HelperPane.Body>
             <HelperPane.Footer>
                 <HelperPane.IconButton
