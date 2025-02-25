@@ -24,6 +24,7 @@ import { RUNTIME_VERSION_440 } from "../constants";
 import { deleteSwagger } from '../util/swagger';
 import { compareVersions } from '../util/onboardingUtils';
 import { history, removeFromHistory } from '../history';
+import * as fs from "fs";
 
 export async function activateProjectExplorer(context: ExtensionContext, lsClient: ExtendedLanguageClient) {
 
@@ -90,6 +91,16 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	commands.registerCommand(COMMANDS.ADD_SEQUENCE_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceForm, documentUri: entry.info?.path });
 		console.log('Add Sequence');
+	});
+
+	commands.registerCommand(COMMANDS.MARK_SEQUENCE_AS_DEFAULT, async (entry: ProjectExplorerEntry) => {
+		const filePath = entry.info?.path;
+		await setDefaultSequence(filePath, false);
+	});
+
+	commands.registerCommand(COMMANDS.UNMARK_SEQUENCE_AS_DEFAULT, async (entry: ProjectExplorerEntry) => {
+		const filePath = entry.info?.path;
+		await setDefaultSequence(filePath, true);
 	});
 
 	commands.registerCommand(COMMANDS.ADD_DATAMAPPER_COMMAND, (entry: ProjectExplorerEntry) => {
@@ -535,6 +546,75 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 			refreshUI();
 		}
 	});
+
+	async function setDefaultSequence(filePath?: string, remove?: boolean) {
+		const langClient = StateMachine.context().langClient;
+
+		if (!filePath) {
+			window.showErrorMessage('File path is not available');
+			throw new Error('File path is not available');
+		}
+
+		// Read the POM file
+		const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(filePath));
+		if (!workspaceFolder) {
+			window.showErrorMessage('Cannot find workspace folder');
+			throw new Error('Cannot find workspace folder');
+		}
+
+		const pomPath = path.join(workspaceFolder.uri.fsPath, 'pom.xml');
+		const pomContent = fs.readFileSync(pomPath, 'utf-8');
+
+		if (remove) {
+			// Remove the <mainSequence> tag from the POM
+			const updatedPomContent = pomContent.replace(/\s*<mainSequence>.*?<\/mainSequence>/, '');
+			fs.writeFileSync(pomPath, updatedPomContent, 'utf-8');
+			return;
+		}
+
+		if (!langClient) {
+			window.showErrorMessage('Language client is not available');
+			throw new Error('Language client is not available');
+		}
+
+		// Get the syntax tree of the given file path
+		const syntaxTree = await langClient.getSyntaxTree({
+			documentIdentifier: {
+				uri: filePath
+			},
+		});
+
+		// Get the sequence name from the syntax tree
+		const sequenceName = syntaxTree?.syntaxTree?.sequence?.name;
+		if (!sequenceName) {
+			window.showErrorMessage('Failed to get the sequence name from the syntax tree');
+			throw new Error('Failed to get the sequence name from the syntax tree');
+		}
+
+		const mainSequenceTag = `<mainSequence>${sequenceName}</mainSequence>`;
+
+		// Check if the <properties> tag exists
+		const propertiesTagExists = pomContent.includes('<properties>');
+
+		if (propertiesTagExists) {
+			// Inject the <mainSequence> tag inside the <properties> tag
+			const updatedPomContent = pomContent.replace(/<properties>([\s\S]*?)<\/properties>/, (match, p1) => {
+				if (p1.includes('<mainSequence>')) {
+					// Update the existing <mainSequence> tag
+					return match.replace(/<mainSequence>.*?<\/mainSequence>/, mainSequenceTag);
+				} else {
+					// Get the indentation from the <properties> tag
+					const propertiesIndentation = pomContent.match(/(\s*)<properties>/)?.[1] || '';
+					const indentedMainSequenceTag = `\t${mainSequenceTag}`;
+					// Add the <mainSequence> tag
+					return `<properties>${p1}${indentedMainSequenceTag}${propertiesIndentation}</properties>`;
+				}
+			});
+			fs.writeFileSync(pomPath, updatedPomContent, 'utf-8');
+		} else {
+			window.showErrorMessage('Failed to find the project properties in the POM file');
+		}
+	}
 }
 
 function revealWebviewPanel(beside: boolean = true) {
