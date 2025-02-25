@@ -152,7 +152,8 @@ function convertConfig(listener: ServiceModel): FormField[] {
             items: expression.valueType === "SINGLE_SELECT" ? expression.items : expression.items || [expression.value],
             choices: expression.choices,
             placeholder: expression.placeholder,
-            addNewButton: expression.addNewButton
+            addNewButton: expression.addNewButton,
+            lineRange: expression?.codedata?.lineRange
         }
 
         formFields.push(formField);

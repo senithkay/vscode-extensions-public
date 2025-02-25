@@ -19,7 +19,7 @@ import { DataMapperNodeModel } from '../Diagram/Node/commons/DataMapperNode';
 import { getErrorKind } from '../Diagram/utils/dm-utils';
 import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
 import { ErrorNodeKind } from '../DataMapper/Error/RenderingError';
-import { useDMSearchStore } from '../../store/store';
+import { useDMSearchStore, useDMStore } from '../../store/store';
 import { ListConstructorNode, MappingConstructorNode, PrimitiveTypeNode, QueryExpressionNode, RequiredParamNode } from '../Diagram/Node';
 import {
     GAP_BETWEEN_MAPPING_HEADER_NODE_AND_INPUT_NODE,
@@ -40,7 +40,13 @@ import { EnumTypeNode } from '../Diagram/Node/EnumType';
 import { ExpandedMappingHeaderNode } from '../Diagram/Node/ExpandedMappingHeader';
 import { isDMSupported } from '../DataMapper/utils';
 import { FunctionDefinition, ModulePart } from '@wso2-enterprise/syntax-tree';
-import { getExpandedMappingHeaderNodeHeight, getIONodeHeight, hasSameIntermediateClauses, isSameView } from '../Diagram/utils/diagram-utils';
+import {
+    getExpandedMappingHeaderNodeHeight,
+    getFieldCountMismatchIndex,
+    getIONodeHeight,
+    hasSameIntermediateClauses,
+    isSameView
+} from '../Diagram/utils/diagram-utils';
 import { isInputNode, isOutputNode } from '../Diagram/Actions/utils';
 
 export const useProjectComponents = (langServerRpcClient: LangClientRpcClient, fileName: string, fnSrc: string): {
@@ -167,10 +173,11 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
     const nodesClone = [...nodes];
     const prevNodes = diagramModel.getNodes() as DataMapperNodeModel[];
     const filtersUnchanged = hasSameIntermediateClauses(nodesClone, prevNodes);
+    const fieldCountMismatchIndex = getFieldCountMismatchIndex(nodesClone, prevNodes);
 
     let prevBottomY = 0;
 
-    nodesClone.forEach(node => {
+    nodesClone.forEach((node, index) => {
         const existingNode = prevNodes.find(prevNode => prevNode.id === node.id);
         const sameView = isSameView(node, existingNode);
 
@@ -194,19 +201,26 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
         ) {
             const x = OFFSETS.SOURCE_NODE.X;
             const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
-            let y = existingNode && sameView && filtersUnchanged && existingNode.getY() !== 0 ? existingNode.getY() : computedY;
+            const utilizeExistingY = existingNode
+                && sameView
+                && filtersUnchanged
+                && existingNode.getY() !== 0
+                && !(node instanceof LetExpressionNode)
+                && (fieldCountMismatchIndex === -1 || index <= fieldCountMismatchIndex);
+
+            let y = utilizeExistingY ? existingNode.getY() : computedY;
 
             node.setPosition(x, y);
 
             if (node instanceof RequiredParamNode) {
                 const nodeHeight = getIONodeHeight(node.numberOfFields);
-                prevBottomY = computedY + nodeHeight;
+                prevBottomY = y + nodeHeight;
             } else if (node instanceof ExpandedMappingHeaderNode) {
                 const nodeHeight = getExpandedMappingHeaderNodeHeight(node);
-                prevBottomY = computedY + (nodeHeight * (100/zoomLevel)) + GAP_BETWEEN_MAPPING_HEADER_NODE_AND_INPUT_NODE;
+                prevBottomY = y + (nodeHeight * (100/zoomLevel)) + GAP_BETWEEN_MAPPING_HEADER_NODE_AND_INPUT_NODE;
             } else if (node instanceof LetClauseNode || node instanceof JoinClauseNode) {
                 const nodeHeight = getIONodeHeight(node.numberOfFields);
-                prevBottomY = computedY + (nodeHeight * (100/zoomLevel)) + GAP_BETWEEN_INPUT_NODES;
+                prevBottomY = y + (nodeHeight * (100/zoomLevel)) + GAP_BETWEEN_INPUT_NODES;
             }
         }
         if (node instanceof FromClauseNode) {
@@ -261,6 +275,7 @@ export const useFileContent = (langServerRpcClient: LangClientRpcClient, filePat
     refetch: any;
 } => {
     const { source, position } = fnST;
+    const dmStore = useDMStore();
     const fetchContent = async () : Promise<[string, string[]]> => {
         const importStatements: string[] = [];
         try {
@@ -271,6 +286,7 @@ export const useFileContent = (langServerRpcClient: LangClientRpcClient, filePat
             modulePart?.imports.map((importDeclaration: any) => (
                 importStatements.push(importDeclaration.source.trim())
             ));
+            dmStore.setImports(importStatements);
             return [modulePart.source, importStatements];
         } catch (networkError: any) {
             console.error('Error while fetching content', networkError);

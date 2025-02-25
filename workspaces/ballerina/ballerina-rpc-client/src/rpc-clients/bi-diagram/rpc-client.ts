@@ -121,7 +121,9 @@ import {
     updateServiceClass,
     updateType,
     ServiceClassSourceRequest,
-    AddFieldRequest
+    AddFieldRequest,
+    RenameIdentifierRequest,
+    renameIdentifier
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -223,6 +225,10 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     openReadme(): void {
         return this._messenger.sendNotification(openReadme, HOST_EXTENSION);
+    }
+
+    renameIdentifier(params: RenameIdentifierRequest): Promise<void> {
+        return this._messenger.sendRequest(renameIdentifier, HOST_EXTENSION, params);
     }
 
     deployProject(): void {

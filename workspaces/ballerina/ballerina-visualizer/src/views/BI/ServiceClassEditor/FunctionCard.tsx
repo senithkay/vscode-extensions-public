@@ -158,7 +158,7 @@ export function FunctionCard(params: FunctionCardProps) {
                     <>
                         {onEditResource! && (
                             <VSCodeButton appearance="icon" title="Edit Function" onClick={handleEditResource}>
-                                <Icon name="editIcon" sx={{ marginTop: 3.5 }} />
+                                <Icon name="bi-edit" sx={{ marginTop: 3.5 }} />
                             </VSCodeButton>
                         )}
                         {onDeleteResource! && (
