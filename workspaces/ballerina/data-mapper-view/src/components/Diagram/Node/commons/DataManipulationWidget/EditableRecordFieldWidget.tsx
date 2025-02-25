@@ -19,17 +19,21 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 import { Diagnostic } from "vscode-languageserver-types";
+import { URI } from "vscode-uri";
 
+import { useDMStore } from "../../../../../store/store";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { DiagnosticTooltip } from "../../../Diagnostic/DiagnosticTooltip/DiagnosticTooltip";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import {
     createSourceForUserInput,
+    extractImportAlias,
     getDefaultValue,
     getExprBodyFromTypeCastExpression,
     getFieldName,
     getInnermostExpressionBody,
+    getMatchingType,
     getNewFieldAdditionModification,
     getTypeName,
     isConnectedViaLink,
@@ -78,13 +82,16 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         hasHoveredParent
     } = props;
     const {
+        applyModifications,
         enableStatementEditor,
-        handleCollapse
+        filePath,
+        handleCollapse,
+        langServerRpcClient
     } = context;
     const classes = useIONodesStyles();
     const [isLoading, setIsLoading] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
-    const [isAddingTypeCast, setIsAddingTypeCast] = useState(false);
+    const [isModyfying, setIsModyfying] = useState(false);
 
     let fieldName = getFieldName(field);
     const fieldId = fieldIndex !== undefined
@@ -100,6 +107,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const fields = isRecord && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
     const isUnionTypedElement = field.originalType.typeName === PrimitiveBalType.Union;
+    const isEnumTypedElement = field.originalType.typeName === PrimitiveBalType.Enum;
     const isUnresolvedUnionTypedElement = isUnionTypedElement && field.type.typeName === PrimitiveBalType.Union;
     let indentation = treeDepth * 16;
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
@@ -118,8 +126,33 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const handleAddValue = async () => {
         setIsLoading(true);
         try {
-            const defaultValue = getDefaultValue(field.type.typeName);
-            await createSourceForUserInput(field, mappingConstruct, defaultValue, context.applyModifications);
+            let targetTypeName = field.type?.typeName;
+            if (!targetTypeName) {
+                const typeInfo = field.type.typeInfo;
+                const langClient = await langServerRpcClient;
+                const typesRes = await langClient.getTypeFromExpression({
+                    documentIdentifier: {
+                        uri: URI.file(filePath).toString()
+                    },
+                    expressionRanges: [{
+                        startLine: {
+                            line: field.parentType.value.position.startLine,
+                            offset: field.parentType.value.position.startColumn
+                        },
+                        endLine: {
+                            line: field.parentType.value.position.endLine,
+                            offset: field.parentType.value.position.endColumn
+                        },
+                        filePath: URI.file(filePath).toString()
+                    }]
+                });
+                for (const { type } of typesRes.types) {
+                    const matchingType = getMatchingType(type, typeInfo);
+                    targetTypeName = matchingType ? matchingType.typeName : targetTypeName;
+                }
+            }
+            const defaultValue = getDefaultValue(targetTypeName);
+            await createSourceForUserInput(field, mappingConstruct, defaultValue, applyModifications);
         } finally {
             setIsLoading(false);
         }
@@ -207,7 +240,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     }
 
     const handleWrapWithTypeCast = async (type: TypeField, shouldReInitialize?: boolean) => {
-        setIsAddingTypeCast(true)
+        setIsModyfying(true)
         try {
             const name = getTypeName(type);
             if (field?.value) {
@@ -220,13 +253,13 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     const targetPosition = getTargetPositionForWrapWithTypeCast();
                     modification.push(getModification(`<${name}>`, targetPosition));
                 }
-                await context.applyModifications(modification);
+                await applyModifications(modification);
             } else {
                 const defaultValue = `<${name}>${getDefaultValue(type.typeName)}`;
-                await createSourceForUserInput(field, mappingConstruct, defaultValue, context.applyModifications);
+                await createSourceForUserInput(field, mappingConstruct, defaultValue, applyModifications);
             }
         } finally {
-            setIsAddingTypeCast(false);
+            setIsModyfying(false);
         }
     };
 
@@ -335,7 +368,9 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         setIsLoading(true);
         try {
             const defaultValue = getDefaultValue(typeNameStr);
-            await createSourceForUserInput(field, parentMappingConstruct as MappingConstructor, defaultValue, context.applyModifications);
+            await createSourceForUserInput(
+                field, parentMappingConstruct as MappingConstructor, defaultValue, applyModifications
+            );
         } finally {
             setIsLoading(false);
         }
@@ -343,7 +378,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const addOrEditValueMenuItem: ValueConfigMenuItem = hasValue
         ? { title: ValueConfigOption.EditValue, onClick: handleEditValue }
-        : !isUnionTypedElement && { title: ValueConfigOption.InitializeWithValue, onClick: handleAddValue };
+        : !(isUnionTypedElement || isEnumTypedElement)
+            && { title: ValueConfigOption.InitializeWithValue, onClick: handleAddValue };
 
     const deleteValueMenuItem: ValueConfigMenuItem = {
         title: isWithinArray ? ValueConfigOption.DeleteElement : ValueConfigOption.DeleteValue,
@@ -415,6 +451,48 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         return menuItems.sort((a, b) => (a.level || 0) - (b.level || 0));
     };
 
+    const getEnumElementMenuItems = () => {
+        const menuItems: ValueConfigMenuItem[] = [];
+        for (const member of field.originalType.members) {
+            const memberTypeName = getTypeName(member);
+
+            let enumValName = memberTypeName;
+            if (field.type?.typeInfo) {
+                const { orgName, moduleName } = field.type?.typeInfo;
+                const importStatements = useDMStore.getState().imports;
+                const importStatement = importStatements.find(item => item.includes(`${orgName}/${moduleName}`));
+                if (importStatement) {
+                    // If enum is from an imported package
+                    const importAlias = extractImportAlias(moduleName, importStatement);
+                    enumValName = `${(importAlias || moduleName.split('.').pop())}:${memberTypeName}`;
+                }
+            }
+            menuItems.push({
+                title: `${hasValue ? `Re-Initialize` : 'Initialize'} as ${enumValName}`,
+                onClick: () => hasValue
+                    ? handleReInitEnumValue(memberTypeName)
+                    : createSourceForUserInput(field, mappingConstruct, enumValName, applyModifications)
+            });
+        }
+        return menuItems.sort((a, b) => (a.level || 0) - (b.level || 0));
+    };
+
+    const handleReInitEnumValue = async (newValue: string) => {
+        setIsModyfying(true)
+        try {
+            if (field?.value) {
+                const modification: STModification[] = [];
+                if (STKindChecker.isSpecificField(field.value)) {
+                    const valueExprPosition = field.value.valueExpr.position;
+                    modification.push(getModification(newValue, valueExprPosition));
+                    await applyModifications(modification);
+                }
+            }
+        } finally {
+            setIsModyfying(false);
+        }
+    };
+
     const valConfigMenuItems = [
         !isWithinArray && addOrEditValueMenuItem,
         (hasValue || isWithinArray) && deleteValueMenuItem,
@@ -429,14 +507,21 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         valConfigMenuItems.push(...anyDataConvertOptions)
     }
 
-    if (isUnionTypedElement) {
-        valConfigMenuItems.push(...getTypedElementMenuItems());
-    }
+    const typeSpecificMenuItems = useMemo(() => {
+        if (isUnionTypedElement) {
+            return getTypedElementMenuItems();
+        } else if (isEnumTypedElement) {
+            return getEnumElementMenuItems();
+        }
+        return [];
+    }, [field.originalType.members, isUnionTypedElement, isEnumTypedElement]);
+
+    valConfigMenuItems.push(...typeSpecificMenuItems);
 
     const addNewField = async (newFieldNameStr: string) => {
         const modification = getNewFieldAdditionModification(field.value, newFieldNameStr);
         if (modification) {
-            await context.applyModifications(modification);
+            await applyModifications(modification);
         }
     }
 
@@ -493,7 +578,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     </span>
                     {(!isDisabled || hasValue) && (
                         <>
-                            {(isLoading || isAddingTypeCast) ? (
+                            {(isLoading || isModyfying) ? (
                                 <ProgressRing sx={{ height: '16px', width: '16px' }} />
                             ) : (
                                 <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()} />
