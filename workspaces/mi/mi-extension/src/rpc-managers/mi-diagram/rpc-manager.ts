@@ -1553,7 +1553,7 @@ ${endpointAttributes}
         const options = {
             ignoreAttributes: false,
             allowBooleanAttributes: true,
-            attributeNamePrefix: "@_",
+            attributeNamePrefix: "",
             attributesGroupName: "@_"
         };
         const parser = new XMLParser(options);
@@ -1565,10 +1565,10 @@ ${endpointAttributes}
                 const jsonData = parser.parse(xmlData);
 
                 const response: GetTaskResponse = {
-                    name: jsonData.task["@_"]["@_name"],
-                    group: jsonData.task["@_"]["@_group"],
-                    implementation: jsonData.task["@_"]["@_class"],
-                    pinnedServers: jsonData.task["@_"]["@_pinnedServers"],
+                    name: jsonData.task["@_"]["name"],
+                    group: jsonData.task["@_"]["group"],
+                    implementation: jsonData.task["@_"]["class"],
+                    pinnedServers: jsonData.task["@_"]["pinnedServers"],
                     triggerType: 'simple',
                     triggerCount: null,
                     triggerInterval: 1,
@@ -1576,36 +1576,35 @@ ${endpointAttributes}
                     taskProperties: []
                 };
 
-                if (jsonData.task.trigger["@_"]["@_once"] !== undefined) {
+                if (jsonData.task.trigger["@_"]["once"] !== undefined) {
                     response.triggerCount = 1;
-                } else if (jsonData.task.trigger["@_"]["@_interval"] !== undefined) {
-                    response.triggerInterval = Number(jsonData.task.trigger["@_"]["@_interval"]);
-                    response.triggerCount = jsonData.task.trigger["@_"]?.["@_count"] != null ?
-                        Number(jsonData.task.trigger["@_"]["@_count"]) : null;
+                } else if (jsonData.task.trigger["@_"]["interval"] !== undefined) {
+                    response.triggerInterval = Number(jsonData.task.trigger["@_"]["interval"]);
+                    response.triggerCount = jsonData.task.trigger["@_"]?.["count"] != null ?
+                        Number(jsonData.task.trigger["@_"]["count"]) : null;
                 }
-                else if (jsonData.task.trigger["@_"]["@_cron"] !== undefined) {
+                else if (jsonData.task.trigger["@_"]["cron"] !== undefined) {
                     response.triggerType = 'cron';
-                    response.triggerCron = jsonData.task.trigger["@_"]["@_cron"];
+                    response.triggerCron = jsonData.task.trigger["@_"]["cron"];
                 }
                 if (jsonData.task.property) {
                     response.taskProperties = Array.isArray(jsonData.task.property) ?
                         jsonData.task.property.map((prop: any) => ({
-                            key: prop["@_"]["@_name"],
-                            value: prop["@_"]["@_value"],
+                            key: prop["@_"]["name"],
+                            value: prop["@_"]["value"],
                             isLiteral: true
                         })) :
                         [{
-                            key: jsonData.task.property["@_"]["@_name"],
-                            value: jsonData.task.property["@_"]["@_value"],
+                            key: jsonData.task.property["@_"]["name"],
+                            value: jsonData.task.property["@_"]["value"],
                             isLiteral: true
                         }];
                     const builder = new XMLBuilder(options);
-                    const message = jsonData.task.property.filter((prop: any) => prop["@_"]["@_name"] === "message");
+                    const message = jsonData.task.property.filter((prop: any) => prop["@_"]["name"] === "message");
                     if (message.length > 0) {
                         response.taskProperties = response.taskProperties.filter(prop => prop.key !== "message");
-                        if (message[0]["@_"]["@_value"] === undefined) {
+                        if (message[0]["@_"]["value"] === undefined) {
                             delete message[0]["@_"];
-                            removeXmlns(message[0]);
                             let xml = builder.build(message[0]);
                             response.taskProperties.push({
                                 key: "message",
@@ -1615,7 +1614,7 @@ ${endpointAttributes}
                         } else {
                             response.taskProperties.push({
                                 key: "message",
-                                value: message[0]["@_"]["@_value"],
+                                value: message[0]["@_"]["value"],
                                 isLiteral: true
                             });
                         }
@@ -5158,21 +5157,6 @@ ${keyValuesXML}`;
     }
 }
 
-function removeXmlns(jsonObj) {
-    if (Array.isArray(jsonObj)) {
-        jsonObj.forEach(item => removeXmlns(item));
-    } else if (jsonObj && typeof jsonObj === 'object') {
-        Object.keys(jsonObj).forEach(key => {
-            if (key.startsWith("@_xmlns")) {
-                const newKey = key.replace(/^@_/, '');
-                jsonObj[newKey] = jsonObj[key];
-                delete jsonObj[key];
-            } else {
-                removeXmlns(jsonObj[key]);
-            }
-        });
-    }
-}
 
 export async function askProjectPath() {
     return await window.showOpenDialog({
