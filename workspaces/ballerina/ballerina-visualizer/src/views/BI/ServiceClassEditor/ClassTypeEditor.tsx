@@ -34,20 +34,21 @@ const ServiceContainer = styled.div`
 const ScrollableSection = styled.div`
     display: flex;
     flex-direction: column;
-    min-height: 0;
     gap: 16px;
     overflow-y: auto;
+    height: 100%;
+    flex: 1;
 `;
 
 const Section = styled.div`
     display: flex;
     flex-direction: column;
-    min-height: 0;
+    min-height: 75px;
 `;
 
 const ScrollableContent = styled.div`
     overflow-y: auto;
-    min-height: 0;
+    min-height: 55px;
 `;
 
 const SectionTitle = styled.div`
