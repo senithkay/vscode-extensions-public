@@ -161,7 +161,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const onRightClick = (event: React.MouseEvent) => {
 		event.preventDefault();
 		if (focusedOnRoot || focusedOnSubMappingRoot) handleChangeSchema();
-	}
+	};
 
 	const label = (
 		<TruncatedLabel style={{ marginRight: "auto" }}>
@@ -256,7 +256,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 					{(focusedOnRoot || focusedOnSubMappingRoot) && (
 						<Button
 							appearance="icon"
-							data-testid={"change-schema-btn"}
+							data-testid={"change-output-schema-btn"}
 							tooltip={focusedOnRoot ? "Change output schema" : "Edit name and type of the sub mapping"}
 							onClick={handleChangeSchema}
 							data-field-action
