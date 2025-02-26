@@ -34,7 +34,7 @@ export class NodeLinkModel extends DefaultLinkModel {
     topNode: FlowNode | Branch; // top statement node or parent block node
     target: LinePosition;
     // options
-    showArrow: boolean;
+    showArrow = true;
     showAddButton = true;
     showButtonAlways = false;
     brokenLine = false;
@@ -70,7 +70,7 @@ export class NodeLinkModel extends DefaultLinkModel {
                 if ((options as NodeLinkModelOptions).showButtonAlways === true) {
                     this.showButtonAlways = (options as NodeLinkModelOptions).showButtonAlways;
                 }
-                if ((options as NodeLinkModelOptions).showArrow) {
+                if ((options as NodeLinkModelOptions).showArrow === false) {
                     this.showArrow = (options as NodeLinkModelOptions).showArrow;
                 }
                 if ((options as NodeLinkModelOptions).brokenLine === true) {
@@ -203,7 +203,7 @@ export class NodeLinkModel extends DefaultLinkModel {
 
     // show node arrow. default true. but target node is a EmptyNodeModel, then false
     showArrowToNode(): boolean {
-        if (this.showArrow) {
+        if (this.showArrow === false) {
             return this.showArrow;
         }
         if (this.points.length != 2) {
