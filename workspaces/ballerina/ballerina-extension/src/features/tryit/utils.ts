@@ -124,9 +124,6 @@ export async function waitForBallerinaService(projectDir: string): Promise<void>
 
 /**
  * Centralized error handling function for Try It feature
- * @param error The error object or error message
- * @param context Description of where the error occurred
- * @param showToUser Whether to show the error to the user (default: true)
  */
 export function handleError(error, context: string, showToUser = true): void {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -143,7 +140,7 @@ export function handleError(error, context: string, showToUser = true): void {
  */
 export class ClientManager {
     private static instance: ClientManager;
-    private _langClient: any = undefined;
+    private langClient: any = undefined;
 
     private constructor() { }
 
@@ -155,18 +152,18 @@ export class ClientManager {
     }
 
     public setClient(client: any): void {
-        this._langClient = client;
+        this.langClient = client;
     }
 
     public getClient(): any {
-        if (!this._langClient) {
+        if (!this.langClient) {
             throw new Error('Language client is not initialized');
         }
-        return this._langClient;
+        return this.langClient;
     }
 
     public hasClient(): boolean {
-        return !!this._langClient;
+        return !!this.langClient;
     }
 }
 

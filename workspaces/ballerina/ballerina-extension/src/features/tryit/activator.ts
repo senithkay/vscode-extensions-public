@@ -3,13 +3,11 @@ import { PALETTE_COMMANDS } from "../project/cmds/cmd-runner";
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { BallerinaExtension, ExtendedLangClient } from "src/core";
-import { URI } from "vscode-uri";
+import { BallerinaExtension } from "src/core";
 import Handlebars from "handlebars";
 import { clientManager, findRunningBallerinaProcesses, handleError } from "./utils";
 import { BIDesignModelResponse, OpenAPISpec } from "@wso2-enterprise/ballerina-core";
 
-let langClient: ExtendedLangClient | undefined;
 let errorLogWatcher: FileSystemWatcher | undefined;
 
 const TRYIT_TEMPLATE = `/*
@@ -125,7 +123,6 @@ module.exports = {
 
 export function activateTryItCommand(ballerinaExtInstance: BallerinaExtension) {
     try {
-        // Store the client in the manager instead of a global variable
         clientManager.setClient(ballerinaExtInstance.langClient);
 
         // Register try it command handler
@@ -137,7 +134,6 @@ export function activateTryItCommand(ballerinaExtInstance: BallerinaExtension) {
             }
         });
 
-        // Clean up when deactivated
         return Disposable.from(disposable, {
             dispose: disposeErrorWatcher
         });
@@ -228,7 +224,6 @@ async function openTryItView(withNotice: boolean = false) {
 
 async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> {
     try {
-        // Use the client manager instead of checking the global variable
         const langClient = clientManager.getClient();
 
         const response: BIDesignModelResponse = await langClient.getDesignModel({
@@ -280,7 +275,6 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
 
 async function getOpenAPIDefinition(service: ServiceInfo): Promise<OAISpec> {
     try {
-        // Get client from manager
         const langClient = clientManager.getClient();
 
         const openapiDefinitions: OpenAPISpec | 'NOT_SUPPORTED_TYPE' = await langClient.convertToOpenAPI({
@@ -350,8 +344,7 @@ async function getServicePort(projectDir: string, service: ServiceInfo, openapiS
         }));
 
         const selected = await vscode.window.showQuickPick(portItems, {
-            placeHolder: `Multiple ports detected. Please select the port configured for the service "${service.name}"`,
-            title: 'Available Ports'
+            placeHolder: `Port auto-detection failed due to multiple service ports. Pick the correct port for the service '${service.name || service.basePath}' to continue`,
         });
 
         if (!selected) {
