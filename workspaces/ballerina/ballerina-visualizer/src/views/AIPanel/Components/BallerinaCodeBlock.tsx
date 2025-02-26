@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { LightAsync as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { a11yDark, darcula, monokai } from 'react-syntax-highlighter/dist/esm/styles/hljs';
-import { FaRegCopy } from 'react-icons/fa';
+import { darcula } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import { Codicon } from '@wso2-enterprise/ui-toolkit';
 
 const CodeBlockContainer = styled.div`
   border-radius: 8px;
@@ -15,25 +15,24 @@ const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #444;
+  background-color: var(--vscode-list-hoverBackground);
   padding: 8px 16px;
-  color: #fff;
+  color: var(--vscode-editor-foreground);
 `;
 
 const Title = styled.div`
   font-weight: bold;
 `;
 
-const CopyButton = styled.button`
-  background: transparent;
+const CopyButton = styled.button<{ copied: boolean }>`
+  background: ${({ copied }: { copied: boolean }) => (copied ? 'var(--vscode-badge-background)' : 'transparent')};
   border: none;
-  color: #fff;
+  color: var(--vscode-editor-foreground);
   cursor: pointer;
   font-size: 1rem;
-
-  &:hover {
-    color: #bbb;
-  }
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.3s ease;
 `;
 
 interface BallerinaCodeBlockProps {
@@ -57,8 +56,8 @@ const BallerinaCodeBlock: React.FC<BallerinaCodeBlockProps> = ({ code }) => {
     <CodeBlockContainer>
       <Header>
         <Title>Ballerina</Title>
-        <CopyButton onClick={handleCopy} title="Copy code">
-          <FaRegCopy />
+        <CopyButton onClick={handleCopy} copied={copied} title="Copy code">
+          <Codicon name="copy" />
         </CopyButton>
       </Header>
       <SyntaxHighlighter
@@ -66,33 +65,19 @@ const BallerinaCodeBlock: React.FC<BallerinaCodeBlockProps> = ({ code }) => {
         style={darcula}
         customStyle={{
           margin: 0,
-          borderRadius: 0, 
+          borderRadius: 0,
+          backgroundColor: 'var(--vscode-editorWidget-background)',
+          padding: '8px 16px'
         }}
         codeTagProps={{
           style: {
-        backgroundColor: 'transparent', 
-        color: 'unset', 
+            backgroundColor: 'transparent',
+            color: 'var(--vscode-editor-foreground)',
           },
         }}
       >
         {code}
       </SyntaxHighlighter>
-      {copied && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 8,
-            right: 60,
-            backgroundColor: '#50fa7b',
-            color: '#282a36',
-            padding: '4px 8px',
-            borderRadius: '4px',
-            fontSize: '0.85rem',
-          }}
-        >
-          Copied!
-        </div>
-      )}
     </CodeBlockContainer>
   );
 };

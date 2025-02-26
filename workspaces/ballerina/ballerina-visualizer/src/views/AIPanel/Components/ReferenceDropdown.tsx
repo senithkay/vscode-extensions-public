@@ -16,7 +16,7 @@ const ToggleButton = styled.button`
   width: auto;
   background: none;
   border: none;
-  color:rgb(0, 89, 255);
+  color: var(--vscode-textLink-foreground);
   font-size: 12px;
   cursor: pointer;
   padding: 4px 0;
@@ -46,7 +46,7 @@ const StyledLink = styled.a`
     left: -20px; 
     top: 50%;
     transform: translateY(-50%);
-    color: black;
+    color: var(--vscode-editor-foreground);
     font-size: 18px; 
   }
 `;

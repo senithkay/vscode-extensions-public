@@ -296,7 +296,7 @@ export async function cleanAndValidateProject(langClient: ExtendedLangClient, pa
         for (const [filePath, diagnostics] of Object.entries(response.errorDiagnosticMap)) {
             // Filter the unused import diagnostics
             const diagnostic = diagnostics.find(d => d.code === "BCE2002");
-            if (!diagnostic) continue;
+            if (!diagnostic) { continue; }
             const codeActions = await langClient.codeAction({
                 textDocument: { uri: filePath },
                 range: {
@@ -308,7 +308,7 @@ export async function cleanAndValidateProject(langClient: ExtendedLangClient, pa
 
             // Find and apply the appropriate code action
             const action = codeActions.find(action => action.title === "Remove all unused imports");
-            if (!action?.edit?.documentChanges?.length) continue;
+            if (!action?.edit?.documentChanges?.length) { continue; }
             const docEdit = action.edit.documentChanges[0] as TextDocumentEdit;
 
             // Apply modifications to syntax tree
