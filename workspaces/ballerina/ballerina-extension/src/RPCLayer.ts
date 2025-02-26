@@ -26,6 +26,7 @@ import { AiPanelWebview } from './views/ai-panel/webview';
 import { StateMachineAI } from './views/ai-panel/aiMachine';
 import path from 'path';
 import { StateMachinePopup } from './stateMachinePopup';
+import { registerAiAgentRpcHandlers } from './rpc-managers/ai-agent/rpc-handler';
 import { registerConnectorWizardRpcHandlers } from './rpc-managers/connector-wizard/rpc-handler';
 import { registerSequenceDiagramRpcHandlers } from './rpc-managers/sequence-diagram/rpc-handler';
 import { registerInlineDataMapperRpcHandlers } from './rpc-managers/inline-data-mapper/rpc-handler';
@@ -72,6 +73,7 @@ export class RPCLayer {
         registerSequenceDiagramRpcHandlers(RPCLayer._messenger);
         registerConnectorWizardRpcHandlers(RPCLayer._messenger);
         registerTestManagerRpcHandlers(RPCLayer._messenger);
+        registerAiAgentRpcHandlers(RPCLayer._messenger);
 
         // ----- AI Webview RPC Methods
         registerAiPanelRpcHandlers(RPCLayer._messenger);

@@ -176,7 +176,13 @@ import {
     AddFieldRequest,
     FunctionModelRequest,
     FunctionModelResponse,
-    TypeDataWithReferences
+    TypeDataWithReferences,
+    AINodesResponse,
+    AIModelsRequest,
+    AIToolsRequest,
+    AIToolsResponse,
+    AIGentToolsRequest,
+    AIGentToolsResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -301,7 +307,12 @@ enum EXTENDED_APIS {
     BI_GET_TEST_FUNCTION = 'testManagerService/getTestFunction',
     BI_ADD_TEST_FUNCTION = 'testManagerService/addTestFunction',
     BI_UPDATE_TEST_FUNCTION = 'testManagerService/updateTestFunction',
-    BI_EDIT_FUNCTION_NODE = 'flowDesignService/functionDefinition'
+    BI_EDIT_FUNCTION_NODE = 'flowDesignService/functionDefinition',
+    BI_AI_ALL_AGENTS = 'agentManager/getAllAgents',
+    BI_AI_ALL_MODELS = 'agentManager/getAllModels',
+    BI_AI_GET_MODELS = 'agentManager/getModels',
+    BI_AI_GET_TOOLS = 'agentManager/getTools',
+    BI_AI_GEN_TOOLS = 'agentManager/genTool',
 }
 
 enum EXTENDED_APIS_ORG {
@@ -943,6 +954,22 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {
         return this.sendRequest<AddFunctionResponse>(EXTENDED_APIS.BI_ADD_FUNCTION, params);
+    }
+
+    async getAllAgents(): Promise<AINodesResponse> {
+        return this.sendRequest<AINodesResponse>(EXTENDED_APIS.BI_AI_ALL_AGENTS);
+    }
+    async getAllModels(params: AIModelsRequest): Promise<AINodesResponse> {
+        return this.sendRequest<AINodesResponse>(EXTENDED_APIS.BI_AI_ALL_MODELS, params);
+    }
+    async getModels(params: AIModelsRequest): Promise<AINodesResponse> {
+        return this.sendRequest<AINodesResponse>(EXTENDED_APIS.BI_AI_GET_MODELS, params);
+    }
+    async getTools(params: AIToolsRequest): Promise<AIToolsResponse> {
+        return this.sendRequest<AIToolsResponse>(EXTENDED_APIS.BI_AI_GET_TOOLS, params);
+    }
+    async genTool(params: AIGentToolsRequest): Promise<AIGentToolsResponse> {
+        return this.sendRequest<AIGentToolsResponse>(EXTENDED_APIS.BI_AI_GEN_TOOLS, params);
     }
 
     // <------------ BI APIS END --------------->

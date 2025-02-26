@@ -33,6 +33,8 @@ export * from "./ls-utils/WSConnection";
 export * from "./ls-utils/BallerinaLanguageClient";
 
 // ------ RPC interfaces -------->
+export * from "./rpc-types/ai-agent";
+export * from "./rpc-types/ai-agent/rpc-type";
 export * from "./rpc-types/bi-diagram";
 export * from "./rpc-types/bi-diagram/interfaces";
 export * from "./rpc-types/bi-diagram/rpc-type";

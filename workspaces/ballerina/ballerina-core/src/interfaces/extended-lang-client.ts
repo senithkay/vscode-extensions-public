@@ -1209,6 +1209,37 @@ export interface FunctionNodeResponse {
     functionDefinition: FunctionNode;
 }
 
+// <-------- AI Agent Related ------->
+
+export interface AINodesResponse {
+    nodes: FlowNode[];
+}
+
+// TODO: Correct the data type
+export interface AIModelsRequest {
+    agent: any;
+    filePath?: string;
+}
+
+export interface AIToolsRequest {
+    filePath: string;
+}
+export interface AIToolsResponse {
+    toolsList: string[];
+}
+
+export interface AIGentToolsRequest {
+    filePath: string;
+    flowNode: FlowNode;
+    toolName: string;
+}
+
+export interface AIGentToolsResponse {
+    textEdits: {
+        [key: string]: TextEdit[];
+    };
+}
+
 // <------------ BI INTERFACES --------->
 
 export interface BaseLangClientInterface {
@@ -1261,6 +1292,13 @@ export interface BIInterface extends BaseLangClientInterface {
     addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
     convertJsonToRecordType: (params: JsonToRecordParams) => Promise<TypeDataWithReferences>;
     convertXmlToRecordType: (params: XMLToRecordParams) => Promise<TypeDataWithReferences>;
+
+    // AI Agent APIs
+    getAllAgents: () => Promise<AINodesResponse>;
+    getAllModels: (params: AIModelsRequest) => Promise<AINodesResponse>;
+    getModels: (params: AIModelsRequest) => Promise<AINodesResponse>;
+    getTools: (params: AIToolsRequest) => Promise<AIToolsResponse>;
+    genTool: (params: AIGentToolsRequest) => Promise<AIGentToolsResponse>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {
