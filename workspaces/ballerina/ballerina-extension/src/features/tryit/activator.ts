@@ -156,7 +156,7 @@ async function openTryItView(withNotice: boolean = false) {
         const services = await getAvailableServices(workspaceRoot);
 
         if (!services || services.length === 0) {
-            vscode.window.showInformationMessage('No services found in the project');
+            vscode.window.showInformationMessage('No HTTP services found in the project');
             return;
         }
 
