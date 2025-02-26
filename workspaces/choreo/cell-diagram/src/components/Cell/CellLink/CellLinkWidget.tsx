@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { DiagramEngine, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { CellLinkModel } from "./CellLinkModel";
-import { CELL_LINK, Colors, WarningIcon } from "../../../resources";
+import { CELL_LINK, Colors, LINK_WIDTH, WarningIcon } from "../../../resources";
 import { ObservationLabel } from "../../ObservationLabel/ObservationLabel";
 import { TooltipLabel } from "../../TooltipLabel/TooltipLabel";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
@@ -123,10 +123,10 @@ export function CellLinkWidget(props: WidgetProps) {
 
     const strokeWidth = () => {
         if (previewMode) {
-            return 1; // Thinner lines in preview mode
+            return LINK_WIDTH.PREVIEW;
         }
         const requestCount = getRequestCount();
-        return requestCount ? link.scaleValueToLinkWidth(requestCount, min, max) : 2;
+        return requestCount ? link.scaleValueToLinkWidth(requestCount, min, max) : LINK_WIDTH.DEFAULT;
     };
 
     const strokeColor = () => {

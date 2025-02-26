@@ -30,6 +30,11 @@ export enum Colors {
     ERROR = '#ED2633',
 }
 
+export const LINK_WIDTH = {
+    DEFAULT: 2,
+    PREVIEW: 4,
+}
+
 export const NAME_JOIN_CHAR = "|";
 
 // error messages
