@@ -9,10 +9,10 @@
 
 import React from "react";
 import { storiesOf } from "@storybook/react";
-import { CellDiagram } from "../Diagram";
-import { Organization } from "../types";
-import { Container, handleComponentDoubleClick } from "./utils";
-import { CellBounds } from "../components/Cell/CellNode/CellModel";
+import { CellDiagram } from "../../Diagram";
+import { Organization } from "../../types";
+import { Container, handleComponentDoubleClick } from "../utils";
+import { CellBounds } from "../../components/Cell/CellNode/CellModel";
 import wso2OrgModel from "./wso2-org-model.json";
 import yOrgModel from "./y-org-model.json";
 import kOrgModel from "./k-org-model.json";

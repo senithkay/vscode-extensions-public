@@ -1,26 +1,13 @@
-/**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content.
- */
+import { ComponentType, ConnectionType, Project } from "../../../types";
 
-import React from "react";
-import { storiesOf } from "@storybook/react";
-import { CellDiagram } from "../Diagram";
-import { Project } from "../types";
-import { Container, componentMenu, handleComponentDoubleClick } from "./utils";
-
-const noComponentModel: Project = {
+export const noComponentModel: Project = {
     id: "A",
     name: "A",
     components: [],
     modelVersion: "0.4.0",
 };
 
-const singleComponentModel: Project = {
+export const singleComponentModel: Project = {
     id: "A",
     name: "A",
     components: [
@@ -35,7 +22,7 @@ const singleComponentModel: Project = {
     modelVersion: "0.4.0",
 };
 
-const singleExposedComponentModel: Project = {
+export const singleExposedComponentModel: Project = {
     id: "A",
     name: "A",
     components: [
@@ -69,7 +56,7 @@ const singleExposedComponentModel: Project = {
                 {
                     id: "dynamoDb://dynamoDb",
                     onPlatform: false,
-                    type: "datastore",
+                    type: ConnectionType.Datastore,
                 },
             ],
         },
@@ -77,14 +64,14 @@ const singleExposedComponentModel: Project = {
     modelVersion: "0.4.0",
 };
 
-const allComponentModel: Project = {
+export const allComponentModel: Project = {
     id: "A",
     name: "A",
     components: [
         {
             id: "Ballerina Service",
             version: "0.2.0",
-            type: "service",
+            type: ComponentType.SERVICE,
             buildPack: "ballerina",
             services: {},
             connections: [],
@@ -180,7 +167,7 @@ const allComponentModel: Project = {
     modelVersion: "0.4.0",
 };
 
-const componentDependencyModel: Project = {
+export const componentDependencyModel: Project = {
     id: "A",
     name: "A",
     components: [
@@ -264,7 +251,7 @@ const componentDependencyModel: Project = {
     modelVersion: "0.4.0",
 };
 
-const unlinkConfigurationModel: Project = {
+export const unlinkConfigurationModel: Project = {
     id: "A",
     name: "A",
     components: [],
@@ -284,7 +271,7 @@ const unlinkConfigurationModel: Project = {
     modelVersion: "0.4.0",
 };
 
-const observabilityModel: Project = {
+export const observabilityModel: Project = {
     id: "A",
     name: "A",
     components: [
@@ -358,7 +345,7 @@ const observabilityModel: Project = {
     modelVersion: "0.4.0",
 };
 
-const testModel1: Project = {
+export const testModel1: Project = {
     id: "wknh",
     name: "FinFlux",
     components: [
@@ -562,7 +549,7 @@ const testModel1: Project = {
     modelVersion: "0.4.0",
 };
 
-const testModel2: Project = {
+export const testModel2: Project = {
     id: "A",
     name: "A",
     components: [
@@ -670,7 +657,7 @@ const testModel2: Project = {
     modelVersion: "0.4.0",
 };
 
-const testModel22: Project = {
+export const testModel22: Project = {
     id: "A",
     name: "A",
     components: [
@@ -750,7 +737,7 @@ const testModel22: Project = {
     modelVersion: "0.4.0",
 };
 
-const testModel3: Project = {
+export const testModel3: Project = {
     id: "A",
     name: "A",
     components: [
@@ -949,73 +936,3 @@ const testModel3: Project = {
     ],
     modelVersion: "0.4.0",
 };
-
-storiesOf("Project", module).add("Empty cell", () => (
-    <Container>
-        <CellDiagram project={noComponentModel} />
-    </Container>
-));
-
-storiesOf("Project", module).add("Single component", () => (
-    <Container>
-        <CellDiagram project={singleComponentModel} />
-    </Container>
-));
-
-storiesOf("Project", module).add("Single component with expose link", () => (
-    <Container>
-        <CellDiagram project={singleExposedComponentModel} />
-    </Container>
-));
-
-storiesOf("Project", module).add("All component types", () => (
-    <Container>
-        <CellDiagram project={allComponentModel} />
-    </Container>
-));
-
-storiesOf("Project", module).add("Component dependencies", () => (
-    <Container>
-        <CellDiagram project={componentDependencyModel} />
-    </Container>
-));
-
-storiesOf("Project", module).add("Project configurations", () => (
-    <Container>
-        <CellDiagram project={unlinkConfigurationModel} />
-    </Container>
-));
-
-storiesOf("Project", module).add("Test - out component", () => (
-    <Container>
-        <CellDiagram project={testModel1} />
-    </Container>
-));
-
-storiesOf("Project", module).add("Test - straight components", () => (
-    <Container>
-        <CellDiagram project={testModel22} />
-    </Container>
-));
-
-storiesOf("Project", module).add("Test - disable", () => (
-    <Container>
-        <CellDiagram project={testModel2} />
-    </Container>
-));
-
-storiesOf("Project", module).add("Test - straight more components", () => (
-    <Container>
-        <CellDiagram project={testModel3} />
-    </Container>
-));
-
-storiesOf("Project", module).add("Observability data and events", () => (
-    <Container>
-        <CellDiagram
-            project={observabilityModel}
-            componentMenu={componentMenu}
-            onComponentDoubleClick={handleComponentDoubleClick}
-        />
-    </Container>
-));
