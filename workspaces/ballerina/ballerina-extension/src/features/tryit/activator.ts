@@ -315,12 +315,11 @@ async function getOpenAPIDefinition(service: ServiceInfo): Promise<OAISpec> {
 async function getServicePort(projectDir: string, service: ServiceInfo, openapiSpec: OAISpec): Promise<number> {
     try {
         // Try to get default port from OpenAPI spec first
-        const defaultPort = openapiSpec.servers?.[0]?.variables?.port?.default;
-        if (defaultPort) {
-            const parsedPort = parseInt(defaultPort);
-            if (!isNaN(parsedPort) && parsedPort > 0 && parsedPort <= 65535) {
-                return parsedPort;
-            }
+        let portInSpec: number;
+        const portInSpecStr = openapiSpec.servers?.[0]?.variables?.port?.default;
+        if (portInSpecStr) {
+            const parsedPort = parseInt(portInSpecStr);
+            portInSpec = isNaN(parsedPort) ? parsedPort : undefined;
         }
 
         const balProcesses = await findRunningBallerinaProcesses(projectDir)
@@ -332,7 +331,10 @@ async function getServicePort(projectDir: string, service: ServiceInfo, openapiS
             throw new Error('No running Ballerina processes found. Please run your service first.');
         }
 
-        const uniquePorts = [...new Set(balProcesses.flatMap(process => process.ports))];
+        const uniquePorts: number[] = [...new Set(balProcesses.flatMap(process => process.ports))];
+        if (portInSpec && uniquePorts.includes(portInSpec)) {
+            return portInSpec;
+        }
 
         if (uniquePorts.length === 0) {
             throw new Error('No service ports found in running Ballerina processes');

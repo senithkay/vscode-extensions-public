@@ -106,7 +106,7 @@ function getLSOFCommand(platform: string, pid: string): string {
 }
 
 export async function waitForBallerinaService(projectDir: string): Promise<void> {
-    const maxAttempts = 200; // Try for 20 seconds
+    const maxAttempts = 100; // Try for 10 seconds
     const timeout = 100; // 100ms
 
     let attempt = 0;
@@ -119,7 +119,7 @@ export async function waitForBallerinaService(projectDir: string): Promise<void>
         await new Promise(resolve => setTimeout(resolve, timeout));
         attempt++;
     }
-    throw new Error('Timed out waiting for Ballerina service to start');
+    throw new Error('Timed out waiting for Ballerina service(s) to start');
 }
 
 /**
