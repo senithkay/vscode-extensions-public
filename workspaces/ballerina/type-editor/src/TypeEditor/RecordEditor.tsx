@@ -85,7 +85,7 @@ export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorPr
         <div className="record-editor">
             {!isAnonymous &&
                 <Header>
-                    <SectionTitle>{'Record'}</SectionTitle>
+                    <SectionTitle>{isGraphql ? 'Input Object' : 'Record'}</SectionTitle>
                     <div style={{ display: 'flex', gap: '8px' }}>
                         <Button appearance="icon" onClick={onImportJson}>
                             <Codicon name="arrow-circle-down" />&nbsp;JSON

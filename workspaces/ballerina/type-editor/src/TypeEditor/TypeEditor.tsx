@@ -147,6 +147,7 @@ const isValidBallerinaIdentifier = (name: string): boolean => {
 
 export function TypeEditor(props: TypeEditorProps) {
     console.log("===TypeEditorProps===", props);
+    const { isGraphql } = props;
     const [selectedTypeKind, setSelectedTypeKind] = useState<TypeKind>(() => {
         if (props.type) {
             // Map the type's node kind to TypeKind enum
@@ -212,9 +213,26 @@ export function TypeEditor(props: TypeEditorProps) {
     }, []);
 
     const handleTypeKindChange = (value: string) => {
-        // if the value is Service Class, the type kind should be CLASS
-        const typeValue = value === "Service Class" ? "CLASS" : value;
-        setSelectedTypeKind(value as TypeKind);
+        // Convert display name back to internal TypeKind
+        let selectedKind: TypeKind;
+        if (isGraphql) {
+            switch (value) {
+                case "Input Object":
+                    selectedKind = TypeKind.RECORD;
+                    break;
+                case "Object":
+                    selectedKind = TypeKind.CLASS;
+                    break;
+                default:
+                    selectedKind = value as TypeKind;
+            }
+        } else {
+            selectedKind = value as TypeKind;
+        }
+
+        setSelectedTypeKind(selectedKind);
+        const typeValue = selectedKind === TypeKind.CLASS ? "CLASS" : selectedKind.toUpperCase();
+
         // Always create a new type with the selected kind
         setType((currentType) => ({
             ...currentType!,
@@ -225,6 +243,36 @@ export function TypeEditor(props: TypeEditorProps) {
                 node: typeValue.toUpperCase() as TypeNodeKind
             }
         }));
+    };
+
+    // Add a helper function to get the display label
+    const getTypeKindLabel = (kind: TypeKind, isGraphql?: boolean): string => {
+        if (isGraphql) {
+            switch (kind) {
+                case TypeKind.RECORD:
+                    return "Input Object";
+                case TypeKind.CLASS:
+                    return "Object";
+                default:
+                    return kind;
+            }
+        }
+        return kind;
+    };
+
+    const getAvailableTypeKinds = (isGraphql: boolean | undefined, currentType?: TypeKind): TypeKind[] => {
+        if (isGraphql) {
+            // For GraphQL mode, filter options based on current type
+            if (currentType === TypeKind.RECORD) {
+                return [TypeKind.RECORD, TypeKind.ENUM, TypeKind.UNION];
+            } else if (currentType === TypeKind.CLASS) {
+                return [TypeKind.CLASS, TypeKind.ENUM, TypeKind.UNION];
+            } else {
+                return [TypeKind.RECORD, TypeKind.CLASS, TypeKind.ENUM, TypeKind.UNION];
+            }
+        }
+        // Return all options for non-GraphQL mode
+        return Object.values(TypeKind);
     };
 
     const onTypeChange = async (type: Type) => {
@@ -273,7 +321,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             type={type}
                             isAnonymous={false}
                             onChange={setType}
-                            isGraphql={props.isGraphql}
+                            isGraphql={isGraphql}
                             onImportJson={() => setEditorState(ConfigState.IMPORT_FROM_JSON)}
                             onImportXml={() => setEditorState(ConfigState.IMPORT_FROM_XML)}
                         />
@@ -299,6 +347,7 @@ export function TypeEditor(props: TypeEditorProps) {
                 return (
                     <ClassEditor
                         type={type}
+                        isGraphql={isGraphql}
                         onChange={setType}
                     />
                 );
@@ -362,8 +411,11 @@ export function TypeEditor(props: TypeEditorProps) {
                             <Dropdown
                                 id="type-selector"
                                 label="Type"
-                                value={selectedTypeKind}
-                                items={Object.values(TypeKind).map((kind) => ({ label: kind, value: kind }))}
+                                value={getTypeKindLabel(selectedTypeKind, isGraphql)}
+                                items={getAvailableTypeKinds(isGraphql, selectedTypeKind).map((kind) => ({
+                                    label: getTypeKindLabel(kind, isGraphql),
+                                    value: getTypeKindLabel(kind, isGraphql)
+                                }))}
                                 onChange={(e) => handleTypeKindChange(e.target.value)}
                             />
                         )}
@@ -383,7 +435,7 @@ export function TypeEditor(props: TypeEditorProps) {
                                     />
                                 </TextFieldWrapper>
                                 <EditButton appearance="icon" onClick={startEditing} tooltip="Rename">
-                                    <Icon name="bi-edit" sx={{ width: 18, height: 18, fontSize: 18 }}/>
+                                    <Icon name="bi-edit" sx={{ width: 18, height: 18, fontSize: 18 }} />
                                 </EditButton>
                             </InputWrapper>
                         )}

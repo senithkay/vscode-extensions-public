@@ -126,6 +126,7 @@ namespace S {
 
 interface ClassEditorProps {
     type: Type;
+    isGraphql: boolean;
     onChange: (type: Type) => void;
 }
 
@@ -135,7 +136,7 @@ interface ParameterFormData {
     defaultValue: string;
 }
 
-export function ClassEditor({ type, onChange }: ClassEditorProps) {
+export function ClassEditor({ type, onChange, isGraphql }: ClassEditorProps) {
     const nameInputRefs = useRef<HTMLInputElement[]>([]);
     const [showParameterForm, setShowParameterForm] = useState<number | null>(null);
     const [expandedFunctions, setExpandedFunctions] = useState<number[]>([]);
@@ -274,7 +275,7 @@ export function ClassEditor({ type, onChange }: ClassEditorProps) {
     return (
         <S.Container>
             <S.Header>
-                <S.SectionTitle>Service Class</S.SectionTitle>
+                <S.SectionTitle>{isGraphql ? 'Object' : 'Service Class'}</S.SectionTitle>
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <Button appearance="icon" onClick={addFunction}><Codicon name="add" /></Button>
                 </div>
