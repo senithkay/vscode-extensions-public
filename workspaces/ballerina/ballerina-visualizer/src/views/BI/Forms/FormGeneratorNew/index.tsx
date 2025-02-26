@@ -22,8 +22,6 @@ import {
 import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditorProps, HelperPaneData, PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import {
     convertBalCompletion,
-    convertToHelperPaneFunction,
-    convertToHelperPaneVariable,
     convertToVisibleTypes,
 } from "../../../../utils/bi";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -78,10 +76,6 @@ export function FormGeneratorNew(props: FormProps) {
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
-    const [isLoadingHelperPaneInfo, setIsLoadingHelperPaneInfo] = useState<boolean>(false);
-    const [variableInfo, setVariableInfo] = useState<HelperPaneData>();
-    const [functionInfo, setFunctionInfo] = useState<HelperPaneData>();
-    const [libraryBrowserInfo, setLibraryBrowserInfo] = useState<HelperPaneData>();
     const [openTypeEditor, setOpenTypeEditor] = useState<boolean>(false);
     const [editingField, setEditingField] = useState<FormField>();
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
@@ -237,12 +231,12 @@ export function FormGeneratorNew(props: FormProps) {
     const debouncedGetVisibleTypes = useCallback(debounce(async (value: string, cursorPosition: number) => {
         let visibleTypes: CompletionItem[] = types;
         if (!types.length) {
-            const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
+            const types = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
                 filePath: fileName,
                 position: targetLineRange.startLine,
             });
 
-            visibleTypes = convertToVisibleTypes(response.types);
+            visibleTypes = convertToVisibleTypes(types);
             setTypes(visibleTypes);
         }
 
@@ -261,77 +255,6 @@ export function FormGeneratorNew(props: FormProps) {
         await debouncedGetVisibleTypes(value, cursorPosition);
     }, [debouncedGetVisibleTypes]);
 
-
-    const getHelperPaneData = useCallback(
-        (type: string, searchText: string) => {
-            setIsLoadingHelperPaneInfo(true);
-            switch (type) {
-                case 'variables': {
-                    rpcClient
-                        .getBIDiagramRpcClient()
-                        .getVisibleVariableTypes({
-                            filePath: fileName,
-                            position: {
-                                line: targetLineRange.startLine.line,
-                                offset: targetLineRange.startLine.offset
-                            }
-                        })
-                        .then((response) => {
-                            if (response.categories?.length) {
-                                setVariableInfo(convertToHelperPaneVariable(response.categories));
-                            }
-                        })
-                        .then(() => setIsLoadingHelperPaneInfo(false));
-                    break;
-                }
-                case 'functions': {
-                    rpcClient
-                        .getBIDiagramRpcClient()
-                        .getFunctions({
-                            position: targetLineRange,
-                            filePath: fileName,
-                            queryMap: {
-                                q: searchText.trim(),
-                                limit: 12,
-                                offset: 0
-                            }
-                        })
-                        .then((response) => {
-                            if (response.categories?.length) {
-                                setFunctionInfo(convertToHelperPaneFunction(response.categories));
-                            }
-                        })
-                        .then(() => setIsLoadingHelperPaneInfo(false));
-                    break;
-                }
-                case 'libraries': {
-                    rpcClient
-                        .getBIDiagramRpcClient()
-                        .getFunctions({
-                            position: targetLineRange,
-                            filePath: fileName,
-                            queryMap: {
-                                q: searchText.trim(),
-                                limit: 12,
-                                offset: 0,
-                                includeAvailableFunctions: "true"
-                            }
-                        })
-                        .then((response) => {
-                            if (response.categories?.length) {
-                                setLibraryBrowserInfo(convertToHelperPaneFunction(response.categories));
-                            }
-                        })
-                        .then(() => setIsLoadingHelperPaneInfo(false));
-                    break;
-                }
-            }
-        },
-        [rpcClient, targetLineRange, fileName]
-    );
-
-    const handleGetHelperPaneData = useCallback(debounce(getHelperPaneData, 1100), [getHelperPaneData]);
-
     const handleCompletionItemSelect = async () => {
         debouncedRetrieveCompletions.cancel();
         debouncedGetVisibleTypes.cancel();
@@ -344,6 +267,7 @@ export function FormGeneratorNew(props: FormProps) {
 
     const handleGetHelperPane = (
         exprRef: RefObject<FormExpressionEditorRef>,
+        defaultValue: string,
         value: string,
         onChange: (value: string, updatedCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void
@@ -353,6 +277,7 @@ export function FormGeneratorNew(props: FormProps) {
             targetLineRange: targetLineRange,
             exprRef: exprRef,
             onClose: () => changeHelperPaneState(false),
+            defaultValue: defaultValue,
             currentValue: value,
             onChange: onChange
         });
@@ -442,13 +367,12 @@ export function FormGeneratorNew(props: FormProps) {
     }, [
         filteredCompletions,
         filteredTypes,
-        isLoadingHelperPaneInfo,
-        variableInfo,
-        functionInfo,
-        libraryBrowserInfo,
         handleRetrieveCompletions,
         handleGetVisibleTypes,
-        handleGetHelperPaneData
+        handleGetHelperPane,
+        handleCompletionItemSelect,
+        handleExpressionEditorBlur,
+        handleExpressionEditorCancel
     ]);
 
     const handleSubmit = (values: FormValues) => {

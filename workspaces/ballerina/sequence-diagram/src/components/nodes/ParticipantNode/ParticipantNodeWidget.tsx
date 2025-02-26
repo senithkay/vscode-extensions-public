@@ -30,10 +30,14 @@ namespace ParticipantNodeStyles {
         cursor: pointer;
         position: relative;
 
+        .participant-line {
+            stroke: ${ThemeColors.OUTLINE_VARIANT};
+        }
+
         &:hover {
-            .participant-background {
+            /* .participant-background {
                 opacity: 0.1;
-            }
+            } */
 
             .participant-head {
                 border-color: ${ThemeColors.PRIMARY};
@@ -121,7 +125,7 @@ namespace ParticipantNodeStyles {
     export const FloatingTitle = styled(Title)`
         position: absolute;
         left: calc(100% - 44px);
-        top: 16px;
+        top: 22px;
         transform: translateY(-50%);
         right: auto;
         max-width: 150px;
@@ -139,7 +143,7 @@ export function ParticipantNodeWidget(props: ParticipantNodeWidgetProps) {
 
     const { onClickParticipant, onAddParticipant } = useContext(DiagramContext);
 
-    const maxHeight = Math.max(PARTICIPANT_TAIL_MIN_HEIGHT, node.height);
+    const maxHeight = Math.max(PARTICIPANT_TAIL_MIN_HEIGHT, node.participant.viewState.lifelineHeight);
 
     const handleOnClick = () => {
         console.log(">>> participant node clicked", node.participant);
@@ -191,9 +195,8 @@ export function ParticipantNodeWidget(props: ParticipantNodeWidgetProps) {
                     y2={maxHeight}
                     style={{
                         strokeWidth: 2,
-                        strokeDasharray: "8,8",
-                        stroke: ThemeColors.OUTLINE_VARIANT,
                         transition: "stroke 0.2s ease",
+                        opacity: 0.5,
                     }}
                 />
             </svg>
