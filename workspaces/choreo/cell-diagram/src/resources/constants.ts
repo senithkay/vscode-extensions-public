@@ -35,6 +35,11 @@ export const LINK_WIDTH = {
     PREVIEW: 4,
 }
 
+export const ICON_SCALE = {
+    DEFAULT: 1,
+    PREVIEW: 1.5,
+}
+
 export const NAME_JOIN_CHAR = "|";
 
 // error messages

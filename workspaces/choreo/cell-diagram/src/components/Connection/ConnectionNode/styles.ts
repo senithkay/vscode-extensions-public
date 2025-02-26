@@ -8,7 +8,7 @@
  */
 
 import styled from "@emotion/styled";
-import { CIRCLE_WIDTH, Colors, LABEL_FONT_SIZE, LABEL_MAX_WIDTH } from "../../../resources";
+import { CIRCLE_WIDTH, Colors, ICON_SCALE, LABEL_FONT_SIZE, LABEL_MAX_WIDTH } from "../../../resources";
 import { Orientation } from "./ConnectionModel";
 
 interface StyleProps {
@@ -56,10 +56,14 @@ export const ConnectionName: React.FC<any> = styled.span`
     max-width: ${(props: StyleProps) => (props.orientation === Orientation.VERTICAL ? LABEL_MAX_WIDTH : "unset")};
 `;
 
-export const IconWrapper: React.FC<any> = styled.div`
+interface IconWrapperStyleProps {
+    previewMode: boolean;
+}
+export const IconWrapper: React.FC<IconWrapperStyleProps> = styled.div`
     height: 32px;
     width: 32px;
     svg {
         fill: ${(props: StyleProps) => (props.isSelected ? Colors.SECONDARY : Colors.OUTLINE)};
+        transform: ${(props: IconWrapperStyleProps) => (props.previewMode ? `scale(${ICON_SCALE.PREVIEW})` : "none")};
     }
 `;

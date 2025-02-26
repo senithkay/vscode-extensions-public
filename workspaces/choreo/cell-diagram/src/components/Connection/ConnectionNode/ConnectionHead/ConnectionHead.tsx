@@ -26,7 +26,7 @@ interface ServiceHeadProps {
 export function ConnectionHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected } = props;
 
-    const { zoomLevel } = useContext(DiagramContext);
+    const { zoomLevel, previewMode } = useContext(DiagramContext);
     const headPorts = useRef<PortModel[]>([]);
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
@@ -57,7 +57,7 @@ export function ConnectionHeadWidget(props: ServiceHeadProps) {
             onMouseOver={() => handleOnHover("SELECT")}
             onMouseLeave={() => handleOnHover("UNSELECT")}
         >
-            <IconWrapper>{getConnectionIcon()}</IconWrapper>
+            <IconWrapper previewMode={previewMode}>{getConnectionIcon()}</IconWrapper>
             <ConnectionPortWidget port={node.getPort(`top-${node.getID()}`)} engine={engine} />
             <ConnectionPortWidget port={node.getPort(`left-${node.getID()}`)} engine={engine} />
         </ConnectionHead>

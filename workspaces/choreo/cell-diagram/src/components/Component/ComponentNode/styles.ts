@@ -8,7 +8,7 @@
  */
 
 import styled from "@emotion/styled";
-import { COMPONENT_CIRCLE_WIDTH, Colors, LABEL_FONT_SIZE, LABEL_MAX_WIDTH, LINK_WIDTH } from "../../../resources";
+import { COMPONENT_CIRCLE_WIDTH, Colors, ICON_SCALE, LABEL_FONT_SIZE, LABEL_MAX_WIDTH } from "../../../resources";
 
 interface ComponentNodeStyleProps {
     previewMode: boolean;
@@ -104,7 +104,7 @@ export const IconWrapper: React.FC<IconWrapperStyleProps> = styled.div`
         fill: ${(props: IconWrapperStyleProps) => (props.disabled ? Colors.SURFACE_DIM : Colors.PRIMARY)};
         height: 32px;
         width: 32px;
-        transform: ${(props: IconWrapperStyleProps) => (props.previewMode ? "scale(1.5)" : "none")};
+        transform: ${(props: IconWrapperStyleProps) => (props.previewMode ? `scale(${ICON_SCALE.PREVIEW})` : "none")};
     }
 `;
 

@@ -178,7 +178,7 @@ export function ComponentLinkWidget(props: WidgetProps) {
                 />
                 {hasDiffLayer && link.observationOnly && <WarningIcon x={midPoint.x - 10} y={midPoint.y - 10} width="20" height="20" />}
             </g>
-            {(hasObservabilityLayer || link.tooltip) && (
+            {(hasObservabilityLayer || link.tooltip) && !previewMode && (
                 <Popper id={link.getID()} open={open} anchorEl={anchorEl}>
                     <Box sx={link.observations?.length > 0 && !link.tooltip ? observabilityPopOverStyle : tooltipPopOverStyle}>
                         {link.tooltip && <TooltipLabel tooltip={link.tooltip} />}

@@ -23,7 +23,7 @@ import {
 } from "./styles";
 import { CellPortWidget } from "../CellPort/CellPortWidget";
 import { getCellPortId, getRoundedOctagonSVG } from "../cell-util";
-import { CELL_LINE_MIN_WIDTH, MAIN_CELL } from "../../../resources";
+import { CELL_LINE_MIN_WIDTH, ICON_SCALE, MAIN_CELL } from "../../../resources";
 import { GatewayIcon } from "../../../resources/assets/icons/GatewayIcon";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
 
@@ -47,7 +47,7 @@ interface CellWidgetProps {
 export function CellWidget(props: CellWidgetProps) {
     const { node, engine } = props;
 
-    const { zoomLevel } = useContext(DiagramContext);
+    const { zoomLevel, previewMode } = useContext(DiagramContext);
     const [cellHeight, setCellHeight] = useState<number>(node.width);
 
     useEffect(() => {
@@ -66,6 +66,7 @@ export function CellWidget(props: CellWidgetProps) {
     };
 
     const strokeWidth = node.getDynamicLineWidth(zoomLevel, CELL_LINE_MIN_WIDTH);
+    const transform = previewMode ? `scale(${ICON_SCALE.PREVIEW})` : "none";
 
     return (
         <CellNode height={cellHeight} borderWidth={strokeWidth}>
@@ -73,7 +74,7 @@ export function CellWidget(props: CellWidgetProps) {
 
             <TopPortCircle show={node.gateways.internet}>
                 <TopIconWrapper>
-                    <GatewayIcon />
+                    <GatewayIcon styles={{ transform }} />
                 </TopIconWrapper>
                 <CellPortWidget
                     port={node.getPort(getCellPortId(node.getID(), CellBounds.NorthBound, PortModelAlignment.TOP))}
@@ -87,7 +88,7 @@ export function CellWidget(props: CellWidgetProps) {
 
             <LeftPortCircle show={node.gateways.intranet}>
                 <IconWrapper>
-                    <GatewayIcon />
+                    <GatewayIcon styles={{ transform }}/>
                 </IconWrapper>
                 <CellPortWidget
                     port={node.getPort(getCellPortId(node.getID(), CellBounds.WestBound, PortModelAlignment.LEFT))}
