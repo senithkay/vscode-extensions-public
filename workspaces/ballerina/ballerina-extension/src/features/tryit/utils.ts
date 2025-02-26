@@ -10,8 +10,7 @@
 import { exec, execSync } from 'child_process';
 import { debug } from '../../utils';
 import * as os from 'os';
-import { vscode } from '@wso2-enterprise/ballerina-core';
-import { window } from 'vscode';
+import * as vscode from 'vscode';
 
 // Retrieve the platform-specific commands
 const platform = os.platform();
@@ -122,3 +121,54 @@ export async function waitForBallerinaService(projectDir: string): Promise<void>
     }
     throw new Error('Timed out waiting for Ballerina service to start');
 }
+
+/**
+ * Centralized error handling function for Try It feature
+ * @param error The error object or error message
+ * @param context Description of where the error occurred
+ * @param showToUser Whether to show the error to the user (default: true)
+ */
+export function handleError(error, context: string, showToUser = true): void {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    if (showToUser) {
+        vscode.window.showErrorMessage(`${context}: ${errorMessage}`);
+    }
+
+    console.error(`[${context}]`, error);
+}
+
+/**
+ * Singleton class to manage the language client reference
+ */
+export class ClientManager {
+    private static instance: ClientManager;
+    private _langClient: any = undefined;
+
+    private constructor() { }
+
+    public static getInstance(): ClientManager {
+        if (!ClientManager.instance) {
+            ClientManager.instance = new ClientManager();
+        }
+        return ClientManager.instance;
+    }
+
+    public setClient(client: any): void {
+        this._langClient = client;
+    }
+
+    public getClient(): any {
+        if (!this._langClient) {
+            throw new Error('Language client is not initialized');
+        }
+        return this._langClient;
+    }
+
+    public hasClient(): boolean {
+        return !!this._langClient;
+    }
+}
+
+// Export singleton instance
+export const clientManager = ClientManager.getInstance();

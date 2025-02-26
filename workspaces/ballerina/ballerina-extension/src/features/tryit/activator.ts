@@ -6,7 +6,7 @@ import * as vscode from 'vscode';
 import { BallerinaExtension, ExtendedLangClient } from "src/core";
 import { URI } from "vscode-uri";
 import Handlebars from "handlebars";
-import { findRunningBallerinaProcesses } from "./utils";
+import { clientManager, findRunningBallerinaProcesses, handleError } from "./utils";
 import { BIDesignModelResponse, OpenAPISpec } from "@wso2-enterprise/ballerina-core";
 
 let langClient: ExtendedLangClient | undefined;
@@ -124,122 +124,139 @@ module.exports = {
 };`;
 
 export function activateTryItCommand(ballerinaExtInstance: BallerinaExtension) {
-    langClient = ballerinaExtInstance.langClient as ExtendedLangClient;
-    // Register try it command handler
-    const disposable = commands.registerCommand(PALETTE_COMMANDS.TRY_IT, async (withNotice: boolean = false) => {
-        await openTryItView(withNotice, ballerinaExtInstance);
-    });
+    try {
+        // Store the client in the manager instead of a global variable
+        clientManager.setClient(ballerinaExtInstance.langClient);
 
-    // Clean up when deactivated
-    return Disposable.from(disposable, {
-        dispose: disposeErrorWatcher
-    });
-}
-
-async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: BallerinaExtension) {
-    if (!langClient) {
-        vscode.window.showErrorMessage('Ballerina Language Server is not connected');
-        return;
-    }
-
-    const workspaceRoot = vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders[0].uri.fsPath;
-    if (!workspaceRoot) {
-        vscode.window.showErrorMessage('Please open a workspace first');
-        return;
-    }
-
-    const services = await getAvailableServices(workspaceRoot);
-
-    if (!services || services.length === 0) {
-        vscode.window.showInformationMessage('No services found in the project');
-        return;
-    }
-
-    if (withNotice) {
-        const selection = await vscode.window.showInformationMessage(
-            `${services.length} service${services.length === 1 ? '' : 's'} found in the integration. Test with Try It Client?`,
-            "Test",
-            "Cancel"
-        );
-
-        if (selection !== "Test") {
-            return;
-        }
-    }
-
-    // If there's more than one service, show the quick pick
-    let selectedService: ServiceInfo;
-    if (services.length > 1) {
-        const quickPickItems = services.map(service => ({
-            label: `'${service.basePath}' on ${service.listener}`,
-            description: `HTTP Service`,
-            service
-        }));
-
-        const selected = await vscode.window.showQuickPick(quickPickItems, {
-            placeHolder: 'Select a service to try out',
-            title: 'Available Services'
+        // Register try it command handler
+        const disposable = commands.registerCommand(PALETTE_COMMANDS.TRY_IT, async (withNotice: boolean = false) => {
+            try {
+                await openTryItView(withNotice);
+            } catch (error) {
+                handleError(error, "Opening Try It view failed");
+            }
         });
 
-        if (!selected) {
+        // Clean up when deactivated
+        return Disposable.from(disposable, {
+            dispose: disposeErrorWatcher
+        });
+    } catch (error) {
+        handleError(error, "Activating Try It command");
+    }
+}
+
+async function openTryItView(withNotice: boolean = false) {
+    try {
+        if (!clientManager.hasClient()) {
+            throw new Error('Ballerina Language Server is not connected');
+        }
+
+        const workspaceRoot = vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders[0].uri.fsPath;
+        if (!workspaceRoot) {
+            throw new Error('Please open a workspace first');
+        }
+
+        const services = await getAvailableServices(workspaceRoot);
+
+        if (!services || services.length === 0) {
+            vscode.window.showInformationMessage('No services found in the project');
             return;
         }
-        selectedService = selected.service;
-    } else {
-        selectedService = services[0];
+
+        if (withNotice) {
+            const selection = await vscode.window.showInformationMessage(
+                `${services.length} service${services.length === 1 ? '' : 's'} found in the integration. Test with Try It Client?`,
+                "Test",
+                "Cancel"
+            );
+
+            if (selection !== "Test") {
+                return;
+            }
+        }
+
+        // If there's more than one service, show the quick pick
+        let selectedService: ServiceInfo;
+        if (services.length > 1) {
+            const quickPickItems = services.map(service => ({
+                label: `'${service.basePath}' on ${service.listener}`,
+                description: `HTTP Service`,
+                service
+            }));
+
+            const selected = await vscode.window.showQuickPick(quickPickItems, {
+                placeHolder: 'Select a service to try out',
+                title: 'Available Services'
+            });
+
+            if (!selected) {
+                return;
+            }
+            selectedService = selected.service;
+        } else {
+            selectedService = services[0];
+        }
+
+        const targetDir = path.join(workspaceRoot, 'target');
+        if (!fs.existsSync(targetDir)) {
+            fs.mkdirSync(targetDir);
+        }
+
+        const tryitFileName = `tryit.http`;
+        const tryitFilePath = path.join(targetDir, tryitFileName);
+        const configFilePath = path.join(targetDir, 'httpyac.config.js');
+
+        const content = await generateTryItFileContent(workspaceRoot, selectedService);
+        if (!content) {
+            return;
+        }
+
+        fs.writeFileSync(tryitFilePath, content);
+        fs.writeFileSync(configFilePath, HTTPYAC_CONFIG_TEMPLATE);
+
+        // Open the file as a notebook document
+        const tryitFileUri = vscode.Uri.file(tryitFilePath);
+        await vscode.commands.executeCommand('vscode.openWith', tryitFileUri, 'http');
+
+        // Setup the error log watcher
+        setupErrorLogWatcher(targetDir);
+    } catch (error) {
+        handleError(error, "Opening Try It view");
     }
-
-    const targetDir = path.join(workspaceRoot, 'target');
-    if (!fs.existsSync(targetDir)) {
-        fs.mkdirSync(targetDir);
-    }
-
-    const tryitFileName = `tryit.http`;
-    const tryitFilePath = path.join(targetDir, tryitFileName);
-    const configFilePath = path.join(targetDir, 'httpyac.config.js');
-
-    const content = await generateTryItFileContent(workspaceRoot, selectedService);
-    if (!content) {
-        return;
-    }
-
-    fs.writeFileSync(tryitFilePath, content);
-    fs.writeFileSync(configFilePath, HTTPYAC_CONFIG_TEMPLATE);
-
-
-    // Open the file as a notebook document
-    const tryitFileUri = vscode.Uri.file(tryitFilePath);
-    await vscode.commands.executeCommand('vscode.openWith', tryitFileUri, 'http');
-
-    // Setup the error log watcher
-    setupErrorLogWatcher(targetDir);
 }
 
 async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> {
-    if (!langClient) {
+    try {
+        // Use the client manager instead of checking the global variable
+        const langClient = clientManager.getClient();
+
+        const response: BIDesignModelResponse = await langClient.getDesignModel({
+            projectPath: projectDir
+        }).catch((error: any) => {
+            throw new Error(`Failed to get design model: ${error.message || 'Unknown error'}`);
+        });
+
+        const services = response.designModel.services
+            .filter(service => service.type.toLowerCase().includes('http'))
+            .map(service => ({
+                name: service.displayName || service.absolutePath.startsWith('/') ? service.absolutePath.trim().substring(1) : service.absolutePath.trim(),
+                basePath: service.absolutePath.trim(),
+                filePath: service.location.filePath,
+                listener: service.attachedListeners.map(listener => response.designModel.listeners.find(l => l.uuid === listener)?.symbol).join(', ')
+            }));
+
+        return services || [];
+    } catch (error) {
+        handleError(error, "Getting available services", false);
         return [];
     }
-
-    const response: BIDesignModelResponse = await langClient.getDesignModel({
-        projectPath: projectDir
-    });
-
-    const services = response.designModel.services
-        .filter(service => service.type.toLowerCase().includes('http'))
-        .map(service => ({
-            name: service.displayName || service.absolutePath.startsWith('/') ? service.absolutePath.trim().substring(1) : service.absolutePath.trim(),
-            basePath: service.absolutePath.trim(),
-            filePath: service.location.filePath,
-            listener: service.attachedListeners.map(listener => response.designModel.listeners.find(l => l.uuid === listener)?.symbol).join(', ')
-        }));
-
-    return services || [];
 }
 
 async function generateTryItFileContent(projectDir: string, service: ServiceInfo): Promise<string | undefined> {
     try {
         // Get OpenAPI definition
-        const openapiSpec = await getOpenAPIDefinition(langClient, service);
+        const openapiSpec = await getOpenAPIDefinition(service);
 
         // Get service port
         const selectedPort = await getServicePort(projectDir, service, openapiSpec);
@@ -256,77 +273,94 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
             serviceName: service.name || 'Default'
         });
     } catch (error) {
-        const message = error instanceof Error ? error.message : '';
-        vscode.window.showErrorMessage(`Try It client initialization failed: ${message}`);
+        handleError(error, "Try It client initialization failed");
+        return undefined;
     }
 }
 
-async function getOpenAPIDefinition(langClient: any, service: ServiceInfo): Promise<OAISpec> {
-    if (!langClient) {
-        throw new Error('Language client is not initialized');
+async function getOpenAPIDefinition(service: ServiceInfo): Promise<OAISpec> {
+    try {
+        // Get client from manager
+        const langClient = clientManager.getClient();
+
+        const openapiDefinitions: OpenAPISpec | 'NOT_SUPPORTED_TYPE' = await langClient.convertToOpenAPI({
+            documentFilePath: service.filePath
+        });
+
+        if (openapiDefinitions === 'NOT_SUPPORTED_TYPE') {
+            throw new Error(`OpenAPI spec generation failed for the service with base path: '${service.basePath}'`);
+        }
+
+        const matchingDefinition = (openapiDefinitions as OpenAPISpec).content.filter(content =>
+            content.serviceName.toLowerCase() === service?.name.toLowerCase()
+            || (content.spec?.servers[0]?.url.endsWith(service.basePath) && service?.name === '')
+            || (content.spec?.servers[0]?.url == undefined && service?.name === '' // TODO: Update the condition after fixing the issue in the OpenAPI tool
+            ));
+
+        if (matchingDefinition.length === 0) {
+            throw new Error(`Failed to find matching OpenAPI definition: No service matches the base path '${service.basePath}' ${service.name !== '' ? `and service name '${service.name}'` : ''}`);
+        }
+
+        if (matchingDefinition.length > 1) {
+            throw new Error(`Ambiguous service reference: Multiple matching OpenAPI definitions found for ${service.name !== '' ? `service '${service.name}'` : `base path '${service.basePath}'`}`);
+        }
+
+        return matchingDefinition[0].spec as OAISpec;
+    } catch (error) {
+        handleError(error, "Getting OpenAPI definition", false);
+        throw error; // Re-throw to be caught by the caller
     }
-
-    const openapiDefinitions: OpenAPISpec | 'NOT_SUPPORTED_TYPE' = await langClient.convertToOpenAPI({
-        documentFilePath: service.filePath
-    });
-
-    if (openapiDefinitions === 'NOT_SUPPORTED_TYPE') {
-        throw new Error(`OpenAPI spec generation failed for the service with base path: '${service.basePath}'`);
-    }
-
-    const matchingDefinition = (openapiDefinitions as OpenAPISpec).content.filter(content =>
-        content.serviceName.toLowerCase() === service?.name.toLowerCase()
-        || (content.spec?.servers[0]?.url.endsWith(service.basePath) && service?.name === '')
-        || (content.spec?.servers[0]?.url == undefined && service?.name === ''// TODO: Update the condition after fixing the issue in the OpenAPI tool https://github.com/ballerina-platform/ballerina-library/issues/7624 
-        ));
-
-    if (matchingDefinition.length === 0) {
-        throw new Error(`Failed to find matching OpenAPI definition: No service matches the base path '${service.basePath}' ${service.name !== '' ? `and service name '${service.name}'` : ''}`);
-    }
-
-    if (matchingDefinition.length > 1) {
-        throw new Error(`Ambiguous service reference: Multiple matching OpenAPI definitions found for ${service.name !== '' ? `service '${service.name}'` : `base path '${service.basePath}'`}`);
-    }
-
-    return matchingDefinition[0].spec as OAISpec;
 }
 
 async function getServicePort(projectDir: string, service: ServiceInfo, openapiSpec: OAISpec): Promise<number> {
-    // Try to get default port from OpenAPI spec first
-    const defaultPort = openapiSpec.servers?.[0]?.variables?.port?.default;
-    if (defaultPort) {
-        const parsedPort = parseInt(defaultPort);
-        if (!isNaN(parsedPort) && parsedPort > 0 && parsedPort <= 65535) {
-            return parsedPort;
+    try {
+        // Try to get default port from OpenAPI spec first
+        const defaultPort = openapiSpec.servers?.[0]?.variables?.port?.default;
+        if (defaultPort) {
+            const parsedPort = parseInt(defaultPort);
+            if (!isNaN(parsedPort) && parsedPort > 0 && parsedPort <= 65535) {
+                return parsedPort;
+            }
         }
+
+        const balProcesses = await findRunningBallerinaProcesses(projectDir)
+            .catch(error => {
+                throw new Error(`Failed to find running Ballerina processes: ${error.message}`);
+            });
+
+        if (!balProcesses?.length) {
+            throw new Error('No running Ballerina processes found. Please run your service first.');
+        }
+
+        const uniquePorts = [...new Set(balProcesses.flatMap(process => process.ports))];
+
+        if (uniquePorts.length === 0) {
+            throw new Error('No service ports found in running Ballerina processes');
+        }
+
+        if (uniquePorts.length === 1) {
+            return uniquePorts[0];
+        }
+
+        // If multiple ports, prompt user to select one
+        const portItems = uniquePorts.map(port => ({
+            label: `Port ${port}`, port
+        }));
+
+        const selected = await vscode.window.showQuickPick(portItems, {
+            placeHolder: `Multiple ports detected. Please select the port configured for the service "${service.name}"`,
+            title: 'Available Ports'
+        });
+
+        if (!selected) {
+            throw new Error('No port selected for the service');
+        }
+
+        return selected.port;
+    } catch (error) {
+        handleError(error, "Getting service port", false);
+        throw error;
     }
-
-    const balProcesses = await findRunningBallerinaProcesses(projectDir);
-    if (!balProcesses?.length) {
-        throw new Error('No running Ballerina processes found. Please start your service first.');
-    }
-
-    const uniquePorts = [...new Set(balProcesses.flatMap(process => process.ports))];
-
-    if (uniquePorts.length === 0) {
-        throw new Error('No service ports found in running Ballerina processes');
-    }
-
-    if (uniquePorts.length === 1) {
-        return uniquePorts[0];
-    }
-
-    // If multiple ports, prompt user to select one
-    const portItems = uniquePorts.map(port => ({
-        label: `Port ${port}`, port
-    }));
-
-    const selected = await vscode.window.showQuickPick(portItems, {
-        placeHolder: `Multiple ports detected. Please select the port configured for the service "${service.name}"`,
-        title: 'Available Ports'
-    });
-
-    return selected?.port;
 }
 
 function registerHandlebarsHelpers(openapiSpec: OAISpec): void {
