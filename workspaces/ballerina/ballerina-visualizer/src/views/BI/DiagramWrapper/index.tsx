@@ -100,6 +100,11 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
         rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
 
+    const handleResourceTryIt = (methodValue: string, pathValue: string) => {
+        const commands = ["kolab.tryit", methodValue, pathValue]
+        rpcClient.getCommonRpcClient().executeCommand({ commands });
+    };
+
     let isAutomation = false;
     let isResource = false;
     let method = "";
@@ -129,6 +134,12 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                             <Path>{getResourcePath(syntaxTree)}</Path>
                             {parameters && <Parameters>({parameters})</Parameters>}
                         </SubTitleWrapper>
+                    }
+                    actions={
+                        <ActionButton appearance="secondary" onClick={() => handleResourceTryIt(method, getResourcePath(syntaxTree))}>
+                            <Icon name="play" isCodicon={true} sx={{ marginRight: 5, width: 16, height: 16, fontSize: 14 }} />
+                            Try It
+                        </ActionButton>
                     }
                 />
             )}
