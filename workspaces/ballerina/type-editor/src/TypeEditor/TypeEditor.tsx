@@ -379,7 +379,7 @@ export function TypeEditor(props: TypeEditorProps) {
                                         label={type.properties["name"].metadata.label}
                                         required={!type.properties["name"].optional}
                                         description={type.properties["name"].metadata.description}
-                                        readOnly={!type.properties["name"].editable}
+                                        readOnly={true} // TODO: Add after LS changes -> readOnly={!type.properties["name"].editable}
                                     />
                                 </TextFieldWrapper>
                                 <EditButton appearance="icon" onClick={startEditing} tooltip="Rename">

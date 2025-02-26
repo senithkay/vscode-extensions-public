@@ -56,6 +56,7 @@ export type ViewState = {
 
 export type ParticipantViewState = ViewState & {
     xIndex: number;
+    lifelineHeight: number;
 };
 
 export type NodeViewState = ViewState & {
