@@ -94,23 +94,28 @@ export const SuggestionsPage = ({ fileName, targetLineRange, defaultValue, onCha
                         />
                     </HelperPane.Section>
                 )}
-                {filteredVariableInfo?.category.map((category) => (
-                    <HelperPane.Section
-                        key={category.label}
-                        title={category.label}
-                        titleSx={{ fontFamily: "GilmerMedium" }}
-                    >
-                        {category.items?.map((item) => (
-                            <HelperPane.CompletionItem
-                                key={`${category.label}-${item.label}`}
-                                label={item.label}
-                                type={item.type}
-                                onClick={() => onChange(item.label)}
-                                getIcon={() => getIcon(item.type as CompletionItemKind)}
-                            />
-                        ))}
-                    </HelperPane.Section>
-                ))}
+                {filteredVariableInfo?.category.map((category) => {
+                    if (category.items.length === 0) {
+                        return null;
+                    }
+
+                    return (
+                        <HelperPane.Section
+                            title={category.label}
+                            titleSx={{ fontFamily: "GilmerMedium" }}
+                        >
+                            {category.items.map((item) => (
+                                <HelperPane.CompletionItem
+                                    key={`${category.label}-${item.label}`}
+                                    label={item.label}
+                                    type={item.type}
+                                    onClick={() => onChange(item.label)}
+                                    getIcon={() => getIcon(item.type as CompletionItemKind)}
+                                />
+                            ))}
+                        </HelperPane.Section>
+                    )
+                })}
             </HelperPane.Body>
         </>
     );

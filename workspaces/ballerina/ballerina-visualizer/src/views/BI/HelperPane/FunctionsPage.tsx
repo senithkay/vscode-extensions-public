@@ -118,6 +118,10 @@ export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: 
                 {functionInfo?.category.map((category) => {
                     /* If no sub category found */
                     if (!category.subCategory) {
+                        if (!category.items || category.items.length === 0) {
+                            return null;
+                        }
+
                         return (
                             <HelperPane.Section
                                 key={category.label}
@@ -142,6 +146,10 @@ export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: 
                     }
 
                     /* If sub category found */
+                    if (!category.subCategory || category.subCategory.length === 0) {
+                        return null;
+                    }
+
                     return (
                         <HelperPane.Section
                             key={category.label}
