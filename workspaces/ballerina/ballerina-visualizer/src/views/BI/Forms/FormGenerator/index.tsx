@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { RefObject, useCallback, useEffect, useMemo, useRef,useState } from "react";
+import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     EVENT_TYPE,
     FlowNode,
@@ -63,6 +63,7 @@ interface FormProps {
     openSubPanel?: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
+    disableSaveButton?: boolean;
 }
 
 export function FormGenerator(props: FormProps) {
@@ -74,12 +75,12 @@ export function FormGenerator(props: FormProps) {
         clientName,
         targetLineRange,
         projectPath,
-        editForm,
         onSubmit,
         openSubPanel,
         subPanelView,
         updatedExpressionField,
-        resetUpdatedExpressionField
+        resetUpdatedExpressionField,
+        disableSaveButton
     } = props;
 
     const { rpcClient } = useRpcContext();
@@ -159,7 +160,7 @@ export function FormGenerator(props: FormProps) {
 
         rpcClient
             .getInlineDataMapperRpcClient()
-            .getVisualizableFields({filePath: fileName, flowNode: node, position: targetLineRange.startLine})
+            .getVisualizableFields({ filePath: fileName, flowNode: node, position: targetLineRange.startLine })
             .then((res) => {
                 setVisualizableFields(res.visualizableProperties);
             });
@@ -477,7 +478,7 @@ export function FormGenerator(props: FormProps) {
     ]);
 
     const fetchVisualizableFields = async (filePath: string, flowNode: FlowNode, position: LinePosition) => {
-        const res = await rpcClient.getInlineDataMapperRpcClient().getVisualizableFields({filePath, flowNode, position});
+        const res = await rpcClient.getInlineDataMapperRpcClient().getVisualizableFields({ filePath, flowNode, position });
         setVisualizableFields(res.visualizableProperties);
     }
 
@@ -541,6 +542,7 @@ export function FormGenerator(props: FormProps) {
                     handleVisualizableFields={fetchVisualizableFields}
                     visualizableFields={visualizableFields}
                     infoLabel={infoLabel}
+                    disableSaveButton={disableSaveButton}
                 />
             )}
             {showRecordEditor && (

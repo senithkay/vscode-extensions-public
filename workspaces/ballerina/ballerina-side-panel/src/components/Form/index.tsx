@@ -184,6 +184,7 @@ export interface FormProps {
     handleVisualizableFields?: (filePath: string, flowNode: FlowNode, position: LinePosition) => void;
     visualizableFields?: string[];
     nestedForm?: boolean;
+    disableSaveButton?: boolean;
 }
 
 export const Form = forwardRef((props: FormProps, ref) => {
@@ -208,7 +209,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         mergeFormDataWithFlowNode,
         handleVisualizableFields,
         visualizableFields,
-        nestedForm
+        nestedForm,
     } = props;
 
     const {
@@ -446,7 +447,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         return hasDiagnostics;
     }, [diagnosticsInfo])
 
-    const disableSaveButton = !isValid || isValidating;
+    const disableSaveButton = !isValid || isValidating || props.disableSaveButton;
 
     // TODO: support multiple type fields
     return (

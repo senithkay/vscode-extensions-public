@@ -41,6 +41,7 @@ interface ConnectionConfigViewProps {
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
     isActiveSubPanel?: boolean;
+    isPullingConnector?: boolean;
 }
 
 export function ConnectionConfigView(props: ConnectionConfigViewProps) {
@@ -51,6 +52,7 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
         openSubPanel,
         updatedExpressionField,
         resetUpdatedExpressionField,
+        isPullingConnector
     } = props;
 
     const targetLineRange = selectedNode?.codedata?.lineRange || {
@@ -68,6 +70,7 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
                 openSubPanel={openSubPanel}
                 updatedExpressionField={updatedExpressionField}
                 resetUpdatedExpressionField={resetUpdatedExpressionField}
+                disableSaveButton={isPullingConnector}
             />
         </Container>
     );

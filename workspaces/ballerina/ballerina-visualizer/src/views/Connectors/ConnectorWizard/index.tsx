@@ -7,23 +7,19 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 
-import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 import { BallerinaConnectorInfo, BallerinaModuleResponse, BallerinaConnectorsRequest, BallerinaConstruct, STModification } from "@wso2-enterprise/ballerina-core";
 
 
-import { BallerinaModuleType, Marketplace, SearchQueryParams } from "../Marketplace";
+import { Marketplace, SearchQueryParams } from "../Marketplace";
 import { BallerinaRpcClient, useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { fetchConnectorInfo, getConnectorImports, getInitialSourceForConnectors } from "./utils";
-import { set } from "lodash";
 import { useVisualizerContext } from "../../../Context";
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { StatementEditorComponent } from "../../StatementEditorComponent";
 import { getSymbolInfo } from "@wso2-enterprise/ballerina-low-code-diagram";
-import { URI } from "vscode-uri";
-import { PackageLoader } from "../PackageLoader";
 
 
 export interface ConnectorListProps {
@@ -125,7 +121,7 @@ export function ConnectorList(props: ConnectorListProps) {
             {pullingPackage &&
                 (
                     <PanelContainer title="Pulling packages" show={true} onClose={() => setActivePanel({ isActive: false })}>
-                        <PackageLoader />
+                        Pulling Packages ...
                     </PanelContainer>
                 )}
             {activeFileInfo?.filePath && !selectedConnector && !pullingPackage &&
