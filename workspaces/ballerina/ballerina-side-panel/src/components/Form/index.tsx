@@ -285,8 +285,6 @@ export const Form = forwardRef((props: FormProps, ref) => {
         }
     }, [updatedExpressionField]);
 
-    console.log(">>> form fields", { formFields, values: getValues() });
-
     const handleOnSave = (data: FormValues) => {
         console.log(">>> saved form fields", { data });
         onSubmit && onSubmit(data);

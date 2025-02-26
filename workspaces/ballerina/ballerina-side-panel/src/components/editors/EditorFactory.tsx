@@ -27,6 +27,7 @@ import { ChoiceForm } from "./ChoiceForm";
 import { FormMapEditor } from "./FormMapEditor";
 import { IdentifierEditor } from "./IdentifierEditor";
 import { ReadonlyField } from "./ReadonlyField";
+import { ContextAwareRawExpressionEditor } from "./RawExpressionEditor";
 
 interface FormFieldEditorProps {
     field: FormField;
@@ -96,6 +97,14 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
                 handleOnFieldFocus={handleOnFieldFocus}
                 autoFocus={autoFocus}
                 visualizable={visualizableFields?.includes(field.key)}
+            />
+        );
+    } else if (!field.items && field.type === "RAW_TEMPLATE" && field.editable) {
+        return (
+            <ContextAwareRawExpressionEditor
+                ref={ref}
+                field={field}
+                autoFocus={autoFocus}
             />
         );
     } else if (field.type === "VIEW") {
