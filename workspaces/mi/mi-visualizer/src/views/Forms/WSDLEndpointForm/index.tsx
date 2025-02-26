@@ -273,6 +273,14 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
         });
     };
 
+    const handleCloseButtonClick = () => {
+        if (props.handlePopupClose) {
+            props.handlePopupClose();
+        } else {
+            openOverview();
+        }
+    };
+
     return (
         <FormView
             title={isTemplate ? 'Template' : 'Endpoint'}
@@ -314,7 +322,7 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
             <FormActions>
                 <Button
                     appearance="secondary"
-                    onClick={openOverview}
+                    onClick={handleCloseButtonClick}
                 >
                     Cancel
                 </Button>
