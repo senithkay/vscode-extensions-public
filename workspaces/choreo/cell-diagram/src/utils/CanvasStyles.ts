@@ -59,5 +59,6 @@ export const DiagramContainer = styled.div`
     
     &.preview-mode {
         background-size: 8px 8px;
+        cursor: default !important;
     }
 `;

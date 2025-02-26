@@ -23,7 +23,7 @@ import {
 } from "./styles";
 import { CellPortWidget } from "../CellPort/CellPortWidget";
 import { getCellPortId, getRoundedOctagonSVG } from "../cell-util";
-import { CELL_LINE_MIN_WIDTH, ICON_SCALE, MAIN_CELL } from "../../../resources";
+import { CELL_LINE_MIN_WIDTH, CELL_LINE_PREVIEW_WIDTH, ICON_SCALE, MAIN_CELL } from "../../../resources";
 import { GatewayIcon } from "../../../resources/assets/icons/GatewayIcon";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
 
@@ -65,7 +65,7 @@ export function CellWidget(props: CellWidgetProps) {
         engine.repaintCanvas();
     };
 
-    const strokeWidth = node.getDynamicLineWidth(zoomLevel, CELL_LINE_MIN_WIDTH);
+    const strokeWidth = previewMode ? CELL_LINE_PREVIEW_WIDTH : node.getDynamicLineWidth(zoomLevel, CELL_LINE_MIN_WIDTH);
     const transform = previewMode ? `scale(${ICON_SCALE.PREVIEW})` : "none";
 
     return (
