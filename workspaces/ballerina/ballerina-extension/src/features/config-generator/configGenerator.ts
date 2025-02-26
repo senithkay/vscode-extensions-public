@@ -20,7 +20,7 @@ import { modifyFileContent } from "../../utils/modification";
 import { fileURLToPath } from "url";
 
 const DEBUG_RUN_COMMAND_ID = 'workbench.action.debug.run';
-const UNUSED_IMPORT_ERR_CODE = "BCE2002"
+const UNUSED_IMPORT_ERR_CODE = "BCE2002";
 
 export async function prepareAndGenerateConfig(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean, isBi?: boolean, executeRun: boolean = true): Promise<void> {
     const configRequirement: ConfigRequirementResult = await checkConfigGenerationRequired(ballerinaExtInstance, filePath, isBi);
