@@ -208,6 +208,8 @@ export function Overview(props: ComponentDiagramProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [loadingMessage, setLoadingMessage] = useState("");
     const backendRootUri = useRef("");
+    const [enableICP, setEnableICP] = useState(false);
+
 
     const fetchContext = () => {
         rpcClient
@@ -412,6 +414,10 @@ export function Overview(props: ComponentDiagramProps) {
         rpcClient.getBIDiagramRpcClient().deployProject();
     };
 
+    const handleICP = () => {
+        setEnableICP(!enableICP);
+    };
+
     const handleGenerate = () => {
         rpcClient.getBIDiagramRpcClient().openAIChat({
             scafold: true,
@@ -498,6 +504,12 @@ export function Overview(props: ComponentDiagramProps) {
                         <DeployButtonContainer>
                             <Button appearance="primary" onClick={handleDeploy}>
                                 <Codicon name="cloud-upload" sx={{ marginRight: 8 }} /> Deploy
+                            </Button>
+                        </DeployButtonContainer>
+                        <DeployButtonContainer>
+                            <Button appearance="primary" onClick={handleICP}>
+                                <Codicon name="cloud-upload" sx={{ marginRight: 8 }} /> 
+                                { enableICP ? "Disable ICP" : "Integrate ICP" }
                             </Button>
                         </DeployButtonContainer>
                     </DeploymentContent>
