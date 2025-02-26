@@ -22,7 +22,7 @@ import {
 	PathFindingLinkFactory
 } from "@projectstorm/react-diagrams";
 
-import { ErrorNodeKind } from "../DataMapper/Error/DataMapperError";
+import { ErrorNodeKind } from '../DataMapper/Error/RenderingError';
 import { DataMapperCanvasContainerWidget } from './Canvas/DataMapperCanvasContainerWidget';
 import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
 import { DefaultState as LinkState } from './LinkState/DefaultState';

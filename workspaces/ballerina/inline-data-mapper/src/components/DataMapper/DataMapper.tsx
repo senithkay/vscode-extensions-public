@@ -22,6 +22,8 @@ import { View } from "./Views/DataMapperView";
 import { useDMCollapsedFieldsStore, useDMExpandedFieldsStore, useDMSearchStore } from "../../store/store";
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import { DataMapperViewProps } from "../../index";
+import { ErrorNodeKind } from "./Error/RenderingError";
+import { IOErrorComponent } from "./Error/DataMapperError";
 
 const classes = {
     root: css({
@@ -68,6 +70,8 @@ export function InlineDataMapper(props: DataMapperViewProps) {
 
     const [views, dispatch] = useReducer(viewsReducer, initialView);
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
+    const [errorKind, setErrorKind] = useState<ErrorNodeKind>();
+    const [hasInternalError, setHasInternalError] = useState(false);
 
     const { resetSearchStore } = useDMSearchStore();
 
@@ -86,8 +90,6 @@ export function InlineDataMapper(props: DataMapperViewProps) {
         resetSearchStore();
     }, [resetSearchStore]);
 
-    const hasInternalError = false;
-
     useEffect(() => {
         generateNodes();
         setupKeyboardShortcuts();
@@ -105,10 +107,14 @@ export function InlineDataMapper(props: DataMapperViewProps) {
     }, []);
 
     const generateNodes = () => {
-        const context = new DataMapperContext(model, views, addView, applyModifications, addArrayElement);
-        const nodeInitVisitor = new NodeInitVisitor(context);
-        traverseNode(model, nodeInitVisitor);
-        setNodes(nodeInitVisitor.getNodes());
+        try {
+            const context = new DataMapperContext(model, views, addView, applyModifications, addArrayElement);
+            const nodeInitVisitor = new NodeInitVisitor(context);
+            traverseNode(model, nodeInitVisitor);
+            setNodes(nodeInitVisitor.getNodes());
+        } catch (error) {
+            setHasInternalError(true);
+        }
     };
 
     const setupKeyboardShortcuts = () => {
@@ -128,6 +134,10 @@ export function InlineDataMapper(props: DataMapperViewProps) {
         // TODO: Implement undo/redo
     };
 
+    const handleErrors = (kind: ErrorNodeKind) => {
+        setErrorKind(kind);
+    };
+
     return (
         <DataMapperErrorBoundary hasError={hasInternalError}>
             <div className={classes.root}>
@@ -137,10 +147,11 @@ export function InlineDataMapper(props: DataMapperViewProps) {
                         onClose={handleOnClose}
                     />
                 )}
+                {errorKind && <IOErrorComponent errorKind={errorKind} classes={classes} />}
                 {nodes.length > 0 && (
                     <DataMapperDiagram
                         nodes={nodes}
-                        onError={undefined}
+                        onError={handleErrors}
                     />
                 )}
             </div>
