@@ -56,7 +56,7 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
         previewMode = false,
     } = props;
 
-    const [diagramEngine] = useState<DiagramEngine>(generateEngine);
+    const [diagramEngine] = useState<DiagramEngine>(generateEngine(previewMode));
     const [diagramModel, setDiagramModel] = useState<DiagramModel | undefined>(undefined);
     const [selectedNodeId, setSelectedNodeId] = useState<string>("");
     const [focusedNodeId, setFocusedNodeId] = useState<string>("");
@@ -171,6 +171,13 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
         // draw diagram with all nodes and links
         diagramEngine.setModel(model);
         setDiagramModel(model);
+
+        if (previewMode) {
+            // Disable dragging for all nodes
+            diagramEngine.getModel().setLocked(true);
+            const state = diagramEngine.getStateMachine().getCurrentState();
+            (state as any).dragCanvas.config.allowDrag = false;
+        }
 
         // update observability summary
         observationSummary.current = diagramData.observationSummary;
