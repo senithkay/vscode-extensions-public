@@ -303,11 +303,11 @@ export class SizingVisitor implements BaseVisitor {
             if (onFailureBranch.viewState) {
                 containerLeftWidth = Math.max(containerLeftWidth, Math.max(onFailureBranch.viewState.clw, NODE_GAP_X));
                 containerRightWidth = Math.max(containerRightWidth, Math.max(onFailureBranch.viewState.crw, NODE_GAP_X));
-                containerHeight = bodyBranch.viewState.ch + onFailureBranch.viewState.ch;
+                containerHeight = bodyBranch.viewState.ch + onFailureBranch.viewState.ch + NODE_GAP_Y;
             }
         }
         // add while node width and height
-        containerHeight += WHILE_NODE_WIDTH + NODE_GAP_Y * 2;
+        containerHeight += WHILE_NODE_WIDTH + NODE_GAP_Y;
         containerLeftWidth += NODE_GAP_X / 2;
         containerRightWidth += NODE_GAP_X / 2;
 
