@@ -11,20 +11,18 @@ import { debounce } from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LineRange } from "@wso2-enterprise/ballerina-core";
 import { HelperPaneVariableInfo } from "@wso2-enterprise/ballerina-side-panel";
-import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from "@wso2-enterprise/ui-toolkit";
+import { COMPLETION_ITEM_KIND, CompletionItemKind, getIcon, HelperPane } from "@wso2-enterprise/ui-toolkit";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { HELPER_PANE_PAGE, HelperPanePageType } from ".";
 import { convertToHelperPaneVariable, filterHelperPaneVariables } from "../../../utils/bi";
 
-type VariablesPageProps = {
+type SuggestionsPageProps = {
     fileName: string;
     targetLineRange: LineRange;
-    setCurrentPage: (page: HelperPanePageType) => void;
-    onClose: () => void;
+    defaultValue: string;
     onChange: (value: string) => void;
 };
 
-export const VariablesPage = ({ fileName, targetLineRange, setCurrentPage, onClose, onChange }: VariablesPageProps) => {
+export const SuggestionsPage = ({ fileName, targetLineRange, defaultValue, onChange }: SuggestionsPageProps) => {
     const { rpcClient } = useRpcContext();
     const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>("");
@@ -76,79 +74,42 @@ export const VariablesPage = ({ fileName, targetLineRange, setCurrentPage, onClo
         debounceFilterVariables(searchText);
     };
 
-    const getModuleVariables = useCallback(() => {
-        const moduleVariables = filteredVariableInfo?.category.filter(
-            (category) => category.label === "Module Variables"
-        );
-
-        if (!moduleVariables?.[0].items?.length) {
-            return undefined;
-        }
-
-        return (
-            <>
-                {moduleVariables[0].items.map((item, index) => (
-                    <HelperPane.CompletionItem
-                        key={`module-${index}`}
-                        label={item.label}
-                        type={item.type}
-                        onClick={() => onChange(item.label)}
-                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
-                    />
-                ))}
-            </>
-        );
-    }, [filteredVariableInfo, onChange, getIcon]);
-
-    const getLocalVariables = useCallback(() => {
-        const localVariables = filteredVariableInfo?.category.filter(
-            (category) => category.label === "Local Variables"
-        );
-
-        if (!localVariables?.[0].items?.length) {
-            return undefined;
-        }
-
-        return (
-            <>
-                {localVariables[0].items.map((item, index) => (
-                    <HelperPane.CompletionItem
-                        key={`local-${index}`}
-                        label={item.label}
-                        type={item.type}
-                        onClick={() => onChange(item.label)}
-                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
-                    />
-                ))}
-            </>
-        );
-    }, [filteredVariableInfo, onChange, getIcon]);
-
     return (
         <>
             <HelperPane.Header
-                title="Variables"
-                onBack={() => setCurrentPage(HELPER_PANE_PAGE.CATEGORY)}
-                onClose={onClose}
                 searchValue={searchValue}
                 onSearch={handleSearch}
                 titleSx={{ fontFamily: "GilmerRegular" }}
             />
-            <HelperPane.Body>
-                <HelperPane.Section
-                    title="Local Variables"
-                    loading={isLoading}
-                    titleSx={{ fontFamily: "GilmerMedium" }}
-                >
-                    {getLocalVariables()}
-                </HelperPane.Section>
-                <HelperPane.Section
-                    title="Module Variables"
-                    loading={isLoading}
-                    titleSx={{ fontFamily: "GilmerMedium" }}
-                >
-                    {getModuleVariables()}
-                </HelperPane.Section>
+            <HelperPane.Body loading={isLoading}>
+                {defaultValue && defaultValue !== '""' && (
+                    <HelperPane.Section
+                        title="Suggestions"
+                        titleSx={{ fontFamily: "GilmerMedium" }}
+                    >
+                        <HelperPane.CompletionItem
+                            label={defaultValue}
+                            onClick={() => onChange(defaultValue)}
+                            getIcon={() => getIcon(COMPLETION_ITEM_KIND.Snippet)}
+                        />
+                    </HelperPane.Section>
+                )}
+                {filteredVariableInfo?.category.map((category) => (
+                    <HelperPane.Section
+                        title={category.label}
+                        titleSx={{ fontFamily: "GilmerMedium" }}
+                    >
+                        {category.items.map((item) => (
+                            <HelperPane.CompletionItem
+                                key={`${category.label}-${item.label}`}
+                                label={item.label}
+                                type={item.type}
+                                onClick={() => onChange(item.label)}
+                                getIcon={() => getIcon(item.type as CompletionItemKind)}
+                            />
+                        ))}
+                    </HelperPane.Section>
+                ))}
             </HelperPane.Body>
         </>
     );

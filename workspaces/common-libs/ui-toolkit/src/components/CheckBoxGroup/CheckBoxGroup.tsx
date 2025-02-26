@@ -62,11 +62,16 @@ export const CheckBox = ({ label, labelAdornment, value, sx, checked, onChange, 
         onChange(e.target.checked);
     };
 
+    const handleLabelClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onChange(!checked);
+    };
+
     return (
         <StyledCheckBox key={`checkbox-${value}`} sx={sx} value={value} checked={checked} onClick={handleChange} disabled={disabled}>
             <LabelContainer>
-                <div style={{ color: "var(--vscode-editor-foreground)" }}>
-                    <label htmlFor={`${label}`}>{label}</label>
+                <div style={{ color: "var(--vscode-editor-foreground)", cursor: "pointer" }} onClick={handleLabelClick}>
+                    {label}
                 </div>
                 {labelAdornment && labelAdornment}
             </LabelContainer>

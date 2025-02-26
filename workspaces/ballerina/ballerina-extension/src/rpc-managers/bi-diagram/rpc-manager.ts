@@ -1134,7 +1134,10 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async updateImports(params: UpdateImportsRequest): Promise<UpdateImportsResponse> {
         return new Promise((resolve, reject) => {
-            StateMachine.langClient().updateImports(params)
+            StateMachine.langClient().updateImports({
+                ...params,
+                importStatement: params.importStatement.trim()
+            })
                 .then(() => {
                     resolve({ importStatementOffset: params.importStatement.length });
                 })
