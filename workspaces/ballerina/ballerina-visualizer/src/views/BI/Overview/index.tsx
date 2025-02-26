@@ -452,14 +452,14 @@ export function Overview(props: ComponentDiagramProps) {
                 <MainPanel noPadding={true}>
                     <DiagramHeaderContainer withPadding={true}>
                         <Title variant="h2">Design</Title>
-                        <ActionContainer>
-                            <Button appearance="icon" onClick={handleGenerate}>
+                        {!isEmptyProject() && (<ActionContainer>
+                            <Button appearance="icon" onClick={handleGenerate} buttonSx={{ padding: "2px 8px" }}>
                                 <Codicon name="wand" sx={{ marginRight: 8 }} /> Generate
                             </Button>
                             <Button appearance="primary" onClick={handleAddConstruct}>
                                 <Codicon name="add" sx={{ marginRight: 8 }} /> Add Construct
                             </Button>
-                        </ActionContainer>
+                        </ActionContainer>)}
                     </DiagramHeaderContainer>
                     <DiagramContent>
                         {isEmptyProject() ? (

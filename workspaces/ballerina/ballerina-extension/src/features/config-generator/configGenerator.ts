@@ -15,11 +15,12 @@ import { getCurrentBallerinaProject } from "../../utils/project-utils";
 import { generateExistingValues, parseTomlToConfig, typeOfComment } from "./utils";
 import { ConfigProperty, ConfigTypes, Constants, Property } from "./model";
 import { BallerinaProject, PackageConfigSchema, ProjectDiagnosticsResponse, SyntaxTree } from "@wso2-enterprise/ballerina-core";
-import { CodeAction, Diagnostic, TextDocumentEdit } from "vscode-languageserver-types";
+import { TextDocumentEdit } from "vscode-languageserver-types";
 import { modifyFileContent } from "../../utils/modification";
 import { fileURLToPath } from "url";
 
 const DEBUG_RUN_COMMAND_ID = 'workbench.action.debug.run';
+const UNUSED_IMPORT_ERR_CODE = "BCE2002";
 
 export async function prepareAndGenerateConfig(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean, isBi?: boolean, executeRun: boolean = true): Promise<void> {
     const configRequirement: ConfigRequirementResult = await checkConfigGenerationRequired(ballerinaExtInstance, filePath, isBi);
@@ -281,10 +282,10 @@ async function executeRunCommand(ballerinaExtInstance: BallerinaExtension, fileP
 export async function cleanAndValidateProject(langClient: ExtendedLangClient, path: string): Promise<boolean> {
     try {
         // Get initial project diagnostics
-        const projectPath = ballerinaExtInstance.getDocumentContext().getCurrentProject().path || path;
+        const projectPath = ballerinaExtInstance?.getDocumentContext()?.getCurrentProject()?.path || path;
         let response: ProjectDiagnosticsResponse = await langClient.getProjectDiagnostics({
             projectRootIdentifier: {
-                uri: `file://${projectPath}`
+                uri: Uri.file(projectPath).toString()
             }
         });
 
@@ -295,8 +296,8 @@ export async function cleanAndValidateProject(langClient: ExtendedLangClient, pa
         // Process each file with diagnostics
         for (const [filePath, diagnostics] of Object.entries(response.errorDiagnosticMap)) {
             // Filter the unused import diagnostics
-            const diagnostic = diagnostics.find(d => d.code === "BCE2002");
-            if (!diagnostic) { continue; }
+            const diagnostic = diagnostics.find(d => d.code === UNUSED_IMPORT_ERR_CODE);
+            if (!diagnostic) continue;
             const codeActions = await langClient.codeAction({
                 textDocument: { uri: filePath },
                 range: {
@@ -334,7 +335,7 @@ export async function cleanAndValidateProject(langClient: ExtendedLangClient, pa
         // Check if errors still exist after fixes
         const updatedResponse: ProjectDiagnosticsResponse = await langClient.getProjectDiagnostics({
             projectRootIdentifier: {
-                uri: `file://${projectPath}`
+                uri: Uri.file(projectPath).toString()
             }
         });
 
