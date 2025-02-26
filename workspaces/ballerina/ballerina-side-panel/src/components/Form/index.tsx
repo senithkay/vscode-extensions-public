@@ -156,8 +156,14 @@ namespace S {
         }
         align-self: center;
     `;
+
+    export const InfoLabel = styled.div`
+        font-size: var(--vscode-font-size);
+        color: ${ThemeColors.ON_SURFACE_VARIANT};
+    `;
 }
 export interface FormProps {
+    infoLabel?: string;
     formFields: FormField[];
     submitText?: string;
     targetLineRange?: LineRange; // TODO: make them required after connector wizard is fixed
@@ -182,6 +188,7 @@ export interface FormProps {
 
 export const Form = forwardRef((props: FormProps, ref) => {
     const {
+        infoLabel,
         formFields,
         projectPath,
         selectedNode,
@@ -447,6 +454,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
     return (
         <Provider {...contextValue}>
             <S.Container nestedForm={nestedForm}>
+                {infoLabel && <S.InfoLabel>{infoLabel}</S.InfoLabel>}
                 {prioritizeVariableField && variableField && (
                     <S.CategoryRow showBorder={true}>
                         {variableField &&

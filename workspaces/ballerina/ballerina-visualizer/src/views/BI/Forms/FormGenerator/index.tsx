@@ -515,6 +515,10 @@ export function FormGenerator(props: FormProps) {
         );
     }
 
+    const notSupportedLabel =
+        "This statement is not supported in low-code yet. Please use the Ballerina source code to modify it accordingly.";
+    const infoLabel = node.codedata.node === "EXPRESSION" ? notSupportedLabel : undefined;
+
     // default form
     return (
         <>
@@ -536,6 +540,7 @@ export function FormGenerator(props: FormProps) {
                     mergeFormDataWithFlowNode={mergeFormDataWithFlowNode}
                     handleVisualizableFields={fetchVisualizableFields}
                     visualizableFields={visualizableFields}
+                    infoLabel={infoLabel}
                 />
             )}
             {showRecordEditor && (
