@@ -42,7 +42,7 @@ interface ServiceHeadProps {
 export function ComponentHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected, isFocused, menuItems, onFocusOut } = props;
 
-    const { zoomLevel } = useContext(DiagramContext);
+    const { zoomLevel, previewMode } = useContext(DiagramContext);
 
     const isDisabled = node.component.disabled?.status;
     const getComponentTypeIcon = (type: ComponentType) => {
@@ -82,7 +82,9 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
             borderWidth={node.getDynamicLineWidth(zoomLevel, COMPONENT_LINE_MIN_WIDTH)}
             disabled={isDisabled}
         >
-            <IconWrapper disabled={isDisabled}>{getComponentTypeIcon(node.component.type)}</IconWrapper>
+            <IconWrapper disabled={isDisabled} previewMode={previewMode}>
+                {getComponentTypeIcon(node.component.type)}
+            </IconWrapper>
             <ComponentPortWidget port={node.getPort(`left-${node.getID()}`)} engine={engine} />
             <ComponentPortWidget port={node.getPort(`right-${node.getID()}`)} engine={engine} />
             {node.component.buildPack && node.component.buildPack.toLowerCase() !== "other" && (
