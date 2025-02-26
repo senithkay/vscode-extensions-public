@@ -125,9 +125,26 @@ const OperationSection = styled.div`
 
 const EmptyStateText = styled(Typography)`
     color: ${ThemeColors.ON_SURFACE_VARIANT};
-    padding: 12px;
+    font-family: GilmerRegular;
+    font-size: 12px;
+    margin: 0px;
     text-align: center;
 `;
+
+const EmptyStateContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px;
+`;
+
+const EmptyStateSubText = styled(Typography)`
+    font-size: 10px;
+    margin: 4px;
+    font-family: GilmerRegular;
+    color: ${ThemeColors.ON_SURFACE_VARIANT};
+`;
+
 
 type FunctionTemapltes = {
     query: FunctionModel;
@@ -414,7 +431,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                     <OperationCard>
                         <OperationHeader>
                             <Title>Query</Title>
-                            <Button appearance="icon" tooltip={"Add Query Type"} onClick={handleNewQueryOperation}>
+                            <Button appearance="icon" tooltip={"Add Field"} onClick={handleNewQueryOperation}>
                                 <Codicon name="add" />
                             </Button>
                         </OperationHeader>
@@ -429,7 +446,10 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                             />
                         ))}
                         {categories.query?.length === 0 && (
-                            <EmptyStateText variant="body2">No Query Operation found</EmptyStateText>
+                            <EmptyStateContainer>
+                                <EmptyStateText>No query fields defined</EmptyStateText>
+                                <EmptyStateSubText>Click + to add a query field</EmptyStateSubText>
+                            </EmptyStateContainer>
                         )}
                     </OperationCard>
                 </OperationSection>
@@ -440,7 +460,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                             <Title>Mutation</Title>
                             <Button
                                 appearance="icon"
-                                tooltip={"Add Mutation Type"}
+                                tooltip={"Add Field"}
                                 onClick={handleNewMutationOperation}
                             >
                                 <Codicon name="add" />
@@ -457,7 +477,10 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                             />
                         ))}
                         {categories.mutation?.length === 0 && (
-                            <EmptyStateText variant="body2">No Mutation Operation found</EmptyStateText>
+                            <EmptyStateContainer>
+                                <EmptyStateText>No Mutation fields defined</EmptyStateText>
+                                <EmptyStateSubText>Click + to add a Mutation field</EmptyStateSubText>
+                            </EmptyStateContainer>
                         )}
                     </OperationCard>
                 </OperationSection>
@@ -468,7 +491,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                             <Title>Subscription</Title>
                             <Button
                                 appearance="icon"
-                                tooltip={"Add Subscription Type"}
+                                tooltip={"Add Field"}
                                 onClick={handleNewSubscriptionOperation}
                             >
                                 <Codicon name="add" />
@@ -485,7 +508,10 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                             />
                         ))}
                         {categories.subscription?.length === 0 && (
-                            <EmptyStateText variant="body2">No Subscription Operation found</EmptyStateText>
+                            <EmptyStateContainer>
+                                <EmptyStateText>No Subscription fields defined</EmptyStateText>
+                                <EmptyStateSubText>Click + to add a Subscription field</EmptyStateSubText>
+                            </EmptyStateContainer>
                         )}
                     </OperationCard>
                 </OperationSection>
@@ -541,7 +567,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
     return (
         <>
             {!isNewForm && !isEdit && (
-                <PanelContainer title={"GraphQL Operations"} show={true} onClose={onClose} width={400}>
+                <PanelContainer title={"GraphQL Operations"} show={true} onClose={onClose} onBack={onClose} width={400}>
                     <ServiceContainer>
                         {!serviceModel && (
                             <LoadingContainer>
@@ -555,25 +581,20 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                     </ServiceContainer>
                 </PanelContainer>
             )}
-            {functionModel && isNewForm && (
-                <PanelContainer title={"Add Operation"} show={isNewForm} onBack={handleNewFunctionClose} onClose={handleNewFunctionClose} width={400}>
+            {functionModel && (isNewForm || isEdit) && (
+                <PanelContainer 
+                    title={isNewForm ? "Add Field" : "Edit Field"}
+                    show={true}
+                    onBack={isNewForm ? handleNewFunctionClose : handleEditFunctionClose}
+                    onClose={isNewForm ? handleNewFunctionClose : handleEditFunctionClose}
+                    width={400}
+                >
                     <OperationForm
                         model={functionModel}
                         filePath={filePath}
                         lineRange={lineRange}
                         onSave={handleFunctionSubmit}
-                        onClose={handleNewFunctionClose}
-                    />
-                </PanelContainer>
-            )}
-            {functionModel && isEdit && (
-                <PanelContainer title={"Edit Operation"} show={isEdit} onClose={handleEditFunctionClose} width={400}>
-                    <OperationForm
-                        model={functionModel}
-                        filePath={filePath}
-                        lineRange={lineRange}
-                        onSave={handleFunctionSubmit}
-                        onClose={handleEditFunctionClose}
+                        onClose={isNewForm ? handleNewFunctionClose : handleEditFunctionClose}
                     />
                 </PanelContainer>
             )}
