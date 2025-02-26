@@ -129,7 +129,7 @@ export function activateTryItCommand(ballerinaExtInstance: BallerinaExtension) {
     const disposable = commands.registerCommand(PALETTE_COMMANDS.TRY_IT, async (withNotice: boolean = false) => {
         await openTryItView(withNotice, ballerinaExtInstance);
     });
-    
+
     // Clean up when deactivated
     return Disposable.from(disposable, {
         dispose: disposeErrorWatcher
@@ -200,7 +200,6 @@ async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: 
 
     const content = await generateTryItFileContent(workspaceRoot, selectedService);
     if (!content) {
-        vscode.window.showErrorMessage('Failed to generate Try It content');
         return;
     }
 
@@ -241,16 +240,9 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
     try {
         // Get OpenAPI definition
         const openapiSpec = await getOpenAPIDefinition(langClient, service);
-        if (!openapiSpec) {
-            return undefined;
-        }
 
         // Get service port
         const selectedPort = await getServicePort(projectDir, service, openapiSpec);
-        if (!selectedPort) {
-            vscode.window.showErrorMessage(`Failed to get the service port for the service: '${service.name}'`);
-            return undefined;
-        }
 
         // Register Handlebars helpers
         registerHandlebarsHelpers(openapiSpec);
@@ -265,15 +257,13 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
         });
     } catch (error) {
         const message = error instanceof Error ? error.message : '';
-        vscode.window.showErrorMessage(`Failed to generate TryIt client content: ${message}`);
-        return undefined;
+        vscode.window.showErrorMessage(`Try It client initialization failed: ${message}`);
     }
 }
 
-async function getOpenAPIDefinition(langClient: any, service: ServiceInfo): Promise<OAISpec | undefined> {
+async function getOpenAPIDefinition(langClient: any, service: ServiceInfo): Promise<OAISpec> {
     if (!langClient) {
-        vscode.window.showErrorMessage('Language client is not initialized');
-        return undefined;
+        throw new Error('Language client is not initialized');
     }
 
     const openapiDefinitions: OpenAPISpec | 'NOT_SUPPORTED_TYPE' = await langClient.convertToOpenAPI({
@@ -281,29 +271,27 @@ async function getOpenAPIDefinition(langClient: any, service: ServiceInfo): Prom
     });
 
     if (openapiDefinitions === 'NOT_SUPPORTED_TYPE') {
-        vscode.window.showErrorMessage('OpenAPI spec generation failed for the selected service');
-        return undefined;
+        throw new Error(`OpenAPI spec generation failed for the service with base path: '${service.basePath}'`);
     }
 
     const matchingDefinition = (openapiDefinitions as OpenAPISpec).content.filter(content =>
         content.serviceName.toLowerCase() === service?.name.toLowerCase()
-        || (content.spec?.servers[0]?.url == undefined && service?.name === '') // TODO: Update the condition after fixing the issue in the OpenAPI tool https://github.com/ballerina-platform/ballerina-library/issues/7624
-    );
+        || (content.spec?.servers[0]?.url.endsWith(service.basePath) && service?.name === '')
+        || (content.spec?.servers[0]?.url == undefined && service?.name === ''// TODO: Update the condition after fixing the issue in the OpenAPI tool https://github.com/ballerina-platform/ballerina-library/issues/7624 
+        ));
 
-    if (matchingDefinition.length > 1) {
-        vscode.window.showErrorMessage(`Multiple matching OpenAPI definitions found for service: ${service.basePath}`);
-        return undefined;
+    if (matchingDefinition.length === 0) {
+        throw new Error(`Failed to find matching OpenAPI definition: No service matches the base path '${service.basePath}' ${service.name !== '' ? `and service name '${service.name}'` : ''}`);
     }
 
-    if (!matchingDefinition) {
-        vscode.window.showErrorMessage(`No matching OpenAPI definition found for service: ${service.basePath}`);
-        return undefined;
+    if (matchingDefinition.length > 1) {
+        throw new Error(`Ambiguous service reference: Multiple matching OpenAPI definitions found for ${service.name !== '' ? `service '${service.name}'` : `base path '${service.basePath}'`}`);
     }
 
     return matchingDefinition[0].spec as OAISpec;
 }
 
-async function getServicePort(projectDir: string, service: ServiceInfo, openapiSpec: OAISpec): Promise<number | undefined> {
+async function getServicePort(projectDir: string, service: ServiceInfo, openapiSpec: OAISpec): Promise<number> {
     // Try to get default port from OpenAPI spec first
     const defaultPort = openapiSpec.servers?.[0]?.variables?.port?.default;
     if (defaultPort) {
@@ -315,15 +303,13 @@ async function getServicePort(projectDir: string, service: ServiceInfo, openapiS
 
     const balProcesses = await findRunningBallerinaProcesses(projectDir);
     if (!balProcesses?.length) {
-        vscode.window.showErrorMessage('No running Ballerina processes found. Please start your service first.');
-        return undefined;
+        throw new Error('No running Ballerina processes found. Please start your service first.');
     }
 
     const uniquePorts = [...new Set(balProcesses.flatMap(process => process.ports))];
 
     if (uniquePorts.length === 0) {
-        vscode.window.showErrorMessage('No ports found in the running Ballerina processes');
-        return undefined;
+        throw new Error('No service ports found in running Ballerina processes');
     }
 
     if (uniquePorts.length === 1) {
