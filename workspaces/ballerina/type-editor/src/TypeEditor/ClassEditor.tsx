@@ -310,7 +310,7 @@ export function ClassEditor({ type, onChange, isGraphql }: ClassEditorProps) {
                                 onClick={() => openParameterForm(index)}
                             >
                                 <Codicon name="add" />
-                                Add Parameter
+                                {isGraphql ? 'Add Argument' : 'Add Parameter'}
                             </S.AddParameterLink>
 
                             {func.parameters && func.parameters.length > 0 && (
@@ -344,12 +344,12 @@ export function ClassEditor({ type, onChange, isGraphql }: ClassEditorProps) {
                             {showParameterForm === index && (
                                 <S.ParameterForm>
                                     <TextField
-                                        placeholder="Parameter Name"
+                                        placeholder={isGraphql ? "Argument Name" : "Parameter Name"}
                                         value={parameterForm.name}
                                         onChange={(e) => setParameterForm(prev => ({ ...prev, name: e.target.value }))}
                                     />
                                     <TextField
-                                        placeholder="Parameter Type"
+                                        placeholder={isGraphql ? "Argument Type" : "Parameter Type"}
                                         value={parameterForm.type}
                                         onChange={(e) => setParameterForm(prev => ({ ...prev, type: e.target.value }))}
                                     />

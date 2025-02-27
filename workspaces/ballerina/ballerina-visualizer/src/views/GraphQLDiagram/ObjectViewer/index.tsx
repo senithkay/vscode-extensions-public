@@ -429,6 +429,7 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
                         model={editingFunction}
                         filePath={Utils.joinPath(URI.file(projectUri), serviceClassModel.codedata.lineRange.fileName).fsPath}
                         lineRange={serviceClassModel.codedata.lineRange}
+                        isGraphqlView={true}
                         onClose={handleCloseFunctionForm}
                         onSave={handleFunctionSave}
                     />

@@ -593,6 +593,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                         model={functionModel}
                         filePath={filePath}
                         lineRange={lineRange}
+                        isGraphqlView={true}
                         onSave={handleFunctionSubmit}
                         onClose={isNewForm ? handleNewFunctionClose : handleEditFunctionClose}
                     />
