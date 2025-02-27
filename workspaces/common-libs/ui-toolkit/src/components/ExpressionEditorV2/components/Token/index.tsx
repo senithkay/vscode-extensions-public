@@ -705,6 +705,9 @@ export const TokenEditor = ({
                             const range = selection.getRangeAt(0);
                             range.deleteContents();
                             range.insertNode(document.createTextNode(text));
+
+                            const fullText = editorRef.current?.innerText || '';
+                            onChange?.(fullText);
                         }
                     }}
                 />
