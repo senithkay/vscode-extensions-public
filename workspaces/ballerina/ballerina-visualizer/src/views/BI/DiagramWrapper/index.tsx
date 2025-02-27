@@ -101,7 +101,7 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
     };
 
     const handleResourceTryIt = (methodValue: string, pathValue: string) => {
-        const commands = ["kolab.tryit", methodValue, pathValue]
+        const commands = ["kolab.tryit", false, { methodValue, pathValue }]
         rpcClient.getCommonRpcClient().executeCommand({ commands });
     };
 
