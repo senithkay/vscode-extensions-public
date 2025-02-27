@@ -9,7 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 
-import { isIcpEnabled, addICP, ICPEnabledRequest } from "@wso2-enterprise/ballerina-core";
+import { isIcpEnabled, addICP, ICPEnabledRequest, disableICP } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { ICPServiceRpcManager } from "./rpc-manager";
 
@@ -17,4 +17,5 @@ export function registerIcpServiceRpcHandlers(messenger: Messenger) {
     const rpcManger = new ICPServiceRpcManager();
     messenger.onRequest(isIcpEnabled, (args: ICPEnabledRequest) => rpcManger.isIcpEnabled(args));
     messenger.onRequest(addICP, (args: ICPEnabledRequest) => rpcManger.addICP(args));
+    messenger.onRequest(disableICP, (args: ICPEnabledRequest) => rpcManger.disableICP(args));
 }

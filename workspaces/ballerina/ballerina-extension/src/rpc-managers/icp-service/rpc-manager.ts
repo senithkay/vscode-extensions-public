@@ -41,6 +41,22 @@ export class ICPServiceRpcManager implements ICPServiceAPI {
         });
     }
 
+    async disableICP(params: ICPEnabledRequest): Promise<ICPEnabledResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const projectPath: string = context.projectUri;
+                const param = {projectPath};
+                const res: TestSourceEditResponse = await context.langClient.disableICP(param);
+                await this.updateSource(res, undefined);
+                const result: ICPEnabledResponse = await context.langClient.isIcpEnabled(param);
+                resolve(result);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
 
     async isIcpEnabled(params: ICPEnabledRequest): Promise<ICPEnabledResponse> {
         return new Promise(async (resolve) => {

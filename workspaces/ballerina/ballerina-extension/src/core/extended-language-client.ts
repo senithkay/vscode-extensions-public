@@ -306,6 +306,7 @@ enum EXTENDED_APIS {
     BI_EDIT_FUNCTION_NODE = 'flowDesignService/functionDefinition',
     BI_IS_ICP_ENABLED = 'icpService/isIcpEnabled',
     BI_ADD_ICP = 'icpService/addICP',
+    BI_DISABLE_ICP = 'icpService/disableICP',
 }
 
 enum EXTENDED_APIS_ORG {
@@ -666,6 +667,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     
     async addICP(params: ICPEnabledRequest): Promise<TestSourceEditResponse | NOT_SUPPORTED_TYPE> {
         return this.sendRequest(EXTENDED_APIS.BI_ADD_ICP, params);
+    }
+
+    async disableICP(params: ICPEnabledRequest): Promise<TestSourceEditResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_DISABLE_ICP, params);
     }
 
     async getProjectDiagnostics(params: ProjectDiagnosticsRequest): Promise<ProjectDiagnosticsResponse | NOT_SUPPORTED_TYPE> {

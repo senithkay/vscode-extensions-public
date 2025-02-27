@@ -237,7 +237,7 @@ export function Overview(props: ComponentDiagramProps) {
             .isIcpEnabled({ projectPath: '' })
             .then((res) => {
                 setEnableICP(res.enabled);
-            });    
+            });
 
         // setResponseText("");
 
@@ -425,10 +425,16 @@ export function Overview(props: ComponentDiagramProps) {
         if (!enabled) {
             rpcClient.getICPRpcClient().addICP({ projectPath: '' })
                 .then((res) => {
-                    setEnableICP(res.enabled);
+                    setEnableICP(true);
                 }
-            );
-        }        
+                );
+        } else {
+            rpcClient.getICPRpcClient().disableICP({ projectPath: '' })
+                .then((res) => {
+                    setEnableICP(false);
+                }
+                );
+        }
     };
 
     const handleGenerate = () => {
@@ -514,17 +520,19 @@ export function Overview(props: ComponentDiagramProps) {
                             Easily deploy the integration to the cloud using Choreo. Click the Deploy button to continue
                             with the deployment.
                         </Description>
-                        <DeployButtonContainer>
-                            <Button appearance="primary" onClick={handleDeploy}>
-                                <Codicon name="cloud-upload" sx={{ marginRight: 8 }} /> Deploy
-                            </Button>
-                        </DeployButtonContainer>
-                        <DeployButtonContainer>
-                            <Button appearance="primary" onClick={handleICP}>
-                                <Codicon name="cloud-upload" sx={{ marginRight: 8 }} /> 
-                                { enabled ? "Disable ICP" : "Integrate ICP" }
-                            </Button>
-                        </DeployButtonContainer>
+                        <div style={{ display: 'grid' }}>
+                            <DeployButtonContainer>
+                                <Button appearance="primary" onClick={handleDeploy} buttonSx={{ width: '100%' }}>
+                                    <Codicon name="cloud-upload" sx={{ marginRight: 8 }} /> Deploy
+                                </Button>
+                            </DeployButtonContainer>
+                            <DeployButtonContainer>
+                                <Button appearance="primary" onClick={handleICP} buttonSx={{ width: '100%' }}>
+                                    <Codicon name="cloud-upload" sx={{ marginRight: 8 }} />
+                                    {enabled ? "Disable ICP" : "Integrate ICP"}
+                                </Button>
+                            </DeployButtonContainer>
+                        </div>
                     </DeploymentContent>
                 </SidePanel>
             </MainContent>
