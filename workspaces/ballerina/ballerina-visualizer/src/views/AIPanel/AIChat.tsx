@@ -66,6 +66,7 @@ interface ApiResponse {
 }
 
 var chatArray: ChatEntry[] = [];
+var chatIndex = 0;
 
 // A string array to store all code blocks
 const codeBlocks: string[] = [];
@@ -698,13 +699,14 @@ export function AIChat() {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify(chatArray),
+                body: JSON.stringify(chatArray.slice(chatIndex)),
                 signal: signal,
             },
             rpcClient
         );
 
         setIsCodeAdded(true);
+        chatIndex = chatArray.length;
         await rpcClient.getAiPanelRpcClient().addChatSummary({summary: await streamToString(response.body), filepath: chatLocation})
     };
 
@@ -1095,6 +1097,7 @@ export function AIChat() {
     function handleClearChat(): void {
         codeBlocks.length = 0;
         chatArray.length = 0;
+        chatIndex = 0;
 
         setMessages((prevMessages) => []);
 
