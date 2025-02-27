@@ -637,11 +637,6 @@ class BIRunAdapter extends LoggingDebugSession {
                     }
                 });
 
-                // Trigger Try It command after successful build
-                waitForBallerinaService(workspace.workspaceFolders![0].uri.fsPath).then(() => {
-                    commands.executeCommand(PALETTE_COMMANDS.TRY_IT, false);
-                });
-
                 response.success = true;
                 this.sendResponse(response);
             });

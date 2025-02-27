@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { DiagramEngine, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { CellLinkModel } from "./CellLinkModel";
-import { CELL_LINK, Colors, WarningIcon } from "../../../resources";
+import { CELL_LINK, Colors, LINK_WIDTH, WarningIcon } from "../../../resources";
 import { ObservationLabel } from "../../ObservationLabel/ObservationLabel";
 import { TooltipLabel } from "../../TooltipLabel/TooltipLabel";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
@@ -46,19 +46,21 @@ export function CellLinkWidget(props: WidgetProps) {
         observationSummary: {
             requestCount: { min, max },
         },
+        previewMode
     } = useContext(DiagramContext);
 
     const [isSelected, setIsSelected] = useState<boolean>(false);
     const [anchorEl, setAnchorEl] = React.useState<null | SVGGElement>(null);
 
-    const open = (link.tooltip || link.observations?.length > 0) && Boolean(anchorEl);
+    const open = (link.tooltip || link.observations?.length > 0) && Boolean(anchorEl) && !previewMode;
     const hasArchitectureLayer = hasLayer(DiagramLayer.ARCHITECTURE);
     const hasObservabilityLayer = hasLayer(DiagramLayer.OBSERVABILITY);
     const hasDiffLayer = hasLayer(DiagramLayer.DIFF);
 
     const hideLink =
         (hasObservabilityLayer && (!link.observations || link.observations?.length === 0) && !hasArchitectureLayer && !hasDiffLayer) ||
-        (hasArchitectureLayer && !hasObservabilityLayer && !hasDiffLayer && link.observationOnly);
+        (hasArchitectureLayer && !hasObservabilityLayer && !hasDiffLayer && link.observationOnly) ||
+        (previewMode && link.observationOnly);
 
     useEffect(() => {
         const listener = link.registerListener({
@@ -96,7 +98,7 @@ export function CellLinkWidget(props: WidgetProps) {
 
     const handleMouseOver = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
         event.stopPropagation();
-        if (hideLink) {
+        if (hideLink || previewMode) {
             return;
         }
         selectPath();
@@ -105,6 +107,9 @@ export function CellLinkWidget(props: WidgetProps) {
 
     const handleMouseLeave = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
         event.stopPropagation();
+        if (previewMode) {
+            return;
+        }
         unselectPath();
         setAnchorEl(null);
     };
@@ -117,8 +122,11 @@ export function CellLinkWidget(props: WidgetProps) {
     };
 
     const strokeWidth = () => {
+        if (previewMode) {
+            return LINK_WIDTH.PREVIEW;
+        }
         const requestCount = getRequestCount();
-        return requestCount ? link.scaleValueToLinkWidth(requestCount, min, max) : 2;
+        return requestCount ? link.scaleValueToLinkWidth(requestCount, min, max) : LINK_WIDTH.DEFAULT;
     };
 
     const strokeColor = () => {
@@ -149,7 +157,12 @@ export function CellLinkWidget(props: WidgetProps) {
 
     return (
         <>
-            <g onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave} pointerEvents={"all"} className={CELL_LINK}>
+            <g 
+                onMouseOver={handleMouseOver} 
+                onMouseLeave={handleMouseLeave} 
+                pointerEvents={"all"} 
+                className={CELL_LINK}
+            >
                 <defs>
                     <marker
                         id={link.getLinkArrowId()}
@@ -175,9 +188,9 @@ export function CellLinkWidget(props: WidgetProps) {
                     strokeDasharray={strokeDash()}
                     markerEnd={link.showArrowHead() && !hasObservabilityLayer ? "url(#" + link.getLinkArrowId() + ")" : ""}
                 />
-                {hasDiffLayer && link.observationOnly && <WarningIcon x={midPoint.x - 10} y={midPoint.y - 10} width="20" height="20" />}
+                {hasDiffLayer && link.observationOnly && !previewMode && <WarningIcon x={midPoint.x - 10} y={midPoint.y - 10} width="20" height="20" />}
             </g>
-            {(hasObservabilityLayer || link.tooltip) && (
+            {(hasObservabilityLayer || link.tooltip) && !previewMode && (
                 <Popper id={link.getID()} open={open} anchorEl={anchorEl}>
                     <Box sx={link.observations?.length > 0 && !link.tooltip ? observabilityPopOverStyle : tooltipPopOverStyle}>
                         {link.tooltip && <TooltipLabel tooltip={link.tooltip} />}

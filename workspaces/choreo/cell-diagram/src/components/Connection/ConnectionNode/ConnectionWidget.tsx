@@ -22,7 +22,7 @@ interface ConnectionWidgetProps {
 
 export function ConnectionWidget(props: ConnectionWidgetProps) {
     const { node, engine } = props;
-    const { selectedNodeId, focusedNodeId } = useContext(DiagramContext);
+    const { selectedNodeId, focusedNodeId, previewMode } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<ComponentLinkModel>(undefined);
     const displayName = node.connection.label || node.connection.id;
 
@@ -42,6 +42,7 @@ export function ConnectionWidget(props: ConnectionWidgetProps) {
 
     return (
         <ConnectionNode
+            previewMode={previewMode}
             isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
             isFocused={node.getID() === focusedNodeId}
             orientation={node.orientation}
@@ -51,7 +52,7 @@ export function ConnectionWidget(props: ConnectionWidgetProps) {
                 node={node}
                 isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
             />
-            <ConnectionName orientation={node.orientation}>{displayName}</ConnectionName>
+            {!previewMode && <ConnectionName orientation={node.orientation}>{displayName}</ConnectionName>}
         </ConnectionNode>
     );
 }

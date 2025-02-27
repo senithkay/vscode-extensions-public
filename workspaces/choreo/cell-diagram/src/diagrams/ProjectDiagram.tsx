@@ -10,7 +10,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
-import CircularProgress from "@mui/material/CircularProgress";
 import {
     generateEngine,
     getComponentDiagramWidth,
@@ -21,12 +20,13 @@ import {
     animateProjectDiagram,
 } from "../utils";
 import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel } from "../components";
-import { Colors, DIAGRAM_END, MAIN_CELL, NO_CELL_NODE } from "../resources";
+import { Colors, DIAGRAM_END, MAIN_CELL, MARGIN, NO_CELL_NODE } from "../resources";
 import { Container, DiagramContainer, useStyles } from "../utils/CanvasStyles";
 import { CustomTooltips, DiagramLayer, MoreVertMenuItem, ObservationSummary, Project } from "../types";
 import { CellModel } from "../components/Cell/CellNode/CellModel";
 import { DiagramLayers } from "../components/Controls/DiagramLayers";
 import { DiagramLegend } from "../components/Controls/DiagramLegend";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 export { DiagramLayer } from "../types";
 export type { MoreVertMenuItem, Project } from "../types";
@@ -40,6 +40,7 @@ export interface ProjectDiagramProps {
     customTooltips?: CustomTooltips;
     modelVersion?: string;
     onComponentDoubleClick?: (componentId: string) => void;
+    previewMode?: boolean;
 }
 
 export function ProjectDiagram(props: ProjectDiagramProps) {
@@ -52,9 +53,10 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
         customTooltips,
         modelVersion,
         onComponentDoubleClick,
+        previewMode = false,
     } = props;
 
-    const [diagramEngine] = useState<DiagramEngine>(generateEngine);
+    const [diagramEngine] = useState<DiagramEngine>(generateEngine(previewMode));
     const [diagramModel, setDiagramModel] = useState<DiagramModel | undefined>(undefined);
     const [selectedNodeId, setSelectedNodeId] = useState<string>("");
     const [focusedNodeId, setFocusedNodeId] = useState<string>("");
@@ -170,6 +172,13 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
         diagramEngine.setModel(model);
         setDiagramModel(model);
 
+        if (previewMode) {
+            // Disable dragging for all nodes
+            diagramEngine.getModel().setLocked(true);
+            const state = diagramEngine.getStateMachine().getCurrentState();
+            (state as any).dragCanvas.config.allowDrag = false;
+        }
+
         // update observability summary
         observationSummary.current = diagramData.observationSummary;
 
@@ -178,7 +187,10 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
             manualDistribute(model);
             if (diagramEngine.getCanvas()?.getBoundingClientRect) {
                 // zoom to fit nodes and center diagram
-                diagramEngine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
+                diagramEngine.zoomToFitNodes({ 
+                    margin: previewMode ? MARGIN.PREVIEW : MARGIN.DEFAULT, 
+                    maxZoom: 1 
+                });
             }
             // remove preloader overlay layer
             const overlayLayer = diagramEngine
@@ -222,7 +234,7 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
         }, 8);
     };
 
-    const showDiagramLayers = (showControls && observationSummary.current?.requestCount.max > 0) || false;
+    const showDiagramLayers = (showControls && observationSummary.current?.requestCount.max > 0 && !previewMode) || false;
 
     const ctx = {
         selectedNodeId,
@@ -235,25 +247,34 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
         setSelectedNodeId,
         setFocusedNodeId,
         onComponentDoubleClick,
+        previewMode
     };
 
     const handleCanvasClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        if (previewMode && onComponentDoubleClick) {
+            // In preview mode, clicking anywhere on the canvas should trigger the onComponentDoubleClick
+            onComponentDoubleClick(MAIN_CELL);
+            return;
+        }
+        
         if (focusedNodeId && event.target === diagramEngine.getCanvas()) {
             setFocusedNodeId("");
         }
     };
 
+
+
     return (
         <Container>
             <CellDiagramContext {...ctx}>
-                <DiagramContainer onClick={handleCanvasClick}>
+                <DiagramContainer onClick={handleCanvasClick} className={previewMode ? "preview-mode" : ""}>
                     {diagramEngine?.getModel() && diagramModel ? (
                         <>
                             <CanvasWidget
                                 engine={diagramEngine}
                                 className={styles.canvas}
                             />
-                            {showControls && <DiagramControls engine={diagramEngine} animation={animation} />}
+                            {showControls && !previewMode && <DiagramControls engine={diagramEngine} animation={animation} />}
                             {showDiagramLayers && (
                                 <DiagramLayers animation={animation} tooltips={customTooltips?.diagramLayers} />
                             )}
