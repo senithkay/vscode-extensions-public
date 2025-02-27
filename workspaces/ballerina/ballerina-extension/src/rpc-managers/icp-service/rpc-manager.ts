@@ -21,6 +21,7 @@ import * as fs from 'fs';
 import { existsSync, writeFileSync } from "fs";
 import { Uri } from "vscode";
 import { StateMachine } from "../../stateMachine";
+import { applyBallerinaTomlEdit } from "../common/utils";
 
 export class ICPServiceRpcManager implements ICPServiceAPI {
 
@@ -28,9 +29,11 @@ export class ICPServiceRpcManager implements ICPServiceAPI {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             try {
-                const res: TestSourceEditResponse = await context.langClient.addICP(params);
+                const projectPath: string = context.projectUri;
+                const param = {projectPath};
+                const res: TestSourceEditResponse = await context.langClient.addICP(param);
                 await this.updateSource(res, undefined);
-                const result: ICPEnabledResponse = await context.langClient.isIcpEnabled(params);
+                const result: ICPEnabledResponse = await context.langClient.isIcpEnabled(param);
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -43,7 +46,9 @@ export class ICPServiceRpcManager implements ICPServiceAPI {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             try {
-                const res: ICPEnabledResponse = await context.langClient.isIcpEnabled(params);
+                const projectPath: string = context.projectUri;
+                const param = {projectPath};
+                const res: ICPEnabledResponse = await context.langClient.isIcpEnabled(param);
                 resolve(res);
             } catch (error) {
                 console.log(error);
@@ -61,6 +66,13 @@ export class ICPServiceRpcManager implements ICPServiceAPI {
                 writeFileSync(fileUri.path, '');
             }
             const edits = value;
+
+            if (fileUriString.endsWith(".toml")) {
+                for (const edit of edits) {
+                    applyBallerinaTomlEdit(fileUri, edit);
+                }
+                continue;
+            }
 
             if (edits && edits.length > 0) {
                 const modificationList: STModification[] = [];
@@ -91,6 +103,10 @@ export class ICPServiceRpcManager implements ICPServiceAPI {
         // Iterate through modificationRequests and apply modifications
         try {
             for (const [fileUriString, request] of Object.entries(modificationRequests)) {
+                if (fileUriString.endsWith(".toml")) {
+                    continue;
+                }
+
                 const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
                     documentIdentifier: { uri: fileUriString },
                     astModifications: request.modifications,

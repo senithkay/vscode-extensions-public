@@ -208,7 +208,7 @@ export function Overview(props: ComponentDiagramProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [loadingMessage, setLoadingMessage] = useState("");
     const backendRootUri = useRef("");
-    const [enableICP, setEnableICP] = useState(false);
+    const [enabled, setEnableICP] = useState(false);
 
 
     const fetchContext = () => {
@@ -231,6 +231,13 @@ export function Overview(props: ComponentDiagramProps) {
             .then((res) => {
                 setReadmeContent(res.content);
             });
+
+        rpcClient
+            .getICPRpcClient()
+            .isIcpEnabled({ projectPath: '' })
+            .then((res) => {
+                setEnableICP(res.enabled);
+            });    
 
         // setResponseText("");
 
@@ -415,7 +422,13 @@ export function Overview(props: ComponentDiagramProps) {
     };
 
     const handleICP = () => {
-        setEnableICP(!enableICP);
+        if (!enabled) {
+            rpcClient.getICPRpcClient().addICP({ projectPath: '' })
+                .then((res) => {
+                    setEnableICP(res.enabled);
+                }
+            );
+        }        
     };
 
     const handleGenerate = () => {
@@ -509,7 +522,7 @@ export function Overview(props: ComponentDiagramProps) {
                         <DeployButtonContainer>
                             <Button appearance="primary" onClick={handleICP}>
                                 <Codicon name="cloud-upload" sx={{ marginRight: 8 }} /> 
-                                { enableICP ? "Disable ICP" : "Integrate ICP" }
+                                { enabled ? "Disable ICP" : "Integrate ICP" }
                             </Button>
                         </DeployButtonContainer>
                     </DeploymentContent>
