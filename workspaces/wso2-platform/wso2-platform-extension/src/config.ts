@@ -69,7 +69,7 @@ class ChoreoEnvConfig {
 	}
 
 	public getDevantUrl(): string {
-		return this._config.billingConsoleBaseUrl;
+		return this._config.devantConsoleBaseUrl;
 	}
 }
 
