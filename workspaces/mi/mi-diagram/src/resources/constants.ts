@@ -179,6 +179,7 @@ export const NODE_DIMENSIONS = {
     },
     CONNECTOR: {
         WIDTH: 150,
+        FULL_WIDTH: 150 + 110,
         HEIGHT: 60,
     },
     DATA_SERVICE: {
