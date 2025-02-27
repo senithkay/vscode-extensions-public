@@ -40,7 +40,7 @@ import { ZoomCanvasAction } from "@projectstorm/react-canvas-core";
 
 // Diagram engine utils
 
-export function generateEngine(): DiagramEngine {
+export function generateEngine(previewMode?: boolean): DiagramEngine {
     const engine: DiagramEngine = createEngine({
         registerDefaultPanAndZoomCanvasAction: false,
         registerDefaultZoomCanvasAction: false,
@@ -68,7 +68,9 @@ export function generateEngine(): DiagramEngine {
 
     engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
 
-    engine.getActionEventBus().registerAction(new ZoomCanvasAction({ inverseZoom: true }));
+    if (!previewMode) {
+        engine.getActionEventBus().registerAction(new ZoomCanvasAction({ inverseZoom: true }));
+    }
     return engine;
 }
 
