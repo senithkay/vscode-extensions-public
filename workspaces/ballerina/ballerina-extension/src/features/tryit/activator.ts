@@ -11,14 +11,14 @@ import { BIDesignModelResponse, OpenAPISpec } from "@wso2-enterprise/ballerina-c
 let errorLogWatcher: FileSystemWatcher | undefined;
 
 const TRYIT_TEMPLATE = `/*
-### Try Service: "{{serviceName}}" (http://localhost:{{port}}{{trim basePath}})
+### {{#if isResourceMode}}Try Resource: "{{resourcePath}}"{{else}}Try Service: "{{serviceName}}" (http://localhost:{{port}}{{trim basePath}}){{/if}}
 {{info.description}}
 */
 
 {{#each paths}}
 {{#each this}}
 /*
-#### {{uppercase @key}} {{@../key}}
+{{#unless ../../isResourceMode}}#### {{uppercase @key}} {{@../key}}{{/unless}}
 
 {{#if parameters}}
 {{#with (groupParams parameters)}}
@@ -321,6 +321,8 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
         // Register Handlebars helpers
         registerHandlebarsHelpers(openapiSpec);
 
+        let isResourceMode = false;
+        let resourcePath = '';
         // Filter paths based on resourceMetadata if provided
         if (resourceMetadata?.pathValue) {
             const originalPaths = openapiSpec.paths;
@@ -336,6 +338,10 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
             }
 
             if (matchingPath && originalPaths[matchingPath]) {
+                // Set resource mode flag and path
+                isResourceMode = true;
+                resourcePath = matchingPath;
+
                 if (resourceMetadata.methodValue) {
                     const method = resourceMetadata.methodValue.toLowerCase();
                     if (originalPaths[matchingPath][method]) {
@@ -369,26 +375,18 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
             }
         }
 
-        // Generate custom header for filtered resource
-        let customHeader = '';
-        if (resourceMetadata?.pathValue) {
-            customHeader = `
-/*
-### RESOURCE TRY IT
-*/
-`;
-        }
-
         // Generate content using template
-        const compiledTemplate = Handlebars.compile(TRYIT_TEMPLATE);
-        const standardContent = compiledTemplate({
+        const templateData = {
             ...openapiSpec,
             port: selectedPort.toString(),
             basePath: service.basePath,
-            serviceName: service.name || 'Default'
-        });
+            serviceName: service.name || 'Default',
+            isResourceMode: isResourceMode,
+            resourcePath: resourcePath
+        };
 
-        return customHeader + standardContent;
+        const compiledTemplate = Handlebars.compile(TRYIT_TEMPLATE);
+        return compiledTemplate(templateData);
     } catch (error) {
         handleError(error, "Try It client initialization failed");
         return undefined;
@@ -509,13 +507,6 @@ async function getServicePort(projectDir: string, service: ServiceInfo, openapiS
 }
 
 function registerHandlebarsHelpers(openapiSpec: OAISpec): void {
-    if (!Handlebars.helpers.uppercase) {
-        Handlebars.registerHelper('uppercase', (str: string) => str.toUpperCase());
-    }
-    if (!Handlebars.helpers.trim) {
-        Handlebars.registerHelper('trim', (str?: string) => str ? str.trim() : '');
-    }
-
     // handlebar helper to process query parameters
     if (!Handlebars.helpers.queryParams) {
         Handlebars.registerHelper('queryParams', function (parameters) {
@@ -598,6 +589,20 @@ function registerHandlebarsHelpers(openapiSpec: OAISpec): void {
         Handlebars.registerHelper('generateRequestBody', function (requestBody) {
             return new Handlebars.SafeString(generateRequestBody(requestBody, openapiSpec));
         });
+    }
+
+    if (!Handlebars.helpers.not) {
+        Handlebars.registerHelper('not', function (value) {
+            return !value;
+        });
+    }
+
+    if (!Handlebars.helpers.uppercase) {
+        Handlebars.registerHelper('uppercase', (str: string) => str.toUpperCase());
+    }
+    
+    if (!Handlebars.helpers.trim) {
+        Handlebars.registerHelper('trim', (str?: string) => str ? str.trim() : '');
     }
 }
 
