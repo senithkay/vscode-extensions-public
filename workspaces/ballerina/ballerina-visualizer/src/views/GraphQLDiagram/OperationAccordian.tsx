@@ -115,12 +115,12 @@ export function OperationAccordion(params: OperationAccordionProps) {
                 <ButtonSection>
                     <>
                         {onEditFunction! && (
-                            <VSCodeButton appearance="icon" title="Edit Operation" onClick={handleEditFuncrion}>
-                                <Icon name="editIcon" sx={{ marginTop: 3.5 }} />
+                            <VSCodeButton appearance="icon" title="Edit Field" onClick={handleEditFuncrion}>
+                                <Icon name="bi-edit" sx={{ marginTop: 3.5 }} />
                             </VSCodeButton>
                         )}
                         {onDeleteFunction! && (
-                            <VSCodeButton appearance="icon" title="Delete Operation" onClick={handleDeleteFunction}>
+                            <VSCodeButton appearance="icon" title="Delete Field" onClick={handleDeleteFunction}>
                                 <Codicon name="trash" />
                             </VSCodeButton>
                         )}
@@ -131,7 +131,7 @@ export function OperationAccordion(params: OperationAccordionProps) {
                 isOpen={isConfirmOpen}
                 onConfirm={handleConfirm}
                 confirmText="Okay"
-                message="Are you sure want to delete this operation?"
+                message="Are you sure want to delete this field?"
                 anchorEl={confirmEl}
                 anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
                 transformOrigin={{ vertical: "top", horizontal: "right" }}
