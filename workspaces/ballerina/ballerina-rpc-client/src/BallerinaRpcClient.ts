@@ -42,6 +42,7 @@ import { ConnectorWizardRpcClient } from "./rpc-clients/connector-wizard/rpc-cli
 import { SequenceDiagramRpcClient } from "./rpc-clients/sequence-diagram/rpc-client";
 import { InlineDataMapperRpcClient } from "./rpc-clients/inline-data-mapper/rpc-client";
 import { TestManagerServiceRpcClient } from "./rpc-clients";
+import { ICPServiceRpcClient } from "./rpc-clients/icp-service/rpc-client";
 
 export class BallerinaRpcClient {
 
@@ -60,6 +61,7 @@ export class BallerinaRpcClient {
     private _connectorWizard: ConnectorWizardRpcClient;
     private _inlineDataMapper: InlineDataMapperRpcClient;
     private _testManager: TestManagerServiceRpcClient;
+    private _icpManager: ICPServiceRpcClient;
 
     constructor() {
         this.messenger = new Messenger(vscode);
@@ -78,6 +80,11 @@ export class BallerinaRpcClient {
         this._connectorWizard = new ConnectorWizardRpcClient(this.messenger);
         this._inlineDataMapper = new InlineDataMapperRpcClient(this.messenger);
         this._testManager = new TestManagerServiceRpcClient(this.messenger);
+        this._icpManager = new ICPServiceRpcClient(this.messenger);
+    }
+
+    getICPRpcClient(): ICPServiceRpcClient {
+        return this._icpManager;
     }
 
     getConnectorWizardRpcClient(): ConnectorWizardRpcClient {
