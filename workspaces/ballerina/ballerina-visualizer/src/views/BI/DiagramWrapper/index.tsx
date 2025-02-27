@@ -185,7 +185,11 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                 />
             )}
             {showSequenceDiagram ? (
-                <BISequenceDiagram onUpdate={handleUpdateDiagram} onReady={handleReadyDiagram} />
+                <BISequenceDiagram
+                    syntaxTree={syntaxTree}
+                    onUpdate={handleUpdateDiagram}
+                    onReady={handleReadyDiagram}
+                />
             ) : (
                 <BIFlowDiagram
                     syntaxTree={syntaxTree}

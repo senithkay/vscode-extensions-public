@@ -279,6 +279,7 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
                     {...renderProps("uri")}
                 />
                 <FormKeylookup
+                    required
                     control={control}
                     label="Template"
                     name="template"

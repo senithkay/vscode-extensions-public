@@ -556,7 +556,7 @@ export class SizingVisitor implements Visitor {
     // Connectors
     beginVisitConnector = (node: any): void => { this.skipChildrenVisit = true; }
     endVisitConnector = (node: any): void => {
-        this.calculateBasicMediator(node, NODE_DIMENSIONS.CONNECTOR.WIDTH, NODE_DIMENSIONS.CONNECTOR.HEIGHT);
+        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CONNECTOR.WIDTH, fw: NODE_DIMENSIONS.CONNECTOR.FULL_WIDTH, h: NODE_DIMENSIONS.DEFAULT.HEIGHT, l: NODE_DIMENSIONS.CONNECTOR.WIDTH / 2, r: NODE_DIMENSIONS.CONNECTOR.FULL_WIDTH - NODE_DIMENSIONS.CONNECTOR.WIDTH / 2 };
         this.skipChildrenVisit = false;
     }
 

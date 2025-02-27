@@ -462,16 +462,16 @@ export class NodeFactoryVisitor implements BaseVisitor {
         const containerNodeModel = new ErrorNodeModel(node, bodyBranch);
         this.nodes.push(containerNodeModel);
 
-        if (node.viewState.isTopLevel) {
-            // link last node of body branch to container node model
-            const lastNodeModel = this.getBranchEndNode(bodyBranch);
-            if (lastNodeModel) {
-                const link = createNodesLink(lastNodeModel, containerNodeModel);
-                if (link) {
-                    this.links.push(link);
-                }
-            }
-        }
+        // if (node.viewState.isTopLevel) {
+        //     // link last node of body branch to container node model
+        //     const lastNodeModel = this.getBranchEndNode(bodyBranch);
+        //     if (lastNodeModel) {
+        //         const link = createNodesLink(lastNodeModel, containerNodeModel);
+        //         if (link) {
+        //             this.links.push(link);
+        //         }
+        //     }
+        // }
 
         if (onFailureBranch?.viewState) {
             // create empty node for end of on failure branch
@@ -510,7 +510,8 @@ export class NodeFactoryVisitor implements BaseVisitor {
         const lastNodeModel = this.getBranchEndNode(bodyBranch);
         if (lastNodeModel) {
             const linkOut = createNodesLink(lastNodeModel, containerNodeModel, {
-                showAddButton: lastNodeModel.getType() !== NodeTypes.EMPTY_NODE,
+                showAddButton: lastNodeModel.getID() !== getCustomNodeId(node.id, bodyBranch.label),
+                showArrow: false,
             });
             if (linkOut) {
                 this.links.push(linkOut);
