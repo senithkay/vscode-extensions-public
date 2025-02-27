@@ -11,7 +11,7 @@ import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { CellDiagram } from "../../../Diagram";
 import { Project } from "../../../types";
-import { Container } from "../../utils";
+import { Container, PreviewContainer } from "../../utils";
 import { model1 } from "./data/model1";
 import { model2 } from "./data/model2";
 import { model3 } from "./data/model3";
@@ -20,7 +20,10 @@ import { model3 } from "./data/model3";
 const meta: Meta<typeof CellDiagram> = {
     title: "Project Diagram/External Component",
     component: CellDiagram,
-    decorators: [(Story) => <Container>{Story()}</Container>],
+    decorators: [(Story, context) => {
+        const StoryContainer = context.args.previewMode ? PreviewContainer : Container;
+        return <StoryContainer>{Story()}</StoryContainer>;
+    }],
     parameters: {
         layout: "centered",
     },

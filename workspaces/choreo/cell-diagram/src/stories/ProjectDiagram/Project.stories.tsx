@@ -11,13 +11,16 @@ import React from "react";
 import { Meta, storiesOf, StoryObj } from "@storybook/react";
 import { CellDiagram } from "../../Diagram";
 import { Project } from "../../types";
-import { Container, componentMenu, handleComponentDoubleClick } from "../utils";
+import { Container, PreviewContainer, componentMenu, handleComponentDoubleClick } from "../utils";
 import { noComponentModel, singleComponentModel, singleExposedComponentModel, allComponentModel, componentDependencyModel, unlinkConfigurationModel, testModel1, testModel22, testModel2, testModel3, observabilityModel } from "./data/models";
 
 const meta: Meta<typeof CellDiagram> = {
     title: "Project Diagram",
     component: CellDiagram,
-    decorators: [(Story) => <Container>{Story()}</Container>],
+    decorators: [(Story, context) => {
+        const StoryContainer = context.args.previewMode ? PreviewContainer : Container;
+        return <StoryContainer>{Story()}</StoryContainer>;
+    }],
     parameters: {
         layout: "centered",
     },

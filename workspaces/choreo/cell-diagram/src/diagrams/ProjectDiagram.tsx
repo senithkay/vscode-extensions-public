@@ -274,7 +274,7 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
                                 engine={diagramEngine}
                                 className={styles.canvas}
                             />
-                            {showControls && <DiagramControls engine={diagramEngine} animation={animation} />}
+                            {showControls && !previewMode && <DiagramControls engine={diagramEngine} animation={animation} />}
                             {showDiagramLayers && (
                                 <DiagramLayers animation={animation} tooltips={customTooltips?.diagramLayers} />
                             )}
