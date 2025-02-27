@@ -143,6 +143,7 @@ const DiagramContent = styled.div`
 
 const DeploymentContent = styled.div`
     margin-top: 16px;
+    min-width: 130px;
 `;
 
 const DeployButtonContainer = styled.div`
@@ -520,19 +521,21 @@ export function Overview(props: ComponentDiagramProps) {
                             Easily deploy the integration to the cloud using Choreo. Click the Deploy button to continue
                             with the deployment.
                         </Description>
-                        <div style={{ display: 'grid' }}>
-                            <DeployButtonContainer>
-                                <Button appearance="primary" onClick={handleDeploy} buttonSx={{ width: '100%' }}>
-                                    <Codicon name="cloud-upload" sx={{ marginRight: 8 }} /> Deploy
-                                </Button>
-                            </DeployButtonContainer>
-                            <DeployButtonContainer>
-                                <Button appearance="primary" onClick={handleICP} buttonSx={{ width: '100%' }}>
-                                    <Codicon name="cloud-upload" sx={{ marginRight: 8 }} />
-                                    {enabled ? "Disable ICP" : "Integrate ICP"}
-                                </Button>
-                            </DeployButtonContainer>
-                        </div>
+                        <DeployButtonContainer>
+                            <Button appearance="primary" onClick={handleDeploy} buttonSx={{ minWidth: '130px' }}>
+                                <Codicon name="cloud-upload" sx={{ marginRight: 8 }} /> Deploy
+                            </Button>
+                        </DeployButtonContainer>
+                        <Description variant="body2">
+                            Moniter the deployment runtime using WSO2 Integration Control Plane. Click the Integrate ICP button to enable ICP
+                            for the integration.
+                        </Description>
+                        <DeployButtonContainer>
+                            <Button appearance="primary" onClick={handleICP} buttonSx={{ minWidth: '130px' }}>
+                                <Codicon name="cloud-upload" sx={{ marginRight: 8 }} />
+                                {enabled ? "Disable ICP" : "Integrate ICP"}
+                            </Button>
+                        </DeployButtonContainer>
                     </DeploymentContent>
                 </SidePanel>
             </MainContent>
