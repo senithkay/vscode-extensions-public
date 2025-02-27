@@ -409,7 +409,7 @@ function comparePathPatterns(specPath: string, targetPath: string): boolean {
         const targetSeg = sanitizeBallerinaPathSegment(targetSegments[i]);
 
         // TODO - improve path parameter matching with exact type comparison
-        if (specSeg.startsWith('{') && specSeg.endsWith('}')) {
+        if (specSeg.startsWith('{') && specSeg.endsWith('}') && targetSeg.startsWith('[') && targetSeg.endsWith(']')) {
             continue;
         }
 
