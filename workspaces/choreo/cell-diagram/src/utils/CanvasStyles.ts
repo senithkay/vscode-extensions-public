@@ -29,6 +29,13 @@ export const Container = styled.div`
     flex-direction: column;
     justify-content: center;
     font-family: "GilmerRegular";
+    
+    &.preview-mode {
+        overflow: hidden;
+        border-radius: 8px;
+        border: 1px solid ${Colors.SURFACE_CONTAINER};
+        cursor: pointer;
+    }
 `;
 
 export const DiagramContainer = styled.div`
@@ -46,5 +53,10 @@ export const DiagramContainer = styled.div`
     }
     [data-nodeid="${MAIN_CELL}"] {
         pointer-events: none;
+    }
+    
+    &.preview-mode {
+        background-size: 8px 8px;
+        padding: 5px;
     }
 `;

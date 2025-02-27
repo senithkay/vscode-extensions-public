@@ -15,7 +15,7 @@ import { ConnectionIcon, DatabaseIcon } from "../../../../resources/assets/icons
 import { ConnectionPortWidget } from "../../ConnectionPort/ConnectionPortWidget";
 import { ConnectionType } from "../../../../types";
 import { DiagramContext } from "../../../DiagramContext/DiagramContext";
-import { COMPONENT_LINE_MIN_WIDTH } from "../../../../resources";
+import { COMPONENT_LINE_MIN_WIDTH, COMPONENT_LINE_PREVIEW_WIDTH } from "../../../../resources";
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
@@ -26,7 +26,7 @@ interface ServiceHeadProps {
 export function ConnectionHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected } = props;
 
-    const { zoomLevel } = useContext(DiagramContext);
+    const { zoomLevel, previewMode } = useContext(DiagramContext);
     const headPorts = useRef<PortModel[]>([]);
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
@@ -53,11 +53,11 @@ export function ConnectionHeadWidget(props: ServiceHeadProps) {
     return (
         <ConnectionHead
             isSelected={isSelected || isHovered}
-            borderWidth={node.getDynamicLineWidth(zoomLevel, COMPONENT_LINE_MIN_WIDTH)}
+            borderWidth={previewMode ? COMPONENT_LINE_PREVIEW_WIDTH : node.getDynamicLineWidth(zoomLevel, COMPONENT_LINE_MIN_WIDTH)}
             onMouseOver={() => handleOnHover("SELECT")}
             onMouseLeave={() => handleOnHover("UNSELECT")}
         >
-            <IconWrapper>{getConnectionIcon()}</IconWrapper>
+            <IconWrapper previewMode={previewMode}>{getConnectionIcon()}</IconWrapper>
             <ConnectionPortWidget port={node.getPort(`top-${node.getID()}`)} engine={engine} />
             <ConnectionPortWidget port={node.getPort(`left-${node.getID()}`)} engine={engine} />
         </ConnectionHead>

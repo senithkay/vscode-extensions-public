@@ -27,7 +27,7 @@ interface ComponentWidgetProps {
 
 export function ComponentWidget(props: ComponentWidgetProps) {
     const { node, engine } = props;
-    const { selectedNodeId, focusedNodeId, componentMenu, onComponentDoubleClick } = useContext(DiagramContext);
+    const { selectedNodeId, focusedNodeId, componentMenu, onComponentDoubleClick, previewMode } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<ComponentLinkModel>(undefined);
     const [isHovered, setIsHovered] = useState<boolean>(false);
     const headPorts = useRef<PortModel[]>([]);
@@ -104,6 +104,7 @@ export function ComponentWidget(props: ComponentWidgetProps) {
 
     return (
         <ComponentNode
+            previewMode={previewMode}
             onMouseOver={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onDoubleClick={handleOnWidgetDoubleClick}
@@ -118,7 +119,7 @@ export function ComponentWidget(props: ComponentWidgetProps) {
                 onFocusOut={handleMouseLeave}
             />
             <Tooltip title={displayName} placement="bottom" enterNextDelay={500} arrow>
-                <ComponentName disabled={isDisabled}>{displayName}</ComponentName>
+                {!previewMode ? <ComponentName disabled={isDisabled}>{displayName}</ComponentName> : <></>}
             </Tooltip>
             <PortsContainer>
                 <ComponentPortWidget port={node.getPort(`top-${node.getID()}`)} engine={engine} />

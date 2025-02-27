@@ -28,7 +28,7 @@ import * as icons from "../../../../resources/assets/icons"; // import all icon 
 import { MoreVertMenu } from "../../../MoreVertMenu/MoreVertMenu";
 import { MoreVertMenuItem } from "../../../../types";
 import { DiagramContext } from "../../../DiagramContext/DiagramContext";
-import { COMPONENT_LINE_MIN_WIDTH } from "../../../../resources";
+import { COMPONENT_LINE_MIN_WIDTH, COMPONENT_LINE_PREVIEW_WIDTH } from "../../../../resources";
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
@@ -42,7 +42,7 @@ interface ServiceHeadProps {
 export function ComponentHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected, isFocused, menuItems, onFocusOut } = props;
 
-    const { zoomLevel } = useContext(DiagramContext);
+    const { zoomLevel, previewMode } = useContext(DiagramContext);
 
     const isDisabled = node.component.disabled?.status;
     const getComponentTypeIcon = (type: ComponentType) => {
@@ -79,16 +79,18 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
     return (
         <ComponentHead
             isSelected={isSelected || isFocused}
-            borderWidth={node.getDynamicLineWidth(zoomLevel, COMPONENT_LINE_MIN_WIDTH)}
+            borderWidth={previewMode ? COMPONENT_LINE_PREVIEW_WIDTH : node.getDynamicLineWidth(zoomLevel, COMPONENT_LINE_MIN_WIDTH)}
             disabled={isDisabled}
         >
-            <IconWrapper disabled={isDisabled}>{getComponentTypeIcon(node.component.type)}</IconWrapper>
+            <IconWrapper disabled={isDisabled} previewMode={previewMode}>
+                {getComponentTypeIcon(node.component.type)}
+            </IconWrapper>
             <ComponentPortWidget port={node.getPort(`left-${node.getID()}`)} engine={engine} />
             <ComponentPortWidget port={node.getPort(`right-${node.getID()}`)} engine={engine} />
             {node.component.buildPack && node.component.buildPack.toLowerCase() !== "other" && (
                 <ComponentKind>{getComponentBuildIcon(node.component.buildPack)}</ComponentKind>
             )}
-            {isFocused && menuItems?.length > 0 && (
+            {isFocused && menuItems?.length > 0 && !previewMode && (
                 <MoreVertMenu
                     component={node.component}
                     menuItems={menuItems}

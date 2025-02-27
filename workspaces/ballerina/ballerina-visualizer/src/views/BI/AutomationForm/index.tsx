@@ -7,17 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
-import { DIRECTORY_MAP, EVENT_TYPE, ProjectStructureArtifactResponse } from "@wso2-enterprise/ballerina-core";
-import { View, ViewContent, CompletionItem, Button } from "@wso2-enterprise/ui-toolkit";
+import { useEffect, useState } from "react";
+import { DIRECTORY_MAP, EVENT_TYPE, LineRange, ProjectStructureArtifactResponse } from "@wso2-enterprise/ballerina-core";
+import { View, ViewContent, Button } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { getFunctionParametersList } from "../../../utils/utils";
-import { Form, FormField, FormValues, Parameter } from "@wso2-enterprise/ballerina-side-panel";
-import { debounce } from "lodash";
+import { FormField, FormValues, Parameter } from "@wso2-enterprise/ballerina-side-panel";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { URI, Utils } from "vscode-uri";
-import { convertToVisibleTypes } from "../../../utils/bi";
 import { TitleBar } from "../../../components/TitleBar";
 import { FormHeader } from "../../../components/FormHeader";
 import { Banner } from "../../../components/Banner";
@@ -66,6 +64,21 @@ export function MainForm() {
     const [automation, setAutomation] = useState<ProjectStructureArtifactResponse>(null);
 
     const [filePath, setFilePath] = useState<string>('');
+    const [targetLineRange, setTargetLineRange] = useState<LineRange>();
+
+    useEffect(() => {
+        if (filePath && rpcClient) {
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getEndOfFile({ filePath })
+                .then((res) => {
+                    setTargetLineRange({
+                        startLine: res,
+                        endLine: res,
+                    });
+                });
+        }
+    }, [filePath, rpcClient]);
 
     const handleFunctionCreate = async (data: FormValues) => {
         setIsLoading(true);
@@ -190,10 +203,10 @@ export function MainForm() {
                                 subtitle="Implement an automation for either scheduled or manual jobs."
                             />
                             <FormContainer>
-                                {filePath && currentFields.length > 0 &&
+                                {filePath && targetLineRange && currentFields.length > 0 &&
                                     <FormGeneratorNew
                                         fileName={filePath}
-                                        targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
+                                        targetLineRange={targetLineRange}
                                         fields={currentFields}
                                         onSubmit={handleFunctionCreate}
                                         submitText={"Create"}
