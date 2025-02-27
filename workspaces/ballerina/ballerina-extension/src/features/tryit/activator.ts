@@ -218,14 +218,36 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
         fs.writeFileSync(tryitFilePath, content);
         fs.writeFileSync(configFilePath, HTTPYAC_CONFIG_TEMPLATE);
 
-        // Open the file as a notebook document
         const tryitFileUri = vscode.Uri.file(tryitFilePath);
-        await vscode.commands.executeCommand('vscode.openWith', tryitFileUri, 'http');
+        await openInSplitView(tryitFileUri, 'http');
 
         // Setup the error log watcher
         setupErrorLogWatcher(targetDir);
     } catch (error) {
         handleError(error, "Opening Try It view");
+    }
+}
+
+// Generic utility function for opening files in split view
+async function openInSplitView(fileUri: vscode.Uri, editorType: string = 'default') {
+    try {
+        // Ensure we have a two-column layout
+        await vscode.commands.executeCommand('workbench.action.editorLayoutTwoColumns');
+
+        // Focus right editor group explicitly
+        await vscode.commands.executeCommand('workbench.action.focusSecondEditorGroup');
+
+        // Open the file with specified editor type in the current (right) group
+        if (editorType === 'default') {
+            await vscode.commands.executeCommand('vscode.open', fileUri);
+        } else {
+            await vscode.commands.executeCommand('vscode.openWith', fileUri, editorType);
+        }
+
+        // Focus left editor group to return to the original editor
+        await vscode.commands.executeCommand('workbench.action.focusFirstEditorGroup');
+    } catch (error) {
+        handleError(error, "Opening file in split view");
     }
 }
 
