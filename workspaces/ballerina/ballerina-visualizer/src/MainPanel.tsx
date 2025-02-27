@@ -59,6 +59,7 @@ import { ServiceWizard } from "./views/BI/ServiceDesigner/ServiceWizard";
 import { ServiceEditView } from "./views/BI/ServiceDesigner/ServiceEditView";
 import { ListenerEditView } from "./views/BI/ServiceDesigner/ListenerEditView";
 import { ServiceClassDesigner } from "./views/BI/ServiceClassEditor/ServiceClassDesigner";
+import { ServiceClassConfig } from "./views/BI/ServiceClassEditor/ServiceClassConfig";
 
 const globalStyles = css`
     *,
@@ -237,6 +238,9 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.BIServiceConfigView:
                         setViewComponent(<ServiceEditView filePath={value.documentUri} position={value?.position} />);
+                        break;
+                    case MACHINE_VIEW.BIServiceClassConfigView:
+                        setViewComponent(<ServiceClassConfig fileName={value.documentUri} position={value?.position} projectUri={value?.projectUri} />);
                         break;
                     case MACHINE_VIEW.BIListenerConfigView:
                         setViewComponent(<ListenerEditView filePath={value.documentUri} position={value?.position} />);

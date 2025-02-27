@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Type, ServiceClassModel, ModelFromCodeRequest, FieldType, FunctionModel, NodePosition, STModification, removeStatement, LineRange, EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
-import { Button, Codicon, Typography, TextField, ProgressRing, Menu, MenuItem, Popover, Item, ThemeColors, LinkButton, View } from "@wso2-enterprise/ui-toolkit";
+import { Type, ServiceClassModel, ModelFromCodeRequest, FieldType, FunctionModel, NodePosition, STModification, removeStatement, LineRange, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
+import { Codicon, Typography, ProgressRing, Menu, MenuItem, Popover, Item, ThemeColors, LinkButton, View } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -23,14 +23,11 @@ import { applyModifications } from "../../../utils/utils";
 import { Icon } from "@wso2-enterprise/ui-toolkit";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { TitleBar } from "../../../components/TitleBar";
-
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 
 const ServiceContainer = styled.div`
-    display: flex;
-    padding: 10px 20px;
-    gap: 16px;
-    flex-direction: column;
-    height: 100%;
+    padding-right: 10px;
+    padding-left: 10px;
 `;
 
 const ScrollableSection = styled.div`
@@ -38,8 +35,14 @@ const ScrollableSection = styled.div`
     flex-direction: column;
     gap: 16px;
     overflow-y: auto;
-    height: 100%;
-    flex: 1;
+    height: 80vh;
+    padding: 15px;
+`;
+
+const InfoContainer = styled.div`
+    display: flex;
+    gap: 20px;
+    padding: 15px;
 `;
 
 const Section = styled.div`
@@ -74,61 +77,6 @@ const EmptyStateText = styled(Typography)`
     text-align: center;
 `;
 
-export const Footer = styled.div`
-    display: flex;
-    gap: 8px;
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 16px;
-`;
-
-const EditRow = styled.div`
-    display: flex;
-    gap: 8px;
-    align-items: flex-end;
-    width: 100%;
-`;
-
-const InputWrapper = styled.div`
-    position: relative;
-    width: 100%;
-    display: flex;
-    gap: 8px;
-    align-items: flex-start;
-`;
-
-const TextFieldWrapper = styled.div`
-    flex: 1;
-`;
-
-const EditButton = styled(Button)`
-    margin-top: 39px;
-`;
-
-const ButtonGroup = styled.div`
-    display: flex;
-    gap: 8px;
-    margin-bottom: 2px; 
-`;
-
-const StyledButton = styled(Button)`
-    font-size: 14px;
-`;
-
-const WarningText = styled(Typography)`
-    color: var(--vscode-textLink-foreground);
-    font-size: 12px;
-    margin-top: 4px;
-`;
-
-const EditableRow = styled.div`
-    display: flex;
-    align-items: flex-start;
-    width: 100%;
-    flex-direction: column;
-`;
-
 const InfoSection = styled.div`
     display: flex;
     align-items: center;
@@ -143,17 +91,12 @@ interface ServiceClassDesignerProps {
 
 export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
     const { onClose, type, projectUri, isGraphql } = props;
-    console.log("ServiceClassDesigner -> type", type, projectUri, isGraphql)
     const { rpcClient } = useRpcContext();
     const [serviceClassModel, setServiceClassModel] = useState<ServiceClassModel>();
     const [editingFunction, setEditingFunction] = useState<FunctionModel>(undefined);
     const [editingVariable, setEditingVariable] = useState<FieldType>(undefined);
     const [isNew, setIsNew] = useState<boolean>(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement | null>(null);
-    const [isEditing, setIsEditing] = useState(false);
-    const [tempName, setTempName] = useState("");
-    const classNameField = serviceClassModel?.properties["name"];
-
 
     useEffect(() => {
         getServiceClassModel();
@@ -249,7 +192,6 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
         try {
             const currentFilePath = Utils.joinPath(URI.file(projectUri), serviceClassModel.codedata.lineRange.fileName).fsPath;
             if (isNew) {
-
                 const lsResponse = await rpcClient.getBIDiagramRpcClient().addClassField({
                     filePath: currentFilePath,
                     field: updatedVariable,
@@ -277,22 +219,6 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
             console.error('Error updating variable:', error);
         }
 
-    };
-
-    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (serviceClassModel) {
-            setServiceClassModel({
-                ...serviceClassModel,
-                name: e.target.value,
-                properties: {
-                    ...serviceClassModel.properties,
-                    name: {
-                        ...serviceClassModel.properties["name"],
-                        value: e.target.value
-                    }
-                }
-            });
-        }
     };
 
     const handleAddFunction = async (type: 'init' | 'resource' | 'remote') => {
@@ -432,16 +358,6 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
         }
     ];
 
-    const startEditing = () => {
-        setTempName(serviceClassModel.properties["name"].value);
-        setIsEditing(true);
-    };
-
-    const cancelEditing = () => {
-        setIsEditing(false);
-        setTempName("");
-    };
-
     const handleOpenDiagram = async (resource: FunctionModel) => {
         const lineRange: LineRange = resource.codedata.lineRange;
         const nodePosition: NodePosition = {
@@ -455,38 +371,20 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
             .openView({ type: EVENT_TYPE.OPEN_VIEW, location: { position: nodePosition, documentUri: Utils.joinPath(URI.file(projectUri), type.codedata.lineRange.fileName).fsPath } });
     };
 
-    const editServiceClassName = async () => {
-        if (!tempName || tempName === serviceClassModel.properties["name"].value) {
-            cancelEditing();
-            return;
-        }
-
-        try {
-            await rpcClient.getBIDiagramRpcClient().renameIdentifier({
-                fileName: serviceClassModel.codedata.lineRange.fileName,
+    const handleServiceEdit = async () => {
+        await rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.BIServiceClassConfigView,
                 position: {
-                    line: serviceClassModel.properties["name"].codedata.lineRange.startLine.line,
-                    character: serviceClassModel.properties["name"].codedata.lineRange.startLine.offset
+                    startLine: type.codedata.lineRange.startLine.line,
+                    startColumn: type.codedata.lineRange.startLine.offset,
+                    endLine: type.codedata.lineRange.endLine.line,
+                    endColumn: type.codedata.lineRange.endLine.offset
                 },
-                newName: tempName
-            });
-
-            setServiceClassModel({
-                ...serviceClassModel,
-                name: tempName,
-                properties: {
-                    ...serviceClassModel.properties,
-                    name: {
-                        ...serviceClassModel.properties["name"],
-                        value: tempName
-                    }
-                }
-            });
-
-            cancelEditing();
-        } catch (error) {
-            console.error('Error renaming service class:', error);
-        }
+                documentUri: type.codedata.lineRange.fileName,
+            },
+        });
     };
 
     return (
@@ -495,6 +393,12 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
             <TitleBar
                 title="Service Class Designer"
                 subtitle="Implement and configure your service class"
+                actions={
+
+                    <VSCodeButton appearance="secondary" title="Edit Service Class" onClick={handleServiceEdit}>
+                        <Icon name="bi-edit" sx={{ marginRight: 8, fontSize: 16 }} /> Edit
+                    </VSCodeButton>
+                }
             />
             <ServiceContainer>
 
@@ -506,99 +410,37 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
                 )}
                 {serviceClassModel && (
                     <>
-                        {serviceClassModel.functions?.
-                            filter((func) => func.kind === "INIT" && func.enabled)
-                            .map((functionModel, index) => (
-                                <InfoSection>
-                                    <Icon
-                                        name={'info'}
-                                        isCodicon
-                                        sx={{ marginRight: "8px" }}
-                                    />
-                                    <Typography key={`${index}-label`} variant="body3">
-                                        Constructor:
-                                    </Typography>
-                                    <Typography key={`${index}-value`} variant="body3">
-                                        <LinkButton
-                                            sx={{ fontSize: 12, padding: 8, gap: 4 }}
-                                            onClick={() => handleOpenDiagram(functionModel)}
-                                        >
-                                            {functionModel.name.value}
-                                        </LinkButton>
-                                    </Typography>
-                                </InfoSection>
-                            ))}
-                        {!classNameField.editable && !isEditing && (
-                            <InputWrapper>
-                                <TextFieldWrapper>
-                                    <TextField
-                                        id={classNameField.value}
-                                        name={classNameField.value}
-                                        value={classNameField.value}
-                                        label={classNameField.metadata.label}
-                                        required={!classNameField.optional}
-                                        description={classNameField.metadata.description}
-                                        placeholder={classNameField.placeholder}
-                                        readOnly={!classNameField.editable}
-                                    />
-                                </TextFieldWrapper>
-                                <EditButton appearance="icon" onClick={startEditing} tooltip="Rename">
-                                    <Icon name="bi-edit" sx={{ width: 18, height: 18, fontSize: 18 }} />
-                                </EditButton>
-                            </InputWrapper>
-                        )}
-                        {isEditing && (
-                            <>
-                                <EditableRow>
-                                    <EditRow>
-                                        <TextFieldWrapper>
-                                            <TextField
-                                                id={classNameField.value}
-                                                label={classNameField.metadata.label}
-                                                value={tempName}
-                                                onChange={(e) => setTempName(e.target.value)}
-                                                description={classNameField.metadata.description}
-                                                required={!classNameField.optional}
-                                                placeholder={classNameField.placeholder}
-                                                autoFocus
-                                            />
-                                        </TextFieldWrapper>
-                                        <ButtonGroup>
-                                            <StyledButton
-                                                appearance="secondary"
-                                                onClick={cancelEditing}
+                        <InfoContainer>
+                            {serviceClassModel.functions?.
+                                filter((func) => func.kind === "INIT" && func.enabled)
+                                .map((functionModel, index) => (
+                                    <InfoSection>
+                                        <Icon
+                                            name={'info'}
+                                            isCodicon
+                                            sx={{ marginRight: "8px" }}
+                                        />
+                                        <Typography key={`${index}-label`} variant="body3">
+                                            Constructor:
+                                        </Typography>
+                                        <Typography key={`${index}-value`} variant="body3">
+                                            <LinkButton
+                                                sx={{ fontSize: 12, padding: 8, gap: 4 }}
+                                                onClick={() => handleOpenDiagram(functionModel)}
                                             >
-                                                Cancel
-                                            </StyledButton>
-                                            <StyledButton
-                                                appearance="primary"
-                                                onClick={editServiceClassName}
-                                                disabled={!tempName || tempName === serviceClassModel.properties["name"].value}
-                                            >
-                                                Save
-                                            </StyledButton>
-                                        </ButtonGroup>
-                                    </EditRow>
-
-                                    <WarningText variant="body3">
-                                        Note: Renaming will update all references across the project
-                                    </WarningText>
-                                </EditableRow>
-
-                            </>
-                        )}
-
+                                                {functionModel.name.value}
+                                            </LinkButton>
+                                        </Typography>
+                                    </InfoSection>
+                                ))}
+                        </InfoContainer>
                         <ScrollableSection>
-                            <Section>
+                            <Section style={{ maxHeight: '40%' }}>
                                 <SectionHeader>
                                     <SectionTitle>Class Variables</SectionTitle>
-                                    <Button
-                                        appearance="icon"
-                                        tooltip="Add Variable"
-                                        onClick={() => handleAddVariable()}
-                                    >
-                                        <Codicon name="add" />
-                                    </Button>
+                                    <VSCodeButton appearance="primary" title="Add Variable" onClick={() => handleAddVariable()}>
+                                        <Codicon name="add" sx={{ marginRight: 8 }} /> Variable
+                                    </VSCodeButton>
                                 </SectionHeader>
 
                                 <ScrollableContent>
@@ -622,19 +464,15 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
                                 <SectionHeader>
                                     <SectionTitle>Methods</SectionTitle>
                                     <div style={{ position: 'relative' }}>
-                                        <Button
-                                            appearance="icon"
-                                            tooltip="Add Method"
-                                            onClick={(e) => {
-                                                if (hasInitFunction && isGraphql) {
-                                                    handleAddFunction('resource');
-                                                } else {
-                                                    setAnchorEl(e.currentTarget);
-                                                }
-                                            }}
-                                        >
-                                            <Codicon name="add" />
-                                        </Button>
+                                        <VSCodeButton appearance="primary" title="Add Method" onClick={(e: any) => {
+                                            if (hasInitFunction && isGraphql) {
+                                                handleAddFunction('resource');
+                                            } else {
+                                                setAnchorEl(e.currentTarget);
+                                            }
+                                        }}>
+                                            <Codicon name="add" sx={{ marginRight: 8 }} /> Method
+                                        </VSCodeButton>
                                         <Popover
                                             open={Boolean(anchorEl)}
                                             anchorEl={anchorEl}

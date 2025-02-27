@@ -63,6 +63,7 @@ export enum MACHINE_VIEW {
     BIServiceConfigView = "Service Config View",
     BIListenerConfigView = "Listener Config View",
     BIServiceClassDesigner = "Service Class Designer",
+    BIServiceClassConfigView = "Service Class Config View",
     BIDataMapperForm = "Add Data Mapper",
 }
 
