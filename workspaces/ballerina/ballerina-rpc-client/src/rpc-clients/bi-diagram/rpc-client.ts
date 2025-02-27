@@ -40,6 +40,7 @@ import {
     ConfigVariableResponse,
     CreateComponentResponse,
     CurrentBreakpointsResponse,
+    EndOfFileRequest,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     ExpressionDiagnosticsRequest,
@@ -52,6 +53,7 @@ import {
     GetTypeResponse,
     GetTypesRequest,
     GetTypesResponse,
+    LinePosition,
     ModelFromCodeRequest,
     ProjectComponentsResponse,
     ProjectImports,
@@ -91,6 +93,7 @@ import {
     getConfigVariables,
     getDesignModel,
     getEnclosedFunction,
+    getEndOfFile,
     getExpressionCompletions,
     getExpressionDiagnostics,
     getFlowModel,
@@ -329,5 +332,9 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     getFunctionNode(params: FunctionNodeRequest): Promise<FunctionNodeResponse> {
         return this._messenger.sendRequest(getFunctionNode, HOST_EXTENSION, params);
+    }
+
+    getEndOfFile(params: EndOfFileRequest): Promise<LinePosition> {
+        return this._messenger.sendRequest(getEndOfFile, HOST_EXTENSION, params);
     }
 }

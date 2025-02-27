@@ -9,40 +9,32 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-export enum ErrorNodeKind {
-    Input,
-    Output,
-    Intermediate,
-    Other
-}
+import { ErrorNodeKind, RenderingError } from './RenderingError';
+import { WarningBanner } from '../Warning/DataMapperWarning';
 
-export interface DataMapperErrorProps {
-    errorNodeKind?: ErrorNodeKind;
-}
+// Function to render WarningBanner with error message
+const renderWarningBanner = (classes: any, message: React.ReactNode) => (
+    <WarningBanner
+        message={message}
+        className={classes.errorBanner}
+    />
+);
 
-export function DataMapperError(props: DataMapperErrorProps) {
-    const { errorNodeKind } = props;
+// Function to render error message with overlay
+const renderErrorMessage = (classes: any, errorMessage: React.ReactNode) => (
+    <>
+        <div className={classes.overlay} />
+        <div className={classes.errorMessage}>
+            {errorMessage}
+        </div>
+    </>
+);
 
-    let errorMessage = "A problem occurred while rendering the ";
-    switch (errorNodeKind) {
-        case ErrorNodeKind.Input:
-            errorMessage += "input.";
-            break;
-        case ErrorNodeKind.Output:
-            errorMessage += "output.";
-            break;
-        default:
-            errorMessage += "diagram.";
+// Component to render error based on error kind
+export const IOErrorComponent: React.FC<{ errorKind: ErrorNodeKind; classes: any }> = ({ errorKind, classes }) => {
+    if (errorKind) {
+        const errorMessage = <RenderingError errorNodeKind={errorKind} />;
+        return renderErrorMessage(classes, renderWarningBanner(classes, errorMessage));
     }
-
-    return (
-        <>
-            <p>
-                {errorMessage}
-            </p>
-            <p>
-                Please raise an issue with the sample code in our <a href={""}> issue tracker</a>
-            </p>
-        </>
-    )
-}
+    return null;
+};

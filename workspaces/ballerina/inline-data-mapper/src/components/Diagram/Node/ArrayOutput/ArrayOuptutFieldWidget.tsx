@@ -143,7 +143,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
             )}
             {!hasElements && !connectedViaLink && (expression || hasDefaultValue) && (
                 <span className={classes.outputNodeValueBase}>
-                    {diagnostics.length > 0 ? (
+                    {diagnostics?.length > 0 ? (
                         <DiagnosticTooltip
                             placement="right"
                             diagnostic={diagnostics[0].message}

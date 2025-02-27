@@ -20,7 +20,7 @@ import { modifyFileContent } from "../../utils/modification";
 import { fileURLToPath } from "url";
 
 const DEBUG_RUN_COMMAND_ID = 'workbench.action.debug.run';
-const UNUSED_IMPORT_ERR_CODE = "BCE2002"
+const UNUSED_IMPORT_ERR_CODE = "BCE2002";
 
 export async function prepareAndGenerateConfig(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean, isBi?: boolean, executeRun: boolean = true): Promise<void> {
     const configRequirement: ConfigRequirementResult = await checkConfigGenerationRequired(ballerinaExtInstance, filePath, isBi);
@@ -297,7 +297,9 @@ export async function cleanAndValidateProject(langClient: ExtendedLangClient, pa
         for (const [filePath, diagnostics] of Object.entries(response.errorDiagnosticMap)) {
             // Filter the unused import diagnostics
             const diagnostic = diagnostics.find(d => d.code === UNUSED_IMPORT_ERR_CODE);
-            if (!diagnostic) continue;
+            if (!diagnostic) {
+                continue;
+            }
             const codeActions = await langClient.codeAction({
                 textDocument: { uri: filePath },
                 range: {
@@ -309,7 +311,9 @@ export async function cleanAndValidateProject(langClient: ExtendedLangClient, pa
 
             // Find and apply the appropriate code action
             const action = codeActions.find(action => action.title === "Remove all unused imports");
-            if (!action?.edit?.documentChanges?.length) continue;
+            if (!action?.edit?.documentChanges?.length) {
+                continue;
+            }
             const docEdit = action.edit.documentChanges[0] as TextDocumentEdit;
 
             // Apply modifications to syntax tree
