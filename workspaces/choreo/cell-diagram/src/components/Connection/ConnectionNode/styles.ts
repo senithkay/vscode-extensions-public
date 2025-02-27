@@ -8,20 +8,21 @@
  */
 
 import styled from "@emotion/styled";
-import { CIRCLE_WIDTH, Colors, LABEL_FONT_SIZE, LABEL_MAX_WIDTH } from "../../../resources";
+import { CIRCLE_WIDTH, Colors, ICON_SCALE, LABEL_FONT_SIZE, LABEL_MAX_WIDTH } from "../../../resources";
 import { Orientation } from "./ConnectionModel";
 
 interface StyleProps {
-    isAnonymous: boolean;
+    isAnonymous?: boolean;
     isSelected?: boolean;
     isClickable?: boolean;
     isCollapsed?: boolean;
     isFocused?: boolean;
     orientation?: Orientation;
-    borderWidth: number;
+    borderWidth?: number;
+    previewMode?: boolean;
 }
 
-export const ConnectionNode: React.FC<any> = styled.div`
+export const ConnectionNode = styled.div<StyleProps>`
     color: ${Colors.ON_SURFACE_VARIANT};
     display: flex;
     flex-direction: ${(props: StyleProps) => (props.orientation === Orientation.VERTICAL ? "column" : "row")};
@@ -30,9 +31,9 @@ export const ConnectionNode: React.FC<any> = styled.div`
     gap: 10px;
     padding: 2px;
     pointer-events: all;
-    cursor: grab;
+    cursor: ${(props: StyleProps) => (props.previewMode ? "default" : "grab")};
     &:active {
-        cursor: grabbing;
+        cursor: ${(props: StyleProps) => (props.previewMode ? "default" : "grabbing")};
     }
 `;
 
@@ -56,10 +57,14 @@ export const ConnectionName: React.FC<any> = styled.span`
     max-width: ${(props: StyleProps) => (props.orientation === Orientation.VERTICAL ? LABEL_MAX_WIDTH : "unset")};
 `;
 
-export const IconWrapper: React.FC<any> = styled.div`
+interface IconWrapperStyleProps {
+    previewMode: boolean;
+}
+export const IconWrapper: React.FC<IconWrapperStyleProps> = styled.div`
     height: 32px;
     width: 32px;
     svg {
         fill: ${(props: StyleProps) => (props.isSelected ? Colors.SECONDARY : Colors.OUTLINE)};
+        transform: ${(props: IconWrapperStyleProps) => (props.previewMode ? `scale(${ICON_SCALE.PREVIEW})` : "none")};
     }
 `;
