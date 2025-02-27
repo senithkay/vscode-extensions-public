@@ -104,14 +104,8 @@ export interface FunctionCardProps {
 export function FunctionCard(params: FunctionCardProps) {
     const { functionModel, goToSource, onEditFunction: onEditResource, onDeleteFunction: onDeleteResource, onFunctionImplement: onResourceImplement } = params;
 
-    const [isOpen, setIsOpen] = useState(false);
     const [isConfirmOpen, setConfirmOpen] = useState(false);
     const [confirmEl, setConfirmEl] = React.useState(null);
-
-
-    const toggleAccordion = () => {
-        setIsOpen(!isOpen);
-    };
 
     const handleShowDiagram = (e: Event) => {
         e.stopPropagation(); // Stop the event propagation
@@ -157,12 +151,12 @@ export function FunctionCard(params: FunctionCardProps) {
                 <ButtonSection>
                     <>
                         {onEditResource! && (
-                            <VSCodeButton appearance="icon" title="Edit Function" onClick={handleEditResource}>
+                            <VSCodeButton appearance="icon" title="Edit Method" onClick={handleEditResource}>
                                 <Icon name="bi-edit" sx={{ marginTop: 3.5 }} />
                             </VSCodeButton>
                         )}
                         {onDeleteResource! && (
-                            <VSCodeButton appearance="icon" title="Delete Function" onClick={handleDeleteResource}>
+                            <VSCodeButton appearance="icon" title="Delete Method" onClick={handleDeleteResource}>
                                 <Codicon name="trash" />
                             </VSCodeButton>
                         )}
@@ -173,7 +167,7 @@ export function FunctionCard(params: FunctionCardProps) {
                 isOpen={isConfirmOpen}
                 onConfirm={handleConfirm}
                 confirmText="Okay"
-                message="Are you sure want to delete this function?"
+                message="Are you sure want to delete this method?"
                 anchorEl={confirmEl}
                 anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
                 transformOrigin={{ vertical: "top", horizontal: "right" }}

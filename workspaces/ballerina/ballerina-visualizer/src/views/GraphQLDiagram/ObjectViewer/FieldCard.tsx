@@ -12,11 +12,6 @@ import { Codicon, Confirm, Icon } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { FunctionModel } from '@wso2-enterprise/ballerina-core';
 
-type MethodProp = {
-    color: string;
-    hasLeftMargin?: boolean;
-};
-
 type ContainerProps = {
     borderColor?: string;
     haveErrors?: boolean;
@@ -65,7 +60,8 @@ const MethodPath = styled.span`
     margin-left: 10px;
 `;
 
-export interface OperationAccordionProps {
+
+export interface FieldCardProps {
     functionModel: FunctionModel;
     goToSource: (resource: FunctionModel) => void;
     onEditFunction: (resource: FunctionModel) => void;
@@ -73,54 +69,54 @@ export interface OperationAccordionProps {
     onFunctionImplement: (resource: FunctionModel) => void;
 }
 
-export function OperationAccordion(params: OperationAccordionProps) {
-    const { functionModel, goToSource, onEditFunction, onDeleteFunction, onFunctionImplement } = params;
+export function FieldCard(props: FieldCardProps) {
+    const { functionModel, onEditFunction: onEditResource, onDeleteFunction: onDeleteResource, onFunctionImplement: onResourceImplement } = props;
 
     const [isConfirmOpen, setConfirmOpen] = useState(false);
     const [confirmEl, setConfirmEl] = React.useState(null);
 
-    const handleEditFuncrion = (e: Event) => {
-        e.stopPropagation();
-        onEditFunction(functionModel);
+    const handleEditResource = (e: Event) => {
+        e.stopPropagation(); // Stop the event propagation
+        onEditResource(functionModel);
     };
 
     const handleOpenConfirm = () => {
         setConfirmOpen(true);
     };
 
-    const handleDeleteFunction = (e: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
-        e.stopPropagation();
+    const handleDeleteResource = (e: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
+        e.stopPropagation(); // Stop the event propagation
         setConfirmEl(e.currentTarget);
         handleOpenConfirm();
     };
 
     const handleConfirm = (status: boolean) => {
         if (status) {
-            onDeleteFunction && onDeleteFunction(functionModel);
+            onDeleteResource && onDeleteResource(functionModel);
         }
         setConfirmOpen(false);
         setConfirmEl(null);
     };
 
-    const handleFunctionImplement = () => {
-        onFunctionImplement(functionModel)
+    const handleResourceImplement = () => {
+        onResourceImplement(functionModel)
     }
 
     return (
         <AccordionContainer>
-            <AccordionHeader onClick={handleFunctionImplement}>
+            <AccordionHeader onClick={handleResourceImplement}>
                 <MethodSection>
                     <MethodPath>{functionModel.name.value}</MethodPath>
                 </MethodSection>
                 <ButtonSection>
                     <>
-                        {onEditFunction! && (
-                            <VSCodeButton appearance="icon" title="Edit Field" onClick={handleEditFuncrion}>
+                        {onEditResource! && (
+                            <VSCodeButton appearance="icon" title="Edit Field" onClick={handleEditResource}>
                                 <Icon name="bi-edit" sx={{ marginTop: 3.5 }} />
                             </VSCodeButton>
                         )}
-                        {onDeleteFunction! && (
-                            <VSCodeButton appearance="icon" title="Delete Field" onClick={handleDeleteFunction}>
+                        {onDeleteResource! && (
+                            <VSCodeButton appearance="icon" title="Delete Field" onClick={handleDeleteResource}>
                                 <Codicon name="trash" />
                             </VSCodeButton>
                         )}
@@ -135,9 +131,8 @@ export function OperationAccordion(params: OperationAccordionProps) {
                 anchorEl={confirmEl}
                 anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
                 transformOrigin={{ vertical: "top", horizontal: "right" }}
-                sx={{ zIndex: 3002}}
+                sx={{ zIndex: 3002 }}
             />
         </AccordionContainer>
     );
 };
-

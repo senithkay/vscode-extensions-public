@@ -23,11 +23,6 @@ interface VariableFormProps {
 export function VariableForm(props: VariableFormProps) {
     const { model, onSave, onClose, filePath, lineRange } = props;
     const [fields, setFields] = useState<FormField[]>([]);
-    const [formValues, setFormValues] = useState<FormValues>({
-        name: model?.name.value || '',
-        type: model?.type.value || '',
-        expression: model.defaultValue ? model.defaultValue.value : '',
-    });
 
     // Initialize form fields
     useEffect(() => {
@@ -40,7 +35,7 @@ export function VariableForm(props: VariableFormProps) {
                 editable: model.name.editable,
                 advanced: model.name.advanced,
                 documentation: model.name.metadata?.description,
-                value: formValues.name,
+                value: model?.name.value || '',
                 valueTypeConstraint: model.name?.valueTypeConstraint || '',
                 lineRange: model?.name?.codedata?.lineRange
             },
@@ -52,7 +47,7 @@ export function VariableForm(props: VariableFormProps) {
                 editable: model.type.editable,
                 advanced: model.type.advanced,
                 documentation: model.type.metadata?.description,
-                value: formValues.type,
+                value: model?.type.value || '',
                 valueTypeConstraint: model.type?.valueTypeConstraint || ''
             },
             {
@@ -63,12 +58,12 @@ export function VariableForm(props: VariableFormProps) {
                 editable: model.defaultValue?.editable || false,
                 advanced: model.defaultValue?.advanced || false,
                 documentation: model.defaultValue?.metadata?.description,
-                value: formValues.defaultable,
+                value: model?.defaultValue?.value || '',
                 valueTypeConstraint: model.defaultValue?.valueTypeConstraint || ''
             }
         ];
         setFields(initialFields);
-    }, [model, formValues]);
+    }, [model]);
 
     const handleVariableSave = (data: FormValues) => {
         const updatedVariable: FieldType = {
@@ -78,14 +73,6 @@ export function VariableForm(props: VariableFormProps) {
             defaultValue: { ...model.defaultValue, value: data.expression }
         };
         onSave(updatedVariable);
-    };
-
-    const handleTypeChange = (type: Type) => {
-        // Preserve all existing form values when updating the type
-        setFormValues(prev => ({
-            ...prev,
-            type: type.name
-        }));
     };
 
     return (
@@ -98,7 +85,6 @@ export function VariableForm(props: VariableFormProps) {
                     fields={fields}
                     onSubmit={handleVariableSave}
                     onBack={onClose}
-                    onTypeChange={handleTypeChange}
                     submitText="Save"
                 />
             )}

@@ -41,6 +41,7 @@ export const useInlineDataMapperModel = (
             const res = await rpcClient
                 .getInlineDataMapperRpcClient()
                 .getDataMapperModel({ filePath, flowNode, propertyKey, position });
+            console.log('>>> [Inline Data Mapper] Model:', res);
             return res.mappingsModel;
         } catch (error) {
             console.error(error);
