@@ -4,7 +4,7 @@
   "description": "An extension for managing all things related to WSO2",
   "license": "Apache-2.0",
   "version": "0.0.1",
-  "cliVersion": "v1.2.82502191130",
+  "cliVersion": "v1.2.82412081830",
   "publisher": "wso2",
   "bugs": {
     "url": "https://github.com/wso2/choreo-vscode/issues"
