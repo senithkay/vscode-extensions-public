@@ -76,6 +76,7 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
     const [isServiceEditorOpen, setIsServiceEditorOpen] = useState<boolean>(false);
     const [isTypeEditorOpen, setIsTypeEditorOpen] = useState(false);
     const [editingType, setEditingType] = useState<Type>();
+    const [focusedNodeId, setFocusedNodeId] = useState<string | undefined>(undefined);
 
     const fetchGraphqlTypeModel = async () => {
         if (!filePath) return null;
@@ -180,24 +181,37 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
         setEditingType(undefined);
     };
 
+    const handleFocusedNodeIdChange = (nodeId: string) => {
+        setFocusedNodeId(nodeId);
+    };
+
     return (
         <>
             <View>
                 <TopNavigationBar />
-                <TitleBar
-                    title="GraphQL"
-                    subtitleElement={
-                        <SubTitleWrapper>
-                            <Path>{graphqlTypeModel?.type.name}</Path>
-                        </SubTitleWrapper>
-                    }
-                    actions={
-                        <ActionButton appearance="secondary" onClick={handleServiceEdit}>
-                            <Icon name="bi-edit" sx={{ marginRight: 5, width: 16, height: 16, fontSize: 14 }} />
-                            Edit
-                        </ActionButton>
-                    }
-                />
+                {!focusedNodeId && (
+                    <TitleBar
+                        title="GraphQL"
+                        subtitleElement={
+                            <SubTitleWrapper>
+                                <Path>{graphqlTypeModel?.type.name}</Path>
+                            </SubTitleWrapper>
+                        }
+                        actions={
+                            <ActionButton appearance="secondary" onClick={handleServiceEdit}>
+                                <Icon name="bi-edit" sx={{ marginRight: 5, width: 16, height: 16, fontSize: 14 }} />
+                                Edit
+                            </ActionButton>
+                        }
+                    />
+                )}
+                {focusedNodeId && (
+                    <TitleBar
+                        title={focusedNodeId}
+                        subtitle="Type"
+                        onBack={() => setFocusedNodeId(undefined)}
+                    />
+                )}
                 <ViewContent>
                     {isLoading ? (
                         <SpinnerContainer>
@@ -214,6 +228,8 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
                             isGraphql={true}
                             goToSource={handleOnGoToSource}
                             onTypeEdit={onTypeEdit}
+                            focusedNodeId={focusedNodeId}
+                            updateFocusedNodeId={handleFocusedNodeIdChange}
                         />
                     ) : null}
                 </ViewContent>
