@@ -30,6 +30,7 @@ import { showComponentDetailsView } from "../webviews/ComponentDetailsView";
 import { ComponentFormView, type IComponentCreateFormParams } from "../webviews/ComponentFormView";
 import { getUserInfoForCmd, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
 import { updateContextFile } from "./create-directory-context-cmd";
+import { choreoEnvConfig } from "src/config";
 
 let componentWizard: ComponentFormView;
 
@@ -187,7 +188,16 @@ export const submitCreateComponentHandler = async ({ createParams, org, project 
 		}
 		*/
 
-		showComponentDetailsView(org, project, createdComponent, createParams?.componentDir);
+		// showComponentDetailsView(org, project, createdComponent, createParams?.componentDir);
+		// Showing a notification message instead of opening the created component details in WSO2 platform
+		window
+			.showInformationMessage(`Integration '${createdComponent.metadata.name}', was successfully created`, "Open in Devant")
+			.then(async (resp) => {
+				if (resp === "Open in Devant") {
+					commands.executeCommand("vscode.open", `${choreoEnvConfig.getDevantUrl()}/organizations/${org.handle}/projects/${project.id}/components/${createdComponent.metadata.handler}/overview`);
+				}
+			});
+
 
 		const compCache = dataCacheStore.getState().getComponents(org.handle, project.handler);
 		dataCacheStore.getState().setComponents(org.handle, project.handler, [createdComponent, ...compCache]);
@@ -212,27 +222,6 @@ export const submitCreateComponentHandler = async ({ createParams, org, project 
 					path: path.normalize(path.relative(path.dirname(workspace.workspaceFile.fsPath), createParams.componentDir)),
 				},
 			];
-
-			// todo: check if any of the entries match with the directory
-			// else add it without asking
-
-			if (workspace.workspaceFile.scheme !== "untitled" && path.basename(workspace.workspaceFile.path) === `${project?.handler}.code-workspace`) {
-				// Automatically update the workspace if user is within a project workspace
-				writeFileSync(workspace.workspaceFile!.fsPath, JSON.stringify(workspaceContent, null, 4));
-				await delay(1000);
-				contextStore.getState().refreshState();
-			} else {
-				// Else manfully ask and update the workspace
-				window
-					.showInformationMessage(`Do you want update your workspace with the directory of ${createdComponent.metadata.name}`, "Continue")
-					.then(async (resp) => {
-						if (resp === "Continue") {
-							writeFileSync(workspace.workspaceFile!.fsPath, JSON.stringify(workspaceContent, null, 4));
-							await delay(1000);
-							contextStore.getState().refreshState();
-						}
-					});
-			}
 		} else {
 			contextStore.getState().refreshState();
 		}

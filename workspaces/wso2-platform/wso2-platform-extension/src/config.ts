@@ -14,6 +14,7 @@ interface IChoreoEnvConfig {
 	ghApp: GHAppConfig;
 	choreoConsoleBaseUrl: string;
 	billingConsoleBaseUrl: string;
+	devantConsoleBaseUrl: string;
 }
 
 const DEFAULT_CHOREO_ENV_CONFIG: IChoreoEnvConfig = {
@@ -25,6 +26,7 @@ const DEFAULT_CHOREO_ENV_CONFIG: IChoreoEnvConfig = {
 	},
 	choreoConsoleBaseUrl: "https://console.choreo.dev",
 	billingConsoleBaseUrl: "https://subscriptions.wso2.com",
+	devantConsoleBaseUrl: "https://console.devant.dev"
 };
 
 const CHOREO_ENV_CONFIG_STAGE: IChoreoEnvConfig = {
@@ -36,6 +38,7 @@ const CHOREO_ENV_CONFIG_STAGE: IChoreoEnvConfig = {
 	},
 	choreoConsoleBaseUrl: "https://console.st.choreo.dev",
 	billingConsoleBaseUrl: "https://subscriptions.st.wso2.com",
+	devantConsoleBaseUrl: "https://preview-st.devant.dev"
 };
 
 const CHOREO_ENV_CONFIG_DEV: IChoreoEnvConfig = {
@@ -47,6 +50,7 @@ const CHOREO_ENV_CONFIG_DEV: IChoreoEnvConfig = {
 	},
 	choreoConsoleBaseUrl: "https://consolev2.preview-dv.choreo.dev",
 	billingConsoleBaseUrl: "https://subscriptions.dv.wso2.com",
+	devantConsoleBaseUrl: "https://preview-dv.devant.dev"
 };
 
 class ChoreoEnvConfig {
@@ -61,6 +65,10 @@ class ChoreoEnvConfig {
 	}
 
 	public getBillingUrl(): string {
+		return this._config.billingConsoleBaseUrl;
+	}
+
+	public getDevantUrl(): string {
 		return this._config.billingConsoleBaseUrl;
 	}
 }
