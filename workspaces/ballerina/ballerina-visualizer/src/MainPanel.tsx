@@ -234,13 +234,24 @@ const MainPanel = () => {
                         setViewComponent(<ServiceWizard type={value.serviceType} />);
                         break;
                     case MACHINE_VIEW.BIServiceClassDesigner:
-                        setViewComponent(<ServiceClassDesigner type={value?.type} isGraphql={value?.isGraphql} projectUri={value?.projectUri} />);
+                        setViewComponent(
+                            <ServiceClassDesigner
+                                type={value?.type}
+                                isGraphql={value?.isGraphql}
+                                projectUri={value?.projectUri}
+                            />
+                        );
                         break;
                     case MACHINE_VIEW.BIServiceConfigView:
                         setViewComponent(<ServiceEditView filePath={value.documentUri} position={value?.position} />);
                         break;
                     case MACHINE_VIEW.BIServiceClassConfigView:
-                        setViewComponent(<ServiceClassConfig fileName={value.documentUri} position={value?.position} projectUri={value?.projectUri} />);
+                        setViewComponent(
+                            <ServiceClassConfig
+                                fileName={value.documentUri}
+                                position={value?.position}
+                                projectUri={value?.projectUri} />
+                        );
                         break;
                     case MACHINE_VIEW.BIListenerConfigView:
                         setViewComponent(<ListenerEditView filePath={value.documentUri} position={value?.position} />);

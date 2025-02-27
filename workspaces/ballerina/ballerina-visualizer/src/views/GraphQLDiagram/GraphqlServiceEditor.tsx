@@ -447,8 +447,8 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                         ))}
                         {categories.query?.length === 0 && (
                             <EmptyStateContainer>
-                                <EmptyStateText>No query fields defined</EmptyStateText>
-                                <EmptyStateSubText>Click + to add a query field</EmptyStateSubText>
+                                <EmptyStateText>No Query fields defined</EmptyStateText>
+                                <EmptyStateSubText>Click + to add a Query field</EmptyStateSubText>
                             </EmptyStateContainer>
                         )}
                     </OperationCard>

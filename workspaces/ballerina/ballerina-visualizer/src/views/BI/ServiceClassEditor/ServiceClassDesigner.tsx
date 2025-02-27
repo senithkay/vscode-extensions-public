@@ -368,7 +368,13 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
         };
         await rpcClient
             .getVisualizerRpcClient()
-            .openView({ type: EVENT_TYPE.OPEN_VIEW, location: { position: nodePosition, documentUri: Utils.joinPath(URI.file(projectUri), type.codedata.lineRange.fileName).fsPath } });
+            .openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    position: nodePosition,
+                    documentUri: Utils.joinPath(URI.file(projectUri), type.codedata.lineRange.fileName).fsPath
+                }
+            });
     };
 
     const handleServiceEdit = async () => {

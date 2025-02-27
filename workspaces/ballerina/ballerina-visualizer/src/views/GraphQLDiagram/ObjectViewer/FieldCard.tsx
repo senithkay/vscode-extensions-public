@@ -69,8 +69,8 @@ export interface FieldCardProps {
     onFunctionImplement: (resource: FunctionModel) => void;
 }
 
-export function FieldCard(params: FieldCardProps) {
-    const { functionModel, onEditFunction: onEditResource, onDeleteFunction: onDeleteResource, onFunctionImplement: onResourceImplement } = params;
+export function FieldCard(props: FieldCardProps) {
+    const { functionModel, onEditFunction: onEditResource, onDeleteFunction: onDeleteResource, onFunctionImplement: onResourceImplement } = props;
 
     const [isConfirmOpen, setConfirmOpen] = useState(false);
     const [confirmEl, setConfirmEl] = React.useState(null);

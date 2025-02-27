@@ -262,7 +262,12 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
                 </PanelContainer>
             )}
             {isTypeEditorOpen && editingType && editingType.codedata.node === "CLASS" && (
-                <GraphqlObjectViewer onClose={onTypeEditorClosed} type={editingType} projectUri={projectUri} onImplementation={handleOnImplementation} />
+                <GraphqlObjectViewer
+                    onClose={onTypeEditorClosed}
+                    type={editingType}
+                    projectUri={projectUri}
+                    onImplementation={handleOnImplementation}
+                />
             )}
         </>
     );

@@ -191,8 +191,20 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
     const onFunctionImplement = async (func: FunctionModel) => {
         const lineRange: LineRange = func.codedata.lineRange;
         const currentFilePath = Utils.joinPath(URI.file(projectUri), type.codedata.lineRange.fileName).fsPath;
-        const nodePosition: NodePosition = { startLine: lineRange.startLine.line, startColumn: lineRange.startLine.offset, endLine: lineRange.endLine.line, endColumn: lineRange.endLine.offset }
-        await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { position: nodePosition, documentUri: currentFilePath } })
+        const nodePosition: NodePosition = {
+            startLine: lineRange.startLine.line,
+            startColumn: lineRange.startLine.offset,
+            endLine: lineRange.endLine.line,
+            endColumn: lineRange.endLine.offset
+        }
+
+        await rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                position: nodePosition,
+                documentUri: currentFilePath
+            }
+        })
     }
 
     const handleFunctionSave = async (updatedFunction: FunctionModel) => {
@@ -204,8 +216,14 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
                     filePath: currentFilePath,
                     codedata: {
                         lineRange: {
-                            startLine: { line: serviceClassModel.codedata.lineRange.startLine.line, offset: serviceClassModel.codedata.lineRange.startLine.offset },
-                            endLine: { line: serviceClassModel.codedata.lineRange.endLine.line, offset: serviceClassModel.codedata.lineRange.endLine.offset }
+                            startLine: {
+                                line: serviceClassModel.codedata.lineRange.startLine.line,
+                                offset: serviceClassModel.codedata.lineRange.startLine.offset
+                            },
+                            endLine: {
+                                line: serviceClassModel.codedata.lineRange.endLine.line,
+                                offset: serviceClassModel.codedata.lineRange.endLine.offset
+                            }
                         }
                     },
                     function: updatedFunction
@@ -215,8 +233,14 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
                     filePath: currentFilePath,
                     codedata: {
                         lineRange: {
-                            startLine: { line: serviceClassModel.codedata.lineRange.startLine.line, offset: serviceClassModel.codedata.lineRange.startLine.offset },
-                            endLine: { line: serviceClassModel.codedata.lineRange.endLine.line, offset: serviceClassModel.codedata.lineRange.endLine.offset }
+                            startLine: {
+                                line: serviceClassModel.codedata.lineRange.startLine.line,
+                                offset: serviceClassModel.codedata.lineRange.startLine.offset
+                            },
+                            endLine: {
+                                line: serviceClassModel.codedata.lineRange.endLine.line,
+                                offset: serviceClassModel.codedata.lineRange.endLine.offset
+                            }
                         }
                     },
                     function: updatedFunction
@@ -247,7 +271,6 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
 
             setIsNew(true);
             setEditingFunction(lsResponse.function);
-            console.log(`Adding ${type} function`, lsResponse.function);
         }
     };
 
@@ -399,7 +422,7 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
                                     ))}
                                     {(!serviceClassModel.functions || serviceClassModel.functions.length === 0) && (
                                         <EmptyStateText variant="body2">
-                                            No functions found
+                                            No fields found
                                         </EmptyStateText>
                                     )}
                                 </ScrollableContent>
