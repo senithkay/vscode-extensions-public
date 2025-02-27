@@ -8,13 +8,16 @@
  */
 
 import React, { useEffect, useRef, useState } from "react";
-import { Button, Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane, TextField } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, COMPLETION_ITEM_KIND, Dropdown, getIcon, HelperPane, OptionProps, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { HelperPaneVariableInfo } from "@wso2-enterprise/ballerina-side-panel";
 import { LineRange, ConfigVariable } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { convertToHelperPaneConfigurableVariable, filterHelperPaneVariables } from "../../../utils/bi";
 import { URI, Utils } from "vscode-uri";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
 
 type ConfigurablePageProps = {
     fileName: string;
@@ -22,17 +25,17 @@ type ConfigurablePageProps = {
     onChange: (value: string) => void;
 };
 
-type ConfigData = {
-    confName: string;
-    confType: string;
-    confValue: string;
-};
-
 namespace S {
-    export const FormSection = styled.div`
+    export const Form = styled.div`
         display: flex;
         flex-direction: column;
         gap: 8px;
+    `
+    
+    export const FormBody = styled.div`
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
     `;
 
     export const ButtonPanel = styled.div`
@@ -57,9 +60,32 @@ export const ConfigurablePage = ({
     const [filteredConfigurableInfo, setFilteredConfigurableInfo] = useState<HelperPaneVariableInfo | undefined>(
         undefined
     );
-    const [confName, setConfName] = useState<string>("");
-    const [confType, setConfType] = useState<string>("");
-    const [confValue, setConfValue] = useState<string>("");
+    const [confTypes, setConfTypes] = useState<OptionProps[]>([]);
+
+    const scehma = yup.object({
+        confName: yup
+            .string()
+            .required('Name is required')
+            .test('existance', 'The name already exists', (value) => {
+                return !configurableInfo?.category.some((category) =>
+                    category.items.some((item) => item.label === value)
+                );
+            }),
+        confType: yup.string().required('Type is required'),
+        confValue: yup.string().optional()
+    });
+
+    type ConfigData = yup.InferType<typeof scehma>;
+
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors, isValid }
+    } = useForm<ConfigData>({
+        mode: "onChange",
+        resolver: yupResolver(scehma)
+    });
 
     const getConfigurableVariableInfo = () => {
         setIsLoading(true);
@@ -178,30 +204,42 @@ export const ConfigurablePage = ({
 
     const clearForm = () => {
         setIsFormVisible(false);
-        setConfName("");
-        setConfType("");
-        setConfValue("");
+        reset();
     };
 
-    const handleSave = () => {
-        const confData = {
-            confName: confName,
-            confType: confType,
-            confValue: confValue,
-        };
-
-        handleSaveConfigurables(confData as any)
+    const handleSave = (values: ConfigData) => {
+        handleSaveConfigurables(values)
             .then(() => {
                 setIsFormVisible(false);
+                reset();
             })
             .catch((error) => {
                 console.error("Failed to save variable:", error);
             });
     };
 
-    const isConfigDataValid = () => {
-        return confName.length > 0 && confType.length > 0 && confValue.length > 0;
-    };
+    useEffect(() => {
+        if (isFormVisible) {
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getVisibleTypes({
+                    filePath: fileName,
+                    position: {
+                        line: targetLineRange.startLine.line,
+                        offset: targetLineRange.startLine.offset
+                    }
+                })
+                .then((types) => {
+                    setConfTypes(
+                        types.map((type) => ({
+                            id: type.label,
+                            content: type.label,
+                            value: type.insertText
+                        }))
+                    );
+                });
+        }
+    }, [isFormVisible]);
 
     return (
         <>
@@ -236,40 +274,41 @@ export const ConfigurablePage = ({
                         );
                     })
                 ) : (
-                    <HelperPane.Section
-                        title="Create New Configurable Variable"
-                        titleSx={{ fontFamily: 'GilmerMedium' }}
-                    >
-                        <S.FormSection>
+                    <S.Form>
+                        <Typography variant="body2" sx={{ fontFamily: 'GilmerMedium' }}>
+                            Create New Configurable Variable
+                        </Typography>
+                        <S.FormBody>
                             <TextField
+                                id="confName"
                                 label="Name"
                                 placeholder="Enter a name for the variable"
-                                value={confName}
-                                onChange={(e) => setConfName(e.target.value)}
+                                {...register("confName")}
+                                errorMsg={errors.confName?.message}
                             />
-                            {/* TODO: Update the component to a TypeSelector when the API is provided */}
-                            <TextField
+                            <Dropdown
+                                id="confType"
                                 label="Type"
-                                placeholder="Enter a type for the variable"
-                                value={confType}
-                                onChange={(e) => setConfType(e.target.value)}
+                                items={confTypes}
+                                {...register("confType")}
+                                errorMsg={errors.confType?.message}
                             />
                             <TextField
+                                id="confValue"
                                 label="Value"
                                 placeholder="Enter a value for the variable"
-                                value={confValue}
-                                onChange={(e) => setConfValue(e.target.value)}
+                                {...register("confValue")}
                             />
-                        </S.FormSection>
+                        </S.FormBody>
                         <S.ButtonPanel>
                             <Button appearance="secondary" onClick={clearForm}>
                                 Cancel
                             </Button>
-                            <Button appearance="primary" onClick={handleSave} disabled={!isConfigDataValid()}>
+                            <Button appearance="primary" onClick={handleSubmit(handleSave)} disabled={!isValid}>
                                 Save
                             </Button>
                         </S.ButtonPanel>
-                    </HelperPane.Section>
+                    </S.Form>
                 )}
             </HelperPane.Body>
             {!isFormVisible && (
