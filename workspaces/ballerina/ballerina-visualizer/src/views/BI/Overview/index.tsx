@@ -148,6 +148,7 @@ const DeploymentContent = styled.div`
 
 const DeployButtonContainer = styled.div`
     margin-top: 16px;
+    margin-bottom: 16px;
 `;
 
 const ReadmeHeaderContainer = styled.div`
@@ -527,7 +528,7 @@ export function Overview(props: ComponentDiagramProps) {
                             </Button>
                         </DeployButtonContainer>
                         <Description variant="body2">
-                            Moniter the deployment runtime using WSO2 Integration Control Plane. Click the Integrate ICP button to enable ICP
+                            Moniter the deployment runtime using WSO2 Integration Control Plane. Click the {enabled ? "Disable ICP" : "Integrate ICP"} button to {enabled ? "diable" : "enable"} ICP
                             for the integration.
                         </Description>
                         <DeployButtonContainer>
