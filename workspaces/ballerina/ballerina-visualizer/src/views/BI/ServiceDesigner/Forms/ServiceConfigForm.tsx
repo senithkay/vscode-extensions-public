@@ -9,12 +9,10 @@
 
 import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
 import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
-import { ServiceModel, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
+import { LineRange, ServiceModel, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { URI, Utils } from "vscode-uri";
-import { BodyText } from "../../../styles";
 import { FormGeneratorNew } from "../../Forms/FormGeneratorNew";
 import { FormHeader } from "../../../../components/FormHeader";
 
@@ -66,6 +64,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const [serviceFields, setServiceFields] = useState<FormField[]>([]);
     const { serviceModel, onSubmit, onBack, openListenerForm, formSubmitText = "Next" } = props;
     const [filePath, setFilePath] = useState<string>('');
+    const [targetLineRange, setTargetLineRange] = useState<LineRange>();
 
     const createTitle = `Provide the necessary configuration details for the ${serviceModel.displayAnnotation.label} to complete the setup.`;
     const editTitle = `Update the configuration details for the ${serviceModel.displayAnnotation.label} as needed.`
@@ -101,6 +100,20 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
         }
     }
 
+    useEffect(() => {
+        if (filePath && rpcClient) {
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getEndOfFile({ filePath })
+                .then((res) => {
+                    setTargetLineRange({
+                        startLine: res,
+                        endLine: res,
+                    });
+                });
+        }
+    }, [filePath, rpcClient]);
+
     return (
         <Container>
             {serviceModel &&
@@ -112,10 +125,10 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                                 {formSubmitText === "Save" ? editTitle : createTitle}
                             </BodyText> */}
                             <FormHeader title={`${serviceModel.displayAnnotation.label} Configuration`} subtitle={`${formSubmitText === "Save" ? editTitle : createTitle}`} />
-                            {filePath &&
+                            {filePath && targetLineRange &&
                                 <FormGeneratorNew
                                     fileName={filePath}
-                                    targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
+                                    targetLineRange={targetLineRange}
                                     fields={serviceFields}
                                     onBack={onBack}
                                     openSubPanel={handleListenerForm}
