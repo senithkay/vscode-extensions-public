@@ -49,7 +49,7 @@ const HelperPaneEl = ({
     };
 
     return (
-        <HelperPane>
+        <HelperPane helperPaneHeight="full">
             <HelperPane.Header title="Expression Helper" titleSx={{ fontFamily: "GilmerRegular" }} onClose={onClose} />
             <HelperPane.Body>
             <HelperPane.Panels>

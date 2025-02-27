@@ -375,6 +375,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             changeHelperPaneState={handleChangeHelperPaneState}
                             helperPaneOrigin={helperPaneOrigin}
                             getHelperPane={handleGetHelperPane}
+                            helperPaneHeight="full"
                             placeholder={field.placeholder}
                             sx={{ paddingInline: '0' }}
                             codeActions={codeActions}
