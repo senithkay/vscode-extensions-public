@@ -5206,6 +5206,6 @@ export async function askImportFileDir() {
         canSelectMany: false,
         defaultUri: Uri.file(os.homedir()),
         title: "Select a xml file to import",
-        filters: { 'XML': ['xml'] }
+        filters: { 'ATF': ['xml','dbs'] }
     });
 }
