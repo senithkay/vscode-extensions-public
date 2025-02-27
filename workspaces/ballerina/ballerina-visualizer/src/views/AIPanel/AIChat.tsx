@@ -836,7 +836,6 @@ export function AIChat() {
 
         const projectImports = await rpcClient.getBIDiagramRpcClient().getAllImports();
         const activeFile = await rpcClient.getAiPanelRpcClient().getActiveFile();
-        const fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: activeFile });
         const projectComponents = await rpcClient.getBIDiagramRpcClient().getProjectComponents();
 
         const activeFileImports =
@@ -952,12 +951,12 @@ export function AIChat() {
         assistant_response += `- **Output Record**: ${outputParam}\n`;
         assistant_response += `- **Function Name**: ${functionName}\n`;
 
-        let filePath = "mappings.bal";
+        let filePath = activeFile.endsWith(".bal") ? activeFile : "data_mappings.bal";
         let finalContent = response.mappingCode;
         const needsImports = Array.from(importsMap.values()).length > 0;
 
         if (needsImports) {
-            filePath = activeFile;
+            const fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath });
             finalContent = `${fileContent}\n${response.mappingCode}`;
         }
         assistant_response += `<code filename="${filePath}" type="ai_map">\n\`\`\`ballerina\n${finalContent}\n\`\`\`\n</code>`;
