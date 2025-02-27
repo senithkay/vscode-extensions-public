@@ -32,7 +32,7 @@ namespace S {
         flex-direction: column;
         gap: 20px;
         height: ${({ nestedForm }) => nestedForm ? 'unset' : 'calc(100vh - 100px)'};
-        overflow: ${({ nestedForm }) => nestedForm ? 'visible' : 'scroll'};
+        overflow-y: ${({ nestedForm }) => nestedForm ? 'visible' : 'scroll'};
     `;
 
     export const Row = styled.div<{}>`

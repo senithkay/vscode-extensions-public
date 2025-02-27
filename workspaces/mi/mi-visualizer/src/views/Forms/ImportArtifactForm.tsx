@@ -80,7 +80,7 @@ export function ImportArtfactForm() {
     return (
         <FormView title={"Import Artifact"} onClose={handleCancel}>
             <LocationSelector 
-                label="Choose the aftifact file"
+                label="Choose the artifact file"
                 selectedFile={sourceDir?.path}
                 required
                 onSelect={handleProjectSourceDirSelection}
