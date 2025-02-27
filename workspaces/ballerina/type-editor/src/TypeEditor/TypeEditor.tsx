@@ -419,19 +419,17 @@ export function TypeEditor(props: TypeEditorProps) {
                                 onChange={(e) => handleTypeKindChange(e.target.value)}
                             />
                         )}
-                        {/*TODO: Enable this check when the LS is supported, !type.properties["name"].editable
-                         With this edit button will also be shown while the field is editable to avoid not rendering the field */}
-                        {!isNewType && !isEditing && (
+                        {!isNewType && !isEditing && !type.properties["name"].editable && (
                             <InputWrapper>
                                 <TextFieldWrapper>
                                     <TextField
                                         id={type.name}
                                         name={type.name}
                                         value={type.name}
-                                        label={type.properties["name"].metadata.label}
-                                        required={!type.properties["name"].optional}
-                                        description={type.properties["name"].metadata.description}
-                                        readOnly={true} // TODO: Add after LS changes -> readOnly={!type.properties["name"].editable}
+                                        label={type?.properties["name"]?.metadata?.label}
+                                        required={!type?.properties["name"]?.optional}
+                                        description={type?.properties["name"]?.metadata?.description}
+                                        readOnly={!type.properties["name"].editable}
                                     />
                                 </TextFieldWrapper>
                                 <EditButton appearance="icon" onClick={startEditing} tooltip="Rename">
