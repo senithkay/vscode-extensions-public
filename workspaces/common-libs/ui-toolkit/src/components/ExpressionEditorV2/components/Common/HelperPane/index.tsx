@@ -35,6 +35,7 @@ import { Overlay } from '../../../../Commons/Overlay';
 import ProgressRing from '../../../../ProgressRing/ProgressRing';
 import { HelperPanePanelProvider, useHelperPanePanelContext } from './context';
 import { ARROW_HEIGHT, HELPER_PANE_HEIGHT, HELPER_PANE_WIDTH } from '../../../constants';
+import { HelperPaneHeight } from '../../../types';
 
 export const Arrow = styled.div<ArrowProps>`
     position: absolute;
@@ -301,11 +302,12 @@ const HeaderContainerWithSearch = styled.div`
     gap: 8px;
 `;
 
-const DropdownBody = styled.div<{ sx?: CSSProperties }>`
+const DropdownBody = styled.div<{ helperPaneHeight?: HelperPaneHeight; sx?: CSSProperties }>`
     display: flex;
     flex-direction: column;
     width: ${HELPER_PANE_WIDTH}px;
-    height: ${HELPER_PANE_HEIGHT}px;
+    height: ${({ helperPaneHeight }: { helperPaneHeight?: HelperPaneHeight }) =>
+        helperPaneHeight === 'full' ? '100vh' : `${HELPER_PANE_HEIGHT}px`};
     padding: 8px;
     border-radius: 2px;
     color: var(--input-foreground);
@@ -676,8 +678,12 @@ const HelperPane: React.FC<HelperPaneProps> & {
     PanelTab: typeof PanelTab;
     PanelView: typeof PanelView;
     Arrow: typeof Arrow;
-} = ({ children, sx }: HelperPaneProps) => {
-    return <DropdownBody sx={sx}>{children}</DropdownBody>;
+} = ({ children, helperPaneHeight, sx }: HelperPaneProps) => {
+    return (
+        <DropdownBody helperPaneHeight={helperPaneHeight} sx={sx}>
+            {children}
+        </DropdownBody>
+    );
 };
 
 HelperPane.Header = Header;

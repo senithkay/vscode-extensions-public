@@ -10,7 +10,7 @@
 
 import { CSSProperties, PropsWithChildren, ReactNode } from "react";
 import { StyleBase } from "./common";
-import { HelperPaneOrigin } from "../../../types/common";
+import { HelperPaneHeight, HelperPaneOrigin } from "../../../types/common";
 
 export type ArrowProps = StyleBase & {
     origin: HelperPaneOrigin;
@@ -99,5 +99,6 @@ export type HelperPaneHeaderProps = SearchBoxConditionalProps & {
 };
 
 export type HelperPaneProps = PropsWithChildren<{
+    helperPaneHeight?: HelperPaneHeight;
     sx?: CSSProperties;
 }>;
