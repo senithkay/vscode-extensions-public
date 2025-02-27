@@ -160,7 +160,7 @@ export function CellLinkWidget(props: WidgetProps) {
             <g 
                 onMouseOver={handleMouseOver} 
                 onMouseLeave={handleMouseLeave} 
-                pointerEvents={previewMode ? "none" : "all"} 
+                pointerEvents={"all"} 
                 className={CELL_LINK}
             >
                 <defs>
@@ -177,9 +177,9 @@ export function CellLinkWidget(props: WidgetProps) {
                         <polygon points="0,6 0,0 5,3" fill={strokeColor()}></polygon>
                     </marker>
                 </defs>
-                <path d={link.getCurvePath()} fill={"none"} stroke={"transparent"} strokeWidth={previewMode ? 10 : 40} />
+                <path d={link.getCurvePath()} fill={"none"} stroke={"transparent"} strokeWidth={40} />
                 <SharedLink.Path
-                    selected={hasObservabilityLayer && isSelected && !previewMode}
+                    selected={hasObservabilityLayer && isSelected}
                     id={link.getID()}
                     d={link.getCurvePath()}
                     fill={"none"}

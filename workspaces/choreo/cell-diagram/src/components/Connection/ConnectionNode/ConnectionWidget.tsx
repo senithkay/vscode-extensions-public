@@ -52,7 +52,7 @@ export function ConnectionWidget(props: ConnectionWidgetProps) {
                 node={node}
                 isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
             />
-            <ConnectionName orientation={node.orientation}>{displayName}</ConnectionName>
+            {!previewMode && <ConnectionName orientation={node.orientation}>{displayName}</ConnectionName>}
         </ConnectionNode>
     );
 }

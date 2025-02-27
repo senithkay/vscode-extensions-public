@@ -20,7 +20,7 @@ import {
     animateProjectDiagram,
 } from "../utils";
 import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel } from "../components";
-import { Colors, DIAGRAM_END, MAIN_CELL, NO_CELL_NODE } from "../resources";
+import { Colors, DIAGRAM_END, MAIN_CELL, MARGIN, NO_CELL_NODE } from "../resources";
 import { Container, DiagramContainer, useStyles } from "../utils/CanvasStyles";
 import { CustomTooltips, DiagramLayer, MoreVertMenuItem, ObservationSummary, Project } from "../types";
 import { CellModel } from "../components/Cell/CellNode/CellModel";
@@ -188,8 +188,8 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
             if (diagramEngine.getCanvas()?.getBoundingClientRect) {
                 // zoom to fit nodes and center diagram
                 diagramEngine.zoomToFitNodes({ 
-                    margin: previewMode ? 10 : 40, 
-                    maxZoom: previewMode ? 0.5 : 1 
+                    margin: previewMode ? MARGIN.PREVIEW : MARGIN.DEFAULT, 
+                    maxZoom: 1 
                 });
             }
             // remove preloader overlay layer

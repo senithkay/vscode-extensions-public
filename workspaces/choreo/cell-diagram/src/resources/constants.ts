@@ -32,12 +32,17 @@ export enum Colors {
 
 export const LINK_WIDTH = {
     DEFAULT: 2,
-    PREVIEW: 2,
+    PREVIEW: 4,
 }
 
 export const ICON_SCALE = {
     DEFAULT: 1,
     PREVIEW: 1.5,
+}
+
+export const MARGIN = {
+    DEFAULT: 40,
+    PREVIEW: 0,
 }
 
 export const NAME_JOIN_CHAR = "|";
