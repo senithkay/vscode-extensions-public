@@ -11,7 +11,7 @@ import { BIDesignModelResponse, OpenAPISpec } from "@wso2-enterprise/ballerina-c
 let errorLogWatcher: FileSystemWatcher | undefined;
 
 const TRYIT_TEMPLATE = `/*
-### {{#if isResourceMode}}Try Resource: "{{resourcePath}}"{{else}}Try Service: "{{serviceName}}" (http://localhost:{{port}}{{trim basePath}}){{/if}}
+### {{#if isResourceMode}}Try Resource: '{{resourceMethod}} {{resourcePath}}'{{else}}Try Service: '{{serviceName}}' (http://localhost:{{port}}{{trim basePath}}){{/if}}
 {{info.description}}
 */
 
@@ -357,9 +357,7 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
                         };
                     } else {
                         // Method not found in matching path
-                        vscode.window.showWarningMessage(
-                            `Method ${resourceMetadata.methodValue} not found for path ${matchingPath}. Showing all methods for this path.`
-                        );
+                        vscode.window.showWarningMessage(`Method ${resourceMetadata.methodValue} not found for path ${matchingPath}. Showing all methods for this path.`);
                         filteredPaths[matchingPath] = originalPaths[matchingPath];
                     }
                 } else {
@@ -382,7 +380,8 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
             basePath: service.basePath,
             serviceName: service.name || 'Default',
             isResourceMode: isResourceMode,
-            resourcePath: resourcePath
+            resourceMethod: isResourceMode ? resourceMetadata.methodValue.toLowerCase() : '',
+            resourcePath: resourcePath,
         };
 
         const compiledTemplate = Handlebars.compile(TRYIT_TEMPLATE);
