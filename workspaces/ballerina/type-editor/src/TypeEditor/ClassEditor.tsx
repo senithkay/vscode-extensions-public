@@ -275,7 +275,7 @@ export function ClassEditor({ type, onChange, isGraphql }: ClassEditorProps) {
     return (
         <S.Container>
             <S.Header>
-                <S.SectionTitle>{isGraphql ? 'Object' : 'Service Class'}</S.SectionTitle>
+                <S.SectionTitle>{isGraphql ? 'Object Fields' : 'Service Class'}</S.SectionTitle>
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <Button appearance="icon" onClick={addFunction}><Codicon name="add" /></Button>
                 </div>
