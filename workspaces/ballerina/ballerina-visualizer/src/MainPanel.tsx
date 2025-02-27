@@ -58,6 +58,7 @@ import ViewConfigurableVariables from "./views/BI/Configurables/ViewConfigurable
 import { ServiceWizard } from "./views/BI/ServiceDesigner/ServiceWizard";
 import { ServiceEditView } from "./views/BI/ServiceDesigner/ServiceEditView";
 import { ListenerEditView } from "./views/BI/ServiceDesigner/ListenerEditView";
+import { ServiceClassDesigner } from "./views/BI/ServiceClassEditor/ServiceClassDesigner";
 
 const globalStyles = css`
     *,
@@ -230,6 +231,9 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.BIServiceWizard:
                         setViewComponent(<ServiceWizard type={value.serviceType} />);
+                        break;
+                    case MACHINE_VIEW.BIServiceClassDesigner:
+                        setViewComponent(<ServiceClassDesigner type={value?.type} isGraphql={value?.isGraphql} projectUri={value?.projectUri} />);
                         break;
                     case MACHINE_VIEW.BIServiceConfigView:
                         setViewComponent(<ServiceEditView filePath={value.documentUri} position={value?.position} />);

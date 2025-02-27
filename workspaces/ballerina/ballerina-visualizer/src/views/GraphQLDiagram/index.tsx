@@ -32,7 +32,6 @@ import styled from "@emotion/styled";
 import { GraphqlServiceEditor } from "./GraphqlServiceEditor";
 import { TypeEditor } from "@wso2-enterprise/type-editor";
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
-import { ClassTypeEditor } from "../BI/ServiceClassEditor/ClassTypeEditor";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { TopNavigationBar } from "../../components/TopNavigationBar";
 import { TitleBar } from "../../components/TitleBar";
@@ -77,7 +76,6 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
     const [isServiceEditorOpen, setIsServiceEditorOpen] = useState<boolean>(false);
     const [isTypeEditorOpen, setIsTypeEditorOpen] = useState(false);
     const [editingType, setEditingType] = useState<Type>();
-    const [implementingType, setImplementingType] = useState<Type>();
 
     const fetchGraphqlTypeModel = async () => {
         if (!filePath) return null;
@@ -146,13 +144,11 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
     const onTypeChange = async () => {
         setIsTypeEditorOpen(false);
         setEditingType(undefined);
-        setImplementingType(undefined);
     };
 
     const onTypeEditorClosed = () => {
         setIsTypeEditorOpen(false);
         setEditingType(undefined);
-        setImplementingType(undefined);
     };
 
     const handleServiceEdit = async () => {
@@ -172,7 +168,15 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
     };
 
     const handleOnImplementation = async (type: Type) => {
-        setImplementingType(type);
+        await rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.BIServiceClassDesigner,
+                type: type,
+                projectUri: projectUri,
+                isGraphql: true
+            },
+        });
         setEditingType(undefined);
     };
 
@@ -241,12 +245,8 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
                     />
                 </PanelContainer>
             )}
-            {/* TODO: Allow when ClassTypeEditor support the BE model */}
             {isTypeEditorOpen && editingType && editingType.codedata.node === "CLASS" && (
                 <GraphqlObjectViewer onClose={onTypeEditorClosed} type={editingType} projectUri={projectUri} onImplementation={handleOnImplementation} />
-            )}
-            {isTypeEditorOpen && implementingType && (
-                <ClassTypeEditor onClose={onTypeEditorClosed} type={implementingType} projectUri={projectUri} isGraphql={true}/>
             )}
         </>
     );

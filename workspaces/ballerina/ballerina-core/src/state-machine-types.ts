@@ -10,6 +10,7 @@
 import { NotificationType, RequestType } from "vscode-messenger-common";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./interfaces/common";
+import { Type } from "./interfaces/extended-lang-client";
 
 export type MachineStateValue =
     | 'initialize'
@@ -61,6 +62,7 @@ export enum MACHINE_VIEW {
     BIServiceWizard = "Service Wizard",
     BIServiceConfigView = "Service Config View",
     BIListenerConfigView = "Listener Config View",
+    BIServiceClassDesigner = "Service Class Designer",
     BIDataMapperForm = "Add Data Mapper",
 }
 
@@ -84,6 +86,8 @@ export interface VisualizerLocation {
     syntaxTree?: STNode;
     isBI?: boolean;
     serviceType?: string;
+    type?: Type;
+    isGraphql?: boolean;
     metadata?: VisualizerMetadata;
 }
 

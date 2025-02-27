@@ -8,7 +8,7 @@
  */
 
 import { Type, ServiceClassModel, ModelFromCodeRequest, FieldType, FunctionModel, NodePosition, STModification, removeStatement, LineRange, EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
-import { Button, Codicon, Typography, TextField, ProgressRing, Menu, MenuItem, Popover, Item, ThemeColors, LinkButton } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Typography, TextField, ProgressRing, Menu, MenuItem, Popover, Item, ThemeColors, LinkButton, View } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -21,6 +21,8 @@ import { URI, Utils } from "vscode-uri";
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { applyModifications } from "../../../utils/utils";
 import { Icon } from "@wso2-enterprise/ui-toolkit";
+import { TopNavigationBar } from "../../../components/TopNavigationBar";
+import { TitleBar } from "../../../components/TitleBar";
 
 
 const ServiceContainer = styled.div`
@@ -132,15 +134,16 @@ const InfoSection = styled.div`
     align-items: center;
 `;
 
-interface ClassTypeEditorProps {
+interface ServiceClassDesignerProps {
     type: Type;
-    onClose: () => void;
+    onClose?: () => void;
     projectUri: string;
     isGraphql?: boolean;
 }
 
-export function ClassTypeEditor(props: ClassTypeEditorProps) {
+export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
     const { onClose, type, projectUri, isGraphql } = props;
+    console.log("ServiceClassDesigner -> type", type, projectUri, isGraphql)
     const { rpcClient } = useRpcContext();
     const [serviceClassModel, setServiceClassModel] = useState<ServiceClassModel>();
     const [editingFunction, setEditingFunction] = useState<FunctionModel>(undefined);
@@ -272,21 +275,6 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
             getServiceClassModel();
         } catch (error) {
             console.error('Error updating variable:', error);
-        }
-
-    };
-
-    const handleSave = async () => {
-        try {
-            const currentFilePath = Utils.joinPath(URI.file(projectUri), type.codedata.lineRange.fileName).fsPath;
-            const lsResponse = await rpcClient.getBIDiagramRpcClient().updateServiceClass({
-                filePath: currentFilePath,
-                serviceClass: serviceClassModel
-            });
-            onClose();
-
-        } catch (error) {
-            console.error('Error saving service class:', error);
         }
 
     };
@@ -502,16 +490,44 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
     };
 
     return (
-        <>
-            {!serviceClassModel && (
-                <LoadingContainer>
-                    <ProgressRing />
-                    <Typography variant="h3" sx={{ marginTop: '16px' }}>Loading Service Class Designer...</Typography>
-                </LoadingContainer>
-            )}
-            {serviceClassModel && !editingFunction && !editingVariable && (
-                <PanelContainer title={"Service Class Editor"} show={true} onClose={onClose} width={400}>
-                    <ServiceContainer>
+        <View>
+            <TopNavigationBar />
+            <TitleBar
+                title="Service Class Designer"
+                subtitle="Implement and configure your service class"
+            />
+            <ServiceContainer>
+
+                {!serviceClassModel && (
+                    <LoadingContainer>
+                        <ProgressRing />
+                        <Typography variant="h3" sx={{ marginTop: '16px' }}>Loading Service Class Designer...</Typography>
+                    </LoadingContainer>
+                )}
+                {serviceClassModel && (
+                    <>
+                        {serviceClassModel.functions?.
+                            filter((func) => func.kind === "INIT" && func.enabled)
+                            .map((functionModel, index) => (
+                                <InfoSection>
+                                    <Icon
+                                        name={'info'}
+                                        isCodicon
+                                        sx={{ marginRight: "8px" }}
+                                    />
+                                    <Typography key={`${index}-label`} variant="body3">
+                                        Constructor:
+                                    </Typography>
+                                    <Typography key={`${index}-value`} variant="body3">
+                                        <LinkButton
+                                            sx={{ fontSize: 12, padding: 8, gap: 4 }}
+                                            onClick={() => handleOpenDiagram(functionModel)}
+                                        >
+                                            {functionModel.name.value}
+                                        </LinkButton>
+                                    </Typography>
+                                </InfoSection>
+                            ))}
                         {!classNameField.editable && !isEditing && (
                             <InputWrapper>
                                 <TextFieldWrapper>
@@ -571,23 +587,7 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
 
                             </>
                         )}
-                        {serviceClassModel.functions?.
-                            filter((func) => func.kind === "INIT" && func.enabled)
-                            .map((functionModel, index) => (
-                                <InfoSection>
-                                    <Typography key={`${index}-label`} variant="body3">
-                                        Constructor:
-                                    </Typography>
-                                    <Typography key={`${index}-value`} variant="body3">
-                                        <LinkButton
-                                            sx={{ fontSize: 12, padding: 8, gap: 4 }}
-                                            onClick={() => handleOpenDiagram(functionModel)}
-                                        >
-                                            {functionModel.name.value}
-                                        </LinkButton>
-                                    </Typography>
-                                </InfoSection>
-                            ))}
+
                         <ScrollableSection>
                             <Section>
                                 <SectionHeader>
@@ -685,43 +685,43 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
                                 </ScrollableContent>
                             </Section>
                         </ScrollableSection>
-                    </ServiceContainer>
-                </PanelContainer>
-            )}
-            {editingFunction && serviceClassModel && (
-                <PanelContainer
-                    title={isNew ? "Add Method" : "Edit Method"}
-                    show={true}
-                    onClose={() => setEditingFunction(undefined)}
-                    onBack={() => setEditingFunction(undefined)}
-                    width={400}
-                >
-                    <OperationForm
-                        model={editingFunction}
-                        filePath={Utils.joinPath(URI.file(projectUri), serviceClassModel.codedata.lineRange.fileName).fsPath}
-                        lineRange={serviceClassModel.codedata.lineRange}
-                        onClose={handleCloseFunctionForm}
-                        onSave={handleFunctionSave}
-                    />
-                </PanelContainer>
-            )}
-            {editingVariable && serviceClassModel && (
-                <PanelContainer
-                    title={isNew ? "Add Variable" : "Edit Variable"}
-                    show={true}
-                    onClose={() => setEditingVariable(undefined)}
-                    onBack={() => setEditingVariable(undefined)}
-                    width={400}
-                >
-                    <VariableForm
-                        model={editingVariable}
-                        filePath={Utils.joinPath(URI.file(projectUri), serviceClassModel.codedata.lineRange.fileName).fsPath}
-                        lineRange={serviceClassModel.codedata.lineRange}
-                        onClose={() => setEditingVariable(null)}
-                        onSave={handleVariableSave}
-                    />
-                </PanelContainer>
-            )}
-        </>
+                    </>
+                )}
+                {editingFunction && serviceClassModel && (
+                    <PanelContainer
+                        title={isNew ? "Add Method" : "Edit Method"}
+                        show={true}
+                        onClose={() => setEditingFunction(undefined)}
+                        onBack={() => setEditingFunction(undefined)}
+                        width={400}
+                    >
+                        <OperationForm
+                            model={editingFunction}
+                            filePath={Utils.joinPath(URI.file(projectUri), serviceClassModel.codedata.lineRange.fileName).fsPath}
+                            lineRange={serviceClassModel.codedata.lineRange}
+                            onClose={handleCloseFunctionForm}
+                            onSave={handleFunctionSave}
+                        />
+                    </PanelContainer>
+                )}
+                {editingVariable && serviceClassModel && (
+                    <PanelContainer
+                        title={isNew ? "Add Variable" : "Edit Variable"}
+                        show={true}
+                        onClose={() => setEditingVariable(undefined)}
+                        onBack={() => setEditingVariable(undefined)}
+                        width={400}
+                    >
+                        <VariableForm
+                            model={editingVariable}
+                            filePath={Utils.joinPath(URI.file(projectUri), serviceClassModel.codedata.lineRange.fileName).fsPath}
+                            lineRange={serviceClassModel.codedata.lineRange}
+                            onClose={() => setEditingVariable(null)}
+                            onSave={handleVariableSave}
+                        />
+                    </PanelContainer>
+                )}
+            </ServiceContainer>
+        </View>
     );
 }

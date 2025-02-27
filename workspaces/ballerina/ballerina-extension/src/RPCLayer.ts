@@ -98,6 +98,8 @@ async function getContext(): Promise<VisualizerLocation> {
             isBI: context.isBI,
             projectUri: context.projectUri,
             serviceType: context.serviceType,
+            type: context.type,
+            isGraphql: context.isGraphql,
             metadata: {
                 haveLS: StateMachine.langClient() && true,
                 recordFilePath: path.join(context.projectUri, "types.bal"),
