@@ -30,7 +30,7 @@ import { showComponentDetailsView } from "../webviews/ComponentDetailsView";
 import { ComponentFormView, type IComponentCreateFormParams } from "../webviews/ComponentFormView";
 import { getUserInfoForCmd, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
 import { updateContextFile } from "./create-directory-context-cmd";
-import { choreoEnvConfig } from "src/config";
+import { choreoEnvConfig } from "../config";
 
 let componentWizard: ComponentFormView;
 
