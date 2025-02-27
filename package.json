@@ -36,10 +36,5 @@
         "build:api-designer": "rush build --to api-designer",
         "setup-e2e-test-debug": "workspaces/ballerina/ballerina-extension/node_modules/vscode-extension-tester/out/cli.js get-vscode && workspaces/ballerina/ballerina-extension/node_modules/vscode-extension-tester/out/cli.js get-chromedriver",
         "ui-toolkit-stories": "npm run --prefix ./workspaces/common-libs/ui-toolkit serve-storybook"
-    },
-    "dependencies": {
-        "@emotion/react": "^11.14.0",
-        "@emotion/styled": "^11.14.0",
-        "react-syntax-highlighter": "^15.6.1"
     }
 }
