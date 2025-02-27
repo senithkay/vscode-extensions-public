@@ -36,6 +36,7 @@ import { ClassTypeEditor } from "../BI/ServiceClassEditor/ClassTypeEditor";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { TopNavigationBar } from "../../components/TopNavigationBar";
 import { TitleBar } from "../../components/TitleBar";
+import { GraphqlObjectViewer } from "./ObjectViewer";
 
 const SpinnerContainer = styled.div`
     display: flex;
@@ -76,6 +77,7 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
     const [isServiceEditorOpen, setIsServiceEditorOpen] = useState<boolean>(false);
     const [isTypeEditorOpen, setIsTypeEditorOpen] = useState(false);
     const [editingType, setEditingType] = useState<Type>();
+    const [implementingType, setImplementingType] = useState<Type>();
 
     const fetchGraphqlTypeModel = async () => {
         if (!filePath) return null;
@@ -144,11 +146,13 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
     const onTypeChange = async () => {
         setIsTypeEditorOpen(false);
         setEditingType(undefined);
+        setImplementingType(undefined);
     };
 
     const onTypeEditorClosed = () => {
         setIsTypeEditorOpen(false);
         setEditingType(undefined);
+        setImplementingType(undefined);
     };
 
     const handleServiceEdit = async () => {
@@ -165,6 +169,11 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
                 documentUri: filePath,
             },
         });
+    };
+
+    const handleOnImplementation = async (type: Type) => {
+        setImplementingType(type);
+        setEditingType(undefined);
     };
 
     return (
@@ -234,7 +243,10 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
             )}
             {/* TODO: Allow when ClassTypeEditor support the BE model */}
             {isTypeEditorOpen && editingType && editingType.codedata.node === "CLASS" && (
-                <ClassTypeEditor onClose={onTypeEditorClosed} type={editingType} projectUri={projectUri} />
+                <GraphqlObjectViewer onClose={onTypeEditorClosed} type={editingType} projectUri={projectUri} onImplementation={handleOnImplementation} />
+            )}
+            {isTypeEditorOpen && implementingType && (
+                <ClassTypeEditor onClose={onTypeEditorClosed} type={implementingType} projectUri={projectUri} isGraphql={true}/>
             )}
         </>
     );

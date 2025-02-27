@@ -1059,6 +1059,7 @@ export interface ModelFromCodeRequest {
     codedata: {
         lineRange: LineRange;
     };
+    context: string;
 }
 
 export interface ServiceClassModelResponse {

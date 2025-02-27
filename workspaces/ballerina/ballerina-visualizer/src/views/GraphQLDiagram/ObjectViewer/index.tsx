@@ -13,14 +13,13 @@ import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { LoadingContainer } from "../../styles";
-import { FunctionCard } from "./FunctionCard";
-import { VariableCard } from "./VariableCard";
 import { OperationForm } from "../../GraphQLDiagram/OperationForm";
-import { VariableForm } from "./VariableForm";
+
 import { URI, Utils } from "vscode-uri";
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { applyModifications } from "../../../utils/utils";
 import { Icon } from "@wso2-enterprise/ui-toolkit";
+import { FieldCard } from "./FieldCard";
 
 
 const ServiceContainer = styled.div`
@@ -64,21 +63,13 @@ const SectionHeader = styled.div`
     align-items: center;
     justify-content: space-between;
     margin-bottom: 10px;
+    width: 100%;
 `;
 
 const EmptyStateText = styled(Typography)`
     color: ${ThemeColors.ON_SURFACE_VARIANT};
     padding: 12px;
     text-align: center;
-`;
-
-export const Footer = styled.div`
-    display: flex;
-    gap: 8px;
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 16px;
 `;
 
 const EditRow = styled.div`
@@ -127,35 +118,40 @@ const EditableRow = styled.div`
     flex-direction: column;
 `;
 
-const InfoSection = styled.div`
-    display: flex;
-    align-items: center;
+const ViewText = styled(Typography)`
+    color: ${ThemeColors.ON_SURFACE};
+    font-size: 13px;
 `;
 
-interface ClassTypeEditorProps {
+const SwitchImplementRow = styled.div`
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 10px 0;
+`;
+
+interface GraphqlObjectViewerProps {
     type: Type;
     onClose: () => void;
+    onImplementation: (type: Type) => void;
     projectUri: string;
-    isGraphql?: boolean;
 }
 
-export function ClassTypeEditor(props: ClassTypeEditorProps) {
-    const { onClose, type, projectUri, isGraphql } = props;
+export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
+    const { onClose, type, projectUri, onImplementation } = props;
     const { rpcClient } = useRpcContext();
     const [serviceClassModel, setServiceClassModel] = useState<ServiceClassModel>();
     const [editingFunction, setEditingFunction] = useState<FunctionModel>(undefined);
-    const [editingVariable, setEditingVariable] = useState<FieldType>(undefined);
     const [isNew, setIsNew] = useState<boolean>(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [tempName, setTempName] = useState("");
     const classNameField = serviceClassModel?.properties["name"];
 
-
     useEffect(() => {
         getServiceClassModel();
     }, [type]);
-
 
     const getServiceClassModel = async () => {
         if (!type) return;
@@ -168,7 +164,7 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
                     endLine: { line: type.codedata.lineRange.endLine.line, offset: type.codedata.lineRange.endLine.offset }
                 }
             },
-            context: "TYPE_DIAGRAM"
+            context: "GRAPHQL_DIAGRAM"
         }
 
         const serviceClassModelResponse = await rpcClient.getBIDiagramRpcClient().getServiceClassModel(serviceClassModelRequest);
@@ -231,90 +227,20 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
                 setIsNew(false);
             }
             setEditingFunction(null);
-            getServiceClassModel(); // Refresh the model
+            getServiceClassModel();
         } catch (error) {
             console.error('Error updating function:', error);
         }
     };
 
-    const handleEditVariable = (variable: FieldType) => {
-        setEditingVariable(variable);
-    };
-
-    const handleVariableSave = async (updatedVariable: FieldType) => {
-
-        try {
-            const currentFilePath = Utils.joinPath(URI.file(projectUri), serviceClassModel.codedata.lineRange.fileName).fsPath;
-            if (isNew) {
-
-                const lsResponse = await rpcClient.getBIDiagramRpcClient().addClassField({
-                    filePath: currentFilePath,
-                    field: updatedVariable,
-                    codedata: {
-                        lineRange: {
-                            fileName: serviceClassModel.codedata.lineRange.fileName,
-                            startLine: { line: serviceClassModel.codedata.lineRange.startLine.line, offset: serviceClassModel.codedata.lineRange.startLine.offset },
-                            endLine: { line: serviceClassModel.codedata.lineRange.endLine.line, offset: serviceClassModel.codedata.lineRange.endLine.offset }
-                        }
-                    }
-                });
-
-            } else {
-                const lsResponse = await rpcClient.getBIDiagramRpcClient().updateClassField({
-                    filePath: currentFilePath,
-                    field: updatedVariable
-                });
-            }
-            if (isNew) {
-                setIsNew(false);
-            }
-            setEditingVariable(undefined);
-            getServiceClassModel();
-        } catch (error) {
-            console.error('Error updating variable:', error);
-        }
-
-    };
-
-    const handleSave = async () => {
-        try {
-            const currentFilePath = Utils.joinPath(URI.file(projectUri), type.codedata.lineRange.fileName).fsPath;
-            const lsResponse = await rpcClient.getBIDiagramRpcClient().updateServiceClass({
-                filePath: currentFilePath,
-                serviceClass: serviceClassModel
-            });
-            onClose();
-
-        } catch (error) {
-            console.error('Error saving service class:', error);
-        }
-
-    };
-
-    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (serviceClassModel) {
-            setServiceClassModel({
-                ...serviceClassModel,
-                name: e.target.value,
-                properties: {
-                    ...serviceClassModel.properties,
-                    name: {
-                        ...serviceClassModel.properties["name"],
-                        value: e.target.value
-                    }
-                }
-            });
-        }
-    };
-
-    const handleAddFunction = async (type: 'init' | 'resource' | 'remote') => {
+    const handleAddFunction = async () => {
         const lsResponse = await rpcClient.getServiceDesignerRpcClient().getFunctionModel({
-            type: 'object',
-            functionName: type
+            type: 'graphql',
+            functionName: 'query'
         });
         if (lsResponse.function) {
             // if resouce we need to update the models accessor value to get and valueType to Identifier
-            if (type === 'resource' && lsResponse.function.accessor) {
+            if (lsResponse.function.accessor) {
                 lsResponse.function.accessor.value = 'get';
                 lsResponse.function.accessor.valueType = 'IDENTIFIER';
             }
@@ -322,7 +248,6 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
             setIsNew(true);
             setEditingFunction(lsResponse.function);
             console.log(`Adding ${type} function`, lsResponse.function);
-
         }
     };
 
@@ -331,118 +256,6 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
         setIsNew(false);
     };
 
-    const handleAddVariable = () => {
-        // TODO: Add the LS call when its ready
-        const newVariable: FieldType = {
-            isPrivate: true,
-            isFinal: true,
-            codedata: {
-                lineRange: {
-                    fileName: serviceClassModel.codedata.lineRange.fileName,
-                    startLine: {
-                        line: serviceClassModel.codedata.lineRange.startLine.line,
-                        offset: serviceClassModel.codedata.lineRange.startLine.offset
-                    },
-                    endLine: {
-                        line: serviceClassModel.codedata.lineRange.endLine.line,
-                        offset: serviceClassModel.codedata.lineRange.endLine.offset
-                    }
-                },
-                inListenerInit: false,
-                isBasePath: false,
-                inDisplayAnnotation: false
-            },
-            type: {
-                metadata: {
-                    label: "Variable Type",
-                    description: "The type of the variable"
-                },
-                enabled: true,
-                editable: true,
-                value: "",
-                valueType: "TYPE",
-                isType: true,
-                optional: false,
-                advanced: false,
-                addNewButton: false
-            },
-            name: {
-                metadata: {
-                    label: "Variable Name",
-                    description: "The name of the variable"
-                },
-                enabled: true,
-                editable: true,
-                value: "",
-                valueType: "IDENTIFIER",
-                isType: false,
-                optional: false,
-                advanced: false,
-                addNewButton: false
-            },
-            defaultValue: {
-                metadata: {
-                    label: "Initial Value",
-                    description: "The initial value of the variable"
-                },
-                value: "",
-                enabled: false,
-                editable: true,
-                isType: false,
-                optional: false,
-                advanced: false,
-                addNewButton: false
-            },
-            enabled: true,
-            editable: false,
-            optional: false,
-            advanced: false
-        };
-        setIsNew(true);
-        setEditingVariable(newVariable);
-    };
-
-    const handleDeleteVariable = async (variable: FieldType) => {
-        const targetPosition: NodePosition = {
-            startLine: variable?.codedata?.lineRange?.startLine.line,
-            startColumn: variable?.codedata.lineRange?.startLine?.offset,
-            endLine: variable?.codedata.lineRange?.endLine?.line,
-            endColumn: variable?.codedata.lineRange?.endLine?.offset
-        }
-        const deleteAction: STModification = removeStatement(targetPosition);
-        const currentFilePath = Utils.joinPath(URI.file(projectUri), type.codedata.lineRange.fileName).fsPath;
-        await applyModifications(rpcClient, [deleteAction], currentFilePath);
-        getServiceClassModel();
-    }
-
-    const hasInitFunction = serviceClassModel?.functions?.some(func => func.kind === 'INIT');
-
-    const menuItems: Item[] = [
-        {
-            id: "init",
-            label: "Init",
-            onClick: () => {
-                handleAddFunction('init');
-                setAnchorEl(null);
-            }
-        },
-        {
-            id: "resource",
-            label: "Resource",
-            onClick: () => {
-                handleAddFunction('resource');
-                setAnchorEl(null);
-            }
-        },
-        {
-            id: "remote",
-            label: "Remote",
-            onClick: () => {
-                handleAddFunction('remote');
-                setAnchorEl(null);
-            }
-        }
-    ];
 
     const startEditing = () => {
         setTempName(serviceClassModel.properties["name"].value);
@@ -452,19 +265,6 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
     const cancelEditing = () => {
         setIsEditing(false);
         setTempName("");
-    };
-
-    const handleOpenDiagram = async (resource: FunctionModel) => {
-        const lineRange: LineRange = resource.codedata.lineRange;
-        const nodePosition: NodePosition = {
-            startLine: lineRange.startLine.line,
-            startColumn: lineRange.startLine.offset,
-            endLine: lineRange.endLine.line,
-            endColumn: lineRange.endLine.offset,
-        };
-        await rpcClient
-            .getVisualizerRpcClient()
-            .openView({ type: EVENT_TYPE.OPEN_VIEW, location: { position: nodePosition, documentUri: Utils.joinPath(URI.file(projectUri), type.codedata.lineRange.fileName).fsPath } });
     };
 
     const editServiceClassName = async () => {
@@ -497,7 +297,7 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
 
             cancelEditing();
         } catch (error) {
-            console.error('Error renaming service class:', error);
+            console.error('Error renaming service class (Graphql Object):', error);
         }
     };
 
@@ -506,12 +306,14 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
             {!serviceClassModel && (
                 <LoadingContainer>
                     <ProgressRing />
-                    <Typography variant="h3" sx={{ marginTop: '16px' }}>Loading Service Class Designer...</Typography>
+                    <Typography variant="h3" sx={{ marginTop: '16px' }}>Loading Graphql Object Visualizer...</Typography>
                 </LoadingContainer>
             )}
-            {serviceClassModel && !editingFunction && !editingVariable && (
-                <PanelContainer title={"Service Class Editor"} show={true} onClose={onClose} width={400}>
+            {serviceClassModel && !editingFunction && (
+                <PanelContainer title={"Edit Object"} show={true} onClose={onClose} onBack={onClose} width={400}>
                     <ServiceContainer>
+
+
                         {!classNameField.editable && !isEditing && (
                             <InputWrapper>
                                 <TextFieldWrapper>
@@ -571,112 +373,30 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
 
                             </>
                         )}
-                        {serviceClassModel.functions?.
-                            filter((func) => func.kind === "INIT" && func.enabled)
-                            .map((functionModel, index) => (
-                                <InfoSection>
-                                    <Typography key={`${index}-label`} variant="body3">
-                                        Constructor:
-                                    </Typography>
-                                    <Typography key={`${index}-value`} variant="body3">
-                                        <LinkButton
-                                            sx={{ fontSize: 12, padding: 8, gap: 4 }}
-                                            onClick={() => handleOpenDiagram(functionModel)}
-                                        >
-                                            {functionModel.name.value}
-                                        </LinkButton>
-                                    </Typography>
-                                </InfoSection>
-                            ))}
                         <ScrollableSection>
                             <Section>
                                 <SectionHeader>
-                                    <SectionTitle>Class Variables</SectionTitle>
+                                    <SectionTitle>Fields</SectionTitle>
                                     <Button
                                         appearance="icon"
-                                        tooltip="Add Variable"
-                                        onClick={() => handleAddVariable()}
+                                        tooltip="Add Field"
+                                        onClick={() => handleAddFunction()}
                                     >
                                         <Codicon name="add" />
                                     </Button>
                                 </SectionHeader>
 
                                 <ScrollableContent>
-                                    {serviceClassModel.fields?.map((field: FieldType, index: number) => (
-                                        <VariableCard
+                                    {serviceClassModel.functions?.map((func: FunctionModel, index: number) => (
+                                        <FieldCard
                                             key={index}
-                                            fieldModel={field}
-                                            onEditVariable={() => handleEditVariable(field)}
-                                            onDeleteVariable={() => handleDeleteVariable(field)}
+                                            functionModel={func}
+                                            goToSource={() => { }}
+                                            onEditFunction={() => handleEditFunction(func)}
+                                            onDeleteFunction={() => handleDeleteFunction(func)}
+                                            onFunctionImplement={() => onFunctionImplement(func)}
                                         />
                                     ))}
-                                    {(!serviceClassModel.fields || serviceClassModel.fields.length === 0) && (
-                                        <EmptyStateText variant="body2">
-                                            No variables found
-                                        </EmptyStateText>
-                                    )}
-                                </ScrollableContent>
-                            </Section>
-
-                            <Section>
-                                <SectionHeader>
-                                    <SectionTitle>Methods</SectionTitle>
-                                    <div style={{ position: 'relative' }}>
-                                        <Button
-                                            appearance="icon"
-                                            tooltip="Add Method"
-                                            onClick={(e) => {
-                                                if (hasInitFunction && isGraphql) {
-                                                    handleAddFunction('resource');
-                                                } else {
-                                                    setAnchorEl(e.currentTarget);
-                                                }
-                                            }}
-                                        >
-                                            <Codicon name="add" />
-                                        </Button>
-                                        <Popover
-                                            open={Boolean(anchorEl)}
-                                            anchorEl={anchorEl}
-                                            handleClose={() => setAnchorEl(null)}
-                                            sx={{
-                                                padding: 0,
-                                                borderRadius: 0,
-                                                zIndex: 3000
-
-                                            }}
-                                            anchorOrigin={{
-                                                vertical: 'top',
-                                                horizontal: 'right'
-                                            }}
-                                            transformOrigin={{
-                                                vertical: 'top',
-                                                horizontal: 'right'
-                                            }}
-                                        >
-                                            <Menu>
-                                                {menuItems
-                                                    .filter(item => !(item.id === 'init' && hasInitFunction))
-                                                    .map((item) => (
-                                                        <MenuItem key={item.id} item={item} />
-                                                    ))}
-                                            </Menu>
-                                        </Popover>
-                                    </div>
-                                </SectionHeader>
-
-                                <ScrollableContent>
-                                    {serviceClassModel.functions?.filter((func: FunctionModel) => func.kind !== 'INIT')
-                                        .map((func: FunctionModel, index: number) => (
-                                            <FunctionCard
-                                                key={index}
-                                                functionModel={func}
-                                                goToSource={() => { }}
-                                                onEditFunction={() => handleEditFunction(func)}
-                                                onDeleteFunction={() => handleDeleteFunction(func)}
-                                                onFunctionImplement={() => onFunctionImplement(func)}
-                                            />
-                                        ))}
                                     {(!serviceClassModel.functions || serviceClassModel.functions.length === 0) && (
                                         <EmptyStateText variant="body2">
                                             No functions found
@@ -684,13 +404,22 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
                                     )}
                                 </ScrollableContent>
                             </Section>
+                            {
+                                <SwitchImplementRow>
+                                    <ViewText variant="body3">Switch to Implementation View</ViewText>
+                                    <Button appearance="primary" tooltip="Implement Object" onClick={() => onImplementation(type)}>
+                                        <Codicon name="file-code" /> &nbsp; Implement
+                                    </Button>
+                                </SwitchImplementRow>
+                            }
                         </ScrollableSection>
+
                     </ServiceContainer>
                 </PanelContainer>
             )}
             {editingFunction && serviceClassModel && (
                 <PanelContainer
-                    title={isNew ? "Add Method" : "Edit Method"}
+                    title={isNew ? "Add Field" : "Edit Field"}
                     show={true}
                     onClose={() => setEditingFunction(undefined)}
                     onBack={() => setEditingFunction(undefined)}
@@ -702,23 +431,6 @@ export function ClassTypeEditor(props: ClassTypeEditorProps) {
                         lineRange={serviceClassModel.codedata.lineRange}
                         onClose={handleCloseFunctionForm}
                         onSave={handleFunctionSave}
-                    />
-                </PanelContainer>
-            )}
-            {editingVariable && serviceClassModel && (
-                <PanelContainer
-                    title={isNew ? "Add Variable" : "Edit Variable"}
-                    show={true}
-                    onClose={() => setEditingVariable(undefined)}
-                    onBack={() => setEditingVariable(undefined)}
-                    width={400}
-                >
-                    <VariableForm
-                        model={editingVariable}
-                        filePath={Utils.joinPath(URI.file(projectUri), serviceClassModel.codedata.lineRange.fileName).fsPath}
-                        lineRange={serviceClassModel.codedata.lineRange}
-                        onClose={() => setEditingVariable(null)}
-                        onSave={handleVariableSave}
                     />
                 </PanelContainer>
             )}
