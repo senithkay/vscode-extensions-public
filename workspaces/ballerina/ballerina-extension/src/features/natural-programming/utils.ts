@@ -1,3 +1,12 @@
+/**
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
 import * as fs from 'fs';
 import * as path from 'path';
 import vscode, { Diagnostic, Uri } from 'vscode';
@@ -6,11 +15,13 @@ import { ReadableStream } from 'stream/web';
 import { CustomDiagnostic } from './custom-diagnostics';
 import { requirementsSpecification, refreshAccessToken, isErrorCode } from "../../rpc-managers/ai-panel/utils";
 import { UNKNOWN_ERROR } from '../../views/ai-panel/errorCodes';
-import {BallerinaPluginConfig, ResultItem, ResponseData} from "./interfaces";
-import {DOCUMENTATION_DRIFT_CHECK_ENDPOINT, DOCUMENTATION_COMMENTS_DRIFT_CHECK_ENDPOINT, 
-    DEVELOPER_OVERVIEW_FILENAME, NATURAL_PROGRAMMING_PATH, DEVELOPER_OVERVIEW_RELATIVE_PATH, 
-    REQUIREMENT_DOC_PREFIX, REQUIREMENT_TEXT_DOCUMENT, REQUIREMENT_MD_DOCUMENT, 
-    README_FILE_NAME_LOWERCASE, DIAGNOSTIC_ID} from "./constants";
+import { BallerinaPluginConfig, ResultItem, DriftResponseData, DriftResponse } from "./interfaces";
+import {
+    DOCUMENTATION_DRIFT_CHECK_ENDPOINT, API_DOCS_DRIFT_CHECK_ENDPOINT,
+    DEVELOPER_OVERVIEW_FILENAME, NATURAL_PROGRAMMING_PATH, DEVELOPER_OVERVIEW_RELATIVE_PATH,
+    REQUIREMENT_DOC_PREFIX, REQUIREMENT_TEXT_DOCUMENT, REQUIREMENT_MD_DOCUMENT,
+    README_FILE_NAME_LOWERCASE, DIAGNOSTIC_ID
+} from "./constants";
 
 let controller = new AbortController();
 
@@ -28,16 +39,16 @@ export async function getLLMDiagnostics(projectUri: string, diagnosticCollection
     createDiagnosticCollection(responses, projectUri, diagnosticCollection);
 }
 
-async function getLLMResponses(sources: { balFiles: string; readme: string; requirements: string; developerOverview: string;}, token: string, backendurl: string): Promise<any[]> {
+async function getLLMResponses(sources: { balFiles: string; readme: string; requirements: string; developerOverview: string; }, token: string, backendurl: string): Promise<any[]> {
     const commentResponsePromise = fetchWithToken(
-        backendurl + DOCUMENTATION_COMMENTS_DRIFT_CHECK_ENDPOINT,
+        backendurl + API_DOCS_DRIFT_CHECK_ENDPOINT,
         {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify(sources.balFiles),
+            body: JSON.stringify([sources.balFiles]),
             signal: controller.signal,
         },
     );
@@ -72,7 +83,7 @@ function createDiagnosticCollection(responses: any[], projectUri: string, diagno
     }
 }
 
-function createDiagnosticsResponse(data: ResponseData, projectPath: string, diagnosticCollection: vscode.DiagnosticCollection) {
+function createDiagnosticsResponse(data: DriftResponseData, projectPath: string, diagnosticCollection: vscode.DiagnosticCollection) {
     const diagnosticsMap = new Map<string, vscode.Diagnostic[]>();
 
     data.results.forEach((result) => {
@@ -96,11 +107,11 @@ function createDiagnosticsResponse(data: ResponseData, projectPath: string, diag
 
 function createDiagnostic(result: ResultItem, uri: Uri): CustomDiagnostic {
     const range = result.startLine && result.startColumn && result.endLine && result.endColumn
-            ? new vscode.Range(
-                new vscode.Position(result.startLine - 1, result.startColumn - 1),
-                new vscode.Position(result.endLine - 1, result.endColumn - 1)
-            ) : 
-            new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 0));
+        ? new vscode.Range(
+            new vscode.Position(result.startLine - 1, result.startColumn - 1),
+            new vscode.Position(result.endLine - 1, result.endColumn - 1)
+        ) :
+        new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 0));
 
     const diagnostic = new CustomDiagnostic(
         range,
@@ -136,7 +147,7 @@ export async function getLLMDiagnosticArrayAsString(projectUri: string): Promise
     let diagnosticArray = createDiagnosticArray(responses, projectUri).map(diagnostic => {
         return `${diagnostic.message}`;
     })
-    .join("\n\n");
+        .join("\n\n");
 
     return diagnosticArray;
 }
@@ -157,7 +168,8 @@ function createDiagnosticArray(responses: any[], projectUri: string): Diagnostic
 
 export function extractResponseAsJsonFromString(jsonString: string): any {
     try {
-        const data: ResponseData = JSON.parse(jsonString);
+        const driftResponse: DriftResponse = JSON.parse(jsonString);
+        const data: DriftResponseData = JSON.parse(driftResponse.drift);
         if (!data.results || !Array.isArray(data.results)) {
             return null;
         }
@@ -168,7 +180,7 @@ export function extractResponseAsJsonFromString(jsonString: string): any {
     }
 }
 
-export function createDiagnosticList(data: ResponseData, projectPath: string, diagnostics: Diagnostic[]) {
+export function createDiagnosticList(data: DriftResponseData, projectPath: string, diagnostics: Diagnostic[]) {
     data.results.forEach((result) => {
         const uri = vscode.Uri.file(path.join(projectPath, result.fileName));
         diagnostics.push(createDiagnostic(result, uri));
@@ -177,7 +189,7 @@ export function createDiagnosticList(data: ResponseData, projectPath: string, di
     return diagnostics;
 }
 
-export async function getBallerinaSourceFiles(folderPath: string): Promise<{ balFiles: string; readme: string; requirements: string; developerOverview: string;}> {
+export async function getBallerinaSourceFiles(folderPath: string): Promise<{ balFiles: string; readme: string; requirements: string; developerOverview: string; }> {
     let balFiles = "<project>\n";
     let readmeContent = "";
 
@@ -196,14 +208,14 @@ export async function getBallerinaSourceFiles(folderPath: string): Promise<{ bal
             if (fs.statSync(fullPath).isFile() && file.endsWith(".bal")) {
                 const content = fs.readFileSync(fullPath, "utf8");
                 const formattedContent = formatWithLineNumbers(content);
-                balFiles += `  <program filename=\"${file}\">\n    ${formattedContent}\n  </program>\n`;
+                balFiles += `  <file filename=\"${file}\">\n    ${formattedContent}\n  </file>\n`;
             }
         }
     }
 
     function getModuleBalFiles(modulesDir: string) {
         if (!fs.existsSync(modulesDir)) { return; }
-        const moduleDirs = fs.readdirSync(modulesDir).filter(dir => 
+        const moduleDirs = fs.readdirSync(modulesDir).filter(dir =>
             fs.statSync(path.join(modulesDir, dir)).isDirectory()
         );
 
@@ -245,8 +257,8 @@ export async function getBallerinaSourceFiles(folderPath: string): Promise<{ bal
                         content = requirementContent.toString();
                     } else {
                         // TODO: Handle this properly.
-                        // project.sources["user_requirements_file"] = ""
-                        throw UNKNOWN_ERROR;
+                        content = "";
+                        // throw UNKNOWN_ERROR;
                     }
                 }
                 requirementsContent += `<requirement_specification filename=\"${NATURAL_PROGRAMMING_PATH}/${file}\">\n${content}\n</requirement_specification>\n`;
@@ -276,10 +288,10 @@ export async function getBallerinaSourceFiles(folderPath: string): Promise<{ bal
 
     balFiles += "</project>";
 
-    return { 
-        balFiles, 
-        readme: readmeContent.trim(), 
-        requirements: nlContent[0].trim() ,
+    return {
+        balFiles,
+        readme: readmeContent.trim(),
+        requirements: nlContent[0].trim(),
         developerOverview: nlContent[1].trim()
     };
 }
@@ -327,11 +339,11 @@ export async function streamToString(stream: ReadableStream<Uint8Array>): Promis
     let result = "";
 
     while (true) {
-      const { done, value } = await reader.read();
-      if (done) {
-        break;
-      }
-      result += decoder.decode(value, { stream: true });
+        const { done, value } = await reader.read();
+        if (done) {
+            break;
+        }
+        result += decoder.decode(value, { stream: true });
     }
 
     return result;

@@ -1,3 +1,12 @@
+/**
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
 import * as vscode from 'vscode';
 import { CustomDiagnostic } from './custom-diagnostics';
 import {DIAGNOSTIC_ID, COMMAND_SHOW_TEXT} from "./constants";
@@ -22,7 +31,7 @@ export class NLCodeActionProvider implements vscode.CodeActionProvider {
                     const codeChangeSolution = customDiagnostic.data.codeChangeSolution;
                     const docChangeSolution = customDiagnostic.data.docChangeSolution;
 
-                    if (codeChangeSolution != null && codeChangeSolution != "") {
+                    if (codeChangeSolution != null && codeChangeSolution != undefined && codeChangeSolution != "") {
                         const replaceAction = new vscode.CodeAction(UPDATE_CODE_ACTION_CONTENT, vscode.CodeActionKind.QuickFix);
                         replaceAction.command = {
                             command: COMMAND_SHOW_TEXT,
@@ -32,7 +41,7 @@ export class NLCodeActionProvider implements vscode.CodeActionProvider {
                         actions.push(replaceAction);
                     }
 
-                    if (docChangeSolution != null && docChangeSolution != "") {
+                    if (docChangeSolution != null && docChangeSolution != undefined && docChangeSolution != "") {
                         const replaceAction = new vscode.CodeAction(UPDATE_DOC_ACTION_CONTENT, vscode.CodeActionKind.QuickFix);
                         replaceAction.command = {
                             command: COMMAND_SHOW_TEXT,

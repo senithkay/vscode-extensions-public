@@ -8,10 +8,10 @@
  */
 
 import vscode from 'vscode';
-import {ENABLE_NATURAL_PROGRAMMING } from "../../core/preferences";
+import { ENABLE_NATURAL_PROGRAMMING } from "../../core/preferences";
 import { debounce } from 'lodash';
 import { StateMachine } from "../../stateMachine";
-import { getLLMDiagnostics} from "./utils";
+import { getLLMDiagnostics } from "./utils";
 import { NLCodeActionProvider, showTextOptions } from './nl-code-action-provider';
 import { BallerinaExtension } from 'src/core';
 

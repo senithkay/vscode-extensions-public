@@ -1014,8 +1014,8 @@ async function getCurrentProjectSource(): Promise<BallerinaProject> {
                 }
 
                 // TODO: Handle this properly.
-                // project.sources[REQ_KEY] = ""
-                throw UNKNOWN_ERROR;
+                project.sources[REQ_KEY] = "";
+                // throw UNKNOWN_ERROR;
             }
         }
     }
