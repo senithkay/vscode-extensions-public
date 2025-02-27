@@ -574,10 +574,16 @@ function genCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOu
 	const importedFunctionNames = new Set(sourceFile.getImportDeclarations()
 		.flatMap(importDecl => importDecl.getNamedImports().map(namedImport => namedImport.getName())));
 
-	const formattedSourceFieldName = toFirstLetterLowerCase(sourcePort.field.fieldName);
+	const formattedSourceFieldName = toFirstLetterLowerCase(
+		sourcePort.field.fieldName ||
+		sourcePort.optionalOmittedFieldFQN?.replaceAll('.', '_') ||
+		sourcePort.field.typeName ||
+		sourcePort.field.kind
+	);
 	const formattedTargetFieldName = toFirstLetterUpperCase(targetFieldName);
+
 	let customFunctionName = `${formattedSourceFieldName}To${formattedTargetFieldName}`;
-	let i = 1;
+	let i = 0;
 	while (localFunctionNames.has(customFunctionName) || importedFunctionNames.has(customFunctionName)) {
 		customFunctionName = `${formattedSourceFieldName}To${formattedTargetFieldName}${isNaN(Number(formattedTargetFieldName.charAt(formattedTargetFieldName.length - 1))) ? '' : '_'
 			}${++i}`;
@@ -585,7 +591,7 @@ function genCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOu
 
 	return {
 		name: customFunctionName,
-		parameters: [{ name: sourcePort.field.fieldName, type: getTypeAnnotation(sourcePort.field) }],
+		parameters: [{ name: formattedSourceFieldName, type: getTypeAnnotation(sourcePort.field) }],
 		returnType: getTypeAnnotation(targetPort.field),
 		statements: [
 			`return ${getDefaultValue(targetPort.field)};`
