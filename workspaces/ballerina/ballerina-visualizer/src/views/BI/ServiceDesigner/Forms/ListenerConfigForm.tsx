@@ -7,17 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { Button, ButtonWrapper, Codicon, FormGroup, Typography, CheckBox, RadioButtonGroup, ProgressRing, Divider, CompletionItem } from "@wso2-enterprise/ui-toolkit";
-import { Form, FormField, FormValues, TypeEditor } from "@wso2-enterprise/ballerina-side-panel";
-import { BallerinaTrigger, ComponentTriggerType, FormDiagnostics, FunctionField, TRIGGER_CHARACTERS, TriggerCharacter, ListenerModel } from "@wso2-enterprise/ballerina-core";
-import { debounce } from "lodash";
+import { Typography, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { ListenerModel, LineRange } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { URI, Utils } from "vscode-uri";
-import { BodyText } from "../../../styles";
 import FormGeneratorNew from "../../Forms/FormGeneratorNew";
 import { FormHeader } from "../../../../components/FormHeader";
+
 const Container = styled.div`
     /* padding: 0 20px 20px; */
     max-width: 600px;
@@ -55,6 +54,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const [listenerFields, setListenerFields] = useState<FormField[]>([]);
     const { listenerModel, onSubmit, onBack, formSubmitText = "Next" } = props;
     const [filePath, setFilePath] = useState<string>('');
+    const [targetLineRange, setTargetLineRange] = useState<LineRange>();
 
     useEffect(() => {
         listenerModel && setListenerFields(convertConfig(listenerModel));
@@ -73,6 +73,20 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
 
     const createTitle = `Provide the necessary configuration details for the ${listenerModel.displayAnnotation.label} to complete the setup.`;
     const editTitle = `Update the configuration details for the ${listenerModel.displayAnnotation.label} as needed.`
+
+    useEffect(() => {
+        if (filePath && rpcClient) {
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getEndOfFile({ filePath })
+                .then((res) => {
+                    setTargetLineRange({
+                        startLine: res,
+                        endLine: res,
+                    });
+                });
+        }
+    }, [filePath, rpcClient]);
 
     return (
         <Container>
@@ -93,10 +107,10 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                                 {formSubmitText === "Save" ? editTitle : createTitle}
                             </BodyText> */}
                             <FormHeader title={`${listenerModel.displayAnnotation.label.charAt(0).toUpperCase() + listenerModel.displayAnnotation.label.slice(1)} Configuration`} subtitle={`${formSubmitText === "Save" ? editTitle : createTitle}`} />
-                            {filePath &&
+                            {filePath && targetLineRange &&
                                 <FormGeneratorNew
                                     fileName={filePath}
-                                    targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
+                                    targetLineRange={targetLineRange}
                                     fields={listenerFields}
                                     onSubmit={handleListenerSubmit}
                                     onBack={onBack}

@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { FunctionNode, NodeProperties } from "@wso2-enterprise/ballerina-core";
+import { FunctionNode, LineRange, NodeProperties } from "@wso2-enterprise/ballerina-core";
 import { View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -47,6 +47,7 @@ export function FunctionForm(props: FunctionFormProps) {
     const [functionFields, setFunctionFields] = useState<FormField[]>([]);
     const [filePath, setFilePath] = useState<string>('');
     const [functionNode, setFunctionNode] = useState<FunctionNode>(undefined);
+    const [targetLineRange, setTargetLineRange] = useState<LineRange>();
 
     const formType = useRef(isDataMapper ? "Data Mapper" : "Function");
 
@@ -131,6 +132,20 @@ export function FunctionForm(props: FunctionFormProps) {
         await rpcClient.getBIDiagramRpcClient().getSourceCode({ filePath, flowNode: functionNodeCopy, isFunctionNodeUpdate: true });
     };
 
+    useEffect(() => {
+        if (filePath && rpcClient) {
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getEndOfFile({ filePath })
+                .then((res) => {
+                    setTargetLineRange({
+                        startLine: res,
+                        endLine: res,
+                    });
+                });
+        }
+    }, [filePath, rpcClient]);
+
     return (
         <View>
             <TopNavigationBar />
@@ -144,10 +159,10 @@ export function FunctionForm(props: FunctionFormProps) {
                         <FormHeader title={`Create New ${formType.current}`} subtitle={`Define a ${formType.current} that can be used within the integration.`} />
                     )}
                     <FormContainer>
-                        {filePath && functionFields.length > 0 &&
+                        {filePath && targetLineRange && functionFields.length > 0 &&
                             <FormGeneratorNew
                                 fileName={filePath}
-                                targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
+                                targetLineRange={targetLineRange}
                                 fields={functionFields}
                                 onSubmit={handleSubmit}
                                 submitText={functionName ? "Save" : "Create"}
