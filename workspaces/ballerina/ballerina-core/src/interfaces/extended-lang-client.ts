@@ -404,6 +404,16 @@ export interface FunctionLineRange {
     endLine: LinePosition;
 }
 
+export interface ICPEnabledRequest {
+    projectPath: string;
+}
+
+export interface ICPEnabledResponse {
+    enabled?: boolean;
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
 export interface GetTestFunctionRequest {
     filePath: string;
     functionName: string;
@@ -1059,6 +1069,7 @@ export interface ModelFromCodeRequest {
     codedata: {
         lineRange: LineRange;
     };
+    context: string;
 }
 
 export interface ServiceClassModelResponse {

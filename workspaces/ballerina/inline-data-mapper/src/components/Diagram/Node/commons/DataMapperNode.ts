@@ -119,7 +119,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		this.addPort(fieldPort);
 
 		if (field.kind === TypeKind.Record) {
-			const fields = field?.fields;
+			const fields = field?.fields.filter(f => f !== null);
 			if (fields && !!fields.length) {
 				fields.forEach((subField) => {
 					this.addPortsForOutputField(

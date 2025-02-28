@@ -33,6 +33,7 @@ import { Branch, FlowNode, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 import { EndNodeModel } from "../components/nodes/EndNode";
 import { ErrorNodeModel } from "../components/nodes/ErrorNode";
+import { AgentCallNodeModel } from "../components/nodes/AgentCallNode/AgentCallNodeModel";
 
 export class NodeFactoryVisitor implements BaseVisitor {
     nodes: NodeModel[] = [];
@@ -557,6 +558,17 @@ export class NodeFactoryVisitor implements BaseVisitor {
     beginVisitResourceActionCall(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
         this.beginVisitRemoteActionCall(node, parent);
+    }
+
+    beginVisitAgentCall(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        if (!node.id) {
+            return;
+        }
+        const nodeModel = new AgentCallNodeModel(node);
+        this.nodes.push(nodeModel);
+        this.updateNodeLinks(node, nodeModel);
+        this.addSuggestionsButton(node);
     }
 
     beginVisitEmpty(node: FlowNode, parent?: FlowNode): void {
