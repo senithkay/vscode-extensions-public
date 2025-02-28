@@ -262,7 +262,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
             ...values,
             parameters,
             isEdit: !isNewTemplate,
-            range: props.model ? { start: { line: 0, character:0 }, end: props.model.sequence.range.startTagRange.start} : undefined
+            range: props.model ? { start: { line: 0, character: 0 }, end: props.model.sequence.range.startTagRange.start } : undefined
         }
 
         const result = await rpcClient.getMiDiagramRpcClient().createTemplate(createTemplateParams);
@@ -291,9 +291,10 @@ export function TemplateWizard(props: TemplateWizardProps) {
     };
 
     const openSequence = (path: string) => {
-        rpcClient.getMiVisualizerRpcClient().openView({ 
+        rpcClient.getMiVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
-            location: { view: MACHINE_VIEW.SequenceTemplateView, documentUri: path } });
+            location: { view: MACHINE_VIEW.SequenceTemplateView, documentUri: path }
+        });
     }
 
     const clearEndpointType = () => {
@@ -310,16 +311,21 @@ export function TemplateWizard(props: TemplateWizardProps) {
 
     switch (endpointType) {
         case 'Address Endpoint Template':
-            return <AddressEndpointWizard path={props.path} type="template" isPopup={true} handleChangeType={clearEndpointType} handlePopupClose={handleCancel} />;
+            return <AddressEndpointWizard path={props.path} type="template" handleChangeType={clearEndpointType} />;
         case 'Default Endpoint Template':
-            return <DefaultEndpointWizard path={props.path} type="template" isPopup={true} handleChangeType={clearEndpointType} handlePopupClose={handleCancel} />;
+            return <DefaultEndpointWizard path={props.path} type="template" handleChangeType={clearEndpointType} />;
         case 'HTTP Endpoint Template':
-            return <HttpEndpointWizard path={props.path} type="template" isPopup={true} handleChangeType={clearEndpointType} handlePopupClose={handleCancel} />;
+            return <HttpEndpointWizard path={props.path} type="template" handleChangeType={clearEndpointType} />;
         case 'WSDL Endpoint Template':
-            return <WsdlEndpointWizard path={props.path} type="template" isPopup={true} handleChangeType={clearEndpointType} handlePopupClose={handleCancel} />;
+            return <WsdlEndpointWizard path={props.path} type="template" handleChangeType={clearEndpointType} />;
         case 'Sequence Template':
             return (
                 <FormView title="Template" onClose={handleCancel}>
+                    <TypeChip
+                        type={"Sequence Template"}
+                        onClick={clearEndpointType}
+                        showButton={!props.path.endsWith(".xml")}
+                    />
                     <TextField
                         placeholder="Name"
                         label="Template Name"
