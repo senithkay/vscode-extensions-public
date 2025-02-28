@@ -126,9 +126,9 @@ export function activateTryItCommand(ballerinaExtInstance: BallerinaExtension) {
         clientManager.setClient(ballerinaExtInstance.langClient);
 
         // Register try it command handler
-        const disposable = commands.registerCommand(PALETTE_COMMANDS.TRY_IT, async (withNotice: boolean = false, resourceMetadata?: ResourceMetadata) => {
+        const disposable = commands.registerCommand(PALETTE_COMMANDS.TRY_IT, async (withNotice: boolean = false, resourceMetadata?: ResourceMetadata, serviceMetadata?: ServiceMetadata) => {
             try {
-                await openTryItView(withNotice, resourceMetadata);
+                await openTryItView(withNotice, resourceMetadata, serviceMetadata);
             } catch (error) {
                 handleError(error, "Opening Try It view failed");
             }
@@ -142,7 +142,7 @@ export function activateTryItCommand(ballerinaExtInstance: BallerinaExtension) {
     }
 }
 
-async function openTryItView(withNotice: boolean = false, resourceMetadata?: ResourceMetadata) {
+async function openTryItView(withNotice: boolean = false, resourceMetadata?: ResourceMetadata, serviceMetadata?: ServiceMetadata) {
     try {
         if (!clientManager.hasClient()) {
             throw new Error('Ballerina Language Server is not connected');
@@ -159,7 +159,7 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
             return;
         }
 
-        if (withNotice && !resourceMetadata) {
+        if (withNotice) {
             const selection = await vscode.window.showInformationMessage(
                 `${services.length} service${services.length === 1 ? '' : 's'} found in the integration. Test with Try It Client?`,
                 "Test",
@@ -173,7 +173,7 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
 
         let selectedService: ServiceInfo;
         // If in resource try it mode, find the service containing the resource path
-        if (resourceMetadata?.pathValue) {
+        if (resourceMetadata) {
             const matchingService = await findServiceForResource(services, resourceMetadata);
             if (!matchingService) {
                 vscode.window.showErrorMessage(`Could not find a service containing the resource path: ${resourceMetadata.pathValue}`);
@@ -182,21 +182,31 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
 
             selectedService = matchingService;
         } else if (services.length > 1) {
-            const quickPickItems = services.map(service => ({
-                label: `'${service.basePath}' on ${service.listener}`,
-                description: `HTTP Service`,
-                service
-            }));
+            if (serviceMetadata) {
+                const matchingService = services.find(service =>
+                    service.basePath === serviceMetadata.basePath && service.listener === serviceMetadata.listener
+                );
 
-            const selected = await vscode.window.showQuickPick(quickPickItems, {
-                placeHolder: 'Select a service to try out',
-                title: 'Available Services'
-            });
+                if (matchingService) {
+                    selectedService = matchingService;
+                }
+            } else {
+                const quickPickItems = services.map(service => ({
+                    label: `'${service.basePath}' on ${service.listener}`,
+                    description: `HTTP Service`,
+                    service
+                }));
 
-            if (!selected) {
-                return;
+                const selected = await vscode.window.showQuickPick(quickPickItems, {
+                    placeHolder: 'Select a service to try out',
+                    title: 'Available Services'
+                });
+
+                if (!selected) {
+                    return;
+                }
+                selectedService = selected.service;
             }
-            selectedService = selected.service;
         } else {
             selectedService = services[0];
         }
@@ -324,7 +334,7 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
         let isResourceMode = false;
         let resourcePath = '';
         // Filter paths based on resourceMetadata if provided
-        if (resourceMetadata?.pathValue) {
+        if (resourceMetadata) {
             const originalPaths = openapiSpec.paths;
             const filteredPaths: Record<string, Record<string, Operation>> = {};
 
@@ -338,29 +348,20 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
             }
 
             if (matchingPath && originalPaths[matchingPath]) {
-                // Set resource mode flag and path
                 isResourceMode = true;
                 resourcePath = matchingPath;
 
-                if (resourceMetadata.methodValue) {
-                    const method = resourceMetadata.methodValue.toLowerCase();
-                    if (originalPaths[matchingPath][method]) {
-                        // Create entry with only the specified method
-                        filteredPaths[matchingPath] = {
-                            [method]: {
-                                ...originalPaths[matchingPath][method],
-                                // Add a custom property to indicate this is the selected resource
-                                description: originalPaths[matchingPath][method].description
-                                    ? `${originalPaths[matchingPath][method].description} (Selected Resource)`
-                                    : '(Selected Resource)'
-                            }
-                        };
-                    } else {
-                        // Method not found in matching path
-                        vscode.window.showWarningMessage(`Method ${resourceMetadata.methodValue} not found for path ${matchingPath}. Showing all methods for this path.`);
-                        filteredPaths[matchingPath] = originalPaths[matchingPath];
-                    }
+                const method = resourceMetadata.methodValue.toLowerCase();
+                if (originalPaths[matchingPath][method]) {
+                    // Create entry with only the specified method
+                    filteredPaths[matchingPath] = {
+                        [method]: {
+                            ...originalPaths[matchingPath][method]
+                        }
+                    };
                 } else {
+                    // Method not found in matching path
+                    vscode.window.showWarningMessage(`Method ${resourceMetadata.methodValue} not found for path ${matchingPath}. Showing all methods for this path.`);
                     filteredPaths[matchingPath] = originalPaths[matchingPath];
                 }
 
@@ -599,7 +600,7 @@ function registerHandlebarsHelpers(openapiSpec: OAISpec): void {
     if (!Handlebars.helpers.uppercase) {
         Handlebars.registerHelper('uppercase', (str: string) => str.toUpperCase());
     }
-    
+
     if (!Handlebars.helpers.trim) {
         Handlebars.registerHelper('trim', (str?: string) => str ? str.trim() : '');
     }
@@ -932,6 +933,11 @@ interface Components {
 }
 
 interface ResourceMetadata {
-    methodValue?: string;
-    pathValue?: string;
+    methodValue: string;
+    pathValue: string;
+}
+
+interface ServiceMetadata {
+    basePath: string;
+    listener: string;
 }
