@@ -79,7 +79,7 @@ export const SuggestionsPage = ({ fileName, targetLineRange, defaultValue, onCha
                 onSearch={handleSearch}
                 titleSx={{ fontFamily: "GilmerRegular" }}
             />
-            <HelperPane.Body loading={isLoading}>
+            <HelperPane.Body>
                 {defaultValue && defaultValue !== '""' && (
                     <HelperPane.Section
                         title="Suggestions"
@@ -99,6 +99,7 @@ export const SuggestionsPage = ({ fileName, targetLineRange, defaultValue, onCha
 
                     return (
                         <HelperPane.Section
+                            key={category.label}
                             title={category.label}
                             titleSx={{ fontFamily: "GilmerMedium" }}
                         >

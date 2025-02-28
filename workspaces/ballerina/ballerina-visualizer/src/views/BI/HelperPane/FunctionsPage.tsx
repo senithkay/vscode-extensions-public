@@ -156,7 +156,7 @@ export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: 
                             title={category.label}
                             titleSx={{ fontFamily: 'GilmerMedium' }}
                         >
-                            {category.subCategory.map((subCategory) => (
+                            {category.subCategory?.map((subCategory) => (
                                 <HelperPane.SubSection
                                     key={`${category.label}-${subCategory.label}`}
                                     title={subCategory.label}
