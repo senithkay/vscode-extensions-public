@@ -88,26 +88,28 @@ export const ConfigurablePage = ({
         resolver: yupResolver(scehma)
     });
 
-    const getConfigurableVariableInfo = () => {
+    const getConfigurableVariableInfo = useCallback(() => {
         setIsLoading(true);
-        rpcClient
-            .getBIDiagramRpcClient()
-            .getVisibleVariableTypes({
-                filePath: fileName,
-                position: {
-                    line: targetLineRange.startLine.line,
-                    offset: targetLineRange.startLine.offset,
-                },
-            })
-            .then((response) => {
-                if (response.categories?.length) {
-                    const convertedConfigurableInfo = convertToHelperPaneConfigurableVariable(response.categories);
-                    setConfigurableInfo(convertedConfigurableInfo);
-                    setFilteredConfigurableInfo(convertedConfigurableInfo);
-                }
-            })
-            .then(() => setIsLoading(false));
-    };
+        setTimeout(() => {
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getVisibleVariableTypes({
+                    filePath: fileName,
+                    position: {
+                        line: targetLineRange.startLine.line,
+                        offset: targetLineRange.startLine.offset
+                    }
+                })
+                .then((response) => {
+                    if (response.categories?.length) {
+                        const convertedConfigurableInfo = convertToHelperPaneConfigurableVariable(response.categories);
+                        setConfigurableInfo(convertedConfigurableInfo);
+                        setFilteredConfigurableInfo(convertedConfigurableInfo);
+                    }
+                })
+                .then(() => setIsLoading(false));
+        }, 150);
+    }, [rpcClient, fileName, targetLineRange]);
 
     const handleSaveConfigurables = async (values: ConfigData) => {
         const variable: ConfigVariable = {
