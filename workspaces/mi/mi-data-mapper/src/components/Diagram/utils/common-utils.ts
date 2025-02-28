@@ -699,14 +699,6 @@ export function genVariableName(originalName: string, existingNames: string[]): 
 	return modifiedName;
 }
 
-export function toFirstLetterLowerCase(identifierName: string){
-    return identifierName.charAt(0).toLowerCase() + identifierName.slice(1);
-}
-
-export function toFirstLetterUpperCase(identifierName: string){
-    return identifierName.charAt(0).toUpperCase() + identifierName.slice(1);
-}
-
 export function isMapFnAtPropAssignment(focusedST: Node) {
     return  Node.isPropertyAssignment(focusedST)
         && Node.isCallExpression(focusedST.getInitializer())
