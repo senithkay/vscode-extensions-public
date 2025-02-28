@@ -20,6 +20,7 @@ export enum NodeTypes {
     CODE_BLOCK_NODE = "code-block-node",
     END_NODE = "end-node",
     ERROR_NODE = "error-node",
+    AGENT_CALL_NODE = "agent-call-node",
 }
 
 export const NODE_LINK = "node-link";
