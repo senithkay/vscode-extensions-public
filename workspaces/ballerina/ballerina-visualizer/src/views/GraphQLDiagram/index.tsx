@@ -32,10 +32,10 @@ import styled from "@emotion/styled";
 import { GraphqlServiceEditor } from "./GraphqlServiceEditor";
 import { TypeEditor } from "@wso2-enterprise/type-editor";
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
-import { ClassTypeEditor } from "../BI/ServiceClassEditor/ClassTypeEditor";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { TopNavigationBar } from "../../components/TopNavigationBar";
 import { TitleBar } from "../../components/TitleBar";
+import { GraphqlObjectViewer } from "./ObjectViewer";
 
 const SpinnerContainer = styled.div`
     display: flex;
@@ -76,6 +76,7 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
     const [isServiceEditorOpen, setIsServiceEditorOpen] = useState<boolean>(false);
     const [isTypeEditorOpen, setIsTypeEditorOpen] = useState(false);
     const [editingType, setEditingType] = useState<Type>();
+    const [focusedNodeId, setFocusedNodeId] = useState<string | undefined>(undefined);
 
     const fetchGraphqlTypeModel = async () => {
         if (!filePath) return null;
@@ -167,24 +168,50 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
         });
     };
 
+    const handleOnImplementation = async (type: Type) => {
+        await rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.BIServiceClassDesigner,
+                type: type,
+                projectUri: projectUri,
+                isGraphql: true
+            },
+        });
+        setEditingType(undefined);
+    };
+
+    const handleFocusedNodeIdChange = (nodeId: string) => {
+        setFocusedNodeId(nodeId);
+    };
+
     return (
         <>
             <View>
                 <TopNavigationBar />
-                <TitleBar
-                    title="GraphQL"
-                    subtitleElement={
-                        <SubTitleWrapper>
-                            <Path>{graphqlTypeModel?.type.name}</Path>
-                        </SubTitleWrapper>
-                    }
-                    actions={
-                        <ActionButton appearance="secondary" onClick={handleServiceEdit}>
-                            <Icon name="bi-edit" sx={{ marginRight: 5, width: 16, height: 16, fontSize: 14 }} />
-                            Edit
-                        </ActionButton>
-                    }
-                />
+                {!focusedNodeId && (
+                    <TitleBar
+                        title="GraphQL"
+                        subtitleElement={
+                            <SubTitleWrapper>
+                                <Path>{graphqlTypeModel?.type.name}</Path>
+                            </SubTitleWrapper>
+                        }
+                        actions={
+                            <ActionButton appearance="secondary" onClick={handleServiceEdit}>
+                                <Icon name="bi-edit" sx={{ marginRight: 5, width: 16, height: 16, fontSize: 14 }} />
+                                Edit
+                            </ActionButton>
+                        }
+                    />
+                )}
+                {focusedNodeId && (
+                    <TitleBar
+                        title={focusedNodeId}
+                        subtitle="Type"
+                        onBack={() => setFocusedNodeId(undefined)}
+                    />
+                )}
                 <ViewContent>
                     {isLoading ? (
                         <SpinnerContainer>
@@ -201,6 +228,8 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
                             isGraphql={true}
                             goToSource={handleOnGoToSource}
                             onTypeEdit={onTypeEdit}
+                            focusedNodeId={focusedNodeId}
+                            updateFocusedNodeId={handleFocusedNodeIdChange}
                         />
                     ) : null}
                 </ViewContent>
@@ -232,9 +261,13 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
                     />
                 </PanelContainer>
             )}
-            {/* TODO: Allow when ClassTypeEditor support the BE model */}
             {isTypeEditorOpen && editingType && editingType.codedata.node === "CLASS" && (
-                <ClassTypeEditor onClose={onTypeEditorClosed} type={editingType} projectUri={projectUri} />
+                <GraphqlObjectViewer
+                    onClose={onTypeEditorClosed}
+                    type={editingType}
+                    projectUri={projectUri}
+                    onImplementation={handleOnImplementation}
+                />
             )}
         </>
     );

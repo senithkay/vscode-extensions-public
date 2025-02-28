@@ -267,12 +267,14 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
     return (
         <Container>
             <CellDiagramContext {...ctx}>
-                <DiagramContainer onClick={handleCanvasClick} className={previewMode ? "preview-mode" : ""}>
+                <DiagramContainer onClick={handleCanvasClick}
+                    className={previewMode ? "preview-mode" : ""
+                }>
                     {diagramEngine?.getModel() && diagramModel ? (
                         <>
                             <CanvasWidget
                                 engine={diagramEngine}
-                                className={styles.canvas}
+                                className={`${styles.canvas} cell-diagram-canvas`}
                             />
                             {showControls && !previewMode && <DiagramControls engine={diagramEngine} animation={animation} />}
                             {showDiagramLayers && (

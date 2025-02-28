@@ -36,6 +36,9 @@ export function ComponentWidget(props: ComponentWidgetProps) {
     const isDisabled = node.component.disabled?.status;
 
     useEffect(() => {
+        if (previewMode) {
+            return;
+        }
         const listener = node.registerListener({
             SELECT: (event: any) => {
                 setSelectedLink(event.component as ComponentLinkModel);
@@ -88,11 +91,17 @@ export function ComponentWidget(props: ComponentWidgetProps) {
     };
 
     const handleMouseEnter = () => {
+        if (previewMode) {
+            return;
+        }
         setIsHovered(true);
         handleOnHover("SELECT");
     };
 
     const handleMouseLeave = () => {
+        if (previewMode) {
+            return;
+        }
         setIsHovered(false);
         handleOnHover("UNSELECT");
     };

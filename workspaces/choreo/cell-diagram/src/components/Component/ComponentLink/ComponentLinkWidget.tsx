@@ -80,7 +80,7 @@ export function ComponentLinkWidget(props: WidgetProps) {
     }, [link, hideLink]);
 
     const selectPath = () => {
-        if (hideLink) {
+        if (hideLink || previewMode) {
             return;
         }
         setIsSelected(true);
@@ -88,13 +88,16 @@ export function ComponentLinkWidget(props: WidgetProps) {
     };
 
     const unselectPath = () => {
+        if (previewMode) {
+            return;
+        }
         setIsSelected(false);
         link.resetLinkedNodes();
     };
 
     const handleMouseOver = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
         event.stopPropagation();
-        if (hideLink) {
+        if (hideLink || previewMode) {
             return;
         }
         selectPath();
@@ -103,6 +106,9 @@ export function ComponentLinkWidget(props: WidgetProps) {
 
     const handleMouseLeave = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
         event.stopPropagation();
+        if (previewMode) {
+            return;
+        }
         unselectPath();
         setAnchorEl(null);
     };
