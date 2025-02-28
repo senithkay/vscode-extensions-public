@@ -15,8 +15,7 @@ import {
     ObjectMethodDefinition,
     ResourceAccessorDefinition,
     STKindChecker,
-    TypeDefinition,
-    NodePosition
+    TypeDefinition
 } from "@wso2-enterprise/syntax-tree";
 import { PALETTE_COMMANDS } from "../project";
 import { CodeLens, Range, Uri } from "vscode";
@@ -45,7 +44,7 @@ export class CodeLensProviderVisitor implements Visitor {
                 this.supportedServiceTypes.includes(expr.typeDescriptor.modulePrefix.value)) ||
                 (STKindChecker.isSimpleNameReference(expr) &&
                     this.supportedServiceTypes.includes(expr.typeData.typeSymbol.moduleID.moduleName))) {
-                this.createTryItCodeLens(node.position, node.serviceKeyword.position, node.absoluteResourcePath.map((path) => path.value).join(''));
+                this.createTryItCodeLens(node.position, node.serviceKeyword.position, node.absoluteResourcePath.map((path) => path.value).join(''), node.expressions.map((exp) => exp.source.trim()).join(','));
                 if (expr?.typeData?.typeSymbol?.signature?.includes("graphql")) {
                     this.createVisulizeGraphqlCodeLens(node.serviceKeyword.position, node.position);
                 } else {
@@ -117,22 +116,19 @@ export class CodeLensProviderVisitor implements Visitor {
         this.codeLenses.push(codeLens);
     }
 
-    private createTryItCodeLens(range: any, position: any, name: string) {
+    private createTryItCodeLens(range: any, position: any, basePath: string, listener: string) {
         const codeLens = new CodeLens(new Range(
             position.startLine,
             position.startColumn,
             position.endLine,
             position.endColumn
         ));
-        const rangeData: NodePosition = {
-            startLine: range.startLine, startColumn: range.startColumn,
-            endLine: range.endLine, endColumn: range.endColumn
-        };
+
         codeLens.command = {
             title: "Try it",
             tooltip: "Try running this service",
             command: PALETTE_COMMANDS.TRY_IT,
-            arguments: [this.activeEditorUri.toString(), name, rangeData]
+            arguments: [false, undefined, { basePath, listener }]
         };
         this.codeLenses.push(codeLens);
     }

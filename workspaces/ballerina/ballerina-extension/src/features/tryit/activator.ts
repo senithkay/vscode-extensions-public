@@ -126,9 +126,9 @@ export function activateTryItCommand(ballerinaExtInstance: BallerinaExtension) {
         clientManager.setClient(ballerinaExtInstance.langClient);
 
         // Register try it command handler
-        const disposable = commands.registerCommand(PALETTE_COMMANDS.TRY_IT, async (withNotice: boolean = false, resourceMetadata?: ResourceMetadata) => {
+        const disposable = commands.registerCommand(PALETTE_COMMANDS.TRY_IT, async (withNotice: boolean = false, resourceMetadata?: ResourceMetadata, serviceMetadata?: ServiceMetadata) => {
             try {
-                await openTryItView(withNotice, resourceMetadata);
+                await openTryItView(withNotice, resourceMetadata, serviceMetadata);
             } catch (error) {
                 handleError(error, "Opening Try It view failed");
             }
@@ -142,7 +142,7 @@ export function activateTryItCommand(ballerinaExtInstance: BallerinaExtension) {
     }
 }
 
-async function openTryItView(withNotice: boolean = false, resourceMetadata?: ResourceMetadata) {
+async function openTryItView(withNotice: boolean = false, resourceMetadata?: ResourceMetadata, serviceMetadata?: ServiceMetadata) {
     try {
         if (!clientManager.hasClient()) {
             throw new Error('Ballerina Language Server is not connected');
@@ -159,7 +159,7 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
             return;
         }
 
-        if (withNotice && !resourceMetadata) {
+        if (withNotice) {
             const selection = await vscode.window.showInformationMessage(
                 `${services.length} service${services.length === 1 ? '' : 's'} found in the integration. Test with Try It Client?`,
                 "Test",
@@ -182,21 +182,31 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
 
             selectedService = matchingService;
         } else if (services.length > 1) {
-            const quickPickItems = services.map(service => ({
-                label: `'${service.basePath}' on ${service.listener}`,
-                description: `HTTP Service`,
-                service
-            }));
+            if (serviceMetadata) {
+                const matchingService = services.find(service =>
+                    service.basePath === serviceMetadata.basePath && service.listener === serviceMetadata.listener
+                );
 
-            const selected = await vscode.window.showQuickPick(quickPickItems, {
-                placeHolder: 'Select a service to try out',
-                title: 'Available Services'
-            });
+                if (matchingService) {
+                    selectedService = matchingService;
+                }
+            } else {
+                const quickPickItems = services.map(service => ({
+                    label: `'${service.basePath}' on ${service.listener}`,
+                    description: `HTTP Service`,
+                    service
+                }));
 
-            if (!selected) {
-                return;
+                const selected = await vscode.window.showQuickPick(quickPickItems, {
+                    placeHolder: 'Select a service to try out',
+                    title: 'Available Services'
+                });
+
+                if (!selected) {
+                    return;
+                }
+                selectedService = selected.service;
             }
-            selectedService = selected.service;
         } else {
             selectedService = services[0];
         }
@@ -925,4 +935,9 @@ interface Components {
 interface ResourceMetadata {
     methodValue: string;
     pathValue: string;
+}
+
+interface ServiceMetadata {
+    basePath: string;
+    listener: string;
 }
