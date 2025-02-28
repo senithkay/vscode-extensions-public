@@ -65,8 +65,15 @@ interface ApiResponse {
     questions: string[];
 }
 
+interface ChatIndexes {
+    integratedChatIndex: number,
+    previouslyIntegratedChatIndex: number
+}
+
 var chatArray: ChatEntry[] = [];
-var chatIndex = 0;
+var integratedChatIndex = 0;
+var previouslyIntegratedChatIndex = 0;
+var previousDevelopmentDocumentContent = "";
 
 // A string array to store all code blocks
 const codeBlocks: string[] = [];
@@ -176,6 +183,15 @@ export function AIChat() {
             .getProjectUuid()
             .then((response) => {
                 projectUuid = response;
+
+                const localStorageIndexFile = `chatArray-AIGenerationChat-${projectUuid}-developer-index`;
+                const storedIndexes = localStorage.getItem(localStorageIndexFile);
+                if (storedIndexes) {
+                    const indexes: ChatIndexes = JSON.parse(storedIndexes);
+                    integratedChatIndex = indexes.integratedChatIndex;
+                    previouslyIntegratedChatIndex = indexes.previouslyIntegratedChatIndex;
+                }
+
                 const localStorageFile = `chatArray-AIGenerationChat-${projectUuid}`;
                 const storedChatArray = localStorage.getItem(localStorageFile);
                 rpcClient
@@ -691,7 +707,10 @@ export function AIChat() {
         }
 
         const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
-        const developerMdContent = await rpcClient.getAiPanelRpcClient().readDeveloperMdFile(chatLocation);
+        const developerMdContentWithTimeStamp = 
+                    await rpcClient.getAiPanelRpcClient().readDeveloperMdFile(chatLocation);
+        const developerMdContent = developerMdContentWithTimeStamp
+            .replace(/Last updated at - \d{2}\/\d{2}\/\d{4}, \d{2}:\d{2}:\d{2}/, '');
         const response = await fetchWithToken(
             backendRootUri + "/prompt/summarize",
             {
@@ -700,17 +719,20 @@ export function AIChat() {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({chats: chatArray.slice(chatIndex), existingChatSummary: developerMdContent}),
+                body: JSON.stringify({chats: chatArray.slice(integratedChatIndex), existingChatSummary: developerMdContent}),
                 signal: signal,
             },
             rpcClient
         );
 
         setIsCodeAdded(true);
-        chatIndex = chatArray.length;
+        previouslyIntegratedChatIndex = integratedChatIndex;
+        integratedChatIndex = chatArray.length;
+        localStorage.setItem(`chatArray-AIGenerationChat-${projectUuid}-developer-index`, JSON.stringify({integratedChatIndex, previouslyIntegratedChatIndex}));
         const chatSummaryResponseStr = await streamToString(response.body);
         await rpcClient.getAiPanelRpcClient()
-            .addChatSummary({summary: chatSummaryResponseStr, filepath: chatLocation})
+            .addChatSummary({summary: chatSummaryResponseStr, filepath: chatLocation});
+        previousDevelopmentDocumentContent = developerMdContentWithTimeStamp;
     };
 
     async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
@@ -756,6 +778,12 @@ export function AIChat() {
                     .addToProject({ filePath: filePath, content: revertContent, isTestCode: isTestCode });
             }
         }
+        rpcClient.getAiPanelRpcClient().updateDevelopmentDocument({
+            content: previousDevelopmentDocumentContent,
+            filepath: chatLocation
+        });
+        integratedChatIndex = previouslyIntegratedChatIndex;
+        localStorage.setItem(`chatArray-AIGenerationChat-${projectUuid}-developer-index`, JSON.stringify({integratedChatIndex, previouslyIntegratedChatIndex}));
         tempStorage = {};
         setIsCodeAdded(false);
     };
@@ -1100,7 +1128,10 @@ export function AIChat() {
     function handleClearChat(): void {
         codeBlocks.length = 0;
         chatArray.length = 0;
-        chatIndex = 0;
+        integratedChatIndex = 0;
+        previouslyIntegratedChatIndex = 0;
+        localStorage.setItem(`chatArray-AIGenerationChat-${projectUuid}-developer-index`, 
+            JSON.stringify({integratedChatIndex, previouslyIntegratedChatIndex}));
 
         setMessages((prevMessages) => []);
 

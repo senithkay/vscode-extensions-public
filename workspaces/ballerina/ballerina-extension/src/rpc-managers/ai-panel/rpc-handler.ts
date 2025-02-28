@@ -12,6 +12,7 @@ import {
     AIChatSummary,
     AddToProjectRequest,
     DeleteFromProjectRequest,
+    DeveloperDocument,
     GenerateMappingsFromRecordRequest,
     GenerateMappingsRequest,
     GenerateTestRequest,
@@ -60,6 +61,7 @@ import {
     refreshAccessToken,
     showSignInAlert,
     stopAIMappings,
+    updateDevelopmentDocument,
     updateProject
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
@@ -107,4 +109,5 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getFromDocumentation, (args: string) => rpcManger.getFromDocumentation(args));
     messenger.onNotification(addChatSummary, (args: AIChatSummary) => rpcManger.addChatSummary(args));
     messenger.onRequest(readDeveloperMdFile, (args: string) => rpcManger.readDeveloperMdFile(args));
+    messenger.onNotification(updateDevelopmentDocument, (args: DeveloperDocument) => rpcManger.updateDevelopmentDocument(args));
 }

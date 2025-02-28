@@ -155,3 +155,8 @@ export interface AIChatSummary {
     filepath: string;
     summary: string;
 }
+
+export interface DeveloperDocument {
+    filepath: string;
+    content: string;
+}

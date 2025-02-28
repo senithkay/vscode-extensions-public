@@ -7,7 +7,7 @@
 * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
 * You may not alter or remove any copyright or other notice from copies of this content.
 */
-import { AIVisualizerState, AddToProjectRequest, GetFromFileRequest, DeleteFromProjectRequest, GenerateMappingsRequest, GenerateMappingsResponse, NotifyAIMappingsRequest, ProjectSource, ProjectDiagnostics, InitialPrompt, GenerateTestRequest, GeneratedTestSource, GenerateMappingsFromRecordRequest, GenerateMappingFromRecordResponse, PostProcessRequest, PostProcessResponse, GenerateTypesFromRecordRequest, GenerateTypesFromRecordResponse, AIChatSummary } from "./interfaces";
+import { AIVisualizerState, AddToProjectRequest, GetFromFileRequest, DeleteFromProjectRequest, GenerateMappingsRequest, GenerateMappingsResponse, NotifyAIMappingsRequest, ProjectSource, ProjectDiagnostics, InitialPrompt, GenerateTestRequest, GeneratedTestSource, GenerateMappingsFromRecordRequest, GenerateMappingFromRecordResponse, PostProcessRequest, PostProcessResponse, GenerateTypesFromRecordRequest, GenerateTypesFromRecordResponse, AIChatSummary, DeveloperDocument } from "./interfaces";
 
 export interface AIPanelAPI {
     getBackendURL: () => Promise<string>;
@@ -51,4 +51,5 @@ export interface AIPanelAPI {
     getFromDocumentation: (content: string) => Promise<string>;
     addChatSummary:(filepathAndSummary: AIChatSummary) => void;
     readDeveloperMdFile:(directoryPath: string) => Promise<string>;
+    updateDevelopmentDocument:(developerDocument: DeveloperDocument) => void;
 }

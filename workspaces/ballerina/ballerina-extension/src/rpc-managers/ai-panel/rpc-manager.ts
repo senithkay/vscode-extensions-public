@@ -17,6 +17,7 @@ import {
     BIModuleNodesRequest,
     BISourceCodeResponse,
     DeleteFromProjectRequest,
+    DeveloperDocument,
     DiagnosticEntry,
     Diagnostics,
     ErrorCode,
@@ -61,6 +62,8 @@ import { StateMachineAI } from '../../views/ai-panel/aiMachine';
 import { MODIFIYING_ERROR, PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
 import { getFunction, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, processMappings, refreshAccessToken, searchDocumentation } from "./utils";
 export let hasStopped: boolean = false;
+const DEVELOPEMENT_DOCUMENT_PATH = "developer.md";
+const NATURAL_PROGRAMMING_DIR_PATH = "natural-programming";
 
 export class AiPanelRpcManager implements AIPanelAPI {
     async getBackendURL(): Promise<string> {
@@ -705,25 +708,34 @@ export class AiPanelRpcManager implements AIPanelAPI {
         const formattedTime = currentDate.toLocaleTimeString();
         summary = `${summary}\nLast updated at - ${formattedDate}, ${formattedTime}\n`;
 
-        const naturalProgrammingDirectory = path.join(filepath, "natural-programming");
+        const naturalProgrammingDirectory = path.join(filepath, NATURAL_PROGRAMMING_DIR_PATH);
 
         if (!fs.existsSync(naturalProgrammingDirectory)) {
             fs.mkdirSync(naturalProgrammingDirectory, { recursive: true }); // Add recursive: true
         }
 
-        const developerMdPath = path.join(naturalProgrammingDirectory, "developer.md");
+        const developerMdPath = path.join(naturalProgrammingDirectory, DEVELOPEMENT_DOCUMENT_PATH);
         fs.writeFileSync(developerMdPath, summary, 'utf8');
     }
 
     async readDeveloperMdFile(directoryPath: string): Promise<string> {
-        const developerMdPath = path.join(directoryPath, "natural-programming", "developer.md");
+        const developerMdPath = path.join(directoryPath, NATURAL_PROGRAMMING_DIR_PATH, DEVELOPEMENT_DOCUMENT_PATH);
         if (!fs.existsSync(developerMdPath)) {
             return "";
         }
         
         let developerMdContent = fs.readFileSync(developerMdPath, 'utf8');
-        developerMdContent = developerMdContent.replace(/Last updated at - \d{2}\/\d{2}\/\d{4}, \d{2}:\d{2}:\d{2}/, '');
         return Promise.resolve(developerMdContent);
+    }
+
+    async updateDevelopmentDocument(developerDocument: DeveloperDocument) {
+        const projectPath = developerDocument.filepath;
+        const content = developerDocument.content;
+
+        const developerMdPath = path.join(projectPath, NATURAL_PROGRAMMING_DIR_PATH, DEVELOPEMENT_DOCUMENT_PATH);
+        if (fs.existsSync(developerMdPath)) {
+            fs.writeFileSync(developerMdPath, content, 'utf8');
+        }
     }
 }
 

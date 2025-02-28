@@ -14,6 +14,7 @@ import {
     AIVisualizerState,
     AddToProjectRequest,
     DeleteFromProjectRequest,
+    DeveloperDocument,
     GenerateMappingFromRecordResponse,
     GenerateMappingsFromRecordRequest,
     GenerateMappingsRequest,
@@ -68,6 +69,7 @@ import {
     refreshAccessToken,
     showSignInAlert,
     stopAIMappings,
+    updateDevelopmentDocument,
     updateProject
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
@@ -238,5 +240,9 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     readDeveloperMdFile(directoryPath: string): Promise<string> {
         return this._messenger.sendRequest(readDeveloperMdFile, HOST_EXTENSION, directoryPath);
+    }
+
+    updateDevelopmentDocument(developerDocument: DeveloperDocument): void {
+        return this._messenger.sendNotification(updateDevelopmentDocument, HOST_EXTENSION, developerDocument);
     }
 }
