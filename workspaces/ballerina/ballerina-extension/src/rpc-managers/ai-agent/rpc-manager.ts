@@ -124,7 +124,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                     filePath: entryPosition.filePath,
                     position: { line: 0, offset: 0 },
                     id: getSelectedModelId
-                }
+                };
 
                 // Get the Node template for AI Model
                 const modelFlowNode = (await StateMachine.langClient().getNodeTemplate(modelRequest)).flowNode;
@@ -154,7 +154,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                         "object": "FunctionCallAgent",
                         "symbol": "init"
                     }
-                }
+                };
 
                 // Get the Node template for AI Model
                 const agentFlowNode = (await StateMachine.langClient().getNodeTemplate(agentRequest)).flowNode;
@@ -175,7 +175,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                     id: {
                         node: "AGENT_CALL"
                     }
-                }
+                };
 
                 // Get the Node template for AI Model
                 const agentCallFlowNode = (await StateMachine.langClient().getNodeTemplate(agentCallRequest)).flowNode;
@@ -215,7 +215,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
             const res: EntryPosition = {
                 filePath: functionFile,
                 position
-            }
+            };
             return res;
         }
     }
@@ -251,7 +251,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                                 if (func.name === tool.functionName) {
                                     selectedFunction = func;
                                 }
-                            })
+                            });
                         }
                     }
 
