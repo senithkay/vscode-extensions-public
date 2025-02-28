@@ -39,7 +39,7 @@ import {
     ProjectSource,
     STModification,
     SourceFile,
-    SyntaxTree,
+    SyntaxTree
 } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as crypto from 'crypto';
@@ -694,10 +694,28 @@ export class AiPanelRpcManager implements AIPanelAPI {
 
     async addChatSummary(filepathAndSummary: AIChatSummary): Promise<void> {
         const filepath = filepathAndSummary.filepath;
-        const summary = filepathAndSummary.summary;
+        var summaryResponse = filepathAndSummary.summary;
 
-        const developerMdPath = path.join(filepath, "natural-programming", "development.md");
+        const summaryJson: SummaryResponse = JSON.parse(summaryResponse);
+        let summary = summaryJson.summary;
+
+        // Added last updated time into the summary
+        const currentDate = new Date();
+        const formattedDate = currentDate.toLocaleDateString();
+        const formattedTime = currentDate.toLocaleTimeString();
+        summary = `${summary}\nLast updated at - ${formattedDate}, ${formattedTime}\n`;
+
+        const developerMdPath = path.join(filepath, "natural-programming", "developer.md");
         fs.writeFileSync(developerMdPath, summary);
+    }
+
+    async readDeveloperMdFile(directoryPath: string): Promise<string> {
+        const developerMdPath = path.join(directoryPath, "natural-programming", "developer.md");
+        if (!fs.existsSync(developerMdPath)) {
+            return "";
+        }
+        const developerMdContent = fs.readFileSync(developerMdPath, 'utf8');
+        return Promise.resolve(developerMdContent);
     }
 }
 
@@ -729,6 +747,10 @@ function getModifiedAssistantResponse(originalAssistantResponse: string, tempDir
     );
 
     return modifiedResponse;
+}
+
+interface SummaryResponse {
+    summary: string;
 }
 
 interface BalModification {

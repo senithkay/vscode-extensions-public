@@ -51,3 +51,4 @@ export const showSignInAlert: RequestType<void, boolean> = { method: `${_preFix}
 export const markAlertShown: NotificationType<void> = { method: `${_preFix}/markAlertShown` };
 export const getFromDocumentation: RequestType<string, string> = { method: `${_preFix}/getFromDocumentation` };
 export const addChatSummary: NotificationType<AIChatSummary> = { method: `${_preFix}/addChatSummary` };
+export const readDeveloperMdFile: RequestType<string, string> = { method: `${_preFix}/readDeveloperMdFile` };

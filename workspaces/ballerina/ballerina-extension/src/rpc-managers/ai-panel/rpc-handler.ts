@@ -56,6 +56,7 @@ import {
     promptGithubAuthorize,
     promptLogin,
     promptWSO2AILogout,
+    readDeveloperMdFile,
     refreshAccessToken,
     showSignInAlert,
     stopAIMappings,
@@ -105,4 +106,5 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onNotification(markAlertShown, () => rpcManger.markAlertShown());
     messenger.onRequest(getFromDocumentation, (args: string) => rpcManger.getFromDocumentation(args));
     messenger.onNotification(addChatSummary, (args: AIChatSummary) => rpcManger.addChatSummary(args));
+    messenger.onRequest(readDeveloperMdFile, (args: string) => rpcManger.readDeveloperMdFile(args));
 }

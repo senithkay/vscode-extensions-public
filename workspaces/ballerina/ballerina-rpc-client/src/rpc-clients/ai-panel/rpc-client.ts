@@ -64,6 +64,7 @@ import {
     promptGithubAuthorize,
     promptLogin,
     promptWSO2AILogout,
+    readDeveloperMdFile,
     refreshAccessToken,
     showSignInAlert,
     stopAIMappings,
@@ -233,5 +234,9 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     addChatSummary(filepathAndSummary: AIChatSummary): void {
         return this._messenger.sendNotification(addChatSummary, HOST_EXTENSION, filepathAndSummary);
+    }
+
+    readDeveloperMdFile(directoryPath: string): Promise<string> {
+        return this._messenger.sendRequest(readDeveloperMdFile, HOST_EXTENSION, directoryPath);
     }
 }

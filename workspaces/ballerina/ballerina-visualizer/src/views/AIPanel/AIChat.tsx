@@ -691,6 +691,7 @@ export function AIChat() {
         }
 
         const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
+        const developerMdContent = await rpcClient.getAiPanelRpcClient().readDeveloperMdFile(chatLocation);
         const response = await fetchWithToken(
             backendRootUri + "/prompt/summarize",
             {
@@ -699,7 +700,7 @@ export function AIChat() {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify(chatArray.slice(chatIndex)),
+                body: JSON.stringify({chats: chatArray.slice(chatIndex), existingChatSummary: developerMdContent}),
                 signal: signal,
             },
             rpcClient
@@ -707,7 +708,9 @@ export function AIChat() {
 
         setIsCodeAdded(true);
         chatIndex = chatArray.length;
-        await rpcClient.getAiPanelRpcClient().addChatSummary({summary: await streamToString(response.body), filepath: chatLocation})
+        const chatSummaryResponseStr = await streamToString(response.body);
+        await rpcClient.getAiPanelRpcClient()
+            .addChatSummary({summary: chatSummaryResponseStr, filepath: chatLocation})
     };
 
     async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
@@ -731,7 +734,7 @@ export function AIChat() {
         setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
         command: string
     ) => {
-        console.log("Revert integration called. Command: ", command);
+        console.log("Revert gration called. Command: ", command);
 
         for (const { filePath } of codeSegments) {
             let originalContent = tempStorage[filePath];    

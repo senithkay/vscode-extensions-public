@@ -50,4 +50,5 @@ export interface AIPanelAPI {
     markAlertShown: () => void;
     getFromDocumentation: (content: string) => Promise<string>;
     addChatSummary:(filepathAndSummary: AIChatSummary) => void;
+    readDeveloperMdFile:(directoryPath: string) => Promise<string>;
 }
