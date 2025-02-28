@@ -79,6 +79,7 @@ export interface ParamConfig {
 export interface ParamManagerProps {
     paramConfigs: ParamConfig;
     openInDrawer?: boolean;
+    allowDuplicates?: boolean;
     onChange?: (parameters: ParamConfig) => void,
     readonly?: boolean;
     addParamText?: string;
@@ -353,11 +354,12 @@ const getAddParamTextFromParamId = (paramFields: ParamField[], paramId: number) 
 
 export function ParamManager(props: ParamManagerProps) {
     const { paramConfigs, readonly, openInDrawer,
-        addParamText = "Add Parameter", onChange, allowAddItem = true, errorMessage, nodeRange, sx
+        addParamText = "Add Parameter", onChange, allowAddItem = true, errorMessage, nodeRange, sx, allowDuplicates = true
     } = props;
 
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
+    const [fieldErrorMessage, setFieldErrorMessage] = useState("");
 
     const onEdit = (param: Parameters) => {
         setEditingSegmentId(param.id);
@@ -450,6 +452,17 @@ export function ParamManager(props: ParamManagerProps) {
                 paramValues: paramValues
             };
         }
+        if (!allowDuplicates) {
+            const paramKeys = updatedParameters.map(param => {
+                return param?.paramValues[0]?.value;
+            });
+            const hasUniqueKeys = new Set(paramKeys).size === paramKeys.length;
+            if (!hasUniqueKeys) {
+                setFieldErrorMessage("Key should be unique");
+            } else {
+                setFieldErrorMessage("");
+            }
+        }
         onChange({ ...paramConfigs, paramValues: updatedParameters });
     };
 
@@ -487,6 +500,7 @@ export function ParamManager(props: ParamManagerProps) {
                 paramComponents.push(
                     <ParamEditor
                         openInDrawer={openInDrawer}
+                        errorMessage={fieldErrorMessage}
                         parameters={param}
                         paramFields={paramConfigs.paramFields}
                         isTypeReadOnly={false}

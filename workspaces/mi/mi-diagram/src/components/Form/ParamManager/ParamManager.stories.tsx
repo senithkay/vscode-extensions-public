@@ -630,3 +630,19 @@ export const ParamManagerWithEmptyParams = () => {
     };
     return <ParamManager paramConfigs={params} readonly={false} addParamText="New Param" onChange={handleOnChange} />;
 };
+
+export const ParamManagerWithNoDuplicates = () => {
+    const [params, setParams] = useState(paramConfForEmptyParams);
+    const handleOnChange = (params: ParamConfig) => {
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map(param => ({
+                ...param,
+                icon: "query",
+                key: `Key`,
+                value: generateSpaceSeperatedStringFromParamValues(param)
+            }))
+        };
+        setParams(modifiedParams);
+    };
+    return <ParamManager paramConfigs={params} allowDuplicates={false} readonly={false} addParamText="New Param" onChange={handleOnChange} />;
+};
