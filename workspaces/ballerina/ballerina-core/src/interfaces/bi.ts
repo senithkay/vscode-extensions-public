@@ -69,6 +69,8 @@ export type Metadata = {
     data?: {
         isDataMappedFunction?: boolean;
     }
+    tools?: string[]; // for agent call
+    model?: string; // for agent call
 };
 
 export type Property = {
@@ -292,7 +294,8 @@ export type NodeKind =
     | "FAIL"
     | "RETRY"
     | "FUNCTION_DEFINITION"
-    | "CONFIG_VARIABLE";
+    | "CONFIG_VARIABLE"
+    | "AGENT_CALL";
 
 export type OverviewFlow = {
     entryPoints: EntryPoint[];

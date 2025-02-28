@@ -11,14 +11,14 @@ import { BIDesignModelResponse, OpenAPISpec } from "@wso2-enterprise/ballerina-c
 let errorLogWatcher: FileSystemWatcher | undefined;
 
 const TRYIT_TEMPLATE = `/*
-### Try Service: "{{serviceName}}" (http://localhost:{{port}}{{trim basePath}})
+### {{#if isResourceMode}}Try Resource: '{{resourceMethod}} {{resourcePath}}'{{else}}Try Service: '{{serviceName}}' (http://localhost:{{port}}{{trim basePath}}){{/if}}
 {{info.description}}
 */
 
 {{#each paths}}
 {{#each this}}
 /*
-#### {{uppercase @key}} {{@../key}}
+{{#unless ../../isResourceMode}}#### {{uppercase @key}} {{@../key}}{{/unless}}
 
 {{#if parameters}}
 {{#with (groupParams parameters)}}
@@ -126,9 +126,9 @@ export function activateTryItCommand(ballerinaExtInstance: BallerinaExtension) {
         clientManager.setClient(ballerinaExtInstance.langClient);
 
         // Register try it command handler
-        const disposable = commands.registerCommand(PALETTE_COMMANDS.TRY_IT, async (withNotice: boolean = false) => {
+        const disposable = commands.registerCommand(PALETTE_COMMANDS.TRY_IT, async (withNotice: boolean = false, resourceMetadata?: ResourceMetadata) => {
             try {
-                await openTryItView(withNotice);
+                await openTryItView(withNotice, resourceMetadata);
             } catch (error) {
                 handleError(error, "Opening Try It view failed");
             }
@@ -142,7 +142,7 @@ export function activateTryItCommand(ballerinaExtInstance: BallerinaExtension) {
     }
 }
 
-async function openTryItView(withNotice: boolean = false) {
+async function openTryItView(withNotice: boolean = false, resourceMetadata?: ResourceMetadata) {
     try {
         if (!clientManager.hasClient()) {
             throw new Error('Ballerina Language Server is not connected');
@@ -153,14 +153,13 @@ async function openTryItView(withNotice: boolean = false) {
             throw new Error('Please open a workspace first');
         }
 
-        const services = await getAvailableServices(workspaceRoot);
-
+        const services: ServiceInfo[] = await getAvailableServices(workspaceRoot);
         if (!services || services.length === 0) {
             vscode.window.showInformationMessage('No HTTP services found in the project');
             return;
         }
 
-        if (withNotice) {
+        if (withNotice && !resourceMetadata) {
             const selection = await vscode.window.showInformationMessage(
                 `${services.length} service${services.length === 1 ? '' : 's'} found in the integration. Test with Try It Client?`,
                 "Test",
@@ -172,9 +171,17 @@ async function openTryItView(withNotice: boolean = false) {
             }
         }
 
-        // If there's more than one service, show the quick pick
         let selectedService: ServiceInfo;
-        if (services.length > 1) {
+        // If in resource try it mode, find the service containing the resource path
+        if (resourceMetadata?.pathValue) {
+            const matchingService = await findServiceForResource(services, resourceMetadata);
+            if (!matchingService) {
+                vscode.window.showErrorMessage(`Could not find a service containing the resource path: ${resourceMetadata.pathValue}`);
+                return;
+            }
+
+            selectedService = matchingService;
+        } else if (services.length > 1) {
             const quickPickItems = services.map(service => ({
                 label: `'${service.basePath}' on ${service.listener}`,
                 description: `HTTP Service`,
@@ -203,7 +210,7 @@ async function openTryItView(withNotice: boolean = false) {
         const tryitFilePath = path.join(targetDir, tryitFileName);
         const configFilePath = path.join(targetDir, 'httpyac.config.js');
 
-        const content = await generateTryItFileContent(workspaceRoot, selectedService);
+        const content = await generateTryItFileContent(workspaceRoot, selectedService, resourceMetadata);
         if (!content) {
             return;
         }
@@ -211,14 +218,69 @@ async function openTryItView(withNotice: boolean = false) {
         fs.writeFileSync(tryitFilePath, content);
         fs.writeFileSync(configFilePath, HTTPYAC_CONFIG_TEMPLATE);
 
-        // Open the file as a notebook document
         const tryitFileUri = vscode.Uri.file(tryitFilePath);
-        await vscode.commands.executeCommand('vscode.openWith', tryitFileUri, 'http');
+        await openInSplitView(tryitFileUri, 'http');
 
         // Setup the error log watcher
         setupErrorLogWatcher(targetDir);
     } catch (error) {
         handleError(error, "Opening Try It view");
+    }
+}
+
+// Generic utility function for opening files in split view
+async function openInSplitView(fileUri: vscode.Uri, editorType: string = 'default') {
+    try {
+        // Ensure we have a two-column layout
+        await vscode.commands.executeCommand('workbench.action.editorLayoutTwoColumns');
+
+        // Focus right editor group explicitly
+        await vscode.commands.executeCommand('workbench.action.focusSecondEditorGroup');
+
+        // Open the file with specified editor type in the current (right) group
+        if (editorType === 'default') {
+            await vscode.commands.executeCommand('vscode.open', fileUri);
+        } else {
+            await vscode.commands.executeCommand('vscode.openWith', fileUri, editorType);
+        }
+
+        // Focus left editor group to return to the original editor
+        await vscode.commands.executeCommand('workbench.action.focusFirstEditorGroup');
+    } catch (error) {
+        handleError(error, "Opening file in split view");
+    }
+}
+
+async function findServiceForResource(services: ServiceInfo[], resourceMetadata: ResourceMetadata): Promise<ServiceInfo | undefined> {
+    try {
+        // Normalize path values for comparison
+        const targetPath = resourceMetadata.pathValue?.trim();
+        if (!targetPath) {
+            return undefined;
+        }
+
+        // check all services' OpenAPI specs to see which one contains the path
+        // TODO: Optimize this by checking only the relevant service once we have the lang server support for that
+        for (const service of services) {
+            try {
+                const openapiSpec: OAISpec = await getOpenAPIDefinition(service);
+                const matchingPaths = Object.keys(openapiSpec.paths || {}).filter((specPath) => {
+                    return comparePathPatterns(specPath, targetPath);
+
+                });
+
+                if (matchingPaths.length > 0) {
+                    return service;
+                }
+            } catch (error) {
+                continue;
+            }
+        }
+
+        return undefined;
+    } catch (error) {
+        handleError(error, "Finding service for resource", false);
+        return undefined;
     }
 }
 
@@ -248,7 +310,7 @@ async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> 
     }
 }
 
-async function generateTryItFileContent(projectDir: string, service: ServiceInfo): Promise<string | undefined> {
+async function generateTryItFileContent(projectDir: string, service: ServiceInfo, resourceMetadata?: ResourceMetadata): Promise<string | undefined> {
     try {
         // Get OpenAPI definition
         const openapiSpec = await getOpenAPIDefinition(service);
@@ -259,18 +321,103 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
         // Register Handlebars helpers
         registerHandlebarsHelpers(openapiSpec);
 
+        let isResourceMode = false;
+        let resourcePath = '';
+        // Filter paths based on resourceMetadata if provided
+        if (resourceMetadata?.pathValue) {
+            const originalPaths = openapiSpec.paths;
+            const filteredPaths: Record<string, Record<string, Operation>> = {};
+
+            let matchingPath = '';
+            for (const path in originalPaths) {
+                const pathMatches = comparePathPatterns(path, resourceMetadata.pathValue);
+                if (pathMatches) {
+                    matchingPath = path;
+                    break;
+                }
+            }
+
+            if (matchingPath && originalPaths[matchingPath]) {
+                // Set resource mode flag and path
+                isResourceMode = true;
+                resourcePath = matchingPath;
+
+                if (resourceMetadata.methodValue) {
+                    const method = resourceMetadata.methodValue.toLowerCase();
+                    if (originalPaths[matchingPath][method]) {
+                        // Create entry with only the specified method
+                        filteredPaths[matchingPath] = {
+                            [method]: {
+                                ...originalPaths[matchingPath][method],
+                                // Add a custom property to indicate this is the selected resource
+                                description: originalPaths[matchingPath][method].description
+                                    ? `${originalPaths[matchingPath][method].description} (Selected Resource)`
+                                    : '(Selected Resource)'
+                            }
+                        };
+                    } else {
+                        // Method not found in matching path
+                        vscode.window.showWarningMessage(`Method ${resourceMetadata.methodValue} not found for path ${matchingPath}. Showing all methods for this path.`);
+                        filteredPaths[matchingPath] = originalPaths[matchingPath];
+                    }
+                } else {
+                    filteredPaths[matchingPath] = originalPaths[matchingPath];
+                }
+
+                openapiSpec.paths = filteredPaths;
+            } else {
+                // Path not found in OpenAPI spec
+                vscode.window.showWarningMessage(
+                    `Path ${resourceMetadata.pathValue} not found in service ${service.name || service.basePath}. Showing all resources.`
+                );
+            }
+        }
+
         // Generate content using template
-        const compiledTemplate = Handlebars.compile(TRYIT_TEMPLATE);
-        return compiledTemplate({
+        const templateData = {
             ...openapiSpec,
             port: selectedPort.toString(),
             basePath: service.basePath,
-            serviceName: service.name || 'Default'
-        });
+            serviceName: service.name || 'Default',
+            isResourceMode: isResourceMode,
+            resourceMethod: isResourceMode ? resourceMetadata.methodValue.toLowerCase() : '',
+            resourcePath: resourcePath,
+        };
+
+        const compiledTemplate = Handlebars.compile(TRYIT_TEMPLATE);
+        return compiledTemplate(templateData);
     } catch (error) {
         handleError(error, "Try It client initialization failed");
         return undefined;
     }
+}
+
+
+// Helper function to compare path patterns, considering path parameters
+function comparePathPatterns(specPath: string, targetPath: string): boolean {
+    const specSegments = specPath.split('/').filter(Boolean);
+    const targetSegments = targetPath.split('/').filter(Boolean);
+
+    if (specSegments.length !== targetSegments.length) {
+        return false;
+    }
+
+    // Compare segments, allowing for path parameters
+    for (let i = 0; i < specSegments.length; i++) {
+        const specSeg = specSegments[i];
+        const targetSeg = sanitizeBallerinaPathSegment(targetSegments[i]);
+
+        // TODO - improve path parameter matching with exact type comparison
+        if (specSeg.startsWith('{') && specSeg.endsWith('}') && targetSeg.startsWith('[') && targetSeg.endsWith(']')) {
+            continue;
+        }
+
+        if (specSeg !== targetSeg) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 async function getOpenAPIDefinition(service: ServiceInfo): Promise<OAISpec> {
@@ -359,13 +506,6 @@ async function getServicePort(projectDir: string, service: ServiceInfo, openapiS
 }
 
 function registerHandlebarsHelpers(openapiSpec: OAISpec): void {
-    if (!Handlebars.helpers.uppercase) {
-        Handlebars.registerHelper('uppercase', (str: string) => str.toUpperCase());
-    }
-    if (!Handlebars.helpers.trim) {
-        Handlebars.registerHelper('trim', (str?: string) => str ? str.trim() : '');
-    }
-
     // handlebar helper to process query parameters
     if (!Handlebars.helpers.queryParams) {
         Handlebars.registerHelper('queryParams', function (parameters) {
@@ -448,6 +588,20 @@ function registerHandlebarsHelpers(openapiSpec: OAISpec): void {
         Handlebars.registerHelper('generateRequestBody', function (requestBody) {
             return new Handlebars.SafeString(generateRequestBody(requestBody, openapiSpec));
         });
+    }
+
+    if (!Handlebars.helpers.not) {
+        Handlebars.registerHelper('not', function (value) {
+            return !value;
+        });
+    }
+
+    if (!Handlebars.helpers.uppercase) {
+        Handlebars.registerHelper('uppercase', (str: string) => str.toUpperCase());
+    }
+    
+    if (!Handlebars.helpers.trim) {
+        Handlebars.registerHelper('trim', (str?: string) => str ? str.trim() : '');
     }
 }
 
@@ -660,6 +814,17 @@ function setupErrorLogWatcher(targetDir: string) {
     });
 }
 
+function sanitizeBallerinaPathSegment(pathSegment: string): string {
+    let sanitized = pathSegment.trim();
+    // Remove escaped characters
+    sanitized = sanitized.replace(/\\/g, '');
+    // Remove leading single quote if present
+    if (sanitized.startsWith("'")) {
+        sanitized = sanitized.substring(1);
+    }
+    return sanitized;
+}
+
 // cleanup function for the watcher
 function disposeErrorWatcher() {
     if (errorLogWatcher) {
@@ -764,4 +929,9 @@ interface Response {
 
 interface Components {
     schemas?: Record<string, Schema>;
+}
+
+interface ResourceMetadata {
+    methodValue?: string;
+    pathValue?: string;
 }
