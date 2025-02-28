@@ -79,7 +79,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const connectedViaLink = inputs?.length > 0;
     const hasDefaultValue = expression && getDefaultValue(field.kind) === expression.trim();
 
-    const fields = isRecord && field.fields;
+    const fields = isRecord && field.fields.filter(f => f !== null);
     const isWithinArray = fieldIndex !== undefined;
 
     const handleExpand = () => {
@@ -176,7 +176,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
             )}
             {!connectedViaLink && (expression || hasDefaultValue) && (
                 <span className={classes.outputNodeValueBase}>
-                    {diagnostics.length > 0 ? (
+                    {diagnostics?.length > 0 ? (
                         <DiagnosticTooltip
                             placement="right"
                             diagnostic={diagnostics[0].message}

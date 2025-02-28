@@ -47,6 +47,7 @@ import {
     CurrentBreakpointsResponse,
     DIRECTORY_MAP,
     EVENT_TYPE,
+    EndOfFileRequest,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     ExpressionDiagnosticsRequest,
@@ -63,6 +64,7 @@ import {
     GetTypesResponse,
     ImportStatement,
     ImportStatements,
+    LinePosition,
     ModelFromCodeRequest,
     ProjectComponentsResponse,
     ProjectImports,
@@ -1354,6 +1356,22 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             console.error('Error in renameIdentifier:', error);
             throw error;
         }
+    }
+
+    async getEndOfFile(params: EndOfFileRequest): Promise<LinePosition> {
+        return new Promise((resolve, reject) => {
+            const { filePath } = params;
+            try {
+                const fileContent = fs.readFileSync(filePath, 'utf8');
+                const lines = fileContent.split('\n');
+                const lastLine = lines[lines.length - 1];
+                const lastLineLength = lastLine.length;
+                resolve({ line: lines.length - 1, offset: lastLineLength });
+            } catch (error) {
+                console.log(error);
+                reject(error);
+            }
+        });
     }
 }
 
