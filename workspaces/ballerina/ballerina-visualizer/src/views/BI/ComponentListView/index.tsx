@@ -98,7 +98,7 @@ export function ComponentListView() {
                     serviceType: serviceType,
                 },
             });
-        } else if (key === DIRECTORY_MAP.CLASSES) {
+        } else if (key === DIRECTORY_MAP.AGENTS) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
@@ -199,18 +199,6 @@ export function ComponentListView() {
             <ViewContent padding>
                 <Container>
                     <AddPanel>
-                        <PanelViewMore>
-                            <Title variant="h2">AI Agents Integration</Title>
-                            <BodyText>Discover AI capabilities to enhance your integration workflows.</BodyText>
-                            <CardGrid>
-                                <ButtonCard
-                                    icon={<Icon name="wand" isCodicon={true} iconSx={{ fontSize: 25 }} />}
-                                    title="Integration with AI Agents"
-                                    description="Explore AI capabilities for workflow enhancements."
-                                    onClick={() => handleClick(DIRECTORY_MAP.CLASSES)}
-                                />
-                            </CardGrid>
-                        </PanelViewMore>
                         <PanelViewMore>
                             <Title variant="h2">Automation</Title>
                             <BodyText>Explore automation options to streamline your integration processes.</BodyText>
@@ -324,7 +312,7 @@ export function ComponentListView() {
                                     icon={<Icon name="wand" isCodicon={true} iconSx={{ fontSize: 25 }} />}
                                     title="AI Agents"
                                     description="Explore AI capabilities for workflow enhancements."
-                                    onClick={() => handleClick(DIRECTORY_MAP.CLASSES)}
+                                    onClick={() => handleClick(DIRECTORY_MAP.AGENTS)}
                                 />
                                 <ButtonCard
                                     icon={<Icon name="bi-connection" />}

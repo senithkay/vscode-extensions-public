@@ -236,6 +236,7 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.AIAgentWizard:
                         setViewComponent(<AIAgentWizard />);
+                        break;
                     case MACHINE_VIEW.BIServiceClassDesigner:
                         setViewComponent(
                             <ServiceClassDesigner

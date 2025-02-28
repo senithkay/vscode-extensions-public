@@ -160,7 +160,8 @@ export enum DIRECTORY_MAP {
     CONFIGURATIONS = "configurations",
     DATA_MAPPERS = "dataMappers",
     ENUMS = "enums",
-    CLASSES = "classes"
+    CLASSES = "classes",
+    AGENTS = "agents"
 }
 
 export enum DIRECTORY_SUB_TYPE {
