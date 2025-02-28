@@ -160,8 +160,8 @@ export function AIAgentWizard() {
 
     useEffect(() => {
         if (filePath) {
-            setAgentFields(_agentFields);
-            setupEntryPointFields();
+            // setAgentFields(_agentFields);
+            // setupEntryPointFields();
             setupAgentEntryPointFields();
             setupModelFields();
             setupToolsFields();
@@ -395,7 +395,7 @@ export function AIAgentWizard() {
         const name = value[0].value as string;
         const description = value[1].value as string;
         setAgentRequest({ ...agentRequest, agentModel: { name, instruction: description } })
-        setStep(2);
+        setStep(1);
     }
     const handleEntryPointConfigFormSubmit = async (value: FormField[]) => {
         console.log("handleEntryPointConfigFormSubmit Fields ", value);
@@ -405,7 +405,7 @@ export function AIAgentWizard() {
     const handleModelConfigFormSubmit = async (value: FormField[], data: FormValues) => {
         console.log("handleModelConfigFormSubmit Fields ", data, value);
         setModelFields(value);
-        setStep(3);
+        setStep(2);
     }
     const handleFinish = async (value: FormField[]) => {
 
@@ -493,15 +493,15 @@ export function AIAgentWizard() {
                             <EntryPointConfigForm formFields={entryPointFields} onSubmit={handleEntryPointConfigFormSubmit} onBack={() => setStep(0)} />
                         </>
                     } */}
-                    {!isLoading && step === 2 &&
+                    {!isLoading && step === 1 &&
                         <>
                             {/* <ModelConfigForm formFields={modelFields} onSubmit={handleModelConfigFormSubmit} onBack={() => setStep(1)} /> */}
                             <ModelConfigForm formFields={modelFields} onSubmit={handleModelConfigFormSubmit} onBack={() => setStep(0)} />
                         </>
                     }
-                    {!isLoading && step === 3 &&
+                    {!isLoading && step === 2 &&
                         <>
-                            {!openToolsForm && <ToolsConfigForm formFields={toolsFields} onSubmit={handleFinish} openToolsForm={() => setOpenToolsForm(true)} onBack={() => setStep(2)} formSubmitText="Finish" />}
+                            {!openToolsForm && <ToolsConfigForm formFields={toolsFields} onSubmit={handleFinish} openToolsForm={() => setOpenToolsForm(true)} onBack={() => setStep(1)} formSubmitText="Finish" />}
                             {openToolsForm && <ToolsCreateForm onSubmit={handleToolCreation} onBack={() => setOpenToolsForm(false)} />}
                         </>
                     }
