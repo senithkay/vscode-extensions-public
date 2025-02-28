@@ -8,14 +8,12 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { ActionButtons, AutoComplete, TextField, Codicon, CheckBox, Divider, Typography } from '@wso2-enterprise/ui-toolkit';
-import { EditorContentColumn, EditorContainer, EditorContent, ParamContainer, ParamDescription } from '../../../styles';
-import { CommonRPCAPI, STModification, StatusCodeResponse, responseCodes } from '@wso2-enterprise/ballerina-core';
+import { CheckBox, Divider, Typography } from '@wso2-enterprise/ui-toolkit';
+import { EditorContainer } from '../../../styles';
+import { LineRange, StatusCodeResponse, responseCodes } from '@wso2-enterprise/ballerina-core';
 import { getTitleFromResponseCode } from '../../../utils';
-import { TypeBrowser } from '../../../components/TypeBrowser/TypeBrowser';
-import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import { FormField } from '@wso2-enterprise/ballerina-side-panel';
 import FormGeneratorNew from '../../../../Forms/FormGeneratorNew';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
@@ -37,6 +35,8 @@ export function ResponseEditor(props: ParamProps) {
     const { rpcClient } = useRpcContext();
 
     const [filePath, setFilePath] = useState<string>('');
+
+    const [targetLineRange, setTargetLineRange] = useState<LineRange>();
 
     useEffect(() => {
         rpcClient.getVisualizerLocation().then(res => { setFilePath(Utils.joinPath(URI.file(res.projectUri), 'main.bal').fsPath) });
@@ -159,11 +159,25 @@ export function ResponseEditor(props: ParamProps) {
         onSave(response, index);
     }
 
+    useEffect(() => {
+        if (rpcClient) {
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getEndOfFile({ filePath })
+                .then((res) => {
+                    setTargetLineRange({
+                        startLine: res,
+                        endLine: res,
+                    });
+                });
+        }
+    }, [filePath, rpcClient]);
+
     return (
         <EditorContainer>
             <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Response Configuration</Typography>
             <Divider />
-            {!isEdit && filePath &&
+            {!isEdit && filePath && targetLineRange &&
                 <>
                     <CheckBox
                         label={schema.createStatusCodeResponse?.metadata.description}
@@ -177,7 +191,7 @@ export function ResponseEditor(props: ParamProps) {
                             <>
                                 <FormGeneratorNew
                                     fileName={filePath}
-                                    targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
+                                    targetLineRange={targetLineRange}
                                     fields={currentFields}
                                     onBack={handleOnCancel}
                                     onSubmit={onTypeNameSubmit}
@@ -189,7 +203,7 @@ export function ResponseEditor(props: ParamProps) {
                         {(!response.createStatusCodeResponse.value || response.createStatusCodeResponse.value === "false") &&
                             <FormGeneratorNew
                                 fileName={filePath}
-                                targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
+                                targetLineRange={targetLineRange}
                                 fields={typeField}
                                 onBack={handleOnCancel}
                                 onSubmit={onTypeValueSubmit}
@@ -200,11 +214,11 @@ export function ResponseEditor(props: ParamProps) {
                     </>
                 </>
             }
-            {isEdit && filePath &&
+            {isEdit && filePath && targetLineRange &&
                 <>
                     <FormGeneratorNew
                         fileName={filePath}
-                        targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
+                        targetLineRange={targetLineRange}
                         fields={typeField}
                         onBack={handleOnCancel}
                         onSubmit={onTypeValueSubmit}

@@ -375,6 +375,14 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
         });
     };
 
+    const handleCloseButtonClick = () => {
+        if (props.handlePopupClose) {
+            props.handlePopupClose();
+        } else {
+            openOverview();
+        }
+    };
+
     return (
         <FormView
             title={isTemplate ? 'Template' : 'Endpoint'}
@@ -418,7 +426,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
             <FormActions>
                 <Button
                     appearance="secondary"
-                    onClick={openOverview}
+                    onClick={handleCloseButtonClick}
                 >
                     Cancel
                 </Button>

@@ -22,7 +22,7 @@ const ViewContainer = styled.div`
     right: 0;
     width: 400px;
     height: 100%;
-    z-index: 3000;
+    z-index: 2000;
     background-color: ${ThemeColors.SURFACE_BRIGHT};
 `;
 
@@ -60,10 +60,7 @@ const PopupPanel = (props: PopupPanelProps) => {
                     rpcClient.getVisualizerLocation().then((location) => {
                         setViewComponent(
                             <AddConnectionWizard
-                                fileName={
-                                    location.documentUri ||
-                                    Utils.joinPath(URI.file(location.projectUri), "connections.bal").fsPath
-                                }
+                                fileName={Utils.joinPath(URI.file(location.projectUri), "connections.bal").fsPath}
                                 target={machineState.metadata?.target || undefined}
                                 onClose={onClose}
                             />

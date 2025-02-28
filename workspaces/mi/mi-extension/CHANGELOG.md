@@ -2,6 +2,13 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [2.0.1] - 2025-02-25
+
+### Improvements
+- Add support to download older connector versions
+- Add support to mark the automation sequence from project explorer view
+- Add minor UI improvements
+
 ## [2.0.0] - 2025-02-20
 
 ### Improvements

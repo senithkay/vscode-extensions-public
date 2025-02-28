@@ -147,3 +147,7 @@ export interface FormDidOpenParams {
 export interface FormDidCloseParams {
     filePath: string;
 }
+
+export interface EndOfFileRequest {
+    filePath: string;
+}

@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ArrayOutputNode, InputNode, LinkConnectorNode, ObjectOutputNode } from "../components/Diagram/Node";
+import { ArrayOutputNode, EmptyInputsNode, InputNode, LinkConnectorNode, ObjectOutputNode } from "../components/Diagram/Node";
 import { DataMapperNodeModel } from "../components/Diagram/Node/commons/DataMapperNode";
 import { DataMapperContext } from "../utils/DataMapperContext/DataMapperContext";
 import { IDMModel, IOType, Mapping, TypeKind } from "@wso2-enterprise/ballerina-core";
@@ -50,6 +50,9 @@ export class NodeInitVisitor implements BaseVisitor {
     }
 
     getNodes() {
+        if (this.inputNodes.length === 0) {
+            this.inputNodes.push(new EmptyInputsNode());
+        }
         const nodes = [...this.inputNodes, this.outputNode];
         nodes.push(...this.intermediateNodes);
         return nodes;
