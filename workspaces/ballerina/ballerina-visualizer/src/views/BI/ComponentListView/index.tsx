@@ -12,8 +12,8 @@ import {
     DIRECTORY_MAP,
     EVENT_TYPE,
     MACHINE_VIEW,
-    TriggerModelsResponse,
-    TriggerNode,
+    ServiceModel,
+    TriggerModelsResponse
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Codicon, Divider, Icon, Typography, View, ViewContent, LinkButton, ThemeColors } from "@wso2-enterprise/ui-toolkit";
@@ -98,6 +98,13 @@ export function ComponentListView() {
                     serviceType: serviceType,
                 },
             });
+        } else if (key === DIRECTORY_MAP.CLASSES) {
+            await rpcClient.getVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.AIAgentWizard,
+                },
+            });
         } else if (key === DIRECTORY_MAP.DATA_MAPPERS) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
@@ -161,6 +168,7 @@ export function ComponentListView() {
 
     const getTriggers = () => {
         if (cacheTriggers.local.length > 0) {
+            console.log(">>> bi triggers", cacheTriggers);
             setTriggers(cacheTriggers);
         } else {
             rpcClient
@@ -174,7 +182,7 @@ export function ComponentListView() {
         }
     };
 
-    const handleOnSelect = async (trigger: TriggerNode) => {
+    const handleOnSelect = async (trigger: ServiceModel) => {
         await rpcClient.getVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
@@ -191,6 +199,18 @@ export function ComponentListView() {
             <ViewContent padding>
                 <Container>
                     <AddPanel>
+                        <PanelViewMore>
+                            <Title variant="h2">AI Agents Integration</Title>
+                            <BodyText>Discover AI capabilities to enhance your integration workflows.</BodyText>
+                            <CardGrid>
+                                <ButtonCard
+                                    icon={<Icon name="wand" isCodicon={true} iconSx={{ fontSize: 25 }} />}
+                                    title="Integration with AI Agents"
+                                    description="Explore AI capabilities for workflow enhancements."
+                                    onClick={() => handleClick(DIRECTORY_MAP.CLASSES)}
+                                />
+                            </CardGrid>
+                        </PanelViewMore>
                         <PanelViewMore>
                             <Title variant="h2">Automation</Title>
                             <BodyText>Explore automation options to streamline your integration processes.</BodyText>
@@ -301,6 +321,12 @@ export function ComponentListView() {
                             </BodyText>
                             <CardGrid>
                                 <ButtonCard
+                                    icon={<Icon name="wand" isCodicon={true} iconSx={{ fontSize: 25 }} />}
+                                    title="AI Agents"
+                                    description="Explore AI capabilities for workflow enhancements."
+                                    onClick={() => handleClick(DIRECTORY_MAP.CLASSES)}
+                                />
+                                <ButtonCard
                                     icon={<Icon name="bi-connection" />}
                                     title="Connections"
                                     description="Set up external service connections, like databases and APIs."
@@ -362,6 +388,6 @@ export function getCustomEntryNodeIcon(type: string) {
     }
 }
 // TODO: This should be removed once the new icons are added to the BE API.
-export function getEntryNodeIcon(item: TriggerNode) {
-    return getCustomEntryNodeIcon(item.moduleName) || <img src={item.icon} alt={item.name} style={{ width: "40px" }} />;
+export function getEntryNodeIcon(item: ServiceModel, imgWidth?: string) {
+    return getCustomEntryNodeIcon(item.moduleName) || <img src={item.icon} alt={item.name} style={{ width: imgWidth || "40px" }} />;
 }

@@ -10,12 +10,15 @@
  */
 import {
     AIAgentAPI,
+    AIAgentRequest,
+    AIAgentResponse,
     AIGentToolsRequest,
     AIGentToolsResponse,
     AIModelsRequest,
     AINodesResponse,
     AIToolsRequest,
     AIToolsResponse,
+    createAIAgent,
     genTool,
     getAllAgents,
     getAllModels,
@@ -50,5 +53,9 @@ export class AiAgentRpcClient implements AIAgentAPI {
 
     genTool(params: AIGentToolsRequest): Promise<AIGentToolsResponse> {
         return this._messenger.sendRequest(genTool, HOST_EXTENSION, params);
+    }
+
+    createAIAgent(params: AIAgentRequest): Promise<AIAgentResponse> {
+        return this._messenger.sendRequest(createAIAgent, HOST_EXTENSION, params);
     }
 }

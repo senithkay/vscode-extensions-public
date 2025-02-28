@@ -9,6 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import { AIGentToolsRequest, AIGentToolsResponse, AIModelsRequest, AINodesResponse, AIToolsRequest, AIToolsResponse } from "../../interfaces/extended-lang-client";
+import { AIAgentRequest, AIAgentResponse } from "./interfaces";
 import { RequestType } from "vscode-messenger-common";
 
 const _preFix = "ai-agent";
@@ -17,3 +18,4 @@ export const getAllModels: RequestType<AIModelsRequest, AINodesResponse> = { met
 export const getModels: RequestType<AIModelsRequest, AINodesResponse> = { method: `${_preFix}/getModels` };
 export const getTools: RequestType<AIToolsRequest, AIToolsResponse> = { method: `${_preFix}/getTools` };
 export const genTool: RequestType<AIGentToolsRequest, AIGentToolsResponse> = { method: `${_preFix}/genTool` };
+export const createAIAgent: RequestType<AIAgentRequest, AIAgentResponse> = { method: `${_preFix}/createAIAgent` };

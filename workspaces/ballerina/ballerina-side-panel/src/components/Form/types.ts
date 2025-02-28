@@ -10,7 +10,7 @@
 import { RefObject } from "react";
 import { DiagnosticMessage, FormDiagnostics, TextEdit, PropertyModel, LinePosition } from "@wso2-enterprise/ballerina-core";
 import { ParamConfig } from "../ParamManager/ParamManager";
-import { CompletionItem, FormExpressionEditorRef, HelperPaneOrigin } from "@wso2-enterprise/ui-toolkit";
+import { CompletionItem, FormExpressionEditorRef, HelperPaneOrigin, OptionProps } from "@wso2-enterprise/ui-toolkit";
 
 export type FormValues = {
     [key: string]: any;
@@ -29,12 +29,15 @@ export type FormField = {
     valueType?: string;
     diagnostics?: DiagnosticMessage[];
     items?: string[];
+    itemOptions?: OptionProps[]
     choices?: PropertyModel[];
+    dynamicFormFields?: { [key: string]: FormField[] }
     paramManagerProps?: ParamConfig;
     valueTypeConstraint: string | string[];
     groupNo?: number;
     groupName?: string;
     addNewButton?: boolean;
+    addNewButtonLabel?: string;
     enabled?: boolean;
 };
 

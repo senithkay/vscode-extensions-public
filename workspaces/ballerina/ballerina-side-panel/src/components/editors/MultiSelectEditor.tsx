@@ -128,7 +128,7 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
                         onClick={() => openSubPanel({ view: SubPanelView.ADD_NEW_FORM })}
                     >
                         <Codicon name="add" />
-                        {field.label.slice(0, -1)}
+                        {field.addNewButtonLabel || field.label}
                     </S.AddNewButton>
                 }
             </S.LabelContainer>

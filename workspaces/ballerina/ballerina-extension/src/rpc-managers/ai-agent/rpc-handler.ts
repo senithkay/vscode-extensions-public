@@ -9,9 +9,11 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    AIAgentRequest,
     AIGentToolsRequest,
     AIModelsRequest,
     AIToolsRequest,
+    createAIAgent,
     genTool,
     getAllAgents,
     getAllModels,
@@ -28,4 +30,5 @@ export function registerAiAgentRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getModels, (args: AIModelsRequest) => rpcManger.getModels(args));
     messenger.onRequest(getTools, (args: AIToolsRequest) => rpcManger.getTools(args));
     messenger.onRequest(genTool, (args: AIGentToolsRequest) => rpcManger.genTool(args));
+    messenger.onRequest(createAIAgent, (args: AIAgentRequest) => rpcManger.createAIAgent(args));
 }

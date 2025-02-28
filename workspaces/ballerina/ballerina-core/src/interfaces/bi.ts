@@ -290,6 +290,9 @@ export type NodeKind =
     | "ROLLBACK"
     | "FAIL"
     | "RETRY"
+    | "CLASS"
+    | "AGENT"
+    | "AGENT_CALL"
     | "FUNCTION_DEFINITION"
     | "CONFIG_VARIABLE";
 

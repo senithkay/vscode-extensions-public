@@ -25,6 +25,8 @@ import { ArrayEditor } from "./ArrayEditor";
 import { MapEditor } from "./MapEditor";
 import { ChoiceForm } from "./ChoiceForm";
 import { FormMapEditor } from "./FormMapEditor";
+import { TextAreaEditor } from "./TextAreaEditor";
+import { DropdownChoiceForm } from "./DropdownChoiceForm";
 
 interface FormFieldEditorProps {
     field: FormField;
@@ -55,6 +57,10 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
         return <MultiSelectEditor field={field} label={"Add Another"} openSubPanel={openSubPanel} />;
     } else if (field.type === "CHOICE") {
         return <ChoiceForm field={field} />;
+    } else if (field.type === "DROPDOWN_CHOICE") {
+        return <DropdownChoiceForm field={field} />;
+    } else if (field.type === "TEXTAREA") {
+        return <TextAreaEditor field={field} />;
     } else if (field.type === "EXPRESSION_SET") {
         return <ArrayEditor field={field} label={"Add Another Value"} />;
     } else if (field.type === "MAPPING_EXPRESSION_SET") {

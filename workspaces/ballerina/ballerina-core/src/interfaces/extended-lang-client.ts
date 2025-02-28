@@ -1212,7 +1212,7 @@ export interface FunctionNodeResponse {
 // <-------- AI Agent Related ------->
 
 export interface AINodesResponse {
-    nodes: FlowNode[];
+    models: CodeData[];
 }
 
 // TODO: Correct the data type
@@ -1225,7 +1225,7 @@ export interface AIToolsRequest {
     filePath: string;
 }
 export interface AIToolsResponse {
-    toolsList: string[];
+    tools: string[];
 }
 
 export interface AIGentToolsRequest {
