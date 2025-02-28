@@ -291,6 +291,7 @@ export const ConfigurablePage = ({
                                 id="confName"
                                 label="Name"
                                 placeholder="Enter a name for the variable"
+                                required
                                 {...register("confName")}
                                 errorMsg={errors.confName?.message}
                             />
