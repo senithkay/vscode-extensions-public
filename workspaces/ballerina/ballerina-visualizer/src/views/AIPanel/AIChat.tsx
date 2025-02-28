@@ -65,6 +65,12 @@ interface ApiResponse {
     questions: string[];
 }
 
+enum CodeGenerationType {
+    CODE_FOR_USER_REQUIREMENT = "CODE_FOR_USER_REQUIREMENT",
+    TESTS_FOR_USER_REQUIREMENT = "TESTS_FOR_USER_REQUIREMENT",
+    CODE_GENERATION = "CODE_GENERATION"
+  }
+
 var chatArray: ChatEntry[] = [];
 
 // A string array to store all code blocks
@@ -368,8 +374,7 @@ export function AIChat() {
             if (parameters) {
                 switch (commandKey) {
                     case COMMAND_NATURAL_PROGRAMMING: {
-                        if (messageBody.includes(CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION)) {
-                            // string response =  rpcClient == null ? "" : await rpcClient.getAiPanelRpcClient().getDriftDiagnosticContents(chatLocation);
+                        if (isContentIncludedInMessageBody(messageBody, CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION)) {
                             await processLLMDiagnostics(
                                 token,
                                 [
@@ -390,7 +395,10 @@ export function AIChat() {
                                         ? parameters.inputRecord[0]
                                         : messageBody,
                                     attachments,
-                                    messageBody.includes(GENERATE_CODE_AGAINST_THE_REQUIREMENT) ? "CODE_FOR_USER_REQUIREMENT" : messageBody.includes(GENERATE_TEST_AGAINST_THE_REQUIREMENT) ? "TESTS_FOR_USER_REQUIREMENT" : ""
+                                    isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT) 
+                                        ? CodeGenerationType.CODE_FOR_USER_REQUIREMENT 
+                                        : isContentIncludedInMessageBody(messageBody, GENERATE_TEST_AGAINST_THE_REQUIREMENT) ? 
+                                            CodeGenerationType.TESTS_FOR_USER_REQUIREMENT : CodeGenerationType.CODE_GENERATION
                                 ],
                                 message
                             );
@@ -405,7 +413,7 @@ export function AIChat() {
                                     ? parameters.inputRecord[0]
                                     : messageBody,
                                 attachments,
-                                ""
+                                CodeGenerationType.CODE_GENERATION
                             ],
                             message
                         );
@@ -446,8 +454,12 @@ export function AIChat() {
                 );
             }
         } else {
-            await processCodeGeneration(token, [message, attachments, ""], message);
+            await processCodeGeneration(token, [message, attachments, CodeGenerationType.CODE_GENERATION], message);
         }
+    }
+
+    function isContentIncludedInMessageBody(messageBody: string, content: string): boolean {
+        return messageBody.includes(content);
     }
 
     function findCommand(input: string): string {
