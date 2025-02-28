@@ -311,13 +311,13 @@ export function TemplateWizard(props: TemplateWizardProps) {
 
     switch (endpointType) {
         case 'Address Endpoint Template':
-            return <AddressEndpointWizard path={props.path} type="template" isPopup={true} handleChangeType={clearEndpointType} handlePopupClose={handleCancel} />;
+            return <AddressEndpointWizard path={props.path} type="template" handleChangeType={clearEndpointType} />;
         case 'Default Endpoint Template':
-            return <DefaultEndpointWizard path={props.path} type="template" isPopup={true} handleChangeType={clearEndpointType} handlePopupClose={handleCancel} />;
+            return <DefaultEndpointWizard path={props.path} type="template" handleChangeType={clearEndpointType} />;
         case 'HTTP Endpoint Template':
-            return <HttpEndpointWizard path={props.path} type="template" isPopup={true} handleChangeType={clearEndpointType} handlePopupClose={handleCancel} />;
+            return <HttpEndpointWizard path={props.path} type="template" handleChangeType={clearEndpointType} />;
         case 'WSDL Endpoint Template':
-            return <WsdlEndpointWizard path={props.path} type="template" isPopup={true} handleChangeType={clearEndpointType} handlePopupClose={handleCancel} />;
+            return <WsdlEndpointWizard path={props.path} type="template" handleChangeType={clearEndpointType} />;
         case 'Sequence Template':
             return (
                 <FormView title="Template" onClose={handleCancel}>

@@ -231,7 +231,11 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
         }
 
         if (props.isPopup) {
-            props.handlePopupClose();
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: POPUP_EVENT_TYPE.CLOSE_VIEW,
+                location: { view: null, recentIdentifier: getValues("endpointName") },
+                isPopup: true
+            });
         } else {
             openOverview();
         }
