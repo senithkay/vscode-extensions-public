@@ -3,24 +3,22 @@ import { PALETTE_COMMANDS } from "../project/cmds/cmd-runner";
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { BallerinaExtension, ExtendedLangClient } from "src/core";
-import { URI } from "vscode-uri";
+import { BallerinaExtension } from "src/core";
 import Handlebars from "handlebars";
-import { findRunningBallerinaProcesses } from "./utils";
+import { clientManager, findRunningBallerinaProcesses, handleError } from "./utils";
 import { BIDesignModelResponse, OpenAPISpec } from "@wso2-enterprise/ballerina-core";
 
-let langClient: ExtendedLangClient | undefined;
 let errorLogWatcher: FileSystemWatcher | undefined;
 
 const TRYIT_TEMPLATE = `/*
-### Try Service: "{{serviceName}}" (http://localhost:{{port}}{{trim basePath}})
+### {{#if isResourceMode}}Try Resource: '{{resourceMethod}} {{resourcePath}}'{{else}}Try Service: '{{serviceName}}' (http://localhost:{{port}}{{trim basePath}}){{/if}}
 {{info.description}}
 */
 
 {{#each paths}}
 {{#each this}}
 /*
-#### {{uppercase @key}} {{@../key}}
+{{#unless ../../isResourceMode}}#### {{uppercase @key}} {{@../key}}{{/unless}}
 
 {{#if parameters}}
 {{#with (groupParams parameters)}}
@@ -124,233 +122,390 @@ module.exports = {
 };`;
 
 export function activateTryItCommand(ballerinaExtInstance: BallerinaExtension) {
-    langClient = ballerinaExtInstance.langClient as ExtendedLangClient;
-    // Register try it command handler
-    const disposable = commands.registerCommand(PALETTE_COMMANDS.TRY_IT, async (withNotice: boolean = false) => {
-        await openTryItView(withNotice, ballerinaExtInstance);
-    });
-    
-    // Clean up when deactivated
-    return Disposable.from(disposable, {
-        dispose: disposeErrorWatcher
-    });
-}
+    try {
+        clientManager.setClient(ballerinaExtInstance.langClient);
 
-async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: BallerinaExtension) {
-    if (!langClient) {
-        vscode.window.showErrorMessage('Ballerina Language Server is not connected');
-        return;
-    }
-
-    const workspaceRoot = vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders[0].uri.fsPath;
-    if (!workspaceRoot) {
-        vscode.window.showErrorMessage('Please open a workspace first');
-        return;
-    }
-
-    const services = await getAvailableServices(workspaceRoot);
-
-    if (!services || services.length === 0) {
-        vscode.window.showInformationMessage('No services found in the project');
-        return;
-    }
-
-    if (withNotice) {
-        const selection = await vscode.window.showInformationMessage(
-            `${services.length} service${services.length === 1 ? '' : 's'} found in the integration. Test with Try It Client?`,
-            "Test",
-            "Cancel"
-        );
-
-        if (selection !== "Test") {
-            return;
-        }
-    }
-
-    // If there's more than one service, show the quick pick
-    let selectedService: ServiceInfo;
-    if (services.length > 1) {
-        const quickPickItems = services.map(service => ({
-            label: `'${service.basePath}' on ${service.listener}`,
-            description: `HTTP Service`,
-            service
-        }));
-
-        const selected = await vscode.window.showQuickPick(quickPickItems, {
-            placeHolder: 'Select a service to try out',
-            title: 'Available Services'
+        // Register try it command handler
+        const disposable = commands.registerCommand(PALETTE_COMMANDS.TRY_IT, async (withNotice: boolean = false, resourceMetadata?: ResourceMetadata) => {
+            try {
+                await openTryItView(withNotice, resourceMetadata);
+            } catch (error) {
+                handleError(error, "Opening Try It view failed");
+            }
         });
 
-        if (!selected) {
+        return Disposable.from(disposable, {
+            dispose: disposeErrorWatcher
+        });
+    } catch (error) {
+        handleError(error, "Activating Try It command");
+    }
+}
+
+async function openTryItView(withNotice: boolean = false, resourceMetadata?: ResourceMetadata) {
+    try {
+        if (!clientManager.hasClient()) {
+            throw new Error('Ballerina Language Server is not connected');
+        }
+
+        const workspaceRoot = vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders[0].uri.fsPath;
+        if (!workspaceRoot) {
+            throw new Error('Please open a workspace first');
+        }
+
+        const services: ServiceInfo[] = await getAvailableServices(workspaceRoot);
+        if (!services || services.length === 0) {
+            vscode.window.showInformationMessage('No HTTP services found in the project');
             return;
         }
-        selectedService = selected.service;
-    } else {
-        selectedService = services[0];
+
+        if (withNotice && !resourceMetadata) {
+            const selection = await vscode.window.showInformationMessage(
+                `${services.length} service${services.length === 1 ? '' : 's'} found in the integration. Test with Try It Client?`,
+                "Test",
+                "Cancel"
+            );
+
+            if (selection !== "Test") {
+                return;
+            }
+        }
+
+        let selectedService: ServiceInfo;
+        // If in resource try it mode, find the service containing the resource path
+        if (resourceMetadata?.pathValue) {
+            const matchingService = await findServiceForResource(services, resourceMetadata);
+            if (!matchingService) {
+                vscode.window.showErrorMessage(`Could not find a service containing the resource path: ${resourceMetadata.pathValue}`);
+                return;
+            }
+
+            selectedService = matchingService;
+        } else if (services.length > 1) {
+            const quickPickItems = services.map(service => ({
+                label: `'${service.basePath}' on ${service.listener}`,
+                description: `HTTP Service`,
+                service
+            }));
+
+            const selected = await vscode.window.showQuickPick(quickPickItems, {
+                placeHolder: 'Select a service to try out',
+                title: 'Available Services'
+            });
+
+            if (!selected) {
+                return;
+            }
+            selectedService = selected.service;
+        } else {
+            selectedService = services[0];
+        }
+
+        const targetDir = path.join(workspaceRoot, 'target');
+        if (!fs.existsSync(targetDir)) {
+            fs.mkdirSync(targetDir);
+        }
+
+        const tryitFileName = `tryit.http`;
+        const tryitFilePath = path.join(targetDir, tryitFileName);
+        const configFilePath = path.join(targetDir, 'httpyac.config.js');
+
+        const content = await generateTryItFileContent(workspaceRoot, selectedService, resourceMetadata);
+        if (!content) {
+            return;
+        }
+
+        fs.writeFileSync(tryitFilePath, content);
+        fs.writeFileSync(configFilePath, HTTPYAC_CONFIG_TEMPLATE);
+
+        const tryitFileUri = vscode.Uri.file(tryitFilePath);
+        await openInSplitView(tryitFileUri, 'http');
+
+        // Setup the error log watcher
+        setupErrorLogWatcher(targetDir);
+    } catch (error) {
+        handleError(error, "Opening Try It view");
     }
+}
 
-    const targetDir = path.join(workspaceRoot, 'target');
-    if (!fs.existsSync(targetDir)) {
-        fs.mkdirSync(targetDir);
+// Generic utility function for opening files in split view
+async function openInSplitView(fileUri: vscode.Uri, editorType: string = 'default') {
+    try {
+        // Ensure we have a two-column layout
+        await vscode.commands.executeCommand('workbench.action.editorLayoutTwoColumns');
+
+        // Focus right editor group explicitly
+        await vscode.commands.executeCommand('workbench.action.focusSecondEditorGroup');
+
+        // Open the file with specified editor type in the current (right) group
+        if (editorType === 'default') {
+            await vscode.commands.executeCommand('vscode.open', fileUri);
+        } else {
+            await vscode.commands.executeCommand('vscode.openWith', fileUri, editorType);
+        }
+
+        // Focus left editor group to return to the original editor
+        await vscode.commands.executeCommand('workbench.action.focusFirstEditorGroup');
+    } catch (error) {
+        handleError(error, "Opening file in split view");
     }
+}
 
-    const tryitFileName = `tryit.http`;
-    const tryitFilePath = path.join(targetDir, tryitFileName);
-    const configFilePath = path.join(targetDir, 'httpyac.config.js');
+async function findServiceForResource(services: ServiceInfo[], resourceMetadata: ResourceMetadata): Promise<ServiceInfo | undefined> {
+    try {
+        // Normalize path values for comparison
+        const targetPath = resourceMetadata.pathValue?.trim();
+        if (!targetPath) {
+            return undefined;
+        }
 
-    const content = await generateTryItFileContent(workspaceRoot, selectedService);
-    if (!content) {
-        vscode.window.showErrorMessage('Failed to generate Try It content');
-        return;
+        // check all services' OpenAPI specs to see which one contains the path
+        // TODO: Optimize this by checking only the relevant service once we have the lang server support for that
+        for (const service of services) {
+            try {
+                const openapiSpec: OAISpec = await getOpenAPIDefinition(service);
+                const matchingPaths = Object.keys(openapiSpec.paths || {}).filter((specPath) => {
+                    return comparePathPatterns(specPath, targetPath);
+
+                });
+
+                if (matchingPaths.length > 0) {
+                    return service;
+                }
+            } catch (error) {
+                continue;
+            }
+        }
+
+        return undefined;
+    } catch (error) {
+        handleError(error, "Finding service for resource", false);
+        return undefined;
     }
-
-    fs.writeFileSync(tryitFilePath, content);
-    fs.writeFileSync(configFilePath, HTTPYAC_CONFIG_TEMPLATE);
-
-
-    // Open the file as a notebook document
-    const tryitFileUri = vscode.Uri.file(tryitFilePath);
-    await vscode.commands.executeCommand('vscode.openWith', tryitFileUri, 'http');
-
-    // Setup the error log watcher
-    setupErrorLogWatcher(targetDir);
 }
 
 async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> {
-    if (!langClient) {
+    try {
+        const langClient = clientManager.getClient();
+
+        const response: BIDesignModelResponse = await langClient.getDesignModel({
+            projectPath: projectDir
+        }).catch((error: any) => {
+            throw new Error(`Failed to get design model: ${error.message || 'Unknown error'}`);
+        });
+
+        const services = response.designModel.services
+            .filter(service => service.type.toLowerCase().includes('http'))
+            .map(service => ({
+                name: service.displayName || service.absolutePath.startsWith('/') ? service.absolutePath.trim().substring(1) : service.absolutePath.trim(),
+                basePath: service.absolutePath.trim(),
+                filePath: service.location.filePath,
+                listener: service.attachedListeners.map(listener => response.designModel.listeners.find(l => l.uuid === listener)?.symbol).join(', ')
+            }));
+
+        return services || [];
+    } catch (error) {
+        handleError(error, "Getting available services", false);
         return [];
     }
-
-    const response: BIDesignModelResponse = await langClient.getDesignModel({
-        projectPath: projectDir
-    });
-
-    const services = response.designModel.services
-        .filter(service => service.type.toLowerCase().includes('http'))
-        .map(service => ({
-            name: service.displayName || service.absolutePath.startsWith('/') ? service.absolutePath.trim().substring(1) : service.absolutePath.trim(),
-            basePath: service.absolutePath.trim(),
-            filePath: service.location.filePath,
-            listener: service.attachedListeners.map(listener => response.designModel.listeners.find(l => l.uuid === listener)?.symbol).join(', ')
-        }));
-
-    return services || [];
 }
 
-async function generateTryItFileContent(projectDir: string, service: ServiceInfo): Promise<string | undefined> {
+async function generateTryItFileContent(projectDir: string, service: ServiceInfo, resourceMetadata?: ResourceMetadata): Promise<string | undefined> {
     try {
         // Get OpenAPI definition
-        const openapiSpec = await getOpenAPIDefinition(langClient, service);
-        if (!openapiSpec) {
-            return undefined;
-        }
+        const openapiSpec = await getOpenAPIDefinition(service);
 
         // Get service port
         const selectedPort = await getServicePort(projectDir, service, openapiSpec);
-        if (!selectedPort) {
-            vscode.window.showErrorMessage(`Failed to get the service port for the service: '${service.name}'`);
-            return undefined;
-        }
 
         // Register Handlebars helpers
         registerHandlebarsHelpers(openapiSpec);
 
+        let isResourceMode = false;
+        let resourcePath = '';
+        // Filter paths based on resourceMetadata if provided
+        if (resourceMetadata?.pathValue) {
+            const originalPaths = openapiSpec.paths;
+            const filteredPaths: Record<string, Record<string, Operation>> = {};
+
+            let matchingPath = '';
+            for (const path in originalPaths) {
+                const pathMatches = comparePathPatterns(path, resourceMetadata.pathValue);
+                if (pathMatches) {
+                    matchingPath = path;
+                    break;
+                }
+            }
+
+            if (matchingPath && originalPaths[matchingPath]) {
+                // Set resource mode flag and path
+                isResourceMode = true;
+                resourcePath = matchingPath;
+
+                if (resourceMetadata.methodValue) {
+                    const method = resourceMetadata.methodValue.toLowerCase();
+                    if (originalPaths[matchingPath][method]) {
+                        // Create entry with only the specified method
+                        filteredPaths[matchingPath] = {
+                            [method]: {
+                                ...originalPaths[matchingPath][method],
+                                // Add a custom property to indicate this is the selected resource
+                                description: originalPaths[matchingPath][method].description
+                                    ? `${originalPaths[matchingPath][method].description} (Selected Resource)`
+                                    : '(Selected Resource)'
+                            }
+                        };
+                    } else {
+                        // Method not found in matching path
+                        vscode.window.showWarningMessage(`Method ${resourceMetadata.methodValue} not found for path ${matchingPath}. Showing all methods for this path.`);
+                        filteredPaths[matchingPath] = originalPaths[matchingPath];
+                    }
+                } else {
+                    filteredPaths[matchingPath] = originalPaths[matchingPath];
+                }
+
+                openapiSpec.paths = filteredPaths;
+            } else {
+                // Path not found in OpenAPI spec
+                vscode.window.showWarningMessage(
+                    `Path ${resourceMetadata.pathValue} not found in service ${service.name || service.basePath}. Showing all resources.`
+                );
+            }
+        }
+
         // Generate content using template
-        const compiledTemplate = Handlebars.compile(TRYIT_TEMPLATE);
-        return compiledTemplate({
+        const templateData = {
             ...openapiSpec,
             port: selectedPort.toString(),
             basePath: service.basePath,
-            serviceName: service.name || 'Default'
-        });
+            serviceName: service.name || 'Default',
+            isResourceMode: isResourceMode,
+            resourceMethod: isResourceMode ? resourceMetadata.methodValue.toLowerCase() : '',
+            resourcePath: resourcePath,
+        };
+
+        const compiledTemplate = Handlebars.compile(TRYIT_TEMPLATE);
+        return compiledTemplate(templateData);
     } catch (error) {
-        const message = error instanceof Error ? error.message : '';
-        vscode.window.showErrorMessage(`Failed to generate TryIt client content: ${message}`);
+        handleError(error, "Try It client initialization failed");
         return undefined;
     }
 }
 
-async function getOpenAPIDefinition(langClient: any, service: ServiceInfo): Promise<OAISpec | undefined> {
-    if (!langClient) {
-        vscode.window.showErrorMessage('Language client is not initialized');
-        return undefined;
+
+// Helper function to compare path patterns, considering path parameters
+function comparePathPatterns(specPath: string, targetPath: string): boolean {
+    const specSegments = specPath.split('/').filter(Boolean);
+    const targetSegments = targetPath.split('/').filter(Boolean);
+
+    if (specSegments.length !== targetSegments.length) {
+        return false;
     }
 
-    const openapiDefinitions: OpenAPISpec | 'NOT_SUPPORTED_TYPE' = await langClient.convertToOpenAPI({
-        documentFilePath: service.filePath
-    });
+    // Compare segments, allowing for path parameters
+    for (let i = 0; i < specSegments.length; i++) {
+        const specSeg = specSegments[i];
+        const targetSeg = sanitizeBallerinaPathSegment(targetSegments[i]);
 
-    if (openapiDefinitions === 'NOT_SUPPORTED_TYPE') {
-        vscode.window.showErrorMessage('OpenAPI spec generation failed for the selected service');
-        return undefined;
-    }
+        // TODO - improve path parameter matching with exact type comparison
+        if (specSeg.startsWith('{') && specSeg.endsWith('}') && targetSeg.startsWith('[') && targetSeg.endsWith(']')) {
+            continue;
+        }
 
-    const matchingDefinition = (openapiDefinitions as OpenAPISpec).content.filter(content =>
-        content.serviceName.toLowerCase() === service?.name.toLowerCase()
-        || (content.spec?.servers[0]?.url == undefined && service?.name === '') // TODO: Update the condition after fixing the issue in the OpenAPI tool https://github.com/ballerina-platform/ballerina-library/issues/7624
-    );
-
-    if (matchingDefinition.length > 1) {
-        vscode.window.showErrorMessage(`Multiple matching OpenAPI definitions found for service: ${service.basePath}`);
-        return undefined;
-    }
-
-    if (!matchingDefinition) {
-        vscode.window.showErrorMessage(`No matching OpenAPI definition found for service: ${service.basePath}`);
-        return undefined;
-    }
-
-    return matchingDefinition[0].spec as OAISpec;
-}
-
-async function getServicePort(projectDir: string, service: ServiceInfo, openapiSpec: OAISpec): Promise<number | undefined> {
-    // Try to get default port from OpenAPI spec first
-    const defaultPort = openapiSpec.servers?.[0]?.variables?.port?.default;
-    if (defaultPort) {
-        const parsedPort = parseInt(defaultPort);
-        if (!isNaN(parsedPort) && parsedPort > 0 && parsedPort <= 65535) {
-            return parsedPort;
+        if (specSeg !== targetSeg) {
+            return false;
         }
     }
 
-    const balProcesses = await findRunningBallerinaProcesses(projectDir);
-    if (!balProcesses?.length) {
-        vscode.window.showErrorMessage('No running Ballerina processes found. Please start your service first.');
-        return undefined;
+    return true;
+}
+
+async function getOpenAPIDefinition(service: ServiceInfo): Promise<OAISpec> {
+    try {
+        const langClient = clientManager.getClient();
+
+        const openapiDefinitions: OpenAPISpec | 'NOT_SUPPORTED_TYPE' = await langClient.convertToOpenAPI({
+            documentFilePath: service.filePath
+        });
+
+        if (openapiDefinitions === 'NOT_SUPPORTED_TYPE') {
+            throw new Error(`OpenAPI spec generation failed for the service with base path: '${service.basePath}'`);
+        }
+
+        const matchingDefinition = (openapiDefinitions as OpenAPISpec).content.filter(content =>
+            content.serviceName.toLowerCase() === service?.name.toLowerCase()
+            || (content.spec?.servers[0]?.url.endsWith(service.basePath) && service?.name === '')
+            || (content.spec?.servers[0]?.url == undefined && service?.name === '' // TODO: Update the condition after fixing the issue in the OpenAPI tool
+            ));
+
+        if (matchingDefinition.length === 0) {
+            throw new Error(`Failed to find matching OpenAPI definition: No service matches the base path '${service.basePath}' ${service.name !== '' ? `and service name '${service.name}'` : ''}`);
+        }
+
+        if (matchingDefinition.length > 1) {
+            throw new Error(`Ambiguous service reference: Multiple matching OpenAPI definitions found for ${service.name !== '' ? `service '${service.name}'` : `base path '${service.basePath}'`}`);
+        }
+
+        return matchingDefinition[0].spec as OAISpec;
+    } catch (error) {
+        handleError(error, "Getting OpenAPI definition", false);
+        throw error; // Re-throw to be caught by the caller
     }
+}
 
-    const uniquePorts = [...new Set(balProcesses.flatMap(process => process.ports))];
+async function getServicePort(projectDir: string, service: ServiceInfo, openapiSpec: OAISpec): Promise<number> {
+    try {
+        // Try to get default port from OpenAPI spec first
+        let portInSpec: number;
+        const portInSpecStr = openapiSpec.servers?.[0]?.variables?.port?.default;
+        if (portInSpecStr) {
+            const parsedPort = parseInt(portInSpecStr);
+            portInSpec = isNaN(parsedPort) ? parsedPort : undefined;
+        }
 
-    if (uniquePorts.length === 0) {
-        vscode.window.showErrorMessage('No ports found in the running Ballerina processes');
-        return undefined;
+        const balProcesses = await findRunningBallerinaProcesses(projectDir)
+            .catch(error => {
+                throw new Error(`Failed to find running Ballerina processes: ${error.message}`);
+            });
+
+        if (!balProcesses?.length) {
+            throw new Error('No running Ballerina processes found. Please run your service first.');
+        }
+
+        const uniquePorts: number[] = [...new Set(balProcesses.flatMap(process => process.ports))];
+        if (portInSpec && uniquePorts.includes(portInSpec)) {
+            return portInSpec;
+        }
+
+        if (uniquePorts.length === 0) {
+            throw new Error('No service ports found in running Ballerina processes');
+        }
+
+        if (uniquePorts.length === 1) {
+            return uniquePorts[0];
+        }
+
+        // If multiple ports, prompt user to select one
+        const portItems = uniquePorts.map(port => ({
+            label: `Port ${port}`, port
+        }));
+
+        const selected = await vscode.window.showQuickPick(portItems, {
+            placeHolder: `Port auto-detection failed due to multiple service ports. Pick the correct port for the service '${service.name || service.basePath}' to continue`,
+        });
+
+        if (!selected) {
+            throw new Error('No port selected for the service');
+        }
+
+        return selected.port;
+    } catch (error) {
+        handleError(error, "Getting service port", false);
+        throw error;
     }
-
-    if (uniquePorts.length === 1) {
-        return uniquePorts[0];
-    }
-
-    // If multiple ports, prompt user to select one
-    const portItems = uniquePorts.map(port => ({
-        label: `Port ${port}`, port
-    }));
-
-    const selected = await vscode.window.showQuickPick(portItems, {
-        placeHolder: `Multiple ports detected. Please select the port configured for the service "${service.name}"`,
-        title: 'Available Ports'
-    });
-
-    return selected?.port;
 }
 
 function registerHandlebarsHelpers(openapiSpec: OAISpec): void {
-    if (!Handlebars.helpers.uppercase) {
-        Handlebars.registerHelper('uppercase', (str: string) => str.toUpperCase());
-    }
-    if (!Handlebars.helpers.trim) {
-        Handlebars.registerHelper('trim', (str?: string) => str ? str.trim() : '');
-    }
-
     // handlebar helper to process query parameters
     if (!Handlebars.helpers.queryParams) {
         Handlebars.registerHelper('queryParams', function (parameters) {
@@ -433,6 +588,20 @@ function registerHandlebarsHelpers(openapiSpec: OAISpec): void {
         Handlebars.registerHelper('generateRequestBody', function (requestBody) {
             return new Handlebars.SafeString(generateRequestBody(requestBody, openapiSpec));
         });
+    }
+
+    if (!Handlebars.helpers.not) {
+        Handlebars.registerHelper('not', function (value) {
+            return !value;
+        });
+    }
+
+    if (!Handlebars.helpers.uppercase) {
+        Handlebars.registerHelper('uppercase', (str: string) => str.toUpperCase());
+    }
+    
+    if (!Handlebars.helpers.trim) {
+        Handlebars.registerHelper('trim', (str?: string) => str ? str.trim() : '');
     }
 }
 
@@ -645,6 +814,17 @@ function setupErrorLogWatcher(targetDir: string) {
     });
 }
 
+function sanitizeBallerinaPathSegment(pathSegment: string): string {
+    let sanitized = pathSegment.trim();
+    // Remove escaped characters
+    sanitized = sanitized.replace(/\\/g, '');
+    // Remove leading single quote if present
+    if (sanitized.startsWith("'")) {
+        sanitized = sanitized.substring(1);
+    }
+    return sanitized;
+}
+
 // cleanup function for the watcher
 function disposeErrorWatcher() {
     if (errorLogWatcher) {
@@ -749,4 +929,9 @@ interface Response {
 
 interface Components {
     schemas?: Record<string, Schema>;
+}
+
+interface ResourceMetadata {
+    methodValue?: string;
+    pathValue?: string;
 }

@@ -183,15 +183,6 @@ export function SequenceWizard(props: SequenceWizardProps) {
             <FormGroup title="Advanced Configuration" isCollapsed={true}>
                 <FormKeylookup
                     control={control}
-                    label="Endpoint"
-                    name="endpoint"
-                    filterType="endpoint"
-                    path={props.path}
-                    errorMsg={errors.endpoint?.message.toString()}
-                    {...register("endpoint")}
-                />
-                <FormKeylookup
-                    control={control}
                     label="On Error Sequence"
                     name="onErrorSequence"
                     filterType="sequence"

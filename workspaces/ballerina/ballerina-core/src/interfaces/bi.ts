@@ -69,6 +69,8 @@ export type Metadata = {
     data?: {
         isDataMappedFunction?: boolean;
     }
+    tools?: string[]; // for agent call
+    model?: string; // for agent call
 };
 
 export type Property = {
@@ -81,6 +83,7 @@ export type Property = {
     advanced?: boolean;
     placeholder?: string;
     valueTypeConstraint?: string | string[];
+    codedata?: CodeData;
 };
 
 export type Diagnostic = {
@@ -94,7 +97,7 @@ export type DiagnosticMessage = {
 };
 
 export type CodeData = {
-    node: NodeKind;
+    node?: NodeKind;
     org?: string;
     module?: string;
     object?: string;
@@ -294,7 +297,8 @@ export type NodeKind =
     | "AGENT"
     | "AGENT_CALL"
     | "FUNCTION_DEFINITION"
-    | "CONFIG_VARIABLE";
+    | "CONFIG_VARIABLE"
+    | "AGENT_CALL";
 
 export type OverviewFlow = {
     entryPoints: EntryPoint[];

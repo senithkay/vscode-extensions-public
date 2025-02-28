@@ -17,6 +17,7 @@ import { FormField, FormValues } from '../Form/types';
 import { Controller } from 'react-hook-form';
 import { useFormContext } from '../../context';
 import { NodeKind } from '@wso2-enterprise/ballerina-core';
+import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 
 export interface Parameter {
     id: number;
@@ -24,6 +25,8 @@ export interface Parameter {
     key: string;
     value: string;
     icon: string;
+    identifierEditable: boolean;
+    identifierRange: any;
 }
 
 
@@ -119,10 +122,13 @@ export function ParamManagerEditor(props: ParamManagerEditorProps) {
 
 export function ParamManager(props: ParamManagerProps) {
     const { paramConfigs, readonly, onChange, openRecordEditor, selectedNode } = props;
+    const { rpcClient } = useRpcContext();
+
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
     const [parameters, setParameters] = useState<Parameter[]>(paramConfigs.paramValues);
     const [paramComponents, setParamComponents] = useState<React.ReactElement[]>([]);
+    const [isGraphql, setIsGraphql] = useState<boolean>(false);
 
     const onEdit = (param: Parameter) => {
         setEditingSegmentId(param.id);
@@ -138,7 +144,9 @@ export function ParamManager(props: ParamManagerProps) {
             formValues: paramInfo,
             key: "",
             value: "",
-            icon: ""
+            icon: "",
+            identifierEditable: true,
+            identifierRange: undefined
         };
     };
 
@@ -149,10 +157,6 @@ export function ParamManager(props: ParamManagerProps) {
         updatedParameters.push(newParams);
         setParameters(updatedParameters);
         setIsNew(true);
-        // Reset the formField values when adding a new parameter
-        paramConfigs.formFields.forEach(field => {
-            field.value = "";
-        });
     };
 
     const onDelete = (param: Parameter) => {
@@ -194,6 +198,11 @@ export function ParamManager(props: ParamManagerProps) {
     };
 
     useEffect(() => {
+        rpcClient.getVisualizerLocation().then(context => {
+            if (context.view === "GraphQL Diagram") {
+                setIsGraphql(true);
+            }
+        });
         renderParams();
     }, [parameters, editingSegmentId, paramConfigs]);
 
@@ -202,15 +211,23 @@ export function ParamManager(props: ParamManagerProps) {
         parameters
             .forEach((param, index) => {
                 if (editingSegmentId === index) {
-                    paramConfigs.formFields.forEach(field => {
+                    const newParamConfig = {
+                        ...paramConfigs,
+                        formFields: paramConfigs.formFields.map(field => ({ ...field }))
+                    };
+                    newParamConfig.formFields.forEach(field => {
                         if (param.formValues[field.key]) {
                             field.value = param.formValues[field.key];
+                            if (field.key === "variable") {
+                                field.editable = param.identifierEditable;
+                                field.lineRange = param.identifierRange;
+                            }
                         }
                     })
                     render.push(
                         <ParamEditor
                             parameter={param}
-                            paramFields={paramConfigs.formFields}
+                            paramFields={newParamConfig.formFields}
                             onSave={onSaveParam}
                             onCancelEdit={onParamEditCancel}
                             openRecordEditor={openRecordEditor}
@@ -237,7 +254,7 @@ export function ParamManager(props: ParamManagerProps) {
                 <AddButtonWrapper>
                     <LinkButton sx={readonly && { color: "var(--vscode-badge-background)" }} onClick={!readonly && onAddClick} >
                         <Codicon name="add" />
-                        <>{`Add ${selectedNode === "DATA_MAPPER_DEFINITION" ? "Input" : "Parameter"}`}</>
+                        <>{`Add ${selectedNode === "DATA_MAPPER_DEFINITION" ? "Input" : isGraphql ? "Argument" : "Parameter"}`}</>
                     </LinkButton>
                 </AddButtonWrapper>
             )}

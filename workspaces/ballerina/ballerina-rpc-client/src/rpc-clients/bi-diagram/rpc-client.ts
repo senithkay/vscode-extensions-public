@@ -40,6 +40,7 @@ import {
     ConfigVariableResponse,
     CreateComponentResponse,
     CurrentBreakpointsResponse,
+    EndOfFileRequest,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     ExpressionDiagnosticsRequest,
@@ -52,6 +53,7 @@ import {
     GetTypeResponse,
     GetTypesRequest,
     GetTypesResponse,
+    LinePosition,
     ModelFromCodeRequest,
     ProjectComponentsResponse,
     ProjectImports,
@@ -91,6 +93,7 @@ import {
     getConfigVariables,
     getDesignModel,
     getEnclosedFunction,
+    getEndOfFile,
     getExpressionCompletions,
     getExpressionDiagnostics,
     getFlowModel,
@@ -121,7 +124,9 @@ import {
     updateServiceClass,
     updateType,
     ServiceClassSourceRequest,
-    AddFieldRequest
+    AddFieldRequest,
+    RenameIdentifierRequest,
+    renameIdentifier
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -225,6 +230,10 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendNotification(openReadme, HOST_EXTENSION);
     }
 
+    renameIdentifier(params: RenameIdentifierRequest): Promise<void> {
+        return this._messenger.sendRequest(renameIdentifier, HOST_EXTENSION, params);
+    }
+
     deployProject(): void {
         return this._messenger.sendNotification(deployProject, HOST_EXTENSION);
     }
@@ -323,5 +332,9 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     getFunctionNode(params: FunctionNodeRequest): Promise<FunctionNodeResponse> {
         return this._messenger.sendRequest(getFunctionNode, HOST_EXTENSION, params);
+    }
+
+    getEndOfFile(params: EndOfFileRequest): Promise<LinePosition> {
+        return this._messenger.sendRequest(getEndOfFile, HOST_EXTENSION, params);
     }
 }

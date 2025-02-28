@@ -71,6 +71,7 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
             const resp = await rpcClient
                 .getInlineDataMapperRpcClient()
                 .getDataMapperSource(updateSrcRequest);
+            console.log(">>> [Inline Data Mapper] getSource response:", resp);
             const updateData: ExpressionFormField = {
                 value: resp.source,
                 key: editorKey,
@@ -95,6 +96,7 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
             const resp = await rpcClient
                 .getInlineDataMapperRpcClient()
                 .addNewArrayElement(addElementRequest);
+            console.log(">>> [Inline Data Mapper] addArrayElement response:", resp);
             const updateData: ExpressionFormField = {
                 value: resp.source,
                 key: editorKey,

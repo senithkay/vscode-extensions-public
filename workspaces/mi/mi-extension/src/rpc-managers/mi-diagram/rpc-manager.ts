@@ -1553,7 +1553,7 @@ ${endpointAttributes}
         const options = {
             ignoreAttributes: false,
             allowBooleanAttributes: true,
-            attributeNamePrefix: "@_",
+            attributeNamePrefix: "",
             attributesGroupName: "@_"
         };
         const parser = new XMLParser(options);
@@ -1565,10 +1565,10 @@ ${endpointAttributes}
                 const jsonData = parser.parse(xmlData);
 
                 const response: GetTaskResponse = {
-                    name: jsonData.task["@_"]["@_name"],
-                    group: jsonData.task["@_"]["@_group"],
-                    implementation: jsonData.task["@_"]["@_class"],
-                    pinnedServers: jsonData.task["@_"]["@_pinnedServers"],
+                    name: jsonData.task["@_"]["name"],
+                    group: jsonData.task["@_"]["group"],
+                    implementation: jsonData.task["@_"]["class"],
+                    pinnedServers: jsonData.task["@_"]["pinnedServers"],
                     triggerType: 'simple',
                     triggerCount: null,
                     triggerInterval: 1,
@@ -1576,34 +1576,34 @@ ${endpointAttributes}
                     taskProperties: []
                 };
 
-                if (jsonData.task.trigger["@_"]["@_once"] !== undefined) {
+                if (jsonData.task.trigger["@_"]["once"] !== undefined) {
                     response.triggerCount = 1;
-                } else if (jsonData.task.trigger["@_"]["@_interval"] !== undefined) {
-                    response.triggerInterval = Number(jsonData.task.trigger["@_"]["@_interval"]);
-                    response.triggerCount = jsonData.task.trigger["@_"]?.["@_count"] != null ?
-                        Number(jsonData.task.trigger["@_"]["@_count"]) : null;
+                } else if (jsonData.task.trigger["@_"]["interval"] !== undefined) {
+                    response.triggerInterval = Number(jsonData.task.trigger["@_"]["interval"]);
+                    response.triggerCount = jsonData.task.trigger["@_"]?.["count"] != null ?
+                        Number(jsonData.task.trigger["@_"]["count"]) : null;
                 }
-                else if (jsonData.task.trigger["@_"]["@_cron"] !== undefined) {
+                else if (jsonData.task.trigger["@_"]["cron"] !== undefined) {
                     response.triggerType = 'cron';
-                    response.triggerCron = jsonData.task.trigger["@_"]["@_cron"];
+                    response.triggerCron = jsonData.task.trigger["@_"]["cron"];
                 }
                 if (jsonData.task.property) {
                     response.taskProperties = Array.isArray(jsonData.task.property) ?
                         jsonData.task.property.map((prop: any) => ({
-                            key: prop["@_"]["@_name"],
-                            value: prop["@_"]["@_value"],
+                            key: prop["@_"]["name"],
+                            value: prop["@_"]["value"],
                             isLiteral: true
                         })) :
                         [{
-                            key: jsonData.task.property["@_"]["@_name"],
-                            value: jsonData.task.property["@_"]["@_value"],
+                            key: jsonData.task.property["@_"]["name"],
+                            value: jsonData.task.property["@_"]["value"],
                             isLiteral: true
                         }];
                     const builder = new XMLBuilder(options);
-                    const message = jsonData.task.property.filter((prop: any) => prop["@_"]["@_name"] === "message");
+                    const message = jsonData.task.property.filter((prop: any) => prop["@_"]["name"] === "message");
                     if (message.length > 0) {
                         response.taskProperties = response.taskProperties.filter(prop => prop.key !== "message");
-                        if (message[0]["@_"]["@_value"] === undefined) {
+                        if (message[0]["@_"]["value"] === undefined) {
                             delete message[0]["@_"];
                             let xml = builder.build(message[0]);
                             response.taskProperties.push({
@@ -1614,7 +1614,7 @@ ${endpointAttributes}
                         } else {
                             response.taskProperties.push({
                                 key: "message",
-                                value: message[0]["@_"]["@_value"],
+                                value: message[0]["@_"]["value"],
                                 isLiteral: true
                             });
                         }
@@ -3457,15 +3457,15 @@ ${endpointAttributes}
                 desFileName += '.xml';
             }
             const destinationFilePath = path.join(destinationDirectory, desFileName);
-    
+
             // Ensure the destination directory exists
             await fs.promises.mkdir(destinationDirectory, { recursive: true });
-    
+
             // Check if the destination file already exists
             if (fs.existsSync(destinationFilePath)) {
                 return { success: false, error: 'File already exists' };
             }
-    
+
             // Copy the file from the source to the destination
             const sourceFilePath = params.sourceFilePath; // Assuming this is provided in params
             await fs.promises.copyFile(sourceFilePath, destinationFilePath);
@@ -3843,7 +3843,7 @@ ${endpointAttributes}
                     resolve({ inboundConnectors: connectorCache.get('inbound-connector-data'), outboundConnectors: connectorCache.get('outbound-connector-data'), connectors: connectorCache.get('connectors') });
                     return;
                 }
-                const runtimeVersion = miVersion ? miVersion: await getMIVersionFromPom();
+                const runtimeVersion = miVersion ? miVersion : await getMIVersionFromPom();
 
                 const response = await fetch(APIS.CONNECTOR);
                 const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE.replace('${version}', runtimeVersion ?? ''));
@@ -4911,67 +4911,7 @@ ${keyValuesXML}`;
     async markAsDefaultSequence(params: MarkAsDefaultSequenceRequest): Promise<void> {
         return new Promise(async (resolve) => {
             const { path: filePath, remove } = params;
-            const langClient = StateMachine.context().langClient;
-
-            if (!langClient) {
-                window.showErrorMessage('Language client is not available');
-                throw new Error('Language client is not available');
-            }
-
-            // Get the syntax tree of the given file path
-            const syntaxTree = await langClient.getSyntaxTree({
-                documentIdentifier: {
-                    uri: filePath
-                },
-            });
-
-            // Get the sequence name from the syntax tree
-            const sequenceName = syntaxTree?.syntaxTree?.sequence?.name;
-            if (!sequenceName) {
-                window.showErrorMessage('Failed to get the sequence name from the syntax tree');
-                throw new Error('Failed to get the sequence name from the syntax tree');
-            }
-
-            // Read the POM file
-            const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(filePath));
-            if (!workspaceFolder) {
-                window.showErrorMessage('Cannot find workspace folder');
-                throw new Error('Cannot find workspace folder');
-            }
-
-            const pomPath = path.join(workspaceFolder.uri.fsPath, 'pom.xml');
-            const pomContent = fs.readFileSync(pomPath, 'utf-8');
-            const mainSequenceTag = `<mainSequence>${sequenceName}</mainSequence>`;
-
-            // Check if the <properties> tag exists
-            const propertiesTagExists = pomContent.includes('<properties>');
-
-            let updatedPomContent;
-            if (propertiesTagExists) {
-                if (remove) {
-                    // Remove the <mainSequence> tag from the POM
-                    updatedPomContent = pomContent.replace(/\s*<mainSequence>.*?<\/mainSequence>/, '');
-                } else {
-                    // Inject the <mainSequence> tag inside the <properties> tag
-                    updatedPomContent = pomContent.replace(/<properties>([\s\S]*?)<\/properties>/, (match, p1) => {
-                        if (p1.includes('<mainSequence>')) {
-                            // Update the existing <mainSequence> tag
-                            return match.replace(/<mainSequence>.*?<\/mainSequence>/, mainSequenceTag);
-                        } else {
-                            // Get the indentation from the <properties> tag
-                            const propertiesIndentation = pomContent.match(/(\s*)<properties>/)?.[1] || '';
-                            const indentedMainSequenceTag = `\t${mainSequenceTag}`;
-                            // Add the <mainSequence> tag
-                            return `<properties>${p1}${indentedMainSequenceTag}${propertiesIndentation}</properties>`;
-                        }
-                    });
-                }
-            } else {
-                window.showErrorMessage('Failed to find the project properties in the POM file');
-            }
-
-            // Write the updated POM content back to the file
-            fs.writeFileSync(pomPath, updatedPomContent, 'utf-8');
+            commands.executeCommand(COMMANDS.MARK_SEQUENCE_AS_DEFAULT, { info: { path: filePath } }, remove);
 
             resolve();
         });
@@ -5265,7 +5205,7 @@ export async function askImportFileDir() {
         canSelectFolders: false,
         canSelectMany: false,
         defaultUri: Uri.file(os.homedir()),
-        title: "Select a xml file to import",
-        filters: { 'XML': ['xml'] }
+        title: "Select a file to import",
+        filters: { 'ATF': ['xml','dbs'] }
     });
 }

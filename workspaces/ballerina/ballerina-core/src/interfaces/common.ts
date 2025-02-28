@@ -24,7 +24,7 @@ export enum SubPanelView {
     INLINE_DATA_MAPPER = "inlineDataMapper",
     HELPER_PANEL = "helperPanel",
     ADD_NEW_FORM = "addNewForm",
-    UNDEFINED = "undefined",
+    UNDEFINED = undefined,
 }
 
 export interface DocumentIdentifier {

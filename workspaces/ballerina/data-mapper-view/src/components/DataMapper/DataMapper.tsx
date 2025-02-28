@@ -251,7 +251,7 @@ export function DataMapperC(props: DataMapperViewProps) {
     const [fnName, setFnName] = useState(getFnNameFromST(fnST));
     const [fnSignature, setFnSignature] = useState(getFnSignatureFromST(fnST));
     const [showLocalVarConfigPanel, setShowLocalVarConfigPanel] = useState(false);
-    const { setFunctionST, setImports } = useDMStore();
+    const { setFunctionST } = useDMStore();
     const { resetSearchStore } = useDMSearchStore();
     const [dmContext, setDmContext] = useState<DataMapperContext>();
     const [dmNodes, setDmNodes] = useState<DataMapperNodeModel[]>();
@@ -476,7 +476,6 @@ export function DataMapperC(props: DataMapperViewProps) {
             dispatchSelection({ type: ViewOption.RESET });
         }
         setFunctionST(fnST);
-        setImports(importStatements);
         setShouldRestoreTypes(true);
         const fnSignatureFromFnST = getFnSignatureFromST(fnST);
         const fnNameFromFnST = getFnNameFromST(fnST);

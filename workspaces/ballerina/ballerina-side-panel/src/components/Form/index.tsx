@@ -25,6 +25,7 @@ import { getValueForDropdown, isDropdownField } from "../editors/utils";
 import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, FlowNode, LinePosition } from "@wso2-enterprise/ballerina-core";
 import { FormContext, Provider } from "../../context";
 import { formatJSONLikeString } from "./utils";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 namespace S {
     export const Container = styled(SidePanelBody) <{ nestedForm?: boolean }>`
@@ -32,7 +33,7 @@ namespace S {
         flex-direction: column;
         gap: 20px;
         height: ${({ nestedForm }) => nestedForm ? 'unset' : 'calc(100vh - 100px)'};
-        overflow: ${({ nestedForm }) => nestedForm ? 'visible' : 'scroll'};
+        overflow-y: ${({ nestedForm }) => nestedForm ? 'visible' : 'scroll'};
     `;
 
     export const Row = styled.div<{}>`
@@ -220,13 +221,21 @@ export const Form = forwardRef((props: FormProps, ref) => {
         formState: { isValidating, errors, isDirty }
     } = useForm<FormValues>();
 
+    const { rpcClient } = useRpcContext();
+
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [activeFormField, setActiveFormField] = useState<string | undefined>(undefined);
     const [diagnosticsInfo, setDiagnosticsInfo] = useState<FormDiagnostics[] | undefined>(undefined);
+    const [isGraphql, setIsGraphql] = useState<boolean>(false);
 
     const exprRef = useRef<FormExpressionEditorRef>(null);
 
     useEffect(() => {
+        rpcClient.getVisualizerLocation().then(context => {
+            if (context.view === "GraphQL Diagram") {
+                setIsGraphql(true);
+            }
+        });
         // Check if the form is a onetime usage or not. This is checked due to reset issue with nested forms in param manager
         if (!oneTimeForm) {
             // Reset form with new values when formFields change
@@ -500,7 +509,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     }
                     {hasAdvanceFields && (
                         <S.Row>
-                            Advance Parameters
+                            {isGraphql ? 'Advance Arguments' : 'Advance Parameters'}
                             <S.ButtonContainer>
                                 {!showAdvancedOptions && (
                                     <LinkButton

@@ -59,6 +59,8 @@ import { ServiceWizard } from "./views/BI/ServiceDesigner/ServiceWizard";
 import { ServiceEditView } from "./views/BI/ServiceDesigner/ServiceEditView";
 import { ListenerEditView } from "./views/BI/ServiceDesigner/ListenerEditView";
 import { AIAgentWizard } from "./views/BI/AIAgents/AIAgentWizard";
+import { ServiceClassDesigner } from "./views/BI/ServiceClassEditor/ServiceClassDesigner";
+import { ServiceClassConfig } from "./views/BI/ServiceClassEditor/ServiceClassConfig";
 
 const globalStyles = css`
     *,
@@ -83,7 +85,7 @@ const PopUpContainer = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 2100;
+    z-index: 2000;
 `;
 
 const MainPanel = () => {
@@ -234,9 +236,25 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.AIAgentWizard:
                         setViewComponent(<AIAgentWizard />);
+                    case MACHINE_VIEW.BIServiceClassDesigner:
+                        setViewComponent(
+                            <ServiceClassDesigner
+                                type={value?.type}
+                                isGraphql={value?.isGraphql}
+                                projectUri={value?.projectUri}
+                            />
+                        );
                         break;
                     case MACHINE_VIEW.BIServiceConfigView:
                         setViewComponent(<ServiceEditView filePath={value.documentUri} position={value?.position} />);
+                        break;
+                    case MACHINE_VIEW.BIServiceClassConfigView:
+                        setViewComponent(
+                            <ServiceClassConfig
+                                fileName={value.documentUri}
+                                position={value?.position}
+                                projectUri={value?.projectUri} />
+                        );
                         break;
                     case MACHINE_VIEW.BIListenerConfigView:
                         setViewComponent(<ListenerEditView filePath={value.documentUri} position={value?.position} />);

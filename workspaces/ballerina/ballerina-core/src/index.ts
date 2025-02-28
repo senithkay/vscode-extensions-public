@@ -75,6 +75,9 @@ export * from "./rpc-types/inline-data-mapper/rpc-type";
 export * from "./rpc-types/inline-data-mapper/interfaces";
 export * from "./rpc-types/test-manager";
 export * from "./rpc-types/test-manager/rpc-type";
+export * from "./rpc-types/icp-service";
+export * from "./rpc-types/icp-service/rpc-type";
+
 
 // ------ History class and interface -------->
 export * from "./history";

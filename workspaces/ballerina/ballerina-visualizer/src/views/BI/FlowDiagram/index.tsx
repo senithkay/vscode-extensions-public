@@ -568,6 +568,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             setSidePanelView(SidePanelView.NODE_LIST);
         } else {
             setSidePanelView(SidePanelView.NODE_LIST);
+            setSubPanel({ view: SubPanelView.UNDEFINED });
         }
         // clear memory
         selectedNodeRef.current = undefined;

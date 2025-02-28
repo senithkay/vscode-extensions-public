@@ -14,11 +14,15 @@ import { BallerinaExtension, ballerinaExtInstance, ExtendedLangClient } from "..
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
 import { generateExistingValues, parseTomlToConfig, typeOfComment } from "./utils";
 import { ConfigProperty, ConfigTypes, Constants, Property } from "./model";
-import { BallerinaProject, PackageConfigSchema, ProjectDiagnosticsResponse } from "@wso2-enterprise/ballerina-core";
+import { BallerinaProject, PackageConfigSchema, ProjectDiagnosticsResponse, SyntaxTree } from "@wso2-enterprise/ballerina-core";
+import { TextDocumentEdit } from "vscode-languageserver-types";
+import { modifyFileContent } from "../../utils/modification";
+import { fileURLToPath } from "url";
 
 const DEBUG_RUN_COMMAND_ID = 'workbench.action.debug.run';
+const UNUSED_IMPORT_ERR_CODE = "BCE2002";
 
-export async function prepareAndGenerateConfig(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean, isBi?: boolean, executeRun?: boolean): Promise<void> {
+export async function prepareAndGenerateConfig(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean, isBi?: boolean, executeRun: boolean = true): Promise<void> {
     const configRequirement: ConfigRequirementResult = await checkConfigGenerationRequired(ballerinaExtInstance, filePath, isBi);
 
     if (!configRequirement.needsConfig) {
@@ -264,7 +268,7 @@ export async function handleNewValues(packageName: string, newValues: ConfigProp
 
 async function executeRunCommand(ballerinaExtInstance: BallerinaExtension, filePath: string, isBi?: boolean) {
     if (ballerinaExtInstance.enabledRunFast() || isBi) {
-        const projectHasErrors = await hasProjectContainsErrors(ballerinaExtInstance.langClient, filePath);
+        const projectHasErrors = await cleanAndValidateProject(ballerinaExtInstance.langClient, filePath);
         if (projectHasErrors) {
             window.showErrorMessage("Project contains errors. Please fix them and try again.");
         } else {
@@ -275,16 +279,74 @@ async function executeRunCommand(ballerinaExtInstance: BallerinaExtension, fileP
     }
 }
 
-async function hasProjectContainsErrors(langClient: ExtendedLangClient, path: string): Promise<boolean> {
-    const res = await langClient.getProjectDiagnostics({
-        projectRootIdentifier: {
-            uri: "file://" + ballerinaExtInstance.getDocumentContext().getCurrentProject().path
+export async function cleanAndValidateProject(langClient: ExtendedLangClient, path: string): Promise<boolean> {
+    try {
+        // Get initial project diagnostics
+        const projectPath = ballerinaExtInstance?.getDocumentContext()?.getCurrentProject()?.path || path;
+        let response: ProjectDiagnosticsResponse = await langClient.getProjectDiagnostics({
+            projectRootIdentifier: {
+                uri: Uri.file(projectPath).toString()
+            }
+        });
+
+        if (!response.errorDiagnosticMap || Object.keys(response.errorDiagnosticMap).length === 0) {
+            return false;
         }
-    }) as ProjectDiagnosticsResponse;
-    if (res.errorDiagnosticMap && Object.keys(res.errorDiagnosticMap).length > 0) {
+
+        // Process each file with diagnostics
+        for (const [filePath, diagnostics] of Object.entries(response.errorDiagnosticMap)) {
+            // Filter the unused import diagnostics
+            const diagnostic = diagnostics.find(d => d.code === UNUSED_IMPORT_ERR_CODE);
+            if (!diagnostic) {
+                continue;
+            }
+            const codeActions = await langClient.codeAction({
+                textDocument: { uri: filePath },
+                range: {
+                    start: diagnostic.range.start,
+                    end: diagnostic.range.end
+                },
+                context: { diagnostics: [diagnostic] }
+            });
+
+            // Find and apply the appropriate code action
+            const action = codeActions.find(action => action.title === "Remove all unused imports");
+            if (!action?.edit?.documentChanges?.length) {
+                continue;
+            }
+            const docEdit = action.edit.documentChanges[0] as TextDocumentEdit;
+
+            // Apply modifications to syntax tree
+            const syntaxTree = await langClient.stModify({
+                documentIdentifier: { uri: docEdit.textDocument.uri },
+                astModifications: docEdit.edits.map(edit => ({
+                    startLine: edit.range.start.line,
+                    startColumn: edit.range.start.character,
+                    endLine: edit.range.end.line,
+                    endColumn: edit.range.end.character,
+                    type: "INSERT",
+                    isImport: true,
+                    config: { STATEMENT: edit.newText }
+                }))
+            });
+
+            // Update file content
+            const { source } = syntaxTree as SyntaxTree;
+            const absolutePath = fileURLToPath(filePath);
+            await modifyFileContent({ filePath: absolutePath, content: source });
+        }
+
+        // Check if errors still exist after fixes
+        const updatedResponse: ProjectDiagnosticsResponse = await langClient.getProjectDiagnostics({
+            projectRootIdentifier: {
+                uri: Uri.file(projectPath).toString()
+            }
+        });
+
+        return updatedResponse.errorDiagnosticMap && updatedResponse.errorDiagnosticMap.size > 0;
+    } catch (error) {
         return true;
     }
-    return false;
 }
 
 function updateConfigToml(newValues: ConfigProperty[], updatedContent, configPath) {

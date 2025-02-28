@@ -13,6 +13,9 @@ import { getDMTypeDim } from "./type-utils";
 import { DataMapperLinkModel } from "../Link";
 import { IOType, Mapping, TypeKind } from "@wso2-enterprise/ballerina-core";
 import { useDMCollapsedFieldsStore, useDMExpandedFieldsStore } from "../../../store/store";
+import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
+import { ErrorNodeKind } from "../../../components/DataMapper/Error/RenderingError";
+import { ARRAY_OUTPUT_NODE_TYPE, INPUT_NODE_TYPE, OBJECT_OUTPUT_NODE_TYPE } from "../Node";
 
 export function findMappingByOutput(mappings: Mapping[], outputId: string): Mapping {
     return mappings.find(mapping => (mapping.output === outputId || mapping.output.replaceAll("\"", "") === outputId));
@@ -106,4 +109,17 @@ export function isCollapsed(portName: string, portType: "IN" | "OUT"): boolean {
 
 export function fieldFQNFromPortName(portName: string): string {
     return portName.split('.').slice(1).join('.');
+}
+
+export function getErrorKind(node: DataMapperNodeModel): ErrorNodeKind {
+	const nodeType = node.getType();
+	switch (nodeType) {
+		case OBJECT_OUTPUT_NODE_TYPE:
+		case ARRAY_OUTPUT_NODE_TYPE:
+			return ErrorNodeKind.Output;
+		case INPUT_NODE_TYPE:
+			return ErrorNodeKind.Input;
+		default:
+			return ErrorNodeKind.Other;
+	}
 }
