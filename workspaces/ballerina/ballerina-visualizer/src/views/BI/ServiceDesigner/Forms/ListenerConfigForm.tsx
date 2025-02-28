@@ -138,6 +138,7 @@ function convertConfig(listener: ListenerModel): FormField[] {
             documentation: expression?.metadata.description || "",
             valueType: expression.valueTypeConstraint,
             editable: expression.editable,
+            enabled: expression.enabled ?? true,
             optional: expression.optional,
             value: expression.value,
             valueTypeConstraint: expression.valueTypeConstraint,

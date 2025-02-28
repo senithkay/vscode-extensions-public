@@ -149,6 +149,7 @@ export function convertNodePropertyToFormField(
         advanced: property.advanced,
         placeholder: property.placeholder,
         editable: isFieldEditable(property, connections, clientName),
+        enabled: true,
         documentation: property.metadata?.description || "",
         value: getFormFieldValue(property, clientName),
         valueType: getFormFieldValueType(property),
@@ -482,6 +483,7 @@ export function convertTriggerFunctionsConfig(trigger: Trigger): Record<string, 
                         optional: expression?.optional,
                         type: expression?.typeName,
                         editable: true,
+                        enabled: true,
                         value: expression.defaultTypeName,
                         valueTypeConstraint: ""
                     }
