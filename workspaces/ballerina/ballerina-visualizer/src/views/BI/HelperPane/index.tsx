@@ -8,7 +8,7 @@
  */
 
 import { RefObject } from 'react';
-import { FormExpressionEditorRef, HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { FormExpressionEditorRef, HelperPane, HelperPaneHeight } from '@wso2-enterprise/ui-toolkit';
 import { ConfigurablePage } from './ConfigurablePage';
 import { FunctionsPage } from './FunctionsPage';
 import { SuggestionsPage } from './SuggestionsPage';
@@ -22,6 +22,7 @@ export type HelperPaneProps = {
     defaultValue: string;
     currentValue: string;
     onChange: (value: string, updatedCursorPosition: number) => void;
+    helperPaneHeight: HelperPaneHeight;
 };
 
 const HelperPaneEl = ({
@@ -31,7 +32,8 @@ const HelperPaneEl = ({
     onClose,
     defaultValue,
     currentValue,
-    onChange
+    onChange,
+    helperPaneHeight
 }: HelperPaneProps) => {
     const handleChange = (value: string) => {
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
@@ -49,7 +51,7 @@ const HelperPaneEl = ({
     };
 
     return (
-        <HelperPane helperPaneHeight="full">
+        <HelperPane helperPaneHeight={helperPaneHeight}>
             <HelperPane.Header title="Expression Helper" titleSx={{ fontFamily: "GilmerRegular" }} onClose={onClose} />
             <HelperPane.Body>
             <HelperPane.Panels>
@@ -98,10 +100,20 @@ const HelperPaneEl = ({
  * @param defaultValue Default value for the expression editor
  * @param currentValue Current value of the expression editor
  * @param onChange Function to handle changes in the expression editor
+ * @param helperPaneHeight Height of the helper pane
  * @returns JSX.Element Helper pane element
  */
 export const getHelperPane = (props: HelperPaneProps) => {
-    const { fileName, targetLineRange, exprRef, onClose, defaultValue, currentValue, onChange } = props;
+    const {
+        fileName,
+        targetLineRange,
+        exprRef,
+        onClose,
+        defaultValue,
+        currentValue,
+        onChange,
+        helperPaneHeight
+    } = props;
 
     return (
         <HelperPaneEl
@@ -112,6 +124,7 @@ export const getHelperPane = (props: HelperPaneProps) => {
             defaultValue={defaultValue}
             currentValue={currentValue}
             onChange={onChange}
+            helperPaneHeight={helperPaneHeight}
         />
     );
 };

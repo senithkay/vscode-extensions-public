@@ -10,7 +10,7 @@
 import { RefObject } from "react";
 import { DiagnosticMessage, FormDiagnostics, TextEdit, PropertyModel, LinePosition, LineRange, ExpressionProperty, Metadata  } from "@wso2-enterprise/ballerina-core";
 import { ParamConfig } from "../ParamManager/ParamManager";
-import { CompletionItem, FormExpressionEditorRef, HelperPaneOrigin } from "@wso2-enterprise/ui-toolkit";
+import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight, HelperPaneOrigin } from "@wso2-enterprise/ui-toolkit";
 
 export type FormValues = {
     [key: string]: any;
@@ -124,11 +124,14 @@ type FormHelperPaneConditionalProps = {
         value: string,
         onChange: (value: string, updatedCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void,
+        helperPaneHeight: HelperPaneHeight
     ) => JSX.Element;
     helperPaneOrigin?: HelperPaneOrigin;
+    helperPaneHeight: HelperPaneHeight;
 } | {
     getHelperPane?: never;
     helperPaneOrigin?: never;
+    helperPaneHeight?: never;
 }
 
 type FormExpressionEditorBaseProps = {
