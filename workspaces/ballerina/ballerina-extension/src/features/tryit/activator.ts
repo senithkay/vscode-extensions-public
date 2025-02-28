@@ -173,7 +173,7 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
 
         let selectedService: ServiceInfo;
         // If in resource try it mode, find the service containing the resource path
-        if (resourceMetadata?.pathValue) {
+        if (resourceMetadata) {
             const matchingService = await findServiceForResource(services, resourceMetadata);
             if (!matchingService) {
                 vscode.window.showErrorMessage(`Could not find a service containing the resource path: ${resourceMetadata.pathValue}`);
@@ -324,7 +324,7 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
         let isResourceMode = false;
         let resourcePath = '';
         // Filter paths based on resourceMetadata if provided
-        if (resourceMetadata?.pathValue) {
+        if (resourceMetadata) {
             const originalPaths = openapiSpec.paths;
             const filteredPaths: Record<string, Record<string, Operation>> = {};
 
@@ -338,29 +338,20 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
             }
 
             if (matchingPath && originalPaths[matchingPath]) {
-                // Set resource mode flag and path
                 isResourceMode = true;
                 resourcePath = matchingPath;
 
-                if (resourceMetadata.methodValue) {
-                    const method = resourceMetadata.methodValue.toLowerCase();
-                    if (originalPaths[matchingPath][method]) {
-                        // Create entry with only the specified method
-                        filteredPaths[matchingPath] = {
-                            [method]: {
-                                ...originalPaths[matchingPath][method],
-                                // Add a custom property to indicate this is the selected resource
-                                description: originalPaths[matchingPath][method].description
-                                    ? `${originalPaths[matchingPath][method].description} (Selected Resource)`
-                                    : '(Selected Resource)'
-                            }
-                        };
-                    } else {
-                        // Method not found in matching path
-                        vscode.window.showWarningMessage(`Method ${resourceMetadata.methodValue} not found for path ${matchingPath}. Showing all methods for this path.`);
-                        filteredPaths[matchingPath] = originalPaths[matchingPath];
-                    }
+                const method = resourceMetadata.methodValue.toLowerCase();
+                if (originalPaths[matchingPath][method]) {
+                    // Create entry with only the specified method
+                    filteredPaths[matchingPath] = {
+                        [method]: {
+                            ...originalPaths[matchingPath][method]
+                        }
+                    };
                 } else {
+                    // Method not found in matching path
+                    vscode.window.showWarningMessage(`Method ${resourceMetadata.methodValue} not found for path ${matchingPath}. Showing all methods for this path.`);
                     filteredPaths[matchingPath] = originalPaths[matchingPath];
                 }
 
@@ -599,7 +590,7 @@ function registerHandlebarsHelpers(openapiSpec: OAISpec): void {
     if (!Handlebars.helpers.uppercase) {
         Handlebars.registerHelper('uppercase', (str: string) => str.toUpperCase());
     }
-    
+
     if (!Handlebars.helpers.trim) {
         Handlebars.registerHelper('trim', (str?: string) => str ? str.trim() : '');
     }
@@ -932,6 +923,6 @@ interface Components {
 }
 
 interface ResourceMetadata {
-    methodValue?: string;
-    pathValue?: string;
+    methodValue: string;
+    pathValue: string;
 }
