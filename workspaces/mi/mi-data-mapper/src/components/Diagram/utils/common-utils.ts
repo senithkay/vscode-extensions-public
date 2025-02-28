@@ -346,6 +346,8 @@ export function getTypeAnnotation(field: DMType): string {
 		typeName = `${getTypeAnnotation(field.memberType) || "any"}[]`;
 	} else if (field.kind === TypeKind.Union){
         typeName = `(${field.unionTypes.map(unionType => getTypeAnnotation(unionType)).join(" | ")})`;
+    } else if (field.kind === TypeKind.Interface && field.typeName === "Object") {
+        typeName = "any";
     }
 
 	return typeName;
