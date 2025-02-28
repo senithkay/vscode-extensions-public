@@ -34,6 +34,7 @@ export function VariableForm(props: VariableFormProps) {
                 optional: model.name.optional,
                 editable: model.name.editable,
                 advanced: model.name.advanced,
+                enabled: model.name.enabled,
                 documentation: model.name.metadata?.description,
                 value: model?.name.value || '',
                 valueTypeConstraint: model.name?.valueTypeConstraint || '',
@@ -46,6 +47,7 @@ export function VariableForm(props: VariableFormProps) {
                 optional: model.type.optional,
                 editable: model.type.editable,
                 advanced: model.type.advanced,
+                enabled: model.type.enabled,
                 documentation: model.type.metadata?.description,
                 value: model?.type.value || '',
                 valueTypeConstraint: model.type?.valueTypeConstraint || ''
@@ -57,6 +59,7 @@ export function VariableForm(props: VariableFormProps) {
                 optional: true, // TODO: need to fix for LS
                 editable: model.defaultValue?.editable || false,
                 advanced: model.defaultValue?.advanced || false,
+                enabled: model.defaultValue?.enabled ?? true,
                 documentation: model.defaultValue?.metadata?.description,
                 value: model?.defaultValue?.value || '',
                 valueTypeConstraint: model.defaultValue?.valueTypeConstraint || ''

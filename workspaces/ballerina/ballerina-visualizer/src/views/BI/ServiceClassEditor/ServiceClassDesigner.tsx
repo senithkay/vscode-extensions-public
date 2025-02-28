@@ -306,7 +306,7 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
                     description: "The initial value of the variable"
                 },
                 value: "",
-                enabled: false,
+                enabled: true,
                 editable: true,
                 isType: false,
                 optional: false,
@@ -314,7 +314,7 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
                 addNewButton: false
             },
             enabled: true,
-            editable: false,
+            editable: true,
             optional: false,
             advanced: false
         };

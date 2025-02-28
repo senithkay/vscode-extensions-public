@@ -91,6 +91,7 @@ export function ServiceClassConfig(props: ServiceClassConfigProps) {
                 optional: property.optional,
                 editable: property.editable,
                 advanced: property.advanced,
+                enabled: property.enabled,
                 documentation: property.metadata?.description,
                 value: property.value || '',
                 valueTypeConstraint: property.valueTypeConstraint || '',
