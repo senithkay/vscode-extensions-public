@@ -428,11 +428,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
         }
 
         if (props.isPopup) {
-            rpcClient.getMiVisualizerRpcClient().openView({
-                type: POPUP_EVENT_TYPE.CLOSE_VIEW,
-                location: { view: null, recentIdentifier: getValues("endpointName") },
-                isPopup: true
-            });
+            props.handlePopupClose();
         } else {
             openOverview();
         }
