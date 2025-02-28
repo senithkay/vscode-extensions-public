@@ -22,7 +22,7 @@ import {
 	PathFindingLinkFactory
 } from "@projectstorm/react-diagrams";
 
-import { ErrorNodeKind } from "../DataMapper/Error/DataMapperError";
+import { ErrorNodeKind } from '../DataMapper/Error/RenderingError';
 import { DataMapperCanvasContainerWidget } from './Canvas/DataMapperCanvasContainerWidget';
 import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
 import { DefaultState as LinkState } from './LinkState/DefaultState';
@@ -74,6 +74,7 @@ function initDiagramEngine() {
 	engine.getNodeFactories().registerFactory(new Nodes.ArrayOutputNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.LinkConnectorNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.DataImportNodeFactory());
+	engine.getNodeFactories().registerFactory(new Nodes.EmptyInputsNodeFactory());
 
 	engine.getPortFactories().registerFactory(new Ports.InputOutputPortFactory());
 	engine.getPortFactories().registerFactory(new Ports.IntermediatePortFactory());

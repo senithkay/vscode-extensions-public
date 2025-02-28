@@ -43,7 +43,7 @@ export function LifeLineNodeWidget(props: LifeLineNodeWidgetProps) {
                     height={node.height}
                     strokeWidth={BORDER_WIDTH}
                     fill={ThemeColors.OUTLINE_VARIANT}
-                    rx="10"
+                    rx="4"
                 />
             </svg>
         </LifeLineNodeStyles.Box>

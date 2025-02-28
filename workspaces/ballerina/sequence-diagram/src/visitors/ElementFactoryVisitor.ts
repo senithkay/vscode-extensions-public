@@ -22,7 +22,7 @@ import { BaseVisitor } from "./BaseVisitor";
 import { NodeLinkModel } from "../components/NodeLink";
 import { ParticipantNodeModel } from "../components/nodes/ParticipantNode";
 import { PointNodeModel } from "../components/nodes/PointNode";
-import { getBranchId, getCallerNodeId, getNodeId } from "../utils/diagram";
+import { calculateParticipantLifelineInfo, getBranchId, getCallerNodeId, getNodeId } from "../utils/diagram";
 import { NODE_HEIGHT, NODE_WIDTH, PARTICIPANT_NODE_WIDTH } from "../resources/constants";
 import { ConsoleColor, logger } from "../utils/logger";
 import { traverseParticipant } from "../utils/traverse-utils";
@@ -77,11 +77,33 @@ export class ElementFactoryVisitor implements BaseVisitor {
                 }
             });
         }
+
+        if (!this.callerId) {
+            // start participant
+            // create new lifeline box
+            const { height, startPoint, endPoint } = calculateParticipantLifelineInfo(participant);
+            if (height === 0 || !startPoint || !endPoint) {
+                console.warn(">> Start or end point not found for participant", participant);
+                return;
+            }
+            const startLifeLineNodeModel = new LifeLineNodeModel("start-participant-lifeline", height);
+            startLifeLineNodeModel.setPosition(
+                startPoint.bBox.x + (PARTICIPANT_NODE_WIDTH - NODE_WIDTH) / 2,
+                startPoint.bBox.y,
+            );
+            this.nodes.push(startLifeLineNodeModel);
+        }
     }
 
     beginVisitNode(node: Node, parent?: DiagramElement): void {
         if (!node.viewStates) {
             console.warn(">> View state not found for interaction", node);
+            return;
+        }
+
+        // function call without target id
+        if (node.interactionType === InteractionType.FUNCTION_CALL && !node.targetId) {
+            console.warn(">> Function call without target id", node);
             return;
         }
 
@@ -122,7 +144,9 @@ export class ElementFactoryVisitor implements BaseVisitor {
         let label = "";
         if (node.interactionType === InteractionType.FUNCTION_CALL) {
             const params = node.properties.params?.map((param) => param.value).join(", ");
-            label = `${node.properties.name.value} ( ${params} )`;
+            label = `${node.properties.name?.value} (${params})`;
+        } else if (node.interactionType === InteractionType.ENDPOINT_CALL) {
+            label = `${node.properties.name?.value}`;
         }
 
         const link = new NodeLinkModel(label);
@@ -214,7 +238,7 @@ export class ElementFactoryVisitor implements BaseVisitor {
     }
 
     generateIfBlockBranchModel(node: NodeBranch, parent: Node): void {
-        if (!node.viewStates) {
+        if (!node.viewStates || node.viewStates.length === 0) {
             console.warn(">> View state not found for if block", node);
             return;
         }

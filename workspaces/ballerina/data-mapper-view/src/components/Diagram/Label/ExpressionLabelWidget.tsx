@@ -10,7 +10,7 @@
 import React from 'react';
 
 import { css } from '@emotion/css';
-import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
+import { PrimitiveBalType, TypeField, TypeKind } from "@wso2-enterprise/ballerina-core";
 import { FunctionCall, NodePosition, STKindChecker,} from '@wso2-enterprise/syntax-tree';
 import classNames from "classnames";
 
@@ -211,7 +211,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     };
 
     React.useEffect(() => {
-        if (link) {
+        if (link && link.isActualLink) {
             link.registerListener({
                 selectionChanged(event) {
                     setLinkStatus(event.isSelected ? LinkState.LinkSelected : LinkState.LinkNotSelected);
@@ -389,35 +389,35 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         }
     }
 
-    if (props.model?.valueNode && isSourceCollapsed && isTargetCollapsed) {
+    const isSourcePortArray = source instanceof RecordFieldPortModel && source?.field.typeName === TypeKind.Array;
+    const isTargetPortArray = target instanceof RecordFieldPortModel && target?.field.typeName === TypeKind.Array;
+
+    if (props.model?.valueNode && isSourceCollapsed && isTargetCollapsed && !isSourcePortArray && !isTargetPortArray) {
         // for direct links, disable link widgets if both sides are collapsed
         return null
-    } else if (!props.model?.valueNode && (isSourceCollapsed || isTargetCollapsed)) {
+    } else if (!props.model?.valueNode && ((isSourceCollapsed && !isSourcePortArray) || (isTargetCollapsed && !isTargetPortArray))) {
         // for links with intermediary nodes,
         // disable link widget if either source or target port is collapsed
         return null;
     }
 
-    return linkStatus === LinkState.TemporaryLink
-        ? (
-            <div
-                className={classNames(
-                    classes.container
-                )}
-            >
-                <div className={classNames(classes.element, classes.loadingContainer)}>
-                    {loadingScreen}
-                </div>
-            </div>
-        ) : (
-            <div
-                data-testid={`expression-label-for-${props.model?.link?.getSourcePort()?.getName()}-to-${props.model?.link?.getTargetPort()?.getName()}`}
-                className={classNames(
-                    classes.container,
-                    linkStatus === LinkState.LinkNotSelected && !deleteInProgress && !connectedViaCollectClause && classes.containerHidden
-                )}
-            >
-                {elements}
+    if (linkStatus === LinkState.TemporaryLink) {
+        return (
+            <div className={classNames(classes.container, classes.element, classes.loadingContainer)}>
+                {loadingScreen}
             </div>
         );
+    }
+
+    return (
+        <div
+            data-testid={`expression-label-for-${link?.getSourcePort()?.getName()}-to-${link?.getTargetPort()?.getName()}`}
+            className={classNames(
+                classes.container,
+                linkStatus === LinkState.LinkNotSelected && !deleteInProgress && !connectedViaCollectClause && classes.containerHidden
+            )}
+        >
+            {elements}
+        </div>
+    );
 }

@@ -22,7 +22,7 @@ const Container = styled.div<ProgressBarProps>`
     position: absolute;
     left: 0;
     top: 0;
-    z-index: 5;
+    z-index: 2001;
     height: 2px;
     width: 100%;
     overflow: hidden;

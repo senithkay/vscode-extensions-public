@@ -23,6 +23,7 @@ import {
     BreakpointRequest,
     ClassFieldModifierRequest,
     ComponentRequest,
+    EndOfFileRequest,
     ExpressionCompletionsRequest,
     ExpressionDiagnosticsRequest,
     FormDidCloseParams,
@@ -59,6 +60,7 @@ import {
     getConfigVariables,
     getDesignModel,
     getEnclosedFunction,
+    getEndOfFile,
     getExpressionCompletions,
     getExpressionDiagnostics,
     getFlowModel,
@@ -145,4 +147,5 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(updateImports, (args: UpdateImportsRequest) => rpcManger.updateImports(args));
     messenger.onRequest(addFunction, (args: AddFunctionRequest) => rpcManger.addFunction(args));
     messenger.onRequest(getFunctionNode, (args: FunctionNodeRequest) => rpcManger.getFunctionNode(args));
+    messenger.onRequest(getEndOfFile, (args: EndOfFileRequest) => rpcManger.getEndOfFile(args));
 }
