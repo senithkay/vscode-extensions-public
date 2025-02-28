@@ -75,7 +75,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         getDefaultCompletion,
         isHelperPaneOpen,
         helperPaneOrigin = 'bottom',
-        helperPaneHeight = 'partial',
+        helperPaneHeight = 'default',
         changeHelperPaneState,
         getHelperPane,
         actionButtons,
@@ -315,7 +315,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         return (
             <DropdownContainer ref={helperPaneContainerRef} sx={{ ...helperPanePosition }}>
                 <Transition show={isHelperPaneOpen} {...ANIMATION}>
-                    {getHelperPane(value, handleChange)}
+                    {getHelperPane(value, handleChange, helperPaneHeight)}
                     {arrowPosition && <HelperPane.Arrow origin={helperPaneOrigin} sx={{ ...arrowPosition }} />}
                 </Transition>
             </DropdownContainer>

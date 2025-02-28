@@ -36,6 +36,7 @@ import ProgressRing from '../../../../ProgressRing/ProgressRing';
 import { HelperPanePanelProvider, useHelperPanePanelContext } from './context';
 import { ARROW_HEIGHT, HELPER_PANE_HEIGHT, HELPER_PANE_WIDTH } from '../../../constants';
 import { HelperPaneHeight } from '../../../types';
+import { convertHelperPaneHeightToCSS } from '../../../utils';
 
 export const Arrow = styled.div<ArrowProps>`
     position: absolute;
@@ -302,12 +303,13 @@ const HeaderContainerWithSearch = styled.div`
     gap: 8px;
 `;
 
-const DropdownBody = styled.div<{ helperPaneHeight?: HelperPaneHeight; sx?: CSSProperties }>`
+const DropdownBody = styled.div<{ helperPaneHeight: HelperPaneHeight; sx?: CSSProperties }>`
     display: flex;
     flex-direction: column;
     width: ${HELPER_PANE_WIDTH}px;
     height: ${({ helperPaneHeight }: { helperPaneHeight?: HelperPaneHeight }) =>
-        helperPaneHeight === 'full' ? '100vh' : `${HELPER_PANE_HEIGHT}px`};
+        convertHelperPaneHeightToCSS(helperPaneHeight)};
+    min-height: ${HELPER_PANE_HEIGHT}px;
     padding: 8px;
     border-radius: 2px;
     color: var(--input-foreground);

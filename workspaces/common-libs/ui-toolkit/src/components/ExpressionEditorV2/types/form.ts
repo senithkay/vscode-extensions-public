@@ -20,7 +20,11 @@ type HelperPaneConditionalProps = {
     // - Callback function to open/close the helper pane
     changeHelperPaneState: (isOpen: boolean) => void;
     // - Get the helper panel component
-    getHelperPane: (value: string, onChange: (value: string, updatedCursorPosition: number) => void) => ReactNode;
+    getHelperPane: (
+        value: string,
+        onChange: (value: string, updatedCursorPosition: number) => void,
+        helperPaneHeight: HelperPaneHeight
+    ) => ReactNode;
     // - Get a custom icon for the expression editor
     getExpressionEditorIcon?: () => ReactNode;
 } | {

@@ -99,6 +99,6 @@ export type HelperPaneHeaderProps = SearchBoxConditionalProps & {
 };
 
 export type HelperPaneProps = PropsWithChildren<{
-    helperPaneHeight?: HelperPaneHeight;
+    helperPaneHeight: HelperPaneHeight;
     sx?: CSSProperties;
 }>;
