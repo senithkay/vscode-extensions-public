@@ -705,8 +705,14 @@ export class AiPanelRpcManager implements AIPanelAPI {
         const formattedTime = currentDate.toLocaleTimeString();
         summary = `${summary}\nLast updated at - ${formattedDate}, ${formattedTime}\n`;
 
-        const developerMdPath = path.join(filepath, "natural-programming", "developer.md");
-        fs.writeFileSync(developerMdPath, summary);
+        const naturalProgrammingDirectory = path.join(filepath, "natural-programming");
+
+        if (!fs.existsSync(naturalProgrammingDirectory)) {
+            fs.mkdirSync(naturalProgrammingDirectory, { recursive: true }); // Add recursive: true
+        }
+
+        const developerMdPath = path.join(naturalProgrammingDirectory, "developer.md");
+        fs.writeFileSync(developerMdPath, summary, 'utf8');
     }
 
     async readDeveloperMdFile(directoryPath: string): Promise<string> {
@@ -714,7 +720,9 @@ export class AiPanelRpcManager implements AIPanelAPI {
         if (!fs.existsSync(developerMdPath)) {
             return "";
         }
-        const developerMdContent = fs.readFileSync(developerMdPath, 'utf8');
+        
+        let developerMdContent = fs.readFileSync(developerMdPath, 'utf8');
+        developerMdContent = developerMdContent.replace(/Last updated at - \d{2}\/\d{2}\/\d{4}, \d{2}:\d{2}:\d{2}/, '');
         return Promise.resolve(developerMdContent);
     }
 }
