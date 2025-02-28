@@ -57,8 +57,10 @@ type CollapsibleConditionalProps = {
     collapsedItemsCount?: never;
 }
 
-export type LoadingItemProps = {
+export type LoadingSectionProps = {
+    rows?: number;
     columns?: number;
+    sections?: number;
 }
 
 export type PanelViewProps = PropsWithChildren<{
@@ -75,7 +77,6 @@ export type PanelsProps = PropsWithChildren<{}>;
 export type HelperPaneSectionProps = PropsWithChildren<{
     title: string;
     columns?: number;
-    loading?: boolean;
     titleSx?: CSSProperties;
 } & CollapsibleConditionalProps>;
 
