@@ -101,6 +101,8 @@ export function NodeIcon(props: NodeIconProps) {
             return <Icon name="bi-error" sx={{ fontSize: size, width: size, height: size }} />;
         case "RETRY":
             return <Icon name="bi-retry" sx={{ fontSize: size, width: size, height: size }} />;
+        case "AGENT_CALL":
+            return <Icon name="bi-ai-agent" sx={{ fontSize: size, width: size, height: size }} />;
 
         default:
             return <CodeIcon />;

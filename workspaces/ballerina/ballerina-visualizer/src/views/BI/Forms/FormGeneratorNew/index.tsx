@@ -330,6 +330,22 @@ export function FormGeneratorNew(props: FormProps) {
     };
 
     const defaultType = (): Type => {
+        if (editingField.type === 'PARAM_MANAGER') {
+            return {
+                name: "MyType",
+                editable: true,
+                metadata: {
+                    label: "",
+                    description: "",
+                },
+                codedata: {
+                    node: "RECORD",
+                },
+                properties: {},
+                members: [],
+                includes: [] as string[],
+            };
+        }
         return {
             name: "MyType",
             editable: true,

@@ -34,7 +34,6 @@ export const Container = styled.div`
         overflow: hidden;
         border-radius: 8px;
         border: 1px solid ${Colors.SURFACE_CONTAINER};
-        cursor: pointer;
     }
 `;
 
@@ -58,5 +57,8 @@ export const DiagramContainer = styled.div`
     &.preview-mode {
         background-size: 8px 8px;
         padding: 5px;
+        .cell-diagram-canvas {
+            cursor: default;
+        }
     }
 `;

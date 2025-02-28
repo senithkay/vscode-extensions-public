@@ -9,8 +9,9 @@
  */
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import { Uri, window } from "vscode";
+import { Position, Range, Uri, window, workspace, WorkspaceEdit } from "vscode";
 import * as os from 'os';
+import { TextEdit } from "@wso2-enterprise/ballerina-core";
 
 export function getUpdatedSource(
     statement: string,
@@ -71,5 +72,22 @@ export async function askFilePath() {
             'Files': ['yaml', 'json']
         },
         title: "Select a file",
+    });
+}
+
+export async function applyBallerinaTomlEdit(tomlPath: Uri, textEdit: TextEdit) {
+    const workspaceEdit = new WorkspaceEdit();
+
+    const range = new Range(new Position(textEdit.range.start.line, textEdit.range.start.character),
+        new Position(textEdit.range.end.line, textEdit.range.end.character));
+
+    // Create the position and range
+    workspaceEdit.replace(tomlPath, range, textEdit.newText);
+
+    // Apply the edit
+    workspace.applyEdit(workspaceEdit).then(success => {
+        if (success) {
+        } else {
+        }
     });
 }
