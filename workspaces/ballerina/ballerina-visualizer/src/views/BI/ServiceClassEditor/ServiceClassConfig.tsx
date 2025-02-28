@@ -124,7 +124,10 @@ export function ServiceClassConfig(props: ServiceClassConfigProps) {
                                         {fileName &&
                                             <FormGeneratorNew
                                                 fileName={Utils.joinPath(URI.file(projectUri), fileName).fsPath}
-                                                targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
+                                                targetLineRange={{
+                                                    startLine: { line: position.startLine, offset: position.startColumn },
+                                                    endLine: { line: position.endLine, offset: position.endColumn }
+                                                }}
                                                 fields={serviceClassFields}
                                                 onSubmit={handleOnSubmit}
                                             />
