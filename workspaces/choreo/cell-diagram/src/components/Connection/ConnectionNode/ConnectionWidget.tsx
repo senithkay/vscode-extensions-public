@@ -27,6 +27,9 @@ export function ConnectionWidget(props: ConnectionWidgetProps) {
     const displayName = node.connection.label || node.connection.id;
 
     useEffect(() => {
+        if (previewMode) {
+            return;
+        }
         const listener = node.registerListener({
             SELECT: (event: any) => {
                 setSelectedLink(event.component as ComponentLinkModel);
