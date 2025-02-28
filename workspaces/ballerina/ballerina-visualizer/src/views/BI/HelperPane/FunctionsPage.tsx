@@ -57,7 +57,7 @@ export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: 
                     }
                 })
                 .then(() => setIsLoading(false));
-        }, 1100),
+        }, 150),
         [rpcClient, fileName, targetLineRange]
     );
 

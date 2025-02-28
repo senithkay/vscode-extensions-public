@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Button, Codicon, COMPLETION_ITEM_KIND, Dropdown, getIcon, HelperPane, OptionProps, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { HelperPaneVariableInfo } from "@wso2-enterprise/ballerina-side-panel";
@@ -18,6 +18,7 @@ import { URI, Utils } from "vscode-uri";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
+import { debounce } from "lodash";
 
 type ConfigurablePageProps = {
     fileName: string;
@@ -89,25 +90,23 @@ export const ConfigurablePage = ({
 
     const getConfigurableVariableInfo = () => {
         setIsLoading(true);
-        setTimeout(() => {
-            rpcClient
-                .getBIDiagramRpcClient()
-                .getVisibleVariableTypes({
-                    filePath: fileName,
-                    position: {
-                        line: targetLineRange.startLine.line,
-                        offset: targetLineRange.startLine.offset,
-                    },
-                })
-                .then((response) => {
-                    if (response.categories?.length) {
-                        const convertedConfigurableInfo = convertToHelperPaneConfigurableVariable(response.categories);
-                        setConfigurableInfo(convertedConfigurableInfo);
-                        setFilteredConfigurableInfo(convertedConfigurableInfo);
-                    }
-                })
-                .then(() => setIsLoading(false));
-        }, 1100);
+        rpcClient
+            .getBIDiagramRpcClient()
+            .getVisibleVariableTypes({
+                filePath: fileName,
+                position: {
+                    line: targetLineRange.startLine.line,
+                    offset: targetLineRange.startLine.offset,
+                },
+            })
+            .then((response) => {
+                if (response.categories?.length) {
+                    const convertedConfigurableInfo = convertToHelperPaneConfigurableVariable(response.categories);
+                    setConfigurableInfo(convertedConfigurableInfo);
+                    setFilteredConfigurableInfo(convertedConfigurableInfo);
+                }
+            })
+            .then(() => setIsLoading(false));
     };
 
     const handleSaveConfigurables = async (values: ConfigData) => {
@@ -197,9 +196,18 @@ export const ConfigurablePage = ({
         }
     }, []);
 
+    const debounceFilterConfigurables = useCallback(
+        debounce((searchText: string) => {
+            setFilteredConfigurableInfo(filterHelperPaneVariables(configurableInfo, searchText));
+            setIsLoading(false);
+        }, 150),
+        [configurableInfo, setFilteredConfigurableInfo, setIsLoading, filterHelperPaneVariables]
+    );
+
     const handleSearch = (searchText: string) => {
         setSearchValue(searchText);
-        setFilteredConfigurableInfo(filterHelperPaneVariables(configurableInfo, searchText));
+        setIsLoading(true);
+        debounceFilterConfigurables(searchText);
     };
 
     const clearForm = () => {

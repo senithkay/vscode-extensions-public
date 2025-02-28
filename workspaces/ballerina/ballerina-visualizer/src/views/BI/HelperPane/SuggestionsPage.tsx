@@ -32,25 +32,23 @@ export const SuggestionsPage = ({ fileName, targetLineRange, defaultValue, onCha
 
     const getVariableInfo = useCallback(() => {
         setIsLoading(true);
-        setTimeout(() => {
-            rpcClient
-                .getBIDiagramRpcClient()
-                .getVisibleVariableTypes({
-                    filePath: fileName,
-                    position: {
-                        line: targetLineRange.startLine.line,
-                        offset: targetLineRange.startLine.offset,
-                    },
-                })
-                .then((response) => {
-                    if (response.categories?.length) {
-                        const convertedHelperPaneVariable = convertToHelperPaneVariable(response.categories);
-                        setVariableInfo(convertedHelperPaneVariable);
-                        setFilteredVariableInfo(convertedHelperPaneVariable);
-                    }
-                })
-                .then(() => setIsLoading(false));
-        }, 1100)
+        rpcClient
+            .getBIDiagramRpcClient()
+            .getVisibleVariableTypes({
+                filePath: fileName,
+                position: {
+                    line: targetLineRange.startLine.line,
+                    offset: targetLineRange.startLine.offset,
+                },
+            })
+            .then((response) => {
+                if (response.categories?.length) {
+                    const convertedHelperPaneVariable = convertToHelperPaneVariable(response.categories);
+                    setVariableInfo(convertedHelperPaneVariable);
+                    setFilteredVariableInfo(convertedHelperPaneVariable);
+                }
+            })
+            .then(() => setIsLoading(false));
     }, [rpcClient, fileName, targetLineRange]);
 
     useEffect(() => {
@@ -64,7 +62,7 @@ export const SuggestionsPage = ({ fileName, targetLineRange, defaultValue, onCha
         debounce((searchText: string) => {
             setFilteredVariableInfo(filterHelperPaneVariables(variableInfo, searchText));
             setIsLoading(false);
-        }, 1100),
+        }, 150),
         [variableInfo, setFilteredVariableInfo, setIsLoading, filterHelperPaneVariables]
     );
 
