@@ -216,19 +216,11 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
             fs.mkdirSync(targetDir);
         }
 
-        const tryitFileName = `tryit.http`;
-        const tryitFilePath = path.join(targetDir, tryitFileName);
-        const configFilePath = path.join(targetDir, 'httpyac.config.js');
+        const openapiSpec: OAISpec = await getOpenAPIDefinition(selectedService);
+        const selectedPort: number = await getServicePort(workspaceRoot, selectedService, openapiSpec);
+        selectedService.port = selectedPort;
 
-        const content = await generateTryItFileContent(workspaceRoot, selectedService, resourceMetadata);
-        if (!content) {
-            return;
-        }
-
-        fs.writeFileSync(tryitFilePath, content);
-        fs.writeFileSync(configFilePath, HTTPYAC_CONFIG_TEMPLATE);
-
-        const tryitFileUri = vscode.Uri.file(tryitFilePath);
+        const tryitFileUri = await generateTryItFileContent(workspaceRoot, openapiSpec, selectedService, resourceMetadata);
         await openInSplitView(tryitFileUri, 'http');
 
         // Setup the error log watcher
@@ -320,14 +312,8 @@ async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> 
     }
 }
 
-async function generateTryItFileContent(projectDir: string, service: ServiceInfo, resourceMetadata?: ResourceMetadata): Promise<string | undefined> {
+async function generateTryItFileContent(projectRoot: string, openapiSpec: OAISpec, service: ServiceInfo, resourceMetadata?: ResourceMetadata): Promise<vscode.Uri | undefined> {
     try {
-        // Get OpenAPI definition
-        const openapiSpec = await getOpenAPIDefinition(service);
-
-        // Get service port
-        const selectedPort = await getServicePort(projectDir, service, openapiSpec);
-
         // Register Handlebars helpers
         registerHandlebarsHelpers(openapiSpec);
 
@@ -377,7 +363,7 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
         // Generate content using template
         const templateData = {
             ...openapiSpec,
-            port: selectedPort.toString(),
+            port: service.port.toString(),
             basePath: service.basePath,
             serviceName: service.name || 'Default',
             isResourceMode: isResourceMode,
@@ -386,7 +372,14 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
         };
 
         const compiledTemplate = Handlebars.compile(TRYIT_TEMPLATE);
-        return compiledTemplate(templateData);
+        const content = compiledTemplate(templateData);
+
+        const tryitFileName = `tryit.http`;
+        const tryitFilePath = path.join(projectRoot, tryitFileName);
+        const configFilePath = path.join(projectRoot, 'httpyac.config.js');
+        fs.writeFileSync(tryitFilePath, content);
+        fs.writeFileSync(configFilePath, HTTPYAC_CONFIG_TEMPLATE);
+        return vscode.Uri.file(tryitFilePath);
     } catch (error) {
         handleError(error, "Try It client initialization failed");
         return undefined;
@@ -840,6 +833,7 @@ interface ServiceInfo {
     basePath: string;
     filePath: string;
     listener: string;
+    port?: number;
 }
 
 // Main OpenAPI specification interface
