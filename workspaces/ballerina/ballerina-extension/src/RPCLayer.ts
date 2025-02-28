@@ -29,8 +29,9 @@ import { StateMachinePopup } from './stateMachinePopup';
 import { registerConnectorWizardRpcHandlers } from './rpc-managers/connector-wizard/rpc-handler';
 import { registerSequenceDiagramRpcHandlers } from './rpc-managers/sequence-diagram/rpc-handler';
 import { registerInlineDataMapperRpcHandlers } from './rpc-managers/inline-data-mapper/rpc-handler';
+import { registerTestManagerRpcHandlers } from './rpc-managers/test-manager/rpc-handler';
+import { registerIcpServiceRpcHandlers } from './rpc-managers/icp-service/rpc-handler';
 import { ballerinaExtInstance } from './core';
-import { registerTriggerWizardRpcHandlers } from './rpc-managers/trigger-wizard/rpc-handler';
 
 export class RPCLayer {
     static _messenger: Messenger = new Messenger();
@@ -71,7 +72,8 @@ export class RPCLayer {
         registerBiDiagramRpcHandlers(RPCLayer._messenger);
         registerSequenceDiagramRpcHandlers(RPCLayer._messenger);
         registerConnectorWizardRpcHandlers(RPCLayer._messenger);
-        registerTriggerWizardRpcHandlers(RPCLayer._messenger);
+        registerTestManagerRpcHandlers(RPCLayer._messenger);
+        registerIcpServiceRpcHandlers(RPCLayer._messenger);
 
         // ----- AI Webview RPC Methods
         registerAiPanelRpcHandlers(RPCLayer._messenger);
@@ -97,7 +99,9 @@ async function getContext(): Promise<VisualizerLocation> {
             syntaxTree: context.syntaxTree,
             isBI: context.isBI,
             projectUri: context.projectUri,
-            haveServiceType: context.haveServiceType,
+            serviceType: context.serviceType,
+            type: context.type,
+            isGraphql: context.isGraphql,
             metadata: {
                 haveLS: StateMachine.langClient() && true,
                 recordFilePath: path.join(context.projectUri, "types.bal"),

@@ -10,6 +10,7 @@
 import { NotificationType, RequestType } from "vscode-messenger-common";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./interfaces/common";
+import { Type } from "./interfaces/extended-lang-client";
 
 export type MachineStateValue =
     | 'initialize'
@@ -51,15 +52,19 @@ export enum MACHINE_VIEW {
     BIWelcome = "BI Welcome",
     BIProjectForm = "BI Project Form",
     BIComponentView = "BI Component View",
-    BIServiceForm = "BI Service Form",
     AddConnectionWizard = "Add Connection Wizard",
-    AddTriggerWizard = "Add Trigger Wizard",
-    ListenerConfigView = "Listener View",
     ViewConfigVariables = "View Config Variables",
     EditConfigVariables = "Edit Config Variables",
     EditConnectionWizard = "Edit Connection Wizard",
     BIMainFunctionForm = "Add Automation",
     BIFunctionForm = "Add Function",
+    BITestFunctionForm = "Add Test Function",
+    BIServiceWizard = "Service Wizard",
+    BIServiceConfigView = "Service Config View",
+    BIListenerConfigView = "Listener Config View",
+    BIServiceClassDesigner = "Service Class Designer",
+    BIServiceClassConfigView = "Service Class Config View",
+    BIDataMapperForm = "Add Data Mapper",
 }
 
 export interface MachineEvent {
@@ -81,7 +86,9 @@ export interface VisualizerLocation {
     position?: NodePosition;
     syntaxTree?: STNode;
     isBI?: boolean;
-    haveServiceType?: boolean;
+    serviceType?: string;
+    type?: Type;
+    isGraphql?: boolean;
     metadata?: VisualizerMetadata;
 }
 
@@ -123,7 +130,7 @@ export const getPopupVisualizerState: RequestType<void, PopupVisualizerLocation>
 export const breakpointChanged: NotificationType<boolean> = { method: 'breakpointChanged' };
 
 // ------------------> AI Related state types <----------------------- 
-export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'disabled';
+export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'disabled' | 'Settings';
 
 export enum AI_EVENT_TYPE {
     LOGIN = "LOGIN",
@@ -135,6 +142,8 @@ export enum AI_EVENT_TYPE {
     DISPOSE = "DISPOSE",
     CANCEL = "CANCEL",
     RETRY = "RETRY",
+    SETUP = "SETUP",
+    CHAT = "CHAT",
 }
 
 export enum AI_MACHINE_VIEW {

@@ -34,6 +34,8 @@ export type CDConnection = {
     location: CDLocation;
     scope: string;
     uuid: string;
+    enableFlowModel: boolean;
+    sortText: string;
 };
 
 export type CDListener = {
@@ -44,6 +46,9 @@ export type CDListener = {
     type: string;
     args: CDArg[];
     uuid: string;
+    icon: string;
+    enableFlowModel: boolean;
+    sortText: string;
 };
 
 export type CDArg = {
@@ -52,24 +57,30 @@ export type CDArg = {
 };
 
 export type CDService = {
-    displayName?: string;
     location: CDLocation;
-    listener: string;
+    attachedListeners: string[];
     connections: string[];
-    functions: CDFuction[];
-    remoteFunctions: CDFuction[];
-    resourceFunctions: ResourceFunction[];
+    functions: CDFunction[];
+    remoteFunctions: CDFunction[];
+    resourceFunctions: CDResourceFunction[];
     absolutePath: string;
+    type: string;
+    icon: string;
     uuid: string;
+    enableFlowModel: boolean;
+    sortText: string;
+    displayName?: string;
 };
 
-export type CDFuction = {
+export type CDFunction = {
     name: string;
     location: CDLocation;
+    connections?: string[];
 };
 
-export type ResourceFunction = {
+export type CDResourceFunction = {
     accessor: string;
     path: string;
     location: CDLocation;
+    connections?: string[];
 };

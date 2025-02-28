@@ -82,7 +82,10 @@ const stateMachine = createMachine<MachineContext>(
                             view: (context, event) => event.viewLocation.view,
                             documentUri: (context, event) => event.viewLocation.documentUri,
                             position: (context, event) => event.viewLocation.position,
-                            identifier: (context, event) => event.viewLocation.identifier
+                            identifier: (context, event) => event.viewLocation.identifier,
+                            serviceType: (context, event) => event.viewLocation.serviceType,
+                            type: (context, event) => event.viewLocation?.type,
+                            isGraphql: (context, event) => event.viewLocation?.isGraphql
                         })
                     }
                 }
@@ -116,7 +119,7 @@ const stateMachine = createMachine<MachineContext>(
                                     identifier: (context, event) => event.data.identifier,
                                     position: (context, event) => event.data.position,
                                     syntaxTree: (context, event) => event.data.syntaxTree,
-                                    haveServiceType: (context, event) => event.data.haveServiceType,
+                                    
                                 })
                             }
                         }
@@ -129,7 +132,10 @@ const stateMachine = createMachine<MachineContext>(
                                     view: (context, event) => event.viewLocation.view,
                                     documentUri: (context, event) => event.viewLocation.documentUri,
                                     position: (context, event) => event.viewLocation.position,
-                                    identifier: (context, event) => event.viewLocation.identifier
+                                    identifier: (context, event) => event.viewLocation.identifier,
+                                    serviceType: (context, event) => event.viewLocation.serviceType,
+                                    type: (context, event) => event.viewLocation?.type,
+                                    isGraphql: (context, event) => event.viewLocation?.isGraphql
                                 })
                             },
                             VIEW_UPDATE: {
@@ -138,7 +144,10 @@ const stateMachine = createMachine<MachineContext>(
                                     documentUri: (context, event) => event.viewLocation.documentUri,
                                     position: (context, event) => event.viewLocation.position,
                                     view: (context, event) => event.viewLocation.view,
-                                    identifier: (context, event) => event.viewLocation.identifier
+                                    identifier: (context, event) => event.viewLocation.identifier,
+                                    serviceType: (context, event) => event.viewLocation.serviceType,
+                                    type: (context, event) => event.viewLocation?.type,
+                                    isGraphql: (context, event) => event.viewLocation?.isGraphql
                                 })
                             },
                             FILE_EDIT: {
@@ -146,7 +155,9 @@ const stateMachine = createMachine<MachineContext>(
                                 actions: assign({
                                     documentUri: (context, event) => event.viewLocation.documentUri,
                                     position: (context, event) => event.viewLocation.position,
-                                    identifier: (context, event) => event.viewLocation.identifier
+                                    identifier: (context, event) => event.viewLocation.identifier,
+                                    type: (context, event) => event.viewLocation?.type,
+                                    isGraphql: (context, event) => event.viewLocation?.isGraphql
                                 })
                             },
                         }
@@ -158,7 +169,9 @@ const stateMachine = createMachine<MachineContext>(
                                 actions: assign({
                                     documentUri: (context, event) => event.viewLocation.documentUri,
                                     position: (context, event) => event.viewLocation.position,
-                                    identifier: (context, event) => event.viewLocation.identifier
+                                    identifier: (context, event) => event.viewLocation.identifier,
+                                    type: (context, event) => event.viewLocation?.type,
+                                    isGraphql: (context, event) => event.viewLocation?.isGraphql
                                 })
                             }
                         }
@@ -221,7 +234,7 @@ const stateMachine = createMachine<MachineContext>(
                         history.push({ location: { view: MACHINE_VIEW.Overview, documentUri: context.documentUri } });
                         return resolve();
                     }
-                    const view = await getView(context.documentUri, context.position);
+                    const view = await getView(context.documentUri, context.position, context?.projectUri);
                     history.push(view);
                     return resolve();
                 } else {
@@ -230,7 +243,9 @@ const stateMachine = createMachine<MachineContext>(
                             view: context.view,
                             documentUri: context.documentUri,
                             position: context.position,
-                            identifier: context.identifier
+                            identifier: context.identifier,
+                            type: context?.type,
+                            isGraphql: context?.isGraphql
                         }
                     });
                     return resolve();
@@ -254,7 +269,17 @@ const stateMachine = createMachine<MachineContext>(
                     return resolve(selectedEntry.location);
                 }
 
-                const { location: { documentUri, position } = { documentUri: context.documentUri, position: undefined }, uid } = selectedEntry ?? {};
+                const defaultLocation = {
+                    documentUri: context.documentUri,
+                    position: undefined
+                };
+                const {
+                    location = defaultLocation,
+                    uid
+                } = selectedEntry ?? {};
+
+                const { documentUri, position } = location;
+
                 const node = documentUri && await StateMachine.langClient().getSyntaxTree({
                     documentIdentifier: {
                         uri: Uri.file(documentUri).toString()
@@ -369,8 +394,11 @@ export const StateMachine = {
     },
 };
 
-export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation) {
-    stateService.send({ type: type, viewLocation: viewLocation });
+export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation, resetHistory = false) {
+    if (resetHistory) {
+        history.clear();
+    }
+    stateService.send({ type: type, viewLocation: viewLocation});
 }
 
 export function updateView() {

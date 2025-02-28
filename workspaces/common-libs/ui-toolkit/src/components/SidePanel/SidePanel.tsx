@@ -14,10 +14,11 @@ import { colors } from '../Commons/Colors';
 export interface SidePanelProps {
     id?: string;
     className?: string;
-	isOpen?: boolean;
-	overlay?: boolean;
-	children?: React.ReactNode;
-    alignment?: "left" | "right";
+    isOpen?: boolean;
+    overlay?: boolean;
+    children?: React.ReactNode;
+    alignment?: "top" | "bottom" | "left" | "right";
+    isFullWidth?: boolean;
     width?: number;
     sx?: any;
     onClose?: (event?: React.MouseEvent<HTMLElement, MouseEvent>) => void;
@@ -28,17 +29,24 @@ export interface SidePanelProps {
 
 const SidePanelContainer = styled.div<SidePanelProps>`
     position: fixed;
-    top: 0;
-    left: ${(props: SidePanelProps) => props.alignment === "left" ? 0 : "auto"};
+    top: ${(props: SidePanelProps) => props.alignment === "bottom" ? "auto" : 0};
+    left: ${(props: SidePanelProps) => props.alignment === "left" ? 0 : (props.alignment === "bottom" || props.alignment === "top") ? 0 : "auto"};
     right: ${(props: SidePanelProps) => props.alignment === "right" ? 0 : "auto"};
-    width: ${(props: SidePanelProps) => `${props.width}px`};
-    height: 100%;
+    bottom: ${(props: SidePanelProps) => props.alignment === "bottom" ? 0 : "auto"};
+    width: ${(props: SidePanelProps) => props.isFullWidth ? "100%" : props.alignment === "bottom" || props.alignment === "top" ? `calc(100% - ${props.width}px)` : `${props.width}px`};
+    height: ${(props: SidePanelProps) => props.alignment === "bottom" ? `${props.width}px` : "100%"};
     background-color: var(--vscode-editor-background);
     color: var(--vscode-editor-foreground);
     box-shadow: 0 5px 10px 0 var(--vscode-badge-background);
     z-index: 2000;
     opacity: ${(props: SidePanelProps) => props.isOpen ? 1 : 0};
-    transform: translateX(${(props: SidePanelProps) => props.alignment === 'left' ? (props.isOpen ? '0%' : '-100%') : (props.isOpen ? '0%' : '100%')});
+    transform: ${(props: SidePanelProps) => {
+        if (props.alignment === 'left') return `translateX(${props.isOpen ? '0%' : '-100%'})`;
+        if (props.alignment === 'right') return `translateX(${props.isOpen ? '0%' : '100%'})`;
+        if (props.alignment === 'bottom') return `translateY(${props.isOpen ? '0%' : '100%'})`;
+        if (props.alignment === 'top') return `translateY(${props.isOpen ? '0%' : '-100%'})`;
+        return 'none';
+    }};
     transition: transform 0.4s ease, opacity 0.4s ease;
     ${(props: SidePanelProps) => props.sx};
 `;
@@ -52,16 +60,16 @@ const SubPanelContainer = styled.div<SidePanelProps>`
     box-shadow: 0 5px 10px 0 var(--vscode-badge-background);
     background-color: var(--vscode-editor-background);
     color: var(--vscode-editor-foreground);
-    z-index: 1999;
+    z-index: 1500;
     opacity: ${(props: SidePanelProps) => props.isSubPanelOpen ? 1 : 0};
-    transform: translateX(${(props: SidePanelProps) => props.alignment === 'left' 
-        ? (props.isSubPanelOpen ? '0%' : '-100%') 
+    transform: translateX(${(props: SidePanelProps) => props.alignment === 'left'
+        ? (props.isSubPanelOpen ? '0%' : '-100%')
         : (props.isSubPanelOpen ? '0%' : '100%')});
     transition: transform 0.4s ease 0.1s, opacity 0.4s ease 0.1s;
 `;
-    
+
 export const SidePanel: React.FC<SidePanelProps> = (props: SidePanelProps) => {
-    const { id, className, isOpen = false, alignment = "right", width = 312, children, sx, overlay = true, subPanel, subPanelWidth, isSubPanelOpen } = props;
+    const { id, className, isOpen = false, alignment = "right", width = 312, children, sx, overlay = true, isFullWidth = false, subPanel, subPanelWidth, isSubPanelOpen } = props;
 
     const [open, setOpen] = useState(false);
     const [visible, setVisible] = useState(isOpen);
@@ -109,8 +117,8 @@ export const SidePanel: React.FC<SidePanelProps> = (props: SidePanelProps) => {
         <div id={id} className={className}>
             {visible && (
                 <>
-                    { overlay && isOpen && <Overlay sx={{background: colors.vscodeInputBackground, opacity: 0.4}} onClose={handleOverlayClose}/> }
-                    <SidePanelContainer isOpen={open} alignment={alignment} width={width} sx={sx} onTransitionEnd={handleTransitionEnd}>
+                    { overlay && isOpen && <Overlay sx={{background: colors.vscodeInputBackground, opacity: 0.4, zIndex: 2000}} onClose={handleOverlayClose}/> }
+                    <SidePanelContainer isOpen={open} alignment={alignment} width={width} isFullWidth={isFullWidth} sx={sx} onTransitionEnd={handleTransitionEnd}>
                         {children}
                     </SidePanelContainer>
                     {subPanel && (

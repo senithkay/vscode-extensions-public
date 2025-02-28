@@ -16,18 +16,22 @@ import React, {
     useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+
 import styled from '@emotion/styled';
 import { Transition } from '@headlessui/react';
-import { ANIMATION } from '../constants';
-import { CompletionItem } from '../../types/common';
-import { FormExpressionEditorProps, FormExpressionEditorRef } from '../../types/form';
-import { addClosingBracketIfNeeded, checkCursorInFunction, setCursor } from '../../utils';
+
+import { Dropdown, FnSignatureEl } from '../Common';
+import { ActionButtons } from '../Common/ActionButtons';
+import HelperPane from '../Common/HelperPane';
+import { StyleBase, FnSignatureProps } from '../Common/types';
+
+import { ANIMATION } from '../../constants';
+import { FormExpressionEditorRef, FormExpressionEditorElProps, CompletionItem } from '../../types';
+import { addClosingBracketIfNeeded, checkCursorInFunction, getHelperPaneArrowPosition, getHelperPanePosition, setCursor } from '../../utils';
+
 import { Codicon } from '../../../Codicon/Codicon';
 import { ProgressIndicator } from '../../../ProgressIndicator/ProgressIndicator';
 import { AutoResizeTextArea } from '../../../TextArea/TextArea';
-import { FnSignatureEl } from '../Common/FnSignature';
-import { Dropdown } from '../Common';
-import { StyleBase, FnSignatureProps } from '../Common/types';
 
 /* Styled components */
 const Container = styled.div`
@@ -36,7 +40,7 @@ const Container = styled.div`
     display: flex;
 `;
 
-const StyledTextArea = styled(AutoResizeTextArea)`
+export const StyledTextArea = styled(AutoResizeTextArea)`
     ::part(control) {
         font-family: monospace;
         font-size: 12px;
@@ -45,14 +49,23 @@ const StyledTextArea = styled(AutoResizeTextArea)`
     }
 `;
 
-const DropdownContainer = styled.div<StyleBase>`
+export const DropdownContainer = styled.div<StyleBase>`
     position: absolute;
-    z-index: 10000;
+    z-index: 2001;
+    filter: drop-shadow(0 3px 8px rgb(0 0 0 / 0.2));
     ${(props: StyleBase) => props.sx}
+
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
 `;
 
-export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressionEditorProps>((props, ref) => {
+export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressionEditorElProps>((props, ref) => {
     const {
+        containerRef,
+        buttonRef,
         value,
         disabled,
         sx,
@@ -61,8 +74,10 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         autoSelectFirstItem,
         getDefaultCompletion,
         isHelperPaneOpen,
+        helperPaneOrigin = 'bottom',
         changeHelperPaneState,
         getHelperPane,
+        actionButtons,
         onChange,
         onSave,
         onCancel,
@@ -71,6 +86,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         onDefaultCompletionSelect,
         onManualCompletionRequest,
         extractArgsFromFunction,
+        onFunctionEdit,
         useTransaction,
         onFocus,
         onBlur,
@@ -78,22 +94,23 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     } = props;
 
     const elementRef = useRef<HTMLDivElement>(null);
-    const textBoxRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null);
+    const actionButtonsRef = useRef<HTMLDivElement>(null);
+    const textAreaRef = useRef<HTMLTextAreaElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const dropdownContainerRef = useRef<HTMLDivElement>(null);
     const helperPaneContainerRef = useRef<HTMLDivElement>(null);
     const [dropdownElPosition, setDropdownElPosition] = useState<{ top: number; left: number }>();
     const [fnSignatureElPosition, setFnSignatureElPosition] = useState<{ top: number; left: number }>();
     const [fnSignature, setFnSignature] = useState<FnSignatureProps | undefined>();
+    const [isFocused, setIsFocused] = useState<boolean>(false);
     const SUGGESTION_REGEX = {
         prefix: /((?:\w|')*)$/,
         suffix: /^((?:\w|')*)/,
     };
 
-    const showCompletions = !isHelperPaneOpen && (showDefaultCompletion || completions?.length > 0);
-    const isFocused = document.activeElement === textBoxRef.current;
+    const showCompletions = showDefaultCompletion || completions?.length > 0;
 
-    const handleResize = throttle(() => {
+    const updatePosition = throttle(() => {
         if (elementRef.current) {
             const rect = elementRef.current.getBoundingClientRect();
             setDropdownElPosition({
@@ -101,23 +118,34 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                 left: rect.left,
             });
             setFnSignatureElPosition({
-                top: rect.top - 40, // 36px height from fnSignatureEl + 4px of margin
+                top: rect.top - 28,
                 left: rect.left,
             });
         }
-    }, 100);
+    }, 10);
 
     useEffect(() => {
-        handleResize();
-        window.addEventListener('resize', handleResize);
+        updatePosition();
+
+        // Create ResizeObserver to watch textarea size changes
+        const resizeObserver = new ResizeObserver(updatePosition);
+        if (elementRef.current) {
+            resizeObserver.observe(elementRef.current);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', updatePosition);
+
         return () => {
-            window.removeEventListener('resize', handleResize);
+            window.removeEventListener('resize', updatePosition);
+            resizeObserver.disconnect();
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [elementRef, showCompletions]);
+    }, [elementRef, showCompletions, isHelperPaneOpen]);
 
     const handleCancel = () => {
         onCancel();
+        changeHelperPaneState?.(false);
         setFnSignature(undefined);
     };
 
@@ -127,31 +155,38 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
 
     // This allows us to update the Function Signature UI
     const updateFnSignature = async (value: string, cursorPosition: number) => {
-        const fnSignature = await extractArgsFromFunction(value, cursorPosition);
-        setFnSignature(fnSignature);
+        if (extractArgsFromFunction) {
+            const fnSignature = await extractArgsFromFunction(value, cursorPosition);
+            setFnSignature(fnSignature);
+        }
     };
 
     const handleChange = async (text: string, cursorPosition?: number) => {
         const updatedCursorPosition =
-            cursorPosition ?? textBoxRef.current.shadowRoot.querySelector('textarea').selectionStart;
+            cursorPosition ?? textAreaRef.current.shadowRoot.querySelector('textarea').selectionStart;
         // Update the text field value
         await onChange(text, updatedCursorPosition);
 
-        if (extractArgsFromFunction) {
-            const cursorInFunction = checkCursorInFunction(text, updatedCursorPosition);
-            if (cursorInFunction) {
-                // Update function signature if the cursor is inside a function
-                await updateFnSignature(text, updatedCursorPosition);
-            } else if (fnSignature) {
-                // Clear the function signature if the cursor is not in a function
-                setFnSignature(undefined);
-            }
+        const { cursorInFunction, functionName } = checkCursorInFunction(text, updatedCursorPosition);
+        if (cursorInFunction) {
+            // Update function signature if the cursor is inside a function
+            await updateFnSignature(text, updatedCursorPosition);
+            // Update function name if the cursor is inside a function name
+            await onFunctionEdit?.(functionName);
+        } else if (fnSignature) {
+            // Clear the function signature if the cursor is not in a function
+            setFnSignature(undefined);
+        }
+
+        if (!cursorInFunction) {
+            // Clear the function name if the cursor is not in a function name
+            await onFunctionEdit?.(undefined);
         }
     };
 
     const handleCompletionSelect = async (item: CompletionItem) => {
         const replacementSpan = item.replacementSpan ?? 0;
-        const cursorPosition = textBoxRef.current.shadowRoot.querySelector('textarea').selectionStart;
+        const cursorPosition = textAreaRef.current.shadowRoot.querySelector('textarea').selectionStart;
         const prefixMatches = value.substring(0, cursorPosition).match(SUGGESTION_REGEX.prefix);
         const suffixMatches = value.substring(cursorPosition).match(SUGGESTION_REGEX.suffix);
         const prefix = value.substring(0, cursorPosition - prefixMatches[1].length - replacementSpan);
@@ -160,8 +195,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         const newTextValue = prefix + item.value + suffix;
 
         await handleChange(newTextValue, newCursorPosition);
-        onCompletionSelect && await onCompletionSelect(newTextValue);
-        setCursor(textBoxRef, 'textarea', newTextValue, newCursorPosition);
+        onCompletionSelect && await onCompletionSelect(newTextValue, item);
+        setCursor(textAreaRef, 'textarea', newTextValue, newCursorPosition);
     };
 
     const handleExpressionSave = async (value: string, ref?: React.MutableRefObject<string>) => {
@@ -272,6 +307,20 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         }
     }
 
+    const getHelperPaneComponent = (): JSX.Element => {
+        const helperPanePosition = getHelperPanePosition(containerRef, helperPaneOrigin);
+        const arrowPosition = getHelperPaneArrowPosition(containerRef, helperPaneOrigin, helperPanePosition);
+        
+        return (
+            <DropdownContainer ref={helperPaneContainerRef} sx={{ ...helperPanePosition }}>
+                <Transition show={isHelperPaneOpen} {...ANIMATION}>
+                    {getHelperPane(value, handleChange)}
+                    {arrowPosition && <HelperPane.Arrow origin={helperPaneOrigin} sx={{ ...arrowPosition }} />}
+                </Transition>
+            </DropdownContainer>
+        )
+    }
+
     const handleInputKeyDown = async (e: React.KeyboardEvent) => {
         if (dropdownContainerRef.current) {
             const hoveredEl = dropdownContainerRef.current.querySelector('.hovered');
@@ -308,6 +357,14 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
             }
         }
 
+        if (helperPaneContainerRef.current) {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                handleCancel();
+                return;
+            }
+        }
+
         if (onManualCompletionRequest && e.ctrlKey && e.key === ' ') {
             e.preventDefault();
             await onManualCompletionRequest();
@@ -317,7 +374,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
 
     const handleRefFocus = () => {
         if (document.activeElement !== elementRef.current) {
-            textBoxRef.current?.focus();
+            textAreaRef.current?.focus();
         }
     }
 
@@ -327,15 +384,19 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
             if (value !== undefined) {
                 await handleExpressionSaveMutation(value);
             }
-            textBoxRef.current?.blur();
+            textAreaRef.current?.blur();
         }
     }
 
     const handleRefSetCursor = (value: string, cursorPosition: number) => {
-        setCursor(textBoxRef, 'textarea', value, cursorPosition);
+        setCursor(textAreaRef, 'textarea', value, cursorPosition);
     }
 
     const handleTextAreaFocus = async () => {
+        // Additional actions to be performed when the expression editor gains focus
+        setIsFocused(true);
+        changeHelperPaneState?.(true);
+
         await onFocus?.();
     }
 
@@ -344,16 +405,9 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         e.stopPropagation();
     }
 
-    const handleTextAreaMouseDown = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (document.activeElement !== textBoxRef.current) {
-            changeHelperPaneState?.(true);
-        }
-    }
-
     useImperativeHandle(ref, () => ({
-        shadowRoot: textBoxRef.current?.shadowRoot,
-        inputElement: textBoxRef.current?.shadowRoot?.querySelector('textarea'),
+        shadowRoot: textAreaRef.current?.shadowRoot,
+        inputElement: textAreaRef.current?.shadowRoot?.querySelector('textarea'),
         focus: handleRefFocus,
         blur: handleRefBlur,
         setCursor: handleRefSetCursor,
@@ -366,12 +420,17 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         // Prevent blur event when clicking on the dropdown
         const handleOutsideClick = async (e: any) => {
             if (
-                document.activeElement === textBoxRef.current &&
-                !textBoxRef.current?.contains(e.target) &&
+                isFocused &&
+                !buttonRef.current?.contains(e.target) &&
+                !actionButtonsRef.current?.contains(e.target) &&
+                !textAreaRef.current?.contains(e.target) &&
                 !dropdownContainerRef.current?.contains(e.target) &&
                 !helperPaneContainerRef.current?.contains(e.target)
             ) {
+                // Additional actions to be performed when the expression editor loses focus
+                setIsFocused(false);
                 changeHelperPaneState?.(false);
+
                 await onBlur?.(e);
             }
         }
@@ -380,26 +439,36 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         return () => {
             document.removeEventListener('mousedown', handleOutsideClick);
         }
-    }, [onBlur, changeHelperPaneState]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [onBlur, changeHelperPaneState, buttonRef.current]);
 
     return (
         <Container ref={elementRef}>
+            {/* Action buttons at the top of the expression editor */}
+            {actionButtons?.length > 0 && (
+                <ActionButtons
+                    ref={actionButtonsRef}
+                    isHelperPaneOpen={isHelperPaneOpen}
+                    actionButtons={actionButtons}
+                />
+            )}
+
+            {/* Expression editor component */}
             <StyledTextArea
                 {...rest}
-                ref={textBoxRef as React.RefObject<HTMLTextAreaElement>}
+                ref={textAreaRef}
                 value={value}
                 onTextChange={handleChange}
                 onKeyDown={handleInputKeyDown}
                 onFocus={handleTextAreaFocus}
                 onBlur={handleTextAreaBlur}
-                onMouseDown={handleTextAreaMouseDown}
                 sx={{ width: '100%', ...sx }}
                 disabled={disabled || isSavingExpression}
                 growRange={{ start: 1, offset: 7 }}
                 resize='vertical'
             />
             {isSavingExpression && <ProgressIndicator barWidth={6} sx={{ top: "100%" }} />}
-            {isFocused &&
+            {isFocused && 
                 createPortal(
                     <DropdownContainer ref={dropdownContainerRef} sx={{ ...dropdownElPosition }}>
                         <Transition show={showCompletions} {...ANIMATION}>
@@ -432,19 +501,13 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                         </Transition>
                     </DropdownContainer>,
                     document.body
-                )
-            }
-            {getHelperPane &&
+                )}
+            {isFocused && getHelperPane &&
                 createPortal(
-                    <DropdownContainer ref={helperPaneContainerRef} sx={{ ...dropdownElPosition }}>
-                        <Transition show={isHelperPaneOpen} {...ANIMATION}>
-                            {getHelperPane(value, handleChange)}
-                        </Transition>
-                    </DropdownContainer>,
+                    getHelperPaneComponent(),
                     document.body
-                )
-            }
-            {isFocused &&
+                )}
+            {isFocused && 
                 createPortal(
                     <DropdownContainer sx={{ ...fnSignatureElPosition }}>
                         <Transition show={!!fnSignature} {...ANIMATION}>
@@ -456,8 +519,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                         </Transition>
                     </DropdownContainer>,
                     document.body
-                )
-            }
+                )}
         </Container>
     );
 });

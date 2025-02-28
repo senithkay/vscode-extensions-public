@@ -13,8 +13,6 @@ import { URI, Utils } from "vscode-uri";
 import { MACHINE_VIEW, PopupMachineStateValue, PopupVisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
-import { Colors } from "./resources/constants";
-import TriggerWizard from "./views/BI/Trigger/AddTriggerWizard";
 import { ThemeColors, Overlay } from "@wso2-enterprise/ui-toolkit";
 import EditConnectionWizard from "./views/BI/Connection/EditConnectionWizard";
 
@@ -24,8 +22,8 @@ const ViewContainer = styled.div`
     right: 0;
     width: 400px;
     height: 100%;
-    z-index: 3000;
-    background-color: ${Colors.SURFACE_BRIGHT};
+    z-index: 2000;
+    background-color: ${ThemeColors.SURFACE_BRIGHT};
 `;
 
 const TopBar = styled.div`
@@ -62,10 +60,7 @@ const PopupPanel = (props: PopupPanelProps) => {
                     rpcClient.getVisualizerLocation().then((location) => {
                         setViewComponent(
                             <AddConnectionWizard
-                                fileName={
-                                    location.documentUri ||
-                                    Utils.joinPath(URI.file(location.projectUri), "connections.bal").fsPath
-                                }
+                                fileName={Utils.joinPath(URI.file(location.projectUri), "connections.bal").fsPath}
                                 target={machineState.metadata?.target || undefined}
                                 onClose={onClose}
                             />
@@ -81,13 +76,10 @@ const PopupPanel = (props: PopupPanelProps) => {
                                     connectionName={machineState?.identifier}
                                     onClose={onClose}
                                 />
-                                <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3` }} />
+                                <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3`, zIndex: 1000 }} />
                             </>
                         );
                     });
-                    break;
-                case MACHINE_VIEW.AddTriggerWizard:
-                    setViewComponent(<TriggerWizard onClose={onClose} />);
                     break;
                 default:
                     setViewComponent(null);

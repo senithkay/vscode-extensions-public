@@ -11,7 +11,6 @@ import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { STNode } from '@wso2-enterprise/syntax-tree';
 
 import { InputOutputPortModel } from '../../Port';
 import { OBJECT_OUTPUT_TARGET_PORT_PREFIX } from '../../utils/constants';
@@ -26,7 +25,6 @@ export class ObjectOutputNodeFactory extends AbstractReactFactory<ObjectOutputNo
 	}
 
 	generateReactWidget(event: { model: ObjectOutputNode; }): JSX.Element {
-		let valueLabel: string;
 		return (
 			<>
 				{event.model.hasNoMatchingFields ? (
@@ -34,16 +32,15 @@ export class ObjectOutputNodeFactory extends AbstractReactFactory<ObjectOutputNo
 				) : (
 					<ObjectOutputWidget
 						engine={this.engine}
-						id={`${OBJECT_OUTPUT_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
-						dmTypeWithValue={event.model.dmTypeWithValue}
+						id={`${OBJECT_OUTPUT_TARGET_PORT_PREFIX}.${event.model.rootName}`}
+						outputType={event.model.outputType}
 						typeName={event.model.typeName}
-						value={event.model.value}
+						value={undefined}
 						getPort={(portId: string) => event.model.getPort(portId) as InputOutputPortModel}
 						context={event.model.context}
-						mappings={event.model.mappings}
-						valueLabel={valueLabel}
-						deleteField={(node: STNode) => event.model.deleteField(node)}
-						originalTypeName={event.model.dmType?.fieldName}
+						mappings={event.model.filterdMappings}
+						valueLabel={event.model.outputType.id}
+						originalTypeName={event.model.filteredOutputType?.variableName}
 					/>
 				)}
 			</>

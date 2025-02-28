@@ -10,7 +10,7 @@
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./common";
 import { Diagnostic as VSCodeDiagnostic } from "vscode-languageserver-types";
-import { TriggerNode } from "./triggers";
+import { ServiceModel } from "./service";
 
 export type { NodePosition };
 
@@ -49,24 +49,41 @@ export type FlowNode = {
     isActiveBreakpoint?: boolean;
 };
 
+
+export type FunctionNode = {
+    id: string;
+    metadata: Metadata;
+    codedata: CodeData;
+    diagnostics?: Diagnostic;
+    properties?: NodeProperties;
+    flags?: number;
+    returning: boolean;
+};
+
 export type Metadata = {
     label: string;
     description: string;
     icon?: string;
     keywords?: string[];
     draft?: boolean; // for diagram draft nodes
+    data?: {
+        isDataMappedFunction?: boolean;
+    }
+    tools?: string[]; // for agent call
+    model?: string; // for agent call
 };
 
 export type Property = {
     metadata: Metadata;
     diagnostics?: Diagnostic;
     valueType: string;
-    value: string | ELineRange;
+    value: string | ELineRange | NodeProperties;
     optional: boolean;
     editable: boolean;
     advanced?: boolean;
     placeholder?: string;
     valueTypeConstraint?: string | string[];
+    codedata?: CodeData;
 };
 
 export type Diagnostic = {
@@ -80,7 +97,7 @@ export type DiagnosticMessage = {
 };
 
 export type CodeData = {
-    node: NodeKind;
+    node?: NodeKind;
     org?: string;
     module?: string;
     object?: string;
@@ -120,6 +137,8 @@ export type ViewState = {
     ch: number;  // container height
     // flow start node
     startNodeId?: string;
+    // is top level node
+    isTopLevel?: boolean;
 };
 
 // Add node target position metadata
@@ -139,6 +158,9 @@ export enum DIRECTORY_MAP {
     TYPES = "types",
     RECORDS = "records",
     CONFIGURATIONS = "configurations",
+    DATA_MAPPERS = "dataMappers",
+    ENUMS = "enums",
+    CLASSES = "classes"
 }
 
 export enum DIRECTORY_SUB_TYPE {
@@ -148,7 +170,14 @@ export enum DIRECTORY_SUB_TYPE {
     CONFIGURATION = "configuration",
     SERVICE = "service",
     AUTOMATION = "automation",
-    TRIGGER = "trigger"
+    TRIGGER = "trigger",
+    DATA_MAPPER = "dataMapper",
+}
+
+export enum FUNCTION_TYPE {
+    REGULAR = "regular",
+    EXPRESSION_BODIED = "expressionBodied",
+    ALL = "all",
 }
 
 export interface ProjectStructureResponse {
@@ -162,6 +191,9 @@ export interface ProjectStructureResponse {
         [DIRECTORY_MAP.TYPES]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.RECORDS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.CONFIGURATIONS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.DATA_MAPPERS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.ENUMS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.CLASSES]: ProjectStructureArtifactResponse[];
     };
 }
 
@@ -173,7 +205,7 @@ export interface ProjectStructureArtifactResponse {
     context?: string;
     position?: NodePosition;
     st?: STNode;
-    triggerNode?: TriggerNode;
+    serviceModel?: ServiceModel;
     resources?: ProjectStructureArtifactResponse[];
 }
 export type Item = Category | AvailableNode;
@@ -209,6 +241,7 @@ export type NodePropertyKey =
     | "variable"
     | "defaultable"
     | "scope"
+    | "parameters"
     | "functionName";
 
 export type BranchKind = "block" | "worker";
@@ -248,9 +281,21 @@ export type NodeKind =
     | "COMMENT"
     | "FUNCTION"
     | "FUNCTION_CALL"
+    | "NP_FUNCTION_CALL"
     | "ASSIGN"
-    | "DATA_MAPPER"
-    | "CONFIG_VARIABLE";
+    | "DATA_MAPPER_DEFINITION"
+    | "DATA_MAPPER_CALL"
+    | "FORK"
+    | "WORKER"
+    | "WAIT"
+    | "START"
+    | "COMMIT"
+    | "ROLLBACK"
+    | "FAIL"
+    | "RETRY"
+    | "FUNCTION_DEFINITION"
+    | "CONFIG_VARIABLE"
+    | "AGENT_CALL";
 
 export type OverviewFlow = {
     entryPoints: EntryPoint[];

@@ -18,12 +18,13 @@ import {
     CDAutomation,
     CDConnection,
     CDListener,
+    CDResourceFunction,
+    CDFunction,
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Diagram } from "@wso2-enterprise/component-diagram";
-import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { ProgressRing, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { Colors } from "../../../resources/constants";
 
 const SpinnerContainer = styled.div`
     display: flex;
@@ -33,7 +34,7 @@ const SpinnerContainer = styled.div`
 `;
 
 const DiagramContainer = styled.div`
-    height: 400px;
+    height: 100%;
 `;
 
 interface ComponentDiagramProps {
@@ -48,6 +49,10 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
     const { rpcClient } = useRpcContext();
 
     useEffect(() => {
+        fetchProject();
+    }, []);
+
+    const fetchProject = () => {
         rpcClient
             .getBIDiagramRpcClient()
             .getDesignModel()
@@ -60,7 +65,7 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
             .catch((error) => {
                 console.error(">>> error getting design model", error);
             });
-    }, []);
+    };
 
     const goToView = async (filePath: string, position: NodePosition) => {
         console.log(">>> component diagram: go to view", { filePath, position });
@@ -69,17 +74,15 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
             .openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: filePath, position: position } });
     };
 
-    const handleAddArtifact = () => {
-        rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                view: MACHINE_VIEW.BIComponentView,
-            },
-        });
-    };
-
     const handleGoToListener = (listener: CDListener) => {
-        // TODO: implement
+        if (listener.location) {
+            goToView(listener.location.filePath, {
+                startLine: listener.location.startLine.line,
+                startColumn: listener.location.startLine.offset,
+                endLine: listener.location.endLine.line,
+                endColumn: listener.location.endLine.offset,
+            });
+        }
     };
 
     const handleGoToService = (service: CDService) => {
@@ -89,6 +92,17 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
                 startColumn: service.location.startLine.offset,
                 endLine: service.location.endLine.line,
                 endColumn: service.location.endLine.offset,
+            });
+        }
+    };
+
+    const handleGoToFunction = (func: CDFunction | CDResourceFunction) => {
+        if (func.location) {
+            goToView(func.location.filePath, {
+                startLine: func.location.startLine.line,
+                startColumn: func.location.startLine.offset,
+                endLine: func.location.endLine.line,
+                endColumn: func.location.endLine.offset,
             });
         }
     };
@@ -134,14 +148,17 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
                 console.log(">>> Updated source code after delete", response);
                 if (!response.textEdits) {
                     console.error(">>> Error updating source code", response);
+                    return;
                 }
+                // Refresh the component diagram
+                fetchProject();
             });
     };
 
     if (!projectStructure) {
         return (
             <SpinnerContainer>
-                <ProgressRing color={Colors.PRIMARY} />
+                <ProgressRing color={ThemeColors.PRIMARY} />
             </SpinnerContainer>
         );
     }
@@ -153,6 +170,7 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
                     project={project}
                     onListenerSelect={handleGoToListener}
                     onServiceSelect={handleGoToService}
+                    onFunctionSelect={handleGoToFunction}
                     onAutomationSelect={handleGoToAutomation}
                     onConnectionSelect={handleGoToConnection}
                     onDeleteComponent={handleDeleteComponent}

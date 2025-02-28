@@ -12,6 +12,7 @@
  */
 
 import { ProjectStructureResponse } from "../../interfaces/bi";
+import { LinePosition } from "../../interfaces/common";
 import {
     BIAvailableNodesRequest,
     BIAvailableNodesResponse,
@@ -43,6 +44,25 @@ import {
     BIGetEnclosedFunctionRequest,
     BIGetEnclosedFunctionResponse,
     BIDesignModelResponse,
+    GetTypesResponse,
+    UpdateTypeResponse,
+    GetTypesRequest,
+    UpdateTypeRequest,
+    GetTypeRequest,
+    GetTypeResponse,
+    UpdateImportsRequest,
+    UpdateImportsResponse,
+    AddFunctionRequest,
+    AddFunctionResponse,
+    FunctionNodeRequest,
+    FunctionNodeResponse,
+    ServiceClassModelResponse,
+    ModelFromCodeRequest,
+    ClassFieldModifierRequest,
+    SourceEditResponse,
+    ServiceClassSourceRequest,
+    AddFieldRequest,
+    RenameIdentifierRequest
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -54,14 +74,13 @@ import {
     ReadmeContentResponse,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
-    ComponentsRequest,
-    ComponentsResponse,
     AIChatRequest,
     ProjectImports,
     BreakpointRequest,
     CurrentBreakpointsResponse,
     FormDidOpenParams,
-    FormDidCloseParams
+    FormDidCloseParams,
+    EndOfFileRequest
 } from "./interfaces";
 
 export interface BIDiagramAPI {
@@ -81,14 +100,14 @@ export interface BIDiagramAPI {
     createComponent: (params: ComponentRequest) => Promise<CreateComponentResponse>;
     getBIConnectors: (params: BIConnectorsRequest) => Promise<BIConnectorsResponse>;
     handleReadmeContent: (params: ReadmeContentRequest) => Promise<ReadmeContentResponse>;
-    createComponents: (params: ComponentsRequest) => Promise<ComponentsResponse>;
     getVisibleVariableTypes: (params: BIGetVisibleVariableTypesRequest) => Promise<BIGetVisibleVariableTypesResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
-    getConfigVariables:() => Promise<ConfigVariableResponse>;
-    updateConfigVariables:(params: UpdateConfigVariableRequest) => Promise<UpdateConfigVariableResponse>;
+    getConfigVariables: () => Promise<ConfigVariableResponse>;
+    updateConfigVariables: (params: UpdateConfigVariableRequest) => Promise<UpdateConfigVariableResponse>;
     getModuleNodes: () => Promise<BIModuleNodesResponse>;
     getReadmeContent: () => Promise<ReadmeContentResponse>;
     openReadme: () => void;
+    renameIdentifier: (params: RenameIdentifierRequest) => Promise<void>;
     deployProject: () => void;
     openAIChat: (params: AIChatRequest) => void;
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
@@ -99,8 +118,20 @@ export interface BIDiagramAPI {
     removeBreakpointFromSource: (params: BreakpointRequest) => void;
     getBreakpointInfo: () => Promise<CurrentBreakpointsResponse>;
     getExpressionDiagnostics: (params: ExpressionDiagnosticsRequest) => Promise<ExpressionDiagnosticsResponse>;
-    getAllImports:()=> Promise<ProjectImports>;
+    getAllImports: () => Promise<ProjectImports>;
     formDidOpen: (params: FormDidOpenParams) => Promise<void>;
     formDidClose: (params: FormDidCloseParams) => Promise<void>;
     getDesignModel: () => Promise<BIDesignModelResponse>;
+    getTypes: (params: GetTypesRequest) => Promise<GetTypesResponse>;
+    getType: (params: GetTypeRequest) => Promise<GetTypeResponse>;
+    updateType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
+    getServiceClassModel: (params: ModelFromCodeRequest) => Promise<ServiceClassModelResponse>;
+    updateClassField: (params: ClassFieldModifierRequest) => Promise<SourceEditResponse>;
+    addClassField: (params: AddFieldRequest) => Promise<SourceEditResponse>;
+    updateServiceClass: (params: ServiceClassSourceRequest) => Promise<SourceEditResponse>;
+    createGraphqlClassType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
+    updateImports: (params: UpdateImportsRequest) => Promise<UpdateImportsResponse>;
+    addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
+    getFunctionNode: (params: FunctionNodeRequest) => Promise<FunctionNodeResponse>;
+    getEndOfFile: (params: EndOfFileRequest) => Promise<LinePosition>;
 }

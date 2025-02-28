@@ -27,22 +27,19 @@ export interface CellDiagramProps {
     defaultDiagramLayer?: DiagramLayer;
     customTooltips?: CustomTooltips;
     modelVersion?: string; 
+    previewMode?: boolean;
     onComponentDoubleClick?: (componentId: string) => void;
 }
 
 export function CellDiagram(props: CellDiagramProps) {
-    const { organization, project } = props;
-
-    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    const { organization, project, previewMode } = props;
 
     return (
-        <Container>
-            {isSafari ? (
-                <PromptScreen userMessage={"This browser is not supported. Please use a different browser."} />
-            ) : organization ? (
+        <Container className={previewMode ? "preview-mode" : ""}>
+            {organization ? (
                 <OrgDiagram organization={organization} {...props} />
             ) : project ? (
-                <ProjectDiagram project={project} {...props} />
+                <ProjectDiagram project={project} {...props} previewMode={previewMode} />
             ) : (
                 <PromptScreen userMessage={"Organization or Project model not provided."} />
             )}

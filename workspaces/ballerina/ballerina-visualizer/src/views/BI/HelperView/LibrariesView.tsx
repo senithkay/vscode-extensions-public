@@ -7,16 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { BIGetFunctionsRequest, Category, LineRange, LogIcon, NodePosition } from "@wso2-enterprise/ballerina-core";
+import { BIGetFunctionsRequest, Category, FUNCTION_TYPE, LineRange, LogIcon, NodePosition } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Category as PanelCategory, GroupList, Node, ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
 
 import { useEffect, useState } from "react";
 import { convertFunctionCategoriesToSidePanelCategories } from "../../../utils/bi";
-import { ProgressRing, SearchBox, SidePanelBody, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
+import { ProgressRing, SearchBox, SidePanelBody, Tooltip, Typography, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import React from "react";
-import { Colors } from "../../../resources/constants";
 import { debounce } from "lodash";
 import { PanelBody } from ".";
 
@@ -58,7 +57,7 @@ namespace S {
         margin-top: 8px;
         margin-bottom: ${({ showBorder }: { showBorder?: boolean }) => (showBorder ? "20px" : "12px")};
         padding-bottom: 8px;
-        border-bottom: ${({ showBorder }: { showBorder?: boolean }) => (showBorder ? `1px solid ${Colors.OUTLINE_VARIANT}` : "none")};
+        border-bottom: ${({ showBorder }: { showBorder?: boolean }) => (showBorder ? `1px solid ${ThemeColors.OUTLINE_VARIANT}` : "none")};
     `;
 
     export const Row = styled.div<{}>`
@@ -108,7 +107,7 @@ namespace S {
     export const HorizontalLine = styled.hr`
         width: 100%;
         border: 0;
-        border-top: 1px solid ${Colors.OUTLINE_VARIANT};
+        border-top: 1px solid ${ThemeColors.OUTLINE_VARIANT};
     `;
 
 
@@ -121,13 +120,13 @@ namespace S {
         align-items: center;
         gap: 8px;
         padding: 6px 2px;
-        color: ${Colors.PRIMARY};
-        border: 1px dashed ${Colors.PRIMARY};
+        color: ${ThemeColors.PRIMARY};
+        border: 1px dashed ${ThemeColors.PRIMARY};
         border-radius: 5px;
         cursor: pointer;
         &:hover {
-            border: 1px solid ${Colors.PRIMARY};
-            background-color: ${Colors.PRIMARY_CONTAINER};
+            border: 1px solid ${ThemeColors.PRIMARY};
+            background-color: ${ThemeColors.PRIMARY_CONTAINER};
         }
     `;
 
@@ -142,7 +141,7 @@ export const LibraryComponent = styled.div`
         height: 25px;
         cursor: pointer;
         &:hover {
-                background-color: ${Colors.SURFACE_CONTAINER};
+                background-color: ${ThemeColors.SURFACE_CONTAINER};
         }
 `;
 
@@ -166,8 +165,8 @@ export const IconContainer = styled.div`
         & svg {
             height: 14px;
             width: 14px;
-            fill: ${Colors.ON_SURFACE};
-            stroke: ${Colors.ON_SURFACE};
+            fill: ${ThemeColors.ON_SURFACE};
+            stroke: ${ThemeColors.ON_SURFACE};
         }
     `;
 
@@ -207,7 +206,9 @@ export function LibrariesView(props: LibrariesViewProps) {
             .getFunctions(request)
             .then((response) => {
                 console.log(">>> Searched List of functions", response);
-                setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
+                setCategories(
+                    convertFunctionCategoriesToSidePanelCategories(response.categories as Category[], FUNCTION_TYPE.ALL)
+                );
             })
             .finally(() => {
                 setIsSearching(false);
@@ -238,7 +239,9 @@ export function LibrariesView(props: LibrariesViewProps) {
             })
             .then((response) => {
                 console.log(">>> List of functions", response);
-                setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
+                setCategories(
+                    convertFunctionCategoriesToSidePanelCategories(response.categories as Category[], FUNCTION_TYPE.ALL)
+                );
             })
             .finally(() => {
                 setIsSearching(false);
@@ -259,7 +262,7 @@ export function LibrariesView(props: LibrariesViewProps) {
         const updateData: ExpressionFormField = {
             value: functionSignature + "(",
             key: editorKey,
-            cursorPosition: position.endLine.offset
+            cursorPosition: { line: position.endLine.line, offset: position.endLine.offset }
         }
         updateFormField(updateData);
     }

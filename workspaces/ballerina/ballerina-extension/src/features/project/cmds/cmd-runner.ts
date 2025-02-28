@@ -18,6 +18,8 @@ export enum PALETTE_COMMANDS {
     BUILD = 'kolab.project.build',
     PACK = 'kolab.project.pack',
     CLOUD = 'kolab.create.cloud',
+    LOGIN_COPILOT = "kolab.login.copilot",
+    RESET_BI = "kolab.reset.bi",
     DOC = 'kolab.project.doc',
     FOCUS_EXPLORER = 'ballerinaExplorerTreeView.focus',
     RUN_CMD = 'kolab.project.run.cmd',
@@ -73,7 +75,7 @@ export enum MESSAGES {
     INVALID_XML_RESPONSE = "XML response is invalid."
 }
 
-export const CONFIG_FILE = 'Config.toml';
+export const BAL_CONFIG_FILE = 'Config.toml';
 export const BAL_TOML = "Ballerina.toml";
 const TERMINAL_NAME = 'Terminal';
 const BAL_CONFIG_FILES = 'BAL_CONFIG_FILES';

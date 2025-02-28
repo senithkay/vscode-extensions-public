@@ -10,33 +10,30 @@
 import React from 'react';
 
 import { css } from '@emotion/css';
-import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
+import { PrimitiveBalType, TypeField, TypeKind } from "@wso2-enterprise/ballerina-core";
 import { FunctionCall, NodePosition, STKindChecker,} from '@wso2-enterprise/syntax-tree';
 import classNames from "classnames";
 
 import { CodeActionWidget } from '../CodeAction/CodeAction';
 import { DiagnosticWidget } from '../Diagnostic/Diagnostic';
 import { DataMapperLinkModel } from "../Link";
-import {
-    isSourcePortArray,
-    generateQueryExpression,
-    isTargetPortArray,
-    ClauseType
-} from '../Link/link-utils';
-import { RecordFieldPortModel } from '../Port';
+import { generateQueryExpression, ClauseType } from '../Link/link-utils';
+import { MappingType, RecordFieldPortModel } from '../Port';
 import {
     getBalRecFieldName,
     getFilteredUnionOutputTypes,
     getLocalVariableNames,
-    getArrayMappingType,
     getMappedFnNames,
-    getCollectClauseActions
+    getCollectClauseActions,
+    getMappingType
 } from '../utils/dm-utils';
 import { handleCodeActions } from "../utils/ls-utils";
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
 import { QueryExprMappingType } from '../Node';
+import { useDMFocusedViewStateStore } from '../../../store/store';
+import { canPerformAggregation } from '../utils/type-utils';
 
 export interface EditableLabelWidgetProps {
     model: ExpressionLabelModel;
@@ -115,11 +112,6 @@ export enum LinkState {
     LinkNotSelected
 }
 
-export enum ArrayMappingType {
-    ArrayToArray,
-    ArrayToSingleton
-}
-
 export const AggregationFunctions = ["avg", "count", "max", "min", "sum"];
 
 // now we can render all what we want in the label
@@ -127,9 +119,11 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     const { link, context, value, field, editorLabel, deleteLink } = props.model;
 
     const [linkStatus, setLinkStatus] = React.useState<LinkState>(LinkState.LinkNotSelected);
-    const [arrayMappingType, setArrayMappingType] = React.useState<ArrayMappingType>(undefined);
+    const [mappingType, setMappingType] = React.useState<MappingType>(undefined);
     const [codeActions, setCodeActions] = React.useState([]);
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
+
+    const focusedViewStore = useDMFocusedViewStateStore();
 
     const source = link?.getSourcePort()
     const target = link?.getTargetPort()
@@ -175,25 +169,26 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         });
     };
 
-    const applyQueryExpr = (linkModel: DataMapperLinkModel, targetRecord: TypeField, clause: ClauseType) => {
+    const applyQueryExpr = (
+        linkModel: DataMapperLinkModel,
+        targetRecord: TypeField,
+        clause: ClauseType,
+        isElementAccss?: boolean
+    ) => {
         if (linkModel.value
             && (STKindChecker.isFieldAccess(linkModel.value) || STKindChecker.isSimpleNameReference(linkModel.value))) {
 
-                let isOptionalSource = false;
-                const sourcePort = linkModel.getSourcePort();
-                const targetPort = linkModel.getTargetPort();
-
+                const sourcePort = linkModel.getSourcePort() as RecordFieldPortModel;
+                const targetPort = linkModel.getTargetPort() as RecordFieldPortModel;
+                
+                const isOptionalSource = sourcePort.field.optional;
                 let position = linkModel.value.position as NodePosition;
-                if (sourcePort instanceof RecordFieldPortModel && sourcePort.field.optional) {
-                    isOptionalSource = true;
-                }
-                if (targetPort instanceof RecordFieldPortModel) {
-                    const expr = targetPort.editableRecordField?.value;
-                    if (STKindChecker.isSpecificField(expr)) {
-                        position = expr.valueExpr.position as NodePosition;
-                    } else {
-                        position = expr.position as NodePosition;
-                    }
+
+                const expr = targetPort.editableRecordField?.value;
+                if (STKindChecker.isSpecificField(expr)) {
+                    position = expr.valueExpr.position as NodePosition;
+                } else {
+                    position = expr.position as NodePosition;
                 }
 
                 const localVariables = getLocalVariableNames(context.functionST);
@@ -203,7 +198,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
                 const modifications = [{
                     type: "INSERT",
                     config: {
-                        "STATEMENT": querySrc,
+                        "STATEMENT": isElementAccss ? `(${querySrc})[0]` : querySrc,
                     },
                     endColumn: position.endColumn,
                     endLine: position.endLine,
@@ -211,20 +206,19 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
                     startLine: position.startLine
                 }];
                 void context.applyModifications(modifications);
+                focusedViewStore.setPortFQNs(sourcePort.fieldFQN, targetPort.fieldFQN);
         }
     };
 
     React.useEffect(() => {
-        if (link) {
+        if (link && link.isActualLink) {
             link.registerListener({
                 selectionChanged(event) {
                     setLinkStatus(event.isSelected ? LinkState.LinkSelected : LinkState.LinkNotSelected);
                 },
             });
-            const isSourceArray = isSourcePortArray(source);
-            const isTargetArray = isTargetPortArray(target);
-            const mappingType = getArrayMappingType(isSourceArray, isTargetArray);
-            setArrayMappingType(mappingType);
+            const mappingType = getMappingType(source, target);
+            setMappingType(mappingType);
         } else {
             setLinkStatus(LinkState.TemporaryLink);
         }
@@ -262,49 +256,71 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         ),
     ];
 
-    const onClickConvertToQuery = () => {
-        if (target instanceof RecordFieldPortModel) {
-            const targetPortField = target.field;
-            if (targetPortField.typeName === PrimitiveBalType.Array && targetPortField?.memberType) {
-                applyQueryExpr(link, targetPortField.memberType, ClauseType.Select);
-            } else if (targetPortField.typeName === PrimitiveBalType.Union){
-                const [type] = getFilteredUnionOutputTypes(targetPortField);
-                if (type.typeName === PrimitiveBalType.Array && type.memberType) {
-                    applyQueryExpr(link, type.memberType, ClauseType.Select);
-                }
-            }
+    const isArrayType = (type: TypeField): boolean => {
+        return type.typeName === PrimitiveBalType.Array && !!type.memberType;
+    };
+    
+    const handleArrayType = (
+        type: TypeField,
+        link: DataMapperLinkModel,
+        clauseType: ClauseType,
+        isElementAccss?: boolean
+    ) => {
+        if (isArrayType(type)) {
+            applyQueryExpr(link, type.memberType, clauseType, isElementAccss);
+        } else if (isElementAccss) {
+            applyQueryExpr(link, type, clauseType, isElementAccss);
+        }
+    };
+    
+    const onClickConvertToQuery = (isElementAccss?: boolean) => {
+        if (!(target instanceof RecordFieldPortModel)) {
+            return;
+        }
+    
+        const targetPortField = target.field;
+
+        if (targetPortField.typeName === PrimitiveBalType.Union) {
+            const [unionType] = getFilteredUnionOutputTypes(targetPortField);
+            handleArrayType(unionType, link, ClauseType.Select, isElementAccss);
+        } else {
+            handleArrayType(targetPortField, link, ClauseType.Select, isElementAccss);
         }
     };
 
     const onClickAggregateViaQuery = () => {
-        if (target instanceof RecordFieldPortModel) {
-            const targetPortField = target.field;
-            if (targetPortField.typeName === PrimitiveBalType.Union){
-                const [type] = getFilteredUnionOutputTypes(targetPortField);
-                if (type.typeName === PrimitiveBalType.Array && type.memberType) {
-                    applyQueryExpr(link, type.memberType, ClauseType.Collect);
-                }
-            } else {
-                applyQueryExpr(link, targetPortField, ClauseType.Collect);
-            }
+        if (!(target instanceof RecordFieldPortModel)) {
+            return;
+        }
+
+        const targetPortField = target.field;
+
+        if (targetPortField.typeName === PrimitiveBalType.Union) {
+            const [type] = getFilteredUnionOutputTypes(targetPortField);
+            handleArrayType(type, link, ClauseType.Collect);
+        } else {
+            handleArrayType(targetPortField, link, ClauseType.Collect);
         }
     };
 
     const additionalActions = [];
-    if (arrayMappingType === ArrayMappingType.ArrayToArray) {
+    if (mappingType === MappingType.ArrayToArray) {
         additionalActions.push({
             title: "Convert to Query",
             onClick: onClickConvertToQuery
         });
-    } else if (arrayMappingType === ArrayMappingType.ArrayToSingleton) {
-        if (target instanceof RecordFieldPortModel && target.field.typeName === PrimitiveBalType.Record) {
-            // Add indexed query expression
-        } else {
+    } else if (mappingType === MappingType.ArrayToSingleton) {
+        const supportsAggregation = canPerformAggregation(target);
+        if (supportsAggregation) {
             additionalActions.push({
                 title: "Aggregate using Query",
                 onClick: onClickAggregateViaQuery
             });
         }
+        additionalActions.push({
+            title: "Convert to Query and Access Element",
+            onClick: () => onClickConvertToQuery(true)
+        });
     }
 
     if (codeActions.length > 0 || additionalActions.length > 0) {
@@ -373,35 +389,35 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         }
     }
 
-    if (props.model?.valueNode && isSourceCollapsed && isTargetCollapsed) {
+    const isSourcePortArray = source instanceof RecordFieldPortModel && source?.field.typeName === TypeKind.Array;
+    const isTargetPortArray = target instanceof RecordFieldPortModel && target?.field.typeName === TypeKind.Array;
+
+    if (props.model?.valueNode && isSourceCollapsed && isTargetCollapsed && !isSourcePortArray && !isTargetPortArray) {
         // for direct links, disable link widgets if both sides are collapsed
         return null
-    } else if (!props.model?.valueNode && (isSourceCollapsed || isTargetCollapsed)) {
+    } else if (!props.model?.valueNode && ((isSourceCollapsed && !isSourcePortArray) || (isTargetCollapsed && !isTargetPortArray))) {
         // for links with intermediary nodes,
         // disable link widget if either source or target port is collapsed
         return null;
     }
 
-    return linkStatus === LinkState.TemporaryLink
-        ? (
-            <div
-                className={classNames(
-                    classes.container
-                )}
-            >
-                <div className={classNames(classes.element, classes.loadingContainer)}>
-                    {loadingScreen}
-                </div>
-            </div>
-        ) : (
-            <div
-                data-testid={`expression-label-for-${props.model?.link?.getSourcePort()?.getName()}-to-${props.model?.link?.getTargetPort()?.getName()}`}
-                className={classNames(
-                    classes.container,
-                    linkStatus === LinkState.LinkNotSelected && !deleteInProgress && !connectedViaCollectClause && classes.containerHidden
-                )}
-            >
-                {elements}
+    if (linkStatus === LinkState.TemporaryLink) {
+        return (
+            <div className={classNames(classes.container, classes.element, classes.loadingContainer)}>
+                {loadingScreen}
             </div>
         );
+    }
+
+    return (
+        <div
+            data-testid={`expression-label-for-${link?.getSourcePort()?.getName()}-to-${link?.getTargetPort()?.getName()}`}
+            className={classNames(
+                classes.container,
+                linkStatus === LinkState.LinkNotSelected && !deleteInProgress && !connectedViaCollectClause && classes.containerHidden
+            )}
+        >
+            {elements}
+        </div>
+    );
 }

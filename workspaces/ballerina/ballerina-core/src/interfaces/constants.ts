@@ -29,5 +29,9 @@ export const BI_COMMANDS = {
     OPEN_TYPE_DIAGRAM: 'BI.view.typeDiagram',
     ADD_CONFIGURATION: 'BI.project-explorer.add-configuration',
     ADD_PROJECT: 'BI.project-explorer.add',
-    SHOW_OVERVIEW: 'BI.project-explorer.overview'
+    SHOW_OVERVIEW: 'BI.project-explorer.overview',
+    ADD_DATA_MAPPER: 'BI.project-explorer.add-data-mapper',
+    BI_EDIT_TEST_FUNCTION: 'BI.test.edit.function',
+    BI_ADD_TEST_FUNCTION: 'BI.test.add.function',
+    BI_EDIT_TEST_FUNCTION_DEF: 'BI.test.edit.function.def'
 };

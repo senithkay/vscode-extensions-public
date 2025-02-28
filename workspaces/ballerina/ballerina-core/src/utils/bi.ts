@@ -10,10 +10,11 @@
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { ComponentInfo } from "../interfaces/ballerina";
 import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse } from "../interfaces/bi";
-import { BallerinaProjectComponents, ExtendedLangClientInterface, SyntaxTree, Trigger } from "../interfaces/extended-lang-client";
+import { BallerinaProjectComponents, ExtendedLangClientInterface, SyntaxTree } from "../interfaces/extended-lang-client";
+import { CDModel } from "../interfaces/component-diagram";
 import { URI, Utils } from "vscode-uri";
-import { TriggerNode } from "../interfaces/triggers";
 import { LineRange } from "../interfaces/common";
+import { ServiceModel } from "../interfaces/service";
 
 export async function buildProjectStructure(projectDir: string, langClient: ExtendedLangClientInterface): Promise<ProjectStructureResponse> {
     const result: ProjectStructureResponse = {
@@ -26,27 +27,91 @@ export async function buildProjectStructure(projectDir: string, langClient: Exte
             [DIRECTORY_MAP.CONNECTIONS]: [],
             [DIRECTORY_MAP.TYPES]: [],
             [DIRECTORY_MAP.CONFIGURATIONS]: [],
-            [DIRECTORY_MAP.RECORDS]: []
+            [DIRECTORY_MAP.RECORDS]: [],
+            [DIRECTORY_MAP.DATA_MAPPERS]: [],
+            [DIRECTORY_MAP.ENUMS]: [],
+            [DIRECTORY_MAP.CLASSES]: []
         }
     };
     const components = await langClient.getBallerinaProjectComponents({
         documentIdentifiers: [{ uri: URI.file(projectDir).toString() }]
     });
-    await traverseComponents(components, result, langClient);
+    const componentModel = await langClient.getDesignModel({
+        projectPath: projectDir
+    });
+    await traverseComponents(components, result, langClient, componentModel?.designModel);
     return result;
 }
 
-async function traverseComponents(components: BallerinaProjectComponents, response: ProjectStructureResponse, langClient: ExtendedLangClientInterface) {
+async function traverseComponents(components: BallerinaProjectComponents, response: ProjectStructureResponse, langClient: ExtendedLangClientInterface, designModel: CDModel) {
+
+    const designServices: ComponentInfo[] = [];
+
+    if (designModel) {
+        designModel?.services.forEach(service => {
+            const resources: ComponentInfo[] = [];
+            service.resourceFunctions.forEach(func => {
+                const resourceInfo: ComponentInfo = {
+                    name: `${func.accessor} - ${func.path}`,
+                    filePath: func.location.filePath.split('/').pop(),
+                    startLine: func.location.startLine.line,
+                    startColumn: func.location.startLine.offset,
+                    endLine: func.location.endLine.line,
+                    endColumn: func.location.endLine.offset,
+                }
+                resources.push(resourceInfo);
+            })
+
+            service.remoteFunctions.forEach(func => {
+                const resourceInfo: ComponentInfo = {
+                    name: func.name,
+                    filePath: func.location.filePath.split('/').pop(),
+                    startLine: func.location.startLine.line,
+                    startColumn: func.location.startLine.offset,
+                    endLine: func.location.endLine.line,
+                    endColumn: func.location.endLine.offset,
+                }
+                resources.push(resourceInfo);
+            })
+
+            const serviceInfo: ComponentInfo = {
+                name: service.absolutePath ? service.absolutePath : service.type,
+                filePath: service.location.filePath.split('/').pop(),
+                startLine: service.location.startLine.line,
+                startColumn: service.location.startLine.offset,
+                endLine: service.location.endLine.line,
+                endColumn: service.location.endLine.offset,
+                resources
+            }
+            designServices.push(serviceInfo);
+        });
+    }
+
     for (const pkg of components.packages) {
         for (const module of pkg.modules) {
             response.directoryMap[DIRECTORY_MAP.AUTOMATION].push(...await getComponents(langClient, module.automations, pkg.filePath, "task", DIRECTORY_MAP.AUTOMATION));
-            response.directoryMap[DIRECTORY_MAP.SERVICES].push(...await getComponents(langClient, module.services, pkg.filePath, "http-service", DIRECTORY_MAP.SERVICES));
-            // response.directoryMap[DIRECTORY_MAP.LISTENERS].push(...await getComponents(langClient, module.listeners, pkg.filePath, "http-service", DIRECTORY_MAP.LISTENERS));
+            response.directoryMap[DIRECTORY_MAP.SERVICES].push(...await getComponents(langClient, designServices.length > 0 ? designServices : module.services, pkg.filePath, "http-service", DIRECTORY_MAP.SERVICES));
+            response.directoryMap[DIRECTORY_MAP.LISTENERS].push(...await getComponents(langClient, module.listeners, pkg.filePath, "http-service", DIRECTORY_MAP.LISTENERS));
             response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(...await getComponents(langClient, module.functions, pkg.filePath, "function"));
             response.directoryMap[DIRECTORY_MAP.CONNECTIONS].push(...await getComponents(langClient, module.moduleVariables, pkg.filePath, "connection", DIRECTORY_MAP.CONNECTIONS));
             response.directoryMap[DIRECTORY_MAP.TYPES].push(...await getComponents(langClient, module.types, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.RECORDS].push(...await getComponents(langClient, module.records, pkg.filePath, "type"));
+            response.directoryMap[DIRECTORY_MAP.ENUMS].push(...await getComponents(langClient, module.enums, pkg.filePath, "type"));
+            response.directoryMap[DIRECTORY_MAP.CLASSES].push(...await getComponents(langClient, module.classes, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.CONFIGURATIONS].push(...await getComponents(langClient, module.configurableVariables, pkg.filePath, "config"));
+        }
+    }
+
+    // Move data mappers to a separate category
+    const functions = response.directoryMap[DIRECTORY_MAP.FUNCTIONS];
+    response.directoryMap[DIRECTORY_MAP.FUNCTIONS] = [];
+    for (const func of functions) {
+        const st = func.st;
+        if (STKindChecker.isFunctionDefinition(st) && STKindChecker.isExpressionFunctionBody(st.functionBody)) {
+            func.icon = "dataMapper";
+            response.directoryMap[DIRECTORY_MAP.DATA_MAPPERS].push(func);
+        } else {
+            response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(func);
         }
     }
 }
@@ -54,7 +119,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
 async function getComponents(langClient: ExtendedLangClientInterface, components: ComponentInfo[], projectPath: string, icon: string, dtype?: DIRECTORY_MAP): Promise<ProjectStructureArtifactResponse[]> {
     const entries: ProjectStructureArtifactResponse[] = [];
     let compType = "HTTP";
-    let triggerNode: TriggerNode = undefined;
+    let serviceModel: ServiceModel = undefined;
     for (const comp of components) {
         const componentFile = Utils.joinPath(URI.parse(projectPath), comp.filePath).fsPath;
         let stNode: SyntaxTree;
@@ -75,20 +140,29 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
 
             // Get trigger model if available
             const lineRange: LineRange = { startLine: { line: comp.startLine, offset: comp.startColumn }, endLine: { line: comp.endLine, offset: comp.endColumn } };
-            const triggerResponse = await langClient.getTriggerModelFromCode({ filePath: componentFile, codedata: { lineRange } });
-            if (triggerResponse?.trigger) {
-                triggerNode = triggerResponse?.trigger;
-                const triggerType = triggerNode.displayName;
-                const labelName = triggerNode.properties['name'].value;
+            const serviceResponse = await langClient.getServiceModelFromCode({ filePath: componentFile, codedata: { lineRange } });
+            if (serviceResponse?.service) {
+                serviceModel = serviceResponse.service;
+                const triggerType = serviceModel.displayName;
+                const labelName = serviceModel.properties['name'].value;
                 compType = triggerType;
                 comp.name = `${triggerType} - ${labelName}`
-                icon = `bi-${triggerNode.moduleName}`;
+                icon = `bi-${serviceModel.moduleName}`;
             }
         } catch (error) {
             console.log(error);
         }
 
-        const iconValue = comp.name.includes('-') && !triggerNode ? `${comp.name.split('-')[0]}-api` : icon;
+        let iconValue;
+        if (serviceModel?.listenerProtocol === "graphql") {
+            iconValue = "bi-graphql";
+        } else {
+            iconValue = comp.name.includes('-') && !serviceModel ? `${comp.name.split('-')[0]}-api` : icon;
+        }
+
+        if (!comp.name && serviceModel) {
+            comp.name = `${serviceModel?.listenerProtocol}:Service`
+        }
 
         const fileEntry: ProjectStructureArtifactResponse = {
             name: dtype === DIRECTORY_MAP.SERVICES ? comp.name || comp.filePath.replace(".bal", "") : comp.name,
@@ -97,7 +171,7 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
             icon: iconValue,
             context: comp.name,
             st: stNode.syntaxTree,
-            triggerNode: triggerNode,
+            serviceModel: serviceModel,
             resources: comp?.resources ? await getComponents(langClient, comp?.resources, projectPath, "") : [],
             position: {
                 endColumn: comp.endColumn,

@@ -10,15 +10,14 @@ import React from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
-import { LinePosition, Range } from '@wso2-enterprise/ballerina-core';
-import { URI } from 'vscode-uri';
+import { FlowNode, LinePosition } from '@wso2-enterprise/ballerina-core';
 
 export const useExperimentalEnabled = () => {
     const { rpcClient } = useRpcContext();
 
     const isExperimentalEnabled = async () => {
         return await rpcClient.getCommonRpcClient().experimentalEnabled();
-    }
+    };
 
     const {
         data: experimentalEnabled,
@@ -30,53 +29,32 @@ export const useExperimentalEnabled = () => {
     return { experimentalEnabled, isFetchingExperimentalEnabled, isError, refetch };
 };
 
-export const useIOTypes = (filePath: string, position: LinePosition) => {
+export const useInlineDataMapperModel = (
+    filePath: string,
+    flowNode: FlowNode,
+    propertyKey: string,
+    position: LinePosition
+) => {
     const { rpcClient } = useRpcContext();
-    const getIOTypes = async () => {
+    const getIDMModel = async () => {
         try {
             const res = await rpcClient
                 .getInlineDataMapperRpcClient()
-                .getIOTypes({ filePath, position });
-            return res;
+                .getDataMapperModel({ filePath, flowNode, propertyKey, position });
+            console.log('>>> [Inline Data Mapper] Model:', res);
+            return res.mappingsModel;
         } catch (error) {
             console.error(error);
             throw error;
         }
-    }
+    };
 
     const {
-        data: dmIOTypes,
-        isFetching: isFetchingIOTypes,
-        isError: isIOTypeError,
+        data: model,
+        isFetching,
+        isError,
         refetch
-    } = useQuery(['getIOTypes', { filePath }], () => getIOTypes(), { networkMode: 'always' });
+    } = useQuery(['getIDMModel', { filePath, flowNode, position }], () => getIDMModel(), { networkMode: 'always' });
 
-    return {dmIOTypes, isFetchingIOTypes, isIOTypeError, refetch};
-};
-
-export const useSTNodeByRange = (filePath: string, range: Range) => {
-    const { rpcClient } = useRpcContext();
-    const getSTNode = async () => {
-        try {
-            const res = await rpcClient
-                .getLangClientRpcClient()
-                .getSTByRange({
-                    documentIdentifier: { uri: URI.file(filePath).toString() },
-                    lineRange: range
-                });
-            return res;
-        } catch (error) {
-            console.error(error);
-            throw error;
-        }
-    }
-
-    const {
-        data: stNode,
-        isFetching: isFetchingSTNode,
-        isError: isSTNodeError,
-        refetch
-    } = useQuery(['getSTNode', { filePath }], () => getSTNode(), { networkMode: 'always' });
-
-    return {stNode, isFetchingSTNode, isSTNodeError, refetch};
+    return {model, isFetching, isError, refetch};
 };

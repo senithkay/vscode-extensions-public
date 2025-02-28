@@ -10,13 +10,13 @@ import { commands } from "vscode";
 import { BI_COMMANDS, BIDeleteByComponentInfoRequest, ComponentInfo, DIRECTORY_SUB_TYPE, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "../../core";
 import { openView } from "../../stateMachine";
-import { configGenerator } from "../config-generator/configGenerator";
+import { prepareAndGenerateConfig } from "../config-generator/configGenerator";
 import { StateMachine } from "../../stateMachine";
 import { BiDiagramRpcManager } from "../../rpc-managers/bi-diagram/rpc-manager";
 
 export function activate(context: BallerinaExtension) {
     commands.registerCommand(BI_COMMANDS.BI_RUN_PROJECT, () => {
-        configGenerator(context, StateMachine.context().projectUri, false, true);
+        prepareAndGenerateConfig(context, StateMachine.context().projectUri, false, true);
     });
 
     commands.registerCommand(BI_COMMANDS.ADD_CONNECTIONS, () => {
@@ -48,6 +48,10 @@ export function activate(context: BallerinaExtension) {
         openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BIComponentView });
     });
 
+    commands.registerCommand(BI_COMMANDS.ADD_DATA_MAPPER, () => {
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BIDataMapperForm });
+    });
+
     commands.registerCommand(BI_COMMANDS.DELETE_COMPONENT, async (item: any) => {
         console.log(">>> delete component", item);
 
@@ -74,7 +78,7 @@ export function activate(context: BallerinaExtension) {
                     console.error(">>> Error finding connector", { connectionName: item.label });
                 }
             });
-        } else if (item.contextValue === DIRECTORY_SUB_TYPE.FUNCTION) {
+        } else if (item.contextValue === DIRECTORY_SUB_TYPE.FUNCTION || item.contextValue === DIRECTORY_SUB_TYPE.DATA_MAPPER) {
             await handleComponentDeletion('functions', item.label, item.info);
         } else if (item.contextValue === DIRECTORY_SUB_TYPE.TYPE) {
             await handleComponentDeletion('records', item.label, item.info);

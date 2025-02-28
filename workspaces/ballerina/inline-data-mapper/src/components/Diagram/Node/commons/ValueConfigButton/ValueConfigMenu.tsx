@@ -27,7 +27,8 @@ export enum ValueConfigOption {
     InitializeArray = "Initialize Array",
     DeleteValue = "Delete Value",
     DeleteElement = "Delete Element",
-    DeleteArray = "Delete Array"
+    DeleteArray = "Delete Array",
+	MakeChildFieldsOptional = "MakeChildFieldsOptional"
 }
 
 export interface ValueConfigMenuItem {
@@ -77,6 +78,10 @@ export function ValueConfigMenu(props: ValueConfigMenuProps) {
     });
 
     return (
-        <ContextMenu iconSx={{ transform: "rotate(90deg)" }} menuItems={items} position='bottom-left' />
+        <ContextMenu
+            id={`value-config-${portName}`}
+            iconSx={{ transform: "rotate(90deg)" }}
+            menuItems={items} position='bottom-left'
+        />
     );
 }

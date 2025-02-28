@@ -18,7 +18,7 @@ import { FindConstructByIndexVisitor } from "./history/find-construct-by-index-v
 import { getConstructBodyString } from "./history/util";
 import { ballerinaExtInstance } from "../core";
 
-export async function getView(documentUri: string, position: NodePosition): Promise<HistoryEntry> {
+export async function getView(documentUri: string, position: NodePosition, projectUri?: string): Promise<HistoryEntry> {
 
     const req = getSTByRangeReq(documentUri, position);
     const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
@@ -37,7 +37,46 @@ export async function getView(documentUri: string, position: NodePosition): Prom
                         view: MACHINE_VIEW.TypeDiagram,
                         documentUri: documentUri,
                         position: position,
-                        identifier: nodeId
+                        identifier: name,
+                        projectUri: projectUri
+                    }
+                };
+            }
+        }
+        if (STKindChecker.isClassDefinition(node.syntaxTree)) {
+            const classST = node.syntaxTree;
+            const name = classST.className?.value;
+            const module = classST.typeData?.symbol?.moduleID;
+            if (!name || !module) {
+                // tslint:disable-next-line
+                console.error('Couldn\'t generate class nodeId to render composition view', classST);
+            } else {
+                return {
+                    location: {
+                        view: MACHINE_VIEW.TypeDiagram,
+                        documentUri: documentUri,
+                        position: position,
+                        identifier: name,
+                        projectUri: projectUri
+                    }
+                };
+            }
+        }
+        if (STKindChecker.isEnumDeclaration(node.syntaxTree)) {
+            const enumST = node.syntaxTree;
+            const name = enumST?.identifier?.value;
+            const module = enumST.typeData?.symbol?.moduleID;
+            if (!name || !module) {
+                // tslint:disable-next-line
+                console.error('Couldn\'t generate enum nodeId to render composition view', enumST);
+            } else {
+                return {
+                    location: {
+                        view: MACHINE_VIEW.TypeDiagram,
+                        documentUri: documentUri,
+                        position: position,
+                        identifier: name,
+                        projectUri: projectUri
                     }
                 };
             }
@@ -68,7 +107,7 @@ export async function getView(documentUri: string, position: NodePosition): Prom
             const variablePosition = listenerST.variableName.position;
             return {
                 location: {
-                    view: MACHINE_VIEW.ListenerConfigView,
+                    view: MACHINE_VIEW.BIListenerConfigView,
                     documentUri: documentUri,
                     position: variablePosition
                 }
@@ -87,7 +126,8 @@ export async function getView(documentUri: string, position: NodePosition): Prom
                         view: MACHINE_VIEW.GraphQLDiagram,
                         identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
                         documentUri: documentUri,
-                        position: position
+                        position: position,
+                        projectUri: projectUri
                     }
                 };
             } else {
@@ -96,8 +136,7 @@ export async function getView(documentUri: string, position: NodePosition): Prom
                         view: MACHINE_VIEW.ServiceDesigner,
                         identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
                         documentUri: documentUri,
-                        position: position,
-                        haveServiceType: haveServiceType
+                        position: position
                     }
                 };
             }

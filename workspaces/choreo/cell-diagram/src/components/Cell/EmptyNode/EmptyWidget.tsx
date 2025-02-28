@@ -13,6 +13,7 @@ import { EmptyModel } from "./EmptyModel";
 import { EmptyNode } from "./styles";
 import { CellPortWidget } from "../CellPort/CellPortWidget";
 import { getNodePortId } from "../cell-util";
+import { useDiagramContext } from "../../DiagramContext/DiagramContext";
 
 interface EmptyWidgetProps {
     node: EmptyModel;
@@ -21,9 +22,10 @@ interface EmptyWidgetProps {
 
 export function EmptyWidget(props: EmptyWidgetProps) {
     const { node, engine } = props;
+    const { previewMode } = useDiagramContext();
 
     return (
-        <EmptyNode width={node.width}>
+        <EmptyNode width={node.width} previewMode={previewMode}>
             <CellPortWidget port={node.getPort(getNodePortId(node.getID(), PortModelAlignment.TOP))} engine={engine} />
             <CellPortWidget port={node.getPort(getNodePortId(node.getID(), PortModelAlignment.BOTTOM))} engine={engine} />
             <CellPortWidget port={node.getPort(getNodePortId(node.getID(), PortModelAlignment.LEFT))} engine={engine} />

@@ -19,6 +19,8 @@ import styled from '@emotion/styled';
 import { RequiredFormInput } from '../Commons/RequiredInput';
 import { Control, Controller } from 'react-hook-form';
 import { ErrorBanner } from '../Commons/ErrorBanner';
+import { Codicon } from '../Codicon/Codicon';
+import { LinkButton } from '../LinkButton/LinkButton';
 
 export interface ComboboxOptionProps {
     active?: boolean;
@@ -206,6 +208,8 @@ interface BaseProps {
     notItemsFoundMessage?: string;
     hideDropdown?: boolean;
     errorMsg?: string;
+    labelAdornment?: ReactNode,
+    requireValidation?: boolean
 }
 
 // Define the conditional properties
@@ -234,18 +238,6 @@ const ComboboxOption = styled.div<ComboboxOptionProps>`
     display: ${(props: ComboboxOptionProps) => (props.display === undefined ? 'block' : props.display ? 'block' : 'none')};
 `;
 
-const ComboboxOptionButton = styled.div<ComboboxOptionProps>`
-    position: relative;
-    cursor: default;
-    user-select: none;
-    color: var(--vscode-editor-foreground);
-    background-color: ${(props: ComboboxOptionProps) => (props.active ? 'var(--vscode-editor-selectionBackground)' :
-        'var(--vscode-editor-background)')};
-    list-style: none;
-    border-bottom: 1px solid var(--vscode-list-dropBackground);
-    display: ${(props: ComboboxOptionProps) => (props.display === undefined ? 'block' : props.display ? 'block' : 'none')};
-`;
-
 export const getItemKey = (item: string | ItemComponent) => {
     if (typeof item === 'string') {
         return item;
@@ -270,6 +262,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
         actionBtns,
         required,
         label,
+        labelAdornment,
         notItemsFoundMessage,
         widthOffset = 157,
         nullable,
@@ -281,7 +274,8 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
         onCreateButtonClick,
         identifier,
         hideDropdown,
-        errorMsg
+        errorMsg,
+        requireValidation = false
     } = props;
     const [query, setQuery] = useState('');
     const [isTextFieldFocused, setIsTextFieldFocused] = useState(false);
@@ -355,12 +349,18 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
     return (
         <Container sx={sx}>
             <Combobox value={value} onChange={handleChange} name={name} {...(nullable && { nullable })}>
-                {label && (
-                    <LabelContainer>
-                        <label htmlFor={id}>{label}</label>
-                        {(required && label) && (<RequiredFormInput />)}
-                    </LabelContainer>
-                )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    {label && (
+                        <LabelContainer>
+                            <label htmlFor={id}>{label}</label>
+                            {(required && label) && (<RequiredFormInput />)}
+                            {labelAdornment && labelAdornment}
+                        </LabelContainer>
+                    )}
+                    {allowItemCreate && onCreateButtonClick && <LinkButton onClick={onCreateButtonClick}>
+                        <Codicon name="plus" />Add new
+                    </LinkButton>}
+                </div>
                 <ComboboxContent>
                     <ComboboxInputWrapper ref={inputWrapperRef} hideDropdown={hideDropdown}>
                         <Combobox.Input
@@ -425,7 +425,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                             <Combobox.Options>
                                 {/* A hidden Combobox.Option which is used to create a new item */}
                                 {filteredResults.length === 0 && query !== "" && !onCreateButtonClick ? (
-                                    allowItemCreate ? (
+                                    allowItemCreate && !requireValidation ? (
                                         <ComboboxOption key={0}>
                                             <Combobox.Option className={ComboboxOptionContainer} value={query} key={0}>
                                                 {query}
@@ -440,7 +440,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                                          * A hidden Combobox.Option which is used to create a new item when the query is a
                                          * substring of the filtered results
                                         **/}
-                                        {allowItemCreate && extactMatch.length === 0 && (
+                                        {allowItemCreate && !requireValidation && extactMatch.length === 0 && (
                                             <ComboboxOption display={false} key={0}>
                                                 <Combobox.Option className={ComboboxOptionContainer} value={query} key={0}>
                                                     {query}
@@ -463,19 +463,6 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                                         })}
                                     </Fragment>
                                 )}
-
-                                {onCreateButtonClick &&
-                                    <ComboboxOptionButton>
-                                        <Combobox.Button onClick={onCreateButtonClick} style={{
-                                            "color": "var(--vscode-editor-foreground)",
-                                            "background-color": "var(--vscode-editor-background)",
-                                            "padding": "3px 5px 3px 5px",
-                                            "border": "none",
-                                            "cursor": "pointer",
-                                        }}>
-                                            {"Create New"}
-                                        </Combobox.Button>
-                                    </ComboboxOptionButton>}
                             </Combobox.Options>
                         </DropdownContainer>
                     </Transition>

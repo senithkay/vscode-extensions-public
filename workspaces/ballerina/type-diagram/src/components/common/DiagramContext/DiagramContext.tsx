@@ -8,7 +8,7 @@
  */
 
 import React, { createContext, ReactNode } from 'react';
-import { NodePosition } from '@wso2-enterprise/ballerina-core';
+import { Type } from '@wso2-enterprise/ballerina-core';
 
 interface DiagramContextProps {
     children?: ReactNode;
@@ -17,7 +17,8 @@ interface DiagramContextProps {
     setFocusedNodeId?: (id: string) => void;
     selectedNodeId?: string;
     setSelectedNodeId?: (id: string) => void;
-    goToSource?: (filePath: string, position: NodePosition) => void;
+    onEditNode?: (id: string, isGraphqlRoot?: boolean) => void;
+    goToSource?: (node: Type) => void
 }
 
 interface IDiagramContext {
@@ -26,7 +27,8 @@ interface IDiagramContext {
     setFocusedNodeId?: (id: string) => void;
     selectedNodeId?: string;
     setSelectedNodeId?: (id: string) => void;
-    goToSource?: (filePath: string, position: NodePosition) => void;
+    onEditNode?: (id: string, isGraphqlRoot?: boolean) => void;
+    goToSource?: (node: Type) => void
 }
 
 const defaultState: any = {};
@@ -40,6 +42,7 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         setFocusedNodeId,
         selectedNodeId,
         setSelectedNodeId,
+        onEditNode,
         goToSource
     } = props;
 
@@ -49,6 +52,7 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         setFocusedNodeId,
         selectedNodeId,
         setSelectedNodeId,
+        onEditNode,
         goToSource
     }
 

@@ -52,6 +52,7 @@ import { BreakpointManager } from './breakpoint-manager';
 import { notifyBreakpointChange } from '../../RPCLayer';
 import { VisualizerWebview } from '../../views/visualizer/webview';
 import { URI } from 'vscode-uri';
+import { prepareAndGenerateConfig, cleanAndValidateProject } from '../config-generator/configGenerator';
 
 const BALLERINA_COMMAND = "ballerina.command";
 const EXTENDED_CLIENT_CAPABILITIES = "capabilities";
@@ -146,15 +147,13 @@ async function showInputBox(paramName: string, value: string) {
 }
 
 async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: DebugConfiguration) {
-    let debuggeePort = config.debuggeePort;
-    if (!debuggeePort) {
-        debuggeePort = await getPortPromise({ port: 5010, stopPort: 10000 });
-    }
+    const debuggeePort = config.debuggeePort ?? await findFreePort();
+    config.debuggeePort = debuggeePort.toString();
 
     const ballerinaHome = ballerinaExtInstance.getBallerinaHome();
     config['ballerina.home'] = ballerinaHome;
     config[BALLERINA_COMMAND] = ballerinaExtInstance.getBallerinaCmd();
-    config[EXTENDED_CLIENT_CAPABILITIES] = { supportsReadOnlyEditors: true };
+    config[EXTENDED_CLIENT_CAPABILITIES] = { supportsReadOnlyEditors: true, supportsFastRun: isFastRunEnabled() };
 
     if (!config.type) {
         config.type = LANGUAGE.BALLERINA;
@@ -246,11 +245,15 @@ async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: Debu
         }
     }
 
-    config.debuggeePort = debuggeePort.toString();
-
     if (!config.debugServer) {
-        const debugServer = await getPortPromise({ port: 10001, stopPort: 20000 });
-        config.debugServer = debugServer.toString();
+        const debugServerPort = await findFreePort();
+        config.debugServer = debugServerPort.toString();
+    }
+    
+    // Notify debug server that the debug session is started in low-code mode
+    const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
+    if (isWebviewPresent && StateMachine.context().isBI) {
+        config.lowCodeMode = true;
     }
     return config;
 }
@@ -302,7 +305,6 @@ export function activateDebugConfigProvider(ballerinaExtInstance: BallerinaExten
 class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory {
     createDebugAdapterTracker(session: DebugSession): DebugAdapterTracker {
         return {
-
             onWillStartSession() {
                 new BreakpointManager();
             },
@@ -316,15 +318,21 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
 
             // Debug Adapter -> VS Code
             onDidSendMessage: async (message: DebugProtocol.ProtocolMessage) => {
-                console.log("=====onDidSendMessage", message);
                 if (message.type === "response") {
                     const msg = <DebugProtocol.Response>message;
+                    if ((msg.command === "launch" || msg.command == "restart") && StateMachine.context().isBI) {
+                        // clear the active breakpoint
+                        BreakpointManager.getInstance().setActiveBreakpoint(undefined);
+                        notifyBreakpointChange();
 
-                    if (msg.command === "setBreakpoints") {
+                        // Trigger Try-It view when starting/restarting debug sessions in low-code mode
+                        waitForBallerinaService(workspace.workspaceFolders![0].uri.fsPath).then(() => {
+                            commands.executeCommand(PALETTE_COMMANDS.TRY_IT, true);
+                        });
+                    } else if (msg.command === "setBreakpoints") {
                         const breakpoints = msg.body.breakpoints;
                         // convert debug points to client breakpoints
                         if (breakpoints) {
-                            console.log("!=====breakpoints in setBreakpoints tracker", breakpoints);
                             const clientBreakpoints = breakpoints.map(bp => ({
                                 ...bp,
                                 line: bp.line - 1
@@ -335,19 +343,23 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                         }
                     } else if (msg.command === "stackTrace") {
                         const uri = Uri.parse(msg.body.stackFrames[0].source.path);
+                        const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
 
-                        const allTabs = window.tabGroups.all.flatMap(group => group.tabs);
+                        // Instead of closing editor tab, arrange them side by side
+                        if (isWebviewPresent) {
+                            // Show webview on LHS
+                            VisualizerWebview.currentPanel.getWebview().reveal(ViewColumn.Active, false);
 
-                        // Filter for tabs that are editor tabs and the tab with the debug hit
-                        const editorTabs = allTabs.filter(tab => tab.input instanceof TabInputText && tab.input.uri.fsPath === uri.fsPath);
-
-                        for (const tab of editorTabs) {
-                            await window.tabGroups.close(tab);
+                            // Open or focus the text editor next to the webview
+                            const document = await workspace.openTextDocument(uri);
+                            const editor = await window.showTextDocument(document, {
+                                viewColumn: ViewColumn.Beside,
+                                preserveFocus: true,
+                            });
                         }
 
-                        // get the current stack trace
                         const hitBreakpoint = msg.body.stackFrames[0];
-                        console.log("!=====hit breakpoint stackTrace in  tracker", hitBreakpoint);
+                        console.log(" >>> active breakpoint stackTrace ", hitBreakpoint);
 
                         const clientBreakpoint = {
                             ...hitBreakpoint,
@@ -357,13 +369,9 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
 
                         BreakpointManager.getInstance().setActiveBreakpoint(clientBreakpoint);
 
-                        const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
-
                         if (isWebviewPresent) {
-                            VisualizerWebview?.currentPanel?.getWebview()?.reveal(ViewColumn.One, true);
                             await handleBreakpointVisualization(uri, clientBreakpoint);
                         }
-
                     } else if (msg.command === "continue" || msg.command === "next" || msg.command === "stepIn" || msg.command === "stepOut") {
                         // clear the active breakpoint
                         BreakpointManager.getInstance().setActiveBreakpoint(undefined);
@@ -373,12 +381,18 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
 
                 if (message.type === "event") {
                     const msg = <DebugProtocol.Event>message;
-                    if (msg.event === "stopped") {
-                        const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
+                    if (msg.event === "startFastRun") {
+                        // clear the active breakpoint
+                        BreakpointManager.getInstance().setActiveBreakpoint(undefined);
+                        notifyBreakpointChange();
 
-                        if (isWebviewPresent) {
-                            VisualizerWebview?.currentPanel?.getWebview()?.reveal(ViewColumn.One, true);
-                        }
+                        // restart the fast-run
+                        getCurrentRoot().then(async (root) => {
+                            const didStop = await stopRunFast(root);
+                            if (didStop) {
+                                runFast(root, msg.body);
+                            }
+                        });
                     } else if (msg.event === "output") {
                         if (msg.body.output === "Running executable\n") {
                             const workspaceRoot = workspace.workspaceFolders && workspace.workspaceFolders[0].uri.fsPath;
@@ -388,7 +402,7 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                                     documentIdentifiers: [{ uri: URI.file(workspaceRoot).toString() }]
                                 });
 
-                                // Iterate and extract the services 
+                                // Iterate and extract the services
                                 const services = components.packages
                                     ?.flatMap(pkg => pkg.modules)
                                     .flatMap(module => module.services);
@@ -397,7 +411,6 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                                     commands.executeCommand('setContext', 'isBIProjectRunning', true);
                                 }
                             }
-
                         }
                     }
                 }
@@ -445,18 +458,26 @@ async function handleBreakpointVisualization(uri: Uri, clientBreakpoint: DebugPr
         endColumn: res.endLine.offset
     };
     openView(EVENT_TYPE.OPEN_VIEW, newContext);
-    notifyBreakpointChange();
 }
 
 
 
 class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFactory {
     private ballerinaExtInstance: BallerinaExtension;
+    private notificationHandler: Disposable | null = null;
+
     constructor(ballerinaExtInstance: BallerinaExtension) {
         this.ballerinaExtInstance = ballerinaExtInstance;
     }
-    createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined):
-        Thenable<DebugAdapterDescriptor> {
+
+    async createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined): Promise<DebugAdapterDescriptor> {
+        // Check if the project contains errors(and fix the possible ones) before starting the debug session
+        const langClient = ballerinaExtInstance.langClient;
+        const projectRoot = await getCurrentRoot();
+        await cleanAndValidateProject(langClient, projectRoot);
+
+        // Check if config generation is required before starting the debug session
+        await prepareAndGenerateConfig(ballerinaExtInstance, session.configuration.script, false, StateMachine.context().isBI, false);
         if (session.configuration.noDebug && StateMachine.context().isBI) {
             return new Promise((resolve) => {
                 resolve(new DebugAdapterInlineImplementation(new BIRunAdapter()));
@@ -483,24 +504,41 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
 
         log(`Starting debug adapter: '${this.ballerinaExtInstance.getBallerinaCmd()} start-debugger-adapter ${port.toString()}`);
 
-        return new Promise<void>((resolve) => {
-            serverProcess.stdout.on('data', (data) => {
-                if (data.toString().includes('Debug server started')) {
-                    resolve();
-                }
-                log(`${data}`);
-            });
+        try {
+            await new Promise<void>((resolve) => {
+                serverProcess.stdout.on('data', (data) => {
+                    if (data.toString().includes('Debug server started')) {
+                        resolve();
+                    }
+                    log(`${data}`);
+                });
 
-            serverProcess.stderr.on('data', (data) => {
-                debugLog(`${data}`);
+                serverProcess.stderr.on('data', (data) => {
+                    debugLog(`${data}`);
+                });
             });
-        }).then(() => {
             sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER);
+            this.registerLogTraceNotificationHandler(session);
             return new DebugAdapterServer(port);
-        }).catch((error) => {
-            sendTelemetryException(ballerinaExtInstance, error, CMP_DEBUGGER);
-            return Promise.reject(error);
+        } catch (error) {
+            sendTelemetryException(ballerinaExtInstance, error as Error, CMP_DEBUGGER);
+            return await Promise.reject(error);
+        }
+    }
+
+    private registerLogTraceNotificationHandler(session: DebugSession) {
+        const langClient = ballerinaExtInstance.langClient;
+        const notificationHandler = langClient.onNotification('$/logTrace', (params: any) => {
+            if (params.verbose === "stopped") {
+                // do nothing
+            } else {
+                if (params && params.message) {
+                    const category = params.verbose === 'err' ? 'stderr' : 'stdout';
+                    session.customRequest('output', { output: params.message, category: category });
+                }
+            }
         });
+        this.notificationHandler = notificationHandler;
     }
     getScriptPath(args: string[]): string {
         args.push('start-debugger-adapter');
@@ -515,7 +553,7 @@ class FastRunDebugAdapter extends LoggingDebugSession {
 
     notificationHandler: Disposable | null = null;
     root: string | null = null;
-    prgramArgs: string[] = [];
+    programArgs: string[] = [];
 
     protected launchRequest(response: DebugProtocol.LaunchResponse, args: DebugProtocol.LaunchRequestArguments, request?: DebugProtocol.Request): void {
         const langClient = ballerinaExtInstance.langClient;
@@ -529,10 +567,10 @@ class FastRunDebugAdapter extends LoggingDebugSession {
             }
         });
         this.notificationHandler = notificationHandler;
-        this.prgramArgs = (args as any).programArgs;
+        this.programArgs = (args as any).programArgs;
         getCurrentRoot().then((root) => {
             this.root = root;
-            runFast(root, this.prgramArgs).then((didRan) => {
+            runFast(root, { programArgs: this.programArgs }).then((didRan) => {
                 response.success = didRan;
                 this.sendResponse(response);
             });
@@ -541,13 +579,12 @@ class FastRunDebugAdapter extends LoggingDebugSession {
 
     protected disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): void {
         const notificationHandler = this.notificationHandler;
-        ballerinaExtInstance.langClient.executeCommand({ command: "STOP", arguments: [{ key: "path", value: this.root! }] }).then((didStop) => {
+        stopRunFast(this.root).then((didStop) => {
             response.success = didStop;
             notificationHandler!.dispose();
             this.sendResponse(response);
         });
     }
-
 }
 
 const outputChannel = window.createOutputChannel("Ballerina Integrator Executor");
@@ -600,11 +637,6 @@ class BIRunAdapter extends LoggingDebugSession {
                     }
                 });
 
-                // Trigger Try It command after successful build
-                waitForBallerinaService(workspace.workspaceFolders![0].uri.fsPath).then((port) => {
-                    commands.executeCommand(PALETTE_COMMANDS.TRY_IT, false);
-                });
-
                 response.success = true;
                 this.sendResponse(response);
             });
@@ -634,18 +666,66 @@ class BIRunAdapter extends LoggingDebugSession {
     }
 }
 
-async function runFast(root: string, args: string[]): Promise<boolean> {
-    if (window.activeTextEditor && window.activeTextEditor.document.isDirty) {
-        await commands.executeCommand(PALETTE_COMMANDS.SAVE_ALL);
+async function runFast(root: string, options: { debugPort?: number; env?: Map<string, string>; programArgs?: string[]; } = {}): Promise<boolean> {
+    try {
+        if (window.activeTextEditor?.document.isDirty) {
+            await commands.executeCommand(PALETTE_COMMANDS.SAVE_ALL);
+        }
+        const { debugPort, env = new Map(), programArgs = [] } = options;
+        const commandArguments = [
+            { key: "path", value: root },
+            { key: "debugPort", value: debugPort },
+            { key: "env", value: env },
+            { key: "programArgs", value: programArgs }
+        ];
+
+        return await ballerinaExtInstance.langClient.executeCommand({
+            command: "RUN",
+            arguments: commandArguments,
+        });
+    } catch (error) {
+        console.error('Error while executing the fast-run command:', error);
+        return false;
     }
+}
+
+async function stopRunFast(root: string): Promise<boolean> {
     return await ballerinaExtInstance.langClient.executeCommand({
-        command: "RUN", arguments: [
-            { key: "path", value: root }, { key: "args", value: args }]
+        command: "STOP", arguments: [
+            { key: "path", value: root! }]
     });
 }
 
 async function getCurrentRoot(): Promise<string> {
-    const file = getCurrentBallerinaFile();
+    let file: string | undefined;
+    try {
+        file = getCurrentBallerinaFile();
+    } catch (error) {
+        // ignore
+    }
+
+    // If no Ballerina files are open, safe to assume that the workspace root is same as the package root in BI mode.
+    if (!file && StateMachine.context().isBI) {
+        const workspaceRoot = getWorkspaceRoot();
+        if (!workspaceRoot) {
+            throw new Error("Unable to determine the current workspace root.");
+        }
+        return workspaceRoot;
+    }
+
     const currentProject = await getCurrentBallerinaProject(file);
     return (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) ? currentProject.path! : file;
+}
+
+function getWorkspaceRoot(): string | undefined {
+    return workspace.workspaceFolders?.[0]?.uri.fsPath;
+}
+
+function findFreePort(): Promise<number> {
+    return getPortPromise({ port: 5010, stopPort: 20000 });
+}
+
+function isFastRunEnabled(): boolean {
+    const config = workspace.getConfiguration('kolab');
+    return config.get<boolean>('enableRunFast');
 }

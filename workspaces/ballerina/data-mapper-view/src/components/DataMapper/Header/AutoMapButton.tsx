@@ -12,19 +12,6 @@ import React from "react";
 import { Button, Codicon, Tooltip } from "@wso2-enterprise/ui-toolkit";
 
 import { useMediaQuery } from "../utils";
-import { css } from '@emotion/css';
-
-const useStyles = () => ({
-    autoMapButton: css({
-        "& > vscode-button": {
-            textTransform: 'none',
-            boxSizing: 'border-box',
-            color: 'var(--vscode-sideBarSectionHeader-foreground)',
-            fontWeight: 300,
-            height: '26px'
-        }
-    })
-});
 
 interface AutoMapButtonProps {
     onClick: () => void;
@@ -32,7 +19,6 @@ interface AutoMapButtonProps {
 
 export default function AutoMapButton(props: AutoMapButtonProps) {
     const { onClick } = props;
-    const classes = useStyles();
     const showText = useMediaQuery('(min-width:800px)');
 
     return (
@@ -40,7 +26,6 @@ export default function AutoMapButton(props: AutoMapButtonProps) {
             <Button
                 onClick={onClick}
                 appearance="secondary"
-                className={classes.autoMapButton}
             >
                 <Codicon name="wand" sx={{ marginRight: 5 }} />
                 {showText ? 'Auto Map' : null}

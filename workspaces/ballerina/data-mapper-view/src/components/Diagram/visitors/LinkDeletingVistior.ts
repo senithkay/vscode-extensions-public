@@ -8,6 +8,7 @@
  */
 import {
     BinaryExpression,
+    FunctionCall,
     ListConstructor,
     MappingConstructor,
     NodePosition,
@@ -71,6 +72,40 @@ export class LinkDeletingVisitor implements Visitor {
                     ...(node.rhsExpr.position as NodePosition),
                     startLine: (node.operator.position as NodePosition)?.startLine,
                     startColumn: (node.operator.position as NodePosition)?.startColumn,
+                }
+            }
+        }
+    }
+
+    public beginVisitFunctionCall(node: FunctionCall, parent?: STNode): void {
+        if (this.deletePosition === null) {
+            const argIndex = node.arguments.findIndex((arg: STNode) =>
+                isPositionsEquals(this.fieldPosition, arg.position as NodePosition)
+            );
+
+            if (argIndex !== -1) {
+                const selectedArg = node.arguments[argIndex];
+                const previousArg = node.arguments[argIndex - 1];
+                const nextArg = node.arguments[argIndex + 1];
+                const isLastArg = argIndex + 1 === node.arguments.length;
+
+                if (node.arguments.length === 1) {
+                    // If it's the only argument, just delete the argument
+                    this.deletePosition = selectedArg.position as NodePosition;
+                } else if (previousArg && STKindChecker.isCommaToken(previousArg) && isLastArg) {
+                    // If it's the last argument, include the previous comma in deletion
+                    this.deletePosition = {
+                        ...(selectedArg.position as NodePosition),
+                        startLine: (previousArg.position as NodePosition)?.startLine,
+                        startColumn: (previousArg.position as NodePosition)?.startColumn,
+                    };
+                } else if (nextArg && STKindChecker.isCommaToken(nextArg)) {
+                    // If it's not the last argument, include the next comma in deletion
+                    this.deletePosition = {
+                        ...(selectedArg.position as NodePosition),
+                        endLine: (nextArg.position as NodePosition)?.endLine,
+                        endColumn: (nextArg.position as NodePosition)?.endColumn,
+                    };
                 }
             }
         }

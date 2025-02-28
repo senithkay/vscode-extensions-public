@@ -7,18 +7,20 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import createEngine, { DiagramEngine } from '@projectstorm/react-diagrams';
+import createEngine, { DiagramEngine, NodeModel } from '@projectstorm/react-diagrams';
 import {
     CMDependency,
     CMEntryPoint, CMInteraction, CMRemoteFunction, CMResourceFunction,
     CMService,
     ComponentModel,
-    ComponentModelDeprecated
+    ComponentModelDeprecated,
+    Member,
+    TypeFunctionModel
 } from '@wso2-enterprise/ballerina-core';
 import { EntityFactory, EntityLinkFactory, EntityPortFactory } from '../components/entity-relationship';
 import { OverlayLayerFactory } from '../components/OverlayLoader';
 import { validate as validateUUID } from 'uuid';
-
+import { VerticalScrollCanvasAction } from '../actions/VerticalScrollCanvasAction';
 export const CELL_DIAGRAM_MIN_WIDTH = 400;
 export const CELL_DIAGRAM_MAX_WIDTH = 800;
 export const CELL_DIAGRAM_MIN_HEIGHT = 250;
@@ -37,13 +39,15 @@ export function createRenderPackageObject(projectPackages: IterableIterator<stri
 
 export function createEntitiesEngine(): DiagramEngine {
     const diagramEngine: DiagramEngine = createEngine({
-        registerDefaultPanAndZoomCanvasAction: true,
-        registerDefaultZoomCanvasAction: false
+        registerDefaultPanAndZoomCanvasAction: false,
+        registerDefaultZoomCanvasAction: false,
+
     });
     diagramEngine.getLinkFactories().registerFactory(new EntityLinkFactory());
     diagramEngine.getPortFactories().registerFactory(new EntityPortFactory());
     diagramEngine.getNodeFactories().registerFactory(new EntityFactory());
     diagramEngine.getLayerFactories().registerFactory(new OverlayLayerFactory());
+    diagramEngine.getActionEventBus().registerAction(new VerticalScrollCanvasAction());
     return diagramEngine;
 }
 
@@ -200,3 +204,70 @@ function getLabelAndNextIndex(packageName: string, index: number): [string, numb
     const label: string = `${packageName} Component${index > 0 ? index : ''}`;
     return [label, index + 1];
 }
+
+export function focusToNode(node: NodeModel, currentZoomLevel: number, diagramEngine: DiagramEngine) {
+    const canvasBounds = diagramEngine?.getCanvas()?.getBoundingClientRect();
+    const nodeBounds = node?.getBoundingBox();
+
+    if (canvasBounds && nodeBounds) {
+        const zoomOffset = currentZoomLevel / 100;
+        const offsetX = canvasBounds.width / 2 - (nodeBounds.getTopLeft().x + nodeBounds.getWidth() / 2) * zoomOffset;
+        const offsetY = canvasBounds.height / 2 - (nodeBounds.getTopLeft().y + nodeBounds.getHeight() / 2) * zoomOffset;
+
+        diagramEngine.getModel().setOffset(offsetX, offsetY);
+        diagramEngine.repaintCanvas();
+    }
+}
+
+export const getAttributeType = (attr: Member | TypeFunctionModel): string => {
+
+    const type = 'returnType' in attr ? attr.returnType : (attr as Member).type;
+
+    if (typeof type === 'string') {
+        return type;
+    }
+
+    // Get base type representation based on node kind
+    const getTypeString = (members: Member[]): string => {
+        const memberTypes = members.map(member => {
+            if (typeof member.type === 'string') {
+                return member.type;
+            }
+            return getAttributeType(member);
+        });
+
+        switch (type.codedata.node) {
+            case 'ARRAY':
+                return `${memberTypes[0]}[]`;
+            case 'UNION':
+                return memberTypes.reverse().join('|');
+            case 'MAP':
+                return `map<${memberTypes[0]}>`;
+            case 'TABLE':
+                const rowType = members.find(m => m.name === 'rowType');
+                const keyConstraint = members.find(m => m.name === 'keyConstraintType');
+                const tableType = rowType ? getAttributeType(rowType) : 'unknown';
+                return keyConstraint
+                    ? `table<${tableType}> key<${getAttributeType(keyConstraint)}>`
+                    : `table<${tableType}>`;
+            case 'STREAM':
+                return `stream<${memberTypes.reverse().join(',')}>`;
+            case 'FUTURE':
+                return `future<${memberTypes[0] || ''}>`;
+            case 'TYPEDESC':
+                return `typedesc<${memberTypes[0] || ''}>`;
+            case 'TUPLE':
+                return `[${memberTypes.reverse().join(',')}]`;
+            case 'RECORD':
+                const recordMembers = [...members].reverse().map(member => {
+                    const memberType = typeof member.type === 'string' ? member.type : getAttributeType(member);
+                    return `${memberType} ${member.name}`;
+                });
+                return `record {${recordMembers.join(', ')}}`;// TODO: Verify anonymous records representation
+            default:
+                return type.name || 'unknown';
+        }
+    };
+
+    return getTypeString(type.members);
+};

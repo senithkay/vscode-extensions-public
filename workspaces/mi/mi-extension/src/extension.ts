@@ -18,6 +18,7 @@ import { RPCLayer } from './RPCLayer';
 import { activateDebugger } from './debugger/activate';
 import { activateMigrationSupport } from './migration';
 import { activateRuntimeService } from './runtime-services-panel/activate';
+import { MILanguageClient } from './lang-client/activator';
 
 export async function activate(context: vscode.ExtensionContext) {
 	extension.context = context;
@@ -33,3 +34,11 @@ export async function activate(context: vscode.ExtensionContext) {
 	activateAiPanel(context);
 	StateMachine.initialize();
 }
+
+
+export async function deactivate(): Promise<void> {
+	const client = await MILanguageClient.getInstance();
+	if (client) {
+	  await client.stop();
+	}
+  }

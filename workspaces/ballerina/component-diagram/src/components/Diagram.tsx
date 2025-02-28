@@ -10,33 +10,56 @@
 import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
-import { autoDistribute, createNodesLink, generateEngine } from "../utils/diagram";
+import {
+    autoDistribute,
+    calculateEntryNodeHeight,
+    createNodesLink,
+    createPortNodeLink,
+    generateEngine,
+    sortItems,
+} from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { NodeModel } from "../utils/types";
 import { NodeLinkModel } from "./NodeLink";
 import { OverlayLayerModel } from "./OverlayLayer";
 import { DiagramContextProvider, DiagramContextState } from "./DiagramContext";
 import Controls from "./Controls";
-import { CDAutomation, CDConnection, CDListener, CDModel, CDService } from "@wso2-enterprise/ballerina-core";
+import {
+    CDAutomation,
+    CDConnection,
+    CDFunction,
+    CDListener,
+    CDModel,
+    CDService,
+    CDResourceFunction,
+} from "@wso2-enterprise/ballerina-core";
 import { EntryNodeModel } from "./nodes/EntryNode";
 import { ListenerNodeModel } from "./nodes/ListenerNode";
 import { ConnectionNodeModel } from "./nodes/ConnectionNode";
-import { AUTOMATION_LISTENER } from "../resources/constants";
 
 export interface DiagramProps {
     project: CDModel;
     onListenerSelect: (listener: CDListener) => void;
     onServiceSelect: (service: CDService) => void;
+    onFunctionSelect: (func: CDFunction | CDResourceFunction) => void;
     onAutomationSelect: (automation: CDAutomation) => void;
     onConnectionSelect: (connection: CDConnection) => void;
     onDeleteComponent: (component: CDListener | CDService | CDAutomation | CDConnection) => void;
 }
 
 export function Diagram(props: DiagramProps) {
-    const { project, onListenerSelect, onServiceSelect, onAutomationSelect, onConnectionSelect, onDeleteComponent } =
-        props;
+    const {
+        project,
+        onListenerSelect,
+        onServiceSelect,
+        onFunctionSelect,
+        onAutomationSelect,
+        onConnectionSelect,
+        onDeleteComponent,
+    } = props;
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
+    const [showControls, setShowControls] = useState(false);
 
     useEffect(() => {
         if (diagramEngine) {
@@ -61,14 +84,69 @@ export function Diagram(props: DiagramProps) {
     }, [diagramEngine, diagramModel]);
 
     const getDiagramData = () => {
-        // generate diagram nodes and links
         const nodes: NodeModel[] = [];
         const links: NodeLinkModel[] = [];
 
-        // create connections
-        project.connections?.forEach((connection) => {
+        // Sort and create connections
+        const sortedConnections = sortItems(project.connections || []) as CDConnection[];
+        sortedConnections.forEach((connection, index) => {
             const node = new ConnectionNodeModel(connection);
+            // Set initial Y position for connections
+            node.setPosition(0, 100 + index * 100);
             nodes.push(node);
+        });
+
+        let startY = 100;
+
+        // Sort services by sortText before creating nodes
+        const sortedServices = sortItems(project.services || []) as CDService[];
+        sortedServices.forEach((service, index) => {
+            // Calculate height based on number of functions
+            const numFunctions = service.remoteFunctions.length + service.resourceFunctions.length;
+            const nodeHeight = calculateEntryNodeHeight(numFunctions);
+
+            // Create entry node with calculated height
+            const node = new EntryNodeModel(service, "service");
+            node.height = nodeHeight;
+            node.setPosition(0, startY);
+            nodes.push(node);
+
+            startY += nodeHeight + 16;
+
+            // create function connections
+            service.remoteFunctions?.forEach((func) => {
+                func.connections?.forEach((connectionUuid) => {
+                    console.log(">>> remoteservice con", { func, connectionUuid });
+                    const connectionNode = nodes.find((node) => node.getID() === connectionUuid);
+                    if (connectionNode) {
+                        const port = node.getFunctionPort(func);
+                        if (port) {
+                            const link = createPortNodeLink(port, connectionNode);
+                            if (link) {
+                                links.push(link);
+                            }
+                        }
+                    }
+                });
+            });
+
+            // create resource function connections
+            service.resourceFunctions?.forEach((func) => {
+                func.connections?.forEach((connectionUuid) => {
+                    const connectionNode = nodes.find((node) => node.getID() === connectionUuid);
+                    console.log(">>> resource service con", { func, connectionUuid, connectionNode });
+                    if (connectionNode) {
+                        const port = node.getFunctionPort(func);
+                        console.log(">>> resource service con port", { port });
+                        if (port) {
+                            const link = createPortNodeLink(port, connectionNode);
+                            if (link) {
+                                links.push(link);
+                            }
+                        }
+                    }
+                });
+            });
         });
 
         // create automation
@@ -86,39 +164,7 @@ export function Diagram(props: DiagramProps) {
                     }
                 }
             });
-            // add listener to the automation
-            const listenerNode = new ListenerNodeModel({
-                symbol: "",
-                location: automation.location,
-                attachedServices: [automation.uuid],
-                kind: "ANON",
-                type: AUTOMATION_LISTENER,
-                args: [],
-                uuid: automation.uuid + "-listener",
-            });
-            nodes.push(listenerNode);
-            // link automation to the listener
-            const link = createNodesLink(listenerNode, automationNode);
-            if (link) {
-                links.push(link);
-            }
         }
-
-        // create services
-        project.services?.forEach((service) => {
-            const node = new EntryNodeModel(service, "service");
-            nodes.push(node);
-            // link connections
-            service.connections.forEach((connectionUuid) => {
-                const connectionNode = nodes.find((node) => node.getID() === connectionUuid);
-                if (connectionNode) {
-                    const link = createNodesLink(node, connectionNode);
-                    if (link) {
-                        links.push(link);
-                    }
-                }
-            });
-        });
 
         // create listeners
         project.listeners?.forEach((listener) => {
@@ -172,6 +218,7 @@ export function Diagram(props: DiagramProps) {
         project,
         onListenerSelect,
         onServiceSelect,
+        onFunctionSelect,
         onAutomationSelect,
         onConnectionSelect,
         onDeleteComponent,
@@ -183,7 +230,10 @@ export function Diagram(props: DiagramProps) {
 
             {diagramEngine && diagramModel && (
                 <DiagramContextProvider value={context}>
-                    <DiagramCanvas>
+                    <DiagramCanvas
+                        onMouseEnter={() => setShowControls(true)}
+                        onMouseLeave={() => setShowControls(false)}
+                    >
                         <CanvasWidget engine={diagramEngine} />
                     </DiagramCanvas>
                 </DiagramContextProvider>

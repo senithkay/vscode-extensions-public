@@ -11,8 +11,7 @@
 import React from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { NodeLinkModel } from "./NodeLinkModel";
-import { Colors } from "../../resources/constants";
-
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 interface NodeLinkWidgetProps {
     link: NodeLinkModel;
     engine: DiagramEngine;
@@ -24,7 +23,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
     const angle = (Math.atan2(end.getY() - start.getY(), end.getX() - start.getX()) * 180) / Math.PI;
     const upsideDown = angle > 90 || angle < -90;
 
-    const linkColor = link.variant ? Colors.PRIMARY : Colors.PRIMARY;
+    const linkColor = link.variant ? ThemeColors.PRIMARY : ThemeColors.PRIMARY;
 
     return (
         <g pointerEvents={"all"}>
@@ -45,15 +44,15 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
             />
             <defs>
                 <marker
-                    markerWidth="10"
-                    markerHeight="10"
-                    refX="10"
-                    refY="3"
-                    viewBox="0 0 6 6"
+                    markerWidth="5"
+                    markerHeight="5"
+                    refX="7"  // Adjusted offset in x axis
+                    refY="1.5"
+                    viewBox="0 0 3 3"
                     orient="auto"
                     id={`${link.getID()}-arrow-head`}
                 >
-                    <polygon points="0,6 0,0 6,3" fill={linkColor}></polygon>
+                    <polygon points="0,3 0,0 3,1.5" fill={linkColor}></polygon>
                 </marker>
             </defs>
             <text

@@ -13,16 +13,36 @@ import { FlowNode } from "../../utils/types";
 
 interface ConnectorIconProps {
     node: FlowNode;
+    url?: string;
+    fallbackIcon?: React.ReactNode;
 }
 
-export function ConnectorIcon(props: ConnectorIconProps) {
-    const { node } = props;
+export function ConnectorIcon(props: ConnectorIconProps): React.ReactElement {
+    const { node, url, fallbackIcon } = props;
+    const [imageError, setImageError] = React.useState(false);
+
+    if (url && isValidUrl(url) && !imageError) {
+        return (
+            <img src={url} alt={node.codedata.module} style={{ width: "24px" }} onError={() => setImageError(true)} />
+        );
+    }
 
     const databaseClients = ["mysql", "postgres", "sqlite", "mssql", "oracle", "redis", "cassandra", "mongodb"];
-
-    if (node.metadata.icon && isValidUrl(node.metadata.icon)) {
-        return <img src={node.metadata.icon} alt={node.codedata.module} style={{ width: "24px" }} />;
+    if (node.metadata.icon && isValidUrl(node.metadata.icon) && !imageError) {
+        return (
+            <img
+                src={node.metadata.icon}
+                alt={node.codedata.module}
+                style={{ width: "24px" }}
+                onError={() => setImageError(true)}
+            />
+        );
     }
+
+    if (fallbackIcon && imageError) {
+        return <>{fallbackIcon}</>;
+    }
+
     if (databaseClients.includes(node.codedata.module)) {
         return <DatabaseIcon />;
     }

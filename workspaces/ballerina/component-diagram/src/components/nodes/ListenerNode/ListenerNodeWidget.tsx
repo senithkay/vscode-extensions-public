@@ -11,126 +11,116 @@ import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ListenerNodeModel } from "./ListenerNodeModel";
-import { Colors, NODE_BORDER_WIDTH, LISTENER_NODE_WIDTH, AUTOMATION_LISTENER } from "../../../resources/constants";
-import { Button } from "@wso2-enterprise/ui-toolkit";
+import {
+    NODE_BORDER_WIDTH,
+    LISTENER_NODE_WIDTH,
+    AUTOMATION_LISTENER,
+    LISTENER_NODE_HEIGHT,
+} from "../../../resources/constants";
+import { Button, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { ClockIcon, ListenIcon } from "../../../resources";
+import { useDiagramContext } from "../../DiagramContext";
+import { CDListener } from "@wso2-enterprise/ballerina-core";
 
-export namespace NodeStyles {
-    export type NodeStyleProp = {
-        hovered: boolean;
-        inactive?: boolean;
-    };
-    export const Node = styled.div<NodeStyleProp>`
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        height: ${LISTENER_NODE_WIDTH}px;
-        color: ${Colors.ON_SURFACE};
-        cursor: pointer;
-    `;
+type NodeStyleProp = {
+    hovered: boolean;
+    inactive?: boolean;
+};
+const Node = styled.div<NodeStyleProp>`
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    height: ${LISTENER_NODE_HEIGHT}px;
+    width: ${LISTENER_NODE_WIDTH}px;
+    color: ${ThemeColors.ON_SURFACE};
+    cursor: pointer;
+`;
 
-    export const Column = styled.div<NodeStyleProp>`
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: center;
-        gap: 4px;
-        width: 100%;
-    `;
+const Row = styled.div<NodeStyleProp>`
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    gap: 12px;
+`;
 
-    export const Header = styled.div`
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 6px;
-        padding: 8px;
-    `;
+const Header = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+`;
 
-    export const Circle = styled.div<NodeStyleProp>`
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: ${LISTENER_NODE_WIDTH}px;
-        height: ${LISTENER_NODE_WIDTH}px;
-        border: ${NODE_BORDER_WIDTH}px solid
-            ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
-        border-radius: 50%;
-        background-color: ${Colors.SURFACE_DIM};
-        color: ${Colors.ON_SURFACE};
-    `;
+const Circle = styled.div<NodeStyleProp>`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: ${LISTENER_NODE_HEIGHT}px;
+    height: ${LISTENER_NODE_HEIGHT}px;
+    border: ${NODE_BORDER_WIDTH}px solid
+        ${(props: NodeStyleProp) => (props.hovered ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT)};
+    border-radius: 50%;
+    background-color: ${ThemeColors.SURFACE_DIM};
+    color: ${ThemeColors.ON_SURFACE};
+`;
 
-    export const StyledButton = styled(Button)`
-        border-radius: 5px;
-        position: absolute;
-        right: 6px;
-    `;
+const LeftPortWidget = styled(PortWidget)`
+    margin-top: -3px;
+`;
 
-    export const MenuButton = styled(Button)`
-        border-radius: 5px;
-    `;
+const RightPortWidget = styled(PortWidget)`
+    margin-bottom: -2px;
+`;
 
-    export const LeftPortWidget = styled(PortWidget)`
-        margin-top: -3px;
-    `;
+const StyledText = styled.div`
+    font-size: 14px;
+`;
 
-    export const RightPortWidget = styled(PortWidget)`
-        margin-bottom: -2px;
-    `;
+const Icon = styled.div`
+    padding: 4px;
+    svg {
+        fill: ${ThemeColors.ON_SURFACE};
+    }
+`;
 
-    export const StyledText = styled.div`
-        font-size: 14px;
-    `;
+const Title = styled(StyledText) <NodeStyleProp>`
+    max-width: ${LISTENER_NODE_WIDTH - LISTENER_NODE_HEIGHT}px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: "GilmerMedium";
+    color: ${(props: NodeStyleProp) => (props.hovered ? ThemeColors.PRIMARY : ThemeColors.ON_SURFACE)};
+    opacity: ${(props: NodeStyleProp) => (props.inactive && !props.hovered ? 0.7 : 1)};
+`;
 
-    export const Icon = styled.div`
-        padding: 4px;
-        svg {
-            fill: ${Colors.ON_SURFACE};
-        }
-    `;
-
-    export const Title = styled(StyledText)<NodeStyleProp>`
-        max-width: ${LISTENER_NODE_WIDTH}px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-family: "GilmerMedium";
-        color: ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.ON_SURFACE)};
-        opacity: ${(props: NodeStyleProp) => (props.inactive && !props.hovered ? 0.7 : 1)};
-    `;
-
-    export const Description = styled(StyledText)`
-        font-size: 12px;
-        max-width: ${LISTENER_NODE_WIDTH - 80}px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-family: monospace;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        color: ${Colors.ON_SURFACE};
-        opacity: 0.7;
-    `;
-
-    export const Hr = styled.hr`
-        width: 100%;
-    `;
-}
+const Description = styled(StyledText)`
+    font-size: 12px;
+    max-width: ${LISTENER_NODE_WIDTH - LISTENER_NODE_HEIGHT}px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: monospace;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    color: ${ThemeColors.ON_SURFACE};
+    opacity: 0.7;
+`;
 
 interface ListenerNodeWidgetProps {
     model: ListenerNodeModel;
     engine: DiagramEngine;
 }
 
-export interface NodeWidgetProps extends Omit<ListenerNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<ListenerNodeWidgetProps, "children"> { }
 
 export function ListenerNodeWidget(props: ListenerNodeWidgetProps) {
     const { model, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
+    const { onListenerSelect } = useDiagramContext();
 
-    const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
-        // event.stopPropagation();
+
+    const handleOnClick = () => {
+        onListenerSelect(model.node as CDListener);
     };
 
     const getNodeIcon = () => {
@@ -148,30 +138,33 @@ export function ListenerNodeWidget(props: ListenerNodeWidgetProps) {
     };
 
     const getNodeDescription = () => {
-        if (model.node.type === AUTOMATION_LISTENER) {
+        if (model.node?.type === AUTOMATION_LISTENER) {
             return "Schedule";
         }
-        return "HTTP Listener";
+        if (model.node.type) {
+            return model.node.type;
+        }
+        return "Listener";
     };
 
     return (
-        <NodeStyles.Node
+        <Node
             hovered={isHovered}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             onClick={handleOnClick}
         >
-            <NodeStyles.Column hovered={isHovered}>
-                <NodeStyles.Circle hovered={isHovered}>
-                    <NodeStyles.LeftPortWidget port={model.getPort("in")!} engine={engine} />
-                    <NodeStyles.Icon>{getNodeIcon()}</NodeStyles.Icon>
-                    <NodeStyles.RightPortWidget port={model.getPort("out")!} engine={engine} />
-                </NodeStyles.Circle>
-                <NodeStyles.Header>
-                    <NodeStyles.Title hovered={isHovered}>{getNodeTitle()}</NodeStyles.Title>
-                    <NodeStyles.Description>{getNodeDescription()}</NodeStyles.Description>
-                </NodeStyles.Header>
-            </NodeStyles.Column>
-        </NodeStyles.Node>
+            <Row hovered={isHovered}>
+                <Circle hovered={isHovered}>
+                    <LeftPortWidget port={model.getPort("in")!} engine={engine} />
+                    <Icon>{getNodeIcon()}</Icon>
+                    <RightPortWidget port={model.getPort("out")!} engine={engine} />
+                </Circle>
+                <Header>
+                    <Title hovered={isHovered}>{getNodeTitle()}</Title>
+                    <Description>{getNodeDescription()}</Description>
+                </Header>
+            </Row>
+        </Node>
     );
 }

@@ -19,13 +19,15 @@ import {
 import { FormField } from "../Form/types";
 import { useFormContext } from "../../context";
 import { Controller } from "react-hook-form";
-import {S} from "../editors/ExpressionEditor";
+import { S } from "./ExpressionEditor";
 import { sanitizeType } from "./utils";
+import { debounce } from "lodash";
 
 interface TypeEditorProps {
     field: FormField;
     openRecordEditor: (open: boolean) => void;
     handleOnFieldFocus?: (key: string) => void;
+    handleOnTypeChange?: () => void;
     autoFocus?: boolean;
 }
 
@@ -39,7 +41,7 @@ const getDefaultCompletion = () => (
 );
 
 export function TypeEditor(props: TypeEditorProps) {
-    const { field, openRecordEditor, handleOnFieldFocus, autoFocus } = props;
+    const { field, openRecordEditor, handleOnFieldFocus, handleOnTypeChange, autoFocus } = props;
     const { form, expressionEditor } = useFormContext();
     const { control } = form;
     const {
@@ -62,7 +64,9 @@ export function TypeEditor(props: TypeEditorProps) {
         // Trigger actions on focus
         await onFocus?.();
         await retrieveVisibleTypes(value, value.length);
-        setShowDefaultCompletion(true);
+        if (openRecordEditor) {
+            setShowDefaultCompletion(true);
+        }
         handleOnFieldFocus?.(field.key);
     };
 
@@ -95,6 +99,12 @@ export function TypeEditor(props: TypeEditorProps) {
         handleCancel();
     }
 
+    const handleTypeEdit = (value: string) => {
+        handleOnTypeChange && handleOnTypeChange();
+    };
+
+    const debouncedTypeEdit = debounce(handleTypeEdit, 300);
+
     return (
         <S.Container>
             <S.HeaderContainer>
@@ -111,7 +121,12 @@ export function TypeEditor(props: TypeEditorProps) {
                 control={control}
                 name={field.key}
                 defaultValue={field.value}
-                rules={{ required: !field.optional && !field.placeholder }}
+                rules={{
+                    required: {
+                        value: !field.optional && !field.placeholder,
+                        message: `${field.label} is required`
+                    }
+                }}
                 render={({ field: { name, value, onChange }, fieldState: { error } }) => (
                     <div>
                         <FormExpressionEditor
@@ -124,6 +139,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             value={value}
                             onChange={async (value: string, updatedCursorPosition: number) => {
                                 onChange(value);
+                                debouncedTypeEdit(value);
                                 cursorPositionRef.current = updatedCursorPosition;
 
                                 // Retrieve visible types

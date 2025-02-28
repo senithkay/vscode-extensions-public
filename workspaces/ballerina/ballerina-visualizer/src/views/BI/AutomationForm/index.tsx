@@ -7,46 +7,38 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
-import { DIRECTORY_MAP, EVENT_TYPE, ProjectStructureArtifactResponse } from "@wso2-enterprise/ballerina-core";
-import { Button, TextField, Typography, View, ViewContent, ErrorBanner, RadioButtonGroup, FormGroup, Dropdown, ParamConfig, ParamManager, CompletionItem } from "@wso2-enterprise/ui-toolkit";
+import { useEffect, useState } from "react";
+import { DIRECTORY_MAP, EVENT_TYPE, LineRange, ProjectStructureArtifactResponse } from "@wso2-enterprise/ballerina-core";
+import { View, ViewContent, Button } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { css } from "@emotion/css";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { BIHeader } from "../BIHeader";
-import { BodyText } from "../../styles";
-import { getFunctionParametersList, parameterConfig } from "../../../utils/utils";
-import { Form, FormField, FormValues, Parameter } from "@wso2-enterprise/ballerina-side-panel";
-import { debounce } from "lodash";
+import { getFunctionParametersList } from "../../../utils/utils";
+import { FormField, FormValues, Parameter } from "@wso2-enterprise/ballerina-side-panel";
+import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { URI, Utils } from "vscode-uri";
-import { convertToVisibleTypes } from "../../../utils/bi";
+import { TitleBar } from "../../../components/TitleBar";
+import { FormHeader } from "../../../components/FormHeader";
+import { Banner } from "../../../components/Banner";
+import FormGeneratorNew from "../Forms/FormGeneratorNew";
+import { LoadingContainer } from "../../styles";
+import { LoadingRing } from "../../../components/Loader";
 
 const FormContainer = styled.div`
     display: flex;
     flex-direction: column;
     max-width: 600px;
     gap: 20px;
-    margin-top: 20px;
 `;
 
 const Container = styled.div`
     display: "flex";
     flex-direction: "column";
     gap: 10;
-    margin: 20px;
 `;
 
 const ButtonWrapper = styled.div`
     margin-top: 20px;
     width: 130px;
-`;
-
-const CardGrid = styled.div`
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin-top: 20px;
-    width: 100%;
 `;
 
 const Link = styled.a`
@@ -58,83 +50,52 @@ const Link = styled.a`
     color: var(--button-primary-background);
 `;
 
+const CardGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 20px;
+    width: 100%;
+`;
+
 export function MainForm() {
     const { rpcClient } = useRpcContext();
-    // const [name, setName] = useState("");
-    // const [cron, setCron] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [automation, setAutomation] = useState<ProjectStructureArtifactResponse>(null);
-    // const [error, setError] = useState("");
-    // const [params, setParams] = useState(parameterConfig);
 
-    const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
-    const [types, setTypes] = useState<CompletionItem[]>([]);
+    const [filePath, setFilePath] = useState<string>('');
+    const [targetLineRange, setTargetLineRange] = useState<LineRange>();
 
-    // <------------- Expression Editor Util functions list start --------------->
-    const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {
-        let visibleTypes: CompletionItem[] = types;
-        if (!types.length) {
-            const context = await rpcClient.getVisualizerLocation();
-            let functionFilePath = Utils.joinPath(URI.file(context.projectUri), 'functions.bal');
-            const workspaceFiles = await rpcClient.getCommonRpcClient().getWorkspaceFiles({});
-            const isFilePresent = workspaceFiles.files.some(file => file.path === functionFilePath.fsPath);
-            if (!isFilePresent) {
-                functionFilePath = Utils.joinPath(URI.file(context.projectUri));
-            }
-            const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
-                filePath: functionFilePath.fsPath,
-                position: { line: 0, offset: 0 },
-            });
-
-            visibleTypes = convertToVisibleTypes(response.types);
-            setTypes(visibleTypes);
+    useEffect(() => {
+        if (filePath && rpcClient) {
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getEndOfFile({ filePath })
+                .then((res) => {
+                    setTargetLineRange({
+                        startLine: res,
+                        endLine: res,
+                    });
+                });
         }
-
-        const effectiveText = value.slice(0, cursorPosition);
-        const filteredTypes = visibleTypes.filter((type) => {
-            const lowerCaseText = effectiveText.toLowerCase();
-            const lowerCaseLabel = type.label.toLowerCase();
-
-            return lowerCaseLabel.includes(lowerCaseText);
-        });
-
-        setFilteredTypes(filteredTypes);
-        return { visibleTypes, filteredTypes };
-    }, 250);
-
-    const handleGetVisibleTypes = async (value: string, cursorPosition: number) => {
-        return await debouncedGetVisibleTypes(value, cursorPosition) as any;
-    };
-
-    const handleCompletionSelect = async () => {
-        debouncedGetVisibleTypes.cancel();
-        handleExpressionEditorCancel();
-    };
-
-    const handleExpressionEditorCancel = () => {
-        setFilteredTypes([]);
-        setTypes([]);
-    };
-
-    const handleExpressionEditorBlur = () => {
-        handleExpressionEditorCancel();
-    };
-    // <------------- Expression Editor Util functions list end --------------->
+    }, [filePath, rpcClient]);
 
     const handleFunctionCreate = async (data: FormValues) => {
         setIsLoading(true);
-        const name = data['functionName'];
-        const params = data['params'];
+        const params = data["params"];
         const paramList = params ? getFunctionParametersList(params) : [];
-        const res = await rpcClient.getBIDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.AUTOMATION, functionType: { name, parameters: paramList } });
+        const res = await rpcClient
+            .getBIDiagramRpcClient()
+            .createComponent({ type: DIRECTORY_MAP.AUTOMATION, functionType: { parameters: paramList } });
         setIsLoading(res.response);
     };
 
     const openAutomation = () => {
-        rpcClient
-            .getVisualizerRpcClient()
-            .openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: automation.path, position: automation.position } });
-    }
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: { documentUri: automation.path, position: automation.position },
+        });
+    };
 
     useEffect(() => {
         rpcClient
@@ -144,45 +105,45 @@ export function MainForm() {
                 if (res.directoryMap[DIRECTORY_MAP.AUTOMATION].length > 0) {
                     setAutomation(res.directoryMap[DIRECTORY_MAP.AUTOMATION][0]);
                 }
+                setIsLoading(false);
             });
+        rpcClient.getVisualizerLocation().then(context => {
+            let functionFilePath = Utils.joinPath(URI.file(context.projectUri), "main.bal").fsPath;
+            setFilePath(functionFilePath)
+        });
     }, []);
 
     const paramFiels: FormField[] = [
         {
             key: `variable`,
-            label: 'Name',
-            type: 'string',
+            label: "Name",
+            type: "string",
             optional: false,
             editable: true,
-            documentation: '',
-            value: '',
+            documentation: "",
+            value: "",
+            valueTypeConstraint: "",
         },
         {
             key: `type`,
-            label: 'Type',
-            type: 'Type',
+            label: "Type",
+            type: 'SINGLE_SELECT',
             optional: false,
             editable: true,
             documentation: '',
-            value: '',
-        },
-        {
-            key: `defaultable`,
-            label: 'Default Value',
-            type: 'string',
-            optional: true,
-            advanced: true,
-            editable: true,
-            documentation: '',
-            value: ''
+            value: "",
+            items: ["string", "int", "float", "decimal"],
+            valueTypeConstraint: "",
+            addNewButton: false
         }
     ];
 
     // Helper function to modify and set the visual information
     const handleParamChange = (param: Parameter) => {
-        const name = `${param.formValues['variable']}`;
-        const type = `${param.formValues['type']}`;
-        const defaultValue = Object.keys(param.formValues).indexOf('defaultable') > -1 && `${param.formValues['defaultable']}`;
+        const name = `${param.formValues["variable"]}`;
+        const type = `${param.formValues["type"]}`;
+        const defaultValue =
+            Object.keys(param.formValues).indexOf("defaultable") > -1 && `${param.formValues["defaultable"]}`;
         let value = `${type} ${name}`;
         if (defaultValue) {
             value += ` = ${defaultValue}`;
@@ -190,68 +151,70 @@ export function MainForm() {
         return {
             ...param,
             key: name,
-            value: value
-        }
+            value: value,
+        };
     };
 
     const currentFields: FormField[] = [
         {
-            key: `functionName`,
-            label: 'Automation Name',
-            type: 'string',
-            optional: false,
-            editable: true,
-            documentation: '',
-            value: '',
-        },
-        {
             key: `params`,
-            label: 'Parameters',
-            type: 'PARAM_MANAGER',
-            optional: false,
+            label: "Parameters",
+            type: "PARAM_MANAGER",
+            optional: true,
+            advanced: true,
             editable: true,
-            documentation: '',
-            value: '',
+            documentation: "Parameters allow dynamic input values, making automation adaptable to different execution needs.",
+            valueTypeConstraint: "",
+            value: "",
             paramManagerProps: {
                 paramValues: [],
                 formFields: paramFiels,
-                handleParameter: handleParamChange
-            }
-        }
+                handleParameter: handleParamChange,
+            },
+        },
     ];
 
     return (
         <View>
+            <TopNavigationBar />
+            <TitleBar title="Automation" subtitle="Create a new automation for your integration" />
             <ViewContent padding>
-                <BIHeader />
                 <Container>
-                    {automation ?
-                        <Typography variant="h4">You have already created an automation. <Link onClick={openAutomation}>View Now</Link>
-                        </Typography>
-                        :
+                    {isLoading && (
+                        <LoadingContainer>
+                            <LoadingRing message="Loading..." />
+                        </LoadingContainer>
+                    )}
+                    {!isLoading && automation && (
+                        <Banner
+                            variant="info"
+                            message="An integration can only have one automation. You have already created an automation."
+                            actions={
+                                <>
+                                    <Button onClick={openAutomation}>View Automation</Button>
+                                </>
+                            }
+                        />
+                    )}
+                    {!isLoading && !automation && (
                         <>
-                            <Typography variant="h2">Create Automation</Typography>
-                            <BodyText>
-                                Implement an automation for either scheduled or manual jobs.
-                            </BodyText>
+                            <FormHeader
+                                title="Create an Automation"
+                                subtitle="Implement an automation for either scheduled or manual jobs."
+                            />
                             <FormContainer>
-                                <Form
-                                    formFields={currentFields}
-                                    oneTimeForm={true}
-                                    expressionEditor={
-                                        {
-                                            types: filteredTypes,
-                                            retrieveVisibleTypes: handleGetVisibleTypes,
-                                            onCompletionItemSelect: handleCompletionSelect,
-                                            onCancel: handleExpressionEditorCancel,
-                                            onBlur: handleExpressionEditorBlur
-                                        }
-                                    }
-                                    onSubmit={!isLoading && !automation && handleFunctionCreate}
-                                />
+                                {filePath && targetLineRange && currentFields.length > 0 &&
+                                    <FormGeneratorNew
+                                        fileName={filePath}
+                                        targetLineRange={targetLineRange}
+                                        fields={currentFields}
+                                        onSubmit={handleFunctionCreate}
+                                        submitText={"Create"}
+                                    />
+                                }
                             </FormContainer>
                         </>
-                    }
+                    )}
                 </Container>
             </ViewContent>
         </View>
