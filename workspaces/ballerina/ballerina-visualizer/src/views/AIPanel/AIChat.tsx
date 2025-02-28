@@ -568,9 +568,8 @@ export function AIChat() {
                 });
                 assistant_response = postProcessResp.assistant_response;
                 const diagnostics = postProcessResp.diagnostics.diagnostics;
+                console.log("Diagnostics : ", diagnostics);
                 if (diagnostics.length > 0) {
-                    console.log("Diagnostics : ");
-                    console.log(diagnostics);
                     //TODO: fill
                     const diagReq = {
                         response: assistant_response,
@@ -603,7 +602,11 @@ export function AIChat() {
                         const jsonBody = await response.json();
                         const repairResponse = jsonBody.repairResponse;
                         // replace original response with new code blocks
-                        const fixedResponse = replaceCodeBlocks(assistant_response, repairResponse);
+                        let fixedResponse = replaceCodeBlocks(assistant_response, repairResponse);
+                        const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
+                            assistant_response: fixedResponse,
+                        });
+                        fixedResponse = postProcessResp.assistant_response;
                         const endTime = performance.now();
                         const executionTime = endTime - startTime;
                         console.log(`Repair call time: ${executionTime} milliseconds`);
