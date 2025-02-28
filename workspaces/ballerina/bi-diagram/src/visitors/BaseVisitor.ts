@@ -74,4 +74,7 @@ export interface BaseVisitor {
 
     beginVisitWorker?(node: Branch, parent?: FlowNode): void;
     endVisitWorker?(node: Branch, parent?: FlowNode): void;
+
+    beginVisitAgentCall?(node: FlowNode, parent?: FlowNode): void;
+    endVisitAgentCall?(node: FlowNode, parent?: FlowNode): void;
 }
