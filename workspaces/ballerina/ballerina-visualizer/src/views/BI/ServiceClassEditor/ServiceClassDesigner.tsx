@@ -122,6 +122,7 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
     }
 
     const handleEditFunction = (func: FunctionModel) => {
+        setIsNew(false);
         setEditingFunction(func);
     };
 
@@ -245,6 +246,11 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
         setIsNew(false);
     };
 
+    const handleCloseVariableForm = () => {
+        setEditingVariable(undefined);
+        setIsNew(false);
+    }
+
     const handleAddVariable = () => {
         // TODO: Add the LS call when its ready
         const newVariable: FieldType = {
@@ -300,7 +306,7 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
                     description: "The initial value of the variable"
                 },
                 value: "",
-                enabled: false,
+                enabled: true,
                 editable: true,
                 isType: false,
                 optional: false,
@@ -308,7 +314,7 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
                 addNewButton: false
             },
             enabled: true,
-            editable: false,
+            editable: true,
             optional: false,
             advanced: false
         };
@@ -535,8 +541,8 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
                     <PanelContainer
                         title={isNew ? "Add Method" : "Edit Method"}
                         show={true}
-                        onClose={() => setEditingFunction(undefined)}
-                        onBack={() => setEditingFunction(undefined)}
+                        onClose={handleCloseFunctionForm}
+                        onBack={handleCloseFunctionForm}
                         width={400}
                     >
                         <OperationForm
@@ -553,15 +559,15 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
                     <PanelContainer
                         title={isNew ? "Add Variable" : "Edit Variable"}
                         show={true}
-                        onClose={() => setEditingVariable(undefined)}
-                        onBack={() => setEditingVariable(undefined)}
+                        onClose={handleCloseVariableForm}
+                        onBack={handleCloseVariableForm}
                         width={400}
                     >
                         <VariableForm
                             model={editingVariable}
                             filePath={Utils.joinPath(URI.file(projectUri), serviceClassModel.codedata.lineRange.fileName).fsPath}
                             lineRange={serviceClassModel.codedata.lineRange}
-                            onClose={() => setEditingVariable(null)}
+                            onClose={handleCloseVariableForm}
                             onSave={handleVariableSave}
                         />
                     </PanelContainer>
