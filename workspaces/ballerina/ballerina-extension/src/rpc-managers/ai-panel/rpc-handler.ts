@@ -30,6 +30,7 @@ import {
     getActiveFile,
     getAiPanelState,
     getBackendURL,
+    getDriftDiagnosticContents,
     getFileExists,
     getFromDocumentation,
     getFromFile,
@@ -43,6 +44,7 @@ import {
     getTestDiagnostics,
     getTypesFromRecord,
     isCopilotSignedIn,
+    isRequirementsSpecificationFileExist,
     isWSO2AISignedIn,
     login,
     logout,
@@ -93,7 +95,6 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onNotification(applyDoOnFailBlocks, () => rpcManger.applyDoOnFailBlocks());
     messenger.onRequest(postProcess, (args: PostProcessRequest) => rpcManger.postProcess(args));
     messenger.onRequest(getActiveFile, () => rpcManger.getActiveFile());
-    messenger.onRequest(getFromDocumentation, (args: string) => rpcManger.getFromDocumentation(args));
     messenger.onNotification(openSettings, () => rpcManger.openSettings());
     messenger.onNotification(openChat, () => rpcManger.openChat());
     messenger.onRequest(promptGithubAuthorize, () => rpcManger.promptGithubAuthorize());
@@ -102,4 +103,7 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(isWSO2AISignedIn, () => rpcManger.isWSO2AISignedIn());
     messenger.onRequest(showSignInAlert, () => rpcManger.showSignInAlert());
     messenger.onNotification(markAlertShown, () => rpcManger.markAlertShown());
+    messenger.onRequest(getFromDocumentation, (args: string) => rpcManger.getFromDocumentation(args));
+    messenger.onRequest(isRequirementsSpecificationFileExist, (args: string) => rpcManger.isRequirementsSpecificationFileExist(args));
+    messenger.onRequest(getDriftDiagnosticContents, (args: string) => rpcManger.getDriftDiagnosticContents(args));
 }

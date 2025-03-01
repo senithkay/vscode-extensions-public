@@ -8,7 +8,7 @@
  */
 
 import { FunctionDefinition, ModulePart, QualifiedNameReference, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { AI_EVENT_TYPE, ErrorCode, FormField, STModification, SyntaxTree, AttachmentResult } from "@wso2-enterprise/ballerina-core";
+import { AI_EVENT_TYPE, ErrorCode, FormField, STModification, SyntaxTree, AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
 import { QuickPickItem, QuickPickOptions, window, workspace } from 'vscode';
 
 import { StateMachine } from "../../stateMachine";
@@ -29,6 +29,8 @@ import { StateMachineAI } from "../../views/ai-panel/aiMachine";
 import { extension } from "../../BalExtensionContext";
 import axios from "axios";
 import { getPluginConfig } from "../../../src/utils";
+import path from "path";
+import * as fs from 'fs';
 
 export const BACKEND_API_URL_V2 = getPluginConfig().get('rootUrl') as string;
 export const CONTEXT_UPLOAD_URL_V1 = getPluginConfig().get('contextUploadServiceUrl') as string;
@@ -1497,4 +1499,51 @@ async function processCombinedKey(
         }
     }
     return { isinputRecordArrayNullable, isinputRecordArrayOptional, isinputArrayNullable, isinputArrayOptional };
+}
+
+async function sendRequirementFileUploadRequest(file: Blob): Promise<Response | ErrorCode> {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await fetch(CONTEXT_UPLOAD_URL_V1 + "/file_upload/extract_requirements", {
+        method: "POST",
+        body: formData
+    });
+    return response;
+}
+
+export async function getTextFromRequirements(file: Blob): Promise<string | ErrorCode> {
+    try {
+        let response = await sendRequirementFileUploadRequest(file);
+        if (isErrorCode(response)) {
+            return response as ErrorCode;
+        }
+        response = response as Response;
+        let requirements = await filterMappingResponse(response) as string;
+        return requirements;
+    } catch (error) {
+        console.error(error);
+        return UNKNOWN_ERROR;
+    }
+}
+
+export async function requirementsSpecification(filepath: string): Promise<string | ErrorCode> {
+    if (!filepath) { 
+        throw new Error("File is undefined"); 
+    }
+
+    const convertedFile = convertBase64ToBlob({name: path.basename(filepath), 
+                            content: getBase64FromFile(filepath), status: AttachmentStatus.Unknown});
+    if (!convertedFile) { throw new Error("Invalid file content"); }
+
+    let requirements = await getTextFromRequirements(convertedFile);
+    if (isErrorCode(requirements)) { 
+        return requirements as ErrorCode; 
+    }
+
+    return requirements;
+}
+
+function getBase64FromFile(filePath) {
+    const fileBuffer = fs.readFileSync(filePath);
+    return fileBuffer.toString('base64');
 }
