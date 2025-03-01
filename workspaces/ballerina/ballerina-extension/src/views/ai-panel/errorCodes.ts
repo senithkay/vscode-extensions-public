@@ -16,12 +16,12 @@ export const UNAUTHORIZED: ErrorCode = {
 
 export const TIMEOUT: ErrorCode = {
     code: 2,
-    message: "Request timeout exceeded. Please try again"
+    message: "Request timeout exceeded. Please try again."
 };
 
 export const PARSING_ERROR: ErrorCode = {
     code: 3,
-    message: "An unknown error occurred while generating code. Try login again to copilot"
+    message: "There was an issue with your request. Please check the input and try again."
 };
 
 export const UNKNOWN_ERROR: ErrorCode = {
@@ -31,7 +31,7 @@ export const UNKNOWN_ERROR: ErrorCode = {
 
 export const MODIFIYING_ERROR: ErrorCode = {
     code: 5,
-    message: "An unknown error occurred while generating mappings. Please try again"
+    message: "Code generation failed due to insufficient mapping data. Please review the fields and try again."
 };
 
 export const USER_ABORTED: ErrorCode = {
@@ -46,7 +46,7 @@ export const ENDPOINT_REMOVED: ErrorCode = {
 
 export const INVALID_PARAMETER_TYPE: ErrorCode = {
     code: 8,
-    message: "AI data mapper only supports records as input and outputs."
+    message: "AI data mapper only supports records as inputs and outputs."
 };
 
 export const INVALID_PARAMETER_TYPE_MULTIPLE_ARRAY: ErrorCode = {
@@ -54,8 +54,13 @@ export const INVALID_PARAMETER_TYPE_MULTIPLE_ARRAY: ErrorCode = {
     message: "AI data mapper only supports mappings between single input and output arrays."
 };
 
-export const INVALID_TYPE_CONVERSION: ErrorCode = {
+export const SERVER_ERROR: ErrorCode = {
     code: 10,
-    message: "Invalid type conversion. Cannot convert between incompatible types."
+    message: "An error occurred on the server. Please try again later."
+};
+
+export const TOO_MANY_REQUESTS: ErrorCode = {
+    code: 11,
+    message: "Too many requests in a short period. Please review the fields and try again."
 };
 
