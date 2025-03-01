@@ -150,3 +150,8 @@ export interface PostProcessResponse {
     assistant_response: string;
     diagnostics: ProjectDiagnostics;
 }
+
+export interface DocAssistantResponse {
+    content: string;
+    references: string[];
+}

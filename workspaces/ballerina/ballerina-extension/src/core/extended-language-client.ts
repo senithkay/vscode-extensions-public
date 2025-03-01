@@ -176,7 +176,9 @@ import {
     AddFieldRequest,
     FunctionModelRequest,
     FunctionModelResponse,
-    TypeDataWithReferences
+    TypeDataWithReferences,
+    ICPEnabledRequest,
+    ICPEnabledResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -301,7 +303,10 @@ enum EXTENDED_APIS {
     BI_GET_TEST_FUNCTION = 'testManagerService/getTestFunction',
     BI_ADD_TEST_FUNCTION = 'testManagerService/addTestFunction',
     BI_UPDATE_TEST_FUNCTION = 'testManagerService/updateTestFunction',
-    BI_EDIT_FUNCTION_NODE = 'flowDesignService/functionDefinition'
+    BI_EDIT_FUNCTION_NODE = 'flowDesignService/functionDefinition',
+    BI_IS_ICP_ENABLED = 'icpService/isIcpEnabled',
+    BI_ADD_ICP = 'icpService/addICP',
+    BI_DISABLE_ICP = 'icpService/disableICP',
 }
 
 enum EXTENDED_APIS_ORG {
@@ -654,6 +659,18 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     async updateTestFunction(params: AddOrUpdateTestFunctionRequest):
         Promise<TestSourceEditResponse | NOT_SUPPORTED_TYPE> {
         return this.sendRequest(EXTENDED_APIS.BI_UPDATE_TEST_FUNCTION, params);
+    }
+
+    async isIcpEnabled(params: ICPEnabledRequest): Promise<ICPEnabledResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_IS_ICP_ENABLED, params);
+    }
+    
+    async addICP(params: ICPEnabledRequest): Promise<TestSourceEditResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_ADD_ICP, params);
+    }
+
+    async disableICP(params: ICPEnabledRequest): Promise<TestSourceEditResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_DISABLE_ICP, params);
     }
 
     async getProjectDiagnostics(params: ProjectDiagnosticsRequest): Promise<ProjectDiagnosticsResponse | NOT_SUPPORTED_TYPE> {

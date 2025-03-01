@@ -117,6 +117,7 @@ export class DefaultState extends State<DiagramEngine> {
 					if ((actionEvent.event as any).keyCode === 27) {
 						this.engine.getModel().getLinks().forEach((link) => {
 							this.deselectLinks();
+							this.transitionWithEvent(this.dragCanvas, actionEvent);
 						});
 					}
 				}

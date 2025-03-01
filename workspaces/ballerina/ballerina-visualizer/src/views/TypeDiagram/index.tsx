@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect } from "react";
-import { VisualizerLocation, NodePosition, Type } from "@wso2-enterprise/ballerina-core";
+import { VisualizerLocation, NodePosition, Type, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TypeDiagram as TypeDesignDiagram } from "@wso2-enterprise/type-diagram";
 import { RecordEditor } from "../RecordEditor/RecordEditor";
@@ -16,7 +16,6 @@ import { Button, Codicon, ProgressRing, ThemeColors, View, ViewContent } from "@
 import styled from "@emotion/styled";
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { TypeEditor } from "@wso2-enterprise/type-editor";
-import { ClassTypeEditor } from "../BI/ServiceClassEditor/ClassTypeEditor";
 import { TopNavigationBar } from "../../components/TopNavigationBar";
 import { TitleBar } from "../../components/TitleBar";
 
@@ -111,10 +110,21 @@ export function TypeDiagram(props: TypeDiagramProps) {
         rpcClient.getCommonRpcClient().goToSource({ position: targetPosition });
     };
 
-    const onTypeEdit = (typeId: string) => {
+    const onTypeEdit = async (typeId: string) => {
         const type = typesModel?.find((type) => type.name === typeId);
         if (!type) {
             return;
+        }
+        if (type?.codedata?.node === "CLASS") {
+            await rpcClient.getVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.BIServiceClassDesigner,
+                    type: type,
+                    projectUri: projectUri,
+                    isGraphql: false
+                },
+            });
         }
         setEditingType(type);
         setEditingTypeId(typeId);
@@ -227,9 +237,6 @@ export function TypeDiagram(props: TypeDiagramProps) {
                         onTypeChange={onTypeChange}
                     />
                 </PanelContainer>
-            )}
-            {(editingTypeId || isTypeCreatorOpen) && editingType?.codedata?.node === "CLASS" && (
-                <ClassTypeEditor onClose={onTypeEditorClosed} type={editingType} projectUri={projectUri} />
             )}
         </>
     );

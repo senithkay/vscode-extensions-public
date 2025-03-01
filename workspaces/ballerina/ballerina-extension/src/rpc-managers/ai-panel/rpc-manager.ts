@@ -690,6 +690,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
         // throw new Error('Not implemented');
         await extension.context.secrets.store('LOGIN_ALERT_SHOWN', 'true');
     }
+
 }
 
 function getModifiedAssistantResponse(originalAssistantResponse: string, tempDir: string, project: ProjectSource) : string {

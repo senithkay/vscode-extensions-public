@@ -93,7 +93,6 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onNotification(applyDoOnFailBlocks, () => rpcManger.applyDoOnFailBlocks());
     messenger.onRequest(postProcess, (args: PostProcessRequest) => rpcManger.postProcess(args));
     messenger.onRequest(getActiveFile, () => rpcManger.getActiveFile());
-    messenger.onRequest(getFromDocumentation, (args: string) => rpcManger.getFromDocumentation(args));
     messenger.onNotification(openSettings, () => rpcManger.openSettings());
     messenger.onNotification(openChat, () => rpcManger.openChat());
     messenger.onRequest(promptGithubAuthorize, () => rpcManger.promptGithubAuthorize());
@@ -102,4 +101,5 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(isWSO2AISignedIn, () => rpcManger.isWSO2AISignedIn());
     messenger.onRequest(showSignInAlert, () => rpcManger.showSignInAlert());
     messenger.onNotification(markAlertShown, () => rpcManger.markAlertShown());
+    messenger.onRequest(getFromDocumentation, (args: string) => rpcManger.getFromDocumentation(args));
 }
