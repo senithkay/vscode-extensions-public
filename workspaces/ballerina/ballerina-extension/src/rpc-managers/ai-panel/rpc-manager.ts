@@ -690,6 +690,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
         // throw new Error('Not implemented');
         await extension.context.secrets.store('LOGIN_ALERT_SHOWN', 'true');
     }
+
 }
 
 function getModifiedAssistantResponse(originalAssistantResponse: string, tempDir: string, project: ProjectSource) : string {
@@ -809,15 +810,21 @@ async function addMissingImports(diagnosticsResult: Diagnostics[]): Promise<bool
     for (const diagnostic of diagnosticsResult) {
         const fielUri = diagnostic.uri;
         for (const diag of diagnostic.diagnostics) {
-            //undefined module 'io'(BCE2000)
+            // undefined module 'io'(BCE2000)
             if (diag.code !== "BCE2000") {
                 continue;
             }
             const module = getContentInsideQuotes(diag.message);
-            modifications.push({ fileUri: fielUri, moduleName: module });
+            if (module === null) {
+                continue;
+            }
+            // Prevent duplicate entries
+            if (!modifications.some(mod => mod.fileUri === fielUri && mod.moduleName === module)) {
+                modifications.push({ fileUri: fielUri, moduleName: module });
+            }
         }
     }
-
+    //TODO: Replace with code acction
     for (const mod of modifications) {
         const fileUri = mod.fileUri;
         const moduleName = mod.moduleName;
@@ -830,6 +837,10 @@ async function addMissingImports(diagnosticsResult: Diagnostics[]): Promise<bool
             importStatement = `import ballerina/log;\n`;
         } else if (moduleName == 'runtime') {
             importStatement = `import ballerina/lang.runtime;\n`;
+        } else if (moduleName == 'sql') {
+            importStatement = `import ballerina/sql;\n`;
+        } else if (moduleName == 'time') {
+            importStatement = `import ballerina/time;\n`;
         } else {
             continue;
         }

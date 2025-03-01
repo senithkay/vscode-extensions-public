@@ -2,6 +2,35 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [2.0.1] - 2025-02-25
+
+### Improvements
+- Add support to download older connector versions
+- Add support to mark the automation sequence from project explorer view
+- Add minor UI improvements
+
+## [2.0.0] - 2025-02-20
+
+### Improvements
+
+- New mediators
+  - Scatter-Gather: Clones a message into several and aggregates the responses into a single message. Supports parallel or sequential execution, with output to a variable or message body
+  - Foreach v2: Supports parallel or sequential iteration and allows updating the original array or outputting results to a variable
+  - ThrowError: Enables throwing an error from the mediation flow
+- Enhanced mediator functionality
+  - Inline expression support for PayloadFactory Mediator and Log Mediator
+  - UI Enhancements for the commonly used mediators
+- Mediator tryout functionality
+- Simplified onboarding experience
+- Synapse expression support: A new simplified expression type offering advanced message manipulation and greater flexibility
+- Environment variable injection for all environment-specific parameters
+- JDK 21 support
+- Dependency management for connectors
+- Newly introduced HTTP connector
+- Improvements to the data mapper
+- Framework for building GenAI applications
+
+
 ## [1.1.6] - 2024-11-26
 
 ### Improvements

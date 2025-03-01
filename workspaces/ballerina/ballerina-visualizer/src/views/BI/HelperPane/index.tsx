@@ -7,12 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { RefObject, useState } from 'react';
+import { RefObject } from 'react';
 import { FormExpressionEditorRef, HelperPane } from '@wso2-enterprise/ui-toolkit';
-import { CategoryPage } from './CategoryPage';
 import { ConfigurablePage } from './ConfigurablePage';
 import { FunctionsPage } from './FunctionsPage';
-import { VariablesPage } from './VariablesPage';
+import { SuggestionsPage } from './SuggestionsPage';
 import { LineRange } from '@wso2-enterprise/ballerina-core';
 
 export type HelperPaneProps = {
@@ -20,29 +19,20 @@ export type HelperPaneProps = {
     targetLineRange: LineRange;
     exprRef: RefObject<FormExpressionEditorRef>;
     onClose: () => void;
+    defaultValue: string;
     currentValue: string;
     onChange: (value: string, updatedCursorPosition: number) => void;
 };
-
-export const HELPER_PANE_PAGE = {
-    CATEGORY: "CATEGORY",
-    VARIABLES: "VARIABLES",
-    FUNCTIONS: "FUNCTIONS",
-    CONFIGURABLE: "CONFIGURABLE"
-} as const;
-
-export type HelperPanePageType = typeof HELPER_PANE_PAGE[keyof typeof HELPER_PANE_PAGE];
 
 const HelperPaneEl = ({
     fileName,
     targetLineRange,
     exprRef,
     onClose,
+    defaultValue,
     currentValue,
     onChange
 }: HelperPaneProps) => {
-    const [currentPage, setCurrentPage] = useState<HelperPanePageType>(HELPER_PANE_PAGE.CATEGORY);
-
     const handleChange = (value: string) => {
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
         const updatedValue = currentValue.slice(0, cursorPosition) + value + currentValue.slice(cursorPosition);
@@ -60,36 +50,40 @@ const HelperPaneEl = ({
 
     return (
         <HelperPane>
-            {currentPage === HELPER_PANE_PAGE.CATEGORY && (
-                <CategoryPage setCurrentPage={setCurrentPage} onClose={onClose} />
-            )}
-            {currentPage === HELPER_PANE_PAGE.VARIABLES && (
-                <VariablesPage
-                    fileName={fileName}
-                    targetLineRange={targetLineRange}
-                    setCurrentPage={setCurrentPage}
-                    onClose={onClose}
-                    onChange={handleChange}
-                />
-            )}
-            {currentPage === HELPER_PANE_PAGE.FUNCTIONS && (
-                <FunctionsPage
-                    fileName={fileName}
-                    targetLineRange={targetLineRange}
-                    setCurrentPage={setCurrentPage}
-                    onClose={onClose}
-                    onChange={handleChange}
+            <HelperPane.Header title="Expression Helper" titleSx={{ fontFamily: "GilmerRegular" }} onClose={onClose} />
+            <HelperPane.Body>
+            <HelperPane.Panels>
+                {/* Tabs for the helper pane */}
+                <HelperPane.PanelTab id={0} title="Suggestions" />
+                <HelperPane.PanelTab id={1} title="Functions" />
+                <HelperPane.PanelTab id={2} title="Configurables" />
+                
+                {/* Panels for the helper pane */}
+                <HelperPane.PanelView id={0}>
+                    <SuggestionsPage
+                        fileName={fileName}
+                        targetLineRange={targetLineRange}
+                        defaultValue={defaultValue}
+                        onChange={handleChange}
                     />
-                )}
-            {currentPage === HELPER_PANE_PAGE.CONFIGURABLE && (
-                <ConfigurablePage
-                    fileName={fileName}
-                    targetLineRange={targetLineRange}
-                    setCurrentPage={setCurrentPage}
-                    onClose={onClose}
-                    onChange={handleChange}
-                />
-            )} 
+                </HelperPane.PanelView>
+                <HelperPane.PanelView id={1}>
+                    <FunctionsPage
+                        fileName={fileName}
+                        targetLineRange={targetLineRange}
+                        onClose={onClose}
+                        onChange={handleChange}
+                    />
+                </HelperPane.PanelView>
+                <HelperPane.PanelView id={2}>
+                    <ConfigurablePage
+                        fileName={fileName}
+                        targetLineRange={targetLineRange}
+                        onChange={handleChange}
+                    />
+                </HelperPane.PanelView>
+            </HelperPane.Panels>
+            </HelperPane.Body>
         </HelperPane>
     );
 };
@@ -101,12 +95,13 @@ const HelperPaneEl = ({
  * @param targetLineRange Modified line range of the expression editor
  * @param exprRef Ref object of the expression editor
  * @param onClose Function to close the helper pane
+ * @param defaultValue Default value for the expression editor
  * @param currentValue Current value of the expression editor
  * @param onChange Function to handle changes in the expression editor
  * @returns JSX.Element Helper pane element
  */
 export const getHelperPane = (props: HelperPaneProps) => {
-    const { fileName, targetLineRange, exprRef, onClose, currentValue, onChange } = props;
+    const { fileName, targetLineRange, exprRef, onClose, defaultValue, currentValue, onChange } = props;
 
     return (
         <HelperPaneEl
@@ -114,6 +109,7 @@ export const getHelperPane = (props: HelperPaneProps) => {
             targetLineRange={targetLineRange}
             exprRef={exprRef}
             onClose={onClose}
+            defaultValue={defaultValue}
             currentValue={currentValue}
             onChange={onChange}
         />

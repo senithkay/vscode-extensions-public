@@ -404,6 +404,16 @@ export interface FunctionLineRange {
     endLine: LinePosition;
 }
 
+export interface ICPEnabledRequest {
+    projectPath: string;
+}
+
+export interface ICPEnabledResponse {
+    enabled?: boolean;
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
 export interface GetTestFunctionRequest {
     filePath: string;
     functionName: string;
@@ -868,9 +878,17 @@ export interface VisibleTypesRequest {
     position: LinePosition;
 }
 
-export interface VisibleTypesResponse {
-    types: string[];
+export interface VisibleTypeItem {
+    insertText: string;
+    kind: number;
+    label: string;
+    labelDetails: {
+        description: string;
+        detail: string;
+    }
 }
+
+export type VisibleTypesResponse = VisibleTypeItem[];
 
 export interface ReferenceLSRequest {
     textDocument: {
@@ -1051,6 +1069,7 @@ export interface ModelFromCodeRequest {
     codedata: {
         lineRange: LineRange;
     };
+    context: string;
 }
 
 export interface ServiceClassModelResponse {

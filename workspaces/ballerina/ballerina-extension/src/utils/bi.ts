@@ -183,7 +183,7 @@ export async function createBIAutomation(params: ComponentRequest): Promise<Crea
                     position.startLine = func.startLine;
                     position.endLine = func.endLine;
                     position.endColumn = func.endColumn;
-                })
+                });
             }
         }
         openView(EVENT_TYPE.OPEN_VIEW, { documentUri: functionFile, position });

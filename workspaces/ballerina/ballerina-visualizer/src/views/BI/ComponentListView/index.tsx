@@ -221,6 +221,12 @@ export function ComponentListView() {
                                     description="Flexible and efficient data queries."
                                     onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "graphql")}
                                 />
+                                <ButtonCard
+                                    icon={<Icon name="bi-tcp" />}
+                                    title="TCP Service"
+                                    description="Process connection oriented messages."
+                                    onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "tcp")}
+                                />
                                 {/* TODO: Add this when GRPC is working */}
                                 {/* <ButtonCard
                                     icon={<Icon name="bi-grpc" />}
@@ -343,6 +349,8 @@ export function ComponentListView() {
 // TODO: This should be removed once the new icons are added to the BE API.
 export function getCustomEntryNodeIcon(type: string) {
     switch (type) {
+        case "tcp":
+            return <Icon name="bi-tcp" />;
         case "kafka":
             return <Icon name="bi-kafka" />;
         case "rabbitmq":

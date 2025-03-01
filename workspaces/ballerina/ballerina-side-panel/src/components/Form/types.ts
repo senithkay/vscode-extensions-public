@@ -35,7 +35,7 @@ export type FormField = {
     groupNo?: number;
     groupName?: string;
     addNewButton?: boolean;
-    enabled?: boolean;
+    enabled: boolean;
     lineRange?: LineRange;
 };
 
@@ -119,6 +119,7 @@ type FormTypeConditionalProps = {
 type FormHelperPaneConditionalProps = {
     getHelperPane: (
         exprRef: RefObject<FormExpressionEditorRef>,
+        defaultValue: string,
         value: string,
         onChange: (value: string, updatedCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void,

@@ -32,6 +32,7 @@ import {
     SignatureHelpResponse,
     TriggerNode,
     VisibleType,
+    VisibleTypeItem,
     Item,
     FunctionKind,
     functionKinds,
@@ -48,7 +49,7 @@ import {
 import { SidePanelView } from "../views/BI/FlowDiagram";
 import React from "react";
 import { cloneDeep } from "lodash";
-import { COMPLETION_ITEM_KIND, CompletionItem, CompletionItemKind } from "@wso2-enterprise/ui-toolkit";
+import { COMPLETION_ITEM_KIND, CompletionItem, CompletionItemKind, convertCompletionItemKind } from "@wso2-enterprise/ui-toolkit";
 
 function convertAvailableNodeToPanelNode(node: AvailableNode, functionType?: FUNCTION_TYPE): PanelNode {
     // Check if node should be filtered based on function type
@@ -148,6 +149,7 @@ export function convertNodePropertyToFormField(
         advanced: property.advanced,
         placeholder: property.placeholder,
         editable: isFieldEditable(property, connections, clientName),
+        enabled: true,
         documentation: property.metadata?.description || "",
         value: getFormFieldValue(property, clientName),
         valueType: getFormFieldValueType(property),
@@ -481,6 +483,7 @@ export function convertTriggerFunctionsConfig(trigger: Trigger): Record<string, 
                         optional: expression?.optional,
                         type: expression?.typeName,
                         editable: true,
+                        enabled: true,
                         value: expression.defaultTypeName,
                         valueTypeConstraint: ""
                     }
@@ -525,11 +528,12 @@ export function convertToFnSignature(signatureHelp: SignatureHelpResponse) {
     };
 }
 
-export function convertToVisibleTypes(visibleTypes: string[]): CompletionItem[] {
-    return visibleTypes.map((type) => ({
-        label: type,
-        value: type,
-        kind: COMPLETION_ITEM_KIND.TypeParameter,
+export function convertToVisibleTypes(types: VisibleTypeItem[]): CompletionItem[] {
+    return types.map((type) => ({
+        label: type.label,
+        value: type.insertText,
+        kind: convertCompletionItemKind(type.kind),
+        insertText: type.insertText,
     }));
 }
 
@@ -548,7 +552,7 @@ export const convertToHelperPaneVariable = (variables: VisibleType[]): HelperPan
                 label: variable.name,
                 items: variable.types.map((item) => ({
                     label: item.name,
-                    type: item.type.value,
+                    type: item.type.typeName,
                     insertText: item.name
                 }))
             }))
