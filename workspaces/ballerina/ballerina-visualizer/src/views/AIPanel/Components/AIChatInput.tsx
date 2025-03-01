@@ -21,12 +21,19 @@ import React, {
 } from "react";
 import styled from "@emotion/styled";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
-import { COMMAND_DATAMAP, COMMAND_GENERATE, COMMAND_TESTS, COMMAND_TYPECREATOR, getFileTypesForCommand, COMMAND_NATURAL_PROGRAMMING } from "../AIPanel/AIChat";
+import {
+    COMMAND_DATAMAP,
+    COMMAND_GENERATE,
+    COMMAND_TESTS,
+    COMMAND_TYPECREATOR,
+    COMMAND_NATURAL_PROGRAMMING,
+    getFileTypesForCommand,
+} from "../AIChat";
 import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
-import AttachmentBox, { AttachmentsContainer } from "./Components/AttachmentBox";
-import { DataMapperAttachment } from "../../utils/datamapperAttachment";
-import { GenerateAttachment } from "../../utils/generateAttachment";
-import { TestAttachment } from "../../utils/testAttachment";
+import AttachmentBox, { AttachmentsContainer } from "./AttachmentBox";
+import { DataMapperAttachment } from "../../../utils/datamapperAttachment";
+import { GenerateAttachment } from "../../../utils/generateAttachment";
+import { TestAttachment } from "../../../utils/testAttachment";
 
 // Styled Components
 
@@ -86,6 +93,8 @@ const SuggestionsList = styled.ul`
     box-sizing: border-box;
     z-index: 1000;
 `;
+
+const AT_MENTION_SUGGESTIONS = ["Apple", "Mango", "Banana"];
 
 // Suggestion item styling
 interface SuggestionItemProps {
@@ -169,6 +178,7 @@ const StyledInput = styled.div`
 
 interface StyledInputRef {
     focus: () => void;
+    getCursorPosition: () => number;
     ref: React.RefObject<HTMLDivElement>;
 }
 
@@ -186,29 +196,60 @@ const StyledInputComponent = forwardRef<StyledInputRef, StyledInputProps>(
         const [isFocused, setIsFocused] = useState<boolean>(false);
         const divRef = useRef<HTMLDivElement>(null);
 
+        const getCursorPosition = () => {
+            const selection = window.getSelection();
+            if (selection && selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                const preCaretRange = range.cloneRange();
+                preCaretRange.selectNodeContents(divRef.current);
+                preCaretRange.setEnd(range.endContainer, range.endOffset);
+                return preCaretRange.toString().length;
+            }
+            return 0;
+        };
+
         // Expose the focus, bold, and highlight methods to parent components
         useImperativeHandle(ref, () => ({
             focus: () => {
                 if (divRef.current) {
                     divRef.current.focus();
-                    setCursorToEnd(divRef.current);
                 }
             },
+            getCursorPosition,
             ref: divRef,
         }));
 
-        // Function to set the cursor to the end of the content
-        const setCursorToEnd = (element: HTMLDivElement) => {
+        const setCursorToPosition = (element: HTMLDivElement, position: number) => {
             const range = document.createRange();
             const selection = window.getSelection();
 
-            if (element.childNodes.length > 0) {
-                range.setStart(element, element.childNodes.length);
-            } else {
-                range.setStart(element, 0);
+            position = Math.min(position, element.textContent?.length ?? 0);
+            position = Math.max(position, 0);
+
+            let currentPos = 0;
+            let found = false;
+
+            for (const node of element.childNodes) {
+                const nodeLength = node.textContent?.length ?? 0;
+
+                if (currentPos + nodeLength >= position) {
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        range.setStart(node, position - currentPos);
+                    } else {
+                        range.setStart(node, Math.min(position - currentPos, node.childNodes.length));
+                    }
+                    found = true;
+                    break;
+                }
+
+                currentPos += nodeLength;
             }
 
-            range.collapse(true); // Collapse the range to the end point
+            if (!found) {
+                range.setStart(element, element.childNodes.length);
+            }
+
+            range.collapse(true);
             selection?.removeAllRanges();
             selection?.addRange(range);
         };
@@ -231,7 +272,7 @@ const StyledInputComponent = forwardRef<StyledInputRef, StyledInputProps>(
             selection.removeAllRanges();
             selection.addRange(range);
 
-            const newValue = divRef.current.innerText;
+            const newValue = divRef.current.innerHTML;
             setContent(newValue);
             if (onChange) {
                 onChange(newValue);
@@ -241,8 +282,12 @@ const StyledInputComponent = forwardRef<StyledInputRef, StyledInputProps>(
         // Sync prop `value` with internal state
         useEffect(() => {
             if (divRef.current && divRef.current.innerHTML !== content) {
+                const prevCursorPosition = getCursorPosition();
+                const diff = decodeHTML(content).length - decodeHTML(divRef.current.innerHTML).length;
+
                 divRef.current.innerHTML = content;
-                setCursorToEnd(divRef.current);
+
+                setCursorToPosition(divRef.current, prevCursorPosition + diff + 1);
             }
         }, [content]);
 
@@ -269,6 +314,7 @@ const StyledInputComponent = forwardRef<StyledInputRef, StyledInputProps>(
             <StyledInput
                 ref={divRef}
                 contentEditable
+                spellCheck="true"
                 onInput={handleInput}
                 onKeyDown={onKeyDown}
                 onPaste={handlePaste}
@@ -283,15 +329,30 @@ const StyledInputComponent = forwardRef<StyledInputRef, StyledInputProps>(
     }
 );
 
+// UTIL Functions ----
+function decodeHTML(str: string): string {
+    const element = document.createElement("div");
+    element.innerHTML = str;
+    return element.innerText;
+}
+
 interface AIChatInputProps {
     value: string;
     baseCommands: Map<string, string[]>;
     onSend: (content: [string, AttachmentResult[]]) => void;
     onStop: () => void;
     isLoading: boolean;
+    loadMentions?: (command: string, template: string) => Promise<string[]>;
 }
 
-const AIChatInput: React.FC<AIChatInputProps> = ({ value = "", baseCommands, onSend, onStop, isLoading }) => {
+const AIChatInput: React.FC<AIChatInputProps> = ({
+    value = "",
+    baseCommands,
+    onSend,
+    onStop,
+    isLoading,
+    loadMentions,
+}) => {
     const [inputValue, setInputValue] = useState(value);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
@@ -300,11 +361,14 @@ const AIChatInput: React.FC<AIChatInputProps> = ({ value = "", baseCommands, onS
     const [selectedCommand, setSelectedCommand] = useState<string | null>(null);
     const [attachments, setAttachments] = useState<AttachmentResult[]>([]);
     const [activeCommand, setActiveCommand] = useState<string | null>(null);
+    const [mentions, setMentions] = useState<string[]>([]);
+    const [isMentionMode, setIsMentionMode] = useState(false);
 
     const suggestionsRef = useRef<HTMLUListElement>(null);
     const inputRef = useRef<StyledInputRef>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const activeSuggestionRef = useRef<HTMLLIElement | null>(null);
 
     const setActiveSuggestion = (newIndex: number, suggestionList: string[]) => {
         setActiveSuggestionIndex(newIndex);
@@ -318,8 +382,8 @@ const AIChatInput: React.FC<AIChatInputProps> = ({ value = "", baseCommands, onS
 
     useEffect(() => {
         if (value.startsWith("/")) {
-            const command = value.slice().split(' ')[0];
-            const commandValue = value.split(' ').slice(1).join(' ');
+            const command = value.slice().split(" ")[0];
+            const commandValue = value.split(" ").slice(1).join(" ");
             if (baseCommands.has(command)) {
                 setInputValue("");
                 selectSuggestion(command);
@@ -331,6 +395,18 @@ const AIChatInput: React.FC<AIChatInputProps> = ({ value = "", baseCommands, onS
             }
         }
     }, [value]);
+
+    useEffect(
+        function autoScrollForActiveSuggestionOnList() {
+            if (activeSuggestionRef.current) {
+                activeSuggestionRef.current.scrollIntoView({
+                    block: "nearest",
+                    inline: "nearest",
+                });
+            }
+        },
+        [activeSuggestionIndex]
+    );
 
     // Handle input changes
     const handleInputChange = (event: ChangeEvent<HTMLDivElement>) => {
@@ -358,6 +434,19 @@ const AIChatInput: React.FC<AIChatInputProps> = ({ value = "", baseCommands, onS
                 setFilteredSuggestions([]);
                 setActiveSuggestionIndex(0);
                 setActiveSuggestionValue(null);
+
+                // Handle @ - Mentions
+                const currentCursorPosition = inputRef.current.getCursorPosition();
+                const valueUpToCursor = normalizedValue.slice(0, currentCursorPosition);
+                const atIndex = valueUpToCursor.lastIndexOf("@");
+                if (atIndex !== -1) {
+                    const query = valueUpToCursor.slice(atIndex + 1).toLowerCase();
+                    const filteredMentions = mentions.filter((mention) => mention.toLowerCase().startsWith(query));
+
+                    setFilteredSuggestions(filteredMentions);
+                    setShowSuggestions(filteredMentions.length > 0);
+                    setIsMentionMode(filteredMentions.length > 0);
+                }
                 return;
             }
         }
@@ -423,7 +512,14 @@ const AIChatInput: React.FC<AIChatInputProps> = ({ value = "", baseCommands, onS
     const handleSend = () => {
         const message = inputValue.trim();
         const filteredAttachments = attachments.filter((attachment) => attachment.status === AttachmentStatus.Success);
-        onSend([decodeHTML(message), filteredAttachments]);
+
+        // Replace <div> tags with <badge> tags
+        const divRegex = /<div[^>]*>(.*?)<\/div>/gs;
+        const badgeTag = `&lt;badge&gt;$1&lt;/badge&gt;`;
+        const badgeTaggedMessage = message.replace(divRegex, badgeTag);
+
+        // Send the message and attachments
+        onSend([decodeHTML(badgeTaggedMessage), filteredAttachments]);
         setInputValue("");
         setAttachments([]);
         setShowSuggestions(false);
@@ -491,9 +587,75 @@ const AIChatInput: React.FC<AIChatInputProps> = ({ value = "", baseCommands, onS
         setShowSuggestions(false);
     };
 
+    function mapDecodedIndexToOriginal(html: string, decodedIndex: number): number {
+        const tempElement = document.createElement("div");
+        tempElement.innerHTML = html;
+        const decodedText = tempElement.innerText; // Get decoded text
+
+        let decodedPos = 0;
+        let originalPos = 0;
+
+        while (originalPos < html.length && decodedPos < decodedText.length) {
+            // Extract the next character in both decoded and original text
+            let currentChar = "";
+            if (html[originalPos] === "<") {
+                // Skip over entire HTML tag
+                while (originalPos < html.length && html[originalPos] !== ">") {
+                    originalPos++;
+                }
+                originalPos++; // Move past '>'
+                continue;
+            } else {
+                currentChar = html[originalPos];
+            }
+
+            // If this matches the decoded text, track position
+            if (currentChar === decodedText[decodedPos]) {
+                if (decodedPos === decodedIndex) {
+                    return originalPos; // Return corresponding original index
+                }
+                decodedPos++;
+            }
+
+            originalPos++; // Move forward in the original string
+        }
+
+        return -1; // Return -1 if index is out of bounds
+    }
+
     // Select suggestion and handle accordingly
-    const selectSuggestion = (suggestion: string) => {
+    const selectSuggestion = async (suggestion: string) => {
         const encodedSuggestion = encodeHTML(suggestion);
+
+        if (isMentionMode) {
+            const currentCursorPosition = inputRef.current.getCursorPosition();
+            let decodedIdx = decodeHTML(inputValue).lastIndexOf("@");
+            let originalIdx = mapDecodedIndexToOriginal(inputValue, decodedIdx);
+
+            const replaceSubstring = decodeHTML(inputValue).substring(decodedIdx, currentCursorPosition);
+
+            const textBeforeAt = inputValue.substring(0, originalIdx);
+            const textAfterAt = inputValue.substring(originalIdx);
+
+            const highlightedBadge = `<div style="
+                background-color: var(--vscode-editorWidget-background);
+                color: var(--vscode-editorWidget-foreground);
+                padding: 4px;
+                border-radius: 4px;
+                display: inline-flex;
+                align-items: center;
+                line-height: 1;
+                font-family: 'Source Code Pro', monospace;
+                margin-right: 2px;
+            " contentEditable="false">${encodedSuggestion}</div>`;
+
+            setInputValue(textBeforeAt + textAfterAt.replace(replaceSubstring, highlightedBadge));
+
+            setIsMentionMode(false);
+            setShowSuggestions(false);
+            return;
+        }
+
         if (selectedCommand) {
             // If a command is already selected, treat the suggestion as a value
             setInputValue((currentInputValue) => {
@@ -509,6 +671,13 @@ const AIChatInput: React.FC<AIChatInputProps> = ({ value = "", baseCommands, onS
             });
             setSelectedCommand(null); // Reset selected command
             setShowSuggestions(false); // Dismiss the suggestion list
+
+            try {
+                const loadedMentions = await loadMentions(selectedCommand, suggestion);
+                setMentions(loadedMentions);
+            } catch (err) {
+                console.error("Error fetching data:", err);
+            }
         } else {
             // Treat the suggestion as a command
             addBadge(encodedSuggestion);
@@ -524,21 +693,19 @@ const AIChatInput: React.FC<AIChatInputProps> = ({ value = "", baseCommands, onS
     // Handle suggestion click
     const handleSuggestionClick = (suggestion: string) => {
         selectSuggestion(suggestion);
-        if(suggestion.startsWith("/")){
+        if (suggestion.startsWith("/")) {
             setActiveCommand(suggestion);
         }
+    };
+
+    const handleSuggestionMouseDown = (e: React.MouseEvent) => {
+        e.preventDefault();
     };
 
     function encodeHTML(str: string): string {
         const element = document.createElement("div");
         element.innerText = str;
         return element.innerHTML;
-    }
-
-    function decodeHTML(str: string): string {
-        const element = document.createElement("div");
-        element.innerHTML = str;
-        return element.innerText;
     }
 
     // useEffect to handle showing second suggestion list
@@ -573,7 +740,7 @@ const AIChatInput: React.FC<AIChatInputProps> = ({ value = "", baseCommands, onS
                 attachmentHandler = new TestAttachment(activeCommand);
                 break;
             default:
-                attachmentHandler = new GenerateAttachment(activeCommand); 
+                attachmentHandler = new GenerateAttachment(activeCommand);
         }
         const results = await attachmentHandler.handleFileAttach(e);
         setAttachments((prevAttachments) => {
@@ -637,7 +804,11 @@ const AIChatInput: React.FC<AIChatInputProps> = ({ value = "", baseCommands, onS
                             <input
                                 type="file"
                                 multiple
-                                accept={activeCommand ? getFileTypesForCommand(activeCommand).join(",") : getFileTypesForCommand("").join(",")}
+                                accept={
+                                    activeCommand
+                                        ? getFileTypesForCommand(activeCommand).join(",")
+                                        : getFileTypesForCommand("").join(",")
+                                }
                                 style={{ display: "none" }}
                                 ref={fileInputRef}
                                 onChange={handleFileSelection}
@@ -662,18 +833,23 @@ const AIChatInput: React.FC<AIChatInputProps> = ({ value = "", baseCommands, onS
             </FlexRow>
             {showSuggestions && (
                 <SuggestionsList ref={suggestionsRef} role="listbox">
-                    {filteredSuggestions.map((suggestion, index) => (
-                        <SuggestionItem
-                            key={suggestion}
-                            active={index === activeSuggestionIndex}
-                            onClick={() => handleSuggestionClick(suggestion)}
-                            onMouseEnter={() => setActiveSuggestion(index, filteredSuggestions)}
-                            role="option"
-                            aria-selected={index === activeSuggestionIndex}
-                        >
-                            {suggestion}
-                        </SuggestionItem>
-                    ))}
+                    {filteredSuggestions.map((suggestion, index) => {
+                        const isActive = index === activeSuggestionIndex;
+                        return (
+                            <SuggestionItem
+                                key={suggestion}
+                                ref={isActive ? activeSuggestionRef : null}
+                                active={isActive}
+                                onClick={() => handleSuggestionClick(suggestion)}
+                                onMouseEnter={() => setActiveSuggestion(index, filteredSuggestions)}
+                                onMouseDown={handleSuggestionMouseDown}
+                                role="option"
+                                aria-selected={isActive}
+                            >
+                                {suggestion}
+                            </SuggestionItem>
+                        );
+                    })}
                 </SuggestionsList>
             )}
         </Container>
