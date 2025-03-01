@@ -10,6 +10,7 @@
 import { FunctionDefinition, ModulePart, QualifiedNameReference, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { AI_EVENT_TYPE, ErrorCode, FormField, STModification, SyntaxTree, AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
 import { QuickPickItem, QuickPickOptions, window, workspace } from 'vscode';
+import { UNKNOWN_ERROR } from '../../views/ai-panel/errorCodes';
 
 import { StateMachine } from "../../stateMachine";
 import {
