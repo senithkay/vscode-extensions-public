@@ -70,6 +70,12 @@ interface ChatIndexes {
     previouslyIntegratedChatIndex: number
 }
 
+enum CodeGenerationType {
+    CODE_FOR_USER_REQUIREMENT = "CODE_FOR_USER_REQUIREMENT",
+    TESTS_FOR_USER_REQUIREMENT = "TESTS_FOR_USER_REQUIREMENT",
+    CODE_GENERATION = "CODE_GENERATION"
+}
+
 var chatArray: ChatEntry[] = [];
 var integratedChatIndex = 0;
 var previouslyIntegratedChatIndex = 0;
@@ -80,6 +86,7 @@ const codeBlocks: string[] = [];
 var projectUuid = "";
 var backendRootUri = "";
 var chatLocation = "";
+var isReqFileExists = false;
 
 let controller = new AbortController();
 let signal = controller.signal;
@@ -91,6 +98,8 @@ var timeToReset: number;
 
 // Define constants for command keys
 export const COMMAND_GENERATE = "/generate";
+export const COMMAND_SCAFFOLD = "/scaffold";
+export const COMMAND_NATURAL_PROGRAMMING = "/natural-programming";
 export const COMMAND_TESTS = "/tests";
 export const COMMAND_DATAMAP = "/datamap";
 export const COMMAND_TYPECREATOR = "/typecreator";
@@ -114,6 +123,16 @@ const DEFAULT_MENU_COMMANDS = [
     { command: COMMAND_DOCUMENTATION + " how to write a concurrent application?" }
 ]
 
+const GENERATE_TEST_AGAINST_THE_REQUIREMENT = "Generate tests against the requirements";
+const GENERATE_CODE_AGAINST_THE_REQUIREMENT = "Generate code based on the requirements";
+const CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION = "Check drift between code and documentation";
+
+const TEMPLATE_NATURAL_PROGRAMMING: string[] = [
+    CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION,
+    GENERATE_CODE_AGAINST_THE_REQUIREMENT,
+    GENERATE_TEST_AGAINST_THE_REQUIREMENT
+];
+
 // Use the constants in the commandToTemplate map
 const commandToTemplate = new Map<string, string[]>([
     [COMMAND_GENERATE, TEMPLATE_GENERATE],
@@ -129,6 +148,8 @@ export const getFileTypesForCommand = (command: string): string[] => {
     switch (command) {
         case COMMAND_GENERATE:
         case COMMAND_TESTS:
+            return ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml", ".sql", ".graphql", ""];
+        case COMMAND_NATURAL_PROGRAMMING:
             return ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml", ".sql", ".graphql", ""];
         case COMMAND_DATAMAP:
         case COMMAND_TYPECREATOR:
@@ -174,6 +195,12 @@ export function AIChat() {
         try {
             backendRootUri = await rpcClient.getAiPanelRpcClient().getBackendURL();
             chatLocation = (await rpcClient.getVisualizerLocation()).projectUri;
+            isReqFileExists = chatLocation != null && chatLocation != undefined 
+                && (await rpcClient.getAiPanelRpcClient().isRequirementsSpecificationFileExist(chatLocation));
+
+            if (isReqFileExists){
+                commandToTemplate.set(COMMAND_NATURAL_PROGRAMMING, TEMPLATE_NATURAL_PROGRAMMING);
+            }
             // Do something with backendRootUri
         } catch (error) {
             console.error("Failed to fetch backend URL:", error);
@@ -371,6 +398,38 @@ export function AIChat() {
 
             if (parameters) {
                 switch (commandKey) {
+                    case COMMAND_NATURAL_PROGRAMMING: {
+                        if (isContentIncludedInMessageBody(messageBody, CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION)) {
+                            await processLLMDiagnostics(
+                                token,
+                                [
+                                    parameters.inputRecord.length === 1 && parameters.inputRecord[0] !== undefined
+                                        ? parameters.inputRecord[0]
+                                        : messageBody,
+                                    attachments,
+                                    null
+                                ],
+                                message
+                            );
+                            break;
+                        } else {
+                            await processCodeGeneration(
+                                token,
+                                [
+                                    parameters.inputRecord.length === 1 && parameters.inputRecord[0] !== undefined
+                                        ? parameters.inputRecord[0]
+                                        : messageBody,
+                                    attachments,
+                                    isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT) 
+                                        ? CodeGenerationType.CODE_FOR_USER_REQUIREMENT 
+                                        : isContentIncludedInMessageBody(messageBody, GENERATE_TEST_AGAINST_THE_REQUIREMENT) ? 
+                                            CodeGenerationType.TESTS_FOR_USER_REQUIREMENT : CodeGenerationType.CODE_GENERATION
+                                ],
+                                message
+                            );
+                            break;
+                        } 
+                    }
                     case COMMAND_GENERATE: {
                         await processCodeGeneration(
                             token,
@@ -379,6 +438,7 @@ export function AIChat() {
                                     ? parameters.inputRecord[0]
                                     : messageBody,
                                 attachments,
+                                CodeGenerationType.CODE_GENERATION
                             ],
                             message
                         );
@@ -433,8 +493,12 @@ export function AIChat() {
                 );
             }
         } else {
-            await processCodeGeneration(token, content, message);
+            await processCodeGeneration(token, [message, attachments, CodeGenerationType.CODE_GENERATION], message);
         }
+    }
+
+    function isContentIncludedInMessageBody(messageBody: string, content: string): boolean {
+        return messageBody.includes(content);
     }
 
     function findCommand(input: string): string {
@@ -495,8 +559,30 @@ export function AIChat() {
         return null;
     }
 
-    async function processCodeGeneration(token: string, content: [string, AttachmentResult[]], message: string) {
-        const [useCase, attachments] = content;
+    async function processLLMDiagnostics(token: string, content: [string, AttachmentResult[], string], message: string) {
+        const [useCase, attachments, operationType] = content;
+
+        let response =  rpcClient == null ? "" : 
+            await rpcClient.getAiPanelRpcClient().getDriftDiagnosticContents(chatLocation);
+
+        if (response == null) {
+            // TODO: Handle this properly
+            response = "";
+        }
+
+        const userMessage = getUserMessage([message, attachments]);
+        addChatEntry("user", userMessage);
+        addChatEntry("assistant", response);
+        setMessages(prevMessages => {
+            prevMessages.push({content: response, role: "assistant", type: "assistant_message"});
+            return prevMessages;
+        });
+        setIsSyntaxError(false);
+        setIsLoading(false);
+    }
+
+    async function processCodeGeneration(token: string, content: [string, AttachmentResult[], string], message: string) {
+        const [useCase, attachments, operationType] = content;
 
         let assistant_response = "";
         const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource();
@@ -504,6 +590,7 @@ export function AIChat() {
             usecase: useCase,
             chatHistory: chatArray,
             sourceFiles: project.sourceFiles,
+            operationType
         };
 
         const stringifiedUploadedFiles = attachments.map((file) => JSON.stringify(file));

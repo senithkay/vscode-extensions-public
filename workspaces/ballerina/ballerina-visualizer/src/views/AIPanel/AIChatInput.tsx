@@ -21,7 +21,7 @@ import React, {
 } from "react";
 import styled from "@emotion/styled";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
-import { COMMAND_DATAMAP, COMMAND_GENERATE, COMMAND_TESTS, COMMAND_TYPECREATOR, getFileTypesForCommand } from "../AIPanel/AIChat";
+import { COMMAND_DATAMAP, COMMAND_GENERATE, COMMAND_TESTS, COMMAND_TYPECREATOR, getFileTypesForCommand, COMMAND_NATURAL_PROGRAMMING } from "../AIPanel/AIChat";
 import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
 import AttachmentBox, { AttachmentsContainer } from "./Components/AttachmentBox";
 import { DataMapperAttachment } from "../../utils/datamapperAttachment";
@@ -565,7 +565,8 @@ const AIChatInput: React.FC<AIChatInputProps> = ({ value = "", baseCommands, onS
             case COMMAND_TYPECREATOR:
                 attachmentHandler = new DataMapperAttachment(activeCommand);
                 break;
-            case COMMAND_GENERATE:
+            case COMMAND_GENERATE:            
+            case COMMAND_NATURAL_PROGRAMMING:
                 attachmentHandler = new GenerateAttachment(activeCommand);
                 break;
             case COMMAND_TESTS:
