@@ -102,7 +102,7 @@ const TEMPLATE_DATAMAP = [
 ];
 const TEMPLATE_TYPECREATOR = ["generate types using the given file"];
 const TEMPLATE_DOCUMENTATION = ["Find reliable answers to your ballerina questions: <question>"];
-const TEMPLATE_HEALTHCARE = ["generate code for the healthcare use-case: <use-case>"];
+const TEMPLATE_HEALTHCARE = [""];
 
 const DEFAULT_MENU_COMMANDS = [
     { command: COMMAND_GENERATE + " write a hello world http service" },
@@ -1213,7 +1213,7 @@ export function AIChat() {
         }
 
         addChatEntry("user", message);
-        addChatEntry("assistant", formatted_response);
+        addChatEntry("assistant", assistant_response);
     }
 
 
