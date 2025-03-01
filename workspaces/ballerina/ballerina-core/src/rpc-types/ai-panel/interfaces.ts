@@ -150,3 +150,13 @@ export interface PostProcessResponse {
     assistant_response: string;
     diagnostics: ProjectDiagnostics;
 }
+
+export interface AIChatSummary {
+    filepath: string;
+    summary: string;
+}
+
+export interface DeveloperDocument {
+    filepath: string;
+    content: string;
+}

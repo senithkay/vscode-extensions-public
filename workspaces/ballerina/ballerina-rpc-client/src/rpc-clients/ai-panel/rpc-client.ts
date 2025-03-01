@@ -9,10 +9,12 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    AIChatSummary,
     AIPanelAPI,
     AIVisualizerState,
     AddToProjectRequest,
     DeleteFromProjectRequest,
+    DeveloperDocument,
     GenerateMappingFromRecordResponse,
     GenerateMappingsFromRecordRequest,
     GenerateMappingsRequest,
@@ -28,6 +30,7 @@ import {
     PostProcessResponse,
     ProjectDiagnostics,
     ProjectSource,
+    addChatSummary,
     addToProject,
     applyDoOnFailBlocks,
     checkSyntaxError,
@@ -64,9 +67,11 @@ import {
     promptGithubAuthorize,
     promptLogin,
     promptWSO2AILogout,
+    readDeveloperMdFile,
     refreshAccessToken,
     showSignInAlert,
     stopAIMappings,
+    updateDevelopmentDocument,
     updateProject
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
@@ -237,5 +242,17 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     getDriftDiagnosticContents(projectPath: string): Promise<string> {
         return this._messenger.sendRequest(getDriftDiagnosticContents, HOST_EXTENSION, projectPath);
+    }
+    
+    addChatSummary(filepathAndSummary: AIChatSummary): void {
+        return this._messenger.sendNotification(addChatSummary, HOST_EXTENSION, filepathAndSummary);
+    }
+
+    readDeveloperMdFile(directoryPath: string): Promise<string> {
+        return this._messenger.sendRequest(readDeveloperMdFile, HOST_EXTENSION, directoryPath);
+    }
+
+    updateDevelopmentDocument(developerDocument: DeveloperDocument): void {
+        return this._messenger.sendNotification(updateDevelopmentDocument, HOST_EXTENSION, developerDocument);
     }
 }

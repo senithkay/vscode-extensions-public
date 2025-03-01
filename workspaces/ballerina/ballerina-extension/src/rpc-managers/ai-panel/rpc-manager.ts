@@ -9,6 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    AIChatSummary,
     AIPanelAPI,
     AIVisualizerState,
     AI_EVENT_TYPE,
@@ -16,6 +17,7 @@ import {
     BIModuleNodesRequest,
     BISourceCodeResponse,
     DeleteFromProjectRequest,
+    DeveloperDocument,
     DiagnosticEntry,
     Diagnostics,
     ErrorCode,
@@ -68,6 +70,8 @@ import { getFunction, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNo
 import { getLLMDiagnosticArrayAsString } from "../../features/natural-programming/utils";
 
 export let hasStopped: boolean = false;
+const DEVELOPEMENT_DOCUMENT_PATH = "developer.md";
+const NATURAL_PROGRAMMING_DIR_PATH = "natural-programming";
 
 export class AiPanelRpcManager implements AIPanelAPI {
     async getBackendURL(): Promise<string> {
@@ -713,6 +717,49 @@ export class AiPanelRpcManager implements AIPanelAPI {
     async getDriftDiagnosticContents(projectPath: string): Promise<string> {
         return getLLMDiagnosticArrayAsString(projectPath);
     }
+    
+    async addChatSummary(filepathAndSummary: AIChatSummary): Promise<void> {
+        const filepath = filepathAndSummary.filepath;
+        var summaryResponse = filepathAndSummary.summary;
+
+        const summaryJson: SummaryResponse = JSON.parse(summaryResponse);
+        let summary = summaryJson.summary;
+
+        // Added last updated time into the summary
+        const currentDate = new Date();
+        const formattedDate = currentDate.toLocaleDateString();
+        const formattedTime = currentDate.toLocaleTimeString();
+        summary = `${summary}\nLast updated at - ${formattedDate}, ${formattedTime}\n`;
+
+        const naturalProgrammingDirectory = path.join(filepath, NATURAL_PROGRAMMING_DIR_PATH);
+
+        if (!fs.existsSync(naturalProgrammingDirectory)) {
+            fs.mkdirSync(naturalProgrammingDirectory, { recursive: true }); // Add recursive: true
+        }
+
+        const developerMdPath = path.join(naturalProgrammingDirectory, DEVELOPEMENT_DOCUMENT_PATH);
+        fs.writeFileSync(developerMdPath, summary, 'utf8');
+    }
+
+    async readDeveloperMdFile(directoryPath: string): Promise<string> {
+        const developerMdPath = path.join(directoryPath, NATURAL_PROGRAMMING_DIR_PATH, DEVELOPEMENT_DOCUMENT_PATH);
+        if (!fs.existsSync(developerMdPath)) {
+            return "";
+        }
+        
+        let developerMdContent = fs.readFileSync(developerMdPath, 'utf8');
+        return Promise.resolve(developerMdContent);
+    }
+
+    async updateDevelopmentDocument(developerDocument: DeveloperDocument) {
+        const projectPath = developerDocument.filepath;
+        const content = developerDocument.content;
+
+        const developerMdPath = path.join(projectPath, NATURAL_PROGRAMMING_DIR_PATH, DEVELOPEMENT_DOCUMENT_PATH);
+        if (fs.existsSync(developerMdPath)) {
+            fs.writeFileSync(developerMdPath, content, 'utf8');
+        }
+    }
 }
 
 function getModifiedAssistantResponse(originalAssistantResponse: string, tempDir: string, project: ProjectSource) : string {
@@ -743,6 +790,10 @@ function getModifiedAssistantResponse(originalAssistantResponse: string, tempDir
     );
 
     return modifiedResponse;
+}
+
+interface SummaryResponse {
+    summary: string;
 }
 
 interface BalModification {
