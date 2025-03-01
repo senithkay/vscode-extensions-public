@@ -36,6 +36,9 @@ export function ConnectionHeadWidget(props: ServiceHeadProps) {
     }, [node]);
 
     const handleOnHover = (task: string) => {
+        if (previewMode) {
+            return;
+        }
         setIsHovered(task === "SELECT" ? true : false);
         node.handleHover(headPorts.current, task);
     };

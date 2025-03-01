@@ -13,6 +13,7 @@ import ErrorScreen from "./Error";
 export interface DataMapperErrorBoundaryProps {
     hasError: boolean;
     children?: React.ReactNode;
+    onClose: () => void;
 }
 
 export class DataMapperErrorBoundaryC extends React.Component<DataMapperErrorBoundaryProps, { hasError: boolean }> {
@@ -39,7 +40,7 @@ export class DataMapperErrorBoundaryC extends React.Component<DataMapperErrorBou
 
     render() {
       if (this.state.hasError) {
-        return <ErrorScreen />;
+        return <ErrorScreen onClose={this.props.onClose} />;
       }
       return this.props?.children;
     }

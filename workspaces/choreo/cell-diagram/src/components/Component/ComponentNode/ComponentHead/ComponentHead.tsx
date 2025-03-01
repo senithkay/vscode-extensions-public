@@ -87,7 +87,7 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
             </IconWrapper>
             <ComponentPortWidget port={node.getPort(`left-${node.getID()}`)} engine={engine} />
             <ComponentPortWidget port={node.getPort(`right-${node.getID()}`)} engine={engine} />
-            {node.component.buildPack && node.component.buildPack.toLowerCase() !== "other" && (
+            {node.component.buildPack && node.component.buildPack.toLowerCase() !== "other" && !previewMode && (
                 <ComponentKind>{getComponentBuildIcon(node.component.buildPack)}</ComponentKind>
             )}
             {isFocused && menuItems?.length > 0 && !previewMode && (

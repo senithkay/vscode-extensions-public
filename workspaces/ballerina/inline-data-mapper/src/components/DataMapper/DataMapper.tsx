@@ -139,7 +139,7 @@ export function InlineDataMapper(props: DataMapperViewProps) {
     };
 
     return (
-        <DataMapperErrorBoundary hasError={hasInternalError}>
+        <DataMapperErrorBoundary hasError={hasInternalError} onClose={onClose}>
             <div className={classes.root}>
                 {model && (
                     <DataMapperHeader
