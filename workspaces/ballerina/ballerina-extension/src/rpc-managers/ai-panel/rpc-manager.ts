@@ -501,19 +501,6 @@ export class AiPanelRpcManager implements AIPanelAPI {
         };
     }
 
-    // async getGeneratedTestForResource(params: GenerateTestForFuncRequest): Promise<GeneratedTestSource> {
-    //     const projectRoot = await getBallerinaProjectRoot();
-
-    //     const unitTestResp: TestGenerationResponse | ErrorCode = await getUnitTestsForFunction(projectRoot, params);
-    //     if (isErrorCode(unitTestResp)) {
-    //         throw new Error((unitTestResp as ErrorCode).message);
-    //     }
-    //     return {
-    //         testContent: (unitTestResp as TestGenerationResponse).code,
-    //         configContent: (unitTestResp as TestGenerationResponse).configToml
-    //     };
-    // }
-
     async getMappingsFromRecord(params: GenerateMappingsFromRecordRequest): Promise<GenerateMappingFromRecordResponse> {
         const projectRoot = await getBallerinaProjectRoot();
         return await generateDataMapping(projectRoot, params);
