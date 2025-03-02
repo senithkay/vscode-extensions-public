@@ -98,7 +98,7 @@ export const COMMAND_OPENAPI = "/openapi";
 
 // Define constants for command templates
 const TEMPLATE_GENERATE = [
-    "generate code for the use-case: <use-case>",
+    "generate code for the use-case: ",
     "generate an integration according to the given Readme file",
 ];
 const TEMPLATE_TESTS = [
@@ -109,8 +109,8 @@ const TEMPLATE_DATAMAP = [
     "generate mapping using input as <recordname(s)> and output as <recordname> using the function <functionname>",
     "generate mapping using input as <recordname(s)> and output as <recordname>",
 ];
-const TEMPLATE_TYPECREATOR = ["generate types using the given file"];
-const TEMPLATE_DOCUMENTATION = ["Find reliable answers to your ballerina questions: <question>"];
+const TEMPLATE_TYPECREATOR = ["generate types using the attatched file"];
+const TEMPLATE_DOCUMENTATION : string[] = [];
 const TEMPLATE_HEALTHCARE : string[] = [];
 const TEMPLATE_OPENAPI : string[]= [];
 
