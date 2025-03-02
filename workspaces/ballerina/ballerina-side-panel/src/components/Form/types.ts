@@ -35,7 +35,7 @@ export type FormField = {
     groupNo?: number;
     groupName?: string;
     addNewButton?: boolean;
-    enabled?: boolean;
+    enabled: boolean;
     lineRange?: LineRange;
 };
 
