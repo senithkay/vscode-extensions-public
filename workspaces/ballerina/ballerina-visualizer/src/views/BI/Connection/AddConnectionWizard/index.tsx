@@ -220,6 +220,8 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
             {!isPullingConnector && (
                 <>
                     <ConnectorView
+                        fileName={fileName}
+                        targetLinePosition={target}
                         onSelectConnector={handleOnSelectConnector}
                         fetchingInfo={fetchingInfo}
                         onClose={onClose}

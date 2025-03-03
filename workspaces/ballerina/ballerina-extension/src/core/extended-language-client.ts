@@ -174,7 +174,9 @@ import {
     FunctionModelResponse,
     TypeDataWithReferences,
     ICPEnabledRequest,
-    ICPEnabledResponse
+    ICPEnabledResponse,
+    BISearchRequest,
+    BISearchResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -302,6 +304,7 @@ enum EXTENDED_APIS {
     BI_IS_ICP_ENABLED = 'icpService/isIcpEnabled',
     BI_ADD_ICP = 'icpService/addICP',
     BI_DISABLE_ICP = 'icpService/disableICP',
+    BI_SEARCH = 'flowDesignService/search'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -947,6 +950,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {
         return this.sendRequest<AddFunctionResponse>(EXTENDED_APIS.BI_ADD_FUNCTION, params);
+    }
+
+    async search(params: BISearchRequest): Promise<BISearchResponse> {
+        return this.sendRequest<BISearchResponse>(EXTENDED_APIS.BI_SEARCH, params);
     }
 
     // <------------ BI APIS END --------------->

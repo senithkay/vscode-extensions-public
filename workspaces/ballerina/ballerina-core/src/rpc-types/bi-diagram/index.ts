@@ -58,7 +58,9 @@ import {
     SourceEditResponse,
     ServiceClassSourceRequest,
     AddFieldRequest,
-    RenameIdentifierRequest
+    RenameIdentifierRequest,
+    BISearchRequest,
+    BISearchResponse
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -128,4 +130,5 @@ export interface BIDiagramAPI {
     addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
     getFunctionNode: (params: FunctionNodeRequest) => Promise<FunctionNodeResponse>;
     getEndOfFile: (params: EndOfFileRequest) => Promise<LinePosition>;
+    search: (params: BISearchRequest) => Promise<BISearchResponse>;
 }

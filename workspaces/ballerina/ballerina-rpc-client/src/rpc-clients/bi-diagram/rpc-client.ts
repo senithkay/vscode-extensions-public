@@ -28,6 +28,8 @@ import {
     BIModuleNodesResponse,
     BINodeTemplateRequest,
     BINodeTemplateResponse,
+    BISearchRequest,
+    BISearchResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
     BreakpointRequest,
@@ -111,6 +113,7 @@ import {
     openReadme,
     removeBreakpointFromSource,
     runProject,
+    search,
     updateClassField,
     addClassField,
     updateConfigVariables,
@@ -322,5 +325,9 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     getEndOfFile(params: EndOfFileRequest): Promise<LinePosition> {
         return this._messenger.sendRequest(getEndOfFile, HOST_EXTENSION, params);
+    }
+
+    search(params: BISearchRequest): Promise<BISearchResponse> {
+        return this._messenger.sendRequest(search, HOST_EXTENSION, params);
     }
 }

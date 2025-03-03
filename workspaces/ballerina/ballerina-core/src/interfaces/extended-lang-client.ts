@@ -707,10 +707,17 @@ export type SearchQueryParams = {
     includeAvailableFunctions?: string;
 }
 
-export type BIGetFunctionsRequest = {
+export type SearchKind = 'FUNCTION' | 'CONNECTOR' | 'TYPE';
+
+export type BISearchRequest = {
     position: LineRange;
     filePath: string;
     queryMap: SearchQueryParams;
+    searchKind: SearchKind;
+}
+
+export type BISearchResponse = {
+    categories: Category[];
 }
 
 export type BIGetEnclosedFunctionRequest = {
@@ -723,11 +730,6 @@ export type BIGetEnclosedFunctionResponse = {
     startLine: LinePosition;
     endLine: LinePosition;
 }
-
-export type BIGetFunctionsResponse = {
-    categories: Category[];
-}
-
 
 export type BIConnectorsRequest = {
     queryMap: SearchQueryParams;

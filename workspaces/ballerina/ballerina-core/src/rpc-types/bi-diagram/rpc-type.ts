@@ -55,7 +55,9 @@ import {
     SourceEditResponse,
     ServiceClassSourceRequest,
     AddFieldRequest,
-    RenameIdentifierRequest
+    RenameIdentifierRequest,
+    BISearchRequest,
+    BISearchResponse
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -126,3 +128,4 @@ export const updateImports: RequestType<UpdateImportsRequest, UpdateImportsRespo
 export const addFunction: RequestType<AddFunctionRequest, AddFunctionResponse> = { method: `${_preFix}/addFunction` };
 export const getFunctionNode: RequestType<FunctionNodeRequest, FunctionNodeResponse> = { method: `${_preFix}/getFunctionNode` };
 export const getEndOfFile: RequestType<EndOfFileRequest, LinePosition> = { method: `${_preFix}/getEndOfFile` };
+export const search: RequestType<BISearchRequest, BISearchResponse> = { method: `${_preFix}/search` };

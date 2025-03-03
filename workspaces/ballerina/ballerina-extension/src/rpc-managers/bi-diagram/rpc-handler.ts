@@ -17,6 +17,7 @@ import {
     BIGetEnclosedFunctionRequest,
     BIGetVisibleVariableTypesRequest,
     BINodeTemplateRequest,
+    BISearchRequest,
     BISourceCodeRequest,
     BreakpointRequest,
     ClassFieldModifierRequest,
@@ -85,6 +86,7 @@ import {
     updateImports,
     updateClassField,
     updateServiceClass,
+    search,
     AddFieldRequest,
     renameIdentifier,
     RenameIdentifierRequest
@@ -142,4 +144,5 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(addFunction, (args: AddFunctionRequest) => rpcManger.addFunction(args));
     messenger.onRequest(getFunctionNode, (args: FunctionNodeRequest) => rpcManger.getFunctionNode(args));
     messenger.onRequest(getEndOfFile, (args: EndOfFileRequest) => rpcManger.getEndOfFile(args));
+    messenger.onRequest(search, (args: BISearchRequest) => rpcManger.search(args));
 }
