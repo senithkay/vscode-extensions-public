@@ -387,6 +387,8 @@ import {
     getArtifactType,
     GetArtifactTypeResponse,
     askImportFileDir,
+    LocalInboundConnectorsResponse,
+    getLocalInboundConnectors,
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -991,6 +993,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     updateMediator(params: UpdateMediatorRequest): Promise<void> {
         return this._messenger.sendRequest(updateMediator, HOST_EXTENSION, params);
+    }
+
+    getLocalInboundConnectors(): Promise<LocalInboundConnectorsResponse> {
+        return this._messenger.sendRequest(getLocalInboundConnectors, HOST_EXTENSION);
     }
 
     getConnectionSchema(params: GetConnectionSchemaRequest): Promise<GetConnectionSchemaResponse> {

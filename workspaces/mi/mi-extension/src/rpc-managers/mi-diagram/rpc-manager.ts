@@ -249,7 +249,8 @@ import {
     CopyArtifactRequest,
     CopyArtifactResponse,
     GetArtifactTypeRequest,
-    GetArtifactTypeResponse
+    GetArtifactTypeResponse,
+    LocalInboundConnectorsResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -5071,6 +5072,14 @@ ${keyValuesXML}`;
                 const content = document.getText();
                 undoRedo.addModification(content);
             }
+        });
+    }
+
+    async getLocalInboundConnectors(): Promise<LocalInboundConnectorsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            let response = await langClient.getLocalInboundConnectors();
+            resolve(response);
         });
     }
 

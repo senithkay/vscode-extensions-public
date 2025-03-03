@@ -1497,6 +1497,10 @@ export interface StoreConnectorJsonResponse {
     connectors?: any[];
 }
 
+export interface LocalInboundConnectorsResponse {
+    "inbound-connector-data"?: any;
+}
+
 export interface RemoveConnectorRequest {
     connectorPath: string;
 }

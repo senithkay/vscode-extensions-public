@@ -16,6 +16,7 @@ import AddInboundConnector from "./inboundConnectorForm";
 import { APIS } from "../../../constants";
 import { VSCodeLink, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { InboundEndpoint } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import path from "path";
 
 const SampleGrid = styled.div`
     display: grid;
@@ -53,7 +54,8 @@ export interface InboundEPWizardProps {
 export function InboundEPWizard(props: InboundEPWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
-    const [connectors, setConnectors] = useState(undefined);
+    const [localConnectors, setLocalConnectors] = useState(undefined);
+    const [storeConnectors, setStoreConnectors] = useState(undefined);
     const [isDownloading, setIsDownloading] = useState(false);
     const [isFetchingConnectors, setIsFetchingConnectors] = useState(false);
     const [connectorSchema, setConnectorSchema] = useState(undefined);
@@ -85,9 +87,14 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     const fetchConnectors = async () => {
         setIsFetchingConnectors(true);
         try {
-            const response = rpcClient.getMiDiagramRpcClient().getStoreConnectorJSON();
-            const data = (await response).inboundConnectors;
-            setConnectors(data)
+            const runtimeVersion = await rpcClient.getMiDiagramRpcClient().getMIVersionFromPom();
+            const response = await fetch(`${APIS.INBOUND_ENDPOINTS.replace('${version}', runtimeVersion.version)}`);
+            const data = await response.json();
+
+            const localConnectors = await rpcClient.getMiDiagramRpcClient().getLocalInboundConnectors();
+
+            setLocalConnectors(localConnectors["inbound-connector-data"]);
+            setStoreConnectors(data);
         } catch (e) {
             console.error("Error fetching connectors", e);
         }
@@ -116,9 +123,20 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     }
 
     const selectConnector = async (connector: any) => {
+        const response = await rpcClient.getMiDiagramRpcClient().getInboundEPUischema({
+            connectorName: connector.id
+        });
+
+        setConnectorSchema(response?.uiSchema);
+    }
+
+    const selectStoreConnector = async (connector: any) => {
+        const connectorName = connector.connectorName;
+        const connectorId = localConnectors.find((c: any) => c.name === connectorName).id;
+
         // Check if uiSchema is available
         const response = await rpcClient.getMiDiagramRpcClient().getInboundEPUischema({
-            connectorName: connector.name
+            connectorName: connectorId
         });
 
         if (response?.uiSchema) {
@@ -126,25 +144,35 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
         } else {
             // Download connector from store
             setIsDownloading(true);
-            let downloadSuccess = false;
-            let attempts = 0;
-            let uischema;
+            const updateDependencies = async () => {
+                const dependencies = [];
+                dependencies.push({
+                    groupId: connector.mavenGroupId,
+                    artifact: connector.mavenArtifactId,
+                    version: connector.version.tagName,
+                    type: 'zip' as 'zip'
+                });
+                await rpcClient.getMiVisualizerRpcClient().updateDependencies({
+                    dependencies
+                });
+            }
 
-            while (!downloadSuccess && attempts < 3) {
-                try {
-                    uischema = await rpcClient.getMiDiagramRpcClient().downloadInboundConnector({
-                        url: connector.download_url
-                    });
-                    await rpcClient.getMiDiagramRpcClient().saveInboundEPUischema({
-                        connectorName: uischema.uischema.name,
-                        uiSchema: JSON.stringify(uischema.uischema)
-                    })
-                    setConnectorSchema(uischema?.uischema);
-                    downloadSuccess = true;
-                } catch (error) {
-                    console.error('Error occurred while downloading connector:', error);
-                    attempts++;
-                }
+            await updateDependencies();
+
+            // Download Connector
+            const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
+
+            // Format pom
+            const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: props.path })).path;
+            const pomPath = path.join(projectDir, 'pom.xml');
+            await rpcClient.getMiDiagramRpcClient().rangeFormat({ uri: pomPath });
+
+            if (response === "Success" || !response.includes(connector.mavenArtifactId)) {
+                const schema = await rpcClient.getMiDiagramRpcClient().getInboundEPUischema({
+                    connectorName: connectorId
+                });
+                setConnectorSchema(schema?.uiSchema);
+                setIsDownloading(false);
             }
             setIsDownloading(false);
         }
@@ -216,29 +244,44 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                         <>
                             <span>Please select an event integration.</span>
                             <SampleGrid>
-                                {connectors ?
-                                    connectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (
-                                        <Card
-                                            key={connector.name}
-                                            icon="inbound-endpoint"
-                                            title={connector.name}
-                                            description={connector.description}
-                                            onClick={() => selectConnector(connector)}
-                                        />
-                                    )) : (
-                                        isFetchingConnectors ? (
-                                            <LoaderWrapper>
-                                                <ProgressRing />
-                                                Fetching connectors...
-                                            </LoaderWrapper>
+                                {localConnectors && storeConnectors ? (<>
+                                    {localConnectors && localConnectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (
+                                        (storeConnectors.some((storeConnector: any) => storeConnector.connectorName === connector.name)) ? (
+                                            null
                                         ) : (
-                                            <LoaderWrapper>
-                                                <span>
-                                                    Failed to fetch store connectors. Please <VSCodeLink onClick={fetchConnectors}>retry</VSCodeLink>
-                                                </span>
-                                            </LoaderWrapper>
+                                            <Card
+                                                key={connector.name}
+                                                icon="inbound-endpoint"
+                                                title={connector.name}
+                                                description={connector.description}
+                                                onClick={() => selectConnector(connector)}
+                                            />
                                         )
-                                    )}
+                                    ))}
+                                    {storeConnectors && storeConnectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (
+                                        <Card
+                                            key={connector.connectorName}
+                                            icon="inbound-endpoint"
+                                            title={connector.connectorName}
+                                            description={connector.description}
+                                            onClick={() => selectStoreConnector(connector)}
+                                        />
+                                    ))}
+                                </>
+                                ) : (
+                                    isFetchingConnectors ? (
+                                        <LoaderWrapper>
+                                            <ProgressRing />
+                                            Fetching connectors...
+                                        </LoaderWrapper>
+                                    ) : (
+                                        <LoaderWrapper>
+                                            <span>
+                                                Failed to fetch store connectors. Please <VSCodeLink onClick={fetchConnectors}>retry</VSCodeLink>
+                                            </span>
+                                        </LoaderWrapper>
+                                    )
+                                )}
                             </SampleGrid>
                         </>
                     )

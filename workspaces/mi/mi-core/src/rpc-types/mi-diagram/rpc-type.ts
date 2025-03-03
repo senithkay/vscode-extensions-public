@@ -231,7 +231,8 @@ import {
     CopyArtifactRequest,
     CopyArtifactResponse,
     GetArtifactTypeRequest,
-    GetArtifactTypeResponse
+    GetArtifactTypeResponse,
+    LocalInboundConnectorsResponse
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -385,6 +386,7 @@ export const getInputPayloads: RequestType<GetPayloadsRequest,GetPayloadsRespons
 export const getMediators: RequestType<GetMediatorsRequest, GetMediatorsResponse> = { method: `${_preFix}/getMediators` };
 export const getMediator: RequestType<GetMediatorRequest, GetMediatorResponse> = { method: `${_preFix}/getMediator` };
 export const updateMediator: NotificationType<UpdateMediatorRequest> = { method: `${_preFix}/updateMediator` };
+export const getLocalInboundConnectors: RequestType<void, LocalInboundConnectorsResponse> = { method: `${_preFix}/getLocalInboundConnectors` };
 export const getConnectionSchema: RequestType<GetConnectionSchemaRequest, GetConnectionSchemaResponse> = { method: `${_preFix}/getConnectionSchema` };
 export const getExpressionCompletions: RequestType<ExpressionCompletionsRequest, ExpressionCompletionsResponse> = { method: `${_preFix}/getExpressionCompletions` };
 export const getHelperPaneInfo: RequestType<GetHelperPaneInfoRequest, GetHelperPaneInfoResponse> = { method: `${_preFix}/getHelperPaneInfo` };

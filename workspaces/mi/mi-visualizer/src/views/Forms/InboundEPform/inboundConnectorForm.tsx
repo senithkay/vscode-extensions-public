@@ -140,7 +140,7 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
         );
         if (genericGroup) {
             return genericGroup.value.elements
-                .filter((element: any) => element.type === "attribute")
+                .filter((element: any) => element.type === "attribute" && element.value.name !== "generateSequences")
                 .map((attribute: any) => attribute.value.name);
         }
         return [];
@@ -216,6 +216,12 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
 
     const handleCreateInboundConnector = async (values: any) => {
         const attributeNames = getGenericAttributeNames(formData);
+
+        if (props.model && values.generateSequences) {
+            values.sequence = props.model.sequence;
+            values.onError = props.model.onError;
+        }
+        
         const { attrFields, paramFields } = extractProperties(values, attributeNames);
 
         // Transform the keys of the rest object
