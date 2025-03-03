@@ -13,14 +13,14 @@ import {
     AIVisualizerState,
     AddToProjectRequest,
     DeleteFromProjectRequest,
+    FetchDataRequest,
+    FetchDataResponse,
     GenerateMappingFromRecordResponse,
     GenerateMappingsFromRecordRequest,
     GenerateMappingsRequest,
     GenerateMappingsResponse,
-    GenerateTestRequest,
     GenerateTypesFromRecordRequest,
     GenerateTypesFromRecordResponse,
-    GeneratedTestSource,
     GetFromFileRequest,
     InitialPrompt,
     NotifyAIMappingsRequest,
@@ -28,11 +28,15 @@ import {
     PostProcessResponse,
     ProjectDiagnostics,
     ProjectSource,
+    TestGenerationMentions,
+    TestGenerationRequest,
+    TestGenerationResponse,
     addToProject,
     applyDoOnFailBlocks,
     checkSyntaxError,
     clearInitialPrompt,
     deleteFromProject,
+    fetchData,
     generateMappings,
     getAccessToken,
     getActiveFile,
@@ -41,12 +45,16 @@ import {
     getFileExists,
     getFromDocumentation,
     getFromFile,
-    getGeneratedTest,
+    getGeneratedTests,
     getInitialPrompt,
     getMappingsFromRecord,
     getProjectSource,
     getProjectUuid,
     getRefreshToken,
+    getResourceMethodAndPaths,
+    getResourceSourceForMethodAndPath,
+    getServiceNames,
+    getServiceSourceForName,
     getShadowDiagnostics,
     getTestDiagnostics,
     getTypesFromRecord,
@@ -103,6 +111,10 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     refreshAccessToken(): void {
         return this._messenger.sendNotification(refreshAccessToken, HOST_EXTENSION);
+    }
+
+    fetchData(params: FetchDataRequest): Promise<FetchDataResponse> {
+        return this._messenger.sendRequest(fetchData, HOST_EXTENSION, params);
     }
 
     getProjectUuid(): Promise<string> {
@@ -165,12 +177,28 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendNotification(clearInitialPrompt, HOST_EXTENSION);
     }
 
-    getGeneratedTest(params: GenerateTestRequest): Promise<GeneratedTestSource> {
-        return this._messenger.sendRequest(getGeneratedTest, HOST_EXTENSION, params);
+    getGeneratedTests(params: TestGenerationRequest): Promise<TestGenerationResponse> {
+        return this._messenger.sendRequest(getGeneratedTests, HOST_EXTENSION, params);
     }
 
-    getTestDiagnostics(params: GeneratedTestSource): Promise<ProjectDiagnostics> {
+    getTestDiagnostics(params: TestGenerationResponse): Promise<ProjectDiagnostics> {
         return this._messenger.sendRequest(getTestDiagnostics, HOST_EXTENSION, params);
+    }
+
+    getServiceSourceForName(params: string): Promise<string> {
+        return this._messenger.sendRequest(getServiceSourceForName, HOST_EXTENSION, params);
+    }
+
+    getResourceSourceForMethodAndPath(params: string): Promise<string> {
+        return this._messenger.sendRequest(getResourceSourceForMethodAndPath, HOST_EXTENSION, params);
+    }
+
+    getServiceNames(): Promise<TestGenerationMentions> {
+        return this._messenger.sendRequest(getServiceNames, HOST_EXTENSION);
+    }
+
+    getResourceMethodAndPaths(): Promise<TestGenerationMentions> {
+        return this._messenger.sendRequest(getResourceMethodAndPaths, HOST_EXTENSION);
     }
 
     getMappingsFromRecord(params: GenerateMappingsFromRecordRequest): Promise<GenerateMappingFromRecordResponse> {

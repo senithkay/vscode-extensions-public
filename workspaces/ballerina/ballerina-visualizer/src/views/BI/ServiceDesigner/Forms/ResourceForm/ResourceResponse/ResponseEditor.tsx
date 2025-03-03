@@ -94,6 +94,7 @@ export function ResponseEditor(props: ParamProps) {
             type: 'SINGLE_SELECT',
             optional: false,
             editable: true,
+            enabled: schema.statusCode?.enabled ?? true,
             documentation: '',
             value: getTitleFromResponseCode(Number(response.statusCode.value)),
             items: responseCodes.map(code => code.title),
@@ -106,6 +107,7 @@ export function ResponseEditor(props: ParamProps) {
             type: 'TYPE',
             optional: false,
             editable: true,
+            enabled: schema.body?.enabled ?? true,
             documentation: '',
             value: response.body.value,
             valueTypeConstraint: ""
@@ -117,6 +119,7 @@ export function ResponseEditor(props: ParamProps) {
             optional: false,
             advanced: false,
             editable: true,
+            enabled: response.name?.enabled ?? true,
             documentation: '',
             value: response.name.value,
             valueTypeConstraint: ""
@@ -131,6 +134,7 @@ export function ResponseEditor(props: ParamProps) {
             type: 'TYPE',
             optional: false,
             editable: true,
+            enabled: schema.type?.enabled ?? true,
             documentation: '',
             value: response.type.value,
             valueTypeConstraint: ""
