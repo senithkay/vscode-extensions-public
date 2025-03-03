@@ -36,7 +36,7 @@ export async function getLLMDiagnostics(projectUri: string, diagnosticCollection
         return [];
     }
 
-    createDiagnosticCollection(responses, projectUri, diagnosticCollection);
+    await createDiagnosticCollection(responses, projectUri, diagnosticCollection);
 }
 
 async function getLLMResponses(sources: { balFiles: string; readme: string; requirements: string; developerOverview: string; }, token: string, backendurl: string): Promise<any[]> {
@@ -73,29 +73,29 @@ async function getLLMResponses(sources: { balFiles: string; readme: string; requ
     return [extractedcommentResponse, extracteddocumentationSourceResponse];
 }
 
-function createDiagnosticCollection(responses: any[], projectUri: string, diagnosticCollection: vscode.DiagnosticCollection) {
+async function createDiagnosticCollection(responses: any[], projectUri: string, diagnosticCollection: vscode.DiagnosticCollection) {
     if (responses[0] != null) {
-        createDiagnosticsResponse(responses[0], projectUri, diagnosticCollection);
+        await createDiagnosticsResponse(responses[0], projectUri, diagnosticCollection);
     }
 
     if (responses[1] != null) {
-        createDiagnosticsResponse(responses[1], projectUri, diagnosticCollection);
+        await createDiagnosticsResponse(responses[1], projectUri, diagnosticCollection);
     }
 }
 
-function createDiagnosticsResponse(data: DriftResponseData, projectPath: string, diagnosticCollection: vscode.DiagnosticCollection) {
+async function createDiagnosticsResponse(data: DriftResponseData, projectPath: string, diagnosticCollection: vscode.DiagnosticCollection) {
     const diagnosticsMap = new Map<string, vscode.Diagnostic[]>();
 
-    data.results.forEach((result) => {
+    for(const result of data.results) {
         const uri = vscode.Uri.file(path.join(projectPath, result.fileName));
-        const diagnostic = createDiagnostic(result, uri);
+        const diagnostic = await createDiagnostic(result, uri);
 
         // Store diagnostics per file
         if (!diagnosticsMap.has(uri.path)) {
             diagnosticsMap.set(uri.path, []);
         }
         diagnosticsMap.get(uri.path)!.push(diagnostic);
-    });
+    }
 
     // Set diagnostics in VS Code
     diagnosticsMap.forEach((diagnostics, filePath) => {
@@ -105,14 +105,25 @@ function createDiagnosticsResponse(data: DriftResponseData, projectPath: string,
     return;
 }
 
-function createDiagnostic(result: ResultItem, uri: Uri): CustomDiagnostic {
-    const range = result.startRowforCodeChangedAction && result.endRowforCodeChangedAction 
-            && result.startColumnforCodeChangedAction && result.endColumnforCodeChangedAction
-        ? new vscode.Range(
-            new vscode.Position(result.startRowforCodeChangedAction - 1, result.startColumnforCodeChangedAction - 1),
-            new vscode.Position(result.endRowforCodeChangedAction - 1, result.endColumnforCodeChangedAction - 1)
-        ) :
-        new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 0));
+async function createDiagnostic(result: ResultItem, uri: Uri): Promise<CustomDiagnostic> {
+    let codeChangeEndPosition = new vscode.Position(result.endRowforCodeChangedAction - 1, 0);
+    let docChangeEndPosition = new vscode.Position(result.endRowforDocChangedAction - 1, 0);
+    let range = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 0));
+
+    const isSolutionsAvailable = result.startRowforCodeChangedAction && result.endRowforCodeChangedAction;
+    try {
+        if (isSolutionsAvailable){
+            const document = await vscode.workspace.openTextDocument(uri);
+            codeChangeEndPosition = document.lineAt(result.endRowforCodeChangedAction - 1).range.end;
+            docChangeEndPosition = document.lineAt(result.endRowforDocChangedAction - 1).range.end;
+            range = new vscode.Range(
+                new vscode.Position(result.startRowforCodeChangedAction - 1, 0),
+                codeChangeEndPosition
+            );
+        }
+    } catch (error) {
+        // ignore
+    }
 
     const diagnostic = new CustomDiagnostic(
         range,
@@ -124,8 +135,8 @@ function createDiagnostic(result: ResultItem, uri: Uri): CustomDiagnostic {
             fileName: result.fileName,
             id: DIAGNOSTIC_ID,
             docRange: new vscode.Range(
-                new vscode.Position(result.startRowforDocChangedAction - 1, result.startColumnforDocChangedAction - 1),
-                new vscode.Position(result.endRowforDocChangedAction - 1, result.endColumnforDocChangedAction - 1)
+                new vscode.Position(result.startRowforDocChangedAction - 1, 0),
+                docChangeEndPosition
             )
         }
     );
@@ -149,7 +160,7 @@ export async function getLLMDiagnosticArrayAsString(projectUri: string): Promise
         return "";
     }
 
-    let diagnosticArray = createDiagnosticArray(responses, projectUri).map(diagnostic => {
+    let diagnosticArray = (await createDiagnosticArray(responses, projectUri)).map(diagnostic => {
         return `${diagnostic.message}`;
     })
         .join("\n\n");
@@ -157,15 +168,15 @@ export async function getLLMDiagnosticArrayAsString(projectUri: string): Promise
     return diagnosticArray;
 }
 
-function createDiagnosticArray(responses: any[], projectUri: string): Diagnostic[] {
+async function createDiagnosticArray(responses: any[], projectUri: string): Promise<Diagnostic[]> {
     const diagnostics = [];
 
     if (responses[0] != null) {
-        createDiagnosticList(responses[0], projectUri, diagnostics);
+        await createDiagnosticList(responses[0], projectUri, diagnostics);
     }
 
     if (responses[1] != null) {
-        createDiagnosticList(responses[1], projectUri, diagnostics);
+        await createDiagnosticList(responses[1], projectUri, diagnostics);
     }
 
     return diagnostics;
@@ -185,11 +196,12 @@ export function extractResponseAsJsonFromString(jsonString: string): any {
     }
 }
 
-export function createDiagnosticList(data: DriftResponseData, projectPath: string, diagnostics: Diagnostic[]) {
-    data.results.forEach((result) => {
+export async function createDiagnosticList(data: DriftResponseData, projectPath: string, diagnostics: Diagnostic[]) {
+    for (const result of data.results) {
         const uri = vscode.Uri.file(path.join(projectPath, result.fileName));
-        diagnostics.push(createDiagnostic(result, uri));
-    });
+        const diagnostic = await createDiagnostic(result, uri);  // Wait for each createDiagnostic call to complete
+        diagnostics.push(diagnostic);  // Push the diagnostic result after it's created
+    }
 
     return diagnostics;
 }

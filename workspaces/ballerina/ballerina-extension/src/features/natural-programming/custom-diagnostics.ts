@@ -14,7 +14,7 @@ export interface CustomDiagnosticData {
     docChangeSolution: string;
     fileName: string;
     id: string;
-    docRange: vscode.Range
+    docRange: vscode.Range;
 }
 
 export class CustomDiagnostic extends vscode.Diagnostic {

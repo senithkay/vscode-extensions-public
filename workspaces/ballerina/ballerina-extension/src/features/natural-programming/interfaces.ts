@@ -20,12 +20,8 @@ export interface ResultItem {
     fileName: string;
     startRowforCodeChangedAction: number;
     endRowforCodeChangedAction: number;
-    startColumnforCodeChangedAction: number;
-    endColumnforCodeChangedAction: number;
     startRowforDocChangedAction: number;
     endRowforDocChangedAction: number;
-    startColumnforDocChangedAction: number;
-    endColumnforDocChangedAction: number;
     codeChangeSolution: string;
     docChangeSolution: string;
     cause: string;
