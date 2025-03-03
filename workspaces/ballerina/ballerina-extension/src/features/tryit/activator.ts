@@ -171,7 +171,6 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
                 return;
             }
         } else {
-            // Check if Ballerina processes are running before proceeding
             const processesRunning = await checkBallerinaProcessRunning(workspaceRoot);
             if (!processesRunning) {
                 vscode.window.showInformationMessage('Try It requires running Ballerina processes to detect service ports.');
@@ -507,6 +506,9 @@ async function getServicePort(projectDir: string, service: ServiceInfo, openapiS
     }
 }
 
+/**
+ * Helper function to detect running Ballerina processes and, prompt the user to run the program if not found
+ */
 async function checkBallerinaProcessRunning(projectDir: string): Promise<boolean> {
     try {
         const balProcesses = await findRunningBallerinaProcesses(projectDir)
