@@ -19,7 +19,7 @@ import {
 	SourceFile,
 	TypeLiteralNode
 } from "ts-morph";
-import { get, lowerFirst, upperFirst } from "lodash";
+import { lowerFirst, upperFirst } from "lodash";
 
 import { DataMapperLinkModel } from "../Link";
 import { InputOutputPortModel, IntermediatePortModel } from "../Port";
