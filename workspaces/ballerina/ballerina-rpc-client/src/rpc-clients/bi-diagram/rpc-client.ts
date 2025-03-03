@@ -98,7 +98,6 @@ import {
     getExpressionDiagnostics,
     getFlowModel,
     getFunctionNode,
-    getFunctions,
     getModuleNodes,
     getNodeTemplate,
     getProjectComponents,
@@ -156,10 +155,6 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     getAvailableNodes(params: BIAvailableNodesRequest): Promise<BIAvailableNodesResponse> {
         return this._messenger.sendRequest(getAvailableNodes, HOST_EXTENSION, params);
-    }
-
-    getFunctions(params: BIGetFunctionsRequest): Promise<BIGetFunctionsResponse> {
-        return this._messenger.sendRequest(getFunctions, HOST_EXTENSION, params);
     }
 
     getEnclosedFunction(params: BIGetEnclosedFunctionRequest): Promise<BIGetEnclosedFunctionResponse> {

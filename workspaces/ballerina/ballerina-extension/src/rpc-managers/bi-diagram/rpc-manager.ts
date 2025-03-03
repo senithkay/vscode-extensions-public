@@ -586,26 +586,6 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async getFunctions(params: BIGetFunctionsRequest): Promise<BIGetFunctionsResponse> {
-        console.log(">>> requesting bi function list from ls", params);
-        params.queryMap = params?.queryMap || {};
-
-        return new Promise((resolve) => {
-            StateMachine.langClient()
-                .getFunctions(params)
-                .then((model) => {
-                    console.log(">>> bi function list from ls", model);
-                    resolve(model);
-                })
-                .catch((error) => {
-                    console.log(">>> error fetching function list from ls", error);
-                    return new Promise((resolve) => {
-                        resolve(undefined);
-                    });
-                });
-        });
-    }
-
     async getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
         return new Promise((resolve, reject) => {
             if (!params.filePath) {
