@@ -427,7 +427,10 @@ export function AIChat() {
                         if (parameters.inputRecord.length >= 1 && parameters.outputRecord) {
                             await processMappingParameters(cleanedMessage, token, parameters, attachments);
                         } else {
-                            throw new Error("Error: Invalid parameters for " + COMMAND_DATAMAP + " command");
+                            throw new Error(
+                                `Invalid template format for the \`${COMMAND_DATAMAP}\` command. ` +
+                                `Please ensure you follow the correct template.`
+                            );
                         }
                         break;
                     }
@@ -439,7 +442,7 @@ export function AIChat() {
                                 throw new Error("Error: Missing Attach context");
                             }
                         } else {
-                            throw new Error("Error: Invalid parameters for " + COMMAND_DATAMAP + " command");
+                            throw new Error("Error: Invalid parameters for " + COMMAND_TYPECREATOR + " command");
                         }
                         break;
                     }
@@ -497,8 +500,8 @@ export function AIChat() {
         for (const template of expectedTemplates ?? []) {
             let pattern = template
                 .replace(/<servicename>/g, "(\\S+?)")
-                .replace(/<recordname\(s\)>/g, "([\\w:\\[\\]]+(?:[\\s,]+[\\w:\\[\\]]+)*)")
-                .replace(/<recordname>/g, "([\\w:\\[\\]]+)")
+                .replace(/<recordname\(s\)>/g, "((?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+(?:[\\s,]+(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+)*)")
+                .replace(/<recordname>/g, "((?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+)")
                 .replace(/<use-case>/g, "([\\s\\S]+?)")
                 .replace(/<functionname>/g, "(\\S+?)")
                 .replace(/<question>/g, "(.+?)")
@@ -517,10 +520,7 @@ export function AIChat() {
                             .map((name) => name.trim())
                             .filter((name) => name.length > 0);
                     } else {
-                        inputRecordList = inputRecordNamesRaw
-                            .split(/\s+/)
-                            .map((name) => name.trim())
-                            .filter((name) => name.length > 0);
+                        inputRecordList = [inputRecordNamesRaw.trim()];
                     }
 
                     const outputRecordName = match[2].trim();
@@ -1242,7 +1242,7 @@ export function AIChat() {
             const fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath });
             finalContent = `${fileContent}\n${response.mappingCode}`;
         }
-        assistant_response += `<code filename="${filePath}" type="ai_map">\n\`\`\`ballerina\n${finalContent}\n\`\`\`\n</code>`;
+        assistant_response += `<code filename="${filePath}" type="ai_map">\n\`\`\`ballerina\n${response.mappingCode}\n\`\`\`\n</code>`;
 
         setMessages((prevMessages) => {
             const newMessages = [...prevMessages];
