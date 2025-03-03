@@ -173,7 +173,6 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
         } else {
             const processesRunning = await checkBallerinaProcessRunning(workspaceRoot);
             if (!processesRunning) {
-                vscode.window.showInformationMessage('Try It requires running Ballerina processes to detect service ports.');
                 return;
             }
         }
