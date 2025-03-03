@@ -220,12 +220,14 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
             {!isPullingConnector && (
                 <>
                     <ConnectorView
+                        fileName={fileName}
+                        targetLinePosition={target}
                         onSelectConnector={handleOnSelectConnector}
                         fetchingInfo={fetchingInfo}
                         onClose={onClose}
                     />
                     {currentStep === WizardStep.CONNECTION_CONFIG && (
-                        <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3`, zIndex: 2000 }} />
+                        <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3`, zIndex: 1000 }} />
                     )}
                 </>
             )}

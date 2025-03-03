@@ -19,6 +19,7 @@ interface IDiagramContext {
     zoomLevel: number;
     observationSummary?: ObservationSummary;
     modelVersion?: string;
+    previewMode?: boolean;
     setSelectedNodeId: (id: string) => void;
     setFocusedNodeId?: (id: string) => void;
     onComponentDoubleClick?: (componentId: string) => void;
@@ -50,6 +51,7 @@ export function CellDiagramContext(props: DiagramContextProps) {
         observationSummary,
         defaultDiagramLayer,
         modelVersion,
+        previewMode,
         setSelectedNodeId,
         setFocusedNodeId,
         onComponentDoubleClick,
@@ -64,6 +66,7 @@ export function CellDiagramContext(props: DiagramContextProps) {
         zoomLevel,
         observationSummary,
         modelVersion,
+        previewMode,
         setSelectedNodeId,
         setFocusedNodeId,
         onComponentDoubleClick,

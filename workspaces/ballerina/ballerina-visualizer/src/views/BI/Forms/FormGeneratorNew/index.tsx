@@ -17,7 +17,8 @@ import {
     TRIGGER_CHARACTERS,
     TriggerCharacter,
     Type,
-    NodeKind
+    NodeKind,
+    ExpressionProperty
 } from "@wso2-enterprise/ballerina-core";
 import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditorProps, HelperPaneData, PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import {
@@ -133,7 +134,7 @@ export function FormGeneratorNew(props: FormProps) {
     };
 
     const debouncedRetrieveCompletions = useCallback(debounce(
-        async (value: string, key: string, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
+        async (value: string, property: ExpressionProperty, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
             let expressionCompletions: CompletionItem[] = [];
             const effectiveText = value.slice(0, offset);
             const completionFetchText = effectiveText.match(/[a-zA-Z0-9_']+$/)?.[0] ?? "";
@@ -166,8 +167,8 @@ export function FormGeneratorNew(props: FormProps) {
                         expression: value,
                         startLine: targetLineRange.startLine,
                         offset: offset,
-                        node: undefined,
-                        property: key
+                        codedata: undefined,
+                        property: property
                     },
                     completionContext: {
                         triggerKind: triggerCharacter ? 2 : 1,
@@ -216,12 +217,12 @@ export function FormGeneratorNew(props: FormProps) {
 
     const handleRetrieveCompletions = useCallback(async (
         value: string,
-        key: string,
+        property: ExpressionProperty,
         offset: number,
         triggerCharacter?: string,
         onlyVariables?: boolean
     ) => {
-        await debouncedRetrieveCompletions(value, key, offset, triggerCharacter, onlyVariables);
+        await debouncedRetrieveCompletions(value, property, offset, triggerCharacter, onlyVariables);
 
         if (triggerCharacter) {
             await debouncedRetrieveCompletions.flush();
@@ -330,6 +331,22 @@ export function FormGeneratorNew(props: FormProps) {
     };
 
     const defaultType = (): Type => {
+        if (editingField.type === 'PARAM_MANAGER') {
+            return {
+                name: "MyType",
+                editable: true,
+                metadata: {
+                    label: "",
+                    description: "",
+                },
+                codedata: {
+                    node: "RECORD",
+                },
+                properties: {},
+                members: [],
+                includes: [] as string[],
+            };
+        }
         return {
             name: "MyType",
             editable: true,

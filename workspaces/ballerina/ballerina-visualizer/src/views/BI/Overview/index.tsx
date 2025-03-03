@@ -143,10 +143,12 @@ const DiagramContent = styled.div`
 
 const DeploymentContent = styled.div`
     margin-top: 16px;
+    min-width: 130px;
 `;
 
 const DeployButtonContainer = styled.div`
     margin-top: 16px;
+    margin-bottom: 16px;
 `;
 
 const ReadmeHeaderContainer = styled.div`
@@ -208,6 +210,8 @@ export function Overview(props: ComponentDiagramProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [loadingMessage, setLoadingMessage] = useState("");
     const backendRootUri = useRef("");
+    const [enabled, setEnableICP] = useState(false);
+
 
     const fetchContext = () => {
         rpcClient
@@ -228,6 +232,13 @@ export function Overview(props: ComponentDiagramProps) {
             .handleReadmeContent({ read: true })
             .then((res) => {
                 setReadmeContent(res.content);
+            });
+
+        rpcClient
+            .getICPRpcClient()
+            .isIcpEnabled({ projectPath: '' })
+            .then((res) => {
+                setEnableICP(res.enabled);
             });
 
         // setResponseText("");
@@ -412,6 +423,22 @@ export function Overview(props: ComponentDiagramProps) {
         rpcClient.getBIDiagramRpcClient().deployProject();
     };
 
+    const handleICP = () => {
+        if (!enabled) {
+            rpcClient.getICPRpcClient().addICP({ projectPath: '' })
+                .then((res) => {
+                    setEnableICP(true);
+                }
+                );
+        } else {
+            rpcClient.getICPRpcClient().disableICP({ projectPath: '' })
+                .then((res) => {
+                    setEnableICP(false);
+                }
+                );
+        }
+    };
+
     const handleGenerate = () => {
         rpcClient.getBIDiagramRpcClient().openAIChat({
             scafold: true,
@@ -496,8 +523,18 @@ export function Overview(props: ComponentDiagramProps) {
                             with the deployment.
                         </Description>
                         <DeployButtonContainer>
-                            <Button appearance="primary" onClick={handleDeploy}>
+                            <Button appearance="primary" onClick={handleDeploy} buttonSx={{ minWidth: '130px' }}>
                                 <Codicon name="cloud-upload" sx={{ marginRight: 8 }} /> Deploy
+                            </Button>
+                        </DeployButtonContainer>
+                        <Description variant="body2">
+                            Moniter the deployment runtime using WSO2 Integration Control Plane. Click the {enabled ? "Disable ICP" : "Integrate ICP"} button to {enabled ? "diable" : "enable"} ICP
+                            for the integration.
+                        </Description>
+                        <DeployButtonContainer>
+                            <Button appearance="primary" onClick={handleICP} buttonSx={{ minWidth: '130px' }}>
+                                <Codicon name="cloud-upload" sx={{ marginRight: 8 }} />
+                                {enabled ? "Disable ICP" : "Integrate ICP"}
                             </Button>
                         </DeployButtonContainer>
                     </DeploymentContent>

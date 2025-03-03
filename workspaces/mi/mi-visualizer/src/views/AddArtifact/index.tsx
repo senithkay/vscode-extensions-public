@@ -117,7 +117,7 @@ const TextWrapper = styled.div`
 
 const BrowseBtnStyles = {
     gap: 10,
-    marginRight: 20,
+    marginRight: 5,
     display: "flex",
     flexDirection: "row"
 };

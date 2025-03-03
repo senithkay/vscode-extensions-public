@@ -16,8 +16,6 @@ import {
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
     BIAvailableNodesResponse,
-    BIConnectorsRequest,
-    BIConnectorsResponse,
     BICopilotContextRequest,
     BIDeleteByComponentInfoRequest,
     BIDeleteByComponentInfoResponse,
@@ -27,14 +25,14 @@ import {
     BIFlowModelResponse,
     BIGetEnclosedFunctionRequest,
     BIGetEnclosedFunctionResponse,
-    BIGetFunctionsRequest,
-    BIGetFunctionsResponse,
     BIGetVisibleVariableTypesRequest,
     BIGetVisibleVariableTypesResponse,
     BIModuleNodesRequest,
     BIModuleNodesResponse,
     BINodeTemplateRequest,
     BINodeTemplateResponse,
+    BISearchRequest,
+    BISearchResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
     BISuggestedFlowModelRequest,
@@ -47,6 +45,7 @@ import {
     CurrentBreakpointsResponse,
     DIRECTORY_MAP,
     EVENT_TYPE,
+    EndOfFileRequest,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     ExpressionDiagnosticsRequest,
@@ -63,6 +62,7 @@ import {
     GetTypesResponse,
     ImportStatement,
     ImportStatements,
+    LinePosition,
     ModelFromCodeRequest,
     ProjectComponentsResponse,
     ProjectImports,
@@ -400,23 +400,6 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async getBIConnectors(params: BIConnectorsRequest): Promise<BIConnectorsResponse> {
-        return new Promise((resolve) => {
-            StateMachine.langClient()
-                .getBIConnectors(params)
-                .then((model) => {
-                    console.log(">>> bi connectors from ls", model);
-                    resolve(model);
-                })
-                .catch((error) => {
-                    console.log(">>> error fetching connectors from ls", error);
-                    return new Promise((resolve) => {
-                        resolve(undefined);
-                    });
-                });
-        });
-    }
-
     async getAiSuggestions(params: BIAiSuggestionsRequest): Promise<BIAiSuggestionsResponse> {
         return new Promise(async (resolve) => {
             const { filePath, position, prompt } = params;
@@ -581,26 +564,6 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     console.log(">>> Updated readme.md with content:", params.content);
                 }
             }
-        });
-    }
-
-    async getFunctions(params: BIGetFunctionsRequest): Promise<BIGetFunctionsResponse> {
-        console.log(">>> requesting bi function list from ls", params);
-        params.queryMap = params?.queryMap || {};
-
-        return new Promise((resolve) => {
-            StateMachine.langClient()
-                .getFunctions(params)
-                .then((model) => {
-                    console.log(">>> bi function list from ls", model);
-                    resolve(model);
-                })
-                .catch((error) => {
-                    console.log(">>> error fetching function list from ls", error);
-                    return new Promise((resolve) => {
-                        resolve(undefined);
-                    });
-                });
         });
     }
 
@@ -1354,6 +1317,33 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             console.error('Error in renameIdentifier:', error);
             throw error;
         }
+    }
+
+    async getEndOfFile(params: EndOfFileRequest): Promise<LinePosition> {
+        return new Promise((resolve, reject) => {
+            const { filePath } = params;
+            try {
+                const fileContent = fs.readFileSync(filePath, 'utf8');
+                const lines = fileContent.split('\n');
+                const lastLine = lines[lines.length - 1];
+                const lastLineLength = lastLine.length;
+                resolve({ line: lines.length - 1, offset: lastLineLength });
+            } catch (error) {
+                console.log(error);
+                reject(error);
+            }
+        });
+    }
+
+    async search(params: BISearchRequest): Promise<BISearchResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient().search(params).then((res) => {
+                resolve(res);
+            }).catch((error) => {
+                console.log(">>> error searching", error);
+                reject(error);
+            });
+        });
     }
 }
 

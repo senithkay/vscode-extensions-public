@@ -19,14 +19,14 @@ import {
     DiagnosticEntry,
     Diagnostics,
     ErrorCode,
+    FetchDataRequest,
+    FetchDataResponse,
     GenerateMappingFromRecordResponse,
     GenerateMappingsFromRecordRequest,
     GenerateMappingsRequest,
     GenerateMappingsResponse,
-    GenerateTestRequest,
     GenerateTypesFromRecordRequest,
     GenerateTypesFromRecordResponse,
-    GeneratedTestSource,
     GetFromFileRequest,
     InitialPrompt,
     NOT_SUPPORTED_TYPE,
@@ -38,7 +38,11 @@ import {
     ProjectSource,
     STModification,
     SourceFile,
-    SyntaxTree
+    SyntaxTree,
+    TestGenerationMentions,
+    TestGenerationRequest,
+    TestGenerationResponse,
+    ProjectDiagnosticsResponse
 } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as crypto from 'crypto';
@@ -50,15 +54,20 @@ import { Uri, window, workspace } from 'vscode';
 import { writeFileSync } from "fs";
 import { getPluginConfig } from "../../../src/utils";
 import { extension } from "../../BalExtensionContext";
-import { NOT_SUPPORTED } from "../../core";
+import { ExtendedLangClient, NOT_SUPPORTED } from "../../core";
 import { generateDataMapping, generateTypeCreation } from "../../features/ai/dataMapping";
-import { generateTest, getDiagnostics } from "../../features/ai/testGenerator";
+import { generateTest, getDiagnostics, getResourceAccessorDef, getResourceAccessorNames, getServiceDeclaration, getServiceDeclarationNames } from "../../features/ai/testGenerator";
 import { StateMachine, updateView } from "../../stateMachine";
 import { loginGithubCopilot } from "../../utils/ai/auth";
 import { modifyFileContent, writeBallerinaFileDidOpen } from "../../utils/modification";
 import { StateMachineAI } from '../../views/ai-panel/aiMachine';
 import { MODIFIYING_ERROR, PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
 import { getFunction, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, processMappings, refreshAccessToken, searchDocumentation } from "./utils";
+import { fetchData } from "./utils/fetch-data-utils";
+import { TextDocumentEdit } from "vscode-languageserver-types";
+import { fileURLToPath } from "url";
+import { attemptRepairProject, checkProjectDiagnostics } from "./repair-utils";
+
 export let hasStopped: boolean = false;
 
 export class AiPanelRpcManager implements AIPanelAPI {
@@ -110,6 +119,12 @@ export class AiPanelRpcManager implements AIPanelAPI {
     async refreshAccessToken(): Promise<void> {
         // ADD YOUR IMPLEMENTATION HERE
         throw new Error('Not implemented');
+    }
+
+    async fetchData(params: FetchDataRequest): Promise<FetchDataResponse> {
+        return {
+            response: await fetchData(params.url, params.options)
+        };
     }
 
     async getProjectUuid(): Promise<string> {
@@ -186,46 +201,46 @@ export class AiPanelRpcManager implements AIPanelAPI {
         if (!workspaceFolders) {
             throw new Error("No workspaces found.");
         }
-    
+
         const workspaceFolderPath = workspaceFolders[0].uri.fsPath;
         const ballerinaProjectFile = path.join(workspaceFolderPath, 'Ballerina.toml');
         if (!fs.existsSync(ballerinaProjectFile)) {
             throw new Error("Not a Ballerina project.");
         }
-    
-        const balFilePath = path.join(workspaceFolderPath, req.filePath);    
+
+        const balFilePath = path.join(workspaceFolderPath, req.filePath);
         if (fs.existsSync(balFilePath)) {
             try {
-                fs.unlinkSync(balFilePath); 
+                fs.unlinkSync(balFilePath);
             } catch (err) {
                 throw new Error("Could not delete the file.");
             }
         } else {
             throw new Error("File does not exist.");
         }
-    
+
         await new Promise(resolve => setTimeout(resolve, 1000));
         updateView();
-    }    
+    }
 
     async getFileExists(req: GetFromFileRequest): Promise<boolean> {
         const workspaceFolders = workspace.workspaceFolders;
         if (!workspaceFolders) {
             throw new Error("No workspaces found.");
         }
-    
+
         const workspaceFolderPath = workspaceFolders[0].uri.fsPath;
         const ballerinaProjectFile = path.join(workspaceFolderPath, 'Ballerina.toml');
         if (!fs.existsSync(ballerinaProjectFile)) {
             throw new Error("Not a Ballerina project.");
         }
-    
+
         const balFilePath = path.join(workspaceFolderPath, req.filePath);
         if (fs.existsSync(balFilePath)) {
             return true;
-        } 
+        }
         return false;
-    }    
+    }
 
     async getRefreshToken(): Promise<string> {
         return new Promise(async (resolve) => {
@@ -385,23 +400,12 @@ export class AiPanelRpcManager implements AIPanelAPI {
         if (!environment) {
             return { diagnostics: [] };
         }
-    
+
         const { langClient, tempDir } = environment;
-        // check project diagnostics
-        let projectDiags: Diagnostics[] = await checkProjectDiagnostics(project, langClient, tempDir);
-    
-        let projectModified = await addMissingImports(projectDiags);
-        if (projectModified) {
-            projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
-        }
-    
-        let isDiagsRefreshed = await isModuleNotFoundDiagsExist(projectDiags, langClient);
-        if (isDiagsRefreshed) {
-            projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
-        }
-        const filteredDiags: DiagnosticEntry[] = getErrorDiagnostics(projectDiags);
-        return { 
-            diagnostics: filteredDiags 
+        let remainingDiags: Diagnostics[] = await attemptRepairProject(langClient, tempDir);
+        const filteredDiags: DiagnosticEntry[] = getErrorDiagnostics(remainingDiags);
+        return {
+            diagnostics: filteredDiags
         };
     }
 
@@ -429,11 +433,10 @@ export class AiPanelRpcManager implements AIPanelAPI {
         if (!environment) {
             return false;
         }
-    
+
         const { langClient, tempDir } = environment;
         // check project diagnostics
-        const projectDiags: Diagnostics[] = await checkProjectDiagnostics(project, langClient, tempDir);
-    
+        const projectDiags: Diagnostics[] = await checkProjectDiagnostics(langClient, tempDir);
         for (const diagnostic of projectDiags) {
             for (const diag of diagnostic.diagnostics) {
                 console.log(diag.code);
@@ -448,18 +451,46 @@ export class AiPanelRpcManager implements AIPanelAPI {
                 }
             }
         }
-    
+
         return false;
     }
 
-    async getGeneratedTest(params: GenerateTestRequest): Promise<GeneratedTestSource> {
+    async getGeneratedTests(params: TestGenerationRequest): Promise<TestGenerationResponse> {
         const projectRoot = await getBallerinaProjectRoot();
         return await generateTest(projectRoot, params);
     }
 
-    async getTestDiagnostics(params: GeneratedTestSource): Promise<ProjectDiagnostics> {
+    async getTestDiagnostics(params: TestGenerationResponse): Promise<ProjectDiagnostics> {
         const projectRoot = await getBallerinaProjectRoot();
         return await getDiagnostics(projectRoot, params);
+    }
+
+    async getServiceSourceForName(params: string): Promise<string> {
+        const projectRoot = await getBallerinaProjectRoot();
+        const { serviceDeclaration, serviceDocFilePath } = await getServiceDeclaration(projectRoot, params);
+        return serviceDeclaration.source;
+    }
+
+    async getResourceSourceForMethodAndPath(params: string): Promise<string> {
+        const projectRoot = await getBallerinaProjectRoot();
+        const { serviceDeclaration, resourceAccessorDef, serviceDocFilePath } = await getResourceAccessorDef(projectRoot, params);
+        return resourceAccessorDef.source;
+    }
+
+    async getServiceNames(): Promise<TestGenerationMentions> {
+        const projectRoot = await getBallerinaProjectRoot();
+        const serviceDeclNames = await getServiceDeclarationNames(projectRoot);
+        return {
+            mentions: serviceDeclNames
+        };
+    }
+
+    async getResourceMethodAndPaths(): Promise<TestGenerationMentions> {
+        const projectRoot = await getBallerinaProjectRoot();
+        const resourceAccessorNames = await getResourceAccessorNames(projectRoot);
+        return {
+            mentions: resourceAccessorNames
+        };
     }
 
     async getMappingsFromRecord(params: GenerateMappingsFromRecordRequest): Promise<GenerateMappingFromRecordResponse> {
@@ -483,23 +514,10 @@ export class AiPanelRpcManager implements AIPanelAPI {
 
         const { langClient, tempDir } = environment;
         // check project diagnostics
-        let projectDiags: Diagnostics[] = await checkProjectDiagnostics(project, langClient, tempDir);
+        let remainingDiags: Diagnostics[] = await attemptRepairProject(langClient, tempDir);
 
-        let projectModified = await addMissingImports(projectDiags);
-        if (projectModified) {
-            projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
-        }
+        const filteredDiags: DiagnosticEntry[] = getErrorDiagnostics(remainingDiags);
 
-        projectModified = await removeUnusedImports(projectDiags);
-        if (projectModified) {
-            projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
-        }
-
-        let isDiagsRefreshed = await isModuleNotFoundDiagsExist(projectDiags, langClient);
-        if (isDiagsRefreshed) {
-            projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
-        }
-        const filteredDiags: DiagnosticEntry[] = getErrorDiagnostics(projectDiags);
         const newAssistantResponse = getModifiedAssistantResponse(assist_resp, tempDir, project);
         return {
             assistant_response: newAssistantResponse,
@@ -616,18 +634,18 @@ export class AiPanelRpcManager implements AIPanelAPI {
         }
     }
 
-    async getActiveFile(): Promise<string> {    
+    async getActiveFile(): Promise<string> {
         const activeTabGroup = window.tabGroups.all.find(group => {
             return group.activeTab.isActive && group.activeTab?.input;
         });
 
         if (activeTabGroup && activeTabGroup.activeTab && activeTabGroup.activeTab.input) {
             const activeTabInput = activeTabGroup.activeTab.input as { uri: { fsPath: string } };
-    
+
             if (activeTabInput.uri) {
                 const fileUri = activeTabInput.uri;
-                const fileName = fileUri.fsPath.split('/').pop(); 
-                return fileName || '';  
+                const fileName = fileUri.fsPath.split('/').pop();
+                return fileName || '';
             }
         }
     }
@@ -657,7 +675,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async isCopilotSignedIn(): Promise<boolean> {
-       const token = await extension.context.secrets.get('GITHUB_COPILOT_TOKEN');
+        const token = await extension.context.secrets.get('GITHUB_COPILOT_TOKEN');
         if (token && token !== '') {
             return true;
         }
@@ -673,7 +691,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async showSignInAlert(): Promise<boolean> {
-        const resp =  await extension.context.secrets.get('LOGIN_ALERT_SHOWN');
+        const resp = await extension.context.secrets.get('LOGIN_ALERT_SHOWN');
         if (resp === 'true') {
             return false;
         }
@@ -690,9 +708,10 @@ export class AiPanelRpcManager implements AIPanelAPI {
         // throw new Error('Not implemented');
         await extension.context.secrets.store('LOGIN_ALERT_SHOWN', 'true');
     }
+
 }
 
-function getModifiedAssistantResponse(originalAssistantResponse: string, tempDir: string, project: ProjectSource) : string {
+function getModifiedAssistantResponse(originalAssistantResponse: string, tempDir: string, project: ProjectSource): string {
     const newSourceFiles = [];
     for (const sourceFile of project.sourceFiles) {
         const newContent = path.join(tempDir, sourceFile.filePath);
@@ -733,7 +752,7 @@ async function setupProjectEnvironment(project: ProjectSource): Promise<{ langCl
     if (!projectRoot) {
         return null;
     }
-    
+
     const randomNum = Math.floor(Math.random() * 90000) + 10000;
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), `bal-proj-${randomNum}-`));
     fs.cpSync(projectRoot, tempDir, { recursive: true });
@@ -747,7 +766,7 @@ async function setupProjectEnvironment(project: ProjectSource): Promise<{ langCl
             writeBallerinaFileDidOpen(tempFilePath, sourceFile.content);
         }
     }
-    
+
     return { langClient, tempDir };
 }
 
@@ -765,165 +784,9 @@ export function getProjectFromResponse(req: string): ProjectSource {
     return { sourceFiles };
 }
 
-async function removeUnusedImports(diagnosticsResult: Diagnostics[]): Promise<boolean> {
-    let modifications: BalModification[] = [];
-    let projectModified = false;
-
-    for (const diagnostic of diagnosticsResult) {
-        const fielUri = diagnostic.uri;
-
-        for (const diag of diagnostic.diagnostics) {
-            //unused module prefix 'redis'
-            if (diag.code !== "BCE2002") {
-                continue;
-            }
-            const module = getContentInsideQuotes(diag.message);
-            modifications.push({ fileUri: fielUri, moduleName: module });
-        }
-    }
-
-    for (const mod of modifications) {
-        const fileUri = mod.fileUri;
-        const moduleName = mod.moduleName;
-
-        const document = await workspace.openTextDocument(Uri.parse(fileUri));
-        const content = document.getText();
-        const lines = content.split('\n');
-
-        // Create a regex to match the import statement of the unused module
-        const importRegex = new RegExp(`^import\\s+.*\\b${moduleName}\\b.*;`);
-
-        // Filter out the import statement
-        const updatedLines = lines.filter(line => !importRegex.test(line));
-
-        const updatedContent = updatedLines.join('\n');
-        await modifyFileContent({ filePath: Uri.parse(fileUri).fsPath, content: updatedContent });
-        projectModified = true;
-    }
-    return projectModified;
-}
-
-async function addMissingImports(diagnosticsResult: Diagnostics[]): Promise<boolean> {
-    let modifications: BalModification[] = [];
-    let projectModified = false;
-    for (const diagnostic of diagnosticsResult) {
-        const fielUri = diagnostic.uri;
-        for (const diag of diagnostic.diagnostics) {
-            // undefined module 'io'(BCE2000)
-            if (diag.code !== "BCE2000") {
-                continue;
-            }
-            const module = getContentInsideQuotes(diag.message);
-            if (module === null) {
-                continue;
-            }
-            // Prevent duplicate entries
-            if (!modifications.some(mod => mod.fileUri === fielUri && mod.moduleName === module)) {
-                modifications.push({ fileUri: fielUri, moduleName: module });
-            }
-        }
-    }
-    //TODO: Replace with code acction
-    for (const mod of modifications) {
-        const fileUri = mod.fileUri;
-        const moduleName = mod.moduleName;
-        let importStatement = "";
-        if (moduleName == 'io') {
-            importStatement = `import ballerina/io;\n`;
-        } else if (moduleName == 'http') {
-            importStatement = `import ballerina/http;\n`;
-        } else if (moduleName == 'log') {
-            importStatement = `import ballerina/log;\n`;
-        } else if (moduleName == 'runtime') {
-            importStatement = `import ballerina/lang.runtime;\n`;
-        } else if (moduleName == 'sql') {
-            importStatement = `import ballerina/sql;\n`;
-        } else if (moduleName == 'time') {
-            importStatement = `import ballerina/time;\n`;
-        } else {
-            continue;
-        }
-
-        const document = await workspace.openTextDocument(Uri.parse(fileUri));
-        const content = document.getText();
-        const updatedContent = importStatement + content;
-
-        await modifyFileContent({ filePath: Uri.parse(fileUri).fsPath, content: updatedContent });
-        projectModified = true;
-    }
-
-    return projectModified;
-}
-
 function getContentInsideQuotes(input: string): string | null {
     const match = input.match(/'([^']+)'/);
     return match ? match[1] : null;
-}
-
-async function isModuleNotFoundDiagsExist(diagnosticsResult: Diagnostics[], langClient): Promise<boolean> {
-    for (const diagnostic of diagnosticsResult) {
-        // if (diagnostic.uri !== Uri.file(tempFilePath).toString()) {
-        //     continue;
-        // }
-        for (const diag of diagnostic.diagnostics) {
-            //Example: cannot resolve module 'ballerinax/aws.s3 as s3'(BCE2003)
-            if (diag.code !== "BCE2003") {
-                continue;
-            }
-            //resolve unresolved modules
-            const dependenciesResponse = await langClient.resolveMissingDependencies({
-                documentIdentifier: {
-                    uri: diagnostic.uri
-                }
-            });
-
-
-            const response = dependenciesResponse as SyntaxTree;
-            if (response.parseSuccess) {
-                // TODO: Need to see why this isnt working and why didOpen needed.
-                // await langClient.didChange({
-                //     contentChanges: [{ text: "" }],
-                //     textDocument: {
-                //         uri: uriString,
-                //         version: 1
-                //     }
-                // });
-
-                // Read and save content to a string
-                const sourceFile = await workspace.openTextDocument(Uri.parse(diagnostic.uri));
-                const content = sourceFile.getText();
-
-                langClient.didOpen({
-                    textDocument: {
-                        uri: diagnostic.uri,
-                        languageId: 'ballerina',
-                        version: 1,
-                        text: content
-                    }
-                });
-                return true;
-            } else {
-                throw Error("Module resolving failedd");
-            }
-        }
-    }
-    return false;
-}
-
-async function checkProjectDiagnostics(project: ProjectSource, langClient, tempDir: string): Promise<Diagnostics[]> {
-    const allDiags: Diagnostics[] = [];
-    for (const sourceFile of project.sourceFiles) {
-        if (sourceFile.filePath.endsWith('.bal')) {
-            const tempFilePath = path.join(tempDir, sourceFile.filePath);
-            let diagnosticsResult: Diagnostics[] | NOT_SUPPORTED_TYPE = await langClient.getDiagnostics({ documentIdentifier: { uri: Uri.file(tempFilePath).toString() } });
-            if (!Array.isArray(diagnosticsResult)) {
-                throw new Error("Something happend while checking diags");
-            }
-
-            allDiags.push(...diagnosticsResult);
-        }
-    }
-    return allDiags;
 }
 
 function getErrorDiagnostics(diagnostics: Diagnostics[]): DiagnosticEntry[] {

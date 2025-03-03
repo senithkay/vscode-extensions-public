@@ -13,16 +13,16 @@ import {
     AddFunctionRequest,
     BIAiSuggestionsRequest,
     BIAvailableNodesRequest,
-    BIConnectorsRequest,
     BIDeleteByComponentInfoRequest,
     BIGetEnclosedFunctionRequest,
-    BIGetFunctionsRequest,
     BIGetVisibleVariableTypesRequest,
     BINodeTemplateRequest,
+    BISearchRequest,
     BISourceCodeRequest,
     BreakpointRequest,
     ClassFieldModifierRequest,
     ComponentRequest,
+    EndOfFileRequest,
     ExpressionCompletionsRequest,
     ExpressionDiagnosticsRequest,
     FormDidCloseParams,
@@ -54,16 +54,15 @@ import {
     getAiSuggestions,
     getAllImports,
     getAvailableNodes,
-    getBIConnectors,
     getBreakpointInfo,
     getConfigVariables,
     getDesignModel,
     getEnclosedFunction,
+    getEndOfFile,
     getExpressionCompletions,
     getExpressionDiagnostics,
     getFlowModel,
     getFunctionNode,
-    getFunctions,
     getModuleNodes,
     getNodeTemplate,
     getProjectComponents,
@@ -87,6 +86,7 @@ import {
     updateImports,
     updateClassField,
     updateServiceClass,
+    search,
     AddFieldRequest,
     renameIdentifier,
     RenameIdentifierRequest
@@ -101,7 +101,6 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(deleteFlowNode, (args: BISourceCodeRequest) => rpcManger.deleteFlowNode(args));
     messenger.onRequest(deleteByComponentInfo, (args: BIDeleteByComponentInfoRequest) => rpcManger.deleteByComponentInfo(args));
     messenger.onRequest(getAvailableNodes, (args: BIAvailableNodesRequest) => rpcManger.getAvailableNodes(args));
-    messenger.onRequest(getFunctions, (args: BIGetFunctionsRequest) => rpcManger.getFunctions(args));
     messenger.onRequest(getEnclosedFunction, (args: BIGetEnclosedFunctionRequest) => rpcManger.getEnclosedFunction(args));
     messenger.onRequest(getNodeTemplate, (args: BINodeTemplateRequest) => rpcManger.getNodeTemplate(args));
     messenger.onRequest(getAiSuggestions, (args: BIAiSuggestionsRequest) => rpcManger.getAiSuggestions(args));
@@ -110,7 +109,6 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getProjectStructure, () => rpcManger.getProjectStructure());
     messenger.onRequest(getProjectComponents, () => rpcManger.getProjectComponents());
     messenger.onRequest(createComponent, (args: ComponentRequest) => rpcManger.createComponent(args));
-    messenger.onRequest(getBIConnectors, (args: BIConnectorsRequest) => rpcManger.getBIConnectors(args));
     messenger.onRequest(handleReadmeContent, (args: ReadmeContentRequest) => rpcManger.handleReadmeContent(args));
     messenger.onRequest(getVisibleVariableTypes, (args: BIGetVisibleVariableTypesRequest) => rpcManger.getVisibleVariableTypes(args));
     messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));
@@ -145,4 +143,6 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(updateImports, (args: UpdateImportsRequest) => rpcManger.updateImports(args));
     messenger.onRequest(addFunction, (args: AddFunctionRequest) => rpcManger.addFunction(args));
     messenger.onRequest(getFunctionNode, (args: FunctionNodeRequest) => rpcManger.getFunctionNode(args));
+    messenger.onRequest(getEndOfFile, (args: EndOfFileRequest) => rpcManger.getEndOfFile(args));
+    messenger.onRequest(search, (args: BISearchRequest) => rpcManger.search(args));
 }

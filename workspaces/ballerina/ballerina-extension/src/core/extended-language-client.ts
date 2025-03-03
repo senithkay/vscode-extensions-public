@@ -85,8 +85,6 @@ import {
     BIFlowModelResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
-    BIConnectorsRequest,
-    BIConnectorsResponse,
     ConnectorRequest,
     ConnectorResponse,
     BISuggestedFlowModelRequest,
@@ -96,8 +94,6 @@ import {
     SequenceModelResponse,
     ServiceFromOASRequest,
     ServiceFromOASResponse,
-    BIGetFunctionsRequest,
-    BIGetFunctionsResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     VisibleVariableTypes,
@@ -176,7 +172,11 @@ import {
     AddFieldRequest,
     FunctionModelRequest,
     FunctionModelResponse,
-    TypeDataWithReferences
+    TypeDataWithReferences,
+    ICPEnabledRequest,
+    ICPEnabledResponse,
+    BISearchRequest,
+    BISearchResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -239,9 +239,7 @@ enum EXTENDED_APIS {
     BI_DELETE_NODE = 'flowDesignService/deleteFlowNode',
     BI_DELETE_BY_COMPONENT_INFO = 'flowDesignService/deleteComponent',
     BI_AVAILABLE_NODES = 'flowDesignService/getAvailableNodes',
-    BI_GET_FUNCTIONS = 'flowDesignService/getFunctions',
     BI_NODE_TEMPLATE = 'flowDesignService/getNodeTemplate',
-    BI_CONNECTOR = 'flowDesignService/getConnectors',
     BI_GEN_OPEN_API = 'flowDesignService/generateServiceFromOpenApiContract',
     BI_MODULE_NODES = 'flowDesignService/getModuleNodes',
     BI_GEN_ERROR_HANDLER = 'flowDesignService/addErrorHandler',
@@ -301,7 +299,11 @@ enum EXTENDED_APIS {
     BI_GET_TEST_FUNCTION = 'testManagerService/getTestFunction',
     BI_ADD_TEST_FUNCTION = 'testManagerService/addTestFunction',
     BI_UPDATE_TEST_FUNCTION = 'testManagerService/updateTestFunction',
-    BI_EDIT_FUNCTION_NODE = 'flowDesignService/functionDefinition'
+    BI_EDIT_FUNCTION_NODE = 'flowDesignService/functionDefinition',
+    BI_IS_ICP_ENABLED = 'icpService/isIcpEnabled',
+    BI_ADD_ICP = 'icpService/addICP',
+    BI_DISABLE_ICP = 'icpService/disableICP',
+    BI_SEARCH = 'flowDesignService/search'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -656,6 +658,18 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest(EXTENDED_APIS.BI_UPDATE_TEST_FUNCTION, params);
     }
 
+    async isIcpEnabled(params: ICPEnabledRequest): Promise<ICPEnabledResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_IS_ICP_ENABLED, params);
+    }
+    
+    async addICP(params: ICPEnabledRequest): Promise<TestSourceEditResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_ADD_ICP, params);
+    }
+
+    async disableICP(params: ICPEnabledRequest): Promise<TestSourceEditResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_DISABLE_ICP, params);
+    }
+
     async getProjectDiagnostics(params: ProjectDiagnosticsRequest): Promise<ProjectDiagnosticsResponse | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.RUNNER_DIAGNOSTICS);
         if (!isSupported) {
@@ -752,20 +766,12 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<BIAvailableNodesResponse>(EXTENDED_APIS.BI_AVAILABLE_NODES, params);
     }
 
-    async getFunctions(params: BIGetFunctionsRequest): Promise<BIGetFunctionsResponse> {
-        return this.sendRequest<BIGetFunctionsResponse>(EXTENDED_APIS.BI_GET_FUNCTIONS, params);
-    }
-
     async getEnclosedFunctionDef(params: BIGetEnclosedFunctionRequest): Promise<BIGetEnclosedFunctionResponse> {
         return this.sendRequest<BIGetEnclosedFunctionResponse>(EXTENDED_APIS.BI_GET_ENCLOSED_FUNCTION, params);
     }
 
     async getNodeTemplate(params: BINodeTemplateRequest): Promise<BINodeTemplateResponse> {
         return this.sendRequest<BINodeTemplateResponse>(EXTENDED_APIS.BI_NODE_TEMPLATE, params);
-    }
-
-    async getBIConnectors(params: BIConnectorsRequest): Promise<BIConnectorsResponse> {
-        return this.sendRequest<BIConnectorsResponse>(EXTENDED_APIS.BI_CONNECTOR, params);
     }
 
     async generateServiceFromOAS(params: ServiceFromOASRequest): Promise<ServiceFromOASResponse> {
@@ -943,6 +949,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {
         return this.sendRequest<AddFunctionResponse>(EXTENDED_APIS.BI_ADD_FUNCTION, params);
+    }
+
+    async search(params: BISearchRequest): Promise<BISearchResponse> {
+        return this.sendRequest<BISearchResponse>(EXTENDED_APIS.BI_SEARCH, params);
     }
 
     // <------------ BI APIS END --------------->

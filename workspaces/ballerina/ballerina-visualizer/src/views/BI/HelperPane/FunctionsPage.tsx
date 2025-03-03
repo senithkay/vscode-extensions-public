@@ -36,7 +36,7 @@ export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: 
         debounce((searchText: string, includeAvailableFunctions?: string) => {
             rpcClient
                 .getBIDiagramRpcClient()
-                .getFunctions({
+                .search({
                     position: targetLineRange,
                     filePath: fileName,
                     queryMap: {
@@ -44,7 +44,8 @@ export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: 
                         limit: 12,
                         offset: 0,
                         ...(!!includeAvailableFunctions && { includeAvailableFunctions })
-                    }
+                    },
+                    searchKind: "FUNCTION"
                 })
                 .then((response) => {
                     if (response.categories?.length) {
@@ -119,6 +120,7 @@ export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: 
                     if (!category.subCategory) {
                         return (
                             <HelperPane.Section
+                                key={category.label}
                                 title={category.label}
                                 collapsible
                                 defaultCollapsed
@@ -126,7 +128,7 @@ export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: 
                                 collapsedItemsCount={6}
                                 titleSx={{ fontFamily: 'GilmerMedium' }}
                             >
-                                {category.items.map((item) => (
+                                {category.items?.map((item) => (
                                     <HelperPane.CompletionItem
                                         key={`${category.label}-${item.label}`}
                                         label={item.label}
@@ -141,7 +143,11 @@ export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: 
 
                     /* If sub category found */
                     return (
-                        <HelperPane.Section title={category.label} titleSx={{ fontFamily: 'GilmerMedium' }}>
+                        <HelperPane.Section
+                            key={category.label}
+                            title={category.label}
+                            titleSx={{ fontFamily: 'GilmerMedium' }}
+                        >
                             {category.subCategory.map((subCategory) => (
                                 <HelperPane.SubSection
                                     key={`${category.label}-${subCategory.label}`}
