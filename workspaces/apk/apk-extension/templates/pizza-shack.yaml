@@ -5,32 +5,32 @@ version: "1.0.0"
 type: "REST"
 endpointConfigurations:
   production:
-    endpoint: "https://pizza"
-    endpointSecurity:
-      enabled: true
-      securityType:
-        basicEndpointSecurity:
-          secretName: "backend-creds"
-          userNameKey: "username"
-          passwordKey: "password"
-    certificate:
-      secretName: "certificate-secret"
-      secretKey: "certificate-key"
-    resiliency: {}
+    - endpoint: "https://pizza"
+      endpointSecurity:
+        enabled: true
+        securityType:
+          basicEndpointSecurity:
+            secretName: "backend-creds"
+            userNameKey: "username"
+            passwordKey: "password"
+      certificate:
+        secretName: "certificate-secret"
+        secretKey: "certificate-key"
+      resiliency: {}
   sandbox:
-    endpoint: "https://pizza"
-    endpointSecurity:
-      enabled: false
-    certificate: {}
+    - endpoint: "https://pizza"
+      endpointSecurity:
+        enabled: false
+      certificate: {}
 operations:
   - target: "/pizzas"
     verb: "GET"
     secured: true
     endpointConfigurations:
       production:
-        endpoint: "https://pizza"
+        - endpoint: "https://pizza"
       sandbox:
-        endpoint: "https://pizza"
+        - endpoint: "https://pizza"
     operationPolicies:
       request:
         - policyName: "Request Policy 1"
@@ -51,9 +51,9 @@ operations:
     secured: true
     endpointConfigurations:
       production:
-        endpoint: "https://pizza"
+        - endpoint: "https://pizza"
       sandbox:
-        endpoint: "https://pizza"
+        - endpoint: "https://pizza"
     operationPolicies:
       request:
         - policyName: "Request Policy 2"
