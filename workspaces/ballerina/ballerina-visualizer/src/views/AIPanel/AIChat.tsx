@@ -94,10 +94,11 @@ export const COMMAND_DATAMAP = "/datamap";
 export const COMMAND_TYPECREATOR = "/typecreator";
 export const COMMAND_DOCUMENTATION = "/ask";
 export const COMMAND_HEALTHCARE = "/healthcare";
+export const COMMAND_OPENAPI = "/openapi";
 
 // Define constants for command templates
 const TEMPLATE_GENERATE = [
-    "generate code for the use-case: <use-case>",
+    "generate code for the use-case: ",
     "generate an integration according to the given Readme file",
 ];
 const TEMPLATE_TESTS = [
@@ -108,9 +109,10 @@ const TEMPLATE_DATAMAP = [
     "generate mapping using input as <recordname(s)> and output as <recordname> using the function <functionname>",
     "generate mapping using input as <recordname(s)> and output as <recordname>",
 ];
-const TEMPLATE_TYPECREATOR = ["generate types using the given file"];
-const TEMPLATE_DOCUMENTATION = ["Find reliable answers to your ballerina questions: <question>"];
-const TEMPLATE_HEALTHCARE = [""];
+const TEMPLATE_TYPECREATOR = ["generate types using the attatched file"];
+const TEMPLATE_DOCUMENTATION : string[] = [];
+const TEMPLATE_HEALTHCARE : string[] = [];
+const TEMPLATE_OPENAPI : string[]= [];
 
 const DEFAULT_MENU_COMMANDS = [
     { command: COMMAND_GENERATE + " write a hello world http service" },
@@ -125,6 +127,7 @@ const commandToTemplate = new Map<string, string[]>([
     [COMMAND_TYPECREATOR, TEMPLATE_TYPECREATOR],
     [COMMAND_HEALTHCARE, TEMPLATE_HEALTHCARE],
     [COMMAND_DOCUMENTATION, TEMPLATE_DOCUMENTATION],
+    [COMMAND_OPENAPI, TEMPLATE_OPENAPI]
 ]);
 
 //TODO: Add the files relevant to the commands
@@ -424,7 +427,10 @@ export function AIChat() {
                         if (parameters.inputRecord.length >= 1 && parameters.outputRecord) {
                             await processMappingParameters(cleanedMessage, token, parameters, attachments);
                         } else {
-                            throw new Error("Error: Invalid parameters for " + COMMAND_DATAMAP + " command");
+                            throw new Error(
+                                `Invalid template format for the \`${COMMAND_DATAMAP}\` command. ` +
+                                `Please ensure you follow the correct template.`
+                            );
                         }
                         break;
                     }
@@ -436,7 +442,7 @@ export function AIChat() {
                                 throw new Error("Error: Missing Attach context");
                             }
                         } else {
-                            throw new Error("Error: Invalid parameters for " + COMMAND_DATAMAP + " command");
+                            throw new Error("Error: Invalid parameters for " + COMMAND_TYPECREATOR + " command");
                         }
                         break;
                     }
@@ -446,6 +452,11 @@ export function AIChat() {
                     }
                     case COMMAND_DOCUMENTATION: {
                         await findInDocumentation(parameters.inputRecord[0], token);
+                        break;
+                    }
+                    case COMMAND_OPENAPI: {
+                        await processOpenAPICodeGeneration(token, messageBody, message);
+                        break;
                     }
                 }
             } else {
@@ -460,6 +471,9 @@ export function AIChat() {
                     return;
                 } else if (commandKey === COMMAND_HEALTHCARE) {
                     await processHealthcareCodeGeneration(token, messageBody, message);
+                    return;
+                } else if (commandKey === COMMAND_OPENAPI) {
+                    await processOpenAPICodeGeneration(token, messageBody, message);
                     return;
                 }
                 throw new Error(
@@ -486,8 +500,8 @@ export function AIChat() {
         for (const template of expectedTemplates ?? []) {
             let pattern = template
                 .replace(/<servicename>/g, "(\\S+?)")
-                .replace(/<recordname\(s\)>/g, "([\\w:\\[\\]]+(?:[\\s,]+[\\w:\\[\\]]+)*)")
-                .replace(/<recordname>/g, "([\\w:\\[\\]]+)")
+                .replace(/<recordname\(s\)>/g, "((?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+(?:[\\s,]+(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+)*)")
+                .replace(/<recordname>/g, "((?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+)")
                 .replace(/<use-case>/g, "([\\s\\S]+?)")
                 .replace(/<functionname>/g, "(\\S+?)")
                 .replace(/<question>/g, "(.+?)")
@@ -506,10 +520,7 @@ export function AIChat() {
                             .map((name) => name.trim())
                             .filter((name) => name.length > 0);
                     } else {
-                        inputRecordList = inputRecordNamesRaw
-                            .split(/\s+/)
-                            .map((name) => name.trim())
-                            .filter((name) => name.length > 0);
+                        inputRecordList = [inputRecordNamesRaw.trim()];
                     }
 
                     const outputRecordName = match[2].trim();
@@ -648,9 +659,8 @@ export function AIChat() {
                 });
                 assistant_response = postProcessResp.assistant_response;
                 const diagnostics = postProcessResp.diagnostics.diagnostics;
+                console.log("Diagnostics : ", diagnostics);
                 if (diagnostics.length > 0) {
-                    console.log("Diagnostics : ");
-                    console.log(diagnostics);
                     //TODO: fill
                     const diagReq = {
                         response: assistant_response,
@@ -683,7 +693,11 @@ export function AIChat() {
                         const jsonBody = await response.json();
                         const repairResponse = jsonBody.repairResponse;
                         // replace original response with new code blocks
-                        const fixedResponse = replaceCodeBlocks(assistant_response, repairResponse);
+                        let fixedResponse = replaceCodeBlocks(assistant_response, repairResponse);
+                        const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
+                            assistant_response: fixedResponse,
+                        });
+                        fixedResponse = postProcessResp.assistant_response;
                         const endTime = performance.now();
                         const executionTime = endTime - startTime;
                         console.log(`Repair call time: ${executionTime} milliseconds`);
@@ -1228,7 +1242,7 @@ export function AIChat() {
             const fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath });
             finalContent = `${fileContent}\n${response.mappingCode}`;
         }
-        assistant_response += `<code filename="${filePath}" type="ai_map">\n\`\`\`ballerina\n${finalContent}\n\`\`\`\n</code>`;
+        assistant_response += `<code filename="${filePath}" type="ai_map">\n\`\`\`ballerina\n${response.mappingCode}\n\`\`\`\n</code>`;
 
         setMessages((prevMessages) => {
             const newMessages = [...prevMessages];
@@ -1357,6 +1371,129 @@ export function AIChat() {
 
         const response = await fetchWithToken(
             backendRootUri + "/healthcare",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(requestBody),
+                signal: signal,
+            },
+            rpcClient
+        );
+
+        if (!response.ok) {
+            if (response.status > 400 && response.status < 500) {
+                await rpcClient.getAiPanelRpcClient().promptLogin();
+                setIsLoading(false);
+                return;
+            }
+
+            setIsLoading(false);
+            let error = `Failed to fetch response.`;
+            if (response.status == 429) {
+                response.json().then((body) => {
+                    error += ` Cause: ${body.detail}`;
+                });
+            }
+            throw new Error(error);
+        }
+        const reader: ReadableStreamDefaultReader<Uint8Array> = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let codeSnippetBuffer = "";
+        remainingTokenPercentage = "Unlimited";
+        setIsCodeLoading(true);
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+                setIsLoading(false);
+                break;
+            }
+
+            buffer += decoder.decode(value, { stream: true });
+
+            let boundary = buffer.indexOf("\n\n");
+            while (boundary !== -1) {
+                const chunk = buffer.slice(0, boundary + 2);
+                buffer = buffer.slice(boundary + 2);
+                try {
+                    await processSSEEvent(chunk);
+                } catch (error) {
+                    console.error("Failed to parse SSE event:", error);
+                }
+
+                boundary = buffer.indexOf("\n\n");
+            }
+        }
+
+        async function processSSEEvent(chunk: string) {
+            const event = parseSSEEvent(chunk);
+            if (event.event == "content_block_delta") {
+                let textDelta = event.body.text;
+                assistant_response += textDelta;
+
+                handleContentBlockDelta(textDelta);
+            } else if (event.event == "message_stop") {
+                setIsCodeLoading(false);
+                setMessages((prevMessages) => {
+                    const newMessages = [...prevMessages];
+                    newMessages[newMessages.length - 1].content = assistant_response;
+                    return newMessages;
+                });
+            } else if (event.event == "error") {
+                console.log("Streaming Error: ", event);
+                setIsLoading(false);
+                setMessages((prevMessages) => {
+                    const newMessages = [...prevMessages];
+                    newMessages[newMessages.length - 1].content +=
+                        "\nUnknown error occurred while receiving the response.";
+                    newMessages[newMessages.length - 1].type = "Error";
+                    return newMessages;
+                });
+                assistant_response = "\nUnknown error occurred while receiving the response.";
+                throw new Error("Streaming error");
+            }
+        }
+
+        function handleContentBlockDelta(textDelta: string) {
+            const matchText = codeSnippetBuffer + textDelta;
+            const matchedResult = findRegexMatches(matchText);
+            if (matchedResult.length > 0) {
+                if (matchedResult[0].end === matchText.length) {
+                    codeSnippetBuffer = matchText;
+                } else {
+                    codeSnippetBuffer = "";
+                    setMessages((prevMessages) => {
+                        const newMessages = [...prevMessages];
+                        newMessages[newMessages.length - 1].content += matchText;
+                        return newMessages;
+                    });
+                }
+            } else {
+                codeSnippetBuffer = "";
+                setMessages((prevMessages) => {
+                    const newMessages = [...prevMessages];
+                    newMessages[newMessages.length - 1].content += matchText;
+                    return newMessages;
+                });
+            }
+        }
+
+        addChatEntry("user", message);
+        addChatEntry("assistant", assistant_response);
+    }
+
+    async function processOpenAPICodeGeneration(token: string, useCase: string, message: string) {
+        let assistant_response = "";
+        const requestBody: any = {
+            query: useCase,
+            chatHistory: chatArray,
+        };
+
+        const response = await fetchWithToken(
+            backendRootUri + "/openapi",
             {
                 method: "POST",
                 headers: {
