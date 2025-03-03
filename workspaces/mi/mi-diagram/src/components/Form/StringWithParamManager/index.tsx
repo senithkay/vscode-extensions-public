@@ -13,6 +13,7 @@ import { ComponentCard, RequiredFormInput, Typography } from "@wso2-enterprise/u
 import ParameterManager, { Param } from "../GigaParamManager/ParameterManager";
 import { Element, cardStyle } from "../FormGenerator";
 import { FormTokenEditor } from "../FormTokenEditor";
+import { SIDE_PANEL_WIDTH } from "../../../resources/constants";
 
 interface StringWithParamManagerProps {
     element: Element;
@@ -78,6 +79,7 @@ export const StringWithParamManagerComponent = forwardRef<HTMLDivElement, String
 
         <FormTokenEditor
             sx={{ paddingTop: 20, fontSize: '1.17em',fontWeight: 'bold' }}
+            editorSx={{ width: `${SIDE_PANEL_WIDTH - 106}px` }}
             nodeRange={nodeRange}
             value={stringValue}
             onChange={setStringValue}
