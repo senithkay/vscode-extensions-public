@@ -207,10 +207,8 @@ const stateMachine = createMachine<MachineContext>(
                         if (webview && (context.isBI || context.view === MACHINE_VIEW.BIWelcome)) {
                             webview.title = "WSO2 Ballerina Integrator";
                             webview.iconPath = {
-                                light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'ballerina.svg')),
-                                dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'ballerina-inverse.svg'))
-                                // light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'dark-icon.svg')),
-                                // dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'light-icon.svg'))
+                                light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'dark-icon.svg')),
+                                dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'light-icon.svg'))
                             };
                         }
                         resolve(true);
