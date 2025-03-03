@@ -240,7 +240,6 @@ enum EXTENDED_APIS {
     BI_DELETE_BY_COMPONENT_INFO = 'flowDesignService/deleteComponent',
     BI_AVAILABLE_NODES = 'flowDesignService/getAvailableNodes',
     BI_NODE_TEMPLATE = 'flowDesignService/getNodeTemplate',
-    BI_CONNECTOR = 'flowDesignService/getConnectors',
     BI_GEN_OPEN_API = 'flowDesignService/generateServiceFromOpenApiContract',
     BI_MODULE_NODES = 'flowDesignService/getModuleNodes',
     BI_GEN_ERROR_HANDLER = 'flowDesignService/addErrorHandler',
