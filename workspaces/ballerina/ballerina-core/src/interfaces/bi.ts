@@ -173,6 +173,7 @@ export enum DIRECTORY_SUB_TYPE {
     AUTOMATION = "automation",
     TRIGGER = "trigger",
     DATA_MAPPER = "dataMapper",
+    AGENTS = "agents",
 }
 
 export enum FUNCTION_TYPE {
