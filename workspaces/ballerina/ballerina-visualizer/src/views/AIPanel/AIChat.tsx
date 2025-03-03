@@ -1487,11 +1487,9 @@ export function AIChat() {
 
     async function processOpenAPICodeGeneration(token: string, useCase: string, message: string) {
         let assistant_response = "";
-        const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource();
         const requestBody: any = {
             query: useCase,
             chatHistory: chatArray,
-            // sourceFiles: project.sourceFiles,
         };
 
         const response = await fetchWithToken(
