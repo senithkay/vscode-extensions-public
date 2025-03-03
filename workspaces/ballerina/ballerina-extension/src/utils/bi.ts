@@ -144,6 +144,10 @@ bi = true
     const mainBal = path.join(projectRoot, 'main.bal');
     writeBallerinaFileDidOpen(mainBal, EMPTY);
 
+    // Create main.bal file
+    const agentsBal = path.join(projectRoot, 'agents.bal');
+    writeBallerinaFileDidOpen(agentsBal, EMPTY);
+
     // Create functions.bal file
     const functionsBal = path.join(projectRoot, 'functions.bal');
     writeBallerinaFileDidOpen(functionsBal, EMPTY);

@@ -97,6 +97,7 @@ const _agentFields: FormField[] = [
         documentation: "Name of your agent",
         value: "",
         valueTypeConstraint: "",
+        enabled: true
     },
     {
         key: `description`,
@@ -106,7 +107,8 @@ const _agentFields: FormField[] = [
         editable: true,
         documentation: '',
         value: "",
-        valueTypeConstraint: ""
+        valueTypeConstraint: "",
+        enabled: true
     }
 ]
 
@@ -227,6 +229,7 @@ export function AIAgentWizard() {
                         value: "",
                         items: triggerModel.service.functions.map(func => func.name.value),
                         valueTypeConstraint: "",
+                        d
                     }]
                 }
             })
@@ -250,6 +253,7 @@ export function AIAgentWizard() {
             documentation: "Choose the entry point for your integration",
             value: "",
             valueTypeConstraint: "",
+            enabled: true
         }
 
         const items: OptionProps[] = [];
@@ -293,6 +297,7 @@ export function AIAgentWizard() {
                         value: "",
                         items: triggerModel.service.functions.map(func => func.name.value),
                         valueTypeConstraint: "",
+                        enabled: true
                     }]
                 }
             })
@@ -356,7 +361,8 @@ export function AIAgentWizard() {
             value: "",
             valueTypeConstraint: "",
             addNewButton: true,
-            addNewButtonLabel: "Create New Tool"
+            addNewButtonLabel: "Create New Tool",
+            enabled: true
         }
         const existingTools = await rpcClient.getAIAgentRpcClient().getTools({ filePath });
         field.items = existingTools?.tools.map(item => item);
