@@ -13,10 +13,8 @@ import {
     AddFunctionRequest,
     BIAiSuggestionsRequest,
     BIAvailableNodesRequest,
-    BIConnectorsRequest,
     BIDeleteByComponentInfoRequest,
     BIGetEnclosedFunctionRequest,
-    BIGetFunctionsRequest,
     BIGetVisibleVariableTypesRequest,
     BINodeTemplateRequest,
     BISourceCodeRequest,
@@ -55,7 +53,6 @@ import {
     getAiSuggestions,
     getAllImports,
     getAvailableNodes,
-    getBIConnectors,
     getBreakpointInfo,
     getConfigVariables,
     getDesignModel,
@@ -110,7 +107,6 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getProjectStructure, () => rpcManger.getProjectStructure());
     messenger.onRequest(getProjectComponents, () => rpcManger.getProjectComponents());
     messenger.onRequest(createComponent, (args: ComponentRequest) => rpcManger.createComponent(args));
-    messenger.onRequest(getBIConnectors, (args: BIConnectorsRequest) => rpcManger.getBIConnectors(args));
     messenger.onRequest(handleReadmeContent, (args: ReadmeContentRequest) => rpcManger.handleReadmeContent(args));
     messenger.onRequest(getVisibleVariableTypes, (args: BIGetVisibleVariableTypesRequest) => rpcManger.getVisibleVariableTypes(args));
     messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));

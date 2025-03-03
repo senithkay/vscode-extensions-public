@@ -16,8 +16,6 @@ import {
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
     BIAvailableNodesResponse,
-    BIConnectorsRequest,
-    BIConnectorsResponse,
     BIDeleteByComponentInfoRequest,
     BIDeleteByComponentInfoResponse,
     BIDesignModelResponse,
@@ -25,8 +23,6 @@ import {
     BIFlowModelResponse,
     BIGetEnclosedFunctionRequest,
     BIGetEnclosedFunctionResponse,
-    BIGetFunctionsRequest,
-    BIGetFunctionsResponse,
     BIGetVisibleVariableTypesRequest,
     BIGetVisibleVariableTypesResponse,
     BIModuleNodesResponse,
@@ -88,7 +84,6 @@ import {
     getAiSuggestions,
     getAllImports,
     getAvailableNodes,
-    getBIConnectors,
     getBreakpointInfo,
     getConfigVariables,
     getDesignModel,
@@ -187,10 +182,6 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     createComponent(params: ComponentRequest): Promise<CreateComponentResponse> {
         return this._messenger.sendRequest(createComponent, HOST_EXTENSION, params);
-    }
-
-    getBIConnectors(params: BIConnectorsRequest): Promise<BIConnectorsResponse> {
-        return this._messenger.sendRequest(getBIConnectors, HOST_EXTENSION, params);
     }
 
     handleReadmeContent(params: ReadmeContentRequest): Promise<ReadmeContentResponse> {

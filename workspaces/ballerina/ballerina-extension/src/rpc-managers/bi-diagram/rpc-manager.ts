@@ -16,8 +16,6 @@ import {
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
     BIAvailableNodesResponse,
-    BIConnectorsRequest,
-    BIConnectorsResponse,
     BICopilotContextRequest,
     BIDeleteByComponentInfoRequest,
     BIDeleteByComponentInfoResponse,
@@ -27,8 +25,6 @@ import {
     BIFlowModelResponse,
     BIGetEnclosedFunctionRequest,
     BIGetEnclosedFunctionResponse,
-    BIGetFunctionsRequest,
-    BIGetFunctionsResponse,
     BIGetVisibleVariableTypesRequest,
     BIGetVisibleVariableTypesResponse,
     BIModuleNodesRequest,
@@ -399,23 +395,6 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 documentIdentifiers: [{ uri: Uri.file(StateMachine.context().projectUri).toString() }],
             });
             resolve({ components });
-        });
-    }
-
-    async getBIConnectors(params: BIConnectorsRequest): Promise<BIConnectorsResponse> {
-        return new Promise((resolve) => {
-            StateMachine.langClient()
-                .getBIConnectors(params)
-                .then((model) => {
-                    console.log(">>> bi connectors from ls", model);
-                    resolve(model);
-                })
-                .catch((error) => {
-                    console.log(">>> error fetching connectors from ls", error);
-                    return new Promise((resolve) => {
-                        resolve(undefined);
-                    });
-                });
         });
     }
 

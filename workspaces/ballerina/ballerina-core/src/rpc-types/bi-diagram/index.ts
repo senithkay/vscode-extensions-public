@@ -17,14 +17,10 @@ import {
     BIAvailableNodesRequest,
     BIAvailableNodesResponse,
     BIFlowModelResponse,
-    BIConnectorsRequest,
-    BIConnectorsResponse,
     BINodeTemplateRequest,
     BINodeTemplateResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
-    BIGetFunctionsRequest,
-    BIGetFunctionsResponse,
     BIModuleNodesResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -97,7 +93,6 @@ export interface BIDiagramAPI {
     getProjectStructure: () => Promise<ProjectStructureResponse>;
     getProjectComponents: () => Promise<ProjectComponentsResponse>;
     createComponent: (params: ComponentRequest) => Promise<CreateComponentResponse>;
-    getBIConnectors: (params: BIConnectorsRequest) => Promise<BIConnectorsResponse>;
     handleReadmeContent: (params: ReadmeContentRequest) => Promise<ReadmeContentResponse>;
     getVisibleVariableTypes: (params: BIGetVisibleVariableTypesRequest) => Promise<BIGetVisibleVariableTypesResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;

@@ -85,8 +85,6 @@ import {
     BIFlowModelResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
-    BIConnectorsRequest,
-    BIConnectorsResponse,
     ConnectorRequest,
     ConnectorResponse,
     BISuggestedFlowModelRequest,
@@ -96,8 +94,6 @@ import {
     SequenceModelResponse,
     ServiceFromOASRequest,
     ServiceFromOASResponse,
-    BIGetFunctionsRequest,
-    BIGetFunctionsResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     VisibleVariableTypes,
@@ -774,10 +770,6 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getNodeTemplate(params: BINodeTemplateRequest): Promise<BINodeTemplateResponse> {
         return this.sendRequest<BINodeTemplateResponse>(EXTENDED_APIS.BI_NODE_TEMPLATE, params);
-    }
-
-    async getBIConnectors(params: BIConnectorsRequest): Promise<BIConnectorsResponse> {
-        return this.sendRequest<BIConnectorsResponse>(EXTENDED_APIS.BI_CONNECTOR, params);
     }
 
     async generateServiceFromOAS(params: ServiceFromOASRequest): Promise<ServiceFromOASResponse> {
