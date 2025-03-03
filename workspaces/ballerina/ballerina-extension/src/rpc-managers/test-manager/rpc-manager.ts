@@ -87,8 +87,8 @@ export class TestServiceManagerRpcManager implements TestManagerServiceAPI {
         for (const [key, value] of Object.entries(params.textEdits)) {
             const fileUri = Uri.file(key);
             const fileUriString = fileUri.toString();
-            if (!existsSync(fileUri.path)) {
-                writeFileSync(fileUri.path, '');
+            if (!existsSync(fileUri.fsPath)) {
+                writeFileSync(fileUri.fsPath, '');
             }
             const edits = value;
 
