@@ -14,7 +14,7 @@ import { Param, TypeResolver } from './TypeResolver';
 import { ParamField, Parameters, isFieldEnabled, getParamFieldLabelFromParamId } from './ParamManager';
 import { ActionButtons, Drawer, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
-import { SIDE_PANEL_WIDTH } from '../../../resources/constants';
+import { SIDE_PANEL_WIDTH, VSCodeColors } from '../../../resources/constants';
 
 export interface ParamProps {
     parameters: Parameters;
@@ -144,7 +144,7 @@ export function ParamEditor(props: ParamProps) {
                     <EditorContent>
                         {parameters?.parameters.map(param => getParamComponent({ ...param, label: getParamFieldLabelFromParamId(paramFields, param.id) }))}
                     </EditorContent>
-                    {errorMessage && <Typography variant='body1' sx={{ color: "var(--vscode-errorForeground)" }}>{errorMessage}</Typography>}
+                    {errorMessage && <Typography variant='body1' sx={{ color: VSCodeColors.ERROR }}>{errorMessage}</Typography>}
                     <ActionButtons
                         primaryButton={{ text: "Save", onClick: handleOnSave, disabled: !isSaveEnabled }}
                         secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}
@@ -160,7 +160,7 @@ export function ParamEditor(props: ParamProps) {
                             label: getParamFieldLabelFromParamId(paramFields, param.id)
                         })
                         )}
-                        {errorMessage && <Typography variant='body1' sx={{ color: "var(--vscode-errorForeground)" }}>{errorMessage}</Typography>}
+                        {errorMessage && <Typography variant='body1' sx={{ color: VSCodeColors.ERROR }}>{errorMessage}</Typography>}
                         <ActionButtons
                             primaryButton={{ text: "Save", onClick: handleOnSave, disabled: !isSaveEnabled }}
                             secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}

@@ -20,6 +20,7 @@ import { Codicon, LinkButton, Typography } from '@wso2-enterprise/ui-toolkit';
 import { FilterType } from '../Keylookup/Keylookup';
 import { ResourceType } from "@wso2-enterprise/mi-core";
 import { Range } from 'vscode-languageserver-types';
+import { VSCodeColors } from '../../../resources/constants';
 
 export interface ParamValue {
     value: string | boolean | ExpressionFieldValue | ParamConfig;
@@ -544,7 +545,7 @@ export function ParamManager(props: ParamManagerProps) {
                             {addParamText}
                         </div>
                     </LinkButton>
-                    {errorMessage && <Typography variant='body1' sx={{ color: "var(--vscode-errorForeground)" }}>{errorMessage}</Typography>}
+                    {errorMessage && <Typography variant='body1' sx={{ color: VSCodeColors.ERROR }}>{errorMessage}</Typography>}
                 </AddButtonWrapper>
             )}
         </ParamManagerWrapper>
