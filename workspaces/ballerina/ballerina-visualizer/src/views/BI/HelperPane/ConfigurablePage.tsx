@@ -212,25 +212,23 @@ export const ConfigurablePage = ({
             />
             <HelperPane.Body loading={isLoading}>
                 {!isFormVisible ? (
-                    <>
-                        {filteredConfigurableInfo?.category.map((category) => (
-                            <HelperPane.Section
-                                key={category.label}
-                                title={category.label}
-                                titleSx={{ fontFamily: "GilmerMedium" }}
-                            >
-                                {category.items.map((item) => (
-                                    <HelperPane.CompletionItem
-                                        key={`${category.label}-${item.label}`}
-                                        label={item.label}
-                                        type={item.type}
-                                        onClick={() => onChange(item.label)}
-                                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
-                                    />
-                                ))}
-                            </HelperPane.Section>
-                        ))}
-                    </>
+                    filteredConfigurableInfo?.category.map((category) => (
+                        <HelperPane.Section
+                            key={category.label}
+                            title={category.label}
+                            titleSx={{ fontFamily: 'GilmerMedium' }}
+                        >
+                            {category.items?.map((item) => (
+                                <HelperPane.CompletionItem
+                                    key={`${category.label}-${item.label}`}
+                                    label={item.label}
+                                    type={item.type}
+                                    onClick={() => onChange(item.label)}
+                                    getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
+                                />
+                            ))}
+                        </HelperPane.Section>
+                    ))
                 ) : (
                     <HelperPane.Section title="Create New Configurable Variable" titleSx={{ fontFamily: "GilmerMedium" }}>
                         <S.FormSection>
