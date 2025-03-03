@@ -78,6 +78,7 @@ export const StringWithParamManagerComponent = forwardRef<HTMLDivElement, String
 
         <FormTokenEditor
             sx={{ paddingTop: 20, fontSize: '1.17em',fontWeight: 'bold' }}
+            editorSx={{ width: '344px' }}
             nodeRange={nodeRange}
             value={stringValue}
             onChange={setStringValue}
