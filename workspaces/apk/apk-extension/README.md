@@ -1,4 +1,4 @@
-# APK Config Language Support
+# Kubernetes Gateway Config Language Support
 
 A Visual Studio Code extension for providing language support for APK configuration YAML files.
 
@@ -20,8 +20,8 @@ A Visual Studio Code extension for providing language support for APK configurat
 
 1. Launch Visual Studio Code.
 2. Go to the Extensions view by clicking on the square icon in the sidebar or pressing `Ctrl+Shift+X`.
-3. Search for "APK Config Language Support".
-4. Click on the "Install" button for the extension published by "APK Config Language Support".
+3. Search for "Kubernetes Gateway Config Language Support".
+4. Click on the "Install" button for the extension published by "Kubernetes Gateway Config Language Support".
 5. The extension will be installed and activated automatically. ( This extension is depending on the YAML Language Support by Red Hat extension). If it's not installed, this will install it automatically.
 
 ## Usage

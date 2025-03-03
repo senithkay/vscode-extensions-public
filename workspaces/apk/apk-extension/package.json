@@ -1,7 +1,7 @@
 {
     "name": "apk-config-language-support",
-    "displayName": "APK Config Language Support",
-    "description": "APK config language support ",
+    "displayName": "Kubernetes Gateway Config Language Support",
+    "description": "Kubernetes Gateway Config Language Support",
     "author": "WSO2",
     "license": "Apache 2.0",
     "version": "1.3.0",
