@@ -118,6 +118,7 @@ export function OperationForm(props: OperationFormProps) {
                 type: 'PARAM_MANAGER',
                 optional: true,
                 editable: true,
+                enabled: true,
                 documentation: '',
                 value: '',
                 paramManagerProps: {
@@ -204,7 +205,7 @@ export function convertParameterToFormField(key: string, param: ParameterModel):
         documentation: param.metadata?.description || '',
         value: param.value || '',
         valueTypeConstraint: param?.valueTypeConstraint || '',
-        enabled: param.enabled || true,
+        enabled: param.enabled ?? true,
         lineRange: param?.codedata?.lineRange
     };
 }

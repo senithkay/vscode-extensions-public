@@ -43,13 +43,12 @@ interface Props {
 	project: Project;
 	organization: Organization;
 	deploymentTrack?: DeploymentTrack;
-	envs: Environment[];
 	buildListQueryData: UseQueryResult<BuildKind[], unknown>;
 	openBuildDetailsPanel: (item: BuildKind) => void;
 }
 
 export const BuildsSection: FC<Props> = (props) => {
-	const { component, organization, project, deploymentTrack, envs, openBuildDetailsPanel, buildListQueryData } = props;
+	const { component, organization, project, deploymentTrack, openBuildDetailsPanel, buildListQueryData } = props;
 	const { isLoading: isLoadingBuilds, isRefetching: isRefetchingBuilds, data: builds = [], refetch: refetchBuilds } = buildListQueryData;
 	const [visibleBuildCount, setVisibleBuildCount] = useState(5);
 	const [buildListRef] = useAutoAnimate();
@@ -64,9 +63,11 @@ export const BuildsSection: FC<Props> = (props) => {
 			const buildQueryKey = queryKeys.getBuilds(deploymentTrack, component, project, organization);
 			const currentBuilds: BuildKind[] = queryClient.getQueryData(buildQueryKey) ?? [];
 			queryClient.setQueryData(buildQueryKey, [{ status: { status: "Triggered" } } as BuildKind, ...currentBuilds]);
-			refetchBuilds();
 			ChoreoWebViewAPI.getInstance().showInfoMsg("Build for selected commit has been successfully triggered");
 		},
+		onSettled:()=> {
+			refetchBuilds();
+		}
 	});
 
 	const { mutate: selectCommitForBuild } = useMutation({

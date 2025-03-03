@@ -14,7 +14,16 @@ import { AIMachineStateValue } from "../../state-machine-types";
 export type ErrorCode = {
     code: number;
     message: string;
-};
+}
+
+export interface FetchDataRequest {
+    url: string;
+    options: RequestInit;
+}
+
+export interface FetchDataResponse {
+    response: Response
+}
 
 export interface ProjectSource {
     projectModules?: ProjectModule[];
@@ -81,17 +90,28 @@ export interface NotifyAIMappingsRequest {
     filePath: string;
 }
 
-export interface GenerateTestRequest {
-    backendUri: string;
-    token: string;
-    serviceName: string;
-    existingSource?: GeneratedTestSource;
-    diagnostics?: ProjectDiagnostics;
+// Test-generator related interfaces
+export enum TestGenerationTarget {
+    Service = "service",
+    Function = "function"
 }
 
-export interface GeneratedTestSource {
-    testContent: string;
-    configContent?: string;
+export interface TestGenerationRequest {
+    backendUri: string;
+    targetType: TestGenerationTarget;
+    targetIdentifier: string;
+    testPlan?: string;
+    diagnostics?: ProjectDiagnostics;
+    existingTests?: string;
+}
+
+export interface TestGenerationResponse {
+    testSource: string;
+    testConfig?: string;
+}
+
+export interface TestGenerationMentions {
+    mentions: string[];
 }
 
 export interface DataMappingRecord {
@@ -149,4 +169,9 @@ export interface PostProcessRequest {
 export interface PostProcessResponse {
     assistant_response: string;
     diagnostics: ProjectDiagnostics;
+}
+
+export interface DocAssistantResponse {
+    content: string;
+    references: string[];
 }

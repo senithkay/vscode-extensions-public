@@ -54,8 +54,9 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
         handleOnTypeChange,
         visualizableFields
     } = props;
-
-    if (field.type === "MULTIPLE_SELECT") {
+    if (!field.enabled) {
+        return <></>;
+    } else if (field.type === "MULTIPLE_SELECT") {
         return <MultiSelectEditor field={field} label={"Add Another"} openSubPanel={openSubPanel} />;
     } else if (field.type === "CHOICE") {
         return <ChoiceForm field={field} />;

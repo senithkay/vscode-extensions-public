@@ -14,22 +14,47 @@ import * as fs from 'fs';
 
 const RESOURCES_PATH = path.resolve(__dirname, '../../../../test/ai/datamapper/resources');
 
-suite.only("AI Datamapper tests suite", () => {
+function getTestFolders(dirPath: string): string[] {
+    return fs.readdirSync(dirPath)
+        .filter((file) => fs.lstatSync(path.join(dirPath, file)).isDirectory());
+}
+
+suite.only("AI Datamapper Tests Suite", () => {
     setup(done => {
         done();
     });
 
-    const testFolders = fs.readdirSync(RESOURCES_PATH)
-        .filter((file) => fs.lstatSync(path.join(RESOURCES_PATH, file)).isDirectory());
+    function runTests(basePath: string) {
+        const testFolders = getTestFolders(basePath);
 
-    testFolders.forEach((folder) => {
-        test(`Datamapper Tests : ${folder}`, async () => {
-            const mapping = JSON.parse(fs.readFileSync(path.join(RESOURCES_PATH, folder, 'mapping.json'), 'utf8'));
-            const paramDef = JSON.parse(fs.readFileSync(path.join(RESOURCES_PATH, folder, 'param_def.json'), 'utf8'));
-            const expected = JSON.parse(fs.readFileSync(path.join(RESOURCES_PATH, folder, 'expected.json'), 'utf8'));
-            const resp = await generateBallerinaCode(mapping, paramDef, "");
-            assert.deepStrictEqual(resp, expected);
+        testFolders.forEach((folder) => {
+            const folderPath = path.join(basePath, folder);
+
+            suite(`Group: ${folder}`, () => {
+                const subFolders = getTestFolders(folderPath);
+
+                if (subFolders.length > 0) {
+                    // Recursively process subdirectories
+                    runTests(folderPath);
+                } else {
+                    test(`Datamapper Test - ${folder}`, async () => {
+                        const mappingFile = path.join(folderPath, 'mapping.json');
+                        const paramDefFile = path.join(folderPath, 'param_def.json');
+                        const expectedFile = path.join(folderPath, 'expected.json');
+
+                        assert.ok(fs.existsSync(mappingFile), `Missing mapping.json in ${folder}`);
+                        assert.ok(fs.existsSync(paramDefFile), `Missing param_def.json in ${folder}`);
+                        assert.ok(fs.existsSync(expectedFile), `Missing expected.json in ${folder}`);
+
+                        const mapping = JSON.parse(fs.readFileSync(mappingFile, 'utf8'));
+                        const paramDef = JSON.parse(fs.readFileSync(paramDefFile, 'utf8'));
+                        const expected = JSON.parse(fs.readFileSync(expectedFile, 'utf8'));
+                        const resp = await generateBallerinaCode(mapping, paramDef, "");
+                        assert.deepStrictEqual(resp, expected);            
+                    });
+                }
+            });
         });
-    });
-})
-
+    }
+    runTests(RESOURCES_PATH);
+});
