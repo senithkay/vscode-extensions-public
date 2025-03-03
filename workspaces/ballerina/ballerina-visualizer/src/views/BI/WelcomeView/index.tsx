@@ -125,7 +125,7 @@ export function WelcomeView() {
     return (
         <Wrapper>
             <TitleContainer>
-                <Headline>Kola Integrator for VS Code</Headline>
+                <Headline>WSO2 Ballerina Integrator for VS Code</Headline>
                 <Caption>
                     A comprehensive integration solution that simplifies your digital transformation journey.
                     Streamlines connectivity among applications, services, data, and cloud using a user-friendly
@@ -138,7 +138,7 @@ export function WelcomeView() {
                     <Column>
                         <StepTitle>Get Started Quickly</StepTitle>
                         <StepDescription>
-                            New to Kola? Start here! Explore step-by-step tutorials to help you get up and running with
+                            New to WSO2 Ballerina Integrator? Start here! Explore step-by-step tutorials to help you get up and running with
                             ease. <VSCodeLink onClick={openGettingStartedGuide}>Read the Guide</VSCodeLink>.
                         </StepDescription>
                     </Column>
@@ -161,7 +161,7 @@ export function WelcomeView() {
                     <Column>
                         <StepTitle>Explore Pre-Built Samples</StepTitle>
                         <StepDescription>
-                            Need inspiration? Browse through sample projects to see how Kola handles real-world
+                            Need inspiration? Browse through sample projects to see how WSO2 Ballerina Integrator handles real-world
                             integrations. <VSCodeLink onClick={openSamples}>Explore Samples</VSCodeLink>.
                         </StepDescription>
                     </Column>

@@ -371,7 +371,7 @@ export class BallerinaExtension {
 
     async setupKolaVersion() {
         try {
-            window.showInformationMessage(`Setting up Ballerina Kola version`);
+            window.showInformationMessage(`Setting up Ballerina version`);
 
             await this.downloadAndUnzipBallerina();
 
@@ -386,11 +386,11 @@ export class BallerinaExtension {
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
 
-            console.log('Ballerina home has been set successfully for Kola version.');
-            window.showInformationMessage("Ballerina has been set up successfully for Kola version");
+            console.log('Ballerina home has been set successfully.');
+            window.showInformationMessage("Ballerina has been set up successfully");
         } catch (error) {
-            console.error('Error downloading or unzipping the Ballerina Kola version:', error);
-            window.showErrorMessage('Error downloading or unzipping the Ballerina Kola version:', error);
+            console.error('Error downloading or unzipping the Ballerina:', error);
+            window.showErrorMessage('Error downloading or unzipping the Ballerina:', error);
         }
     }
 
@@ -402,8 +402,8 @@ export class BallerinaExtension {
                 await new Promise(resolve => setTimeout(resolve, 15000)); // Wait for 15 seconds
             }
 
-            window.showInformationMessage(`Updating Ballerina Kola version`);
-            // Remove the existing Ballerina Kola version
+            window.showInformationMessage(`Updating Ballerina version`);
+            // Remove the existing Ballerina version
             fs.rmSync(this.ballerinaKolaHome, { recursive: true, force: true });
 
             await this.downloadAndUnzipBallerina(restartWindow);
@@ -419,15 +419,15 @@ export class BallerinaExtension {
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
 
-            console.log('Ballerina home has been set successfully for Kola version.');
+            console.log('Ballerina home has been set successfully.');
             if (restartWindow) {
                 commands.executeCommand('workbench.action.reloadWindow');
             } else {
-                window.showInformationMessage("Ballerina has been set up successfully for Kola version");
+                window.showInformationMessage("Ballerina has been set up successfully");
             }
         } catch (error) {
-            console.error('Error downloading or unzipping the Ballerina Kola version:', error);
-            window.showErrorMessage('Error downloading or unzipping the Ballerina Kola version:', error);
+            console.error('Error downloading or unzipping the Ballerina:', error);
+            window.showErrorMessage('Error downloading or unzipping the Ballerina:', error);
         }
     }
 
@@ -508,7 +508,7 @@ export class BallerinaExtension {
                 await window.withProgress(
                     {
                         location: ProgressLocation.Notification,
-                        title: `Downloading Kola distribution`,
+                        title: `Downloading WSO2 Ballerina Integrator distribution`,
                         cancellable: false,
                     },
                     async (progress) => {
@@ -563,11 +563,11 @@ export class BallerinaExtension {
             console.log(`Downloaded artifact to ${zipFilePath}`);
 
             if (restartWindow) {
-                window.showInformationMessage("Setting the Kola Home location...");
+                window.showInformationMessage("Setting the WSO2 Ballerina Integrator Home location...");
             }
             res = {
                 ...res,
-                message: `Setting the Kola Home location...`,
+                message: `Setting the WSO2 Ballerina Integrator Home location...`,
                 success: false,
                 step: 4
             };
@@ -625,7 +625,7 @@ export class BallerinaExtension {
     private async setExecutablePermissions() {
         try {
             let res: DownloadProgress = {
-                message: `Setting the kola distribution permissions...`,
+                message: `Setting the WSO2 Ballerina Integrator distribution permissions...`,
                 success: false,
                 step: 4
             };

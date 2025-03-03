@@ -1,7 +1,7 @@
 {
     "name": "kolab",
-    "displayName": "KolaB",
-    "description": "KolaB Extension for Kola.",
+    "displayName": "WSO2 Ballerina",
+    "description": "WSO2 Ballerina Extension",
     "version": "0.4.5",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
@@ -73,7 +73,7 @@
         "configuration": [
             {
                 "type": "object",
-                "title": "Kola B",
+                "title": "WSO2 Ballerina",
                 "properties": {
                     "kolab.pluginDevMode": {
                         "type": "boolean",
@@ -184,7 +184,7 @@
             },
             {
                 "type": "object",
-                "title": "Kola",
+                "title": "WSO2 Ballerina Integrator",
                 "properties": {
                     "kolab.enableSequenceDiagramView": {
                         "type": "boolean",
@@ -318,12 +318,12 @@
             },
             {
                 "command": "kolab-setup.setupKola",
-                "title": "Set up Kola",
+                "title": "Set up WSO2 Ballerina",
                 "category": "Ballerina"
             },
             {
                 "command": "kolab-setup.updateKola",
-                "title": "Update Kola",
+                "title": "Update WSO2 Ballerina",
                 "category": "Ballerina"
             },
             {
@@ -547,7 +547,7 @@
             },
             {
                 "command": "BI.project-explorer.refresh",
-                "title": "Refresh Kola",
+                "title": "Refresh WSO2 Ballerina",
                 "category": "BI"
             },
             {

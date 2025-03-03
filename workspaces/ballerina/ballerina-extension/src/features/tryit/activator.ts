@@ -803,7 +803,7 @@ function setupErrorLogWatcher(targetDir: string) {
                 ).then(selection => {
                     if (selection === 'Show Details') {
                         // Show the full error in an output channel
-                        const outputChannel = window.createOutputChannel('Kola Tryit - Log');
+                        const outputChannel = window.createOutputChannel('WSO2 Ballerina Integrator Tryit - Log');
                         outputChannel.appendLine(content.trim());
                         outputChannel.show();
                     }

@@ -19,7 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
 		StateMachine.initialize();
 		return;
 	}
-	vscode.window.showErrorMessage('KolaB extension is required to operate Kola extension effectively. Please install it from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=wso2.ballerina).');
+	vscode.window.showErrorMessage('Ballerina extension is required to operate WSO2 Ballerina Integrator extension effectively. Please install it from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=wso2.ballerina).');
 }
 
 export function deactivate() { }

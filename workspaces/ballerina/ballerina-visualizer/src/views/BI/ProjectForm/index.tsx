@@ -56,7 +56,7 @@ export function ProjectForm() {
 
     return (
         <FormContainer>
-            <Typography variant="h2">Create Your Kola Integration</Typography>
+            <Typography variant="h2">Create Your WSO2 Ballerina Integration</Typography>
             <BodyText>
                 Start by naming your project and selecting a location to save it. This will be the foundation for
                 building your integration.

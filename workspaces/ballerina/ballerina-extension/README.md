@@ -1,3 +1,3 @@
-# The KolaB extension for Visual Studio Code
+# The Ballerina extension for Visual Studio Code
 
-KolaB extension for Kola extension
+Ballerina extension for WSO2 Ballerina Integrator extension

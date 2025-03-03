@@ -1,7 +1,7 @@
 {
     "name": "kola-extension",
-    "displayName": "Kola",
-    "description": "Project Kola.",
+    "displayName": "WSO2 Ballerina Integrator",
+    "description": "Project WSO2 Ballerina Integrator",
     "version": "0.4.5",
     "publisher": "wso2",
     "repository": {
@@ -25,7 +25,7 @@
             "activitybar": [
                 {
                     "id": "kola-integrator",
-                    "title": "Kola Integrator",
+                    "title": "WSO2 Ballerina Integrator",
                     "icon": "$(circuit-board)"
                 }
             ]
@@ -33,12 +33,12 @@
         "viewsWelcome": [
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to Kola Integrator. You can open a folder containing a Kola integration or create a new integration.\n[Open Kola Integration](command:vscode.openFolder)\n[Create New Integration](command:kolab.open.bi.welcome)\nTo learn more about how to use Kola Integrator in VS Code [read our docs](https://wso2.github.io/docs-kola/).",
+                "contents": "Welcome to WSO2 Ballerina Integrator. You can open a folder containing a WSO2 Ballerina integration or create a new integration.\n[Open WSO2 Ballerina Integration](command:vscode.openFolder)\n[Create New Integration](command:kolab.open.bi.welcome)\nTo learn more about how to use WSO2 Ballerina Integrator in VS Code [read our docs](https://wso2.github.io/docs-kola/).",
                 "when": "BI.status == 'unknownProject'"
             },
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to Kola Integrator! The Kola distribution is required but not found. [Set up Kola distribution](command:kolab.open.bi.welcome) to get started.",
+                "contents": "Welcome to WSO2 Ballerina Integrator! The WSO2 Ballerina distribution is required but not found. [Set up WSO2 Ballerina distribution](command:kolab.open.bi.welcome) to get started.",
                 "when": "BI.status == 'noLS'"
             },
             {
