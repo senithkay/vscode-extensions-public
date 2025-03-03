@@ -97,7 +97,7 @@ bi = true
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Ballerina Run/Debug",
+            "name": "Ballerina Run",
             "type": "ballerina",
             "request": "launch",
             "programArgs": [],
