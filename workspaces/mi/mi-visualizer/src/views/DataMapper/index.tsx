@@ -7,9 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
-import { DataMapperView } from "@wso2-enterprise/mi-data-mapper";
+import { DataMapperView, resetStoresForNewLoad } from "@wso2-enterprise/mi-data-mapper";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 
@@ -51,6 +51,10 @@ export function DataMapper(props: DataMapperProps) {
             throw new Error("Error while updating file content");
         } 
     }, [isIOTypeError, isFileUpdateError]);
+
+    useEffect(() => {
+        resetStoresForNewLoad();
+    },[filePath]);
 
     return (
         <>
