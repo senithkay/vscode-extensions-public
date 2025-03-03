@@ -527,7 +527,7 @@ async function checkBallerinaProcessRunning(projectDir: string): Promise<boolean
                 // Execute the run command
                 clearTerminal();
                 commands.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
-                startDebugging(Uri.file(projectDir), false, false, true);
+                await startDebugging(Uri.file(projectDir), false, false, true);
 
                 // Wait for the Ballerina service(s) to start
                 const newProcesses = await waitForBallerinaService(projectDir).then(() => {

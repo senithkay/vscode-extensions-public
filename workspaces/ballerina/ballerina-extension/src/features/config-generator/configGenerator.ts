@@ -274,7 +274,7 @@ async function executeRunCommand(ballerinaExtInstance: BallerinaExtension, fileP
         } else {
             clearTerminal();
             commands.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
-            startDebugging(Uri.file(filePath), false, true, true);
+            await startDebugging(Uri.file(filePath), false, true, true);
         }
     } else {
         commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
