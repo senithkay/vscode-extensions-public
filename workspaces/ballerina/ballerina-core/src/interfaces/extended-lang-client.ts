@@ -1235,6 +1235,9 @@ export interface FunctionNodeResponse {
 
 // <-------- AI Agent Related ------->
 
+export interface AINodesRequest {
+    filePath: string;
+}
 export interface AINodesResponse {
     models: CodeData[];
 }
@@ -1318,7 +1321,7 @@ export interface BIInterface extends BaseLangClientInterface {
     convertXmlToRecordType: (params: XMLToRecordParams) => Promise<TypeDataWithReferences>;
 
     // AI Agent APIs
-    getAllAgents: () => Promise<AINodesResponse>;
+    getAllAgents: (params: AINodesRequest) => Promise<AINodesResponse>;
     getAllModels: (params: AIModelsRequest) => Promise<AINodesResponse>;
     getModels: (params: AIModelsRequest) => Promise<AINodesResponse>;
     getTools: (params: AIToolsRequest) => Promise<AIToolsResponse>;

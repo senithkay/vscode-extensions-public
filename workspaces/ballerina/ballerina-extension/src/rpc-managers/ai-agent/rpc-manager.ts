@@ -16,12 +16,12 @@ import {
     AIGentToolsRequest,
     AIGentToolsResponse,
     AIModelsRequest,
+    AINodesRequest,
     AINodesResponse,
     AIToolsRequest,
     AIToolsResponse,
     AvailableNode,
     BallerinaProjectComponents,
-    BIFlowModelRequest,
     BINodeTemplateRequest,
     ComponentInfo,
     EntryPointModel,
@@ -31,12 +31,12 @@ import {
     SyntaxTree,
     TextEdit
 } from "@wso2-enterprise/ballerina-core";
+import { writeFileSync } from "fs";
+import { Uri } from "vscode";
+import { URI } from "vscode-uri";
 import { StateMachine } from "../../stateMachine";
 import { handleAutomationCreation } from "../../utils/bi";
-import { URI, Utils } from "vscode-uri";
 import { BiDiagramRpcManager } from "../bi-diagram/rpc-manager";
-import { Uri } from "vscode";
-import { writeFileSync } from "fs";
 
 
 interface EntryPosition {
@@ -45,11 +45,11 @@ interface EntryPosition {
 }
 
 export class AiAgentRpcManager implements AIAgentAPI {
-    async getAllAgents(): Promise<AINodesResponse> {
+    async getAllAgents(params: AINodesRequest): Promise<AINodesResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             try {
-                const res: AINodesResponse = await context.langClient.getAllAgents();
+                const res: AINodesResponse = await context.langClient.getAllAgents(params);
                 resolve(res);
             } catch (error) {
                 console.log(error);

@@ -184,7 +184,8 @@ import {
     AIGentToolsRequest,
     AIGentToolsResponse,
     ICPEnabledRequest,
-    ICPEnabledResponse
+    ICPEnabledResponse,
+    AINodesRequest
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -675,7 +676,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     async isIcpEnabled(params: ICPEnabledRequest): Promise<ICPEnabledResponse | NOT_SUPPORTED_TYPE> {
         return this.sendRequest(EXTENDED_APIS.BI_IS_ICP_ENABLED, params);
     }
-    
+
     async addICP(params: ICPEnabledRequest): Promise<TestSourceEditResponse | NOT_SUPPORTED_TYPE> {
         return this.sendRequest(EXTENDED_APIS.BI_ADD_ICP, params);
     }
@@ -973,8 +974,8 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<AddFunctionResponse>(EXTENDED_APIS.BI_ADD_FUNCTION, params);
     }
 
-    async getAllAgents(): Promise<AINodesResponse> {
-        return this.sendRequest<AINodesResponse>(EXTENDED_APIS.BI_AI_ALL_AGENTS);
+    async getAllAgents(params: AINodesRequest): Promise<AINodesResponse> {
+        return this.sendRequest<AINodesResponse>(EXTENDED_APIS.BI_AI_ALL_AGENTS, params);
     }
     async getAllModels(params: AIModelsRequest): Promise<AINodesResponse> {
         return this.sendRequest<AINodesResponse>(EXTENDED_APIS.BI_AI_ALL_MODELS, params);

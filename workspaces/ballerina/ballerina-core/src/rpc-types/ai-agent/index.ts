@@ -7,11 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { AIGentToolsRequest, AIGentToolsResponse, AIModelsRequest, AINodesResponse, AIToolsRequest, AIToolsResponse } from "../../interfaces/extended-lang-client";
+import { AIGentToolsRequest, AIGentToolsResponse, AIModelsRequest, AINodesRequest, AINodesResponse, AIToolsRequest, AIToolsResponse } from "../../interfaces/extended-lang-client";
 import { AIAgentRequest, AIAgentResponse } from "./interfaces";
 
 export interface AIAgentAPI {
-    getAllAgents: () => Promise<AINodesResponse>;
+    getAllAgents: (params: AINodesRequest) => Promise<AINodesResponse>;
     getAllModels: (params: AIModelsRequest) => Promise<AINodesResponse>;
     getModels: (params: AIModelsRequest) => Promise<AINodesResponse>;
     getTools: (params: AIToolsRequest) => Promise<AIToolsResponse>;

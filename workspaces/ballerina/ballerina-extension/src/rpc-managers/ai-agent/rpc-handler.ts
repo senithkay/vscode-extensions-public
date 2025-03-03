@@ -12,6 +12,7 @@ import {
     AIAgentRequest,
     AIGentToolsRequest,
     AIModelsRequest,
+    AINodesRequest,
     AIToolsRequest,
     createAIAgent,
     genTool,
@@ -25,7 +26,7 @@ import { AiAgentRpcManager } from "./rpc-manager";
 
 export function registerAiAgentRpcHandlers(messenger: Messenger) {
     const rpcManger = new AiAgentRpcManager();
-    messenger.onRequest(getAllAgents, () => rpcManger.getAllAgents());
+    messenger.onRequest(getAllAgents, (args: AINodesRequest) => rpcManger.getAllAgents(args));
     messenger.onRequest(getAllModels, (args: AIModelsRequest) => rpcManger.getAllModels(args));
     messenger.onRequest(getModels, (args: AIModelsRequest) => rpcManger.getModels(args));
     messenger.onRequest(getTools, (args: AIToolsRequest) => rpcManger.getTools(args));
