@@ -280,6 +280,11 @@ export async function constructDebugConfig(uri: Uri, testDebug: boolean, args?: 
         }
     }
 
+    if (!debugConfig) {
+        window.showErrorMessage("Failed to resolve correct Ballerina debug configuration for the current workspace.");
+        return Promise.reject();
+    }
+
     debugConfig.script = uri.fsPath;
     debugConfig.debugTests = testDebug;
     debugConfig.tests = testDebug ? args : undefined;

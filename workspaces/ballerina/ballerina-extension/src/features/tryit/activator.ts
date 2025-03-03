@@ -7,7 +7,7 @@ import { BallerinaExtension } from "src/core";
 import Handlebars from "handlebars";
 import { clientManager, findRunningBallerinaProcesses, handleError, waitForBallerinaService } from "./utils";
 import { BIDesignModelResponse, OpenAPISpec } from "@wso2-enterprise/ballerina-core";
-import { FOCUS_DEBUG_CONSOLE_COMMAND, startDebugging } from "../editor-support/codelens-provider";
+import { startDebugging } from "../editor-support/codelens-provider";
 
 let errorLogWatcher: FileSystemWatcher | undefined;
 
@@ -435,7 +435,7 @@ async function getOpenAPIDefinition(service: ServiceInfo): Promise<OAISpec> {
 
         const matchingDefinition = (openapiDefinitions as OpenAPISpec).content.filter(content =>
             content.serviceName.toLowerCase() === service?.name.toLowerCase()
-            || (content.spec?.servers[0]?.url.endsWith(service.basePath) && service?.name === '')
+            || (content.spec?.servers[0]?.url?.endsWith(service.basePath) && service?.name === '')
             || (content.spec?.servers[0]?.url == undefined && service?.name === '' // TODO: Update the condition after fixing the issue in the OpenAPI tool
             ));
 
@@ -526,7 +526,6 @@ async function checkBallerinaProcessRunning(projectDir: string): Promise<boolean
             if (selection === 'Run Integration') {
                 // Execute the run command
                 clearTerminal();
-                commands.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
                 await startDebugging(Uri.file(projectDir), false, false, true);
 
                 // Wait for the Ballerina service(s) to start

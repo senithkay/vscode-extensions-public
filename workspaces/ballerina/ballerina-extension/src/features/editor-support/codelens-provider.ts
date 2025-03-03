@@ -37,10 +37,10 @@ enum EXEC_ARG {
 }
 
 export const INTERNAL_DEBUG_COMMAND = "kolab.internal.debug";
-export const FOCUS_DEBUG_CONSOLE_COMMAND = 'workbench.debug.action.focusRepl';
 
 const SOURCE_DEBUG_COMMAND = "kolab.source.debug";
 const TEST_DEBUG_COMMAND = "kolab.test.debug";
+const FOCUS_DEBUG_CONSOLE_COMMAND = 'workbench.debug.action.focusRepl';
 
 export class ExecutorCodeLensProvider implements CodeLensProvider {
 

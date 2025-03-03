@@ -18,7 +18,7 @@ import { BallerinaProject, PackageConfigSchema, ProjectDiagnosticsResponse, Synt
 import { TextDocumentEdit } from "vscode-languageserver-types";
 import { modifyFileContent } from "../../utils/modification";
 import { fileURLToPath } from "url";
-import { FOCUS_DEBUG_CONSOLE_COMMAND, startDebugging } from "../editor-support/codelens-provider";
+import { startDebugging } from "../editor-support/codelens-provider";
 
 const UNUSED_IMPORT_ERR_CODE = "BCE2002";
 
@@ -273,7 +273,6 @@ async function executeRunCommand(ballerinaExtInstance: BallerinaExtension, fileP
             window.showErrorMessage("Project contains errors. Please fix them and try again.");
         } else {
             clearTerminal();
-            commands.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
             await startDebugging(Uri.file(filePath), false, true, true);
         }
     } else {
