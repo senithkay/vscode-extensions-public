@@ -186,6 +186,7 @@ export function AIAgentWizard() {
             documentation: "Select your integration event",
             value: "",
             valueTypeConstraint: "",
+            enabled: true
         }
 
         const items: OptionProps[] = [];
@@ -229,7 +230,7 @@ export function AIAgentWizard() {
                         value: "",
                         items: triggerModel.service.functions.map(func => func.name.value),
                         valueTypeConstraint: "",
-                        d
+                        enabled: true
                     }]
                 }
             })
@@ -321,6 +322,7 @@ export function AIAgentWizard() {
             documentation: "Select your AI model for the agent.",
             value: "",
             valueTypeConstraint: "",
+            enabled: true
         }
 
         const items: OptionProps[] = [];
