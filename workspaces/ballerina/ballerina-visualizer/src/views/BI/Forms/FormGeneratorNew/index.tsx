@@ -167,7 +167,6 @@ export function FormGeneratorNew(props: FormProps) {
                         expression: value,
                         startLine: targetLineRange.startLine,
                         offset: offset,
-                        node: undefined,
                         codedata: undefined,
                         property: property
                     },

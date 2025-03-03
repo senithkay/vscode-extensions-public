@@ -263,7 +263,6 @@ export function FormGenerator(props: FormProps) {
                         expression: value,
                         startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
                         offset: offset,
-                        node: node,
                         codedata: node.codedata,
                         property: property
                     },
@@ -360,7 +359,6 @@ export function FormGenerator(props: FormProps) {
                 expression: value,
                 startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
                 offset: cursorPosition,
-                node: node,
                 codedata: node.codedata,
                 property: property
             },
@@ -398,7 +396,6 @@ export function FormGenerator(props: FormProps) {
                 expression: expression,
                 startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
                 offset: 0,
-                node: node,
                 codedata: node.codedata,
                 property: property
             },

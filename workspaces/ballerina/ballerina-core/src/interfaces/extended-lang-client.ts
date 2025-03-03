@@ -819,7 +819,6 @@ export interface ExpressionEditorContext {
     expression: string;
     startLine: LinePosition;
     offset: number;
-    node: FlowNode;
     codedata: CodeData;
     property: ExpressionProperty;
 }
