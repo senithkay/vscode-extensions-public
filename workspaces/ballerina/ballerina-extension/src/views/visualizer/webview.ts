@@ -69,8 +69,10 @@ export class VisualizerWebview {
             }
         );
         panel.iconPath = {
-            light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'dark-preview.svg')),
-            dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'light-preview.svg'))
+            light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'ballerina.svg')),
+            dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'ballerina-inverse.svg'))
+            // light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'dark-preview.svg')),
+            // dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'light-preview.svg'))
         };
         return panel;
     }
