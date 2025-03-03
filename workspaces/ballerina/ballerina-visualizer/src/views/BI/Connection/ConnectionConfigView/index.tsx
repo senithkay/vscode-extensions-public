@@ -7,11 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
-import { FlowNode, SubPanel } from "@wso2-enterprise/ballerina-core";
+import { FlowNode, LineRange, SubPanel } from "@wso2-enterprise/ballerina-core";
 import FormGenerator from "../../Forms/FormGenerator";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 const Container = styled.div`
     max-width: 600px;
@@ -52,23 +53,41 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
         updatedExpressionField,
         resetUpdatedExpressionField,
     } = props;
+    const { rpcClient } = useRpcContext();
+    const [targetLineRange, setTargetLineRange] = useState<LineRange>();
 
-    const targetLineRange = selectedNode?.codedata?.lineRange || {
-        startLine: { line: 0, offset: 0 },
-        endLine: { line: 0, offset: 0 },
-    };
+    useEffect(() => {
+        if (selectedNode?.codedata?.lineRange) {
+            setTargetLineRange(selectedNode.codedata.lineRange);
+            return;
+        }
+
+        if (rpcClient) {
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getEndOfFile({ filePath: fileName })
+                .then((res) => {
+                    setTargetLineRange({
+                        startLine: res,
+                        endLine: res,
+                    });
+                });
+        }
+    }, [fileName, selectedNode, rpcClient]);
 
     return (
         <Container>
-            <FormGenerator
-                fileName={fileName}
-                node={selectedNode}
-                targetLineRange={targetLineRange}
-                onSubmit={onSubmit}
-                openSubPanel={openSubPanel}
-                updatedExpressionField={updatedExpressionField}
-                resetUpdatedExpressionField={resetUpdatedExpressionField}
-            />
+            {targetLineRange && (
+                <FormGenerator
+                    fileName={fileName}
+                    node={selectedNode}
+                    targetLineRange={targetLineRange}
+                    onSubmit={onSubmit}
+                    openSubPanel={openSubPanel}
+                    updatedExpressionField={updatedExpressionField}
+                    resetUpdatedExpressionField={resetUpdatedExpressionField}
+                />
+            )}
         </Container>
     );
 }

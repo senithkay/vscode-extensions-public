@@ -84,6 +84,7 @@ export function ManageConfigurables(props: ManageConfigurablesProps) {
 
             {paramConfig.paramValues.length === 0 && <Typography>No configurables found</Typography>}
             <ParamManager
+                allowDuplicates={false}
                 paramConfigs={paramConfig}
                 readonly={false}
                 addParamText="Add Configurable"

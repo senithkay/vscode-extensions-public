@@ -16,7 +16,7 @@ import {
     PARTICIPANT_NODE_WIDTH,
 } from "../resources/constants";
 import { DiagramElementKindChecker } from "../utils/check-kind-utils";
-import { getBranchId, getCallerNodeId, getElementBBox, getEntryParticipant, getNodeId } from "../utils/diagram";
+import { calculateParticipantLifelineInfo, getBranchId, getCallerNodeId, getElementBBox, getEntryParticipant, getNodeId } from "../utils/diagram";
 import { ConsoleColor, logger } from "../utils/logger";
 import { traverseParticipant } from "../utils/traverse-utils";
 import { Participant, Node, DiagramElement, Flow, IfViewState, NodeBranch, NodeBranchType } from "../utils/types";
@@ -74,6 +74,23 @@ export class PositionVisitor implements BaseVisitor {
                     participant.viewState.bBox.x =
                         participant.viewState.xIndex * (PARTICIPANT_GAP_X + participant.viewState.bBox.w);
                     this.lastParticipantIndex = participant.viewState.xIndex;
+                }
+            });
+        }
+
+        if (!this.callerId) {
+            // start participant
+            // create new lifeline box
+            const { height, startPoint, endPoint } = calculateParticipantLifelineInfo(participant);
+            if (height === 0 || !startPoint || !endPoint) {
+                console.warn(">> Start or end point not found for participant", participant);
+                return;
+            }
+
+            // set lifeline height to all participant nodes
+            this.flow.participants.forEach((participant: Participant) => {
+                if (participant.viewState) {
+                    participant.viewState.lifelineHeight = height + INTERACTION_GROUP_GAP_Y;
                 }
             });
         }
@@ -224,7 +241,7 @@ export class PositionVisitor implements BaseVisitor {
     }
 
     updateIfBlockBranchBeginPosition(node: NodeBranch, parent: Node): void {
-        if (!node.viewStates) {
+        if (!node.viewStates || node.viewStates.length === 0) {
             console.warn(">> View state not found for node", node);
             return;
         }
