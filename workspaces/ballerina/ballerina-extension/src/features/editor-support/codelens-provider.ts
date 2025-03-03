@@ -165,11 +165,8 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
 export async function startDebugging(uri: Uri, testDebug: boolean = false, suggestTryit: boolean = false, noDebugMode: boolean = false): Promise<boolean> {
     const workspaceFolder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(uri);
     const debugConfig: DebugConfiguration = await constructDebugConfig(uri, testDebug);
-    if (suggestTryit) {
-        debugConfig.suggestTryit = true;
-    }
-    if (noDebugMode) {
-        debugConfig.noDebug = true;
-    }
+    debugConfig.suggestTryit = suggestTryit;
+    debugConfig.noDebug = noDebugMode;
+
     return debug.startDebugging(workspaceFolder, debugConfig);
 }

@@ -249,7 +249,7 @@ async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: Debu
         const debugServerPort = await findFreePort();
         config.debugServer = debugServerPort.toString();
     }
-    
+
     // Notify debug server that the debug session is started in low-code mode
     const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
     if (isWebviewPresent && StateMachine.context().isBI) {
@@ -325,7 +325,8 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                         BreakpointManager.getInstance().setActiveBreakpoint(undefined);
                         notifyBreakpointChange();
 
-                        const suggestTryit = session.configuration.suggestTryit === true;
+                        // if `suggestTryit` is undefined, that means the debug session is directly started from the debug button. Therefore we should trigger the Try-It view.
+                        const suggestTryit = session.configuration.suggestTryit === undefined || session.configuration.suggestTryit === true;
                         if (suggestTryit) {
                             // Trigger Try-It view when starting/restarting debug sessions in low-code mode
                             waitForBallerinaService(workspace.workspaceFolders![0].uri.fsPath).then(() => {
