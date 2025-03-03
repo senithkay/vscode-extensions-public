@@ -19,5 +19,5 @@ export const EmptyNode: React.FC<any> = styled.div`
     height: ${(props: StyleProps) => props.width}px;
     border-radius: 50%;
     background-color: none;
-    cursor: ${(props: StyleProps) => props.previewMode ? "default" : "move"};
+    cursor: ${(props: StyleProps) => props.previewMode ? "pointer" : "move"};
 `;
