@@ -325,10 +325,13 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                         BreakpointManager.getInstance().setActiveBreakpoint(undefined);
                         notifyBreakpointChange();
 
-                        // Trigger Try-It view when starting/restarting debug sessions in low-code mode
-                        waitForBallerinaService(workspace.workspaceFolders![0].uri.fsPath).then(() => {
-                            commands.executeCommand(PALETTE_COMMANDS.TRY_IT, true);
-                        });
+                        const suggestTryit = session.configuration.suggestTryit === true;
+                        if (suggestTryit) {
+                            // Trigger Try-It view when starting/restarting debug sessions in low-code mode
+                            waitForBallerinaService(workspace.workspaceFolders![0].uri.fsPath).then(() => {
+                                commands.executeCommand(PALETTE_COMMANDS.TRY_IT, true);
+                            });
+                        }
                     } else if (msg.command === "setBreakpoints") {
                         const breakpoints = msg.body.breakpoints;
                         // convert debug points to client breakpoints

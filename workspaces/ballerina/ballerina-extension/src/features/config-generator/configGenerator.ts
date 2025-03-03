@@ -9,7 +9,7 @@
 
 import { window, Uri, commands, workspace } from "vscode";
 import { existsSync, openSync, readFileSync, writeFile } from "fs";
-import { BAL_TOML, BAL_CONFIG_FILE, PALETTE_COMMANDS } from "../project";
+import { BAL_TOML, BAL_CONFIG_FILE, PALETTE_COMMANDS, clearTerminal } from "../project";
 import { BallerinaExtension, ballerinaExtInstance, ExtendedLangClient } from "../../core";
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
 import { generateExistingValues, parseTomlToConfig, typeOfComment } from "./utils";
@@ -18,8 +18,8 @@ import { BallerinaProject, PackageConfigSchema, ProjectDiagnosticsResponse, Synt
 import { TextDocumentEdit } from "vscode-languageserver-types";
 import { modifyFileContent } from "../../utils/modification";
 import { fileURLToPath } from "url";
+import { FOCUS_DEBUG_CONSOLE_COMMAND, startDebugging } from "../editor-support/codelens-provider";
 
-const DEBUG_RUN_COMMAND_ID = 'workbench.action.debug.run';
 const UNUSED_IMPORT_ERR_CODE = "BCE2002";
 
 export async function prepareAndGenerateConfig(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean, isBi?: boolean, executeRun: boolean = true): Promise<void> {
@@ -272,7 +272,9 @@ async function executeRunCommand(ballerinaExtInstance: BallerinaExtension, fileP
         if (projectHasErrors) {
             window.showErrorMessage("Project contains errors. Please fix them and try again.");
         } else {
-            commands.executeCommand(DEBUG_RUN_COMMAND_ID);
+            clearTerminal();
+            commands.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
+            startDebugging(Uri.file(filePath), false, false, true);
         }
     } else {
         commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);

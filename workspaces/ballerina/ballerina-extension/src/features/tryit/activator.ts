@@ -1,12 +1,13 @@
-import { commands, window, workspace, FileSystemWatcher, Disposable } from "vscode";
-import { PALETTE_COMMANDS } from "../project/cmds/cmd-runner";
+import { commands, window, workspace, FileSystemWatcher, Disposable, Uri } from "vscode";
+import { clearTerminal, PALETTE_COMMANDS } from "../project/cmds/cmd-runner";
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { BallerinaExtension } from "src/core";
 import Handlebars from "handlebars";
-import { clientManager, findRunningBallerinaProcesses, handleError } from "./utils";
+import { clientManager, findRunningBallerinaProcesses, handleError, waitForBallerinaService } from "./utils";
 import { BIDesignModelResponse, OpenAPISpec } from "@wso2-enterprise/ballerina-core";
+import { FOCUS_DEBUG_CONSOLE_COMMAND, startDebugging } from "../editor-support/codelens-provider";
 
 let errorLogWatcher: FileSystemWatcher | undefined;
 
@@ -167,6 +168,13 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
             );
 
             if (selection !== "Test") {
+                return;
+            }
+        } else {
+            // Check if Ballerina processes are running before proceeding
+            const processesRunning = await checkBallerinaProcessRunning(workspaceRoot);
+            if (!processesRunning) {
+                vscode.window.showInformationMessage('Try It requires running Ballerina processes to detect service ports.');
                 return;
             }
         }
@@ -496,6 +504,44 @@ async function getServicePort(projectDir: string, service: ServiceInfo, openapiS
     } catch (error) {
         handleError(error, "Getting service port", false);
         throw error;
+    }
+}
+
+async function checkBallerinaProcessRunning(projectDir: string): Promise<boolean> {
+    try {
+        const balProcesses = await findRunningBallerinaProcesses(projectDir)
+            .catch(error => {
+                throw new Error(`Failed to find running Ballerina processes: ${error.message}`);
+            });
+
+        if (!balProcesses?.length) {
+            const selection = await vscode.window.showWarningMessage(
+                'The "Try It" feature requires a running Ballerina service. Would you like to run the integration first?',
+                'Run Integration',
+                'Cancel'
+            );
+
+            if (selection === 'Run Integration') {
+                // Execute the run command
+                clearTerminal();
+                commands.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
+                startDebugging(Uri.file(projectDir), false, false, true);
+
+                // Wait for the Ballerina service(s) to start
+                const newProcesses = await waitForBallerinaService(projectDir).then(() => {
+                    return findRunningBallerinaProcesses(projectDir);
+                });
+
+                return newProcesses?.length > 0;
+            }
+
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        handleError(error, "Checking Ballerina processes", false);
+        return false;
     }
 }
 
