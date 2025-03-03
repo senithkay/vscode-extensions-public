@@ -343,9 +343,9 @@ export function AIChat() {
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
                 if (error && "message" in error) {
-                    newMessages[newMessages.length - 1].content += `<error>Failed: ${error.message}</error>`;
+                    newMessages[newMessages.length - 1].content += `<error>${error.message}</error>`;
                 } else {
-                    newMessages[newMessages.length - 1].content += `<error>Failed: ${error}</error>`;
+                    newMessages[newMessages.length - 1].content += `<error>${error}</error>`;
                 }
                 return newMessages;
             });
@@ -891,15 +891,15 @@ export function AIChat() {
                 buffer += decoder.decode(value, { stream: true });
                 buffer = await processBuffer(buffer);
             }
-        } catch (error) {
+        } catch (error: any) {
             setIsLoading(false);
             const errorName = error instanceof Error ? error.name : "Unknown error";
-            const errorMessage = error instanceof Error ? error.message : "Unknown error";
+            const errorMessage = "message" in error ? error.message : "Unknown error";
 
             if (errorName === "AbortError") {
-                throw new Error("The request was cancelled by the user.");
+                throw new Error("Failed: The user cancelled the request.");
             } else {
-                throw new Error(`Failed: Processing test generation failed: ${errorMessage}`);
+                throw new Error(errorMessage);
             }
         }
 
@@ -1060,7 +1060,7 @@ export function AIChat() {
 
         try {
             const response = await rpcClient.getAiPanelRpcClient().getGeneratedTests({
-                backendUri: "http://localhost:9094/ai",
+                backendUri: backendRootUri,
                 targetType: TestGenerationTarget.Function,
                 targetIdentifier: functionIdentifier,
                 testPlan,

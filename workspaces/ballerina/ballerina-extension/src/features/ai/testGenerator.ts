@@ -411,7 +411,7 @@ async function getOpenAPISpec(serviceFilePath: string): Promise<string> {
                 // Extract filename from stdout
                 const match = stdout.match(/-- (.+\.json)/);
                 if (!match) {
-                    reject(new Error('Failed to extract the OpenAPI specification.'));
+                    reject(new Error('Failed: Unable to extract the OpenAPI specification. Please check your source for any compilation errors.'));
                     return;
                 }
 
