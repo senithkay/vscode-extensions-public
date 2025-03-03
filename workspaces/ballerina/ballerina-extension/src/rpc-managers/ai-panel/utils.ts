@@ -8,7 +8,7 @@
  */
 
 import { FunctionDefinition, ModulePart, QualifiedNameReference, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { AI_EVENT_TYPE, ErrorCode, FormField, STModification, SyntaxTree, AttachmentResult } from "@wso2-enterprise/ballerina-core";
+import { AI_EVENT_TYPE, ErrorCode, FormField, STModification, SyntaxTree, AttachmentResult, RecordDefinitonObject, ParameterMetadata, ParameterDefinitions, MappingFileRecord } from "@wso2-enterprise/ballerina-core";
 import { QuickPickItem, QuickPickOptions, window, workspace } from 'vscode';
 
 import { StateMachine } from "../../stateMachine";
@@ -22,8 +22,7 @@ import {
     USER_ABORTED,
     SERVER_ERROR,
     TOO_MANY_REQUESTS,
-    INVALID_INPUT_RECORD_TYPE,
-    INVALID_OUTPUT_RECORD_TYPE
+    INVALID_RECORD_UNION_TYPE
 } from "../../views/ai-panel/errorCodes";
 import { hasStopped } from "./rpc-manager";
 import { StateMachineAI } from "../../views/ai-panel/aiMachine";
@@ -38,22 +37,6 @@ const REQUEST_TIMEOUT = 2000000;
 let abortController = new AbortController();
 let nestedKeyArray: string[] = [];
 const primitiveTypes = ["string", "int", "float", "decimal", "boolean"];
-
-export interface ParameterMetadata {
-    inputs: object;
-    output: object;
-    inputMetadata: object;
-    outputMetadata: object;
-    mapping_fields?: object;
-}
-
-export interface RecordDefinitonObject {
-    recordFields: object;
-    recordFieldsMetadata: object;
-}
-export interface MappingFileRecord {
-    mapping_fields: object;
-}
 
 export async function getAccessToken(): Promise<string> {
     let token:string = await extension.context.secrets.get("BallerinaAIUser");
@@ -90,14 +73,14 @@ export function handleStop() {
 export async function getParamDefinitions(
     fnSt: FunctionDefinition,
     fileUri: string
-): Promise<ParameterMetadata | ErrorCode> {
-
+): Promise<ParameterDefinitions| ErrorCode> {
     let inputs: { [key: string]: any } = {};
     let inputMetadata: { [key: string]: any } = {};
     let output: { [key: string]: any } = {};
     let outputMetadata: { [key: string]: any } = {};
     let hasArrayParams = false;
     let arrayParams = 0;
+    let isErrorExists = false;
 
     for (const parameter of fnSt.functionSignature.parameters) {
         if (!STKindChecker.isRequiredParam(parameter)) {
@@ -142,7 +125,17 @@ export async function getParamDefinitions(
         }
 
         if ('types' in inputTypeDefinition && !inputTypeDefinition.types[0].hasOwnProperty('type')) {
-            return INVALID_INPUT_RECORD_TYPE;
+            return INVALID_PARAMETER_TYPE;
+        }
+
+        if (inputTypeDefinition["types"] && inputTypeDefinition["types"].length > 0) {
+            const type = inputTypeDefinition["types"][0].type;
+            if (type.typeName === "union" && type.members) {
+                const hasFields = type.members.some(member => member.fields && member.fields.length > 0);
+                if (hasFields) {
+                    return INVALID_RECORD_UNION_TYPE;
+                }
+            }
         }
 
         let inputDefinition: ErrorCode | RecordDefinitonObject;
@@ -163,6 +156,11 @@ export async function getParamDefinitions(
                 }
             };
         }
+
+        if (isErrorCode(inputDefinition)) {
+            return inputDefinition as ErrorCode;
+        }
+        
         inputs = { ...inputs, [paramName]: (inputDefinition as RecordDefinitonObject).recordFields };
         inputMetadata = {
             ...inputMetadata,
@@ -179,7 +177,33 @@ export async function getParamDefinitions(
         }
     }
 
-    if (STKindChecker.isArrayTypeDesc(fnSt.functionSignature.returnTypeDesc.type)) {
+    if (STKindChecker.isUnionTypeDesc(fnSt.functionSignature.returnTypeDesc.type)) {
+        let unionType = fnSt.functionSignature.returnTypeDesc.type;
+        let leftType = unionType.leftTypeDesc;
+        let rightType = unionType.rightTypeDesc;
+
+        if (STKindChecker.isArrayTypeDesc(leftType) && STKindChecker.isErrorTypeDesc(rightType)) {
+            if (!STKindChecker.isSimpleNameReference(leftType.memberTypeDesc)) {
+                return INVALID_PARAMETER_TYPE;
+            }
+            isErrorExists = true;
+        } else if (STKindChecker.isArrayTypeDesc(rightType) && STKindChecker.isErrorTypeDesc(leftType)) {
+            if (!STKindChecker.isSimpleNameReference(rightType.memberTypeDesc)) {
+                return INVALID_PARAMETER_TYPE;
+            }
+            isErrorExists = true;
+        } else if (
+            (STKindChecker.isSimpleNameReference(leftType) || STKindChecker.isQualifiedNameReference(leftType)) &&
+            STKindChecker.isErrorTypeDesc(rightType)) {
+            isErrorExists = true;
+        } else if (
+            (STKindChecker.isSimpleNameReference(rightType) || STKindChecker.isQualifiedNameReference(rightType)) &&
+            STKindChecker.isErrorTypeDesc(leftType)) {
+            isErrorExists = true;
+        } else {
+            return INVALID_PARAMETER_TYPE;
+        }
+    } else if (STKindChecker.isArrayTypeDesc(fnSt.functionSignature.returnTypeDesc.type)) {
         if (arrayParams > 1) {
             return INVALID_PARAMETER_TYPE_MULTIPLE_ARRAY;
         }
@@ -189,20 +213,33 @@ export async function getParamDefinitions(
         if (!STKindChecker.isSimpleNameReference(fnSt.functionSignature.returnTypeDesc.type.memberTypeDesc)) {
             return INVALID_PARAMETER_TYPE;
         }
-    } else if (!STKindChecker.isSimpleNameReference(fnSt.functionSignature.returnTypeDesc.type) &&
-        !STKindChecker.isQualifiedNameReference(fnSt.functionSignature.returnTypeDesc.type)) {
-        return INVALID_PARAMETER_TYPE;
-    } 
-
-    const returnTypePosition = STKindChecker.isQualifiedNameReference(fnSt.functionSignature.returnTypeDesc.type)
-        ? {
-            line: fnSt.functionSignature.returnTypeDesc.type.identifier.position.startLine,
-            offset: fnSt.functionSignature.returnTypeDesc.type.identifier.position.startColumn
+    } else {
+        if (!STKindChecker.isSimpleNameReference(fnSt.functionSignature.returnTypeDesc.type) &&
+            !STKindChecker.isQualifiedNameReference(fnSt.functionSignature.returnTypeDesc.type)) {
+                return INVALID_PARAMETER_TYPE;
         }
-        : {
-            line: fnSt.functionSignature.returnTypeDesc.type.position.startLine,
-            offset: fnSt.functionSignature.returnTypeDesc.type.position.startColumn
-        };
+    }    
+
+    let returnType = fnSt.functionSignature.returnTypeDesc.type;
+
+    const returnTypePosition = STKindChecker.isUnionTypeDesc(returnType)
+        ? {
+            line: STKindChecker.isErrorTypeDesc(returnType.leftTypeDesc)
+                ? returnType.rightTypeDesc.position.startLine
+                : returnType.leftTypeDesc.position.startLine,
+            offset: STKindChecker.isErrorTypeDesc(returnType.leftTypeDesc)
+                ? returnType.rightTypeDesc.position.startColumn
+                : returnType.leftTypeDesc.position.startColumn
+        }
+        : STKindChecker.isQualifiedNameReference(returnType)
+            ? {
+                line: returnType.identifier.position.startLine,
+                offset: returnType.identifier.position.startColumn
+            }
+            : {
+                line: returnType.position.startLine,
+                offset: returnType.position.startColumn
+            };
 
     const outputTypeDefinition = await StateMachine.langClient().getTypeFromSymbol({
         documentIdentifier: {
@@ -212,7 +249,17 @@ export async function getParamDefinitions(
     });
 
     if ('types' in outputTypeDefinition && !outputTypeDefinition.types[0].hasOwnProperty('type')) {
-        return INVALID_OUTPUT_RECORD_TYPE;
+        return INVALID_PARAMETER_TYPE;
+    }
+
+    if (outputTypeDefinition["types"] && outputTypeDefinition["types"].length > 0) {
+        const type = outputTypeDefinition["types"][0].type;
+        if (type.typeName === "union" && type.members) {
+            const hasFields = type.members.some(member => member.fields && member.fields.length > 0);
+            if (hasFields) {
+                return INVALID_RECORD_UNION_TYPE;
+            }
+        }
     }
 
     const outputDefinition = navigateTypeInfo('types' in outputTypeDefinition && outputTypeDefinition.types[0].type.fields, false);
@@ -231,7 +278,10 @@ export async function getParamDefinitions(
         outputMetadata
     };
 
-    return response;
+    return {
+        parameterMetadata: response,
+        errorStatus: isErrorExists
+    };
 }
 
 export async function processMappings(
@@ -239,13 +289,19 @@ export async function processMappings(
     fileUri: string,
     file?: AttachmentResult
 ): Promise<SyntaxTree | ErrorCode> {
-    let parameterDefinitions = await getParamDefinitions(fnSt, fileUri);
-        if(file){
-            parameterDefinitions = await mappingFileParameterDefinitions(file, parameterDefinitions);
-        }
+    let result = await getParamDefinitions(fnSt, fileUri);
+    if (isErrorCode(result)) {
+        return result as ErrorCode;
+    }
+    let parameterDefinitions = (result as ParameterDefinitions).parameterMetadata;
+    const isErrorExists = (result as ParameterDefinitions).errorStatus;
 
-    if (isErrorCode(parameterDefinitions)) {
-        return parameterDefinitions as ErrorCode;
+    if (file) {
+        let mappedResult = await mappingFileParameterDefinitions(file, parameterDefinitions);
+        if (isErrorCode(mappedResult)) {
+            return mappedResult as ErrorCode;
+        }
+        parameterDefinitions = mappedResult as ParameterMetadata; 
     }
 
     const codeObject = await getDatamapperCode(parameterDefinitions);
@@ -255,12 +311,26 @@ export async function processMappings(
 
     const { recordString, isCheckError } = await constructRecord(codeObject);
     let codeString: string;
-    if (fnSt.functionSignature.returnTypeDesc.type.kind === "ArrayTypeDesc") {
-        const parameter = fnSt.functionSignature.parameters[0] as RequiredParam;
-        const paramName = parameter.paramName.value;
-        const formattedRecordString = recordString.startsWith(":") ? recordString.substring(1) : recordString;
-        codeString = isCheckError ? `|error => from var ${paramName}Item in ${paramName}\n select ${formattedRecordString};` : 
-                                    `=> from var ${paramName}Item in ${paramName}\n select ${formattedRecordString};`;
+    const parameter = fnSt.functionSignature.parameters[0] as RequiredParam;
+    const paramName = parameter.paramName.value;
+    const formattedRecordString = recordString.startsWith(":") ? recordString.substring(1) : recordString;
+
+    let returnType = fnSt.functionSignature.returnTypeDesc.type;
+
+    if (STKindChecker.isUnionTypeDesc(returnType)) {
+        const { leftTypeDesc: leftType, rightTypeDesc: rightType } = returnType;
+
+        if (STKindChecker.isArrayTypeDesc(leftType) || STKindChecker.isArrayTypeDesc(rightType)) {
+            codeString = isCheckError && !isErrorExists
+                ? `|error => from var ${paramName}Item in ${paramName}\n select ${formattedRecordString};`
+                : `=> from var ${paramName}Item in ${paramName}\n select ${formattedRecordString};`;
+        } else {
+            codeString = isCheckError && !isErrorExists ? `|error => ${recordString};` : `=> ${recordString};`;
+        }
+    } else if (STKindChecker.isArrayTypeDesc(returnType)) {
+        codeString = isCheckError
+            ? `|error => from var ${paramName}Item in ${paramName}\n select ${formattedRecordString};`
+            : `=> from var ${paramName}Item in ${paramName}\n select ${formattedRecordString};`;
     } else {
         codeString = isCheckError ? `|error => ${recordString};` : `=> ${recordString};`;
     }
