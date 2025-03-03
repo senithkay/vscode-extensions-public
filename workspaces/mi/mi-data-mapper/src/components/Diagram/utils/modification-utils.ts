@@ -14,6 +14,7 @@ import {
 	InterfaceDeclaration,
 	Node,
 	ObjectLiteralExpression,
+	PropertyAccessExpression,
 	PropertyAssignment,
 	ReturnStatement,
 	SourceFile,
@@ -36,7 +37,7 @@ import {
 	getTypeAnnotation,
 	getEditorLineAndColumn
 } from "./common-utils";
-import { ArrayOutputNode, LinkConnectorNode, ObjectOutputNode } from "../Node";
+import { ArrayOutputNode, FocusedInputNode, InputNode, LinkConnectorNode, ObjectOutputNode } from "../Node";
 import { ExpressionLabelModel } from "../Label";
 import { DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { getPosition, isPositionsEquals } from "./st-utils";
@@ -538,7 +539,50 @@ export function buildInputAccessExpr(fieldFqn: string): string {
 	return result.replace(/(?<!\?)\.\[/g, '['); // Replace occurrences of '.[' with '[' to handle consecutive bracketing
 }
 
+function getTypeIndicesFromFQN(fieldFQN: string): string[] {
+	const keys = fieldFQN.split('.').map(key => `["${key}"]`);
+	keys.shift();
+
+	return keys;
+}
+
+function getTypeIndicesFromNode(node: Node, keys: string[]) {
+	
+	if(Node.isFunctionDeclaration(node)) {
+		const param = node.getParameters()[0];
+		keys.unshift(param.getTypeNode().getText());
+	} else if(Node.isCallExpression(node) && isMapFunction(node)) {
+		const mapExpr = node.getExpression() as PropertyAccessExpression;
+		keys.unshift("[number]");
+		let expr  =  mapExpr.getExpression();
+		while(Node.isPropertyAccessExpression(expr)) {
+			keys.unshift(`["${expr.getName()}"]`);
+			expr = expr.getExpression();
+		}
+		
+		do {
+			node = node.getParent();
+		}while (node && !(Node.isFunctionDeclaration(node) || (Node.isCallExpression(node) && isMapFunction(node))));
+		
+		getTypeIndicesFromNode(node, keys);
+	}
+
+}
+
+function genSourceTypeAlias(sourcePort: InputOutputPortModel){
+	const keys = getTypeIndicesFromFQN(sourcePort.fieldFQN);
+	const sourceParent = sourcePort.getParent();
+	if(sourceParent instanceof InputNode || sourceParent instanceof FocusedInputNode) {
+		getTypeIndicesFromNode(sourceParent.value, keys);
+	}
+	
+	return keys.join('');
+}
+
 export async function mapUsingCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, context: IDataMapperContext, isValueModifiable: boolean) {
+	
+	console.log("QWERT",genSourceTypeAlias(sourcePort));
+	return;
 	const inputAccessExpr = buildInputAccessExpr(sourcePort.fieldFQN);
 	const sourceFile = context.functionST.getSourceFile();
 	const customFunction = genCustomFunction(sourcePort, targetPort, sourceFile);
