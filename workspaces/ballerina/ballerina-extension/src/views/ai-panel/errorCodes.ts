@@ -64,3 +64,12 @@ export const TOO_MANY_REQUESTS: ErrorCode = {
     message: "Too many requests in a short period. Please review the fields and try again."
 };
 
+export const INVALID_INPUT_RECORD_TYPE: ErrorCode = {
+    code: 12,
+    message: "The input package does not contain the record. Please check the package and try again."
+};
+
+export const INVALID_OUTPUT_RECORD_TYPE: ErrorCode = {
+    code: 13,
+    message: "The output package does not contain the record. Please check the package and try again."
+};
