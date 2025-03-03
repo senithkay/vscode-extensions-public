@@ -10,6 +10,7 @@
 import * as vscode from 'vscode';
 import { CustomDiagnostic } from './custom-diagnostics';
 import {DIAGNOSTIC_ID, COMMAND_SHOW_TEXT} from "./constants";
+import { result } from 'lodash';
 
 const UPDATE_CODE_ACTION_CONTENT = "Update code to match docs";
 const UPDATE_DOC_ACTION_CONTENT = "Update docs to match code";
@@ -36,17 +37,18 @@ export class NLCodeActionProvider implements vscode.CodeActionProvider {
                         replaceAction.command = {
                             command: COMMAND_SHOW_TEXT,
                             title: UPDATE_CODE_ACTION_CONTENT,
-                            arguments: [document, customDiagnostic, customDiagnostic.data.codeChangeSolution]
+                            arguments: [document, customDiagnostic, customDiagnostic.data.codeChangeSolution, diagnostic.range]
                         };
                         actions.push(replaceAction);
                     }
 
                     if (docChangeSolution != null && docChangeSolution != undefined && docChangeSolution != "") {
                         const replaceAction = new vscode.CodeAction(UPDATE_DOC_ACTION_CONTENT, vscode.CodeActionKind.QuickFix);
+                        const docRange: vscode.Range = diagnostic.data.docRange;
                         replaceAction.command = {
                             command: COMMAND_SHOW_TEXT,
                             title: UPDATE_DOC_ACTION_CONTENT,
-                            arguments: [document, customDiagnostic, customDiagnostic.data.docChangeSolution]
+                            arguments: [document, customDiagnostic, customDiagnostic.data.docChangeSolution, docRange]
                         };
                         actions.push(replaceAction);
                     }
@@ -58,20 +60,21 @@ export class NLCodeActionProvider implements vscode.CodeActionProvider {
     }
 }
 
-export const showTextOptions = vscode.commands.registerCommand(COMMAND_SHOW_TEXT, async (document: vscode.TextDocument, diagnostic: CustomDiagnostic, newText: string) => {
+export const showTextOptions = vscode.commands.registerCommand(COMMAND_SHOW_TEXT, async (document: vscode.TextDocument, 
+                                    diagnostic: CustomDiagnostic, newText: string, range: vscode.Range) => {
     const editor = vscode.window.activeTextEditor;
     if (!editor) {
         vscode.window.showErrorMessage("No active editor found.");
         return;
     }
 
-    const textToReplace = document.getText(diagnostic.range);
+    const textToReplace = document.getText(range);
 
     // Create a Git conflict-like view with "|||||||", "HEAD" and "======="
     const conflictText = `<<<<<<< HEAD\n${textToReplace}\n=======\n${newText}\n>>>>>>>\n`;
 
     const edit = new vscode.WorkspaceEdit();
-    edit.replace(document.uri, diagnostic.range, conflictText);
+    edit.replace(document.uri, range, conflictText);
     await vscode.workspace.applyEdit(edit);
     vscode.window.showInformationMessage('Changes added');
 });

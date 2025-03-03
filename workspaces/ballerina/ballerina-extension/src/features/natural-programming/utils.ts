@@ -106,10 +106,11 @@ function createDiagnosticsResponse(data: DriftResponseData, projectPath: string,
 }
 
 function createDiagnostic(result: ResultItem, uri: Uri): CustomDiagnostic {
-    const range = result.startLine && result.startColumn && result.endLine && result.endColumn
+    const range = result.startRowforCodeChangedAction && result.endRowforCodeChangedAction 
+            && result.startColumnforCodeChangedAction && result.endColumnforCodeChangedAction
         ? new vscode.Range(
-            new vscode.Position(result.startLine - 1, result.startColumn - 1),
-            new vscode.Position(result.endLine - 1, result.endColumn - 1)
+            new vscode.Position(result.startRowforCodeChangedAction - 1, result.startColumnforCodeChangedAction - 1),
+            new vscode.Position(result.endRowforCodeChangedAction - 1, result.endColumnforCodeChangedAction - 1)
         ) :
         new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 0));
 
@@ -121,7 +122,11 @@ function createDiagnostic(result: ResultItem, uri: Uri): CustomDiagnostic {
             codeChangeSolution: result.codeChangeSolution,
             docChangeSolution: result.docChangeSolution,
             fileName: result.fileName,
-            id: DIAGNOSTIC_ID
+            id: DIAGNOSTIC_ID,
+            docRange: new vscode.Range(
+                new vscode.Position(result.startRowforDocChangedAction - 1, result.startColumnforDocChangedAction - 1),
+                new vscode.Position(result.endRowforDocChangedAction - 1, result.endColumnforDocChangedAction - 1)
+            )
         }
     );
 

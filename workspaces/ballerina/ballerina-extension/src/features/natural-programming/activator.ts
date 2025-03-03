@@ -55,10 +55,18 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         })
     );
 
-    // Register additional commands after everything else is set up
     ballerinaExtInstance.context.subscriptions.push(showTextOptions);
 
-    vscode.commands.registerCommand("kolab.verifyDocs", async (...args: any[]) => {
-        await getLLMDiagnostics(projectPath, diagnosticCollection);
+    vscode.commands.registerCommand("kolab.verifyDocs", async (...args: any[]) => {    
+        await vscode.window.withProgress(
+            {
+                location: vscode.ProgressLocation.Notification,
+                title: "Checking the drift between code and documentation...",
+                cancellable: false,
+            },
+            async () => {
+                await getLLMDiagnostics(projectPath, diagnosticCollection);
+            }
+        );
     });
 }
