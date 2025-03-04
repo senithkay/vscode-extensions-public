@@ -468,6 +468,7 @@ const LibraryBrowserSection: React.FC<HelperPaneSectionProps> = ({
 };
 
 const LibraryBrowser: React.FC<LibraryBrowserProps> = ({
+    anchorRef,
     children,
     loading = false,
     searchValue,
@@ -481,7 +482,7 @@ const LibraryBrowser: React.FC<LibraryBrowserProps> = ({
                 sx={{ background: "var(--vscode-editor-inactiveSelectionBackground)", opacity: 0.4 }}
                 onClose={onClose}
             />
-            <LibraryBrowserContainer>
+            <LibraryBrowserContainer ref={anchorRef}>
                 <LibraryBrowserHeader>
                     <Typography variant="h2" sx={{ margin: 0, ...titleSx }}>
                         Library Browser

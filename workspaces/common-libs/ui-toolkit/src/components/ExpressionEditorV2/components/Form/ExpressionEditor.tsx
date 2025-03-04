@@ -66,6 +66,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     const {
         containerRef,
         buttonRef,
+        anchorRef,
         value,
         disabled,
         sx,
@@ -426,7 +427,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                 !actionButtonsRef.current?.contains(e.target) &&
                 !textAreaRef.current?.contains(e.target) &&
                 !dropdownContainerRef.current?.contains(e.target) &&
-                !helperPaneContainerRef.current?.contains(e.target)
+                !helperPaneContainerRef.current?.contains(e.target) &&
+                !anchorRef.current?.contains(e.target)
             ) {
                 // Additional actions to be performed when the expression editor loses focus
                 setIsFocused(false);

@@ -40,6 +40,7 @@ export type FormExpressionEditorProps = ExpressionEditorProps & HelperPaneCondit
     actionButtons?: ActionButtonType[];
     startAdornment?: ReactNode;
     endAdornment?: ReactNode;
+    anchorRef?: MutableRefObject<HTMLDivElement>;
 };
 
 export type FormExpressionEditorElProps = FormExpressionEditorProps & {

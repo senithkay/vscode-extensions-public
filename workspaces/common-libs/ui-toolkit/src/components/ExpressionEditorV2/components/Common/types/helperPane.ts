@@ -8,7 +8,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CSSProperties, PropsWithChildren, ReactNode } from "react";
+import { CSSProperties, PropsWithChildren, ReactNode, RefObject } from "react";
 import { StyleBase } from "./common";
 import { HelperPaneHeight, HelperPaneOrigin } from "../../../types/common";
 
@@ -17,6 +17,7 @@ export type ArrowProps = StyleBase & {
 }
 
 export type LibraryBrowserProps = PropsWithChildren<{
+    anchorRef: RefObject<HTMLDivElement>;
     loading?: boolean;
     searchValue: string;
     titleSx?: CSSProperties;
