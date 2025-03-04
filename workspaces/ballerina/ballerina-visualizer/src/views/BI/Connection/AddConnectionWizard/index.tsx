@@ -129,6 +129,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
     const handleOnFormSubmit = async (node: FlowNode) => {
         console.log(">>> on form submit", node);
         if (selectedNodeRef.current) {
+            setPullingStatus(PullingStatus.PULLING);
             setSavingFormStatus(SavingFormStatus.SAVING);
             // get connections.bal file path
             const visualizerLocation = await rpcClient.getVisualizerLocation();
@@ -165,11 +166,14 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                         // clear memory
                         selectedNodeRef.current = undefined;
                         setSavingFormStatus(SavingFormStatus.SUCCESS);
-                        onClose ? onClose() : gotoHome();
+                        // onClose ? onClose() : gotoHome();
                     } else {
                         console.error(">>> Error updating source code", response);
                         setSavingFormStatus(SavingFormStatus.ERROR);
                     }
+                })
+                .finally(() => {
+                    setPullingStatus(undefined);
                 });
         }
     };
@@ -233,7 +237,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
         setPullingStatus(PullingStatus.PULLING);
         try {
             const connector = selectedNodeRef.current;
-            if(connector.codedata.org === "ballerina") {
+            if (connector.codedata.org === "ballerina") {
                 console.log(">>> Ballerina org is already pulled");
                 setPullingStatus(PullingStatus.SUCCESS);
                 return true;
@@ -257,7 +261,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
             console.error(">>> Error pulling connector", error);
             setPullingStatus(PullingStatus.ERROR);
             return false;
-        } 
+        }
     };
 
     return (
@@ -318,17 +322,17 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                             resetUpdatedExpressionField={handleResetUpdatedExpressionField}
                             openSubPanel={handleSubPanel}
                         />
+                        {savingFormStatus === SavingFormStatus.SAVING && (
+                            <BodyText style={{ padding: "20px 20px 0 20px" }}>Saving connection ...</BodyText>
+                        )}
+                        {savingFormStatus === SavingFormStatus.SUCCESS && (
+                            <BodyText style={{ padding: "20px 20px 0 20px" }}>Connection saved successfully.</BodyText>
+                        )}
+                        {savingFormStatus === SavingFormStatus.ERROR && (
+                            <BodyText style={{ padding: "20px 20px 0 20px" }}>Error saving connection.</BodyText>
+                        )}
                     </>
                 </PanelContainer>
-            )}
-            {savingFormStatus === SavingFormStatus.SAVING && (
-                <BodyText style={{ padding: "20px 20px 0 20px" }}>Saving connection ...</BodyText>
-            )}
-            {savingFormStatus === SavingFormStatus.SUCCESS && (
-                <BodyText style={{ padding: "20px 20px 0 20px" }}>Connection saved successfully.</BodyText>
-            )}
-            {savingFormStatus === SavingFormStatus.ERROR && (
-                <BodyText style={{ padding: "20px 20px 0 20px" }}>Error saving connection.</BodyText>
             )}
         </Container>
     );

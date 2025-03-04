@@ -516,6 +516,11 @@ export function FormGenerator(props: FormProps) {
         );
     }
 
+    if (!node) {
+        console.log(">>> Node is undefined");
+        return null;
+    }
+
     const notSupportedLabel =
         "This statement is not supported in low-code yet. Please use the Ballerina source code to modify it accordingly.";
     const infoLabel = node.codedata.node === "EXPRESSION" ? notSupportedLabel : undefined;
