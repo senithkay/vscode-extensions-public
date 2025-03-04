@@ -92,7 +92,7 @@ export function getFieldCountMismatchIndex(newNodes: DataMapperNodeModel[], exis
         const newNode = newRequiredParamNodes[i] as RequiredParamNode;
         const existingNode = existingRequiredParamNodes[i] as RequiredParamNode;
         
-        if (newNode.numberOfFields !== existingNode.numberOfFields) {
+        if (newNode?.numberOfFields !== existingNode?.numberOfFields) {
             return i;
         }
     }
