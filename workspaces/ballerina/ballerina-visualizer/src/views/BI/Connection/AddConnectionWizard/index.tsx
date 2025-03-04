@@ -346,6 +346,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                             updatedExpressionField={updatedExpressionField}
                             resetUpdatedExpressionField={handleResetUpdatedExpressionField}
                             openSubPanel={handleSubPanel}
+                            isPullingConnector={pullingStatus === PullingStatus.PULLING}
                         />
                         {savingFormStatus === SavingFormStatus.SAVING && (
                             <BodyText style={{ padding: "20px 20px 0 20px" }}>Saving connection ...</BodyText>
