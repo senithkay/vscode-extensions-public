@@ -539,6 +539,14 @@ export function buildInputAccessExpr(fieldFqn: string): string {
 	return result.replace(/(?<!\?)\.\[/g, '['); // Replace occurrences of '.[' with '[' to handle consecutive bracketing
 }
 
+function getTypeIndexing(name: string){
+	if ((name.startsWith('"') && name.endsWith('"')) ||
+		(name.startsWith("'") && name.endsWith("'"))) {
+		return `[${name}]`;
+	}
+	return `["${name}"]`;
+}
+
 function getTypeIndicesFromFQN(fieldFQN: string): string[] {
 	const keys = fieldFQN?.split('.').map(key => isNaN(Number(key)) ? getTypeIndexing(key) : "[number]");
 	return keys ?? [];
@@ -548,7 +556,9 @@ function getSourceTypeIndicesFromNode(node: Node, keys: string[]) {
 	
 	if(Node.isFunctionDeclaration(node)) {
 		const param = node.getParameters()[0];
-		keys.unshift(param.getTypeNode().getText());
+		const paramType = param.getTypeNode();
+		if (paramType) keys.unshift(paramType.getText());
+		else keys.length = 0;
 		return;
 	} else if(Node.isCallExpression(node) && isMapFunction(node)) {
 		const mapExpr = node.getExpression() as PropertyAccessExpression;
@@ -582,25 +592,22 @@ function genSourceTypeAnnotation(sourcePort: InputOutputPortModel){
 	return keys.join("") || "any";
 }
 
-function getTypeIndexing(name: string){
-	
-	if ((name.startsWith('"') && name.endsWith('"')) ||
-		(name.startsWith("'") && name.endsWith("'"))) {
-		return `[${name}]`;
-	}
-
-	return `["${name}"]`;
-}
 
 function getTargetTypeIndicesFromNode(node: Node, keys: string[]) {
 	if(Node.isFunctionDeclaration(node)) {
 		const returnType = node.getReturnTypeNode();
-		keys.unshift(returnType.getText());
+		if (returnType) keys.unshift(returnType.getText());
+		else keys.length = 0;
 		return;
 	} else if(Node.isPropertyAssignment(node)) {
 		keys.unshift(getTypeIndexing(node.getName()));
 	} else if (Node.isCallExpression(node) && isMapFunction(node)) {
 		keys.unshift("[number]");
+	} else if (Node.isVariableDeclaration(node)){
+		const varType = node.getTypeNode();
+		if (varType) keys.unshift(varType.getText());
+		else keys.length = 0;
+		return;
 	}
 
 	do {
@@ -608,7 +615,8 @@ function getTargetTypeIndicesFromNode(node: Node, keys: string[]) {
 	} while (node && !(
 		Node.isFunctionDeclaration(node) ||
 		Node.isPropertyAssignment(node) ||
-		(Node.isCallExpression(node) && isMapFunction(node))
+		(Node.isCallExpression(node) && isMapFunction(node)) ||
+		Node.isVariableDeclaration(node)
 	));
 	
 	if (node) getTargetTypeIndicesFromNode(node, keys);
@@ -629,10 +637,6 @@ function genTargetTypeAnnotation(targetPort: InputOutputPortModel){
 
 export async function mapUsingCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, context: IDataMapperContext, isValueModifiable: boolean) {
 	
-	console.log("QWERT",genSourceTypeAnnotation(sourcePort));
-	console.log("QWERT",genTargetTypeAnnotation(targetPort));
-
-	// return;
 	const inputAccessExpr = buildInputAccessExpr(sourcePort.fieldFQN);
 	const sourceFile = context.functionST.getSourceFile();
 	const customFunction = genCustomFunction(sourcePort, targetPort, sourceFile);
