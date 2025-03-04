@@ -96,10 +96,11 @@ export const SuggestionsPage = ({ fileName, targetLineRange, defaultValue, onCha
                 )}
                 {filteredVariableInfo?.category.map((category) => (
                     <HelperPane.Section
+                        key={category.label}
                         title={category.label}
                         titleSx={{ fontFamily: "GilmerMedium" }}
                     >
-                        {category.items.map((item) => (
+                        {category.items?.map((item) => (
                             <HelperPane.CompletionItem
                                 key={`${category.label}-${item.label}`}
                                 label={item.label}
