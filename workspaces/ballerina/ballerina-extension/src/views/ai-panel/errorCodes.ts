@@ -64,3 +64,7 @@ export const TOO_MANY_REQUESTS: ErrorCode = {
     message: "Too many requests in a short period. Please review the fields and try again."
 };
 
+export const INVALID_RECORD_UNION_TYPE: ErrorCode = {
+    code: 14,
+    message: "AI data mapper does not support input or output as a union of records."
+};

@@ -9,7 +9,7 @@
 
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { AvailableNode, Category, FlowNode, Item } from "@wso2-enterprise/ballerina-core";
+import { AvailableNode, Category, FlowNode, Item, LinePosition } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Button, Codicon, ProgressRing, SearchBox, Typography, View } from "@wso2-enterprise/ui-toolkit";
 import { cloneDeep, debounce } from "lodash";
@@ -72,6 +72,8 @@ const capitalizeFirstLetter = (str: string): string => {
 };
 
 interface ConnectorViewProps {
+    fileName: string;
+    targetLinePosition: LinePosition;
     onSelectConnector: (connector: AvailableNode) => void;
     fetchingInfo: boolean;
     onClose?: () => void;
@@ -79,7 +81,7 @@ interface ConnectorViewProps {
 }
 
 export function ConnectorView(props: ConnectorViewProps) {
-    const { onSelectConnector, onClose, fetchingInfo, hideTitle } = props;
+    const { fileName, targetLinePosition, onSelectConnector, onClose, fetchingInfo, hideTitle } = props;
     const { rpcClient } = useRpcContext();
 
     const [connectors, setConnectors] = useState<Category[]>([]);
@@ -94,7 +96,15 @@ export function ConnectorView(props: ConnectorViewProps) {
     const getConnectors = () => {
         rpcClient
             .getBIDiagramRpcClient()
-            .getBIConnectors({ queryMap: { limit: 60 } })
+            .search({
+                position: {
+                    startLine: targetLinePosition,
+                    endLine: targetLinePosition,
+                },
+                filePath: fileName,
+                queryMap: { limit: 60 },
+                searchKind: "CONNECTOR"
+            })
             .then((model) => {
                 console.log(">>> bi connectors", model);
                 setConnectors(model.categories);
@@ -113,7 +123,15 @@ export function ConnectorView(props: ConnectorViewProps) {
     const handleSearch = (text: string) => {
         rpcClient
             .getBIDiagramRpcClient()
-            .getBIConnectors({ queryMap: { q: text, limit: 60 } })
+            .search({
+                position: {
+                    startLine: targetLinePosition,
+                    endLine: targetLinePosition,
+                },
+                filePath: fileName,
+                queryMap: { q: text, limit: 60 },
+                searchKind: "CONNECTOR"
+            })
             .then((model) => {
                 console.log(">>> bi searched connectors", model);
                 setConnectors(model.categories);

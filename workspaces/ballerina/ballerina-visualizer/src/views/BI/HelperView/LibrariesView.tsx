@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { BIGetFunctionsRequest, Category, FUNCTION_TYPE, LineRange, LogIcon, NodePosition } from "@wso2-enterprise/ballerina-core";
+import { Category, FUNCTION_TYPE, LineRange, LogIcon, NodePosition, BISearchRequest } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Category as PanelCategory, GroupList, Node, ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
 
@@ -185,7 +185,7 @@ export function LibrariesView(props: LibrariesViewProps) {
 
 
     const handleSearchFunction = async (searchText: string) => {
-        const request: BIGetFunctionsRequest = {
+        const request: BISearchRequest = {
             position: {
                 startLine: position.startLine,
                 endLine: position.endLine,
@@ -198,12 +198,13 @@ export function LibrariesView(props: LibrariesViewProps) {
                     offset: 0,
                 }
                 : undefined,
+            searchKind: "FUNCTION",
         };
         console.log(">>> Search function request", request);
         setIsSearching(true);
         rpcClient
             .getBIDiagramRpcClient()
-            .getFunctions(request)
+            .search(request)
             .then((response) => {
                 console.log(">>> Searched List of functions", response);
                 setCategories(
@@ -232,10 +233,11 @@ export function LibrariesView(props: LibrariesViewProps) {
         setIsSearching(true);
         rpcClient
             .getBIDiagramRpcClient()
-            .getFunctions({
+            .search({
                 position: { startLine: position.startLine, endLine: position.startLine },
                 filePath: filePath,
                 queryMap: undefined,
+                searchKind: "FUNCTION",
             })
             .then((response) => {
                 console.log(">>> List of functions", response);

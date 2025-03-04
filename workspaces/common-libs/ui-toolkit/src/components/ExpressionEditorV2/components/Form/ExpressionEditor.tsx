@@ -66,6 +66,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     const {
         containerRef,
         buttonRef,
+        anchorRef,
         value,
         disabled,
         sx,
@@ -75,6 +76,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         getDefaultCompletion,
         isHelperPaneOpen,
         helperPaneOrigin = 'bottom',
+        helperPaneHeight = 'default',
         changeHelperPaneState,
         getHelperPane,
         actionButtons,
@@ -308,13 +310,13 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     }
 
     const getHelperPaneComponent = (): JSX.Element => {
-        const helperPanePosition = getHelperPanePosition(containerRef, helperPaneOrigin);
+        const helperPanePosition = getHelperPanePosition(containerRef, helperPaneOrigin, helperPaneHeight);
         const arrowPosition = getHelperPaneArrowPosition(containerRef, helperPaneOrigin, helperPanePosition);
         
         return (
             <DropdownContainer ref={helperPaneContainerRef} sx={{ ...helperPanePosition }}>
                 <Transition show={isHelperPaneOpen} {...ANIMATION}>
-                    {getHelperPane(value, handleChange)}
+                    {getHelperPane(value, handleChange, helperPaneHeight)}
                     {arrowPosition && <HelperPane.Arrow origin={helperPaneOrigin} sx={{ ...arrowPosition }} />}
                 </Transition>
             </DropdownContainer>
@@ -425,7 +427,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                 !actionButtonsRef.current?.contains(e.target) &&
                 !textAreaRef.current?.contains(e.target) &&
                 !dropdownContainerRef.current?.contains(e.target) &&
-                !helperPaneContainerRef.current?.contains(e.target)
+                !helperPaneContainerRef.current?.contains(e.target) &&
+                !anchorRef.current?.contains(e.target)
             ) {
                 // Additional actions to be performed when the expression editor loses focus
                 setIsFocused(false);

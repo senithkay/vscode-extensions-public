@@ -22,7 +22,7 @@ import styled from "@emotion/styled";
 import { ExpressionFormField, FormExpressionEditorProps, FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, FlowNode, LinePosition } from "@wso2-enterprise/ballerina-core";
+import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, FlowNode, LinePosition, ExpressionProperty } from "@wso2-enterprise/ballerina-core";
 import { FormContext, Provider } from "../../context";
 import { formatJSONLikeString } from "./utils";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -375,6 +375,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         showDiagnostics: boolean,
         expression: string,
         key: string,
+        property: ExpressionProperty
     ) => {
         // HACK: For variable nodes, update the type value in the node
         const isVariableNode = selectedNode === "VARIABLE";
@@ -383,6 +384,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                 showDiagnostics,
                 expression,
                 key,
+                property,
                 handleSetDiagnosticsInfo,
                 isVariableNode,
                 watch("type")

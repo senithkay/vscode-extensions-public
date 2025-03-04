@@ -14,7 +14,7 @@ export interface CompletionRequest {
 }
 
 export interface CompletionResponse {
-  completions: string[];
+  completion: string;
 }
 
 export interface GithubCompletionRequest {

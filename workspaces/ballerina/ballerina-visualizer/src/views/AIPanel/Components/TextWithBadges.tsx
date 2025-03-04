@@ -25,7 +25,7 @@ const BadgeContainer = styled.div`
     line-height: 1;
     font-family: "Source Code Pro", monospace;
     margin-right: 2px;
-    user-select: none;
+    user-select: text;
 `;
 
 const Badge: React.FC<BadgeProps> = ({ text }) => {
