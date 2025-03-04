@@ -7,11 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { RefObject, useEffect, useRef, useState } from 'react';
 import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '@wso2-enterprise/ballerina-side-panel';
 
 type LibraryBrowserProps = {
+    anchorRef: RefObject<HTMLDivElement>;
     isLoading: boolean;
     libraryBrowserInfo: HelperPaneFunctionInfo;
     setFilterText: (filterText: string) => void;
@@ -22,6 +23,7 @@ type LibraryBrowserProps = {
 };
 
 export const LibraryBrowser = ({
+    anchorRef,
     isLoading,
     libraryBrowserInfo,
     setFilterText,
@@ -53,6 +55,7 @@ export const LibraryBrowser = ({
 
     return (
         <HelperPane.LibraryBrowser
+            anchorRef={anchorRef}
             loading={isLoading}
             searchValue={searchValue}
             onSearch={handleSearch}

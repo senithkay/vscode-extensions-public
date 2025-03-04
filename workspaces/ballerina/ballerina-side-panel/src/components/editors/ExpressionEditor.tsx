@@ -17,6 +17,7 @@ import {
     ErrorBanner,
     FormExpressionEditor,
     FormExpressionEditorRef,
+    HelperPaneHeight,
     RequiredFormInput,
     ThemeColors
 } from '@wso2-enterprise/ui-toolkit';
@@ -173,7 +174,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         targetLineRange,
         fileName,
         visualizable,
-        helperPaneOrigin
+        helperPaneOrigin,
+        helperPaneHeight
     } = props as ExpressionEditorProps;
     const [focused, setFocused] = useState<boolean>(false);
 
@@ -186,6 +188,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
     /* Define state to retrieve helper pane data */
 
     const exprRef = useRef<FormExpressionEditorRef>(null);
+    const anchorRef = useRef<HTMLDivElement>(null);
 
     // Use to fetch initial diagnostics
     const fetchInitialDiagnostics = useRef<boolean>(true);
@@ -277,8 +280,20 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         setIsHelperPaneOpen(isOpen);
     };
 
-    const handleGetHelperPane = (value: string, onChange: (value: string, updatedCursorPosition: number) => void) => {
-        return getHelperPane?.(exprRef, field.placeholder, value, onChange, handleChangeHelperPaneState);
+    const handleGetHelperPane = (
+        value: string,
+        onChange: (value: string, updatedCursorPosition: number) => void,
+        helperPaneHeight: HelperPaneHeight
+    ) => {
+        return getHelperPane?.(
+            exprRef,
+            anchorRef,
+            field.placeholder,
+            value,
+            onChange,
+            handleChangeHelperPaneState,
+            helperPaneHeight
+        );
     };
 
     const updateSubPanelData = (value: string) => {
@@ -326,6 +341,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                         <FormExpressionEditor
                             key={field.key}
                             ref={exprRef}
+                            anchorRef={anchorRef}
                             name={name}
                             completions={completions}
                             value={value}
@@ -375,6 +391,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             changeHelperPaneState={handleChangeHelperPaneState}
                             helperPaneOrigin={helperPaneOrigin}
                             getHelperPane={handleGetHelperPane}
+                            helperPaneHeight={helperPaneHeight}
                             placeholder={field.placeholder}
                             sx={{ paddingInline: '0' }}
                             codeActions={codeActions}
