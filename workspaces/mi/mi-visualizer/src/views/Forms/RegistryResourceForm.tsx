@@ -386,7 +386,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                     id="templateType"
                     items={templates}
                     {...register("templateType")}
-                ></Dropdown>
+                />
             </>)}
             {!createOptionValue && (<>
                 <div style={{ display: "flex", flexDirection: "row", gap: "10px", alignItems: "center" }}>
