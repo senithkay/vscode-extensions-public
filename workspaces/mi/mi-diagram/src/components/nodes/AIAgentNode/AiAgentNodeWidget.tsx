@@ -156,6 +156,8 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
     const stNode = node.getStNode() as Connector;
+    const connectorName = stNode.connectorName;
+    const methodName = stNode.method;
     const description = getNodeDescription(stNode);
 
     const tooltip = hasDiagnotics
@@ -387,13 +389,11 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                         </S.IconContainer>
                         <div>
 
-                            <Header showBorder={description !== undefined}>
-                                <Name>{FirstCharToUpperCase(stNode.displayName || node.mediatorName)}</Name>
+                            <Header showBorder={true}>
+                                <Name>{FirstCharToUpperCase(methodName)}</Name>
                             </Header>
                             <Body>
-                                <Tooltip content={description} position={'bottom'} >
-                                    <Description>{description}</Description>
-                                </Tooltip>
+                                <Description>{FirstCharToUpperCase(connectorName)}</Description>
                             </Body>
                         </div>
                         {isHovered && (

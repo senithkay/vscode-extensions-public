@@ -131,7 +131,6 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
     const isActiveBreakpoint = node.isActiveBreakpoint();
     const connectorNode = ((node.stNode as Tool).mediator ?? node.stNode) as Connector;
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
-    const description = node.stNode.tag.split(".")[1];
 
     useEffect(() => {
         setIsSelected(sidePanelContext?.node === node);
@@ -263,9 +262,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                                     <Name>{FirstCharToUpperCase(connectorNode.method)}</Name>
                                 </Header>
                                 <Body>
-                                    <Tooltip content={description} position={'bottom'} >
-                                        <Description>{FirstCharToUpperCase(connectorNode.connectorName)}</Description>
-                                    </Tooltip>
+                                    <Description>{FirstCharToUpperCase(connectorNode.connectorName)}</Description>
                                 </Body>
                             </Content>
                         </div>

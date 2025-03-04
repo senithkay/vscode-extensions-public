@@ -257,10 +257,6 @@ export const MEDIATORS = {
     THROWERROR: "ThrowError",
 }
 
-export const CONNECTORS  ={
-    AI_AGENT: "ai.agent",
-}
-
 export const ENDPOINTS = {
     ADDRESS: "Address",
     DEFAULT: "Default",
