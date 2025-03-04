@@ -11,7 +11,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { AiAgentNodeModel } from "./AiAgentNodeModel";
-import { Colors, NODE_DIMENSIONS } from "../../../resources/constants";
+import { Colors, NODE_DIMENSIONS, NODE_GAP } from "../../../resources/constants";
 import { Connector, STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { ClickAwayListener, Menu, MenuItem, Popover, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
@@ -19,11 +19,10 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";
 import { Body, Description, Header, Name, OptionsMenu } from "../BaseNodeModel";
-import { getNodeDescription } from "../../../utils/node";
 import path from "path";
 import { FirstCharToUpperCase } from "../../../utils/commons";
-import { MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
 import { handleOnConnectionClick } from "../CommonUtils";
+import { getTextSizes } from "../../../utils/node";
 
 namespace S {
     export type NodeStyleProp = {
@@ -54,11 +53,18 @@ namespace S {
         cursor: pointer;
     `;
 
-    export const Content = styled.div`
+    export const DefaultContent = styled.div`
         display: flex;
         justify-content: center;
         flex-direction: row;
-        margin: 20px;
+        margin-top: 20px;
+    `;
+
+    export const PromptBox = styled.div`
+        margin: 0 10px;
+        padding: 10px;
+        border-radius: 4px;
+        background-color: ${Colors.SURFACE_CONTAINER};
     `;
 
     export const Header = styled.div<{}>`
@@ -158,7 +164,12 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
     const stNode = node.getStNode() as Connector;
     const connectorName = stNode.connectorName;
     const methodName = stNode.method;
-    const description = getNodeDescription(stNode);
+    const systemPrompt = stNode.parameters?.filter((property: any) => property.name === "system")[0]?.value;
+    const prompt = stNode.parameters?.filter((property: any) => property.name === "prompt")[0]?.value;
+    const systenPromptSize = getTextSizes(systemPrompt, "13px", undefined, undefined, 160);
+    const promptSize = getTextSizes(prompt, "13px", undefined, undefined, 160);
+    const systemPromptHeight = systemPrompt ? 36 + systenPromptSize.height : 0;
+    const promptHeight = prompt ? 36 + promptSize.height : 0;
 
     const tooltip = hasDiagnotics
         ? node
@@ -383,7 +394,7 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                         <div style={{ position: "absolute", left: -5, width: 15, height: 15, borderRadius: "50%", backgroundColor: "red" }}></div>
                     )}
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
-                    <S.Content>
+                    <S.DefaultContent>
                         <S.IconContainer>
                             {iconPath && <img src={iconPath} alt="Icon" />}
                         </S.IconContainer>
@@ -401,17 +412,33 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                                 <MoreVertIcon />
                             </S.EOptionsMenu>
                         )}
-                    </S.Content>
-                    <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
+                    </S.DefaultContent>
+
+                    {systemPrompt && <S.PromptBox>
+                        <Header showBorder={true}>
+                            <Typography variant="h5" sx={{ margin: 0 }}>System Prompt</Typography>
+                        </Header>
+                        <Typography variant="body3">{systemPrompt}</Typography>
+                    </S.PromptBox>}
+
+                    {prompt && <S.PromptBox style={{ marginTop: "5px" }}>
+                        <Header showBorder={true}>
+                            <Typography variant="h5" sx={{ margin: 0 }}>User Prompt</Typography>
+                        </Header>
+                        <Typography variant="body3">{prompt}</Typography>
+                    </S.PromptBox>}
+
+                    {stNode.tools && <div style={{ width: "90%", height: "0.2px", margin: "10px auto", backgroundColor: Colors.OUTLINE_VARIANT }} />}
+
+                    <S.BottomPortWidget style={{ position: "absolute", bottom: "3px", left: "calc(50% - 1px)" }} port={node.getPort("out")!} engine={engine} />
                 </S.Node>
             </Tooltip>
 
             <>
                 {stNode.tools && <Typography variant="h4" sx={{
-                    marginTop: NODE_DIMENSIONS.AI_AGENT.HEIGHT,
+                    marginTop: NODE_GAP.AI_AGENT_TOP + systemPromptHeight + 5 + promptHeight + 10,
                     width: NODE_DIMENSIONS.AI_AGENT.WIDTH,
                     textAlign: "center",
-                    paddingTop: 15,
                     position: 'absolute'
                 }}>
                     Tools

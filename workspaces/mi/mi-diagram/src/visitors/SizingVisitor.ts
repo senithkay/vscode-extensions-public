@@ -81,6 +81,7 @@ import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../r
 import { Diagnostic } from "vscode-languageserver-types";
 import { StartNodeType } from "../components/nodes/StartNode/StartNodeModel";
 import { Tool } from "@wso2-enterprise/mi-syntax-tree/src";
+import { getTextSizes } from "../utils/node";
 
 export interface DiagramDimensions {
     width: number;
@@ -558,10 +559,12 @@ export class SizingVisitor implements Visitor {
     // Connectors
     beginVisitConnector = (node: Connector): void => { this.skipChildrenVisit = true; }
     endVisitConnector = (node: Connector): void => {
-        this.calculateBasicMediator(node, NODE_DIMENSIONS.AI_AGENT.WIDTH, NODE_DIMENSIONS.AI_AGENT.HEIGHT);
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.AI_AGENT.WIDTH);
         if (node.connectorName === 'ai') {
             const tools = node.tools;
             const toolsList = tools?.tools;
+            const systemPrompt = node?.parameters?.filter((property: any) => property.name === "system")[0]?.value;
+            const prompt = node?.parameters?.filter((property: any) => property.name === "prompt")[0]?.value;
 
             let subSequencesWidth = 0;
             let subSequencesHeight = 0;
@@ -575,15 +578,21 @@ export class SizingVisitor implements Visitor {
 
                         subSequencesHeight += toolNode.viewState.h + nodeGap;
                     }
+                    subSequencesHeight += NODE_GAP.AI_AGENT_TOOLS_Y;
                 }
-
+                subSequencesHeight += NODE_DIMENSIONS.PLUS.HEIGHT + 40;
                 this.calculateBasicMediator(tools, NODE_DIMENSIONS.PLUS.WIDTH, NODE_DIMENSIONS.PLUS.HEIGHT);
                 tools.viewState.fh = subSequencesHeight;
                 tools.viewState.fw = subSequencesWidth;
             }
 
-            const topGap = NODE_GAP.AI_AGENT_TOP;
-            const bottomGap = node.tools ? NODE_GAP.AI_AGENT_BOTTOM : 0;
+            const systenPromptSize = getTextSizes(systemPrompt, "13px", undefined, undefined, 160);
+            const promptSize = getTextSizes(prompt, "13px", undefined, undefined, 160);
+            const systemPromptHeight = systemPrompt ? 36 + systenPromptSize.height : 0;
+            const promptHeight = prompt ? 36 + promptSize.height : 0;
+
+            const topGap = NODE_GAP.AI_AGENT_TOP + systemPromptHeight + 5 + promptHeight;
+            const bottomGap = NODE_GAP.AI_AGENT_BOTTOM;
 
             node.viewState.fh = topGap + subSequencesHeight + bottomGap;
             node.viewState.fw = Math.max(subSequencesWidth, NODE_DIMENSIONS.AI_AGENT.WIDTH);

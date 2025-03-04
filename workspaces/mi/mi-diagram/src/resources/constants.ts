@@ -168,7 +168,6 @@ export const NODE_DIMENSIONS = {
     },
     AI_AGENT: {
         WIDTH: 200,
-        HEIGHT: 120,
     },
     DATA_SERVICE: {
         WIDTH: 150,
@@ -191,9 +190,8 @@ export const NODE_GAP = {
     GROUP_NODE_START_Y: 50,
     GROUP_NODE_END_Y: 50,
     GROUP_NODE_HORIZONTAL_PADDING: 22,
-    TEXT_NODE_GAP: 25,
-    AI_AGENT_TOP: NODE_DIMENSIONS.AI_AGENT.HEIGHT + 40,
-    AI_AGENT_BOTTOM: 80,
+    AI_AGENT_TOP: 65,
+    AI_AGENT_BOTTOM: 10,
     AI_AGENT_TOOLS_Y: 20,
 };
 
