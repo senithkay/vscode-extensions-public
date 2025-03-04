@@ -1,12 +1,13 @@
-import { commands, window, workspace, FileSystemWatcher, Disposable } from "vscode";
-import { PALETTE_COMMANDS } from "../project/cmds/cmd-runner";
+import { commands, window, workspace, FileSystemWatcher, Disposable, Uri } from "vscode";
+import { clearTerminal, PALETTE_COMMANDS } from "../project/cmds/cmd-runner";
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { BallerinaExtension } from "src/core";
 import Handlebars from "handlebars";
-import { clientManager, findRunningBallerinaProcesses, handleError } from "./utils";
+import { clientManager, findRunningBallerinaProcesses, handleError, waitForBallerinaService } from "./utils";
 import { BIDesignModelResponse, OpenAPISpec } from "@wso2-enterprise/ballerina-core";
+import { startDebugging } from "../editor-support/codelens-provider";
 
 let errorLogWatcher: FileSystemWatcher | undefined;
 
@@ -169,6 +170,11 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
             if (selection !== "Test") {
                 return;
             }
+        } else {
+            const processesRunning = await checkBallerinaProcessRunning(workspaceRoot);
+            if (!processesRunning) {
+                return;
+            }
         }
 
         let selectedService: ServiceInfo;
@@ -216,19 +222,11 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
             fs.mkdirSync(targetDir);
         }
 
-        const tryitFileName = `tryit.http`;
-        const tryitFilePath = path.join(targetDir, tryitFileName);
-        const configFilePath = path.join(targetDir, 'httpyac.config.js');
+        const openapiSpec: OAISpec = await getOpenAPIDefinition(selectedService);
+        const selectedPort: number = await getServicePort(workspaceRoot, selectedService, openapiSpec);
+        selectedService.port = selectedPort;
 
-        const content = await generateTryItFileContent(workspaceRoot, selectedService, resourceMetadata);
-        if (!content) {
-            return;
-        }
-
-        fs.writeFileSync(tryitFilePath, content);
-        fs.writeFileSync(configFilePath, HTTPYAC_CONFIG_TEMPLATE);
-
-        const tryitFileUri = vscode.Uri.file(tryitFilePath);
+        const tryitFileUri = await generateTryItFileContent(workspaceRoot, openapiSpec, selectedService, resourceMetadata);
         await openInSplitView(tryitFileUri, 'http');
 
         // Setup the error log watcher
@@ -320,14 +318,8 @@ async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> 
     }
 }
 
-async function generateTryItFileContent(projectDir: string, service: ServiceInfo, resourceMetadata?: ResourceMetadata): Promise<string | undefined> {
+async function generateTryItFileContent(projectRoot: string, openapiSpec: OAISpec, service: ServiceInfo, resourceMetadata?: ResourceMetadata): Promise<vscode.Uri | undefined> {
     try {
-        // Get OpenAPI definition
-        const openapiSpec = await getOpenAPIDefinition(service);
-
-        // Get service port
-        const selectedPort = await getServicePort(projectDir, service, openapiSpec);
-
         // Register Handlebars helpers
         registerHandlebarsHelpers(openapiSpec);
 
@@ -377,7 +369,7 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
         // Generate content using template
         const templateData = {
             ...openapiSpec,
-            port: selectedPort.toString(),
+            port: service.port.toString(),
             basePath: service.basePath,
             serviceName: service.name || 'Default',
             isResourceMode: isResourceMode,
@@ -386,7 +378,14 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
         };
 
         const compiledTemplate = Handlebars.compile(TRYIT_TEMPLATE);
-        return compiledTemplate(templateData);
+        const content = compiledTemplate(templateData);
+
+        const tryitFileName = `tryit.http`;
+        const tryitFilePath = path.join(projectRoot, tryitFileName);
+        const configFilePath = path.join(projectRoot, 'httpyac.config.js');
+        fs.writeFileSync(tryitFilePath, content);
+        fs.writeFileSync(configFilePath, HTTPYAC_CONFIG_TEMPLATE);
+        return vscode.Uri.file(tryitFilePath);
     } catch (error) {
         handleError(error, "Try It client initialization failed");
         return undefined;
@@ -435,7 +434,7 @@ async function getOpenAPIDefinition(service: ServiceInfo): Promise<OAISpec> {
 
         const matchingDefinition = (openapiDefinitions as OpenAPISpec).content.filter(content =>
             content.serviceName.toLowerCase() === service?.name.toLowerCase()
-            || (content.spec?.servers[0]?.url.endsWith(service.basePath) && service?.name === '')
+            || (content.spec?.servers[0]?.url?.endsWith(service.basePath) && service?.name === '')
             || (content.spec?.servers[0]?.url == undefined && service?.name === '' // TODO: Update the condition after fixing the issue in the OpenAPI tool
             ));
 
@@ -503,6 +502,46 @@ async function getServicePort(projectDir: string, service: ServiceInfo, openapiS
     } catch (error) {
         handleError(error, "Getting service port", false);
         throw error;
+    }
+}
+
+/**
+ * Helper function to detect running Ballerina processes and, prompt the user to run the program if not found
+ */
+async function checkBallerinaProcessRunning(projectDir: string): Promise<boolean> {
+    try {
+        const balProcesses = await findRunningBallerinaProcesses(projectDir)
+            .catch(error => {
+                throw new Error(`Failed to find running Ballerina processes: ${error.message}`);
+            });
+
+        if (!balProcesses?.length) {
+            const selection = await vscode.window.showWarningMessage(
+                'The "Try It" feature requires a running Ballerina service. Would you like to run the integration first?',
+                'Run Integration',
+                'Cancel'
+            );
+
+            if (selection === 'Run Integration') {
+                // Execute the run command
+                clearTerminal();
+                await startDebugging(Uri.file(projectDir), false, false, true);
+
+                // Wait for the Ballerina service(s) to start
+                const newProcesses = await waitForBallerinaService(projectDir).then(() => {
+                    return findRunningBallerinaProcesses(projectDir);
+                });
+
+                return newProcesses?.length > 0;
+            }
+
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        handleError(error, "Checking Ballerina processes", false);
+        return false;
     }
 }
 
@@ -840,6 +879,7 @@ interface ServiceInfo {
     basePath: string;
     filePath: string;
     listener: string;
+    port?: number;
 }
 
 // Main OpenAPI specification interface

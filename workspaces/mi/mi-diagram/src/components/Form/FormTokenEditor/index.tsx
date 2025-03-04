@@ -66,6 +66,7 @@ type FormTokenEditorProps = {
     errorMsg?: string;
 
     sx?: CSSProperties;
+    editorSx?: CSSProperties;
 }
 
 export const FormTokenEditor = ({
@@ -77,7 +78,8 @@ export const FormTokenEditor = ({
     label,
     required,
     errorMsg,
-    sx
+    sx,
+    editorSx
 }: FormTokenEditorProps) => {
     const [isHelperPaneOpen, setIsHelperPaneOpen] = useState<boolean>(false);
 
@@ -93,6 +95,7 @@ export const FormTokenEditor = ({
 
         return getHelperPane(
             position,
+            'default',
             () => handleChangeHelperPaneState(false),
             onChange,
             addFunction,
@@ -145,6 +148,7 @@ export const FormTokenEditor = ({
                         </Typography>
                     </S.AdornmentContainer>
                 }
+                editorSx={editorSx}
             />
             {errorMsg && <ErrorBanner errorMsg={errorMsg} />}
         </S.Container>
