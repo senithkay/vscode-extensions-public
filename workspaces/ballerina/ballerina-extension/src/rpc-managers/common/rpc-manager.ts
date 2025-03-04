@@ -193,7 +193,7 @@ export class CommonRpcManager implements CommonRPCAPI {
                 if (err) {
                     resolve({
                         error: true,
-                        message: stderr
+                        message: stderr + "\n" + stdout
                     });
                 } else {
                     resolve({

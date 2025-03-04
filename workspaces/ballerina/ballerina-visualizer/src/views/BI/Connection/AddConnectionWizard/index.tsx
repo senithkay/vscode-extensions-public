@@ -15,6 +15,7 @@ import {
     FlowNode,
     LinePosition,
     MACHINE_VIEW,
+    RunExternalCommandResponse,
     SubPanel,
     SubPanelView,
 } from "@wso2-enterprise/ballerina-core";
@@ -63,6 +64,7 @@ enum WizardStep {
 enum PullingStatus {
     PULLING = "pulling",
     SUCCESS = "success",
+    EXISTS = "exists",
     ERROR = "error",
 }
 
@@ -129,8 +131,8 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
     const handleOnFormSubmit = async (node: FlowNode) => {
         console.log(">>> on form submit", node);
         if (selectedNodeRef.current) {
-            setPullingStatus(PullingStatus.PULLING);
             setSavingFormStatus(SavingFormStatus.SAVING);
+            setPullingStatus(undefined);
             // get connections.bal file path
             const visualizerLocation = await rpcClient.getVisualizerLocation();
             let connectionsFilePath = "";
@@ -166,14 +168,11 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                         // clear memory
                         selectedNodeRef.current = undefined;
                         setSavingFormStatus(SavingFormStatus.SUCCESS);
-                        // onClose ? onClose() : gotoHome();
+                        onClose ? onClose() : gotoHome();
                     } else {
                         console.error(">>> Error updating source code", response);
                         setSavingFormStatus(SavingFormStatus.ERROR);
                     }
-                })
-                .finally(() => {
-                    setPullingStatus(undefined);
                 });
         }
     };
@@ -250,8 +249,12 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                 command: command,
             });
             console.log(">>> Run command response", runCommandResponse);
-            if (runCommandResponse.error) {
-                console.error(">>> Error pulling connector", runCommandResponse.message);
+            const processedResponseStatus = handleRunCommandResponse(runCommandResponse);
+            if (processedResponseStatus === PullingStatus.EXISTS) {
+                setPullingStatus(PullingStatus.EXISTS);
+                return true;
+            }
+            if (processedResponseStatus === PullingStatus.ERROR) {
                 setPullingStatus(PullingStatus.ERROR);
                 return false;
             }
@@ -263,8 +266,8 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                     command: driverCommand,
                 });
                 console.log(">>> Module driver pull command response", driverRunCommandResponse);
-                if (driverRunCommandResponse.error) {
-                    console.error(">>> Error pulling driver", driverRunCommandResponse.message);
+                const processedDriverResponseStatus = handleRunCommandResponse(driverRunCommandResponse);
+                if (processedDriverResponseStatus === PullingStatus.ERROR) {
                     setPullingStatus(PullingStatus.ERROR);
                     return false;
                 }
@@ -306,6 +309,14 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                                 <DownloadIcon color={ThemeColors.ON_SURFACE} />
                                 <StatusText variant="body2">
                                     Please wait while the connector package is being pulled...
+                                </StatusText>
+                            </StatusCard>
+                        )}
+                        {pullingStatus === PullingStatus.EXISTS && (
+                            <StatusCard>
+                                <Icon name="bi-success" sx={{ color: ThemeColors.ON_SURFACE, fontSize: "18px" }} />
+                                <StatusText variant="body2">
+                                    Connector module already pulled. Please continue with the configuration.
                                 </StatusText>
                             </StatusCard>
                         )}
@@ -356,9 +367,23 @@ export default AddConnectionWizard;
 
 // TODO: remove this logic once module pull supported from LS
 export function isConnectorDependOnDriver(connectorModule: string): boolean {
-    const dbConnectors = ["mysql", "mssql", "postgresql", "oracledb", "cdata.connect", "snowflake"]
+    const dbConnectors = ["mysql", "mssql", "postgresql", "oracledb", "cdata.connect", "snowflake"];
     if (dbConnectors.includes(connectorModule)) {
         return true;
     }
     return false;
+}
+
+// run command message handler
+export function handleRunCommandResponse(response: RunExternalCommandResponse): PullingStatus {
+    if (response.message.includes("Package already exists")) {
+        return PullingStatus.EXISTS;
+    }
+    if (response.message.includes("pulled from central successfully")) {
+        return PullingStatus.SUCCESS;
+    }
+    if (!response.error) {
+        return PullingStatus.SUCCESS;
+    }
+    return PullingStatus.ERROR;
 }
