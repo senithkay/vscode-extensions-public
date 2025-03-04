@@ -13,7 +13,6 @@ import { NodePortFactory } from "../components/NodePort/NodePortFactory";
 import { StartNodeFactory } from "../components/nodes/StartNode/StartNodeFactory";
 import { EndNodeFactory } from "../components/nodes/EndNode/EndNodeFactory";
 import { NodeLinkModel, NodeLinkModelOptions } from "../components/NodeLink/NodeLinkModel";
-import { NodePortModel } from "../components/NodePort/NodePortModel";
 import { ConditionNodeFactory } from "../components/nodes/ConditionNode/ConditionNodeFactory";
 import { CallNodeFactory } from "../components/nodes/CallNode/CallNodeFactory";
 import { EmptyNodeFactory } from "../components/nodes/EmptyNode/EmptyNodeFactory";
@@ -32,6 +31,7 @@ import { DataServiceNodeFactory } from "../components/nodes/DataServiceNode/Data
 import { DataServiceNodeModel } from "../components/nodes/DataServiceNode/DataServiceNodeModel";
 import { GroupNodeModel } from "../components/nodes/GroupNode/GroupNodeModel";
 import { PlusNodeModel } from "../components/nodes/PlusNode/PlusNodeModel";
+import { AiAgentNodeFactory } from "../components/nodes/AIAgentNode/AiAgentNodeFactory";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -49,6 +49,7 @@ export function generateEngine(): DiagramEngine {
     engine.getNodeFactories().registerFactory(new MediatorNodeFactory());
     engine.getNodeFactories().registerFactory(new ReferenceNodeFactory());
     engine.getNodeFactories().registerFactory(new ConnectorNodeFactory());
+    engine.getNodeFactories().registerFactory(new AiAgentNodeFactory());
     engine.getNodeFactories().registerFactory(new DataServiceNodeFactory());
     engine.getNodeFactories().registerFactory(new StartNodeFactory());
     engine.getNodeFactories().registerFactory(new EndNodeFactory());
