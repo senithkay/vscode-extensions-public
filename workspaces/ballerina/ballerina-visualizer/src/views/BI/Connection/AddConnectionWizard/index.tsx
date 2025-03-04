@@ -244,7 +244,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
             }
 
             const command = `bal pull ${connector.codedata.org}/${connector.codedata.module}`;
-            console.log(">>> Command", command);
+            console.log(">>> Module pull command", command);
             const commonRpcClient = await rpcClient.getCommonRpcClient();
             const runCommandResponse = await commonRpcClient.runBackgroundTerminalCommand({
                 command: command,
@@ -254,6 +254,20 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                 console.error(">>> Error pulling connector", runCommandResponse.message);
                 setPullingStatus(PullingStatus.ERROR);
                 return false;
+            }
+            // pull driver if connector is dependent on driver
+            if (isConnectorDependOnDriver(connector.codedata.module)) {
+                const driverCommand = `bal pull ${connector.codedata.org}/${connector.codedata.module}.driver`;
+                console.log(">>> Module driver pull command", driverCommand);
+                const driverRunCommandResponse = await commonRpcClient.runBackgroundTerminalCommand({
+                    command: driverCommand,
+                });
+                console.log(">>> Module driver pull command response", driverRunCommandResponse);
+                if (driverRunCommandResponse.error) {
+                    console.error(">>> Error pulling driver", driverRunCommandResponse.message);
+                    setPullingStatus(PullingStatus.ERROR);
+                    return false;
+                }
             }
             setPullingStatus(PullingStatus.SUCCESS);
             return true;
@@ -339,3 +353,12 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
 }
 
 export default AddConnectionWizard;
+
+// TODO: remove this logic once module pull supported from LS
+export function isConnectorDependOnDriver(connectorModule: string): boolean {
+    const dbConnectors = ["mysql", "mssql", "postgresql", "oracledb", "cdata.connect", "snowflake"]
+    if (dbConnectors.includes(connectorModule)) {
+        return true;
+    }
+    return false;
+}
