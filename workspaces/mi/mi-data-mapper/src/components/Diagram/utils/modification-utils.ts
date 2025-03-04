@@ -37,7 +37,7 @@ import {
 	getTypeAnnotation,
 	getEditorLineAndColumn
 } from "./common-utils";
-import { ArrayOutputNode, FocusedInputNode, InputNode, LinkConnectorNode, ObjectOutputNode } from "../Node";
+import { ArrayOutputNode, FocusedInputNode, InputNode, LinkConnectorNode, ObjectOutputNode, SubMappingNode } from "../Node";
 import { ExpressionLabelModel } from "../Label";
 import { DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { getPosition, isPositionsEquals } from "./st-utils";
@@ -578,15 +578,27 @@ function getSourceTypeIndicesFromNode(node: Node, keys: string[]) {
 
 }
 
+function getSourceTypeIndicesFromSM(smNode: SubMappingNode, keys: string[]) {
+	const smName = keys.shift().replace('["', '').replace('"]', '');
+	const sm = smNode.subMappings.find(sm => sm.name === smName);
+	if(sm.type.typeName === "Object"){
+		keys.length = 0;
+	} else {
+		keys.unshift(getTypeAnnotation(sm.type));
+	}
+}
+
 function genSourceTypeAnnotation(sourcePort: InputOutputPortModel){
 	const simpleTypeAnnotation = getTypeAnnotation(sourcePort.field);
 	if(simpleTypeAnnotation) return simpleTypeAnnotation;
 
 	const keys = getTypeIndicesFromFQN(sourcePort.optionalOmittedFieldFQN);
-	keys.shift();
 	const sourceParent = sourcePort.getParent();
 	if(sourceParent instanceof InputNode || sourceParent instanceof FocusedInputNode) {
+		keys.shift();
 		getSourceTypeIndicesFromNode(sourceParent.value, keys);
+	} else if(sourceParent instanceof SubMappingNode){
+		getSourceTypeIndicesFromSM(sourceParent, keys);
 	}
 	
 	return keys.join("") || "any";
@@ -637,6 +649,7 @@ function genTargetTypeAnnotation(targetPort: InputOutputPortModel){
 
 export async function mapUsingCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, context: IDataMapperContext, isValueModifiable: boolean) {
 	
+	// return;
 	const inputAccessExpr = buildInputAccessExpr(sourcePort.fieldFQN);
 	const sourceFile = context.functionST.getSourceFile();
 	const customFunction = genCustomFunction(sourcePort, targetPort, sourceFile);
