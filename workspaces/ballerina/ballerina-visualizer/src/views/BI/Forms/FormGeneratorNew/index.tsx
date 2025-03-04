@@ -26,7 +26,7 @@ import {
     convertToVisibleTypes,
 } from "../../../../utils/bi";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { CompletionItem, FormExpressionEditorRef } from "@wso2-enterprise/ui-toolkit";
+import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight } from "@wso2-enterprise/ui-toolkit";
 import { debounce } from "lodash";
 import { getHelperPane } from "../../HelperPane";
 import { RecordEditor } from "../../../RecordEditor/RecordEditor";
@@ -271,7 +271,8 @@ export function FormGeneratorNew(props: FormProps) {
         defaultValue: string,
         value: string,
         onChange: (value: string, updatedCursorPosition: number) => void,
-        changeHelperPaneState: (isOpen: boolean) => void
+        changeHelperPaneState: (isOpen: boolean) => void,
+        helperPaneHeight: HelperPaneHeight
     ) => {
         return getHelperPane({
             fileName: fileName,
@@ -280,7 +281,8 @@ export function FormGeneratorNew(props: FormProps) {
             onClose: () => changeHelperPaneState(false),
             defaultValue: defaultValue,
             currentValue: value,
-            onChange: onChange
+            onChange: onChange,
+            helperPaneHeight: helperPaneHeight
         });
     }
 
@@ -379,7 +381,8 @@ export function FormGeneratorNew(props: FormProps) {
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
             onCancel: handleExpressionEditorCancel,
-            helperPaneOrigin: "right"
+            helperPaneOrigin: "right",
+            helperPaneHeight: "3/4"
         } as FormExpressionEditorProps;
     }, [
         filteredCompletions,

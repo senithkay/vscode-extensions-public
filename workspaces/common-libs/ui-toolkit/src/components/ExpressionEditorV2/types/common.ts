@@ -175,6 +175,8 @@ export type ExpressionEditorRef = {
 
 export type HelperPaneOrigin = 'bottom' | 'left' | 'right';
 
+export type HelperPaneHeight = 'full' | '3/4' | 'default';
+
 export type HelperPanePosition = {
     top: number;
     left: number;
