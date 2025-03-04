@@ -126,7 +126,9 @@ import {
     updateImports,
     updateServiceClass,
     updateType,
-    BuildMode
+    BuildMode,
+    DevantComponentResponse,
+    getDevantComponent
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -336,5 +338,8 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     getRecordNames(): Promise<RecordsInWorkspaceMentions> {
         return this._messenger.sendRequest(getRecordNames, HOST_EXTENSION);
+    }
+    getDevantComponent(): Promise<DevantComponentResponse | undefined> {
+        return this._messenger.sendRequest(getDevantComponent, HOST_EXTENSION);
     }
 }

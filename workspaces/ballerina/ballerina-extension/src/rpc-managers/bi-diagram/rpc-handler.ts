@@ -91,7 +91,8 @@ import {
     updateImports,
     updateServiceClass,
     updateType,
-    BuildMode
+    BuildMode,
+    getDevantComponent
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { BiDiagramRpcManager } from "./rpc-manager";
@@ -148,4 +149,5 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getEndOfFile, (args: EndOfFileRequest) => rpcManger.getEndOfFile(args));
     messenger.onRequest(search, (args: BISearchRequest) => rpcManger.search(args));
     messenger.onRequest(getRecordNames, () => rpcManger.getRecordNames());
+    messenger.onRequest(getDevantComponent, () => rpcManger.getDevantComponent());
 }

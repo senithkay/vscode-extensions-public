@@ -15,9 +15,10 @@ import {
     EVENT_TYPE,
     MACHINE_VIEW,
     BuildMode,
+    DevantComponentResponse
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Typography, Codicon, ProgressRing, Button, Icon } from "@wso2-enterprise/ui-toolkit";
+import { Typography, Codicon, ProgressRing, Button, Icon, Divider, CheckBox } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { getProjectFromResponse, parseSSEEvent, replaceCodeBlocks, splitContent } from "../../AIPanel/AIChat";
@@ -305,10 +306,12 @@ interface DeploymentOptionsProps {
     handleDockerBuild: () => void;
     handleJarBuild: () => void;
     handleDeploy: () => void;
+    goToDevant: (devantComponent: DevantComponentResponse) => void;
+    devantComponent: DevantComponentResponse | undefined;
 }
 
-function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy }: DeploymentOptionsProps) {
-    const [expandedOptions, setExpandedOptions] = useState<Set<string>>(new Set(['cloud']));
+function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, goToDevant, devantComponent }: DeploymentOptionsProps) {
+    const [expandedOptions, setExpandedOptions] = useState<Set<string>>(new Set(['cloud', 'devant']));
 
     const toggleOption = (option: string) => {
         setExpandedOptions(prev => {
@@ -326,15 +329,29 @@ function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy }: 
         <div>
             <Title variant="h3">Deployment Options</Title>
 
-            <DeploymentOption
-                title="Deploy to Devant"
-                description="Deploy your integration to the cloud using WSO2 Devant."
-                buttonText="Deploy to Cloud"
-                isExpanded={expandedOptions.has('cloud')}
-                onToggle={() => toggleOption('cloud')}
-                onDeploy={handleDeploy}
-                learnMoreLink={true}
-            />
+            {devantComponent == undefined &&
+                <DeploymentOption
+                    title="Deploy to Devant"
+                    description="Deploy your integration to the cloud using WSO2 Devant."
+                    buttonText="Deploy to Cloud"
+                    isExpanded={expandedOptions.has('cloud')}
+                    onToggle={() => toggleOption('cloud')}
+                    onDeploy={handleDeploy}
+                    learnMoreLink={true}
+                />
+            }
+
+            {devantComponent != undefined &&
+                <DeploymentOption
+                    title="Deployed in Devant"
+                    description="This integration is already deployed in Devant."
+                    buttonText="View in Devant"
+                    isExpanded={expandedOptions.has('devant')}
+                    onToggle={() => toggleOption('devant')}
+                    onDeploy={() => goToDevant(devantComponent)}
+                    learnMoreLink={true}
+                />
+            }
 
             <DeploymentOption
                 title="Deploy with Docker"
@@ -357,6 +374,27 @@ function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy }: 
     );
 }
 
+interface IntegrationControlPlaneProps {
+    enabled: boolean;
+    handleICP: (checked: boolean) => void;
+}
+
+function IntegrationControlPlane({ enabled, handleICP }: IntegrationControlPlaneProps) {
+
+    return (
+        <div>
+            <Title variant="h3">Integration Control Plane</Title>
+            <p>Moniter the deployment runtime using WSO2 Integration Control Plane. Click the {enabled ? "Disable ICP" : "Integrate ICP"} button to {enabled ? "diable" : "enable"} ICP
+                for the integration.</p>
+            <CheckBox
+                checked={enabled}
+                onChange={handleICP}
+                label="Enable ICP"
+            />
+        </div>
+    );
+}
+
 interface ComponentDiagramProps {
     //
 }
@@ -373,6 +411,7 @@ export function Overview(props: ComponentDiagramProps) {
     const [loadingMessage, setLoadingMessage] = useState("");
     const backendRootUri = useRef("");
     const [enabled, setEnableICP] = useState(false);
+    const [devantComponent, setDevantComponent] = useState<DevantComponentResponse | undefined>(undefined);
 
 
     const fetchContext = () => {
@@ -447,6 +486,14 @@ export function Overview(props: ComponentDiagramProps) {
             }
         });
     }, [responseText]);
+
+    useEffect(() => {
+        rpcClient.getBIDiagramRpcClient().getDevantComponent()
+            .then((res) => {
+                console.log(">>> devant component", { res });
+                setDevantComponent(res);
+            });
+    }, []);
 
     function isEmptyProject(): boolean {
         return Object.values(projectStructure.directoryMap || {}).every((array) => array.length === 0);
@@ -585,8 +632,8 @@ export function Overview(props: ComponentDiagramProps) {
         rpcClient.getBIDiagramRpcClient().deployProject();
     };
 
-    const handleICP = () => {
-        if (!enabled) {
+    const handleICP = (icpEnabled: boolean) => {
+        if (icpEnabled) {
             rpcClient.getICPRpcClient().addICP({ projectPath: '' })
                 .then((res) => {
                     setEnableICP(true);
@@ -623,6 +670,12 @@ export function Overview(props: ComponentDiagramProps) {
     const handleJarBuild = () => {
         rpcClient.getBIDiagramRpcClient().buildProject(BuildMode.JAR);
     };
+
+    const goToDevant = (devantComponent: DevantComponentResponse) => {
+        rpcClient.getCommonRpcClient().openExternalUrl({ url: `https://devant.wso2.com/devant/projects/${devantComponent.org}/${devantComponent.project}/${devantComponent.component}` });
+    };
+
+
 
     return (
         <PageLayout>
@@ -679,29 +732,14 @@ export function Overview(props: ComponentDiagramProps) {
                 </MainPanel>
 
                 <SidePanel>
-                    <Title variant="h2">Deployment</Title>
-                    <DeploymentContent>
-                        <Description variant="body2">
-                            Easily deploy the integration to the cloud using Choreo. Click the Deploy button to continue
-                            with the deployment.
-                        </Description>
-                        <DeployButtonContainer>
-                            <Button appearance="primary" onClick={handleDeploy} buttonSx={{ minWidth: '130px' }}>
-                                <Codicon name="cloud-upload" sx={{ marginRight: 8 }} /> Deploy
-                            </Button>
-                        </DeployButtonContainer>
-                        <Description variant="body2">
-                            Moniter the deployment runtime using WSO2 Integration Control Plane. Click the {enabled ? "Disable ICP" : "Integrate ICP"} button to {enabled ? "diable" : "enable"} ICP
-                            for the integration.
-                        </Description>
-                        <DeployButtonContainer>
-                            <Button appearance="primary" onClick={handleICP} buttonSx={{ minWidth: '130px' }}>
-                                <Codicon name="cloud-upload" sx={{ marginRight: 8 }} />
-                                {enabled ? "Disable ICP" : "Integrate ICP"}
-                            </Button>
-                        </DeployButtonContainer>
-                    </DeploymentContent>
-                    <DeploymentOptions handleDockerBuild={handleDockerBuild} handleJarBuild={handleJarBuild} handleDeploy={handleDeploy} />
+                    <DeploymentOptions
+                        handleDockerBuild={handleDockerBuild}
+                        handleJarBuild={handleJarBuild}
+                        handleDeploy={handleDeploy}
+                        goToDevant={goToDevant}
+                        devantComponent={devantComponent} />
+                    <Divider sx={{ margin: "16px 0" }} />
+                    <IntegrationControlPlane enabled={enabled} handleICP={handleICP} />
                 </SidePanel>
             </MainContent>
 

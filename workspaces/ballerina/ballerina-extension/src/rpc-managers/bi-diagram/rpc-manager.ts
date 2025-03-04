@@ -94,6 +94,7 @@ import {
     WorkspacesResponse,
     buildProjectStructure,
     BuildMode,
+    DevantComponentResponse,
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import { writeFileSync } from "fs";
@@ -657,10 +658,17 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    deployProject(): void {
+    async deployProject(): Promise<void> {
+        // If has an automation set the type to scheduled task
+        const projectStructure = await this.getProjectStructure();
+        const automation = projectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION];
+        let type = "service";
+        if (automation) {
+            type = "scheduleTask";
+        }
         // Show a quick pick to select deployment option
         const params = {
-            type: "service", // Assuming this is a valid enum value
+            type: type, // Assuming this is a valid enum value
             buildPackLang: "ballerina", // Example language
             name: path.basename(StateMachine.context().projectUri),
             componentDir: StateMachine.context().projectUri
@@ -1333,6 +1341,41 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         return { mentions: recordNames };
     }
 
+    async getDevantComponent(): Promise<DevantComponentResponse | undefined> {
+        // get project root from state machine 
+        // find the repo root from the project root
+        // read .choreo/context.yaml in repo root 
+        // extract org and project from context.yaml
+        // use the current directory name as component name 
+        // return the response 
+        const projectRoot = StateMachine.context().projectUri;
+        const repoRoot = getRepoRoot(projectRoot);
+        if (!repoRoot) {
+            return undefined;
+        }
+        const contextYamlPath = path.join(repoRoot, ".choreo", "context.yaml");
+        if (!fs.existsSync(contextYamlPath)) {
+            return undefined;
+        }
+        const contextYaml = fs.readFileSync(contextYamlPath, "utf8");
+        const org = contextYaml.match(/org: (.*)/)[1];
+        const project = contextYaml.match(/project: (.*)/)[1];
+        const component = path.basename(projectRoot);
+        return { org, project, component };
+    }
+}
+
+export function getRepoRoot(projectRoot: string): string | undefined {
+    // traverse up the directory tree until .git directory is found
+    const gitDir = path.join(projectRoot, ".git");
+    if (fs.existsSync(gitDir)) {
+        return projectRoot;
+    }
+    // path is root return undefined
+    if (projectRoot === path.parse(projectRoot).root) {
+        return undefined;
+    }
+    return getRepoRoot(path.join(projectRoot, ".."));
 }
 
 export async function fetchWithToken(url: string, options: RequestInit) {

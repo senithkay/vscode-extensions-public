@@ -80,7 +80,8 @@ import {
     FormDidCloseParams,
     EndOfFileRequest,
     RecordsInWorkspaceMentions,
-    BuildMode
+    BuildMode,
+    DevantComponentResponse
 } from "./interfaces";
 
 export interface BIDiagramAPI {
@@ -134,4 +135,5 @@ export interface BIDiagramAPI {
     getEndOfFile: (params: EndOfFileRequest) => Promise<LinePosition>;
     search: (params: BISearchRequest) => Promise<BISearchResponse>;
     getRecordNames: () => Promise<RecordsInWorkspaceMentions>;
+    getDevantComponent: () => Promise<DevantComponentResponse | undefined>;
 }
