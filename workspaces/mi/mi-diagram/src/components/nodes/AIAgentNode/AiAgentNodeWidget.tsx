@@ -22,6 +22,8 @@ import { Body, Description, Header, Name, OptionsMenu } from "../BaseNodeModel";
 import { getNodeDescription } from "../../../utils/node";
 import path from "path";
 import { FirstCharToUpperCase } from "../../../utils/commons";
+import { MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
+import { handleOnConnectionClick } from "../CommonUtils";
 
 namespace S {
     export type NodeStyleProp = {
@@ -118,6 +120,14 @@ namespace S {
         font-family: var(--font-family);
         font-size: var(--type-ramp-base-font-size);
     `;
+
+    export const ConnectionText = styled.div`
+        width: 170px;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    `;
 }
 
 interface CallNodeWidgetProps {
@@ -129,6 +139,7 @@ interface CallNodeWidgetProps {
 export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
+    const [isSelected, setIsSelected] = useState(false);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
     const [isHoveredConfigCircle, setIsHoveredConfigCircle] = React.useState(false);
@@ -163,6 +174,10 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
     const handlePopoverClose = () => {
         setIsPopoverOpen(false);
     };
+
+    useEffect(() => {
+        setIsSelected(sidePanelContext?.node === node);
+    }, [sidePanelContext?.node]);
 
     useEffect(() => {
         node.setSelected(sidePanelContext?.node === node);
@@ -245,11 +260,13 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
         );
     }, [tooltip])
 
-    const ConnectionCircle = (props: any) => {
+
+    const ConnectionCircle = () => {
         return <S.CircleContainer
-        // onClick={(e) => handleOnConnectionClick(e)}
         >
-            <svg width="110" height="50" viewBox="0 0 103 40">
+            <svg width="110" height="50" viewBox="0 0 103 40"
+                onClick={(e) => handleOnConnectionClick(e, node, stNode, rpcClient)}
+            >
                 <g onMouseEnter={() => setIsHoveredConfigCircle(true)} onMouseLeave={() => setIsHoveredConfigCircle(false)}>
                     <circle
                         cx="80"
@@ -292,11 +309,15 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                     </marker>
                 </defs>
             </svg>
+            {stNode.configKey &&
+                <S.ConnectionText>
+                    {stNode.configKey}
+                </S.ConnectionText>}
         </S.CircleContainer>
     }
 
-    const MemoryConnectionCircle = (props: any) => {
-        return <S.CircleContainer style={{ marginTop: "60px" }}>
+    const MemoryConnectionCircle = () => {
+        return <S.CircleContainer style={{ marginTop: "80px" }}>
             <svg width="110" height="50" viewBox="0 0 103 40">
                 <g onMouseEnter={() => setIsHoveredMemoryConfigCircle(true)} onMouseLeave={() => setIsHoveredMemoryConfigCircle(false)}>
                     <circle
@@ -348,7 +369,7 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
             <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={"bottom"} containerPosition={"absolute"}>
                 <S.Node
                     width={stNode.viewState.fw} height={stNode.viewState.fh} left={stNode.viewState.l} right={stNode.viewState.r}
-                    selected={node.isSelected()}
+                    selected={isSelected}
                     hasError={hasDiagnotics}
                     hovered={isHovered || isActiveBreakpoint}
                     isActiveBreakpoint={isActiveBreakpoint}
@@ -361,7 +382,9 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                     )}
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <S.Content>
-                        <S.IconContainer><img src={iconPath} alt="Icon" /></S.IconContainer>
+                        <S.IconContainer>
+                            {iconPath && <img src={iconPath} alt="Icon" />}
+                        </S.IconContainer>
                         <div>
 
                             <Header showBorder={description !== undefined}>
@@ -394,10 +417,10 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                     Tools
                 </Typography>
                 {stNode.configKey &&
-                    <MemoryConnectionCircle />
+                    MemoryConnectionCircle()
                 }
                 {stNode.configKey &&
-                    <ConnectionCircle />
+                    ConnectionCircle()
                 }
             </>
 
