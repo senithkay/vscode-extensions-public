@@ -31,7 +31,7 @@ import {
     SubPanelViewProps
 } from '@wso2-enterprise/ballerina-core';
 
-type ContextAwareExpressionEditorProps = {
+export type ContextAwareExpressionEditorProps = {
     field: FormField;
     openSubPanel?: (subPanel: SubPanel) => void;
     subPanelView?: SubPanelView;
@@ -175,7 +175,9 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         fileName,
         visualizable,
         helperPaneOrigin,
-        helperPaneHeight
+        helperPaneHeight,
+        rawExpression, // original expression
+        sanitizedExpression // sanitized expression that will be rendered in the editor
     } = props as ExpressionEditorProps;
     const [focused, setFocused] = useState<boolean>(false);
 
@@ -192,7 +194,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
 
     // Use to fetch initial diagnostics
     const fetchInitialDiagnostics = useRef<boolean>(true);
-    const fieldValue = watch(field.key);
+    const fieldValue = rawExpression ? rawExpression(watch(field.key)) : watch(field.key);
 
     useImperativeHandle(ref, () => exprRef.current);
 
@@ -344,17 +346,18 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             anchorRef={anchorRef}
                             name={name}
                             completions={completions}
-                            value={value}
+                            value={sanitizedExpression ? sanitizedExpression(value) : value}
                             autoFocus={autoFocus}
-                            onChange={async (value: string, updatedCursorPosition: number) => {
-                                onChange(value);
-                                debouncedUpdateSubPanelData(value);
+                            onChange={async (newValue: string, updatedCursorPosition: number) => {
+                                const rawValue = rawExpression ? rawExpression(newValue) : newValue;
+                                onChange(rawValue);
+                                debouncedUpdateSubPanelData(rawValue);
                                 cursorPositionRef.current = updatedCursorPosition;
 
                                 if (getExpressionEditorDiagnostics) {
                                     getExpressionEditorDiagnostics(
-                                        !field.optional || value !== '',
-                                        value,
+                                        !field.optional || rawValue !== '',
+                                        rawValue,
                                         field.key,
                                         getPropertyFromFormField(field)
                                     );
@@ -363,18 +366,18 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                                 // Check if the current character is a trigger character
                                 const triggerCharacter =
                                     updatedCursorPosition > 0
-                                        ? triggerCharacters.find((char) => value[updatedCursorPosition - 1] === char)
+                                        ? triggerCharacters.find((char) => rawValue[updatedCursorPosition - 1] === char)
                                         : undefined;
                                 if (triggerCharacter) {
                                     await retrieveCompletions(
-                                        value,
+                                        rawValue,
                                         getPropertyFromFormField(field),
                                         updatedCursorPosition,
                                         triggerCharacter
                                     );
                                 } else {
                                     await retrieveCompletions(
-                                        value,
+                                        rawValue,
                                         getPropertyFromFormField(field),
                                         updatedCursorPosition
                                     );
