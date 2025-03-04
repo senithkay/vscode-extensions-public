@@ -45,12 +45,14 @@ export class NLCodeActionProvider implements vscode.CodeActionProvider {
                     if (docChangeSolution != null && docChangeSolution != undefined && docChangeSolution != "") {
                         const replaceAction = new vscode.CodeAction(UPDATE_DOC_ACTION_CONTENT, vscode.CodeActionKind.QuickFix);
                         const docRange: vscode.Range = diagnostic.data.docRange;
-                        replaceAction.command = {
-                            command: COMMAND_SHOW_TEXT,
-                            title: UPDATE_DOC_ACTION_CONTENT,
-                            arguments: [document, customDiagnostic, customDiagnostic.data.docChangeSolution, docRange]
-                        };
-                        actions.push(replaceAction);
+                        if (docRange != null) {
+                            replaceAction.command = {
+                                command: COMMAND_SHOW_TEXT,
+                                title: UPDATE_DOC_ACTION_CONTENT,
+                                arguments: [document, customDiagnostic, customDiagnostic.data.docChangeSolution, docRange]
+                            };
+                            actions.push(replaceAction);
+                        }
                     }
                 }
             }

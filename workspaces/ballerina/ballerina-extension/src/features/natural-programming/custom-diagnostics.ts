@@ -11,10 +11,10 @@ import vscode from "vscode";
 
 export interface CustomDiagnosticData {
     codeChangeSolution: string;
-    docChangeSolution: string;
+    docChangeSolution: string|undefined|null;
     fileName: string;
     id: string;
-    docRange: vscode.Range;
+    docRange: vscode.Range|undefined|null;
 }
 
 export class CustomDiagnostic extends vscode.Diagnostic {

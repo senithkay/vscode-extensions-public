@@ -18,6 +18,7 @@ export interface BallerinaPluginConfig extends vscode.WorkspaceConfiguration {
 export interface ResultItem {
     id: string;
     fileName: string;
+    codeFileName: string;
     startRowforCodeChangedAction: number;
     endRowforCodeChangedAction: number;
     startRowforDocChangedAction: number;

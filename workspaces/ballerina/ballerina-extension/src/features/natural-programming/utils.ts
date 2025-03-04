@@ -87,7 +87,12 @@ async function createDiagnosticsResponse(data: DriftResponseData, projectPath: s
     const diagnosticsMap = new Map<string, vscode.Diagnostic[]>();
 
     for(const result of data.results) {
-        const uri = vscode.Uri.file(path.join(projectPath, result.fileName));
+        let fileName = result.fileName;
+        if (result.codeFileName != undefined && result.codeFileName != null && result.codeFileName != "") {
+            fileName = result.codeFileName;
+        }
+
+        const uri = vscode.Uri.file(path.join(projectPath, fileName));
         const diagnostic = await createDiagnostic(result, uri);
 
         // Store diagnostics per file
@@ -106,16 +111,30 @@ async function createDiagnosticsResponse(data: DriftResponseData, projectPath: s
 }
 
 async function createDiagnostic(result: ResultItem, uri: Uri): Promise<CustomDiagnostic> {
+    function hasCodeChangedRows(item: Partial<ResultItem>): boolean {
+        return item.startRowforCodeChangedAction != undefined && item.startRowforCodeChangedAction != null 
+                && item.endRowforCodeChangedAction != undefined && item.endRowforCodeChangedAction != null;
+    }
+
+    function hasDocChangedRows(item: Partial<ResultItem>): boolean {
+        return item.startRowforDocChangedAction != undefined && item.startRowforDocChangedAction != null 
+                && item.endRowforDocChangedAction != undefined && item.endRowforDocChangedAction != null;
+    }
+
+    const isSolutionsAvailable = hasCodeChangedRows(result);
+    const isDocChangeSolutionsAvailable: boolean = hasDocChangedRows(result);
     let codeChangeEndPosition = new vscode.Position(result.endRowforCodeChangedAction - 1, 0);
     let docChangeEndPosition = new vscode.Position(result.endRowforDocChangedAction - 1, 0);
+
     let range = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 0));
 
-    const isSolutionsAvailable = result.startRowforCodeChangedAction && result.endRowforCodeChangedAction;
     try {
         if (isSolutionsAvailable){
             const document = await vscode.workspace.openTextDocument(uri);
             codeChangeEndPosition = document.lineAt(result.endRowforCodeChangedAction - 1).range.end;
-            docChangeEndPosition = document.lineAt(result.endRowforDocChangedAction - 1).range.end;
+            if (isDocChangeSolutionsAvailable) {
+                docChangeEndPosition = document.lineAt(result.endRowforDocChangedAction - 1).range.end;
+            }
             range = new vscode.Range(
                 new vscode.Position(result.startRowforCodeChangedAction - 1, 0),
                 codeChangeEndPosition
@@ -134,10 +153,10 @@ async function createDiagnostic(result: ResultItem, uri: Uri): Promise<CustomDia
             docChangeSolution: result.docChangeSolution,
             fileName: result.fileName,
             id: DIAGNOSTIC_ID,
-            docRange: new vscode.Range(
+            docRange: isDocChangeSolutionsAvailable ? new vscode.Range(
                 new vscode.Position(result.startRowforDocChangedAction - 1, 0),
                 docChangeEndPosition
-            )
+            ): null
         }
     );
 
@@ -179,7 +198,18 @@ async function createDiagnosticArray(responses: any[], projectUri: string): Prom
         await createDiagnosticList(responses[1], projectUri, diagnostics);
     }
 
-    return diagnostics;
+    function filterUniqueDiagnostics(diagnostics: vscode.Diagnostic[]): vscode.Diagnostic[] {
+        const messageCount = new Map<string, number>();
+    
+        diagnostics.forEach(diagnostic => {
+            const message = diagnostic.message;
+            messageCount.set(message, (messageCount.get(message) || 0) + 1);
+        });
+
+        return diagnostics.filter(diagnostic => messageCount.get(diagnostic.message) === 1);
+    }
+
+    return filterUniqueDiagnostics(diagnostics);
 }
 
 export function extractResponseAsJsonFromString(jsonString: string): any {
