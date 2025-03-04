@@ -204,6 +204,13 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
 
     const createOptionValue = watch("createOption", "new") === "new";
 
+    // On templateType change, update registryPath
+    useEffect(() => {
+        if (createOptionValue) {
+            setValue("registryPath", getFileExtension(getValues('templateType')).split('.').pop(), { shouldDirty: true });
+        }
+    }, [watch("templateType")]);
+
     useEffect(() => {
         (async () => {
             if (regArtifactNames.length === 0 || registryPaths.length === 0 || resourcePaths.length === 0) {
@@ -368,22 +375,18 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                 {...register("createOption")}
             />}
             {createOptionValue && (<>
-                <Dropdown
-                    label="Template Type"
-                    id="templateType"
-                    items={templates}
-                    value={getValues("templateType")}
-                    onChange={(e) => {
-                        setValue("templateType", e.target.value, { shouldDirty: true });
-                        setValue("registryPath", getFileExtension(getValues('templateType')).split('.').pop(), { shouldDirty: true });
-                    }}
-                ></Dropdown>
                 <TextField
                     label="Resource Name"
                     id="resourceName"
                     errorMsg={errors.resourceName?.message.toString()}
                     {...register("resourceName")}
                 />
+                <Dropdown
+                    label="Template Type"
+                    id="templateType"
+                    items={templates}
+                    {...register("templateType")}
+                ></Dropdown>
             </>)}
             {!createOptionValue && (<>
                 <div style={{ display: "flex", flexDirection: "row", gap: "10px", alignItems: "center" }}>
@@ -405,7 +408,6 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
             <TextField
                 id='registryPath'
                 label={isResourceContentVisible ? "Resource Path" : "Registry Path"}
-                value={getFileExtension(getValues('templateType')).split('.').pop()}
                 errorMsg={errors.registryPath?.message.toString()}
                 inputProps={{ startAdornment: isResourceContentVisible ? resourcesTag : "" }}
                 {...register("registryPath")}
