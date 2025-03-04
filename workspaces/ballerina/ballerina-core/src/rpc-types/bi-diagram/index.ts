@@ -78,7 +78,8 @@ import {
     CurrentBreakpointsResponse,
     FormDidOpenParams,
     FormDidCloseParams,
-    EndOfFileRequest
+    EndOfFileRequest,
+    RecordsInWorkspaceMentions
 } from "./interfaces";
 
 export interface BIDiagramAPI {
@@ -131,4 +132,5 @@ export interface BIDiagramAPI {
     getFunctionNode: (params: FunctionNodeRequest) => Promise<FunctionNodeResponse>;
     getEndOfFile: (params: EndOfFileRequest) => Promise<LinePosition>;
     search: (params: BISearchRequest) => Promise<BISearchResponse>;
+    getRecordNames: () => Promise<RecordsInWorkspaceMentions>;
 }

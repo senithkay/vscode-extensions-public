@@ -10,6 +10,7 @@
  */
 import {
     AIChatRequest,
+    AddFieldRequest,
     AddFunctionRequest,
     AddFunctionResponse,
     BIAiSuggestionsRequest,
@@ -59,20 +60,24 @@ import {
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
+    RecordsInWorkspaceMentions,
+    RenameIdentifierRequest,
     ServiceClassModelResponse,
+    ServiceClassSourceRequest,
     SignatureHelpRequest,
     SignatureHelpResponse,
     SourceEditResponse,
     UpdateConfigVariableRequest,
     UpdateConfigVariableResponse,
-    UpdateTypeRequest,
-    UpdateTypeResponse,
     UpdateImportsRequest,
     UpdateImportsResponse,
+    UpdateTypeRequest,
+    UpdateTypeResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspacesResponse,
     addBreakpointToSource,
+    addClassField,
     addFunction,
     buildProject,
     createComponent,
@@ -100,6 +105,7 @@ import {
     getProjectComponents,
     getProjectStructure,
     getReadmeContent,
+    getRecordNames,
     getServiceClassModel,
     getSignatureHelp,
     getSourceCode,
@@ -112,18 +118,14 @@ import {
     openAIChat,
     openReadme,
     removeBreakpointFromSource,
+    renameIdentifier,
     runProject,
     search,
     updateClassField,
-    addClassField,
     updateConfigVariables,
     updateImports,
     updateServiceClass,
-    updateType,
-    ServiceClassSourceRequest,
-    AddFieldRequest,
-    RenameIdentifierRequest,
-    renameIdentifier
+    updateType
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -329,5 +331,9 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     search(params: BISearchRequest): Promise<BISearchResponse> {
         return this._messenger.sendRequest(search, HOST_EXTENSION, params);
+    }
+
+    getRecordNames(): Promise<RecordsInWorkspaceMentions> {
+        return this._messenger.sendRequest(getRecordNames, HOST_EXTENSION);
     }
 }

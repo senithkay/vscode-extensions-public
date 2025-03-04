@@ -20,6 +20,7 @@ import {
     DataMappingRecord,
     PostProcessResponse,
     TestGenerationTarget,
+    ImportStatement,
 } from "@wso2-enterprise/ballerina-core";
 
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -556,7 +557,7 @@ export function AIChat() {
                 return [];
             }
             case COMMAND_DATAMAP: {
-                return [];
+                return (await rpcClient.getBIDiagramRpcClient().getRecordNames()).mentions;
             }
             case COMMAND_TYPECREATOR: {
                 return [];

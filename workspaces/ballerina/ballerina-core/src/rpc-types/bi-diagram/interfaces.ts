@@ -70,6 +70,10 @@ export interface ProjectComponentsResponse {
     components: BallerinaProjectComponents
 }
 
+export interface RecordsInWorkspaceMentions {
+    mentions: string[]
+}
+
 export interface ReadmeContentRequest {
     read: boolean
     content?: string;
