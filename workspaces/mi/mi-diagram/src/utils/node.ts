@@ -8,7 +8,7 @@
  */
 
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { MEDIATORS, NODE_GAP } from "../resources/constants";
+import { CONNECTORS, MEDIATORS, NODE_GAP } from "../resources/constants";
 
 export function getNodeIdFromModel(model: STNode, prefix?: string) {
     if (model.viewState?.id) {
@@ -100,6 +100,9 @@ export function getNodeDescription(stNode: any): string {
         }
         case (MEDIATORS.VARIABLE.toLowerCase()): {
             return stNode.name;
+        }
+        case CONNECTORS.AI_AGENT: {
+            return stNode.parameters?.filter((property: any) => property.name === "prompt")[0]?.value;
         }
         default:
             return;
