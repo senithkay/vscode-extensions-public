@@ -438,6 +438,7 @@ export function FormGenerator(props: FormProps) {
 
     const handleGetHelperPane = (
         exprRef: RefObject<FormExpressionEditorRef>,
+        anchorRef: RefObject<HTMLDivElement>,
         defaultValue: string,
         value: string,
         onChange: (value: string, updatedCursorPosition: number) => void,
@@ -448,6 +449,7 @@ export function FormGenerator(props: FormProps) {
             fileName: fileName,
             targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
             exprRef: exprRef,
+            anchorRef: anchorRef,
             onClose: () => changeHelperPaneState(false),
             defaultValue: defaultValue,
             currentValue: value,

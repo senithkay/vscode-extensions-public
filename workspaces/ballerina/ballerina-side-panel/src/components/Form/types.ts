@@ -120,6 +120,7 @@ type FormTypeConditionalProps = {
 type FormHelperPaneConditionalProps = {
     getHelperPane: (
         exprRef: RefObject<FormExpressionEditorRef>,
+        anchorRef: RefObject<HTMLDivElement>,
         defaultValue: string,
         value: string,
         onChange: (value: string, updatedCursorPosition: number) => void,

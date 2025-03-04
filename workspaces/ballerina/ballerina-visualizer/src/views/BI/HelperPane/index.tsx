@@ -18,6 +18,7 @@ export type HelperPaneProps = {
     fileName: string;
     targetLineRange: LineRange;
     exprRef: RefObject<FormExpressionEditorRef>;
+    anchorRef: RefObject<HTMLDivElement>;
     onClose: () => void;
     defaultValue: string;
     currentValue: string;
@@ -29,6 +30,7 @@ const HelperPaneEl = ({
     fileName,
     targetLineRange,
     exprRef,
+    anchorRef,
     onClose,
     defaultValue,
     currentValue,
@@ -71,6 +73,7 @@ const HelperPaneEl = ({
                 </HelperPane.PanelView>
                 <HelperPane.PanelView id={1}>
                     <FunctionsPage
+                        anchorRef={anchorRef}
                         fileName={fileName}
                         targetLineRange={targetLineRange}
                         onClose={onClose}
@@ -96,6 +99,7 @@ const HelperPaneEl = ({
  * @param fileName File name of the expression editor
  * @param targetLineRange Modified line range of the expression editor
  * @param exprRef Ref object of the expression editor
+ * @param anchorRef Ref object of the library browser
  * @param onClose Function to close the helper pane
  * @param defaultValue Default value for the expression editor
  * @param currentValue Current value of the expression editor
@@ -108,6 +112,7 @@ export const getHelperPane = (props: HelperPaneProps) => {
         fileName,
         targetLineRange,
         exprRef,
+        anchorRef,
         onClose,
         defaultValue,
         currentValue,
@@ -120,6 +125,7 @@ export const getHelperPane = (props: HelperPaneProps) => {
             fileName={fileName}
             targetLineRange={targetLineRange}
             exprRef={exprRef}
+            anchorRef={anchorRef}
             onClose={onClose}
             defaultValue={defaultValue}
             currentValue={currentValue}

@@ -188,6 +188,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
     /* Define state to retrieve helper pane data */
 
     const exprRef = useRef<FormExpressionEditorRef>(null);
+    const anchorRef = useRef<HTMLDivElement>(null);
 
     // Use to fetch initial diagnostics
     const fetchInitialDiagnostics = useRef<boolean>(true);
@@ -286,6 +287,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
     ) => {
         return getHelperPane?.(
             exprRef,
+            anchorRef,
             field.placeholder,
             value,
             onChange,
@@ -339,6 +341,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                         <FormExpressionEditor
                             key={field.key}
                             ref={exprRef}
+                            anchorRef={anchorRef}
                             name={name}
                             completions={completions}
                             value={value}

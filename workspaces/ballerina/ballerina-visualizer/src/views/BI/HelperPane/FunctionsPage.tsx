@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { LibraryBrowser } from './LibraryBrowser';
 import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '@wso2-enterprise/ballerina-side-panel';
@@ -17,13 +17,14 @@ import { convertToHelperPaneFunction, extractFunctionInsertText } from '../../..
 import { debounce } from 'lodash';
 
 type FunctionsPageProps = {
+    anchorRef: RefObject<HTMLDivElement>;
     fileName: string;
     targetLineRange: LineRange;
     onClose: () => void;
     onChange: (value: string) => void;
 };
 
-export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: FunctionsPageProps) => {
+export const FunctionsPage = ({ anchorRef, fileName, targetLineRange, onClose, onChange }: FunctionsPageProps) => {
     const { rpcClient } = useRpcContext();
     const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>('');
@@ -188,6 +189,7 @@ export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: 
             </HelperPane.Footer>
             {isLibraryBrowserOpen && (
                 <LibraryBrowser
+                    anchorRef={anchorRef}
                     isLoading={isLoading}
                     libraryBrowserInfo={libraryBrowserInfo as HelperPaneFunctionInfo}
                     setFilterText={handleFunctionSearch}
