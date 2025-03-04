@@ -306,6 +306,7 @@ export function NodeList(props: NodeListProps) {
                 {groups.map((group, index) => {
                     const isConnectionCategory = group.title === "Connections";
                     const isProjectFunctionsCategory = group.title === "Current Integration";
+                    const isFunctionsCategory = isProjectFunctionsCategory && title === "Functions";
                     if ((!group || group.items.length === 0) && !isConnectionCategory && !isProjectFunctionsCategory) {
                         return null;
                     }
@@ -326,8 +327,16 @@ export function NodeList(props: NodeListProps) {
                                         {(isConnectionCategory || isProjectFunctionsCategory) && (
                                             <Button
                                                 appearance="icon"
-                                                tooltip={isConnectionCategory ? "Add Connection" : "Create Function"}
-                                                onClick={isConnectionCategory ? handleAddConnection : handleAddFunction}
+                                                tooltip={
+                                                    isConnectionCategory
+                                                        ? "Add Connection"
+                                                        : `Create ${isFunctionsCategory ? "Function" : "Data Mapper"}`
+                                                }
+                                                onClick={
+                                                    isConnectionCategory
+                                                        ? handleAddConnection
+                                                        : handleAddFunction
+                                                }
                                             >
                                                 <Codicon name="add" />
                                             </Button>
@@ -345,7 +354,7 @@ export function NodeList(props: NodeListProps) {
                             {isProjectFunctionsCategory && group.items.length === 0 && !searchText && !isSearching && (
                                 <S.HighlightedButton onClick={handleAddFunction}>
                                     <Codicon name="add" iconSx={{ fontSize: 12 }} />
-                                    Create Function
+                                    {`Create ${isFunctionsCategory ? "Function" : "Data Mapper"}`}
                                 </S.HighlightedButton>
                             )}
                             {group.items.length > 0 && "id" in group.items.at(0)

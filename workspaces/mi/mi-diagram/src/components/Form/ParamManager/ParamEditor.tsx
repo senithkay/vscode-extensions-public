@@ -14,6 +14,7 @@ import { Param, TypeResolver } from './TypeResolver';
 import { ParamField, Parameters, isFieldEnabled, getParamFieldLabelFromParamId } from './ParamManager';
 import { ActionButtons, Drawer } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
+import { SIDE_PANEL_WIDTH } from '../../../resources/constants';
 
 export interface ParamProps {
     parameters: Parameters;
@@ -41,8 +42,8 @@ const EditorContent = styled.div`
 `;
 
 const DrawerContent = styled.div`
-    padding: 16px 10px 0 20px;
-    width: 420px;
+    padding: 20px;
+    width: ${SIDE_PANEL_WIDTH - 40}px;
 `;
 
 const isRequiredFieldsFilled = (p: Param[]) => {
@@ -81,7 +82,7 @@ export function ParamEditor(props: ParamProps) {
                 if (param.enableCondition === null || param.enableCondition) {
                     const enableCondition = param.enableCondition;
                     const paramEnabled = isFieldEnabled(updatedParams, enableCondition);
-                    return {...param, isEnabled: paramEnabled};
+                    return { ...param, isEnabled: paramEnabled };
                 }
                 return param;
             });
@@ -145,13 +146,13 @@ export function ParamEditor(props: ParamProps) {
                     />
                 </EditorContainer>
             )}
-            <Drawer isOpen={isDrawerCancelInProgress ? false : openInDrawer} id="param-editor-drawer" isSelected={true} sx={{ top: drawerTopOffset }}>
+            <Drawer isOpen={isDrawerCancelInProgress ? false : openInDrawer} id="param-editor-drawer" isSelected={true} sx={{ top: drawerTopOffset, position: 'fixed' }}>
                 {openInDrawer && (
                     <DrawerContent>
                         {parameters?.parameters.map(param => getParamComponent({
-                                ...param,
-                                label: getParamFieldLabelFromParamId(paramFields, param.id)
-                            })
+                            ...param,
+                            label: getParamFieldLabelFromParamId(paramFields, param.id)
+                        })
                         )}
                         <ActionButtons
                             primaryButton={{ text: "Save", onClick: handleOnSave, disabled: !isSaveEnabled }}

@@ -53,7 +53,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
     const showAddButton = link.showAddButton && !link.disabled;
     const shouldHighlight =
         showAddButton && (isHovered || link.showButtonAlways || isPromptBoxOpen || isCommentBoxOpen);
-    const linkColor = link.disabled ? ThemeColors.OUTLINE_VARIANT : shouldHighlight ? ThemeColors.SECONDARY : ThemeColors.PRIMARY;
+    const linkColor = link.disabled ? ThemeColors.OUTLINE_VARIANT : isHovered ? ThemeColors.SECONDARY : ThemeColors.PRIMARY;
 
     const addButtonPosition = link.getAddButtonPosition();
 

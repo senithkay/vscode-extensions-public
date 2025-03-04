@@ -42,6 +42,8 @@ import { ListConstructorNode } from "../ListConstructor";
 import { MappingConstructorNode } from "../MappingConstructor";
 import { PrimitiveTypeNode } from "../PrimitiveType";
 import { UnionTypeNode } from "../UnionType";
+import { ExpressionLabelModel } from "../../Label";
+import { NodeFindingVisitorByPosition } from "../../visitors/NodeFindingVisitorByPosition";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
 const NODE_ID = "link-connector-node";
@@ -49,6 +51,7 @@ const NODE_ID = "link-connector-node";
 export class LinkConnectorNode extends DataMapperNodeModel {
 
     public sourcePorts: RecordFieldPortModel[] = [];
+    public sourceValues:{[key: string]: STNode[]} = {};
     public targetMappedPort: RecordFieldPortModel;
     public targetPort: RecordFieldPortModel;
 
@@ -85,6 +88,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
     initPorts(): void {
         this.sourcePorts = [];
+        this.sourceValues = {};
         this.targetMappedPort = undefined;
         this.inPort = new IntermediatePortModel(
             md5(JSON.stringify(this.valueNode.position) + "IN")
@@ -100,7 +104,13 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         this.fieldAccessNodes.forEach((field) => {
             const inputNode = getInputNodeExpr(field, this);
             if (inputNode) {
-                this.sourcePorts.push(getInputPortsForExpr(inputNode, field));
+                const inputPort = getInputPortsForExpr(inputNode, field);
+                if (!this.sourcePorts.some(port => port.getID() === inputPort.getID())) {
+                    this.sourcePorts.push(inputPort);
+                    this.sourceValues[inputPort.getID()] = [field];
+                } else {
+                    this.sourceValues[inputPort.getID()].push(field);
+                }
             }
         })
 
@@ -160,7 +170,20 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                     lm.setTargetPort(this.inPort);
                     lm.setSourcePort(sourcePort);
                     sourcePort.addLinkedPort(this.inPort);
-                    sourcePort.addLinkedPort(this.targetMappedPort)
+                    sourcePort.addLinkedPort(this.targetMappedPort);
+                    const targetPortExpr = this.targetMappedPort?.editableRecordField?.value;
+                    const isSubLinkLabel = STKindChecker.isSpecificField(targetPortExpr)
+                        && !STKindChecker.isConditionalExpression(targetPortExpr.valueExpr);
+
+                    if (this.sourcePorts.length > 1 && isSubLinkLabel) {
+                        lm.addLabel(new ExpressionLabelModel({
+                            link: lm,
+                            value: undefined,
+                            context: undefined,
+                            isSubLinkLabel: true,
+                            deleteLink: () => this.deleteSubLink(sourcePort.getID())
+                        }));
+                    }
 
                     lm.registerListener({
                         selectionChanged(event) {
@@ -296,5 +319,29 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         }
 
         void this.context.applyModifications(modifications);
+    }
+
+    public async deleteSubLink(sourcePortId: string): Promise<void> {
+
+        const subLinkSTNodes = this.sourceValues[sourcePortId];
+
+        for (let subLinkSTNode of subLinkSTNodes) {
+
+            const nodeFindingVisitor = new NodeFindingVisitorByPosition(subLinkSTNode.position);
+            traversNode(this.valueNode, nodeFindingVisitor);
+            let subLinkValue  = nodeFindingVisitor.getNode();
+
+            const linkDeleteVisitor = new LinkDeletingVisitor(subLinkValue.position as NodePosition, this.parentNode);
+            traversNode(this.context.selection.selectedST.stNode, linkDeleteVisitor);
+            const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
+
+            let modifications: STModification[] = [{
+                type: "DELETE",
+                ...nodePositionsToDelete
+            }];
+
+            void this.context.applyModifications(modifications);
+        }
+
     }
 }

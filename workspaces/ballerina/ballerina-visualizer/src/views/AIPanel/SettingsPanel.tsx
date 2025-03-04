@@ -148,7 +148,9 @@ export const SettingsPanel = (props: { showProjectHeader?: boolean }) => {
                         <Typography variant="subtitle2">Enable GitHub Copilot Integration</Typography>
                         <Typography variant="caption">Authorize Github Copilot and get Visual Completions via Github.</Typography>
                     </Row>
-                    <Button onClick={() => handleAuthorizeCopilot()} disabled={copilotAuthorized}>Authorize</Button>
+                    <Button onClick={() => handleAuthorizeCopilot()} disabled={copilotAuthorized}>
+                        {copilotAuthorized ? "Authorized" : "Authorize"}
+                    </Button>
                 </RowGroup>
                 <div ref={messagesEndRef} />
             </Container>

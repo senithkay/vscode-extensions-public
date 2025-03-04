@@ -10,7 +10,7 @@
 import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ProgressRing, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import { ArrayLiteralExpression, Block, Node, ReturnStatement, SyntaxKind } from "ts-morph";
 import classnames from "classnames";
 
@@ -28,6 +28,7 @@ import { IOType } from "@wso2-enterprise/mi-core";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
 import { createSourceForUserInput, modifyChildFieldsOptionality } from "../../utils/modification-utils";
 import { ValueConfigMenu, ValueConfigMenuItem, ValueConfigOption } from '../commons/ValueConfigButton';
+import { OutputFieldPreviewWidget } from "./OutputFieldPreviewWidget";
 export interface ArrayOutputWidgetProps {
 	id: string;
 	dmTypeWithValue: DMTypeWithValue;
@@ -115,14 +116,13 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		&& Node.isPropertyAssignment(dmTypeWithValue.value)
 		&& dmTypeWithValue.value;
 	const value: string = hasValue && propertyAssignment && propertyAssignment.getInitializer().getText();
-	const hasDefaultValue = value && getDefaultValue(dmTypeWithValue.type.kind) === value.trim();
+	const hasDefaultValue = value && getDefaultValue(dmTypeWithValue.type) === value.trim();
 
 	const handleExpand = (expanded: boolean) => {
-		const collapsedFields = collapsedFieldsStore.collapsedFields;
 		if (!expanded) {
-			collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== id));
+			collapsedFieldsStore.expandField(id, dmTypeWithValue.type.kind);
 		} else {
-			collapsedFieldsStore.setCollapsedFields([...collapsedFields, id]);
+			collapsedFieldsStore.collapseField(id, dmTypeWithValue.type.kind);
 		}
 	};
 
@@ -142,10 +142,9 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 	};
 
 	const handleAddArrayElement = async () => {
-		setIsAddingElement(true)
-
-		const typeKind = dmTypeWithValue.type?.memberType.kind;
-		const defaultValue = getDefaultValue(typeKind);
+		setIsAddingElement(true);
+		
+		const defaultValue = getDefaultValue(dmTypeWithValue.type?.memberType);
 		const bodyNodeForgotten = body && body.wasForgotten();
 		const valExpr = body && !bodyNodeForgotten && Node.isPropertyAssignment(body) ? body.getInitializer() : body;
 		const arrayLitExpr = dmTypeWithValue && Node.isArrayLiteralExpression(valExpr) ? valExpr : null;
@@ -160,7 +159,11 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		}
 		const updatedTargetExpr = targetExpr.addElement(defaultValue);
 		await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
-		handleExpand(false);
+		
+		if(!expanded){
+			handleExpand(false);
+		}
+		
 		setIsAddingElement(false);
 
 	};
@@ -193,7 +196,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 	};
 
 	const label = (
-		<span style={{ marginRight: "auto" }}>
+		<TruncatedLabel style={{ marginRight: "auto" }}>
 			{valueLabel && (
 				<span className={classes.valueLabel}>
 					<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
@@ -203,7 +206,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 			<span className={classnames(classes.outputTypeLabel, isDisabled ? classes.labelDisabled : "")}>
 				{typeName || ''}
 			</span>
-		</span>
+		</TruncatedLabel>
 	);
 
 
@@ -245,20 +248,18 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 						)}
 					</span>
 					<span className={classes.label}>
-						{hasValue && isBodyArrayLitExpr && (
-							<FieldActionWrapper>
-								<Button
-									id={"expand-or-collapse-" + id}
-									appearance="icon"
-									tooltip="Expand/Collapse"
-									onClick={() => handleExpand(expanded)}
-									data-testid={`${id}-expand-icon-mapping-target-node`}
-									sx={{ marginLeft: indentation }}
-								>
-									{expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
-								</Button>
-							</FieldActionWrapper>
-						)}
+						<FieldActionWrapper>
+							<Button
+								id={"expand-or-collapse-" + id}
+								appearance="icon"
+								tooltip="Expand/Collapse"
+								onClick={() => handleExpand(expanded)}
+								data-testid={`${id}-expand-icon-mapping-target-node`}
+								sx={{ marginLeft: indentation }}
+							>
+								{expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
+							</Button>
+						</FieldActionWrapper>
 						{label}
 					</span>
 					{focusedOnSubMappingRoot && (
@@ -300,6 +301,17 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 							context={context}
 							deleteField={deleteField}
 							asOutput={true}
+						/>
+					</TreeBody>
+				)}
+				{expanded && !hasValue && (
+					<TreeBody>
+						<OutputFieldPreviewWidget
+							engine={engine}
+							dmType={{...dmTypeWithValue.type.memberType, fieldName: `<${dmTypeWithValue.type.fieldName}Item>`}}
+							getPort={getPort}
+							parentId={id}
+							treeDepth={1}
 						/>
 					</TreeBody>
 				)}

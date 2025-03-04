@@ -197,8 +197,8 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
 
             if (props.path.endsWith(".xml")) {
                 setIsNewMessageProcessor(false);
-                if (props.path.includes('messageProcessors')) {
-                    props.path = props.path.replace('messageProcessors', 'message-processors');
+                if (props.path.includes('messageProcessors')  || props.path.includes('message processors') ) {
+                    props.path = props.path.replace('messageProcessors', 'message-processors').replace('message processors', 'message-processors');
                 }
                 const existingMessageProcessor = await rpcClient.getMiDiagramRpcClient().getMessageProcessor({ path: props.path });
                 paramConfigs.paramValues = [];

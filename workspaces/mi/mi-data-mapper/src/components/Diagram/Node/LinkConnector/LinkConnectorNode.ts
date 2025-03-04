@@ -275,7 +275,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         const targetNode = this.targetPort.getNode();
         const { functionST, applyModifications } = this.context;
         const exprFuncBodyPosition = getPosition(functionST.getBody());
-        const defaultValue = getDefaultValue(targetField?.kind);
+        const defaultValue = getDefaultValue(targetField);
 
         if ((!targetField?.fieldName
             && targetField?.kind !== TypeKind.Array

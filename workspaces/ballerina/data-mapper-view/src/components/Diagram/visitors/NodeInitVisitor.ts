@@ -90,8 +90,8 @@ export class NodeInitVisitor implements Visitor {
     beginVisitFunctionDefinition(node: FunctionDefinition) {
         const typeDesc = node.functionSignature?.returnTypeDesc && node.functionSignature.returnTypeDesc.type;
         const exprFuncBody = STKindChecker.isExpressionFunctionBody(node.functionBody) && node.functionBody;
-        let moduleVariables: Map<string, ModuleVariable> = getModuleVariables(exprFuncBody, this.context.moduleVariables);
-        let enumTypes: Map<string, ModuleVariable> = getEnumTypes(exprFuncBody, this.context.moduleVariables);
+        let moduleVariables: Map<string, ModuleVariable> = getModuleVariables(exprFuncBody, this.context.moduleComponents);
+        let enumTypes: Map<string, ModuleVariable> = getEnumTypes(exprFuncBody, this.context.moduleComponents);
         let isFnBodyQueryExpr = false;
         if (typeDesc && exprFuncBody) {
             let returnType = getTypeOfOutput(typeDesc, this.context.ballerinaVersion);
@@ -256,8 +256,8 @@ export class NodeInitVisitor implements Visitor {
                         this.queryNode = queryNode;
                         queryNode.targetPorts = expandedHeaderPorts;
                         queryNode.height = intermediateClausesHeight;
-                        moduleVariables = getModuleVariables(selectClause.expression, this.context.moduleVariables);
-                        enumTypes = getEnumTypes(selectClause.expression, this.context.moduleVariables);
+                        moduleVariables = getModuleVariables(selectClause.expression, this.context.moduleComponents);
+                        enumTypes = getEnumTypes(selectClause.expression, this.context.moduleComponents);
                     } else if (this.context.selection.selectedST.fieldPath === SELECT_CALUSE_QUERY) {
                         isFnBodyQueryExpr = true;
                         const queryExprFindingVisitor = new QueryExprFindingVisitorByPosition(this.selection.selectedST.position);
@@ -374,8 +374,8 @@ export class NodeInitVisitor implements Visitor {
                         this.queryNode = queryNode;
                         queryNode.targetPorts = expandedHeaderPorts;
                         queryNode.height = intermediateClausesHeight;
-                        moduleVariables = getModuleVariables(selectClause.expression, this.context.moduleVariables);
-                        enumTypes = getEnumTypes(selectClause.expression, this.context.moduleVariables);
+                        moduleVariables = getModuleVariables(selectClause.expression, this.context.moduleComponents);
+                        enumTypes = getEnumTypes(selectClause.expression, this.context.moduleComponents);
                     } else {
                         if (returnType.typeName === PrimitiveBalType.Array) {
                             this.outputNode = new ListConstructorNode(
@@ -704,7 +704,7 @@ export class NodeInitVisitor implements Visitor {
                 // }
 
                 // create node for module variables
-                const moduleVariables: Map<string, ModuleVariable> = getModuleVariables(selectClause.expression, this.context.moduleVariables);
+                const moduleVariables: Map<string, ModuleVariable> = getModuleVariables(selectClause.expression, this.context.moduleComponents);
                 if (moduleVariables.size > 0) {
                     const moduleVarNode = new ModuleVariableNode(
                         this.context,
@@ -715,7 +715,7 @@ export class NodeInitVisitor implements Visitor {
                 }
 
                 // create node for enums
-                const enumTypes: Map<string, ModuleVariable> = getEnumTypes(selectClause.expression, this.context.moduleVariables);
+                const enumTypes: Map<string, ModuleVariable> = getEnumTypes(selectClause.expression, this.context.moduleComponents);
                 if (enumTypes.size > 0) {
                     const enumTypeNode = new EnumTypeNode(
                         this.context,

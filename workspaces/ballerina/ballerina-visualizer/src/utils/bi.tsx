@@ -32,6 +32,7 @@ import {
     SignatureHelpResponse,
     TriggerNode,
     VisibleType,
+    VisibleTypeItem,
     Item,
     FunctionKind,
     functionKinds,
@@ -48,7 +49,7 @@ import {
 import { SidePanelView } from "../views/BI/FlowDiagram";
 import React from "react";
 import { cloneDeep } from "lodash";
-import { COMPLETION_ITEM_KIND, CompletionItem, CompletionItemKind } from "@wso2-enterprise/ui-toolkit";
+import { COMPLETION_ITEM_KIND, CompletionItem, CompletionItemKind, convertCompletionItemKind } from "@wso2-enterprise/ui-toolkit";
 
 function convertAvailableNodeToPanelNode(node: AvailableNode, functionType?: FUNCTION_TYPE): PanelNode {
     // Check if node should be filtered based on function type
@@ -78,7 +79,7 @@ function convertDiagramCategoryToSidePanelCategory(category: Category, functionT
     const items: PanelItem[] = category.items?.map((item) => {
         if ("codedata" in item) {
             return convertAvailableNodeToPanelNode(item as AvailableNode, functionType);
-        } else {            
+        } else {
             return convertDiagramCategoryToSidePanelCategory(item as Category);
         }
     }).filter((item) => item !== undefined);
@@ -154,6 +155,7 @@ export function convertNodePropertyToFormField(
         items: getFormFieldItems(property, connections),
         diagnostics: property.diagnostics?.diagnostics || [],
         valueTypeConstraint: property.valueTypeConstraint,
+        lineRange: property?.codedata?.lineRange
     };
     return formField;
 }
@@ -247,6 +249,8 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode, cli
                 activeNode.codedata?.node === "RESOURCE_ACTION_CALL"
             ) {
                 return `${clientName || activeNode.properties.connection.value} → ${activeNode.metadata.label}`;
+            } else if (activeNode.codedata?.node === "DATA_MAPPER_CALL") {
+                return `${activeNode.codedata?.module ? activeNode.codedata?.module + " :" : ""} ${activeNode.codedata.symbol}`;
             }
             return `${activeNode.codedata?.module ? activeNode.codedata?.module + " :" : ""} ${activeNode.metadata.label
                 }`;
@@ -522,11 +526,12 @@ export function convertToFnSignature(signatureHelp: SignatureHelpResponse) {
     };
 }
 
-export function convertToVisibleTypes(visibleTypes: string[]): CompletionItem[] {
-    return visibleTypes.map((type) => ({
-        label: type,
-        value: type,
-        kind: COMPLETION_ITEM_KIND.TypeParameter,
+export function convertToVisibleTypes(types: VisibleTypeItem[]): CompletionItem[] {
+    return types.map((type) => ({
+        label: type.label,
+        value: type.insertText,
+        kind: convertCompletionItemKind(type.kind),
+        insertText: type.insertText,
     }));
 }
 
@@ -545,7 +550,7 @@ export const convertToHelperPaneVariable = (variables: VisibleType[]): HelperPan
                 label: variable.name,
                 items: variable.types.map((item) => ({
                     label: item.name,
-                    type: item.type.value,
+                    type: item.type.typeName,
                     insertText: item.name
                 }))
             }))
@@ -654,12 +659,16 @@ export function extractFunctionInsertText(template: string): string {
 function createParameterValue(index: number, paramValueKey: string, paramValue: ParameterValue): Parameter {
     const name = paramValue.value.variable.value;
     const type = paramValue.value.type.value;
-    
+    const variableLineRange = (paramValue.value.variable as any).codedata?.lineRange;
+    const variableEditable = (paramValue.value.variable as any).editable;
+
     return {
         id: index,
         icon: "",
         key: paramValueKey,
         value: `${type} ${name}`,
+        identifierEditable: variableEditable,
+        identifierRange: variableLineRange,
         formValues: {
             variable: name,
             type: type

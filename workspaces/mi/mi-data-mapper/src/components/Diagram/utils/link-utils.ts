@@ -43,7 +43,7 @@ export function generateArrayMapFunction(srcExpr: string, targetType: DMType, is
             ).join("")}
         }`;
     } else {
-        returnExpr = `return ${getDefaultValue(targetType.kind)}`;
+        returnExpr = `return ${getDefaultValue(targetType)}`;
     }
 
     return `${srcExpr.trim()}\n${isSourceOptional ? '?.' : '.'}map((${refinedVarName}) => {${returnExpr}})`;
@@ -74,13 +74,13 @@ function fillWithDefaults(type: DMType): string {
             if (field.kind === TypeKind.Interface) {
                 return `${field.fieldName}: ${fillWithDefaults(field)}`;
             }
-            return `${field.fieldName}: ${getDefaultValue(field.kind)}`;
+            return `${field.fieldName}: ${getDefaultValue(field)}`;
         }).join(`,${getLinebreak()} `);
 
         return `{ ${src} }`;
     }
 
-    return getDefaultValue(type.kind);
+    return getDefaultValue(type);
 };
 
 function splitSrcExprWithRegex(input: string): string[] {

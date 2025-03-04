@@ -13,6 +13,7 @@ export * from "./vscode";
 
 export * from "./interfaces/mi";
 export * from "./interfaces/mi-data-mapper";
+export * from "./interfaces/mi-diagram";
 
 // ------ History class and interface -------->
 export * from "./history";

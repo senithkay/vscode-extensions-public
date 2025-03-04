@@ -13,22 +13,11 @@ import { SqFlow } from "@wso2-enterprise/ballerina-core";
 import { Diagram } from "@wso2-enterprise/sequence-diagram";
 import styled from "@emotion/styled";
 import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 const Container = styled.div`
     width: 100%;
     height: calc(100vh - 50px);
     position: relative;
-`;
-
-const ExperimentalLabel = styled.div`
-    position: fixed;
-    top: 120px;
-    left: 12px;
-    background-color: ${ThemeColors.SURFACE_DIM};
-    color: ${ThemeColors.ON_SURFACE};
-    padding: 4px 8px;
-    font-size: 12px;
-    border-radius: 4px;
-    z-index: 1000;
 `;
 
 const MessageContainer = styled.div({
@@ -40,19 +29,20 @@ const MessageContainer = styled.div({
 });
 
 interface BISequenceDiagramProps {
+    syntaxTree: STNode; // INFO: this is used to make the diagram rerender when code changes
     onUpdate: () => void;
     onReady: () => void;
 }
 
 export function BISequenceDiagram(props: BISequenceDiagramProps) {
-    const { onUpdate, onReady } = props;
+    const { syntaxTree, onUpdate, onReady } = props;
 
     const { rpcClient } = useRpcContext();
     const [flowModel, setModel] = useState<SqFlow>(undefined);
 
     useEffect(() => {
         getSequenceModel();
-    }, []);
+    }, [syntaxTree]);
 
     const getSequenceModel = () => {
         onUpdate();
@@ -75,7 +65,6 @@ export function BISequenceDiagram(props: BISequenceDiagramProps) {
     return (
         <>
             <Container>
-                <ExperimentalLabel>Experimental</ExperimentalLabel>
                 {flowModel && (
                     <Diagram
                         model={flowModel}

@@ -21,17 +21,18 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
 
     // get icon color
     switch (mediator?.toLowerCase()) {
-        case MEDIATORS.CALL.toLowerCase():
         case MEDIATORS.LOG.toLowerCase():
         case MEDIATORS.RESPOND.toLowerCase():
         case MEDIATORS.PROPERTY.toLowerCase():
+        case MEDIATORS.VARIABLE.toLowerCase():
         case MEDIATORS.DROP.toLowerCase():
-        case MEDIATORS.CALLTEMPLATE.toLowerCase():
         case MEDIATORS.SEQUENCE.toLowerCase():
-        case MEDIATORS.PROPERTYGROUP.toLowerCase():
+        case "target":    
+        case MEDIATORS.RESOURCE.toLowerCase():
         case MEDIATORS.CACHE.toLowerCase():
         case MEDIATORS.THROTTLE.toLowerCase():
         case MEDIATORS.STORE.toLowerCase():
+        case MEDIATORS.THROWERROR.toLowerCase():
             color = "#3e97d3";
             break;
 
@@ -47,9 +48,7 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
 
         case MEDIATORS.FILTER.toLowerCase():
         case MEDIATORS.SWITCH.toLowerCase():
-        case MEDIATORS.CLONE.toLowerCase():
-        case MEDIATORS.ITERATE.toLowerCase():
-        case MEDIATORS.AGGREGATE.toLowerCase():
+        case MEDIATORS.SCATTERGATHER.toLowerCase():
         case MEDIATORS.FOREACHMEDIATOR.toLowerCase():
         case MEDIATORS.VALIDATE.toLowerCase():
             color = "#26b99a";
@@ -58,12 +57,6 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
         case MEDIATORS.CLASS.toLowerCase():
         case MEDIATORS.SCRIPT.toLowerCase():
             color = "#ff69d0";
-            break;
-
-        case MEDIATORS.ENTITLEMENT.toLowerCase():
-        case MEDIATORS.OAUTH.toLowerCase():
-        case MEDIATORS.NTLM.toLowerCase():
-            color = "#ffc369";
             break;
 
         case MEDIATORS.DATASERVICECALL.toLowerCase():
@@ -91,9 +84,17 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
         case MEDIATORS.SPRING.toLowerCase():
         case MEDIATORS.CONDITIONALROUTER.toLowerCase():
         case MEDIATORS.BAM.toLowerCase():
+        case MEDIATORS.CLONE.toLowerCase():
+        case MEDIATORS.ITERATE.toLowerCase():
+        case MEDIATORS.AGGREGATE.toLowerCase():
+        case MEDIATORS.PROPERTYGROUP.toLowerCase():
+        case MEDIATORS.CALL.toLowerCase():
+        case MEDIATORS.CALLTEMPLATE.toLowerCase():
+        case MEDIATORS.ENTITLEMENT.toLowerCase():
+        case MEDIATORS.OAUTH.toLowerCase():
+        case MEDIATORS.NTLM.toLowerCase():
             color = "#e0e0d8";
             break;
-
         default:
             color = "#FFB02E";
     }
@@ -124,6 +125,9 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
             break;
         case MEDIATORS.CLONE.toLowerCase():
             icon = (<Icon name="Clone" sx={{ height: 25, width: 25, fontSize: 24, color: color }} />);
+            break;
+        case MEDIATORS.SCATTERGATHER.toLowerCase():
+            icon = (<Icon name="ScatterGather" sx={{ height: 25, width: 25, fontSize: 24, color: color }} />);
             break;
         case MEDIATORS.DATAMAPPER.toLowerCase():
             icon = (<Icon name="dataMapper" sx={{ height: 25, width: 25, fontSize: 24, color: color }} />);
@@ -185,6 +189,9 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
         case MEDIATORS.PROPERTY.toLowerCase():
             icon = (<Icon name="Property" sx={{ height: 30, width: 25, fontSize: 25, color: color }} />);
             break;
+        case MEDIATORS.VARIABLE.toLowerCase():
+            icon = (<Icon name="Variable" sx={{ height: 27, width: 27, fontSize: 27, color: color }} />);
+            break;
         case MEDIATORS.PROPERTYGROUP.toLowerCase():
             icon = (<Icon name="PropertyGroup" sx={{ height: 30, width: 25, fontSize: 25, color: color }} />);
             break;
@@ -204,6 +211,8 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
             icon = (<Icon name="Send" sx={{ height: 30, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.SEQUENCE.toLowerCase():
+        case MEDIATORS.RESOURCE.toLowerCase():
+        case "target":
             icon = (<Icon name="CallSequence" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.SMOOKS.toLowerCase():
@@ -259,6 +268,9 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
             break;
         case MEDIATORS.BAM.toLowerCase():
             icon = (<Icon name="BAM" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
+            break;
+        case MEDIATORS.THROWERROR.toLowerCase():
+            icon = (<Icon name="ThrowError" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
 
         // Endpoints

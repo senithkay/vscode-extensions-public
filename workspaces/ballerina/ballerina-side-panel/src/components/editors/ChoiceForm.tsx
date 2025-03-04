@@ -43,20 +43,20 @@ const FormSection = styled.div`
 export function ChoiceForm(props: ChoiceFormProps) {
     const { field } = props;
     const { form } = useFormContext();
-    const { register } = form;
+    const { setValue } = form;
 
-    const [selectedOption, setSelectedOption] = useState<number>(0);
+    const [selectedOption, setSelectedOption] = useState<number>(1);
 
     const [dynamicFields, setDynamicFields] = useState<FormField[]>([]);
 
 
     // Add useEffect to set initial values
     useEffect(() => {
-        const property = field.choices[selectedOption];
+        const realValue = selectedOption - 1;
+        const property = field.choices[realValue];
         setDynamicFields(convertConfig(property));
+        setValue(field.key, realValue);
     }, [selectedOption]);
-
-
 
     const convertConfig = (model: PropertyModel): FormField[] => {
         const formFields: FormField[] = [];
@@ -90,19 +90,16 @@ export function ChoiceForm(props: ChoiceFormProps) {
                 <RadioButtonGroup
                     id="choice-options"
                     label={field.documentation}
-                    defaultValue={selectedOption}
+                    defaultValue={1}
                     defaultChecked={true}
                     value={selectedOption}
-                    {...register(field.key, {
-                        setValueAs: () => {
-                            console.log("Setting choice value as:", selectedOption);
-                            return selectedOption;
-                        }
-                    })}
-                    options={field.choices.map((choice, index) => ({ id: index.toString(), value: index, content: choice.metadata.label }))}
+                    options={field.choices.map((choice, index) => ({ id: index.toString(), value: index + 1, content: choice.metadata.label }))}
                     onChange={(e) => {
                         console.log("Choice Form Index:", Number(e.target.value))
-                        setSelectedOption(Number(e.target.value));
+                        const checkedValue = Number(e.target.value);
+                        const realValue = checkedValue - 1;
+                        setSelectedOption(checkedValue);
+                        setValue(field.key, realValue);
                     }}
                 />
             </ChoiceSection>

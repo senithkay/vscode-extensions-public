@@ -53,6 +53,12 @@ export function getTemplateMustacheTemplate() {
 </template>`;
 }
 
+export const getEditTemplates = () => {
+    return `<?xml version="1.0" encoding="UTF-8"?>
+    <template name="{{templateName}}" xmlns="http://ws.apache.org/ns/synapse">
+        {{#params}}<parameter {{#default}}defaultValue="{{default}}"{{/default}} isMandatory="{{isMandatory}}" name="{{name}}"/>{{/params}}`;
+}
+
 
 export function getTemplateXml(data: TemplateArgs) {
 
@@ -91,6 +97,26 @@ export function getTemplateXml(data: TemplateArgs) {
     };
 
     return render(getTemplateMustacheTemplate(), modifiedData);
+}
+
+export function getEditTemplateXml(data: TemplateArgs) {
+
+    let params: any = [];
+    data.parameters.length > 0 ? data.parameters.forEach(element => { params.push(element); }) : params = null;
+
+    const endpointName = data.templateType != 'Sequence Template' ? "endpoint_urn_uuid_".concat(generateUUID()) : null;
+    const trace = data.traceEnabled ? "enabled" : null;
+    const stats = data.statisticsEnabled ? "enabled" : null;
+
+    const modifiedData = {
+        ...data,
+        endpointName,
+        trace,
+        stats,
+        params
+    };
+
+    return render(getEditTemplates(), modifiedData);
 }
 
 function generateUUID(): string {

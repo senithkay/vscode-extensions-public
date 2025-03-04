@@ -28,17 +28,31 @@ import {
     SwaggerProxyResponse,
     OpenExternalRequest,
     OpenExternalResponse,
+    ProjectOverviewResponse,
+    ReadmeContentResponse,
+    AddConfigurableRequest,
+    ProjectDetailsResponse,
+    UpdateDependenciesRequest,
+    UpdatePomValuesRequest,
+    UpdateConfigValuesRequest,
+    ImportOpenAPISpecRequest,
+    SetupDetails,
+    SetPathRequest,
+    PathDetailsResponse,
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
+
 export interface MIVisualizerAPI {
     getWorkspaces: () => Promise<WorkspacesResponse>;
     getProjectStructure: (params: ProjectStructureRequest) => Promise<ProjectStructureResponse>;
+    getProjectOverview: (params: ProjectStructureRequest) => Promise<ProjectOverviewResponse>;
     getCurrentThemeKind: () => Promise<ColorThemeKind>;
     openView: (params: OpenViewRequest) => void;
     reloadWindow: () => Promise<void>;
     goBack: () => void;
     fetchSamplesFromGithub: () => Promise<GettingStartedData>;
     downloadSelectedSampleFromGithub: (params: SampleDownloadRequest) => void;
+    addConfigurable: (params: AddConfigurableRequest) => Promise<void>;
     getHistory: () => Promise<HistoryEntryResponse>;
     addToHistory: (params: HistoryEntry) => void;
     goHome: () => void;
@@ -50,7 +64,24 @@ export interface MIVisualizerAPI {
     updateContext: (params: UpdateContextRequest) => Promise<void>;
     retrieveContext: (params: RetrieveContextRequest) => Promise<RetrieveContextResponse>;
     showNotification: (params: NotificationRequest) => Promise<NotificationResponse>;
-    getAvailableRuntimeServices:() => Promise<RuntimeServicesResponse>;
+    getAvailableRuntimeServices: () => Promise<RuntimeServicesResponse>;
     sendSwaggerProxyRequest: (params: SwaggerProxyRequest) => Promise<SwaggerProxyResponse>;
     openExternal: (params: OpenExternalRequest) => Promise<OpenExternalResponse>;
+    getReadmeContent: () => Promise<ReadmeContentResponse>;
+    openReadme: () => void;
+    downloadJavaFromMI: (params: string) => Promise<string>;
+    downloadMI: (params: string) => Promise<string>;
+    getSupportedMIVersionsHigherThan: (param:string) => Promise<string[]>;
+    getProjectDetails: () => Promise<ProjectDetailsResponse>;
+    updateDependencies: (params: UpdateDependenciesRequest) => Promise<boolean>;
+    updatePomValues: (params: UpdatePomValuesRequest) => Promise<boolean>;
+    updateConfigFileValues: (params: UpdateConfigValuesRequest) => Promise<boolean>;
+    updateConnectorDependencies: () => Promise<string>;
+    importOpenAPISpec: (params: ImportOpenAPISpecRequest) => Promise<void>;
+    getProjectSetupDetails: () => Promise<SetupDetails>;
+    updateRuntimeVersionsInPom: (params:string) => Promise<boolean>;
+    setPathsInWorkSpace: (params: SetPathRequest) => Promise<PathDetailsResponse>;
+    selectFolder: (params: string) => Promise<string | undefined>;
+    updateLegacyExpressionSupport: (value: boolean) => Promise<void>;
+    isLegacyExpressionSupportEnabled: () => Promise<boolean>;
 }

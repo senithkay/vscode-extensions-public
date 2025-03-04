@@ -41,6 +41,7 @@ export const getTypesFromRecord: RequestType<GenerateTypesFromRecordRequest, Gen
 export const applyDoOnFailBlocks: NotificationType<void> = { method: `${_preFix}/applyDoOnFailBlocks` };
 export const postProcess: RequestType<PostProcessRequest, PostProcessResponse> = { method: `${_preFix}/postProcess` };
 export const getActiveFile: RequestType<void, string> = { method: `${_preFix}/getActiveFile` };
+export const getFromDocumentation: RequestType<string, string> = { method: `${_preFix}/getFromDocumentation` };
 export const openSettings: NotificationType<void> = { method: `${_preFix}/openSettings` };
 export const openChat: NotificationType<void> = { method: `${_preFix}/openChat` };
 export const promptGithubAuthorize: RequestType<void, boolean> = { method: `${_preFix}/promptGithubAuthorize` };

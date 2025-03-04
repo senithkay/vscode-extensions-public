@@ -114,7 +114,7 @@ export function VariableCard(params: VariableCardProps) {
                     <>
                         {onEditVariable! && (
                             <VSCodeButton appearance="icon" title="Edit Variable" onClick={handleEditResource}>
-                                <Icon name="editIcon" sx={{ marginTop: 3.5 }} />
+                                <Icon name="bi-edit" sx={{ marginTop: 3.5 }} />
                             </VSCodeButton>
                         )}
                         {onDeleteVariable! && (

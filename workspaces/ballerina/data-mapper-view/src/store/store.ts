@@ -21,6 +21,13 @@ export interface DataMapperSearchState {
   resetSearchStore: () => void;
 }
 
+export interface DataMapperFocusedViewState {
+  sourcePortFQN: string;
+  targetPortFQN: string;
+  setPortFQNs: (sourcePortFQN: string, targetPortFQN: string) => void;
+  resetFocusedViewState: () => void;
+}
+
 export const useDMStore = create<DataMapperState>((set) => ({
   imports: [],
   functionST: undefined,
@@ -39,4 +46,11 @@ export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
   setInputSearch: (inputSearch: string) => set({ inputSearch }),
   setOutputSearch: (outputSearch: string) => set({ outputSearch }),
   resetSearchStore: () => set({ inputSearch: '', outputSearch: '' })
+}));
+
+export const useDMFocusedViewStateStore = create<DataMapperFocusedViewState>((set) => ({
+  sourcePortFQN: "",
+  targetPortFQN: "",
+  setPortFQNs: (sourcePortFQN: string, targetPortFQN: string) => set({ sourcePortFQN, targetPortFQN }),
+  resetFocusedViewState: () => set({ sourcePortFQN: '', targetPortFQN: '' })
 }));

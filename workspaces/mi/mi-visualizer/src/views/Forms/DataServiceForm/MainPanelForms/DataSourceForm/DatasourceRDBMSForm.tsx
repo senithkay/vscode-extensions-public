@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, { useEffect } from "react";
-import { TextField, Dropdown, FormCheckBox, FormGroup, CheckBox } from "@wso2-enterprise/ui-toolkit";
+import { TextField, Dropdown, FormCheckBox, FormGroup, CheckBox, PasswordField } from "@wso2-enterprise/ui-toolkit";
 import {DataServicePropertyTable} from "../PropertyTable";
 import { driverMap } from "../../../DataSourceForm/types";
 
@@ -154,11 +154,8 @@ export function DataSourceRDBMSForm(props: DataSourceRDBMSFormProps) {
                         {...props.renderProps('rdbms.secretAlias')}
                     />
                     :
-                    <TextField
+                    <PasswordField
                         label="Password"
-                        size={100}
-                        type="password"
-                        required
                         {...props.renderProps('rdbms.password')}
                     />
                 }

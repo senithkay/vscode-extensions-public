@@ -198,13 +198,13 @@ export function ComponentListView() {
                                 <ButtonCard
                                     icon={<Icon name="bi-task" />}
                                     title="Automation"
-                                    description="Trigger your integration with a task. Perfect for scheduled or one-time jobs."
+                                    description="Trigger your integration with a task. Perfect for scheduled/one-time jobs."
                                     onClick={() => handleClick(DIRECTORY_MAP.AUTOMATION)}
                                 />
                             </CardGrid>
                         </PanelViewMore>
                         <PanelViewMore>
-                            <Title variant="h2">API Integration</Title>
+                            <Title variant="h2">Integration as API</Title>
                             <BodyText>
                                 Explore and manage various components to enhance your integration capabilities.
                             </BodyText>
@@ -222,11 +222,18 @@ export function ComponentListView() {
                                     onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "graphql")}
                                 />
                                 <ButtonCard
+                                    icon={<Icon name="bi-tcp" />}
+                                    title="TCP Service"
+                                    description="Process connection oriented messages."
+                                    onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "tcp")}
+                                />
+                                {/* TODO: Add this when GRPC is working */}
+                                {/* <ButtonCard
                                     icon={<Icon name="bi-grpc" />}
                                     title="gRPC Service"
                                     description="High-performance, cross-platform communication."
                                     onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "grpc")}
-                                />
+                                /> */}
                             </CardGrid>
                         </PanelViewMore>
                         <PanelViewMore>
@@ -342,6 +349,8 @@ export function ComponentListView() {
 // TODO: This should be removed once the new icons are added to the BE API.
 export function getCustomEntryNodeIcon(type: string) {
     switch (type) {
+        case "tcp":
+            return <Icon name="bi-tcp" />;
         case "kafka":
             return <Icon name="bi-kafka" />;
         case "rabbitmq":

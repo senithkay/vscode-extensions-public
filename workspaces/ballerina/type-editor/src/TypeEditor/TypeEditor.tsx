@@ -8,16 +8,17 @@
  */
 
 import React, { useEffect, useState, useRef } from "react";
-import { TextField, View, ViewContent, Dropdown, Button, SidePanelBody, ProgressRing, Divider, Icon, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { TextField, Dropdown, Button, SidePanelBody, ProgressRing, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { BallerinaRpcClient, useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Member, Type, UndoRedoManager, VisualizerLocation, TypeNodeKind } from "@wso2-enterprise/ballerina-core";
-import { RecordFromJson } from "../RecordFromJson";
-import { RecordFromXml } from "../RecordFromXml";
+import { RecordFromJson } from "../RecordFromJson/RecordFromJson";
+import { RecordFromXml } from "../RecordFromXml/RecordFromXml";
 import { RecordEditor } from "./RecordEditor";
 import { EnumEditor } from "./EnumEditor";
 import { UnionEditor } from "./UnionEditor";
 import { ClassEditor } from "./ClassEditor";
+import { AdvancedOptions } from "./AdvancedOptions";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -64,91 +65,54 @@ namespace S {
         margin-top: 8px;
         width: 100%;
     `;
-
-    export const TitleContainer = styled.div<{}>`
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        width: 100%;
-        margin-bottom: 8px;
-    `;
-
-    export const Title = styled.div<{}>`
-        font-size: 14px;
-        font-family: GilmerBold;
-        text-wrap: nowrap;
-        &:first {
-            margin-top: 0;
-        }
-    `;
-
-    export const PrimaryButton = styled(Button)`
-        appearance: "primary";
-    `;
-
-    export const BodyText = styled.div<{}>`
-        font-size: 11px;
-        opacity: 0.5;
-    `;
-
-    export const DrawerContainer = styled.div<{}>`
-        width: 400px;
-    `;
-
-    export const ButtonContainer = styled.div<{}>`
-        display: flex;
-        flex-direction: row;
-        flex-grow: 1;
-        justify-content: flex-end;
-    `;
-
-    export const DataMapperRow = styled.div`
-        display: flex;
-        justify-content: center;
-        width: 100%;
-        margin: 10px 0;
-    `;
-
-    export type EditorContainerStyleProp = {
-        color: string;
-    };
-    export const EditorContainer = styled.div<EditorContainerStyleProp>`
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        padding: 8px;
-        border-radius: 4px;
-        /* border: 1px solid ${(props: EditorContainerStyleProp) => props.color}; */
-        position: relative;
-        z-index: 1;
-
-        &::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: ${(props: EditorContainerStyleProp) => props.color};
-            opacity: 0.1;
-            z-index: -1;
-            border-radius: inherit;
-        }
-    `;
-
-    export const UseDataMapperButton = styled(Button)`
-        & > vscode-button {
-            width: 250px;
-            height: 30px;
-            color: var(--vscode-button-secondaryForeground);
-            border: 1px solid var(--vscode-welcomePage-tileBorder);
-        }
-        align-self: center;
-    `;
 }
 
+
+const EditRow = styled.div`
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    width: 100%;
+`;
+
+const InputWrapper = styled.div`
+    position: relative;
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+`;
+
+const TextFieldWrapper = styled.div`
+    flex: 1;
+`;
+
+const EditButton = styled(Button)`
+    margin-top: 39px;
+`;
+
+const ButtonGroup = styled.div`
+    display: flex;
+    gap: 8px;
+    margin-bottom: 2px; 
+`;
+
+const StyledButton = styled(Button)`
+    font-size: 14px;
+`;
+
+const WarningText = styled(Typography)`
+    color: var(--vscode-textLink-foreground);
+    font-size: 12px;
+    margin-top: 4px;
+`;
+
+const EditableRow = styled.div`
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+    flex-direction: column;
+`;
 
 interface TypeEditorProps {
     type?: Type;
@@ -173,8 +137,17 @@ enum TypeKind {
 
 const undoRedoManager = new UndoRedoManager();
 
+// Add validation function
+const isValidBallerinaIdentifier = (name: string): boolean => {
+    // Ballerina identifiers must start with a letter or underscore
+    // and can contain letters, digits, and underscores
+    const regex = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+    return name.length > 0 && regex.test(name);
+};
+
 export function TypeEditor(props: TypeEditorProps) {
     console.log("===TypeEditorProps===", props);
+    const { isGraphql } = props;
     const [selectedTypeKind, setSelectedTypeKind] = useState<TypeKind>(() => {
         if (props.type) {
             // Map the type's node kind to TypeKind enum
@@ -221,18 +194,45 @@ export function TypeEditor(props: TypeEditorProps) {
     const [isNewType, setIsNewType] = useState<boolean>(props.newType);
     const nameInputRef = useRef<HTMLInputElement | null>(null);
     const [editorState, setEditorState] = useState<ConfigState>(ConfigState.EDITOR_FORM);
+    const [nameError, setNameError] = useState<string>("");
+    const [closedRecord, setClosedRecord] = useState<boolean>(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [tempName, setTempName] = useState("");
+    const { rpcClient } = useRpcContext();
 
     useEffect(() => {
-        if (isNewType && nameInputRef.current) {
-            nameInputRef.current.focus();
-            nameInputRef.current.select();
+        if (type && isNewType) {
+            // Add a small delay to ensure the input is mounted
+            setTimeout(() => {
+                if (nameInputRef.current) {
+                    nameInputRef.current.focus();
+                    nameInputRef.current.select();
+                }
+            }, 100);
         }
-    }, [isNewType]);
+    }, []);
 
     const handleTypeKindChange = (value: string) => {
-        // if the value is Service Class, the type kind should be CLASS
-        const typeValue = value === "Service Class" ? "CLASS" : value;
-        setSelectedTypeKind(value as TypeKind);
+        // Convert display name back to internal TypeKind
+        let selectedKind: TypeKind;
+        if (isGraphql) {
+            switch (value) {
+                case "Input Object":
+                    selectedKind = TypeKind.RECORD;
+                    break;
+                case "Object":
+                    selectedKind = TypeKind.CLASS;
+                    break;
+                default:
+                    selectedKind = value as TypeKind;
+            }
+        } else {
+            selectedKind = value as TypeKind;
+        }
+
+        setSelectedTypeKind(selectedKind);
+        const typeValue = selectedKind === TypeKind.CLASS ? "CLASS" : selectedKind.toUpperCase();
+
         // Always create a new type with the selected kind
         setType((currentType) => ({
             ...currentType!,
@@ -245,24 +245,65 @@ export function TypeEditor(props: TypeEditorProps) {
         }));
     };
 
+    // Add a helper function to get the display label
+    const getTypeKindLabel = (kind: TypeKind, isGraphql?: boolean): string => {
+        if (isGraphql) {
+            switch (kind) {
+                case TypeKind.RECORD:
+                    return "Input Object";
+                case TypeKind.CLASS:
+                    return "Object";
+                default:
+                    return kind;
+            }
+        }
+        return kind;
+    };
+
+    const getAvailableTypeKinds = (isGraphql: boolean | undefined, currentType?: TypeKind): TypeKind[] => {
+        if (isGraphql) {
+            // For GraphQL mode, filter options based on current type
+            if (currentType === TypeKind.RECORD) {
+                return [TypeKind.RECORD, TypeKind.ENUM, TypeKind.UNION];
+            } else if (currentType === TypeKind.CLASS) {
+                return [TypeKind.CLASS, TypeKind.ENUM, TypeKind.UNION];
+            } else {
+                return [TypeKind.RECORD, TypeKind.CLASS, TypeKind.ENUM, TypeKind.UNION];
+            }
+        }
+        // Return all options for non-GraphQL mode
+        return Object.values(TypeKind);
+    };
+
     const onTypeChange = async (type: Type) => {
+        if (!isValidBallerinaIdentifier(type.name)) {
+            setNameError("Invalid name.");
+            return;
+        }
         const name = type.name;
         // IF type nodeKind is CLASS then we call graphqlEndpoint
         // TODO: for TypeDiagram we need to give a generic class creation
         if (type.codedata.node === "CLASS") {
             const response = await props.rpcClient
-            .getBIDiagramRpcClient()
-            .createGraphqlClassType({ filePath: type.codedata?.lineRange?.fileName || 'types.bal', type, description: "" });
+                .getBIDiagramRpcClient()
+                .createGraphqlClassType({ filePath: type.codedata?.lineRange?.fileName || 'types.bal', type, description: "" });
 
         } else {
-        const response = await props.rpcClient
-            .getBIDiagramRpcClient()
-            .updateType({ filePath: type.codedata?.lineRange?.fileName || 'types.bal', type, description: "" });
+            const response = await props.rpcClient
+                .getBIDiagramRpcClient()
+                .updateType({ filePath: type.codedata?.lineRange?.fileName || 'types.bal', type, description: "" });
         }
         props.onTypeChange(type);
     }
 
     console.log("===Type Model===", type);
+
+    const handleTypeImport = (types: Type[], isXml: boolean = false) => {
+        const importType = types[0];
+        importType.codedata = type.codedata;
+        setType(importType);
+        setEditorState(ConfigState.EDITOR_FORM);
+    }
 
     const renderEditor = () => {
         if (editorState === ConfigState.IMPORT_FROM_JSON) {
@@ -275,14 +316,17 @@ export function TypeEditor(props: TypeEditorProps) {
         switch (selectedTypeKind) {
             case TypeKind.RECORD:
                 return (
-                    <RecordEditor
-                        type={type}
-                        isAnonymous={false}
-                        onChange={setType}
-                        isGraphql={props.isGraphql}
-                        onImportJson={() => setEditorState(ConfigState.IMPORT_FROM_JSON)}
-                        onImportXml={() => setEditorState(ConfigState.IMPORT_FROM_XML)}
-                    />
+                    <>
+                        <RecordEditor
+                            type={type}
+                            isAnonymous={false}
+                            onChange={setType}
+                            isGraphql={isGraphql}
+                            onImportJson={() => setEditorState(ConfigState.IMPORT_FROM_JSON)}
+                            onImportXml={() => setEditorState(ConfigState.IMPORT_FROM_XML)}
+                        />
+                        <AdvancedOptions type={type} onChange={setType} />
+                    </>
                 );
             case TypeKind.ENUM:
                 return (
@@ -303,11 +347,56 @@ export function TypeEditor(props: TypeEditorProps) {
                 return (
                     <ClassEditor
                         type={type}
+                        isGraphql={isGraphql}
                         onChange={setType}
                     />
                 );
             default:
                 return <div>Editor for {selectedTypeKind} type is not implemented yet</div>;
+        }
+    };
+
+    const startEditing = () => {
+        setTempName(type.name);
+        setIsEditing(true);
+    };
+
+    const cancelEditing = () => {
+        setIsEditing(false);
+        setTempName("");
+    };
+
+    const editTypeName = async () => {
+        if (!tempName || tempName === type.name) {
+            cancelEditing();
+            return;
+        }
+
+        try {
+            await rpcClient.getBIDiagramRpcClient().renameIdentifier({
+                fileName: type.codedata.lineRange.fileName,
+                position: {
+                    line: type.codedata.lineRange.startLine.line,
+                    character: type.codedata.lineRange.startLine.offset
+                },
+                newName: tempName
+            });
+
+            setType({
+                ...type,
+                name: tempName,
+                properties: {
+                    ...type.properties,
+                    name: {
+                        ...type.properties["name"],
+                        value: tempName
+                    }
+                }
+            });
+
+            cancelEditing();
+        } catch (error) {
+            console.error('Error renaming service class:', error);
         }
     };
 
@@ -318,30 +407,124 @@ export function TypeEditor(props: TypeEditorProps) {
             ) : (
                 <div>
                     <S.CategoryRow>
-                        <Dropdown
-                            id="type-selector"
-                            label="Type"
-                            value={selectedTypeKind}
-                            items={Object.values(TypeKind).map((kind) => ({ label: kind, value: kind }))}
-                            onChange={(e) => handleTypeKindChange(e.target.value)}
-                        />
-                        <div style={{ flex: '1' }}>
-                        <TextField
-                            label="Name"
-                            value={type.name}
-                            onChange={(e) => setType({ ...type, name: e.target.value })}
-                            onFocus={(e) => e.target.select()}
-                            ref={nameInputRef}
-                        />
-                        </div>
+                        {isNewType && (
+                            <Dropdown
+                                id="type-selector"
+                                label="Type"
+                                value={getTypeKindLabel(selectedTypeKind, isGraphql)}
+                                items={getAvailableTypeKinds(isGraphql, selectedTypeKind).map((kind) => ({
+                                    label: getTypeKindLabel(kind, isGraphql),
+                                    value: getTypeKindLabel(kind, isGraphql)
+                                }))}
+                                onChange={(e) => handleTypeKindChange(e.target.value)}
+                            />
+                        )}
+                        {!isNewType && !isEditing && !type.properties["name"].editable && (
+                            <InputWrapper>
+                                <TextFieldWrapper>
+                                    <TextField
+                                        id={type.name}
+                                        name={type.name}
+                                        value={type.name}
+                                        label={type?.properties["name"]?.metadata?.label}
+                                        required={!type?.properties["name"]?.optional}
+                                        description={type?.properties["name"]?.metadata?.description}
+                                        readOnly={!type.properties["name"].editable}
+                                    />
+                                </TextFieldWrapper>
+                                <EditButton appearance="icon" onClick={startEditing} tooltip="Rename">
+                                    <Icon name="bi-edit" sx={{ width: 18, height: 18, fontSize: 18 }} />
+                                </EditButton>
+                            </InputWrapper>
+                        )}
+                        {isEditing && (
+                            <>
+                                <EditableRow>
+                                    <EditRow>
+                                        <TextFieldWrapper>
+                                            <TextField
+                                                id={type.name}
+                                                label={type.properties["name"].metadata.label}
+                                                value={tempName}
+                                                onChange={(e) => setTempName(e.target.value)}
+                                                description={type.properties["name"].metadata.description}
+                                                required={!type.properties["name"].optional}
+                                                autoFocus
+                                            />
+                                        </TextFieldWrapper>
+                                        <ButtonGroup>
+                                            <StyledButton
+                                                appearance="secondary"
+                                                onClick={cancelEditing}
+                                            >
+                                                Cancel
+                                            </StyledButton>
+                                            <StyledButton
+                                                appearance="primary"
+                                                onClick={editTypeName}
+                                                disabled={!tempName || tempName === type.name}
+                                            >
+                                                Save
+                                            </StyledButton>
+                                        </ButtonGroup>
+                                    </EditRow>
+
+                                    <WarningText variant="body3">
+                                        Note: Renaming will update all references across the project
+                                    </WarningText>
+                                </EditableRow>
+
+                            </>
+                        )}
+                        {isNewType && (
+                            <TextFieldWrapper>
+                                <TextField
+                                    label="Name"
+                                    value={type.name}
+                                    onChange={(e) => {
+                                        setType({ ...type, name: e.target.value });
+                                        setNameError("");  // Clear error when user types
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            onTypeChange(type);
+                                        }
+                                    }}
+                                    onFocus={(e) => e.target.select()}
+                                    ref={nameInputRef}
+                                />
+                            </TextFieldWrapper>
+                        )}
                     </S.CategoryRow>
 
-                    {renderEditor()}
-                    <S.Footer>
-                        <Button onClick={() => onTypeChange(type)}>Save</Button>
-                    </S.Footer>
-                </div>
+                    {editorState === ConfigState.EDITOR_FORM &&
+                        <>
+                            {renderEditor()}
+                            <S.Footer>
+                                <Button onClick={() => onTypeChange(type)}>Save</Button>
+                            </S.Footer>
+                        </>
+                    }
+                    {
+                        editorState === ConfigState.IMPORT_FROM_JSON &&
+                        <RecordFromJson
+                            rpcClient={props.rpcClient}
+                            name={type.name}
+                            onCancel={() => setEditorState(ConfigState.EDITOR_FORM)}
+                            onImport={handleTypeImport}
+                        />
+                    }
+                    {
+                        editorState === ConfigState.IMPORT_FROM_XML &&
+                        <RecordFromXml
+                            rpcClient={props.rpcClient}
+                            name={type.name}
+                            onCancel={() => setEditorState(ConfigState.EDITOR_FORM)}
+                            onImport={handleTypeImport}
+                        />
+                    }
+                </div >
             )}
-        </S.Container>
+        </S.Container >
     );
 }

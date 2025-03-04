@@ -55,9 +55,9 @@ export class FocusedInputNode extends DataMapperNodeModel {
         this.hasNoMatchingFields = !this.dmType;
 
         if (this.dmType) {
-            const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
+            const isCollapsedField = useDMCollapsedFieldsStore.getState().isCollapsedField;
             const parentPort = this.addPortsForHeader(
-                this.dmType, this.nodeLabel, "OUT", FOCUSED_INPUT_SOURCE_PORT_PREFIX, collapsedFields
+                this.dmType, this.nodeLabel, "OUT", FOCUSED_INPUT_SOURCE_PORT_PREFIX, isCollapsedField
             );
 
             if (this.dmType.kind === TypeKind.Interface) {
@@ -65,9 +65,16 @@ export class FocusedInputNode extends DataMapperNodeModel {
                 fields.forEach((subField) => {
                     this.numberOfFields += this.addPortsForInputField(
                         subField, "OUT", this.nodeLabel, this.nodeLabel, FOCUSED_INPUT_SOURCE_PORT_PREFIX,
-                        parentPort, collapsedFields, parentPort.collapsed, subField.optional
+                        parentPort, isCollapsedField, parentPort.collapsed, subField.optional
                     );
                 });
+            } else if (this.dmType.kind === TypeKind.Array) {
+                this.dmType.fieldName = this.nodeLabel;
+                const arrItemField = { ...this.dmType.memberType, fieldName: `<${this.dmType.fieldName}Item>` };
+                this.numberOfFields += this.addPortsForPreviewField(
+                    arrItemField, "OUT", this.nodeLabel, this.nodeLabel, FOCUSED_INPUT_SOURCE_PORT_PREFIX,
+                    parentPort, isCollapsedField, parentPort.collapsed, arrItemField.optional
+                );
             }
         }
     }

@@ -63,8 +63,8 @@ export class PrimitiveOutputNode extends DataMapperNodeModel {
     async initPorts() {
         if (this.dmType) {
             const { focusedST, functionST, views } = this.context;
-            const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
-            const valueEnrichedType = getEnrichedDMType(this.dmType, this.value);
+            const isCollapsedField = useDMCollapsedFieldsStore.getState().isCollapsedField;
+            const valueEnrichedType = getEnrichedDMType(this.dmType, this.value, this.context.recursiveTypes);
             const searchValue = useDMSearchStore.getState().outputSearch;
             const isMapFnAtPropAsmt = isMapFnAtPropAssignment(focusedST);
             const isMapFnAtRootRtn = views.length > 1 && isMapFnAtRootReturn(functionST, focusedST);
@@ -79,11 +79,11 @@ export class PrimitiveOutputNode extends DataMapperNodeModel {
             }
             const parentPort = this.addPortsForHeader(
                 this.dmType, '', "IN", PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX,
-                collapsedFields, this.dmTypeWithValue, this.isMapFn
+                isCollapsedField, this.dmTypeWithValue, this.isMapFn
             );
             this.addPortsForOutputField(
                 this.dmTypeWithValue, "IN", this.dmTypeWithValue.type.kind, undefined,
-                PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX, parentPort, collapsedFields, parentPort.collapsed, this.isMapFn
+                PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX, parentPort, isCollapsedField, parentPort.collapsed, this.isMapFn
             );
         }
     }
@@ -171,7 +171,7 @@ export class PrimitiveOutputNode extends DataMapperNodeModel {
 
     async deleteField(field: Node) {
         const typeOfValue = this.isLocked && this.dmType?.memberType ? this.dmType.memberType : this.dmType;
-        const defaultValue = getDefaultValue(typeOfValue?.kind);
+        const defaultValue = getDefaultValue(typeOfValue);
         const updatedField = field.replaceWithText(defaultValue);
         await this.context.applyModifications(updatedField.getSourceFile().getFullText());
     }

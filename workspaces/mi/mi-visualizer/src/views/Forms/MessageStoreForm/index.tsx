@@ -11,7 +11,7 @@ import { AutoComplete, Button, TextField, FormView, FormGroup, FormActions, Form
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { preConfiguredProfiles, rdbmsTypes } from './types';
 import { rabbitMQInitialValues, jmsInitialValues, jdbcInitialValues, wso2MbInitialValues, resequenceInitialValues, poolInitialValues, carbonDatasourceInitialValues} from './typeValues';
-import { CreateMessageStoreRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { CreateMessageStoreRequest, EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
@@ -26,6 +26,8 @@ export type CustomParameter = {
 
 export interface MessageStoreWizardProps {
     path: string
+    isPopup?: boolean;
+    onClose?: () => void;
 }
 
 type InputsFields = {
@@ -153,7 +155,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
     const [artifactNames, setArtifactNames] = useState([]);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
     const [rows, setRows] = useState<CustomParameter[]>([]);
-    const isNewStore = !props.path.endsWith(".xml");
+    const isNewStore = !props?.path?.endsWith(".xml");
     const [preConfiguredProfile, setPreConfiguredProfile] = useState("Other");
     const [type, setType] = useState("");
     const [params, setParams] = useState(paramConfigs);
@@ -373,7 +375,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
     }, [storeName]);
 
     useEffect(() => {
-        if (props.path.endsWith(".xml")) {
+        if (props?.path?.endsWith(".xml")) {
             (async () => {
                 const messageStore = await rpcClient.getMiDiagramRpcClient().getMessageStore({ path: props.path });
                 if (messageStore.name) {
@@ -579,10 +581,22 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
             namespaces: namespaces
         };
         await rpcClient.getMiDiagramRpcClient().createMessageStore(createMessageStoreParams);
-        openOverview();
+
+        if (props.isPopup) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: POPUP_EVENT_TYPE.CLOSE_VIEW,
+                location: { view: null, recentIdentifier: getValues("name") },
+                isPopup: true
+            });
+        } else {
+            openOverview();
+        }
     };
 
     const handleCancel = () => {
+        if (props.onClose) {
+            return props.onClose();
+        }
         rpcClient.getMiDiagramRpcClient().closeWebView();
     };
 
@@ -591,6 +605,9 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
     }
 
     const handleOnClose = () => {
+        if (props.onClose) {
+            return props.onClose();
+        }
         rpcClient.getMiVisualizerRpcClient().goBack();
     }
 

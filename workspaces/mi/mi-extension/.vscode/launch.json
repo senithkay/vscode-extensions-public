@@ -6,26 +6,25 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Run Extension",
-			"type": "extensionHost",
-			"request": "launch",
-			"args": [
-				"--extensionDevelopmentPath=${workspaceFolder}"
-			],
-			"env": {
-				"WEB_VIEW_WATCH_MODE": "true",
-				"WEB_VIEW_DEV_HOST": "http://localhost:9000"
-			},
-			"outFiles": [
-				"${workspaceFolder}/dist/**/*.js",
-			],
-			"debugWebviews": true,
-			"skipFiles": [
-				"**/node_modules/**"
-			],
-			"sourceMaps": true,
-			"preLaunchTask": "${defaultBuildTask}",
-		},
+            "name": "MI Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "env": {
+                "WEB_VIEW_WATCH_MODE": "true",
+                "WEB_VIEW_DEV_HOST": "http://localhost:9000"
+            },
+            "debugWebviews": true,
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js",
+            ],
+            "skipFiles": [
+                "**/node_modules/**"
+            ],
+            "preLaunchTask": "npm: watch-mi"
+        },
 		{
 			"name": "Extension Tests",
 			"type": "extensionHost",

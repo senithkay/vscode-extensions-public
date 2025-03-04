@@ -31,6 +31,7 @@ import {
     getAiPanelState,
     getBackendURL,
     getFileExists,
+    getFromDocumentation,
     getFromFile,
     getGeneratedTest,
     getInitialPrompt,
@@ -56,7 +57,7 @@ import {
     refreshAccessToken,
     showSignInAlert,
     stopAIMappings,
-    updateProject,
+    updateProject
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { AiPanelRpcManager } from "./rpc-manager";
@@ -92,6 +93,7 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onNotification(applyDoOnFailBlocks, () => rpcManger.applyDoOnFailBlocks());
     messenger.onRequest(postProcess, (args: PostProcessRequest) => rpcManger.postProcess(args));
     messenger.onRequest(getActiveFile, () => rpcManger.getActiveFile());
+    messenger.onRequest(getFromDocumentation, (args: string) => rpcManger.getFromDocumentation(args));
     messenger.onNotification(openSettings, () => rpcManger.openSettings());
     messenger.onNotification(openChat, () => rpcManger.openChat());
     messenger.onRequest(promptGithubAuthorize, () => rpcManger.promptGithubAuthorize());

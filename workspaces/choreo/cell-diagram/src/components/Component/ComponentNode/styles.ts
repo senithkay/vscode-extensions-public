@@ -8,9 +8,12 @@
  */
 
 import styled from "@emotion/styled";
-import { COMPONENT_CIRCLE_WIDTH, Colors, LABEL_FONT_SIZE, LABEL_MAX_WIDTH } from "../../../resources";
+import { COMPONENT_CIRCLE_WIDTH, Colors, ICON_SCALE, LABEL_FONT_SIZE, LABEL_MAX_WIDTH } from "../../../resources";
 
-export const ComponentNode = styled.div`
+interface ComponentNodeStyleProps {
+    previewMode: boolean;
+}
+export const ComponentNode = styled.div<ComponentNodeStyleProps>`
     color: ${Colors.ON_SURFACE_VARIANT};
     display: flex;
     flex-direction: column;
@@ -20,9 +23,9 @@ export const ComponentNode = styled.div`
     gap: 10px;
     padding: 2px;
     pointer-events: all;
-    cursor: grab;
+    cursor: ${(props: ComponentNodeStyleProps) => (props.previewMode ? "default" : "grab")};
     &:active {
-        cursor: grabbing;
+        cursor: ${(props: ComponentNodeStyleProps) => (props.previewMode ? "default" : "grabbing")};
     }
 `;
 
@@ -84,6 +87,7 @@ export const ComponentName: React.FC<ComponentNameStyleProps> = styled.span`
 `;
 
 interface IconWrapperStyleProps {
+    previewMode: boolean;
     disabled: boolean;
 }
 export const IconWrapper: React.FC<IconWrapperStyleProps> = styled.div`
@@ -100,6 +104,7 @@ export const IconWrapper: React.FC<IconWrapperStyleProps> = styled.div`
         fill: ${(props: IconWrapperStyleProps) => (props.disabled ? Colors.SURFACE_DIM : Colors.PRIMARY)};
         height: 32px;
         width: 32px;
+        transform: ${(props: IconWrapperStyleProps) => (props.previewMode ? `scale(${ICON_SCALE.PREVIEW})` : "none")};
     }
 `;
 

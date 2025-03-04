@@ -67,7 +67,8 @@ export const ExpressionEditor = forwardRef<HeaderExpressionEditorRef, HeaderExpr
         extractArgsFromFunction,
         onFunctionEdit,
         useTransaction,
-        // onFocus, TODO: Implement this
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        onFocus, // Intentionally not passed to TextField to prevent recursive focus due to DM handleFocus implementation
         onBlur,
         ...rest
     } = props;
@@ -370,7 +371,7 @@ export const ExpressionEditor = forwardRef<HeaderExpressionEditorRef, HeaderExpr
         <Container ref={elementRef}>
             <StyledTextField
                 {...rest}
-                ref={inputRef as React.RefObject<HTMLInputElement>}
+                ref={inputRef}
                 value={value}
                 onTextChange={handleChange}
                 onKeyDown={handleInputKeyDown}

@@ -70,9 +70,9 @@ export class SubMappingNode extends DataMapperNodeModel {
             const type: DMType = getSearchFilteredInput(typeWithoutFilter, varName);
 
             if (type) {
-                const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
+                const isCollapsedField = useDMCollapsedFieldsStore.getState().isCollapsedField;
                 const parentPort = this.addPortsForHeader(
-                    type, varName, "OUT", SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX, collapsedFields
+                    type, varName, "OUT", SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX, isCollapsedField
                 );
 
                 if (type.kind === TypeKind.Interface) {
@@ -80,13 +80,13 @@ export class SubMappingNode extends DataMapperNodeModel {
                     fields.forEach(subField => {
                         this.numberOfFields += 1 + this.addPortsForInputField(
                             subField, "OUT", varName, varName, SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX,
-                            parentPort, collapsedFields, parentPort.collapsed
+                            parentPort, isCollapsedField, parentPort.collapsed
                         );
                     });
                 } else {
                     this.numberOfFields += this.addPortsForInputField(
                         type, "OUT", varName, varName, SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX,
-                        parentPort, collapsedFields, parentPort.collapsed
+                        parentPort, isCollapsedField, parentPort.collapsed
                     );
                 }
 

@@ -26,7 +26,7 @@ import {
 } from "./types";
 import { kebabCase } from "lodash";
 import { DiagramElementKindChecker } from "./check-kind-utils";
-import { NODE_HEIGHT, NODE_WIDTH, PARTICIPANT_NODE_HEIGHT, PARTICIPANT_NODE_WIDTH } from "../resources/constants";
+import { NODE_HEIGHT, NODE_WIDTH, PARTICIPANT_NODE_HEIGHT, PARTICIPANT_NODE_WIDTH, PARTICIPANT_TAIL_MIN_HEIGHT } from "../resources/constants";
 import { PointNodeFactory } from "../components/nodes/PointNode";
 import { ContainerNodeFactory } from "../components/nodes/ContainerNode";
 import { LifeLineNodeFactory } from "../components/nodes/LifeLineNode";
@@ -111,7 +111,6 @@ export function getCallerNodeId(parent: DiagramElement, ...suffixes: string[]) {
     }
     return getNodeId(parent, ...suffixes);
 }
-
 
 // save diagram zoom level and position to local storage
 export const saveDiagramZoomAndPosition = (model: DiagramModel) => {
@@ -229,6 +228,7 @@ export function getInitialParticipantViewState(
             w: width,
         },
         xIndex: index,
+        lifelineHeight: PARTICIPANT_TAIL_MIN_HEIGHT,
     };
 }
 
@@ -259,5 +259,36 @@ export function getElementBBox(element: DiagramElement): BBox {
         y: 0,
         h: 0,
         w: 0,
+    };
+}
+
+export function calculateParticipantLifelineInfo(participant: Participant) {
+    const renderingNodes = participant.nodes?.filter((node) => node.targetId) as Node[];
+    if (!renderingNodes) {
+        return {
+            height: 0,
+            startPoint: undefined,
+            endPoint: undefined,
+        };
+    }
+    const firstNode = renderingNodes.at(0);
+    const lastNode = renderingNodes.at(-1);
+
+    if (!firstNode?.viewStates?.at(0)?.points?.start || !lastNode?.viewStates?.at(0)?.points?.returnEnd) {
+        return {
+            height: 0,
+            startPoint: undefined,
+            endPoint: undefined,
+        };
+    }
+
+    const startPointViewState = firstNode.viewStates.at(0).points.start;
+    const endPointViewState = lastNode.viewStates.at(0).points.returnEnd;
+
+    const height = endPointViewState.bBox.y - startPointViewState.bBox.y + NODE_HEIGHT;
+    return {
+        height,
+        startPoint: startPointViewState,
+        endPoint: endPointViewState,
     };
 }

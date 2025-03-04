@@ -30,6 +30,21 @@ export enum Colors {
     ERROR = '#ED2633',
 }
 
+export const LINK_WIDTH = {
+    DEFAULT: 2,
+    PREVIEW: 4,
+}
+
+export const ICON_SCALE = {
+    DEFAULT: 1,
+    PREVIEW: 1.5,
+}
+
+export const MARGIN = {
+    DEFAULT: 40,
+    PREVIEW: 0,
+}
+
 export const NAME_JOIN_CHAR = "|";
 
 // error messages
@@ -56,11 +71,13 @@ export const EXTERNAL_LINK = "externalLink";
 // node dimensions
 export const MAIN_CELL_DEFAULT_HEIGHT = 500;
 export const CELL_LINE_MIN_WIDTH = 3;
+export const CELL_LINE_PREVIEW_WIDTH = 2;
 export const CIRCLE_WIDTH = 60;
 export const DOT_WIDTH = 20;
 
 export const COMPONENT_CIRCLE_WIDTH = 80;
 export const COMPONENT_LINE_MIN_WIDTH = 3;
+export const COMPONENT_LINE_PREVIEW_WIDTH = 2;
 
 export const LINE_MIN_WIDTH = 2;
 export const LINE_MAX_WIDTH = 10;

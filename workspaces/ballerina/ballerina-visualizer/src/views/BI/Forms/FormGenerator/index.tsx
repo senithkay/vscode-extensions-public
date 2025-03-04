@@ -327,12 +327,12 @@ export function FormGenerator(props: FormProps) {
     const debouncedGetVisibleTypes = useCallback(debounce(async (value: string, cursorPosition: number) => {
         let visibleTypes: CompletionItem[] = types;
         if (!types.length) {
-            const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
+            const types = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
                 filePath: fileName,
                 position: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
             });
 
-            visibleTypes = convertToVisibleTypes(response.types);
+            visibleTypes = convertToVisibleTypes(types);
             setTypes(visibleTypes);
         }
 
@@ -404,7 +404,7 @@ export function FormGenerator(props: FormProps) {
     }, 250), [rpcClient, fileName, targetLineRange, node]);
 
     const handleCompletionItemSelect = async (value: string, additionalTextEdits?: TextEdit[]) => {
-        if (additionalTextEdits?.[0].newText) {
+        if (additionalTextEdits?.[0]?.newText) {
             const response = await rpcClient.getBIDiagramRpcClient().updateImports({
                 filePath: fileName,
                 importStatement: additionalTextEdits[0].newText
@@ -436,6 +436,7 @@ export function FormGenerator(props: FormProps) {
 
     const handleGetHelperPane = (
         exprRef: RefObject<FormExpressionEditorRef>,
+        defaultValue: string,
         value: string,
         onChange: (value: string, updatedCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void
@@ -445,6 +446,7 @@ export function FormGenerator(props: FormProps) {
             targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
             exprRef: exprRef,
             onClose: () => changeHelperPaneState(false),
+            defaultValue: defaultValue,
             currentValue: value,
             onChange: onChange
         });

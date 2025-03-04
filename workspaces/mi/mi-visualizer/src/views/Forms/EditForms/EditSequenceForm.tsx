@@ -51,7 +51,7 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onSave, docum
     };
 
     const schema = yup.object({
-        name: yup.string().required("Sequence name is required").matches(/^[a-zA-Z0-9]*$/, "Invalid characters in sequence name")
+        name: yup.string().required("Sequence name is required").matches(/^[a-zA-Z0-9_-]*$/, "Invalid characters in sequence name")
             .test('validateSequenceName',
                 'An artifact with same name already exists', value => {
                     return !(workspaceFileNames.includes(value) && sequenceData.name !== value)

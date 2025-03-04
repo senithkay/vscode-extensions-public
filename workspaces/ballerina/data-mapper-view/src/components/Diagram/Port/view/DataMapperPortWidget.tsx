@@ -30,15 +30,15 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 
 	const isDisabled = disable || (port instanceof RecordFieldPortModel && port.isDisabled());
 	const hasLinks = Object.entries(port.links).length > 0;
+	const pendingMappingType = port instanceof RecordFieldPortModel && port.pendingMappingType;
 	const isPortSelected = portState === PortState.PortSelected;
 
-	const hasError =
-		Object.entries(port.links).some((link) => {
-			if (link[1] instanceof DataMapperLinkModel){
-				return link[1].hasError();
-			}
-			return false;
-		})
+	const hasError = Object.entries(port.links).some((link) => {
+		if (link[1] instanceof DataMapperLinkModel){
+			return link[1].hasError();
+		}
+		return false;
+	});
 
 	useEffect(() => {
 			port.registerListener({
@@ -54,7 +54,9 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 							handlePortState(PortState.LinkSelected);
 						}
 					} else if (event.function === "link-unselected"
-						|| event.function === "mappingStartedFromSelectedAgain") {
+						|| event.function === "mappingStartedFromSelectedAgain"
+						|| event.function === "link-removed"
+					) {
 						setPortState(PortState.Unselected);
 						if (handlePortState) {
 							handlePortState(PortState.Unselected);
@@ -77,34 +79,38 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 	}, []);
 
 	let portColor = defaultPortColor;
-	if (isPortSelected) {
+	if (pendingMappingType) {
+		portColor = tempLinkPortColor;
+	} else if (isPortSelected) {
 		portColor = portActiveColor;
 	} else if (hasLinks) {
 		portColor = hasError ? errorPortColor : portActiveColor;
 	}
 
 	const containerProps = {
-		active: portState === PortState.PortSelected,
+		active: isPortSelected,
 		'data-testid': dataTestId,
 		color: portColor
 	};
 
-	if (isDisabled) {
+	const disabledPortWithLinks = isDisabled && hasLinks;
+
+	if (isDisabled && !hasLinks) {
 		return <RadioButtonUnchecked disabled={isDisabled} data-testid={dataTestId}/>;
-	} else if (disableNewLinking) {
+	} else if (disableNewLinking || disabledPortWithLinks) {
 		return (
 			<PortWidget
 				port={port}
 				engine={engine}
 			>
 				<DisabledNewLinkingPortContainer {...containerProps}>
-					{hasLinks ? <RadioButtonChecked /> : <RadioButtonUnchecked /> }
+					{hasLinks ? <RadioButtonChecked disabled={true} /> : <RadioButtonUnchecked disabled = {true} /> }
 				</DisabledNewLinkingPortContainer>
 			</PortWidget>
 		);
 	}
 
-	const isChecked = hasLinks || isPortSelected;
+	const isChecked = hasLinks || isPortSelected || !!pendingMappingType;
 
 	return (
 		<PortWidget
@@ -124,6 +130,7 @@ interface PortsContainerProps {
 }
 
 const defaultPortColor = "var(--vscode-foreground)";
+const tempLinkPortColor = "var(--vscode-debugIcon-breakpointDisabledForeground)";
 const errorPortColor = "var(--vscode-errorForeground)";
 const portActiveColor = "var(--vscode-list-focusAndSelectionOutline, var(--vscode-contrastActiveBorder, var(--vscode-editorLink-activeForeground, var(--vscode-list-focusOutline))))";
 

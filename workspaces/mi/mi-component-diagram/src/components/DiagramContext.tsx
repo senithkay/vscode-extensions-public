@@ -12,20 +12,18 @@ import { Connection, EntryPoint, Project } from "../utils/types";
 
 export interface DiagramContextState {
     project: Project;
-    onAddEntryPoint: () => void;
-    onAddConnection: () => void;
     onEntryPointSelect: (entryPoint: EntryPoint) => void;
-    onConnectionSelect: (connection: Connection) => void;
+    onEntryPointGoToSource: (entryPoint: EntryPoint) => void;
     onDeleteComponent: (component: EntryPoint | Connection) => void;
+    onConnectionSelect: (connection: Connection) => void;
 }
 
 export const DiagramContext = React.createContext<DiagramContextState>({
     project: { name:"", entryPoints: [], connections: [] },
-    onAddEntryPoint: () => {},
-    onAddConnection: () => {},
     onEntryPointSelect: () => {},
-    onConnectionSelect: () => {},
+    onEntryPointGoToSource: () => {},
     onDeleteComponent: () => {},
+    onConnectionSelect: () => {},
 });
 
 export const useDiagramContext = () => React.useContext(DiagramContext);

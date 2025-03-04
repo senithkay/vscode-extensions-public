@@ -568,6 +568,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             setSidePanelView(SidePanelView.NODE_LIST);
         } else {
             setSidePanelView(SidePanelView.NODE_LIST);
+            setSubPanel({ view: SubPanelView.UNDEFINED });
         }
         // clear memory
         selectedNodeRef.current = undefined;
@@ -603,6 +604,15 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
                 view: MACHINE_VIEW.BIFunctionForm,
+            },
+        });
+    };
+
+    const handleOnAddDataMapper = () => {
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.BIDataMapperForm,
             },
         });
     };
@@ -804,6 +814,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             onSearchTextChange={(searchText) =>
                                 handleSearchFunction(searchText, FUNCTION_TYPE.EXPRESSION_BODIED)
                             }
+                            onAddFunction={handleOnAddDataMapper}
                             onClose={handleOnCloseSidePanel}
                             title={"Data Mappers"}
                             onBack={handleOnFormBack}

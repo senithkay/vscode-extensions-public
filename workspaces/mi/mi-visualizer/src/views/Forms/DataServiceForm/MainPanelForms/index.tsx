@@ -9,7 +9,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, TextField, FormView, FormActions, FormGroup, LinkButton, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EVENT_TYPE, MACHINE_VIEW, CreateDataServiceRequest, Datasource, Property } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, CreateDataServiceRequest, Datasource, Property, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
 import { DataServiceAdvancedWizard } from "./AdvancedForm";
 import { DataServiceTransportWizard } from "./TransportForm";
 import { DataServiceDisplayTable } from "./DisplayTable";
@@ -25,6 +25,8 @@ const AddButtonWrapper = styled.div`
 
 export interface DataServiceWizardProps {
     path: string;
+    isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 type DataServiceFields = {
@@ -101,6 +103,7 @@ export function DataServiceWizard(props: DataServiceWizardProps) {
         formState: { errors, isDirty },
         register,
         setValue,
+        getValues,
         reset
     } = useForm({
         defaultValues: newDataService,
@@ -109,11 +112,11 @@ export function DataServiceWizard(props: DataServiceWizardProps) {
     });
 
     const { rpcClient } = useVisualizerContext();
-    const [ showDatasourceComponent, setShowDatasourceComponent ] = useState(false);
-    const [ datasource, setDatasource ] = useState(undefined);
-    const [ datasources, setDatasources ] = useState([]);
-    const [ authProperties, setAuthProperties ] = useState([]);
-    const [ isNewDataService, setIsNewDataService ] = useState(!props.path.endsWith(".xml"));
+    const [showDatasourceComponent, setShowDatasourceComponent] = useState(false);
+    const [datasource, setDatasource] = useState(undefined);
+    const [datasources, setDatasources] = useState([]);
+    const [authProperties, setAuthProperties] = useState([]);
+    const [isNewDataService, setIsNewDataService] = useState(!props.path.endsWith(".xml"));
 
     useEffect(() => {
         (async () => {
@@ -185,8 +188,8 @@ export function DataServiceWizard(props: DataServiceWizardProps) {
                 datasourceProperties: currentDataSource.dataSourceType === "RDBMS" ? configToProperties(currentDataSource.rdbms) :
                     currentDataSource.dataSourceType === "MongoDB" ? configToProperties(currentDataSource.mongodb) :
                         currentDataSource.dataSourceType === "Cassandra" ? configToProperties(currentDataSource.cassandra) :
-                        currentDataSource.dataSourceType === "CSV" ? configToProperties(currentDataSource.csv) :
-                            configToProperties(currentDataSource.carbonDatasource)
+                            currentDataSource.dataSourceType === "CSV" ? configToProperties(currentDataSource.csv) :
+                                configToProperties(currentDataSource.carbonDatasource)
             };
             updatedDatasources.push(data);
         })
@@ -215,7 +218,15 @@ export function DataServiceWizard(props: DataServiceWizardProps) {
 
         await rpcClient.getMiDiagramRpcClient().createDataService(createDataServiceParams);
 
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+        if (props.isPopup) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: POPUP_EVENT_TYPE.CLOSE_VIEW,
+                location: { view: null, recentIdentifier: getValues("dataServiceName") },
+                isPopup: true
+            });
+        } else {
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+        }
     };
 
     const renderProps = (fieldName: keyof DataServiceFields) => {
@@ -227,7 +238,9 @@ export function DataServiceWizard(props: DataServiceWizardProps) {
     };
 
     const handleCancel = () => {
-        if (isNewDataService) {
+        if (props.isPopup) {
+            props.handlePopupClose();
+        } else if (isNewDataService) {
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
         } else {
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.DSSServiceDesigner, documentUri: props.path } });
@@ -236,7 +249,7 @@ export function DataServiceWizard(props: DataServiceWizardProps) {
 
     return (
         <>
-            {showDatasourceComponent && <DataServiceDataSourceWizard datasource={datasource} setShowComponent={setShowDatasourceComponent} datasources={datasources} setValue={setValue} /> }
+            {showDatasourceComponent && <DataServiceDataSourceWizard path={props.path} datasource={datasource} setShowComponent={setShowDatasourceComponent} datasources={datasources} setValue={setValue} />}
             {!showDatasourceComponent &&
                 <>
                     <FormView title='Data Service' onClose={handleCancel}>
@@ -247,9 +260,9 @@ export function DataServiceWizard(props: DataServiceWizardProps) {
                             size={100}
                             {...renderProps('dataServiceName')}
                         />
-                        { datasources.length > 0 &&
+                        {datasources.length > 0 &&
                             <DataServiceDisplayTable data={datasources} attributes={['dataSourceType', 'dataSourceName']}
-                                                     onEdit={handleEditDatasource} onDelete={handleDeleteDatasource}/>
+                                onEdit={handleEditDatasource} onDelete={handleDeleteDatasource} />
                         }
                         <AddButtonWrapper>
                             <LinkButton onClick={addDatasource} >

@@ -17,6 +17,7 @@ import { FormAutoComplete } from "../AutoComplete/AutoComplete";
 import { RadioButtonGroup } from "../RadioButtonGroup/RadioButtonGroup";
 import { FormCheckBox } from "../CheckBoxGroup/CheckBoxGroup";
 import { FormLocationSelector } from "../LocationSelector/LocationSelector";
+import { PasswordField } from "../PasswordField/PasswordField";
 
 type Inputs = {
     name: string;
@@ -25,6 +26,7 @@ type Inputs = {
     words: string;
     options: string;
     isRegistered: boolean;
+    password: string;
     selectedFile: string;
 };
 
@@ -89,6 +91,11 @@ export function SampleReactHookForm(props: SampleReactHookFormProps) {
                 name="isRegistered"
                 label="Is Registered?"
                 control={control}
+            />
+            <PasswordField
+                label="Password"
+                showPassword={false}
+                {...register("password")}
             />
             <FormLocationSelector
                 name="selectedFile"

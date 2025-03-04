@@ -49,7 +49,9 @@ export function createInputNodeForDmFunction(
         3. Tuple and union parameter types are not supported
     */
     const param = fnDecl.getParameters()[0];
-    const inputType = param && context.inputTrees.find(input => getTypeName(input) === param.getType().getText());
+    const inputType = param && context.inputTrees.find(input => 
+        getTypeName(input) === (param.getType().getSymbol()?.getName() || param.getType().getAliasSymbol()?.getName())
+    );
 
     if (inputType && hasFields(inputType)) {
         // Create input node
@@ -83,10 +85,10 @@ export function createOutputNodeForDmFunction(
             const returnExpr = returnStatement?.getExpression();
     
             // Create output node based on return type
-            if (returnType.isInterface()) {
-                return new ObjectOutputNode(context, returnExpr, outputType);
-            } else if (returnType.isArray()) {
+            if (returnType.isArray()) {
                 return new ArrayOutputNode(context, returnExpr, outputType);
+            } else {
+                return new ObjectOutputNode(context, returnExpr, outputType);
             }
         }
     }
@@ -117,6 +119,18 @@ export function getOutputNode(
         return new ObjectOutputNode(context, expression, outputType, isSubMapping);
     } else if (outputType.kind === TypeKind.Array) {
         return new ArrayOutputNode(context, expression, outputType, isSubMapping);
+    } else if (outputType.kind === TypeKind.Union) {
+        if (Node.isAsExpression(expression)) {
+            expression = expression.getExpression();
+        }
+        if (outputType.unionTypes.every(unionType =>
+            (unionType.kind === TypeKind.Interface || unionType.kind === TypeKind.Object))) {
+            return new ObjectOutputNode(context, expression, outputType, isSubMapping);
+        } else if (outputType.unionTypes.every(unionType => unionType.kind === TypeKind.Array)) {
+            return new ArrayOutputNode(context, expression, outputType, isSubMapping);
+        } else {
+            // TODO: handle mixed union types, i.e. MyType | string, MyType | MyType[]
+        }
     }
     return new PrimitiveOutputNode(context, expression, outputType, isSubMapping);
 }
@@ -154,7 +168,8 @@ export function isDataImportNode(node: BaseModel) {
 
 export function isObjectOrArrayLiteralExpression(node: Node): boolean {
     return Node.isObjectLiteralExpression(node)
-        || Node.isArrayLiteralExpression(node);
+        || Node.isArrayLiteralExpression(node)
+        || (Node.isAsExpression(node) && isObjectOrArrayLiteralExpression(node.getExpression()));
 }
 
 export function hasFields(type: DMType): boolean {

@@ -29,3 +29,8 @@ export const ANIMATION = {
         opacity: 0,
     }),
 };
+
+/* Helper pane related */
+/* All these values are in pixels */
+export const ARROW_HEIGHT = 16;
+export const ARROW_OFFSET = 10;

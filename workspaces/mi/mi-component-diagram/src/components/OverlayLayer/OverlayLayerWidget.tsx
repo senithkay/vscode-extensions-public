@@ -29,6 +29,7 @@ const Container = styled.div`
     justify-content: center;
     width: 100%;
     background-color: ${Colors.SURFACE_BRIGHT};
+    z-index: 1000;
 `;
 
 export class OverlayLayerWidget extends React.Component<NodeLayerWidgetProps> {

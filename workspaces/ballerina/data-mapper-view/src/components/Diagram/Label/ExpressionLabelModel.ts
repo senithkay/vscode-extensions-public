@@ -4,6 +4,7 @@ import { NodePosition, STNode } from '@wso2-enterprise/syntax-tree';
 
 import { IDataMapperContext } from '../../../utils/DataMapperContext/DataMapperContext';
 import { DataMapperLinkModel } from '../Link';
+import { MappingType, RecordFieldPortModel } from '../Port';
 
 export interface ExpressionLabelOptions extends BaseModelOptions {
 	value?: string;
@@ -12,6 +13,7 @@ export interface ExpressionLabelOptions extends BaseModelOptions {
 	link?: DataMapperLinkModel;
 	field?: STNode;
 	editorLabel?: string;
+	isSubLinkLabel?: boolean;
 	deleteLink?: () => void;
 }
 
@@ -22,6 +24,8 @@ export class ExpressionLabelModel extends LabelModel {
 	link?: DataMapperLinkModel;
 	field?: STNode;
 	editorLabel?: string;
+	pendingMappingType?: MappingType;
+	isSubLinkLabel?: boolean;
 	deleteLink?: () => void;
 
 	constructor(options: ExpressionLabelOptions = {}) {
@@ -35,6 +39,7 @@ export class ExpressionLabelModel extends LabelModel {
 		this.link = options.link;
 		this.field = options.field;
 		this.editorLabel = options.editorLabel;
+		this.isSubLinkLabel = options.isSubLinkLabel;
 		this.updateSource = this.updateSource.bind(this);
 		this.deleteLink = options.deleteLink;
 	}
@@ -66,5 +71,17 @@ export class ExpressionLabelModel extends LabelModel {
 			}
 		];
 		void this.context.applyModifications(modifications);
+	}
+
+	setPendingMappingType(mappingType: MappingType): void {
+		const sourcePort = this.link?.getSourcePort();
+		const targetPort = this.link?.getTargetPort();
+
+		this.pendingMappingType = mappingType;
+
+		if (sourcePort instanceof RecordFieldPortModel && targetPort instanceof RecordFieldPortModel) {
+			sourcePort.setPendingMappingType(mappingType);
+			targetPort.setPendingMappingType(mappingType);
+		}
 	}
 }

@@ -7,13 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import styled from '@emotion/styled';
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
+
+import styled from '@emotion/styled';
+
 import { ExpressionEditor } from './ExpressionEditor';
-import { FormExpressionEditorRef, FormExpressionEditorProps } from '../../types/form';
+import { FormExpressionEditorRef, FormExpressionEditorProps } from '../../types';
+
 import { Button } from '../../../Button/Button';
-import { Icon } from '../../../Icon/Icon';
 import { Codicon } from '../../../Codicon/Codicon';
+import { Icon } from '../../../Icon/Icon';
+
 import { ThemeColors } from '../../../../styles';
 
 // Styled Components

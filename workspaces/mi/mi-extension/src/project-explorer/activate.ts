@@ -7,8 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import * as vscode from 'vscode';
 import { ProjectExplorerEntry, ProjectExplorerEntryProvider } from './project-explorer-provider';
-import { StateMachine, openView } from '../stateMachine';
+import { StateMachine, openView, refreshUI } from '../stateMachine';
 import { EVENT_TYPE, MACHINE_VIEW, VisualizerLocation } from '@wso2-enterprise/mi-core';
 import { COMMANDS } from '../constants';
 import { ExtensionContext, TreeItem, Uri, ViewColumn, commands, window, workspace } from 'vscode';
@@ -19,46 +20,67 @@ import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 import { APIResource } from '../../../syntax-tree/lib/src';
 import { MiDiagramRpcManager } from '../rpc-managers/mi-diagram/rpc-manager';
 import { RegistryExplorerEntryProvider } from './registry-explorer-provider';
+import { RUNTIME_VERSION_440 } from "../constants";
 import { deleteSwagger } from '../util/swagger';
+import { compareVersions } from '../util/onboardingUtils';
+import { history, removeFromHistory } from '../history';
+import * as fs from "fs";
 
 export async function activateProjectExplorer(context: ExtensionContext, lsClient: ExtendedLanguageClient) {
 
 	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(context);
 	await projectExplorerDataProvider.refresh(lsClient);
+	let registryExplorerDataProvider;
 	const projectTree = window.createTreeView('MI.project-explorer', { treeDataProvider: projectExplorerDataProvider });
 
-	const registryExplorerDataProvider = new RegistryExplorerEntryProvider(context);
-	await registryExplorerDataProvider.refresh(lsClient);
-	window.createTreeView('MI.registry-explorer', { treeDataProvider: registryExplorerDataProvider });
+	const projectDetailsRes = await lsClient?.getProjectDetails();
+	const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
+	const isRegistrySupported = compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0;
+
+	if (isRegistrySupported) {
+		registryExplorerDataProvider = new RegistryExplorerEntryProvider(context);
+		await registryExplorerDataProvider.refresh(lsClient);
+		window.createTreeView('MI.registry-explorer', { treeDataProvider: registryExplorerDataProvider });
+		vscode.commands.executeCommand('setContext', 'MI.registry-explorer.isVisible', true);
+		commands.registerCommand(COMMANDS.REFRESH_REGISTRY_COMMAND, () => { return registryExplorerDataProvider.refresh(lsClient); });
+	}
 
 	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(lsClient); });
-	commands.registerCommand(COMMANDS.REFRESH_REGISTRY_COMMAND, () => { return registryExplorerDataProvider.refresh(lsClient); });
-	commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
-		window.showQuickPick([
-			{ label: 'New Project', description: 'Create new project' }
-		], {
-			placeHolder: 'Select the construct to add'
-		}).then(selection => {
-			if (selection?.label === 'New Project') {
-				commands.executeCommand(COMMANDS.CREATE_PROJECT_COMMAND);
-			}
-		});
+	// commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
+	// 	window.showQuickPick([
+	// 		{ label: 'New Project', description: 'Create new project' }
+	// 	], {
+	// 		placeHolder: 'Select the construct to add'
+	// 	}).then(selection => {
+	// 		if (selection?.label === 'New Project') {
+	// 			commands.executeCommand(COMMANDS.CREATE_PROJECT_COMMAND);
+	// 		}
+	// 	});
+	// });
+	commands.registerCommand(COMMANDS.ADD_ARTIFACT_COMMAND, () => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ADD_ARTIFACT });
+		console.log('Add Artifact');
 	});
 	commands.registerCommand(COMMANDS.ADD_TO_REGISTRY_COMMAND, () => {
-        const projectUri = StateMachine.context().projectUri;
-        if (!projectUri) {
-            window.showErrorMessage(
-                'Unable to locate Project URI. Please try again after the extension has fully initialized.'
-            );
-            return;
-        }
-        const registryPath = path.join(projectUri, 'src', 'main', 'wso2mi', 'artifacts', 'registry');
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RegistryResourceForm, documentUri: registryPath });
-        console.log('Add Registry Resource');
+		const projectUri = StateMachine.context().projectUri;
+		if (!projectUri) {
+			window.showErrorMessage(
+				'Unable to locate Project URI. Please try again after the extension has fully initialized.'
+			);
+			return;
+		}
+		const registryPath = path.join(projectUri, 'src', 'main', 'wso2mi', 'resources');
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RegistryResourceForm, documentUri: registryPath });
+		console.log('Add Registry Resource');
 	});
 	commands.registerCommand(COMMANDS.ADD_API_COMMAND, async (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.APIForm, documentUri: entry.info?.path });
 		console.log('Add API');
+	});
+
+	commands.registerCommand(COMMANDS.ADD_RESOURCE_COMMAND, async (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RegistryResourceForm, documentUri: entry.info?.path });
+		console.log('Add Resource');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_ENDPOINT_COMMAND, (entry: ProjectExplorerEntry) => {
@@ -69,6 +91,21 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	commands.registerCommand(COMMANDS.ADD_SEQUENCE_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceForm, documentUri: entry.info?.path });
 		console.log('Add Sequence');
+	});
+
+	commands.registerCommand(COMMANDS.MARK_SEQUENCE_AS_DEFAULT, async (entry: ProjectExplorerEntry) => {
+		const filePath = entry.info?.path;
+		await setDefaultSequence(filePath, false);
+	});
+
+	commands.registerCommand(COMMANDS.UNMARK_SEQUENCE_AS_DEFAULT, async (entry: ProjectExplorerEntry) => {
+		const filePath = entry.info?.path;
+		await setDefaultSequence(filePath, true);
+	});
+
+	commands.registerCommand(COMMANDS.ADD_DATAMAPPER_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DatamapperForm, documentUri: entry.info?.path });
+		console.log('Add Datamapper');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND, (entry: ProjectExplorerEntry) => {
@@ -169,17 +206,39 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 					if (!projectResources) return;
 
 					for (const projectResource of projectResources) {
-						const fileEntry = projectResource.children?.find((file) => file !== undefined && file.info?.path === viewLocation.documentUri);
-						if (fileEntry) {
-							projectTree.reveal(fileEntry, { select: true });
+						if (projectResource.label === "Data Integration" || projectResource.label === "Common Artifacts" ||
+							projectResource.label === "Advanced Artifacts") {
+							const projectArtifacts = projectResource?.children;
+							if (projectArtifacts) {
+								for (const artifact of projectArtifacts) {
+									const fileEntry = artifact.children?.find((file) => file !== undefined && file.info?.path === viewLocation.documentUri);
+									if (fileEntry) {
+										projectTree.reveal(fileEntry, { select: true });
 
-							if (viewLocation.identifier !== undefined) {
-								const resourceEntry = fileEntry.children?.find((file) => file.info?.path === `${viewLocation.documentUri}/${viewLocation.identifier}`);
-								if (resourceEntry) {
-									projectTree.reveal(resourceEntry, { select: true });
+										if (viewLocation.identifier !== undefined) {
+											const resourceEntry = fileEntry.children?.find((file) => file.info?.path === `${viewLocation.documentUri}/${viewLocation.identifier}`);
+											if (resourceEntry) {
+												projectTree.reveal(resourceEntry, { select: true });
+											}
+										}
+										break;
+									}
 								}
 							}
-							break;
+
+						} else {
+							const fileEntry = projectResource.children?.find((file) => file !== undefined && file.info?.path === viewLocation.documentUri);
+							if (fileEntry) {
+								projectTree.reveal(fileEntry, { select: true });
+
+								if (viewLocation.identifier !== undefined) {
+									const resourceEntry = fileEntry.children?.find((file) => file.info?.path === `${viewLocation.documentUri}/${viewLocation.identifier}`);
+									if (resourceEntry) {
+										projectTree.reveal(resourceEntry, { select: true });
+									}
+								}
+								break;
+							}
 						}
 					}
 				}
@@ -347,6 +406,13 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 						try {
 							await workspace.fs.delete(Uri.parse(fileUri), { recursive: true, useTrash: true });
 							window.showInformationMessage(`${item.label} has been deleted.`);
+							await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+
+							const currentLocation = StateMachine.context();
+							if (currentLocation.documentUri === fileUri) {
+								openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+							}
+							removeFromHistory(fileUri.fsPath);
 
 							if (item.contextValue === 'api') {
 								deleteSwagger(fileUri);
@@ -373,9 +439,14 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 					if (confirmation === 'Yes') {
 						try {
 							// delete the file and the residing folder
-							const folderPath = path.dirname(fileUri);
 							await deleteDataMapperResources(fileUri);
 							window.showInformationMessage(`${item.label} has been deleted.`);
+							await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+							const currentLocation = StateMachine.context();
+							if (currentLocation.documentUri === fileUri) {
+								openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+							}
+							removeFromHistory(fileUri.fsPath);
 						} catch (error) {
 							window.showErrorMessage(`Failed to delete ${item.label}: ${error}`);
 						}
@@ -415,7 +486,8 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 
 					if (confirmation === 'Yes') {
 						try {
-							const rpcManager = new MiDiagramRpcManager()
+							const rpcManager = new MiDiagramRpcManager();
+							removeFromHistory(fileUri.fsPath, resourceId);
 							await rpcManager.applyEdit({
 								text: "",
 								documentUri: fileUri.fsPath,
@@ -444,13 +516,19 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 				}
 				if (filePath !== "") {
 					const fileName = path.basename(filePath);
-					window.showInformationMessage("Do you want to delete : " + fileName, { modal: true }, "Yes", "No")
+					const langClient = StateMachine.context().langClient;
+					const fileUsageIdentifiers = await langClient?.getResourceUsages(filePath);
+					const fileUsageMessage = fileUsageIdentifiers?.length && fileUsageIdentifiers?.length > 0 ? "It is used in:\n" + fileUsageIdentifiers.join(", ") : "No usage found";
+					window.showInformationMessage("Do you want to delete : " + fileName + "\n\n" + fileUsageMessage, { modal: true }, "Yes")
 						.then(async answer => {
 							if (answer === "Yes") {
 								const res = await deleteRegistryResource(filePath);
 								if (res.status === true) {
 									window.showInformationMessage(res.info);
 									projectExplorerDataProvider.refresh(lsClient);
+									if (isRegistrySupported && registryExplorerDataProvider) {
+										registryExplorerDataProvider.refresh(lsClient);
+									}
 								} else {
 									window.showErrorMessage(res.info);
 								}
@@ -461,7 +539,82 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 			}
 		}
 		projectExplorerDataProvider.refresh(lsClient);
+		if (compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0 && registryExplorerDataProvider) {
+			registryExplorerDataProvider.refresh(lsClient);
+		}
+		if (StateMachine.context().view === MACHINE_VIEW.Overview) {
+			refreshUI();
+		}
 	});
+
+	async function setDefaultSequence(filePath?: string, remove?: boolean) {
+		const langClient = StateMachine.context().langClient;
+
+		if (!filePath) {
+			window.showErrorMessage('File path is not available');
+			throw new Error('File path is not available');
+		}
+
+		// Read the POM file
+		const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(filePath));
+		if (!workspaceFolder) {
+			window.showErrorMessage('Cannot find workspace folder');
+			throw new Error('Cannot find workspace folder');
+		}
+
+		const pomPath = path.join(workspaceFolder.uri.fsPath, 'pom.xml');
+		const pomContent = fs.readFileSync(pomPath, 'utf-8');
+
+		if (remove) {
+			// Remove the <mainSequence> tag from the POM
+			const updatedPomContent = pomContent.replace(/\s*<mainSequence>.*?<\/mainSequence>/, '');
+			fs.writeFileSync(pomPath, updatedPomContent, 'utf-8');
+			return;
+		}
+
+		if (!langClient) {
+			window.showErrorMessage('Language client is not available');
+			throw new Error('Language client is not available');
+		}
+
+		// Get the syntax tree of the given file path
+		const syntaxTree = await langClient.getSyntaxTree({
+			documentIdentifier: {
+				uri: filePath
+			},
+		});
+
+		// Get the sequence name from the syntax tree
+		const sequenceName = syntaxTree?.syntaxTree?.sequence?.name;
+		if (!sequenceName) {
+			window.showErrorMessage('Failed to get the sequence name from the syntax tree');
+			throw new Error('Failed to get the sequence name from the syntax tree');
+		}
+
+		const mainSequenceTag = `<mainSequence>${sequenceName}</mainSequence>`;
+
+		// Check if the <properties> tag exists
+		const propertiesTagExists = pomContent.includes('<properties>');
+
+		if (propertiesTagExists) {
+			// Inject the <mainSequence> tag inside the <properties> tag
+			const updatedPomContent = pomContent.replace(/<properties>([\s\S]*?)<\/properties>/, (match, p1) => {
+				if (p1.includes('<mainSequence>')) {
+					// Update the existing <mainSequence> tag
+					return match.replace(/<mainSequence>.*?<\/mainSequence>/, mainSequenceTag);
+				} else {
+					// Get the indentation from the <properties> tag
+					const propertiesIndentation = pomContent.match(/(\s*)<properties>/)?.[1] || '';
+					const indentedMainSequenceTag = `\t${mainSequenceTag}`;
+					// Add the <mainSequence> tag
+					return `<properties>${p1}${indentedMainSequenceTag}${propertiesIndentation}</properties>`;
+				}
+			});
+			fs.writeFileSync(pomPath, updatedPomContent, 'utf-8');
+		} else {
+			window.showErrorMessage('Failed to find the project properties in the POM file');
+		}
+	}
 }
 
 function revealWebviewPanel(beside: boolean = true) {

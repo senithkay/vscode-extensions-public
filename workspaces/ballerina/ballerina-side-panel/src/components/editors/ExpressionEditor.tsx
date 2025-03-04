@@ -203,6 +203,20 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
 
     const handleFocus = async () => {
         setFocused(true);
+
+        // Retrive completions
+        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
+        cursorPositionRef.current = cursorPosition;
+        const triggerCharacter =
+            cursorPosition > 0
+                ? triggerCharacters.find((char) => fieldValue[cursorPosition - 1] === char)
+                : undefined;
+        if (triggerCharacter) {
+            await retrieveCompletions(fieldValue, field.key, cursorPosition, triggerCharacter);
+        } else {
+            await retrieveCompletions(fieldValue, field.key, cursorPosition);
+        }
+
         // Trigger actions on focus
         await onFocus?.();
         handleOnFieldFocus?.(field.key);
@@ -258,7 +272,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
     }
 
     const handleGetHelperPane = (value: string, onChange: (value: string, updatedCursorPosition: number) => void) => {
-        return getHelperPane?.(exprRef, value, onChange, handleChangeHelperPaneState);
+        return getHelperPane?.(exprRef, field.placeholder, value, onChange, handleChangeHelperPaneState);
     }
 
     const updateSubPanelData = (value: string) => {

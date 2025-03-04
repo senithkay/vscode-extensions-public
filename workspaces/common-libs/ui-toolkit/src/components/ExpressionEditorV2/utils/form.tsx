@@ -8,8 +8,7 @@
  */
 
 import { MutableRefObject } from "react";
-import { HelperPanePosition } from "../types/form";
-import { HelperPaneOrigin } from "../types";
+import { HelperPaneOrigin, HelperPanePosition } from "../types";
 import { HELPER_PANE_HEIGHT, HELPER_PANE_WIDTH, ARROW_HEIGHT, ARROW_OFFSET } from "../constants"
 
 export const getHelperPanePosition = (
@@ -44,7 +43,7 @@ export const getHelperPanePosition = (
     return position;
 };
 
-export const getArrowPosition = (
+export const getHelperPaneArrowPosition = (
     expressionEditorRef: MutableRefObject<HTMLDivElement>,
     helperPaneOrigin: HelperPaneOrigin,
     helperPanePosition: HelperPanePosition

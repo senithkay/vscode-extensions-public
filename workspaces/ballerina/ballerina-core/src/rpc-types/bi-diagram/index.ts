@@ -12,6 +12,7 @@
  */
 
 import { ProjectStructureResponse } from "../../interfaces/bi";
+import { LinePosition } from "../../interfaces/common";
 import {
     BIAvailableNodesRequest,
     BIAvailableNodesResponse,
@@ -60,7 +61,8 @@ import {
     ClassFieldModifierRequest,
     SourceEditResponse,
     ServiceClassSourceRequest,
-    AddFieldRequest
+    AddFieldRequest,
+    RenameIdentifierRequest
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -77,7 +79,8 @@ import {
     BreakpointRequest,
     CurrentBreakpointsResponse,
     FormDidOpenParams,
-    FormDidCloseParams
+    FormDidCloseParams,
+    EndOfFileRequest
 } from "./interfaces";
 
 export interface BIDiagramAPI {
@@ -104,6 +107,7 @@ export interface BIDiagramAPI {
     getModuleNodes: () => Promise<BIModuleNodesResponse>;
     getReadmeContent: () => Promise<ReadmeContentResponse>;
     openReadme: () => void;
+    renameIdentifier: (params: RenameIdentifierRequest) => Promise<void>;
     deployProject: () => void;
     openAIChat: (params: AIChatRequest) => void;
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
@@ -129,4 +133,5 @@ export interface BIDiagramAPI {
     updateImports: (params: UpdateImportsRequest) => Promise<UpdateImportsResponse>;
     addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
     getFunctionNode: (params: FunctionNodeRequest) => Promise<FunctionNodeResponse>;
+    getEndOfFile: (params: EndOfFileRequest) => Promise<LinePosition>;
 }

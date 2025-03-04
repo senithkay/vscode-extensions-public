@@ -10,8 +10,7 @@
 import { exec, execSync } from 'child_process';
 import { debug } from '../../utils';
 import * as os from 'os';
-import { vscode } from '@wso2-enterprise/ballerina-core';
-import { window } from 'vscode';
+import * as vscode from 'vscode';
 
 // Retrieve the platform-specific commands
 const platform = os.platform();
@@ -107,7 +106,7 @@ function getLSOFCommand(platform: string, pid: string): string {
 }
 
 export async function waitForBallerinaService(projectDir: string): Promise<void> {
-    const maxAttempts = 200; // Try for 20 seconds
+    const maxAttempts = 100; // Try for 10 seconds
     const timeout = 100; // 100ms
 
     let attempt = 0;
@@ -120,5 +119,53 @@ export async function waitForBallerinaService(projectDir: string): Promise<void>
         await new Promise(resolve => setTimeout(resolve, timeout));
         attempt++;
     }
-    throw new Error('Timed out waiting for Ballerina service to start');
+    throw new Error('Timed out waiting for Ballerina service(s) to start');
 }
+
+/**
+ * Centralized error handling function for Try It feature
+ */
+export function handleError(error, context: string, showToUser = true): void {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    if (showToUser) {
+        vscode.window.showErrorMessage(`${context}: ${errorMessage}`);
+    }
+
+    console.error(`[${context}]`, error);
+}
+
+/**
+ * Singleton class to manage the language client reference
+ */
+export class ClientManager {
+    private static instance: ClientManager;
+    private langClient: any = undefined;
+
+    private constructor() { }
+
+    public static getInstance(): ClientManager {
+        if (!ClientManager.instance) {
+            ClientManager.instance = new ClientManager();
+        }
+        return ClientManager.instance;
+    }
+
+    public setClient(client: any): void {
+        this.langClient = client;
+    }
+
+    public getClient(): any {
+        if (!this.langClient) {
+            throw new Error('Language client is not initialized');
+        }
+        return this.langClient;
+    }
+
+    public hasClient(): boolean {
+        return !!this.langClient;
+    }
+}
+
+// Export singleton instance
+export const clientManager = ClientManager.getInstance();

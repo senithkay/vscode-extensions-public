@@ -190,7 +190,7 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
                 required
                 {...renderProps('proxyServiceName')}
             />
-            <span>Select the transports:</span>
+            <span>Select the Transports:</span>
             {transportTypes.map(transportType => (
                 <CheckBox
                     label={transportType}

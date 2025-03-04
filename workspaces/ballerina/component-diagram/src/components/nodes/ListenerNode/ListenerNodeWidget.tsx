@@ -19,6 +19,8 @@ import {
 } from "../../../resources/constants";
 import { Button, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { ClockIcon, ListenIcon } from "../../../resources";
+import { useDiagramContext } from "../../DiagramContext";
+import { CDListener } from "@wso2-enterprise/ballerina-core";
 
 type NodeStyleProp = {
     hovered: boolean;
@@ -81,7 +83,7 @@ const Icon = styled.div`
     }
 `;
 
-const Title = styled(StyledText)<NodeStyleProp>`
+const Title = styled(StyledText) <NodeStyleProp>`
     max-width: ${LISTENER_NODE_WIDTH - LISTENER_NODE_HEIGHT}px;
     white-space: nowrap;
     overflow: hidden;
@@ -109,14 +111,16 @@ interface ListenerNodeWidgetProps {
     engine: DiagramEngine;
 }
 
-export interface NodeWidgetProps extends Omit<ListenerNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<ListenerNodeWidgetProps, "children"> { }
 
 export function ListenerNodeWidget(props: ListenerNodeWidgetProps) {
     const { model, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
+    const { onListenerSelect } = useDiagramContext();
+
 
     const handleOnClick = () => {
-        // event.stopPropagation();
+        onListenerSelect(model.node as CDListener);
     };
 
     const getNodeIcon = () => {

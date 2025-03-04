@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ExpandedMappingHeaderNode } from "../Node";
+import { ExpandedMappingHeaderNode, RequiredParamNode } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import {
     GAP_BETWEEN_FIELDS,
@@ -82,3 +82,20 @@ export function hasSameIntermediateClauses(newNodes: DataMapperNodeModel[], exis
     return true;
 }
 
+export function getFieldCountMismatchIndex(newNodes: DataMapperNodeModel[], existingNodes?: DataMapperNodeModel[]) {
+    if (existingNodes.length === 0) return 0;
+
+    const newRequiredParamNodes = newNodes.filter(node => node instanceof RequiredParamNode);
+    const existingRequiredParamNodes = existingNodes.filter(node => node instanceof RequiredParamNode);
+
+    for (let i = 0; i < newRequiredParamNodes.length; i++) {
+        const newNode = newRequiredParamNodes[i] as RequiredParamNode;
+        const existingNode = existingRequiredParamNodes[i] as RequiredParamNode;
+        
+        if (newNode.numberOfFields !== existingNode.numberOfFields) {
+            return i;
+        }
+    }
+    
+    return -1;
+}

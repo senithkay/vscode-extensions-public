@@ -217,6 +217,7 @@ export const onResourceEdit = (
             text: xml,
             documentUri: documentUri,
             range: startTagRange,
+            addNewLine: false
         })
         .then(async () => {
             for (const range of sortedRanges) {
@@ -388,19 +389,19 @@ export const getResourceDeleteRanges = (model: APIResource, formData: ResourceFo
     if (formData.inSequenceType === "named" && model.inSequence) {
         ranges.push({
             start: model.inSequence.range.startTagRange.start,
-            end: model.inSequence.range.endTagRange.end,
+            end: model.inSequence.spaces.endingTagSpace.trailingSpace.range.end,
         });
     }
     if (formData.outSequenceType === "named" && model.outSequence) {
         ranges.push({
             start: model.outSequence.range.startTagRange.start,
-            end: model.outSequence.range.endTagRange.end,
+            end: model.outSequence.spaces.endingTagSpace.trailingSpace.range.end,
         });
     }
     if (formData.faultSequenceType === "named" && model.faultSequence) {
         ranges.push({
             start: model.faultSequence.range.startTagRange.start,
-            end: model.faultSequence.range.endTagRange.end,
+            end: model.faultSequence.spaces.endingTagSpace.trailingSpace.range.end,
         });
     }
 

@@ -94,10 +94,7 @@ export function UnsupportedExpr({ filePath, unsupportedExpr, context }: Unsuppor
     const classes = useStyles();
 
     const handleGoToSource = () => {
-        context.goToSource({
-                startLine: unsupportedExpr.position.startLine,
-                startColumn: unsupportedExpr.position.startColumn
-            }, filePath);
+        context.goToSource(unsupportedExpr.position);
     }
 
 

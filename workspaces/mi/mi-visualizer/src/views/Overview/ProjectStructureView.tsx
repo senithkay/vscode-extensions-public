@@ -57,7 +57,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
     inboundEndpoints: {
         title: "Inbound Endpoints",
         command: "MI.project-explorer.add-inbound-endpoint",
-        view: MACHINE_VIEW.InboundEPForm,
+        view: MACHINE_VIEW.InboundEPView,
         icon: "inbound-endpoint",
         description: (entry: any) => "Inbound Endpoint",
         path: (entry: any) => entry.path,

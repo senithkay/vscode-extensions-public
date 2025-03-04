@@ -12,10 +12,10 @@ import * as vscode from 'vscode';
 import * as childprocess from 'child_process';
 import { COMMANDS } from '../constants';
 import { extension } from '../MIExtensionContext';
-import { getBuildCommand, getRunCommand, getStopCommand } from './tasks';
+import { loadEnvVariables, getBuildCommand, getRunCommand, getStopCommand } from './tasks';
 import * as fs from 'fs';
 import * as path from 'path';
-import { INCORRECT_SERVER_PATH_MSG, SELECTED_SERVER_PATH } from './constants';
+import { SELECTED_SERVER_PATH, INCORRECT_SERVER_PATH_MSG } from './constants';
 import { reject } from 'lodash';
 import axios from 'axios';
 import * as net from 'net';
@@ -27,8 +27,9 @@ import { DebuggerConfig } from './config';
 import { ChildProcess } from 'child_process';
 import treeKill = require('tree-kill');
 import { serverLog, showServerOutputChannel } from '../util/serverLogger';
+import { getJavaHomeFromConfig, getServerPathFromConfig } from '../util/onboardingUtils';
 const child_process = require('child_process');
-
+const findProcess = require('find-process');
 export async function isPortActivelyListening(port: number, timeout: number): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
         const startTime = Date.now();
@@ -82,7 +83,7 @@ function checkServerLiveness(): Promise<boolean> {
 
 export function checkServerReadiness(): Promise<void> {
     const startTime = Date.now();
-    const maxTimeout = 15000;
+    const maxTimeout = 45000;
     const retryInterval = 2000;
 
     return new Promise((resolve, reject) => {
@@ -144,11 +145,19 @@ export async function executeBuildTask(serverPath: string, shouldCopyTarget: boo
         const projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
 
         const buildCommand = getBuildCommand();
-        const buildProcess = child_process.spawn(buildCommand, [], { shell: true, cwd: projectUri });
+        const envVariables = {
+            ...process.env,
+            ...setJavaHomeInEnvironmentAndPath()
+        };
+        const buildProcess = child_process.spawn(buildCommand, [], { shell: true, cwd: projectUri, env: envVariables });
         showServerOutputChannel();
 
         buildProcess.stdout.on('data', (data) => {
             serverLog(data.toString('utf8'));
+        });
+
+        buildProcess.stderr.on('data', (data) => {
+            serverLog(`Build error:\n${data.toString('utf8')}`);
         });
 
         if (shouldCopyTarget) {
@@ -231,6 +240,11 @@ const debugConsole = vscode.debug.activeDebugConsole;
 // Start the server
 export async function startServer(serverPath: string, isDebug: boolean): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
+        const projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
+        const filePath = path.resolve(projectUri, '.env');
+        if (fs.existsSync(filePath)) {
+            loadEnvVariables(filePath)
+        }
         const runCommand = await getRunCommand(serverPath, isDebug);
         if (runCommand === undefined) {
             reject('Error getting run command');
@@ -239,6 +253,7 @@ export async function startServer(serverPath: string, isDebug: boolean): Promise
             const vmArgs = DebuggerConfig.getVmArgs();
             const envVariables = {
                 ...process.env,
+                ...setJavaHomeInEnvironmentAndPath(),
                 ...definedEnvVariables
             };
 
@@ -277,7 +292,8 @@ export async function stopServer(serverPath: string, isWindows?: boolean): Promi
             if (stopCommand === undefined) {
                 reject(INCORRECT_SERVER_PATH_MSG);
             } else {
-                const stopProcess = child_process.spawn(`${stopCommand}`, [], { shell: true });
+                const env = setJavaHomeInEnvironmentAndPath();
+                const stopProcess = child_process.spawn(`${stopCommand}`, [], { shell: true, env });
                 showServerOutputChannel();
 
                 let killTimeout = setTimeout(() => {
@@ -327,29 +343,16 @@ export async function stopServer(serverPath: string, isWindows?: boolean): Promi
 }
 
 export async function executeTasks(serverPath: string, isDebug: boolean): Promise<void> {
-    const maxTimeout = 15000;
+    const maxTimeout = 45000;
     return new Promise<void>(async (resolve, reject) => {
+        const isTerminated = await StateMachine.context().langClient?.shutdownTryoutServer();
+        if (!isTerminated) {
+            reject('Failed to terminate the tryout server. Kill the server manually and try again.');
+        }
         executeBuildTask(serverPath).then(async () => {
             const isServerRunning = await checkServerLiveness();
             if (!isServerRunning) {
-                startServer(serverPath, isDebug).then(() => {
-                    if (isDebug) {
-                        // check if server command port is active
-                        isPortActivelyListening(DebuggerConfig.getCommandPort(), maxTimeout).then((isListening) => {
-                            if (isListening) {
-                                resolve();
-                                // Proceed with connecting to the port
-                            } else {
-                                logDebug(`The ${DebuggerConfig.getCommandPort()} port is not actively listening or the timeout has been reached.`, ERROR_LOG);
-                                reject(`Server command port isn't actively listening. Stop any running MI servers and restart the debugger.`);
-                            }
-                        });
-                    } else {
-                        resolve();
-                    }
-                }).catch((error) => {
-                    reject(error);
-                });
+                startServerWithPortCheck(resolve, reject);
             } else {
                 // Server could be running in the background without debug mode, but we need to rerun to support this mode
                 if (isDebug) {
@@ -363,8 +366,15 @@ export async function executeTasks(serverPath: string, isDebug: boolean): Promis
                         }
                     });
                 } else {
-                    vscode.window.showInformationMessage('Server is already running');
-                    resolve();
+                    const stopServer = await vscode.window.showWarningMessage('A server is already running. Do you wish to stop the running server?',
+                        { modal: true },
+                        'Yes', 'No');
+                    if (stopServer === 'Yes') {
+                        await killProcessByPort(DebuggerConfig.getServerPort());
+                        startServerWithPortCheck(resolve, reject);
+                    } else {
+                        resolve();
+                    }
                 }
             }
         }).catch((error) => {
@@ -372,19 +382,57 @@ export async function executeTasks(serverPath: string, isDebug: boolean): Promis
             logDebug(`Error executing BuildTask: ${error}`, ERROR_LOG);
         });
     });
+
+    function startServerWithPortCheck(resolve: (value: void | PromiseLike<void>) => void, reject: (reason?: any) => void) {
+        startServer(serverPath, isDebug).then(() => {
+            if (isDebug) {
+                // check if server command port is active
+                isPortActivelyListening(DebuggerConfig.getCommandPort(), maxTimeout).then((isListening) => {
+                    if (isListening) {
+                        resolve();
+                        // Proceed with connecting to the port
+                    } else {
+                        logDebug(`The ${DebuggerConfig.getCommandPort()} port is not actively listening or the timeout has been reached.`, ERROR_LOG);
+                        reject(`Server command port isn't actively listening. Stop any running MI servers and restart the debugger.`);
+                    }
+                });
+            } else {
+                resolve();
+            }
+        }).catch((error) => {
+            reject(error);
+        });
+    }
 }
 
 export async function getServerPath(): Promise<string | undefined> {
-    const currentPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
+    const config = vscode.workspace.getConfiguration('MI');
+    const currentPath = getServerPathFromConfig();
     if (!currentPath) {
         await vscode.commands.executeCommand(COMMANDS.CHANGE_SERVER_PATH);
-        const updatedPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
+        const updatedPath = config.get(SELECTED_SERVER_PATH) as string;
         if (updatedPath) {
             return path.normalize(updatedPath);
         }
         return updatedPath;
     }
     return path.normalize(currentPath);
+}
+export function setJavaHomeInEnvironmentAndPath(): { [key: string]: string; } {
+    const config = vscode.workspace.getConfiguration('MI');
+    const javaHome = getJavaHomeFromConfig();
+    const env = { ...process.env };
+    if (javaHome) {
+        env['JAVA_HOME'] = javaHome;
+    }
+    const sanitizedEnv: { [key: string]: string } = {};
+
+    for (const key in env) {
+        if (env[key] !== undefined) {
+            sanitizedEnv[key] = env[key] as string;
+        }
+    }
+    return sanitizedEnv;
 }
 
 export async function deleteCapp(serverPath: string): Promise<void> {
@@ -544,5 +592,27 @@ export async function setManagementCredentials(serverConfigPath: string) {
         }
     } catch (error) {
         logDebug(`Failed to read or parse deployment.toml: ${error}`, ERROR_LOG);
+    }
+}
+
+/**
+ * Kill a process by its listening port.
+ * @param port The port number on which the target process is listening.
+ */
+export async function killProcessByPort(port: number): Promise<void> {
+    try {
+        const list = await findProcess('port', port);
+
+        if (list.length === 0) {
+            return;
+        }
+
+        // Iterate over the found processes and kill each
+        for (const processInfo of list) {
+            const pid = processInfo.pid;
+            treeKill(pid, 'SIGKILL');
+        }
+    } catch (error) {
+        vscode.window.showErrorMessage(`Error finding or killing process on port ${port}: ${(error as Error).message}`);
     }
 }

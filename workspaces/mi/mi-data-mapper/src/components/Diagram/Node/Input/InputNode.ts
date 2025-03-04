@@ -39,7 +39,12 @@ export class InputNode extends DataMapperNodeModel {
         this.numberOfFields = 1;
         if (!hasNoMatchingFields) {
             this._originalType = this.context.inputTrees
-                .find(inputTree => getTypeName(inputTree) === this.value.getType().getText());
+                .find(inputTree =>
+                    getTypeName(inputTree) === (
+                        this.value.getType().getSymbol()?.getName()
+                        || this.value.getType().getAliasSymbol()?.getName()
+                    )
+                );
             this.dmType = this._originalType;
             this._paramName = this.value.getName();
         }
@@ -51,21 +56,28 @@ export class InputNode extends DataMapperNodeModel {
         this.hasNoMatchingFields = !this.dmType;
 
         if (this.dmType) {
-            const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
-            const parentPort = this.addPortsForHeader(this.dmType, this._paramName, "OUT", undefined, collapsedFields);
+            const isCollapsedField = useDMCollapsedFieldsStore.getState().isCollapsedField;
+            const parentPort = this.addPortsForHeader(this.dmType, this._paramName, "OUT", undefined, isCollapsedField);
 
             if (this.dmType.kind === TypeKind.Interface) {
                 const fields = this.dmType.fields;
                 fields.forEach((subField) => {
                     this.numberOfFields += this.addPortsForInputField(
                         subField, "OUT", this._paramName, this._paramName, '',
-                        parentPort, collapsedFields, parentPort.collapsed, subField.optional
+                        parentPort, isCollapsedField, parentPort.collapsed, subField.optional
                     );
                 });
-            } else {
+            } else if(this.dmType.kind === TypeKind.Array){
+                this.dmType.fieldName = this._paramName;
+                const arrItemField = { ...this.dmType.memberType, fieldName: `<${this.dmType.fieldName}Item>` };
+                this.numberOfFields += this.addPortsForPreviewField(
+                    arrItemField, "OUT", this._paramName, this._paramName, '',
+                    parentPort, isCollapsedField, parentPort.collapsed, arrItemField.optional
+                );
+            }else {
                 this.addPortsForInputField(
                     this.dmType, "OUT", this._paramName, this._paramName,  '',
-                    parentPort, collapsedFields, parentPort.collapsed, this.dmType.optional
+                    parentPort, isCollapsedField, parentPort.collapsed, this.dmType.optional
                 );
             }
         }

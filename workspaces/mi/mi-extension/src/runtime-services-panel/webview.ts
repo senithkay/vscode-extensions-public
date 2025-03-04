@@ -76,8 +76,9 @@ export class RuntimeServicesWebview {
             body, html, #root {
                 height: 100%;
                 margin: 0;
-                padding: 0px;
+                padding: 0;
                 overflow: hidden;
+                --vscode-textPreformat-foreground: var(--vscode-minimap-findMatchHighlight);
             }
           </style>
           ${scriptUri}

@@ -13,7 +13,7 @@ import * as vscode from 'vscode';
 import { checkServerReadiness, deleteCopiedCapAndLibs, executeBuildTask, executeTasks, getServerPath, isADiagramView, readPortOffset, removeTempDebugBatchFile, setManagementCredentials, stopServer } from './debugHelper';
 import { Subject } from 'await-notify';
 import { Debugger } from './debugger';
-import { StateMachine, navigate, openView } from '../stateMachine';
+import { StateMachine, openView, refreshUI } from '../stateMachine';
 import { VisualizerWebview } from '../visualizer/webview';
 import { ViewColumn } from 'vscode';
 import { COMMANDS } from '../constants';
@@ -69,7 +69,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                                 newContext.documentUri = this.debuggerHandler?.getCurrentFilePath();
                                 openView(EVENT_TYPE.OPEN_VIEW, newContext);
                             } else {
-                                navigate();
+                                refreshUI();
                             }
                         }, 200);
                     } else {
@@ -244,7 +244,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
             }
         }
         this.sendResponse(response);
-        navigate();
+        refreshUI();
     }
 
     protected configurationDoneRequest(response: DebugProtocol.ConfigurationDoneResponse, args: DebugProtocol.ConfigurationDoneArguments, request?: DebugProtocol.Request | undefined): void {
@@ -271,14 +271,16 @@ export class MiDebugAdapter extends LoggingDebugSession {
                         DebuggerConfig.setEnvVariables(args?.env ? args?.env : {});
                         DebuggerConfig.setVmArgs(args?.vmArgs ? args?.vmArgs : []);
 
+                        DebuggerConfig.setVmArgs(args?.vmArgs ? args?.vmArgs : []);
+
                         await setManagementCredentials(serverPath);
 
+                        vscode.commands.executeCommand('setContext', 'MI.isRunning', 'true');
                         executeTasks(serverPath, isDebugAllowed)
                             .then(async () => {
                                 if (args?.noDebug) {
                                     checkServerReadiness().then(() => {
                                         openRuntimeServicesWebview();
-                                        vscode.commands.executeCommand('setContext', 'MI.isRunning', 'true');
                                         extension.isServerStarted = true;
                                         RPCLayer._messenger.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Running');
 
@@ -287,11 +289,11 @@ export class MiDebugAdapter extends LoggingDebugSession {
                                     }).catch(error => {
                                         vscode.window.showErrorMessage(error);
                                         this.sendError(response, 1, error);
+                                        vscode.commands.executeCommand('setContext', 'MI.isRunning', 'false');
                                     });
                                 } else {
                                     this.debuggerHandler?.initializeDebugger().then(() => {
                                         openRuntimeServicesWebview();
-                                        vscode.commands.executeCommand('setContext', 'MI.isRunning', 'true');
                                         extension.isServerStarted = true;
                                         RPCLayer._messenger.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Running');
                                         response.success = true;
@@ -300,10 +302,13 @@ export class MiDebugAdapter extends LoggingDebugSession {
                                         const completeError = `Error while initializing the Debugger: ${error}`;
                                         vscode.window.showErrorMessage(completeError);
                                         this.sendError(response, 1, completeError);
+                                        vscode.commands.executeCommand('setContext', 'MI.isRunning', 'false');
                                     });
                                 }
                             })
                             .catch(error => {
+                                vscode.commands.executeCommand('setContext', 'MI.isRunning', 'false');
+                                deleteCopiedCapAndLibs();
                                 const completeError = `Error while launching run and debug: ${error}`;
                                 if (error === INCORRECT_SERVER_PATH_MSG) {
                                     this.showErrorAndExecuteChangeServerPath(completeError);
@@ -320,6 +325,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
     protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args?: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
         this.debuggerHandler?.closeDebugger();
+        vscode.commands.executeCommand('setContext', 'MI.isRunning', 'false');
         try {
             if (process.platform === 'win32') {
                 await stopServer(this.currentServerPath, true);
@@ -341,7 +347,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
         DebuggerConfig.resetCappandLibs();
         extension.isServerStarted = false;
-        vscode.commands.executeCommand('setContext', 'MI.isRunning', 'false');
         RPCLayer._messenger.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Stopped');
     }
 
