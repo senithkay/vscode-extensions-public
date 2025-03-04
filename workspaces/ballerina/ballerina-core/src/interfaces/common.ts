@@ -23,7 +23,8 @@ export declare enum BallerinaComponentTypes {
 export enum SubPanelView {
     INLINE_DATA_MAPPER = "inlineDataMapper",
     HELPER_PANEL = "helperPanel",
-    UNDEFINED = "undefined",
+    ADD_NEW_FORM = "addNewForm",
+    UNDEFINED = undefined,
 }
 
 export interface DocumentIdentifier {
@@ -31,6 +32,7 @@ export interface DocumentIdentifier {
 }
 
 export interface LineRange {
+    fileName?: string;
     startLine: LinePosition;
     endLine: LinePosition;
 }

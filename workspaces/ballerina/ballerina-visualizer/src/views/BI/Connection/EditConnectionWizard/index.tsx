@@ -12,11 +12,9 @@ import styled from "@emotion/styled";
 import { EVENT_TYPE, FlowNode, MACHINE_VIEW, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import ConnectionConfigView from "../ConnectionConfigView";
-import { convertNodePropertiesToFormFields, getFormProperties, updateNodeProperties } from "../../../../utils/bi";
-import { ExpressionFormField, FormField, FormValues, PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
-import { cloneDeep } from "lodash";
-import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
-import { Colors } from "../../../../resources/constants";
+import { getFormProperties } from "../../../../utils/bi";
+import { ExpressionFormField, PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
+import { ProgressRing, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { InlineDataMapper } from "../../../InlineDataMapper";
 import { HelperView } from "../../HelperView";
 
@@ -160,7 +158,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
         <Container>
             {!connection && (
                 <SpinnerContainer>
-                    <ProgressRing color={Colors.PRIMARY} />
+                    <ProgressRing color={ThemeColors.PRIMARY} />
                 </SpinnerContainer>
             )}
             {connection && (
@@ -175,7 +173,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                 >
                     {updatingContent ? (
                         <SpinnerContainer>
-                            <ProgressRing color={Colors.PRIMARY} />
+                            <ProgressRing color={ThemeColors.PRIMARY} />
                         </SpinnerContainer>
                     ) : (
                         <ConnectionConfigView

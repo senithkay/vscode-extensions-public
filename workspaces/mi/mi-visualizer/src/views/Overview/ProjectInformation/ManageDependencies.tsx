@@ -17,10 +17,11 @@ import { Range } from "../../../../../syntax-tree/lib/src";
 interface ManageDependenciesProps {
     title: string;
     dependencies: DependencyDetails[];
+    type: string;
     onClose: () => void;
 }
 export function ManageDependencies(props: ManageDependenciesProps) {
-    const { title, dependencies, onClose } = props;
+    const { title, dependencies, type, onClose } = props;
     const { rpcClient } = useVisualizerContext();
     const [paramConfig, setParamConfig] = useState<ParamConfig>({
         paramValues: dependencies?.map((dep, index) => (
@@ -106,7 +107,7 @@ export function ManageDependencies(props: ManageDependenciesProps) {
                             artifact: newDep[1],
                             version: newDep[2],
                             range: newDep[3],
-                            type: 'zip' as 'zip'
+                            type: type
                         });
                     }
                 }
@@ -121,7 +122,7 @@ export function ManageDependencies(props: ManageDependenciesProps) {
                 groupId: dep[0],
                 artifact: dep[1],
                 version: dep[2],
-                type: 'zip' as 'zip'
+                type: type
             };
         });
 

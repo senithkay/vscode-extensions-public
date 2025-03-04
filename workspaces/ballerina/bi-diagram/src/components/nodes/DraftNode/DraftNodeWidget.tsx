@@ -12,14 +12,13 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { DraftNodeModel } from "./DraftNodeModel";
 import {
-    Colors,
     DRAFT_NODE_BORDER_WIDTH,
     DRAFT_NODE_HEIGHT,
     DRAFT_NODE_WIDTH,
     NODE_PADDING,
 } from "../../../resources/constants";
 import { useDiagramContext } from "../../DiagramContext";
-import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { ProgressRing, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 export namespace NodeStyles {
     export const Node = styled.div`
@@ -30,10 +29,10 @@ export namespace NodeStyles {
         width: ${DRAFT_NODE_WIDTH}px;
         min-height: ${DRAFT_NODE_HEIGHT}px;
         padding: 0 ${NODE_PADDING}px;
-        border: ${DRAFT_NODE_BORDER_WIDTH}px dashed ${Colors.PRIMARY};
+        border: ${DRAFT_NODE_BORDER_WIDTH}px dashed ${ThemeColors.PRIMARY};
         border-radius: 10px;
-        background-color: ${Colors.PRIMARY_CONTAINER};
-        color: ${Colors.ON_SURFACE};
+        background-color: ${ThemeColors.PRIMARY_CONTAINER};
+        color: ${ThemeColors.ON_SURFACE};
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -60,7 +59,7 @@ export namespace NodeStyles {
     export const Description = styled(StyledText)`
         font-size: 12px;
         font-family: monospace;
-        color: ${Colors.ON_SURFACE};
+        color: ${ThemeColors.ON_SURFACE};
         opacity: 0.7;
     `;
 }

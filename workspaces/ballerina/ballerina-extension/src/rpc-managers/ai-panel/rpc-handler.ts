@@ -11,44 +11,59 @@
 import {
     AddToProjectRequest,
     DeleteFromProjectRequest,
+    FetchDataRequest,
     GenerateMappingsFromRecordRequest,
     GenerateMappingsRequest,
-    GenerateTestRequest,
     GenerateTypesFromRecordRequest,
-    GeneratedTestSource,
     GetFromFileRequest,
     NotifyAIMappingsRequest,
     PostProcessRequest,
     ProjectSource,
+    TestGenerationRequest,
+    TestGenerationResponse,
     addToProject,
     applyDoOnFailBlocks,
     checkSyntaxError,
     clearInitialPrompt,
     deleteFromProject,
+    fetchData,
     generateMappings,
     getAccessToken,
     getActiveFile,
     getAiPanelState,
     getBackendURL,
     getFileExists,
+    getFromDocumentation,
     getFromFile,
-    getGeneratedTest,
+    getGeneratedTests,
     getInitialPrompt,
     getMappingsFromRecord,
     getProjectSource,
     getProjectUuid,
     getRefreshToken,
+    getResourceMethodAndPaths,
+    getResourceSourceForMethodAndPath,
+    getServiceNames,
+    getServiceSourceForName,
     getShadowDiagnostics,
     getTestDiagnostics,
     getTypesFromRecord,
+    isCopilotSignedIn,
+    isWSO2AISignedIn,
     login,
     logout,
+    markAlertShown,
     notifyAIMappings,
+    openChat,
+    openSettings,
     postProcess,
+    promptGithubAuthorize,
     promptLogin,
+    promptWSO2AILogout,
     refreshAccessToken,
+    showSignInAlert,
     stopAIMappings,
-    updateProject,
+    updateProject
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { AiPanelRpcManager } from "./rpc-manager";
@@ -62,6 +77,7 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAiPanelState, () => rpcManger.getAiPanelState());
     messenger.onRequest(getAccessToken, () => rpcManger.getAccessToken());
     messenger.onNotification(refreshAccessToken, () => rpcManger.refreshAccessToken());
+    messenger.onRequest(fetchData, (args: FetchDataRequest) => rpcManger.fetchData(args));
     messenger.onRequest(getProjectUuid, () => rpcManger.getProjectUuid());
     messenger.onNotification(addToProject, (args: AddToProjectRequest) => rpcManger.addToProject(args));
     messenger.onRequest(getFromFile, (args: GetFromFileRequest) => rpcManger.getFromFile(args));
@@ -77,11 +93,24 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(checkSyntaxError, (args: ProjectSource) => rpcManger.checkSyntaxError(args));
     messenger.onRequest(getInitialPrompt, () => rpcManger.getInitialPrompt());
     messenger.onNotification(clearInitialPrompt, () => rpcManger.clearInitialPrompt());
-    messenger.onRequest(getGeneratedTest, (args: GenerateTestRequest) => rpcManger.getGeneratedTest(args));
-    messenger.onRequest(getTestDiagnostics, (args: GeneratedTestSource) => rpcManger.getTestDiagnostics(args));
+    messenger.onRequest(getGeneratedTests, (args: TestGenerationRequest) => rpcManger.getGeneratedTests(args));
+    messenger.onRequest(getTestDiagnostics, (args: TestGenerationResponse) => rpcManger.getTestDiagnostics(args));
+    messenger.onRequest(getServiceSourceForName, (args: string) => rpcManger.getServiceSourceForName(args));
+    messenger.onRequest(getResourceSourceForMethodAndPath, (args: string) => rpcManger.getResourceSourceForMethodAndPath(args));
+    messenger.onRequest(getServiceNames, () => rpcManger.getServiceNames());
+    messenger.onRequest(getResourceMethodAndPaths, () => rpcManger.getResourceMethodAndPaths());
     messenger.onRequest(getMappingsFromRecord, (args: GenerateMappingsFromRecordRequest) => rpcManger.getMappingsFromRecord(args));
     messenger.onRequest(getTypesFromRecord, (args: GenerateTypesFromRecordRequest) => rpcManger.getTypesFromRecord(args));
     messenger.onNotification(applyDoOnFailBlocks, () => rpcManger.applyDoOnFailBlocks());
     messenger.onRequest(postProcess, (args: PostProcessRequest) => rpcManger.postProcess(args));
     messenger.onRequest(getActiveFile, () => rpcManger.getActiveFile());
+    messenger.onNotification(openSettings, () => rpcManger.openSettings());
+    messenger.onNotification(openChat, () => rpcManger.openChat());
+    messenger.onRequest(promptGithubAuthorize, () => rpcManger.promptGithubAuthorize());
+    messenger.onRequest(promptWSO2AILogout, () => rpcManger.promptWSO2AILogout());
+    messenger.onRequest(isCopilotSignedIn, () => rpcManger.isCopilotSignedIn());
+    messenger.onRequest(isWSO2AISignedIn, () => rpcManger.isWSO2AISignedIn());
+    messenger.onRequest(showSignInAlert, () => rpcManger.showSignInAlert());
+    messenger.onNotification(markAlertShown, () => rpcManger.markAlertShown());
+    messenger.onRequest(getFromDocumentation, (args: string) => rpcManger.getFromDocumentation(args));
 }

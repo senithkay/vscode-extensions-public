@@ -8,14 +8,16 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { ActionButtons, AutoComplete, TextField, Codicon, CheckBox, Divider, Typography } from '@wso2-enterprise/ui-toolkit';
-import { EditorContentColumn, EditorContainer, EditorContent, ParamContainer, ParamDescription } from '../../../styles';
-import { CommonRPCAPI, STModification, StatusCodeResponse, responseCodes } from '@wso2-enterprise/ballerina-core';
+import { CheckBox, Divider, Typography } from '@wso2-enterprise/ui-toolkit';
+import { EditorContainer } from '../../../styles';
+import { LineRange, StatusCodeResponse, responseCodes } from '@wso2-enterprise/ballerina-core';
 import { getTitleFromResponseCode } from '../../../utils';
-import { TypeBrowser } from '../../../components/TypeBrowser/TypeBrowser';
-import { NodePosition } from '@wso2-enterprise/syntax-tree';
+import { FormField } from '@wso2-enterprise/ballerina-side-panel';
+import FormGeneratorNew from '../../../../Forms/FormGeneratorNew';
+import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { URI, Utils } from 'vscode-uri';
 
 export interface ParamProps {
     index: number;
@@ -29,6 +31,16 @@ export interface ParamProps {
 
 export function ResponseEditor(props: ParamProps) {
     const { index, response, isEdit, onSave, onChange, onCancel, schema } = props;
+
+    const { rpcClient } = useRpcContext();
+
+    const [filePath, setFilePath] = useState<string>('');
+
+    const [targetLineRange, setTargetLineRange] = useState<LineRange>();
+
+    useEffect(() => {
+        rpcClient.getVisualizerLocation().then(res => { setFilePath(Utils.joinPath(URI.file(res.projectUri), 'main.bal').fsPath) });
+    }, []);
 
     useEffect(() => {
         if (!response.createStatusCodeResponse) {
@@ -75,81 +87,150 @@ export function ResponseEditor(props: ParamProps) {
         onSave(response, index);
     };
 
+    const currentFields: FormField[] = [
+        {
+            key: `code`,
+            label: schema.statusCode.metadata.label,
+            type: 'SINGLE_SELECT',
+            optional: false,
+            editable: true,
+            enabled: schema.statusCode?.enabled ?? true,
+            documentation: '',
+            value: getTitleFromResponseCode(Number(response.statusCode.value)),
+            items: responseCodes.map(code => code.title),
+            valueTypeConstraint: "",
+            addNewButton: false
+        },
+        {
+            key: `typeVal`,
+            label: schema.body.metadata.label,
+            type: 'TYPE',
+            optional: false,
+            editable: true,
+            enabled: schema.body?.enabled ?? true,
+            documentation: '',
+            value: response.body.value,
+            valueTypeConstraint: ""
+        },
+        {
+            key: `namedType`,
+            label: schema.name.metadata.label,
+            type: 'string',
+            optional: false,
+            advanced: false,
+            editable: true,
+            enabled: response.name?.enabled ?? true,
+            documentation: '',
+            value: response.name.value,
+            valueTypeConstraint: ""
+        }
+    ];
+
+
+    const typeField: FormField[] = [
+        {
+            key: `typeVal`,
+            label: schema.type.metadata.label,
+            type: 'TYPE',
+            optional: false,
+            editable: true,
+            enabled: schema.type?.enabled ?? true,
+            documentation: '',
+            value: response.type.value,
+            valueTypeConstraint: ""
+        }
+    ];
+
+    const onTypeNameSubmit = (dataValues: any) => {
+        console.log("Type name values", dataValues);
+
+        const code = responseCodes.find(code => code.title === dataValues.code).code;
+        response.statusCode.enabled = !!dataValues.code;
+        response.statusCode.value = String(code);
+
+        response.body.enabled = !!dataValues.typeVal;
+        response.body.value = dataValues.typeVal;
+
+        response.name.value = dataValues.namedType;
+        response.name.enabled = response.createStatusCodeResponse.enabled;
+        onSave(response, index);
+
+    }
+
+    const onTypeValueSubmit = (dataValues: any) => {
+        response.type.enabled = !!dataValues.typeVal;
+        response.type.value = dataValues.typeVal;
+        onSave(response, index);
+    }
+
+    useEffect(() => {
+        if (rpcClient) {
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getEndOfFile({ filePath })
+                .then((res) => {
+                    setTargetLineRange({
+                        startLine: res,
+                        endLine: res,
+                    });
+                });
+        }
+    }, [filePath, rpcClient]);
+
     return (
         <EditorContainer>
             <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Response Configuration</Typography>
             <Divider />
-            {!isEdit &&
+            {!isEdit && filePath && targetLineRange &&
                 <>
                     <CheckBox
                         label={schema.createStatusCodeResponse?.metadata.description}
                         value={response.createStatusCodeResponse?.metadata.description}
                         checked={response.createStatusCodeResponse?.value === "true"}
                         onChange={handleNamedTypeChange}
+                        sx={{ paddingLeft: "16px" }}
                     />
-                    <EditorContentColumn>
+                    <>
                         {response.createStatusCodeResponse?.value === "true" &&
                             <>
-                                <AutoComplete
-                                    sx={{ zIndex: 99, position: "relative", marginTop: "3px" }}
-                                    label={schema.statusCode.metadata.label}
-                                    value={getTitleFromResponseCode(Number(response.statusCode.value))}
-                                    items={responseCodes.map(code => code.title)}
-                                    onValueChange={handleCodeChange}
-                                />
-                                <TypeBrowser
-                                    id='body'
-                                    sx={{ zIndex: 1, position: "relative" }}
-                                    isOptional={true}
-                                    label={schema.body.metadata.label}
-                                    handleArray={true}
-                                    selectedItem={response.body.value}
-                                    onChange={handleTypeChange}
-                                />
-                                <TextField
-                                    sx={{ flexGrow: 1 }}
-                                    errorMsg={""}
-                                    label={schema.name.metadata.label}
-                                    size={50}
-                                    onTextChange={(input) => {
-                                        const trimmedInput = input.trim();
-                                        handleNameValueChange(trimmedInput);
-                                    }}
-                                    placeholder=""
-                                    value={response.name.value}
+                                <FormGeneratorNew
+                                    fileName={filePath}
+                                    targetLineRange={targetLineRange}
+                                    fields={currentFields}
+                                    onBack={handleOnCancel}
+                                    onSubmit={onTypeNameSubmit}
+                                    submitText={"Add"}
+                                    nestedForm={true}
                                 />
                             </>
                         }
                         {(!response.createStatusCodeResponse.value || response.createStatusCodeResponse.value === "false") &&
-                            <TypeBrowser
-                                id='namedType'
-                                sx={{ zIndex: 1, position: "relative" }}
-                                label={schema.type.metadata.label}
-                                handleArray={true}
-                                selectedItem={response.type.value}
-                                onChange={handleNTypeChange}
+                            <FormGeneratorNew
+                                fileName={filePath}
+                                targetLineRange={targetLineRange}
+                                fields={typeField}
+                                onBack={handleOnCancel}
+                                onSubmit={onTypeValueSubmit}
+                                submitText={"Add"}
+                                nestedForm={true}
                             />
                         }
-                    </EditorContentColumn>
+                    </>
                 </>
             }
-            {isEdit &&
-                <EditorContentColumn>
-                    <TypeBrowser
-                        id='namedType'
-                        sx={{ zIndex: 1, position: "relative" }}
-                        label={schema.type.metadata.label}
-                        handleArray={true}
-                        selectedItem={response.type.value}
-                        onChange={handleNTypeChange}
+            {isEdit && filePath && targetLineRange &&
+                <>
+                    <FormGeneratorNew
+                        fileName={filePath}
+                        targetLineRange={targetLineRange}
+                        fields={typeField}
+                        onBack={handleOnCancel}
+                        onSubmit={onTypeValueSubmit}
+                        submitText={"Save"}
+                        nestedForm={true}
                     />
-                </EditorContentColumn>
+                </>
             }
-            <ActionButtons
-                primaryButton={{ text: isEdit ? "Save" : "Add", onClick: handleOnSave }}
-                secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}
-                sx={{ justifyContent: "flex-end" }}
-            />
         </EditorContainer >
     );
 }

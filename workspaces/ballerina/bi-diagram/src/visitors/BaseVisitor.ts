@@ -27,7 +27,6 @@ export interface BaseVisitor {
     beginVisitConditional?(node: Branch, parent?: FlowNode): void;
     endVisitConditional?(node: Branch, parent?: FlowNode): void;
 
-    // `Body` is inside `Foreach` node 
     beginVisitBody?(node: Branch, parent?: FlowNode): void;
     endVisitBody?(node: Branch, parent?: FlowNode): void;
 
@@ -63,4 +62,19 @@ export interface BaseVisitor {
 
     beginVisitComment?(node: FlowNode, parent?: FlowNode): void;
     endVisitComment?(node: FlowNode, parent?: FlowNode): void;
+
+    beginVisitErrorHandler?(node: FlowNode, parent?: FlowNode): void;
+    endVisitErrorHandler?(node: FlowNode, parent?: FlowNode): void;
+
+    beginVisitOnFailure?(node: Branch, parent?: FlowNode): void;
+    endVisitOnFailure?(node: Branch, parent?: FlowNode): void;
+
+    beginVisitFork?(node: FlowNode, parent?: FlowNode): void;
+    endVisitFork?(node: FlowNode, parent?: FlowNode): void;
+
+    beginVisitWorker?(node: Branch, parent?: FlowNode): void;
+    endVisitWorker?(node: Branch, parent?: FlowNode): void;
+
+    beginVisitAgentCall?(node: FlowNode, parent?: FlowNode): void;
+    endVisitAgentCall?(node: FlowNode, parent?: FlowNode): void;
 }

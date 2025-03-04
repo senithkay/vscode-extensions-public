@@ -103,7 +103,7 @@ export const DEFAULT_OPTIONS: Options = {
   unknownAny: true,
 }
 
-export async function compile(schema: JSONSchema4, name: string, schemaTitle: string, options: Partial<Options> = {}, addMetaDataComment: boolean = true): Promise<string> {
+export async function compile(schema: JSONSchema4, name: string, schemaTitle: string, options: Partial<Options> = {}, addMetaDataComment: boolean = true, usedNames?: Set<string>): Promise<string> {
   validateOptions(options);
   const _options = merge({}, DEFAULT_OPTIONS, options);
 
@@ -123,7 +123,7 @@ export async function compile(schema: JSONSchema4, name: string, schemaTitle: st
   }
   const metadata = addMetaDataComment ? getSchemaMetaDataAsComment(linked, schemaTitle) : '';
   const normalized = normalize(linked, dereferencedPaths, name, _options);
-  const parsed = parse(normalized, _options);
+  const parsed = parse(normalized, _options, undefined, undefined, usedNames);
   const optimized = optimize(parsed, _options);
   const generated = generate(optimized, _options);
   const result = `${metadata}${generated}`;

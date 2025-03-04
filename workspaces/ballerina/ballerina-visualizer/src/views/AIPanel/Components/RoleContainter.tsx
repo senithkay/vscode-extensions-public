@@ -13,14 +13,25 @@ import styled from "@emotion/styled";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import { useState, useEffect } from "react";
 
-export const PreviewContainer = styled.div`
-    background-color: var(--vscode-button-background);
-    color: var(--vscode-button-foreground);
-    font-size: 0.8em;
+export const PreviewContainerDefault = styled.div`
+    font-size: 0.6em;
     padding: 2px 5px;
     border-radius: 3px;
     display: inline-block;
-    margin-left: 2px;
+    position: relative;
+    right: 0;
+    top: 10px;
+    margin-right: -20px;
+`;
+
+export const PreviewContainer = styled.div`
+    background-color: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
+    font-size: 0.8em; 
+    padding: 2px 5px; 
+    border-radius: 3px; 
+    display: inline-block; 
+    margin-left: 2px; 
 `;
 
 interface RoleContainerProps {

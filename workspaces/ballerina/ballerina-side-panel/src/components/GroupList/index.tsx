@@ -8,10 +8,9 @@
  */
 
 import React, { useState } from "react";
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { CallIcon, LogIcon } from "../../resources";
-import { Colors } from "../../resources/constants";
 import { Category, Node } from "./../NodeList/types";
 
 namespace S {
@@ -24,7 +23,7 @@ namespace S {
         width: 100%;
         padding: 8px 0;
         border-radius: 5px;
-        background-color: ${Colors.SURFACE_DIM_2};
+        background-color: ${ThemeColors.SURFACE_DIM_2};
     `;
 
     export const Row = styled.div<{}>`
@@ -74,7 +73,7 @@ namespace S {
         align-items: center;
         gap: 5px;
         padding: 5px;
-        border: 1px solid ${Colors.OUTLINE_VARIANT};
+        border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
         border-radius: 5px;
         height: 36px;
         cursor: ${({ enabled }) => (enabled ? "pointer" : "not-allowed")};
@@ -84,8 +83,8 @@ namespace S {
             ${({ enabled }) =>
             enabled &&
             `
-        background-color: ${Colors.PRIMARY_CONTAINER};
-        border: 1px solid ${Colors.PRIMARY};
+        background-color: ${ThemeColors.PRIMARY_CONTAINER};
+        border: 1px solid ${ThemeColors.PRIMARY};
     `}
         }
     `;
@@ -106,8 +105,8 @@ namespace S {
         & svg {
             height: 16px;
             width: 16px;
-            fill: ${Colors.ON_SURFACE};
-            stroke: ${Colors.ON_SURFACE};
+            fill: ${ThemeColors.ON_SURFACE};
+            stroke: ${ThemeColors.ON_SURFACE};
         }
     `;
 }

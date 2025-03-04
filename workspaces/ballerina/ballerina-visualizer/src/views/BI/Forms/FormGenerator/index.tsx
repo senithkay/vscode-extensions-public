@@ -21,7 +21,8 @@ import {
     TextEdit,
     FunctionKind,
     SubPanelView,
-    LinePosition
+    LinePosition,
+    ExpressionProperty
 } from "@wso2-enterprise/ballerina-core";
 import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditorProps, HelperPaneData, HelperPaneCompletionItem } from "@wso2-enterprise/ballerina-side-panel";
 import {
@@ -46,6 +47,7 @@ import {
     removeEmptyNodes,
     updateNodeWithProperties
 } from "../form-utils";
+import ForkForm from "../ForkForm";
 import { getHelperPane } from "../../HelperPane"
 
 interface FormProps {
@@ -228,7 +230,7 @@ export function FormGenerator(props: FormProps) {
     };
 
     const debouncedRetrieveCompletions = useCallback(debounce(
-        async (value: string, key: string, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
+        async (value: string, property: ExpressionProperty, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
             let expressionCompletions: CompletionItem[] = [];
             const effectiveText = value.slice(0, offset);
             const completionFetchText = effectiveText.match(/[a-zA-Z0-9_']+$/)?.[0] ?? "";
@@ -261,8 +263,8 @@ export function FormGenerator(props: FormProps) {
                         expression: value,
                         startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
                         offset: offset,
-                        node: node,
-                        property: key
+                        codedata: node.codedata,
+                        property: property
                     },
                     completionContext: {
                         triggerKind: triggerCharacter ? 2 : 1,
@@ -311,12 +313,12 @@ export function FormGenerator(props: FormProps) {
 
     const handleRetrieveCompletions = useCallback(async (
         value: string,
-        key: string,
+        property: ExpressionProperty,
         offset: number,
         triggerCharacter?: string,
         onlyVariables?: boolean
     ) => {
-        await debouncedRetrieveCompletions(value, key, offset, triggerCharacter, onlyVariables);
+        await debouncedRetrieveCompletions(value, property, offset, triggerCharacter, onlyVariables);
 
         if (triggerCharacter) {
             await debouncedRetrieveCompletions.flush();
@@ -326,12 +328,12 @@ export function FormGenerator(props: FormProps) {
     const debouncedGetVisibleTypes = useCallback(debounce(async (value: string, cursorPosition: number) => {
         let visibleTypes: CompletionItem[] = types;
         if (!types.length) {
-            const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
+            const types = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
                 filePath: fileName,
                 position: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
             });
 
-            visibleTypes = convertToVisibleTypes(response.types);
+            visibleTypes = convertToVisibleTypes(types);
             setTypes(visibleTypes);
         }
 
@@ -350,15 +352,15 @@ export function FormGenerator(props: FormProps) {
         await debouncedGetVisibleTypes(value, cursorPosition);
     }, [debouncedGetVisibleTypes]);
 
-    const extractArgsFromFunction = async (value: string, key: string, cursorPosition: number) => {
+    const extractArgsFromFunction = async (value: string, property: ExpressionProperty, cursorPosition: number) => {
         const signatureHelp = await rpcClient.getBIDiagramRpcClient().getSignatureHelp({
             filePath: fileName,
             context: {
                 expression: value,
                 startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
                 offset: cursorPosition,
-                node: node,
-                property: key
+                codedata: node.codedata,
+                property: property
             },
             signatureHelpContext: {
                 isRetrigger: false,
@@ -373,6 +375,7 @@ export function FormGenerator(props: FormProps) {
         showDiagnostics: boolean,
         expression: string,
         key: string,
+        property: ExpressionProperty,
         setDiagnosticsInfo: (diagnostics: FormDiagnostics) => void,
         shouldUpdateNode?: boolean,
         variableType?: string
@@ -384,7 +387,7 @@ export function FormGenerator(props: FormProps) {
 
         // HACK: For variable nodes, update the type value in the node
         if (shouldUpdateNode) {
-            node.properties["type"].value = variableType;
+            node.properties["type"].value = variableType || "any";
         }
 
         const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
@@ -393,8 +396,8 @@ export function FormGenerator(props: FormProps) {
                 expression: expression,
                 startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
                 offset: 0,
-                node: node,
-                property: key
+                codedata: node.codedata,
+                property: property
             },
         });
 
@@ -403,7 +406,7 @@ export function FormGenerator(props: FormProps) {
     }, 250), [rpcClient, fileName, targetLineRange, node]);
 
     const handleCompletionItemSelect = async (value: string, additionalTextEdits?: TextEdit[]) => {
-        if (additionalTextEdits?.[0].newText) {
+        if (additionalTextEdits?.[0]?.newText) {
             const response = await rpcClient.getBIDiagramRpcClient().updateImports({
                 filePath: fileName,
                 importStatement: additionalTextEdits[0].newText
@@ -435,6 +438,7 @@ export function FormGenerator(props: FormProps) {
 
     const handleGetHelperPane = (
         exprRef: RefObject<FormExpressionEditorRef>,
+        defaultValue: string,
         value: string,
         onChange: (value: string, updatedCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void
@@ -444,6 +448,7 @@ export function FormGenerator(props: FormProps) {
             targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
             exprRef: exprRef,
             onClose: () => changeHelperPaneState(false),
+            defaultValue: defaultValue,
             currentValue: value,
             onChange: onChange
         });
@@ -491,6 +496,23 @@ export function FormGenerator(props: FormProps) {
                 updatedExpressionField={updatedExpressionField}
                 subPanelView={subPanelView}
                 resetUpdatedExpressionField={resetUpdatedExpressionField}
+            />
+        );
+    }
+
+    // handle fork node form
+    if (node?.codedata.node === "FORK") {
+        return (
+            <ForkForm
+                fileName={fileName}
+                node={node}
+                targetLineRange={targetLineRange}
+                expressionEditor={expressionEditor}
+                onSubmit={onSubmit}
+                openSubPanel={openSubPanel}
+                updatedExpressionField={updatedExpressionField}
+                resetUpdatedExpressionField={resetUpdatedExpressionField}
+                subPanelView={subPanelView}
             />
         );
     }

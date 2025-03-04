@@ -29,6 +29,21 @@
 		},
 		{
 			"path": "workspaces/common-libs/ui-toolkit"
+		},
+		{
+			"path": "workspaces/ballerina/type-diagram"
+		},
+		{
+			"path": "workspaces/ballerina/record-creator"
+		},
+		{
+			"path": "workspaces/ballerina/type-editor"
+		},
+		{
+			"path": "workspaces/common-libs/font-wso2-vscode"
+		},
+		{
+			"path": "workspaces/ballerina/bi-diagram"
 		}
 	],
 	"settings": {}

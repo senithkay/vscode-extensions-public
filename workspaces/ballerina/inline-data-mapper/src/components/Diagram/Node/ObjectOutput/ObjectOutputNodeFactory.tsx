@@ -40,7 +40,6 @@ export class ObjectOutputNodeFactory extends AbstractReactFactory<ObjectOutputNo
 						context={event.model.context}
 						mappings={event.model.filterdMappings}
 						valueLabel={event.model.outputType.id}
-						deleteField={(node) => event.model.deleteField(node)}
 						originalTypeName={event.model.filteredOutputType?.variableName}
 					/>
 				)}

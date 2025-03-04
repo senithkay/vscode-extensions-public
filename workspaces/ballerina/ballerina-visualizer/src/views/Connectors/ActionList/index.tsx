@@ -12,8 +12,7 @@ import React, { useEffect, useState } from "react";
 import { ActionCard } from "./ActionCard";
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import styled from "@emotion/styled";
-import { Colors } from "../../../resources/constants";
-import { SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
+import { SearchBox, Typography, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { FunctionDefinitionInfo } from "@wso2-enterprise/ballerina-core";
 
 export namespace S {
@@ -31,14 +30,14 @@ export namespace S {
         align-items: center;
         gap: 5px;
         padding: 5px;
-        border: 1px solid ${Colors.OUTLINE_VARIANT};
+        border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
         border-radius: 5px;
         height: 36px;
         cursor: "pointer";
         font-size: 14px;
         &:hover {    
-                background-color: ${Colors.PRIMARY_CONTAINER};
-                border: 1px solid ${Colors.PRIMARY};
+                background-color: ${ThemeColors.PRIMARY_CONTAINER};
+                border: 1px solid ${ThemeColors.PRIMARY};
         };
         margin: 5px;
     `;
@@ -47,13 +46,13 @@ export namespace S {
         display: block;
         gap: 5px;
         padding: 5px;
-        border: 1px solid ${Colors.OUTLINE_VARIANT};
+        border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
         border-radius: 5px;
         cursor: "pointer";
         font-size: 14px;
         &:hover {    
-                background-color: ${Colors.PRIMARY_CONTAINER};
-                border: 1px solid ${Colors.PRIMARY};
+                background-color: ${ThemeColors.PRIMARY_CONTAINER};
+                border: 1px solid ${ThemeColors.PRIMARY};
         };
         margin: 5px;
     `;
@@ -73,8 +72,8 @@ export namespace S {
         & svg {
             height: 16px;
             width: 16px;
-            fill: ${Colors.ON_SURFACE};
-            stroke: ${Colors.ON_SURFACE};
+            fill: ${ThemeColors.ON_SURFACE};
+            stroke: ${ThemeColors.ON_SURFACE};
         }
     `;
 }

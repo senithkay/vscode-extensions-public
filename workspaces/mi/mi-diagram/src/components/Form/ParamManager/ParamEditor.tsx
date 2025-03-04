@@ -12,15 +12,16 @@ import React, { useEffect, useState } from 'react';
 
 import { Param, TypeResolver } from './TypeResolver';
 import { ParamField, Parameters, isFieldEnabled, getParamFieldLabelFromParamId } from './ParamManager';
-import { ActionButtons, Drawer } from '@wso2-enterprise/ui-toolkit';
+import { ActionButtons, Drawer, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
-import { SIDE_PANEL_WIDTH } from '../../../resources/constants';
+import { SIDE_PANEL_WIDTH, VSCodeColors } from '../../../resources/constants';
 
 export interface ParamProps {
     parameters: Parameters;
     paramFields: ParamField[];
     isTypeReadOnly?: boolean;
     openInDrawer?: boolean;
+    errorMessage?: string;
     onChange: (param: Parameters) => void;
     onSave?: (param: Parameters) => void;
     onCancel?: (param?: Parameters) => void;
@@ -63,9 +64,9 @@ const atLeaseOneFieldFilled = (p: Param[]) => {
 };
 
 export function ParamEditor(props: ParamProps) {
-    const { parameters, paramFields, openInDrawer, onChange, onSave, onCancel } = props;
+    const { parameters, paramFields, openInDrawer, errorMessage, onChange, onSave, onCancel } = props;
     const [isDrawerCancelInProgress, setIsDrawerCancelInProgress] = useState(false);
-    const [isSaveEnabled, setIsSaveEnabled] = useState(isRequiredFieldsFilled(parameters.parameters) && atLeaseOneFieldFilled(parameters.parameters));
+    const [isSaveEnabled, setIsSaveEnabled] = useState(isRequiredFieldsFilled(parameters.parameters) && atLeaseOneFieldFilled(parameters.parameters) && !errorMessage);
     const [drawerTopOffset, setDrawerTopOffset] = useState(0);
 
     const getParamComponent = (p: Param) => {
@@ -132,6 +133,10 @@ export function ParamEditor(props: ParamProps) {
         }
     }, []);
 
+    useEffect(() => {
+        setIsSaveEnabled(isRequiredFieldsFilled(parameters.parameters) && atLeaseOneFieldFilled(parameters.parameters) && !errorMessage);
+    }, [parameters, errorMessage]);
+
     return (
         <>
             {!openInDrawer && (
@@ -139,6 +144,7 @@ export function ParamEditor(props: ParamProps) {
                     <EditorContent>
                         {parameters?.parameters.map(param => getParamComponent({ ...param, label: getParamFieldLabelFromParamId(paramFields, param.id) }))}
                     </EditorContent>
+                    {errorMessage && <Typography variant='body1' sx={{ color: VSCodeColors.ERROR }}>{errorMessage}</Typography>}
                     <ActionButtons
                         primaryButton={{ text: "Save", onClick: handleOnSave, disabled: !isSaveEnabled }}
                         secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}
@@ -154,6 +160,7 @@ export function ParamEditor(props: ParamProps) {
                             label: getParamFieldLabelFromParamId(paramFields, param.id)
                         })
                         )}
+                        {errorMessage && <Typography variant='body1' sx={{ color: VSCodeColors.ERROR }}>{errorMessage}</Typography>}
                         <ActionButtons
                             primaryButton={{ text: "Save", onClick: handleOnSave, disabled: !isSaveEnabled }}
                             secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Codicon, ErrorBanner, ProgressRing, TextField, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Codicon, ProgressRing, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import React, { useEffect } from 'react';
 import SidePanelContext from '../SidePanelContexProvider';
 import { FirstCharToUpperCase } from '../../../utils/commons';
@@ -21,6 +21,7 @@ import { DownloadPage } from '../mediators/DownloadPage';
 import { debounce } from 'lodash';
 import styled from '@emotion/styled';
 import { VSCodeLink } from '@vscode/webview-ui-toolkit/react';
+import { OperationsList } from './OperationsList';
 
 const SearchStyle = {
     width: 'auto',
@@ -59,6 +60,7 @@ export function Modules(props: ModuleProps) {
     const [searchedModules, setSearchedModules] = React.useState<[]>(undefined);
     const [searchValue, setSearchValue] = React.useState<string>('');
     const [isFetchingModules, setIsFetchingModules] = React.useState<Boolean>(false);
+    const [selectedVersion, setSelectedVersion] = React.useState([]);
 
     useEffect(() => {
         fetchModules();
@@ -117,11 +119,17 @@ export function Modules(props: ModuleProps) {
     const downloadModule = (module: any) => {
         const downloadPage = <DownloadPage
             module={module}
+            selectedVersion={selectedVersion[module.connectorName] ?? module.version.tagName}
             onDownloadSuccess={props.reloadMediatorPalette}
             documentUri={props.documentUri} />;
 
         sidepanelAddPage(sidePanelContext, downloadPage, FirstCharToUpperCase(module.connectorName), module.iconUrl);
     };
+
+    const setVersion = async (connectorName: any, version: string) => {
+        selectedVersion[connectorName] = version;
+        setSelectedVersion(selectedVersion);
+    }
 
     const getFilteredStoreModules = (modules: any[]) => {
         return Object.entries(modules)
@@ -170,24 +178,9 @@ export function Modules(props: ModuleProps) {
                                 title={FirstCharToUpperCase(values.connectorName)}
                                 isCollapsed={true}
                                 iconUri={values.iconUrl}
-                                versionTag={values.version.tagName}
-                                onDownload={() => downloadModule(values)}>
-                                <OperationsWrapper>
-                                    Available Operations
-                                    <hr style={{ border: '1px solid #ccc', margin: '5px 0', width: '350px' }} />
-                                    {values.version.operations.map((operation: ConnectorOperation) => (
-                                        !operation.isHidden && (
-                                            <Tooltip
-                                                key={key}
-                                                content={operation.description} 
-                                                position='bottom'
-                                                sx={{ zIndex: 2010 }}
-                                                containerSx={{ cursor: "default" }}>
-                                                {FirstCharToUpperCase(operation.name)}
-                                            </Tooltip>
-                                        )
-                                    ))}
-                                </OperationsWrapper>
+                                onDownload={() => downloadModule(values)}
+                                disableGrid={true} >
+                                <OperationsList connector={values} allowVersionChange={true} setVersionForDownload={setVersion} />
                             </ButtonGroup >
                         </div >
                     )))

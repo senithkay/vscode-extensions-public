@@ -11,8 +11,8 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { IfNodeModel } from "./IfNodeModel";
-import { Colors, IF_NODE_WIDTH, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_WIDTH } from "../../../resources/constants";
-import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
+import { IF_NODE_WIDTH, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_WIDTH } from "../../../resources/constants";
+import { Button, Item, Menu, MenuItem, Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { FlowNode } from "../../../utils/types";
 import { useDiagramContext } from "../../DiagramContext";
 import { MoreVertIcon } from "../../../resources";
@@ -30,7 +30,7 @@ export namespace NodeStyles {
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
-        color: ${Colors.ON_SURFACE};
+        color: ${ThemeColors.ON_SURFACE};
         cursor: pointer;
     `;
 
@@ -71,7 +71,7 @@ export namespace NodeStyles {
     export const Icon = styled.div`
         padding: 4px;
         svg {
-            fill: ${Colors.ON_SURFACE};
+            fill: ${ThemeColors.ON_SURFACE};
         }
     `;
 
@@ -222,13 +222,13 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                             height={NODE_HEIGHT}
                             rx="5"
                             ry="5"
-                            fill={isActiveBreakpoint ? Colors.DEBUGGER_BREAKPOINT_BACKGROUND : Colors.SURFACE_DIM}
+                            fill={isActiveBreakpoint ? ThemeColors.DEBUGGER_BREAKPOINT_BACKGROUND : ThemeColors.SURFACE_DIM}
                             stroke={
                                 hasError
-                                    ? Colors.ERROR
+                                    ? ThemeColors.ERROR
                                     : isHovered && !disabled
-                                    ? Colors.PRIMARY
-                                    : Colors.OUTLINE_VARIANT
+                                    ? ThemeColors.PRIMARY
+                                    : ThemeColors.OUTLINE_VARIANT
                             }
                             strokeWidth={NODE_BORDER_WIDTH}
                             strokeDasharray={disabled ? "5 5" : "none"}
@@ -237,7 +237,7 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                         />
                         <svg x="20" y="15" width="30" height="30" viewBox="0 0 24 24">
                             <path
-                                fill={Colors.ON_SURFACE}
+                                fill={ThemeColors.ON_SURFACE}
                                 transform="rotate(180)"
                                 transform-origin="50% 50%"
                                 d="m14.85 4.85l1.44 1.44l-2.88 2.88l1.42 1.42l2.88-2.88l1.44 1.44a.5.5 0 0 0 .85-.36V4.5c0-.28-.22-.5-.5-.5h-4.29a.5.5 0 0 0-.36.85M8.79 4H4.5c-.28 0-.5.22-.5.5v4.29c0 .45.54.67.85.35L6.29 7.7L11 12.4V19c0 .55.45 1 1 1s1-.45 1-1v-7c0-.26-.11-.52-.29-.71l-5-5.01l1.44-1.44c.31-.3.09-.84-.36-.84"

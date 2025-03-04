@@ -19,7 +19,7 @@ import {
 import { DiagramEngine, DragDiagramItemsState, PortModel } from '@projectstorm/react-diagrams-core';
 
 import { DMCanvasContainerID } from "../Canvas/DataMapperCanvasWidget";
-import { InputNode, ObjectOutputNode } from '../Node';
+import { ArrayOutputNode, InputNode, ObjectOutputNode } from '../Node';
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { LinkOverayContainerID } from '../OverriddenLinkLayer/LinkOverlayPortal';
 import { CreateLinkState } from './CreateLinkState';
@@ -30,11 +30,11 @@ export class DefaultState extends State<DiagramEngine> {
 	createLink: CreateLinkState;
 	dragItems: DragDiagramItemsState;
 
-	constructor() {
+	constructor(resetState: boolean = false) {
 		super({ name: 'starting-state' });
 		this.childStates = [new SelectingState()];
 		this.dragCanvas = new DragCanvasState({allowDrag: false});
-		this.createLink = new CreateLinkState();
+		this.createLink = new CreateLinkState(resetState);
 		this.dragItems = new DragDiagramItemsState();
 
 		// determine what was clicked on
@@ -43,6 +43,8 @@ export class DefaultState extends State<DiagramEngine> {
 				type: InputType.MOUSE_DOWN,
 				fire: (event: ActionEvent<MouseEvent>) => {
 					const element = this.engine.getActionEventBus().getModelForEvent(event);
+					const isExpandOrCollapse = (event.event.target as Element)
+						.closest('div[id^="expand-or-collapse"]');
 
 					// the canvas was clicked on, transition to the dragging canvas state
 					if (!element) {
@@ -58,7 +60,7 @@ export class DefaultState extends State<DiagramEngine> {
 						}
 					}
 					// initiate dragging a new link
-					else if (element instanceof PortModel || element instanceof DataMapperNodeModel) {
+					else if ((element instanceof PortModel || element instanceof DataMapperNodeModel) && !isExpandOrCollapse) {
 						return;
 					}
 					// move the items (and potentially link points)
@@ -75,17 +77,14 @@ export class DefaultState extends State<DiagramEngine> {
 				fire: (actionEvent: ActionEvent<MouseEvent>) => {
 					const element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
 					const isExpandOrCollapse = (actionEvent.event.target as Element)
-						.closest('button[id^="button-wrapper"]');
+						.closest('button[id^="expand-or-collapse"]');
 					const isAddElement = (actionEvent.event.target as Element)
 						.closest('button[id^="add-array-element"]');
-					const isAddLocalVariable = (actionEvent.event.target as Element)
-						.closest('button[id^="add-local-variable"]');
-					const isEditLocalVariables = (actionEvent.event.target as Element)
-						.closest('button[id^="edit-local-variables"]');
 
-					if (!isExpandOrCollapse && !isAddElement && !isAddLocalVariable && !isEditLocalVariables
+					if (!isExpandOrCollapse && !isAddElement
 						&& (element instanceof PortModel
 							|| element instanceof ObjectOutputNode
+							|| element instanceof ArrayOutputNode
 							|| element instanceof InputNode
 						)
 					) {

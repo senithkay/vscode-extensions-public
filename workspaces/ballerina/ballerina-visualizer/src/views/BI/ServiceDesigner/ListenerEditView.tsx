@@ -7,15 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
-import { DIRECTORY_MAP, EVENT_TYPE, ListenerModel, ListenersResponse, NodePosition, LineRange } from '@wso2-enterprise/ballerina-core';
-import { Button, Codicon, ComponentCard, Icon, TextField, Typography, Stepper, ProgressRing, View, ViewContent, CheckBox, AutoComplete } from '@wso2-enterprise/ui-toolkit';
+import React, { useEffect, useState } from 'react';
+import { EVENT_TYPE, ListenerModel, NodePosition, LineRange } from '@wso2-enterprise/ballerina-core';
+import { Typography, ProgressRing, View, ViewContent } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import ListenerConfigForm from './Forms/ListenerConfigForm';
-import { BodyText, LoadingContainer } from '../../styles';
-import { BIHeader } from '../BIHeader';
-import { FormValues } from '@wso2-enterprise/ballerina-side-panel';
+import { LoadingContainer } from '../../styles';
+import { TopNavigationBar } from '../../../components/TopNavigationBar';
+import { TitleBar } from '../../../components/TitleBar';
 
 const FORM_WIDTH = 600;
 
@@ -106,8 +106,9 @@ export function ListenerEditView(props: ListenerEditViewProps) {
 
     return (
         <View>
+            <TopNavigationBar />
+            <TitleBar title="Listener" subtitle="Edit Listener" />
             <ViewContent padding>
-                <BIHeader />
                 {!listenerModel &&
                     <LoadingContainer>
                         <ProgressRing />

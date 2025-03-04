@@ -8,11 +8,51 @@
  */
 
 import { useEffect, useState } from "react";
-import { STNode } from "@wso2-enterprise/syntax-tree";
-import { Switch, View } from "@wso2-enterprise/ui-toolkit";
+import { ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { Button, Icon, Switch, View, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { BIFlowDiagram } from "../FlowDiagram";
 import { BISequenceDiagram } from "../SequenceDiagram";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { TopNavigationBar } from "../../../components/TopNavigationBar";
+import { TitleBar } from "../../../components/TitleBar";
+import { EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
+import { VisualizerLocation } from "@wso2-enterprise/ballerina-core";
+import { MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
+import styled from "@emotion/styled";
+
+const ActionButton = styled(Button)`
+    display: flex;
+    align-items: center;
+    gap: 4px;
+`;
+
+const SubTitleWrapper = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+`;
+
+const AccessorType = styled.span`
+    background-color: ${ThemeColors.SURFACE_BRIGHT};
+    color: ${ThemeColors.BADGE};
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+`;
+
+const Path = styled.span`
+    color: ${ThemeColors.ON_SURFACE};
+    font-family: var(--vscode-editor-font-family);
+    font-size: 13px;
+`;
+
+const Parameters = styled.span`
+    color: ${ThemeColors.PRIMARY};
+    font-family: var(--vscode-editor-font-family);
+    font-size: 13px;
+`;
 
 export interface DiagramWrapperProps {
     syntaxTree: STNode;
@@ -25,6 +65,8 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
 
     const [showSequenceDiagram, setShowSequenceDiagram] = useState(false);
     const [enableSequenceDiagram, setEnableSequenceDiagram] = useState(false);
+    const [loadingDiagram, setLoadingDiagram] = useState(false);
+    const [fileName, setFileName] = useState("");
 
     useEffect(() => {
         rpcClient.getVisualizerLocation().then((location) => {
@@ -38,8 +80,102 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
         setShowSequenceDiagram(!showSequenceDiagram);
     };
 
+    const handleUpdateDiagram = () => {
+        setLoadingDiagram(true);
+    };
+
+    const handleReadyDiagram = (fileName?: string) => {
+        setLoadingDiagram(false);
+        if (fileName) {
+            setFileName(fileName);
+        }
+    };
+
+    const handleEdit = (fileUri?: string) => {
+        const context: VisualizerLocation = {
+            view: MACHINE_VIEW.BIFunctionForm,
+            identifier: (syntaxTree as ResourceAccessorDefinition).functionName.value,
+            documentUri: fileUri,
+        };
+        rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
+    };
+
+    const handleResourceTryIt = (methodValue: string, pathValue: string) => {
+        const commands = ["kolab.tryit", false, { methodValue, pathValue }]
+        rpcClient.getCommonRpcClient().executeCommand({ commands });
+    };
+
+    let isAutomation = false;
+    let isResource = false;
+    let method = "";
+    const parameters = getParameters(syntaxTree);
+
+    if (STKindChecker.isResourceAccessorDefinition(syntaxTree)) {
+        isResource = true;
+        method = (syntaxTree as ResourceAccessorDefinition).functionName.value;
+    } else if (STKindChecker.isFunctionDefinition(syntaxTree)) {
+        isResource = false;
+        method = syntaxTree.functionName.value;
+    }
+
+    if (!isResource && method === "main") {
+        isAutomation = true;
+    }
+
     return (
         <View>
+            <TopNavigationBar />
+            {isResource && !isAutomation && (
+                <TitleBar
+                    title={"Resource"}
+                    subtitleElement={
+                        <SubTitleWrapper>
+                            <AccessorType>{method}</AccessorType>
+                            <Path>{getResourcePath(syntaxTree)}</Path>
+                            {parameters && <Parameters>({parameters})</Parameters>}
+                        </SubTitleWrapper>
+                    }
+                    actions={
+                        <ActionButton appearance="secondary" onClick={() => handleResourceTryIt(method, getResourcePath(syntaxTree))}>
+                            <Icon name="play" isCodicon={true} sx={{ marginRight: 5, width: 16, height: 16, fontSize: 14 }} />
+                            Try It
+                        </ActionButton>
+                    }
+                />
+            )}
+            {!isResource && !isAutomation && (
+                <TitleBar
+                    title={"Function"}
+                    subtitleElement={
+                        <SubTitleWrapper>
+                            <Path>{method}</Path>
+                            {parameters && <Parameters>({parameters})</Parameters>}
+                        </SubTitleWrapper>
+                    }
+                    actions={
+                        <ActionButton appearance="secondary" onClick={() => handleEdit(fileName)}>
+                            <Icon name="bi-edit" sx={{ marginRight: 5, width: 16, height: 16, fontSize: 14 }} />
+                            Edit
+                        </ActionButton>
+                    }
+                />
+            )}
+            {!isResource && isAutomation && (
+                <TitleBar
+                    title={"Automation"}
+                    subtitleElement={
+                        <SubTitleWrapper>
+                            <Parameters>({getParameters(syntaxTree)})</Parameters>
+                        </SubTitleWrapper>
+                    }
+                    actions={
+                        <ActionButton appearance="secondary" onClick={() => handleEdit(fileName)}>
+                            <Icon name="bi-edit" sx={{ marginRight: 5, width: 16, height: 16, fontSize: 14 }} />
+                            Edit
+                        </ActionButton>
+                    }
+                />
+            )}
             {enableSequenceDiagram && (
                 <Switch
                     leftLabel="Flow"
@@ -51,21 +187,65 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                     sx={{
                         margin: "auto",
                         position: "fixed",
-                        top: "30px",
-                        right: "20px",
+                        top: "120px",
+                        right: "16px",
                         zIndex: "3",
                         border: "unset",
                     }}
-                    disabled={false}
+                    disabled={loadingDiagram}
                 />
             )}
             {showSequenceDiagram ? (
-                <BISequenceDiagram />
+                <BISequenceDiagram
+                    syntaxTree={syntaxTree}
+                    onUpdate={handleUpdateDiagram}
+                    onReady={handleReadyDiagram}
+                />
             ) : (
-                <BIFlowDiagram syntaxTree={syntaxTree} projectPath={projectPath} />
+                <BIFlowDiagram
+                    syntaxTree={syntaxTree}
+                    projectPath={projectPath}
+                    onUpdate={handleUpdateDiagram}
+                    onReady={handleReadyDiagram}
+                />
             )}
         </View>
     );
+}
+
+function getResourcePath(resource: STNode) {
+    let resourcePath = "";
+    if (STKindChecker.isResourceAccessorDefinition(resource)) {
+        resource.relativeResourcePath?.forEach((path, index) => {
+            resourcePath += STKindChecker.isResourcePathSegmentParam(path) ? path.source : path?.value;
+        });
+    }
+    return resourcePath;
+}
+
+function getParameters(syntaxTree: STNode) {
+    if (STKindChecker.isResourceAccessorDefinition(syntaxTree)) {
+        return syntaxTree.functionSignature.parameters
+            .map((param) => {
+                if (!STKindChecker.isCommaToken(param)) {
+                    return `${param.paramName.value}: ${param.typeName.source.trim()}`;
+                }
+                return null;
+            })
+            .filter(Boolean)
+            .join(", ");
+    } else if (STKindChecker.isFunctionDefinition(syntaxTree)) {
+        return syntaxTree.functionSignature.parameters
+            .map((param) => {
+                if (!STKindChecker.isCommaToken(param)) {
+                    return `${param.paramName.value}: ${param.typeName.source.trim()}`;
+                }
+                return null;
+            })
+            .filter(Boolean)
+            .join(", ");
+    }
+    return "";
 }
 
 export default DiagramWrapper;

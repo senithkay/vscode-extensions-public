@@ -15,13 +15,10 @@ import { LineRange, ConfigVariable } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { convertToHelperPaneConfigurableVariable, filterHelperPaneVariables } from "../../../utils/bi";
 import { URI, Utils } from "vscode-uri";
-import { HELPER_PANE_PAGE, HelperPanePageType } from ".";
 
 type ConfigurablePageProps = {
     fileName: string;
     targetLineRange: LineRange;
-    setCurrentPage: (page: HelperPanePageType) => void;
-    onClose: () => void;
     onChange: (value: string) => void;
 };
 
@@ -49,8 +46,6 @@ namespace S {
 export const ConfigurablePage = ({
     fileName,
     targetLineRange,
-    setCurrentPage,
-    onClose,
     onChange,
 }: ConfigurablePageProps) => {
     const { rpcClient } = useRpcContext();
@@ -198,7 +193,6 @@ export const ConfigurablePage = ({
         handleSaveConfigurables(confData as any)
             .then(() => {
                 setIsFormVisible(false);
-                setCurrentPage(HELPER_PANE_PAGE.CONFIGURABLE);
             })
             .catch((error) => {
                 console.error("Failed to save variable:", error);
@@ -212,30 +206,29 @@ export const ConfigurablePage = ({
     return (
         <>
             <HelperPane.Header
-                title="Configurables"
-                onBack={() => setCurrentPage(HELPER_PANE_PAGE.CATEGORY)}
-                onClose={onClose}
                 searchValue={searchValue}
                 onSearch={handleSearch}
                 titleSx={{ fontFamily: "GilmerRegular" }}
             />
             <HelperPane.Body loading={isLoading}>
                 {!isFormVisible ? (
-                    <>
-                        {filteredConfigurableInfo?.category.map((category) => (
-                            <React.Fragment key={category.label}>
-                                {category.items.map((item, index) => (
-                                    <HelperPane.CompletionItem
-                                        key={index}
-                                        label={item.label}
-                                        type={item.type}
-                                        onClick={() => onChange(item.label)}
-                                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
-                                    />
-                                ))}
-                            </React.Fragment>
-                        ))}
-                    </>
+                    filteredConfigurableInfo?.category.map((category) => (
+                        <HelperPane.Section
+                            key={category.label}
+                            title={category.label}
+                            titleSx={{ fontFamily: 'GilmerMedium' }}
+                        >
+                            {category.items?.map((item) => (
+                                <HelperPane.CompletionItem
+                                    key={`${category.label}-${item.label}`}
+                                    label={item.label}
+                                    type={item.type}
+                                    onClick={() => onChange(item.label)}
+                                    getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
+                                />
+                            ))}
+                        </HelperPane.Section>
+                    ))
                 ) : (
                     <HelperPane.Section title="Create New Configurable Variable" titleSx={{ fontFamily: "GilmerMedium" }}>
                         <S.FormSection>

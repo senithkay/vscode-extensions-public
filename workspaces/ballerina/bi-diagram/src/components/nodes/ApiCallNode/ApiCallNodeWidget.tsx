@@ -10,10 +10,8 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { cloneDeep } from "lodash";
 import { ApiCallNodeModel } from "./ApiCallNodeModel";
 import {
-    Colors,
     DRAFT_NODE_BORDER_WIDTH,
     LABEL_HEIGHT,
     NODE_BORDER_WIDTH,
@@ -22,7 +20,7 @@ import {
     NODE_PADDING,
     NODE_WIDTH,
 } from "../../../resources/constants";
-import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
+import { Button, Item, Menu, MenuItem, Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import { FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
@@ -58,11 +56,11 @@ export namespace NodeStyles {
         border: ${(props: NodeStyleProp) => (props.disabled ? DRAFT_NODE_BORDER_WIDTH : NODE_BORDER_WIDTH)}px;
         border-style: ${(props: NodeStyleProp) => (props.disabled ? "dashed" : "solid")};
         border-color: ${(props: NodeStyleProp) =>
-            props.hasError ? Colors.ERROR : props.hovered && !props.disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+            props.hasError ? ThemeColors.ERROR : props.hovered && !props.disabled ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT};
         border-radius: 10px;
         background-color: ${(props: NodeStyleProp) =>
-            props?.isActiveBreakpoint ? Colors.DEBUGGER_BREAKPOINT_BACKGROUND : Colors.SURFACE_DIM};
-        color: ${Colors.ON_SURFACE};
+            props?.isActiveBreakpoint ? ThemeColors.DEBUGGER_BREAKPOINT_BACKGROUND : ThemeColors.SURFACE_DIM};
+        color: ${ThemeColors.ON_SURFACE};
     `;
 
     export const Header = styled.div<{}>`
@@ -96,7 +94,7 @@ export namespace NodeStyles {
     export const Icon = styled.div`
         padding: 4px;
         svg {
-            fill: ${Colors.ON_SURFACE};
+            fill: ${ThemeColors.ON_SURFACE};
         }
     `;
 
@@ -117,7 +115,7 @@ export namespace NodeStyles {
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
-        color: ${Colors.ON_SURFACE};
+        color: ${ThemeColors.ON_SURFACE};
         opacity: 0.7;
     `;
 
@@ -145,7 +143,7 @@ export namespace NodeStyles {
         font-size: 20px;
         width: 20px;
         height: 20px;
-        color: ${Colors.ERROR};
+        color: ${ThemeColors.ERROR};
     `;
 
     export const Hr = styled.hr`
@@ -350,8 +348,8 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     cx="80"
                     cy="24"
                     r="22"
-                    fill={Colors.SURFACE_DIM}
-                    stroke={isCircleHovered && !disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT}
+                    fill={ThemeColors.SURFACE_DIM}
+                    stroke={isCircleHovered && !disabled ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT}
                     strokeWidth={1.5}
                     strokeDasharray={disabled ? "5 5" : "none"}
                     opacity={disabled ? 0.7 : 1}
@@ -360,7 +358,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     x="80"
                     y="66"
                     textAnchor="middle"
-                    fill={Colors.ON_SURFACE}
+                    fill={ThemeColors.ON_SURFACE}
                     fontSize="14px"
                     fontFamily="GilmerRegular"
                 >
@@ -368,7 +366,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                         ? `${(model.node.properties.connection.value as string).slice(0, 16)}...`
                         : model.node.properties.connection.value}
                 </text>
-                <foreignObject x="68" y="12" width="44" height="44" fill={Colors.ON_SURFACE}>
+                <foreignObject x="68" y="12" width="44" height="44" fill={ThemeColors.ON_SURFACE}>
                     <ConnectorIcon node={model.node} />
                 </foreignObject>
                 <line
@@ -377,7 +375,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     x2="57"
                     y2="25"
                     style={{
-                        stroke: disabled ? Colors.ON_SURFACE : isBoxHovered ? Colors.PRIMARY : Colors.ON_SURFACE,
+                        stroke: disabled ? ThemeColors.ON_SURFACE : isBoxHovered ? ThemeColors.PRIMARY : ThemeColors.ON_SURFACE,
                         strokeWidth: 1.5,
                         markerEnd: `url(#${model.node.id}-arrow-head)`,
                     }}
@@ -394,7 +392,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     >
                         <polygon
                             points="0,4 0,0 4,2"
-                            fill={disabled ? Colors.ON_SURFACE : isBoxHovered ? Colors.PRIMARY : Colors.ON_SURFACE}
+                            fill={disabled ? ThemeColors.ON_SURFACE : isBoxHovered ? ThemeColors.PRIMARY : ThemeColors.ON_SURFACE}
                         ></polygon>
                     </marker>
                 </defs>

@@ -18,6 +18,8 @@ export interface DiagramContextState {
         hide(): void;
     };
     showErrorFlow: boolean;
+    expandedErrorHandler?: string;
+    toggleErrorHandlerExpansion?: (nodeId: string) => void;
     onAddNode?: (parent: FlowNode | Branch, target: LineRange) => void;
     onAddNodePrompt?: (parent: FlowNode | Branch, target: LineRange, prompt: string) => void;
     onDeleteNode?: (node: FlowNode) => void;
@@ -47,6 +49,8 @@ export const DiagramContext = React.createContext<DiagramContextState>({
         hide: () => {},
     },
     showErrorFlow: false,
+    expandedErrorHandler: undefined,
+    toggleErrorHandlerExpansion: () => {},
     onAddNode: () => {},
     onAddNodePrompt: () => {},
     onDeleteNode: () => {},

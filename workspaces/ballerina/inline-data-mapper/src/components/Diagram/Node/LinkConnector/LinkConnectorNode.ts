@@ -17,6 +17,7 @@ import { getInputPort, getOutputPort } from "../../utils/port-utils";
 import { IDMDiagnostic, Mapping } from "@wso2-enterprise/ballerina-core";
 import { getTargetPortPrefix } from "../../utils/port-utils";
 import { ArrayOutputNode } from "../ArrayOutput";
+import { removeMapping } from "../../utils/modification-utils";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
 const NODE_ID = "link-connector-node";
@@ -197,6 +198,6 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     }
 
     public async deleteLink(): Promise<void> {
-        // TODO: Implement
+        await removeMapping(this.mapping.output, this.context);
     }
 }

@@ -40,6 +40,7 @@
     "@wso2-enterprise/syntax-tree": "workspace:*",
     "@wso2-enterprise/ui-toolkit": "workspace:*",
     "@wso2-enterprise/ballerina-inline-data-mapper": "workspace:*",
+    "@wso2-enterprise/type-editor": "workspace:*",
     "react": "^18.2.0",
     "react-collapse": "~5.1.1",
     "react-dom": "^18.2.0",

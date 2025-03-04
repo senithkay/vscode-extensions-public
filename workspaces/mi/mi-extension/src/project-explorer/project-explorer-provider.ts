@@ -484,13 +484,13 @@ function generateArtifacts(
 				parentEntry.children = data[key].map((entry: any) => {
 					const icon = entry.isRegistryResource ? 'file-code' : 'Sequence';
 					const explorerEntry = new ProjectExplorerEntry(
-						entry.name.replace(".xml", ""),
+						entry.name.replace(".xml", "") + (entry.isMainSequence ? " (Main)" : ""),
 						isCollapsibleState(false),
 						entry,
 						icon,
 						entry.isRegistryResource
 					);
-					explorerEntry.contextValue = 'sequence';
+					explorerEntry.contextValue = `sequence${entry.isMainSequence ? "-main" : ""}`;
 					explorerEntry.command = {
 						title: "Show Diagram",
 						command: COMMANDS.SHOW_SEQUENCE_VIEW,

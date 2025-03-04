@@ -434,7 +434,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                 isPopup: true
             });
         } else {
-            handleCancel();
+            openOverview();
         }
     };
 
@@ -462,7 +462,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
         });
     }
 
-    const handleCancel = () => {
+    const openOverview = () => {
         rpcClient.getMiVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
             location: { view: MACHINE_VIEW.Overview },
@@ -470,8 +470,16 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
         });
     };
 
+    const handleCloseButtonClick = () => {
+        if (props.handlePopupClose) {
+            props.handlePopupClose();
+        } else {
+            openOverview();
+        }
+    };
+
     return (
-        <FormView title={isTemplate ? 'Template' : 'Endpoint'} onClose={props.handlePopupClose ?? handleCancel}>
+        <FormView title={isTemplate ? 'Template' : 'Endpoint'} onClose={props.handlePopupClose ?? openOverview}>
             <TypeChip
                 type={isTemplate ? "Address Endpoint Template" : "Address Endpoint"}
                 onClick={changeType}
@@ -666,7 +674,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
             <FormActions>
                 <Button
                     appearance="secondary"
-                    onClick={handleCancel}
+                    onClick={handleCloseButtonClick}
                 >
                     Cancel
                 </Button>

@@ -24,6 +24,8 @@ import { NodeTypes } from "../resources/constants";
 import { CommentNodeFactory } from "../components/nodes/CommentNode";
 import { WhileNodeFactory } from "../components/nodes/WhileNode";
 import { EndNodeFactory } from "../components/nodes/EndNode";
+import { ErrorNodeFactory } from "../components/nodes/ErrorNode";
+import { AgentCallNodeFactory } from "../components/nodes/AgentCallNode/AgentCallNodeFactory";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -45,6 +47,8 @@ export function generateEngine(): DiagramEngine {
     engine.getNodeFactories().registerFactory(new CommentNodeFactory());
     engine.getNodeFactories().registerFactory(new ButtonNodeFactory());
     engine.getNodeFactories().registerFactory(new EndNodeFactory());
+    engine.getNodeFactories().registerFactory(new ErrorNodeFactory());
+    engine.getNodeFactories().registerFactory(new AgentCallNodeFactory());
 
     engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
 

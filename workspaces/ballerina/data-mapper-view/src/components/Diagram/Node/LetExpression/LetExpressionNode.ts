@@ -37,7 +37,6 @@ export class LetExpressionNode extends DataMapperNodeModel {
     public letExpr: LetExpression;
     public letVarDecls: DMLetVarDecl[];
     public hasNoMatchingFields: boolean;
-    public x: number;
     public numberOfFields:  number;
 
     constructor(
@@ -113,10 +112,7 @@ export class LetExpressionNode extends DataMapperNodeModel {
     setPosition(x: number, y: number): void;
     setPosition(x: unknown, y?: unknown): void {
         if (typeof x === 'number' && typeof y === 'number'){
-            if (!this.x){
-                this.x = x;
-            }
-            super.setPosition(this.x, y);
+            super.setPosition(x, y);
         }
     }
 }

@@ -13,8 +13,7 @@ import { ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
 import { useEffect, useState } from "react";
 import { VariableTree } from "./VariablePanel/VariablesTree";
 import styled from "@emotion/styled";
-import { Colors } from "../../../resources/constants";
-import { SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
+import { SearchBox, Typography, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { PanelBody } from ".";
 
 interface VariablesViewProps {
@@ -33,7 +32,7 @@ export const VariableComponent = styled.div`
         height: 25px;
         cursor: pointer;
         &:hover {
-                background-color: ${Colors.SURFACE_CONTAINER};
+                background-color: ${ThemeColors.SURFACE_CONTAINER};
         }
 `;
 
@@ -58,8 +57,8 @@ export const IconContainer = styled.div`
         & svg {
             height: 14px;
             width: 14px;
-            fill: ${Colors.ON_SURFACE};
-            stroke: ${Colors.ON_SURFACE};
+            fill: ${ThemeColors.ON_SURFACE};
+            stroke: ${ThemeColors.ON_SURFACE};
         }
     `;
 

@@ -14,8 +14,13 @@ import { ARRAY_OUTPUT_TARGET_PORT_PREFIX, OBJECT_OUTPUT_TARGET_PORT_PREFIX } fro
 import { ArrayOutputNode } from "../Node/ArrayOutput/ArrayOutputNode";
 
 export function getInputPort(node: InputNode, inputField: string): InputOutputPortModel {
-    const port = node.getPort(`${inputField}.OUT`);
-    return port ? port as InputOutputPortModel: undefined;
+    let port = node.getPort(`${inputField}.OUT`) as InputOutputPortModel;
+
+    while (port && port.hidden) {
+        port = port.parentModel;
+    }
+
+    return port;
 }
 
 export function getOutputPort(

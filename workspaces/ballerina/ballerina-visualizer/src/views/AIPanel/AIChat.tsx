@@ -15,29 +15,47 @@ import {
     GetWorkspaceContextResponse,
     ProjectSource,
     SourceFile,
-    ProjectDiagnostics,
     InitialPrompt,
     MappingParameters,
     DataMappingRecord,
     PostProcessResponse,
+    TestGenerationTarget,
 } from "@wso2-enterprise/ballerina-core";
+
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { TextArea, Button, Switch, Icon, ProgressRing, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { TextArea, Button, Switch, Icon, ProgressRing, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from "react-markdown";
 
 import styled from "@emotion/styled";
-import AIChatInput from "./AIChatInput";
+import AIChatInput from "./Components/AIChatInput";
 import ProgressTextSegment from "./Components/ProgressTextSegment";
-import RoleContainer, { PreviewContainer } from "./Components/RoleContainter";
+import BallerinaCodeBlock from "./Components/BallerinaCodeBlock";
+import RoleContainer, { PreviewContainer, PreviewContainerDefault } from "./Components/RoleContainter";
 import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
 import AttachmentBox, { AttachmentsContainer } from "./Components/AttachmentBox";
 import { findRegexMatches } from "../../utils/utils";
 import { Collapse } from "react-collapse";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 
-interface MarkdownRendererProps {
-    markdownContent: string;
-}
+import {
+    MarkdownRenderer,
+    Footer,
+    FlexRow,
+    AIChatView,
+    Header,
+    HeaderButtons,
+    Main,
+    ChatMessage,
+    Welcome,
+    Badge,
+    ResetsInBadge,
+} from "./styles";
+import ReferenceDropdown from "./Components/ReferenceDropdown";
+import AccordionItem from "./Components/TestScenarioSegment";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { TestGeneratorIntermediaryState } from "./features/testGenerator";
+import TextWithBadges from "./Components/TextWithBadges";
+import { CopilotContentBlockContent, CopilotErrorContent, CopilotEvent, parseCopilotSSEEvent } from "./utils/sse_utils";
 
 interface CodeBlock {
     filePath: string;
@@ -56,65 +74,6 @@ interface ApiResponse {
 
 var chatArray: ChatEntry[] = [];
 
-const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) => {
-    return <ReactMarkdown>{markdownContent}</ReactMarkdown>;
-};
-
-const Footer = styled.footer({
-    padding: "20px",
-});
-
-const FlexRow = styled.div({
-    display: "flex",
-    flexDirection: "row",
-});
-
-const AIChatView = styled.div({
-    display: "flex",
-    flexDirection: "column",
-    height: "100%",
-});
-
-const Header = styled.header({
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: "10px",
-    gap: "10px",
-});
-
-const HeaderButtons = styled.div({
-    display: "flex",
-    justifyContent: "flex-end",
-    marginRight: "10px",
-});
-
-const Main = styled.main({
-    flex: 1,
-    flexDirection: "column",
-    overflowY: "auto",
-});
-
-const ChatMessage = styled.div({
-    padding: "20px",
-    borderTop: "1px solid var(--vscode-editorWidget-border)",
-});
-
-const Welcome = styled.div({
-    padding: "0 20px",
-});
-
-const Badge = styled.div`
-    padding: 5px;
-    margin-left: 10px;
-    display: inline-block;
-    text-align: left;
-`;
-
-const ResetsInBadge = styled.div`
-    font-size: 10px;
-`;
-
 // A string array to store all code blocks
 const codeBlocks: string[] = [];
 var projectUuid = "";
@@ -129,37 +88,64 @@ var remaingTokenLessThanOne: boolean = false;
 var timeToReset: number;
 
 // Define constants for command keys
-export const COMMAND_SCAFFOLD = "/scaffold";
+export const COMMAND_GENERATE = "/generate";
 export const COMMAND_TESTS = "/tests";
 export const COMMAND_DATAMAP = "/datamap";
 export const COMMAND_TYPECREATOR = "/typecreator";
+export const COMMAND_DOCUMENTATION = "/ask";
+export const COMMAND_HEALTHCARE = "/healthcare";
+export const COMMAND_OPENAPI = "/openapi";
 
 // Define constants for command templates
-const TEMPLATE_SCAFFOLD = [
-    "generate code for the use-case: <use-case>",
+const TEMPLATE_GENERATE = [
+    "generate code for the use-case: ",
     "generate an integration according to the given Readme file",
 ];
-const TEMPLATE_TESTS = ["generate test using <servicename> service"];
+const TEMPLATE_TESTS = [
+    "generate test using <servicename> service",
+    "generate test for resource <method(space)path> function",
+];
 const TEMPLATE_DATAMAP = [
     "generate mapping using input as <recordname(s)> and output as <recordname> using the function <functionname>",
     "generate mapping using input as <recordname(s)> and output as <recordname>",
 ];
-const TEMPLATE_TYPECREATOR = ["generate types using the given file content"];
+const TEMPLATE_TYPECREATOR = ["generate types using the attatched file"];
+const TEMPLATE_DOCUMENTATION : string[] = [];
+const TEMPLATE_HEALTHCARE : string[] = [];
+const TEMPLATE_OPENAPI : string[]= [];
+
+const DEFAULT_MENU_COMMANDS = [
+    { command: COMMAND_GENERATE + " write a hello world http service" },
+    { command: COMMAND_DOCUMENTATION + " how to write a concurrent application?" },
+];
 
 // Use the constants in the commandToTemplate map
 const commandToTemplate = new Map<string, string[]>([
-    [COMMAND_SCAFFOLD, TEMPLATE_SCAFFOLD],
+    [COMMAND_GENERATE, TEMPLATE_GENERATE],
     [COMMAND_TESTS, TEMPLATE_TESTS],
     [COMMAND_DATAMAP, TEMPLATE_DATAMAP],
     [COMMAND_TYPECREATOR, TEMPLATE_TYPECREATOR],
+    [COMMAND_HEALTHCARE, TEMPLATE_HEALTHCARE],
+    [COMMAND_DOCUMENTATION, TEMPLATE_DOCUMENTATION],
+    [COMMAND_OPENAPI, TEMPLATE_OPENAPI]
 ]);
 
 //TODO: Add the files relevant to the commands
+//TODO: Need to see if mime checking is the way to go, .sql and .graphql returns empty here.
 export const getFileTypesForCommand = (command: string): string[] => {
     switch (command) {
-        case COMMAND_SCAFFOLD:
+        case COMMAND_GENERATE:
         case COMMAND_TESTS:
-            return ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml"];
+            return [
+                "text/plain",
+                "application/json",
+                "application/x-yaml",
+                "application/xml",
+                "text/xml",
+                ".sql",
+                ".graphql",
+                "",
+            ];
         case COMMAND_DATAMAP:
         case COMMAND_TYPECREATOR:
             return [
@@ -174,7 +160,16 @@ export const getFileTypesForCommand = (command: string): string[] => {
                 "application/msword",
             ];
         default:
-            return ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml"];
+            return [
+                "text/plain",
+                "application/json",
+                "application/x-yaml",
+                "application/xml",
+                "text/xml",
+                ".sql",
+                ".graphql",
+                "",
+            ];
     }
 };
 
@@ -192,6 +187,9 @@ export function AIChat() {
     const [isCodeLoading, setIsCodeLoading] = useState(false);
     const [currentGeneratingPromptIndex, setCurrentGeneratingPromptIndex] = useState(-1);
     const [isSyntaxError, setIsSyntaxError] = useState(false);
+    const [testGenIntermediaryState, setTestGenIntermediaryState] = useState<TestGeneratorIntermediaryState | null>(
+        null
+    );
 
     const messagesEndRef = React.createRef<HTMLDivElement>();
 
@@ -224,7 +222,7 @@ export function AIChat() {
                     .getAiPanelRpcClient()
                     .getInitialPrompt()
                     .then((initPrompt: InitialPrompt) => {
-                        const command = COMMAND_SCAFFOLD;
+                        const command = COMMAND_GENERATE;
                         const template = commandToTemplate.get(command)?.[1];
                         if (initPrompt.exists) {
                             setUserInput(template ? command + " " + template : command);
@@ -237,7 +235,6 @@ export function AIChat() {
                         if (storedChatArray) {
                             const chatArrayFromStorage = JSON.parse(storedChatArray);
                             chatArray = chatArrayFromStorage;
-
                             // Add the messages from the chat array to the view
                             setMessages((prevMessages) => [
                                 ...prevMessages,
@@ -276,6 +273,14 @@ export function AIChat() {
         });
 
         localStorage.setItem(`chatArray-AIGenerationChat-${projectUuid}`, JSON.stringify(chatArray));
+    }
+
+    function updateChatEntry(chatIdx: number, newEntry: ChatEntry): void {
+        if (chatIdx >= 0 && chatIdx < chatArray.length) {
+            chatArray[chatIdx] = newEntry;
+
+            localStorage.setItem(`chatArray-AIGenerationChat-${projectUuid}`, JSON.stringify(chatArray));
+        }
     }
 
     useEffect(() => {
@@ -323,6 +328,33 @@ export function AIChat() {
         }
     }
 
+    async function handleSendQuery(content: [string, AttachmentResult[]]) {
+        const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
+
+        if (!token) {
+            await rpcClient.getAiPanelRpcClient().promptLogin();
+            setIsLoading(false);
+            return;
+        }
+
+        try {
+            await processContent(token, content);
+        } catch (error: any) {
+            console.error("Failed to process content:", error);
+            setIsLoading(false);
+            setIsCodeLoading(false);
+            setMessages((prevMessages) => {
+                const newMessages = [...prevMessages];
+                if (error && "message" in error) {
+                    newMessages[newMessages.length - 1].content += `<error>${error.message}</error>`;
+                } else {
+                    newMessages[newMessages.length - 1].content += `<error>${error}</error>`;
+                }
+                return newMessages;
+            });
+        }
+    }
+
     async function handleSend(content: [string, AttachmentResult[]]) {
         setCurrentGeneratingPromptIndex(otherMessages.length);
         // Step 1: Add the user input to the chat array
@@ -348,30 +380,7 @@ export function AIChat() {
             { role: "Copilot", content: "", type: "assistant_message" }, // Add a new message for the assistant
         ]);
 
-        const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
-
-        if (!token) {
-            await rpcClient.getAiPanelRpcClient().promptLogin();
-            setIsLoading(false);
-            return;
-        }
-
-        try {
-            await processContent(token, content);
-        } catch (error: any) {
-            console.error("Failed to process content:", error);
-            setIsLoading(false);
-            setIsCodeLoading(false);
-            setMessages((prevMessages) => {
-                const newMessages = [...prevMessages];
-                if (error && "message" in error) {
-                    newMessages[newMessages.length - 1].content += `<error>Failed: ${error.message}</error>`;
-                } else {
-                    newMessages[newMessages.length - 1].content += `<error>Failed: ${error}</error>`;
-                }
-                return newMessages;
-            });
-        }
+        await handleSendQuery(content);
     }
 
     function getUserMessage(content: [string, AttachmentResult[]]): string {
@@ -384,17 +393,16 @@ export function AIChat() {
 
     async function processContent(token: string, content: [string, AttachmentResult[]]) {
         const [message, attachments] = content;
-
-        const commandKey = findCommand(message);
+        const cleanedMessage = message.replace(/<\/?badge>/g, "").trim();
+        const commandKey = findCommand(cleanedMessage);
         if (commandKey) {
             const commandLength = commandKey.length;
-            const messageBody = message.slice(commandLength).trim();
+            const messageBody = cleanedMessage.slice(commandLength).trim();
             const parameters = extractParameters(commandKey, messageBody);
-            console.log(parameters);
 
             if (parameters) {
                 switch (commandKey) {
-                    case COMMAND_SCAFFOLD: {
+                    case COMMAND_GENERATE: {
                         await processCodeGeneration(
                             token,
                             [
@@ -403,43 +411,78 @@ export function AIChat() {
                                     : messageBody,
                                 attachments,
                             ],
-                            message
+                            cleanedMessage
                         );
                         break;
                     }
                     case COMMAND_TESTS: {
-                        await processTestGeneration(content, token, parameters.inputRecord[0]);
+                        if (messageBody.includes("service")) {
+                            await processTestGeneration(content, token, "service", parameters.inputRecord[0]);
+                        } else if (messageBody.includes("resource")) {
+                            await processTestGeneration(content, token, "function", parameters.inputRecord[0]);
+                        }
                         break;
                     }
                     case COMMAND_DATAMAP: {
                         if (parameters.inputRecord.length >= 1 && parameters.outputRecord) {
-                            await processMappingParameters(message, token, parameters, attachments);
+                            await processMappingParameters(cleanedMessage, token, parameters, attachments);
                         } else {
-                            throw new Error("Error: Invalid parameters for " + COMMAND_DATAMAP + " command");
+                            throw new Error(
+                                `Invalid template format for the \`${COMMAND_DATAMAP}\` command. ` +
+                                `Please ensure you follow the correct template.`
+                            );
                         }
                         break;
                     }
                     case COMMAND_TYPECREATOR: {
                         if (messageBody === TEMPLATE_TYPECREATOR[0]) {
                             if (attachments) {
-                                await processContextTypeCreation(message, token, attachments);
+                                await processContextTypeCreation(cleanedMessage, token, attachments);
                             } else {
                                 throw new Error("Error: Missing Attach context");
                             }
                         } else {
-                            throw new Error("Error: Invalid parameters for " + COMMAND_DATAMAP + " command");
+                            throw new Error("Error: Invalid parameters for " + COMMAND_TYPECREATOR + " command");
                         }
+                        break;
+                    }
+                    case COMMAND_HEALTHCARE: {
+                        await processHealthcareCodeGeneration(token, messageBody, message);
+                        break;
+                    }
+                    case COMMAND_DOCUMENTATION: {
+                        await findInDocumentation(parameters.inputRecord[0], token);
+                        break;
+                    }
+                    case COMMAND_OPENAPI: {
+                        await processOpenAPICodeGeneration(token, messageBody, message);
                         break;
                     }
                 }
             } else {
+                if (messageBody.trim() === "") {
+                    throw new Error("Error: Query is empty. Please enter a valid query");
+                }
+                if (commandKey === COMMAND_GENERATE) {
+                    await processCodeGeneration(token, [messageBody, attachments], message);
+                    return;
+                } else if (commandKey === COMMAND_DOCUMENTATION) {
+                    await findInDocumentation(messageBody, token);
+                    return;
+                } else if (commandKey === COMMAND_HEALTHCARE) {
+                    await processHealthcareCodeGeneration(token, messageBody, message);
+                    return;
+                } else if (commandKey === COMMAND_OPENAPI) {
+                    await processOpenAPICodeGeneration(token, messageBody, message);
+                    return;
+                }
                 throw new Error(
                     `Invalid template format for the \`${commandKey}\` command. ` +
                         `Please ensure you follow the correct template.`
                 );
             }
         } else {
-            await processCodeGeneration(token, content, message);
+            await processCodeGeneration(token, content, cleanedMessage);
         }
     }
 
@@ -457,10 +500,12 @@ export function AIChat() {
         for (const template of expectedTemplates ?? []) {
             let pattern = template
                 .replace(/<servicename>/g, "(\\S+?)")
-                .replace(/<recordname\(s\)>/g, "([\\w:\\[\\]]+(?:[\\s,]+[\\w:\\[\\]]+)*)")
-                .replace(/<recordname>/g, "([\\w:\\[\\]]+)")
-                .replace(/<use-case>/g, "(.+?)")
-                .replace(/<functionname>/g, "(\\S+?)");
+                .replace(/<recordname\(s\)>/g, "((?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+(?:[\\s,]+(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+)*)")
+                .replace(/<recordname>/g, "((?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+)")
+                .replace(/<use-case>/g, "([\\s\\S]+?)")
+                .replace(/<functionname>/g, "(\\S+?)")
+                .replace(/<question>/g, "(.+?)")
+                .replace(/<method\(space\)path>/g, "([^\\n]+)");
 
             const regex = new RegExp(`^${pattern}$`, "i");
             const match = messageBody.match(regex);
@@ -475,10 +520,7 @@ export function AIChat() {
                             .map((name) => name.trim())
                             .filter((name) => name.length > 0);
                     } else {
-                        inputRecordList = inputRecordNamesRaw
-                            .split(/\s+/)
-                            .map((name) => name.trim())
-                            .filter((name) => name.length > 0);
+                        inputRecordList = [inputRecordNamesRaw.trim()];
                     }
 
                     const outputRecordName = match[2].trim();
@@ -498,6 +540,31 @@ export function AIChat() {
             }
         }
         return null;
+    }
+
+    async function loadMentions(command: string, template: string): Promise<string[]> {
+        switch (command) {
+            case COMMAND_GENERATE: {
+                return [];
+            }
+            case COMMAND_TESTS: {
+                if (template.includes("service")) {
+                    return (await rpcClient.getAiPanelRpcClient().getServiceNames()).mentions;
+                } else if (template.includes("resource")) {
+                    return (await rpcClient.getAiPanelRpcClient().getResourceMethodAndPaths()).mentions;
+                }
+                return [];
+            }
+            case COMMAND_DATAMAP: {
+                return [];
+            }
+            case COMMAND_TYPECREATOR: {
+                return [];
+            }
+            case COMMAND_DOCUMENTATION: {
+                return [];
+            }
+        }
     }
 
     async function processCodeGeneration(token: string, content: [string, AttachmentResult[]], message: string) {
@@ -592,9 +659,8 @@ export function AIChat() {
                 });
                 assistant_response = postProcessResp.assistant_response;
                 const diagnostics = postProcessResp.diagnostics.diagnostics;
+                console.log("Diagnostics : ", diagnostics);
                 if (diagnostics.length > 0) {
-                    console.log("Diagnostics : ");
-                    console.log(diagnostics);
                     //TODO: fill
                     const diagReq = {
                         response: assistant_response,
@@ -627,7 +693,11 @@ export function AIChat() {
                         const jsonBody = await response.json();
                         const repairResponse = jsonBody.repairResponse;
                         // replace original response with new code blocks
-                        const fixedResponse = replaceCodeBlocks(assistant_response, repairResponse);
+                        let fixedResponse = replaceCodeBlocks(assistant_response, repairResponse);
+                        const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
+                            assistant_response: fixedResponse,
+                        });
+                        fixedResponse = postProcessResp.assistant_response;
                         const endTime = performance.now();
                         const executionTime = endTime - startTime;
                         console.log(`Repair call time: ${executionTime} milliseconds`);
@@ -653,10 +723,11 @@ export function AIChat() {
                 setMessages((prevMessages) => {
                     const newMessages = [...prevMessages];
                     newMessages[newMessages.length - 1].content +=
-                        "Unknown error occurred while streaming. Please retry";
+                        "\nUnknown error occurred while receiving the response.";
                     newMessages[newMessages.length - 1].type = "Error";
                     return newMessages;
                 });
+                assistant_response = "\nUnknown error occurred while receiving the response.";
                 throw new Error("Streaming error");
             }
         }
@@ -695,8 +766,9 @@ export function AIChat() {
     const handleAddAllCodeSegmentsToWorkspace = async (
         codeSegments: any,
         setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
-        isTestCode: boolean
+        command: string
     ) => {
+        console.log("Add to integration called. Command: ", command);
         for (let { segmentText, filePath } of codeSegments) {
             let originalContent = "";
             if (!tempStorage[filePath]) {
@@ -712,25 +784,32 @@ export function AIChat() {
                     tempStorage[filePath] = "";
                 }
             }
-            if (!["types.bal", "mappings.bal"].includes(filePath)) {
-                segmentText = `${segmentText}`;
-            } else {
+
+            if (command === "ai_map") {
                 segmentText = `${originalContent}\n${segmentText}`;
+            } else {
+                segmentText = `${segmentText}`;
             }
+
+            let isTestCode = false;
+            if (command === "test") {
+                isTestCode = true;
+            }
+
             await rpcClient
                 .getAiPanelRpcClient()
                 .addToProject({ filePath: filePath, content: segmentText, isTestCode: isTestCode });
         }
-        //TODO:Modify the function signature or comment this for datamapper working correctly
-        await rpcClient.getAiPanelRpcClient().applyDoOnFailBlocks();
         setIsCodeAdded(true);
     };
 
     const handleRevertChanges = async (
         codeSegments: any,
         setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
-        isTestCode: boolean
+        command: string
     ) => {
+        console.log("Revert integration called. Command: ", command);
+
         for (const { filePath } of codeSegments) {
             let originalContent = tempStorage[filePath];
             if (originalContent === "" && !initialFiles.has(filePath) && !emptyFiles.has(filePath)) {
@@ -741,6 +820,10 @@ export function AIChat() {
                     console.error(`Error deleting file ${filePath}:`, error);
                 }
             } else {
+                let isTestCode = false;
+                if (command === "test") {
+                    isTestCode = true;
+                }
                 const revertContent = emptyFiles.has(filePath) ? "" : originalContent;
                 await rpcClient
                     .getAiPanelRpcClient()
@@ -751,78 +834,266 @@ export function AIChat() {
         setIsCodeAdded(false);
     };
 
-    async function processTestGeneration(content: [string, AttachmentResult[]], token: string, serviceName: string) {
-        let assistant_response = "";
+    async function processTestGeneration(
+        content: [string, AttachmentResult[]],
+        token: string,
+        targetType: string, // service or function
+        target: string // <servicename> or <resourcemethod resourcepath>
+    ) {
+        let assistantResponse = "";
+        try {
+            const targetSource =
+                targetType === "service"
+                    ? await rpcClient.getAiPanelRpcClient().getServiceSourceForName(target)
+                    : await rpcClient.getAiPanelRpcClient().getResourceSourceForMethodAndPath(target);
+            const requestBody = {
+                targetType: targetType,
+                targetSource: targetSource,
+            };
 
-        setMessages((prevMessages) => {
-            const newMessages = [...prevMessages];
-            assistant_response += `Initiating test generation for the ${serviceName} service. Please wait...`;
-            newMessages[newMessages.length - 1].content = assistant_response;
-            return newMessages;
-        });
+            const response = await fetchWithToken(
+                backendRootUri + "/testplan",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(requestBody),
+                    signal: signal,
+                },
+                rpcClient
+            );
 
-        let generatedTestCode = "";
-        let configToml = "";
-        setMessages((prevMessages) => {
-            const newMessages = [...prevMessages];
-            assistant_response += `\n\n<progress>Generating tests for the ${serviceName} service. This may take a moment.</progress>`;
-            newMessages[newMessages.length - 1].content = assistant_response;
-            return newMessages;
-        });
+            if (!response.ok) {
+                handleErrorResponse(response);
+            }
 
-        const response = await rpcClient
-            .getAiPanelRpcClient()
-            .getGeneratedTest({ backendUri: backendRootUri, token: token, serviceName: serviceName });
-        generatedTestCode = response.testContent;
-        configToml = response.configContent;
-        setMessages((prevMessages) => {
-            const newMessages = [...prevMessages];
-            assistant_response += `\n<progress>Analyzing generated tests for potential issues.</progress>`;
-            newMessages[newMessages.length - 1].content = assistant_response;
-            return newMessages;
-        });
+            const reader = response.body?.getReader();
+            const decoder = new TextDecoder();
+            let buffer = "";
 
-        const diagnostics = await rpcClient.getAiPanelRpcClient().getTestDiagnostics(response);
-        console.log(diagnostics);
-        if (diagnostics.diagnostics.length > 0) {
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) {
+                    if (targetType === "service") {
+                        await processServiceTestGeneration(content, token, target, assistantResponse);
+                        setIsLoading(false);
+                    } else if (targetType === "function") {
+                        assistantResponse += `\n\n<button type="generate_test_group">Generate Tests</button>`;
+                        setMessages((prevMessages) => {
+                            const newMessages = [...prevMessages];
+                            newMessages[newMessages.length - 1].content = assistantResponse;
+                            return newMessages;
+                        });
+                        setTestGenIntermediaryState({
+                            content: content,
+                            token: token,
+                            resourceFunction: target,
+                            testPlan: assistantResponse,
+                        });
+                    } else {
+                        setIsLoading(false);
+                        throw new Error(`Invalid target type: ${targetType}`);
+                    }
+                    break;
+                }
+
+                buffer += decoder.decode(value, { stream: true });
+                buffer = await processBuffer(buffer);
+            }
+        } catch (error: any) {
+            setIsLoading(false);
+            const errorName = error instanceof Error ? error.name : "Unknown error";
+            const errorMessage = "message" in error ? error.message : "Unknown error";
+
+            if (errorName === "AbortError") {
+                throw new Error("Failed: The user cancelled the request.");
+            } else {
+                throw new Error(errorMessage);
+            }
+        }
+
+        async function processBuffer(buffer: string) {
+            let boundary = buffer.indexOf("\n\n");
+            while (boundary !== -1) {
+                const chunk = buffer.slice(0, boundary + 2);
+                buffer = buffer.slice(boundary + 2);
+                await processSSEEvent(chunk);
+                boundary = buffer.indexOf("\n\n");
+            }
+            return buffer;
+        }
+
+        async function processSSEEvent(chunk: string) {
+            try {
+                const event = parseCopilotSSEEvent(chunk);
+                if (event.event === CopilotEvent.CONTENT_BLOCK) {
+                    const text = (event.body as CopilotContentBlockContent).text;
+                    assistantResponse += text;
+                    handleContentBlockDelta(text);
+                } else if (event.event === "error") {
+                    throw new Error(`Streaming Error: ${(event.body as CopilotErrorContent).message}`);
+                }
+            } catch (error) {
+                setIsLoading(false);
+                const errorMessage = error instanceof Error ? error.message : "Unknown error";
+                throw new Error(`Failed to parse SSE event: ${errorMessage}`);
+            }
+        }
+
+        function handleContentBlockDelta(text: string) {
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
-                assistant_response += `\n<progress>Refining tests based on feedback to ensure accuracy and reliability.</progress>`;
-                newMessages[newMessages.length - 1].content = assistant_response;
+                newMessages[newMessages.length - 1].content += text;
                 return newMessages;
             });
-            const fixedCode = await rpcClient.getAiPanelRpcClient().getGeneratedTest({
-                backendUri: backendRootUri,
-                token: token,
-                serviceName: serviceName,
-                existingSource: response,
-                diagnostics: diagnostics,
+        }
+
+        async function handleErrorResponse(response: Response) {
+            if (response.status >= 400 && response.status < 500) {
+                await rpcClient.getAiPanelRpcClient().promptLogin();
+                setIsLoading(false);
+                return;
+            }
+
+            if (response.status === 429) {
+                const body = await response.json();
+                throw new Error(`Too many requests: ${body.detail}`);
+            }
+
+            throw new Error(`Failed to fetch response. HTTP Status: ${response.status}`);
+        }
+    }
+
+    async function processServiceTestGeneration(
+        content: [string, AttachmentResult[]],
+        token: string,
+        serviceName: string,
+        testPlan: string
+    ) {
+        let assistantResponse = `${testPlan}`;
+
+        const updateAssistantMessage = (message: string) => {
+            assistantResponse += message;
+            setMessages((prevMessages) => {
+                const newMessages = [...prevMessages];
+                newMessages[newMessages.length - 1].content = assistantResponse;
+                return newMessages;
             });
-            generatedTestCode = fixedCode.testContent;
+        };
+
+        updateAssistantMessage(
+            `\n\n**Initiating test generation for the ${serviceName} service, following the _outlined test plan_. Please wait...**`
+        );
+
+        updateAssistantMessage(
+            `\n\n<progress>Generating tests for the ${serviceName} service. This may take a moment.</progress>`
+        );
+
+        try {
+            const response = await rpcClient.getAiPanelRpcClient().getGeneratedTests({
+                backendUri: backendRootUri,
+                targetType: TestGenerationTarget.Service,
+                targetIdentifier: serviceName,
+                testPlan,
+            });
+            updateAssistantMessage(`\n<progress>Analyzing generated tests for potential issues.</progress>`);
+
+            const diagnostics = await rpcClient.getAiPanelRpcClient().getTestDiagnostics(response);
+            let testCode = response.testSource;
+            const testConfig = response.testConfig;
+
+            if (diagnostics.diagnostics.length > 0) {
+                updateAssistantMessage(
+                    `\n<progress>Refining tests based on feedback to ensure accuracy and reliability.</progress>`
+                );
+                const fixedCode = await rpcClient.getAiPanelRpcClient().getGeneratedTests({
+                    backendUri: backendRootUri,
+                    targetType: TestGenerationTarget.Service,
+                    targetIdentifier: serviceName,
+                    testPlan: testPlan,
+                    diagnostics: diagnostics,
+                    existingTests: response.testSource,
+                });
+                testCode = fixedCode.testSource;
+            }
+
+            updateAssistantMessage(
+                `\n\nTest generation completed. Displaying the generated tests for the ${serviceName} service below:`
+            );
+
+            setIsLoading(false);
+            setIsCodeLoading(false);
+
+            updateAssistantMessage(
+                `\n\n<code filename="tests/test.bal" type="test">\n\`\`\`ballerina\n${testCode}\n\`\`\`\n</code>`
+            );
+            if (testConfig) {
+                updateAssistantMessage(
+                    `\n\n<code filename="tests/Config.toml" type="test">\n\`\`\`ballerina\n${testConfig}\n\`\`\`\n</code>`
+                );
+            }
+
+            const userMessage = getUserMessage(content);
+            addChatEntry("user", userMessage);
+            addChatEntry("assistant", assistantResponse);
+        } catch (error) {
+            throw error;
         }
+    }
 
-        setMessages((prevMessages) => {
-            const newMessages = [...prevMessages];
-            assistant_response += `\n\nTest generation completed. Displaying the generated tests for the ${serviceName} service below:`;
-            newMessages[newMessages.length - 1].content = assistant_response;
-            return newMessages;
-        });
+    async function processFunctionTestGeneration(
+        content: [string, AttachmentResult[]],
+        token: string,
+        functionIdentifier: string,
+        testPlan: string
+    ) {
+        setIsCodeLoading(true);
+        let assistantResponse = `${testPlan}`;
 
-        setIsLoading(false);
-        setIsCodeLoading(false);
-        assistant_response += `\n\n<code filename="tests/test.bal">\n\`\`\`ballerina\n${generatedTestCode}\n\`\`\`\n</code>`;
-        if (configToml !== "") {
-            assistant_response += `\n\n<code filename="tests/Config.toml">\n\`\`\`ballerina\n${configToml}\n\`\`\`\n</code>`;
+        const updateAssistantMessage = (message: string) => {
+            assistantResponse += message;
+            setMessages((prevMessages) => {
+                const newMessages = [...prevMessages];
+                newMessages[newMessages.length - 1].content = assistantResponse;
+                return newMessages;
+            });
+        };
+
+        updateAssistantMessage(
+            `\n\n**Initiating test generation for the function ${functionIdentifier}, following the _outlined test plan_. Please wait...**`
+        );
+
+        updateAssistantMessage(
+            `\n\n<progress>Generating tests for the function ${functionIdentifier}. This may take a moment.</progress>`
+        );
+
+        try {
+            const response = await rpcClient.getAiPanelRpcClient().getGeneratedTests({
+                backendUri: backendRootUri,
+                targetType: TestGenerationTarget.Function,
+                targetIdentifier: functionIdentifier,
+                testPlan,
+            });
+
+            updateAssistantMessage(
+                `\n\nTest generation completed. Displaying the generated tests for the function ${functionIdentifier} below:`
+            );
+
+            setIsLoading(false);
+            setIsCodeLoading(false);
+
+            updateAssistantMessage(
+                `\n\n<code filename="tests/test.bal" type="test">\n\`\`\`ballerina\n${response.testSource}\n\`\`\`\n</code>`
+            );
+
+            const userMessage = getUserMessage(content);
+            addChatEntry("user", userMessage);
+            addChatEntry("assistant", assistantResponse);
+        } catch (error) {
+            throw error;
         }
-        setMessages((prevMessages) => {
-            const newMessages = [...prevMessages];
-            newMessages[newMessages.length - 1].content = assistant_response;
-            return newMessages;
-        });
-
-        const userMessage = getUserMessage(content);
-        addChatEntry("user", userMessage);
-        addChatEntry("assistant", assistant_response);
     }
 
     async function processMappingParameters(
@@ -848,7 +1119,6 @@ export function AIChat() {
 
         const projectImports = await rpcClient.getBIDiagramRpcClient().getAllImports();
         const activeFile = await rpcClient.getAiPanelRpcClient().getActiveFile();
-        const fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: activeFile });
         const projectComponents = await rpcClient.getBIDiagramRpcClient().getProjectComponents();
 
         const activeFileImports =
@@ -870,102 +1140,115 @@ export function AIChat() {
             });
         });
 
-        try {
-            const inputs: DataMappingRecord[] = inputParams.map((param: string) => {
-                const isArray = param.endsWith("[]");
-                const recordName = param.replace(/\[\]$/, "");
-                const rec = recordMap.get(recordName);
+        const inputs: DataMappingRecord[] = inputParams.map((param: string) => {
+            const isArray = param.endsWith("[]");
+            const recordName = param.replace(/\[\]$/, "");
+            const rec = recordMap.get(recordName);
 
-                if (!rec) {
-                    if (recordName.includes(":")) {
-                        const [moduleName, alias] = recordName.split(":");
-                        const matchedImport = activeFileImports.find((imp) => recordName.startsWith(imp.alias));
-                        if (!matchedImport) {
-                            throw new Error(`Must import the module for "${recordName}".`);
+            if (!rec) {
+                if (recordName.includes(":")) {
+                    const [moduleName, alias] = recordName.split(":");
+                    const matchedImport = activeFileImports.find((imp) => {
+                        if (imp.alias) {
+                            // Match using alias if it exists
+                            return recordName.startsWith(imp.alias);
                         }
-                        importsMap.set(recordName, {
-                            moduleName: matchedImport.moduleName,
-                            alias: matchedImport.alias,
-                        });
-                        return { type: `${recordName}`, isArray, filePath: null };
-                    } else {
-                        throw new Error(`${recordName} is not defined.`);
-                    }
-                }
-                return { ...rec, isArray };
-            });
-
-            const outputRecordName = outputParam.replace(/\[\]$/, "");
-            const outputIsArray = outputParam.endsWith("[]");
-            let output = recordMap.get(outputRecordName);
-
-            if (!output) {
-                if (outputRecordName.includes(":")) {
-                    const [moduleName, alias] = outputRecordName.split(":");
-                    const matchedImport = activeFileImports.find((imp) => outputRecordName.startsWith(imp.alias));
-                    if (!matchedImport) {
-                        throw new Error(`Must import the module for "${outputRecordName}".`);
-                    }
-                    importsMap.set(outputRecordName, {
-                        moduleName: matchedImport.moduleName,
-                        alias: matchedImport.alias,
+                        // If alias doesn't exist, match using the last part of the module name
+                        const moduleNameParts = imp.moduleName.split(".");
+                        const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
+                        return recordName.startsWith(inferredAlias);
                     });
-                    output = { type: `${outputRecordName}`, isArray: outputIsArray, filePath: null };
+
+                    if (!matchedImport) {
+                        throw new Error(`Must import the module for "${recordName}".`);
+                    }
+                    // Use the actual alias if present, otherwise infer from the module name
+                    const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
+                    importsMap.set(recordName, {
+                        moduleName: matchedImport.moduleName,
+                        alias: resolvedAlias,
+                    });
+                    return { type: `${recordName}`, isArray, filePath: null };
                 } else {
-                    throw new Error(`${outputRecordName} is not defined.`);
+                    throw new Error(`${recordName} is not defined.`);
                 }
+            }
+            return { ...rec, isArray };
+        });
+
+        const outputRecordName = outputParam.replace(/\[\]$/, "");
+        const outputIsArray = outputParam.endsWith("[]");
+        let output = recordMap.get(outputRecordName);
+
+        if (!output) {
+            if (outputRecordName.includes(":")) {
+                const [moduleName, alias] = outputRecordName.split(":");
+                const matchedImport = activeFileImports.find((imp) => {
+                    if (imp.alias) {
+                        // Match using alias if it exists
+                        return outputRecordName.startsWith(imp.alias);
+                    }
+                    // If alias doesn't exist, match using the last part of the module name
+                    const moduleNameParts = imp.moduleName.split(".");
+                    const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
+                    return outputRecordName.startsWith(inferredAlias);
+                });
+
+                if (!matchedImport) {
+                    throw new Error(`Must import the module for "${outputRecordName}".`);
+                }
+                // Use the actual alias if present, otherwise infer from the module name
+                const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
+                importsMap.set(outputRecordName, {
+                    moduleName: matchedImport.moduleName,
+                    alias: resolvedAlias,
+                });
+                output = { type: `${outputRecordName}`, isArray: outputIsArray, filePath: null };
             } else {
-                output = { ...output, isArray: outputIsArray };
+                throw new Error(`${outputRecordName} is not defined.`);
             }
-
-            const requestPayload: any = {
-                backendUri: "",
-                token: "",
-                inputRecordTypes: inputs,
-                outputRecordType: output,
-                functionName,
-                imports: Array.from(importsMap.values()),
-            };
-            if (attachments && attachments.length > 0) {
-                requestPayload.attachment = attachments;
-            }
-            const response = await rpcClient.getAiPanelRpcClient().getMappingsFromRecord(requestPayload);
-            setIsLoading(false);
-
-            assistant_response = `Mappings consist of the following:\n`;
-            if (inputParams.length === 1) {
-                assistant_response += `- **Input Record**: ${inputParams[0]}\n`;
-            } else {
-                assistant_response += `- **Input Records**: ${inputParams.join(", ")}\n`;
-            }
-            assistant_response += `- **Output Record**: ${outputParam}\n`;
-            assistant_response += `- **Function Name**: ${functionName}\n`;
-
-            let filePath = "mappings.bal";
-            let finalContent = response.mappingCode;
-            const needsImports = Array.from(importsMap.values()).length > 0;
-
-            if (needsImports) {
-                filePath = activeFile;
-                finalContent = `${fileContent}\n${response.mappingCode}`;
-            }
-            assistant_response += `<code filename="${filePath}">\n\`\`\`ballerina\n${finalContent}\n\`\`\`\n</code>`;
-
-            setMessages((prevMessages) => {
-                const newMessages = [...prevMessages];
-                newMessages[newMessages.length - 1].content = assistant_response;
-                return newMessages;
-            });
-        } catch (error) {
-            setIsLoading(false);
-            setMessages((prevMessages) => {
-                const newMessages = [...prevMessages];
-                newMessages[newMessages.length - 1].content += `Mappings generation failed: ${error}`;
-                newMessages[newMessages.length - 1].type = "Error";
-                return newMessages;
-            });
-            throw new Error("Failed to generate Mappings.");
+        } else {
+            output = { ...output, isArray: outputIsArray };
         }
+
+        const requestPayload: any = {
+            backendUri: "",
+            token: "",
+            inputRecordTypes: inputs,
+            outputRecordType: output,
+            functionName,
+            imports: Array.from(importsMap.values()),
+        };
+        if (attachments && attachments.length > 0) {
+            requestPayload.attachment = attachments;
+        }
+        const response = await rpcClient.getAiPanelRpcClient().getMappingsFromRecord(requestPayload);
+        setIsLoading(false);
+
+        assistant_response = `Mappings consist of the following:\n`;
+        if (inputParams.length === 1) {
+            assistant_response += `- **Input Record**: ${inputParams[0]}\n`;
+        } else {
+            assistant_response += `- **Input Records**: ${inputParams.join(", ")}\n`;
+        }
+        assistant_response += `- **Output Record**: ${outputParam}\n`;
+        assistant_response += `- **Function Name**: ${functionName}\n`;
+
+        let filePath = activeFile.endsWith(".bal") ? activeFile : "data_mappings.bal";
+        let finalContent = response.mappingCode;
+        const needsImports = Array.from(importsMap.values()).length > 0;
+
+        if (needsImports) {
+            const fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath });
+            finalContent = `${fileContent}\n${response.mappingCode}`;
+        }
+        assistant_response += `<code filename="${filePath}" type="ai_map">\n\`\`\`ballerina\n${response.mappingCode}\n\`\`\`\n</code>`;
+
+        setMessages((prevMessages) => {
+            const newMessages = [...prevMessages];
+            newMessages[newMessages.length - 1].content = assistant_response;
+            return newMessages;
+        });
         addChatEntry("user", message);
         addChatEntry("assistant", assistant_response);
     }
@@ -976,56 +1259,89 @@ export function AIChat() {
         setIsLoading(true);
         let filePath = "types.bal";
 
-        try {
-            const projectComponents = await rpcClient.getBIDiagramRpcClient().getProjectComponents();
+        const projectComponents = await rpcClient.getBIDiagramRpcClient().getProjectComponents();
 
-            projectComponents.components.packages?.forEach((pkg) => {
-                pkg.modules?.forEach((mod) => {
-                    let filepath = pkg.filePath;
-                    if (mod.name !== undefined) {
-                        filepath += `modules/${mod.name}/`;
-                    }
-                    mod.records.forEach((rec) => {
-                        const recFilePath = filepath + rec.filePath;
-                        recordMap.set(rec.name, { type: rec.name, isArray: false, filePath: recFilePath });
-                    });
+        projectComponents.components.packages?.forEach((pkg) => {
+            pkg.modules?.forEach((mod) => {
+                let filepath = pkg.filePath;
+                if (mod.name !== undefined) {
+                    filepath += `modules/${mod.name}/`;
+                }
+                mod.records.forEach((rec) => {
+                    const recFilePath = filepath + rec.filePath;
+                    recordMap.set(rec.name, { type: rec.name, isArray: false, filePath: recFilePath });
                 });
             });
+        });
 
-            if (!attachments || attachments.length === 0) {
-                throw new Error(`Missing attachment`);
+        if (!attachments || attachments.length === 0) {
+            throw new Error(`Missing attachment`);
+        }
+
+        const requestPayload: any = {
+            backendUri: "",
+            token: token,
+            attachment: attachments,
+        };
+
+        const response = await rpcClient.getAiPanelRpcClient().getTypesFromRecord(requestPayload);
+        let typeContent = response.typesCode;
+        const newRecords = extractRecordTypes(typeContent);
+
+        let fileContent = "";
+        let fileExists = await rpcClient.getAiPanelRpcClient().getFileExists({ filePath: filePath });
+        if (fileExists) {
+            fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath });
+            typeContent = `${fileContent}\n${response.typesCode}`;
+        }
+
+        for (const record of newRecords) {
+            if (recordMap.has(record.name)) {
+                throw new Error(`Record "${record.name}" already exists in the workspace.`);
+            }
+        }
+
+        assistant_response = `Record types generated from the ${attachments[0].name} file shown below.\n`;
+        assistant_response += `<code filename="${filePath}" type="ai_map">\n\`\`\`ballerina\n${response.typesCode}\n\`\`\`\n</code>`;
+
+        setMessages((prevMessages) => {
+            const newMessages = [...prevMessages];
+            newMessages[newMessages.length - 1].content = assistant_response;
+            return newMessages;
+        });
+        setIsLoading(false);
+        addChatEntry("user", message);
+        addChatEntry("assistant", assistant_response);
+    }
+
+    async function findInDocumentation(message: string, token: string) {
+        let assistant_response = "";
+        let formatted_response = ";";
+        setIsLoading(true);
+        try {
+            console.log("Searching for: " + message, +"Token: ", token);
+            assistant_response = await rpcClient.getAiPanelRpcClient().getFromDocumentation(message);
+            //console.log("Assistant Response: " + assistant_response);
+
+            formatted_response = assistant_response.replace(
+                /```ballerina\s*([\s\S]+?)\s*```/g,
+                "<inlineCode>$1<inlineCode>"
+            );
+
+            const referenceRegex = /reference sources:\s*((?:<https?:\/\/[^\s>]+>\s*)+)/;
+            const match = formatted_response.match(referenceRegex);
+
+            if (match) {
+                const references = match[1].trim().split(/\s+/);
+                const referencesTag = `<references>${JSON.stringify(references)}<references>`;
+                formatted_response = formatted_response.replace(referenceRegex, referencesTag);
             }
 
-            const requestPayload: any = {
-                backendUri: "",
-                token: token,
-                attachment: attachments,
-            };
-
-            const response = await rpcClient.getAiPanelRpcClient().getTypesFromRecord(requestPayload);
-            let typeContent = response.typesCode;
-            const newRecords = extractRecordTypes(typeContent);
-
-            let fileContent = "";
-            let fileExists = await rpcClient.getAiPanelRpcClient().getFileExists({ filePath: filePath });
-            if (fileExists) {
-                fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath });
-                typeContent = `${fileContent}\n${response.typesCode}`;
-            }
-
-            for (const record of newRecords) {
-                if (recordMap.has(record.name)) {
-                    throw new Error(`Record "${record.name}" already exists in the workspace.`);
-                }
-            }
-
-            assistant_response = `Record types generated from the ${attachments[0].name} file shown below.\n`;
-
-            assistant_response += `<code filename="${filePath}">\n\`\`\`ballerina\n${response.typesCode}\n\`\`\`\n</code>`;
+            console.log("Formatted Response: " + formatted_response);
 
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
-                newMessages[newMessages.length - 1].content = assistant_response;
+                newMessages[newMessages.length - 1].content = formatted_response;
                 return newMessages;
             });
             setIsLoading(false);
@@ -1033,11 +1349,259 @@ export function AIChat() {
             setIsLoading(false);
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
-                newMessages[newMessages.length - 1].content += `Type creation failed: ${error}`;
+                newMessages[newMessages.length - 1].content += `Failed fetching data from documentation: ${error}`;
                 newMessages[newMessages.length - 1].type = "Error";
                 return newMessages;
             });
-            throw new Error("Failed to generate types.");
+            throw new Error("Failed fetching");
+        }
+
+        addChatEntry("user", message);
+        addChatEntry("assistant", formatted_response);
+    }
+
+    async function processHealthcareCodeGeneration(token: string, useCase: string, message: string) {
+        let assistant_response = "";
+        const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource();
+        const requestBody: any = {
+            usecase: useCase,
+            chatHistory: chatArray,
+            sourceFiles: project.sourceFiles,
+        };
+
+        const response = await fetchWithToken(
+            backendRootUri + "/healthcare",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(requestBody),
+                signal: signal,
+            },
+            rpcClient
+        );
+
+        if (!response.ok) {
+            if (response.status > 400 && response.status < 500) {
+                await rpcClient.getAiPanelRpcClient().promptLogin();
+                setIsLoading(false);
+                return;
+            }
+
+            setIsLoading(false);
+            let error = `Failed to fetch response.`;
+            if (response.status == 429) {
+                response.json().then((body) => {
+                    error += ` Cause: ${body.detail}`;
+                });
+            }
+            throw new Error(error);
+        }
+        const reader: ReadableStreamDefaultReader<Uint8Array> = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let codeSnippetBuffer = "";
+        remainingTokenPercentage = "Unlimited";
+        setIsCodeLoading(true);
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+                setIsLoading(false);
+                break;
+            }
+
+            buffer += decoder.decode(value, { stream: true });
+
+            let boundary = buffer.indexOf("\n\n");
+            while (boundary !== -1) {
+                const chunk = buffer.slice(0, boundary + 2);
+                buffer = buffer.slice(boundary + 2);
+                try {
+                    await processSSEEvent(chunk);
+                } catch (error) {
+                    console.error("Failed to parse SSE event:", error);
+                }
+
+                boundary = buffer.indexOf("\n\n");
+            }
+        }
+
+        async function processSSEEvent(chunk: string) {
+            const event = parseSSEEvent(chunk);
+            if (event.event == "content_block_delta") {
+                let textDelta = event.body.text;
+                assistant_response += textDelta;
+
+                handleContentBlockDelta(textDelta);
+            } else if (event.event == "message_stop") {
+                setIsCodeLoading(false);
+                setMessages((prevMessages) => {
+                    const newMessages = [...prevMessages];
+                    newMessages[newMessages.length - 1].content = assistant_response;
+                    return newMessages;
+                });
+            } else if (event.event == "error") {
+                console.log("Streaming Error: ", event);
+                setIsLoading(false);
+                setMessages((prevMessages) => {
+                    const newMessages = [...prevMessages];
+                    newMessages[newMessages.length - 1].content +=
+                        "\nUnknown error occurred while receiving the response.";
+                    newMessages[newMessages.length - 1].type = "Error";
+                    return newMessages;
+                });
+                assistant_response = "\nUnknown error occurred while receiving the response.";
+                throw new Error("Streaming error");
+            }
+        }
+
+        function handleContentBlockDelta(textDelta: string) {
+            const matchText = codeSnippetBuffer + textDelta;
+            const matchedResult = findRegexMatches(matchText);
+            if (matchedResult.length > 0) {
+                if (matchedResult[0].end === matchText.length) {
+                    codeSnippetBuffer = matchText;
+                } else {
+                    codeSnippetBuffer = "";
+                    setMessages((prevMessages) => {
+                        const newMessages = [...prevMessages];
+                        newMessages[newMessages.length - 1].content += matchText;
+                        return newMessages;
+                    });
+                }
+            } else {
+                codeSnippetBuffer = "";
+                setMessages((prevMessages) => {
+                    const newMessages = [...prevMessages];
+                    newMessages[newMessages.length - 1].content += matchText;
+                    return newMessages;
+                });
+            }
+        }
+
+        addChatEntry("user", message);
+        addChatEntry("assistant", assistant_response);
+    }
+
+    async function processOpenAPICodeGeneration(token: string, useCase: string, message: string) {
+        let assistant_response = "";
+        const requestBody: any = {
+            query: useCase,
+            chatHistory: chatArray,
+        };
+
+        const response = await fetchWithToken(
+            backendRootUri + "/openapi",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(requestBody),
+                signal: signal,
+            },
+            rpcClient
+        );
+
+        if (!response.ok) {
+            if (response.status > 400 && response.status < 500) {
+                await rpcClient.getAiPanelRpcClient().promptLogin();
+                setIsLoading(false);
+                return;
+            }
+
+            setIsLoading(false);
+            let error = `Failed to fetch response.`;
+            if (response.status == 429) {
+                response.json().then((body) => {
+                    error += ` Cause: ${body.detail}`;
+                });
+            }
+            throw new Error(error);
+        }
+        const reader: ReadableStreamDefaultReader<Uint8Array> = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let codeSnippetBuffer = "";
+        remainingTokenPercentage = "Unlimited";
+        setIsCodeLoading(true);
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+                setIsLoading(false);
+                break;
+            }
+
+            buffer += decoder.decode(value, { stream: true });
+
+            let boundary = buffer.indexOf("\n\n");
+            while (boundary !== -1) {
+                const chunk = buffer.slice(0, boundary + 2);
+                buffer = buffer.slice(boundary + 2);
+                try {
+                    await processSSEEvent(chunk);
+                } catch (error) {
+                    console.error("Failed to parse SSE event:", error);
+                }
+
+                boundary = buffer.indexOf("\n\n");
+            }
+        }
+
+        async function processSSEEvent(chunk: string) {
+            const event = parseSSEEvent(chunk);
+            if (event.event == "content_block_delta") {
+                let textDelta = event.body.text;
+                assistant_response += textDelta;
+
+                handleContentBlockDelta(textDelta);
+            } else if (event.event == "message_stop") {
+                setIsCodeLoading(false);
+                setMessages((prevMessages) => {
+                    const newMessages = [...prevMessages];
+                    newMessages[newMessages.length - 1].content = assistant_response;
+                    return newMessages;
+                });
+            } else if (event.event == "error") {
+                console.log("Streaming Error: ", event);
+                setIsLoading(false);
+                setMessages((prevMessages) => {
+                    const newMessages = [...prevMessages];
+                    newMessages[newMessages.length - 1].content +=
+                        "\nUnknown error occurred while receiving the response.";
+                    newMessages[newMessages.length - 1].type = "Error";
+                    return newMessages;
+                });
+                assistant_response = "\nUnknown error occurred while receiving the response.";
+                throw new Error("Streaming error");
+            }
+        }
+
+        function handleContentBlockDelta(textDelta: string) {
+            const matchText = codeSnippetBuffer + textDelta;
+            const matchedResult = findRegexMatches(matchText);
+            if (matchedResult.length > 0) {
+                if (matchedResult[0].end === matchText.length) {
+                    codeSnippetBuffer = matchText;
+                } else {
+                    codeSnippetBuffer = "";
+                    setMessages((prevMessages) => {
+                        const newMessages = [...prevMessages];
+                        newMessages[newMessages.length - 1].content += matchText;
+                        return newMessages;
+                    });
+                }
+            } else {
+                codeSnippetBuffer = "";
+                setMessages((prevMessages) => {
+                    const newMessages = [...prevMessages];
+                    newMessages[newMessages.length - 1].content += matchText;
+                    return newMessages;
+                });
+            }
         }
 
         addChatEntry("user", message);
@@ -1056,8 +1620,8 @@ export function AIChat() {
         setIsCodeLoading(false);
     }
 
-    async function handleLogout() {
-        await rpcClient.getAiPanelRpcClient().logout();
+    async function handleSettings() {
+        await rpcClient.getAiPanelRpcClient().openSettings();
     }
 
     function handleClearChat(): void {
@@ -1069,6 +1633,7 @@ export function AIChat() {
         //generateSuggestions();
 
         //clear the local storage
+        setUserInput("");
         localStorage.removeItem(`chatArray-AIGenerationChat-${projectUuid}`);
     }
 
@@ -1087,13 +1652,135 @@ export function AIChat() {
         }
     }, [otherMessages.length]);
 
+    function onTestScenarioDelete(content: string) {
+        setMessages((prevMessages) => {
+            const newMessages = [...prevMessages];
+            const lastMessageContent = newMessages[newMessages.length - 1].content;
+
+            const escapedContent = content.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            const regex = new RegExp(`<scenario>\\s*${escapedContent}\\s*<\\/scenario>`, "g");
+
+            const newContent = lastMessageContent.replace(regex, "");
+            newMessages[newMessages.length - 1].content = newContent;
+
+            // Update intermediary state
+            setTestGenIntermediaryState((prevState) => ({
+                ...prevState,
+                testPlan: newContent,
+            }));
+
+            // Update the memory as well
+            updateChatEntry(chatArray.length - 1, {
+                actor: "assistant",
+                message: newMessages[newMessages.length - 1].content,
+            });
+
+            return newMessages;
+        });
+    }
+
+    function onTestScenarioAdd() {
+        setMessages((prevMessages) => {
+            const newMessages = [...prevMessages];
+            const lastMessageContent = newMessages[newMessages.length - 1].content;
+
+            const regex = /<button type="add_scenario">(.*?)<\/button>/;
+            const match = lastMessageContent.match(regex);
+
+            if (match) {
+                const buttonText = match[1];
+
+                const scenarioText = `
+<scenario>
+    <title>(Edit This) Scenario Title</title>
+    <description>(Edit This) Scenario Description</description>
+</scenario>
+
+<button type="add_scenario">${buttonText}</button>
+`;
+
+                const newContent = lastMessageContent.replace(regex, scenarioText);
+                newMessages[newMessages.length - 1].content = newContent;
+
+                // Update intermediary state
+                setTestGenIntermediaryState((prevState) => ({
+                    ...prevState,
+                    testPlan: newContent,
+                }));
+
+                updateChatEntry(chatArray.length - 1, {
+                    actor: "assistant",
+                    message: newContent,
+                });
+            }
+
+            updateChatEntry(chatArray.length - 1, {
+                actor: "assistant",
+                message: newMessages[newMessages.length - 1].content,
+            });
+
+            return newMessages;
+        });
+    }
+
+    const handleEdit = (oldContent: string, newContent: string) => {
+        setMessages((prevMessages) => {
+            const newMessages = [...prevMessages];
+            const lastMessageContent = newMessages[newMessages.length - 1].content;
+
+            const escapedContent = oldContent.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            const regex = new RegExp(`<scenario>\\s*${escapedContent}\\s*<\\/scenario>`, "g");
+
+            const scenarioText = `
+<scenario>
+    ${newContent}
+</scenario>
+`;
+            const updatedContent = lastMessageContent.replace(regex, scenarioText);
+            newMessages[newMessages.length - 1].content = updatedContent;
+
+            // Update intermediary state
+            setTestGenIntermediaryState((prevState) => ({
+                ...prevState,
+                testPlan: updatedContent,
+            }));
+
+            // Update the memory as well
+            updateChatEntry(chatArray.length - 1, {
+                actor: "assistant",
+                message: newMessages[newMessages.length - 1].content,
+            });
+
+            return newMessages;
+        });
+    };
+
+    const regenerateScenarios = async () => {
+        setMessages((prevMessages) => {
+            const newMessages = [...prevMessages];
+            newMessages[newMessages.length - 1].content = "";
+            return newMessages;
+        });
+
+        await handleSendQuery(testGenIntermediaryState.content);
+    };
+
+    const generateFunctionTests = async () => {
+        await processFunctionTestGeneration(
+            testGenIntermediaryState.content,
+            testGenIntermediaryState.token,
+            testGenIntermediaryState.resourceFunction,
+            testGenIntermediaryState.testPlan
+        );
+    };
+
     return (
         <AIChatView>
             <Header>
                 <Badge>
                     Remaining Free Usage: {"Unlimited"}
                     <br />
-                    <ResetsInBadge>{`Resets in: 30 days`}</ResetsInBadge>
+                    {/* <ResetsInBadge>{`Resets in: 30 days`}</ResetsInBadge> */}
                 </Badge>
                 <HeaderButtons>
                     <Button
@@ -1105,24 +1792,84 @@ export function AIChat() {
                         <Codicon name="clear-all" />
                         &nbsp;&nbsp;Clear
                     </Button>
-                    <Button appearance="icon" onClick={() => handleLogout()} tooltip="Logout" disabled={true}>
-                        <Codicon name="sign-out" />
-                        &nbsp;&nbsp;Logout
+                    <Button appearance="icon" onClick={() => handleSettings()} tooltip="Settings">
+                        <Codicon name="settings-gear" />
+                        &nbsp;&nbsp;Settings
                     </Button>
                 </HeaderButtons>
             </Header>
             <main style={{ flex: 1, overflowY: "auto" }}>
                 {Array.isArray(otherMessages) && otherMessages.length === 0 && (
                     <Welcome>
-                        <h3>
-                            Welcome to WSO2 Copilot <PreviewContainer>Preview</PreviewContainer>
-                        </h3>
-                        <p>What do you want to integrate today?</p>
+                        <div
+                            style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                marginTop: "100px",
+                            }}
+                        >
+                            <Icon
+                                name="bi-ai-agent"
+                                sx={{ width: 60, height: 50 }}
+                                iconSx={{ fontSize: "60px", color: "var(--vscode-foreground)", cursor: "default" }}
+                            />
+
+                            <div style={{ display: "inline-flex" }}>
+                                <h2>WSO2 Copilot</h2>
+                                <PreviewContainerDefault>Preview</PreviewContainerDefault>
+                            </div>
+                            <Typography
+                                variant="body1"
+                                sx={{
+                                    marginBottom: "24px",
+                                    color: "var(--vscode-descriptionForeground)",
+                                    textAlign: "center",
+                                    maxWidth: 350,
+                                    fontSize: 14,
+                                }}
+                            >
+                                WSO2 Copilot is powered by AI. It can make mistakes. Make sure to review the generated
+                                code before adding it to your integration.
+                            </Typography>
+                            <Typography
+                                variant="body1"
+                                sx={{
+                                    marginBottom: "14px",
+                                    color: "var(--vscode-descriptionForeground)",
+                                    textAlign: "center",
+                                    maxWidth: 350,
+                                    fontSize: 14,
+                                }}
+                            >
+                                Type / to use commands
+                            </Typography>
+                            <Typography
+                                variant="body1"
+                                sx={{
+                                    marginBottom: "24px",
+                                    color: "var(--vscode-descriptionForeground)",
+                                    textAlign: "center",
+                                    maxWidth: 350,
+                                    fontSize: 14,
+                                    gap: 10,
+                                    display: "inline-flex",
+                                }}
+                            >
+                                <Icon isCodicon={true} name="new-file" iconSx={{ cursor: "default" }} /> to attatch
+                                context
+                            </Typography>
+                        </div>
                     </Welcome>
                 )}
                 {otherMessages.map((message, index) => {
                     const showGeneratingFiles = !codeSegmentRendered && index === currentGeneratingPromptIndex;
+                    const isLastResponse = index === currentGeneratingPromptIndex;
                     codeSegmentRendered = false;
+
+                    const segmentedContent = splitContent(message.content);
+                    const areTestsGenerated = segmentedContent.some((segment) => segment.type === SegmentType.Progress);
                     return (
                         <ChatMessage>
                             {message.type !== "question" && message.type !== "label" && (
@@ -1133,9 +1880,9 @@ export function AIChat() {
                                     isLoading={isLoading && !isSuggestionLoading && index === otherMessages.length - 1}
                                 />
                             )}
-                            {splitContent(message.content).map((segment, i) => {
+                            {segmentedContent.map((segment, i) => {
                                 if (segment.type === SegmentType.Code) {
-                                    const nextSegment = splitContent(message.content)[i + 1];
+                                    const nextSegment = segmentedContent[i + 1];
                                     if (
                                         nextSegment &&
                                         (nextSegment.type === SegmentType.Code ||
@@ -1176,7 +1923,7 @@ export function AIChat() {
                                                 message={message}
                                                 buttonsActive={showGeneratingFiles}
                                                 isSyntaxError={isSyntaxError}
-                                                isTestCode={segment.isTestCode}
+                                                command={segment.command}
                                             />
                                         );
                                     }
@@ -1212,6 +1959,64 @@ export function AIChat() {
                                             {segment.text}
                                         </div>
                                     );
+                                } else if (segment.type === SegmentType.InlineCode) {
+                                    return <BallerinaCodeBlock key={i} code={segment.text} />;
+                                } else if (segment.type === SegmentType.References) {
+                                    return <ReferenceDropdown key={i} links={JSON.parse(segment.text)} />;
+                                } else if (segment.type === SegmentType.TestScenario) {
+                                    return (
+                                        <AccordionItem
+                                            content={segment.text}
+                                            onDelete={onTestScenarioDelete}
+                                            isEnabled={
+                                                isLastResponse && !isCodeLoading && !areTestsGenerated && isLoading
+                                            }
+                                            onEdit={handleEdit}
+                                        />
+                                    );
+                                } else if (segment.type === SegmentType.Button) {
+                                    if (
+                                        "buttonType" in segment &&
+                                        segment.buttonType === "add_scenario" &&
+                                        !isCodeLoading &&
+                                        isLastResponse &&
+                                        !areTestsGenerated &&
+                                        isLoading
+                                    ) {
+                                        return (
+                                            <VSCodeButton
+                                                title="Add a new test scenario"
+                                                appearance="secondary"
+                                                onClick={onTestScenarioAdd}
+                                            >
+                                                <span className={`codicon codicon-add`}></span>
+                                            </VSCodeButton>
+                                        );
+                                    } else if (
+                                        "buttonType" in segment &&
+                                        segment.buttonType === "generate_test_group" &&
+                                        !isCodeLoading &&
+                                        isLastResponse &&
+                                        !areTestsGenerated &&
+                                        isLoading
+                                    ) {
+                                        return (
+                                            <div style={{ display: "flex", gap: "10px" }}>
+                                                <VSCodeButton title="Generate Tests" onClick={generateFunctionTests}>
+                                                    {"Generate Tests"}
+                                                </VSCodeButton>
+                                                <VSCodeButton
+                                                    title="Regenerate test scenarios"
+                                                    appearance="secondary"
+                                                    onClick={regenerateScenarios}
+                                                >
+                                                    <Codicon name="refresh" />
+                                                </VSCodeButton>
+                                            </div>
+                                        );
+                                    }
+                                } else if (message.role === "User") {
+                                    return <TextWithBadges text={segment.text} />;
                                 } else {
                                     if (message.type === "Error") {
                                         return (
@@ -1252,6 +2057,33 @@ export function AIChat() {
                         </div>
                     </>
                 ))}
+                {Array.isArray(otherMessages) && otherMessages.length === 0 && (
+                    <FlexRow>
+                        <div
+                            style={{
+                                marginTop: "16px",
+                                marginBottom: "6px",
+                                marginLeft: "2px",
+                                color: "var(--vscode-descriptionForeground)",
+                            }}
+                        >
+                            {DEFAULT_MENU_COMMANDS.map(({ command }, index) => (
+                                <div key={index} style={{ marginBottom: "2px" }}>
+                                    <a
+                                        href="#"
+                                        style={{ textDecoration: "none", cursor: "pointer" }}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            setUserInput(command);
+                                        }}
+                                    >
+                                        {command}
+                                    </a>
+                                </div>
+                            ))}
+                        </div>
+                    </FlexRow>
+                )}
                 <FlexRow>
                     <AIChatInput
                         value={userInput}
@@ -1259,6 +2091,7 @@ export function AIChat() {
                         onSend={handleSend}
                         onStop={handleStop}
                         isLoading={isLoading}
+                        loadMentions={loadMentions}
                     />
                 </FlexRow>
             </Footer>
@@ -1351,17 +2184,17 @@ interface CodeSectionProps {
     handleAddAllCodeSegmentsToWorkspace: (
         codeSegment: any,
         setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
-        isTestCode: boolean
+        command: string
     ) => void;
     handleRevertChanges: (
         codeSegment: any,
         setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
-        isTestCode: boolean
+        command: string
     ) => void;
     message: { role: string; content: string; type: string };
     buttonsActive: boolean;
     isSyntaxError: boolean;
-    isTestCode: boolean;
+    command: string;
 }
 
 const CodeSection: React.FC<CodeSectionProps> = ({
@@ -1373,12 +2206,16 @@ const CodeSection: React.FC<CodeSectionProps> = ({
     message,
     buttonsActive,
     isSyntaxError,
-    isTestCode,
+    command,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isCodeAdded, setIsCodeAdded] = useState(false);
 
     const language = "ballerina";
+    let isTestCode = false;
+    if (command === "test") {
+        isTestCode = true;
+    }
     let name = loading
         ? "Generating " + (isTestCode ? "Tests..." : "Integration...")
         : isTestCode
@@ -1401,11 +2238,7 @@ const CodeSection: React.FC<CodeSectionProps> = ({
                                     appearance="icon"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        handleAddAllCodeSegmentsToWorkspace(
-                                            allCodeSegments,
-                                            setIsCodeAdded,
-                                            isTestCode
-                                        );
+                                        handleAddAllCodeSegmentsToWorkspace(allCodeSegments, setIsCodeAdded, command);
                                     }}
                                     tooltip={
                                         isSyntaxError
@@ -1422,7 +2255,7 @@ const CodeSection: React.FC<CodeSectionProps> = ({
                                     appearance="icon"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        handleRevertChanges(allCodeSegments, setIsCodeAdded, isTestCode);
+                                        handleRevertChanges(allCodeSegments, setIsCodeAdded, command);
                                     }}
                                     disabled={!buttonsActive}
                                 >
@@ -1608,6 +2441,10 @@ enum SegmentType {
     Progress = "Progress",
     Attachment = "Attachment",
     Error = "Error",
+    InlineCode = "InlineCode",
+    References = "References",
+    TestScenario = "TestScenario",
+    Button = "Button",
 }
 
 interface Segment {
@@ -1616,28 +2453,35 @@ interface Segment {
     loading: boolean;
     text: string;
     fileName?: string;
-    isTestCode?: boolean;
+    command?: string;
     failed?: boolean;
+    [key: string]: any;
+}
+
+function getCommand(command: string) {
+    if (!command) {
+        return "code";
+    } else {
+        return command.replaceAll(/"/g, "");
+    }
 }
 
 function splitHalfGeneratedCode(content: string): Segment[] {
     const segments: Segment[] = [];
     // Regex to capture filename and optional test attribute
-    const regex = /<code\s+filename="([^"]+)"(?:\s+test=(true|false))?>\s*```(\w+)\s*([\s\S]*?)$/g;
+    const regex = /<code\s+filename="([^"]+)"(?:\s+type=("test"|"ai_map"))?>\s*```(\w+)\s*([\s\S]*?)$/g;
     let match;
     let lastIndex = 0;
 
     while ((match = regex.exec(content)) !== null) {
-        const [fullMatch, fileName, testValue, language, code] = match;
-        const isTestCode = testValue === "true";
-
+        const [fullMatch, fileName, type, language, code] = match;
         if (match.index > lastIndex) {
             // Non-code segment before the current code block
             segments.push({
                 type: SegmentType.Text,
                 loading: false,
                 text: content.slice(lastIndex, match.index),
-                isTestCode: isTestCode,
+                command: getCommand(type),
             });
         }
 
@@ -1648,7 +2492,7 @@ function splitHalfGeneratedCode(content: string): Segment[] {
             loading: true,
             text: code,
             fileName: fileName,
-            isTestCode: isTestCode,
+            command: getCommand(type),
         });
 
         lastIndex = regex.lastIndex;
@@ -1671,7 +2515,7 @@ export function splitContent(content: string): Segment[] {
 
     // Combined regex to capture either <code ...>```<language> code ```</code> or <progress>Text</progress>
     const regex =
-        /<code\s+filename="([^"]+)"(?:\s+test=(true|false))?>\s*```(\w+)\s*([\s\S]*?)```\s*<\/code>|<progress>([\s\S]*?)<\/progress>|<attachment>([\s\S]*?)<\/attachment>|<error>([\s\S]*?)<\/error>/g;
+        /<code\s+filename="([^"]+)"(?:\s+type=("test"|"ai_map"))?>\s*```(\w+)\s*([\s\S]*?)```\s*<\/code>|<progress>([\s\S]*?)<\/progress>|<attachment>([\s\S]*?)<\/attachment>|<error>([\s\S]*?)<\/error>|<scenario>([\s\S]*?)<\/scenario>|<button\s+type="([^"]+)">([\s\S]*?)<\/button>|<inlineCode>([\s\S]*?)<inlineCode>|<references>([\s\S]*?)<references>/g;
     let match;
     let lastIndex = 0;
 
@@ -1695,11 +2539,9 @@ export function splitContent(content: string): Segment[] {
         if (match[1]) {
             // <code> block matched
             const fileName = match[1];
-            const testValue = match[2];
+            const type = match[2];
             const language = match[3];
             const code = match[4];
-            const isTestCode = testValue === "true";
-
             updateLastProgressSegmentLoading();
             segments.push({
                 type: SegmentType.Code,
@@ -1707,7 +2549,7 @@ export function splitContent(content: string): Segment[] {
                 text: code,
                 fileName: fileName,
                 language: language,
-                isTestCode: isTestCode,
+                command: getCommand(type),
             });
         } else if (match[5]) {
             // <progress> block matched
@@ -1745,6 +2587,40 @@ export function splitContent(content: string): Segment[] {
                 type: SegmentType.Error,
                 loading: false,
                 text: errorMessage,
+            });
+        } else if (match[8]) {
+            // <scenario> block matched
+            const scenarioContent = match[8].trim();
+
+            updateLastProgressSegmentLoading(true);
+            segments.push({
+                type: SegmentType.TestScenario,
+                loading: false,
+                text: scenarioContent,
+            });
+        } else if (match[9]) {
+            // <button> block matched
+            const buttonType = match[9].trim();
+            const buttonContent = match[10].trim();
+
+            updateLastProgressSegmentLoading(true);
+            segments.push({
+                type: SegmentType.Button,
+                loading: false,
+                text: buttonContent,
+                buttonType: buttonType,
+            });
+        } else if (match[11]) {
+            segments.push({
+                type: SegmentType.InlineCode,
+                text: match[11].trim(),
+                loading: false,
+            });
+        } else if (match[12]) {
+            segments.push({
+                type: SegmentType.References,
+                text: match[12].trim(),
+                loading: false,
             });
         }
 

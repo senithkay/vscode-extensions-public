@@ -14,7 +14,7 @@ import { FunctionFindingVisitor } from "../../utils/function-finding-visitor";
 
 export const DATA_MAPPING_FILE_NAME = "data_mappings.bal";
 
-export function getDataMapperNodePosition(nodeProperties: NodeProperties, syntaxTree: STNode): NodePosition {
+export function getFunctionNodePosition(nodeProperties: NodeProperties, syntaxTree: STNode): NodePosition {
     const functionName = nodeProperties.hasOwnProperty("functionName")
         ? nodeProperties["functionName"].value as string
         : "";

@@ -99,9 +99,9 @@ export const textToModifications = (text: string, position: NodePosition): STMod
     ];
 };
 
-export const applyModifications = async (rpcClient: BallerinaRpcClient, modifications: STModification[]) => {
+export const applyModifications = async (rpcClient: BallerinaRpcClient, modifications: STModification[], sourceFilePath?: string) => {
     const langServerRPCClient = rpcClient.getLangClientRpcClient();
-    const filePath = (await rpcClient.getVisualizerLocation()).documentUri;
+    const filePath = sourceFilePath ? sourceFilePath : (await rpcClient.getVisualizerLocation()).documentUri;
 
     const { parseSuccess, source: newSource } = await langServerRPCClient?.stModify({
         astModifications: modifications,

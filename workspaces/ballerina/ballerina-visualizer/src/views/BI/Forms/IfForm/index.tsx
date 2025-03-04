@@ -9,7 +9,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button, Codicon, CompletionItem, FormExpressionEditorRef, LinkButton } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, FormExpressionEditorRef, LinkButton, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 import {
     FlowNode,
@@ -20,7 +20,6 @@ import {
     FormDiagnostics,
     Diagnostic
 } from "@wso2-enterprise/ballerina-core";
-import { Colors } from "../../../../resources/constants";
 import {
     FormValues,
     ExpressionEditor,
@@ -372,20 +371,20 @@ export function IfForm(props: IfFormProps) {
                 }
             })}
 
-            <LinkButton onClick={addNewCondition} sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
+            <LinkButton onClick={addNewCondition} sx={{ fontSize: 12, padding: 8, color: ThemeColors.PRIMARY, gap: 4 }}>
                 <Codicon name={"add"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
                 Add Else IF Block
             </LinkButton>
 
             {!hasElseBranch && (
-                <LinkButton onClick={addElseBlock} sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
+                <LinkButton onClick={addElseBlock} sx={{ fontSize: 12, padding: 8, color: ThemeColors.PRIMARY, gap: 4 }}>
                     <Codicon name={"add"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
                     Add Else Block
                 </LinkButton>
             )}
 
             {hasElseBranch && (
-                <LinkButton onClick={removeElseBlock} sx={{ fontSize: 12, padding: 8, color: Colors.ERROR, gap: 4 }}>
+                <LinkButton onClick={removeElseBlock} sx={{ fontSize: 12, padding: 8, color: ThemeColors.ERROR, gap: 4 }}>
                     <Codicon name={"chrome-minimize"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
                     Remove Else Block
                 </LinkButton>

@@ -161,7 +161,6 @@ jobs:
   ExtTest_Ballerina:
     name: Run Ballerina extension tests
     needs: Build_Stage
-    if: ${{ (inputs.ballerina == 'true' && needs.Build_Stage.outputs.runBalExtTests == 'true') || github.base_ref == 'release-ballerina' }}
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
@@ -177,7 +176,7 @@ jobs:
           rm build.zip
 
       - name: Setup Rush
-        uses: gigara/setup-rush@v1
+        uses: gigara/setup-rush@v1.1.0
         with:
           pnpm: 7.26.3
           node: 16.x
@@ -222,7 +221,7 @@ jobs:
           rm build.zip
 
       - name: Setup Rush
-        uses: gigara/setup-rush@v1
+        uses: gigara/setup-rush@v1.1.0
         with:
           pnpm: 7.26.3
           node: 16.x
@@ -291,7 +290,7 @@ jobs:
           rm build.zip
 
       - name: Setup Rush
-        uses: gigara/setup-rush@v1
+        uses: gigara/setup-rush@v1.1.0
         with:
           pnpm: 7.26.3
           node: 16.x
@@ -378,7 +377,7 @@ jobs:
           rm build.zip
 
       - name: Setup Rush
-        uses: gigara/setup-rush@v1
+        uses: gigara/setup-rush@v1.1.0
         with:
           pnpm: 7.26.3
           node: 16.x
@@ -408,7 +407,7 @@ jobs:
           rm build.zip
 
       - name: Setup Rush
-        uses: gigara/setup-rush@v1
+        uses: gigara/setup-rush@v1.1.0
         with:
           pnpm: 7.26.3
           node: 16.x

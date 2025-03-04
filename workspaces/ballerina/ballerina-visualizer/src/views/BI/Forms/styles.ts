@@ -14,8 +14,8 @@ export namespace FormStyles {
         display: flex;
         flex-direction: column;
         gap: 18px;
-        height: calc(100% - 87px);
-        overflow-y: auto;
+        height: calc(100vh - 100px);
+        overflow-y: scroll;
         padding: 16px;
     `;
 

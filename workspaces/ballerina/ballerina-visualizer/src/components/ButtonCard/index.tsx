@@ -8,21 +8,20 @@
  */
 
 import React from "react";
-import { Codicon, LinkButton } from "@wso2-enterprise/ui-toolkit";
+import { LinkButton, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { Colors } from "../../resources/constants";
 
 const Card = styled.div<{ active?: boolean }>`
     gap: 16px;
     max-width: 42rem;
     padding: 16px;
     border-radius: 4px;
-    border: 2px solid ${(props: { active: boolean }) => (props.active ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
-    background-color: ${(props: { active: boolean }) => (props.active ? Colors.PRIMARY_CONTAINER : Colors.SURFACE_DIM)};
+    border: 2px solid ${(props: { active: boolean }) => (props.active ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT)};
+    background-color: ${(props: { active: boolean }) => (props.active ? ThemeColors.PRIMARY_CONTAINER : ThemeColors.SURFACE_DIM)};
     cursor: pointer;
     &:hover {
-        background-color: ${Colors.PRIMARY_CONTAINER};
-        border: 2px solid ${Colors.PRIMARY};
+        background-color: ${ThemeColors.PRIMARY_CONTAINER};
+        border: 2px solid ${ThemeColors.PRIMARY};
     }
 `;
 
@@ -34,7 +33,7 @@ const CardContainer = styled.div<{ active?: boolean }>`
 
 const Text = styled.p`
     font-size: 14px;
-    color: ${Colors.ON_SURFACE};
+    color: ${ThemeColors.ON_SURFACE};
     margin: 0;
 `;
 

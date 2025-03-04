@@ -11,24 +11,28 @@ import { css } from "@emotion/css";
 export const useStyles = () => ({
     root: css({
         flexGrow: 1,
-        margin: '25vh 0'
+        margin: '25vh auto',
+        width: 'fit-content'
     }),
     errorContainer: css({
         display: "flex",
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
+        flexDirection: "column" 
     }),
     errorTitle: css({
-        color: "var(--vscode-badge-background)"
+        color: "var(--vscode-badge-background)",
+        textAlign: "center"
     }),
     errorMsg: css({
         paddingTop: "16px",
-        color: "var(--vscode-checkbox-border)"
+        color: "var(--vscode-checkbox-border)",
+        textAlign: "center"
     }),
     errorImg: css({
-        paddingTop: "80px",
-        paddingBottom: "40px",
-        display: "block"
+        display: 'flex',
+        justifyContent: 'center',
+        width: '100%'
     }),
     gridContainer: css({
         height: "100%"

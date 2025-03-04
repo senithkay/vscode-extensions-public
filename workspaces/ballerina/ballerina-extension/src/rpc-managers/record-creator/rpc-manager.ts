@@ -11,12 +11,13 @@
 import {
     JsonToRecord,
     JsonToRecordParams,
-    NOT_SUPPORTED_TYPE,
     RecordCreatorAPI,
     XMLToRecord,
     XMLToRecordParams,
+    TypeDataWithReferences
 } from "@wso2-enterprise/ballerina-core";
 import { StateMachine } from "../../stateMachine";
+import path from "path";
 
 export class RecordCreatorRpcManager implements RecordCreatorAPI {
     async convertJsonToRecord(params: JsonToRecordParams): Promise<JsonToRecord> {
@@ -32,4 +33,29 @@ export class RecordCreatorRpcManager implements RecordCreatorAPI {
             resolve(response);
         });
     }
+
+    async convertJsonToRecordType(params: JsonToRecordParams): Promise<TypeDataWithReferences> {
+        const projectUri = StateMachine.context().projectUri;
+        const filePathUri = path.join(projectUri, 'types.bal');
+        return new Promise(async (resolve) => {
+            const response = await StateMachine.langClient().convertJsonToRecordType({
+                ...params,
+                filePathUri
+            }) as TypeDataWithReferences;
+            resolve(response);
+        });
+    }
+
+    async convertXmlToRecordType(params: XMLToRecordParams): Promise<TypeDataWithReferences> {
+        const projectUri = StateMachine.context().projectUri;
+        const filePath = path.join(projectUri, 'types.bal');
+        return new Promise(async (resolve) => {
+            const response = await StateMachine.langClient().convertXmlToRecordType({
+                ...params,
+                filePath
+            }) as TypeDataWithReferences;
+            resolve(response);
+        });
+    }
+
 }

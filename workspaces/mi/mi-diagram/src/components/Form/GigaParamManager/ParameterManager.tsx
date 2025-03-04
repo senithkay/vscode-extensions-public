@@ -81,7 +81,7 @@ export interface ParameterManagerProps {
 }
 const ParameterManager = (props: ParameterManagerProps) => {
     const { formData, nodeRange, parameters, setParameters } = props;
-    const { addParamText, readonly, tableKey, tableValue } = formData;
+    const { addParamText, noDataText, readonly, tableKey, tableValue } = formData;
     const { control, setValue, getValues, reset, watch, handleSubmit, formState: { errors } } = useForm();
 
     const [isAdding, setIsAdding] = useState(false);
@@ -170,7 +170,7 @@ const ParameterManager = (props: ParameterManagerProps) => {
         <Container>
             {parameters.length === 0 && (
                 <Typography variant="body3">
-                    No data available.
+                    {noDataText || 'No data available'}
                 </Typography>
             )}
             {parameters?.map((param: Param, index: number) => (

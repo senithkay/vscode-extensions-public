@@ -16,11 +16,12 @@ import {
 import { DataMapperNodeModel } from '../Diagram/Node/commons/DataMapperNode';
 import { getIONodeHeight } from '../Diagram/utils/diagram-utils';
 import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
-import { ErrorNodeKind } from '../DataMapper/Error/DataMapperError';
+import { ErrorNodeKind } from '../DataMapper/Error/RenderingError';
 import { useDMCollapsedFieldsStore, useDMExpandedFieldsStore, useDMSearchStore } from '../../store/store';
-import { InputNode, ObjectOutputNode } from '../Diagram/Node';
+import { ArrayOutputNode, EmptyInputsNode, InputNode, ObjectOutputNode } from '../Diagram/Node';
 import { GAP_BETWEEN_INPUT_NODES, OFFSETS } from '../Diagram/utils/constants';
 import { InputDataImportNodeModel, OutputDataImportNodeModel } from '../Diagram/Node/DataImport/DataImportNode';
+import { getErrorKind } from '../Diagram/utils/common-utils';
 
 export const useRepositionedNodes = (
     nodes: DataMapperNodeModel[],
@@ -37,6 +38,7 @@ export const useRepositionedNodes = (
         const exisitingNode = prevNodes.find(prevNode => prevNode.id === node.id);
 
         if (node instanceof ObjectOutputNode
+            || node instanceof ArrayOutputNode
             || node instanceof OutputDataImportNodeModel
         ) {
             const x = OFFSETS.TARGET_NODE.X;
@@ -44,6 +46,7 @@ export const useRepositionedNodes = (
             node.setPosition(x, y);
         }
         if (node instanceof InputNode
+            || node instanceof EmptyInputsNode
             || node instanceof InputDataImportNodeModel
         ) {
             const x = OFFSETS.SOURCE_NODE.X;
@@ -97,7 +100,9 @@ export const useDiagramModel = (
                 await node.initPorts();
                 node.initLinks();
             } catch (e) {
+                const errorNodeKind = getErrorKind(node);
                 console.error(e);
+                onError(errorNodeKind);
             }
         }
         newModel.setLocked(true);

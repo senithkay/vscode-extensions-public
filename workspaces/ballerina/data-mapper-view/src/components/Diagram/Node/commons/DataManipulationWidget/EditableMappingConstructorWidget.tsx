@@ -295,6 +295,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 					</span>
 					<span className={classes.label}>
 						<Button
+							id={"expand-or-collapse-" + id}
 							appearance="icon"
 							tooltip="Expand/Collapse"
 							sx={{ marginLeft: indentation }}

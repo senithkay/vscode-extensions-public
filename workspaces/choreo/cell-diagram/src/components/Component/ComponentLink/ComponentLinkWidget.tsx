@@ -10,7 +10,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { ComponentLinkModel } from "./ComponentLinkModel";
-import { COMPONENT_LINK, Colors, WarningIcon } from "../../../resources";
+import { COMPONENT_LINK, Colors, LINK_WIDTH, WarningIcon } from "../../../resources";
 import { ObservationLabel } from "../../ObservationLabel/ObservationLabel";
 import { TooltipLabel } from "../../TooltipLabel/TooltipLabel";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
@@ -54,6 +54,7 @@ export function ComponentLinkWidget(props: WidgetProps) {
         observationSummary: {
             requestCount: { min, max },
         },
+        previewMode,
     } = useContext(DiagramContext);
 
     const [isSelected, setIsSelected] = useState<boolean>(false);
@@ -79,7 +80,7 @@ export function ComponentLinkWidget(props: WidgetProps) {
     }, [link, hideLink]);
 
     const selectPath = () => {
-        if (hideLink) {
+        if (hideLink || previewMode) {
             return;
         }
         setIsSelected(true);
@@ -87,13 +88,16 @@ export function ComponentLinkWidget(props: WidgetProps) {
     };
 
     const unselectPath = () => {
+        if (previewMode) {
+            return;
+        }
         setIsSelected(false);
         link.resetLinkedNodes();
     };
 
     const handleMouseOver = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
         event.stopPropagation();
-        if (hideLink) {
+        if (hideLink || previewMode) {
             return;
         }
         selectPath();
@@ -102,6 +106,9 @@ export function ComponentLinkWidget(props: WidgetProps) {
 
     const handleMouseLeave = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
         event.stopPropagation();
+        if (previewMode) {
+            return;
+        }
         unselectPath();
         setAnchorEl(null);
     };
@@ -114,8 +121,11 @@ export function ComponentLinkWidget(props: WidgetProps) {
     };
 
     const strokeWidth = () => {
+        if (previewMode) {
+            return LINK_WIDTH.PREVIEW;
+        }
         const requestCount = getRequestCount();
-        return requestCount ? link.scaleValueToLinkWidth(requestCount, min, max) : 2;
+        return requestCount ? link.scaleValueToLinkWidth(requestCount, min, max) : LINK_WIDTH.DEFAULT;
     };
 
     const strokeColor = () => {
@@ -174,7 +184,7 @@ export function ComponentLinkWidget(props: WidgetProps) {
                 />
                 {hasDiffLayer && link.observationOnly && <WarningIcon x={midPoint.x - 10} y={midPoint.y - 10} width="20" height="20" />}
             </g>
-            {(hasObservabilityLayer || link.tooltip) && (
+            {(hasObservabilityLayer || link.tooltip) && !previewMode && (
                 <Popper id={link.getID()} open={open} anchorEl={anchorEl}>
                     <Box sx={link.observations?.length > 0 && !link.tooltip ? observabilityPopOverStyle : tooltipPopOverStyle}>
                         {link.tooltip && <TooltipLabel tooltip={link.tooltip} />}

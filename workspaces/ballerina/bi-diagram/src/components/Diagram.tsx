@@ -7,11 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, memo } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
-import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { cloneDeep } from "lodash";
-import { Icon, NavigationWrapperCanvasWidget, Switch, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
 
 import {
     clearDiagramZoomAndPosition,
@@ -22,7 +21,7 @@ import {
     resetDiagramZoomAndPosition,
 } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
-import { Flow, NodeModel, FlowNode, Branch, NodeKind, LineRange, NodePosition, FlowNodeStyle } from "../utils/types";
+import { Flow, NodeModel, FlowNode, Branch, LineRange, NodePosition } from "../utils/types";
 import { traverseFlow } from "../utils/ast";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { NodeLinkModel } from "./NodeLink";
@@ -32,7 +31,7 @@ import { SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
 import { InitVisitor } from "../visitors/InitVisitor";
 import { LinkTargetVisitor } from "../visitors/LinkTargetVisitor";
-import { NODE_WIDTH, NodeTypes } from "../resources/constants";
+import { NodeTypes } from "../resources/constants";
 import Controls from "./Controls";
 import { CurrentBreakpointsResponse as BreakpointInfo } from "@wso2-enterprise/ballerina-core";
 import { BreakpointVisitor } from "../visitors/BreakpointVisitor";
@@ -84,40 +83,26 @@ export function Diagram(props: DiagramProps) {
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
     const [showComponentPanel, setShowComponentPanel] = useState(false);
-    const hasErrorFlow = useRef(false);
+    const [expandedErrorHandler, setExpandedErrorHandler] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         if (diagramEngine) {
             const { nodes, links } = getDiagramData();
             drawDiagram(nodes, links);
         }
-    }, [model, showErrorFlow]);
+    }, [model, showErrorFlow, expandedErrorHandler]);
 
     useEffect(() => {
+        console.log(">>> Init diagram model", model);
         return () => {
             clearDiagramZoomAndPosition();
         };
     }, []);
 
     const getDiagramData = () => {
-        // TODO: move to a separate function
-        // get only do block
         let flowModel = cloneDeep(model);
-        console.log(">>> rearranged diagram model", { new: flowModel, original: model });
-        const globalErrorHandleBlock = model.nodes.find((node) => node.codedata.node === "ERROR_HANDLER");
-        if (globalErrorHandleBlock) {
-            hasErrorFlow.current = true;
-            const branchKind: NodeKind = showErrorFlow ? "ON_FAILURE" : "BODY";
-            const subFlow = globalErrorHandleBlock.branches.find((branch) => branch.codedata.node === branchKind);
-            if (subFlow) {
-                // replace error handler block with success flow
-                flowModel.nodes = [model.nodes.at(0), ...subFlow.children];
-            }
-        } else {
-            hasErrorFlow.current = false;
-        }
 
-        const initVisitor = new InitVisitor(flowModel);
+        const initVisitor = new InitVisitor(flowModel, expandedErrorHandler);
         traverseFlow(flowModel, initVisitor);
         const sizingVisitor = new SizingVisitor();
         traverseFlow(flowModel, sizingVisitor);
@@ -134,13 +119,9 @@ export function Diagram(props: DiagramProps) {
         const nodes = nodeVisitor.getNodes();
         const links = nodeVisitor.getLinks();
 
-        const addTargetVisitor = new LinkTargetVisitor(
-            model,
-            nodes,
-            hasErrorFlow.current ? (showErrorFlow ? "On Failure" : "Body") : undefined
-        );
+        const addTargetVisitor = new LinkTargetVisitor(model, nodes);
         traverseFlow(flowModel, addTargetVisitor);
-
+        console.log(">>> getDiagramData", { flowModel, nodes, links });
         return { nodes, links };
     };
 
@@ -193,6 +174,10 @@ export function Diagram(props: DiagramProps) {
         setShowErrorFlow(!showErrorFlow);
     };
 
+    const toggleErrorHandlerExpansion = (nodeId: string) => {
+        setExpandedErrorHandler((prev) => (prev === nodeId ? undefined : nodeId));
+    };
+
     const context: DiagramContextState = {
         flow: model,
         componentPanel: {
@@ -201,6 +186,8 @@ export function Diagram(props: DiagramProps) {
             hide: handleCloseComponentPanel,
         },
         showErrorFlow: showErrorFlow,
+        expandedErrorHandler: expandedErrorHandler,
+        toggleErrorHandlerExpansion: toggleErrorHandlerExpansion,
         onAddNode: onAddNode,
         onAddNodePrompt: onAddNodePrompt,
         onDeleteNode: onDeleteNode,
@@ -218,10 +205,11 @@ export function Diagram(props: DiagramProps) {
 
     const getActiveBreakpointNode = (nodes: NodeModel[]): NodeModel => {
         const node = nodes.find((node) => {
-            const isValidType = node.getType() === NodeTypes.BASE_NODE
-                || node.getType() === NodeTypes.WHILE_NODE
-                || node.getType() === NodeTypes.IF_NODE
-                || node.getType() === NodeTypes.API_CALL_NODE;
+            const isValidType =
+                node.getType() === NodeTypes.BASE_NODE ||
+                node.getType() === NodeTypes.WHILE_NODE ||
+                node.getType() === NodeTypes.IF_NODE ||
+                node.getType() === NodeTypes.API_CALL_NODE;
             return isValidType && (node as BaseNodeModel).isActiveBreakpoint();
         });
 
@@ -230,43 +218,19 @@ export function Diagram(props: DiagramProps) {
 
     return (
         <>
-            {hasErrorFlow.current && (
-                <Switch
-                    leftLabel={
-                        <Tooltip content="Main Flow" position="top">
-                            <Icon name="bi-flowchart" sx={{ fontSize: "16px" }} />
-                        </Tooltip>
-                    }
-                    rightLabel={
-                        <Tooltip content="Error Flow" position="top">
-                            <Icon name="bi-shield-error" sx={{ fontSize: "16px" }} />
-                        </Tooltip>
-                    }
-                    checked={showErrorFlow}
-                    checkedColor="var(--vscode-button-background)"
-                    enableTransition={true}
-                    onChange={toggleDiagramFlow}
-                    sx={{
-                        margin: "auto",
-                        position: "fixed",
-                        bottom: "20px",
-                        right: "20px",
-                        zIndex: "2",
-                        border: "unset",
-                        height: "40px",
-                        width: "100px",
-                    }}
-                    disabled={false}
-                />
-            )}
             <Controls engine={diagramEngine} />
             {diagramEngine && diagramModel && (
                 <DiagramContextProvider value={context}>
                     <DiagramCanvas>
-                        <NavigationWrapperCanvasWidget diagramEngine={diagramEngine} focusedNode={getActiveBreakpointNode(diagramModel.getNodes() as NodeModel[])} />
+                        <NavigationWrapperCanvasWidget
+                            diagramEngine={diagramEngine}
+                            focusedNode={getActiveBreakpointNode(diagramModel.getNodes() as NodeModel[])}
+                        />
                     </DiagramCanvas>
                 </DiagramContextProvider>
             )}
         </>
     );
 }
+
+export const MemoizedDiagram = memo(Diagram);

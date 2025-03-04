@@ -13,14 +13,14 @@ import {
     AIVisualizerState,
     AddToProjectRequest,
     DeleteFromProjectRequest,
+    FetchDataRequest,
+    FetchDataResponse,
     GenerateMappingFromRecordResponse,
     GenerateMappingsFromRecordRequest,
     GenerateMappingsRequest,
     GenerateMappingsResponse,
-    GenerateTestRequest,
     GenerateTypesFromRecordRequest,
     GenerateTypesFromRecordResponse,
-    GeneratedTestSource,
     GetFromFileRequest,
     InitialPrompt,
     NotifyAIMappingsRequest,
@@ -28,33 +28,50 @@ import {
     PostProcessResponse,
     ProjectDiagnostics,
     ProjectSource,
+    TestGenerationMentions,
+    TestGenerationRequest,
+    TestGenerationResponse,
     addToProject,
     applyDoOnFailBlocks,
     checkSyntaxError,
     clearInitialPrompt,
     deleteFromProject,
+    fetchData,
     generateMappings,
     getAccessToken,
     getActiveFile,
     getAiPanelState,
     getBackendURL,
     getFileExists,
+    getFromDocumentation,
     getFromFile,
-    getGeneratedTest,
+    getGeneratedTests,
     getInitialPrompt,
     getMappingsFromRecord,
     getProjectSource,
     getProjectUuid,
     getRefreshToken,
+    getResourceMethodAndPaths,
+    getResourceSourceForMethodAndPath,
+    getServiceNames,
+    getServiceSourceForName,
     getShadowDiagnostics,
     getTestDiagnostics,
     getTypesFromRecord,
+    isCopilotSignedIn,
+    isWSO2AISignedIn,
     login,
     logout,
+    markAlertShown,
     notifyAIMappings,
+    openChat,
+    openSettings,
     postProcess,
+    promptGithubAuthorize,
     promptLogin,
+    promptWSO2AILogout,
     refreshAccessToken,
+    showSignInAlert,
     stopAIMappings,
     updateProject
 } from "@wso2-enterprise/ballerina-core";
@@ -94,6 +111,10 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     refreshAccessToken(): void {
         return this._messenger.sendNotification(refreshAccessToken, HOST_EXTENSION);
+    }
+
+    fetchData(params: FetchDataRequest): Promise<FetchDataResponse> {
+        return this._messenger.sendRequest(fetchData, HOST_EXTENSION, params);
     }
 
     getProjectUuid(): Promise<string> {
@@ -156,12 +177,28 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendNotification(clearInitialPrompt, HOST_EXTENSION);
     }
 
-    getGeneratedTest(params: GenerateTestRequest): Promise<GeneratedTestSource> {
-        return this._messenger.sendRequest(getGeneratedTest, HOST_EXTENSION, params);
+    getGeneratedTests(params: TestGenerationRequest): Promise<TestGenerationResponse> {
+        return this._messenger.sendRequest(getGeneratedTests, HOST_EXTENSION, params);
     }
 
-    getTestDiagnostics(params: GeneratedTestSource): Promise<ProjectDiagnostics> {
+    getTestDiagnostics(params: TestGenerationResponse): Promise<ProjectDiagnostics> {
         return this._messenger.sendRequest(getTestDiagnostics, HOST_EXTENSION, params);
+    }
+
+    getServiceSourceForName(params: string): Promise<string> {
+        return this._messenger.sendRequest(getServiceSourceForName, HOST_EXTENSION, params);
+    }
+
+    getResourceSourceForMethodAndPath(params: string): Promise<string> {
+        return this._messenger.sendRequest(getResourceSourceForMethodAndPath, HOST_EXTENSION, params);
+    }
+
+    getServiceNames(): Promise<TestGenerationMentions> {
+        return this._messenger.sendRequest(getServiceNames, HOST_EXTENSION);
+    }
+
+    getResourceMethodAndPaths(): Promise<TestGenerationMentions> {
+        return this._messenger.sendRequest(getResourceMethodAndPaths, HOST_EXTENSION);
     }
 
     getMappingsFromRecord(params: GenerateMappingsFromRecordRequest): Promise<GenerateMappingFromRecordResponse> {
@@ -182,5 +219,41 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     getActiveFile(): Promise<string> {
         return this._messenger.sendRequest(getActiveFile, HOST_EXTENSION);
+    }
+
+    openSettings(): void {
+        return this._messenger.sendNotification(openSettings, HOST_EXTENSION);
+    }
+
+    openChat(): void {
+        return this._messenger.sendNotification(openChat, HOST_EXTENSION);
+    }
+
+    promptGithubAuthorize(): Promise<boolean> {
+        return this._messenger.sendRequest(promptGithubAuthorize, HOST_EXTENSION);
+    }
+
+    promptWSO2AILogout(): Promise<boolean> {
+        return this._messenger.sendRequest(promptWSO2AILogout, HOST_EXTENSION);
+    }
+
+    isCopilotSignedIn(): Promise<boolean> {
+        return this._messenger.sendRequest(isCopilotSignedIn, HOST_EXTENSION);
+    }
+
+    isWSO2AISignedIn(): Promise<boolean> {
+        return this._messenger.sendRequest(isWSO2AISignedIn, HOST_EXTENSION);
+    }
+
+    showSignInAlert(): Promise<boolean> {
+        return this._messenger.sendRequest(showSignInAlert, HOST_EXTENSION);
+    }
+
+    markAlertShown(): void {
+        return this._messenger.sendNotification(markAlertShown, HOST_EXTENSION);
+    }
+
+    getFromDocumentation(content: string): Promise<string> {
+        return this._messenger.sendRequest(getFromDocumentation, HOST_EXTENSION, content);
     }
 }

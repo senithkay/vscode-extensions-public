@@ -29,7 +29,7 @@ import {
 } from "./interfaces";
 
 export interface CommonRPCAPI {
-    getTypes: () => Promise<TypeResponse>;
+    getTypeCompletions: () => Promise<TypeResponse>;
     goToSource: (params: GoToSourceRequest) => void;
     getWorkspaceFiles: (params: WorkspaceFileRequest) => Promise<WorkspacesFileResponse>;
     getBallerinaDiagnostics: (params: BallerinaDiagnosticsRequest) => Promise<BallerinaDiagnosticsResponse>;

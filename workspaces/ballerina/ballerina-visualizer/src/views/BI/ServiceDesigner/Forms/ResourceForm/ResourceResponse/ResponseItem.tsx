@@ -34,6 +34,14 @@ export function ResponseItem(props: ParamItemProps) {
         }
     };
 
+    const getFormattedResponse = (response: StatusCodeResponse, method: HTTP_METHOD) => {
+        if (response.statusCode.value && (Number(response.statusCode.value) === 200 || Number(response.statusCode.value) === 201)) {
+            return getDefaultResponse(method);
+        } else {
+            return response.statusCode.value || getDefaultResponse(method);
+        }
+    };
+
     return (
         <HeaderLabel data-testid={`${response.statusCode.value}-item`}>
             <IconTextWrapper onClick={handleEdit}>
@@ -41,7 +49,7 @@ export function ResponseItem(props: ParamItemProps) {
                     <Icon name="header" />
                 </IconWrapper>
                 <OptionLabel>
-                    {response.statusCode.value || getDefaultResponse(method)}
+                    {getFormattedResponse(response, method)}
                 </OptionLabel>
             </IconTextWrapper>
             <ContentSection>

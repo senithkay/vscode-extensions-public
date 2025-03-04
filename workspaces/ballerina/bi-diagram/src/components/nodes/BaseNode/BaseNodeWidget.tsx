@@ -11,14 +11,13 @@ import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import {
-    Colors,
     DRAFT_NODE_BORDER_WIDTH,
     NODE_BORDER_WIDTH,
     NODE_HEIGHT,
     NODE_PADDING,
     NODE_WIDTH,
 } from "../../../resources/constants";
-import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
+import { Button, Item, Menu, MenuItem, Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import NodeIcon from "../../NodeIcon";
 import { useDiagramContext } from "../../DiagramContext";
@@ -44,13 +43,13 @@ export namespace NodeStyles {
         min-height: ${NODE_HEIGHT}px;
         padding: 0 ${NODE_PADDING}px;
         background-color: ${(props: NodeStyleProp) =>
-            props?.isActiveBreakpoint ? Colors.DEBUGGER_BREAKPOINT_BACKGROUND : Colors.SURFACE_BRIGHT};
-        color: ${Colors.ON_SURFACE};
+            props?.isActiveBreakpoint ? ThemeColors.DEBUGGER_BREAKPOINT_BACKGROUND : ThemeColors.SURFACE_DIM};
+        color: ${ThemeColors.ON_SURFACE};
         opacity: ${(props: NodeStyleProp) => (props.disabled ? 0.7 : 1)};
         border: ${(props: NodeStyleProp) => (props.disabled ? DRAFT_NODE_BORDER_WIDTH : NODE_BORDER_WIDTH)}px;
         border-style: ${(props: NodeStyleProp) => (props.disabled ? "dashed" : "solid")};
         border-color: ${(props: NodeStyleProp) =>
-            props.hasError ? Colors.ERROR : props.hovered && !props.disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+            props.hasError ? ThemeColors.ERROR : props.hovered && !props.disabled ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT};
         border-radius: 10px;
         cursor: pointer;
     `;
@@ -81,7 +80,7 @@ export namespace NodeStyles {
         font-size: 20px;
         width: 20px;
         height: 20px;
-        color: ${Colors.ERROR};
+        color: ${ThemeColors.ERROR};
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -99,7 +98,7 @@ export namespace NodeStyles {
     export const Icon = styled.div`
         padding: 4px;
         svg {
-            fill: ${Colors.ON_SURFACE};
+            fill: ${ThemeColors.ON_SURFACE};
         }
     `;
 
@@ -119,7 +118,7 @@ export namespace NodeStyles {
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
-        color: ${Colors.ON_SURFACE};
+        color: ${ThemeColors.ON_SURFACE};
         opacity: 0.7;
         white-space: normal;
         font-size: 12px;
@@ -168,7 +167,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
     const handleOnClick = async (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.metaKey) {
             // Handle action when cmd key is pressed
-            if (model.node.codedata.node === "DATA_MAPPER") {
+            if (model.node.codedata.node === "DATA_MAPPER_DEFINITION") {
                 openDataMapper();
             } else if (model.node.codedata.node === "FUNCTION_CALL") {
                 viewFunction();
@@ -252,7 +251,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
         { id: "delete", label: "Delete", onClick: () => deleteNode() },
     ];
 
-    if (model.node.codedata.node === "DATA_MAPPER") {
+    if (model.node.codedata.node === "DATA_MAPPER_DEFINITION") {
         menuItems.splice(1, 0, {
             id: "openDataMapper",
             label: "View",
@@ -315,7 +314,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Row>
                 <NodeStyles.Icon onClick={handleOnClick}>
-                    <NodeIcon type={model.node.codedata.node} />
+                    <NodeIcon type={model.node.codedata.node} size={24} />
                     {/* {model.node.properties.variable?.value && (
                         <NodeStyles.Description>{model.node.properties.variable.value}</NodeStyles.Description>
                     )} */}

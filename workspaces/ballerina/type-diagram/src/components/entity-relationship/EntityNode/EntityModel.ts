@@ -8,13 +8,15 @@
  */
 
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
-import { CMEntity as Entity } from '@wso2-enterprise/ballerina-core';
+import { Type as Entity } from '@wso2-enterprise/ballerina-core';
 import { SharedNodeModel } from '../../common/shared-node/shared-node';
 import { EntityPortModel } from '../EntityPort/EntityPortModel';
+import { isNodeClass } from '../../../utils/model-mapper/entityModelMapper';
 
 export class EntityModel extends SharedNodeModel {
     readonly entityObject: Entity;
     isRootEntity: boolean = false; // to provide a contrasting opacity in the composition diagram
+    isGraphqlRoot: boolean = false;
 
     constructor(entityName: string, entityObject: Entity) {
         super('entityNode', entityName);
@@ -27,9 +29,13 @@ export class EntityModel extends SharedNodeModel {
         this.addPort(new EntityPortModel(entityName, PortModelAlignment.BOTTOM));
         this.addPort(new EntityPortModel(entityName, PortModelAlignment.TOP));
 
-        this.entityObject.attributes.forEach(attribute => {
-            this.addPort(new EntityPortModel(`${entityName}/${attribute.name}`, PortModelAlignment.LEFT));
-            this.addPort(new EntityPortModel(`${entityName}/${attribute.name}`, PortModelAlignment.RIGHT));
-        })
+        const members = isNodeClass(this.entityObject?.codedata?.node) ? this.entityObject.functions : this.entityObject.members; // Use functions if it's a CLASS
+
+        if(members === undefined) return;
+        
+        Object.entries(members)?.forEach(([_, member]) => {
+            this.addPort(new EntityPortModel(`${entityName}/${member.name}`, PortModelAlignment.LEFT));
+            this.addPort(new EntityPortModel(`${entityName}/${member.name}`, PortModelAlignment.RIGHT));
+        });
     }
 }

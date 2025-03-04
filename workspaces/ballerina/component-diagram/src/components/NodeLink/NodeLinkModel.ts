@@ -8,7 +8,8 @@
  */
 
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
-import { Colors, NODE_LINK } from "../../resources/constants";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { NODE_LINK } from "../../resources/constants";
 import { NodeModel } from "../../utils/types";
 
 export const LINK_BOTTOM_OFFSET = 30;
@@ -34,8 +35,8 @@ export class NodeLinkModel extends DefaultLinkModel {
         super({
             type: NODE_LINK,
             width: 10,
-            color: Colors.PRIMARY,
-            selectedColor: Colors.SECONDARY,
+            color: ThemeColors.PRIMARY,
+            selectedColor: ThemeColors.SECONDARY,
             curvyness: 0,
         });
         if (options) {

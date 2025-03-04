@@ -6,15 +6,15 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { isPositionsEquals } from "../../../utils/st-utils";
+import { ExpandedMappingHeaderNode, RequiredParamNode } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
-import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
 import {
     GAP_BETWEEN_FIELDS,
     GAP_BETWEEN_INTERMEDIATE_CLAUSES_AND_NODE,
     GAP_BETWEEN_NODE_HEADER_AND_BODY,
     IO_NODE_FIELD_HEIGHT,
     IO_NODE_HEADER_HEIGHT,
+    QUERY_EXPR_INTERMEDIATE_CLAUSE_HEIGHT,
     defaultModelOptions
 } from "./constants";
 
@@ -39,7 +39,8 @@ export function getIONodeHeight(noOfFields: number) {
 }
 
 export function getExpandedMappingHeaderNodeHeight(node: ExpandedMappingHeaderNode) {
-    return node.height + GAP_BETWEEN_INTERMEDIATE_CLAUSES_AND_NODE;
+    const noOfIntermediateClauses = node.queryExpr.queryPipeline.intermediateClauses.length;
+    return (noOfIntermediateClauses + 1) * (QUERY_EXPR_INTERMEDIATE_CLAUSE_HEIGHT + GAP_BETWEEN_INTERMEDIATE_CLAUSES_AND_NODE);
 }
 
 export function calculateControlPointOffset(screenWidth: number) {
@@ -60,5 +61,41 @@ export function isSameView(newNode: DataMapperNodeModel, existingNode?: DataMapp
     const prevFocusedView = existingNode.context.selection;
     const newFocusedView = newNode.context.selection;
 
-    return isPositionsEquals(prevFocusedView.selectedST.stNode.position, newFocusedView.selectedST.stNode.position);
+    return prevFocusedView.selectedST.fieldPath === newFocusedView.selectedST.fieldPath;
+}
+
+export function hasSameIntermediateClauses(newNodes: DataMapperNodeModel[], existingNodes?: DataMapperNodeModel[]) {
+    if (!existingNodes) return;
+
+    const newMappingHeaderNode = newNodes
+        .find(node => node instanceof ExpandedMappingHeaderNode) as ExpandedMappingHeaderNode;
+    const existingMappingHeaderNode = existingNodes
+        .find(node => node instanceof ExpandedMappingHeaderNode) as ExpandedMappingHeaderNode;
+
+    if (!newMappingHeaderNode && !existingMappingHeaderNode) return true;
+
+    if (newMappingHeaderNode && existingMappingHeaderNode) {
+        return newMappingHeaderNode.queryExpr.queryPipeline.intermediateClauses.length ===
+            existingMappingHeaderNode.queryExpr.queryPipeline.intermediateClauses.length;
+    }
+
+    return true;
+}
+
+export function getFieldCountMismatchIndex(newNodes: DataMapperNodeModel[], existingNodes?: DataMapperNodeModel[]) {
+    if (existingNodes.length === 0) return 0;
+
+    const newRequiredParamNodes = newNodes.filter(node => node instanceof RequiredParamNode);
+    const existingRequiredParamNodes = existingNodes.filter(node => node instanceof RequiredParamNode);
+
+    for (let i = 0; i < newRequiredParamNodes.length; i++) {
+        const newNode = newRequiredParamNodes[i] as RequiredParamNode;
+        const existingNode = existingRequiredParamNodes[i] as RequiredParamNode;
+        
+        if (newNode.numberOfFields !== existingNode.numberOfFields) {
+            return i;
+        }
+    }
+    
+    return -1;
 }

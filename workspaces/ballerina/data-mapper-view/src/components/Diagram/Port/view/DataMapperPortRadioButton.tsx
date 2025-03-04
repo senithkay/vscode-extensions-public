@@ -27,7 +27,7 @@ function DataMapperPortRadioButton(props: DataMapperPortRadioButtonProps) {
 	if (disabled) {
 		Object.assign(iconSx, {
 			cursor: 'not-allowed',
-			opacity: 0.5
+			opacity: 0.9
 		});
 	}
 
@@ -40,7 +40,7 @@ function DataMapperPortRadioButton(props: DataMapperPortRadioButtonProps) {
 	);
 }
 
-export const RadioButtonChecked = styled(() => DataMapperPortRadioButton({ checked: true }))`
+export const RadioButtonChecked = styled(({ disabled = false }) => DataMapperPortRadioButton({ checked: true, disabled }))`
 	user-select: none;
 	pointer-events: auto;
 `;

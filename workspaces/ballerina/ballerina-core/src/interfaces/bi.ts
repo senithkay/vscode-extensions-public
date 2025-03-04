@@ -49,6 +49,17 @@ export type FlowNode = {
     isActiveBreakpoint?: boolean;
 };
 
+
+export type FunctionNode = {
+    id: string;
+    metadata: Metadata;
+    codedata: CodeData;
+    diagnostics?: Diagnostic;
+    properties?: NodeProperties;
+    flags?: number;
+    returning: boolean;
+};
+
 export type Metadata = {
     label: string;
     description: string;
@@ -58,18 +69,21 @@ export type Metadata = {
     data?: {
         isDataMappedFunction?: boolean;
     }
+    tools?: string[]; // for agent call
+    model?: string; // for agent call
 };
 
 export type Property = {
     metadata: Metadata;
     diagnostics?: Diagnostic;
     valueType: string;
-    value: string | ELineRange;
+    value: string | ELineRange | NodeProperties;
     optional: boolean;
     editable: boolean;
     advanced?: boolean;
     placeholder?: string;
     valueTypeConstraint?: string | string[];
+    codedata?: CodeData;
 };
 
 export type Diagnostic = {
@@ -83,7 +97,7 @@ export type DiagnosticMessage = {
 };
 
 export type CodeData = {
-    node: NodeKind;
+    node?: NodeKind;
     org?: string;
     module?: string;
     object?: string;
@@ -123,6 +137,8 @@ export type ViewState = {
     ch: number;  // container height
     // flow start node
     startNodeId?: string;
+    // is top level node
+    isTopLevel?: boolean;
 };
 
 // Add node target position metadata
@@ -143,6 +159,8 @@ export enum DIRECTORY_MAP {
     RECORDS = "records",
     CONFIGURATIONS = "configurations",
     DATA_MAPPERS = "dataMappers",
+    ENUMS = "enums",
+    CLASSES = "classes"
 }
 
 export enum DIRECTORY_SUB_TYPE {
@@ -174,6 +192,8 @@ export interface ProjectStructureResponse {
         [DIRECTORY_MAP.RECORDS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.CONFIGURATIONS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.DATA_MAPPERS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.ENUMS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.CLASSES]: ProjectStructureArtifactResponse[];
     };
 }
 
@@ -221,6 +241,7 @@ export type NodePropertyKey =
     | "variable"
     | "defaultable"
     | "scope"
+    | "parameters"
     | "functionName";
 
 export type BranchKind = "block" | "worker";
@@ -260,10 +281,21 @@ export type NodeKind =
     | "COMMENT"
     | "FUNCTION"
     | "FUNCTION_CALL"
+    | "NP_FUNCTION_CALL"
     | "ASSIGN"
-    | "DATA_MAPPER"
+    | "DATA_MAPPER_DEFINITION"
     | "DATA_MAPPER_CALL"
-    | "CONFIG_VARIABLE";
+    | "FORK"
+    | "WORKER"
+    | "WAIT"
+    | "START"
+    | "COMMIT"
+    | "ROLLBACK"
+    | "FAIL"
+    | "RETRY"
+    | "FUNCTION_DEFINITION"
+    | "CONFIG_VARIABLE"
+    | "AGENT_CALL";
 
 export type OverviewFlow = {
     entryPoints: EntryPoint[];

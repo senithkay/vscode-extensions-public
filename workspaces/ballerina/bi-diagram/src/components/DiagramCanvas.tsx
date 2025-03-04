@@ -10,9 +10,9 @@
 import React from "react";
 import { css, Global } from "@emotion/react";
 import styled from "@emotion/styled";
-import { Colors } from "../resources/constants";
 import "../resources/assets/font/fonts.css";
 import { useDiagramContext } from "./DiagramContext";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 export interface DiagramCanvasProps {
     color?: string;
@@ -33,9 +33,9 @@ export namespace DiagramStyles {
             width: 100%;
         }
 
-        background-image: radial-gradient(${Colors.SURFACE_CONTAINER} 10%, transparent 0px);
+        background-image: radial-gradient(${ThemeColors.SURFACE_CONTAINER} 10%, transparent 0px);
         background-size: 16px 16px;
-        background-color: ${Colors.SURFACE_BRIGHT};
+        background-color: ${ThemeColors.SURFACE_BRIGHT};
         font-family: "GilmerRegular";
     `;
 
@@ -57,8 +57,8 @@ export function DiagramCanvas(props: DiagramCanvasProps) {
             <Global styles={DiagramStyles.Expand} />
             <DiagramStyles.Container
                 id="bi-diagram-canvas"
-                background={background || Colors.SURFACE_BRIGHT}
-                color={color || Colors.ON_SURFACE}
+                background={background || ThemeColors.SURFACE_BRIGHT}
+                color={color || ThemeColors.ON_SURFACE}
                 locked={lockCanvas}
             >
                 {children}

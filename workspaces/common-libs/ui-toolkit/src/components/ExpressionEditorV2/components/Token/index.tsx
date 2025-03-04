@@ -31,12 +31,12 @@ import { HelperPanePosition, TokenEditorProps } from '../../types';
 import { Button } from '../../../Button/Button';
 import { Icon } from '../../../Icon/Icon';
 
-import { ThemeColors } from '../../../../styles/ThemeColours';
 import { HELPER_PANE_WITH_EDITOR_HEIGHT, HELPER_PANE_WITH_EDITOR_WIDTH } from '../../constants';
 import { Codicon } from '../../../Codicon/Codicon';
 import Typography from '../../../Typography/Typography';
 import { Divider } from '../../../Divider/Divider';
 import { MonacoEditor } from '../MonacoEditor';
+import { ThemeColors } from '../../../../styles/Theme';
 
 /* Styles */
 namespace S {
@@ -190,7 +190,8 @@ export const TokenEditor = ({
     changeHelperPaneState,
     onFocus,
     onBlur,
-    getExpressionEditorIcon
+    getExpressionEditorIcon,
+    editorSx
 }: TokenEditorProps) => {
     const [isFocused, setIsFocused] = useState<boolean>(false);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -646,7 +647,7 @@ export const TokenEditor = ({
             document.removeEventListener('mousedown', handleOutsideClick);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [onBlur, changeHelperPaneState, buttonRef.current, helperPaneContainerRef.current]);
+    }, [onBlur, isFocused, changeHelperPaneState, buttonRef.current, helperPaneContainerRef.current]);
 
     useEffect(() => {
         const editor = editorRef.current;
@@ -674,6 +675,12 @@ export const TokenEditor = ({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    useEffect(() => {
+        if (!isFocused) {
+            setValue(editorRef.current, value);
+        }
+    }, [value, isFocused]);
+
     return (
         <S.Container ref={containerRef}>
             <S.EditorWithHandle>
@@ -687,10 +694,24 @@ export const TokenEditor = ({
                 )}
                 <S.Editor
                     ref={editorRef}
+                    sx={editorSx}
                     isFocused={isFocused}
                     tabIndex={0}
                     contentEditable
                     suppressContentEditableWarning
+                    onPaste={(e: React.ClipboardEvent<HTMLDivElement>) => {
+                        e.preventDefault();
+                        const text = e.clipboardData.getData('text/plain');
+                        const selection = window.getSelection();
+                        if (selection && selection.rangeCount > 0) {
+                            const range = selection.getRangeAt(0);
+                            range.deleteContents();
+                            range.insertNode(document.createTextNode(text));
+
+                            const fullText = editorRef.current?.innerText || '';
+                            onChange?.(fullText);
+                        }
+                    }}
                 />
                 <ResizeHandle editorRef={editorRef} />
             </S.EditorWithHandle>

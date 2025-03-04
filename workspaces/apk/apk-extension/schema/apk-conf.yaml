@@ -288,6 +288,7 @@ schemas:
           - BackendJwt
           - RequestMirror
           - RequestRedirect
+          - ModelBasedRoundRobin
       policyVersion:
         type: string
         default: v1
@@ -303,6 +304,7 @@ schemas:
           - "$ref": "#/schemas/HeaderModifierProperties"
           - "$ref": "#/schemas/RequestMirrorProperties"
           - "$ref": "#/schemas/RequestRedirectProperties"
+          - "$ref": "#/schemas/ModelBasedRoundRobinProperties"
     additionalProperties: false
   APKResponseOperationPolicy:
     title: API Operation Policy
@@ -403,9 +405,13 @@ schemas:
     title: Endpoint Configurations
     properties:
       production:
-        $ref: "#/schemas/EndpointConfiguration"
+        type: array
+        items:
+          $ref: "#/schemas/EndpointConfiguration"
       sandbox:
-        $ref: "#/schemas/EndpointConfiguration"
+        type: array
+        items:
+          $ref: "#/schemas/EndpointConfiguration"
     additionalProperties: false
   EndpointConfiguration:
     required:
@@ -428,6 +434,8 @@ schemas:
         description: Resiliency configuration for the API endpoint.
       aiRatelimit:
         $ref: "#/schemas/AIRatelimit"
+      weight:
+        type: integer
     additionalProperties: false
   Certificate:
     type: object
@@ -661,6 +669,42 @@ schemas:
         type: string
     required:
       - backendUrl
+    additionalProperties: false
+  ModelBasedRoundRobinProperties:
+    title: "Model Based Round Robin Policy Parameters"
+    type: "object"
+    properties:
+      onQuotaExceedSuspendDuration:
+        type: "integer"
+        description: "The duration for which the model routing is suspended for a particular model upon exceeding the quota for that model."
+      productionModels:
+        type: "array"
+        items:
+          $ref: "#/schemas/AIModel"
+      sandboxModels:
+        type: "array"
+        items:
+          $ref: "#/schemas/AIModel"
+    required:
+      - "onQuotaExceedSuspendDuration"
+      - "productionModels"
+    additionalProperties: false
+  AIModel:
+    title: "AI Model"
+    type: "object"
+    properties:
+      model:
+        type: "string"
+        description: "The Name of the model."
+      endpoint:
+        type: "string"
+        description: "The endpoint of the model."
+      weight:
+        type: "integer"
+        description: "The weight of the model."
+    required:
+      - "model"
+      - "endpoint"
     additionalProperties: false
   BackendJWTProperties:
     title: Backend JWT Parameters
