@@ -1239,7 +1239,8 @@ export interface AINodesRequest {
     filePath: string;
 }
 export interface AINodesResponse {
-    models: CodeData[];
+    agents?: CodeData[];
+    models?: CodeData[];
 }
 
 // TODO: Correct the data type

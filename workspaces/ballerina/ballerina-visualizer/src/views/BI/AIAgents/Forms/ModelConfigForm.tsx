@@ -76,7 +76,6 @@ export function ModelConfigForm(props: ConfigProps) {
                 <>
                     {formFields.length > 0 &&
                         <FormContainer>
-                            <FormHeader title={`Configure LLM Model`} subtitle={`Choose a foundation model or reuse an existing configuration.`} />
                             {filePath &&
                                 <FormGeneratorNew
                                     fileName={filePath}

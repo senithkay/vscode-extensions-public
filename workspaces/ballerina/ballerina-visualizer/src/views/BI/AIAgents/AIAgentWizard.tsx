@@ -9,7 +9,7 @@
 
 import { useEffect, useState } from 'react';
 import { AgentTool, AIAgentRequest, CodeData, EVENT_TYPE, ListenerModel, ListenersResponse, PropertyModel, ServiceModel, TriggerModelsResponse } from '@wso2-enterprise/ballerina-core';
-import { Icon, OptionProps, Stepper, View, ViewContent } from '@wso2-enterprise/ui-toolkit';
+import { Dropdown, Icon, OptionProps, RadioButtonGroup, Stepper, Typography, View, ViewContent } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import AgentConfigForm from './Forms/AgentConfigForm';
@@ -26,6 +26,7 @@ import { URI, Utils } from 'vscode-uri';
 import ToolsCreateForm from './Forms/ToolsCreateForm';
 import { convertConfig } from '../../../utils/bi';
 import AgentEntryConfigForm from './Forms/AgentEntryConfigForm';
+import { FormHeader } from '../../../components/FormHeader';
 
 const FORM_WIDTH = 600;
 
@@ -86,6 +87,15 @@ const StepperContainer = styled.div`
     margin-bottom: 20px;
 `;
 
+const ChoiceSection = styled.div`
+    max-width: 600px;
+    display: grid;
+`;
+
+const ChoicePaddingSection = styled.div`
+    padding: 16px;
+`;
+
 
 const _agentFields: FormField[] = [
     {
@@ -116,7 +126,12 @@ const _agentFields: FormField[] = [
 export function AIAgentWizard() {
     const { rpcClient } = useRpcContext();
     const [filePath, setFilePath] = useState<string>("");
-    const [step, setStep] = useState<number>(0);
+    const [step, setStep] = useState<number>(2);
+
+
+    const [modelState, setModelState] = useState<number>(1);
+
+
     const [openToolsForm, setOpenToolsForm] = useState<boolean>(false);
     const [agentFields, setAgentFields] = useState<FormField[]>([]);
     const [agentEntryFields, setAgentEntryFields] = useState<FormField[]>([]);
@@ -124,26 +139,33 @@ export function AIAgentWizard() {
     const [modelFields, setModelFields] = useState<FormField[]>([]);
     const [toolsFields, setToolsFields] = useState<FormField[]>([]);
 
+
+    const [existingModels, setExistingModel] = useState<CodeData[]>([]);
+    const [selectedExistingModel, setSelectedExistingModel] = useState<string>("");
+
+    const [newModels, setNewModels] = useState<CodeData[]>([]);
+    const [selectedNewModel, setSelectedNewModel] = useState<string>("");
+
+
     const [newTools, setNewTools] = useState<AgentTool[]>([]);
 
     const [agentRequest, setAgentRequest] = useState<AIAgentRequest>(undefined);
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [fetching, setFetching] = useState<boolean>(false);
     const [loadingMsg, setLoadingMsg] = useState<string>("Loading AI Agent...");
 
     useEffect(() => {
-        rpcClient.getAIAgentRpcClient().getAllAgents().then(res => {
-            console.log("All Agents ", res);
-        });
-        rpcClient.getAIAgentRpcClient().getAllModels({ agent: "FunctionCallAgent" }).then(res => {
-            console.log("All FunctionCallAgent ", res);
-        });
+        // rpcClient.getAIAgentRpcClient().getAllAgents().then(res => {
+        //     console.log("All Agents ", res);
+        // });
+        // rpcClient.getAIAgentRpcClient().getAllModels({ agent: "FunctionCallAgent" }).then(res => {
+        //     console.log("All FunctionCallAgent ", res);
+        // });
 
         rpcClient.getVisualizerLocation().then(res => {
             setFilePath(Utils.joinPath(URI.file(res.projectUri), 'agents.bal').fsPath)
-            rpcClient.getAIAgentRpcClient().getModels({ agent: "FunctionCallAgent", filePath: Utils.joinPath(URI.file(res.projectUri), 'agents.bal').fsPath }).then(res => {
-                console.log("Get models functionCallAgent ", res);
-            });
+
         });
     }, []);
 
@@ -162,10 +184,7 @@ export function AIAgentWizard() {
 
     useEffect(() => {
         if (filePath) {
-            // setAgentFields(_agentFields);
-            // setupEntryPointFields();
-            setupAgentEntryPointFields();
-            setupModelFields();
+            setupAgentFields();
             setupToolsFields();
         }
     }, [filePath]);
@@ -174,181 +193,208 @@ export function AIAgentWizard() {
         setupToolsFields();
     }, [newTools]);
 
-
-    const setupEntryPointFields = async () => {
-        setIsLoading(true);
-        const field: FormField = {
-            key: `name`,
-            label: "Select Entry Point",
-            type: "DROPDOWN_CHOICE",
-            optional: false,
-            editable: true,
-            documentation: "Select your integration event",
-            value: "",
-            valueTypeConstraint: "",
-            enabled: true
+    useEffect(() => {
+        switch (modelState) {
+            case 1: // Set New Models Form Values
+                selectedNewModel && setupModelFields();
+                break;
+            case 2: // Set Existing Models Form Values
+                setupModelFieldsExisting();
+                break;
+            default:
+                break;
         }
-
-        const items: OptionProps[] = [];
-        const dynamicFormFields: { [key: string]: FormField[] } = {};
-
-        // Push Automation Entry
-        const automationContent = (
-            <div style={{ display: 'flex', alignItems: 'center', padding: '10px' }}>
-                <Icon name="bi-task" iconSx={{ fontSize: 20 }} sx={{ fontSize: 20 }} />
-                <span style={{ marginLeft: '10px' }}>Automation</span>
-            </div>
-        )
-        items.push({ value: "automation", content: automationContent })
-
-        // Push HTTP Service Entry
-        const serviceContent = (
-            <div style={{ display: 'flex', alignItems: 'center', padding: '10px' }}>
-                <Icon name="bi-http-service" iconSx={{ fontSize: 20 }} sx={{ fontSize: 20 }} />
-                <span style={{ marginLeft: '10px' }}>HTTP Service</span>
-            </div>
-        )
-        items.push({ value: "http", content: serviceContent })
+    }, [modelState, selectedNewModel]);
 
 
-        // Fetch triggers and assign them to entry values
-        const triggerList = await rpcClient.getServiceDesignerRpcClient().getTriggerModels({ query: "" });
-        triggerList.local
-            .filter((t) => t.type === "event")
-            .forEach(async (trigger) => {
-                items.push({ value: trigger.moduleName, content: triggerItem(trigger) })
+    // const setupEntryPointFields = async () => {
+    //     setIsLoading(true);
+    //     const field: FormField = {
+    //         key: `name`,
+    //         label: "Select Entry Point",
+    //         type: "DROPDOWN_CHOICE",
+    //         optional: false,
+    //         editable: true,
+    //         documentation: "Select your integration event",
+    //         value: "",
+    //         valueTypeConstraint: "",
+    //         enabled: true
+    //     }
 
-                const triggerModel = await rpcClient.getServiceDesignerRpcClient().getServiceModel({ filePath: "", moduleName: trigger.moduleName });
-                if (triggerModel.service.functions) {
-                    dynamicFormFields[trigger.moduleName] = [{
-                        key: "functionName",
-                        label: "Select Entry Resource",
-                        type: "SINGLE_SELECT",
-                        optional: false,
-                        editable: true,
-                        documentation: "Select the trigger resource",
-                        value: "",
-                        items: triggerModel.service.functions.map(func => func.name.value),
-                        valueTypeConstraint: "",
-                        enabled: true
-                    }]
-                }
-            })
+    //     const items: OptionProps[] = [];
+    //     const dynamicFormFields: { [key: string]: FormField[] } = {};
 
-        field.itemOptions = items;
-        field.items = items.map(item => item.value);
-        field.dynamicFormFields = dynamicFormFields;
-        console.log("Dynamic Fields ", dynamicFormFields);
-        setEntryPointFields([field]);
-        setIsLoading(false);
-    }
+    //     // Push Automation Entry
+    //     const automationContent = (
+    //         <div style={{ display: 'flex', alignItems: 'center', padding: '10px' }}>
+    //             <Icon name="bi-task" iconSx={{ fontSize: 20 }} sx={{ fontSize: 20 }} />
+    //             <span style={{ marginLeft: '10px' }}>Automation</span>
+    //         </div>
+    //     )
+    //     items.push({ value: "automation", content: automationContent })
 
-    const setupAgentEntryPointFields = async () => {
+    //     // Push HTTP Service Entry
+    //     const serviceContent = (
+    //         <div style={{ display: 'flex', alignItems: 'center', padding: '10px' }}>
+    //             <Icon name="bi-http-service" iconSx={{ fontSize: 20 }} sx={{ fontSize: 20 }} />
+    //             <span style={{ marginLeft: '10px' }}>HTTP Service</span>
+    //         </div>
+    //     )
+    //     items.push({ value: "http", content: serviceContent })
+
+
+    //     // Fetch triggers and assign them to entry values
+    //     const triggerList = await rpcClient.getServiceDesignerRpcClient().getTriggerModels({ query: "" });
+    //     triggerList.local
+    //         .filter((t) => t.type === "event")
+    //         .forEach(async (trigger) => {
+    //             items.push({ value: trigger.moduleName, content: triggerItem(trigger) })
+
+    //             const triggerModel = await rpcClient.getServiceDesignerRpcClient().getServiceModel({ filePath: "", moduleName: trigger.moduleName });
+    //             if (triggerModel.service.functions) {
+    //                 dynamicFormFields[trigger.moduleName] = [{
+    //                     key: "functionName",
+    //                     label: "Select Entry Resource",
+    //                     type: "SINGLE_SELECT",
+    //                     optional: false,
+    //                     editable: true,
+    //                     documentation: "Select the trigger resource",
+    //                     value: "",
+    //                     items: triggerModel.service.functions.map(func => func.name.value),
+    //                     valueTypeConstraint: "",
+    //                     enabled: true
+    //                 }]
+    //             }
+    //         })
+
+    //     field.itemOptions = items;
+    //     field.items = items.map(item => item.value);
+    //     field.dynamicFormFields = dynamicFormFields;
+    //     console.log("Dynamic Fields ", dynamicFormFields);
+    //     setEntryPointFields([field]);
+    //     setIsLoading(false);
+    // }
+
+    // const setupAgentEntryPointFields = async () => {
+    //     setIsLoading(true);
+    //     const field: FormField = {
+    //         key: `name`,
+    //         label: "Entry Point Template",
+    //         type: "DROPDOWN_CHOICE",
+    //         optional: false,
+    //         editable: true,
+    //         documentation: "Choose the entry point for your integration",
+    //         value: "",
+    //         valueTypeConstraint: "",
+    //         enabled: true
+    //     }
+
+    //     const items: OptionProps[] = [];
+    //     const dynamicFormFields: { [key: string]: FormField[] } = {};
+
+    //     // Push Automation Entry
+    //     const automationContent = (
+    //         <div style={{ display: 'flex', alignItems: 'center', padding: '10px' }}>
+    //             <Icon name="bi-task" iconSx={{ fontSize: 20 }} sx={{ fontSize: 20 }} />
+    //             <span style={{ marginLeft: '10px' }}>Automation</span>
+    //         </div>
+    //     )
+    //     items.push({ value: "automation", content: automationContent })
+
+    //     // Push HTTP Service Entry
+    //     const serviceContent = (
+    //         <div style={{ display: 'flex', alignItems: 'center', padding: '10px' }}>
+    //             <Icon name="bi-http-service" iconSx={{ fontSize: 20 }} sx={{ fontSize: 20 }} />
+    //             <span style={{ marginLeft: '10px' }}>HTTP Service</span>
+    //         </div>
+    //     )
+    //     items.push({ value: "http", content: serviceContent })
+
+
+    //     // Fetch triggers and assign them to entry values
+    //     const triggerList = await rpcClient.getServiceDesignerRpcClient().getTriggerModels({ query: "" });
+    //     triggerList.local
+    //         .filter((t) => t.type === "event")
+    //         .forEach(async (trigger) => {
+    //             items.push({ value: trigger.moduleName, content: triggerItem(trigger) })
+
+    //             const triggerModel = await rpcClient.getServiceDesignerRpcClient().getServiceModel({ filePath: "", moduleName: trigger.moduleName });
+    //             if (triggerModel.service.functions) {
+    //                 dynamicFormFields[trigger.moduleName] = [{
+    //                     key: "functionName",
+    //                     label: "Select Entry Resource",
+    //                     type: "SINGLE_SELECT",
+    //                     optional: false,
+    //                     editable: true,
+    //                     documentation: "Select the trigger resource",
+    //                     value: "",
+    //                     items: triggerModel.service.functions.map(func => func.name.value),
+    //                     valueTypeConstraint: "",
+    //                     enabled: true
+    //                 }]
+    //             }
+    //         })
+
+    //     field.itemOptions = items;
+    //     field.items = items.map(item => item.value);
+    //     field.dynamicFormFields = dynamicFormFields;
+    //     console.log("Dynamic Fields ", dynamicFormFields);
+    //     setAgentEntryFields([..._agentFields, field]);
+    //     setIsLoading(false);
+    // }
+
+    const setupAgentFields = async () => {
         setIsLoading(true);
-        const field: FormField = {
-            key: `name`,
-            label: "Entry Point Template",
-            type: "DROPDOWN_CHOICE",
-            optional: false,
-            editable: true,
-            documentation: "Choose the entry point for your integration",
-            value: "",
-            valueTypeConstraint: "",
-            enabled: true
-        }
 
-        const items: OptionProps[] = [];
-        const dynamicFormFields: { [key: string]: FormField[] } = {};
+        const allAgents = (await rpcClient.getAIAgentRpcClient().getAllAgents({ filePath }));
+        console.log("All Agents: ", allAgents);
+        const fixedAgent = allAgents.agents.at(0);
 
-        // Push Automation Entry
-        const automationContent = (
-            <div style={{ display: 'flex', alignItems: 'center', padding: '10px' }}>
-                <Icon name="bi-task" iconSx={{ fontSize: 20 }} sx={{ fontSize: 20 }} />
-                <span style={{ marginLeft: '10px' }}>Automation</span>
-            </div>
-        )
-        items.push({ value: "automation", content: automationContent })
+        const existingModels = await rpcClient.getAIAgentRpcClient().getModels({ agent: fixedAgent.object, filePath });
+        console.log("Get existingModels ", existingModels.models);
+        setExistingModel(existingModels.models);
 
-        // Push HTTP Service Entry
-        const serviceContent = (
-            <div style={{ display: 'flex', alignItems: 'center', padding: '10px' }}>
-                <Icon name="bi-http-service" iconSx={{ fontSize: 20 }} sx={{ fontSize: 20 }} />
-                <span style={{ marginLeft: '10px' }}>HTTP Service</span>
-            </div>
-        )
-        items.push({ value: "http", content: serviceContent })
+        const newModels = await rpcClient.getAIAgentRpcClient().getAllModels({ agent: fixedAgent.object, filePath })
+        console.log("Get newModels ", newModels);
+        setNewModels(newModels.models);
 
 
-        // Fetch triggers and assign them to entry values
-        const triggerList = await rpcClient.getServiceDesignerRpcClient().getTriggerModels({ query: "" });
-        triggerList.local
-            .filter((t) => t.type === "event")
-            .forEach(async (trigger) => {
-                items.push({ value: trigger.moduleName, content: triggerItem(trigger) })
+        const nodeModel = await getNodeTemplate(fixedAgent, filePath);
+        console.log("AI Agent node template: ", nodeModel);
 
-                const triggerModel = await rpcClient.getServiceDesignerRpcClient().getServiceModel({ filePath: "", moduleName: trigger.moduleName });
-                if (triggerModel.service.functions) {
-                    dynamicFormFields[trigger.moduleName] = [{
-                        key: "functionName",
-                        label: "Select Entry Resource",
-                        type: "SINGLE_SELECT",
-                        optional: false,
-                        editable: true,
-                        documentation: "Select the trigger resource",
-                        value: "",
-                        items: triggerModel.service.functions.map(func => func.name.value),
-                        valueTypeConstraint: "",
-                        enabled: true
-                    }]
-                }
-            })
-
-        field.itemOptions = items;
-        field.items = items.map(item => item.value);
-        field.dynamicFormFields = dynamicFormFields;
-        console.log("Dynamic Fields ", dynamicFormFields);
-        setAgentEntryFields([..._agentFields, field]);
+        const formProperties = convertConfig(nodeModel.properties);
+        console.log(">>> AI AGENT Form properties", formProperties);
+        setAgentFields(formProperties);
         setIsLoading(false);
     }
 
     const setupModelFields = async () => {
-        setIsLoading(true);
+        setFetching(true);
+
+        const nodeModel = await getNodeTemplate(newModels.find(val => val.object === selectedNewModel), filePath);
+        console.log("New Model node template: ", nodeModel);
+
+        const formProperties = convertConfig(nodeModel.properties);
+        console.log(">>> New Model node Form properties", formProperties);
+        setModelFields(formProperties);
+        setFetching(false);
+    }
+
+    const setupModelFieldsExisting = async () => {
         const field: FormField = {
-            key: `name`,
-            label: "Choose AI Provider",
-            type: "DROPDOWN_CHOICE",
+            key: `models`,
+            label: "Existing Models",
+            type: "SINGLE_SELECT",
             optional: false,
             editable: true,
-            documentation: "Select your AI model for the agent.",
+            documentation: "Add existing model to AI Agent",
             value: "",
+            items: existingModels.map(val => val.object),
             valueTypeConstraint: "",
             enabled: true
         }
-
-        const items: OptionProps[] = [];
-        const dynamicFormFields: { [key: string]: FormField[] } = {};
-
-        items.push({ value: "", content: "" })
-
-
-        const allModels = (await rpcClient.getAIAgentRpcClient().getAllModels({ agent: "FunctionCallAgent" })).models;
-
-
-        console.log("All Models", allModels);
-
-        for (const model of allModels) {
-            const nodeModel = await getNodeTemplate(model, filePath);
-            console.log("nodeModel", model.object, nodeModel);
-            items.push({ value: model.object, content: model.object });
-            dynamicFormFields[model.object] = convertConfig(nodeModel.properties);
-        }
-
-        field.itemOptions = items;
-        field.items = items.map(item => item.value);
-        field.dynamicFormFields = dynamicFormFields;
-        console.log("Dynamic Fields ", dynamicFormFields);
+        console.log(">>> Existing Model node Form properties", field);
         setModelFields([field]);
-        setIsLoading(false);
     }
 
     const setupToolsFields = async () => {
@@ -392,9 +438,6 @@ export function AIAgentWizard() {
     const handleAgentConfigFormSubmit = async (value: FormField[]) => {
         setAgentFields(value);
         console.log("handleAgentConfigFormSubmit Fields ", value);
-        const name = value[0].value as string;
-        const description = value[1].value as string;
-        setAgentRequest({ ...agentRequest, agentModel: { name, instruction: description } })
         setStep(1);
     }
     const handleAgentEntryConfigFormSubmit = async (value: FormField[]) => {
@@ -472,9 +515,7 @@ export function AIAgentWizard() {
     const onBack = () => {
         setStep(1);
     }
-
-    const defaultSteps = ["Agent", "Entry Point", "Model Configuration", "Tool Integration"];
-    const defaultSteps2 = ["Agent Integration", "Model Configuration", "Tool Integration"];
+    const defaultSteps = ["Agent Configuration", "Model Configuration", "Tool Integration"];
 
     return (
         <View>
@@ -483,7 +524,7 @@ export function AIAgentWizard() {
             <ViewContent>
                 <Container>
                     <StepperContainer>
-                        <Stepper alignment='flex-start' steps={defaultSteps2} currentStep={step} />
+                        <Stepper alignment='flex-start' steps={defaultSteps} currentStep={step} />
                     </StepperContainer>
                     {isLoading &&
                         <LoadingContainer>
@@ -492,19 +533,71 @@ export function AIAgentWizard() {
                     }
                     {!isLoading && step === 0 &&
                         <>
-                            {/* <AgentConfigForm formFields={agentFields} onSubmit={handleAgentConfigFormSubmit} /> */}
-                            <AgentEntryConfigForm formFields={agentEntryFields} onSubmit={handleAgentEntryConfigFormSubmit} />
+                            <AgentConfigForm formFields={agentFields} onSubmit={handleAgentConfigFormSubmit} />
                         </>
                     }
-                    {/* {!isLoading && step === 1 &&
-                        <>
-                            <EntryPointConfigForm formFields={entryPointFields} onSubmit={handleEntryPointConfigFormSubmit} onBack={() => setStep(0)} />
-                        </>
-                    } */}
                     {!isLoading && step === 1 &&
                         <>
-                            {/* <ModelConfigForm formFields={modelFields} onSubmit={handleModelConfigFormSubmit} onBack={() => setStep(1)} /> */}
-                            <ModelConfigForm formFields={modelFields} onSubmit={handleModelConfigFormSubmit} onBack={() => setStep(0)} />
+                            <ChoiceSection>
+                                <FormHeader title={`Configure LLM Model`} subtitle={`Choose a foundation model or reuse an existing configuration.`} />
+                                <ChoicePaddingSection>
+                                    <RadioButtonGroup
+                                        id="model-options"
+                                        defaultValue={1}
+                                        defaultChecked={true}
+                                        value={modelState}
+                                        options={[{ value: 1, content: "Create New Model" }, { value: 2, content: "Use Existing Model" }]}
+                                        onChange={(e) => {
+                                            const checkedValue = Number(e.target.value);
+                                            setModelState(checkedValue);
+                                        }}
+                                    />
+                                </ChoicePaddingSection>
+                                {modelState === 1 &&
+                                    <>
+                                        <ChoicePaddingSection>
+                                            <Dropdown
+                                                isRequired
+                                                errorMsg=""
+                                                id="drop-down"
+                                                items={[{ value: "Select Model" }, ...newModels.map((model) => ({ value: model.object, content: model.object }))]}
+                                                label="Select AI Model"
+                                                description={"Available AI Models"}
+                                                onValueChange={(value: string) => {
+                                                    if (value === "Select Model") {
+                                                        return; // Skip the init option
+                                                    }
+                                                    setSelectedNewModel(value)
+                                                }}
+                                                value={selectedNewModel}
+                                                containerSx={{ paddingRight: 16 }}
+                                            />
+                                        </ChoicePaddingSection>
+                                        {fetching &&
+                                            <LoadingContainer>
+                                                <LoadingRing message={"Fetching Model Form"} />
+                                            </LoadingContainer>
+                                        }
+                                        {!fetching && selectedNewModel &&
+                                            <ModelConfigForm formFields={modelFields} onSubmit={handleModelConfigFormSubmit} onBack={() => setStep(0)} />
+                                        }
+                                    </>
+                                }
+                                {modelState === 2 &&
+                                    <>
+                                        {existingModels.length > 0 &&
+                                            <ModelConfigForm formFields={modelFields} onSubmit={handleModelConfigFormSubmit} onBack={() => setStep(0)} />
+                                        }
+                                        {existingModels.length === 0 &&
+                                            <BottomMarginTextWrapper>
+                                                <Typography variant="body3">
+                                                    There are no existing models. Please create a new model
+                                                </Typography>
+                                            </BottomMarginTextWrapper>
+                                        }
+                                    </>
+                                }
+                            </ChoiceSection>
                         </>
                     }
                     {!isLoading && step === 2 &&
