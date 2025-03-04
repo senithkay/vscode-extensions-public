@@ -95,6 +95,7 @@ export const FormTokenEditor = ({
 
         return getHelperPane(
             position,
+            'default',
             () => handleChangeHelperPaneState(false),
             onChange,
             addFunction,
