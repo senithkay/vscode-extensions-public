@@ -407,7 +407,7 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
             </Tooltip>
 
             <>
-                <Typography variant="h4" sx={{
+                {stNode.tools && <Typography variant="h4" sx={{
                     marginTop: NODE_DIMENSIONS.AI_AGENT.HEIGHT,
                     width: NODE_DIMENSIONS.AI_AGENT.WIDTH,
                     textAlign: "center",
@@ -415,7 +415,7 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                     position: 'absolute'
                 }}>
                     Tools
-                </Typography>
+                </Typography>}
                 {stNode.configKey &&
                     MemoryConnectionCircle()
                 }

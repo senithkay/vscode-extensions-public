@@ -583,7 +583,7 @@ export class SizingVisitor implements Visitor {
             }
 
             const topGap = NODE_GAP.AI_AGENT_TOP;
-            const bottomGap = NODE_GAP.AI_AGENT_BOTTOM;
+            const bottomGap = node.tools ? NODE_GAP.AI_AGENT_BOTTOM : 0;
 
             node.viewState.fh = topGap + subSequencesHeight + bottomGap;
             node.viewState.fw = Math.max(subSequencesWidth, NODE_DIMENSIONS.AI_AGENT.WIDTH);
