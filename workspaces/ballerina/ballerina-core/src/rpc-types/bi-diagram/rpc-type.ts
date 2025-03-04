@@ -75,7 +75,8 @@ import {
     CurrentBreakpointsResponse,
     FormDidOpenParams,
     FormDidCloseParams,
-    EndOfFileRequest
+    EndOfFileRequest,
+    RecordsInWorkspaceMentions
 } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -129,3 +130,4 @@ export const addFunction: RequestType<AddFunctionRequest, AddFunctionResponse> =
 export const getFunctionNode: RequestType<FunctionNodeRequest, FunctionNodeResponse> = { method: `${_preFix}/getFunctionNode` };
 export const getEndOfFile: RequestType<EndOfFileRequest, LinePosition> = { method: `${_preFix}/getEndOfFile` };
 export const search: RequestType<BISearchRequest, BISearchResponse> = { method: `${_preFix}/search` };
+export const getRecordNames: RequestType<void, RecordsInWorkspaceMentions> = { method: `${_preFix}/getRecordNames` };

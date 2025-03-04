@@ -10,6 +10,7 @@
  */
 import {
     AIChatRequest,
+    AddFieldRequest,
     AddFunctionRequest,
     BIAiSuggestionsRequest,
     BIAvailableNodesRequest,
@@ -33,11 +34,12 @@ import {
     ModelFromCodeRequest,
     ProjectRequest,
     ReadmeContentRequest,
+    RenameIdentifierRequest,
     ServiceClassSourceRequest,
     SignatureHelpRequest,
     UpdateConfigVariableRequest,
-    UpdateTypeRequest,
     UpdateImportsRequest,
+    UpdateTypeRequest,
     VisibleTypesRequest,
     addBreakpointToSource,
     addClassField,
@@ -68,6 +70,7 @@ import {
     getProjectComponents,
     getProjectStructure,
     getReadmeContent,
+    getRecordNames,
     getServiceClassModel,
     getSignatureHelp,
     getSourceCode,
@@ -80,16 +83,14 @@ import {
     openAIChat,
     openReadme,
     removeBreakpointFromSource,
-    runProject,
-    updateConfigVariables,
-    updateType,
-    updateImports,
-    updateClassField,
-    updateServiceClass,
-    search,
-    AddFieldRequest,
     renameIdentifier,
-    RenameIdentifierRequest
+    runProject,
+    search,
+    updateClassField,
+    updateConfigVariables,
+    updateImports,
+    updateServiceClass,
+    updateType,
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { BiDiagramRpcManager } from "./rpc-manager";
@@ -145,4 +146,5 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getFunctionNode, (args: FunctionNodeRequest) => rpcManger.getFunctionNode(args));
     messenger.onRequest(getEndOfFile, (args: EndOfFileRequest) => rpcManger.getEndOfFile(args));
     messenger.onRequest(search, (args: BISearchRequest) => rpcManger.search(args));
+    messenger.onRequest(getRecordNames, () => rpcManger.getRecordNames());
 }
