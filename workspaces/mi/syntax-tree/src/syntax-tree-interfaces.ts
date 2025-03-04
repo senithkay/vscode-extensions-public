@@ -1845,6 +1845,18 @@ export interface Connector extends STNode {
     method: string;
     parameters: ConnectorParameter[];
     configKey?: string;
+    tools?: Tools;
+}
+
+export interface Tools extends STNode {
+    tools: Tool[];
+}
+
+export interface Tool extends STNode {
+    name: string;
+    description: string;
+    template: string;
+    mediator: Connector;
 }
 
 export interface ConnectorParameter extends STNode {
