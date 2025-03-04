@@ -74,11 +74,13 @@ import {
     DbMediator,
     Rewrite,
     Query,
-    ThrowError
+    ThrowError,
+    Connector
 } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { Diagnostic } from "vscode-languageserver-types";
 import { StartNodeType } from "../components/nodes/StartNode/StartNodeModel";
+import { Tool } from "@wso2-enterprise/mi-syntax-tree/src";
 
 export interface DiagramDimensions {
     width: number;
@@ -554,9 +556,43 @@ export class SizingVisitor implements Visitor {
     endVisitRewrite = (node: Rewrite): void => this.calculateBasicMediator(node);
 
     // Connectors
-    beginVisitConnector = (node: any): void => { this.skipChildrenVisit = true; }
-    endVisitConnector = (node: any): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CONNECTOR.WIDTH, fw: NODE_DIMENSIONS.CONNECTOR.FULL_WIDTH, h: NODE_DIMENSIONS.DEFAULT.HEIGHT, l: NODE_DIMENSIONS.CONNECTOR.WIDTH / 2, r: NODE_DIMENSIONS.CONNECTOR.FULL_WIDTH - NODE_DIMENSIONS.CONNECTOR.WIDTH / 2 };
+    beginVisitConnector = (node: Connector): void => { this.skipChildrenVisit = true; }
+    endVisitConnector = (node: Connector): void => {
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.AI_AGENT.WIDTH, NODE_DIMENSIONS.AI_AGENT.HEIGHT);
+        if (node.connectorName === 'ai') {
+            const tools = node.tools;
+            const toolsList = tools?.tools;
+
+            let subSequencesWidth = 0;
+            let subSequencesHeight = 0;
+            if (tools) {
+                if (toolsList?.length > 0) {
+                    for (let i = 0; i < toolsList.length; i++) {
+                        const toolNode = toolsList[i];
+                        this.calculateBasicMediator(toolNode);
+                        const isLastChild = i === toolsList.length - 1;
+                        const nodeGap = isLastChild ? 0 : NODE_GAP.AI_AGENT_TOOLS_Y;
+
+                        subSequencesHeight += toolNode.viewState.h + nodeGap;
+                    }
+                }
+
+                this.calculateBasicMediator(tools, NODE_DIMENSIONS.PLUS.WIDTH, NODE_DIMENSIONS.PLUS.HEIGHT);
+                tools.viewState.fh = subSequencesHeight;
+                tools.viewState.fw = subSequencesWidth;
+            }
+
+            const topGap = NODE_GAP.AI_AGENT_TOP;
+            const bottomGap = NODE_GAP.AI_AGENT_BOTTOM;
+
+            node.viewState.fh = topGap + subSequencesHeight + bottomGap;
+            node.viewState.fw = Math.max(subSequencesWidth, NODE_DIMENSIONS.AI_AGENT.WIDTH);
+            node.viewState.l = node.viewState.fw / 2 + NODE_GAP.GROUP_NODE_HORIZONTAL_PADDING;
+            node.viewState.r = node.viewState.fw / 2 + NODE_GAP.GROUP_NODE_HORIZONTAL_PADDING;
+        } else {
+            node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CONNECTOR.WIDTH, fw: NODE_DIMENSIONS.CONNECTOR.FULL_WIDTH, h: NODE_DIMENSIONS.DEFAULT.HEIGHT, l: NODE_DIMENSIONS.CONNECTOR.WIDTH / 2, r: NODE_DIMENSIONS.CONNECTOR.FULL_WIDTH - NODE_DIMENSIONS.CONNECTOR.WIDTH / 2 };
+        }
+
         this.skipChildrenVisit = false;
     }
 

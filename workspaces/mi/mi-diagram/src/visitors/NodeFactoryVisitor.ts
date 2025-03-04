@@ -93,6 +93,7 @@ import { PlusNodeModel } from "../components/nodes/PlusNode/PlusNodeModel";
 import { ConnectorNodeModel } from "../components/nodes/ConnectorNode/ConnectorNodeModel";
 import { BreakpointPosition, GetBreakpointsResponse } from "@wso2-enterprise/mi-core";
 import { DataServiceNodeModel } from "../components/nodes/DataServiceNode/DataServiceNodeModel";
+import { AiAgentNodeModel } from "../components/nodes/AIAgentNode/AiAgentNodeModel";
 
 interface BranchData {
     name: string;
@@ -103,6 +104,7 @@ interface createNodeAndLinks {
     name?: string;
     type?: NodeTypes;
     data?: any;
+    dontLink?: boolean;
 }
 
 interface NodeAddPosition {
@@ -143,7 +145,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     private createNodeAndLinks(params: createNodeAndLinks): void {
-        let { node, name, type, data } = params;
+        let { node, name, type, data, dontLink } = params;
 
         // When breakpoint added via sourceCode the column will be undefined, therefore in that case we only check line number
         if (this.breakpointPositions && this.breakpointPositions.length > 0) {
@@ -179,7 +181,7 @@ export class NodeFactoryVisitor implements Visitor {
                 diagramNode = new EndNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
                 break;
             case NodeTypes.CALL_NODE:
-                diagramNode = new CallNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes, data);
+                diagramNode = new CallNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes, data.type);
                 break;
             case NodeTypes.EMPTY_NODE:
                 diagramNode = new EmptyNodeModel(node, this.documentUri);
@@ -188,10 +190,13 @@ export class NodeFactoryVisitor implements Visitor {
                 diagramNode = new EmptyNodeModel(node, this.documentUri, true);
                 break;
             case NodeTypes.PLUS_NODE:
-                diagramNode = new PlusNodeModel(node, name, this.documentUri);
+                diagramNode = new PlusNodeModel(node, name, this.documentUri, data);
                 break;
             case NodeTypes.CONNECTOR_NODE:
                 diagramNode = new ConnectorNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
+                break;
+            case NodeTypes.AI_AGENT_NODE:
+                diagramNode = new AiAgentNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
                 break;
             case NodeTypes.DATA_SERVICE_NODE:
                 diagramNode = new DataServiceNodeModel(node, name, this.documentUri);
@@ -264,14 +269,19 @@ export class NodeFactoryVisitor implements Visitor {
                         diagnostics: this.currentBranchData?.diagnostics || [],
                     }
                 );
-                this.links.push(link);
+
+                if (!dontLink) {
+                    this.links.push(link);
+                }
                 this.currentBranchData = undefined;
                 this.currentAddPosition = undefined;
             }
         }
 
         this.nodes.push(diagramNode);
-        this.previousSTNodes = [node];
+        if (!dontLink) {
+            this.previousSTNodes = [node];
+        }
     }
 
     visitSubSequences(node: STNode, name: string, subSequences: { [x: string]: any; }, type: NodeTypes, canAddSubSequences?: boolean, addNewSequenceRange?: Range): void {
@@ -650,7 +660,25 @@ export class NodeFactoryVisitor implements Visitor {
     // Connectors
     beginVisitConnector(node: Connector): void {
         this.skipChildrenVisit = true;
-        this.createNodeAndLinks({ node, name: node.connectorName, type: NodeTypes.CONNECTOR_NODE });
+        if (node.connectorName === 'ai') {
+            this.createNodeAndLinks({ node, name: node.connectorName, type: NodeTypes.AI_AGENT_NODE });
+
+            const tools = node.tools;
+            const toolsList = tools?.tools;
+            if (tools) {
+                if (toolsList?.length > 0) {
+                    for (let i = 0; i < toolsList.length; i++) {
+                        const toolNode = toolsList[i];
+                        toolNode.viewState.id = `${node.viewState.id}_${toolNode.tag}_${i}`;
+                        this.createNodeAndLinks({ node: toolNode, name: toolNode.mediator.connectorName, type: NodeTypes.CONNECTOR_NODE, dontLink: true });
+                    };
+                }
+                this.createNodeAndLinks(({ node: tools, name: node.tag, type: NodeTypes.PLUS_NODE, dontLink: true, data: { type: "OpenSidePanel" } }));
+            }
+
+        } else {
+            this.createNodeAndLinks({ node, name: node.connectorName, type: NodeTypes.CONNECTOR_NODE });
+        }
     }
     endVisitConnector(node: Connector): void {
         this.skipChildrenVisit = false;

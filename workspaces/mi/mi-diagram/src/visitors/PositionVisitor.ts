@@ -497,6 +497,26 @@ export class PositionVisitor implements Visitor {
     beginVisitConnector = (node: Connector): void => {
         this.skipChildrenVisit = true;
         this.setBasicMediatorPosition(node);
+
+        if (node.connectorName === 'ai') {
+            const tools = node.tools;
+            const toolsList = tools?.tools;
+
+            let y = node.viewState.y + node.viewState.h;
+            if (tools) {
+                if (toolsList?.length > 0) {
+                    for (let i = 0; i < toolsList.length; i++) {
+                        const toolNode = toolsList[i];
+
+                        toolNode.viewState.x = this.position.x - (toolNode.viewState.w / 2);
+                        toolNode.viewState.y = i === 0 ? node.viewState.y + NODE_GAP.AI_AGENT_TOP : y;
+                        y = toolNode.viewState.y + toolNode.viewState.h + NODE_GAP.AI_AGENT_TOOLS_Y;
+                    }
+                }
+                tools.viewState.x = this.position.x - (NODE_DIMENSIONS.PLUS.WIDTH / 2);
+                tools.viewState.y = Math.max(y, node.viewState.y + NODE_GAP.AI_AGENT_TOP);
+            }
+        }
     }
     endVisitConnector(node: Connector): void {
         this.skipChildrenVisit = false;
