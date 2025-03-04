@@ -1173,6 +1173,22 @@ export interface GetTypeResponse {
     type: Type;
 }
 
+export interface GetRecordConfigRequest {
+    filePath: string;
+    codedata: {
+        org: string;
+        module: string;
+        version: string;
+    };
+    typeConstraint: string;
+}
+
+export interface GetRecordConfigResponse {
+    recordConfig?: TypeField;
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
 export interface TextEditRange {
     start: {
         line: number;

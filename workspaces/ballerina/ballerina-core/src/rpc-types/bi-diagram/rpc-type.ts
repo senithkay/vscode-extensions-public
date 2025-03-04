@@ -57,7 +57,9 @@ import {
     AddFieldRequest,
     RenameIdentifierRequest,
     BISearchRequest,
-    BISearchResponse
+    BISearchResponse,
+    GetRecordConfigRequest,
+    GetRecordConfigResponse
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -124,6 +126,7 @@ export const updateClassField: RequestType<ClassFieldModifierRequest, SourceEdit
 export const addClassField: RequestType<AddFieldRequest, SourceEditResponse> = { method: `${_preFix}/addClassField` };
 export const updateServiceClass: RequestType<ServiceClassSourceRequest, SourceEditResponse> = { method: `${_preFix}/updateServiceClass` };
 export const createGraphqlClassType: RequestType<UpdateTypeRequest, UpdateTypeResponse> = { method: `${_preFix}/createGraphqlClassType` };
+export const getRecordConfig: RequestType<GetRecordConfigRequest, GetRecordConfigResponse> = { method: `${_preFix}/getRecordConfig` };
 export const updateImports: RequestType<UpdateImportsRequest, UpdateImportsResponse> = { method: `${_preFix}/updateImports` };
 export const addFunction: RequestType<AddFunctionRequest, AddFunctionResponse> = { method: `${_preFix}/addFunction` };
 export const getFunctionNode: RequestType<FunctionNodeRequest, FunctionNodeResponse> = { method: `${_preFix}/getFunctionNode` };

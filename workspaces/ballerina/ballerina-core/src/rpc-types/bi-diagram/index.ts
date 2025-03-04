@@ -60,7 +60,9 @@ import {
     AddFieldRequest,
     RenameIdentifierRequest,
     BISearchRequest,
-    BISearchResponse
+    BISearchResponse,
+    GetRecordConfigRequest,
+    GetRecordConfigResponse
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -126,6 +128,7 @@ export interface BIDiagramAPI {
     addClassField: (params: AddFieldRequest) => Promise<SourceEditResponse>;
     updateServiceClass: (params: ServiceClassSourceRequest) => Promise<SourceEditResponse>;
     createGraphqlClassType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
+    getRecordConfig: (params: GetRecordConfigRequest) => Promise<GetRecordConfigResponse>;
     updateImports: (params: UpdateImportsRequest) => Promise<UpdateImportsResponse>;
     addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
     getFunctionNode: (params: FunctionNodeRequest) => Promise<FunctionNodeResponse>;

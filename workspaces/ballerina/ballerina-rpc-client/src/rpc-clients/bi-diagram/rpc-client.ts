@@ -10,6 +10,7 @@
  */
 import {
     AIChatRequest,
+    AddFieldRequest,
     AddFunctionRequest,
     AddFunctionResponse,
     BIAiSuggestionsRequest,
@@ -47,6 +48,8 @@ import {
     FormDidOpenParams,
     FunctionNodeRequest,
     FunctionNodeResponse,
+    GetRecordConfigRequest,
+    GetRecordConfigResponse,
     GetTypeRequest,
     GetTypeResponse,
     GetTypesRequest,
@@ -59,20 +62,23 @@ import {
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
+    RenameIdentifierRequest,
     ServiceClassModelResponse,
+    ServiceClassSourceRequest,
     SignatureHelpRequest,
     SignatureHelpResponse,
     SourceEditResponse,
     UpdateConfigVariableRequest,
     UpdateConfigVariableResponse,
-    UpdateTypeRequest,
-    UpdateTypeResponse,
     UpdateImportsRequest,
     UpdateImportsResponse,
+    UpdateTypeRequest,
+    UpdateTypeResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspacesResponse,
     addBreakpointToSource,
+    addClassField,
     addFunction,
     buildProject,
     createComponent,
@@ -100,6 +106,7 @@ import {
     getProjectComponents,
     getProjectStructure,
     getReadmeContent,
+    getRecordConfig,
     getServiceClassModel,
     getSignatureHelp,
     getSourceCode,
@@ -112,18 +119,14 @@ import {
     openAIChat,
     openReadme,
     removeBreakpointFromSource,
+    renameIdentifier,
     runProject,
     search,
     updateClassField,
-    addClassField,
     updateConfigVariables,
     updateImports,
     updateServiceClass,
-    updateType,
-    ServiceClassSourceRequest,
-    AddFieldRequest,
-    RenameIdentifierRequest,
-    renameIdentifier
+    updateType
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -309,6 +312,10 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     createGraphqlClassType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
         return this._messenger.sendRequest(createGraphqlClassType, HOST_EXTENSION, params);
+    }
+
+    getRecordConfig(params: GetRecordConfigRequest): Promise<GetRecordConfigResponse> {
+        return this._messenger.sendRequest(getRecordConfig, HOST_EXTENSION, params);
     }
 
     updateImports(params: UpdateImportsRequest): Promise<UpdateImportsResponse> {
