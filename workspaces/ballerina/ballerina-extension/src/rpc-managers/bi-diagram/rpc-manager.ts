@@ -10,6 +10,7 @@
  */
 import {
     AIChatRequest,
+    AddFieldRequest,
     AddFunctionRequest,
     AddFunctionResponse,
     BIAiSuggestionsRequest,
@@ -70,28 +71,28 @@ import {
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
+    RecordsInWorkspaceMentions,
+    RenameIdentifierRequest,
+    RenameRequest,
     STModification,
     ServiceClassModelResponse,
     ServiceClassSourceRequest,
     SignatureHelpRequest,
     SignatureHelpResponse,
+    SourceEditResponse,
     SyntaxTree,
+    TextEdit,
     UpdateConfigVariableRequest,
     UpdateConfigVariableResponse,
-    UpdateTypeRequest,
-    UpdateTypeResponse,
     UpdateImportsRequest,
     UpdateImportsResponse,
+    UpdateTypeRequest,
+    UpdateTypeResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspaceFolder,
     WorkspacesResponse,
     buildProjectStructure,
-    TextEdit,
-    SourceEditResponse,
-    AddFieldRequest,
-    RenameRequest,
-    RenameIdentifierRequest,
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import { writeFileSync } from "fs";
@@ -116,7 +117,7 @@ import { getCompleteSuggestions } from '../../utils/ai/completions';
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure } from "../../utils/bi";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
-import { DATA_MAPPING_FILE_NAME, getFunctionNodePosition } from "./utils";
+import { getFunctionNodePosition } from "./utils";
 
 export class BiDiagramRpcManager implements BIDiagramAPI {
 
@@ -1345,6 +1346,28 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             });
         });
     }
+
+    async getRecordNames(): Promise<RecordsInWorkspaceMentions> {
+        const projectComponents = await this.getProjectComponents();
+        
+        // Extracting all record names
+        const recordNames: string[] = [];
+        
+        if (projectComponents?.components?.packages) {
+            for (const pkg of projectComponents.components.packages) {
+                for (const module of pkg.modules) {
+                    if (module.records) {
+                        for (const record of module.records) {
+                            recordNames.push(record.name);
+                        }
+                    }
+                }
+            }
+        }
+        
+        return { mentions: recordNames };
+    }
+    
 }
 
 export async function fetchWithToken(url: string, options: RequestInit) {
