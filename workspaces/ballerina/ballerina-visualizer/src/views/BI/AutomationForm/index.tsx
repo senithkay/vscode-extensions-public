@@ -122,6 +122,7 @@ export function MainForm() {
             editable: true,
             documentation: "",
             value: "",
+            enabled: true,
             valueTypeConstraint: "",
         },
         {
@@ -132,6 +133,7 @@ export function MainForm() {
             editable: true,
             documentation: '',
             value: "",
+            enabled: true,
             items: ["string", "int", "float", "decimal"],
             valueTypeConstraint: "",
             addNewButton: false
@@ -163,6 +165,7 @@ export function MainForm() {
             optional: true,
             advanced: true,
             editable: true,
+            enabled: true,
             documentation: "Parameters allow dynamic input values, making automation adaptable to different execution needs.",
             valueTypeConstraint: "",
             value: "",

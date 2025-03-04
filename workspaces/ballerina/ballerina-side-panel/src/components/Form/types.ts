@@ -8,7 +8,7 @@
  */
 
 import { RefObject } from "react";
-import { DiagnosticMessage, FormDiagnostics, TextEdit, PropertyModel, LinePosition, LineRange  } from "@wso2-enterprise/ballerina-core";
+import { DiagnosticMessage, FormDiagnostics, TextEdit, PropertyModel, LinePosition, LineRange, ExpressionProperty, Metadata  } from "@wso2-enterprise/ballerina-core";
 import { ParamConfig } from "../ParamManager/ParamManager";
 import { CompletionItem, FormExpressionEditorRef, HelperPaneOrigin } from "@wso2-enterprise/ui-toolkit";
 
@@ -35,8 +35,9 @@ export type FormField = {
     groupNo?: number;
     groupName?: string;
     addNewButton?: boolean;
-    enabled?: boolean;
+    enabled: boolean;
     lineRange?: LineRange;
+    metadata?: Metadata;
 };
 
 export type ParameterValue = {
@@ -87,14 +88,14 @@ type FormCompletionConditionalProps = {
     triggerCharacters: readonly string[];
     retrieveCompletions: (
         value: string,
-        key: string,
+        property: ExpressionProperty,
         offset: number,
         triggerCharacter?: string,
         onlyVariables?: boolean
     ) => Promise<void>;
     extractArgsFromFunction?: (
         value: string,
-        key: string,
+        property: ExpressionProperty,
         cursorPosition: number
     ) => Promise<{
         label: string;
@@ -134,12 +135,14 @@ type FormExpressionEditorBaseProps = {
     getExpressionEditorDiagnostics?: (
         showDiagnostics: boolean,
         expression: string,
-        key: string
+        key: string,
+        property: ExpressionProperty
     ) => Promise<void>;
     getExpressionFormDiagnostics?: (
         showDiagnostics: boolean,
         expression: string,
         key: string,
+        property: ExpressionProperty,
         setDiagnosticsInfo: (diagnostics: FormDiagnostics) => void,
         shouldUpdateNode?: boolean,
         variableType?: string

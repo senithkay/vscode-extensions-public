@@ -16,8 +16,6 @@ import {
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
     BIAvailableNodesResponse,
-    BIConnectorsRequest,
-    BIConnectorsResponse,
     BIDeleteByComponentInfoRequest,
     BIDeleteByComponentInfoResponse,
     BIDesignModelResponse,
@@ -25,13 +23,13 @@ import {
     BIFlowModelResponse,
     BIGetEnclosedFunctionRequest,
     BIGetEnclosedFunctionResponse,
-    BIGetFunctionsRequest,
-    BIGetFunctionsResponse,
     BIGetVisibleVariableTypesRequest,
     BIGetVisibleVariableTypesResponse,
     BIModuleNodesResponse,
     BINodeTemplateRequest,
     BINodeTemplateResponse,
+    BISearchRequest,
+    BISearchResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
     BreakpointRequest,
@@ -88,7 +86,6 @@ import {
     getAiSuggestions,
     getAllImports,
     getAvailableNodes,
-    getBIConnectors,
     getBreakpointInfo,
     getConfigVariables,
     getDesignModel,
@@ -98,7 +95,6 @@ import {
     getExpressionDiagnostics,
     getFlowModel,
     getFunctionNode,
-    getFunctions,
     getModuleNodes,
     getNodeTemplate,
     getProjectComponents,
@@ -117,6 +113,7 @@ import {
     openReadme,
     removeBreakpointFromSource,
     runProject,
+    search,
     updateClassField,
     addClassField,
     updateConfigVariables,
@@ -158,10 +155,6 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(getAvailableNodes, HOST_EXTENSION, params);
     }
 
-    getFunctions(params: BIGetFunctionsRequest): Promise<BIGetFunctionsResponse> {
-        return this._messenger.sendRequest(getFunctions, HOST_EXTENSION, params);
-    }
-
     getEnclosedFunction(params: BIGetEnclosedFunctionRequest): Promise<BIGetEnclosedFunctionResponse> {
         return this._messenger.sendRequest(getEnclosedFunction, HOST_EXTENSION, params);
     }
@@ -192,10 +185,6 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     createComponent(params: ComponentRequest): Promise<CreateComponentResponse> {
         return this._messenger.sendRequest(createComponent, HOST_EXTENSION, params);
-    }
-
-    getBIConnectors(params: BIConnectorsRequest): Promise<BIConnectorsResponse> {
-        return this._messenger.sendRequest(getBIConnectors, HOST_EXTENSION, params);
     }
 
     handleReadmeContent(params: ReadmeContentRequest): Promise<ReadmeContentResponse> {
@@ -336,5 +325,9 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     getEndOfFile(params: EndOfFileRequest): Promise<LinePosition> {
         return this._messenger.sendRequest(getEndOfFile, HOST_EXTENSION, params);
+    }
+
+    search(params: BISearchRequest): Promise<BISearchResponse> {
+        return this._messenger.sendRequest(search, HOST_EXTENSION, params);
     }
 }

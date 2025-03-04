@@ -35,7 +35,7 @@ export function AutoMapError(props: AutoMapError) {
     const { code, onClose, message } = props;
     const classes = useStyles();
 
-    let errorMessage = "An unknown error occurred while performing automatic mapping";
+    let errorMessage = "Request timeout exceeded. Please try again.";
 
     if (message) {
         errorMessage = message;
