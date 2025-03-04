@@ -48,6 +48,7 @@ export interface CreateAPIRequest {
     wsdlType?: "file" | "url";
     wsdlDefPath?: string;
     wsdlEndpointName?: string;
+    projectDir?: string;
 }
 
 export interface EditAPIRequest {
