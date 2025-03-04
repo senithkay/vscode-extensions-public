@@ -21,7 +21,7 @@ import {
     HelperPaneProps,
     HelperPaneSectionProps,
     LibraryBrowserProps,
-    LoadingItemProps,
+    LoadingSectionProps,
     PanelsProps,
     PanelTabProps,
     PanelViewProps,
@@ -35,6 +35,8 @@ import { Overlay } from '../../../../Commons/Overlay';
 import ProgressRing from '../../../../ProgressRing/ProgressRing';
 import { HelperPanePanelProvider, useHelperPanePanelContext } from './context';
 import { ARROW_HEIGHT, HELPER_PANE_HEIGHT, HELPER_PANE_WIDTH } from '../../../constants';
+import { HelperPaneHeight } from '../../../types';
+import { convertHelperPaneHeightToCSS } from '../../../utils';
 
 export const Arrow = styled.div<ArrowProps>`
     position: absolute;
@@ -220,8 +222,24 @@ const CollapseButton = styled.div`
     }
 `;
 
-const LoadingBox = styled.div`
-    width: 100%;
+const LoadingHeader = styled.div`
+    width: 100px;
+    height: 16px;
+    margin-bottom: 2px;
+    background: var(--vscode-editor-background);
+    animation: loading 1s infinite alternate;
+
+    @keyframes loading {
+        0% {
+            background: var(--vscode-editor-background);
+        }
+        100% {
+            background: var(--vscode-editor-inactiveSelectionBackground);
+        }
+    }
+`;
+
+const LoadingItem = styled.div`
     height: 16px;
     margin-bottom: 2px;
     background: var(--vscode-editor-background);
@@ -301,11 +319,13 @@ const HeaderContainerWithSearch = styled.div`
     gap: 8px;
 `;
 
-const DropdownBody = styled.div<{ sx?: CSSProperties }>`
+const DropdownBody = styled.div<{ helperPaneHeight: HelperPaneHeight; sx?: CSSProperties }>`
     display: flex;
     flex-direction: column;
     width: ${HELPER_PANE_WIDTH}px;
-    height: ${HELPER_PANE_HEIGHT}px;
+    height: ${({ helperPaneHeight }: { helperPaneHeight?: HelperPaneHeight }) =>
+        convertHelperPaneHeightToCSS(helperPaneHeight)};
+    min-height: ${HELPER_PANE_HEIGHT}px;
     padding: 8px;
     border-radius: 2px;
     color: var(--input-foreground);
@@ -313,16 +333,26 @@ const DropdownBody = styled.div<{ sx?: CSSProperties }>`
     ${({ sx }: { sx?: CSSProperties }) => sx}
 `;
 
-const LoadingGroup: React.FC<LoadingItemProps> = ({ columns }) => {
-    const boxCount = columns ? columns * 2 : 2;
+const Loader: React.FC<LoadingSectionProps> = ({ columns, rows, sections }) => {
+    const sectionCount = sections ? sections : 2;
+    const rowCount = rows ? rows : 2;
+    const colCount = columns ? columns : 2;
 
-    const boxes = [];
-    for (let i = 0; i < boxCount; i++) {
-        boxes.push(<LoadingBox key={i} />);
-    }
     return (
         <>
-            {boxes}
+            {Array.from({ length: sectionCount }).map((_, sectionIndex) => (
+                <SectionContainer key={sectionIndex}>
+                    {/* Loading section header */}
+                    <LoadingHeader />
+
+                    {/* Loading section body */}
+                    <SectionBody columns={colCount}>
+                        {Array.from({ length: rowCount * colCount }).map((_, index) => (
+                            <LoadingItem key={`${sectionIndex}-${index}`} />
+                        ))}
+                    </SectionBody>
+                </SectionContainer>
+            ))}
         </>
     );
 }
@@ -438,6 +468,7 @@ const LibraryBrowserSection: React.FC<HelperPaneSectionProps> = ({
 };
 
 const LibraryBrowser: React.FC<LibraryBrowserProps> = ({
+    anchorRef,
     children,
     loading = false,
     searchValue,
@@ -451,7 +482,7 @@ const LibraryBrowser: React.FC<LibraryBrowserProps> = ({
                 sx={{ background: "var(--vscode-editor-inactiveSelectionBackground)", opacity: 0.4 }}
                 onClose={onClose}
             />
-            <LibraryBrowserContainer>
+            <LibraryBrowserContainer ref={anchorRef}>
                 <LibraryBrowserHeader>
                     <Typography variant="h2" sx={{ margin: 0, ...titleSx }}>
                         Library Browser
@@ -584,7 +615,6 @@ const Section: React.FC<HelperPaneSectionProps> = ({
     collapsible,
     defaultCollapsed = false,
     collapsedItemsCount = 10,
-    loading = false,
     children,
     titleSx
 }) => {
@@ -599,9 +629,7 @@ const Section: React.FC<HelperPaneSectionProps> = ({
                 {title}
             </Typography>
             <SectionBody columns={columns}>
-                {loading ? (
-                    <LoadingGroup columns={columns} />
-                ) : visibleItems.length > 0 ? (
+                {visibleItems.length > 0 ? (
                     visibleItems
                 ) : (
                     <Typography variant="body3">No items found.</Typography>
@@ -620,9 +648,7 @@ const Body: React.FC<HelperPaneBodyProps> = ({ children, loading = false, classN
     return (
         <BodyContainer className={className} sx={sx}>
             {loading ? (
-                <ProgressRingContainer>
-                    <ProgressRing />
-                </ProgressRingContainer>
+                <Loader columns={2} rows={3} sections={3} />
             ) : React.Children.toArray(children).length > 0 ? (
                 children
             ) : (
@@ -676,8 +702,13 @@ const HelperPane: React.FC<HelperPaneProps> & {
     PanelTab: typeof PanelTab;
     PanelView: typeof PanelView;
     Arrow: typeof Arrow;
-} = ({ children, sx }: HelperPaneProps) => {
-    return <DropdownBody sx={sx}>{children}</DropdownBody>;
+    Loader: typeof Loader;
+} = ({ children, helperPaneHeight, sx }: HelperPaneProps) => {
+    return (
+        <DropdownBody helperPaneHeight={helperPaneHeight} sx={sx}>
+            {children}
+        </DropdownBody>
+    );
 };
 
 HelperPane.Header = Header;
@@ -695,5 +726,6 @@ HelperPane.Panels = Panels;
 HelperPane.PanelTab = PanelTab;
 HelperPane.PanelView = PanelView;
 HelperPane.Arrow = Arrow;
+HelperPane.Loader = Loader;
 
 export default HelperPane;
