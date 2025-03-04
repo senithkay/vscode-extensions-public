@@ -501,7 +501,7 @@ export function AIChat() {
             let pattern = template
                 .replace(/<servicename>/g, "(\\S+?)")
                 .replace(/<recordname\(s\)>/g, "((?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+(?:[\\s,]+(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+)*)")
-                .replace(/<recordname>/g, "((?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+)")
+                .replace(/<recordname>/g, "((?:[\\w\\/|.-]+\\s*:\\s*)?[\\w|:\\[\\]]+)")
                 .replace(/<use-case>/g, "([\\s\\S]+?)")
                 .replace(/<functionname>/g, "(\\S+?)")
                 .replace(/<question>/g, "(.+?)")
@@ -1176,8 +1176,16 @@ export function AIChat() {
             return { ...rec, isArray };
         });
 
-        const outputRecordName = outputParam.replace(/\[\]$/, "");
-        const outputIsArray = outputParam.endsWith("[]");
+        const parts = outputParam.split("|");
+        const validParts = parts.filter(name => name !== "error");
+        if (validParts.length > 1) {
+            throw new Error(`Invalid output parameter: "${outputParam}". Union types are not supported. Please provide a single valid record name.`);
+        }
+        const cleanedOutputRecordName = validParts.length > 0 ? validParts[0] : "error";
+
+        const outputRecordName = cleanedOutputRecordName.replace(/\[\]$/, "");
+        const outputIsArray = cleanedOutputRecordName.endsWith("[]");
+
         let output = recordMap.get(outputRecordName);
 
         if (!output) {

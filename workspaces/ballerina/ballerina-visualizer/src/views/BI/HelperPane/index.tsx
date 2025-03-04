@@ -8,7 +8,7 @@
  */
 
 import { RefObject } from 'react';
-import { FormExpressionEditorRef, HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { FormExpressionEditorRef, HelperPane, HelperPaneHeight } from '@wso2-enterprise/ui-toolkit';
 import { ConfigurablePage } from './ConfigurablePage';
 import { FunctionsPage } from './FunctionsPage';
 import { SuggestionsPage } from './SuggestionsPage';
@@ -18,20 +18,24 @@ export type HelperPaneProps = {
     fileName: string;
     targetLineRange: LineRange;
     exprRef: RefObject<FormExpressionEditorRef>;
+    anchorRef: RefObject<HTMLDivElement>;
     onClose: () => void;
     defaultValue: string;
     currentValue: string;
     onChange: (value: string, updatedCursorPosition: number) => void;
+    helperPaneHeight: HelperPaneHeight;
 };
 
 const HelperPaneEl = ({
     fileName,
     targetLineRange,
     exprRef,
+    anchorRef,
     onClose,
     defaultValue,
     currentValue,
-    onChange
+    onChange,
+    helperPaneHeight
 }: HelperPaneProps) => {
     const handleChange = (value: string) => {
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
@@ -49,7 +53,7 @@ const HelperPaneEl = ({
     };
 
     return (
-        <HelperPane>
+        <HelperPane helperPaneHeight={helperPaneHeight}>
             <HelperPane.Header title="Expression Helper" titleSx={{ fontFamily: "GilmerRegular" }} onClose={onClose} />
             <HelperPane.Body>
             <HelperPane.Panels>
@@ -69,6 +73,7 @@ const HelperPaneEl = ({
                 </HelperPane.PanelView>
                 <HelperPane.PanelView id={1}>
                     <FunctionsPage
+                        anchorRef={anchorRef}
                         fileName={fileName}
                         targetLineRange={targetLineRange}
                         onClose={onClose}
@@ -94,24 +99,38 @@ const HelperPaneEl = ({
  * @param fileName File name of the expression editor
  * @param targetLineRange Modified line range of the expression editor
  * @param exprRef Ref object of the expression editor
+ * @param anchorRef Ref object of the library browser
  * @param onClose Function to close the helper pane
  * @param defaultValue Default value for the expression editor
  * @param currentValue Current value of the expression editor
  * @param onChange Function to handle changes in the expression editor
+ * @param helperPaneHeight Height of the helper pane
  * @returns JSX.Element Helper pane element
  */
 export const getHelperPane = (props: HelperPaneProps) => {
-    const { fileName, targetLineRange, exprRef, onClose, defaultValue, currentValue, onChange } = props;
+    const {
+        fileName,
+        targetLineRange,
+        exprRef,
+        anchorRef,
+        onClose,
+        defaultValue,
+        currentValue,
+        onChange,
+        helperPaneHeight
+    } = props;
 
     return (
         <HelperPaneEl
             fileName={fileName}
             targetLineRange={targetLineRange}
             exprRef={exprRef}
+            anchorRef={anchorRef}
             onClose={onClose}
             defaultValue={defaultValue}
             currentValue={currentValue}
             onChange={onChange}
+            helperPaneHeight={helperPaneHeight}
         />
     );
 };

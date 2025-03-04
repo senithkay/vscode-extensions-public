@@ -466,8 +466,8 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                             prefix: copilotContext.prefix,
                             suffix: copilotContext.suffix,
                         });
-                        console.log(">>> ai suggestion", { response: resp });
-                        suggestedContent = resp.completions.at(0);
+                        console.log(">>> ai suggestion from local", { response: resp });
+                        suggestedContent = resp.completion;
                     }
 
                 }
@@ -477,7 +477,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     resolve(undefined);
                 });
             }
-            if (!suggestedContent) {
+            if (!suggestedContent || suggestedContent.trim() === "") {
                 console.log(">>> ai suggested content not found");
                 return new Promise((resolve) => {
                     resolve(undefined);
@@ -1136,7 +1136,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async getCompletionsWithHostedAI(token, copilotContext): Promise<void> {
+    async getCompletionsWithHostedAI(token, copilotContext): Promise<string> {
         // get suggestions from ai
         const requestBody = {
             ...copilotContext,
@@ -1156,8 +1156,8 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             });
         }
         const data = await response.json();
-        console.log(">>> ai suggestion", { response: data });
-        const suggestedContent = (data as any).completions.at(0);
+        console.log(">>> ai suggestion from remote", { response: data });
+        const suggestedContent = (data as any).completion;
         return suggestedContent;
     }
 
