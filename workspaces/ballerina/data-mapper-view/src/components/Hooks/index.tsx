@@ -107,7 +107,7 @@ export const useDiagramModel = (
         if (prevScreenWidth.current !== screenWidth && diagramModel.getNodes().length > 0) {
             const diagModelNodes = diagramModel.getNodes() as DataMapperNodeModel[];
             diagModelNodes.forEach(diagModelNode => {
-                const repositionedNode = nodes.find(newNode => newNode.id === diagModelNode.id);
+                const repositionedNode = nodes.find(newNode => isOutputNode(newNode) && newNode.id === diagModelNode.id);
                 if (repositionedNode) {
                     diagModelNode.setPosition(repositionedNode.getX(), repositionedNode.getY());
                 }

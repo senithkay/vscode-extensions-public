@@ -29,13 +29,12 @@ import {
     VisualizerLocation,
     MACHINE_VIEW,
     NodeKind,
-    BIGetFunctionsRequest,
     SubPanel,
     SubPanelView,
     CurrentBreakpointsResponse as BreakpointInfo,
     FUNCTION_TYPE,
-    PopupMachineStateValue,
     ParentPopupData,
+    BISearchRequest
 } from "@wso2-enterprise/ballerina-core";
 
 import {
@@ -313,7 +312,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     };
 
     const handleSearchFunction = async (searchText: string, functionType: FUNCTION_TYPE) => {
-        const request: BIGetFunctionsRequest = {
+        const request: BISearchRequest = {
             position: {
                 startLine: targetRef.current.startLine,
                 endLine: targetRef.current.endLine,
@@ -327,12 +326,13 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                       includeAvailableFunctions: "true",
                   }
                 : undefined,
+            searchKind: "FUNCTION",
         };
         console.log(">>> Search function request", request);
         setShowProgressIndicator(true);
         rpcClient
             .getBIDiagramRpcClient()
-            .getFunctions(request)
+            .search(request)
             .then((response) => {
                 console.log(">>> Searched List of functions", response);
                 setCategories(
@@ -358,10 +358,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             setShowProgressIndicator(true);
             rpcClient
                 .getBIDiagramRpcClient()
-                .getFunctions({
+                .search({
                     position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
                     filePath: model.fileName,
                     queryMap: undefined,
+                    searchKind: "FUNCTION",
                 })
                 .then((response) => {
                     console.log(">>> List of functions", response);
@@ -381,10 +382,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             setShowProgressIndicator(true);
             rpcClient
                 .getBIDiagramRpcClient()
-                .getFunctions({
+                .search({
                     position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
                     filePath: model.fileName,
                     queryMap: undefined,
+                    searchKind: "FUNCTION",
                 })
                 .then((response) => {
                     setCategories(
@@ -578,6 +580,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             setSidePanelView(SidePanelView.NODE_LIST);
         } else {
             setSidePanelView(SidePanelView.NODE_LIST);
+            setSubPanel({ view: SubPanelView.UNDEFINED });
         }
         // clear memory
         selectedNodeRef.current = undefined;

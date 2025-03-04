@@ -190,7 +190,8 @@ export const TokenEditor = ({
     changeHelperPaneState,
     onFocus,
     onBlur,
-    getExpressionEditorIcon
+    getExpressionEditorIcon,
+    editorSx
 }: TokenEditorProps) => {
     const [isFocused, setIsFocused] = useState<boolean>(false);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -646,7 +647,7 @@ export const TokenEditor = ({
             document.removeEventListener('mousedown', handleOutsideClick);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [onBlur, changeHelperPaneState, buttonRef.current, helperPaneContainerRef.current]);
+    }, [onBlur, isFocused, changeHelperPaneState, buttonRef.current, helperPaneContainerRef.current]);
 
     useEffect(() => {
         const editor = editorRef.current;
@@ -693,6 +694,7 @@ export const TokenEditor = ({
                 )}
                 <S.Editor
                     ref={editorRef}
+                    sx={editorSx}
                     isFocused={isFocused}
                     tabIndex={0}
                     contentEditable
@@ -705,6 +707,9 @@ export const TokenEditor = ({
                             const range = selection.getRangeAt(0);
                             range.deleteContents();
                             range.insertNode(document.createTextNode(text));
+
+                            const fullText = editorRef.current?.innerText || '';
+                            onChange?.(fullText);
                         }
                     }}
                 />

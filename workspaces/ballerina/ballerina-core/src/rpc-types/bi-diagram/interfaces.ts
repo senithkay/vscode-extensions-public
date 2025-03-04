@@ -70,6 +70,10 @@ export interface ProjectComponentsResponse {
     components: BallerinaProjectComponents
 }
 
+export interface RecordsInWorkspaceMentions {
+    mentions: string[]
+}
+
 export interface ReadmeContentRequest {
     read: boolean
     content?: string;
@@ -146,4 +150,18 @@ export interface FormDidOpenParams {
 
 export interface FormDidCloseParams {
     filePath: string;
+}
+
+export interface EndOfFileRequest {
+    filePath: string;
+}
+export enum BuildMode {
+    JAR = "jar",
+    DOCKER = "docker"
+}
+
+export interface DevantComponentResponse {
+    org: string;
+    project: string;
+    component: string;
 }

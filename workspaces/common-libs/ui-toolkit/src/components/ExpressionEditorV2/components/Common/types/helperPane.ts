@@ -8,15 +8,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CSSProperties, PropsWithChildren, ReactNode } from "react";
+import { CSSProperties, PropsWithChildren, ReactNode, RefObject } from "react";
 import { StyleBase } from "./common";
-import { HelperPaneOrigin } from "../../../types/common";
+import { HelperPaneHeight, HelperPaneOrigin } from "../../../types/common";
 
 export type ArrowProps = StyleBase & {
     origin: HelperPaneOrigin;
 }
 
 export type LibraryBrowserProps = PropsWithChildren<{
+    anchorRef: RefObject<HTMLDivElement>;
     loading?: boolean;
     searchValue: string;
     titleSx?: CSSProperties;
@@ -57,8 +58,10 @@ type CollapsibleConditionalProps = {
     collapsedItemsCount?: never;
 }
 
-export type LoadingItemProps = {
+export type LoadingSectionProps = {
+    rows?: number;
     columns?: number;
+    sections?: number;
 }
 
 export type PanelViewProps = PropsWithChildren<{
@@ -75,7 +78,6 @@ export type PanelsProps = PropsWithChildren<{}>;
 export type HelperPaneSectionProps = PropsWithChildren<{
     title: string;
     columns?: number;
-    loading?: boolean;
     titleSx?: CSSProperties;
 } & CollapsibleConditionalProps>;
 
@@ -99,5 +101,6 @@ export type HelperPaneHeaderProps = SearchBoxConditionalProps & {
 };
 
 export type HelperPaneProps = PropsWithChildren<{
+    helperPaneHeight: HelperPaneHeight;
     sx?: CSSProperties;
 }>;

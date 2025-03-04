@@ -16,13 +16,14 @@ interface OperationFormProps {
     model: FunctionModel;
     filePath: string;
     lineRange: LineRange;
+    isGraphqlView: boolean;
     onSave: (model: FunctionModel) => void;
     onClose: () => void;
 }
 
 export function OperationForm(props: OperationFormProps) {
     console.log("OperationForm props: ", props);
-    const { model, onSave, onClose, filePath, lineRange } = props;
+    const { model, onSave, onClose, filePath, lineRange, isGraphqlView } = props;
     const [fields, setFields] = useState<FormField[]>([]);
 
     const handleParamChange = (param: Parameter) => {
@@ -113,10 +114,11 @@ export function OperationForm(props: OperationFormProps) {
             },
             {
                 key: 'parameters',
-                label: 'Parameters',
+                label: isGraphqlView ? 'Arguments' : 'Parameters',
                 type: 'PARAM_MANAGER',
                 optional: true,
                 editable: true,
+                enabled: true,
                 documentation: '',
                 value: '',
                 paramManagerProps: {
@@ -132,7 +134,7 @@ export function OperationForm(props: OperationFormProps) {
                 type: 'TYPE',
                 optional: model.returnType.optional,
                 enabled: model.returnType.enabled,
-                editable: true, // model.returnType.editable FIX when LS is fixed
+                editable: model.returnType.editable,
                 advanced: model.returnType.advanced,
                 documentation: model.returnType.metadata?.description || '',
                 value: model.returnType.value,
@@ -203,7 +205,7 @@ export function convertParameterToFormField(key: string, param: ParameterModel):
         documentation: param.metadata?.description || '',
         value: param.value || '',
         valueTypeConstraint: param?.valueTypeConstraint || '',
-        enabled: param.enabled || true,
+        enabled: param.enabled ?? true,
         lineRange: param?.codedata?.lineRange
     };
 }

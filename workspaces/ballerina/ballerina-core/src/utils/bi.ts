@@ -13,6 +13,7 @@ import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureRespon
 import { BallerinaProjectComponents, ExtendedLangClientInterface, SyntaxTree } from "../interfaces/extended-lang-client";
 import { CDModel } from "../interfaces/component-diagram";
 import { URI, Utils } from "vscode-uri";
+import path from "path";
 import { LineRange } from "../interfaces/common";
 import { ServiceModel } from "../interfaces/service";
 
@@ -52,8 +53,8 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
             const resources: ComponentInfo[] = [];
             service.resourceFunctions.forEach(func => {
                 const resourceInfo: ComponentInfo = {
-                    name: `${func.accessor} - ${func.path}`,
-                    filePath: func.location.filePath.split('/').pop(),
+                    name: `${func.accessor}-${func.path}`,
+                    filePath: path.basename(func.location.filePath),
                     startLine: func.location.startLine.line,
                     startColumn: func.location.startLine.offset,
                     endLine: func.location.endLine.line,
@@ -65,7 +66,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
             service.remoteFunctions.forEach(func => {
                 const resourceInfo: ComponentInfo = {
                     name: func.name,
-                    filePath: func.location.filePath.split('/').pop(),
+                    filePath: path.basename(func.location.filePath),
                     startLine: func.location.startLine.line,
                     startColumn: func.location.startLine.offset,
                     endLine: func.location.endLine.line,
@@ -76,7 +77,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
 
             const serviceInfo: ComponentInfo = {
                 name: service.absolutePath ? service.absolutePath : service.type,
-                filePath: service.location.filePath.split('/').pop(),
+                filePath: path.basename(service.location.filePath),
                 startLine: service.location.startLine.line,
                 startColumn: service.location.startLine.offset,
                 endLine: service.location.endLine.line,

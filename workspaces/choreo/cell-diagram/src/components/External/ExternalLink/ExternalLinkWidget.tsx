@@ -7,10 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { ExternalLinkModel } from "./ExternalLinkModel";
-import { Colors, EXTERNAL_LINK } from "../../../resources";
+import { Colors, EXTERNAL_LINK, LINK_WIDTH } from "../../../resources";
+import { DiagramContext } from "../../DiagramContext/DiagramContext";
 
 interface WidgetProps {
     engine: DiagramEngine;
@@ -21,6 +22,7 @@ export function ExternalLinkWidget(props: WidgetProps) {
     const { link } = props;
 
     const [isSelected, setIsSelected] = useState<boolean>(false);
+    const { previewMode } = useContext(DiagramContext);
 
     useEffect(() => {
         const listener = link.registerListener({
@@ -63,7 +65,7 @@ export function ExternalLinkWidget(props: WidgetProps) {
                 d={link.withRightOffset ? link.getCurvePathWithOffset() : link.getCurvePath()}
                 fill={"none"}
                 stroke={isSelected ? Colors.SECONDARY : Colors.OUTLINE}
-                strokeWidth={2}
+                strokeWidth={previewMode ? LINK_WIDTH.PREVIEW : LINK_WIDTH.DEFAULT}
                 markerEnd={"url(#" + link.getLinkArrowId() + ")"}
             />
         </g>

@@ -17,7 +17,8 @@ import {
     TRIGGER_CHARACTERS,
     TriggerCharacter,
     Type,
-    NodeKind
+    NodeKind,
+    ExpressionProperty
 } from "@wso2-enterprise/ballerina-core";
 import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditorProps, HelperPaneData, PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import {
@@ -25,7 +26,7 @@ import {
     convertToVisibleTypes,
 } from "../../../../utils/bi";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { CompletionItem, FormExpressionEditorRef } from "@wso2-enterprise/ui-toolkit";
+import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight } from "@wso2-enterprise/ui-toolkit";
 import { debounce } from "lodash";
 import { getHelperPane } from "../../HelperPane";
 import { RecordEditor } from "../../../RecordEditor/RecordEditor";
@@ -133,7 +134,7 @@ export function FormGeneratorNew(props: FormProps) {
     };
 
     const debouncedRetrieveCompletions = useCallback(debounce(
-        async (value: string, key: string, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
+        async (value: string, property: ExpressionProperty, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
             let expressionCompletions: CompletionItem[] = [];
             const effectiveText = value.slice(0, offset);
             const completionFetchText = effectiveText.match(/[a-zA-Z0-9_']+$/)?.[0] ?? "";
@@ -166,8 +167,8 @@ export function FormGeneratorNew(props: FormProps) {
                         expression: value,
                         startLine: targetLineRange.startLine,
                         offset: offset,
-                        node: undefined,
-                        property: key
+                        codedata: undefined,
+                        property: property
                     },
                     completionContext: {
                         triggerKind: triggerCharacter ? 2 : 1,
@@ -216,12 +217,12 @@ export function FormGeneratorNew(props: FormProps) {
 
     const handleRetrieveCompletions = useCallback(async (
         value: string,
-        key: string,
+        property: ExpressionProperty,
         offset: number,
         triggerCharacter?: string,
         onlyVariables?: boolean
     ) => {
-        await debouncedRetrieveCompletions(value, key, offset, triggerCharacter, onlyVariables);
+        await debouncedRetrieveCompletions(value, property, offset, triggerCharacter, onlyVariables);
 
         if (triggerCharacter) {
             await debouncedRetrieveCompletions.flush();
@@ -270,7 +271,8 @@ export function FormGeneratorNew(props: FormProps) {
         defaultValue: string,
         value: string,
         onChange: (value: string, updatedCursorPosition: number) => void,
-        changeHelperPaneState: (isOpen: boolean) => void
+        changeHelperPaneState: (isOpen: boolean) => void,
+        helperPaneHeight: HelperPaneHeight
     ) => {
         return getHelperPane({
             fileName: fileName,
@@ -279,7 +281,8 @@ export function FormGeneratorNew(props: FormProps) {
             onClose: () => changeHelperPaneState(false),
             defaultValue: defaultValue,
             currentValue: value,
-            onChange: onChange
+            onChange: onChange,
+            helperPaneHeight: helperPaneHeight
         });
     }
 
@@ -330,6 +333,22 @@ export function FormGeneratorNew(props: FormProps) {
     };
 
     const defaultType = (): Type => {
+        if (editingField.type === 'PARAM_MANAGER') {
+            return {
+                name: "MyType",
+                editable: true,
+                metadata: {
+                    label: "",
+                    description: "",
+                },
+                codedata: {
+                    node: "RECORD",
+                },
+                properties: {},
+                members: [],
+                includes: [] as string[],
+            };
+        }
         return {
             name: "MyType",
             editable: true,
@@ -362,7 +381,8 @@ export function FormGeneratorNew(props: FormProps) {
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
             onCancel: handleExpressionEditorCancel,
-            helperPaneOrigin: "right"
+            helperPaneOrigin: "right",
+            helperPaneHeight: "3/4"
         } as FormExpressionEditorProps;
     }, [
         filteredCompletions,

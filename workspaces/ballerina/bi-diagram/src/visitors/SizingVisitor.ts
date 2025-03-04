@@ -209,6 +209,25 @@ export class SizingVisitor implements BaseVisitor {
         this.createApiCallNode(node);
     }
 
+    endVisitAgentCall(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        const nodeWidth = NODE_WIDTH;
+        const halfNodeWidth = nodeWidth / 2;
+        const containerLeftWidth = halfNodeWidth;
+        const containerRightWidth = halfNodeWidth + NODE_GAP_X + NODE_HEIGHT + LABEL_HEIGHT;
+
+        // Calculate node height based on node type
+        const numberOfCircles = node.metadata?.tools?.length || 0;
+        let nodeHeight = NODE_HEIGHT + numberOfCircles * (NODE_HEIGHT + LABEL_HEIGHT);
+
+        let containerHeight = nodeHeight;
+        if (node.properties?.variable?.value || node.properties?.type?.value) {
+            containerHeight += LABEL_HEIGHT;
+        }
+
+        this.setNodeSize(node, containerLeftWidth, containerRightWidth, containerHeight);
+    }
+
     endVisitEmpty(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
         if (reverseCustomNodeId(node.id).label === LAST_NODE) {
@@ -287,7 +306,7 @@ export class SizingVisitor implements BaseVisitor {
 
     endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
-        
+
         let containerLeftWidth = 0;
         let containerRightWidth = 0;
         let containerHeight = 0;
@@ -302,7 +321,10 @@ export class SizingVisitor implements BaseVisitor {
             const onFailureBranch = node.branches.find((branch) => branch.codedata.node === "ON_FAILURE");
             if (onFailureBranch.viewState) {
                 containerLeftWidth = Math.max(containerLeftWidth, Math.max(onFailureBranch.viewState.clw, NODE_GAP_X));
-                containerRightWidth = Math.max(containerRightWidth, Math.max(onFailureBranch.viewState.crw, NODE_GAP_X));
+                containerRightWidth = Math.max(
+                    containerRightWidth,
+                    Math.max(onFailureBranch.viewState.crw, NODE_GAP_X)
+                );
                 containerHeight = bodyBranch.viewState.ch + onFailureBranch.viewState.ch + NODE_GAP_Y;
             }
         }
