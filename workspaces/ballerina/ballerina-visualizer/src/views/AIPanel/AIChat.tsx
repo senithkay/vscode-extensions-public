@@ -93,7 +93,6 @@ const codeBlocks: string[] = [];
 var projectUuid = "";
 var backendRootUri = "";
 var chatLocation = "";
-var isReqFileExists = false;
 
 let controller = new AbortController();
 let signal = controller.signal;
@@ -138,12 +137,9 @@ const DEFAULT_MENU_COMMANDS = [
 const GENERATE_TEST_AGAINST_THE_REQUIREMENT = "Generate tests against the requirements";
 const GENERATE_CODE_AGAINST_THE_REQUIREMENT = "Generate code based on the requirements";
 const CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION = "Check drift between code and documentation";
+const GENERATE_CODE_AGAINST_THE_REQUIREMENT_TEMPLATE = `${GENERATE_CODE_AGAINST_THE_REQUIREMENT}: <requirements>`;
 
-const TEMPLATE_NATURAL_PROGRAMMING: string[] = [
-    CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION,
-    GENERATE_CODE_AGAINST_THE_REQUIREMENT,
-    GENERATE_TEST_AGAINST_THE_REQUIREMENT
-];
+const TEMPLATE_NATURAL_PROGRAMMING: string[] = [];
 
 // Use the constants in the commandToTemplate map
 const commandToTemplate = new Map<string, string[]>([
@@ -153,6 +149,7 @@ const commandToTemplate = new Map<string, string[]>([
     [COMMAND_TYPECREATOR, TEMPLATE_TYPECREATOR],
     [COMMAND_HEALTHCARE, TEMPLATE_HEALTHCARE],
     [COMMAND_DOCUMENTATION, TEMPLATE_DOCUMENTATION],
+    [COMMAND_NATURAL_PROGRAMMING, TEMPLATE_NATURAL_PROGRAMMING]
 ]);
 
 //TODO: Add the files relevant to the commands
@@ -205,6 +202,7 @@ export function AIChat() {
     const [isCodeLoading, setIsCodeLoading] = useState(false);
     const [currentGeneratingPromptIndex, setCurrentGeneratingPromptIndex] = useState(-1);
     const [isSyntaxError, setIsSyntaxError] = useState(false);
+    const [isReqFileExists, setIsReqFileExists] = useState(false);
     const [testGenIntermediaryState, setTestGenIntermediaryState] = useState<TestGeneratorIntermediaryState | null>(
         null
     );
@@ -220,12 +218,10 @@ export function AIChat() {
         try {
             backendRootUri = await rpcClient.getAiPanelRpcClient().getBackendURL();
             chatLocation = (await rpcClient.getVisualizerLocation()).projectUri;
-            isReqFileExists = chatLocation != null && chatLocation != undefined 
-                && (await rpcClient.getAiPanelRpcClient().isRequirementsSpecificationFileExist(chatLocation));
+            setIsReqFileExists(chatLocation != null && chatLocation != undefined 
+                && (await rpcClient.getAiPanelRpcClient().isRequirementsSpecificationFileExist(chatLocation)));
 
-            if (isReqFileExists){
-                commandToTemplate.set(COMMAND_NATURAL_PROGRAMMING, TEMPLATE_NATURAL_PROGRAMMING);
-            }
+            generateNaturalProgrammingTemplate(isReqFileExists);
             // Do something with backendRootUri
         } catch (error) {
             console.error("Failed to fetch backend URL:", error);
@@ -300,6 +296,23 @@ export function AIChat() {
             });
     }, []);
 
+    function generateNaturalProgrammingTemplate(isReqFileExists: boolean) {
+        TEMPLATE_NATURAL_PROGRAMMING.splice(0, TEMPLATE_NATURAL_PROGRAMMING.length);
+        if (isReqFileExists) {
+            TEMPLATE_NATURAL_PROGRAMMING.push(
+                CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION,
+                GENERATE_CODE_AGAINST_THE_REQUIREMENT, 
+                GENERATE_TEST_AGAINST_THE_REQUIREMENT
+            )
+        } else {
+            TEMPLATE_NATURAL_PROGRAMMING.push(
+                GENERATE_CODE_AGAINST_THE_REQUIREMENT_TEMPLATE, 
+                CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION,
+                GENERATE_TEST_AGAINST_THE_REQUIREMENT
+            )
+        }
+    }
+
     function addChatEntry(role: string, content: string): void {
         chatArray.push({
             actor: role,
@@ -325,6 +338,10 @@ export function AIChat() {
     useEffect(() => {
         console.log(isSyntaxError);
     }, [isSyntaxError]);
+
+    useEffect(() => {
+        generateNaturalProgrammingTemplate(isReqFileExists);
+    }, [isReqFileExists]);
 
     useEffect(() => {
         // Step 2: Scroll into view when messages state changes
@@ -451,6 +468,36 @@ export function AIChat() {
                             );
                             break;
                         } else {
+                            const isRequirementsTemplateExists = isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT);
+                            if (isRequirementsTemplateExists && !isReqFileExists) {
+                                const handleExtractRequirements = () => {
+                                    const prefix = GENERATE_CODE_AGAINST_THE_REQUIREMENT;
+                                    if (messageBody.includes(prefix)) {
+                                      return removePrefixSymbols(messageBody.split(prefix)[1].trim());
+                                    } else {
+                                      return "";
+                                    }
+                                };
+
+                                function removePrefixSymbols(text: string) {
+                                    // Check if the text starts with ':' or '<'
+                                    if (text.startsWith(':') || text.startsWith('<')) {
+                                      // Remove the first character
+                                      return text.slice(1);
+                                    }
+                                    // Return the original text if it doesn't start with ':' or '<'
+                                    return text;
+                                  }
+                                const requirements = handleExtractRequirements();
+                                await rpcClient.getAiPanelRpcClient().updateRequirementSpecification(
+                                    {
+                                        filepath: chatLocation,
+                                        content: requirements
+                                    }
+                                );
+                                setIsReqFileExists(true);
+                            }
+
                             await processCodeGeneration(
                                 token,
                                 [
@@ -523,7 +570,7 @@ export function AIChat() {
                     throw new Error("Error: Query is empty. Please enter a valid query");
                 }
                 if (commandKey === COMMAND_GENERATE) {
-                    await processCodeGeneration(token, [messageBody, attachments], message);
+                    await processCodeGeneration(token, [messageBody, attachments, CodeGenerationType.CODE_GENERATION], message);
                     return;
                 } else if (commandKey === COMMAND_DOCUMENTATION) {
                     await findInDocumentation(messageBody, token);
@@ -563,6 +610,7 @@ export function AIChat() {
                 .replace(/<recordname\(s\)>/g, "([\\w:\\[\\]]+(?:[\\s,]+[\\w:\\[\\]]+)*)")
                 .replace(/<recordname>/g, "([\\w:\\[\\]]+)")
                 .replace(/<use-case>/g, "([\\s\\S]+?)")
+                .replace(/<requirements>/g, "([\\s\\S]+?)")
                 .replace(/<functionname>/g, "(\\S+?)")
                 .replace(/<question>/g, "(.+?)")
                 .replace(/<method\(space\)path>/g, "([^\\n]+)");

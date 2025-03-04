@@ -30,10 +30,11 @@ import {
     PostProcessResponse,
     ProjectDiagnostics,
     ProjectSource,
-    addChatSummary,
+    RequirementSpecification,
     TestGenerationMentions,
     TestGenerationRequest,
     TestGenerationResponse,
+    addChatSummary,
     addToProject,
     applyDoOnFailBlocks,
     checkSyntaxError,
@@ -80,7 +81,8 @@ import {
     showSignInAlert,
     stopAIMappings,
     updateDevelopmentDocument,
-    updateProject
+    updateProject,
+    updateRequirementSpecification
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -282,5 +284,9 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     updateDevelopmentDocument(developerDocument: DeveloperDocument): void {
         return this._messenger.sendNotification(updateDevelopmentDocument, HOST_EXTENSION, developerDocument);
+    }
+
+    updateRequirementSpecification(requirementsSpecification: RequirementSpecification): void {
+        return this._messenger.sendNotification(updateRequirementSpecification, HOST_EXTENSION, requirementsSpecification);
     }
 }

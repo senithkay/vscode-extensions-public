@@ -38,6 +38,7 @@ import {
     ProjectDiagnostics,
     ProjectModule,
     ProjectSource,
+    RequirementSpecification,
     STModification,
     SourceFile,
     SyntaxTree,
@@ -58,6 +59,7 @@ import { extension } from "../../BalExtensionContext";
 import { NOT_SUPPORTED } from "../../core";
 import { generateDataMapping, generateTypeCreation } from "../../features/ai/dataMapping";
 import { generateTest, getDiagnostics, getResourceAccessorDef, getResourceAccessorNames, getServiceDeclaration, getServiceDeclarationNames } from "../../features/ai/testGenerator";
+import { getLLMDiagnosticArrayAsString } from "../../features/natural-programming/utils";
 import { StateMachine, updateView } from "../../stateMachine";
 import { loginGithubCopilot } from "../../utils/ai/auth";
 import { modifyFileContent, writeBallerinaFileDidOpen } from "../../utils/modification";
@@ -69,8 +71,7 @@ import {
     REQUIREMENT_TEXT_DOCUMENT,
     REQ_KEY
 } from "./constants";
-import { getFunction, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, processMappings, refreshAccessToken, searchDocumentation, requirementsSpecification } from "./utils";
-import { getLLMDiagnosticArrayAsString } from "../../features/natural-programming/utils";
+import { getFunction, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, processMappings, refreshAccessToken, requirementsSpecification, searchDocumentation } from "./utils";
 import { fetchData } from "./utils/fetch-data-utils";
 
 export let hasStopped: boolean = false;
@@ -742,14 +743,14 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async isRequirementsSpecificationFileExist(filePath: string): Promise<boolean> {
-        const dirPath = path.join(filePath, "natural-programming");
+        const dirPath = path.join(filePath, NATURAL_PROGRAMMING_DIR_NAME);
 
         if (!fs.existsSync(dirPath) || !fs.lstatSync(dirPath).isDirectory()) {
             return false; // Directory doesn't exist or isn't a folder
         }
 
         const files = fs.readdirSync(dirPath);
-        return Promise.resolve(files.some(file => file.toLowerCase().startsWith("requirements.")));
+        return Promise.resolve(files.some(file => file.toLowerCase().startsWith(REQUIREMENT_DOC_PREFIX)));
     }
 
     async getDriftDiagnosticContents(projectPath: string): Promise<string> {
@@ -797,6 +798,19 @@ export class AiPanelRpcManager implements AIPanelAPI {
         if (fs.existsSync(developerMdPath)) {
             fs.writeFileSync(developerMdPath, content, 'utf8');
         }
+    }
+
+    async updateRequirementSpecification(requirementsSpecification: RequirementSpecification) {
+        const naturalProgrammingDir = path.join(requirementsSpecification.filepath, 'natural-programming');
+        const requirementsFilePath = path.join(naturalProgrammingDir, 'requirements.txt');
+
+        // Create the 'natural-programming' directory if it doesn't exist
+        if (!fs.existsSync(naturalProgrammingDir)) {
+            fs.mkdirSync(naturalProgrammingDir, { recursive: true });
+        }
+
+        // Write the requirements to the 'requirements.txt' file
+        fs.writeFileSync(requirementsFilePath, requirementsSpecification.content, 'utf8');
     }
 }
 

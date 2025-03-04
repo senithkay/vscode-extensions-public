@@ -181,6 +181,11 @@ export interface DeveloperDocument {
     content: string;
 }
 
+export interface RequirementSpecification {
+    filepath: string;
+    content: string;
+}
+
 export interface DocAssistantResponse {
     content: string;
     references: string[];
