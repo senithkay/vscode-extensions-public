@@ -568,6 +568,12 @@
                 "icon": "$(wand)"
             },
             {
+                "command": "kolab.open.agent.chat",
+                "title": "Open Agent Chat Panel",
+                "category": "Ballerina",
+                "icon": "$(comment-discussion)"
+            },
+            {
                 "command": "kolab.open.bi.welcome",
                 "title": "Open Welcome",
                 "category": "BI"

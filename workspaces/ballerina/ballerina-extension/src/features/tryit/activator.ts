@@ -1,4 +1,5 @@
 import { commands, window, workspace, FileSystemWatcher, Disposable, Uri } from "vscode";
+import * as crypto from 'crypto';
 import { clearTerminal, PALETTE_COMMANDS } from "../project/cmds/cmd-runner";
 import * as fs from 'fs';
 import * as path from 'path';
@@ -156,7 +157,7 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
 
         const services: ServiceInfo[] = await getAvailableServices(workspaceRoot);
         if (!services || services.length === 0) {
-            vscode.window.showInformationMessage('No HTTP services found in the project');
+            vscode.window.showInformationMessage('No services found in the project');
             return;
         }
 
@@ -222,12 +223,20 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
             fs.mkdirSync(targetDir);
         }
 
-        const openapiSpec: OAISpec = await getOpenAPIDefinition(selectedService);
-        const selectedPort: number = await getServicePort(workspaceRoot, selectedService, openapiSpec);
-        selectedService.port = selectedPort;
+        if (selectedService.type === ServiceType.HTTP) {
+            const openapiSpec: OAISpec = await getOpenAPIDefinition(selectedService);
+            const selectedPort: number = await getServicePort(workspaceRoot, selectedService, openapiSpec);
+            selectedService.port = selectedPort;
 
-        const tryitFileUri = await generateTryItFileContent(workspaceRoot, openapiSpec, selectedService, resourceMetadata);
-        await openInSplitView(tryitFileUri, 'http');
+            const tryitFileUri = await generateTryItFileContent(workspaceRoot, openapiSpec, selectedService, resourceMetadata);
+            await openInSplitView(tryitFileUri, 'http');
+        } else {
+            const selectedPort: number = await getServicePort(workspaceRoot, selectedService);
+            selectedService.port = selectedPort;
+
+            await openChatView(selectedService.basePath, selectedPort.toString());
+        }
+
 
         // Setup the error log watcher
         setupErrorLogWatcher(targetDir);
@@ -259,6 +268,28 @@ async function openInSplitView(fileUri: vscode.Uri, editorType: string = 'defaul
     }
 }
 
+async function openChatView(basePath: string, port: string) {
+
+    function generateRandomString(length: number = 32): string {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const array = new Uint8Array(length);
+        crypto.getRandomValues(array);
+        return Array.from(array, byte => chars[byte % chars.length]).join('');
+    }
+
+    try {
+        const baseUrl = `http://localhost:${port}`;
+        const chatPath = "chatMessage";
+        const fullUrl = new URL(chatPath, new URL(basePath, baseUrl));
+
+        const sessionId = generateRandomString();
+
+        commands.executeCommand("kolab.open.agent.chat", { chatEp: fullUrl.href, chatSessionId: sessionId });
+    } catch (error) {
+        vscode.window.showErrorMessage(`Failed to call Chat-Agent: ${error}`);
+    }
+}
+
 async function findServiceForResource(services: ServiceInfo[], resourceMetadata: ResourceMetadata, serviceMetadata: ServiceMetadata): Promise<ServiceInfo | undefined> {
     try {
         // Normalize path values for comparison
@@ -274,7 +305,7 @@ async function findServiceForResource(services: ServiceInfo[], resourceMetadata:
                 if (serviceMetadata && (service.basePath !== serviceMetadata.basePath || !compareListeners(service.listener, serviceMetadata.listener))) {
                     continue;
                 }
-                
+
                 const openapiSpec: OAISpec = await getOpenAPIDefinition(service);
                 const matchingPaths = Object.keys(openapiSpec.paths || {}).filter((specPath) => {
                     return comparePathPatterns(specPath, targetPath);
@@ -307,16 +338,35 @@ async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> 
         });
 
         const services = response.designModel.services
-            .filter(service => service.type.toLowerCase().includes('http'))
-            .map(service => ({
-                name: service.displayName || service.absolutePath.startsWith('/') ? service.absolutePath.trim().substring(1) : service.absolutePath.trim(),
-                basePath: service.absolutePath.trim(),
-                filePath: service.location.filePath,
-                listener: {
-                    name: service.attachedListeners.map(listener => response.designModel.listeners.find(l => l.uuid === listener)?.symbol).join(','),
-                    port: service.attachedListeners.map(listener => response.designModel.listeners.find(l => l.uuid === listener)?.args.find(arg => arg.key === 'port')?.value).join(',')
+            .filter(({ type }) => {
+                const lowerType = type.toLowerCase();
+                return lowerType.includes('http') || lowerType.includes('agent');
+            })
+            .map(({ displayName, absolutePath, location, attachedListeners, type }) => {
+                const trimmedPath = absolutePath.trim();
+                const name = displayName || (trimmedPath.startsWith('/') ? trimmedPath.substring(1) : trimmedPath);
+                const serviceType = type.toLowerCase().includes('http') ? ServiceType.HTTP : ServiceType.AGENT;
+                const listener = {
+                    name: attachedListeners
+                        .map(listenerId => response.designModel.listeners.find(l => l.uuid === listenerId)?.symbol)
+                        .filter(Boolean)
+                        .join(','),
+                    port: attachedListeners
+                        .map(listenerId => response.designModel.listeners.find(l => l.uuid === listenerId)?.args.find(arg => arg.key === 'port')?.value)
+                        .filter(Boolean)
+                        .join(','),
                 }
-            }));
+
+
+
+                return {
+                    name,
+                    basePath: trimmedPath,
+                    filePath: location.filePath,
+                    type: serviceType,
+                    listener,
+                };
+            });
 
         return services || [];
     } catch (error) {
@@ -460,7 +510,7 @@ async function getOpenAPIDefinition(service: ServiceInfo): Promise<OAISpec> {
     }
 }
 
-async function getServicePort(projectDir: string, service: ServiceInfo, openapiSpec: OAISpec): Promise<number> {
+async function getServicePort(projectDir: string, service: ServiceInfo, openapiSpec?: OAISpec): Promise<number> {
     try {
         // If the service has an anonymous listener, directly use the port defined inline
         if (service.listener.port) {
@@ -469,7 +519,7 @@ async function getServicePort(projectDir: string, service: ServiceInfo, openapiS
 
         // Try to get default port from OpenAPI spec first
         let portInSpec: number;
-        const portInSpecStr = openapiSpec.servers?.[0]?.variables?.port?.default;
+        const portInSpecStr = openapiSpec?.servers?.[0]?.variables?.port?.default;
         if (portInSpecStr) {
             const parsedPort = parseInt(portInSpecStr);
             portInSpec = isNaN(parsedPort) ? parsedPort : undefined;
@@ -907,11 +957,17 @@ function disposeErrorWatcher() {
 }
 
 // Service information interface
+enum ServiceType {
+    HTTP = 'http',
+    AGENT = 'agent'
+}
+
 interface ServiceInfo {
     name?: string;
     basePath: string;
     filePath: string;
     port?: number;
+    type: ServiceType;
     listener: {
         name: string;
         port?: string;
