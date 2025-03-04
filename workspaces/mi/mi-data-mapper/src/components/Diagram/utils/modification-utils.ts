@@ -540,49 +540,99 @@ export function buildInputAccessExpr(fieldFqn: string): string {
 }
 
 function getTypeIndicesFromFQN(fieldFQN: string): string[] {
-	const keys = fieldFQN.split('.').map(key => `["${key}"]`);
-	keys.shift();
-
-	return keys;
+	const keys = fieldFQN?.split('.').map(key => isNaN(Number(key)) ? getTypeIndexing(key) : "[number]");
+	return keys ?? [];
 }
 
-function getTypeIndicesFromNode(node: Node, keys: string[]) {
+function getSourceTypeIndicesFromNode(node: Node, keys: string[]) {
 	
 	if(Node.isFunctionDeclaration(node)) {
 		const param = node.getParameters()[0];
 		keys.unshift(param.getTypeNode().getText());
+		return;
 	} else if(Node.isCallExpression(node) && isMapFunction(node)) {
 		const mapExpr = node.getExpression() as PropertyAccessExpression;
 		keys.unshift("[number]");
 		let expr  =  mapExpr.getExpression();
 		while(Node.isPropertyAccessExpression(expr)) {
-			keys.unshift(`["${expr.getName()}"]`);
+			keys.unshift(getTypeIndexing(expr.getName()));
 			expr = expr.getExpression();
 		}
-		
-		do {
-			node = node.getParent();
-		}while (node && !(Node.isFunctionDeclaration(node) || (Node.isCallExpression(node) && isMapFunction(node))));
-		
-		getTypeIndicesFromNode(node, keys);
 	}
+	
+	do {
+		node = node.getParent();
+	} while (node && !(Node.isFunctionDeclaration(node) || (Node.isCallExpression(node) && isMapFunction(node))));
+
+	if (node) getSourceTypeIndicesFromNode(node, keys);
 
 }
 
-function genSourceTypeAlias(sourcePort: InputOutputPortModel){
-	const keys = getTypeIndicesFromFQN(sourcePort.fieldFQN);
+function genSourceTypeAnnotation(sourcePort: InputOutputPortModel){
+	const simpleTypeAnnotation = getTypeAnnotation(sourcePort.field);
+	if(simpleTypeAnnotation) return simpleTypeAnnotation;
+
+	const keys = getTypeIndicesFromFQN(sourcePort.optionalOmittedFieldFQN);
+	keys.shift();
 	const sourceParent = sourcePort.getParent();
 	if(sourceParent instanceof InputNode || sourceParent instanceof FocusedInputNode) {
-		getTypeIndicesFromNode(sourceParent.value, keys);
+		getSourceTypeIndicesFromNode(sourceParent.value, keys);
 	}
 	
-	return keys.join('');
+	return keys.join("") || "any";
+}
+
+function getTypeIndexing(name: string){
+	
+	if ((name.startsWith('"') && name.endsWith('"')) ||
+		(name.startsWith("'") && name.endsWith("'"))) {
+		return `[${name}]`;
+	}
+
+	return `["${name}"]`;
+}
+
+function getTargetTypeIndicesFromNode(node: Node, keys: string[]) {
+	if(Node.isFunctionDeclaration(node)) {
+		const returnType = node.getReturnTypeNode();
+		keys.unshift(returnType.getText());
+		return;
+	} else if(Node.isPropertyAssignment(node)) {
+		keys.unshift(getTypeIndexing(node.getName()));
+	} else if (Node.isCallExpression(node) && isMapFunction(node)) {
+		keys.unshift("[number]");
+	}
+
+	do {
+		node = node.getParent();
+	} while (node && !(
+		Node.isFunctionDeclaration(node) ||
+		Node.isPropertyAssignment(node) ||
+		(Node.isCallExpression(node) && isMapFunction(node))
+	));
+	
+	if (node) getTargetTypeIndicesFromNode(node, keys);
+
+}
+
+function genTargetTypeAnnotation(targetPort: InputOutputPortModel){
+	const simpleTypeAnnotation = getTypeAnnotation(targetPort.field);
+	if(simpleTypeAnnotation) return simpleTypeAnnotation;
+
+	const keys = getTypeIndicesFromFQN(targetPort.fieldFQN);
+	const targetParent = targetPort.getParent();
+	if(targetParent instanceof ObjectOutputNode || targetParent instanceof ArrayOutputNode) {
+		getTargetTypeIndicesFromNode(targetParent.value, keys);
+	}
+	return keys.join("") || "any";
 }
 
 export async function mapUsingCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, context: IDataMapperContext, isValueModifiable: boolean) {
 	
-	console.log("QWERT",genSourceTypeAlias(sourcePort));
-	return;
+	console.log("QWERT",genSourceTypeAnnotation(sourcePort));
+	console.log("QWERT",genTargetTypeAnnotation(targetPort));
+
+	// return;
 	const inputAccessExpr = buildInputAccessExpr(sourcePort.fieldFQN);
 	const sourceFile = context.functionST.getSourceFile();
 	const customFunction = genCustomFunction(sourcePort, targetPort, sourceFile);
@@ -625,9 +675,9 @@ function genCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOu
 				sourcePort.optionalOmittedFieldFQN?.replaceAll('.', '_') ||
 				lowerFirst(sourcePort.field.typeName) ||
 				sourcePort.field.kind,
-			type: getTypeAnnotation(sourcePort.field)
+			type: genSourceTypeAnnotation(sourcePort)
 		}],
-		returnType: getTypeAnnotation(targetPort.field),
+		returnType: genTargetTypeAnnotation(targetPort),
 		statements: [
 			`return ${getDefaultValue(targetPort.field)};`
 		]
