@@ -22,7 +22,7 @@ import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";
 import { Body, Content, Description, Header, Name, OptionsMenu } from "../BaseNodeModel";
 import { FirstCharToUpperCase } from "../../../utils/commons";
 import path from "path";
-import { MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
+import { handleOnConnectionClick } from "../CommonUtils";
 
 namespace S {
     export type NodeStyleProp = {
@@ -117,6 +117,7 @@ interface ConnectorNodeWidgetProps {
 export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
     const { node, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
+    const [isSelected, setIsSelected] = useState(false);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
     const [iconPath, setIconPath] = useState(null);
@@ -133,7 +134,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
     const description = node.stNode.tag.split(".")[1];
 
     useEffect(() => {
-        node.setSelected(sidePanelContext?.node === node);
+        setIsSelected(sidePanelContext?.node === node);
     }, [sidePanelContext?.node]);
 
     const TooltipEl = useMemo(() => {
@@ -185,39 +186,6 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
         setIsPopoverOpen(false);
     }
 
-    const getConnectionNodeRange = async () => {
-        const text = await rpcClient?.getMiDiagramRpcClient().getTextAtRange({
-            documentUri: node.documentUri,
-            range: node.stNode.range.startTagRange
-        });
-
-        const lastQuoteIndex = text.text.lastIndexOf('"') !== -1 ? text.text.lastIndexOf('"') : text.text.lastIndexOf("'");
-        const textBeforeLastQuote = text.text.substring(0, lastQuoteIndex + 1);
-
-        const configKeyLines = textBeforeLastQuote.split('\n');
-        const connectionNameLine = configKeyLines?.[configKeyLines.length - 1];
-
-        const firstQuoteIndex = connectionNameLine?.indexOf('"') !== -1 ? connectionNameLine?.indexOf('"') : connectionNameLine?.indexOf("'");
-
-        const newlineCount = configKeyLines.length - 1;
-
-        const connectionNameStartPosition = {
-            line: node.stNode.range.startTagRange.start.line + newlineCount,
-            character: newlineCount === 0 ? node.stNode.range.startTagRange.start.character + firstQuoteIndex + 1
-                : firstQuoteIndex + 1
-        }
-
-        const connectionNameEndPosition = {
-            line: node.stNode.range.startTagRange.start.line + newlineCount,
-            character: newlineCount === 0 ? node.stNode.range.startTagRange.start.character + firstQuoteIndex + connectorNode.configKey.length + 1
-                : firstQuoteIndex + connectorNode.configKey.length + 1
-        }
-
-        const nodeRange = { start: connectionNameStartPosition, end: connectionNameEndPosition };
-
-        return nodeRange;
-    }
-
     const handleOnClick = async (e: any) => {
         e.stopPropagation();
         const nodeRange = { start: node.stNode.range.startTagRange.start, end: node.stNode?.range?.endTagRange?.end || node.stNode.range.startTagRange.end };
@@ -264,48 +232,11 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
         }
     }
 
-    const handleOnConnectionClick = async (e: any) => {
-        e.stopPropagation();
-
-        const nodeRange = await getConnectionNodeRange();
-
-        const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
-            documentUri: node.documentUri,
-            connectorName: node.stNode.tag.split(".")[0]
-        });
-
-        const definition = await rpcClient?.getMiDiagramRpcClient().getDefinition({
-            document: {
-                uri: node.documentUri,
-            },
-            position: nodeRange.start
-        });
-
-        if (e.ctrlKey || e.metaKey) {
-            // open file of selected connection
-            rpcClient.getMiDiagramRpcClient().openFile({ path: definition.uri, beside: true });
-
-        } else if (node.isSelected()) {
-            rpcClient.getMiVisualizerRpcClient().openView({
-                type: POPUP_EVENT_TYPE.OPEN_VIEW,
-                location: {
-                    documentUri: definition.uri,
-                    view: MACHINE_VIEW.ConnectionForm,
-                    customProps: {
-                        connectionName: connectorNode.configKey,
-                        connector: connectorData
-                    }
-                },
-                isPopup: true
-            });
-        }
-    }
-
     return (
         <div data-testid={`connectorNode-${node.getID()}`}>
             <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} containerPosition={'absolute'}>
                 <S.Node
-                    selected={node.isSelected()}
+                    selected={isSelected}
                     hasError={hasDiagnotics}
                     hovered={isHovered || isActiveBreakpoint}
                     isActiveBreakpoint={isActiveBreakpoint}
@@ -346,7 +277,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                 <S.CircleContainer
                     onMouseEnter={() => setIsHoveredConnector(true)}
                     onMouseLeave={() => setIsHoveredConnector(false)}
-                    onClick={(e) => handleOnConnectionClick(e)}
+                    onClick={(e) => handleOnConnectionClick(e, node, connectorNode, rpcClient)}
                 >
                     <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} >
                         <svg width="110" height="50" viewBox="0 0 103 40">
