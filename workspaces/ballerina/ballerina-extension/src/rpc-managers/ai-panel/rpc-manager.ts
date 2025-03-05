@@ -294,6 +294,22 @@ export class AiPanelRpcManager implements AIPanelAPI {
             return { error: PARSING_ERROR };
         }
 
+        if (fnSt.functionBody && 
+            fnSt.functionBody["expression"] && 
+            fnSt.functionBody["expression"].fields && 
+            fnSt.functionBody["expression"].fields.length > 0) {
+            // There are existing mappings, show confirmation
+            const confirmResult = await window.showWarningMessage(
+                "Proceeding with Auto Map will overwrite existing mappings. Do you want to continue?",
+                { modal: true },
+                "Overwrite"
+            );
+            
+            if (confirmResult !== "Overwrite") {
+                return { userAborted: true };
+            }
+        }
+
         const st = await processMappings(fnSt, fileUri, file);
         if (isErrorCode(st)) {
             if ((st as ErrorCode).code === 6) {

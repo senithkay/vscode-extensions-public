@@ -10,6 +10,7 @@
  */
 import {
     AIChatRequest,
+    AddFieldRequest,
     AddFunctionRequest,
     AddFunctionResponse,
     BIAiSuggestionsRequest,
@@ -70,28 +71,30 @@ import {
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
+    RecordsInWorkspaceMentions,
+    RenameIdentifierRequest,
+    RenameRequest,
     STModification,
     ServiceClassModelResponse,
     ServiceClassSourceRequest,
     SignatureHelpRequest,
     SignatureHelpResponse,
+    SourceEditResponse,
     SyntaxTree,
+    TextEdit,
     UpdateConfigVariableRequest,
     UpdateConfigVariableResponse,
-    UpdateTypeRequest,
-    UpdateTypeResponse,
     UpdateImportsRequest,
     UpdateImportsResponse,
+    UpdateTypeRequest,
+    UpdateTypeResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspaceFolder,
     WorkspacesResponse,
     buildProjectStructure,
-    TextEdit,
-    SourceEditResponse,
-    AddFieldRequest,
-    RenameRequest,
-    RenameIdentifierRequest,
+    BuildMode,
+    DevantComponentResponse,
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import { writeFileSync } from "fs";
@@ -116,7 +119,7 @@ import { getCompleteSuggestions } from '../../utils/ai/completions';
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure } from "../../utils/bi";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
-import { DATA_MAPPING_FILE_NAME, getFunctionNodePosition } from "./utils";
+import { getFunctionNodePosition } from "./utils";
 
 export class BiDiagramRpcManager implements BIDiagramAPI {
 
@@ -655,48 +658,22 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async createChoreoComponent(name: string, type: "service" | "manualTask" | "scheduleTask"): Promise<void> {
-        const params = {
-            initialValues: {
-                name,
-                type,
-                buildPackLang: "ballerina",
-            },
-        };
-
-        await commands.executeCommand("wso2.choreo.create.component", params);
-    }
-
-    deployProject(): void {
+    async deployProject(): Promise<void> {
+        // If has an automation set the type to scheduled task
+        const projectStructure = await this.getProjectStructure();
+        const automation = projectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION];
+        let type = "service";
+        if (automation) {
+            type = "scheduleTask";
+        }
         // Show a quick pick to select deployment option
-        window
-            .showQuickPick(
-                [
-                    {
-                        label: "$(cloud) Deploy on Choreo",
-                        detail: "Deploy your project to Choreo cloud platform",
-                        key: "deploy-on-choreo",
-                    },
-                ].map((item) => ({
-                    ...item,
-                })),
-                {
-                    placeHolder: "Select deployment option",
-                }
-            )
-            .then((selection) => {
-                if (!selection) {
-                    return; // User cancelled the selection
-                }
-
-                switch (selection.label) {
-                    case "$(cloud) Deploy on Choreo":
-                        this.createChoreoComponent("test", "service");
-                        break;
-                    default:
-                        window.showErrorMessage("Invalid deployment option selected");
-                }
-            });
+        const params = {
+            type: type, // Assuming this is a valid enum value
+            buildPackLang: "ballerina", // Example language
+            name: path.basename(StateMachine.context().projectUri),
+            componentDir: StateMachine.context().projectUri
+        };
+        commands.executeCommand("wso2.platform.create.component", params);
     }
 
     openAIChat(params: AIChatRequest): void {
@@ -763,6 +740,15 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
+    async checkDockerAvailability(): Promise<boolean> {
+        return new Promise((resolve) => {
+            const { exec } = require('child_process');
+            exec('docker --version', (error: any) => {
+                resolve(!error);
+            });
+        });
+    }
+
     async runBallerinaBuildTask(docker: boolean): Promise<void> {
         const taskDefinition: TaskDefinition = {
             type: 'shell',
@@ -770,6 +756,15 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         };
 
         let buildCommand = docker ? 'bal build --cloud="docker"' : 'bal build';
+
+        // If docker is true check if docker command is available
+        if (docker) {
+            const dockerAvailable = await this.checkDockerAvailability();
+            if (!dockerAvailable) {
+                window.showErrorMessage('Docker is not available. Please install Docker to build Docker images.');
+                return;
+            }
+        }
 
         // Get Ballerina home path from settings
         const config = workspace.getConfiguration('kolab');
@@ -796,38 +791,17 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         }
     }
 
-    buildProject(): void {
-        window.showQuickPick([
-            {
-                label: "$(package) Executable JAR",
-                detail: "Build a self-contained, runnable JAR file for your project",
-            },
-            {
-                label: "$(docker) Docker Image",
-                detail: "Create a Docker image to containerize your Ballerina Integration",
-            }
-        ].map(item => ({
-            ...item,
-        })), {
-            placeHolder: "Choose a build option"
-        })
-            .then((selection) => {
-                if (!selection) {
-                    return; // User cancelled the selection
-                }
+    buildProject(mode: BuildMode): void {
 
-                switch (selection.label) {
-                    case "$(package) Executable JAR":
-                        console.log(selection);
-                        this.runBallerinaBuildTask(false);
-                        break;
-                    case "$(docker) Docker Image":
-                        this.runBallerinaBuildTask(true);
-                        break;
-                    default:
-                        window.showErrorMessage("Invalid deployment option selected");
-                }
-            });
+        switch (mode) {
+            case BuildMode.JAR:
+                this.runBallerinaBuildTask(false);
+                break;
+            case BuildMode.DOCKER:
+                this.runBallerinaBuildTask(true);
+                break;
+        }
+
     }
 
     runProject(): void {
@@ -1345,6 +1319,63 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             });
         });
     }
+
+    async getRecordNames(): Promise<RecordsInWorkspaceMentions> {
+        const projectComponents = await this.getProjectComponents();
+
+        // Extracting all record names
+        const recordNames: string[] = [];
+
+        if (projectComponents?.components?.packages) {
+            for (const pkg of projectComponents.components.packages) {
+                for (const module of pkg.modules) {
+                    if (module.records) {
+                        for (const record of module.records) {
+                            recordNames.push(record.name);
+                        }
+                    }
+                }
+            }
+        }
+
+        return { mentions: recordNames };
+    }
+
+    async getDevantComponent(): Promise<DevantComponentResponse | undefined> {
+        // get project root from state machine 
+        // find the repo root from the project root
+        // read .choreo/context.yaml in repo root 
+        // extract org and project from context.yaml
+        // use the current directory name as component name 
+        // return the response 
+        const projectRoot = StateMachine.context().projectUri;
+        const repoRoot = getRepoRoot(projectRoot);
+        if (!repoRoot) {
+            return undefined;
+        }
+        const contextYamlPath = path.join(repoRoot, ".choreo", "context.yaml");
+        if (!fs.existsSync(contextYamlPath)) {
+            return undefined;
+        }
+        const contextYaml = fs.readFileSync(contextYamlPath, "utf8");
+        const org = contextYaml.match(/org: (.*)/)[1];
+        const project = contextYaml.match(/project: (.*)/)[1];
+        const component = path.basename(projectRoot);
+        return { org, project, component };
+    }
+}
+
+export function getRepoRoot(projectRoot: string): string | undefined {
+    // traverse up the directory tree until .git directory is found
+    const gitDir = path.join(projectRoot, ".git");
+    if (fs.existsSync(gitDir)) {
+        return projectRoot;
+    }
+    // path is root return undefined
+    if (projectRoot === path.parse(projectRoot).root) {
+        return undefined;
+    }
+    return getRepoRoot(path.join(projectRoot, ".."));
 }
 
 export async function fetchWithToken(url: string, options: RequestInit) {

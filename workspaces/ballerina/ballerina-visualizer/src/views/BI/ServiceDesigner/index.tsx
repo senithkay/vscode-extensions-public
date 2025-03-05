@@ -255,6 +255,13 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         setShowFunctionConfigForm(false);
     };
 
+    const handleServiceTryIt = () => {
+        const basePath = serviceModel.properties?.basePath?.value?.trim();
+        const listener = serviceModel.properties?.listener?.value?.trim();
+        const commands = ["kolab.tryit", false, undefined, { basePath, listener }];
+        rpcClient.getCommonRpcClient().executeCommand({ commands });
+    }
+
     const handleExportOAS = () => {
         rpcClient.getServiceDesignerRpcClient().exportOASFile({});
     };
@@ -311,6 +318,11 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                         <VSCodeButton appearance="secondary" title="Edit Service" onClick={handleServiceEdit}>
                             <Icon name="bi-edit" sx={{ marginRight: 8, fontSize: 16 }} /> Edit
                         </VSCodeButton>
+                        {serviceModel && serviceModel.moduleName === "http" && (
+                            <VSCodeButton appearance="secondary" title="Try Service" onClick={handleServiceTryIt}>
+                                <Icon name="play" isCodicon={true} sx={{ marginRight: 8, fontSize: 16 }} /> Try It
+                            </VSCodeButton>
+                        )}
                         {serviceModel && serviceModel.moduleName === "http" && (
                             <VSCodeButton appearance="secondary" title="Export OpenAPI Spec" onClick={handleExportOAS}>
                                 <Icon name="bi-export" sx={{ marginRight: 8, fontSize: 16 }} /> Export

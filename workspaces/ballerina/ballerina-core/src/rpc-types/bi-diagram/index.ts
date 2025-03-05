@@ -78,7 +78,10 @@ import {
     CurrentBreakpointsResponse,
     FormDidOpenParams,
     FormDidCloseParams,
-    EndOfFileRequest
+    EndOfFileRequest,
+    RecordsInWorkspaceMentions,
+    BuildMode,
+    DevantComponentResponse
 } from "./interfaces";
 
 export interface BIDiagramAPI {
@@ -107,7 +110,7 @@ export interface BIDiagramAPI {
     deployProject: () => void;
     openAIChat: (params: AIChatRequest) => void;
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
-    buildProject: () => void;
+    buildProject: (mode: BuildMode) => void;
     runProject: () => void;
     getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
     addBreakpointToSource: (params: BreakpointRequest) => void;
@@ -131,4 +134,6 @@ export interface BIDiagramAPI {
     getFunctionNode: (params: FunctionNodeRequest) => Promise<FunctionNodeResponse>;
     getEndOfFile: (params: EndOfFileRequest) => Promise<LinePosition>;
     search: (params: BISearchRequest) => Promise<BISearchResponse>;
+    getRecordNames: () => Promise<RecordsInWorkspaceMentions>;
+    getDevantComponent: () => Promise<DevantComponentResponse | undefined>;
 }
