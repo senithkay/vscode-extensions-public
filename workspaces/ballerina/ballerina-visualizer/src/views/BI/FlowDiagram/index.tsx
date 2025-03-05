@@ -33,6 +33,7 @@ import {
     SubPanelView,
     CurrentBreakpointsResponse as BreakpointInfo,
     FUNCTION_TYPE,
+    ParentPopupData,
     BISearchRequest
 } from "@wso2-enterprise/ballerina-core";
 
@@ -122,11 +123,19 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         getFlowModel();
     }, [syntaxTree]);
 
-    rpcClient.onParentPopupSubmitted(() => {
-        const parent = topNodeRef.current;
-        const target = targetRef.current;
-        fetchNodesAndAISuggestions(parent, target, false, false);
-    });
+    useEffect(() => {
+        rpcClient.onProjectContentUpdated((state: boolean) => {
+            console.log(">>> on project content updated", state);
+            fetchNodesAndAISuggestions(topNodeRef.current, targetRef.current, false, true);
+        });
+        rpcClient.onParentPopupSubmitted((parent: ParentPopupData) => {
+            console.log(">>> on parent popup submitted", parent);
+            const toNode = topNodeRef.current;
+            const target = targetRef.current;
+            fetchNodesAndAISuggestions(toNode, target, false, false);
+        });
+    }, [rpcClient]);
+
 
     const getFlowModel = () => {
         setShowProgressIndicator(true);
