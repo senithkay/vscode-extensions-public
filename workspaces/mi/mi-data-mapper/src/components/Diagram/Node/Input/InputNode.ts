@@ -39,12 +39,7 @@ export class InputNode extends DataMapperNodeModel {
         this.numberOfFields = 1;
         if (!hasNoMatchingFields) {
             this._originalType = this.context.inputTrees
-                .find(inputTree =>
-                    getTypeName(inputTree) === (
-                        this.value.getType().getSymbol()?.getName()
-                        || this.value.getType().getAliasSymbol()?.getName()
-                    )
-                );
+                .find(inputTree => getTypeName(inputTree) === this.value.getTypeNode()?.getText());
             this.dmType = this._originalType;
             this._paramName = this.value.getName();
         }

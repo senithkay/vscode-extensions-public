@@ -87,6 +87,7 @@ var remainingTokenPercentage: string | number;
 var remaingTokenLessThanOne: boolean = false;
 
 var timeToReset: number;
+export const INVALID_RECORD_REFERENCE = "Invalid record reference. Follow <org-name>/<package-name>:<record-name> format when referencing to record in another package.";
 
 // Define constants for command keys
 export const COMMAND_GENERATE = "/generate";
@@ -787,7 +788,34 @@ export function AIChat() {
             }
 
             if (command === "ai_map") {
-                segmentText = `${originalContent}\n${segmentText}`;
+                const importRegex = /import\s+[^;]+;/g;
+                const commentRegex = /^(?:(\/\/.*|#.*)\n)+/; // Matches both `//` and `#` comment blocks at the top
+            
+                const imports = segmentText.match(importRegex) || [];
+                const codeWithoutImports = segmentText.replace(importRegex, '').trim();
+            
+                let updatedContent = originalContent;
+            
+                // Extract existing comments at the top
+                const commentMatch = updatedContent.match(commentRegex);
+                const existingComments = commentMatch ? commentMatch[0].trim() + "\n\n" : ""; 
+                updatedContent = updatedContent.replace(commentRegex, '').trim(); 
+            
+                // Find any additional `#` comments that may exist before imports
+                const additionalCommentMatch = updatedContent.match(commentRegex);
+                const additionalComments = additionalCommentMatch ? additionalCommentMatch[0].trim() + "\n\n" : ""; 
+                updatedContent = updatedContent.replace(commentRegex, '').trim();
+            
+                // Ensure new imports are added after all comments
+                let updatedImports = '';
+                imports.forEach((imp: string) => {
+                    if (!updatedContent.includes(imp)) {
+                        updatedImports += `${imp}\n`;
+                    }
+                });
+            
+                updatedContent = `${existingComments}${additionalComments}${updatedImports}${updatedContent}\n${codeWithoutImports}`;
+                segmentText = updatedContent.trim(); 
             } else {
                 segmentText = `${segmentText}`;
             }
@@ -1104,6 +1132,7 @@ export function AIChat() {
         attachments?: AttachmentResult[]
     ) {
         let assistant_response = "";
+        let newImports;
         const recordMap = new Map();
         const importsMap = new Map();
         setIsLoading(true);
@@ -1122,11 +1151,14 @@ export function AIChat() {
         const activeFile = await rpcClient.getAiPanelRpcClient().getActiveFile();
         const projectComponents = await rpcClient.getBIDiagramRpcClient().getProjectComponents();
 
-        const activeFileImports =
-            projectImports.imports.find((file) => {
-                const fileName = file.filePath.split("/").pop();
-                return fileName === activeFile;
-            })?.statements || [];
+        const allImports: ImportStatement[] = [];
+        projectImports.imports.forEach((file) => {
+            if (file.statements && file.statements.length > 0) {
+                file.statements.forEach((statement) => {
+                    allImports.push(statement);
+                });
+            }
+        });
 
         projectComponents.components.packages?.forEach((pkg) => {
             pkg.modules?.forEach((mod) => {
@@ -1143,35 +1175,44 @@ export function AIChat() {
 
         const inputs: DataMappingRecord[] = inputParams.map((param: string) => {
             const isArray = param.endsWith("[]");
-            const recordName = param.replace(/\[\]$/, "");
-            const rec = recordMap.get(recordName);
+            const importedRecordName = param.replace(/\[\]$/, "");
+            const rec = recordMap.get(importedRecordName);
 
             if (!rec) {
-                if (recordName.includes(":")) {
-                    const [moduleName, alias] = recordName.split(":");
-                    const matchedImport = activeFileImports.find((imp) => {
-                        if (imp.alias) {
-                            // Match using alias if it exists
-                            return recordName.startsWith(imp.alias);
-                        }
-                        // If alias doesn't exist, match using the last part of the module name
-                        const moduleNameParts = imp.moduleName.split(".");
-                        const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
-                        return recordName.startsWith(inferredAlias);
-                    });
+                if (importedRecordName.includes(":")) {
+                    if (!importedRecordName.includes("/")) {
+                        const [moduleName, recordName] = importedRecordName.split(":");
+                        const matchedImport = allImports.find((imp) => {
+                            if (imp.alias) {
+                                // Match using alias if it exists
+                                return importedRecordName.startsWith(imp.alias);
+                            }
+                            // If alias doesn't exist, match using the last part of the module name
+                            const moduleNameParts = imp.moduleName.split(".");
+                            const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
+                            return importedRecordName.startsWith(inferredAlias);
+                        });
 
-                    if (!matchedImport) {
-                        throw new Error(`Must import the module for "${recordName}".`);
+                        if (!matchedImport) {
+                            return INVALID_RECORD_REFERENCE;
+                        }
+                        // Use the actual alias if present, otherwise infer from the module name
+                        const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
+                        importsMap.set(importedRecordName, {
+                            moduleName: matchedImport.moduleName,
+                            alias: matchedImport.alias,
+                            recordName: recordName
+                        });
+                    } else {
+                        const [moduleName, recordName] = importedRecordName.split(":");
+                        importsMap.set(importedRecordName, {
+                            moduleName: moduleName,
+                            recordName: recordName
+                        });
                     }
-                    // Use the actual alias if present, otherwise infer from the module name
-                    const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
-                    importsMap.set(recordName, {
-                        moduleName: matchedImport.moduleName,
-                        alias: resolvedAlias,
-                    });
-                    return { type: `${recordName}`, isArray, filePath: null };
+                    return { type: `${importedRecordName}`, isArray, filePath: null };
                 } else {
-                    throw new Error(`${recordName} is not defined.`);
+                    throw new Error(`${importedRecordName} is not defined.`);
                 }
             }
             return { ...rec, isArray };
@@ -1191,27 +1232,36 @@ export function AIChat() {
 
         if (!output) {
             if (outputRecordName.includes(":")) {
-                const [moduleName, alias] = outputRecordName.split(":");
-                const matchedImport = activeFileImports.find((imp) => {
-                    if (imp.alias) {
-                        // Match using alias if it exists
-                        return outputRecordName.startsWith(imp.alias);
-                    }
-                    // If alias doesn't exist, match using the last part of the module name
-                    const moduleNameParts = imp.moduleName.split(".");
-                    const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
-                    return outputRecordName.startsWith(inferredAlias);
-                });
+                if (!outputRecordName.includes("/")) {
+                    const [moduleName, recordName] = outputRecordName.split(":");
+                    const matchedImport = allImports.find((imp) => {
+                        if (imp.alias) {
+                            // Match using alias if it exists
+                            return outputRecordName.startsWith(imp.alias);
+                        }
+                        // If alias doesn't exist, match using the last part of the module name
+                        const moduleNameParts = imp.moduleName.split(".");
+                        const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
+                        return outputRecordName.startsWith(inferredAlias);
+                    });
 
-                if (!matchedImport) {
-                    throw new Error(`Must import the module for "${outputRecordName}".`);
+                    if (!matchedImport) {
+                        return INVALID_RECORD_REFERENCE;
+                    }
+                    // Use the actual alias if present, otherwise infer from the module name
+                    const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
+                    importsMap.set(outputRecordName, {
+                        moduleName: matchedImport.moduleName,
+                        alias: matchedImport.alias,
+                        recordName: recordName
+                    });
+                } else {
+                    const [moduleName, recordName] = outputRecordName.split(":");
+                    importsMap.set(outputRecordName, {
+                        moduleName: moduleName,
+                        recordName: recordName
+                    });
                 }
-                // Use the actual alias if present, otherwise infer from the module name
-                const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
-                importsMap.set(outputRecordName, {
-                    moduleName: matchedImport.moduleName,
-                    alias: resolvedAlias,
-                });
                 output = { type: `${outputRecordName}`, isArray: outputIsArray, filePath: null };
             } else {
                 throw new Error(`${outputRecordName} is not defined.`);
@@ -1248,10 +1298,17 @@ export function AIChat() {
         const needsImports = Array.from(importsMap.values()).length > 0;
 
         if (needsImports) {
-            const fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath });
-            finalContent = `${fileContent}\n${response.mappingCode}`;
+            let fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath });
+            const existingImports = new Set(fileContent.match(/import\s+([a-zA-Z0-9._]+)/g)?.map(imp => imp.split(" ")[1]) || []);
+            
+            newImports = Array.from(importsMap.values())
+                .filter(imp => !existingImports.has(imp.moduleName))
+                .map(imp => imp.alias ? `import ${imp.moduleName} as ${imp.alias};` : `import ${imp.moduleName};`)
+                .join("\n");
+            
+            finalContent = `${newImports}\n${response.mappingCode}`;
         }
-        assistant_response += `<code filename="${filePath}" type="ai_map">\n\`\`\`ballerina\n${response.mappingCode}\n\`\`\`\n</code>`;
+        assistant_response += `<code filename="${filePath}" type="ai_map">\n\`\`\`ballerina\n${finalContent}\n\`\`\`\n</code>`;
 
         setMessages((prevMessages) => {
             const newMessages = [...prevMessages];
