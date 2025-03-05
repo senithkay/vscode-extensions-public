@@ -87,5 +87,5 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             return;
         }
         vscode.window.showWarningMessage(WARNING_MESSAGE_DEFAULT);
-    }, 2000);
+    }, 5000);
 }
