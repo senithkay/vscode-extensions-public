@@ -305,16 +305,16 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
             )}
             <FormActions>
                 <Button
-                    appearance="primary"
-                    onClick={handleSubmit(handleCreateInboundConnector)}
-                >
-                    {props.model ? "Update" : "Create"}
-                </Button>
-                <Button
                     appearance="secondary"
                     onClick={handleOnClose}
                 >
                     Cancel
+                </Button>
+                <Button
+                    appearance="primary"
+                    onClick={handleSubmit(handleCreateInboundConnector)}
+                >
+                    {props.model ? "Update" : "Create"}
                 </Button>
             </FormActions>
         </>
