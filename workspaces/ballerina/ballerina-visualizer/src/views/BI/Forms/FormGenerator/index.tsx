@@ -21,7 +21,8 @@ import {
     TextEdit,
     FunctionKind,
     SubPanelView,
-    LinePosition
+    LinePosition,
+    ExpressionProperty
 } from "@wso2-enterprise/ballerina-core";
 import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditorProps, HelperPaneData, HelperPaneCompletionItem } from "@wso2-enterprise/ballerina-side-panel";
 import {
@@ -38,7 +39,7 @@ import {
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { RecordEditor } from "../../../RecordEditor/RecordEditor";
 import IfForm from "../IfForm";
-import { CompletionItem, FormExpressionEditorRef } from "@wso2-enterprise/ui-toolkit";
+import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight } from "@wso2-enterprise/ui-toolkit";
 import { cloneDeep, debounce } from "lodash";
 import {
     createNodeWithUpdatedLineRange,
@@ -229,7 +230,7 @@ export function FormGenerator(props: FormProps) {
     };
 
     const debouncedRetrieveCompletions = useCallback(debounce(
-        async (value: string, key: string, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
+        async (value: string, property: ExpressionProperty, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
             let expressionCompletions: CompletionItem[] = [];
             const effectiveText = value.slice(0, offset);
             const completionFetchText = effectiveText.match(/[a-zA-Z0-9_']+$/)?.[0] ?? "";
@@ -262,8 +263,8 @@ export function FormGenerator(props: FormProps) {
                         expression: value,
                         startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
                         offset: offset,
-                        node: node,
-                        property: key
+                        codedata: node.codedata,
+                        property: property
                     },
                     completionContext: {
                         triggerKind: triggerCharacter ? 2 : 1,
@@ -312,12 +313,12 @@ export function FormGenerator(props: FormProps) {
 
     const handleRetrieveCompletions = useCallback(async (
         value: string,
-        key: string,
+        property: ExpressionProperty,
         offset: number,
         triggerCharacter?: string,
         onlyVariables?: boolean
     ) => {
-        await debouncedRetrieveCompletions(value, key, offset, triggerCharacter, onlyVariables);
+        await debouncedRetrieveCompletions(value, property, offset, triggerCharacter, onlyVariables);
 
         if (triggerCharacter) {
             await debouncedRetrieveCompletions.flush();
@@ -351,15 +352,15 @@ export function FormGenerator(props: FormProps) {
         await debouncedGetVisibleTypes(value, cursorPosition);
     }, [debouncedGetVisibleTypes]);
 
-    const extractArgsFromFunction = async (value: string, key: string, cursorPosition: number) => {
+    const extractArgsFromFunction = async (value: string, property: ExpressionProperty, cursorPosition: number) => {
         const signatureHelp = await rpcClient.getBIDiagramRpcClient().getSignatureHelp({
             filePath: fileName,
             context: {
                 expression: value,
                 startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
                 offset: cursorPosition,
-                node: node,
-                property: key
+                codedata: node.codedata,
+                property: property
             },
             signatureHelpContext: {
                 isRetrigger: false,
@@ -374,6 +375,7 @@ export function FormGenerator(props: FormProps) {
         showDiagnostics: boolean,
         expression: string,
         key: string,
+        property: ExpressionProperty,
         setDiagnosticsInfo: (diagnostics: FormDiagnostics) => void,
         shouldUpdateNode?: boolean,
         variableType?: string
@@ -385,7 +387,7 @@ export function FormGenerator(props: FormProps) {
 
         // HACK: For variable nodes, update the type value in the node
         if (shouldUpdateNode) {
-            node.properties["type"].value = variableType;
+            node.properties["type"].value = variableType || "any";
         }
 
         const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
@@ -394,8 +396,8 @@ export function FormGenerator(props: FormProps) {
                 expression: expression,
                 startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
                 offset: 0,
-                node: node,
-                property: key
+                codedata: node.codedata,
+                property: property
             },
         });
 
@@ -436,19 +438,23 @@ export function FormGenerator(props: FormProps) {
 
     const handleGetHelperPane = (
         exprRef: RefObject<FormExpressionEditorRef>,
+        anchorRef: RefObject<HTMLDivElement>,
         defaultValue: string,
         value: string,
         onChange: (value: string, updatedCursorPosition: number) => void,
-        changeHelperPaneState: (isOpen: boolean) => void
+        changeHelperPaneState: (isOpen: boolean) => void,
+        helperPaneHeight: HelperPaneHeight
     ) => {
         return getHelperPane({
             fileName: fileName,
             targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
             exprRef: exprRef,
+            anchorRef: anchorRef,
             onClose: () => changeHelperPaneState(false),
             defaultValue: defaultValue,
             currentValue: value,
-            onChange: onChange
+            onChange: onChange,
+            helperPaneHeight: helperPaneHeight
         });
     }
 
@@ -465,7 +471,8 @@ export function FormGenerator(props: FormProps) {
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
             onCancel: handleExpressionEditorCancel,
-            helperPaneOrigin: "left"
+            helperPaneOrigin: "left",
+            helperPaneHeight: "full"
         } as FormExpressionEditorProps;
     }, [
         filteredCompletions,
