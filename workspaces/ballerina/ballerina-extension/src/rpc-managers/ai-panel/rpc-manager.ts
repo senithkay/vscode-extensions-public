@@ -67,6 +67,7 @@ import { fetchData } from "./utils/fetch-data-utils";
 import { TextDocumentEdit } from "vscode-languageserver-types";
 import { fileURLToPath } from "url";
 import { attemptRepairProject, checkProjectDiagnostics } from "./repair-utils";
+import { closeAllBallerinaFiles } from "../../features/ai/utils";
 
 export let hasStopped: boolean = false;
 
@@ -420,6 +421,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
         const { langClient, tempDir } = environment;
         let remainingDiags: Diagnostics[] = await attemptRepairProject(langClient, tempDir);
         const filteredDiags: DiagnosticEntry[] = getErrorDiagnostics(remainingDiags);
+        await closeAllBallerinaFiles(tempDir);
         return {
             diagnostics: filteredDiags
         };
@@ -453,6 +455,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
         const { langClient, tempDir } = environment;
         // check project diagnostics
         const projectDiags: Diagnostics[] = await checkProjectDiagnostics(langClient, tempDir);
+        await closeAllBallerinaFiles(tempDir);
         for (const diagnostic of projectDiags) {
             for (const diag of diagnostic.diagnostics) {
                 console.log(diag.code);
@@ -533,7 +536,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
         let remainingDiags: Diagnostics[] = await attemptRepairProject(langClient, tempDir);
 
         const filteredDiags: DiagnosticEntry[] = getErrorDiagnostics(remainingDiags);
-
+        await closeAllBallerinaFiles(tempDir);
         const newAssistantResponse = getModifiedAssistantResponse(assist_resp, tempDir, project);
         return {
             assistant_response: newAssistantResponse,
