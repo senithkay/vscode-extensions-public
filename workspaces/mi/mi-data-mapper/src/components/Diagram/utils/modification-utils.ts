@@ -539,6 +539,23 @@ export function buildInputAccessExpr(fieldFqn: string): string {
 	return result.replace(/(?<!\?)\.\[/g, '['); // Replace occurrences of '.[' with '[' to handle consecutive bracketing
 }
 
+export async function mapUsingCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, context: IDataMapperContext, isValueModifiable: boolean) {
+	
+	const inputAccessExpr = buildInputAccessExpr(sourcePort.fieldFQN);
+	const sourceFile = context.functionST.getSourceFile();
+	const customFunction = genCustomFunction(sourcePort, targetPort, sourceFile);
+	const customFunctionDeclaration = sourceFile.addFunction(customFunction);
+	const range = getEditorLineAndColumn(customFunctionDeclaration);
+	const customFunctionCallExpr = `${customFunction.name}(${inputAccessExpr})`;
+
+	if (isValueModifiable) {
+		await updateExistingValue(sourcePort, targetPort, customFunctionCallExpr);
+	} else {
+		await createSourceForMapping(sourcePort, targetPort, customFunctionCallExpr);
+	}
+	context.goToSource(range);
+}
+
 function getTypeIndexing(name: string){
 	if ((name.startsWith('"') && name.endsWith('"')) ||
 		(name.startsWith("'") && name.endsWith("'"))) {
@@ -553,26 +570,26 @@ function getTypeIndicesFromFQN(fieldFQN: string): string[] {
 }
 
 function getSourceTypeIndicesFromNode(node: Node, keys: string[]) {
-	
-	if(Node.isFunctionDeclaration(node)) {
+
+	if (Node.isCallExpression(node) && isMapFunction(node)) {
+		const mapExpr = node.getExpression() as PropertyAccessExpression;
+		keys.unshift("[number]");
+		let expr = mapExpr.getExpression();
+		while (Node.isPropertyAccessExpression(expr)) {
+			keys.unshift(getTypeIndexing(expr.getName()));
+			expr = expr.getExpression();
+		}
+	} else if (Node.isFunctionDeclaration(node)) {
 		const param = node.getParameters()[0];
 		const paramType = param.getTypeNode();
 		if (paramType) keys.unshift(paramType.getText());
 		else keys.length = 0;
 		return;
-	} else if(Node.isCallExpression(node) && isMapFunction(node)) {
-		const mapExpr = node.getExpression() as PropertyAccessExpression;
-		keys.unshift("[number]");
-		let expr  =  mapExpr.getExpression();
-		while(Node.isPropertyAccessExpression(expr)) {
-			keys.unshift(getTypeIndexing(expr.getName()));
-			expr = expr.getExpression();
-		}
 	}
-	
+
 	do {
 		node = node.getParent();
-	} while (node && !(Node.isFunctionDeclaration(node) || (Node.isCallExpression(node) && isMapFunction(node))));
+	} while (node && !((Node.isCallExpression(node) && isMapFunction(node)) || Node.isFunctionDeclaration(node)));
 
 	if (node) getSourceTypeIndicesFromNode(node, keys);
 
@@ -606,16 +623,16 @@ function genSourceTypeAnnotation(sourcePort: InputOutputPortModel){
 
 
 function getTargetTypeIndicesFromNode(node: Node, keys: string[]) {
-	if(Node.isFunctionDeclaration(node)) {
+	if (Node.isPropertyAssignment(node)) {
+		keys.unshift(getTypeIndexing(node.getName()));
+	} else if (Node.isCallExpression(node) && isMapFunction(node)) {
+		keys.unshift("[number]");
+	} else if (Node.isFunctionDeclaration(node)) {
 		const returnType = node.getReturnTypeNode();
 		if (returnType) keys.unshift(returnType.getText());
 		else keys.length = 0;
 		return;
-	} else if(Node.isPropertyAssignment(node)) {
-		keys.unshift(getTypeIndexing(node.getName()));
-	} else if (Node.isCallExpression(node) && isMapFunction(node)) {
-		keys.unshift("[number]");
-	} else if (Node.isVariableDeclaration(node)){
+	} else if (Node.isVariableDeclaration(node)) {
 		const varType = node.getTypeNode();
 		if (varType) keys.unshift(varType.getText());
 		else keys.length = 0;
@@ -625,9 +642,9 @@ function getTargetTypeIndicesFromNode(node: Node, keys: string[]) {
 	do {
 		node = node.getParent();
 	} while (node && !(
-		Node.isFunctionDeclaration(node) ||
 		Node.isPropertyAssignment(node) ||
 		(Node.isCallExpression(node) && isMapFunction(node)) ||
+		Node.isFunctionDeclaration(node) ||
 		Node.isVariableDeclaration(node)
 	));
 	
@@ -647,23 +664,6 @@ function genTargetTypeAnnotation(targetPort: InputOutputPortModel){
 	return keys.join("") || "any";
 }
 
-export async function mapUsingCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, context: IDataMapperContext, isValueModifiable: boolean) {
-	
-	// return;
-	const inputAccessExpr = buildInputAccessExpr(sourcePort.fieldFQN);
-	const sourceFile = context.functionST.getSourceFile();
-	const customFunction = genCustomFunction(sourcePort, targetPort, sourceFile);
-	const customFunctionDeclaration = sourceFile.addFunction(customFunction);
-	const range = getEditorLineAndColumn(customFunctionDeclaration);
-	const customFunctionCallExpr = `${customFunction.name}(${inputAccessExpr})`;
-
-	if (isValueModifiable) {
-		await updateExistingValue(sourcePort, targetPort, customFunctionCallExpr);
-	} else {
-		await createSourceForMapping(sourcePort, targetPort, customFunctionCallExpr);
-	}
-	context.goToSource(range);
-}
 
 
 function genCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, sourceFile: SourceFile) {
