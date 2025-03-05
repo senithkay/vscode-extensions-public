@@ -23,12 +23,12 @@ export function ConnectorIcon(props: ConnectorIconProps): React.ReactElement {
 
     if (url && isValidUrl(url) && !imageError) {
         return (
-            <img src={url} alt={node.codedata.module} style={{ width: "24px" }} onError={() => setImageError(true)} />
+            <img src={url} style={{ width: "24px" }} onError={() => setImageError(true)} />
         );
     }
 
     const databaseClients = ["mysql", "postgres", "sqlite", "mssql", "oracle", "redis", "cassandra", "mongodb"];
-    if (node.metadata.icon && isValidUrl(node.metadata.icon) && !imageError) {
+    if (node?.metadata?.icon && isValidUrl(node.metadata.icon) && !imageError) {
         return (
             <img
                 src={node.metadata.icon}
@@ -43,10 +43,10 @@ export function ConnectorIcon(props: ConnectorIconProps): React.ReactElement {
         return <>{fallbackIcon}</>;
     }
 
-    if (databaseClients.includes(node.codedata.module)) {
+    if (node?.codedata?.module && databaseClients.includes(node.codedata.module)) {
         return <DatabaseIcon />;
     }
-    if (node.codedata.module === "http") {
+    if (node?.codedata?.module === "http") {
         return <HttpIcon />;
     }
 
