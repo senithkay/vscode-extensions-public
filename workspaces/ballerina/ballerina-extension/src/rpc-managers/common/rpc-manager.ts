@@ -37,6 +37,7 @@ import { ballerinaExtInstance } from "../../core";
 import { StateMachine } from "../../stateMachine";
 import { goToSource } from "../../utils";
 import { askFilePath, askProjectPath, getUpdatedSource } from "./utils";
+import path from 'path';
 
 export class CommonRpcManager implements CommonRPCAPI {
     async getTypeCompletions(): Promise<TypeResponse> {
@@ -182,7 +183,8 @@ export class CommonRpcManager implements CommonRPCAPI {
             const ballerinaHome = ballerinaExtInstance.getBallerinaHome();
             const devMode = ballerinaExtInstance.overrideBallerinaHome();
             if (devMode && ballerinaHome) {
-                params.command = `cd ${ballerinaHome}/bin/ && ${params.command}`;
+                const binPath = path.join(ballerinaHome, 'bin');
+                params.command = `cd "${binPath}" && ${params.command}`;
             }
         }
         console.log(">>> running command: ", params.command);
