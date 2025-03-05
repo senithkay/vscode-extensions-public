@@ -47,7 +47,7 @@ export const LabelContainer = styled.div({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
-    paddingBottom: '10px'
+    paddingBottom: '20px'
 });
 
 export const StyledButton = styled(Button)`
@@ -101,7 +101,8 @@ export function RecordConfigView(props: RecordConfigViewProps) {
             <SidePanelTitleContainer>
 
             <Typography sx={{
-                fontFamily: "GilmerRegular"
+                fontFamily: "GilmerRegular",
+                margin: "0px"
             }} > {`Construct ${recordTypeField.key} expression`}</Typography>
 
                
