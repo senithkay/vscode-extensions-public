@@ -14,9 +14,9 @@ import { getMediatorIconsFromFont } from '../../../resources/icons/mediatorIcons
 import { FirstCharToUpperCase } from '../../../utils/commons';
 import { sidepanelAddPage } from '..';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { GetMediatorsResponse, Mediator } from '@wso2-enterprise/mi-core';
-import { ButtonGroup, GridButton } from '../commons/ButtonGroup';
-import { DEFAULT_ICON, ERROR_MESSAGES } from '../../../resources/constants';
+import { GetMediatorsResponse, Mediator, MediatorCategory } from '@wso2-enterprise/mi-core';
+import { ButtonGrid, ButtonGroup, GridButton } from '../commons/ButtonGroup';
+import { Colors, DEFAULT_ICON, ERROR_MESSAGES } from '../../../resources/constants';
 import { MediatorPage } from './Mediator';
 import { ModuleSuggestions } from './ModuleSuggestions';
 import { Modules } from '../modules/ModulesList';
@@ -69,12 +69,26 @@ export function Mediators(props: MediatorProps) {
                 const isConnector = !INBUILT_MODULES.includes(key);
 
                 if (isConnector) {
-                    const iconPath = values.items[0].iconPath;
-                    const iconPathUri = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: iconPath, name: "icon-small" });
+                    if (values.isSupportCategories) {
+                        const items = values.items as unknown as MediatorCategory;
 
-                    values.items.forEach((value) => {
-                        value.iconPath = iconPathUri.uri;
-                    });
+                        Object.entries(items).forEach(([key, group]) => {
+                            const iconPath = (group[0] as Mediator).iconPath; // Get the iconPath from the first item
+                            rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: iconPath, name: "icon-small" }).then(iconPathUri => {
+                                group.forEach((mediator: Mediator) => {
+                                    mediator.iconPath = iconPathUri.uri; // Set the iconPath for each mediator
+                                });
+                            });
+                        });
+
+                    } else {
+                        const iconPath = (values.items[0] as Mediator).iconPath;
+                        const iconPathUri = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: iconPath, name: "icon-small" });
+
+                        values.items.forEach((value) => {
+                            value.iconPath = iconPathUri.uri;
+                        });
+                    }
                 }
 
                 if (key !== "other") {
@@ -213,6 +227,38 @@ export function Mediators(props: MediatorProps) {
         sidepanelAddPage(sidePanelContext, modulesList, 'Add Modules', icon);
     }
 
+    const MediatorGrid = ({ mediator, key }: { mediator: Mediator; key: string }) => {
+        return <Tooltip content={mediator?.tooltip} position='bottom' key={mediator.title}>
+            <GridButton
+                key={mediator.title}
+                title={mediator.title}
+                description={mediator.description}
+                icon={
+                    mediator.iconPath ?
+                        <img
+                            src={mediator.iconPath}
+                            alt="Icon"
+                            onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = DEFAULT_ICON;
+                            }}
+                        /> :
+                        getMediatorIconsFromFont(mediator.tag, key === "most popular")
+                }
+                onClick={() => getMediator(mediator, key === "most popular",
+                    <img
+                        src={mediator.iconPath}
+                        alt="Icon"
+                        onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = DEFAULT_ICON;
+                        }}
+                    />
+                )}
+            />
+        </Tooltip>
+    }
+
     const MediatorList = () => {
         let mediators: GetMediatorsResponse;
         if (props.searchValue) {
@@ -237,38 +283,36 @@ export function Mediators(props: MediatorProps) {
                                 { artifactId: values["artifactId"], version: values["version"], connectorPath: values["connectorPath"] }
                                 : undefined}
                             onDelete={deleteConnector}
-                            versionTag={values.version}>
-                            {values["items"].map((mediator: Mediator) => (
-                                <Tooltip content={mediator?.tooltip} position='bottom' key={mediator.title}>
-                                    <GridButton
-                                        key={mediator.title}
-                                        title={mediator.title}
-                                        description={mediator.description}
-                                        icon={
-                                            mediator.iconPath ?
-                                                <img 
-                                                    src={mediator.iconPath}
-                                                    alt="Icon"
-                                                    onError={(e) => {
-                                                        const target = e.target as HTMLImageElement;
-                                                        target.src = DEFAULT_ICON
-                                                    }} 
-                                                /> :
-                                                getMediatorIconsFromFont(mediator.tag, key === "most popular")
-                                        }
-                                        onClick={() => getMediator(mediator, key === "most popular",
-                                            <img 
-                                                src={mediator.iconPath}
-                                                alt="Icon"
-                                                onError={(e) => {
-                                                    const target = e.target as HTMLImageElement;
-                                                    target.src = DEFAULT_ICON
-                                                }} 
-                                            />
-                                        )}
-                                    />
-                                </Tooltip>
-                            ))}
+                            versionTag={values.version}
+                            disableGrid={values.isSupportCategories}>
+                            {!values.isSupportCategories ? (
+                                <>
+                                    {(values.items as Mediator[]).map((mediator: Mediator) => (
+                                        <MediatorGrid mediator={mediator} key={key} />
+                                    ))}
+                                </>
+                            ) : (
+                                <>
+                                    {Object.entries(values.items as unknown as MediatorCategory).map(([key, group]) => {
+                                        return (
+                                            <>
+                                                <div style={{
+                                                    padding: "10px 0px 0px 10px",
+                                                    color: Colors.SECONDARY_TEXT,
+                                                    fontSize: "11px"
+                                                }}>
+                                                    {key}
+                                                </div>
+                                                <ButtonGrid>
+                                                    {(group as Mediator[]).map((mediator: Mediator) => (
+                                                        <MediatorGrid mediator={mediator} key={key} />
+                                                    ))}
+                                                </ButtonGrid>
+                                            </>
+                                        )
+                                    })}
+                                </>
+                            )}
                         </ButtonGroup >
                     </div>
                 ))}
