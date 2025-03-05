@@ -663,16 +663,17 @@ export function AIChat() {
             // TODO: Handle this properly
             response = "";
         }
+        setIsLoading(false);
 
         const userMessage = getUserMessage([message, attachments]);
+        setMessages(prevMessages => {
+            const newMessage = [...prevMessages];
+            newMessage[newMessage.length -1].content = response;
+            return newMessage;
+        });
         addChatEntry("user", userMessage);
         addChatEntry("assistant", response);
-        setMessages(prevMessages => {
-            prevMessages.push({content: response, role: "assistant", type: "assistant_message"});
-            return prevMessages;
-        });
         setIsSyntaxError(false);
-        setIsLoading(false);
     }
 
     async function loadMentions(command: string, template: string): Promise<string[]> {
