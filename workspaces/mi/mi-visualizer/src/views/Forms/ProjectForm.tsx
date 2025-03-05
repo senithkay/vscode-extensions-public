@@ -49,11 +49,12 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
 
     const [supportedMIVersions, setSupportedMIVersions] = useState<OptionProps[]>([]);
 
+    const loweCasedDirContent = dirContent.map((folder: string) => folder.toLowerCase());
     const schema = yup.object({
-        name: yup.string().required("Project Name is required").matches(/^[a-zA-Z0-9_-]([a-zA-Z0-9_-]*\.?[a-zA-Z0-9_-])*$/, "Project name cannot contain spaces or special characters")
+        name: yup.string().required("Project Name is required").matches(/^[a-zA-Z0-9_-]([a-zA-Z0-9_-]*\.?[a-zA-Z0-9_-])*$/i, "Project name cannot contain spaces or special characters")
             .test('validateFolderName',
                 'A subfolder with same name already exists', value => {
-                    return !dirContent.includes(value)
+                    return !loweCasedDirContent.includes(value.toLowerCase())
                 }),
         directory: yup.string().required("Project Directory is required"),
         groupID: yup.string().notRequired().default("com.microintegrator.projects").matches(/^[a-zA-Z0-9_-]([a-zA-Z0-9_-]*\.?[a-zA-Z0-9_-])*$/, "Group id cannot contain spaces or special characters"),
