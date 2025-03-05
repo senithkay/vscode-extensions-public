@@ -160,8 +160,14 @@ type FormExpressionEditorBaseProps = {
     onSaveConfigurables?: (values: any) => void;
 }
 
+type SanitizedExpressionEditorProps = {
+    rawExpression?: (expression: string) => string; // original expression
+    sanitizedExpression?: (expression: string) => string; // sanitized expression that will be rendered in the editor
+}
+
 export type FormExpressionEditorProps =
     FormCompletionConditionalProps &
     FormTypeConditionalProps &
     FormHelperPaneConditionalProps &
-    FormExpressionEditorBaseProps;
+    FormExpressionEditorBaseProps &
+    SanitizedExpressionEditorProps;
