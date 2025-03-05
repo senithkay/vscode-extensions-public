@@ -14,6 +14,7 @@ import { StateMachine } from "../../stateMachine";
 import { getLLMDiagnostics } from "./utils";
 import { NLCodeActionProvider, showTextOptions } from './nl-code-action-provider';
 import { BallerinaExtension } from 'src/core';
+import { PROGRESS_BAR_MESSAGE, WARNING_MESSAGE, WARNING_MESSAGE_DEFAULT } from './constants';
 
 let diagnosticCollection: vscode.DiagnosticCollection;
 
@@ -29,11 +30,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         if (!ballerinaExtInstance.context || projectPath == null || projectPath == "") {
             return;
         }
-
-        // Set up debounced diagnostics and event listeners
-        const debouncedGetLLMDiagnostics = debounce(async () => {
-            await getLLMDiagnostics(projectPath, diagnosticCollection);
-        }, 2000);
 
         vscode.workspace.onDidChangeTextDocument(async event => {
             debouncedGetLLMDiagnostics();
@@ -61,12 +57,35 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         await vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
-                title: "Checking the drift between code and documentation...",
+                title: PROGRESS_BAR_MESSAGE,
                 cancellable: false,
             },
             async () => {
-                await getLLMDiagnostics(projectPath, diagnosticCollection);
+                const result: number|null = await getLLMDiagnostics(projectPath, diagnosticCollection);
+                if (result == null) {
+                    return
+                }
+
+                if (result > 400 && result < 500) {
+                    vscode.window.showWarningMessage(WARNING_MESSAGE);
+                    return;
+                }
+                vscode.window.showWarningMessage(WARNING_MESSAGE_DEFAULT);
             }
         );
     });
+
+    // Set up debounced diagnostics and event listeners
+    const debouncedGetLLMDiagnostics = debounce(async () => {
+        const result: number|null = await getLLMDiagnostics(projectPath, diagnosticCollection);
+        if (result == null) {
+            return
+        }
+
+        if (result > 400 && result < 500) {
+            vscode.window.showWarningMessage(WARNING_MESSAGE);
+            return;
+        }
+        vscode.window.showWarningMessage(WARNING_MESSAGE_DEFAULT);
+    }, 2000);
 }

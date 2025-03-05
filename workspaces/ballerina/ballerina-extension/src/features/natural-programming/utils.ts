@@ -22,10 +22,11 @@ import {
     REQUIREMENT_DOC_PREFIX, REQUIREMENT_TEXT_DOCUMENT, REQUIREMENT_MD_DOCUMENT,
     README_FILE_NAME_LOWERCASE, DIAGNOSTIC_ID
 } from "./constants";
+import { isNumber } from 'lodash';
 
 let controller = new AbortController();
 
-export async function getLLMDiagnostics(projectUri: string, diagnosticCollection: vscode.DiagnosticCollection) {
+export async function getLLMDiagnostics(projectUri: string, diagnosticCollection: vscode.DiagnosticCollection): Promise<number|null> {
     const sources = await getBallerinaSourceFiles(projectUri);
     const backendurl = await getBackendURL();
     const token = await getAccessToken();
@@ -33,13 +34,17 @@ export async function getLLMDiagnostics(projectUri: string, diagnosticCollection
     const responses = await getLLMResponses(sources, token, backendurl);
 
     if (responses == null) {
-        return [];
+        return;
+    }
+
+    if (isNumber(responses)) {
+        return responses;
     }
 
     await createDiagnosticCollection(responses, projectUri, diagnosticCollection);
 }
 
-async function getLLMResponses(sources: { balFiles: string; readme: string; requirements: string; developerOverview: string; }, token: string, backendurl: string): Promise<any[]> {
+async function getLLMResponses(sources: { balFiles: string; readme: string; requirements: string; developerOverview: string; }, token: string, backendurl: string): Promise<any[]|number> {
     const commentResponsePromise = fetchWithToken(
         backendurl + API_DOCS_DRIFT_CHECK_ENDPOINT,
         {
@@ -67,6 +72,14 @@ async function getLLMResponses(sources: { balFiles: string; readme: string; requ
     );
 
     const [commentResponse, documentationSourceResponse] = await Promise.all([commentResponsePromise, documentationSourceResponsePromise]);
+    
+    if (!commentResponse.ok) {
+        return commentResponse.status;
+    }
+
+    if (!documentationSourceResponse.ok) {
+        return documentationSourceResponse.status;
+    }
 
     const extractedcommentResponse = extractResponseAsJsonFromString(await streamToString(commentResponse.body));
     const extracteddocumentationSourceResponse = extractResponseAsJsonFromString(await streamToString(documentationSourceResponse.body));
@@ -168,12 +181,16 @@ async function createDiagnostic(result: ResultItem, uri: Uri): Promise<CustomDia
     return diagnostic;
 }
 
-export async function getLLMDiagnosticArrayAsString(projectUri: string): Promise<string> {
+export async function getLLMDiagnosticArrayAsString(projectUri: string): Promise<string|number> {
     const sources = await getBallerinaSourceFiles(projectUri);
     const backendurl = await getBackendURL();
     const token = await getAccessToken();
 
     const responses = await getLLMResponses(sources, token, backendurl);
+
+    if (isNumber(responses)) {
+        return responses;
+    }
 
     if (responses == null) {
         return "";

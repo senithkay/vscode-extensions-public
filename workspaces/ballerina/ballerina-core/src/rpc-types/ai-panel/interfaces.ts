@@ -190,3 +190,8 @@ export interface DocAssistantResponse {
     content: string;
     references: string[];
 }
+
+export interface LLMDiagnostics {
+    statusCode: number;
+    diags: string;
+}

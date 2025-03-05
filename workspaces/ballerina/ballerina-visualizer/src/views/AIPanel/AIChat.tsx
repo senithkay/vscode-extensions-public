@@ -20,6 +20,7 @@ import {
     DataMappingRecord,
     PostProcessResponse,
     TestGenerationTarget,
+    LLMDiagnostics,
 } from "@wso2-enterprise/ballerina-core";
 
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -656,23 +657,36 @@ export function AIChat() {
     async function processLLMDiagnostics(token: string, content: [string, AttachmentResult[], string], message: string) {
         const [useCase, attachments, operationType] = content;
 
-        let response =  rpcClient == null ? "" : 
+        let response: LLMDiagnostics =  rpcClient == null ? {statusCode: null, diags: ""} : 
             await rpcClient.getAiPanelRpcClient().getDriftDiagnosticContents(chatLocation);
 
         if (response == null) {
             // TODO: Handle this properly
-            response = "";
+            response = {statusCode: null, diags: ""};
         }
+
+        const responseStatus = response.statusCode;
+
+        if (responseStatus < 200 && responseStatus >= 300) {
+            if (responseStatus > 400 && responseStatus < 500) {
+                await rpcClient.getAiPanelRpcClient().promptLogin();
+                setIsLoading(false);
+                return;
+            }
+
+            throw new Error(`Failed to check drift between code and documentation. Please try again.`);
+        }
+
         setIsLoading(false);
 
         const userMessage = getUserMessage([message, attachments]);
         setMessages(prevMessages => {
             const newMessage = [...prevMessages];
-            newMessage[newMessage.length -1].content = response;
+            newMessage[newMessage.length -1].content = response.diags;
             return newMessage;
         });
         addChatEntry("user", userMessage);
-        addChatEntry("assistant", response);
+        addChatEntry("assistant", response.diags);
         setIsSyntaxError(false);
     }
 
@@ -934,10 +948,8 @@ export function AIChat() {
         }
 
         const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
-        const developerMdContentWithTimeStamp = 
+        const developerMdContent = 
                     await rpcClient.getAiPanelRpcClient().readDeveloperMdFile(chatLocation);
-        const developerMdContent = developerMdContentWithTimeStamp
-            .replace(/Last updated at - \d{2}\/\d{2}\/\d{4}, \d{2}:\d{2}:\d{2}/, '');
         const response = await fetchWithToken(
             backendRootUri + "/prompt/summarize",
             {

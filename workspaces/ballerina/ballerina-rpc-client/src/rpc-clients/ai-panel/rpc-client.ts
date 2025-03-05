@@ -82,7 +82,8 @@ import {
     stopAIMappings,
     updateDevelopmentDocument,
     updateProject,
-    updateRequirementSpecification
+    updateRequirementSpecification,
+    LLMDiagnostics
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -270,7 +271,7 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(isRequirementsSpecificationFileExist, HOST_EXTENSION, filePath);
     }
 
-    getDriftDiagnosticContents(projectPath: string): Promise<string> {
+    getDriftDiagnosticContents(projectPath: string): Promise<LLMDiagnostics> {
         return this._messenger.sendRequest(getDriftDiagnosticContents, HOST_EXTENSION, projectPath);
     }
 

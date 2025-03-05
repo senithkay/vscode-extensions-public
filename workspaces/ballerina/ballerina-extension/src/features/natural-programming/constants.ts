@@ -20,3 +20,6 @@ export const REQUIREMENT_MD_DOCUMENT = `${REQUIREMENT_DOC_PREFIX}md`;
 export const README_FILE_NAME_LOWERCASE = "readme.md";
 export const COMMAND_SHOW_TEXT = "extension.showTextOptions";
 export const DIAGNOSTIC_ID = "NLE001";
+export const PROGRESS_BAR_MESSAGE = "Checking the drift between code and documentation...";
+export const WARNING_MESSAGE = "You need to sign up for Ballerina Copilot to detect drift between code and documentation.";
+export const WARNING_MESSAGE_DEFAULT = "Failed to detect drift between code and documentation. Please try again";

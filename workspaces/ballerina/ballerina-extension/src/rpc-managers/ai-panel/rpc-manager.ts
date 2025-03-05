@@ -31,6 +31,7 @@ import {
     GenerateTypesFromRecordResponse,
     GetFromFileRequest,
     InitialPrompt,
+    LLMDiagnostics,
     NOT_SUPPORTED_TYPE,
     NotifyAIMappingsRequest,
     PostProcessRequest,
@@ -59,7 +60,6 @@ import { extension } from "../../BalExtensionContext";
 import { NOT_SUPPORTED } from "../../core";
 import { generateDataMapping, generateTypeCreation } from "../../features/ai/dataMapping";
 import { generateTest, getDiagnostics, getResourceAccessorDef, getResourceAccessorNames, getServiceDeclaration, getServiceDeclarationNames } from "../../features/ai/testGenerator";
-import { getLLMDiagnosticArrayAsString } from "../../features/natural-programming/utils";
 import { StateMachine, updateView } from "../../stateMachine";
 import { loginGithubCopilot } from "../../utils/ai/auth";
 import { modifyFileContent, writeBallerinaFileDidOpen } from "../../utils/modification";
@@ -73,6 +73,8 @@ import {
 } from "./constants";
 import { getFunction, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, processMappings, refreshAccessToken, requirementsSpecification, searchDocumentation } from "./utils";
 import { fetchData } from "./utils/fetch-data-utils";
+import { getLLMDiagnosticArrayAsString } from "../../features/natural-programming/utils";
+import { isNumber } from "lodash";
 
 export let hasStopped: boolean = false;
 const DEVELOPEMENT_DOCUMENT_PATH = "developer.md";
@@ -752,10 +754,6 @@ export class AiPanelRpcManager implements AIPanelAPI {
         const files = fs.readdirSync(dirPath);
         return Promise.resolve(files.some(file => file.toLowerCase().startsWith(REQUIREMENT_DOC_PREFIX)));
     }
-
-    async getDriftDiagnosticContents(projectPath: string): Promise<string> {
-        return getLLMDiagnosticArrayAsString(projectPath);
-    }
     
     async addChatSummary(filepathAndSummary: AIChatSummary): Promise<void> {
         const filepath = filepathAndSummary.filepath;
@@ -763,12 +761,6 @@ export class AiPanelRpcManager implements AIPanelAPI {
 
         const summaryJson: SummaryResponse = JSON.parse(summaryResponse);
         let summary = summaryJson.summary;
-
-        // Added last updated time into the summary
-        const currentDate = new Date();
-        const formattedDate = currentDate.toLocaleDateString();
-        const formattedTime = currentDate.toLocaleTimeString();
-        summary = `${summary}\nLast updated at - ${formattedDate}, ${formattedTime}\n`;
 
         const naturalProgrammingDirectory = path.join(filepath, NATURAL_PROGRAMMING_DIR_PATH);
 
@@ -811,6 +803,21 @@ export class AiPanelRpcManager implements AIPanelAPI {
 
         // Write the requirements to the 'requirements.txt' file
         fs.writeFileSync(requirementsFilePath, requirementsSpecification.content, 'utf8');
+    }
+
+    async getDriftDiagnosticContents(projectPath: string): Promise<LLMDiagnostics> {
+        const response = await getLLMDiagnosticArrayAsString(projectPath)
+        if (isNumber(response)) {
+            return {
+                statusCode: response,
+                diags: null
+            }
+        }
+
+        return {
+            statusCode: null,
+            diags: response
+        }
     }
 }
 
