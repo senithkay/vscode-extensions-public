@@ -125,6 +125,9 @@ export async function getParamDefinitions(
         }
 
         if ('types' in inputTypeDefinition && !inputTypeDefinition.types[0].hasOwnProperty('type')) {
+            if (parameter.typeName.kind === "QualifiedNameReference") {
+                throw new Error(`"${parameter.typeName["identifier"].value}" does not exist in the package "${parameter.typeName["modulePrefix"].value}". Please verify the record name or ensure that the correct package is imported.`);
+            } 
             return INVALID_PARAMETER_TYPE;
         }
 
@@ -249,6 +252,9 @@ export async function getParamDefinitions(
     });
 
     if ('types' in outputTypeDefinition && !outputTypeDefinition.types[0].hasOwnProperty('type')) {
+        if (returnType.kind === "QualifiedNameReference") {
+            throw new Error(`"${returnType["identifier"].value}" does not exist in the package "${returnType["modulePrefix"].value}". Please verify the record name or ensure that the correct package is imported.`);
+        } 
         return INVALID_PARAMETER_TYPE;
     }
 
