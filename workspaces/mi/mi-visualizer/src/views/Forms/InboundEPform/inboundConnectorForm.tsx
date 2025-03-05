@@ -217,11 +217,16 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
     const handleCreateInboundConnector = async (values: any) => {
         const attributeNames = getGenericAttributeNames(formData);
 
-        if (props.model && values.generateSequences) {
-            values.sequence = props.model.sequence;
-            values.onError = props.model.onError;
+        if (values.generateSequences) {
+            if (props.model) {
+                values.sequence = props.model.sequence;
+                values.onError = props.model.onError;
+            }
+        } else {
+            values.sequence = values.sequence.value;
+            values.onError = values.onError.value;
         }
-        
+
         const { attrFields, paramFields } = extractProperties(values, attributeNames);
 
         // Transform the keys of the rest object
