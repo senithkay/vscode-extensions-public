@@ -68,9 +68,9 @@ export type Metadata = {
     draft?: boolean; // for diagram draft nodes
     data?: {
         isDataMappedFunction?: boolean;
+        tools?: { [key: string]: string }; // for agent call
+        model?: string; // for agent call
     }
-    tools?: string[]; // for agent call
-    model?: string; // for agent call
 };
 
 export type Property = {
