@@ -23,6 +23,9 @@ export default function UnionType(props: TypeProps) {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
 
     const requiredParam = isRequiredParam(param);
+    if (requiredParam) {
+        param.selected = true;
+    }
     const memberTypes = param.members?.map((field, index) => ({ id: index.toString(), value: getUnionParamName(field) }));
     const initSelectedMember = getSelectedUnionMember(param);
 

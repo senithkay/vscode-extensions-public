@@ -22,6 +22,9 @@ export default function InclusionType(props: TypeProps) {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const requiredParam = isRequiredParam(param);
     const isAllIncludedParamDefaultable = isAllDefaultableFields(param.inclusionType?.fields);
+    if (requiredParam && !isAllIncludedParamDefaultable) {
+        param.selected = true;
+    }
 
     const [paramSelected, setParamSelected] = useState(
         param.selected || (requiredParam && !isAllIncludedParamDefaultable)

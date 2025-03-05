@@ -25,6 +25,7 @@ import { FormField, FormExpressionEditorProps } from '../Form/types';
 import { useFormContext } from '../../context';
 import {
     LineRange,
+    RecordTypeField,
     SubPanel,
     SubPanelView,
     SubPanelViewProps
@@ -37,6 +38,7 @@ type ContextAwareExpressionEditorProps = {
     handleOnFieldFocus?: (key: string) => void;
     autoFocus?: boolean;
     visualizable?: boolean;
+    recordTypeField?: RecordTypeField;
 };
 
 type ExpressionEditorProps = ContextAwareExpressionEditorProps &
@@ -173,7 +175,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         targetLineRange,
         fileName,
         visualizable,
-        helperPaneOrigin
+        helperPaneOrigin,
+        recordTypeField
     } = props as ExpressionEditorProps;
     const [focused, setFocused] = useState<boolean>(false);
 
@@ -273,6 +276,24 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         }
     };
 
+    const handleRecordTypeOpen = (isUpdate: boolean) => {
+        if (subPanelView === SubPanelView.HELPER_PANEL && !isUpdate) {
+            openSubPanel({ view: SubPanelView.UNDEFINED });
+        } else {
+            handleOpenSubPanel(SubPanelView.HELPER_PANEL, {
+                sidePanelData: {
+                    filePath: effectiveFileName,
+                    range: effectiveTargetLineRange,
+                    editorKey: field.key,
+                    recordField: recordTypeField
+                }
+
+
+            });
+            handleOnFieldFocus?.(field.key);
+        }
+    };
+
     const handleChangeHelperPaneState = (isOpen: boolean) => {
         setIsHelperPaneOpen(isOpen);
     };
@@ -284,6 +305,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
     const updateSubPanelData = (value: string) => {
         if (subPanelView === SubPanelView.INLINE_DATA_MAPPER) {
             handleInlineDataMapperOpen(true);
+        } else if (subPanelView === SubPanelView.HELPER_PANEL) {
+            handleRecordTypeOpen(true);
         }
     };
 
@@ -297,6 +320,11 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         visualizable && (
             <Button appearance="icon" onClick={() => handleInlineDataMapperOpen(false)}>
                 <S.DataMapperBtnTxt>Map Data Inline</S.DataMapperBtnTxt>
+            </Button>
+        ),
+        recordTypeField && (
+            <Button appearance="icon" onClick={() => handleRecordTypeOpen(false)}>
+                <S.DataMapperBtnTxt>Construct Record</S.DataMapperBtnTxt>
             </Button>
         )
     ];

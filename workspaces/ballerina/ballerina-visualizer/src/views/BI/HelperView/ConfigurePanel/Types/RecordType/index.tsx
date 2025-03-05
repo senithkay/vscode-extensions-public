@@ -21,6 +21,9 @@ export default function RecordType(props: TypeProps) {
     const { param, depth, onChange } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const requiredParam = isRequiredParam(param);
+    if (requiredParam) {
+        param.selected = true;
+    }
 
     const [paramSelected, setParamSelected] = useState(param.selected || requiredParam);
 
