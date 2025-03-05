@@ -1910,8 +1910,9 @@ export interface GetMediatorsRequest {
 
 export interface GetMediatorsResponse {
     [key: string]: { 
-        items: Mediator[],
+        items: Mediator[] | MediatorCategory[],
         isConnector?: boolean;
+        isSupportCategories?: boolean;
         artifactId?: string;
         version?: string;
         connectorPath?: string;
@@ -1927,6 +1928,10 @@ export interface Mediator {
     operationName?: string;
     iconPath?: string;
     tooltip?: string;
+}
+
+export interface MediatorCategory {
+    [key: string]: Mediator[];
 }
 
 export interface GetMediatorRequest {
