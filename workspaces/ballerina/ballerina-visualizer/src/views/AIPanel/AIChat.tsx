@@ -719,7 +719,7 @@ export function AIChat() {
         const [useCase, attachments, operationType] = content;
 
         let assistant_response = "";
-        const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource();
+        const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource(operationType);
         const requestBody: any = {
             usecase: useCase,
             chatHistory: chatArray,
@@ -831,6 +831,7 @@ export function AIChat() {
                                 sourceFiles: project.sourceFiles,
                                 diagnosticRequest: diagReq,
                                 functions: functions,
+                                operationType
                             }),
                             signal: signal,
                         },

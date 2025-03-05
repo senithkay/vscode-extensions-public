@@ -63,7 +63,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             async () => {
                 const result: number|null = await getLLMDiagnostics(projectPath, diagnosticCollection);
                 if (result == null) {
-                    return
+                    return;
                 }
 
                 if (result > 400 && result < 500) {
@@ -79,7 +79,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     const debouncedGetLLMDiagnostics = debounce(async () => {
         const result: number|null = await getLLMDiagnostics(projectPath, diagnosticCollection);
         if (result == null) {
-            return
+            return;
         }
 
         if (result > 400 && result < 500) {

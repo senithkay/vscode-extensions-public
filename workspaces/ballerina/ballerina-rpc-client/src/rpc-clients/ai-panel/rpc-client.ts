@@ -25,6 +25,7 @@ import {
     GenerateTypesFromRecordResponse,
     GetFromFileRequest,
     InitialPrompt,
+    LLMDiagnostics,
     NotifyAIMappingsRequest,
     PostProcessRequest,
     PostProcessResponse,
@@ -82,8 +83,7 @@ import {
     stopAIMappings,
     updateDevelopmentDocument,
     updateProject,
-    updateRequirementSpecification,
-    LLMDiagnostics
+    updateRequirementSpecification
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -167,8 +167,8 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(promptLogin, HOST_EXTENSION);
     }
 
-    getProjectSource(): Promise<ProjectSource> {
-        return this._messenger.sendRequest(getProjectSource, HOST_EXTENSION);
+    getProjectSource(requestType: string): Promise<ProjectSource> {
+        return this._messenger.sendRequest(getProjectSource, HOST_EXTENSION, requestType);
     }
 
     getShadowDiagnostics(project: ProjectSource): Promise<ProjectDiagnostics> {

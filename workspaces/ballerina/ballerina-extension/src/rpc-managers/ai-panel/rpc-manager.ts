@@ -55,17 +55,20 @@ import path from "path";
 import { Uri, window, workspace } from 'vscode';
 
 import { writeFileSync } from "fs";
+import { isNumber } from "lodash";
 import { getPluginConfig } from "../../../src/utils";
 import { extension } from "../../BalExtensionContext";
 import { NOT_SUPPORTED } from "../../core";
 import { generateDataMapping, generateTypeCreation } from "../../features/ai/dataMapping";
 import { generateTest, getDiagnostics, getResourceAccessorDef, getResourceAccessorNames, getServiceDeclaration, getServiceDeclarationNames } from "../../features/ai/testGenerator";
+import { getLLMDiagnosticArrayAsString } from "../../features/natural-programming/utils";
 import { StateMachine, updateView } from "../../stateMachine";
 import { loginGithubCopilot } from "../../utils/ai/auth";
 import { modifyFileContent, writeBallerinaFileDidOpen } from "../../utils/modification";
 import { StateMachineAI } from '../../views/ai-panel/aiMachine';
 import { MODIFIYING_ERROR, PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
 import {
+    DEVELOPMENT_DOCUMENT,
     NATURAL_PROGRAMMING_DIR_NAME, REQUIREMENT_DOC_PREFIX,
     REQUIREMENT_MD_DOCUMENT,
     REQUIREMENT_TEXT_DOCUMENT,
@@ -73,12 +76,8 @@ import {
 } from "./constants";
 import { getFunction, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, processMappings, refreshAccessToken, requirementsSpecification, searchDocumentation } from "./utils";
 import { fetchData } from "./utils/fetch-data-utils";
-import { getLLMDiagnosticArrayAsString } from "../../features/natural-programming/utils";
-import { isNumber } from "lodash";
 
 export let hasStopped: boolean = false;
-const DEVELOPEMENT_DOCUMENT_PATH = "developer.md";
-const NATURAL_PROGRAMMING_DIR_PATH = "natural-programming";
 
 export class AiPanelRpcManager implements AIPanelAPI {
     async getBackendURL(): Promise<string> {
@@ -371,9 +370,9 @@ export class AiPanelRpcManager implements AIPanelAPI {
         return true;
     }
 
-    async getProjectSource(): Promise<ProjectSource> {
+    async getProjectSource(requestType: string): Promise<ProjectSource> {
         // Fetch the Ballerina project source
-        const project: BallerinaProject = await getCurrentProjectSource();
+        const project: BallerinaProject = await getCurrentProjectSource(requestType);
 
         // Initialize the ProjectSource object
         const projectSource: ProjectSource = {
@@ -762,18 +761,18 @@ export class AiPanelRpcManager implements AIPanelAPI {
         const summaryJson: SummaryResponse = JSON.parse(summaryResponse);
         let summary = summaryJson.summary;
 
-        const naturalProgrammingDirectory = path.join(filepath, NATURAL_PROGRAMMING_DIR_PATH);
+        const naturalProgrammingDirectory = path.join(filepath, NATURAL_PROGRAMMING_DIR_NAME);
 
         if (!fs.existsSync(naturalProgrammingDirectory)) {
             fs.mkdirSync(naturalProgrammingDirectory, { recursive: true }); // Add recursive: true
         }
 
-        const developerMdPath = path.join(naturalProgrammingDirectory, DEVELOPEMENT_DOCUMENT_PATH);
+        const developerMdPath = path.join(naturalProgrammingDirectory, DEVELOPMENT_DOCUMENT);
         fs.writeFileSync(developerMdPath, summary, 'utf8');
     }
 
     async readDeveloperMdFile(directoryPath: string): Promise<string> {
-        const developerMdPath = path.join(directoryPath, NATURAL_PROGRAMMING_DIR_PATH, DEVELOPEMENT_DOCUMENT_PATH);
+        const developerMdPath = path.join(directoryPath, NATURAL_PROGRAMMING_DIR_NAME, DEVELOPMENT_DOCUMENT);
         if (!fs.existsSync(developerMdPath)) {
             return "";
         }
@@ -786,7 +785,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
         const projectPath = developerDocument.filepath;
         const content = developerDocument.content;
 
-        const developerMdPath = path.join(projectPath, NATURAL_PROGRAMMING_DIR_PATH, DEVELOPEMENT_DOCUMENT_PATH);
+        const developerMdPath = path.join(projectPath, NATURAL_PROGRAMMING_DIR_NAME, DEVELOPMENT_DOCUMENT);
         if (fs.existsSync(developerMdPath)) {
             fs.writeFileSync(developerMdPath, content, 'utf8');
         }
@@ -806,18 +805,18 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async getDriftDiagnosticContents(projectPath: string): Promise<LLMDiagnostics> {
-        const response = await getLLMDiagnosticArrayAsString(projectPath)
+        const response = await getLLMDiagnosticArrayAsString(projectPath);
         if (isNumber(response)) {
             return {
                 statusCode: response,
                 diags: null
-            }
+            };
         }
 
         return {
             statusCode: null,
             diags: response
-        }
+        };
     }
 }
 
@@ -1087,7 +1086,13 @@ interface BallerinaModule {
     sources: { [key: string]: string };
 }
 
-async function getCurrentProjectSource(): Promise<BallerinaProject> {
+enum CodeGenerationType {
+    CODE_FOR_USER_REQUIREMENT = "CODE_FOR_USER_REQUIREMENT",
+    TESTS_FOR_USER_REQUIREMENT = "TESTS_FOR_USER_REQUIREMENT",
+    CODE_GENERATION = "CODE_GENERATION"
+}
+
+async function getCurrentProjectSource(requestType: string): Promise<BallerinaProject> {
     const projectRoot = await getBallerinaProjectRoot();
 
     if (!projectRoot) {
@@ -1108,24 +1113,23 @@ async function getCurrentProjectSource(): Promise<BallerinaProject> {
         }
     }
 
-    const naturalProgrammingDirectory = projectRoot + `/${NATURAL_PROGRAMMING_DIR_NAME}`;
-    if (fs.existsSync(naturalProgrammingDirectory)) {
-        const reqFiles = fs.readdirSync(naturalProgrammingDirectory);
-        for (const file of reqFiles) {
-            const filePath = path.join(projectRoot, `${NATURAL_PROGRAMMING_DIR_NAME}`, file);
-            if (file.toLowerCase() == REQUIREMENT_TEXT_DOCUMENT || file.toLowerCase() == REQUIREMENT_MD_DOCUMENT) {
-                project.sources[REQ_KEY] = await fs.promises.readFile(filePath, 'utf-8');
-                continue;
-            } else if (file.toLowerCase().startsWith(REQUIREMENT_DOC_PREFIX)) {
-                const requirements = await requirementsSpecification(filePath);
-                if (!isErrorCode(requirements)) {
-                    project.sources[REQ_KEY] = requirements.toString();
+    if (requestType != CodeGenerationType.CODE_GENERATION) {
+        const naturalProgrammingDirectory = projectRoot + `/${NATURAL_PROGRAMMING_DIR_NAME}`;
+        if (fs.existsSync(naturalProgrammingDirectory)) {
+            const reqFiles = fs.readdirSync(naturalProgrammingDirectory);
+            for (const file of reqFiles) {
+                const filePath = path.join(projectRoot, `${NATURAL_PROGRAMMING_DIR_NAME}`, file);
+                if (file.toLowerCase() == REQUIREMENT_TEXT_DOCUMENT || file.toLowerCase() == REQUIREMENT_MD_DOCUMENT) {
+                    project.sources[REQ_KEY] = await fs.promises.readFile(filePath, 'utf-8');
                     continue;
+                } else if (file.toLowerCase().startsWith(REQUIREMENT_DOC_PREFIX)) {
+                    const requirements = await requirementsSpecification(filePath);
+                    if (!isErrorCode(requirements)) {
+                        project.sources[REQ_KEY] = requirements.toString();
+                        continue;
+                    }
+                    project.sources[REQ_KEY] = "";
                 }
-
-                // TODO: Handle this properly.
-                project.sources[REQ_KEY] = "";
-                // throw UNKNOWN_ERROR;
             }
         }
     }

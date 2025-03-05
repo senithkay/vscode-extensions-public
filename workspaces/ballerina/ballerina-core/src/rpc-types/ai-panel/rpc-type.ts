@@ -30,7 +30,7 @@ export const generateMappings: RequestType<GenerateMappingsRequest, GenerateMapp
 export const notifyAIMappings: RequestType<NotifyAIMappingsRequest, boolean> = { method: `${_preFix}/notifyAIMappings` };
 export const stopAIMappings: RequestType<void, GenerateMappingsResponse> = { method: `${_preFix}/stopAIMappings` };
 export const promptLogin: RequestType<void, boolean> = { method: `${_preFix}/promptLogin` };
-export const getProjectSource: RequestType<void, ProjectSource> = { method: `${_preFix}/getProjectSource` };
+export const getProjectSource: RequestType<string, ProjectSource> = { method: `${_preFix}/getProjectSource` };
 export const getShadowDiagnostics: RequestType<ProjectSource, ProjectDiagnostics> = { method: `${_preFix}/getShadowDiagnostics` };
 export const checkSyntaxError: RequestType<ProjectSource, boolean> = { method: `${_preFix}/checkSyntaxError` };
 export const getInitialPrompt: RequestType<void, InitialPrompt> = { method: `${_preFix}/getInitialPrompt` };
