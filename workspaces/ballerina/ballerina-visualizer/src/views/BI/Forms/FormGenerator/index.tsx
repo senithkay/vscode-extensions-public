@@ -40,7 +40,7 @@ import {
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { RecordEditor } from "../../../RecordEditor/RecordEditor";
 import IfForm from "../IfForm";
-import { CompletionItem, FormExpressionEditorRef } from "@wso2-enterprise/ui-toolkit";
+import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight } from "@wso2-enterprise/ui-toolkit";
 import { cloneDeep, debounce } from "lodash";
 import {
     createNodeWithUpdatedLineRange,
@@ -455,19 +455,23 @@ export function FormGenerator(props: FormProps) {
 
     const handleGetHelperPane = (
         exprRef: RefObject<FormExpressionEditorRef>,
+        anchorRef: RefObject<HTMLDivElement>,
         defaultValue: string,
         value: string,
         onChange: (value: string, updatedCursorPosition: number) => void,
-        changeHelperPaneState: (isOpen: boolean) => void
+        changeHelperPaneState: (isOpen: boolean) => void,
+        helperPaneHeight: HelperPaneHeight
     ) => {
         return getHelperPane({
             fileName: fileName,
             targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
             exprRef: exprRef,
+            anchorRef: anchorRef,
             onClose: () => changeHelperPaneState(false),
             defaultValue: defaultValue,
             currentValue: value,
-            onChange: onChange
+            onChange: onChange,
+            helperPaneHeight: helperPaneHeight
         });
     }
 
@@ -484,7 +488,8 @@ export function FormGenerator(props: FormProps) {
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
             onCancel: handleExpressionEditorCancel,
-            helperPaneOrigin: "left"
+            helperPaneOrigin: "left",
+            helperPaneHeight: "full"
         } as FormExpressionEditorProps;
     }, [
         filteredCompletions,
