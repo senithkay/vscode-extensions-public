@@ -669,7 +669,6 @@ export class NodeFactoryVisitor implements Visitor {
                 if (toolsList?.length > 0) {
                     for (let i = 0; i < toolsList.length; i++) {
                         const toolNode = toolsList[i];
-                        toolNode.viewState.id = `${node.viewState.id}_${toolNode.tag}_${i}`;
                         this.createNodeAndLinks({ node: toolNode, name: toolNode.mediator.connectorName, type: NodeTypes.CONNECTOR_NODE, dontLink: true });
                     };
                 }

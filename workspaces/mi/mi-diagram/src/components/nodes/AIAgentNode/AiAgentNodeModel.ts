@@ -13,7 +13,7 @@ import { BaseNodeModel } from "../BaseNodeModel";
 
 export class AiAgentNodeModel extends BaseNodeModel {
     readonly nodeWidth = NODE_DIMENSIONS.AI_AGENT.WIDTH;
-    readonly nodeHeight = NODE_DIMENSIONS.AI_AGENT.HEIGHT;
+    readonly nodeHeight = NODE_DIMENSIONS.DEFAULT.HEIGHT;
 
     constructor(
         stNode: STNode,
