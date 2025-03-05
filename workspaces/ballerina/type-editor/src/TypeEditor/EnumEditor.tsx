@@ -96,7 +96,7 @@ export function EnumEditor({ type, onChange }: EnumEditorProps) {
     return (
         <S.Container>
             <S.Header>
-                <S.SectionTitle>Enum</S.SectionTitle>
+                <S.SectionTitle>Members</S.SectionTitle>
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <Button appearance="icon" onClick={addMember}><Codicon name="add" /></Button>
                 </div>
