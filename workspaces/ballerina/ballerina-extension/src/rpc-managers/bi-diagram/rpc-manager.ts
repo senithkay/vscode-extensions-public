@@ -73,6 +73,8 @@ import {
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
+    RecordSourceGenRequest,
+    RecordSourceGenResponse,
     RenameIdentifierRequest,
     RenameRequest,
     STModification,
@@ -87,6 +89,7 @@ import {
     UpdateConfigVariableResponse,
     UpdateImportsRequest,
     UpdateImportsResponse,
+    UpdateRecordConfigRequest,
     UpdateTypeRequest,
     UpdateTypeResponse,
     VisibleTypesRequest,
@@ -1354,6 +1357,28 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 resolve(res);
             }).catch((error) => {
                 console.log(">>> error getting record config", error);
+                reject(error);
+            });
+        });
+    }
+
+    async updateRecordConfig(params: UpdateRecordConfigRequest): Promise<GetRecordConfigResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient().updateRecordConfig(params).then((res) => {
+                resolve(res);
+            }).catch((error) => {
+                console.log(">>> error updating record config", error);
+                reject(error);
+            });
+        });
+    }
+
+    async getRecordSource(params: RecordSourceGenRequest): Promise<RecordSourceGenResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient().getRecordSource(params).then((res) => {
+                resolve(res);
+            }).catch((error) => {
+                console.log(">>> error getting record source", error);
                 reject(error);
             });
         });

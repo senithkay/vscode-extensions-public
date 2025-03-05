@@ -1189,6 +1189,28 @@ export interface GetRecordConfigResponse {
     stacktrace?: string;
 }
 
+export type RecordSourceGenRequest = {
+    filePath: string;
+    type: TypeField;
+}
+
+export type RecordSourceGenResponse = {
+    errorMessage?: string;
+    stackTrace?: string;
+    recordValue?: string;
+}
+
+export type UpdateRecordConfigRequest = {
+    filePath: string;
+    codedata: {
+        org: string;
+        module: string;
+        version: string;
+    };
+    typeConstraint: string;
+    expr: string;
+}
+
 export interface TextEditRange {
     start: {
         line: number;

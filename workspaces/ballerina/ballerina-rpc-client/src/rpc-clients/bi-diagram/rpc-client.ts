@@ -62,6 +62,8 @@ import {
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
+    RecordSourceGenRequest,
+    RecordSourceGenResponse,
     RenameIdentifierRequest,
     ServiceClassModelResponse,
     ServiceClassSourceRequest,
@@ -72,6 +74,7 @@ import {
     UpdateConfigVariableResponse,
     UpdateImportsRequest,
     UpdateImportsResponse,
+    UpdateRecordConfigRequest,
     UpdateTypeRequest,
     UpdateTypeResponse,
     VisibleTypesRequest,
@@ -107,6 +110,7 @@ import {
     getProjectStructure,
     getReadmeContent,
     getRecordConfig,
+    getRecordSource,
     getServiceClassModel,
     getSignatureHelp,
     getSourceCode,
@@ -125,6 +129,7 @@ import {
     updateClassField,
     updateConfigVariables,
     updateImports,
+    updateRecordConfig,
     updateServiceClass,
     updateType
 } from "@wso2-enterprise/ballerina-core";
@@ -281,7 +286,7 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
     getDesignModel(): Promise<BIDesignModelResponse> {
         return this._messenger.sendRequest(getDesignModel, HOST_EXTENSION);
     }
-    
+
     getTypes(params: GetTypesRequest): Promise<GetTypesResponse> {
         return this._messenger.sendRequest(getTypes, HOST_EXTENSION, params);
     }
@@ -316,6 +321,14 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     getRecordConfig(params: GetRecordConfigRequest): Promise<GetRecordConfigResponse> {
         return this._messenger.sendRequest(getRecordConfig, HOST_EXTENSION, params);
+    }
+
+    updateRecordConfig(params: UpdateRecordConfigRequest): Promise<GetRecordConfigResponse> {
+        return this._messenger.sendRequest(updateRecordConfig, HOST_EXTENSION, params);
+    }
+
+    getRecordSource(params: RecordSourceGenRequest): Promise<RecordSourceGenResponse> {
+        return this._messenger.sendRequest(getRecordSource, HOST_EXTENSION, params);
     }
 
     updateImports(params: UpdateImportsRequest): Promise<UpdateImportsResponse> {

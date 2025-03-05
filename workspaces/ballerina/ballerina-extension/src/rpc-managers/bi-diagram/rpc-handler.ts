@@ -35,11 +35,13 @@ import {
     ModelFromCodeRequest,
     ProjectRequest,
     ReadmeContentRequest,
+    RecordSourceGenRequest,
     RenameIdentifierRequest,
     ServiceClassSourceRequest,
     SignatureHelpRequest,
     UpdateConfigVariableRequest,
     UpdateImportsRequest,
+    UpdateRecordConfigRequest,
     UpdateTypeRequest,
     VisibleTypesRequest,
     addBreakpointToSource,
@@ -72,6 +74,7 @@ import {
     getProjectStructure,
     getReadmeContent,
     getRecordConfig,
+    getRecordSource,
     getServiceClassModel,
     getSignatureHelp,
     getSourceCode,
@@ -90,6 +93,7 @@ import {
     updateClassField,
     updateConfigVariables,
     updateImports,
+    updateRecordConfig,
     updateServiceClass,
     updateType
 } from "@wso2-enterprise/ballerina-core";
@@ -143,6 +147,8 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(updateServiceClass, (args: ServiceClassSourceRequest) => rpcManger.updateServiceClass(args));
     messenger.onRequest(createGraphqlClassType, (args: UpdateTypeRequest) => rpcManger.createGraphqlClassType(args));
     messenger.onRequest(getRecordConfig, (args: GetRecordConfigRequest) => rpcManger.getRecordConfig(args));
+    messenger.onRequest(updateRecordConfig, (args: UpdateRecordConfigRequest) => rpcManger.updateRecordConfig(args));
+    messenger.onRequest(getRecordSource, (args: RecordSourceGenRequest) => rpcManger.getRecordSource(args));
     messenger.onRequest(updateImports, (args: UpdateImportsRequest) => rpcManger.updateImports(args));
     messenger.onRequest(addFunction, (args: AddFunctionRequest) => rpcManger.addFunction(args));
     messenger.onRequest(getFunctionNode, (args: FunctionNodeRequest) => rpcManger.getFunctionNode(args));
