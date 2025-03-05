@@ -30,7 +30,7 @@ import {
 } from "@wso2-enterprise/ballerina-side-panel";
 import { TypeEditor } from "@wso2-enterprise/type-editor";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight } from "@wso2-enterprise/ui-toolkit";
+import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight, Overlay, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 import {
     convertBalCompletion,
@@ -410,18 +410,21 @@ export function FormGeneratorNew(props: FormProps) {
     };
 
     const renderTypeEditor = (isGraphql: boolean) => (
-        <PanelContainer
-            title={"New Type"}
-            show={true}
-            onClose={onCloseTypeEditor}
-        >
-            <TypeEditor
-                newType={true}
-                rpcClient={rpcClient}
-                onTypeChange={handleTypeChange}
-                { ...(isGraphql && { type: defaultType(), isGraphql: true }) }
-            />
-        </PanelContainer>
+        <>
+            <PanelContainer
+                title={"New Type"}
+                show={true}
+                onClose={onCloseTypeEditor}
+            >
+                <TypeEditor
+                    newType={true}
+                    rpcClient={rpcClient}
+                    onTypeChange={handleTypeChange}
+                    { ...(isGraphql && { type: defaultType(), isGraphql: true }) }
+                />
+            </PanelContainer>
+            <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3`, zIndex: 1000 }} />
+        </>
     );
 
     // default form
