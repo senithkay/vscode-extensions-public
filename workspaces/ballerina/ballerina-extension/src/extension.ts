@@ -35,7 +35,7 @@ import { ExtendedClientCapabilities } from '@wso2-enterprise/ballerina-core';
 import { RPCLayer } from './RPCLayer';
 import { activateAIFeatures } from './features/ai/activator';
 import { activateTryItCommand } from './features/tryit/activator';
-import { activate as activateNLFeatures } from './features/natural-programming/activator';
+import { activate as activateNPFeatures } from './features/natural-programming/activator';
 
 let langClient: ExtendedLangClient;
 export let isPluginStartup = true;
@@ -146,7 +146,7 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         activateTryItCommand(ballerinaExtInstance);
 
         // Activate natural programming features
-        activateNLFeatures(ballerinaExtInstance);
+        activateNPFeatures(ballerinaExtInstance);
 
         langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         // Register showTextDocument listener

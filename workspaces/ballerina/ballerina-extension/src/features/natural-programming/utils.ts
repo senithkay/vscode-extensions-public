@@ -17,10 +17,10 @@ import { requirementsSpecification, refreshAccessToken, isErrorCode } from "../.
 import { UNKNOWN_ERROR } from '../../views/ai-panel/errorCodes';
 import { BallerinaPluginConfig, ResultItem, DriftResponseData, DriftResponse } from "./interfaces";
 import {
-    DOCUMENTATION_DRIFT_CHECK_ENDPOINT, API_DOCS_DRIFT_CHECK_ENDPOINT,
+    PROJECT_DOCUMENTATION_DRIFT_CHECK_ENDPOINT, API_DOCS_DRIFT_CHECK_ENDPOINT,
     DEVELOPER_OVERVIEW_FILENAME, NATURAL_PROGRAMMING_PATH, DEVELOPER_OVERVIEW_RELATIVE_PATH,
     REQUIREMENT_DOC_PREFIX, REQUIREMENT_TEXT_DOCUMENT, REQUIREMENT_MD_DOCUMENT,
-    README_FILE_NAME_LOWERCASE, DIAGNOSTIC_ID
+    README_FILE_NAME_LOWERCASE, DRIFT_DIAGNOSTIC_ID
 } from "./constants";
 import { isNumber } from 'lodash';
 
@@ -59,7 +59,7 @@ async function getLLMResponses(sources: { balFiles: string; readme: string; requ
     );
 
     const documentationSourceResponsePromise = fetchWithToken(
-        backendurl + DOCUMENTATION_DRIFT_CHECK_ENDPOINT,
+        backendurl + PROJECT_DOCUMENTATION_DRIFT_CHECK_ENDPOINT,
         {
             method: "POST",
             headers: {
@@ -165,7 +165,7 @@ async function createDiagnostic(result: ResultItem, uri: Uri): Promise<CustomDia
             codeChangeSolution: result.codeChangeSolution,
             docChangeSolution: result.docChangeSolution,
             fileName: result.fileName,
-            id: DIAGNOSTIC_ID,
+            id: DRIFT_DIAGNOSTIC_ID,
             docRange: isDocChangeSolutionsAvailable ? new vscode.Range(
                 new vscode.Position(result.startRowforDocChangedAction - 1, 0),
                 docChangeEndPosition
@@ -174,7 +174,7 @@ async function createDiagnostic(result: ResultItem, uri: Uri): Promise<CustomDia
     );
 
     diagnostic.code = {
-        value: DIAGNOSTIC_ID,
+        value: DRIFT_DIAGNOSTIC_ID,
         target: uri
     };
 
@@ -320,9 +320,7 @@ export async function getBallerinaSourceFiles(folderPath: string): Promise<{ bal
                     if (!isErrorCode(requirementContent)) {
                         content = requirementContent.toString();
                     } else {
-                        // TODO: Handle this properly.
                         content = "";
-                        // throw UNKNOWN_ERROR;
                     }
                 }
                 requirementsContent += `<requirement_specification filename=\"${NATURAL_PROGRAMMING_PATH}/${file}\">\n${content}\n</requirement_specification>\n`;

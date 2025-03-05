@@ -8,9 +8,9 @@
  */
 
 export const API_DOCS_DRIFT_CHECK_TYPE = "CODE_AND_APIDOCS";
-export const DOCUMENTATION_DRIFT_CHECK_TYPE = "CODE_AND_DOCUMENTATION";
+export const PROJECT_DOCUMENTATION_DRIFT_CHECK_TYPE = "CODE_AND_DOCUMENTATION";
 export const API_DOCS_DRIFT_CHECK_ENDPOINT = `/driftcheck?driftType=${API_DOCS_DRIFT_CHECK_TYPE}`;
-export const DOCUMENTATION_DRIFT_CHECK_ENDPOINT = `/driftcheck?driftType=${DOCUMENTATION_DRIFT_CHECK_TYPE}`;
+export const PROJECT_DOCUMENTATION_DRIFT_CHECK_ENDPOINT = `/driftcheck?driftType=${PROJECT_DOCUMENTATION_DRIFT_CHECK_TYPE}`;
 export const DEVELOPER_OVERVIEW_FILENAME = "developer.md";
 export const NATURAL_PROGRAMMING_PATH = "natural-programming";
 export const DEVELOPER_OVERVIEW_RELATIVE_PATH = `${NATURAL_PROGRAMMING_PATH}/${DEVELOPER_OVERVIEW_FILENAME}`;
@@ -19,7 +19,7 @@ export const REQUIREMENT_TEXT_DOCUMENT = `${REQUIREMENT_DOC_PREFIX}txt`;
 export const REQUIREMENT_MD_DOCUMENT = `${REQUIREMENT_DOC_PREFIX}md`;
 export const README_FILE_NAME_LOWERCASE = "readme.md";
 export const COMMAND_SHOW_TEXT = "extension.showTextOptions";
-export const DIAGNOSTIC_ID = "NLE001";
+export const DRIFT_DIAGNOSTIC_ID = "NLE001";
 export const PROGRESS_BAR_MESSAGE = "Checking the drift between code and documentation...";
 export const WARNING_MESSAGE = "You need to sign up for Ballerina Copilot to detect drift between code and documentation.";
 export const WARNING_MESSAGE_DEFAULT = "Failed to detect drift between code and documentation. Please try again";

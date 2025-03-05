@@ -9,7 +9,7 @@
 
 import * as vscode from 'vscode';
 import { CustomDiagnostic } from './custom-diagnostics';
-import {DIAGNOSTIC_ID, COMMAND_SHOW_TEXT} from "./constants";
+import {DRIFT_DIAGNOSTIC_ID, COMMAND_SHOW_TEXT} from "./constants";
 import { result } from 'lodash';
 
 const UPDATE_CODE_ACTION_CONTENT = "Update code to match docs";
@@ -28,7 +28,7 @@ export class NLCodeActionProvider implements vscode.CodeActionProvider {
             if (diagnostic instanceof CustomDiagnostic) {
                 const customDiagnostic = diagnostic as CustomDiagnostic;
 
-                if (customDiagnostic.data.id == DIAGNOSTIC_ID){
+                if (customDiagnostic.data.id == DRIFT_DIAGNOSTIC_ID){
                     const codeChangeSolution = customDiagnostic.data.codeChangeSolution;
                     const docChangeSolution = customDiagnostic.data.docChangeSolution;
 
