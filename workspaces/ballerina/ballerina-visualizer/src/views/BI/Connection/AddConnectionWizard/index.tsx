@@ -132,7 +132,6 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
         console.log(">>> on form submit", node);
         if (selectedNodeRef.current) {
             setSavingFormStatus(SavingFormStatus.SAVING);
-            setPullingStatus(undefined);
             // get connections.bal file path
             const visualizerLocation = await rpcClient.getVisualizerLocation();
             let connectionsFilePath = "";
@@ -346,7 +345,9 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                             updatedExpressionField={updatedExpressionField}
                             resetUpdatedExpressionField={handleResetUpdatedExpressionField}
                             openSubPanel={handleSubPanel}
-                            isPullingConnector={pullingStatus === PullingStatus.PULLING}
+                            isPullingConnector={
+                                pullingStatus === PullingStatus.PULLING || savingFormStatus === SavingFormStatus.SAVING
+                            }
                         />
                         {savingFormStatus === SavingFormStatus.SAVING && (
                             <BodyText style={{ padding: "20px 20px 0 20px" }}>Saving connection ...</BodyText>
