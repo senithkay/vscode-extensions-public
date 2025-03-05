@@ -50,7 +50,7 @@ export function createInputNodeForDmFunction(
     */
     const param = fnDecl.getParameters()[0];
     const inputType = param && context.inputTrees.find(input => 
-        getTypeName(input) === (param.getType().getSymbol()?.getName() || param.getType().getAliasSymbol()?.getName())
+        getTypeName(input) === param.getTypeNode()?.getText()
     );
 
     if (inputType && hasFields(inputType)) {
