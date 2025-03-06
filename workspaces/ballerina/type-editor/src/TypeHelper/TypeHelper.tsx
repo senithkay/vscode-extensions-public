@@ -198,40 +198,42 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
                         {loading ? (
                             <HelperPane.Loader rows={3} columns={2} sections={3} />
                         ) : (
-                            basicTypes?.length > 0 &&
-                            basicTypes.map((category) => (
-                                <HelperPane.Section
-                                    key={category.category}
-                                    title={category.category}
-                                    titleSx={{ fontFamily: 'GilmerMedium' }}
-                                    columns={2}
-                                >
-                                    {category.items.map((item) => (
-                                        <HelperPane.CompletionItem
-                                            key={`${category.category}-${item.name}`}
-                                            label={item.name}
-                                            getIcon={() => getIcon(item.type)}
-                                            onClick={() => handleTypeItemClick(item)}
-                                        />
-                                    ))}
-                                </HelperPane.Section>
-                            ))
+                            basicTypes?.length > 0 && (
+                                basicTypes.map((category) => (
+                                    <HelperPane.Section
+                                        key={category.category}
+                                        title={category.category}
+                                        titleSx={{ fontFamily: 'GilmerMedium' }}
+                                        columns={2}
+                                    >
+                                        {category.items.map((item) => (
+                                            <HelperPane.CompletionItem
+                                                key={`${category.category}-${item.name}`}
+                                                label={item.name}
+                                                getIcon={() => getIcon(item.type)}
+                                                onClick={() => handleTypeItemClick(item)}
+                                            />
+                                        ))}
+                                    </HelperPane.Section>
+                                ))
+                            )
                         )}
                     </HelperPane.PanelView>
                     <HelperPane.PanelView id={PANEL_TABS.OPERATORS}>
-                        <S.OperatorContainer>
-                            {operators?.length > 0 &&
-                                (loading ? (
-                                    <HelperPane.Loader rows={5} columns={1} sections={1} />
-                                ) : (
-                                    operators.map((operator) => (
+                        {loading ? (
+                            <HelperPane.Loader rows={5} columns={1} sections={1} />
+                        ) : (
+                            operators?.length > 0 && (
+                                <S.OperatorContainer>
+                                    {operators.map((operator) => (
                                         <S.Operator key={operator.name} onClick={() => handleOperatorClick(operator)}>
                                             <S.OptionIcon>{operator.getIcon()}</S.OptionIcon>
                                             <Typography variant="body3">{operator.name}</Typography>
                                         </S.Operator>
-                                    ))
-                                ))}
-                        </S.OperatorContainer>
+                                    ))}
+                                </S.OperatorContainer>
+                            )
+                        )}
                     </HelperPane.PanelView>
                 </HelperPane.Panels>
             </HelperPane.Body>
