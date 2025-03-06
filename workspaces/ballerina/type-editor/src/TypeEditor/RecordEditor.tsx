@@ -33,8 +33,6 @@ const SectionTitle = styled.div`
     `;
 
 interface RecordEditorProps {
-    categories: TypeHelperCategory[];
-    operators: TypeHelperOperator[];
     type: Type;
     isAnonymous: boolean;
     onChange: (type: Type) => void;
@@ -44,7 +42,7 @@ interface RecordEditorProps {
 }
 
 export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorProps>((props, ref) => {
-    const { type, isAnonymous = false, onChange, onImportJson, onImportXml, isGraphql, categories, operators } = props;
+    const { type, isAnonymous = false, onChange, onImportJson, onImportXml, isGraphql } = props;
     const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
 
     const addMember = () => {
@@ -111,8 +109,6 @@ export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorPr
                         onChange={handleMemberChange(index)}
                         onSelect={onSelect(index)}
                         onDeselect={onDeselect(index)}
-                        categories={categories}
-                        operators={operators}
                     />
                 </>
             ))}

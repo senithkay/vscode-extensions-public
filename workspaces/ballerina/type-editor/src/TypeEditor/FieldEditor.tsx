@@ -7,8 +7,6 @@ import { RecordEditor } from './RecordEditor';
 import { TypeHelper, TypeHelperCategory, TypeHelperOperator } from '../TypeHelper';
 
 interface FieldEditorProps {
-    categories: TypeHelperCategory[];
-    operators: TypeHelperOperator[];
     member: Member;
     selected: boolean;
     onChange: (member: Member) => void;
@@ -26,11 +24,12 @@ const ButtonActive = styled.div<{}>`
 `;
 
 export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
-    const { member, selected, onChange, onSelect, onDeselect, categories, operators } = props;
+    const { member, selected, onChange, onSelect, onDeselect } = props;
     const [panelOpened, setPanelOpened] = useState<boolean>(false);
     const recordEditorRef = useRef<{ addMember: () => void }>(null);
     const typeFieldRef = useRef<HTMLInputElement>(null);
     const typeHelperRef = useRef<HTMLDivElement>(null);
+    const typeBrowserRef = useRef<HTMLDivElement>(null);
     const [typeFieldCursorPosition, setTypeFieldCursorPosition] = useState<number>(0);
     const [helperPaneOffset, setHelperPaneOffset] = useState<Position>({ top: 0, left: 0 });
     const [helperPaneOpened, setHelperPaneOpened] = useState<boolean>(false);
@@ -132,12 +131,16 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
 
     const handleTypeFieldBlur = (e: React.FocusEvent<HTMLInputElement>) => {
         /* Prevent blur event when clicked on the type helper */
-        if (typeHelperRef.current.contains(e.relatedTarget as Node)) {
+        if (
+            (typeHelperRef.current?.contains(e.relatedTarget as Node) ||
+            typeBrowserRef.current?.contains(e.relatedTarget as Node)) &&
+            !document.getElementById('helper-pane-search')?.contains(e.relatedTarget as Node)
+        ) {
             e.preventDefault();
             e.stopPropagation();
             typeFieldRef.current?.shadowRoot?.querySelector('input')?.focus();
         }
-    }
+    };
 
     return (
         <>
@@ -179,20 +182,17 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                         onChange={(type: Type) => onChange({ ...member, type })}
                         onImportJson={() => { }}
                         onImportXml={() => { }}
-                        categories={categories}
-                        operators={operators}
                     />
                 </div>
             )}
             <TypeHelper
                 ref={typeHelperRef}
                 typeFieldRef={typeFieldRef}
+                typeBrowserRef={typeBrowserRef}
                 currentType={typeToSource(member.type)}
                 currentCursorPosition={typeFieldCursorPosition}
                 onChange={handleTypeHelperChange}
                 positionOffset={helperPaneOffset}
-                categories={categories}
-                operators={operators}
                 open={helperPaneOpened}
                 onClose={() => setHelperPaneOpened(false)}
             />
