@@ -12,6 +12,7 @@ import { window, Uri } from 'vscode';
 import path = require('path');
 import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse, SHARED_COMMANDS, BI_COMMANDS, buildProjectStructure, PackageConfigSchema, BallerinaProject, DIRECTORY_SUB_TYPE } from "@wso2-enterprise/ballerina-core";
 import { extension } from "../biExtentionContext";
+import { checkIsBI } from '../utils';
 
 interface Property {
     name?: string;
@@ -128,6 +129,12 @@ async function getProjectStructureData(): Promise<ProjectExplorerEntry[]> {
         if (extension.langClient) {
             const workspaceFolders = vscode.workspace.workspaceFolders;
             for (const workspace of workspaceFolders) {
+
+                const isBI = checkIsBI(workspace.uri);
+                if (!isBI) {
+                    continue;
+                }
+
                 const rootPath = workspace.uri.fsPath;
                 const resp = await buildProjectStructure(rootPath, extension.langClient);
                 // Add all the configurations to the project tree

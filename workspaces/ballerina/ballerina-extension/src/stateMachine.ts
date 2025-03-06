@@ -14,6 +14,7 @@ import { extension } from './BalExtensionContext';
 import { BiDiagramRpcManager } from './rpc-managers/bi-diagram/rpc-manager';
 import { StateMachineAI } from './views/ai-panel/aiMachine';
 import { StateMachinePopup } from './stateMachinePopup';
+import { isBIEnabledInWorkspaces } from './utils';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
@@ -412,7 +413,7 @@ export function updateView() {
 }
 
 async function checkForProjects() {
-    let isBI = false;
+    let isBI = isBIEnabledInWorkspaces();
     let projectUri = '';
     try {
         const workspaceFolders = workspace.workspaceFolders;
@@ -421,13 +422,8 @@ async function checkForProjects() {
         }
         // Assume we are only interested in the root workspace folder
         const rootFolder = workspaceFolders[0].uri.fsPath;
-        const ballerinaTomlPath = path.join(rootFolder, 'Ballerina.toml');
         projectUri = rootFolder;
 
-        if (fs.existsSync(ballerinaTomlPath)) {
-            const data = await fs.promises.readFile(ballerinaTomlPath, 'utf8');
-            isBI = data.includes('bi = true');
-        }
     } catch (err) {
         console.error(err);
     }

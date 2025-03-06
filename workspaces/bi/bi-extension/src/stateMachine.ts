@@ -8,11 +8,9 @@
  */
 
 import { assign, createMachine, interpret } from 'xstate';
-import * as vscode from 'vscode';
-import * as fs from 'fs';
-import * as path from 'path';
 import { activateProjectExplorer } from './project-explorer/activate';
 import { extension } from './biExtentionContext';
+import { isBIEnabledInWorkspaces } from './utils';
 
 interface MachineContext {
     isBI: boolean;
@@ -29,7 +27,7 @@ const stateMachine = createMachine<MachineContext>({
     states: {
         initialize: {
             invoke: {
-                src: checkIfBIProject,
+                src: hasAtLeastOneBIProject,
                 onDone: [
                     {
                         target: 'ready',
@@ -67,25 +65,6 @@ export const StateMachine = {
     initialize: () => stateService.start()
 };
 
-
-async function checkIfBIProject(): Promise<boolean> {
-    let isBI = false;
-    try {
-        const workspaceFolders = vscode.workspace.workspaceFolders;
-        if (!workspaceFolders || workspaceFolders.length === 0) {
-            throw new Error("No workspace folders found");
-        }
-        // Assume we are only interested in the root workspace folder
-        const rootFolder = workspaceFolders[0].uri.fsPath;
-        const ballerinaTomlPath = path.join(rootFolder, 'Ballerina.toml');
-
-        if (fs.existsSync(ballerinaTomlPath)) {
-            const data = await fs.promises.readFile(ballerinaTomlPath, 'utf8');
-            isBI = data.includes('bi = true');
-        }
-    } catch (err) {
-        console.error(err);
-    }
-    return isBI;
-}
-
+async function hasAtLeastOneBIProject(): Promise<boolean> {
+    return isBIEnabledInWorkspaces();
+};
