@@ -23,6 +23,7 @@ import { writeBallerinaFileDidOpen } from '../../utils/modification';
 import { fetchData } from '../../rpc-managers/ai-panel/utils/fetch-data-utils';
 import { request } from 'http';
 import { openExternalUrl } from 'src/utils/runCommand';
+import { closeAllBallerinaFiles } from './utils';
 
 const balVersionRegex = new RegExp("^[0-9]{4}.[0-9]+.[0-9]+");
 
@@ -207,6 +208,7 @@ export async function getDiagnostics(
     writeBallerinaFileDidOpen(tempTestFilePath, generatedTestSource.testSource);
 
     const diagnosticsResult = await langClient.getDiagnostics({ documentIdentifier: { uri: Uri.file(tempTestFilePath).toString() } });
+    await closeAllBallerinaFiles(tempDir);
     fs.rmSync(tempDir, { recursive: true, force: true });
     if (Array.isArray(diagnosticsResult)) {
         const errorDiagnostics = getErrorDiagnostics(diagnosticsResult, tempTestFilePath);

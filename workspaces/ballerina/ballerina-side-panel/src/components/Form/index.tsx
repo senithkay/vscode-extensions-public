@@ -157,8 +157,14 @@ namespace S {
         }
         align-self: center;
     `;
+
+    export const InfoLabel = styled.div`
+        font-size: var(--vscode-font-size);
+        color: ${ThemeColors.ON_SURFACE_VARIANT};
+    `;
 }
 export interface FormProps {
+    infoLabel?: string;
     formFields: FormField[];
     submitText?: string;
     targetLineRange?: LineRange; // TODO: make them required after connector wizard is fixed
@@ -180,10 +186,12 @@ export interface FormProps {
     visualizableFields?: string[];
     recordTypeFields?: RecordTypeField[];
     nestedForm?: boolean;
+    disableSaveButton?: boolean;
 }
 
 export const Form = forwardRef((props: FormProps, ref) => {
     const {
+        infoLabel,
         formFields,
         projectPath,
         selectedNode,
@@ -204,7 +212,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         handleVisualizableFields,
         visualizableFields,
         recordTypeFields,
-        nestedForm
+        nestedForm,
     } = props;
 
     const {
@@ -292,8 +300,6 @@ export const Form = forwardRef((props: FormProps, ref) => {
             }
         } 
     }, [updatedExpressionField]);
-
-    console.log(">>> form fields", { formFields, values: getValues() });
 
     const handleOnSave = (data: FormValues) => {
         console.log(">>> saved form fields", { data });
@@ -465,12 +471,13 @@ export const Form = forwardRef((props: FormProps, ref) => {
         return hasDiagnostics;
     }, [diagnosticsInfo])
 
-    const disableSaveButton = !isValid || isValidating;
+    const disableSaveButton = !isValid || isValidating || props.disableSaveButton;
 
     // TODO: support multiple type fields
     return (
         <Provider {...contextValue}>
             <S.Container nestedForm={nestedForm}>
+                {infoLabel && <S.InfoLabel>{infoLabel}</S.InfoLabel>}
                 {prioritizeVariableField && variableField && (
                     <S.CategoryRow showBorder={true}>
                         {variableField &&

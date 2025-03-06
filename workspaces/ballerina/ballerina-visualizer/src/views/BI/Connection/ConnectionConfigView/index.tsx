@@ -42,6 +42,7 @@ interface ConnectionConfigViewProps {
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
     isActiveSubPanel?: boolean;
+    isPullingConnector?: boolean;
     subPanelView?: SubPanelView;
 }
 
@@ -53,6 +54,7 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
         openSubPanel,
         updatedExpressionField,
         resetUpdatedExpressionField,
+        isPullingConnector,
         subPanelView
     } = props;
     const { rpcClient } = useRpcContext();
@@ -89,6 +91,7 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
                     subPanelView={subPanelView}
                     updatedExpressionField={updatedExpressionField}
                     resetUpdatedExpressionField={resetUpdatedExpressionField}
+                    disableSaveButton={isPullingConnector}
                 />
             )}
         </Container>

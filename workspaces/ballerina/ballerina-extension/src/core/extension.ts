@@ -31,7 +31,8 @@ import {
     ENABLE_EXPERIMENTAL_FEATURES, ENABLE_NOTEBOOK_DEBUG, ENABLE_RUN_FAST, ENABLE_INLAY_HINTS, FILE_DOWNLOAD_PATH,
     ENABLE_LIVE_RELOAD,
     ENABLE_AI_SUGGESTIONS,
-    ENABLE_SEQUENCE_DIAGRAM_VIEW
+    ENABLE_SEQUENCE_DIAGRAM_VIEW,
+    ENABLE_NATURAL_PROGRAMMING
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -169,6 +170,7 @@ export class BallerinaExtension {
             revealOutputChannelOn: RevealOutputChannelOn.Never,
             initializationOptions: {
                 "enableSemanticHighlighting": <string>workspace.getConfiguration().get(ENABLE_SEMANTIC_HIGHLIGHTING),
+                "enableNaturalProgramming": <string>workspace.getConfiguration().get(ENABLE_NATURAL_PROGRAMMING),
                 "enableInlayHints": <string>workspace.getConfiguration().get(ENABLE_INLAY_HINTS),
                 "supportBalaScheme": "true",
                 "supportQuickPick": "true",
