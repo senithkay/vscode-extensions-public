@@ -24,7 +24,7 @@ interface DropdownEditorProps {
 export function DropdownEditor(props: DropdownEditorProps) {
     const { field, openSubPanel } = props;
     const { form } = useFormContext();
-    const { register } = form;
+    const { register, setValue } = form;
 
     // HACK: create values for Scope field
     if (field.key === "scope") {
@@ -36,9 +36,10 @@ export function DropdownEditor(props: DropdownEditorProps) {
             id={field.key}
             {...register(field.key, { required: !field.optional, value: getValueForDropdown(field) })}
             label={capitalize(field.label)}
-            items={field.items?.map((item) => ({ id: item, content: item, value: item }))}
+            items={field.itemOptions ? field.itemOptions : field.items?.map((item) => ({ id: item, content: item, value: item }))}
             required={!field.optional}
             disabled={!field.editable}
+            onChange={(e) => setValue(field.key, e.target.value)}
             sx={{ width: "100%" }}
             containerSx={{ width: "100%" }}
             addNewBtnClick={field.addNewButton ? () => openSubPanel({ view: SubPanelView.ADD_NEW_FORM }) : undefined}

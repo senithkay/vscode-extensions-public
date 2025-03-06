@@ -160,7 +160,8 @@ export enum DIRECTORY_MAP {
     CONFIGURATIONS = "configurations",
     DATA_MAPPERS = "dataMappers",
     ENUMS = "enums",
-    CLASSES = "classes"
+    CLASSES = "classes",
+    AGENTS = "agents"
 }
 
 export enum DIRECTORY_SUB_TYPE {
@@ -172,6 +173,7 @@ export enum DIRECTORY_SUB_TYPE {
     AUTOMATION = "automation",
     TRIGGER = "trigger",
     DATA_MAPPER = "dataMapper",
+    AGENTS = "agents",
 }
 
 export enum FUNCTION_TYPE {
@@ -294,6 +296,9 @@ export type NodeKind =
     | "ROLLBACK"
     | "FAIL"
     | "RETRY"
+    | "CLASS"
+    | "AGENT"
+    | "AGENT_CALL"
     | "FUNCTION_DEFINITION"
     | "CONFIG_VARIABLE"
     | "AGENT_CALL";

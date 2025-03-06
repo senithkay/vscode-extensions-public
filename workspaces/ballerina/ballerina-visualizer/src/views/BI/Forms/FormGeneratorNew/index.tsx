@@ -50,6 +50,7 @@ interface FormProps {
     targetLineRange: LineRange;
     projectPath?: string;
     submitText?: string;
+    cancelText?: string;
     onBack?: () => void;
     editForm?: boolean;
     isGraphqlEditor?: boolean;
@@ -69,6 +70,7 @@ export function FormGeneratorNew(props: FormProps) {
         targetLineRange,
         projectPath,
         submitText,
+        cancelText,
         onBack,
         onSubmit,
         openSubPanel,
@@ -440,6 +442,7 @@ export function FormGeneratorNew(props: FormProps) {
                     openRecordEditor={handleOpenTypeEditor}
                     onCancelForm={onBack}
                     submitText={submitText}
+                    cancelText={cancelText}
                     onSubmit={handleSubmit}
                     openView={handleOpenView}
                     openSubPanel={openSubPanel}

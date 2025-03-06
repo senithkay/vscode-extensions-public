@@ -167,6 +167,7 @@ export interface FormProps {
     infoLabel?: string;
     formFields: FormField[];
     submitText?: string;
+    cancelText?: string;
     targetLineRange?: LineRange; // TODO: make them required after connector wizard is fixed
     fileName?: string; // TODO: make them required after connector wizard is fixed
     projectPath?: string;
@@ -195,6 +196,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         projectPath,
         selectedNode,
         submitText,
+        cancelText,
         onSubmit,
         onCancelForm,
         oneTimeForm,
@@ -561,7 +563,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                 </S.CategoryRow>
                 {onSubmit && (
                     <S.Footer>
-                        {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  Cancel </Button>}
+                        {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  {cancelText || "Cancel"} </Button>}
                         <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
                             {submitText || "Save"}
                         </S.PrimaryButton>

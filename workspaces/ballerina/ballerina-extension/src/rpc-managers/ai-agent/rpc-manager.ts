@@ -1,0 +1,351 @@
+/**
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ * 
+ * THIS FILE INCLUDES AUTO GENERATED CODE
+ */
+import {
+    AIAgentAPI,
+    AIAgentRequest,
+    AIAgentResponse,
+    AIGentToolsRequest,
+    AIGentToolsResponse,
+    AIModelsRequest,
+    AINodesRequest,
+    AINodesResponse,
+    AIToolsRequest,
+    AIToolsResponse,
+    AgentTool,
+    AvailableNode,
+    BINodeTemplateRequest,
+    BallerinaProjectComponents,
+    ComponentInfo,
+    AIConnectorActionsRequest,
+    AIConnectorActionsResponse,
+    FlowNode,
+    NodePosition,
+    STModification,
+    SyntaxTree,
+    TextEdit
+} from "@wso2-enterprise/ballerina-core";
+import { writeFileSync } from "fs";
+import { Uri } from "vscode";
+import { URI, Utils } from "vscode-uri";
+import { history, StateMachine } from "../../stateMachine";
+import { handleAutomationCreation } from "../../utils/bi";
+import { BiDiagramRpcManager } from "../bi-diagram/rpc-manager";
+
+
+interface EntryPosition {
+    filePath: string;
+    position: NodePosition;
+}
+
+export class AiAgentRpcManager implements AIAgentAPI {
+    async getAllAgents(params: AINodesRequest): Promise<AINodesResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const res: AINodesResponse = await context.langClient.getAllAgents(params);
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    async getAllModels(params: AIModelsRequest): Promise<AINodesResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const res: AINodesResponse = await context.langClient.getAllModels(params);
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    async getModels(params: AIModelsRequest): Promise<AINodesResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const res: AINodesResponse = await context.langClient.getModels(params);
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    async getTools(params: AIToolsRequest): Promise<AIToolsResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const res: AIToolsResponse = await context.langClient.getTools(params);
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    async genTool(params: AIGentToolsRequest): Promise<AIGentToolsResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const res: AIGentToolsResponse = await context.langClient.genTool(params);
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    async getActions(params: AIConnectorActionsRequest): Promise<AIConnectorActionsResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const res: AIConnectorActionsResponse = await context.langClient.getConnectorActions(params);
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    async createAIAgent(params: AIAgentRequest): Promise<AIAgentResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+
+                const projectUri = context.projectUri;
+                const filePath = Utils.joinPath(URI.file(projectUri), "agents.bal").fsPath;
+
+                // Create the tools first
+                if (params.newTools.length > 0) {
+                    for (const tool of params.newTools) { // create tools one by one
+                        await this.createTool(tool);
+                    }
+                }
+
+                // Create the model Second
+                const allAgents = (await StateMachine.langClient().getAllAgents({ filePath }));
+                console.log("All Agents: ", allAgents);
+
+                const fixedAgentCodeData = allAgents.agents.at(0);
+
+
+                if (params.modelState === 1) {
+                    const allModels = await StateMachine.langClient().getAllModels({ agent: fixedAgentCodeData.object, filePath });
+                    const modelCodeData = allModels.models.find(val => val.object === params.selectedModel);
+                    const modelFlowNode = (await StateMachine.langClient().getNodeTemplate({ filePath, id: modelCodeData, position: { line: 0, offset: 0 } })).flowNode;
+
+                    // Go through the modelFields and assign each value to the flow node
+                    params.modelFields.forEach(field => {
+                        modelFlowNode.properties[field.key].value = field.value;
+                    });
+
+                    // Create a new model with given flow node
+                    const codeEdits = await StateMachine.langClient()
+                        .getSourceCode({
+                            filePath: filePath,
+                            flowNode: modelFlowNode
+                        });
+                    await this.updateSource(codeEdits.textEdits);
+                } else {
+                    const existingModels = await StateMachine.langClient().getModels({ agent: fixedAgentCodeData.object, filePath });
+                    console.log("Get existingModels ", existingModels.models);
+                    // TODO: Existing model selection
+                }
+
+
+                // Get the agent flow node
+                const agentFlowNode = (await StateMachine.langClient().getNodeTemplate({ filePath, id: fixedAgentCodeData, position: { line: 0, offset: 0 } })).flowNode;
+
+                // Go through the agentFields and assign each value to the flow node
+                params.agentFields.forEach(field => {
+                    agentFlowNode.properties[field.key].value = field.value;
+                });
+
+                // Create a new model with given flow node
+                const codeEdits = await StateMachine.langClient()
+                    .getSourceCode({
+                        filePath: filePath,
+                        flowNode: agentFlowNode
+                    });
+                await this.updateSource(codeEdits.textEdits);
+
+
+                // TODO: Add the agent call to the diagram
+                // Create AI Agent call
+                // const agentCallRequest: BINodeTemplateRequest = {
+                //     filePath: entryPosition.filePath,
+                //     position: { line: entryPosition.position.startLine + 1, offset: 0 },
+                //     id: {
+                //         node: "AGENT_CALL"
+                //     }
+                // };
+
+                // // Get the Node template for AI Model
+                // const agentCallFlowNode = (await StateMachine.langClient().getNodeTemplate(agentCallRequest)).flowNode;
+
+                // // Generate the agent call code
+                // const agentCallRes = (await new BiDiagramRpcManager().getSourceCode({ filePath: entryPosition.filePath, flowNode: agentFlowNode }));
+
+                resolve({ response: true, filePath, position: undefined });
+
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    async createTool(tool: AgentTool): Promise<void> {
+        try {
+            const projectUri = StateMachine.context().projectUri;
+            const toolName = tool.toolName;
+            const connectionName = tool.connectionName;
+            const toolsPath = Utils.joinPath(URI.file(projectUri), "agents.bal").fsPath;
+            let flowNode: FlowNode; // REMOTE_ACTION_CALL| FUNCTION_DEFINITION
+
+            if (tool.toolType === "Connector") {
+                const filePath = Utils.joinPath(URI.file(projectUri), "connections.bal").fsPath;
+                const connectorFlowNode = tool.connectorFlowNode;
+                const connectorActionCodeData = tool.connectorActionCodeData;
+
+                if (tool.connectorState === 1) { // 1 = Create the connection first
+                    // Create a new connection with given flow node
+                    const codeEdits = await StateMachine.langClient()
+                        .getSourceCode({
+                            filePath: filePath,
+                            flowNode: connectorFlowNode,
+                            isConnector: true
+                        });
+                    await this.updateSource(codeEdits.textEdits);
+                }
+                // Get the flowNode for connector action
+                const connectorActionFlowNode = await StateMachine.langClient()
+                    .getNodeTemplate({
+                        position: { line: 0, offset: 0 },
+                        filePath: filePath,
+                        id: connectorActionCodeData,
+                    });
+                flowNode = connectorActionFlowNode.flowNode;
+                for (const key in flowNode.properties) {
+                    flowNode.properties[key].value = key; // Update the action flow node property values with key
+                }
+            }
+            if (tool.toolType === "Function") {
+                const filePath = Utils.joinPath(URI.file(projectUri), "functions.bal").fsPath;
+
+                if (tool.functionState === 1) { // 1 = Create the function first
+                    // Get new function flow node 
+                    const newFunctionFlowNode = await StateMachine.langClient().getNodeTemplate({
+                        position: { line: 0, offset: 0 },
+                        filePath: filePath,
+                        id: { node: 'FUNCTION_DEFINITION' },
+                    });
+
+                    flowNode = newFunctionFlowNode.flowNode;
+                    // Update the flow node with function name
+                    flowNode.properties["functionName"].value = tool.functionName;
+
+                    // Create a new function with update flow node
+                    const codeEdits = await StateMachine.langClient()
+                        .getSourceCode({
+                            filePath: filePath,
+                            flowNode: flowNode
+                        });
+                    await this.updateSource(codeEdits.textEdits);
+                } else {
+                    // Get the flowNode for existing function action
+                    const existingFunctionFlowNode = await StateMachine.langClient()
+                        .getFunctionNode({
+                            functionName: tool.functionName,
+                            fileName: "functions.bal",
+                            projectPath: projectUri
+                        });
+                    flowNode = existingFunctionFlowNode.functionDefinition as FlowNode;
+                }
+            }
+
+            // Create a new tool
+            const codeEdits = await StateMachine.langClient()
+                .genTool({
+                    filePath: toolsPath,
+                    flowNode: flowNode,
+                    toolName: toolName,
+                    connection: connectionName
+                });
+            await this.updateSource(codeEdits.textEdits);
+        } catch (error) {
+            console.error(`Failed to create tool: ${error}`);
+        }
+    }
+
+    async updateSource(textEdits: { [key: string]: TextEdit[] }): Promise<void> {
+        const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
+
+        for (const [key, value] of Object.entries(textEdits)) {
+            const fileUri = Uri.file(key);
+            const fileUriString = fileUri.toString();
+            const edits = value;
+
+            if (edits && edits.length > 0) {
+                const modificationList: STModification[] = [];
+
+                for (const edit of edits) {
+                    const stModification: STModification = {
+                        startLine: edit.range.start.line,
+                        startColumn: edit.range.start.character,
+                        endLine: edit.range.end.line,
+                        endColumn: edit.range.end.character,
+                        type: "INSERT",
+                        isImport: false,
+                        config: {
+                            STATEMENT: edit.newText,
+                        },
+                    };
+                    modificationList.push(stModification);
+                }
+
+                if (modificationRequests[fileUriString]) {
+                    modificationRequests[fileUriString].modifications.push(...modificationList);
+                } else {
+                    modificationRequests[fileUriString] = { filePath: fileUri.fsPath, modifications: modificationList };
+                }
+            }
+        }
+
+        // Iterate through modificationRequests and apply modifications
+        try {
+            for (const [fileUriString, request] of Object.entries(modificationRequests)) {
+                const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
+                    documentIdentifier: { uri: fileUriString },
+                    astModifications: request.modifications,
+                })) as SyntaxTree;
+
+                if (parseSuccess) {
+                    writeFileSync(request.filePath, source);
+                    await StateMachine.langClient().didChange({
+                        textDocument: { uri: fileUriString, version: 1 },
+                        contentChanges: [
+                            {
+                                text: source,
+                            },
+                        ],
+                    });
+                }
+            }
+        } catch (error) {
+            console.log(">>> error updating source", error);
+        }
+    }
+
+}
+
