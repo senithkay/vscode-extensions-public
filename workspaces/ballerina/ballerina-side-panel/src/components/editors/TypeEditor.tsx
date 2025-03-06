@@ -7,12 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     Codicon,
     ErrorBanner,
     FormExpressionEditor,
     FormExpressionEditorRef,
+    HelperPaneHeight,
     RequiredFormInput,
     Typography
 } from "@wso2-enterprise/ui-toolkit";
@@ -46,7 +47,10 @@ export function TypeEditor(props: TypeEditorProps) {
     const { control } = form;
     const {
         types,
+        helperPaneOrigin: typeHelperOrigin,
+        helperPaneHeight: typeHelperHeight,
         retrieveVisibleTypes,
+        getTypeHelper,
         onFocus,
         onBlur,
         onCompletionItemSelect,
@@ -55,9 +59,13 @@ export function TypeEditor(props: TypeEditorProps) {
     } = expressionEditor;
 
     const exprRef = useRef<FormExpressionEditorRef>(null);
+    const typeBrowserRef = useRef<HTMLDivElement>(null);
+
     const cursorPositionRef = useRef<number | undefined>(undefined);
     const [showDefaultCompletion, setShowDefaultCompletion] = useState<boolean>(false);
     const [focused, setFocused] = useState<boolean>(false);
+
+    const [isTypeHelperOpen, setIsTypeHelperOpen] = useState<boolean>(false);
 
     const handleFocus = async (value: string) => {
         setFocused(true);
@@ -105,6 +113,51 @@ export function TypeEditor(props: TypeEditorProps) {
 
     const debouncedTypeEdit = debounce(handleTypeEdit, 300);
 
+    const handleChangeTypeHelperState = (isOpen: boolean) => {
+        setIsTypeHelperOpen(isOpen);
+    };
+
+    const handleGetTypeHelper = (
+        value: string,
+        onChange: (value: string, updatedCursorPosition: number) => void,
+        helperPaneHeight: HelperPaneHeight
+    ) => {
+        return getTypeHelper(
+            typeBrowserRef,
+            value,
+            cursorPositionRef.current,
+            onChange,
+            handleChangeTypeHelperState,
+            helperPaneHeight
+        );
+    }
+
+    /* Track cursor position */
+    const handleSelectionChange = () => {
+        const selection = window.getSelection();
+        if (!selection) {
+            return;
+        }
+
+        const range = selection.getRangeAt(0);
+
+        if (exprRef.current?.parentElement.contains(range.startContainer)) {
+            cursorPositionRef.current = exprRef.current?.inputElement?.selectionStart ?? 0;
+        }
+    }
+
+    useEffect(() => {
+        const typeField = exprRef.current;
+        if (!typeField) {
+            return;
+        }
+
+        document.addEventListener('selectionchange', handleSelectionChange);
+        return () => {
+            document.removeEventListener('selectionchange', handleSelectionChange);
+        }
+    }, [exprRef.current]);
+
     return (
         <S.Container>
             <S.HeaderContainer>
@@ -132,6 +185,7 @@ export function TypeEditor(props: TypeEditorProps) {
                         <FormExpressionEditor
                             key={field.key}
                             ref={exprRef}
+                            anchorRef={typeBrowserRef}
                             name={name}
                             completions={types}
                             showDefaultCompletion={showDefaultCompletion}
@@ -148,6 +202,11 @@ export function TypeEditor(props: TypeEditorProps) {
                             onCompletionSelect={handleCompletionSelect}
                             onDefaultCompletionSelect={handleDefaultCompletionSelect}
                             onFocus={() => handleFocus(value)}
+                            isHelperPaneOpen={isTypeHelperOpen}
+                            changeHelperPaneState={handleChangeTypeHelperState}
+                            getHelperPane={handleGetTypeHelper}
+                            helperPaneOrigin={typeHelperOrigin}
+                            helperPaneHeight={typeHelperHeight}
                             onBlur={handleBlur}
                             onSave={onSave}
                             onCancel={handleCancel}
