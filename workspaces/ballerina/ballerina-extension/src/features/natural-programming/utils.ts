@@ -119,7 +119,7 @@ async function createDiagnosticsResponse(data: DriftResponseData, projectPath: s
     for(const result of data.results) {
         let fileName = result.fileName;
 
-        if (isInvalidDiagnostic(result)) {
+        if (isSkippedDiagnostic(result)) {
             continue;
         }
         
@@ -431,11 +431,7 @@ export async function streamToString(stream: ReadableStream<Uint8Array>): Promis
     return result;
 }
 
-function isInvalidDiagnostic(result: ResultItem) {
-    if (result.fileName.includes(DEVELOPER_OVERVIEW_FILENAME)) {
-        return true;
-    }
-
+function isSkippedDiagnostic(result: ResultItem) {
     if (result.cause.includes(LACK_OF_DOCUMENTATION_WARNING) || result.cause.includes(NO_DOCUMENTATION_WARNING)
         || result.cause.includes(MISSING_README_FILE_WARNING) || result.cause.includes(MISSING_REQUIREMENT_FILE)) {
             return true;

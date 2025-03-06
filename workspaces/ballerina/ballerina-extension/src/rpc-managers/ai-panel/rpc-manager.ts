@@ -814,9 +814,9 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async createTestDirecoryIfNotExists(directoryPath: string) {
-        const naturalProgrammingDirectory = path.join(directoryPath, TEST_DIR_NAME);
-        if (!fs.existsSync(naturalProgrammingDirectory)) {
-            fs.mkdirSync(naturalProgrammingDirectory, { recursive: true }); // Add recursive: true
+        const testDirName = path.join(directoryPath, TEST_DIR_NAME);
+        if (!fs.existsSync(testDirName)) {
+            fs.mkdirSync(testDirName, { recursive: true }); // Add recursive: true
         }
     }
 }
