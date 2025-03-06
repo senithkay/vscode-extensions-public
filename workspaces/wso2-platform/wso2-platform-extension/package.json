@@ -3,7 +3,7 @@
   "displayName": "WSO2 Platform",
   "description": "An extension for managing all things related to WSO2",
   "license": "Apache-2.0",
-  "version": "0.0.1",
+  "version": "0.0.5",
   "cliVersion": "v1.2.82412081830",
   "publisher": "wso2",
   "bugs": {
@@ -223,6 +223,7 @@
     "@types/node": "^18.18.2",
     "@types/vscode": "^1.73.0",
     "@types/which": "^2.0.2",
+    "@types/unzipper":"^0.10.11",
     "@vscode/vsce": "^2.30.0",
     "@wso2-enterprise/playwright-vscode-tester": "workspace:*",
     "axios": "^1.7.2",
@@ -258,6 +259,7 @@
     "vscode-messenger-common": "^0.4.3",
     "which": "^3.0.0",
     "vscode-jsonrpc": "^6.0.0",
-    "zustand": "^4.5.2"
+    "zustand": "^4.5.2",
+    "unzipper": "^0.12.3"
   }
 }

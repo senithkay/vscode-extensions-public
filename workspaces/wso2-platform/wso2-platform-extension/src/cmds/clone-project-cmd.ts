@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { mkdirSync, readdirSync, writeFile, writeFileSync } from "fs";
+import { mkdirSync, readdirSync, createReadStream, writeFileSync } from "fs";
 import * as os from "os";
 import { join } from "path";
 import {
@@ -28,6 +28,7 @@ import { createDirectory, openDirectory } from "../utils";
 import { getUserInfoForCmd, selectOrg, selectProject } from "./cmd-utils";
 import { updateContextFile } from "./create-directory-context-cmd";
 import { createWorkspaceFile } from "./create-project-workspace-cmd";
+const unzipper = require("unzipper")
 
 export function cloneRepoCommand(context: ExtensionContext) {
 	context.subscriptions.push(
@@ -151,6 +152,8 @@ export function cloneRepoCommand(context: ExtensionContext) {
 							const subDirFullPath = join(clonedResp[0].clonedPath, subDir);
 							if (params?.technology === "ballerina") {
 								ensureBallerinaFilesIfEmpty(selectedOrg, params?.componentName || "bal-com", subDirFullPath, params?.integrationType);
+							}else if (params?.technology === "mi") {
+								ensureMIFilesIfEmpty(subDirFullPath);
 							}
 							await openClonedDirectory(subDirFullPath);
 						} else if (repoSet.size > 1) {
@@ -196,12 +199,10 @@ async function ensureBallerinaFilesIfEmpty(org: Organization, componentName: str
 			`[package]\norg = "${org.handle}"\nname = "${componentName.replaceAll("-", "_")}"\nversion = "0.1.0"\n\nbi = true`,
 			"utf8",
 		);
-		if (integrationType === "manualTask") {
-			writeFileSync(
-				join(directoryPath, "automation.bal"),
-				`import ballerina/log;\n\npublic function main() returns error? {\n    do {\n\n    } on fail error e {\n        log:printError("Error: ", 'error = e);\n        return e;\n    }\n}`,
-			);
-		}
+		writeFileSync(
+			join(directoryPath, "main.bal"),
+			`import ballerina/io;\n\npublic function main() {\n    io:println("Hello, World!");\n}`,
+		);
 	};
 
 	try {
@@ -216,6 +217,28 @@ async function ensureBallerinaFilesIfEmpty(org: Organization, componentName: str
 			try {
 				mkdirSync(directoryPath, { recursive: true });
 				createBalFiles(directoryPath, integrationType);
+			} catch (mkdirError: any) {
+				console.error("Error creating directory or files:", mkdirError);
+			}
+		} else {
+			console.error("Error checking or creating files:", err);
+		}
+	}
+}
+
+async function ensureMIFilesIfEmpty(directoryPath: string): Promise<void> {
+	try {
+		let files = readdirSync(directoryPath);
+		files = files.filter((file) => !file.startsWith("."));
+
+		if (files.length === 0) {
+			createReadStream(Uri.joinPath(ext.context.extensionUri,'sample-mi-project.zip').fsPath ).pipe(unzipper.Extract({ path: directoryPath }));
+		}
+	} catch (err: any) {
+		if (err.code === "ENOENT") {
+			try {
+				mkdirSync(directoryPath, { recursive: true });
+				createReadStream(Uri.joinPath(ext.context.extensionUri,'sample-mi-project.zip').fsPath ).pipe(unzipper.Extract({ path: directoryPath }));
 			} catch (mkdirError: any) {
 				console.error("Error creating directory or files:", mkdirError);
 			}
