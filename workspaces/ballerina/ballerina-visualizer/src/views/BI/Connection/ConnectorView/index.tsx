@@ -19,10 +19,10 @@ import { ConnectorIcon } from "@wso2-enterprise/bi-diagram";
 import { TitleBar } from "../../../../components/TitleBar";
 import { TopNavigationBar } from "../../../../components/TopNavigationBar";
 
-const ViewWrapper = styled.div`
+const ViewWrapper = styled.div<{ isHalfView?: boolean; }>`
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: ${(props: { isHalfView: boolean; }) => props.isHalfView ? '40vh' : '100vh'};
     width: 100%;
 `;
 
@@ -31,18 +31,18 @@ const Container = styled.div`
     width: 100%;
 `;
 
-const ListContainer = styled.div`
+const ListContainer = styled.div<{ isHalfView?: boolean; }>`
     display: flex;
     flex-direction: column;
     gap: 16px;
     margin-top: 24px;
-    height: 80vh;
+    height: ${(props: { isHalfView: boolean; }) => props.isHalfView ? '30vh' : '80vh'};
     overflow-y: scroll;
 `;
 
-const GridContainer = styled.div`
+const GridContainer = styled.div<{ isHalfView?: boolean; }>`
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: ${(props: { isHalfView: boolean; }) => props.isHalfView ? 'unset' : 'repeat(auto-fill, minmax(200px, 1fr))'};
     gap: 16px;
     width: 100%;
 `;
@@ -77,10 +77,11 @@ interface ConnectorViewProps {
     onSelectConnector: (connector: AvailableNode) => void;
     fetchingInfo: boolean;
     onClose?: () => void;
+    hideTitle?: boolean;
 }
 
 export function ConnectorView(props: ConnectorViewProps) {
-    const { fileName, targetLinePosition, onSelectConnector, onClose, fetchingInfo } = props;
+    const { fileName, targetLinePosition, onSelectConnector, onClose, fetchingInfo, hideTitle } = props;
     const { rpcClient } = useRpcContext();
 
     const [connectors, setConnectors] = useState<Category[]>([]);
@@ -180,7 +181,7 @@ export function ConnectorView(props: ConnectorViewProps) {
     const isFullView = onClose === undefined;
 
     return (
-        <ViewWrapper>
+        <ViewWrapper isHalfView={hideTitle}>
             {isFullView && (
                 <>
                     <TopNavigationBar />
@@ -191,7 +192,7 @@ export function ConnectorView(props: ConnectorViewProps) {
                 </>
             )}
             <Container>
-                {!isFullView && (
+                {!isFullView && !hideTitle && (
                     <>
                         <TopBar>
                             <Typography variant="h2">Select a Connector</Typography>
@@ -228,14 +229,14 @@ export function ConnectorView(props: ConnectorViewProps) {
                     </ListContainer>
                 )}
                 {filteredCategories && filteredCategories.length > 0 && (
-                    <ListContainer>
+                    <ListContainer isHalfView={hideTitle}>
                         {/* Default connectors of LS is hardcoded and is sent with categories with item field */}
                         {filteredCategories[0]?.items ? (
                             filteredCategories.map((category, index) => {
                                 return (
                                     <div key={category.metadata.label + index}>
                                         <Typography variant="h3">{category.metadata.label}</Typography>
-                                        <GridContainer>
+                                        <GridContainer isHalfView={hideTitle}>
                                             {category.items?.map((connector, index) => {
                                                 return (
                                                     <ButtonCard
@@ -266,7 +267,7 @@ export function ConnectorView(props: ConnectorViewProps) {
                                 );
                             })
                         ) : (
-                            <GridContainer>
+                            <GridContainer isHalfView={hideTitle}>
                                 {connectors.map((item, index) => {
                                     const connector = item as Item;
                                     return (

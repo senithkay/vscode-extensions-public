@@ -144,6 +144,10 @@ bi = true
     const mainBal = path.join(projectRoot, 'main.bal');
     writeBallerinaFileDidOpen(mainBal, EMPTY);
 
+    // Create main.bal file
+    const agentsBal = path.join(projectRoot, 'agents.bal');
+    writeBallerinaFileDidOpen(agentsBal, EMPTY);
+
     // Create functions.bal file
     const functionsBal = path.join(projectRoot, 'functions.bal');
     writeBallerinaFileDidOpen(functionsBal, EMPTY);
@@ -221,7 +225,7 @@ export async function createBIFunction(params: ComponentRequest): Promise<Create
 // <---------- Task Source Generation START-------->
 export async function handleAutomationCreation(params: ComponentRequest) {
     let paramList = '';
-    const paramLength = params.functionType.parameters.length;
+    const paramLength = params.functionType?.parameters.length;
     if (paramLength > 0) {
         params.functionType.parameters.forEach((param, index) => {
             let paramValue = param.defaultValue ? `${param.type} ${param.name} = ${param.defaultValue}, ` : `${param.type} ${param.name}, `;

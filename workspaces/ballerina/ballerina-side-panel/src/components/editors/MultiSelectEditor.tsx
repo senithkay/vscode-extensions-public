@@ -9,7 +9,7 @@
 
 import React, { useEffect, useState } from "react";
 
-import { Button, Codicon, Dropdown, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Dropdown, OptionProps, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
 import { FormField } from "../Form/types";
@@ -59,6 +59,13 @@ namespace S {
         };
     `;
 
+    export const AddNewButtonOption = styled.div({
+        width: '100%',
+        display: 'flex',
+        padding: '5px',
+        gap: '8px',
+    });
+
     export const DeleteButton = styled(Button)`
         & > vscode-button {
             color: ${ThemeColors.ERROR};
@@ -77,13 +84,19 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
     const { form } = useFormContext();
     const { register, unregister, setValue, watch } = form;
 
-    const noOfSelectedValues = field.value === "" ? 1 : field.value.length;
+    const NEW_OPTION = "NEW";
+
+    const noOfSelectedValues = field.items.length === 0 ? 0 : (field.value === "" ? 1 : field.value.length);
     const [dropdownCount, setDropdownCount] = useState(noOfSelectedValues);
 
     // Watch all the individual dropdown values, including the default value
     const values = [...Array(dropdownCount)].map((_, index) => {
         const value = watch(`${field.key}-${index}`);
-        return value || getValueForDropdown(field, index);
+        if (value === NEW_OPTION) {
+            openSubPanel({ view: SubPanelView.ADD_NEW_FORM })
+        } else {
+            return value || getValueForDropdown(field, index);
+        }
     }).filter(Boolean);
 
     // Update the main field with the array of values
@@ -94,6 +107,21 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
     // HACK: create values for Scope field
     if (field.key === "scope") {
         field.items = ["Global", "Local"];
+    }
+
+    const getItemsList = (): OptionProps[] => {
+        const content = (
+            <S.AddNewButtonOption>
+                <Codicon name="add" />
+                {field.addNewButtonLabel || field.label}
+            </S.AddNewButtonOption>
+        )
+        const items = field.items?.map((item) => ({ id: item, content: item, value: item }));
+        if (field.addNewButton && openSubPanel) {
+            return [...items, { value: NEW_OPTION, content }];
+        } else {
+            return items;
+        }
     }
 
     const onAddAnother = () => {
@@ -121,16 +149,6 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
         <S.Container>
             <S.LabelContainer>
                 <S.Label>{field.label}</S.Label>
-                {openSubPanel && field.addNewButton &&
-                    <S.AddNewButton
-                        appearance='icon'
-                        aria-label="add"
-                        onClick={() => openSubPanel({ view: SubPanelView.ADD_NEW_FORM })}
-                    >
-                        <Codicon name="add" />
-                        {field.label.slice(0, -1)}
-                    </S.AddNewButton>
-                }
             </S.LabelContainer>
             <S.Description>{field.documentation}</S.Description>
             {[...Array(dropdownCount)].map((_, index) => (
@@ -141,7 +159,7 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
                             required: !field.optional && index === 0,
                             value: getValueForDropdown(field, index)
                         })}
-                        items={field.items?.map((item) => ({ id: item, content: item, value: item }))}
+                        items={getItemsList()}
                         required={!field.optional && index === 0}
                         disabled={!field.editable}
                         sx={{ width: "100%" }}
@@ -159,14 +177,26 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
                     }
                 </S.DropdownContainer>
             ))}
-            <S.AddNewButton
-                appearance='icon'
-                aria-label="add"
-                onClick={onAddAnother}
-            >
-                <Codicon name="add" />
-                {label}
-            </S.AddNewButton>
+            {field.items.length > 0 &&
+                <S.AddNewButton
+                    appearance='icon'
+                    aria-label="add"
+                    onClick={onAddAnother}
+                >
+                    <Codicon name="add" />
+                    {label}
+                </S.AddNewButton>
+            }
+            {field.items.length === 0 && openSubPanel && field.addNewButton &&
+                <S.AddNewButton
+                    appearance='icon'
+                    aria-label="add"
+                    onClick={() => openSubPanel({ view: SubPanelView.ADD_NEW_FORM })}
+                >
+                    <Codicon name="add" />
+                    {field.addNewButtonLabel || field.label}
+                </S.AddNewButton>
+            }
         </S.Container>
     );
 }

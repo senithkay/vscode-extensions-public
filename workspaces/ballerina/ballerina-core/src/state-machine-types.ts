@@ -65,6 +65,7 @@ export enum MACHINE_VIEW {
     BIServiceClassDesigner = "Service Class Designer",
     BIServiceClassConfigView = "Service Class Config View",
     BIDataMapperForm = "Add Data Mapper",
+    AIAgentWizard = "AI Agent Wizard",
 }
 
 export interface MachineEvent {

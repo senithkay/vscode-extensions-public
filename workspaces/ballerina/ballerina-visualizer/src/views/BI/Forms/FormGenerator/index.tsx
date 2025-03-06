@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { RefObject, useCallback, useEffect, useMemo, useRef,useState } from "react";
+import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     EVENT_TYPE,
     FlowNode,
@@ -22,9 +22,22 @@ import {
     FunctionKind,
     SubPanelView,
     LinePosition,
-    ExpressionProperty
+    ExpressionProperty,
+    Type
 } from "@wso2-enterprise/ballerina-core";
-import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditorProps, HelperPaneData, HelperPaneCompletionItem } from "@wso2-enterprise/ballerina-side-panel";
+import {
+    FormField,
+    FormValues,
+    Form,
+    ExpressionFormField,
+    FormExpressionEditorProps,
+    HelperPaneCompletionItem,
+    PanelContainer
+} from "@wso2-enterprise/ballerina-side-panel";
+import { TypeEditor } from "@wso2-enterprise/type-editor";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight } from "@wso2-enterprise/ui-toolkit";
+
 import {
     convertBalCompletion,
     convertNodePropertiesToFormFields,
@@ -36,10 +49,7 @@ import {
     removeDuplicateDiagnostics,
     updateLineRange
 } from "../../../../utils/bi";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { RecordEditor } from "../../../RecordEditor/RecordEditor";
 import IfForm from "../IfForm";
-import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight } from "@wso2-enterprise/ui-toolkit";
 import { cloneDeep, debounce } from "lodash";
 import {
     createNodeWithUpdatedLineRange,
@@ -49,6 +59,11 @@ import {
 } from "../form-utils";
 import ForkForm from "../ForkForm";
 import { getHelperPane } from "../../HelperPane"
+
+interface TypeEditorState {
+    isOpen: boolean;
+    fieldKey?: string; // Optional, to store the key of the field being edited
+}
 
 interface FormProps {
     fileName: string;
@@ -64,6 +79,7 @@ interface FormProps {
     openSubPanel?: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
+    disableSaveButton?: boolean;
 }
 
 export function FormGenerator(props: FormProps) {
@@ -75,18 +91,18 @@ export function FormGenerator(props: FormProps) {
         clientName,
         targetLineRange,
         projectPath,
-        editForm,
         onSubmit,
         openSubPanel,
         subPanelView,
         updatedExpressionField,
-        resetUpdatedExpressionField
+        resetUpdatedExpressionField,
+        disableSaveButton
     } = props;
 
     const { rpcClient } = useRpcContext();
 
     const [fields, setFields] = useState<FormField[]>([]);
-    const [showRecordEditor, setShowRecordEditor] = useState(false);
+    const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false });
     const [visualizableFields, setVisualizableFields] = useState<string[]>([]);
 
     /* Expression editor related state and ref variables */
@@ -160,7 +176,7 @@ export function FormGenerator(props: FormProps) {
 
         rpcClient
             .getInlineDataMapperRpcClient()
-            .getVisualizableFields({filePath: fileName, flowNode: node, position: targetLineRange.startLine})
+            .getVisualizableFields({ filePath: fileName, flowNode: node, position: targetLineRange.startLine })
             .then((res) => {
                 setVisualizableFields(res.visualizableProperties);
             });
@@ -207,7 +223,7 @@ export function FormGenerator(props: FormProps) {
         await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
 
-    const handleOpenRecordEditor = (isOpen: boolean, f: FormValues) => {
+    const handleOpenTypeEditor = (isOpen: boolean, f: FormValues, editingField?: FormField) => {
         // Get f.value and assign that value to field value
         const updatedFields = fields.map((field) => {
             const updatedField = { ...field };
@@ -217,7 +233,7 @@ export function FormGenerator(props: FormProps) {
             return updatedField;
         });
         setFields(updatedFields);
-        setShowRecordEditor(isOpen);
+        setTypeEditorState({ isOpen, fieldKey: editingField?.key });
     };
 
     /* Expression editor related functions */
@@ -436,6 +452,21 @@ export function FormGenerator(props: FormProps) {
         handleExpressionEditorCancel();
     };
 
+    const onTypeEditorClosed = () => {
+        setTypeEditorState({ isOpen: false });
+    };
+
+    const onTypeChange = async (type: Type) => {
+        const updatedFields = fields.map((field) => {
+            if (field.key === typeEditorState.fieldKey) {
+                return { ...field, value: type.name };
+            }
+            return field;
+        });
+        setFields(updatedFields);
+        setTypeEditorState({ isOpen: false });
+    };
+
     const handleGetHelperPane = (
         exprRef: RefObject<FormExpressionEditorRef>,
         anchorRef: RefObject<HTMLDivElement>,
@@ -484,7 +515,7 @@ export function FormGenerator(props: FormProps) {
     ]);
 
     const fetchVisualizableFields = async (filePath: string, flowNode: FlowNode, position: LinePosition) => {
-        const res = await rpcClient.getInlineDataMapperRpcClient().getVisualizableFields({filePath, flowNode, position});
+        const res = await rpcClient.getInlineDataMapperRpcClient().getVisualizableFields({ filePath, flowNode, position });
         setVisualizableFields(res.visualizableProperties);
     }
 
@@ -522,6 +553,15 @@ export function FormGenerator(props: FormProps) {
         );
     }
 
+    if (!node) {
+        console.log(">>> Node is undefined");
+        return null;
+    }
+
+    const notSupportedLabel =
+        "This statement is not supported in low-code yet. Please use the Ballerina source code to modify it accordingly.";
+    const infoLabel = node.codedata.node === "EXPRESSION" ? notSupportedLabel : undefined;
+
     // default form
     return (
         <>
@@ -530,7 +570,7 @@ export function FormGenerator(props: FormProps) {
                     formFields={fields}
                     projectPath={projectPath}
                     selectedNode={node.codedata.node}
-                    openRecordEditor={handleOpenRecordEditor}
+                    openRecordEditor={handleOpenTypeEditor}
                     onSubmit={handleOnSubmit}
                     openView={handleOpenView}
                     openSubPanel={openSubPanel}
@@ -543,16 +583,22 @@ export function FormGenerator(props: FormProps) {
                     mergeFormDataWithFlowNode={mergeFormDataWithFlowNode}
                     handleVisualizableFields={fetchVisualizableFields}
                     visualizableFields={visualizableFields}
+                    infoLabel={infoLabel}
+                    disableSaveButton={disableSaveButton}
                 />
             )}
-            {showRecordEditor && (
-                <RecordEditor
-                    fields={fields}
-                    isRecordEditorOpen={showRecordEditor}
-                    onClose={() => setShowRecordEditor(false)}
-                    updateFields={(updatedFields) => setFields(updatedFields)}
-                    rpcClient={rpcClient}
-                />
+            {typeEditorState.isOpen && (
+                <PanelContainer
+                    title={"New Type"}
+                    show={true}
+                    onClose={onTypeEditorClosed}
+                >
+                    <TypeEditor
+                        newType={true}
+                        rpcClient={rpcClient}
+                        onTypeChange={onTypeChange}
+                    />
+                </PanelContainer>
             )}
         </>
     );
