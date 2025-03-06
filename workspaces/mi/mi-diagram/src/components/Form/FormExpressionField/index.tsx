@@ -14,11 +14,14 @@ import styled from '@emotion/styled';
 import { HelperPaneCompletionItem, HelperPaneFunctionInfo, FormExpressionFieldValue } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import {
+    Button,
+    Codicon,
     CompletionItem,
     ErrorBanner,
     FormExpressionEditor,
     FormExpressionEditorRef,
     RequiredFormInput,
+    TextField,
     Typography,
 } from '@wso2-enterprise/ui-toolkit';
 import { getHelperPane } from '../HelperPane';
@@ -31,6 +34,7 @@ import {
     getExpressionValue,
     modifyCompletion
 } from './utils';
+import { Colors } from '../../../resources/constants';
 
 type EXProps = {
     isActive: boolean;
@@ -69,6 +73,7 @@ type FormExpressionFieldProps = {
     placeholder: string;
     nodeRange: Range;
     canChange: boolean;
+    supportsAIValues?: boolean;
     onChange: (value: FormExpressionFieldValue) => void;
     onFocus?: (e?: any) => void | Promise<void>;
     onBlur?: (e?: any) => void | Promise<void>;
@@ -143,6 +148,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         placeholder,
         nodeRange,
         canChange,
+        supportsAIValues,
         onChange,
         onCancel,
         errorMsg,
@@ -167,6 +173,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
     const [configInfo, setConfigInfo] = useState<HelperPaneCompletionItem[]>(null);
     const [headerInfo, setHeaderInfo] = useState<HelperPaneCompletionItem[]>(null);
     const [paramInfo, setParamInfo] = useState<HelperPaneCompletionItem[]>(null);
+    const [isAIFill, setIsAIFill] = useState<boolean>(value.fromAI);
 
     const debouncedRetrieveCompletions = useCallback(
         async (expression: string, cursorPosition: number) => {
@@ -337,7 +344,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         });
         cursorPositionRef.current = expressionField.value?.length ?? 0;
     }, [onChange, enrichExpressionValue]);
-    
+
     const handleOpenExpressionEditor = useCallback(() => {
         const extractedExpressionValue = extractExpressionValue(value.value);
         const newValue = {
@@ -348,6 +355,14 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         openExpressionEditor(newValue, handleExpressionEditorChange);
     }, [value, openExpressionEditor, handleExpressionEditorChange]);
 
+    const handleAIFill = () => {
+        onChange({
+            ...value,
+            fromAI: !isAIFill
+        });
+        setIsAIFill(!isAIFill);
+    };
+
     const actionButtons = useMemo(() => {
         if (!value.isExpression) {
             return [];
@@ -356,26 +371,26 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         return [
             ...(isExActive
                 ? [
-                      {
-                          tooltip: 'Open Expression Editor',
-                          iconType: 'codicon' as any,
-                          name: 'edit',
-                          onClick: handleOpenExpressionEditor
-                      }
-                  ]
+                    {
+                        tooltip: 'Open Expression Editor',
+                        iconType: 'codicon' as any,
+                        name: 'edit',
+                        onClick: handleOpenExpressionEditor
+                    }
+                ]
                 : []),
             ...(value.isExpression
                 ? [
-                      {
-                          tooltip: 'Open Helper Pane',
-                          iconType: 'icon' as any,
-                          name: 'open-helper-pane',
-                          onClick: () => {
-                              expressionRef.current?.focus();
-                              handleChangeHelperPaneState(!isHelperPaneOpen);
-                          }
-                      }
-                  ]
+                    {
+                        tooltip: 'Open Helper Pane',
+                        iconType: 'icon' as any,
+                        name: 'open-helper-pane',
+                        onClick: () => {
+                            expressionRef.current?.focus();
+                            handleChangeHelperPaneState(!isHelperPaneOpen);
+                        }
+                    }
+                ]
                 : [])
         ];
     }, [
@@ -402,40 +417,72 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                 {labelAdornment}
             </S.Header>
             <div>
-                <FormExpressionEditor
-                    ref={expressionRef}
-                    disabled={disabled}
-                    value={expressionValue}
-                    placeholder={placeholder}
-                    onChange={handleExpressionChange}
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                    onCancel={handleCancel}
-                    getExpressionEditorIcon={handleGetExpressionEditorIcon}
-                    helperPaneOrigin='left'
-                    actionButtons={actionButtons}
-                    {...(value.isExpression && {
-                        completions,
-                        isHelperPaneOpen,
-                        changeHelperPaneState: handleChangeHelperPaneState,
-                        getHelperPane: handleGetHelperPane,
-                        onFunctionEdit: handleFunctionEdit,
-                        startAdornment: (
-                            <S.AdornmentContainer>
-                                <Typography variant="h4" sx={{ margin: 0 }}>
-                                    {"${"}
-                                </Typography>
-                            </S.AdornmentContainer>
-                        ),
-                        endAdornment: (
-                            <S.AdornmentContainer>
-                                <Typography variant="h4" sx={{ margin: 0 }}>
-                                    {"}"}
-                                </Typography>
-                            </S.AdornmentContainer>
-                        ),
-                    })}
-                />
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    {!isAIFill && <FormExpressionEditor
+                        ref={expressionRef}
+                        disabled={disabled}
+                        value={expressionValue}
+                        placeholder={placeholder}
+                        onChange={handleExpressionChange}
+                        onFocus={handleFocus}
+                        onBlur={handleBlur}
+                        onCancel={handleCancel}
+                        getExpressionEditorIcon={handleGetExpressionEditorIcon}
+                        helperPaneOrigin='left'
+                        actionButtons={actionButtons}
+                        {...(value.isExpression && {
+                            completions,
+                            isHelperPaneOpen,
+                            changeHelperPaneState: handleChangeHelperPaneState,
+                            getHelperPane: handleGetHelperPane,
+                            onFunctionEdit: handleFunctionEdit,
+                            startAdornment: (
+                                <S.AdornmentContainer>
+                                    <Typography variant="h4" sx={{ margin: 0 }}>
+                                        {"${"}
+                                    </Typography>
+                                </S.AdornmentContainer>
+                            ),
+                            endAdornment: (
+                                <S.AdornmentContainer>
+                                    <Typography variant="h4" sx={{ margin: 0 }}>
+                                        {"}"}
+                                    </Typography>
+                                </S.AdornmentContainer>
+                            ),
+                        })}
+                    />}
+
+                    {isAIFill && <TextField
+                        disabled={true}
+                        value={"AI-Generated Value"}
+                        sx={{ width: '100%', backgroundColor: 'var(--vscode-input-background)' }}
+                    />}
+
+                    <Button
+                        tooltip={"Let AI fill this field"}
+                        onClick={handleAIFill}
+                        appearance="icon"
+                        sx={{
+                            marginLeft: '5px',
+                        }}
+                        buttonSx={{
+                            height: '26px',
+                            width: '22px',
+                            borderRadius: '2px',
+                            backgroundColor: isAIFill ? Colors.PRIMARY : Colors.SECONDARY_BUTTON,
+                        }}
+                    >
+                        <Codicon
+                            name={"wand"}
+                            iconSx={{
+                                fontSize: '12px',
+                                color: Colors.ON_PRIMARY
+                            }}
+                            sx={{ height: '14px', width: '16px' }}
+                        />
+                    </Button>
+                </div>
                 {errorMsg && <ErrorBanner errorMsg={errorMsg} />}
             </div>
         </S.Container>

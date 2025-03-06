@@ -114,6 +114,7 @@ export interface Element {
     viewIdentifier?: string;
     viewDisplayName?: string;
     expressionType?: 'xpath/jsonPath' | 'synapse';
+    supportsAIValues?: boolean;
 }
 
 interface ExpressionValueWithSetter {
@@ -332,6 +333,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 placeholder={element.placeholder}
                 nodeRange={range}
                 canChange={element.inputType !== 'expression'}
+                supportsAIValues={element.supportsAIValues}
                 errorMsg={errorMsg}
                 openExpressionEditor={(value, setValue) => {
                     setCurrentExpressionValue({ value, setValue });
