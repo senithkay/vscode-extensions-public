@@ -33,7 +33,7 @@ export async function saveToRegistry(rpcClient: RpcClient, path: string, registr
         createOption: "new",
         content: content,
     }
-    const regfilePath = await rpcClient.getMiDiagramRpcClient().createRegistryResource(regRequest);
+    return await rpcClient.getMiDiagramRpcClient().createRegistryResource(regRequest);
 }
 
 export function formatRegistryPath(path: string, registryType: string, fileName: string): string | undefined {

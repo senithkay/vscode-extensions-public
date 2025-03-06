@@ -21,6 +21,7 @@ import {
     Loopback,
     PayloadFactory,
     Property,
+    Variable,
     PropertyGroup,
     Respond,
     Send,
@@ -43,6 +44,7 @@ import {
     Event,
     DataServiceCall,
     Clone,
+    ScatterGather,
     Aggregate,
     Iterate,
     Switch,
@@ -69,7 +71,8 @@ import {
     ProxyTarget,
     DbMediator,
     Rewrite,
-    Query
+    Query,
+    ThrowError
 } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 
@@ -150,7 +153,7 @@ export class PositionVisitor implements Visitor {
                 } else if (subSequence.tag === "endpoint") {
                     this.setBasicMediatorPosition(subSequence);
                 } else {
-                    subSequence.viewState.w = NODE_DIMENSIONS.EMPTY.WIDTH;
+                    subSequence.viewState.w = node.tag === 'scatter-gather' ? NODE_DIMENSIONS.START.ACTIONED.WIDTH : NODE_DIMENSIONS.EMPTY.WIDTH;
                     this.setBasicMediatorPosition(subSequence);
                 }
                 this.position.x += subSequence.viewState.r + NODE_GAP.BRANCH_X;
@@ -227,6 +230,8 @@ export class PositionVisitor implements Visitor {
     beginVisitLoopback = (node: Loopback): void => this.setBasicMediatorPosition(node);
     beginVisitPayloadFactory = (node: PayloadFactory): void => this.setBasicMediatorPosition(node);
     beginVisitProperty = (node: Property): void => this.setBasicMediatorPosition(node);
+    beginVisitVariable = (node: Variable): void => this.setBasicMediatorPosition(node);
+    beginVisitThrowError = (node: ThrowError): void => this.setBasicMediatorPosition(node);
 
     beginVisitPropertyGroup = (node: PropertyGroup): void => {
         this.setBasicMediatorPosition(node);
@@ -318,6 +323,15 @@ export class PositionVisitor implements Visitor {
         this.setAdvancedMediatorPosition(node, targets, NodeTypes.GROUP_NODE, true);
     }
     endVisitClone = (node: Clone): void => this.setSkipChildrenVisit(false);
+
+    beginVisitScatterGather = (node: ScatterGather): void => {
+        let targets: { [key: string]: any } = {}
+        node.targets.map((target, index) => {
+            targets[target.to || index] = target.endpoint || target.sequence || target
+        });
+        this.setAdvancedMediatorPosition(node, targets, NodeTypes.GROUP_NODE, true);
+    }
+    endVisitScatterGather = (node: ScatterGather): void => this.setSkipChildrenVisit(false);
 
     beginVisitDataServiceCall = (node: DataServiceCall): void => {
         this.setBasicMediatorPosition(node);

@@ -89,7 +89,7 @@ jobs:
           rm build.zip
 
       - name: Setup Rush
-        uses: gigara/setup-rush@v1
+        uses: gigara/setup-rush@v1.1.0
         with:
           pnpm: 7.26.3
           node: 16.x

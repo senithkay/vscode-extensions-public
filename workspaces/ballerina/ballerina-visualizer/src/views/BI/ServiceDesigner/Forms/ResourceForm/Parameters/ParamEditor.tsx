@@ -10,11 +10,10 @@
 
 import React, { useEffect, useState } from 'react';
 
-import { ActionButtons, Divider, Dropdown, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Divider, Dropdown, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { EditorContainer, EditorContent } from '../../../styles';
-import { TypeBrowser } from '../../../components/TypeBrowser/TypeBrowser';
-import { ParameterModel } from '@wso2-enterprise/ballerina-core';
+import { EditorContainer } from '../../../styles';
+import { LineRange, ParameterModel } from '@wso2-enterprise/ballerina-core';
 import { FormField } from '@wso2-enterprise/ballerina-side-panel';
 import FormGeneratorNew from '../../../../Forms/FormGeneratorNew';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
@@ -37,6 +36,7 @@ export function ParamEditor(props: ParamProps) {
 
     const [filePath, setFilePath] = useState<string>('');
 
+    const [targetLineRange, setTargetLineRange] = useState<LineRange>();
 
     const handleOnSelect = (value: string) => {
         onChange({ ...param, httpParamType: value as "QUERY" | "Header" | "PAYLOAD" });
@@ -80,6 +80,7 @@ export function ParamEditor(props: ParamProps) {
             optional: false,
             editable: true,
             documentation: '',
+            enabled: param.name?.enabled ?? true,
             value: param.name.value,
             valueTypeConstraint: ""
         }
@@ -92,6 +93,7 @@ export function ParamEditor(props: ParamProps) {
         optional: false,
         editable: true,
         documentation: '',
+        enabled: param.type?.enabled ?? true,
         value: param.type.value,
         valueTypeConstraint: ""
     })
@@ -104,6 +106,7 @@ export function ParamEditor(props: ParamProps) {
         advanced: true,
         editable: true,
         documentation: '',
+        enabled: param.defaultValue?.enabled ?? true,
         value: param.defaultValue?.value,
         valueTypeConstraint: ""
     })
@@ -117,6 +120,20 @@ export function ParamEditor(props: ParamProps) {
             defaultValue: { ...param.defaultValue, value: dataValues['defaultable'] }
         });
     }
+
+    useEffect(() => {
+        if (filePath && rpcClient) {
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getEndOfFile({ filePath })
+                .then((res) => {
+                    setTargetLineRange({
+                        startLine: res,
+                        endLine: res,
+                    });
+                });
+        }
+    }, [filePath, rpcClient]);
 
     return (
         <EditorContainer>
@@ -135,13 +152,15 @@ export function ParamEditor(props: ParamProps) {
                 />
             )}
             <>
-                {filePath &&
+                {filePath && targetLineRange &&
                     <FormGeneratorNew
                         fileName={filePath}
-                        targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
+                        targetLineRange={targetLineRange}
                         fields={currentFields}
                         onBack={handleOnCancel}
                         onSubmit={onParameterSubmit}
+                        submitText={param.type.value ? "Save" : "Add"}
+                        nestedForm={true}
                     />
                 }
 

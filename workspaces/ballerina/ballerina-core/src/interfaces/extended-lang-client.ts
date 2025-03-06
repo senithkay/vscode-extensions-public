@@ -10,11 +10,11 @@
 
 import { CodeAction, Diagnostic, DocumentSymbol, SymbolInformation, TextDocumentItem, WorkspaceEdit } from "vscode-languageserver-types";
 import { CMDiagnostics, ComponentModel } from "./component";
-import { DocumentIdentifier, LinePosition, LineRange, NOT_SUPPORTED_TYPE, Range } from "./common";
+import { DocumentIdentifier, LinePosition, LineRange, NOT_SUPPORTED_TYPE, Position, Range } from "./common";
 import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleResponse, BallerinaModulesRequest, BallerinaTrigger, BallerinaTriggerInfo, BallerinaConnector, ExecutorPosition, ExpressionRange, JsonToRecordMapperDiagnostic, MainTriggerModifyRequest, NoteBookCellOutputValue, NotebookCellMetaInfo, OASpec, PackageSummary, PartialSTModification, ResolvedTypeForExpression, ResolvedTypeForSymbol, STModification, SequenceModel, SequenceModelDiagnostic, ServiceTriggerModifyRequest, SymbolDocumentation, XMLToRecordConverterDiagnostic, TypeField, ComponentInfo } from "./ballerina";
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteCommandParams, InitializeParams, InitializeResult, LocationLink, RenameParams } from "vscode-languageserver-protocol";
-import { Category, Flow, FlowNode, CodeData, ConfigVariable, FunctionNode } from "./bi";
+import { Category, Flow, FlowNode, CodeData, ConfigVariable, FunctionNode, Property } from "./bi";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
 import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
 import { FieldType, FunctionModel, ListenerModel, ServiceClassModel, ServiceModel } from "./service";
@@ -404,6 +404,16 @@ export interface FunctionLineRange {
     endLine: LinePosition;
 }
 
+export interface ICPEnabledRequest {
+    projectPath: string;
+}
+
+export interface ICPEnabledResponse {
+    enabled?: boolean;
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
 export interface GetTestFunctionRequest {
     filePath: string;
     functionName: string;
@@ -486,6 +496,15 @@ export interface JsonToRecordParams {
     isRecordTypeDesc: boolean;
     isClosed: boolean;
     forceFormatRecordFields?: boolean;
+    prefix?: string;
+    filePathUri?: string;
+}
+
+export interface TypeDataWithReferences {
+    types: {
+        type: Type;
+        refs: string[];
+    }[];
 }
 
 export interface JsonToRecord {
@@ -498,6 +517,8 @@ export interface XMLToRecordParams {
     isRecordTypeDesc?: boolean;
     isClosed?: boolean;
     forceFormatRecordFields?: boolean;
+    prefix?: string;
+    filePath?: string;
 }
 
 export interface XMLToRecord {
@@ -686,15 +707,23 @@ export type SearchQueryParams = {
     includeAvailableFunctions?: string;
 }
 
-export type BIGetFunctionsRequest = {
+export type SearchKind = 'FUNCTION' | 'CONNECTOR' | 'TYPE';
+
+export type BISearchRequest = {
     position: LineRange;
     filePath: string;
     queryMap: SearchQueryParams;
+    searchKind: SearchKind;
+}
+
+export type BISearchResponse = {
+    categories: Category[];
 }
 
 export type BIGetEnclosedFunctionRequest = {
     filePath: string;
     position: LinePosition;
+    findClass?: boolean;
 }
 
 export type BIGetEnclosedFunctionResponse = {
@@ -702,11 +731,6 @@ export type BIGetEnclosedFunctionResponse = {
     startLine: LinePosition;
     endLine: LinePosition;
 }
-
-export type BIGetFunctionsResponse = {
-    categories: Category[];
-}
-
 
 export type BIConnectorsRequest = {
     queryMap: SearchQueryParams;
@@ -790,13 +814,14 @@ export const TRIGGER_CHARACTERS = [':', '.', '>', '@', '/', '\\', '?'] as const;
 
 export type TriggerCharacter = typeof TRIGGER_CHARACTERS[number];
 
+export type ExpressionProperty = Property;
+
 export interface ExpressionEditorContext {
     expression: string;
     startLine: LinePosition;
     offset: number;
-    node: FlowNode;
-    branch?: string;
-    property: string;
+    codedata: CodeData;
+    property: ExpressionProperty;
 }
 
 export interface ExpressionCompletionsRequest {
@@ -857,9 +882,17 @@ export interface VisibleTypesRequest {
     position: LinePosition;
 }
 
-export interface VisibleTypesResponse {
-    types: string[];
+export interface VisibleTypeItem {
+    insertText: string;
+    kind: number;
+    label: string;
+    labelDetails: {
+        description: string;
+        detail: string;
+    }
 }
+
+export type VisibleTypesResponse = VisibleTypeItem[];
 
 export interface ReferenceLSRequest {
     textDocument: {
@@ -914,6 +947,11 @@ export interface AddFunctionResponse {
     template: string;
 }
 
+export interface RenameIdentifierRequest {
+    fileName: string;
+    position: Position;
+    newName: string;
+}
 
 // <-------- Trigger Related ------->
 export interface TriggerModelsRequest {
@@ -1035,6 +1073,7 @@ export interface ModelFromCodeRequest {
     codedata: {
         lineRange: LineRange;
     };
+    context: string;
 }
 
 export interface ServiceClassModelResponse {
@@ -1215,7 +1254,6 @@ export interface BIInterface extends BaseLangClientInterface {
     getSourceCode: (params: BISourceCodeRequest) => Promise<BISourceCodeResponse>;
     getAvailableNodes: (params: BIAvailableNodesRequest) => Promise<BIAvailableNodesResponse>;
     getNodeTemplate: (params: BINodeTemplateRequest) => Promise<BINodeTemplateResponse>;
-    getBIConnectors: (params: BIConnectorsRequest) => Promise<BIConnectorsResponse>;
     getSequenceDiagramModel: (params: SequenceModelRequest) => Promise<SequenceModelResponse>;
     generateServiceFromOAS: (params: ServiceFromOASRequest) => Promise<ServiceFromOASResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
@@ -1248,6 +1286,8 @@ export interface BIInterface extends BaseLangClientInterface {
     updateType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
     updateImports: (params: UpdateImportsRequest) => Promise<void>;
     addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
+    convertJsonToRecordType: (params: JsonToRecordParams) => Promise<TypeDataWithReferences>;
+    convertXmlToRecordType: (params: XMLToRecordParams) => Promise<TypeDataWithReferences>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {
@@ -1260,7 +1300,6 @@ export interface ExtendedLangClientInterface extends BIInterface {
     getPackageComponentModels(params: ComponentModelsParams): Promise<ComponentModels>;
     getPersistERModel(params: PersistERModelParams): Promise<PersistERModel>;
     getDiagnostics(params: DiagnosticsParams): Promise<Diagnostics[] | NOT_SUPPORTED_TYPE>;
-    getConnectors(params: ConnectorsParams, reset?: boolean): Promise<Connectors | NOT_SUPPORTED_TYPE>;
     getConnector(params: ConnectorRequest): Promise<ConnectorResponse | NOT_SUPPORTED_TYPE>;
     getRecord(params: RecordParams): Promise<BallerinaRecord | NOT_SUPPORTED_TYPE>;
     getSymbolDocumentation(params: SymbolInfoParams): Promise<SymbolInfo | NOT_SUPPORTED_TYPE>;

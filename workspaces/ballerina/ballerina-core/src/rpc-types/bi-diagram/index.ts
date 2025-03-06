@@ -12,18 +12,15 @@
  */
 
 import { ProjectStructureResponse } from "../../interfaces/bi";
+import { LinePosition } from "../../interfaces/common";
 import {
     BIAvailableNodesRequest,
     BIAvailableNodesResponse,
     BIFlowModelResponse,
-    BIConnectorsRequest,
-    BIConnectorsResponse,
     BINodeTemplateRequest,
     BINodeTemplateResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
-    BIGetFunctionsRequest,
-    BIGetFunctionsResponse,
     BIModuleNodesResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -60,7 +57,10 @@ import {
     ClassFieldModifierRequest,
     SourceEditResponse,
     ServiceClassSourceRequest,
-    AddFieldRequest
+    AddFieldRequest,
+    RenameIdentifierRequest,
+    BISearchRequest,
+    BISearchResponse
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -77,7 +77,11 @@ import {
     BreakpointRequest,
     CurrentBreakpointsResponse,
     FormDidOpenParams,
-    FormDidCloseParams
+    FormDidCloseParams,
+    EndOfFileRequest,
+    RecordsInWorkspaceMentions,
+    BuildMode,
+    DevantComponentResponse
 } from "./interfaces";
 
 export interface BIDiagramAPI {
@@ -86,7 +90,6 @@ export interface BIDiagramAPI {
     deleteFlowNode: (params: BISourceCodeRequest) => Promise<BISourceCodeResponse>;
     deleteByComponentInfo: (params: BIDeleteByComponentInfoRequest) => Promise<BIDeleteByComponentInfoResponse>;
     getAvailableNodes: (params: BIAvailableNodesRequest) => Promise<BIAvailableNodesResponse>;
-    getFunctions: (params: BIGetFunctionsRequest) => Promise<BIGetFunctionsResponse>;
     getEnclosedFunction: (params: BIGetEnclosedFunctionRequest) => Promise<BIGetEnclosedFunctionResponse>;
     getNodeTemplate: (params: BINodeTemplateRequest) => Promise<BINodeTemplateResponse>;
     getAiSuggestions: (params: BIAiSuggestionsRequest) => Promise<BIAiSuggestionsResponse>;
@@ -95,7 +98,6 @@ export interface BIDiagramAPI {
     getProjectStructure: () => Promise<ProjectStructureResponse>;
     getProjectComponents: () => Promise<ProjectComponentsResponse>;
     createComponent: (params: ComponentRequest) => Promise<CreateComponentResponse>;
-    getBIConnectors: (params: BIConnectorsRequest) => Promise<BIConnectorsResponse>;
     handleReadmeContent: (params: ReadmeContentRequest) => Promise<ReadmeContentResponse>;
     getVisibleVariableTypes: (params: BIGetVisibleVariableTypesRequest) => Promise<BIGetVisibleVariableTypesResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
@@ -104,10 +106,11 @@ export interface BIDiagramAPI {
     getModuleNodes: () => Promise<BIModuleNodesResponse>;
     getReadmeContent: () => Promise<ReadmeContentResponse>;
     openReadme: () => void;
+    renameIdentifier: (params: RenameIdentifierRequest) => Promise<void>;
     deployProject: () => void;
     openAIChat: (params: AIChatRequest) => void;
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
-    buildProject: () => void;
+    buildProject: (mode: BuildMode) => void;
     runProject: () => void;
     getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
     addBreakpointToSource: (params: BreakpointRequest) => void;
@@ -129,4 +132,8 @@ export interface BIDiagramAPI {
     updateImports: (params: UpdateImportsRequest) => Promise<UpdateImportsResponse>;
     addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
     getFunctionNode: (params: FunctionNodeRequest) => Promise<FunctionNodeResponse>;
+    getEndOfFile: (params: EndOfFileRequest) => Promise<LinePosition>;
+    search: (params: BISearchRequest) => Promise<BISearchResponse>;
+    getRecordNames: () => Promise<RecordsInWorkspaceMentions>;
+    getDevantComponent: () => Promise<DevantComponentResponse | undefined>;
 }

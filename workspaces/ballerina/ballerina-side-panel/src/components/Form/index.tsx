@@ -22,16 +22,18 @@ import styled from "@emotion/styled";
 import { ExpressionFormField, FormExpressionEditorProps, FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, FlowNode, LinePosition } from "@wso2-enterprise/ballerina-core";
+import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, FlowNode, LinePosition, ExpressionProperty } from "@wso2-enterprise/ballerina-core";
 import { FormContext, Provider } from "../../context";
 import { formatJSONLikeString } from "./utils";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 namespace S {
-    export const Container = styled(SidePanelBody)`
+    export const Container = styled(SidePanelBody) <{ nestedForm?: boolean }>`
         display: flex;
         flex-direction: column;
         gap: 20px;
-        height: calc(100vh - 70px);
+        height: ${({ nestedForm }) => nestedForm ? 'unset' : 'calc(100vh - 100px)'};
+        overflow-y: ${({ nestedForm }) => nestedForm ? 'visible' : 'scroll'};
     `;
 
     export const Row = styled.div<{}>`
@@ -155,8 +157,14 @@ namespace S {
         }
         align-self: center;
     `;
+
+    export const InfoLabel = styled.div`
+        font-size: var(--vscode-font-size);
+        color: ${ThemeColors.ON_SURFACE_VARIANT};
+    `;
 }
 export interface FormProps {
+    infoLabel?: string;
     formFields: FormField[];
     submitText?: string;
     targetLineRange?: LineRange; // TODO: make them required after connector wizard is fixed
@@ -176,10 +184,13 @@ export interface FormProps {
     mergeFormDataWithFlowNode?: (data: FormValues, targetLineRange: LineRange) => FlowNode;
     handleVisualizableFields?: (filePath: string, flowNode: FlowNode, position: LinePosition) => void;
     visualizableFields?: string[];
+    nestedForm?: boolean;
+    disableSaveButton?: boolean;
 }
 
 export const Form = forwardRef((props: FormProps, ref) => {
     const {
+        infoLabel,
         formFields,
         projectPath,
         selectedNode,
@@ -198,7 +209,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
         resetUpdatedExpressionField,
         mergeFormDataWithFlowNode,
         handleVisualizableFields,
-        visualizableFields
+        visualizableFields,
+        nestedForm,
     } = props;
 
     const {
@@ -215,13 +227,21 @@ export const Form = forwardRef((props: FormProps, ref) => {
         formState: { isValidating, errors, isDirty }
     } = useForm<FormValues>();
 
+    const { rpcClient } = useRpcContext();
+
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [activeFormField, setActiveFormField] = useState<string | undefined>(undefined);
     const [diagnosticsInfo, setDiagnosticsInfo] = useState<FormDiagnostics[] | undefined>(undefined);
+    const [isGraphql, setIsGraphql] = useState<boolean>(false);
 
     const exprRef = useRef<FormExpressionEditorRef>(null);
 
     useEffect(() => {
+        rpcClient.getVisualizerLocation().then(context => {
+            if (context.view === "GraphQL Diagram") {
+                setIsGraphql(true);
+            }
+        });
         // Check if the form is a onetime usage or not. This is checked due to reset issue with nested forms in param manager
         if (!oneTimeForm) {
             // Reset form with new values when formFields change
@@ -274,8 +294,6 @@ export const Form = forwardRef((props: FormProps, ref) => {
             }
         }
     }, [updatedExpressionField]);
-
-    console.log(">>> form fields", { formFields, values: getValues() });
 
     const handleOnSave = (data: FormValues) => {
         console.log(">>> saved form fields", { data });
@@ -361,6 +379,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         showDiagnostics: boolean,
         expression: string,
         key: string,
+        property: ExpressionProperty
     ) => {
         // HACK: For variable nodes, update the type value in the node
         const isVariableNode = selectedNode === "VARIABLE";
@@ -369,6 +388,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                 showDiagnostics,
                 expression,
                 key,
+                property,
                 handleSetDiagnosticsInfo,
                 isVariableNode,
                 watch("type")
@@ -438,12 +458,13 @@ export const Form = forwardRef((props: FormProps, ref) => {
         return hasDiagnostics;
     }, [diagnosticsInfo])
 
-    const disableSaveButton = !isValid || isValidating;
+    const disableSaveButton = !isValid || isValidating || props.disableSaveButton;
 
     // TODO: support multiple type fields
     return (
         <Provider {...contextValue}>
-            <S.Container>
+            <S.Container nestedForm={nestedForm}>
+                {infoLabel && <S.InfoLabel>{infoLabel}</S.InfoLabel>}
                 {prioritizeVariableField && variableField && (
                     <S.CategoryRow showBorder={true}>
                         {variableField &&
@@ -495,7 +516,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     }
                     {hasAdvanceFields && (
                         <S.Row>
-                            Advance Parameters
+                            {isGraphql ? 'Advance Arguments' : 'Advance Parameters'}
                             <S.ButtonContainer>
                                 {!showAdvancedOptions && (
                                     <LinkButton

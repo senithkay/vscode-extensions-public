@@ -11,6 +11,7 @@ import React, { CSSProperties, useState } from 'react';
 import { createPortal } from 'react-dom';
 import styled from '@emotion/styled';
 import {
+    ArrowProps,
     HelperPaneBodyProps,
     HelperPaneCategoryItemProps,
     HelperPaneCompletionItemProps,
@@ -20,7 +21,7 @@ import {
     HelperPaneProps,
     HelperPaneSectionProps,
     LibraryBrowserProps,
-    LoadingItemProps,
+    LoadingSectionProps,
     PanelsProps,
     PanelTabProps,
     PanelViewProps,
@@ -33,7 +34,27 @@ import Typography from '../../../../Typography/Typography';
 import { Overlay } from '../../../../Commons/Overlay';
 import ProgressRing from '../../../../ProgressRing/ProgressRing';
 import { HelperPanePanelProvider, useHelperPanePanelContext } from './context';
-import { HELPER_PANE_HEIGHT, HELPER_PANE_WIDTH } from '../../../constants';
+import { ARROW_HEIGHT, HELPER_PANE_HEIGHT, HELPER_PANE_WIDTH } from '../../../constants';
+import { HelperPaneHeight } from '../../../types';
+import { convertHelperPaneHeightToCSS } from '../../../utils';
+
+export const Arrow = styled.div<ArrowProps>`
+    position: absolute;
+    height: ${ARROW_HEIGHT}px;
+    width: ${ARROW_HEIGHT}px;
+    background-color: var(--vscode-dropdown-background);
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+
+    ${(props: ArrowProps) => props.origin === "left" && `
+        transform: rotate(90deg);
+    `}
+
+    ${(props: ArrowProps) => props.origin === "right" && `
+        transform: rotate(-90deg);
+    `}
+
+    ${(props: StyleBase) => props.sx}
+`;
 
 const PanelViewContainer = styled.div`
     height: 100%;
@@ -137,9 +158,11 @@ const FooterContainer = styled.footer`
     flex-direction: column;
 `;
 
-const CompletionItemOuterContainer = styled.div<{ level: number }>`
+const CompletionItemOuterContainer = styled.div<{ indent: boolean }>`
+    display: flex;
+    flex-direction: column;
     margin-bottom: 2px;
-    padding-left: ${({ level }: { level: number }) => level * 16}px;
+    padding-left: ${({ indent }: { indent: boolean }) => indent ? 16 : 0}px;
 `;
 
 const CompletionItemContainer = styled.div`
@@ -149,6 +172,23 @@ const CompletionItemContainer = styled.div`
     padding: 2px;
     border-radius: 4px;
     cursor: pointer;
+`;
+
+const HorizontalLine = styled.div`
+    border-top: 1px dotted var(--vscode-editorIndentGuide-background);
+    display: flex;
+    flex: 1 1 auto;
+`;
+
+const CompletionItemWithoutCollapseContainer = styled.div<{ isParent: boolean }>`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+
+    ${({ isParent }: { isParent: boolean }) => !isParent && `
+        flex: 1 1 auto;
+    `}
 
     &:hover {
         background-color: var(--vscode-list-hoverBackground);
@@ -182,8 +222,24 @@ const CollapseButton = styled.div`
     }
 `;
 
-const LoadingBox = styled.div`
-    width: 100%;
+const LoadingHeader = styled.div`
+    width: 100px;
+    height: 16px;
+    margin-bottom: 2px;
+    background: var(--vscode-editor-background);
+    animation: loading 1s infinite alternate;
+
+    @keyframes loading {
+        0% {
+            background: var(--vscode-editor-background);
+        }
+        100% {
+            background: var(--vscode-editor-inactiveSelectionBackground);
+        }
+    }
+`;
+
+const LoadingItem = styled.div`
     height: 16px;
     margin-bottom: 2px;
     background: var(--vscode-editor-background);
@@ -263,11 +319,13 @@ const HeaderContainerWithSearch = styled.div`
     gap: 8px;
 `;
 
-const DropdownBody = styled.div<{ sx?: CSSProperties }>`
+const DropdownBody = styled.div<{ helperPaneHeight: HelperPaneHeight; sx?: CSSProperties }>`
     display: flex;
     flex-direction: column;
     width: ${HELPER_PANE_WIDTH}px;
-    height: ${HELPER_PANE_HEIGHT}px;
+    height: ${({ helperPaneHeight }: { helperPaneHeight?: HelperPaneHeight }) =>
+        convertHelperPaneHeightToCSS(helperPaneHeight)};
+    min-height: ${HELPER_PANE_HEIGHT}px;
     padding: 8px;
     border-radius: 2px;
     color: var(--input-foreground);
@@ -275,16 +333,26 @@ const DropdownBody = styled.div<{ sx?: CSSProperties }>`
     ${({ sx }: { sx?: CSSProperties }) => sx}
 `;
 
-const LoadingGroup: React.FC<LoadingItemProps> = ({ columns }) => {
-    const boxCount = columns ? columns * 2 : 2;
+const Loader: React.FC<LoadingSectionProps> = ({ columns, rows, sections }) => {
+    const sectionCount = sections ? sections : 2;
+    const rowCount = rows ? rows : 2;
+    const colCount = columns ? columns : 2;
 
-    const boxes = [];
-    for (let i = 0; i < boxCount; i++) {
-        boxes.push(<LoadingBox key={i} />);
-    }
     return (
         <>
-            {boxes}
+            {Array.from({ length: sectionCount }).map((_, sectionIndex) => (
+                <SectionContainer key={sectionIndex}>
+                    {/* Loading section header */}
+                    <LoadingHeader />
+
+                    {/* Loading section body */}
+                    <SectionBody columns={colCount}>
+                        {Array.from({ length: rowCount * colCount }).map((_, index) => (
+                            <LoadingItem key={`${sectionIndex}-${index}`} />
+                        ))}
+                    </SectionBody>
+                </SectionContainer>
+            ))}
         </>
     );
 }
@@ -400,6 +468,7 @@ const LibraryBrowserSection: React.FC<HelperPaneSectionProps> = ({
 };
 
 const LibraryBrowser: React.FC<LibraryBrowserProps> = ({
+    anchorRef,
     children,
     loading = false,
     searchValue,
@@ -413,7 +482,7 @@ const LibraryBrowser: React.FC<LibraryBrowserProps> = ({
                 sx={{ background: "var(--vscode-editor-inactiveSelectionBackground)", opacity: 0.4 }}
                 onClose={onClose}
             />
-            <LibraryBrowserContainer>
+            <LibraryBrowserContainer ref={anchorRef}>
                 <LibraryBrowserHeader>
                     <Typography variant="h2" sx={{ margin: 0, ...titleSx }}>
                         Library Browser
@@ -457,23 +526,50 @@ const Footer: React.FC<HelperPaneFooterProps> = ({ children }) => {
     );
 };
 
-const CompletionItem: React.FC<HelperPaneCompletionItemProps> = ({ getIcon, level = 0, label, type, onClick }) => {
+const CompletionItem: React.FC<HelperPaneCompletionItemProps> = ({ getIcon, indent = false, label, type, onClick, children }) => {
+    const [collapsed, setCollapsed] = useState<boolean>(false);
+
+    // Get the child nodes of type CompletionItem
+    const completionItems = children ? React.Children.toArray(children).filter(child => 
+        React.isValidElement(child) && (child.type as any).displayName === 'CompletionItem'
+    ) : [];
+
+    const handleCollapseClick = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setCollapsed(!collapsed);
+    };
+
     return (
-        <CompletionItemOuterContainer level={level}>
-            <CompletionItemContainer onClick={onClick}>
-                {getIcon && getIcon()}
-                <Typography variant="body3" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {label}
-                </Typography>
-                {type && (
-                    <Typography variant="body3" sx={{ color: 'var(--vscode-terminal-ansiGreen)' }}>
-                        {type}
+        <CompletionItemOuterContainer indent={indent}>
+            <CompletionItemContainer>
+                <CompletionItemWithoutCollapseContainer
+                    title={label}
+                    isParent={completionItems.length > 0}
+                    onClick={onClick}
+                >
+                    {getIcon && getIcon()}
+                    <Typography variant="body3" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {label}
                     </Typography>
-                )}
+                    {type && (
+                        <Typography variant="body3" sx={{ color: 'var(--vscode-terminal-ansiGreen)' }}>
+                            {type}
+                        </Typography>
+                    )}
+                </CompletionItemWithoutCollapseContainer>
+                {completionItems.length > 0 && <HorizontalLine />}
+                {completionItems.length > 0 && (collapsed ? (
+                    <Codicon name="chevron-up" onClick={handleCollapseClick} />
+                ) : (
+                    <Codicon name="chevron-down" onClick={handleCollapseClick} />
+                ))}
             </CompletionItemContainer>
+            {!collapsed && completionItems}
         </CompletionItemOuterContainer>
     );
 };
+CompletionItem.displayName = 'CompletionItem';
 
 const CategoryItem: React.FC<HelperPaneCategoryItemProps> = ({ label, labelSx, onClick, getIcon }) => {
     return (
@@ -519,7 +615,6 @@ const Section: React.FC<HelperPaneSectionProps> = ({
     collapsible,
     defaultCollapsed = false,
     collapsedItemsCount = 10,
-    loading = false,
     children,
     titleSx
 }) => {
@@ -534,9 +629,7 @@ const Section: React.FC<HelperPaneSectionProps> = ({
                 {title}
             </Typography>
             <SectionBody columns={columns}>
-                {loading ? (
-                    <LoadingGroup columns={columns} />
-                ) : visibleItems.length > 0 ? (
+                {visibleItems.length > 0 ? (
                     visibleItems
                 ) : (
                     <Typography variant="body3">No items found.</Typography>
@@ -555,9 +648,7 @@ const Body: React.FC<HelperPaneBodyProps> = ({ children, loading = false, classN
     return (
         <BodyContainer className={className} sx={sx}>
             {loading ? (
-                <ProgressRingContainer>
-                    <ProgressRing />
-                </ProgressRingContainer>
+                <Loader columns={2} rows={3} sections={3} />
             ) : React.Children.toArray(children).length > 0 ? (
                 children
             ) : (
@@ -610,8 +701,14 @@ const HelperPane: React.FC<HelperPaneProps> & {
     Panels: typeof Panels;
     PanelTab: typeof PanelTab;
     PanelView: typeof PanelView;
-} = ({ children, sx }: HelperPaneProps) => {
-    return <DropdownBody sx={sx}>{children}</DropdownBody>;
+    Arrow: typeof Arrow;
+    Loader: typeof Loader;
+} = ({ children, helperPaneHeight, sx }: HelperPaneProps) => {
+    return (
+        <DropdownBody helperPaneHeight={helperPaneHeight} sx={sx}>
+            {children}
+        </DropdownBody>
+    );
 };
 
 HelperPane.Header = Header;
@@ -628,5 +725,7 @@ HelperPane.LibraryBrowserSubSection = LibraryBrowserSubSection;
 HelperPane.Panels = Panels;
 HelperPane.PanelTab = PanelTab;
 HelperPane.PanelView = PanelView;
+HelperPane.Arrow = Arrow;
+HelperPane.Loader = Loader;
 
 export default HelperPane;

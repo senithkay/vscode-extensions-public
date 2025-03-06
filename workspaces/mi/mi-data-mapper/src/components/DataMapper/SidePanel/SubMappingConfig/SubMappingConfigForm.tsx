@@ -120,7 +120,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
         const { mappingName, mappingType, isArray } = data;
 
         const typeKind = isArray ? TypeKind.Array : mappingType ? mappingType as TypeKind : TypeKind.Object;
-        const defaultValue = getDefaultValue(typeKind);
+        const defaultValue = getDefaultValue({ kind: typeKind });
         const typeDesc = mappingType && (isArray ? `${mappingType}[]` : mappingType !== "object" && mappingType);
         const varStmt = `const ${mappingName}${typeDesc ? `: ${typeDesc}` : ''} = ${defaultValue};`;
         (functionST.getBody() as Block).insertStatements(nextSubMappingIndex, varStmt);
@@ -155,7 +155,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
         if ((mappingName !== prevMappingName || mappingType !== prevMappingType || isArray !== prevIsArray) && mappingType !== "object" && varDecl) {
             const typeKind = isArray ? TypeKind.Array : mappingType ? mappingType as TypeKind : TypeKind.Object;
             const typeDesc = mappingType && (isArray ? `${mappingType}[]` : mappingType);
-            const defaultValue = getDefaultValue(typeKind);
+            const defaultValue = getDefaultValue({ kind: typeKind });
             if (typeNode) {
                 updatedNode = typeNode.replaceWithText(typeDesc);
                 await applyModifications(updatedNode.getSourceFile().getFullText());

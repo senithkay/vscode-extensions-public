@@ -8,7 +8,6 @@
  */
 
 import styled from "@emotion/styled";
-import { MenuItem } from "../components";
 import { action } from "@storybook/addon-actions";
 
 export const Container = styled.div`
@@ -16,6 +15,11 @@ export const Container = styled.div`
     width: calc(100vw - 40px);
     height: 100svh;
     width: 100svw;
+`;
+
+export const PreviewContainer = styled.div`
+    height: 250px;
+    width: 250px;
 `;
 
 export const componentMenu: MenuItem[] = [

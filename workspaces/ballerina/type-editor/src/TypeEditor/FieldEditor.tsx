@@ -95,11 +95,9 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                 <Button appearance="icon" onClick={() => setPanelOpened(!panelOpened)}><Codicon name="kebab-vertical" /></Button>
             </div>
             {panelOpened && (
-                <div style={{ display: 'flex', gap: '8px', border: '1px solid var(--vscode-welcomePage-tileBorder)', marginBottom: '10px', padding: '8px', borderRadius: '4px' }}>
-                    <Button appearance="icon">? Optional</Button>
-                    <Button appearance="icon">[] Array</Button>
-                    <TextField value={member.defaultValue} onChange={handleMemberDefaultValueChange} placeholder='Default Value' style={{ width: '180px' }} />
-                    <Button appearance="icon" onClick={() => setPanelOpened(false)}><Codicon name="close" /></Button>
+                <div style={{ border: '1px solid var(--vscode-welcomePage-tileBorder)', marginLeft: '25px', marginBottom: '10px', padding: '8px', borderRadius: '4px' }}>
+                    <TextField label='Default Value' value={member.defaultValue} onChange={handleMemberDefaultValueChange} style={{ width: '180px' }} />
+                    <TextField label='Description' value={''} onChange={() => { }} style={{ width: '180px' }} />
                 </div >
             )}
             {isRecord(member.type) && typeof member.type !== 'string' && (

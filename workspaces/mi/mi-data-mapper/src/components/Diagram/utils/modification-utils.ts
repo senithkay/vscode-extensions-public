@@ -15,7 +15,6 @@ import {
 	Node,
 	ObjectLiteralExpression,
 	PropertyAssignment,
-	PropertySignature,
 	ReturnStatement,
 	SourceFile,
 	TypeLiteralNode
@@ -31,27 +30,28 @@ import {
 	getPropertyAssignment,
 	getCallExprReturnStmt,
 	isEmptyValue,
-	isMapFunction
+	isMapFunction,
+	getDefaultValue,
+	getTypeAnnotation,
+	getEditorLineAndColumn,
+	toFirstLetterLowerCase,
+	toFirstLetterUpperCase
 } from "./common-utils";
 import { ArrayOutputNode, LinkConnectorNode, ObjectOutputNode } from "../Node";
 import { ExpressionLabelModel } from "../Label";
 import { DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { getPosition, isPositionsEquals } from "./st-utils";
 import { PrimitiveOutputNode } from "../Node/PrimitiveOutput";
+import { IDataMapperContext } from "src/utils/DataMapperContext/DataMapperContext";
 
-export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue?: string, suffix: string = '') {
-	if (!link.getSourcePort() || !link.getTargetPort()) {
-		return;
-	}
-
+export async function createSourceForMapping(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, rhsValue?: string, suffix: string = '') {
+	
 	let source = "";
 	let lhs = "";
 	let rhs = "";
 
-	const sourcePort = link.getSourcePort() as InputOutputPortModel;
-	const targetPort = link.getTargetPort() as InputOutputPortModel;
 	const targetNode = targetPort.getNode() as DataMapperNodeModel;
-	const fieldIndexes = targetPort && getFieldIndexes(targetPort);
+	const fieldIndexes = getFieldIndexes(targetPort);
 	const parentFieldNames: string[] = [];
 	const { applyModifications } = targetNode.context;
 
@@ -148,6 +148,14 @@ export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue
 				} else if (Node.isArrayLiteralExpression(valueExpr)
 					&& fieldIndexes !== undefined && !!fieldIndexes.length) {
 					objectLitExpr = getNextObjectLitExpr(valueExpr);
+				} else if (Node.isAsExpression(valueExpr)) {
+					const expr = valueExpr.getExpression();
+					if (Node.isObjectLiteralExpression(expr)) {
+						objectLitExpr = expr;
+					} else if (Node.isArrayLiteralExpression(expr)
+						&& fieldIndexes !== undefined && !!fieldIndexes.length) {
+						objectLitExpr = getNextObjectLitExpr(expr);
+					}
 				}
 
 				if (i === fieldNames.length - 1) {
@@ -213,6 +221,13 @@ export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue
 			return targetExpr;
 		} else if (Node.isArrayLiteralExpression(targetExpr)) {
 			return getNextObjectLitExpr(targetExpr);
+		} else if (Node.isAsExpression(targetExpr)) {
+			const expr = targetExpr.getExpression();
+			if (Node.isObjectLiteralExpression(expr)) {
+				return expr;
+			} else if (Node.isArrayLiteralExpression(expr)) {
+				return getNextObjectLitExpr(expr);
+			}
 		}
 	}
 
@@ -242,7 +257,11 @@ export async function createSourceForUserInput(
 
 		if (nextField.parentType.hasValue() && Node.isPropertyAssignment(nextField.parentType.value)) {
 			const parentField: PropertyAssignment = nextField.parentType.value;
-			const parentFieldInitializer = parentField.getInitializer();
+			let parentFieldInitializer = parentField.getInitializer();
+
+			if (Node.isAsExpression(parentFieldInitializer)) {
+				parentFieldInitializer = parentFieldInitializer.getExpression();
+			}
 
 			if (!parentFieldInitializer.getText()) {
 				const valueExprSource = constructValueExprSource(fieldName, newValue, parentFields.reverse(), 0);
@@ -518,6 +537,61 @@ export function buildInputAccessExpr(fieldFqn: string): string {
 	});
 
 	return result.replace(/(?<!\?)\.\[/g, '['); // Replace occurrences of '.[' with '[' to handle consecutive bracketing
+}
+
+export async function mapUsingCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, context: IDataMapperContext, isValueModifiable: boolean) {
+	const inputAccessExpr = buildInputAccessExpr(sourcePort.fieldFQN);
+	const sourceFile = context.functionST.getSourceFile();
+	const customFunction = genCustomFunction(sourcePort, targetPort, sourceFile);
+	const customFunctionDeclaration = sourceFile.addFunction(customFunction);
+	const range = getEditorLineAndColumn(customFunctionDeclaration);
+	const customFunctionCallExpr = `${customFunction.name}(${inputAccessExpr})`;
+
+	if (isValueModifiable) {
+		await updateExistingValue(sourcePort, targetPort, customFunctionCallExpr);
+	} else {
+		await createSourceForMapping(sourcePort, targetPort, customFunctionCallExpr);
+	}
+	context.goToSource(range);
+}
+
+
+function genCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, sourceFile: SourceFile) {
+	let targetFieldName = targetPort.field.fieldName;
+	let targetTypeWithName = targetPort.typeWithValue;
+
+	while (!Boolean(targetTypeWithName?.type.fieldName)) {
+		if (targetTypeWithName) {
+			targetTypeWithName = targetTypeWithName.parentType;
+			targetFieldName = `${targetTypeWithName?.type.fieldName}Item`;
+		} else {
+			targetFieldName = toFirstLetterLowerCase(targetPort.field.typeName || targetPort.field.kind);
+			break;
+		}
+	}
+
+	const localFunctionNames = new Set(sourceFile.getFunctions().map(fn => fn.getName()));
+	const importedFunctionNames = new Set(sourceFile.getImportDeclarations()
+		.flatMap(importDecl => importDecl.getNamedImports().map(namedImport => namedImport.getName())));
+
+	const formattedSourceFieldName = toFirstLetterLowerCase(sourcePort.field.fieldName);
+	const formattedTargetFieldName = toFirstLetterUpperCase(targetFieldName);
+	let customFunctionName = `${formattedSourceFieldName}To${formattedTargetFieldName}`;
+	let i = 1;
+	while (localFunctionNames.has(customFunctionName) || importedFunctionNames.has(customFunctionName)) {
+		customFunctionName = `${formattedSourceFieldName}To${formattedTargetFieldName}${isNaN(Number(formattedTargetFieldName.charAt(formattedTargetFieldName.length - 1))) ? '' : '_'
+			}${++i}`;
+	}
+
+	return {
+		name: customFunctionName,
+		parameters: [{ name: sourcePort.field.fieldName, type: getTypeAnnotation(sourcePort.field) }],
+		returnType: getTypeAnnotation(targetPort.field),
+		statements: [
+			`return ${getDefaultValue(targetPort.field)};`
+		]
+	}
+
 }
 
 function isMappedToRootArrayLiteralExpr(targetPort: InputOutputPortModel): boolean {

@@ -15,7 +15,7 @@ import { BISequenceDiagram } from "../SequenceDiagram";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { TitleBar } from "../../../components/TitleBar";
-import { EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, PopupMachineStateValue } from "@wso2-enterprise/ballerina-core";
 import { VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import styled from "@emotion/styled";
@@ -100,6 +100,11 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
         rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
 
+    const handleResourceTryIt = (methodValue: string, pathValue: string) => {
+        const commands = ["kolab.tryit", false, { methodValue, pathValue }]
+        rpcClient.getCommonRpcClient().executeCommand({ commands });
+    };
+
     let isAutomation = false;
     let isResource = false;
     let method = "";
@@ -129,6 +134,12 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                             <Path>{getResourcePath(syntaxTree)}</Path>
                             {parameters && <Parameters>({parameters})</Parameters>}
                         </SubTitleWrapper>
+                    }
+                    actions={
+                        <ActionButton appearance="secondary" onClick={() => handleResourceTryIt(method, getResourcePath(syntaxTree))}>
+                            <Icon name="play" isCodicon={true} sx={{ marginRight: 5, width: 16, height: 16, fontSize: 14 }} />
+                            Try It
+                        </ActionButton>
                     }
                 />
             )}
@@ -185,7 +196,11 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                 />
             )}
             {showSequenceDiagram ? (
-                <BISequenceDiagram onUpdate={handleUpdateDiagram} onReady={handleReadyDiagram} />
+                <BISequenceDiagram
+                    syntaxTree={syntaxTree}
+                    onUpdate={handleUpdateDiagram}
+                    onReady={handleReadyDiagram}
+                />
             ) : (
                 <BIFlowDiagram
                     syntaxTree={syntaxTree}

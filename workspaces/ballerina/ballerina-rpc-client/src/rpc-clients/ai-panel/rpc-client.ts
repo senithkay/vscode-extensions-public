@@ -9,47 +9,63 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    AIChatSummary,
     AIPanelAPI,
     AIVisualizerState,
     AddToProjectRequest,
     DeleteFromProjectRequest,
+    DeveloperDocument,
+    FetchDataRequest,
+    FetchDataResponse,
     GenerateMappingFromRecordResponse,
     GenerateMappingsFromRecordRequest,
     GenerateMappingsRequest,
     GenerateMappingsResponse,
-    GenerateTestRequest,
     GenerateTypesFromRecordRequest,
     GenerateTypesFromRecordResponse,
-    GeneratedTestSource,
     GetFromFileRequest,
     InitialPrompt,
+    LLMDiagnostics,
     NotifyAIMappingsRequest,
     PostProcessRequest,
     PostProcessResponse,
     ProjectDiagnostics,
     ProjectSource,
+    RequirementSpecification,
+    TestGenerationMentions,
+    TestGenerationRequest,
+    TestGenerationResponse,
+    addChatSummary,
     addToProject,
     applyDoOnFailBlocks,
     checkSyntaxError,
     clearInitialPrompt,
     deleteFromProject,
+    fetchData,
     generateMappings,
     getAccessToken,
     getActiveFile,
     getAiPanelState,
     getBackendURL,
+    getDriftDiagnosticContents,
     getFileExists,
+    getFromDocumentation,
     getFromFile,
-    getGeneratedTest,
+    getGeneratedTests,
     getInitialPrompt,
     getMappingsFromRecord,
     getProjectSource,
     getProjectUuid,
     getRefreshToken,
+    getResourceMethodAndPaths,
+    getResourceSourceForMethodAndPath,
+    getServiceNames,
+    getServiceSourceForName,
     getShadowDiagnostics,
     getTestDiagnostics,
     getTypesFromRecord,
     isCopilotSignedIn,
+    isRequirementsSpecificationFileExist,
     isWSO2AISignedIn,
     login,
     logout,
@@ -61,10 +77,13 @@ import {
     promptGithubAuthorize,
     promptLogin,
     promptWSO2AILogout,
+    readDeveloperMdFile,
     refreshAccessToken,
     showSignInAlert,
     stopAIMappings,
-    updateProject
+    updateDevelopmentDocument,
+    updateProject,
+    updateRequirementSpecification
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -102,6 +121,10 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     refreshAccessToken(): void {
         return this._messenger.sendNotification(refreshAccessToken, HOST_EXTENSION);
+    }
+
+    fetchData(params: FetchDataRequest): Promise<FetchDataResponse> {
+        return this._messenger.sendRequest(fetchData, HOST_EXTENSION, params);
     }
 
     getProjectUuid(): Promise<string> {
@@ -144,8 +167,8 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(promptLogin, HOST_EXTENSION);
     }
 
-    getProjectSource(): Promise<ProjectSource> {
-        return this._messenger.sendRequest(getProjectSource, HOST_EXTENSION);
+    getProjectSource(requestType: string): Promise<ProjectSource> {
+        return this._messenger.sendRequest(getProjectSource, HOST_EXTENSION, requestType);
     }
 
     getShadowDiagnostics(project: ProjectSource): Promise<ProjectDiagnostics> {
@@ -164,12 +187,28 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendNotification(clearInitialPrompt, HOST_EXTENSION);
     }
 
-    getGeneratedTest(params: GenerateTestRequest): Promise<GeneratedTestSource> {
-        return this._messenger.sendRequest(getGeneratedTest, HOST_EXTENSION, params);
+    getGeneratedTests(params: TestGenerationRequest): Promise<TestGenerationResponse> {
+        return this._messenger.sendRequest(getGeneratedTests, HOST_EXTENSION, params);
     }
 
-    getTestDiagnostics(params: GeneratedTestSource): Promise<ProjectDiagnostics> {
+    getTestDiagnostics(params: TestGenerationResponse): Promise<ProjectDiagnostics> {
         return this._messenger.sendRequest(getTestDiagnostics, HOST_EXTENSION, params);
+    }
+
+    getServiceSourceForName(params: string): Promise<string> {
+        return this._messenger.sendRequest(getServiceSourceForName, HOST_EXTENSION, params);
+    }
+
+    getResourceSourceForMethodAndPath(params: string): Promise<string> {
+        return this._messenger.sendRequest(getResourceSourceForMethodAndPath, HOST_EXTENSION, params);
+    }
+
+    getServiceNames(): Promise<TestGenerationMentions> {
+        return this._messenger.sendRequest(getServiceNames, HOST_EXTENSION);
+    }
+
+    getResourceMethodAndPaths(): Promise<TestGenerationMentions> {
+        return this._messenger.sendRequest(getResourceMethodAndPaths, HOST_EXTENSION);
     }
 
     getMappingsFromRecord(params: GenerateMappingsFromRecordRequest): Promise<GenerateMappingFromRecordResponse> {
@@ -222,5 +261,33 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     markAlertShown(): void {
         return this._messenger.sendNotification(markAlertShown, HOST_EXTENSION);
+    }
+
+    getFromDocumentation(content: string): Promise<string> {
+        return this._messenger.sendRequest(getFromDocumentation, HOST_EXTENSION, content);
+    }
+
+    isRequirementsSpecificationFileExist(filePath: string): Promise<boolean> {
+        return this._messenger.sendRequest(isRequirementsSpecificationFileExist, HOST_EXTENSION, filePath);
+    }
+
+    getDriftDiagnosticContents(projectPath: string): Promise<LLMDiagnostics> {
+        return this._messenger.sendRequest(getDriftDiagnosticContents, HOST_EXTENSION, projectPath);
+    }
+
+    addChatSummary(filepathAndSummary: AIChatSummary): void {
+        return this._messenger.sendNotification(addChatSummary, HOST_EXTENSION, filepathAndSummary);
+    }
+
+    readDeveloperMdFile(directoryPath: string): Promise<string> {
+        return this._messenger.sendRequest(readDeveloperMdFile, HOST_EXTENSION, directoryPath);
+    }
+
+    updateDevelopmentDocument(developerDocument: DeveloperDocument): void {
+        return this._messenger.sendNotification(updateDevelopmentDocument, HOST_EXTENSION, developerDocument);
+    }
+
+    updateRequirementSpecification(requirementsSpecification: RequirementSpecification): void {
+        return this._messenger.sendNotification(updateRequirementSpecification, HOST_EXTENSION, requirementsSpecification);
     }
 }

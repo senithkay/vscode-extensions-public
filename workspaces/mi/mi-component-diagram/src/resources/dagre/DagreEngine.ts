@@ -16,7 +16,7 @@ export interface DagreEngineOptions {
     graph?: GraphLabel;
     nodeMargin?: number;
 }
-
+// TODO: Remove this
 export class DagreEngine {
     options: DagreEngineOptions;
 

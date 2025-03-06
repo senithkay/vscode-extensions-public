@@ -107,6 +107,11 @@ export class InitVisitor implements BaseVisitor {
             node.viewStates = [];
         }
 
+        // if node is empty then don't add view state
+        if (node.branches?.length === 0 || node.branches?.every((branch) => branch.children?.length === 0)) {
+            return;
+        }
+
         const nodeId = getNodeId(node);
         const nodeViewState = getInitialIfNodeViewState(nodeId);
         node.viewStates.push(nodeViewState);
@@ -115,6 +120,11 @@ export class InitVisitor implements BaseVisitor {
     initIfBlockBranch(node: NodeBranch, parent: Node): void {
         if (!node.viewStates) {
             node.viewStates = [];
+        }
+
+        // if branch is empty then don't add view state
+        if (node.children?.length === 0) {
+            return;
         }
 
         const nodeId = getBranchId(node, parent);

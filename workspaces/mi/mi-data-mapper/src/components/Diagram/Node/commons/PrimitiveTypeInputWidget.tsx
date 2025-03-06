@@ -17,6 +17,7 @@ import { TreeContainer, TreeHeader } from './Tree/Tree';
 import { useIONodesStyles } from "../../../styles";
 import { getTypeName } from "../../utils/common-utils";
 import { useDMIOConfigPanelStore } from "../../../../store/store";
+import { TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 
 export interface PrimitiveTypeItemWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -48,7 +49,7 @@ export function PrimitiveTypeInputWidget(props: PrimitiveTypeItemWidgetProps) {
     };
 
     const label = (
-        <span style={{ marginRight: "auto" }}>
+        <TruncatedLabel style={{ marginRight: "auto" }}>
             <span className={classes.valueLabel}>
                 <InputSearchHighlight>{valueLabel ? valueLabel : id}</InputSearchHighlight>
                 {typeName && ":"}
@@ -59,7 +60,7 @@ export function PrimitiveTypeInputWidget(props: PrimitiveTypeItemWidgetProps) {
                 </span>
             )}
 
-        </span>
+        </TruncatedLabel>
     );
 
     const onRightClick = (event: React.MouseEvent) => {

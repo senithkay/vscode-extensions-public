@@ -75,7 +75,14 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
     };
 
     const handleGoToListener = (listener: CDListener) => {
-        // TODO: implement
+        if (listener.location) {
+            goToView(listener.location.filePath, {
+                startLine: listener.location.startLine.line,
+                startColumn: listener.location.startLine.offset,
+                endLine: listener.location.endLine.line,
+                endColumn: listener.location.endLine.offset,
+            });
+        }
     };
 
     const handleGoToService = (service: CDService) => {

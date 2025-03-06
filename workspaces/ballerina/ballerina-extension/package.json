@@ -2,7 +2,7 @@
     "name": "kolab",
     "displayName": "KolaB",
     "description": "KolaB Extension for Kola.",
-    "version": "0.4.2",
+    "version": "0.4.6",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
@@ -119,6 +119,11 @@
                         "type": "boolean",
                         "default": true,
                         "description": "Enable semantic highlighting for Ballerina source."
+                    },
+                    "kolab.enableNaturalProgramming": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Enable natural programming for Ballerina source."
                     },
                     "kolab.enablePerformanceForecast": {
                         "type": "boolean",
@@ -446,6 +451,11 @@
             {
                 "command": "kolab.pasteAsRecord",
                 "title": "Paste JSON as Record",
+                "category": "Ballerina"
+            },
+            {
+                "command": "kolab.verifyDocs",
+                "title": "Check drift between code and documentation",
                 "category": "Ballerina"
             },
             {
@@ -875,21 +885,21 @@
                 "description": "design-view",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f161"
+                    "fontCharacter": "\\f167"
                 }
             },
             "distro-start": {
                 "description": "start",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f1d2"
+                    "fontCharacter": "\\f1db"
                 }
             },
             "distro-debug": {
                 "description": "debug",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f15c"
+                    "fontCharacter": "\\f162"
                 }
             },
             "distro-source-view": {
@@ -903,7 +913,7 @@
                 "description": "persist-diagram",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f1ae"
+                    "fontCharacter": "\\f1b6"
                 }
             },
             "distro-cached-rounded": {

@@ -663,10 +663,6 @@
       "projectFolder": "workspaces/mi/mi-data-mapper-utils"
     },
     {
-      "packageName": "@wso2-enterprise/mi-component-diagram",
-      "projectFolder": "workspaces/mi/mi-component-diagram"
-    },
-    {
       "packageName": "api-chat",
       "projectFolder": "workspaces/api-chat/extension",
       "versionPolicyName": "ballerina-extension"
@@ -710,6 +706,10 @@
       "packageName": "@wso2-enterprise/component-diagram",
       "projectFolder": "workspaces/ballerina/component-diagram",
       "versionPolicyName": "ballerina-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/mi-component-diagram",
+      "projectFolder": "workspaces/mi/mi-component-diagram"
     },
     // {
     //   "packageName": "@wso2-enterprise/bi-overview",

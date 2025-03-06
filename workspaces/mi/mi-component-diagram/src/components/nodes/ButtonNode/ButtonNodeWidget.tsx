@@ -134,10 +134,9 @@ export interface NodeWidgetProps extends Omit<ButtonNodeWidgetProps, "children">
 export function ButtonNodeWidget(props: ButtonNodeWidgetProps) {
     const { model, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
-    const { onAddConnection, onConnectionSelect } = useDiagramContext();
 
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
-        onAddConnection();
+
     };
 
     return (

@@ -18,6 +18,7 @@ import { getBalRecFieldName, getOptionalRecordField, getTypeName, isOptionalAndN
 import { InputSearchHighlight } from "../Search";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { useIONodesStyles } from "../../../../styles";
+import { getUnionTypes } from "../../../utils/union-type-utils";
 
 export interface RecordFieldTreeItemWidgetProps {
     parentId: string;
@@ -73,6 +74,18 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
 
     const indentation = fields ? 0 : ((treeDepth + 1) * 16) + 8;
 
+    const getUnionType = () => {
+        const typeText: JSX.Element[] = [];
+        const unionTypes = getUnionTypes(field);
+        unionTypes.forEach((type) => {
+            typeText.push(<>{type}</>);
+            if (type !== unionTypes[unionTypes.length - 1]) {
+                typeText.push(<> | </>);
+            }
+        });
+        return typeText;
+    };
+
     const label = (
         <span style={{ marginRight: "auto" }}>
             <span className={classes.valueLabel} style={{ marginLeft: indentation }}>
@@ -82,7 +95,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
             </span>
             {typeName && (
                 <span className={classes.inputTypeLabel}>
-                    {typeName}
+                    {field.typeName === PrimitiveBalType.Union ? getUnionType() : typeName || ''}
                 </span>
             )}
 

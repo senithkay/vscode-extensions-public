@@ -4,12 +4,14 @@ import styled from '@emotion/styled';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import SidePanelContext, { SidePanelPage } from './SidePanelContexProvider';
 import { HomePage } from './mediators';
-import { getAllDataServiceForms, getAllMediators } from './mediators/Values';
-import AddConnector from './Pages/AddConnector';
+import { getAllDataServiceForms } from './mediators/Values';
 import { FirstCharToUpperCase } from '../../utils/commons';
 import ExpressionEditor from './expressionEditor/ExpressionEditor';
 import { ExpressionFieldValue } from '../..';
 import { DATA_SERVICE_NODES } from '../../resources/constants';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { getMediatorIconsFromFont } from '../../resources/icons/mediatorIcons/icons';
+import { MediatorPage } from './mediators/Mediator';
 
 const SidePanelContainer = styled.div`
     padding: 20px;
@@ -56,7 +58,7 @@ export interface SidePanelListProps {
 export const sidepanelAddPage = (sidePanelContext: SidePanelContext, content: any, title?: string, icon?: string | ReactNode) => {
     sidePanelContext.setSidePanelState({
         ...sidePanelContext,
-        pageStack: [...sidePanelContext.pageStack, { content, title, isOpen: true, icon }],
+        pageStack: sidePanelContext?.pageStack?.length > 0 ? [...sidePanelContext.pageStack, { content, title, isOpen: true, icon }] : [{ content, title, isOpen: true, icon }],
     });
 }
 
@@ -104,66 +106,71 @@ export const handleOpenExprEditor = (value: ExpressionFieldValue, setValue: any,
 const SidePanelList = (props: SidePanelListProps) => {
     const [isLoading, setLoading] = useState<boolean>(true);
     const sidePanelContext = useContext(SidePanelContext);
+    const { rpcClient } = useVisualizerContext();
 
     useEffect(() => {
         setLoading(sidePanelContext.pageStack == undefined);
     }, [sidePanelContext.pageStack]);
 
     useEffect(() => {
-        let mediatorsPage;
+        const fetchMediators = async () => {
+            setLoading(true);
 
-        if (sidePanelContext.isEditing && sidePanelContext.operationName) {
-            if (sidePanelContext.operationName === "connector") {
-                const form = <AddConnector
-                    formData={sidePanelContext.formValues.form}
-                    nodePosition={sidePanelContext.nodeRange}
-                    documentUri={props.documentUri}
-                    connectorName={sidePanelContext.formValues.connectorName}
-                    operationName={sidePanelContext.formValues.operationName} />;
-                mediatorsPage = { content: form, title: `Edit ${FirstCharToUpperCase(sidePanelContext.formValues.title)}` };
-            } else if (Object.values(DATA_SERVICE_NODES).includes(sidePanelContext.operationName)) {
-                const allForms = getAllDataServiceForms({
-                    nodePosition: props.nodePosition,
-                    trailingSpace: props.trailingSpace,
-                    documentUri: props.documentUri,
-                });
+            if (sidePanelContext.isEditing && sidePanelContext.operationName) {
+                if (sidePanelContext.operationName === "connector") {
+                    const page = <MediatorPage
+                        connectorData={{
+                            form: sidePanelContext.formValues.form,
+                            connectorName: sidePanelContext.formValues.connectorName,
+                            operationName: sidePanelContext.formValues.operationName,
+                        }}
+                        mediatorType={sidePanelContext.tag}
+                        isUpdate={true}
+                        documentUri={props.documentUri}
+                        nodeRange={props.nodePosition}
+                        showForm={true}
+                    />;
+                    sidepanelAddPage(sidePanelContext, page, `Edit ${FirstCharToUpperCase(sidePanelContext.formValues.title)}`, sidePanelContext.formValues.icon);
+                } else if (Object.values(DATA_SERVICE_NODES).includes(sidePanelContext.operationName)) {
+                    const allForms = getAllDataServiceForms({
+                        nodePosition: props.nodePosition,
+                        trailingSpace: props.trailingSpace,
+                        documentUri: props.documentUri,
+                    });
 
-                const form = allForms.find(form => form.operationName.toLowerCase() === sidePanelContext.operationName?.toLowerCase());
-                if (form) {
-                    mediatorsPage = { content: form.form, title: `Edit ${form.title}` };
+                    const form = allForms.find(form => form.operationName.toLowerCase() === sidePanelContext.operationName?.toLowerCase());
+                    if (form) {
+                        sidepanelAddPage(sidePanelContext, form.form, `Edit ${form.title}`);
+                    }
+                } else {
+                    const isStartNode = sidePanelContext.operationName === "startNode";
+
+                    const mediatorDetails = isStartNode ? undefined : await rpcClient.getMiDiagramRpcClient().getMediator({
+                        mediatorType: sidePanelContext.tag,
+                        range: sidePanelContext?.nodeRange,
+                        documentUri: props?.documentUri,
+                        isEdit: true
+                    });
+
+                    const title = isStartNode ? undefined : `Edit ${mediatorDetails?.title || sidePanelContext.tag}`;
+                    const icon = isStartNode ? undefined : getMediatorIconsFromFont(sidePanelContext.tag, false);
+                    const page = <MediatorPage
+                        mediatorData={mediatorDetails}
+                        mediatorType={sidePanelContext.tag}
+                        isUpdate={true}
+                        documentUri={props.documentUri}
+                        nodeRange={props.nodePosition}
+                        showForm={!isStartNode}
+                    />;
+                    sidepanelAddPage(sidePanelContext, page, title, icon);
                 }
             } else {
-
-                const allMediators = getAllMediators({
-                    nodePosition: props.nodePosition,
-                    trailingSpace: props.trailingSpace,
-                    documentUri: props.documentUri,
-                    previousNode: sidePanelContext.previousNode,
-                    parentNode: sidePanelContext.operationName?.toLowerCase() != sidePanelContext.parentNode?.toLowerCase() ? sidePanelContext.parentNode : undefined,
-                });
-
-                const form = Object.keys(allMediators).reduce((acc: any, key: string) => {
-                    const filtered = (allMediators as any)[key].filter((mediator: { title: string; operationName: string }) =>
-                        mediator.operationName.toLowerCase() === sidePanelContext.operationName?.toLowerCase());
-                    if (filtered.length > 0) {
-                        acc[key] = filtered;
-                    }
-                    return acc;
-                }, {});
-
-                if (form && Object.keys(form).length > 0) {
-                    const val = form[Object.keys(form)[0]][0];
-                    mediatorsPage = { content: val.form, title: `Edit ${val.title}` };
-                }
+                const home = <HomePage nodePosition={props.nodePosition} trailingSpace={props.trailingSpace} documentUri={props.documentUri} />;
+                sidepanelAddPage(sidePanelContext, home);
             }
-        } else {
-            mediatorsPage = { content: <HomePage nodePosition={props.nodePosition} trailingSpace={props.trailingSpace} documentUri={props.documentUri} /> };
+            setLoading(false);
         }
-
-        sidePanelContext.setSidePanelState({
-            ...sidePanelContext,
-            pageStack: [mediatorsPage]
-        });
+        fetchMediators();
     }, []);
 
     const handleClose = () => {
@@ -178,21 +185,21 @@ const SidePanelList = (props: SidePanelListProps) => {
 
     const Icon = () => {
         if (sidePanelContext.pageStack.length > 0) {
-          const lastPage = sidePanelContext.pageStack[sidePanelContext.pageStack.length - 1];
-          if (lastPage.icon !== undefined) {
-            if (typeof lastPage.icon === "string") {
-              return (
-                <IconContainer>
-                  <img src={lastPage.icon} alt="Icon" />
-                </IconContainer>
-              );
-            } else if (React.isValidElement(lastPage.icon)) {
-              return <div style={{width: 40}}>{lastPage.icon}</div>;
+            const lastPage = sidePanelContext.pageStack[sidePanelContext.pageStack.length - 1];
+            if (lastPage.icon !== undefined) {
+                if (typeof lastPage.icon === "string") {
+                    return (
+                        <IconContainer>
+                            <img src={lastPage.icon} alt="Icon" />
+                        </IconContainer>
+                    );
+                } else if (React.isValidElement(lastPage.icon)) {
+                    return <div style={{ width: 40 }}>{lastPage.icon}</div>;
+                }
             }
-          }
         }
         return null;
-      };
+    };
 
     const Title = () => {
         if (sidePanelContext.pageStack.length > 0) {
@@ -234,7 +241,15 @@ const SidePanelList = (props: SidePanelListProps) => {
                                     id={`drawer${index}`}
                                     width={300}
                                     isSelected={page.isOpen}
-                                    sx={{ width: "100%", top: "45px", border: "none", boxShadow: "none", height: "calc(100vh - 50px)", overflowY: "auto" }}
+                                    sx={{
+                                        width: "100%",
+                                        top: "45px",
+                                        border: "none",
+                                        boxShadow: "none",
+                                        height: "calc(100vh - 50px)",
+                                        overflowY: "scroll",
+                                        scrollbarWidth: "thin",
+                                    }}
                                 >
                                     {page.content}
                                 </Drawer>

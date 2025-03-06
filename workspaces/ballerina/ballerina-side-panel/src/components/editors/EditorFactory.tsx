@@ -25,6 +25,9 @@ import { ArrayEditor } from "./ArrayEditor";
 import { MapEditor } from "./MapEditor";
 import { ChoiceForm } from "./ChoiceForm";
 import { FormMapEditor } from "./FormMapEditor";
+import { IdentifierEditor } from "./IdentifierEditor";
+import { ReadonlyField } from "./ReadonlyField";
+import { ContextAwareRawExpressionEditor } from "./RawExpressionEditor";
 
 interface FormFieldEditorProps {
     field: FormField;
@@ -50,8 +53,9 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
         handleOnTypeChange,
         visualizableFields
     } = props;
-
-    if (field.type === "MULTIPLE_SELECT") {
+    if (!field.enabled) {
+        return <></>;
+    } else if (field.type === "MULTIPLE_SELECT") {
         return <MultiSelectEditor field={field} label={"Add Another"} openSubPanel={openSubPanel} />;
     } else if (field.type === "CHOICE") {
         return <ChoiceForm field={field} />;
@@ -96,6 +100,14 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
                 visualizable={visualizableFields?.includes(field.key)}
             />
         );
+    } else if (!field.items && field.type === "RAW_TEMPLATE" && field.editable) {
+        return (
+            <ContextAwareRawExpressionEditor
+                ref={ref}
+                field={field}
+                autoFocus={autoFocus}
+            />
+        );
     } else if (field.type === "VIEW") {
         // Skip this property
         return <></>;
@@ -103,6 +115,10 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
         return <ParamManagerEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus} selectedNode={selectedNode} />;
     } else if (field.type === "REPEATABLE_PROPERTY") {
         return <FormMapEditor field={field} label={"Add Another Key-Value Pair"} />;
+    } else if (field.type === "IDENTIFIER" && !field.editable && field?.lineRange) {
+        return <IdentifierEditor field={field} handleOnFieldFocus={handleOnFieldFocus} autoFocus={autoFocus} />;
+    } else if (field.type !== "IDENTIFIER" && !field.editable) {
+        return <ReadonlyField field={field} />;
     } else {
         // Default to text editor
         // Readonly fields are also treated as text editor

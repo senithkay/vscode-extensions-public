@@ -45,6 +45,9 @@ const IconContainer = styled.div<IconContainerProps>`
         background-color: var(--vscode-editorHoverWidget-background);
     }
 `;
+const EmptyContainer = styled.div`
+    width: 14px;
+`;
 
 export const TreeView: React.FC<TreeViewProps> = (props: TreeViewProps) => {
     const { id, content, children, rootTreeView: isRootTreeView, onSelect, selectedId, disableClick = false, sx } = props
@@ -87,7 +90,7 @@ export const TreeView: React.FC<TreeViewProps> = (props: TreeViewProps) => {
         <TreeContainer isRootTreeView={isRootTreeView} sx={sx}>
             <div onClick={() => toggleExpand(id)}>
                 <IconContainer isCollapsed={!isExpanded} isSelected={selectedId === id}>
-                    <Codicon name={isExpanded ? 'chevron-down' : 'chevron-right'} />
+                    {React.Children.count(children) === 0 ? <EmptyContainer /> : <Codicon name={isExpanded ? "chevron-down" : "chevron-right"} />} 
                     {content}
                 </IconContainer>
             </div>

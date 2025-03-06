@@ -52,6 +52,7 @@ import { BreakpointManager } from './breakpoint-manager';
 import { notifyBreakpointChange } from '../../RPCLayer';
 import { VisualizerWebview } from '../../views/visualizer/webview';
 import { URI } from 'vscode-uri';
+import { prepareAndGenerateConfig, cleanAndValidateProject } from '../config-generator/configGenerator';
 
 const BALLERINA_COMMAND = "ballerina.command";
 const EXTENDED_CLIENT_CAPABILITIES = "capabilities";
@@ -248,7 +249,7 @@ async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: Debu
         const debugServerPort = await findFreePort();
         config.debugServer = debugServerPort.toString();
     }
-    
+
     // Notify debug server that the debug session is started in low-code mode
     const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
     if (isWebviewPresent && StateMachine.context().isBI) {
@@ -277,6 +278,11 @@ export async function constructDebugConfig(uri: Uri, testDebug: boolean, args?: 
             debugConfig = debugConfigs[i];
             break;
         }
+    }
+
+    if (!debugConfig) {
+        window.showErrorMessage("Failed to resolve correct Ballerina debug configuration for the current workspace.");
+        return Promise.reject();
     }
 
     debugConfig.script = uri.fsPath;
@@ -324,10 +330,14 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                         BreakpointManager.getInstance().setActiveBreakpoint(undefined);
                         notifyBreakpointChange();
 
-                        // Trigger Try-It view when starting/restarting debug sessions in low-code mode
-                        waitForBallerinaService(workspace.workspaceFolders![0].uri.fsPath).then(() => {
-                            commands.executeCommand(PALETTE_COMMANDS.TRY_IT, true);
-                        });
+                        // if `suggestTryit` is undefined, that means the debug session is directly started from the debug button. Therefore we should trigger the Try-It view.
+                        const suggestTryit = session.configuration.suggestTryit === undefined || session.configuration.suggestTryit === true;
+                        if (suggestTryit) {
+                            // Trigger Try-It view when starting/restarting debug sessions in low-code mode
+                            waitForBallerinaService(workspace.workspaceFolders![0].uri.fsPath).then(() => {
+                                commands.executeCommand(PALETTE_COMMANDS.TRY_IT, true);
+                            });
+                        }
                     } else if (msg.command === "setBreakpoints") {
                         const breakpoints = msg.body.breakpoints;
                         // convert debug points to client breakpoints
@@ -464,11 +474,19 @@ async function handleBreakpointVisualization(uri: Uri, clientBreakpoint: DebugPr
 class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFactory {
     private ballerinaExtInstance: BallerinaExtension;
     private notificationHandler: Disposable | null = null;
+
     constructor(ballerinaExtInstance: BallerinaExtension) {
         this.ballerinaExtInstance = ballerinaExtInstance;
     }
-    createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined):
-        Thenable<DebugAdapterDescriptor> {
+
+    async createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined): Promise<DebugAdapterDescriptor> {
+        // Check if the project contains errors(and fix the possible ones) before starting the debug session
+        const langClient = ballerinaExtInstance.langClient;
+        const projectRoot = await getCurrentRoot();
+        await cleanAndValidateProject(langClient, projectRoot);
+
+        // Check if config generation is required before starting the debug session
+        await prepareAndGenerateConfig(ballerinaExtInstance, session.configuration.script, false, StateMachine.context().isBI, false);
         if (session.configuration.noDebug && StateMachine.context().isBI) {
             return new Promise((resolve) => {
                 resolve(new DebugAdapterInlineImplementation(new BIRunAdapter()));
@@ -495,26 +513,28 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
 
         log(`Starting debug adapter: '${this.ballerinaExtInstance.getBallerinaCmd()} start-debugger-adapter ${port.toString()}`);
 
-        return new Promise<void>((resolve) => {
-            serverProcess.stdout.on('data', (data) => {
-                if (data.toString().includes('Debug server started')) {
-                    resolve();
-                }
-                log(`${data}`);
-            });
+        try {
+            await new Promise<void>((resolve) => {
+                serverProcess.stdout.on('data', (data) => {
+                    if (data.toString().includes('Debug server started')) {
+                        resolve();
+                    }
+                    log(`${data}`);
+                });
 
-            serverProcess.stderr.on('data', (data) => {
-                debugLog(`${data}`);
+                serverProcess.stderr.on('data', (data) => {
+                    debugLog(`${data}`);
+                });
             });
-        }).then(() => {
             sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER);
             this.registerLogTraceNotificationHandler(session);
             return new DebugAdapterServer(port);
-        }).catch((error) => {
-            sendTelemetryException(ballerinaExtInstance, error, CMP_DEBUGGER);
-            return Promise.reject(error);
-        });
+        } catch (error) {
+            sendTelemetryException(ballerinaExtInstance, error as Error, CMP_DEBUGGER);
+            return await Promise.reject(error);
+        }
     }
+
     private registerLogTraceNotificationHandler(session: DebugSession) {
         const langClient = ballerinaExtInstance.langClient;
         const notificationHandler = langClient.onNotification('$/logTrace', (params: any) => {
@@ -624,11 +644,6 @@ class BIRunAdapter extends LoggingDebugSession {
                     if (e.execution === this.task) {
                         this.sendEvent(new TerminatedEvent());
                     }
-                });
-
-                // Trigger Try It command after successful build
-                waitForBallerinaService(workspace.workspaceFolders![0].uri.fsPath).then(() => {
-                    commands.executeCommand(PALETTE_COMMANDS.TRY_IT, false);
                 });
 
                 response.success = true;

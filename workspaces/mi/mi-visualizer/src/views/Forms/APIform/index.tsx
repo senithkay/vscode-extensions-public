@@ -128,6 +128,9 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
             }).test('validateApiName', 'An artifact with same version already exists', function (value) {
                 const { apiName } = this.parent;
                 const fileName = value ? `${apiName}_v${value}` : apiName;
+                if (apiData) {
+                    return true;
+                }
                 return (!value) || !(workspaceFileNames.includes(fileName));
             }).test('validateArtifactName',
                 'An artifact with this artifact name and version already exists', function (value) {
@@ -303,7 +306,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 const xml = getXML(ARTIFACT_TEMPLATES.ADD_API, formValues);
                 createAPIParams = { ...createAPIParams, xmlData: xml, version: values.version }
             }
-
+            createAPIParams = { ...createAPIParams, projectDir: projectDir }
             const file = await rpcClient.getMiDiagramRpcClient().createAPI(createAPIParams);
             console.log("API created");
             rpcClient.getMiVisualizerRpcClient().log({ message: "API created successfully." });

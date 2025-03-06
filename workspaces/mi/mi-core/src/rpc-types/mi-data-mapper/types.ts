@@ -38,6 +38,7 @@ export interface DMTypeRequest {
 export interface IOTypeResponse {
     inputTrees: DMType[];
     outputTree: DMType | undefined;
+    recursiveTypes: Record<string, DMType | undefined>;
 }
 
 export interface SubMappingTypesResponse {

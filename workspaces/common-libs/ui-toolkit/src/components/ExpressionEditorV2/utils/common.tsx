@@ -66,10 +66,83 @@ export const setCursor = (
     inputElement.setSelectionRange(position, position);
 };
 
+/**
+ * Returns an VSCode product icon based on the completion item kind.
+ * 
+ * @param kind - The completion item kind to get the icon for.
+ * @returns The icon component for the given kind.
+ */
 export const getIcon = (kind: CompletionItemKind) => {
     if (Object.values(COMPLETION_ITEM_KIND).includes(kind)) {
         return <Codicon name={`symbol-${kind}`} />;
     }
 
     return <Codicon name="symbol-variable" />;
+};
+
+export function getIsDarkThemeActive() {
+    return document.body.getAttribute('data-vscode-theme-kind')?.includes('dark') ?? false;
+}
+
+/**
+ * Converts a numeric kind value to a CompletionItemKind type.
+ * 
+ * @param kind - The numeric kind value to convert.
+ * @returns The corresponding CompletionItemKind type.
+ */
+export const convertCompletionItemKind = (kind: number): CompletionItemKind => {
+    switch (kind) {
+        case 1:
+            return COMPLETION_ITEM_KIND.Text;
+        case 2:
+            return COMPLETION_ITEM_KIND.Method;
+        case 3:
+            return COMPLETION_ITEM_KIND.Function;
+        case 4:
+            return COMPLETION_ITEM_KIND.Constructor;
+        case 5:
+            return COMPLETION_ITEM_KIND.Field;
+        case 6:
+            return COMPLETION_ITEM_KIND.Variable;
+        case 7:
+            return COMPLETION_ITEM_KIND.Class;
+        case 8:
+            return COMPLETION_ITEM_KIND.Interface;
+        case 9:
+            return COMPLETION_ITEM_KIND.Module;
+        case 10:
+            return COMPLETION_ITEM_KIND.Property;
+        case 11:
+            return COMPLETION_ITEM_KIND.Unit;
+        case 12:
+            return COMPLETION_ITEM_KIND.Value;
+        case 13:
+            return COMPLETION_ITEM_KIND.Enum;
+        case 14:
+            return COMPLETION_ITEM_KIND.Keyword;
+        case 15:
+            return COMPLETION_ITEM_KIND.Snippet;
+        case 16:
+            return COMPLETION_ITEM_KIND.Color;
+        case 17:
+            return COMPLETION_ITEM_KIND.File;
+        case 18:
+            return COMPLETION_ITEM_KIND.Reference;
+        case 19:
+            return COMPLETION_ITEM_KIND.Folder;
+        case 20:
+            return COMPLETION_ITEM_KIND.EnumMember;
+        case 21:
+            return COMPLETION_ITEM_KIND.Constant;
+        case 22:
+            return COMPLETION_ITEM_KIND.Struct;
+        case 23:
+            return COMPLETION_ITEM_KIND.Event;
+        case 24:
+            return COMPLETION_ITEM_KIND.Operator;
+        case 25:
+            return COMPLETION_ITEM_KIND.TypeParameter;
+        default:
+            return COMPLETION_ITEM_KIND.Variable;
+    }
 };

@@ -8,9 +8,9 @@
  */
 
 import { ballerinaExtInstance } from '../../core';
-import { DiagnosticEntry, Diagnostics, GeneratedTestSource, GenerateTestRequest, OpenAPISpec, ProjectDiagnostics, ProjectModule, ProjectSource, SyntaxTree } from '@wso2-enterprise/ballerina-core';
+import { DiagnosticEntry, Diagnostics, OpenAPISpec, ProjectDiagnostics, ProjectModule, ProjectSource, SyntaxTree, TestGenerationRequest, TestGenerationResponse, TestGenerationTarget } from '@wso2-enterprise/ballerina-core';
 import { ErrorCode } from "@wso2-enterprise/ballerina-core";
-import { ModulePart, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { DotToken, IdentifierToken, ModulePart, ResourceAccessorDefinition, ResourcePathRestParam, ResourcePathSegmentParam, ServiceDeclaration, SlashToken, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Uri, workspace } from "vscode";
 import { PARSING_ERROR, TIMEOUT, UNKNOWN_ERROR, USER_ABORTED, ENDPOINT_REMOVED } from '../../views/ai-panel/errorCodes';
 import { langClient } from './activator';
@@ -20,7 +20,10 @@ import * as path from 'path';
 import * as child_process from 'child_process';
 import * as os from 'os';
 import { writeBallerinaFileDidOpen } from '../../utils/modification';
-import { refreshAccessToken } from '../../rpc-managers/ai-panel/utils';
+import { fetchData } from '../../rpc-managers/ai-panel/utils/fetch-data-utils';
+import { request } from 'http';
+import { openExternalUrl } from 'src/utils/runCommand';
+import { closeAllBallerinaFiles } from './utils';
 
 const balVersionRegex = new RegExp("^[0-9]{4}.[0-9]+.[0-9]+");
 
@@ -30,34 +33,73 @@ const BAL_HOME = config.get('home') as string;
 const PLUGIN_DEV_MODE = config.get('pluginDevMode') as boolean;
 const TEST_GEN_REQUEST_TIMEOUT = 100000;
 
-interface TestGenAPIRequest {
-    backendUri: string;
-    token: string;
-    serviceName?: string;
-    project: ProjectSource;
-    openApiSpec: string;
-    testSource?: string;
-    projectDiagnostics?: ProjectDiagnostics;
-}
-
-interface TestGenerationResponse {
-    code: string;
-    configToml?: string;
-}
-
 // ----------- TEST GENERATOR -----------
 export async function generateTest(
     projectRoot: string,
-    generateTestRequest: GenerateTestRequest
-): Promise<GeneratedTestSource> {
+    testGenRequest: TestGenerationRequest
+): Promise<TestGenerationResponse> {
     const projectSource = await getProjectSource(projectRoot);
     if (!projectSource) {
         throw new Error("The current project is not recognized as a valid Ballerina project. Please ensure you have opened a Ballerina project.");
     }
 
-    const targetServiceName = generateTestRequest.serviceName;
-    if (!targetServiceName) {
-        throw new Error("Service name is missing in the test request. Please provide a valid service name to generate tests.");
+    const backendUri = testGenRequest.backendUri;
+
+    if (testGenRequest.targetType === TestGenerationTarget.Service) {
+        if (!testGenRequest.targetIdentifier) {
+            throw new Error("Service name is missing in the test request. Please provide a valid service name to generate tests.");
+        }
+
+        const serviceName = testGenRequest.targetIdentifier;
+        const { serviceDeclaration, serviceDocFilePath } = await getServiceDeclaration(projectRoot, serviceName);
+
+        const openApiSpec = await getOpenAPISpecification(serviceDocFilePath);
+        const testPlan = testGenRequest.testPlan;
+
+        if (typeof testGenRequest.existingTests === 'undefined' || typeof testGenRequest.diagnostics === 'undefined') {
+            const unitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests(testGenRequest, projectSource, openApiSpec);
+            if (isErrorCode(unitTestResp)) {
+                throw new Error((unitTestResp as ErrorCode).message);
+            }
+            return unitTestResp as TestGenerationResponse;
+        } else {
+            const updatedUnitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests(testGenRequest, projectSource, openApiSpec);
+            if (isErrorCode(updatedUnitTestResp)) {
+                throw new Error((updatedUnitTestResp as ErrorCode).message);
+            }
+            return updatedUnitTestResp as TestGenerationResponse;
+        }
+
+    } else if (testGenRequest.targetType === TestGenerationTarget.Function) {
+        if (!testGenRequest.targetIdentifier) {
+            throw new Error("Function identifier is missing in the test request. Please provide a valid function identifier to generate tests.");
+        }
+
+        const functionIdentifier = testGenRequest.targetIdentifier;
+        const { serviceDeclaration, resourceAccessorDef, serviceDocFilePath } = await getResourceAccessorDef(projectRoot, functionIdentifier);
+        const serviceProjectSource: ProjectSource = {
+            sourceFiles: [
+                {
+                    filePath: "service.bal",
+                    content: serviceDeclaration.source
+                }
+            ]
+        };
+
+        const unitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests(testGenRequest, serviceProjectSource);
+        if (isErrorCode(unitTestResp)) {
+            throw new Error((unitTestResp as ErrorCode).message);
+        }
+        return unitTestResp as TestGenerationResponse;
+    } else {
+        throw new Error("Invalid test generation target type.");
+    }
+}
+
+export async function getServiceDeclaration(projectRoot: string, serviceName: string): Promise<{ serviceDeclaration: ServiceDeclaration | null, serviceDocFilePath: string }> {
+    const projectSource = await getProjectSource(projectRoot);
+    if (!projectSource) {
+        throw new Error("The current project is not recognized as a valid Ballerina project. Please ensure you have opened a Ballerina project.");
     }
 
     let serviceDeclaration: ServiceDeclaration | null = null;
@@ -71,7 +113,7 @@ export async function generateTest(
                 uri: fileUri
             }
         }) as SyntaxTree;
-        const matchedService = findMatchingServiceDeclaration(syntaxTree, targetServiceName);
+        const matchedService = findMatchingServiceDeclaration(syntaxTree, serviceName);
         if (matchedService) {
             serviceDeclaration = matchedService;
             break;
@@ -79,38 +121,81 @@ export async function generateTest(
     }
 
     if (!serviceDeclaration) {
-        throw new Error(`Couldn't find any services matching the service you provided, which is "${generateTestRequest.serviceName}". Please recheck if the provided service name is correct.`);
+        throw new Error(`Couldn't find any services matching the service name provided, which is "${serviceName}". Please recheck if the provided service name is correct.`);
     }
 
-    const backendUri = generateTestRequest.backendUri;
-    const token = generateTestRequest.token;
+    return { serviceDeclaration, serviceDocFilePath };
+}
 
-    const serviceName = generateTestRequest.serviceName;
-    const openApiSpec = await getOpenAPISpecification(serviceDocFilePath);
-
-    if (typeof generateTestRequest.existingSource === 'undefined' || typeof generateTestRequest.diagnostics === 'undefined') {
-        const unitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests({ backendUri: backendUri, token: token, serviceName: serviceName, project: projectSource, openApiSpec: openApiSpec });
-        if (isErrorCode(unitTestResp)) {
-            throw new Error((unitTestResp as ErrorCode).message);
-        }
-        return {
-            testContent: (unitTestResp as TestGenerationResponse).code,
-            configContent: (unitTestResp as TestGenerationResponse).configToml
-        };
-    } else {
-        const updatedUnitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests({ backendUri: backendUri, token: token, project: projectSource, openApiSpec: openApiSpec, testSource: generateTestRequest.existingSource.testContent, projectDiagnostics: generateTestRequest.diagnostics });
-        if (isErrorCode(updatedUnitTestResp)) {
-            throw new Error((updatedUnitTestResp as ErrorCode).message);
-        }
-        return {
-            testContent: (updatedUnitTestResp as TestGenerationResponse).code
-        };
+export async function getResourceAccessorDef(projectRoot: string, resourceMethodAndPath: string): Promise<{ serviceDeclaration: ServiceDeclaration | null, resourceAccessorDef: ResourceAccessorDefinition | null, serviceDocFilePath: string }> {
+    const projectSource = await getProjectSource(projectRoot);
+    if (!projectSource) {
+        throw new Error("The current project is not recognized as a valid Ballerina project. Please ensure you have opened a Ballerina project.");
     }
+
+    let serviceDeclaration: ServiceDeclaration | null = null;
+    let resourceAccessorDef: ResourceAccessorDefinition | null = null;
+    let serviceDocFilePath = "";
+
+    for (const sourceFile of projectSource.sourceFiles) {
+        serviceDocFilePath = sourceFile.filePath;
+        const fileUri = Uri.file(serviceDocFilePath).toString();
+        const syntaxTree = await langClient.getSyntaxTree({
+            documentIdentifier: {
+                uri: fileUri
+            }
+        }) as SyntaxTree;
+
+        if (!STKindChecker.isModulePart(syntaxTree.syntaxTree)) {
+            continue;
+        }
+
+        for (const member of (syntaxTree.syntaxTree as ModulePart).members) {
+            if (STKindChecker.isServiceDeclaration(member)) {
+                const resourceAccessors = (member as ServiceDeclaration).members.filter(m => STKindChecker.isResourceAccessorDefinition(m));
+                for (const resourceAccessor of resourceAccessors) {
+                    const resourceMethod = (resourceAccessor as ResourceAccessorDefinition).functionName.value;
+                    const resourcePath = (resourceAccessor as ResourceAccessorDefinition).relativeResourcePath.reduce((accumulator, currentValue) => {
+                        let value = "";
+
+                        if (STKindChecker.isIdentifierToken(currentValue)) {
+                            value = (currentValue as IdentifierToken).value;
+                        } else if (STKindChecker.isDotToken(currentValue)) {
+                            value = (currentValue as DotToken).value;
+                        } else if (STKindChecker.isResourcePathRestParam(currentValue)) {
+                            value = (currentValue as ResourcePathRestParam).source;
+                        } else if (STKindChecker.isResourcePathSegmentParam(currentValue)) {
+                            value = (currentValue as ResourcePathSegmentParam).source;
+                        } else if (STKindChecker.isSlashToken(currentValue)) {
+                            value = (currentValue as SlashToken).value;
+                        }
+
+                        return accumulator + value;
+                    }, "");
+
+                    const constructedResource = resourceMethod + " " + resourcePath;
+
+                    if (constructedResource.toLowerCase() === resourceMethodAndPath) {
+                        serviceDeclaration = member as ServiceDeclaration;
+                        resourceAccessorDef = resourceAccessor as ResourceAccessorDefinition;
+                        break;
+                    }
+                }
+                if (serviceDeclaration) { break; }
+            }
+        }
+    }
+
+    if (!serviceDeclaration) {
+        throw new Error(`Couldn't find any resources matching the resourcemethod and path provided, which is "${resourceMethodAndPath}". Please recheck if the provided resource is correct.`);
+    }
+
+    return { serviceDeclaration, resourceAccessorDef, serviceDocFilePath };
 }
 
 export async function getDiagnostics(
     projectRoot: string,
-    testSource: GeneratedTestSource
+    generatedTestSource: TestGenerationResponse
 ): Promise<ProjectDiagnostics> {
     const ballerinaProjectRoot = await findBallerinaProjectRoot(projectRoot);
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'temp-bal-test-gen-'));
@@ -120,9 +205,10 @@ export async function getDiagnostics(
         fs.mkdirSync(tempTestFolderPath, { recursive: true });
     }
     const tempTestFilePath = path.join(tempTestFolderPath, 'test.bal');
-    writeBallerinaFileDidOpen(tempTestFilePath, testSource.testContent);
+    writeBallerinaFileDidOpen(tempTestFilePath, generatedTestSource.testSource);
 
     const diagnosticsResult = await langClient.getDiagnostics({ documentIdentifier: { uri: Uri.file(tempTestFilePath).toString() } });
+    await closeAllBallerinaFiles(tempDir);
     fs.rmSync(tempDir, { recursive: true, force: true });
     if (Array.isArray(diagnosticsResult)) {
         const errorDiagnostics = getErrorDiagnostics(diagnosticsResult, tempTestFilePath);
@@ -228,9 +314,9 @@ async function getOpenAPISpecification(documentFilePath: string): Promise<string
     }
 }
 
-async function getUnitTests(request: TestGenAPIRequest): Promise<TestGenerationResponse | ErrorCode> {
+async function getUnitTests(request: TestGenerationRequest, projectSource: ProjectSource, openApiSpec?: string): Promise<TestGenerationResponse | ErrorCode> {
     try {
-        let response = await sendTestGeneRequest(request);
+        let response = await sendTestGeneRequest(request, projectSource, openApiSpec);
         if (isErrorCode(response)) {
             return (response as ErrorCode);
         }
@@ -241,64 +327,77 @@ async function getUnitTests(request: TestGenAPIRequest): Promise<TestGenerationR
     }
 }
 
-async function sendTestGeneRequest(request: TestGenAPIRequest): Promise<Response | ErrorCode> {
-    const getFileName = (filePath: string): string => {
-        return filePath.split('/').pop() || filePath.split('\\').pop() || filePath;
-    };
+// export async function getUnitTestsForFunction(projectRoot: string, request: GenerateTestForFuncRequest): Promise<TestGenerationResponse | ErrorCode> {
+//     try {
+//         let response = await sendTestGeneRequestForFunction(projectRoot, request);
+//         if (isErrorCode(response)) {
+//             return (response as ErrorCode);
+//         }
+//         response = (response as Response);
+//         return await filterTestGenResponse(response);
+//     } catch (error) {
+//         return UNKNOWN_ERROR;
+//     }
+// }
 
-    const body =
-        (typeof request.testSource === "undefined" ||
-            typeof request.projectDiagnostics === "undefined")
-            ? {
-                serviceName: request.serviceName,
-                projectSource: {
-                    projectModules: request.project.projectModules?.map((module) => ({
-                        moduleName: module.moduleName,
-                        sourceFiles: module.sourceFiles.map((file) => ({
-                            fileName: file.filePath,
-                            content: file.content,
-                        })),
-                    })),
-                    sourceFiles: request.project.sourceFiles.map((file) => ({
-                        fileName: file.filePath,
-                        content: file.content,
-                    })),
-                },
-                openApiSpec: request.openApiSpec
-            }
-            : {
-                projectSource: {
-                    projectModules: request.project.projectModules?.map((module) => ({
-                        moduleName: module.moduleName,
-                        sourceFiles: module.sourceFiles.map((file) => ({
-                            fileName: file.filePath,
-                            content: file.content,
-                        })),
-                    })),
-                    sourceFiles: request.project.sourceFiles.map((file) => ({
-                        fileName: file.filePath,
-                        content: file.content,
-                    })),
-                },
-                openApiSpec: request.openApiSpec,
-                testSource: request.testSource,
-                diagnostics: request.projectDiagnostics.diagnostics.map((diagnosticEntry) => ({
-                    message: `L${diagnosticEntry.line ?? "unknown"}: ${diagnosticEntry.message}`,
+async function sendTestGeneRequest(request: TestGenerationRequest, projectSource: ProjectSource, openApiSpec?: string): Promise<Response | ErrorCode> {
+    const body = {
+        targetType: request.targetType,
+        targetIdentifier: request.targetIdentifier,
+        projectSource: {
+            projectModules: projectSource.projectModules?.map((module) => ({
+                moduleName: module.moduleName,
+                sourceFiles: module.sourceFiles.map((file) => ({
+                    fileName: file.filePath,
+                    content: file.content,
                 })),
-            };
+            })),
+            sourceFiles: projectSource.sourceFiles.map((file) => ({
+                fileName: file.filePath,
+                content: file.content,
+            })),
+        },
+        ...(openApiSpec && { openApiSpec: openApiSpec }),
+        ...(request.testPlan && { testPlan: request.testPlan }),
+        ...(request.diagnostics?.diagnostics && {
+            diagnostics: request.diagnostics.diagnostics.map((diagnosticEntry) => ({
+                message: `L${diagnosticEntry.line ?? "unknown"}: ${diagnosticEntry.message}`,
+            })),
+        }),
+        ...(request.existingTests && { existingTests: request.existingTests }),
+    };
 
     const response = await fetchWithTimeout(request.backendUri + "/tests", {
         method: "POST",
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
-            'User-Agent': 'Ballerina-VSCode-Plugin',
-            'Authorization': `Bearer ${request.token}`,
+            'User-Agent': 'Ballerina-VSCode-Plugin'
         },
         body: JSON.stringify(body)
     }, TEST_GEN_REQUEST_TIMEOUT);
     return response;
 }
+
+// async function sendTestGeneRequestForFunction(projectRoot: string, request: GenerateTestForFuncRequest): Promise<Response | ErrorCode> {
+//     const { serviceDeclaration, resourceAccessorDef, serviceDocFilePath } = await getResourceAccessorDef(projectRoot, request.resourceFunction);
+//     const body = {
+//         functionSource: resourceAccessorDef.source,
+//         serviceSource: serviceDeclaration.source,
+//         testPlan: request.testPlan,
+//     };
+
+//     const response = await fetchWithTimeout(request.backendUri + "/tests", {
+//         method: "POST",
+//         headers: {
+//             'Accept': 'application/json',
+//             'Content-Type': 'application/json',
+//             'User-Agent': 'Ballerina-VSCode-Plugin'
+//         },
+//         body: JSON.stringify(body)
+//     }, TEST_GEN_REQUEST_TIMEOUT);
+//     return response;
+// }
 
 async function getOpenAPISpec(serviceFilePath: string): Promise<string> {
     const tempDir = os.tmpdir();
@@ -314,7 +413,7 @@ async function getOpenAPISpec(serviceFilePath: string): Promise<string> {
                 // Extract filename from stdout
                 const match = stdout.match(/-- (.+\.json)/);
                 if (!match) {
-                    reject(new Error('Failed to extract the OpenAPI specification.'));
+                    reject(new Error('Failed: Unable to extract the OpenAPI specification. Please check your source for any compilation errors.'));
                     return;
                 }
 
@@ -369,8 +468,8 @@ async function filterTestGenResponse(resp: Response): Promise<TestGenerationResp
     if (resp.status == 200 || resp.status == 201) {
         const data = (await resp.json()) as any;
         return {
-            code: data.code,
-            configToml: data.configToml,
+            testSource: data.testSource,
+            testConfig: data.testConfig
         };
     }
     if (resp.status == 404) {
@@ -386,7 +485,7 @@ async function filterTestGenResponse(resp: Response): Promise<TestGenerationResp
     }
 }
 
-// ----------- HEALPER FUNCTIONS -----------
+// // ----------- HEALPER FUNCTIONS -----------
 async function findBallerinaProjectRoot(dirPath: string): Promise<string | null> {
     if (dirPath === null) {
         return null;
@@ -416,31 +515,29 @@ async function findBallerinaProjectRoot(dirPath: string): Promise<string | null>
     return null;
 }
 
-const fetchWithTimeout = async (url, options, timeout = 100000): Promise<Response | ErrorCode> => {
+const fetchWithTimeout = async (
+    url: string,
+    options: RequestInit,
+    timeout = 300000
+): Promise<Response | ErrorCode> => {
     const abortController = new AbortController();
     const id = setTimeout(() => abortController.abort(), timeout);
-    try {
-        let response = await fetch(url, { ...options, signal: abortController.signal });
 
-        if (response.status === 401) {
-            const newToken = await refreshAccessToken();
-            if (newToken) {
-                options.headers = {
-                    ...options.headers,
-                    Authorization: `Bearer ${newToken}`,
-                };
-                response = await fetch(url, { ...options, signal: abortController.signal });
-            }
-        }
+    try {
+        options = {
+            ...options,
+            signal: abortController.signal,
+        };
+
+        const response = await fetchData(url, options);
         return response;
     } catch (error: any) {
         if (error.name === 'AbortError' && !hasStopped) {
             return TIMEOUT;
         } else if (error.name === 'AbortError' && hasStopped) {
             return USER_ABORTED;
-        } else {
-            return UNKNOWN_ERROR;
         }
+        return UNKNOWN_ERROR;
     } finally {
         clearTimeout(id);
     }
@@ -448,4 +545,59 @@ const fetchWithTimeout = async (url, options, timeout = 100000): Promise<Respons
 
 function isErrorCode(error: any): boolean {
     return error.hasOwnProperty("code") && error.hasOwnProperty("message");
+}
+
+// Functions to extract service names and resource names
+export async function getServiceDeclarationNames(projectRoot: string): Promise<string[]> {
+    const projectSource = await getProjectSource(projectRoot);
+    if (!projectSource) {
+        throw new Error("Invalid Ballerina project. Please open a valid Ballerina project.");
+    }
+
+    return (await Promise.all(
+        projectSource.sourceFiles.map(async ({ filePath }) => {
+            const syntaxTree = await langClient.getSyntaxTree({
+                documentIdentifier: { uri: Uri.file(filePath).toString() }
+            }) as SyntaxTree;
+            return findServiceDeclarations(syntaxTree).map(constructServiceName);
+        })
+    )).flat();
+}
+
+export async function getResourceAccessorNames(projectRoot: string): Promise<string[]> {
+    const projectSource = await getProjectSource(projectRoot);
+    if (!projectSource) {
+        throw new Error("Invalid Ballerina project. Please open a valid Ballerina project.");
+    }
+
+    return (await Promise.all(
+        projectSource.sourceFiles.map(async ({ filePath }) => {
+            const syntaxTree = await langClient.getSyntaxTree({
+                documentIdentifier: { uri: Uri.file(filePath).toString() }
+            }) as SyntaxTree;
+
+            if (!STKindChecker.isModulePart(syntaxTree.syntaxTree)) { return []; }
+
+            return (syntaxTree.syntaxTree as ModulePart).members
+                .filter(STKindChecker.isServiceDeclaration)
+                .flatMap(service =>
+                    (service as ServiceDeclaration).members
+                        .filter(STKindChecker.isResourceAccessorDefinition)
+                        .map(resourceAccessor => {
+                            const method = (resourceAccessor as ResourceAccessorDefinition).functionName.value;
+                            const path = (resourceAccessor as ResourceAccessorDefinition).relativeResourcePath
+                                .map(segment =>
+                                    STKindChecker.isIdentifierToken(segment) ? (segment as IdentifierToken).value :
+                                        STKindChecker.isDotToken(segment) ? (segment as DotToken).value :
+                                            STKindChecker.isResourcePathRestParam(segment) ? (segment as ResourcePathRestParam).source :
+                                                STKindChecker.isResourcePathSegmentParam(segment) ? (segment as ResourcePathSegmentParam).source :
+                                                    STKindChecker.isSlashToken(segment) ? (segment as SlashToken).value :
+                                                        ""
+                                ).join("");
+
+                            return `${method} ${path}`;
+                        })
+                );
+        })
+    )).flat();
 }

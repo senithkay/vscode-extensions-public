@@ -12,7 +12,7 @@ import React, { useMemo, useState } from "react";
 /** @jsx jsx */
 import { Global, css } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { DMType } from "@wso2-enterprise/mi-core";
+import { DMType, IOTypeResponse } from "@wso2-enterprise/mi-core";
 import { Project, SyntaxKind, FunctionDeclaration } from "ts-morph";
 
 import { MIDataMapper } from "./components/DataMapper/DataMapper";
@@ -43,8 +43,7 @@ export interface DataMapperViewProps {
     filePath: string;
     fileContent: string;
     functionName: string;
-    inputTrees: DMType[];
-    outputTree: DMType;
+    dmIOTypes: IOTypeResponse;
     configName: string;
     updateFileContent: (fileContent: string) => Promise<void>;
 }
@@ -77,8 +76,7 @@ export function DataMapperView(props: DataMapperViewProps) {
         filePath,
         fileContent,
         functionName,
-        inputTrees,
-        outputTree,
+        dmIOTypes,
         updateFileContent,
         configName
     } = props;
@@ -97,7 +95,7 @@ export function DataMapperView(props: DataMapperViewProps) {
         const sourceFile = project.createSourceFile(filePath, fileContent);
         const fnST = sourceFile.getFunction(functionName);
 
-        if (!doesMappingExist(fnST, inputTrees, outputTree)) {
+        if (!doesMappingExist(fnST, dmIOTypes.inputTrees, dmIOTypes.outputTree)) {
             rpcClient.getMiVisualizerRpcClient().retrieveContext({
                 key: "showDmLandingMessage",
                 contextType: "workspace"
@@ -134,8 +132,7 @@ export function DataMapperView(props: DataMapperViewProps) {
                 <Global styles={globalStyles} />
                 <MIDataMapper
                     fnST={functionST}
-                    inputTrees={inputTrees}
-                    outputTree={outputTree}
+                    dmIOTypes={dmIOTypes}
                     fileContent={fileContent}
                     applyModifications={applyModifications}
                     filePath={filePath}

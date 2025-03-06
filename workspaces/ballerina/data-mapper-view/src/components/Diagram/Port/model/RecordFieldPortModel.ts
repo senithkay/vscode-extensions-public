@@ -16,16 +16,20 @@ import {
 	createSourceForMapping,
 	generateDestructuringPattern,
 	getInnermostExpressionBody,
+	getMappingType,
 	getModificationForFromClauseBindingPattern,
 	getModificationForSpecificFieldValue,
+	getValueType,
 	isDefaultValue,
 	modifySpecificFieldSource,
-	replaceSpecificFieldValue
+	replaceSpecificFieldValue,
+	updateExistingValue
 } from "../../utils/dm-utils";
 import { IntermediatePortModel } from "../IntermediatePort";
 import { DataMapperNodeModel } from "../../Node/commons/DataMapperNode";
 import { QueryExprMappingType } from "../../Node";
 import { FromClauseNode } from "../../Node/FromClause";
+import { userActionRequiredMapping } from "../../Link/link-utils";
 
 export interface RecordFieldNodeModelGenerics {
 	PORT: RecordFieldPortModel;
@@ -33,15 +37,24 @@ export interface RecordFieldNodeModelGenerics {
 
 export const FORM_FIELD_PORT = "form-field-port";
 
-enum ValueType {
+export enum ValueType {
 	Default,
 	Empty,
 	NonEmpty
 }
 
+export enum MappingType {
+	ArrayToArray = "array-array",
+	ArrayToSingleton = "array-singleton",
+	RecordToRecord = "record-record",
+	UnionToAny = "union-any",
+	Default = "" // All other mapping types
+}
+
 export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFieldNodeModelGenerics> {
 
 	public linkedPorts: PortModel[];
+	public pendingMappingType: MappingType;
 
 	constructor(
 		public field: TypeField,
@@ -70,18 +83,27 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 		const lm = new DataMapperLinkModel();
 		lm.registerListener({
 			targetPortChanged: (async () => {
-				const sourcePort = lm.getSourcePort();
-				const targetPort = lm.getTargetPort();
+				if (!lm.getSourcePort() || !lm.getTargetPort()) {
+					return;
+				}
+				const sourcePort = lm.getSourcePort() as RecordFieldPortModel;
+				const targetPort = lm.getTargetPort() as RecordFieldPortModel;
+
 				const targetPortHasLinks = Object.values(targetPort.links)
 					?.some(link => (link as DataMapperLinkModel)?.isActualLink);
 
-				const targetNode = targetPort.getNode() as DataMapperNodeModel;
-				const { position, mappingType, stNode } = targetNode.context.selection.selectedST;
-				const valueType = this.getValueType(lm);
+				const mappingType = getMappingType(sourcePort, targetPort);
+				if (userActionRequiredMapping(mappingType)) {
+					// Source update behavior is determined by the user.
+					return;
+				}
 
-				if (mappingType === QueryExprMappingType.A2SWithCollect && valueType !== ValueType.Empty) {
+				const targetNode = targetPort.getNode() as DataMapperNodeModel;
+				const { position, mappingType: queryExprMappingType, stNode } = targetNode.context.selection.selectedST;
+				const valueType = getValueType(lm);
+				if (queryExprMappingType === QueryExprMappingType.A2SWithCollect && valueType !== ValueType.Empty) {
 					const modifications = [];
-					let sourceField = sourcePort && sourcePort instanceof RecordFieldPortModel && sourcePort.fieldFQN;
+					let sourceField = sourcePort.fieldFQN;
 					const fieldParts = sourceField.split('.');
 					if ((sourcePort.getParent() as FromClauseNode).typeDef.typeName === PrimitiveBalType.Record) {
 						const bindingPatternSrc = generateDestructuringPattern(fieldParts.slice(1).join('.'));
@@ -91,17 +113,14 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 					}
 					// by default, use the sum operator to aggregate the values
 					sourceField = `sum(${fieldParts[fieldParts.length - 1]})`;
-					modifications.push(getModificationForSpecificFieldValue(lm, sourceField));
-					replaceSpecificFieldValue(lm, modifications);
+					modifications.push(getModificationForSpecificFieldValue(targetPort, sourceField));
+					replaceSpecificFieldValue(targetPort, modifications);
 				} else if (valueType === ValueType.Default) {
-					const modifications = [];
-					let sourceField = sourcePort && sourcePort instanceof RecordFieldPortModel && sourcePort.fieldFQN;
-					modifications.push(getModificationForSpecificFieldValue(lm, sourceField));
-					replaceSpecificFieldValue(lm, modifications);
+					updateExistingValue(sourcePort, targetPort);
 				} else if (targetPortHasLinks) {
-					modifySpecificFieldSource(lm);
+					modifySpecificFieldSource(sourcePort, targetPort, lm.getID());
 				} else {
-					await createSourceForMapping(lm);
+					await createSourceForMapping(sourcePort, targetPort);
 				}
 			})
 		});
@@ -115,8 +134,12 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 		super.addLink(link);
 	}
 
-	addLinkedPort(port: PortModel): void{
+	addLinkedPort(port: PortModel): void {
 		this.linkedPorts.push(port);
+	}
+
+	setPendingMappingType(mappingType: MappingType): void {
+		this.pendingMappingType = mappingType;
 	}
 
 	setDescendantHasValue(): void {

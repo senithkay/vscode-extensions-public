@@ -20,6 +20,7 @@ import { DisabledView } from "./views/Disabled";
 import { RuntimeServicePanel } from "./RuntimeServicesPanel";
 import { SwaggerPanel } from "./SwaggerPanel";
 import { gitIssueUrl } from "./constants";
+import { EnvironmentSetup } from "./views/EnvironmentSetup";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -95,6 +96,8 @@ const VisualizerComponent = React.memo(({ state, handleResetError }: { state: Ma
             return <MainPanel handleResetError={handleResetError} />;
         case typeof state === 'object' && 'newProject' in state && state.newProject === "viewReady":
             return <WelcomePanel />;
+        case typeof state === 'object' && 'environmentSetup' in state && state.environmentSetup === "viewReady":
+            return <EnvironmentSetup />
         case state === 'disabled':
             return <DisabledView />
         default:

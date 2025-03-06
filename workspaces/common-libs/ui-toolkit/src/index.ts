@@ -59,6 +59,8 @@ export * from './components/TreeView/TreeViewItem';
 export * from './components/SplitView/SplitView';
 export * from './components/Tabs/Tabs';
 export * from './components/PullUpButton/PullUPButton';
+export * from './components/TruncatedLabel/TruncatedLabel';
+export * from './components/PasswordField/PasswordField';
 
 export * from './components/SampleForm/Header/Header';
 export * from './components/SampleForm/HorizontalIcons/HorizontalIcons';
@@ -79,5 +81,6 @@ export * from './components/Alert/Alert';
 export * from './components/View';
 
 export * from './components/Commons/Overlay';
+export * from './components/Banner/Banner';
 
 export * from './components/ImageWithFallback';

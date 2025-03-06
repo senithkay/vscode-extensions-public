@@ -24,7 +24,7 @@ export class NodeLinkModel extends DefaultLinkModel {
     targetNode: NodeModel;
     // options
     label: string;
-    visible: boolean;
+    visible = true;
     // call back
     onAddClick?: () => void;
 
@@ -45,7 +45,7 @@ export class NodeLinkModel extends DefaultLinkModel {
                 if ((options as NodeLinkModelOptions).label) {
                     this.label = (options as NodeLinkModelOptions).label;
                 }
-                if ((options as NodeLinkModelOptions).visible === true) {
+                if ((options as NodeLinkModelOptions).visible === false) {
                     this.visible = (options as NodeLinkModelOptions).visible;
                 }
             }

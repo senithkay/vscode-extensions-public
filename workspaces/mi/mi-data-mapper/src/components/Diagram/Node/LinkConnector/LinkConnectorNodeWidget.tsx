@@ -20,17 +20,12 @@ import { DiagnosticWidget } from '../../Diagnostic/DiagnosticWidget';
 import {
     renderDeleteButton,
     renderEditButton,
-    renderFunctionCallTooltip,
-    renderExpressionTooltip,
     renderPortWidget,
-    renderIndexingButton
+    renderIndexingButton,
+    renderIconButton
 } from './LinkConnectorWidgetComponents';
 import { useDMExpressionBarStore } from "../../../../store/store";
 import { InputOutputPortModel } from "../../Port";
-import { has } from "lodash";
-import { CodeActionWidget } from "../../CodeAction/CodeAction";
-import { buildInputAccessExpr, updateExistingValue } from "../../utils/modification-utils";
-import { generateArrayMapFunction } from "../../utils/link-utils";
 
 export interface LinkConnectorNodeWidgetProps {
     node: LinkConnectorNode;
@@ -45,7 +40,6 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
 
     const diagnostic = node.hasError() ? node.diagnostics[0] : null;
     const isValueNodeForgotten = node.valueNode.wasForgotten();
-    const hasCallExpr = !isValueNodeForgotten && hasCallExpression(node.valueNode);
     const hasElementAccessExpr = !isValueNodeForgotten && hasElementAccessExpression(node.valueNode);
     const value = !isValueNodeForgotten && node.valueNode.getText();
 
@@ -74,7 +68,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
             <div className={classes.root} data-testid={`link-connector-node-${node?.value}`}>
                 <div className={classes.header}>
                     {renderPortWidget(engine, node.inPort, `${node?.value}-input`)}
-                    {hasCallExpr ? renderFunctionCallTooltip() :  renderExpressionTooltip()}
+                    {renderIconButton(node)}
                     {hasElementAccessExpr ? renderIndexingButton(onClickEdit, node) : renderEditButton(onClickEdit, node?.value)}
                     {deleteInProgress ? (
                         loadingScreen

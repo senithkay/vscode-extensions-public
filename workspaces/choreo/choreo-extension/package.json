@@ -3,8 +3,8 @@
   "displayName": "Choreo",
   "description": "An extension for managing your Choreo projects and components",
   "license": "Apache-2.0",
-  "version": "2.2.1",
-  "cliVersion": "v1.2.82502191130",
+  "version": "2.2.3",
+  "cliVersion": "v1.2.82412081830",
   "publisher": "wso2",
   "bugs": {
     "url": "https://github.com/wso2/choreo-vscode/issues"
@@ -271,7 +271,7 @@
         "description": "choreo-2",
         "default": {
           "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-          "fontCharacter": "\\f147"
+          "fontCharacter": "\\f14d"
         }
       }
     }

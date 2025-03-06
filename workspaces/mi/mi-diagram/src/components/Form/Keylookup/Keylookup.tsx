@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { AutoComplete, ErrorBanner, getItemKey, ItemComponent, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import styled from "@emotion/styled";
@@ -42,16 +42,19 @@ export type FilterType =
     | "xsl"
     | "xslt"
     | "yaml"
+    | "crt"
     | "registry"
     | "mockService"
     | "dssQuery"
     | "dssDataSource"
+    | "configurable"
 
 // Interfaces
 interface IKeylookupBase {
     // AutoComplete props
     id?: string;
     label?: string;
+    labelAdornment?: ReactNode;
     placeholder?: string;
     disabled?: boolean;
     required?: boolean;
@@ -118,10 +121,6 @@ const Container = styled.div({
     display: "flex",
     flexDirection: "column",
     gap: "2px",
-
-    "*": {
-        boxSizing: "border-box"
-    }
 });
 
 const ItemContainer = styled.div({
@@ -162,7 +161,7 @@ namespace ExBtn {
 `;
 }
 
-const getItemComponent = (item: string, type?: "reg:") => {
+const getItemComponent = (item: string, type?: string) => {
     return (
         <ItemContainer>
             {type && <StyledTag>{type}</StyledTag>}
@@ -192,7 +191,7 @@ export const Keylookup = (props: IKeylookup) => {
 
     useEffect(() => {
         fetchItems();
-    }, []);
+    }, [filterType]);
 
     const fetchItems = async () => {
         if (filterType === "mockService") {
@@ -248,6 +247,17 @@ export const Keylookup = (props: IKeylookup) => {
             return;
         }
 
+        if (filterType === "configurable") {
+            const fetchedConfigurableEntries = await rpcClient.getMiDiagramRpcClient().getConfigurableEntries();
+            const items = fetchedConfigurableEntries.configurableEntries;
+            let result = items.map(item => item.name);
+            if (filter) {
+                result = items.filter((item) => filter(item.type)).map(item => item.name) || [];
+            }
+            setItems(result);
+            return;
+        }
+
         let resourceType: ResourceType | MultipleResourceType[];
         if (Array.isArray(filterType)) {
             resourceType = filterType.map((type) => {
@@ -278,7 +288,8 @@ export const Keylookup = (props: IKeylookup) => {
         }
         if (registryResources && result?.registryResources) {
             result.registryResources.forEach((resource) => {
-                const item = { key: resource.registryKey, item: getItemComponent(resource.registryKey, "reg:"), path: resource.registryPath };
+                const [type, pathKey] = resource.registryKey.split(":");
+                const item = { key: resource.registryKey, item: getItemComponent(pathKey, `${type}:`), path: resource.registryPath };
                 if (resource.registryKey === getValue(value)) {
                     initialItem = item;
                     return;
@@ -323,7 +334,7 @@ export const Keylookup = (props: IKeylookup) => {
 
     return (
         <Container>
-            {((exprToggleEnabled && isExpressionFieldValue(value) && !value.isExpression) ||
+            {((isExpressionFieldValue(value) && !value.isExpression) ||
                 !isExpressionFieldValue(value)) ? (
                 <AutoComplete
                     {...rest}
@@ -333,6 +344,7 @@ export const Keylookup = (props: IKeylookup) => {
                     required={props.required}
                     items={items}
                     allowItemCreate={allowItemCreate}
+                    requireValidation={allowItemCreate}
                     onCreateButtonClick={props.onCreateButtonClick ? () => {
                         handleValueChange("");
                         props.onCreateButtonClick(fetchItems, handleValueChange);
@@ -355,6 +367,7 @@ export const Keylookup = (props: IKeylookup) => {
             ) : (
                 <ExpressionField
                     label={props.label}
+                    labelAdornment={props.labelAdornment}
                     placeholder={props.placeholder}
                     required={props.required}
                     disabled={props.disabled}

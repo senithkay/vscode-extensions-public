@@ -10,19 +10,20 @@
  */
 import {
     AIChatRequest,
+    AddFieldRequest,
     AddFunctionRequest,
     BIAiSuggestionsRequest,
     BIAvailableNodesRequest,
-    BIConnectorsRequest,
     BIDeleteByComponentInfoRequest,
     BIGetEnclosedFunctionRequest,
-    BIGetFunctionsRequest,
     BIGetVisibleVariableTypesRequest,
     BINodeTemplateRequest,
+    BISearchRequest,
     BISourceCodeRequest,
     BreakpointRequest,
     ClassFieldModifierRequest,
     ComponentRequest,
+    EndOfFileRequest,
     ExpressionCompletionsRequest,
     ExpressionDiagnosticsRequest,
     FormDidCloseParams,
@@ -33,11 +34,12 @@ import {
     ModelFromCodeRequest,
     ProjectRequest,
     ReadmeContentRequest,
+    RenameIdentifierRequest,
     ServiceClassSourceRequest,
     SignatureHelpRequest,
     UpdateConfigVariableRequest,
-    UpdateTypeRequest,
     UpdateImportsRequest,
+    UpdateTypeRequest,
     VisibleTypesRequest,
     addBreakpointToSource,
     addClassField,
@@ -54,21 +56,21 @@ import {
     getAiSuggestions,
     getAllImports,
     getAvailableNodes,
-    getBIConnectors,
     getBreakpointInfo,
     getConfigVariables,
     getDesignModel,
     getEnclosedFunction,
+    getEndOfFile,
     getExpressionCompletions,
     getExpressionDiagnostics,
     getFlowModel,
     getFunctionNode,
-    getFunctions,
     getModuleNodes,
     getNodeTemplate,
     getProjectComponents,
     getProjectStructure,
     getReadmeContent,
+    getRecordNames,
     getServiceClassModel,
     getSignatureHelp,
     getSourceCode,
@@ -81,13 +83,16 @@ import {
     openAIChat,
     openReadme,
     removeBreakpointFromSource,
+    renameIdentifier,
     runProject,
-    updateConfigVariables,
-    updateType,
-    updateImports,
+    search,
     updateClassField,
+    updateConfigVariables,
+    updateImports,
     updateServiceClass,
-    AddFieldRequest
+    updateType,
+    BuildMode,
+    getDevantComponent
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { BiDiagramRpcManager } from "./rpc-manager";
@@ -99,7 +104,6 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(deleteFlowNode, (args: BISourceCodeRequest) => rpcManger.deleteFlowNode(args));
     messenger.onRequest(deleteByComponentInfo, (args: BIDeleteByComponentInfoRequest) => rpcManger.deleteByComponentInfo(args));
     messenger.onRequest(getAvailableNodes, (args: BIAvailableNodesRequest) => rpcManger.getAvailableNodes(args));
-    messenger.onRequest(getFunctions, (args: BIGetFunctionsRequest) => rpcManger.getFunctions(args));
     messenger.onRequest(getEnclosedFunction, (args: BIGetEnclosedFunctionRequest) => rpcManger.getEnclosedFunction(args));
     messenger.onRequest(getNodeTemplate, (args: BINodeTemplateRequest) => rpcManger.getNodeTemplate(args));
     messenger.onRequest(getAiSuggestions, (args: BIAiSuggestionsRequest) => rpcManger.getAiSuggestions(args));
@@ -108,7 +112,6 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getProjectStructure, () => rpcManger.getProjectStructure());
     messenger.onRequest(getProjectComponents, () => rpcManger.getProjectComponents());
     messenger.onRequest(createComponent, (args: ComponentRequest) => rpcManger.createComponent(args));
-    messenger.onRequest(getBIConnectors, (args: BIConnectorsRequest) => rpcManger.getBIConnectors(args));
     messenger.onRequest(handleReadmeContent, (args: ReadmeContentRequest) => rpcManger.handleReadmeContent(args));
     messenger.onRequest(getVisibleVariableTypes, (args: BIGetVisibleVariableTypesRequest) => rpcManger.getVisibleVariableTypes(args));
     messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));
@@ -117,10 +120,11 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getModuleNodes, () => rpcManger.getModuleNodes());
     messenger.onRequest(getReadmeContent, () => rpcManger.getReadmeContent());
     messenger.onNotification(openReadme, () => rpcManger.openReadme());
+    messenger.onRequest(renameIdentifier, (args: RenameIdentifierRequest) => rpcManger.renameIdentifier(args));
     messenger.onNotification(deployProject, () => rpcManger.deployProject());
     messenger.onNotification(openAIChat, (args: AIChatRequest) => rpcManger.openAIChat(args));
     messenger.onRequest(getSignatureHelp, (args: SignatureHelpRequest) => rpcManger.getSignatureHelp(args));
-    messenger.onNotification(buildProject, () => rpcManger.buildProject());
+    messenger.onNotification(buildProject, (args: BuildMode) => rpcManger.buildProject(args));
     messenger.onNotification(runProject, () => rpcManger.runProject());
     messenger.onRequest(getVisibleTypes, (args: VisibleTypesRequest) => rpcManger.getVisibleTypes(args));
     messenger.onNotification(addBreakpointToSource, (args: BreakpointRequest) => rpcManger.addBreakpointToSource(args));
@@ -142,4 +146,8 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(updateImports, (args: UpdateImportsRequest) => rpcManger.updateImports(args));
     messenger.onRequest(addFunction, (args: AddFunctionRequest) => rpcManger.addFunction(args));
     messenger.onRequest(getFunctionNode, (args: FunctionNodeRequest) => rpcManger.getFunctionNode(args));
+    messenger.onRequest(getEndOfFile, (args: EndOfFileRequest) => rpcManger.getEndOfFile(args));
+    messenger.onRequest(search, (args: BISearchRequest) => rpcManger.search(args));
+    messenger.onRequest(getRecordNames, () => rpcManger.getRecordNames());
+    messenger.onRequest(getDevantComponent, () => rpcManger.getDevantComponent());
 }

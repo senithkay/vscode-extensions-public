@@ -10,14 +10,13 @@
  */
 import {
     AIChatRequest,
+    AddFieldRequest,
     AddFunctionRequest,
     AddFunctionResponse,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
     BIAvailableNodesResponse,
-    BIConnectorsRequest,
-    BIConnectorsResponse,
     BIDeleteByComponentInfoRequest,
     BIDeleteByComponentInfoResponse,
     BIDesignModelResponse,
@@ -25,13 +24,13 @@ import {
     BIFlowModelResponse,
     BIGetEnclosedFunctionRequest,
     BIGetEnclosedFunctionResponse,
-    BIGetFunctionsRequest,
-    BIGetFunctionsResponse,
     BIGetVisibleVariableTypesRequest,
     BIGetVisibleVariableTypesResponse,
     BIModuleNodesResponse,
     BINodeTemplateRequest,
     BINodeTemplateResponse,
+    BISearchRequest,
+    BISearchResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
     BreakpointRequest,
@@ -40,6 +39,7 @@ import {
     ConfigVariableResponse,
     CreateComponentResponse,
     CurrentBreakpointsResponse,
+    EndOfFileRequest,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     ExpressionDiagnosticsRequest,
@@ -52,6 +52,7 @@ import {
     GetTypeResponse,
     GetTypesRequest,
     GetTypesResponse,
+    LinePosition,
     ModelFromCodeRequest,
     ProjectComponentsResponse,
     ProjectImports,
@@ -59,20 +60,24 @@ import {
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
+    RecordsInWorkspaceMentions,
+    RenameIdentifierRequest,
     ServiceClassModelResponse,
+    ServiceClassSourceRequest,
     SignatureHelpRequest,
     SignatureHelpResponse,
     SourceEditResponse,
     UpdateConfigVariableRequest,
     UpdateConfigVariableResponse,
-    UpdateTypeRequest,
-    UpdateTypeResponse,
     UpdateImportsRequest,
     UpdateImportsResponse,
+    UpdateTypeRequest,
+    UpdateTypeResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspacesResponse,
     addBreakpointToSource,
+    addClassField,
     addFunction,
     buildProject,
     createComponent,
@@ -86,21 +91,21 @@ import {
     getAiSuggestions,
     getAllImports,
     getAvailableNodes,
-    getBIConnectors,
     getBreakpointInfo,
     getConfigVariables,
     getDesignModel,
     getEnclosedFunction,
+    getEndOfFile,
     getExpressionCompletions,
     getExpressionDiagnostics,
     getFlowModel,
     getFunctionNode,
-    getFunctions,
     getModuleNodes,
     getNodeTemplate,
     getProjectComponents,
     getProjectStructure,
     getReadmeContent,
+    getRecordNames,
     getServiceClassModel,
     getSignatureHelp,
     getSourceCode,
@@ -113,15 +118,17 @@ import {
     openAIChat,
     openReadme,
     removeBreakpointFromSource,
+    renameIdentifier,
     runProject,
+    search,
     updateClassField,
-    addClassField,
     updateConfigVariables,
     updateImports,
     updateServiceClass,
     updateType,
-    ServiceClassSourceRequest,
-    AddFieldRequest
+    BuildMode,
+    DevantComponentResponse,
+    getDevantComponent
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -151,10 +158,6 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     getAvailableNodes(params: BIAvailableNodesRequest): Promise<BIAvailableNodesResponse> {
         return this._messenger.sendRequest(getAvailableNodes, HOST_EXTENSION, params);
-    }
-
-    getFunctions(params: BIGetFunctionsRequest): Promise<BIGetFunctionsResponse> {
-        return this._messenger.sendRequest(getFunctions, HOST_EXTENSION, params);
     }
 
     getEnclosedFunction(params: BIGetEnclosedFunctionRequest): Promise<BIGetEnclosedFunctionResponse> {
@@ -189,10 +192,6 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(createComponent, HOST_EXTENSION, params);
     }
 
-    getBIConnectors(params: BIConnectorsRequest): Promise<BIConnectorsResponse> {
-        return this._messenger.sendRequest(getBIConnectors, HOST_EXTENSION, params);
-    }
-
     handleReadmeContent(params: ReadmeContentRequest): Promise<ReadmeContentResponse> {
         return this._messenger.sendRequest(handleReadmeContent, HOST_EXTENSION, params);
     }
@@ -225,6 +224,10 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendNotification(openReadme, HOST_EXTENSION);
     }
 
+    renameIdentifier(params: RenameIdentifierRequest): Promise<void> {
+        return this._messenger.sendRequest(renameIdentifier, HOST_EXTENSION, params);
+    }
+
     deployProject(): void {
         return this._messenger.sendNotification(deployProject, HOST_EXTENSION);
     }
@@ -237,8 +240,8 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(getSignatureHelp, HOST_EXTENSION, params);
     }
 
-    buildProject(): void {
-        return this._messenger.sendNotification(buildProject, HOST_EXTENSION);
+    buildProject(params: BuildMode): void {
+        return this._messenger.sendNotification(buildProject, HOST_EXTENSION, params);
     }
 
     runProject(): void {
@@ -280,7 +283,7 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
     getDesignModel(): Promise<BIDesignModelResponse> {
         return this._messenger.sendRequest(getDesignModel, HOST_EXTENSION);
     }
-    
+
     getTypes(params: GetTypesRequest): Promise<GetTypesResponse> {
         return this._messenger.sendRequest(getTypes, HOST_EXTENSION, params);
     }
@@ -323,5 +326,20 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     getFunctionNode(params: FunctionNodeRequest): Promise<FunctionNodeResponse> {
         return this._messenger.sendRequest(getFunctionNode, HOST_EXTENSION, params);
+    }
+
+    getEndOfFile(params: EndOfFileRequest): Promise<LinePosition> {
+        return this._messenger.sendRequest(getEndOfFile, HOST_EXTENSION, params);
+    }
+
+    search(params: BISearchRequest): Promise<BISearchResponse> {
+        return this._messenger.sendRequest(search, HOST_EXTENSION, params);
+    }
+
+    getRecordNames(): Promise<RecordsInWorkspaceMentions> {
+        return this._messenger.sendRequest(getRecordNames, HOST_EXTENSION);
+    }
+    getDevantComponent(): Promise<DevantComponentResponse | undefined> {
+        return this._messenger.sendRequest(getDevantComponent, HOST_EXTENSION);
     }
 }
