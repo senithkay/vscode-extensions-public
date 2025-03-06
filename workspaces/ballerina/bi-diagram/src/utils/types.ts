@@ -51,3 +51,8 @@ export type {
 } from "@wso2-enterprise/ballerina-core";
 
 export type FlowNodeStyle = "default" | "ballerina-statements";
+
+export type AgentNodeTools = {
+    name: string;
+    iconUrl: string;
+};
