@@ -18,7 +18,7 @@ export function openCompSrcCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(
 			CommandIds.OpenCompSrcDir,
-			async (params: { org: Organization | string; project: Project | string; component: string }) => {
+			async (params: { org: Organization | string; project: Project | string; component: string; technology: string; integrationType: string }) => {
 				try {
 					const userInfo = await getUserInfoForCmd("clone project repository");
 					if (userInfo) {
@@ -57,7 +57,7 @@ export function openCompSrcCommand(context: ExtensionContext) {
 
 						await waitForContextStoreToLoad();
 
-						cloneOrOpenDir(selectedOrg, selectedProject, params?.component || null);
+						cloneOrOpenDir(selectedOrg, selectedProject, params?.component || null, params?.technology || null, params?.integrationType || null);
 					}
 				} catch (err: any) {
 					console.error("Failed to open project/component", err);

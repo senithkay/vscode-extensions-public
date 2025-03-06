@@ -26,7 +26,7 @@ const DEFAULT_CHOREO_ENV_CONFIG: IChoreoEnvConfig = {
 	},
 	choreoConsoleBaseUrl: "https://console.choreo.dev",
 	billingConsoleBaseUrl: "https://subscriptions.wso2.com",
-	devantConsoleBaseUrl: "https://console.devant.dev"
+	devantConsoleBaseUrl: "https://console.devant.dev",
 };
 
 const CHOREO_ENV_CONFIG_STAGE: IChoreoEnvConfig = {
@@ -38,7 +38,7 @@ const CHOREO_ENV_CONFIG_STAGE: IChoreoEnvConfig = {
 	},
 	choreoConsoleBaseUrl: "https://console.st.choreo.dev",
 	billingConsoleBaseUrl: "https://subscriptions.st.wso2.com",
-	devantConsoleBaseUrl: "https://preview-st.devant.dev"
+	devantConsoleBaseUrl: "https://preview-st.devant.dev",
 };
 
 const CHOREO_ENV_CONFIG_DEV: IChoreoEnvConfig = {
@@ -50,7 +50,7 @@ const CHOREO_ENV_CONFIG_DEV: IChoreoEnvConfig = {
 	},
 	choreoConsoleBaseUrl: "https://consolev2.preview-dv.choreo.dev",
 	billingConsoleBaseUrl: "https://subscriptions.dv.wso2.com",
-	devantConsoleBaseUrl: "https://preview-dv.devant.dev"
+	devantConsoleBaseUrl: "https://preview-dv.devant.dev",
 };
 
 class ChoreoEnvConfig {

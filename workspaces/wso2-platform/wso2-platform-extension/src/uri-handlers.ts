@@ -73,6 +73,8 @@ export function activateURIHandlers() {
 				const orgHandle = urlParams.get("org");
 				const projectHandle = urlParams.get("project");
 				const componentName = urlParams.get("component");
+				const technology = urlParams.get("technology");
+				const integrationType = urlParams.get("integrationType");
 				if (!orgHandle || !projectHandle) {
 					return;
 				}
@@ -98,14 +100,20 @@ export function activateURIHandlers() {
 
 					await waitForContextStoreToLoad();
 
-					await cloneOrOpenDir(org, project, componentName);
+					await cloneOrOpenDir(org, project, componentName, technology, integrationType);
 				});
 			}
 		},
 	});
 }
 
-export const cloneOrOpenDir = async (org: Organization, project: Project, componentName: string | null) => {
+export const cloneOrOpenDir = async (
+	org: Organization,
+	project: Project,
+	componentName: string | null,
+	technology: string | null,
+	integrationType: string | null,
+) => {
 	const contextItems = contextStore.getState().getValidItems();
 	const isWithinDir = contextItems.find((item) => item.orgHandle === org.handle && item.projectHandle === project.handler);
 	if (isWithinDir) {
@@ -113,7 +121,7 @@ export const cloneOrOpenDir = async (org: Organization, project: Project, compon
 		if (selectedContext?.orgHandle !== org.handle || selectedContext?.projectHandle !== project.handler) {
 			contextStore.getState().onSetNewContext(org, project, isWithinDir.contextDirs[0]);
 		}
-		window.showInformationMessage(`You are already within the Choreo ${componentName ? "component" : "project"} directory`);
+		window.showInformationMessage(`You are already within the ${componentName ? "component" : "project"} directory`);
 		return;
 	}
 
@@ -147,7 +155,7 @@ export const cloneOrOpenDir = async (org: Organization, project: Project, compon
 			openProjectDirectory(selectedPath);
 		}
 	} else {
-		commands.executeCommand(CommandIds.CloneProject, { organization: org, project, componentName });
+		commands.executeCommand(CommandIds.CloneProject, { organization: org, project, componentName, technology, integrationType });
 	}
 };
 

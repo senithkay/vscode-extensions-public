@@ -7,6 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { mkdirSync, readdirSync, writeFile, writeFileSync } from "fs";
 import * as os from "os";
 import { join } from "path";
 import {
@@ -30,157 +31,198 @@ import { createWorkspaceFile } from "./create-project-workspace-cmd";
 
 export function cloneRepoCommand(context: ExtensionContext) {
 	context.subscriptions.push(
-		commands.registerCommand(CommandIds.CloneProject, async (params: { organization: Organization; project: Project; componentName: string }) => {
-			try {
-				const userInfo = await getUserInfoForCmd("clone project repository");
-				if (userInfo) {
-					const selectedOrg = params?.organization ?? (await selectOrg(userInfo, "Select organization"));
+		commands.registerCommand(
+			CommandIds.CloneProject,
+			async (params: { organization: Organization; project: Project; componentName: string; technology: string; integrationType: string }) => {
+				try {
+					const userInfo = await getUserInfoForCmd("clone project repository");
+					if (userInfo) {
+						const selectedOrg = params?.organization ?? (await selectOrg(userInfo, "Select organization"));
 
-					const selectedProject =
-						params?.project ??
-						(await selectProject(
-							selectedOrg,
-							`Loading projects from '${selectedOrg.name}'`,
-							`Select the project from '${selectedOrg.name}', that needs to be cloned`,
-						));
+						const selectedProject =
+							params?.project ??
+							(await selectProject(
+								selectedOrg,
+								`Loading projects from '${selectedOrg.name}'`,
+								`Select the project from '${selectedOrg.name}', that needs to be cloned`,
+							));
 
-					const cloneDir = await window.showOpenDialog({
-						canSelectFolders: true,
-						canSelectFiles: false,
-						canSelectMany: false,
-						title: "Select a folder to clone the project repository",
-						defaultUri: Uri.file(os.homedir()),
-					});
-
-					if (cloneDir === undefined || cloneDir.length === 0) {
-						throw new Error("Directory is required in order to clone the repository in");
-					}
-
-					const selectedCloneDir = cloneDir[0];
-					const projectCache = dataCacheStore.getState().getProjects(selectedOrg.handle);
-
-					const components = await window.withProgress(
-						{
-							title: `Fetching components of ${selectedProject.name}...`,
-							location: ProgressLocation.Notification,
-						},
-						() =>
-							ext.clients.rpcClient.getComponentList({
-								orgId: selectedOrg.id.toString(),
-								orgHandle: selectedOrg.handle,
-								projectId: selectedProject.id,
-								projectHandle: selectedProject.handler,
-							}),
-					);
-
-					// clone single or multiple repos
-					if (components.length === 0) {
-						throw new Error(`No components found within ${selectedProject.name}.`);
-					}
-
-					const repoSet = new Set<string>();
-					for (const component of components) {
-						const repo = getComponentKindRepoSource(component.spec.source).repo;
-						if (repo) {
-							if (params?.componentName) {
-								if (component.metadata.name === params?.componentName) {
-									repoSet.add(repo);
-								}
-							} else {
-								repoSet.add(repo);
-							}
-						}
-					}
-
-					if (repoSet.size === 0) {
-						throw new Error(`No repos found to link within ${selectedProject.name}.`);
-					}
-
-					if (repoSet.size > 1) {
-						const quickPickOptions: QuickPickItem[] = [
-							{
-								label: "Clone entire project",
-								detail: "Clone all the repositories associated with the selected project",
-								picked: true,
-							},
-							{ kind: QuickPickItemKind.Separator, label: "Clone a component of the project" },
-							...components.map((item) => ({
-								label: item.metadata.name,
-								detail: `Repository: ${getComponentKindRepoSource(item.spec.source).repo}`,
-								item,
-							})),
-						];
-						const selection = await window.showQuickPick(quickPickOptions, {
-							title: "Select an option",
+						const cloneDir = await window.showOpenDialog({
+							canSelectFolders: true,
+							canSelectFiles: false,
+							canSelectMany: false,
+							title: "Select a folder to clone the project repository",
+							defaultUri: Uri.file(os.homedir()),
 						});
 
-						if (selection?.label === "Clone entire project") {
-							// do nothing
-						} else if ((selection as any)?.item) {
-							repoSet.clear();
-							repoSet.add(getComponentKindRepoSource((selection as any)?.item.spec.source).repo);
-						} else {
-							throw new Error("Repository or component selection is required in order to clone the repository");
-						}
-					}
-
-					let selectedRepoUrl = "";
-					if (repoSet.size === 1) {
-						[selectedRepoUrl] = repoSet;
-
-						const parsedRepo = parseGitURL(selectedRepoUrl);
-
-						if (!parsedRepo) {
-							throw new Error("Failed to parse selected Git URL");
+						if (cloneDir === undefined || cloneDir.length === 0) {
+							throw new Error("Directory is required in order to clone the repository in");
 						}
 
-						const matchingComp = components?.find((item) => selectedRepoUrl === getComponentKindRepoSource(item.spec.source).repo);
+						const selectedCloneDir = cloneDir[0];
+						const projectCache = dataCacheStore.getState().getProjects(selectedOrg.handle);
 
-						const latestDeploymentTrack = matchingComp?.deploymentTracks?.find((item) => item.latest);
-
-						const clonedResp = await cloneRepositoryWithProgress(selectedCloneDir.fsPath, [
-							{ branch: latestDeploymentTrack?.branch, repoUrl: selectedRepoUrl },
-						]);
-
-						// set context.yaml
-						updateContextFile(clonedResp[0].clonedPath, authStore.getState().state.userInfo!, selectedProject, selectedOrg, projectCache);
-						const subDir = matchingComp?.spec?.source ? getComponentKindRepoSource(matchingComp?.spec?.source)?.path || "" : "";
-						const subDirFullPath = join(clonedResp[0].clonedPath, subDir);
-						await openClonedDirectory(subDirFullPath);
-					} else if (repoSet.size > 1) {
-						const parsedRepos = Array.from(repoSet).map((item) => parseGitURL(item));
-						if (parsedRepos.some((item) => !item)) {
-							throw new Error("Failed to parse selected Git URL");
-						}
-
-						const { dirPath: projectDirPath } = createDirectory(selectedCloneDir.fsPath, selectedProject.name);
-
-						await cloneRepositoryWithProgress(
-							projectDirPath,
-							Array.from(repoSet).map((selectedRepoUrl) => {
-								const parsedRepo = parseGitURL(selectedRepoUrl);
-
-								if (!parsedRepo) {
-									throw new Error("Failed to parse selected Git URL");
-								}
-
-								const matchingComp = components?.find((item) => selectedRepoUrl === getComponentKindRepoSource(item.spec.source).repo);
-
-								const latestDeploymentTrack = matchingComp?.deploymentTracks?.find((item) => item.latest);
-
-								return { branch: latestDeploymentTrack?.branch, repoUrl: selectedRepoUrl };
-							}),
+						const components = await window.withProgress(
+							{
+								title: `Fetching components of ${selectedProject.name}...`,
+								location: ProgressLocation.Notification,
+							},
+							() =>
+								ext.clients.rpcClient.getComponentList({
+									orgId: selectedOrg.id.toString(),
+									orgHandle: selectedOrg.handle,
+									projectId: selectedProject.id,
+									projectHandle: selectedProject.handler,
+								}),
 						);
 
-						await openClonedDirectory(projectDirPath);
+						// clone single or multiple repos
+						if (components.length === 0) {
+							throw new Error(`No components found within ${selectedProject.name}.`);
+						}
+
+						const repoSet = new Set<string>();
+						for (const component of components) {
+							const repo = getComponentKindRepoSource(component.spec.source).repo;
+							if (repo) {
+								if (params?.componentName) {
+									if (component.metadata.name === params?.componentName) {
+										repoSet.add(repo);
+									}
+								} else {
+									repoSet.add(repo);
+								}
+							}
+						}
+
+						if (repoSet.size === 0) {
+							throw new Error(`No repos found to link within ${selectedProject.name}.`);
+						}
+
+						if (repoSet.size > 1) {
+							const quickPickOptions: QuickPickItem[] = [
+								{
+									label: "Clone entire project",
+									detail: "Clone all the repositories associated with the selected project",
+									picked: true,
+								},
+								{ kind: QuickPickItemKind.Separator, label: "Clone a component of the project" },
+								...components.map((item) => ({
+									label: item.metadata.name,
+									detail: `Repository: ${getComponentKindRepoSource(item.spec.source).repo}`,
+									item,
+								})),
+							];
+							const selection = await window.showQuickPick(quickPickOptions, {
+								title: "Select an option",
+							});
+
+							if (selection?.label === "Clone entire project") {
+								// do nothing
+							} else if ((selection as any)?.item) {
+								repoSet.clear();
+								repoSet.add(getComponentKindRepoSource((selection as any)?.item.spec.source).repo);
+							} else {
+								throw new Error("Repository or component selection is required in order to clone the repository");
+							}
+						}
+
+						let selectedRepoUrl = "";
+						if (repoSet.size === 1) {
+							[selectedRepoUrl] = repoSet;
+
+							const parsedRepo = parseGitURL(selectedRepoUrl);
+
+							if (!parsedRepo) {
+								throw new Error("Failed to parse selected Git URL");
+							}
+
+							const matchingComp = components?.find((item) => selectedRepoUrl === getComponentKindRepoSource(item.spec.source).repo);
+
+							const latestDeploymentTrack = matchingComp?.deploymentTracks?.find((item) => item.latest);
+
+							const clonedResp = await cloneRepositoryWithProgress(selectedCloneDir.fsPath, [
+								{ branch: latestDeploymentTrack?.branch, repoUrl: selectedRepoUrl },
+							]);
+
+							// set context.yaml
+							updateContextFile(clonedResp[0].clonedPath, authStore.getState().state.userInfo!, selectedProject, selectedOrg, projectCache);
+							const subDir = matchingComp?.spec?.source ? getComponentKindRepoSource(matchingComp?.spec?.source)?.path || "" : "";
+							const subDirFullPath = join(clonedResp[0].clonedPath, subDir);
+							if (params?.technology === "ballerina") {
+								ensureBallerinaFilesIfEmpty(selectedOrg, params?.componentName || "bal-com", subDirFullPath, params?.integrationType);
+							}
+							await openClonedDirectory(subDirFullPath);
+						} else if (repoSet.size > 1) {
+							const parsedRepos = Array.from(repoSet).map((item) => parseGitURL(item));
+							if (parsedRepos.some((item) => !item)) {
+								throw new Error("Failed to parse selected Git URL");
+							}
+
+							const { dirPath: projectDirPath } = createDirectory(selectedCloneDir.fsPath, selectedProject.name);
+
+							await cloneRepositoryWithProgress(
+								projectDirPath,
+								Array.from(repoSet).map((selectedRepoUrl) => {
+									const parsedRepo = parseGitURL(selectedRepoUrl);
+
+									if (!parsedRepo) {
+										throw new Error("Failed to parse selected Git URL");
+									}
+
+									const matchingComp = components?.find((item) => selectedRepoUrl === getComponentKindRepoSource(item.spec.source).repo);
+
+									const latestDeploymentTrack = matchingComp?.deploymentTracks?.find((item) => item.latest);
+
+									return { branch: latestDeploymentTrack?.branch, repoUrl: selectedRepoUrl };
+								}),
+							);
+							await openClonedDirectory(projectDirPath);
+						}
 					}
+				} catch (err: any) {
+					console.error("Failed to clone project", err);
+					window.showErrorMessage(err?.message || "Failed to clone project");
 				}
-			} catch (err: any) {
-				console.error("Failed to clone project", err);
-				window.showErrorMessage(err?.message || "Failed to clone project");
-			}
-		}),
+			},
+		),
 	);
+}
+
+async function ensureBallerinaFilesIfEmpty(org: Organization, componentName: string, directoryPath: string, integrationType: string): Promise<void> {
+	const createBalFiles = (directoryPath: string, integrationType: string) => {
+		writeFileSync(
+			join(directoryPath, "Ballerina.toml"),
+			`[package]\norg = "${org.handle}"\nname = "${componentName.replaceAll("-", "_")}"\nversion = "0.1.0"\n\nbi = true`,
+			"utf8",
+		);
+		if (integrationType === "manualTask") {
+			writeFileSync(
+				join(directoryPath, "automation.bal"),
+				`import ballerina/log;\n\npublic function main() returns error? {\n    do {\n\n    } on fail error e {\n        log:printError("Error: ", 'error = e);\n        return e;\n    }\n}`,
+			);
+		}
+	};
+
+	try {
+		let files = readdirSync(directoryPath);
+		files = files.filter((file) => !file.startsWith("."));
+
+		if (files.length === 0) {
+			createBalFiles(directoryPath, integrationType);
+		}
+	} catch (err: any) {
+		if (err.code === "ENOENT") {
+			try {
+				mkdirSync(directoryPath, { recursive: true });
+				createBalFiles(directoryPath, integrationType);
+			} catch (mkdirError: any) {
+				console.error("Error creating directory or files:", mkdirError);
+			}
+		} else {
+			console.error("Error checking or creating files:", err);
+		}
+	}
 }
 
 const cloneRepositoryWithProgress = async (

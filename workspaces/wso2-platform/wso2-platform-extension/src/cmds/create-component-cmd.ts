@@ -20,6 +20,7 @@ import {
 	getComponentTypeText,
 } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, ProgressLocation, type QuickPickItem, Uri, commands, window, workspace } from "vscode";
+import { choreoEnvConfig } from "../config";
 import { ext } from "../extensionVariables";
 import { getGitRoot } from "../git/util";
 import { authStore } from "../stores/auth-store";
@@ -30,7 +31,6 @@ import { showComponentDetailsView } from "../webviews/ComponentDetailsView";
 import { ComponentFormView, type IComponentCreateFormParams } from "../webviews/ComponentFormView";
 import { getUserInfoForCmd, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
 import { updateContextFile } from "./create-directory-context-cmd";
-import { choreoEnvConfig } from "../config";
 
 let componentWizard: ComponentFormView;
 
@@ -194,10 +194,12 @@ export const submitCreateComponentHandler = async ({ createParams, org, project 
 			.showInformationMessage(`Integration '${createdComponent.metadata.name}', was successfully created`, "Open in Devant")
 			.then(async (resp) => {
 				if (resp === "Open in Devant") {
-					commands.executeCommand("vscode.open", `${choreoEnvConfig.getDevantUrl()}/organizations/${org.handle}/projects/${project.id}/components/${createdComponent.metadata.handler}/overview`);
+					commands.executeCommand(
+						"vscode.open",
+						`${choreoEnvConfig.getDevantUrl()}/organizations/${org.handle}/projects/${project.id}/components/${createdComponent.metadata.handler}/overview`,
+					);
 				}
 			});
-
 
 		const compCache = dataCacheStore.getState().getComponents(org.handle, project.handler);
 		dataCacheStore.getState().setComponents(org.handle, project.handler, [createdComponent, ...compCache]);
