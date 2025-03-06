@@ -16,3 +16,4 @@ export const README_FILE_NAME_LOWERCASE = "readme.md";
 export const REQ_KEY = "user_requirements_file";
 export const DEVELOPMENT_KEY = "developer_intention_file";
 export const DEVELOPMENT_DOCUMENT = "developer.md";
+export const TEST_DIR_NAME = "tests";
