@@ -1845,6 +1845,7 @@ export interface Connector extends STNode {
     method: string;
     parameters: ConnectorParameter[];
     configKey?: string;
+    memoryConfigKey?: string;
     tools?: Tools;
 }
 

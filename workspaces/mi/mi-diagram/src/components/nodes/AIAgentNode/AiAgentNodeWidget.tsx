@@ -164,6 +164,9 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
     const stNode = node.getStNode() as Connector;
     const connectorName = stNode.connectorName;
     const methodName = stNode.method;
+    const configKey = stNode.configKey;
+    const memoryConfigKey = stNode.memoryConfigKey;
+
     const systemPrompt = stNode.parameters?.filter((property: any) => property.name === "system")[0]?.value;
     const prompt = stNode.parameters?.filter((property: any) => property.name === "prompt")[0]?.value;
     const systemPromptSize = getTextSizes(systemPrompt, "13px", undefined, undefined, 160);
@@ -204,8 +207,7 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                 documentUri: node.documentUri,
                 connectorName: stNode.tag.split(".")[0]
             });
-            const connectionName = stNode.configKey;
-            const connection = connectionData.connections.find((connection: any) => connection.name === connectionName);
+            const connection = connectionData.connections.find((connection: any) => connection.name === configKey);
             const connectionType = connection ? connection.connectionType : null;
 
             const connectionIconPath = await rpcClient.getMiDiagramRpcClient().getIconPathUri({
@@ -255,7 +257,7 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                     parameters: stNode.parameters ?? [],
                     connectorName: connectorData.name,
                     operationName: operationName,
-                    connectionName: stNode.configKey,
+                    connectionName: configKey,
                     icon: iconPath,
                 },
                 parentNode: node.mediatorName,
@@ -322,9 +324,9 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                     </marker>
                 </defs>
             </svg>
-            {stNode.configKey &&
+            {configKey &&
                 <S.ConnectionText>
-                    {stNode.configKey}
+                    {configKey}
                 </S.ConnectionText>}
         </S.CircleContainer>
     }
@@ -374,6 +376,10 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                     </marker>
                 </defs>
             </svg>
+            {memoryConfigKey &&
+                <S.ConnectionText>
+                    {memoryConfigKey}
+                </S.ConnectionText>}
         </S.CircleContainer>
     }
 
@@ -463,17 +469,17 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
 
             <>
                 {stNode.tools && <Typography variant="h4" sx={{
-                    marginTop: NODE_GAP.AI_AGENT_TOP + systemPromptHeight + 5 + promptHeight + 10,
+                    marginTop: NODE_GAP.AI_AGENT_TOP + systemPromptHeight + 5 + promptHeight + 12,
                     width: NODE_DIMENSIONS.AI_AGENT.WIDTH,
                     textAlign: "center",
                     position: 'absolute'
                 }}>
                     Tools
                 </Typography>}
-                {stNode.configKey &&
+                {memoryConfigKey &&
                     MemoryConnectionCircle()
                 }
-                {stNode.configKey &&
+                {configKey &&
                     ConnectionCircle()
                 }
             </>
