@@ -723,6 +723,7 @@ export type BISearchResponse = {
 export type BIGetEnclosedFunctionRequest = {
     filePath: string;
     position: LinePosition;
+    findClass?: boolean;
 }
 
 export type BIGetEnclosedFunctionResponse = {
