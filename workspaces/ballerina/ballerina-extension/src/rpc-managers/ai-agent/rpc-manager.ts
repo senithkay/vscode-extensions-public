@@ -20,10 +20,6 @@ import {
     AIToolsRequest,
     AIToolsResponse,
     AgentTool,
-    AvailableNode,
-    BINodeTemplateRequest,
-    BallerinaProjectComponents,
-    ComponentInfo,
     AIConnectorActionsRequest,
     AIConnectorActionsResponse,
     FlowNode,
@@ -35,9 +31,7 @@ import {
 import { writeFileSync } from "fs";
 import { Uri } from "vscode";
 import { URI, Utils } from "vscode-uri";
-import { history, StateMachine } from "../../stateMachine";
-import { handleAutomationCreation } from "../../utils/bi";
-import { BiDiagramRpcManager } from "../bi-diagram/rpc-manager";
+import { StateMachine } from "../../stateMachine";
 
 
 interface EntryPosition {
@@ -126,10 +120,13 @@ export class AiAgentRpcManager implements AIAgentAPI {
                 const projectUri = context.projectUri;
                 const filePath = Utils.joinPath(URI.file(projectUri), "agents.bal").fsPath;
 
+                // selected tool list
+                const selectedToolList = [];
                 // Create the tools first
                 if (params.newTools.length > 0) {
                     for (const tool of params.newTools) { // create tools one by one
                         await this.createTool(tool);
+                        selectedToolList.push(tool.toolName);
                     }
                 }
 
@@ -139,7 +136,6 @@ export class AiAgentRpcManager implements AIAgentAPI {
 
                 const fixedAgentCodeData = allAgents.agents.at(0);
 
-
                 if (params.modelState === 1) {
                     const allModels = await StateMachine.langClient().getAllModels({ agent: fixedAgentCodeData.object, filePath });
                     const modelCodeData = allModels.models.find(val => val.object === params.selectedModel);
@@ -147,7 +143,10 @@ export class AiAgentRpcManager implements AIAgentAPI {
 
                     // Go through the modelFields and assign each value to the flow node
                     params.modelFields.forEach(field => {
-                        modelFlowNode.properties[field.key].value = field.value;
+                        const excludedKeys = ["variable", "type", "checkError"];
+                        if (!excludedKeys.includes(field.key)) {
+                            modelFlowNode.properties[field.key].value = field.value;
+                        }
                     });
 
                     // Create a new model with given flow node
@@ -169,8 +168,15 @@ export class AiAgentRpcManager implements AIAgentAPI {
 
                 // Go through the agentFields and assign each value to the flow node
                 params.agentFields.forEach(field => {
-                    agentFlowNode.properties[field.key].value = field.value;
+                    const excludedKeys = ["variable", "type", "checkError"];
+                    if (!excludedKeys.includes(field.key)) {
+                        agentFlowNode.properties[field.key].value = field.value;
+                    }
                 });
+
+                // set agent model name and tools
+                agentFlowNode.properties["model"].value = params.modelFields.find(field => field.key === "variable").value;
+                agentFlowNode.properties["tools"].value = selectedToolList;
 
                 // Create a new model with given flow node
                 const codeEdits = await StateMachine.langClient()
@@ -203,6 +209,15 @@ export class AiAgentRpcManager implements AIAgentAPI {
                 console.log(error);
             }
         });
+    }
+
+    // Update the flow node properties with the given key. This is for LS code generation
+    private updateFlowNodeProperties(flowNode: FlowNode, excludedKeys: string[] = ["variable", "type", "checkError"]) {
+        for (const key in flowNode.properties) {
+            if (!excludedKeys.includes(key)) {
+                flowNode.properties[key].value = key;
+            }
+        }
     }
 
     async createTool(tool: AgentTool): Promise<void> {
