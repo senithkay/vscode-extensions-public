@@ -1082,10 +1082,17 @@ export function normalizeTypeName(typeName: string) {
         return transformedTypes.join('Or');
     }
 
+    let baseName = typeName.replace(/\[]/g, '');
+
+	// Handle imported types
+	if (baseName.includes(':')) {
+		const [moduleName, type] = baseName.split(':');
+		baseName = `${moduleName}_${type}`;
+	}
+
     // Handle array types
     const arrayDim = (typeName.match(/\[]/g) || []).length;
-    const baseName = typeName.replace(/\[]/g, '');
-    
+
     if (arrayDim === 0) {
         return baseName;
     }

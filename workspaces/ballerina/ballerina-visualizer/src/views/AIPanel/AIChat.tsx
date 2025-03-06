@@ -21,6 +21,7 @@ import {
     PostProcessResponse,
     TestGenerationTarget,
     LLMDiagnostics,
+    ImportStatement,
 } from "@wso2-enterprise/ballerina-core";
 
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -102,6 +103,7 @@ var remainingTokenPercentage: string | number;
 var remaingTokenLessThanOne: boolean = false;
 
 var timeToReset: number;
+export const INVALID_RECORD_REFERENCE = "Invalid record reference. Follow <org-name>/<package-name>:<record-name> format when referencing to record in another package.";
 
 // Define constants for command keys
 export const COMMAND_GENERATE = "/generate";
@@ -112,10 +114,11 @@ export const COMMAND_DATAMAP = "/datamap";
 export const COMMAND_TYPECREATOR = "/typecreator";
 export const COMMAND_DOCUMENTATION = "/ask";
 export const COMMAND_HEALTHCARE = "/healthcare";
+export const COMMAND_OPENAPI = "/openapi";
 
 // Define constants for command templates
 const TEMPLATE_GENERATE = [
-    "generate code for the use-case: <use-case>",
+    "generate code for the use-case: ",
     "generate an integration according to the given Readme file",
 ];
 const TEMPLATE_TESTS = [
@@ -126,9 +129,10 @@ const TEMPLATE_DATAMAP = [
     "generate mapping using input as <recordname(s)> and output as <recordname> using the function <functionname>",
     "generate mapping using input as <recordname(s)> and output as <recordname>",
 ];
-const TEMPLATE_TYPECREATOR = ["generate types using the given file"];
-const TEMPLATE_DOCUMENTATION = ["Find reliable answers to your ballerina questions: <question>"];
-const TEMPLATE_HEALTHCARE = [""];
+const TEMPLATE_TYPECREATOR = ["generate types using the attatched file"];
+const TEMPLATE_DOCUMENTATION : string[] = [];
+const TEMPLATE_HEALTHCARE : string[] = [];
+const TEMPLATE_OPENAPI : string[]= [];
 
 const DEFAULT_MENU_COMMANDS = [
     { command: COMMAND_GENERATE + " write a hello world http service" },
@@ -150,7 +154,8 @@ const commandToTemplate = new Map<string, string[]>([
     [COMMAND_TYPECREATOR, TEMPLATE_TYPECREATOR],
     [COMMAND_HEALTHCARE, TEMPLATE_HEALTHCARE],
     [COMMAND_DOCUMENTATION, TEMPLATE_DOCUMENTATION],
-    [COMMAND_NATURAL_PROGRAMMING, TEMPLATE_NATURAL_PROGRAMMING]
+    [COMMAND_NATURAL_PROGRAMMING, TEMPLATE_NATURAL_PROGRAMMING],
+    [COMMAND_OPENAPI, TEMPLATE_OPENAPI]
 ]);
 
 //TODO: Add the files relevant to the commands
@@ -398,9 +403,9 @@ export function AIChat() {
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
                 if (error && "message" in error) {
-                    newMessages[newMessages.length - 1].content += `<error>Failed: ${error.message}</error>`;
+                    newMessages[newMessages.length - 1].content += `<error>${error.message}</error>`;
                 } else {
-                    newMessages[newMessages.length - 1].content += `<error>Failed: ${error}</error>`;
+                    newMessages[newMessages.length - 1].content += `<error>${error}</error>`;
                 }
                 return newMessages;
             });
@@ -542,7 +547,10 @@ export function AIChat() {
                         if (parameters.inputRecord.length >= 1 && parameters.outputRecord) {
                             await processMappingParameters(cleanedMessage, token, parameters, attachments);
                         } else {
-                            throw new Error("Error: Invalid parameters for " + COMMAND_DATAMAP + " command");
+                            throw new Error(
+                                `Invalid template format for the \`${COMMAND_DATAMAP}\` command. ` +
+                                `Please ensure you follow the correct template.`
+                            );
                         }
                         break;
                     }
@@ -554,7 +562,7 @@ export function AIChat() {
                                 throw new Error("Error: Missing Attach context");
                             }
                         } else {
-                            throw new Error("Error: Invalid parameters for " + COMMAND_DATAMAP + " command");
+                            throw new Error("Error: Invalid parameters for " + COMMAND_TYPECREATOR + " command");
                         }
                         break;
                     }
@@ -564,6 +572,11 @@ export function AIChat() {
                     }
                     case COMMAND_DOCUMENTATION: {
                         await findInDocumentation(parameters.inputRecord[0], token);
+                        break;
+                    }
+                    case COMMAND_OPENAPI: {
+                        await processOpenAPICodeGeneration(token, messageBody, message);
+                        break;
                     }
                 }
             } else {
@@ -578,6 +591,9 @@ export function AIChat() {
                     return;
                 } else if (commandKey === COMMAND_HEALTHCARE) {
                     await processHealthcareCodeGeneration(token, messageBody, message);
+                    return;
+                } else if (commandKey === COMMAND_OPENAPI) {
+                    await processOpenAPICodeGeneration(token, messageBody, message);
                     return;
                 }
                 throw new Error(
@@ -608,8 +624,8 @@ export function AIChat() {
         for (const template of expectedTemplates ?? []) {
             let pattern = template
                 .replace(/<servicename>/g, "(\\S+?)")
-                .replace(/<recordname\(s\)>/g, "([\\w:\\[\\]]+(?:[\\s,]+[\\w:\\[\\]]+)*)")
-                .replace(/<recordname>/g, "([\\w:\\[\\]]+)")
+                .replace(/<recordname\(s\)>/g, "((?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+(?:[\\s,]+(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+)*)")
+                .replace(/<recordname>/g, "((?:[\\w\\/|.-]+\\s*:\\s*)?[\\w|:\\[\\]]+)")
                 .replace(/<use-case>/g, "([\\s\\S]+?)")
                 .replace(/<requirements>/g, "([\\s\\S]+?)")
                 .replace(/<functionname>/g, "(\\S+?)")
@@ -629,10 +645,7 @@ export function AIChat() {
                             .map((name) => name.trim())
                             .filter((name) => name.length > 0);
                     } else {
-                        inputRecordList = inputRecordNamesRaw
-                            .split(/\s+/)
-                            .map((name) => name.trim())
-                            .filter((name) => name.length > 0);
+                        inputRecordList = [inputRecordNamesRaw.trim()];
                     }
 
                     const outputRecordName = match[2].trim();
@@ -704,7 +717,7 @@ export function AIChat() {
                 return [];
             }
             case COMMAND_DATAMAP: {
-                return [];
+                return (await rpcClient.getBIDiagramRpcClient().getRecordNames()).mentions;
             }
             case COMMAND_TYPECREATOR: {
                 return [];
@@ -808,9 +821,8 @@ export function AIChat() {
                 });
                 assistant_response = postProcessResp.assistant_response;
                 const diagnostics = postProcessResp.diagnostics.diagnostics;
+                console.log("Diagnostics : ", diagnostics);
                 if (diagnostics.length > 0) {
-                    console.log("Diagnostics : ");
-                    console.log(diagnostics);
                     //TODO: fill
                     const diagReq = {
                         response: assistant_response,
@@ -844,7 +856,11 @@ export function AIChat() {
                         const jsonBody = await response.json();
                         const repairResponse = jsonBody.repairResponse;
                         // replace original response with new code blocks
-                        const fixedResponse = replaceCodeBlocks(assistant_response, repairResponse);
+                        let fixedResponse = replaceCodeBlocks(assistant_response, repairResponse);
+                        const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
+                            assistant_response: fixedResponse,
+                        });
+                        fixedResponse = postProcessResp.assistant_response;
                         const endTime = performance.now();
                         const executionTime = endTime - startTime;
                         console.log(`Repair call time: ${executionTime} milliseconds`);
@@ -933,7 +949,34 @@ export function AIChat() {
             }
 
             if (command === "ai_map") {
-                segmentText = `${originalContent}\n${segmentText}`;
+                const importRegex = /import\s+[^;]+;/g;
+                const commentRegex = /^(?:(\/\/.*|#.*)\n)+/; // Matches both `//` and `#` comment blocks at the top
+            
+                const imports = segmentText.match(importRegex) || [];
+                const codeWithoutImports = segmentText.replace(importRegex, '').trim();
+            
+                let updatedContent = originalContent;
+            
+                // Extract existing comments at the top
+                const commentMatch = updatedContent.match(commentRegex);
+                const existingComments = commentMatch ? commentMatch[0].trim() + "\n\n" : ""; 
+                updatedContent = updatedContent.replace(commentRegex, '').trim(); 
+            
+                // Find any additional `#` comments that may exist before imports
+                const additionalCommentMatch = updatedContent.match(commentRegex);
+                const additionalComments = additionalCommentMatch ? additionalCommentMatch[0].trim() + "\n\n" : ""; 
+                updatedContent = updatedContent.replace(commentRegex, '').trim();
+            
+                // Ensure new imports are added after all comments
+                let updatedImports = '';
+                imports.forEach((imp: string) => {
+                    if (!updatedContent.includes(imp)) {
+                        updatedImports += `${imp}\n`;
+                    }
+                });
+            
+                updatedContent = `${existingComments}${additionalComments}${updatedImports}${updatedContent}\n${codeWithoutImports}`;
+                segmentText = updatedContent.trim(); 
             } else {
                 segmentText = `${segmentText}`;
             }
@@ -1096,15 +1139,15 @@ export function AIChat() {
                 buffer += decoder.decode(value, { stream: true });
                 buffer = await processBuffer(buffer);
             }
-        } catch (error) {
+        } catch (error: any) {
             setIsLoading(false);
             const errorName = error instanceof Error ? error.name : "Unknown error";
-            const errorMessage = error instanceof Error ? error.message : "Unknown error";
+            const errorMessage = "message" in error ? error.message : "Unknown error";
 
             if (errorName === "AbortError") {
-                throw new Error("The request was cancelled by the user.");
+                throw new Error("Failed: The user cancelled the request.");
             } else {
-                throw new Error(`Failed: Processing test generation failed: ${errorMessage}`);
+                throw new Error(errorMessage);
             }
         }
 
@@ -1265,7 +1308,7 @@ export function AIChat() {
 
         try {
             const response = await rpcClient.getAiPanelRpcClient().getGeneratedTests({
-                backendUri: "http://localhost:9094/ai",
+                backendUri: backendRootUri,
                 targetType: TestGenerationTarget.Function,
                 targetIdentifier: functionIdentifier,
                 testPlan,
@@ -1297,6 +1340,7 @@ export function AIChat() {
         attachments?: AttachmentResult[]
     ) {
         let assistant_response = "";
+        let newImports;
         const recordMap = new Map();
         const importsMap = new Map();
         setIsLoading(true);
@@ -1315,11 +1359,14 @@ export function AIChat() {
         const activeFile = await rpcClient.getAiPanelRpcClient().getActiveFile();
         const projectComponents = await rpcClient.getBIDiagramRpcClient().getProjectComponents();
 
-        const activeFileImports =
-            projectImports.imports.find((file) => {
-                const fileName = file.filePath.split("/").pop();
-                return fileName === activeFile;
-            })?.statements || [];
+        const allImports: ImportStatement[] = [];
+        projectImports.imports.forEach((file) => {
+            if (file.statements && file.statements.length > 0) {
+                file.statements.forEach((statement) => {
+                    allImports.push(statement);
+                });
+            }
+        });
 
         projectComponents.components.packages?.forEach((pkg) => {
             pkg.modules?.forEach((mod) => {
@@ -1336,67 +1383,93 @@ export function AIChat() {
 
         const inputs: DataMappingRecord[] = inputParams.map((param: string) => {
             const isArray = param.endsWith("[]");
-            const recordName = param.replace(/\[\]$/, "");
-            const rec = recordMap.get(recordName);
+            const importedRecordName = param.replace(/\[\]$/, "");
+            const rec = recordMap.get(importedRecordName);
 
             if (!rec) {
-                if (recordName.includes(":")) {
-                    const [moduleName, alias] = recordName.split(":");
-                    const matchedImport = activeFileImports.find((imp) => {
-                        if (imp.alias) {
-                            // Match using alias if it exists
-                            return recordName.startsWith(imp.alias);
-                        }
-                        // If alias doesn't exist, match using the last part of the module name
-                        const moduleNameParts = imp.moduleName.split(".");
-                        const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
-                        return recordName.startsWith(inferredAlias);
-                    });
+                if (importedRecordName.includes(":")) {
+                    if (!importedRecordName.includes("/")) {
+                        const [moduleName, recordName] = importedRecordName.split(":");
+                        const matchedImport = allImports.find((imp) => {
+                            if (imp.alias) {
+                                // Match using alias if it exists
+                                return importedRecordName.startsWith(imp.alias);
+                            }
+                            // If alias doesn't exist, match using the last part of the module name
+                            const moduleNameParts = imp.moduleName.split(".");
+                            const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
+                            return importedRecordName.startsWith(inferredAlias);
+                        });
 
-                    if (!matchedImport) {
-                        throw new Error(`Must import the module for "${recordName}".`);
+                        if (!matchedImport) {
+                            return INVALID_RECORD_REFERENCE;
+                        }
+                        // Use the actual alias if present, otherwise infer from the module name
+                        const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
+                        importsMap.set(importedRecordName, {
+                            moduleName: matchedImport.moduleName,
+                            alias: matchedImport.alias,
+                            recordName: recordName
+                        });
+                    } else {
+                        const [moduleName, recordName] = importedRecordName.split(":");
+                        importsMap.set(importedRecordName, {
+                            moduleName: moduleName,
+                            recordName: recordName
+                        });
                     }
-                    // Use the actual alias if present, otherwise infer from the module name
-                    const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
-                    importsMap.set(recordName, {
-                        moduleName: matchedImport.moduleName,
-                        alias: resolvedAlias,
-                    });
-                    return { type: `${recordName}`, isArray, filePath: null };
+                    return { type: `${importedRecordName}`, isArray, filePath: null };
                 } else {
-                    throw new Error(`${recordName} is not defined.`);
+                    throw new Error(`${importedRecordName} is not defined.`);
                 }
             }
             return { ...rec, isArray };
         });
 
-        const outputRecordName = outputParam.replace(/\[\]$/, "");
-        const outputIsArray = outputParam.endsWith("[]");
+        const parts = outputParam.split("|");
+        const validParts = parts.filter(name => name !== "error");
+        if (validParts.length > 1) {
+            throw new Error(`Invalid output parameter: "${outputParam}". Union types are not supported. Please provide a single valid record name.`);
+        }
+        const cleanedOutputRecordName = validParts.length > 0 ? validParts[0] : "error";
+
+        const outputRecordName = cleanedOutputRecordName.replace(/\[\]$/, "");
+        const outputIsArray = cleanedOutputRecordName.endsWith("[]");
+
         let output = recordMap.get(outputRecordName);
 
         if (!output) {
             if (outputRecordName.includes(":")) {
-                const [moduleName, alias] = outputRecordName.split(":");
-                const matchedImport = activeFileImports.find((imp) => {
-                    if (imp.alias) {
-                        // Match using alias if it exists
-                        return outputRecordName.startsWith(imp.alias);
-                    }
-                    // If alias doesn't exist, match using the last part of the module name
-                    const moduleNameParts = imp.moduleName.split(".");
-                    const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
-                    return outputRecordName.startsWith(inferredAlias);
-                });
+                if (!outputRecordName.includes("/")) {
+                    const [moduleName, recordName] = outputRecordName.split(":");
+                    const matchedImport = allImports.find((imp) => {
+                        if (imp.alias) {
+                            // Match using alias if it exists
+                            return outputRecordName.startsWith(imp.alias);
+                        }
+                        // If alias doesn't exist, match using the last part of the module name
+                        const moduleNameParts = imp.moduleName.split(".");
+                        const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
+                        return outputRecordName.startsWith(inferredAlias);
+                    });
 
-                if (!matchedImport) {
-                    throw new Error(`Must import the module for "${outputRecordName}".`);
+                    if (!matchedImport) {
+                        return INVALID_RECORD_REFERENCE;
+                    }
+                    // Use the actual alias if present, otherwise infer from the module name
+                    const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
+                    importsMap.set(outputRecordName, {
+                        moduleName: matchedImport.moduleName,
+                        alias: matchedImport.alias,
+                        recordName: recordName
+                    });
+                } else {
+                    const [moduleName, recordName] = outputRecordName.split(":");
+                    importsMap.set(outputRecordName, {
+                        moduleName: moduleName,
+                        recordName: recordName
+                    });
                 }
-                // Use the actual alias if present, otherwise infer from the module name
-                const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
-                importsMap.set(outputRecordName, {
-                    moduleName: matchedImport.moduleName,
-                    alias: resolvedAlias,
-                });
                 output = { type: `${outputRecordName}`, isArray: outputIsArray, filePath: null };
             } else {
                 throw new Error(`${outputRecordName} is not defined.`);
@@ -1433,8 +1506,15 @@ export function AIChat() {
         const needsImports = Array.from(importsMap.values()).length > 0;
 
         if (needsImports) {
-            const fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath });
-            finalContent = `${fileContent}\n${response.mappingCode}`;
+            let fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath });
+            const existingImports = new Set(fileContent.match(/import\s+([a-zA-Z0-9._]+)/g)?.map(imp => imp.split(" ")[1]) || []);
+            
+            newImports = Array.from(importsMap.values())
+                .filter(imp => !existingImports.has(imp.moduleName))
+                .map(imp => imp.alias ? `import ${imp.moduleName} as ${imp.alias};` : `import ${imp.moduleName};`)
+                .join("\n");
+            
+            finalContent = `${newImports}\n${response.mappingCode}`;
         }
         assistant_response += `<code filename="${filePath}" type="ai_map">\n\`\`\`ballerina\n${finalContent}\n\`\`\`\n</code>`;
 
@@ -1565,6 +1645,129 @@ export function AIChat() {
 
         const response = await fetchWithToken(
             backendRootUri + "/healthcare",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(requestBody),
+                signal: signal,
+            },
+            rpcClient
+        );
+
+        if (!response.ok) {
+            if (response.status > 400 && response.status < 500) {
+                await rpcClient.getAiPanelRpcClient().promptLogin();
+                setIsLoading(false);
+                return;
+            }
+
+            setIsLoading(false);
+            let error = `Failed to fetch response.`;
+            if (response.status == 429) {
+                response.json().then((body) => {
+                    error += ` Cause: ${body.detail}`;
+                });
+            }
+            throw new Error(error);
+        }
+        const reader: ReadableStreamDefaultReader<Uint8Array> = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let codeSnippetBuffer = "";
+        remainingTokenPercentage = "Unlimited";
+        setIsCodeLoading(true);
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+                setIsLoading(false);
+                break;
+            }
+
+            buffer += decoder.decode(value, { stream: true });
+
+            let boundary = buffer.indexOf("\n\n");
+            while (boundary !== -1) {
+                const chunk = buffer.slice(0, boundary + 2);
+                buffer = buffer.slice(boundary + 2);
+                try {
+                    await processSSEEvent(chunk);
+                } catch (error) {
+                    console.error("Failed to parse SSE event:", error);
+                }
+
+                boundary = buffer.indexOf("\n\n");
+            }
+        }
+
+        async function processSSEEvent(chunk: string) {
+            const event = parseSSEEvent(chunk);
+            if (event.event == "content_block_delta") {
+                let textDelta = event.body.text;
+                assistant_response += textDelta;
+
+                handleContentBlockDelta(textDelta);
+            } else if (event.event == "message_stop") {
+                setIsCodeLoading(false);
+                setMessages((prevMessages) => {
+                    const newMessages = [...prevMessages];
+                    newMessages[newMessages.length - 1].content = assistant_response;
+                    return newMessages;
+                });
+            } else if (event.event == "error") {
+                console.log("Streaming Error: ", event);
+                setIsLoading(false);
+                setMessages((prevMessages) => {
+                    const newMessages = [...prevMessages];
+                    newMessages[newMessages.length - 1].content +=
+                        "\nUnknown error occurred while receiving the response.";
+                    newMessages[newMessages.length - 1].type = "Error";
+                    return newMessages;
+                });
+                assistant_response = "\nUnknown error occurred while receiving the response.";
+                throw new Error("Streaming error");
+            }
+        }
+
+        function handleContentBlockDelta(textDelta: string) {
+            const matchText = codeSnippetBuffer + textDelta;
+            const matchedResult = findRegexMatches(matchText);
+            if (matchedResult.length > 0) {
+                if (matchedResult[0].end === matchText.length) {
+                    codeSnippetBuffer = matchText;
+                } else {
+                    codeSnippetBuffer = "";
+                    setMessages((prevMessages) => {
+                        const newMessages = [...prevMessages];
+                        newMessages[newMessages.length - 1].content += matchText;
+                        return newMessages;
+                    });
+                }
+            } else {
+                codeSnippetBuffer = "";
+                setMessages((prevMessages) => {
+                    const newMessages = [...prevMessages];
+                    newMessages[newMessages.length - 1].content += matchText;
+                    return newMessages;
+                });
+            }
+        }
+
+        addChatEntry("user", message);
+        addChatEntry("assistant", assistant_response);
+    }
+
+    async function processOpenAPICodeGeneration(token: string, useCase: string, message: string) {
+        let assistant_response = "";
+        const requestBody: any = {
+            query: useCase,
+            chatHistory: chatArray,
+        };
+
+        const response = await fetchWithToken(
+            backendRootUri + "/openapi",
             {
                 method: "POST",
                 headers: {

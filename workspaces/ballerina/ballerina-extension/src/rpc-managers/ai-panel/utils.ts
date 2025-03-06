@@ -8,7 +8,7 @@
  */
 
 import { FunctionDefinition, ModulePart, QualifiedNameReference, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { AI_EVENT_TYPE, ErrorCode, FormField, STModification, SyntaxTree, AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
+import { AI_EVENT_TYPE, ErrorCode, FormField, STModification, SyntaxTree, AttachmentResult, AttachmentStatus, RecordDefinitonObject, ParameterMetadata, ParameterDefinitions, MappingFileRecord } from "@wso2-enterprise/ballerina-core";
 import { QuickPickItem, QuickPickOptions, window, workspace } from 'vscode';
 import { UNKNOWN_ERROR } from '../../views/ai-panel/errorCodes';
 
@@ -23,7 +23,7 @@ import {
     USER_ABORTED,
     SERVER_ERROR,
     TOO_MANY_REQUESTS,
-    MODIFIYING_ERROR
+    INVALID_RECORD_UNION_TYPE
 } from "../../views/ai-panel/errorCodes";
 import { hasStopped } from "./rpc-manager";
 import { StateMachineAI } from "../../views/ai-panel/aiMachine";
@@ -40,22 +40,6 @@ const REQUEST_TIMEOUT = 2000000;
 let abortController = new AbortController();
 let nestedKeyArray: string[] = [];
 const primitiveTypes = ["string", "int", "float", "decimal", "boolean"];
-
-export interface ParameterMetadata {
-    inputs: object;
-    output: object;
-    inputMetadata: object;
-    outputMetadata: object;
-    mapping_fields?: object;
-}
-
-export interface RecordDefinitonObject {
-    recordFields: object;
-    recordFieldsMetadata: object;
-}
-export interface MappingFileRecord {
-    mapping_fields: object;
-}
 
 export async function getAccessToken(): Promise<string> {
     let token:string = await extension.context.secrets.get("BallerinaAIUser");
@@ -92,14 +76,14 @@ export function handleStop() {
 export async function getParamDefinitions(
     fnSt: FunctionDefinition,
     fileUri: string
-): Promise<ParameterMetadata | ErrorCode> {
-
+): Promise<ParameterDefinitions| ErrorCode> {
     let inputs: { [key: string]: any } = {};
     let inputMetadata: { [key: string]: any } = {};
     let output: { [key: string]: any } = {};
     let outputMetadata: { [key: string]: any } = {};
     let hasArrayParams = false;
     let arrayParams = 0;
+    let isErrorExists = false;
 
     for (const parameter of fnSt.functionSignature.parameters) {
         if (!STKindChecker.isRequiredParam(parameter)) {
@@ -132,22 +116,39 @@ export async function getParamDefinitions(
                 line: parameter.position.startLine,
                 offset: parameter.position.startColumn
             };
-        const parameterDefinition = await StateMachine.langClient().getTypeFromSymbol({
+        const inputTypeDefinition = await StateMachine.langClient().getTypeFromSymbol({
             documentIdentifier: {
                 uri: fileUri
             },
             positions: [position]
         });
 
-        if ('types' in parameterDefinition && parameterDefinition.types.length > 1) {
+        if ('types' in inputTypeDefinition && inputTypeDefinition.types.length > 1) {
             return INVALID_PARAMETER_TYPE;
         }
 
+        if ('types' in inputTypeDefinition && !inputTypeDefinition.types[0].hasOwnProperty('type')) {
+            if (parameter.typeName.kind === "QualifiedNameReference") {
+                throw new Error(`"${parameter.typeName["identifier"].value}" does not exist in the package "${parameter.typeName["modulePrefix"].value}". Please verify the record name or ensure that the correct package is imported.`);
+            } 
+            return INVALID_PARAMETER_TYPE;
+        }
+
+        if (inputTypeDefinition["types"] && inputTypeDefinition["types"].length > 0) {
+            const type = inputTypeDefinition["types"][0].type;
+            if (type.typeName === "union" && type.members) {
+                const hasFields = type.members.some(member => member.fields && member.fields.length > 0);
+                if (hasFields) {
+                    return INVALID_RECORD_UNION_TYPE;
+                }
+            }
+        }
+
         let inputDefinition: ErrorCode | RecordDefinitonObject;
-        if ('types' in parameterDefinition && parameterDefinition.types[0].type.hasOwnProperty('fields')) {
-            inputDefinition = navigateTypeInfo(parameterDefinition.types[0].type.fields, false);
+        if ('types' in inputTypeDefinition && inputTypeDefinition.types[0].type.hasOwnProperty('fields')) {
+            inputDefinition = navigateTypeInfo(inputTypeDefinition.types[0].type.fields, false);
         } else {
-            let singleFieldType = 'types' in parameterDefinition && parameterDefinition.types[0].type;
+            let singleFieldType = 'types' in inputTypeDefinition && inputTypeDefinition.types[0].type;
             inputDefinition = {
                 "recordFields": { [paramName]: { "type": singleFieldType.typeName, "comment": "" } },
                 "recordFieldsMetadata": {
@@ -161,6 +162,11 @@ export async function getParamDefinitions(
                 }
             };
         }
+
+        if (isErrorCode(inputDefinition)) {
+            return inputDefinition as ErrorCode;
+        }
+        
         inputs = { ...inputs, [paramName]: (inputDefinition as RecordDefinitonObject).recordFields };
         inputMetadata = {
             ...inputMetadata,
@@ -177,7 +183,33 @@ export async function getParamDefinitions(
         }
     }
 
-    if (STKindChecker.isArrayTypeDesc(fnSt.functionSignature.returnTypeDesc.type)) {
+    if (STKindChecker.isUnionTypeDesc(fnSt.functionSignature.returnTypeDesc.type)) {
+        let unionType = fnSt.functionSignature.returnTypeDesc.type;
+        let leftType = unionType.leftTypeDesc;
+        let rightType = unionType.rightTypeDesc;
+
+        if (STKindChecker.isArrayTypeDesc(leftType) && STKindChecker.isErrorTypeDesc(rightType)) {
+            if (!STKindChecker.isSimpleNameReference(leftType.memberTypeDesc)) {
+                return INVALID_PARAMETER_TYPE;
+            }
+            isErrorExists = true;
+        } else if (STKindChecker.isArrayTypeDesc(rightType) && STKindChecker.isErrorTypeDesc(leftType)) {
+            if (!STKindChecker.isSimpleNameReference(rightType.memberTypeDesc)) {
+                return INVALID_PARAMETER_TYPE;
+            }
+            isErrorExists = true;
+        } else if (
+            (STKindChecker.isSimpleNameReference(leftType) || STKindChecker.isQualifiedNameReference(leftType)) &&
+            STKindChecker.isErrorTypeDesc(rightType)) {
+            isErrorExists = true;
+        } else if (
+            (STKindChecker.isSimpleNameReference(rightType) || STKindChecker.isQualifiedNameReference(rightType)) &&
+            STKindChecker.isErrorTypeDesc(leftType)) {
+            isErrorExists = true;
+        } else {
+            return INVALID_PARAMETER_TYPE;
+        }
+    } else if (STKindChecker.isArrayTypeDesc(fnSt.functionSignature.returnTypeDesc.type)) {
         if (arrayParams > 1) {
             return INVALID_PARAMETER_TYPE_MULTIPLE_ARRAY;
         }
@@ -187,20 +219,33 @@ export async function getParamDefinitions(
         if (!STKindChecker.isSimpleNameReference(fnSt.functionSignature.returnTypeDesc.type.memberTypeDesc)) {
             return INVALID_PARAMETER_TYPE;
         }
-    } else if (!STKindChecker.isSimpleNameReference(fnSt.functionSignature.returnTypeDesc.type) &&
-        !STKindChecker.isQualifiedNameReference(fnSt.functionSignature.returnTypeDesc.type)) {
-        return INVALID_PARAMETER_TYPE;
-    } 
-
-    const returnTypePosition = STKindChecker.isQualifiedNameReference(fnSt.functionSignature.returnTypeDesc.type)
-        ? {
-            line: fnSt.functionSignature.returnTypeDesc.type.identifier.position.startLine,
-            offset: fnSt.functionSignature.returnTypeDesc.type.identifier.position.startColumn
+    } else {
+        if (!STKindChecker.isSimpleNameReference(fnSt.functionSignature.returnTypeDesc.type) &&
+            !STKindChecker.isQualifiedNameReference(fnSt.functionSignature.returnTypeDesc.type)) {
+                return INVALID_PARAMETER_TYPE;
         }
-        : {
-            line: fnSt.functionSignature.returnTypeDesc.type.position.startLine,
-            offset: fnSt.functionSignature.returnTypeDesc.type.position.startColumn
-        };
+    }    
+
+    let returnType = fnSt.functionSignature.returnTypeDesc.type;
+
+    const returnTypePosition = STKindChecker.isUnionTypeDesc(returnType)
+        ? {
+            line: STKindChecker.isErrorTypeDesc(returnType.leftTypeDesc)
+                ? returnType.rightTypeDesc.position.startLine
+                : returnType.leftTypeDesc.position.startLine,
+            offset: STKindChecker.isErrorTypeDesc(returnType.leftTypeDesc)
+                ? returnType.rightTypeDesc.position.startColumn
+                : returnType.leftTypeDesc.position.startColumn
+        }
+        : STKindChecker.isQualifiedNameReference(returnType)
+            ? {
+                line: returnType.identifier.position.startLine,
+                offset: returnType.identifier.position.startColumn
+            }
+            : {
+                line: returnType.position.startLine,
+                offset: returnType.position.startColumn
+            };
 
     const outputTypeDefinition = await StateMachine.langClient().getTypeFromSymbol({
         documentIdentifier: {
@@ -208,6 +253,23 @@ export async function getParamDefinitions(
         },
         positions: [returnTypePosition]
     });
+
+    if ('types' in outputTypeDefinition && !outputTypeDefinition.types[0].hasOwnProperty('type')) {
+        if (returnType.kind === "QualifiedNameReference") {
+            throw new Error(`"${returnType["identifier"].value}" does not exist in the package "${returnType["modulePrefix"].value}". Please verify the record name or ensure that the correct package is imported.`);
+        } 
+        return INVALID_PARAMETER_TYPE;
+    }
+
+    if (outputTypeDefinition["types"] && outputTypeDefinition["types"].length > 0) {
+        const type = outputTypeDefinition["types"][0].type;
+        if (type.typeName === "union" && type.members) {
+            const hasFields = type.members.some(member => member.fields && member.fields.length > 0);
+            if (hasFields) {
+                return INVALID_RECORD_UNION_TYPE;
+            }
+        }
+    }
 
     const outputDefinition = navigateTypeInfo('types' in outputTypeDefinition && outputTypeDefinition.types[0].type.fields, false);
 
@@ -225,7 +287,10 @@ export async function getParamDefinitions(
         outputMetadata
     };
 
-    return response;
+    return {
+        parameterMetadata: response,
+        errorStatus: isErrorExists
+    };
 }
 
 export async function processMappings(
@@ -233,13 +298,19 @@ export async function processMappings(
     fileUri: string,
     file?: AttachmentResult
 ): Promise<SyntaxTree | ErrorCode> {
-    let parameterDefinitions = await getParamDefinitions(fnSt, fileUri);
-        if(file){
-            parameterDefinitions = await mappingFileParameterDefinitions(file, parameterDefinitions);
-        }
+    let result = await getParamDefinitions(fnSt, fileUri);
+    if (isErrorCode(result)) {
+        return result as ErrorCode;
+    }
+    let parameterDefinitions = (result as ParameterDefinitions).parameterMetadata;
+    const isErrorExists = (result as ParameterDefinitions).errorStatus;
 
-    if (isErrorCode(parameterDefinitions)) {
-        return parameterDefinitions as ErrorCode;
+    if (file) {
+        let mappedResult = await mappingFileParameterDefinitions(file, parameterDefinitions);
+        if (isErrorCode(mappedResult)) {
+            return mappedResult as ErrorCode;
+        }
+        parameterDefinitions = mappedResult as ParameterMetadata; 
     }
 
     const codeObject = await getDatamapperCode(parameterDefinitions);
@@ -249,12 +320,26 @@ export async function processMappings(
 
     const { recordString, isCheckError } = await constructRecord(codeObject);
     let codeString: string;
-    if (fnSt.functionSignature.returnTypeDesc.type.kind === "ArrayTypeDesc") {
-        const parameter = fnSt.functionSignature.parameters[0] as RequiredParam;
-        const paramName = parameter.paramName.value;
-        const formattedRecordString = recordString.startsWith(":") ? recordString.substring(1) : recordString;
-        codeString = isCheckError ? `|error => from var ${paramName}Item in ${paramName}\n select ${formattedRecordString};` : 
-                                    `=> from var ${paramName}Item in ${paramName}\n select ${formattedRecordString};`;
+    const parameter = fnSt.functionSignature.parameters[0] as RequiredParam;
+    const paramName = parameter.paramName.value;
+    const formattedRecordString = recordString.startsWith(":") ? recordString.substring(1) : recordString;
+
+    let returnType = fnSt.functionSignature.returnTypeDesc.type;
+
+    if (STKindChecker.isUnionTypeDesc(returnType)) {
+        const { leftTypeDesc: leftType, rightTypeDesc: rightType } = returnType;
+
+        if (STKindChecker.isArrayTypeDesc(leftType) || STKindChecker.isArrayTypeDesc(rightType)) {
+            codeString = isCheckError && !isErrorExists
+                ? `|error => from var ${paramName}Item in ${paramName}\n select ${formattedRecordString};`
+                : `=> from var ${paramName}Item in ${paramName}\n select ${formattedRecordString};`;
+        } else {
+            codeString = isCheckError && !isErrorExists ? `|error => ${recordString};` : `=> ${recordString};`;
+        }
+    } else if (STKindChecker.isArrayTypeDesc(returnType)) {
+        codeString = isCheckError
+            ? `|error => from var ${paramName}Item in ${paramName}\n select ${formattedRecordString};`
+            : `=> from var ${paramName}Item in ${paramName}\n select ${formattedRecordString};`;
     } else {
         codeString = isCheckError ? `|error => ${recordString};` : `=> ${recordString};`;
     }
@@ -483,31 +568,21 @@ async function getMappingString(mapping: object, parameterDefinitions: Parameter
             }
         };
 
-        // Conversion of union types to Primitive Types
         function convertUnionTypes(inputType: string, targetType: string, variablePath: string) {
             const inputTypes = inputType.split("|").filter(type => primitiveTypes.includes(type));
             
-            // For string or numeric union types
-            if (inputTypes.includes("string")) {
-                // String to numeric conversion
-                if (["int", "float", "decimal"].includes(targetType)) {
-                    return `(${variablePath}) is string ? check ${targetType}:fromString((${variablePath}).toString()) : check (${variablePath}).ensureType()`;
-                } 
-                // String to string conversion (or any other type to string)
-                else if (targetType === "string") {
-                    return `(${variablePath}).toString()`;
-                }
+            if (targetType === "string") {
+                return `(${variablePath}).toString()`;
             }
             
-            // For numeric union types (int, float, decimal)
-            if (inputTypes.every(type => ["int", "float", "decimal"].includes(type))) {
-                if (["int", "float", "decimal"].includes(targetType)) {
-                    // For numeric to numeric conversions, use ensureType()
-                    return `check (${variablePath}).ensureType()`;
-                }
+            if (inputTypes.includes("string") && ["int", "float", "decimal", "boolean"].includes(targetType)) {
+                return `(${variablePath}) is string ? check ${targetType}:fromString((${variablePath}).toString()) : check (${variablePath}).ensureType()`;
             }
             
-            // If no specific conversion is defined, use a general approach
+            if (["int", "float", "decimal", "boolean"].includes(targetType)) {
+                return `check (${variablePath}).ensureType()`;
+            }
+            
             return `${variablePath}`;
         }
 
@@ -642,7 +717,7 @@ export async function refreshAccessToken(): Promise<string> {
 //Define interfaces for the visitor pattern
 interface TypeInfoVisitor {
     visitField(field: FormField, context: VisitorContext): void;
-    visitMember(member: any, context: VisitorContext): string;
+    visitMember(member: any, context: VisitorContext): { typeName: string, member: any };
     visitRecord(field: FormField, context: VisitorContext): void;
     visitUnionOrIntersection(field: FormField, context: VisitorContext): void;
     visitArray(field: FormField, context: VisitorContext): void;
@@ -703,18 +778,22 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
         }
     }
     
-    visitMember(member: any, context: VisitorContext): string {
+    visitMember(member: any, context: VisitorContext): { typeName: string, member: any } {
+        let typeName: string;
         if (member.typeName === "record" && member.fields) {
-            return this.handleRecordMember(member, context);
+            typeName = this.handleRecordMember(member, context);
         } else if (member.typeName === "array") {
-            return this.handleArrayMember(member, context);
+            const result = this.handleArrayMember(member, context);
+            typeName = result.typeName;
+            member = result.member;
         } else if (["union", "intersection", "enum"].includes(member.typeName)) {
-            return this.handleCompositeMember(member, context);
+            typeName = this.handleCompositeMember(member, context);
         } else if (member.typeName === "()") {
-            return this.handleNullMember(member, context);
+            typeName = this.handleNullMember(member, context);
         } else {
-            return this.handleSimpleMember(member, context);
+            typeName = this.handleSimpleMember(member, context);
         }
+        return { typeName, member };
     }
     
     visitRecord(field: FormField, context: VisitorContext): void {
@@ -736,11 +815,22 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
         let memberTypeNames: string[] = [];
         let resolvedTypeName: string = "";
         
-        this.determineIfUnion(field.members, context);
+        // Check for record fields in union members and handle appropriately
+        this.processUnionMembers(field.members, context);
         
         for (const member of field.members) {
-            const memberTypeName = this.visitMember(member, context);
-            memberTypeNames.push(memberTypeName);
+            const result = this.visitMember(member, context);
+            memberTypeNames.push(result.typeName);
+            if (Object.keys(result.member).length === 0) {
+                field.members = [];
+                break;
+            }
+        }
+
+        if (field.members.length === 0) {
+            context.memberRecordFields = {};
+            context.memberFieldsMetadata = {};
+            return;
         }
         
         resolvedTypeName = this.getResolvedTypeName(field.typeName, memberTypeNames);
@@ -752,6 +842,16 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
     visitArray(field: FormField, context: VisitorContext): void {
         if (field.memberType.hasOwnProperty("members") && 
             ["union", "intersection", "enum"].includes(field.memberType.typeName)) {
+                
+            // Handle array with union/intersection/enum member type
+            this.processUnionMembers(field.memberType.members, context);
+            
+            if (field.memberType.members.length === 0) {
+                context.memberRecordFields = {};
+                context.memberFieldsMetadata = {};
+                return;
+            }
+            
             this.handleArrayWithCompositeType(field, context);
         } else if (field.memberType.hasOwnProperty("fields") && field.memberType.typeName === "record") {
             this.handleArrayWithRecordType(field, context);
@@ -764,8 +864,8 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
         let memberTypeNames: string[] = [];
         
         for (const member of field.members) {
-            const memberTypeName = this.visitMember(member, context);
-            memberTypeNames.push(memberTypeName);
+            const result = this.visitMember(member, context);
+            memberTypeNames.push(result.typeName);
         }
         
         const resolvedTypeName = memberTypeNames.join("|");
@@ -840,7 +940,7 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
         return memberName;
     }
     
-    private handleArrayMember(member: any, context: VisitorContext): string {
+    private handleArrayMember(member: any, context: VisitorContext): { typeName: string, member: any } {
         context.isArray = true;
         let memberName: string;
         
@@ -857,7 +957,16 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
             };
         } else if (member.memberType.hasOwnProperty("members") && 
                   ["union", "intersection", "enum"].includes(member.memberType.typeName)) {
-            memberName = this.handleArrayWithCompositeTypeMember(member, context);
+            
+            // Process union members to handle records appropriately
+            this.processUnionMembers(member.memberType.members, context);
+            
+            if (member.memberType.members.length === 0) {
+                memberName = "";
+                member = [];
+            } else {
+                memberName = this.handleArrayWithCompositeTypeMember(member, context);
+            }
         } else if (member.memberType.hasOwnProperty("typeInfo")) {
             if (member.memberType.hasOwnProperty("name") && !member.memberType.hasOwnProperty("typeName")) {
                 memberName = `${member.memberType.name}[]`;
@@ -868,7 +977,7 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
             memberName = `${member.memberType.typeName}[]`;
         }
         
-        return memberName;
+        return { typeName: memberName, member };
     }
     
     private handleArrayWithCompositeTypeMember(member: any, context: VisitorContext): string {
@@ -877,9 +986,9 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
         
         this.determineIfUnion(members, context);
         
-        for (const innerMember of member.memberType.members) {
-            const memberTypeName = this.visitMember(innerMember, context);
-            memberTypes.push(memberTypeName);
+        for (const innerMember of members) {
+            const result = this.visitMember(innerMember, context);
+            memberTypes.push(result.typeName);
         }
         
         context.isSimple = false;
@@ -895,8 +1004,8 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
         let memberTypeNames: string[] = [];
         
         for (const innerMember of member.members) {
-            const memberTypeName = this.visitMember(innerMember, context);
-            memberTypeNames.push(memberTypeName);
+            const result = this.visitMember(innerMember, context);
+            memberTypeNames.push(result.typeName);
         }
         
         if (member.typeName === "intersection") {
@@ -980,13 +1089,10 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
     
     private handleArrayWithCompositeType(field: FormField, context: VisitorContext): void {
         let memberTypeNames: string[] = [];
-        const members = field.memberType.members;
-        
-        this.determineIfUnion(members, context);
         
         for (const member of field.memberType.members) {
-            const memberTypeName = this.visitMember(member, context);
-            memberTypeNames.push(memberTypeName);
+            const result = this.visitMember(member, context);
+            memberTypeNames.push(result.typeName);
         }
         
         context.isArray = true;
@@ -1032,14 +1138,41 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
             typeName = `${field.memberType.typeName}[]`;
         }
         
-        context.recordFields[field.name] = { type: typeName, comment: "" };
-        context.recordFieldsMetadata[field.name] = {
-            typeName: typeName,
-            type: typeName,
-            typeInstance: field.name,
-            nullable: context.isNill,
-            optional: field.optional
-        };
+        if (field.memberType.members && field.memberType.members.length === 0) {
+            context.memberRecordFields = {};
+            context.memberFieldsMetadata = {};
+        } else {
+            context.recordFields[field.name] = { type: typeName, comment: "" };
+            context.recordFieldsMetadata[field.name] = {
+                typeName: typeName,
+                type: typeName,
+                typeInstance: field.name,
+                nullable: context.isNill,
+                optional: field.optional
+            };
+        }
+    }
+    
+    private processUnionMembers(members: any[], context: VisitorContext): void {
+        this.determineIfUnion(members, context);
+        
+        if (members.length > 2) {
+            // If at least one member has fields, remove that field
+            for (let i = members.length - 1; i >= 0; i--) {
+                if (members[i].fields) {
+                    members.length = 0;
+                    break;
+                }
+            }
+        } else if (members.length === 2) {
+            // If one member is "()" proceed normally, else if one member has fields, remove it
+            for (let i = members.length - 1; i >= 0; i--) {
+                if (members[i].fields && context.isUnion) {
+                    members.length = 0;
+                    break;
+                }
+            }
+        }
     }
     
     private determineIfUnion(members: any[], context: VisitorContext): void {

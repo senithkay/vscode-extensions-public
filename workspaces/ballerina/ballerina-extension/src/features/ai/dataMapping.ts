@@ -99,7 +99,7 @@ async function getUpdatedFunctionSource(
   
     const { parseSuccess, source, syntaxTree } = processedST as SyntaxTree;
     if (!parseSuccess) {
-      throw new Error("Error modifying syntax tree");
+      throw new Error("No valid fields were identified for mapping between the given input and output records.");
     }
   
     const fn = await getFunction(
@@ -111,23 +111,33 @@ async function getUpdatedFunctionSource(
 }
 
 function createDataMappingFunctionSource(inputParams: DataMappingRecord[], outputParam: DataMappingRecord, functionName: string): string {
-    const finalFunctionName = functionName || "transform";
-    const parametersStr = inputParams
-        .map((item) => `${item.type}${item.isArray ? '[]' : ''} ${camelCase(item.type)}`)
-        .join(",");
+  const finalFunctionName = functionName || "transform";
 
-    const returnTypeStr = `returns ${outputParam.type}${outputParam.isArray ? '[]' : ''}`;
+  function processType(type: string): string {
+    let typeName = type.includes('/') ? type.split('/').pop()! : type;
+    if (typeName.includes(':')) {
+      const [modulePart, typePart] = typeName.split(':');
+      typeName = `${modulePart.split('.').pop()}:${typePart}`;
+    }
+    return typeName;
+  }
 
-    const modification = createFunctionSignature(
-        "",
-        finalFunctionName,
-        parametersStr,
-        returnTypeStr,
-        {startLine: 0, startColumn: 0},
-        false,
-        true,
-        outputParam.isArray ? '[]' : '{}'
-    );
-    const source = getSource(modification);
-    return source;
+  const parametersStr = inputParams
+    .map(item => `${processType(item.type)}${item.isArray ? '[]' : ''} ${camelCase(processType(item.type))}`)
+    .join(", ");
+
+  const returnTypeStr = `returns ${processType(outputParam.type)}${outputParam.isArray ? '[]' : ''}`;
+
+  const modification = createFunctionSignature(
+    "",
+    finalFunctionName,
+    parametersStr,
+    returnTypeStr,
+    { startLine: 0, startColumn: 0 },
+    false,
+    true,
+    outputParam.isArray ? '[]' : '{}'
+  );
+  const source = getSource(modification);
+  return source;
 }

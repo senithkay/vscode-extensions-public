@@ -2,7 +2,7 @@
     "name": "kolab",
     "displayName": "KolaB",
     "description": "KolaB Extension for Kola.",
-    "version": "0.4.5",
+    "version": "0.4.6",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
@@ -885,21 +885,21 @@
                 "description": "design-view",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f163"
+                    "fontCharacter": "\\f167"
                 }
             },
             "distro-start": {
                 "description": "start",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f1d7"
+                    "fontCharacter": "\\f1db"
                 }
             },
             "distro-debug": {
                 "description": "debug",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f15e"
+                    "fontCharacter": "\\f162"
                 }
             },
             "distro-source-view": {
@@ -913,7 +913,7 @@
                 "description": "persist-diagram",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f1b2"
+                    "fontCharacter": "\\f1b6"
                 }
             },
             "distro-cached-rounded": {

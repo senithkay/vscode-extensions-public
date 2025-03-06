@@ -45,7 +45,8 @@ import {
     SyntaxTree,
     TestGenerationMentions,
     TestGenerationRequest,
-    TestGenerationResponse
+    TestGenerationResponse,
+    ProjectDiagnosticsResponse
 } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as crypto from 'crypto';
@@ -58,7 +59,7 @@ import { writeFileSync } from "fs";
 import { isNumber } from "lodash";
 import { getPluginConfig } from "../../../src/utils";
 import { extension } from "../../BalExtensionContext";
-import { NOT_SUPPORTED } from "../../core";
+import { ExtendedLangClient, NOT_SUPPORTED } from "../../core";
 import { generateDataMapping, generateTypeCreation } from "../../features/ai/dataMapping";
 import { generateTest, getDiagnostics, getResourceAccessorDef, getResourceAccessorNames, getServiceDeclaration, getServiceDeclarationNames } from "../../features/ai/testGenerator";
 import { getLLMDiagnosticArrayAsString } from "../../features/natural-programming/utils";
@@ -76,6 +77,9 @@ import {
 } from "./constants";
 import { getFunction, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, processMappings, refreshAccessToken, requirementsSpecification, searchDocumentation } from "./utils";
 import { fetchData } from "./utils/fetch-data-utils";
+import { TextDocumentEdit } from "vscode-languageserver-types";
+import { fileURLToPath } from "url";
+import { attemptRepairProject, checkProjectDiagnostics } from "./repair-utils";
 
 export let hasStopped: boolean = false;
 
@@ -303,6 +307,22 @@ export class AiPanelRpcManager implements AIPanelAPI {
             return { error: PARSING_ERROR };
         }
 
+        if (fnSt.functionBody && 
+            fnSt.functionBody["expression"] && 
+            fnSt.functionBody["expression"].fields && 
+            fnSt.functionBody["expression"].fields.length > 0) {
+            // There are existing mappings, show confirmation
+            const confirmResult = await window.showWarningMessage(
+                "Proceeding with Auto Map will overwrite existing mappings. Do you want to continue?",
+                { modal: true },
+                "Overwrite"
+            );
+            
+            if (confirmResult !== "Overwrite") {
+                return { userAborted: true };
+            }
+        }
+
         const st = await processMappings(fnSt, fileUri, file);
         if (isErrorCode(st)) {
             if ((st as ErrorCode).code === 6) {
@@ -411,19 +431,8 @@ export class AiPanelRpcManager implements AIPanelAPI {
         }
 
         const { langClient, tempDir } = environment;
-        // check project diagnostics
-        let projectDiags: Diagnostics[] = await checkProjectDiagnostics(project, langClient, tempDir);
-
-        let projectModified = await addMissingImports(projectDiags);
-        if (projectModified) {
-            projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
-        }
-
-        let isDiagsRefreshed = await isModuleNotFoundDiagsExist(projectDiags, langClient);
-        if (isDiagsRefreshed) {
-            projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
-        }
-        const filteredDiags: DiagnosticEntry[] = getErrorDiagnostics(projectDiags);
+        let remainingDiags: Diagnostics[] = await attemptRepairProject(langClient, tempDir);
+        const filteredDiags: DiagnosticEntry[] = getErrorDiagnostics(remainingDiags);
         return {
             diagnostics: filteredDiags
         };
@@ -456,8 +465,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
 
         const { langClient, tempDir } = environment;
         // check project diagnostics
-        const projectDiags: Diagnostics[] = await checkProjectDiagnostics(project, langClient, tempDir);
-
+        const projectDiags: Diagnostics[] = await checkProjectDiagnostics(langClient, tempDir);
         for (const diagnostic of projectDiags) {
             for (const diag of diagnostic.diagnostics) {
                 console.log(diag.code);
@@ -535,23 +543,10 @@ export class AiPanelRpcManager implements AIPanelAPI {
 
         const { langClient, tempDir } = environment;
         // check project diagnostics
-        let projectDiags: Diagnostics[] = await checkProjectDiagnostics(project, langClient, tempDir);
+        let remainingDiags: Diagnostics[] = await attemptRepairProject(langClient, tempDir);
 
-        let projectModified = await addMissingImports(projectDiags);
-        if (projectModified) {
-            projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
-        }
+        const filteredDiags: DiagnosticEntry[] = getErrorDiagnostics(remainingDiags);
 
-        projectModified = await removeUnusedImports(projectDiags);
-        if (projectModified) {
-            projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
-        }
-
-        let isDiagsRefreshed = await isModuleNotFoundDiagsExist(projectDiags, langClient);
-        if (isDiagsRefreshed) {
-            projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
-        }
-        const filteredDiags: DiagnosticEntry[] = getErrorDiagnostics(projectDiags);
         const newAssistantResponse = getModifiedAssistantResponse(assist_resp, tempDir, project);
         return {
             assistant_response: newAssistantResponse,
@@ -897,165 +892,9 @@ export function getProjectFromResponse(req: string): ProjectSource {
     return { sourceFiles };
 }
 
-async function removeUnusedImports(diagnosticsResult: Diagnostics[]): Promise<boolean> {
-    let modifications: BalModification[] = [];
-    let projectModified = false;
-
-    for (const diagnostic of diagnosticsResult) {
-        const fielUri = diagnostic.uri;
-
-        for (const diag of diagnostic.diagnostics) {
-            //unused module prefix 'redis'
-            if (diag.code !== "BCE2002") {
-                continue;
-            }
-            const module = getContentInsideQuotes(diag.message);
-            modifications.push({ fileUri: fielUri, moduleName: module });
-        }
-    }
-
-    for (const mod of modifications) {
-        const fileUri = mod.fileUri;
-        const moduleName = mod.moduleName;
-
-        const document = await workspace.openTextDocument(Uri.parse(fileUri));
-        const content = document.getText();
-        const lines = content.split('\n');
-
-        // Create a regex to match the import statement of the unused module
-        const importRegex = new RegExp(`^import\\s+.*\\b${moduleName}\\b.*;`);
-
-        // Filter out the import statement
-        const updatedLines = lines.filter(line => !importRegex.test(line));
-
-        const updatedContent = updatedLines.join('\n');
-        await modifyFileContent({ filePath: Uri.parse(fileUri).fsPath, content: updatedContent });
-        projectModified = true;
-    }
-    return projectModified;
-}
-
-async function addMissingImports(diagnosticsResult: Diagnostics[]): Promise<boolean> {
-    let modifications: BalModification[] = [];
-    let projectModified = false;
-    for (const diagnostic of diagnosticsResult) {
-        const fielUri = diagnostic.uri;
-        for (const diag of diagnostic.diagnostics) {
-            // undefined module 'io'(BCE2000)
-            if (diag.code !== "BCE2000") {
-                continue;
-            }
-            const module = getContentInsideQuotes(diag.message);
-            if (module === null) {
-                continue;
-            }
-            // Prevent duplicate entries
-            if (!modifications.some(mod => mod.fileUri === fielUri && mod.moduleName === module)) {
-                modifications.push({ fileUri: fielUri, moduleName: module });
-            }
-        }
-    }
-    //TODO: Replace with code acction
-    for (const mod of modifications) {
-        const fileUri = mod.fileUri;
-        const moduleName = mod.moduleName;
-        let importStatement = "";
-        if (moduleName == 'io') {
-            importStatement = `import ballerina/io;\n`;
-        } else if (moduleName == 'http') {
-            importStatement = `import ballerina/http;\n`;
-        } else if (moduleName == 'log') {
-            importStatement = `import ballerina/log;\n`;
-        } else if (moduleName == 'runtime') {
-            importStatement = `import ballerina/lang.runtime;\n`;
-        } else if (moduleName == 'sql') {
-            importStatement = `import ballerina/sql;\n`;
-        } else if (moduleName == 'time') {
-            importStatement = `import ballerina/time;\n`;
-        } else {
-            continue;
-        }
-
-        const document = await workspace.openTextDocument(Uri.parse(fileUri));
-        const content = document.getText();
-        const updatedContent = importStatement + content;
-
-        await modifyFileContent({ filePath: Uri.parse(fileUri).fsPath, content: updatedContent });
-        projectModified = true;
-    }
-
-    return projectModified;
-}
-
 function getContentInsideQuotes(input: string): string | null {
     const match = input.match(/'([^']+)'/);
     return match ? match[1] : null;
-}
-
-async function isModuleNotFoundDiagsExist(diagnosticsResult: Diagnostics[], langClient): Promise<boolean> {
-    for (const diagnostic of diagnosticsResult) {
-        // if (diagnostic.uri !== Uri.file(tempFilePath).toString()) {
-        //     continue;
-        // }
-        for (const diag of diagnostic.diagnostics) {
-            //Example: cannot resolve module 'ballerinax/aws.s3 as s3'(BCE2003)
-            if (diag.code !== "BCE2003") {
-                continue;
-            }
-            //resolve unresolved modules
-            const dependenciesResponse = await langClient.resolveMissingDependencies({
-                documentIdentifier: {
-                    uri: diagnostic.uri
-                }
-            });
-
-
-            const response = dependenciesResponse as SyntaxTree;
-            if (response.parseSuccess) {
-                // TODO: Need to see why this isnt working and why didOpen needed.
-                // await langClient.didChange({
-                //     contentChanges: [{ text: "" }],
-                //     textDocument: {
-                //         uri: uriString,
-                //         version: 1
-                //     }
-                // });
-
-                // Read and save content to a string
-                const sourceFile = await workspace.openTextDocument(Uri.parse(diagnostic.uri));
-                const content = sourceFile.getText();
-
-                langClient.didOpen({
-                    textDocument: {
-                        uri: diagnostic.uri,
-                        languageId: 'ballerina',
-                        version: 1,
-                        text: content
-                    }
-                });
-                return true;
-            } else {
-                throw Error("Module resolving failedd");
-            }
-        }
-    }
-    return false;
-}
-
-async function checkProjectDiagnostics(project: ProjectSource, langClient, tempDir: string): Promise<Diagnostics[]> {
-    const allDiags: Diagnostics[] = [];
-    for (const sourceFile of project.sourceFiles) {
-        if (sourceFile.filePath.endsWith('.bal')) {
-            const tempFilePath = path.join(tempDir, sourceFile.filePath);
-            let diagnosticsResult: Diagnostics[] | NOT_SUPPORTED_TYPE = await langClient.getDiagnostics({ documentIdentifier: { uri: Uri.file(tempFilePath).toString() } });
-            if (!Array.isArray(diagnosticsResult)) {
-                throw new Error("Something happend while checking diags");
-            }
-
-            allDiags.push(...diagnosticsResult);
-        }
-    }
-    return allDiags;
 }
 
 function getErrorDiagnostics(diagnostics: Diagnostics[]): DiagnosticEntry[] {

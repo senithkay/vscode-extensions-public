@@ -249,7 +249,7 @@ async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: Debu
         const debugServerPort = await findFreePort();
         config.debugServer = debugServerPort.toString();
     }
-    
+
     // Notify debug server that the debug session is started in low-code mode
     const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
     if (isWebviewPresent && StateMachine.context().isBI) {
@@ -278,6 +278,11 @@ export async function constructDebugConfig(uri: Uri, testDebug: boolean, args?: 
             debugConfig = debugConfigs[i];
             break;
         }
+    }
+
+    if (!debugConfig) {
+        window.showErrorMessage("Failed to resolve correct Ballerina debug configuration for the current workspace.");
+        return Promise.reject();
     }
 
     debugConfig.script = uri.fsPath;
@@ -325,10 +330,14 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                         BreakpointManager.getInstance().setActiveBreakpoint(undefined);
                         notifyBreakpointChange();
 
-                        // Trigger Try-It view when starting/restarting debug sessions in low-code mode
-                        waitForBallerinaService(workspace.workspaceFolders![0].uri.fsPath).then(() => {
-                            commands.executeCommand(PALETTE_COMMANDS.TRY_IT, true);
-                        });
+                        // if `suggestTryit` is undefined, that means the debug session is directly started from the debug button. Therefore we should trigger the Try-It view.
+                        const suggestTryit = session.configuration.suggestTryit === undefined || session.configuration.suggestTryit === true;
+                        if (suggestTryit) {
+                            // Trigger Try-It view when starting/restarting debug sessions in low-code mode
+                            waitForBallerinaService(workspace.workspaceFolders![0].uri.fsPath).then(() => {
+                                commands.executeCommand(PALETTE_COMMANDS.TRY_IT, true);
+                            });
+                        }
                     } else if (msg.command === "setBreakpoints") {
                         const breakpoints = msg.body.breakpoints;
                         // convert debug points to client breakpoints
