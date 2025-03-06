@@ -11,7 +11,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { TextField, Dropdown, Button, SidePanelBody, ProgressRing, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { BallerinaRpcClient, useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Member, Type, UndoRedoManager, VisualizerLocation, TypeNodeKind } from "@wso2-enterprise/ballerina-core";
+import { Member, Type, UndoRedoManager, TypeNodeKind } from "@wso2-enterprise/ballerina-core";
 import { RecordFromJson } from "../RecordFromJson/RecordFromJson";
 import { RecordFromXml } from "../RecordFromXml/RecordFromXml";
 import { RecordEditor } from "./RecordEditor";
@@ -27,14 +27,6 @@ namespace S {
         gap: 20px;
     `;
 
-    export const Row = styled.div<{}>`
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-    `;
-
     export const CategoryRow = styled.div<{ showBorder?: boolean }>`
         display: flex;
         flex-direction: row;
@@ -45,15 +37,6 @@ namespace S {
         margin-top: 8px;
         padding-bottom: 14px;
         border-bottom: ${({ showBorder }) => (showBorder ? `1px solid var(--vscode-welcomePage-tileBorder)` : "none")};
-    `;
-
-    export const CheckboxRow = styled.div<{}>`
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        gap: 8px;
-        width: 100%;
     `;
 
     export const Footer = styled.div<{}>`
@@ -185,17 +168,16 @@ export function TypeEditor(props: TypeEditorProps) {
             properties: {},
             codedata: {
                 node: "RECORD" as TypeNodeKind
-            }
+            },
+            includes: [] as string[]
         };
         return defaultType as unknown as Type;
     });
-    const [visualizerLocation, setVisualizerLocation] = React.useState<VisualizerLocation>();
-    const nameInputRefs = useRef<(HTMLElement | null)[]>([]);
+
     const [isNewType, setIsNewType] = useState<boolean>(props.newType);
     const nameInputRef = useRef<HTMLInputElement | null>(null);
     const [editorState, setEditorState] = useState<ConfigState>(ConfigState.EDITOR_FORM);
     const [nameError, setNameError] = useState<string>("");
-    const [closedRecord, setClosedRecord] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState(false);
     const [tempName, setTempName] = useState("");
     const { rpcClient } = useRpcContext();

@@ -103,7 +103,7 @@ export function UnionEditor({ type, onChange, rpcClient }: UnionEditorProps) {
     return (
         <S.Container>
             <S.Header>
-                <S.SectionTitle>Union</S.SectionTitle>
+                <S.SectionTitle>Members</S.SectionTitle>
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <Button appearance="icon" onClick={addMember}><Codicon name="add" /></Button>
                 </div>
