@@ -393,6 +393,8 @@ export function getCustomEntryNodeIcon(type: string) {
             return null;
     }
 }
+
+
 // TODO: This should be removed once the new icons are added to the BE API.
 export function getEntryNodeIcon(item: ServiceModel, imgWidth?: string) {
     return getCustomEntryNodeIcon(item.moduleName) || <img src={item.icon} alt={item.name} style={{ width: imgWidth || "40px" }} />;

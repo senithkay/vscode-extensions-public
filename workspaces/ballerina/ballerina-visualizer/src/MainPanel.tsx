@@ -61,6 +61,7 @@ import { ListenerEditView } from "./views/BI/ServiceDesigner/ListenerEditView";
 import { AIAgentWizard } from "./views/BI/AIAgents/AIAgentWizard";
 import { ServiceClassDesigner } from "./views/BI/ServiceClassEditor/ServiceClassDesigner";
 import { ServiceClassConfig } from "./views/BI/ServiceClassEditor/ServiceClassConfig";
+import { AIAgentDesigner } from "./views/BI/AIAgentDesigner";
 
 const globalStyles = css`
     *,
@@ -174,6 +175,12 @@ const MainPanel = () => {
                                 position={value?.position}
                             />
                         );
+                        break;
+                    case MACHINE_VIEW.AIAgentDesigner:
+                        setViewComponent(<AIAgentDesigner
+                            filePath={value.documentUri}
+                            position={value?.position}
+                        />);
                         break;
                     case MACHINE_VIEW.BIDiagram:
                         setViewComponent(
