@@ -71,6 +71,7 @@ export type PanelViewProps = PropsWithChildren<{
 export type PanelTabProps = {
     id: number;
     title: string;
+    onClick?: (panelId: number) => void;
 };
 
 export type PanelsProps = PropsWithChildren<{}>;

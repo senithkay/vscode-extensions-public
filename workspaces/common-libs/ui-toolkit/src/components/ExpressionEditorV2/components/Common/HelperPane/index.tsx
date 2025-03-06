@@ -32,7 +32,6 @@ import { Divider } from '../../../../Divider/Divider';
 import { SearchBox } from '../../../../SeachBox/SearchBox';
 import Typography from '../../../../Typography/Typography';
 import { Overlay } from '../../../../Commons/Overlay';
-import ProgressRing from '../../../../ProgressRing/ProgressRing';
 import { HelperPanePanelProvider, useHelperPanePanelContext } from './context';
 import { ARROW_HEIGHT, HELPER_PANE_HEIGHT, HELPER_PANE_WIDTH } from '../../../constants';
 import { HelperPaneHeight } from '../../../types';
@@ -114,6 +113,10 @@ const LibraryBrowserHeader = styled.header`
     align-items: center;
     justify-content: space-between;
     padding-inline: 16px;
+`;
+
+const LibraryBrowserWithOverlay = styled.div`
+    height: 100vh;
 `;
 
 const LibraryBrowserContainer = styled.div`
@@ -273,13 +276,6 @@ const SectionContainer = styled.div`
     margin-bottom: 16px;
 `;
 
-const ProgressRingContainer = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-`;
-
 const BodyContainer = styled.div<StyleBase>`
     width: 100%;
     display: flex;
@@ -372,11 +368,16 @@ const PanelView: React.FC<PanelViewProps> = ({ children, id }) => {
 };
 PanelView.displayName = 'PanelView';
 
-const PanelTab: React.FC<PanelTabProps> = ({ title, id }) => {
+const PanelTab: React.FC<PanelTabProps> = ({ title, id, onClick }) => {
     const { activePanelIndex, setActivePanelIndex } = useHelperPanePanelContext();
 
+    const handleClick = () => {
+        setActivePanelIndex(id);
+        onClick(id);
+    };
+
     return (
-        <PanelTabContainer isActive={activePanelIndex === id} onClick={() => setActivePanelIndex(id)}>
+        <PanelTabContainer isActive={activePanelIndex === id} onClick={handleClick}>
             <Typography variant="body3">{title}</Typography>
         </PanelTabContainer>
     );
@@ -500,13 +501,11 @@ const LibraryBrowser: React.FC<LibraryBrowserProps> = ({
                 </LibraryBrowserHeader>
                 <Divider />
                 <LibraryBrowserSearchBoxContainer>
-                    <SearchBox placeholder="Search" value={searchValue} onChange={onSearch} />
+                    <SearchBox id="library-browser-search" placeholder="Search" value={searchValue} onChange={onSearch} />
                 </LibraryBrowserSearchBoxContainer>
                 <LibraryBrowserBody>
                     {loading ? (
-                        <ProgressRingContainer>
-                            <ProgressRing />
-                        </ProgressRingContainer>
+                        <Loader columns={4} rows={3} sections={3} />
                     ) : (
                         children
                     )}
@@ -686,7 +685,7 @@ const Header: React.FC<HelperPaneHeaderProps> = ({ title, titleSx, onBack, onClo
                 )}
                 {onSearch && (
                     <SearchBoxContainer>
-                        <SearchBox placeholder="Search" value={searchValue} onChange={onSearch} />
+                        <SearchBox id="helper-pane-search" placeholder="Search" value={searchValue} onChange={onSearch} />
                     </SearchBoxContainer>
                 )}
             </HeaderContainerWithSearch>
