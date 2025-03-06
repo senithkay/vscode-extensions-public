@@ -40,9 +40,9 @@ const ListContainer = styled.div<{ isHalfView?: boolean; }>`
     overflow-y: scroll;
 `;
 
-const GridContainer = styled.div`
+const GridContainer = styled.div<{ isHalfView?: boolean; }>`
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: ${(props: { isHalfView: boolean; }) => props.isHalfView ? 'unset' : 'repeat(auto-fill, minmax(200px, 1fr))'};
     gap: 16px;
     width: 100%;
 `;
@@ -236,7 +236,7 @@ export function ConnectorView(props: ConnectorViewProps) {
                                 return (
                                     <div key={category.metadata.label + index}>
                                         <Typography variant="h3">{category.metadata.label}</Typography>
-                                        <GridContainer>
+                                        <GridContainer isHalfView={hideTitle}>
                                             {category.items?.map((connector, index) => {
                                                 return (
                                                     <ButtonCard
@@ -267,7 +267,7 @@ export function ConnectorView(props: ConnectorViewProps) {
                                 );
                             })
                         ) : (
-                            <GridContainer>
+                            <GridContainer isHalfView={hideTitle}>
                                 {connectors.map((item, index) => {
                                     const connector = item as Item;
                                     return (

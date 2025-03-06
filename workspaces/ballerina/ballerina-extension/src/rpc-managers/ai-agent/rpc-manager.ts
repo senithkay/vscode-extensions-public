@@ -9,7 +9,6 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    AgentTool,
     AIAgentAPI,
     AIAgentRequest,
     AIAgentResponse,
@@ -20,11 +19,13 @@ import {
     AINodesResponse,
     AIToolsRequest,
     AIToolsResponse,
+    AgentTool,
     AvailableNode,
-    BallerinaProjectComponents,
     BINodeTemplateRequest,
+    BallerinaProjectComponents,
     ComponentInfo,
-    EntryPointModel,
+    AIConnectorActionsRequest,
+    AIConnectorActionsResponse,
     FlowNode,
     NodePosition,
     STModification,
@@ -33,8 +34,8 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 import { writeFileSync } from "fs";
 import { Uri } from "vscode";
-import { URI } from "vscode-uri";
-import { StateMachine } from "../../stateMachine";
+import { URI, Utils } from "vscode-uri";
+import { history, StateMachine } from "../../stateMachine";
 import { handleAutomationCreation } from "../../utils/bi";
 import { BiDiagramRpcManager } from "../bi-diagram/rpc-manager";
 
@@ -105,86 +106,98 @@ export class AiAgentRpcManager implements AIAgentAPI {
         });
     }
 
+    async getActions(params: AIConnectorActionsRequest): Promise<AIConnectorActionsResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const res: AIConnectorActionsResponse = await context.langClient.getConnectorActions(params);
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
     async createAIAgent(params: AIAgentRequest): Promise<AIAgentResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             try {
-                console.log(params);
-                // First we need to create the template/entry point
-                const entryPosition = await this.createEntrypoint(params.entryPoint);
-                // Then we need to create the AI Model
 
-                // Fetch the all the models first for given agent
-                const allModels = (await StateMachine.langClient().getAllModels({ agent: "FunctionCallAgent" })).models;
+                const projectUri = context.projectUri;
+                const filePath = Utils.joinPath(URI.file(projectUri), "agents.bal").fsPath;
 
-                // Find the Codedata for the user selected ai model
-                const getSelectedModelId = allModels.find(model => model.object === params.agentAIModel.modelName);
-
-                const modelRequest: BINodeTemplateRequest = {
-                    filePath: entryPosition.filePath,
-                    position: { line: 0, offset: 0 },
-                    id: getSelectedModelId
-                };
-
-                // Get the Node template for AI Model
-                const modelFlowNode = (await StateMachine.langClient().getNodeTemplate(modelRequest)).flowNode;
-
-                // Fill the flowNode properties with user selected data
-                for (const key in modelFlowNode.properties) {
-                    modelFlowNode.properties[key].value = params.agentAIModel.modelConfigs[key];
-                }
-
-                // Generate the model code
-                const modelRes = (await new BiDiagramRpcManager().getSourceCode({ filePath: entryPosition.filePath, flowNode: modelFlowNode }));
-
-                // Then we need to create the tools one by one
-                for (const tool of params.agentTools.newTools) {
-                    await this.createTool(entryPosition, tool);
-                }
-
-
-                // Create the AI Object
-                const agentRequest: BINodeTemplateRequest = {
-                    filePath: entryPosition.filePath,
-                    position: { line: 0, offset: 0 },
-                    id: {
-                        "node": "AGENT",
-                        "org": "wso2",
-                        "module": "agent.ai",
-                        "object": "FunctionCallAgent",
-                        "symbol": "init"
+                // Create the tools first
+                if (params.newTools.length > 0) {
+                    for (const tool of params.newTools) { // create tools one by one
+                        await this.createTool(tool);
                     }
-                };
+                }
 
-                // Get the Node template for AI Model
-                const agentFlowNode = (await StateMachine.langClient().getNodeTemplate(agentRequest)).flowNode;
+                // Create the model Second
+                const allAgents = (await StateMachine.langClient().getAllAgents({ filePath }));
+                console.log("All Agents: ", allAgents);
 
-                // Fill the agent flowNode properties values
-                agentFlowNode.properties["tools"].value = params.agentTools.tools;
-
-                // Generate the model code
-                const agentRes = (await new BiDiagramRpcManager().getSourceCode({ filePath: entryPosition.filePath, flowNode: agentFlowNode }));
+                const fixedAgentCodeData = allAgents.agents.at(0);
 
 
+                if (params.modelState === 1) {
+                    const allModels = await StateMachine.langClient().getAllModels({ agent: fixedAgentCodeData.object, filePath })
+                    const modelCodeData = allModels.models.find(val => val.object === params.selectedModel);
+                    const modelFlowNode = (await StateMachine.langClient().getNodeTemplate({ filePath, id: modelCodeData, position: { line: 0, offset: 0 } })).flowNode;
+
+                    // Go through the modelFields and assign each value to the flow node
+                    params.modelFields.forEach(field => {
+                        modelFlowNode.properties[field.key].value = field.value
+                    });
+
+                    // Create a new model with given flow node
+                    const codeEdits = await StateMachine.langClient()
+                        .getSourceCode({
+                            filePath: filePath,
+                            flowNode: modelFlowNode
+                        })
+                    await this.updateSource(codeEdits.textEdits);
+                } else {
+                    const existingModels = await StateMachine.langClient().getModels({ agent: fixedAgentCodeData.object, filePath });
+                    console.log("Get existingModels ", existingModels.models);
+                    // TODO: Existing model selection
+                }
 
 
+                // Get the agent flow node
+                const agentFlowNode = (await StateMachine.langClient().getNodeTemplate({ filePath, id: fixedAgentCodeData, position: { line: 0, offset: 0 } })).flowNode;
+
+                // Go through the agentFields and assign each value to the flow node
+                params.agentFields.forEach(field => {
+                    agentFlowNode.properties[field.key].value = field.value
+                });
+
+                // Create a new model with given flow node
+                const codeEdits = await StateMachine.langClient()
+                    .getSourceCode({
+                        filePath: filePath,
+                        flowNode: agentFlowNode
+                    })
+                await this.updateSource(codeEdits.textEdits);
+
+
+                // TODO: Add the agent call to the diagram
                 // Create AI Agent call
-                const agentCallRequest: BINodeTemplateRequest = {
-                    filePath: entryPosition.filePath,
-                    position: { line: entryPosition.position.startLine + 1, offset: 0 },
-                    id: {
-                        node: "AGENT_CALL"
-                    }
-                };
+                // const agentCallRequest: BINodeTemplateRequest = {
+                //     filePath: entryPosition.filePath,
+                //     position: { line: entryPosition.position.startLine + 1, offset: 0 },
+                //     id: {
+                //         node: "AGENT_CALL"
+                //     }
+                // };
 
-                // Get the Node template for AI Model
-                const agentCallFlowNode = (await StateMachine.langClient().getNodeTemplate(agentCallRequest)).flowNode;
+                // // Get the Node template for AI Model
+                // const agentCallFlowNode = (await StateMachine.langClient().getNodeTemplate(agentCallRequest)).flowNode;
 
-                // Generate the agent call code
-                const agentCallRes = (await new BiDiagramRpcManager().getSourceCode({ filePath: entryPosition.filePath, flowNode: agentFlowNode }));
+                // // Generate the agent call code
+                // const agentCallRes = (await new BiDiagramRpcManager().getSourceCode({ filePath: entryPosition.filePath, flowNode: agentFlowNode }));
 
-
-                console.log("SUCCESS");
+                resolve({ response: true, filePath, position: undefined });
 
             } catch (error) {
                 console.log(error);
@@ -192,138 +205,82 @@ export class AiAgentRpcManager implements AIAgentAPI {
         });
     }
 
-
-
-    async createEntrypoint(entryPoint: EntryPointModel): Promise<EntryPosition> {
-        // Check for the correct template to create the entry point
-        if (entryPoint.entryPoint === 'automation') {
-            const functionFile = await handleAutomationCreation({ type: undefined });
-            const components = await StateMachine.langClient().getBallerinaProjectComponents({
-                documentIdentifiers: [{ uri: URI.file(StateMachine.context().projectUri).toString() }]
-            }) as BallerinaProjectComponents;
-            const position: NodePosition = {};
-            for (const pkg of components.packages) {
-                for (const module of pkg.modules) {
-                    module.automations.forEach(func => {
-                        position.startColumn = func.startColumn;
-                        position.startLine = func.startLine;
-                        position.endLine = func.endLine;
-                        position.endColumn = func.endColumn;
-                    });
-                }
-            }
-            const res: EntryPosition = {
-                filePath: functionFile,
-                position
-            };
-            return res;
-        }
-    }
-
-    async createTool(entryPosition: EntryPosition, tool: AgentTool): Promise<void> {
+    async createTool(tool: AgentTool): Promise<void> {
         try {
+            const projectUri = StateMachine.context().projectUri;
+            const toolName = tool.toolName;
+            const toolsPath = Utils.joinPath(URI.file(projectUri), "agents.bal").fsPath;
+            let flowNode: FlowNode; // REMOTE_ACTION_CALL| FUNCTION_DEFINITION
+
             if (tool.toolType === "Connector") {
-                // Handle connector tool creation
-                const connectionName = tool.connectorName;
-                const connectionMethod = tool.connectorResource;
+                const filePath = Utils.joinPath(URI.file(projectUri), "connections.bal").fsPath;
+                const connectorFlowNode = tool.connectorFlowNode;
+                const connectorActionCodeData = tool.connectorActionCodeData;
 
-                if (tool.connectorState === 1) {
-                    // Create a new connection with given values if the state is 1
-                } else {
-                    // Using the existing connection if the state is 2
+                if (tool.connectorState === 1) { // 1 = Create the connection first
+                    // Create a new connection with given flow node
+                    const codeEdits = await StateMachine.langClient()
+                        .getSourceCode({
+                            filePath: filePath,
+                            flowNode: connectorFlowNode,
+                            isConnector: true
+                        })
+                    await this.updateSource(codeEdits.textEdits);
                 }
-            } else {
-                //Handle function tool creation
-                // User has selected an existing function to be mapped to the tool
-                if (tool.functionType.includes("Current")) {
-                    // Fetch the functions list from project components
-                    const projectUri = StateMachine.context().projectUri;
-                    const components: BallerinaProjectComponents = await StateMachine.langClient().getBallerinaProjectComponents({
-                        documentIdentifiers: [{ uri: URI.file(projectUri).toString() }]
-                    });
-
-                    let selectedFunction: ComponentInfo;
-
-                    // Go through the functions and find the user selected function
-                    for (const pkg of components.packages) {
-                        for (const module of pkg.modules) {
-                            module.functions.forEach(func => {
-                                if (func.name === tool.functionName) {
-                                    selectedFunction = func;
-                                }
-                            });
-                        }
-                    }
-
-                    // Get the function flow node
-
-                    // const params: BIFlowModelRequest = {
-                    //     filePath: Utils.joinPath(URI.file(projectUri), selectedFunction.filePath).fsPath,
-                    //     startLine: {
-                    //         line: selectedFunction.startLine,
-                    //         offset: selectedFunction.startColumn,
-                    //     },
-                    //     endLine: {
-                    //         line: selectedFunction.endLine,
-                    //         offset: selectedFunction.endColumn,
-                    //     },
-                    //     forceAssign: true, // TODO: remove this
-                    // };
-
-                    // const funcFlowNode = (await StateMachine.langClient().getFlowModel(params)).flowModel;
-
-                    const functionList = (await StateMachine.langClient().getFunctions({
-                        position: { startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } },
-                        filePath: entryPosition.filePath,
-                        queryMap: {
-                            q: "",
-                            limit: 12,
-                            offset: 0
-                        }
-                    })).categories;
-
-
-                    const userFunctionsList = functionList.find(cat => cat.metadata.label.includes("Current")).items;
-
-                    const selectedFunctionCodeData = userFunctionsList.find(func => func.metadata.label === tool.functionName) as AvailableNode;
-
-
-                    // const functionFlowNode = (await StateMachine.langClient().getNodeTemplate({
-                    //     position: { line: selectedFunction.startLine, offset: selectedFunction.startColumn },
-                    //     filePath: Utils.joinPath(URI.file(projectUri), selectedFunction.filePath).fsPath,
-                    //     id: { ...selectedFunctionCodeData.codedata, node: "FUNCTION_DEFINITION" }
-                    // })).flowNode
-
-                    const functionFlowNode = (await StateMachine.langClient().getFunctionNode({
-                        functionName: tool.functionName,
-                        fileName: selectedFunction.filePath,
-                        projectPath: projectUri
-                    })).functionDefinition as FlowNode;
-
-                    // // Create the tool for the given function
-                    const toolTextEdits = await StateMachine.langClient().genTool({ filePath: entryPosition.filePath, flowNode: functionFlowNode, toolName: tool.toolName });
-                    await this.updateSource(toolTextEdits.textEdits);
-
-                } else {
-                    // Selected function is coming from imported functions
-
-                    // Get all the available function categories
-                    // const getFunctions = await StateMachine.langClient().getFunctions({
-                    //     position: { startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } },
-                    //     filePath: filePath,
-                    //     queryMap: {
-                    //         q: "",
-                    //         limit: 12,
-                    //         offset: 0
-                    //     }
-                    // })
-                    // Find the user selected category
-                    // const functionCategory = getFunctions.categories.find(func => func.metadata.label === tool.functionType);
-
-                    // Find the user selected function
-                    // const userSelectedFunction = functionCategory.items.find(func => func.metadata.label === tool.functionName);
+                // Get the flowNode for connector action
+                const connectorActionFlowNode = await StateMachine.langClient()
+                    .getNodeTemplate({
+                        position: { line: 0, offset: 0 },
+                        filePath: filePath,
+                        id: connectorActionCodeData,
+                    })
+                flowNode = connectorActionFlowNode.flowNode;
+                for (const key in flowNode.properties) {
+                    flowNode.properties[key].value = key; // Update the action flow node property values with key
                 }
             }
+            if (tool.toolType === "Function") {
+                const filePath = Utils.joinPath(URI.file(projectUri), "functions.bal").fsPath;
+
+                if (tool.functionState === 1) { // 1 = Create the function first
+                    // Get new function flow node 
+                    const newFunctionFlowNode = await StateMachine.langClient().getNodeTemplate({
+                        position: { line: 0, offset: 0 },
+                        filePath: filePath,
+                        id: { node: 'FUNCTION_DEFINITION' },
+                    });
+
+                    flowNode = newFunctionFlowNode.flowNode;
+                    // Update the flow node with function name
+                    flowNode.properties["functionName"].value = tool.functionName;
+
+                    // Create a new function with update flow node
+                    const codeEdits = await StateMachine.langClient()
+                        .getSourceCode({
+                            filePath: filePath,
+                            flowNode: flowNode
+                        })
+                    await this.updateSource(codeEdits.textEdits);
+                } else {
+                    // Get the flowNode for existing function action
+                    const existingFunctionFlowNode = await StateMachine.langClient()
+                        .getFunctionNode({
+                            functionName: tool.functionName,
+                            fileName: "functions.bal",
+                            projectPath: projectUri
+                        })
+                    flowNode = existingFunctionFlowNode.functionDefinition as FlowNode;
+                }
+            }
+
+            // Create a new tool
+            const codeEdits = await StateMachine.langClient()
+                .genTool({
+                    filePath: toolsPath,
+                    flowNode: flowNode,
+                    toolName: toolName
+                })
+            await this.updateSource(codeEdits.textEdits);
         } catch (error) {
             console.error(`Failed to create tool: ${error}`);
         }
@@ -387,7 +344,6 @@ export class AiAgentRpcManager implements AIAgentAPI {
             console.log(">>> error updating source", error);
         }
     }
-
 
 }
 

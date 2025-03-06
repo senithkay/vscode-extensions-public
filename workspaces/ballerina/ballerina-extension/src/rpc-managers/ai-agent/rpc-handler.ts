@@ -10,12 +10,14 @@
  */
 import {
     AIAgentRequest,
+    AIConnectorActionsRequest,
     AIGentToolsRequest,
     AIModelsRequest,
     AINodesRequest,
     AIToolsRequest,
     createAIAgent,
     genTool,
+    getActions,
     getAllAgents,
     getAllModels,
     getModels,
@@ -32,4 +34,5 @@ export function registerAiAgentRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getTools, (args: AIToolsRequest) => rpcManger.getTools(args));
     messenger.onRequest(genTool, (args: AIGentToolsRequest) => rpcManger.genTool(args));
     messenger.onRequest(createAIAgent, (args: AIAgentRequest) => rpcManger.createAIAgent(args));
+    messenger.onRequest(getActions, (args: AIConnectorActionsRequest) => rpcManger.getActions(args));
 }

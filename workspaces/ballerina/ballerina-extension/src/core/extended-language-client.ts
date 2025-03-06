@@ -183,7 +183,9 @@ import {
     ICPEnabledResponse,
     AINodesRequest,
     BISearchRequest,
-    BISearchResponse
+    BISearchResponse,
+    AIConnectorActionsRequest,
+    AIConnectorActionsResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -312,6 +314,7 @@ enum EXTENDED_APIS {
     BI_AI_GET_MODELS = 'agentManager/getModels',
     BI_AI_GET_TOOLS = 'agentManager/getTools',
     BI_AI_GEN_TOOLS = 'agentManager/genTool',
+    BI_AI_CONNECTOR_ACTIONS = 'agentManager/getActions',
     BI_IS_ICP_ENABLED = 'icpService/isIcpEnabled',
     BI_ADD_ICP = 'icpService/addICP',
     BI_DISABLE_ICP = 'icpService/disableICP',
@@ -983,9 +986,15 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<AIGentToolsResponse>(EXTENDED_APIS.BI_AI_GEN_TOOLS, params);
     }
 
+    async getConnectorActions(params: AIConnectorActionsRequest): Promise<AIConnectorActionsResponse> {
+        return this.sendRequest<AIConnectorActionsResponse>(EXTENDED_APIS.BI_AI_CONNECTOR_ACTIONS, params);
+    }
+
     async search(params: BISearchRequest): Promise<BISearchResponse> {
         return this.sendRequest<BISearchResponse>(EXTENDED_APIS.BI_SEARCH, params);
     }
+
+
 
     // <------------ BI APIS END --------------->
 

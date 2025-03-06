@@ -9,46 +9,34 @@
  */
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-
-export interface AgentModel {
-    name: string;
-    instruction: string;
-}
-
-export interface EntryPointModel {
-    entryPoint: string;
-    resource?: string;
-}
-
-export interface AgentAIModel {
-    modelName: string;
-    modelConfigs: { [key: string]: string };
-}
-
-export interface AgentTools {
-    tools: string[];
-    newTools: AgentTool[];
-}
+import { CodeData, FlowNode } from "../../interfaces/bi";
 
 export interface AgentTool {
     toolName: string;
     toolType: string;
 
     // Function Related
-    functionType: string;
+    functionState: number; // 1 = New, 2 = Existing
+    functionScope: string; // Current Integration | Library
     functionName: string;
+    existingFunctionCodeData: CodeData;
 
     //Connector Related
     connectorState: number; // 1 = New, 2 = Existing
-    connectorName: string;
-    connectorResource: string;
+
+    // For new connector option we will collect the config updated connectorFlowNode
+    connectorFlowNode: FlowNode;
+    // For both new and existing We will collect the action code data which can be used to the get the template of that "REMOTE_ACTION_CALL"
+    connectorActionCodeData: CodeData;
 }
 
 export interface AIAgentRequest {
-    agentModel: AgentModel;
-    entryPoint: EntryPointModel;
-    agentAIModel: AgentAIModel;
-    agentTools: AgentTools;
+    agentFields: any[]; // Need to fix this type
+    modelFields: any[];
+    modelState: number; // 1 = New, 2 = Existing
+    selectedModel: string;
+    toolsFields: any[];
+    newTools: AgentTool[];
 }
 
 export interface AIAgentResponse {

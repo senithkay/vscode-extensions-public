@@ -27,6 +27,7 @@ import ToolsCreateForm from './Forms/ToolsCreateForm';
 import { convertConfig } from '../../../utils/bi';
 import AgentEntryConfigForm from './Forms/AgentEntryConfigForm';
 import { FormHeader } from '../../../components/FormHeader';
+import { RelativeLoader } from '../../../components/RelativeLoader';
 
 const FORM_WIDTH = 600;
 
@@ -97,75 +98,35 @@ const ChoicePaddingSection = styled.div`
 `;
 
 
-const _agentFields: FormField[] = [
-    {
-        key: `name`,
-        label: "Name",
-        type: "IDENTIFIER",
-        optional: false,
-        editable: true,
-        documentation: "Name of your agent",
-        value: "",
-        valueTypeConstraint: "",
-        enabled: true
-    },
-    {
-        key: `description`,
-        label: "Instruction",
-        type: 'TEXTAREA',
-        optional: true,
-        editable: true,
-        documentation: '',
-        value: "",
-        valueTypeConstraint: "",
-        enabled: true
-    }
-]
-
-
 export function AIAgentWizard() {
     const { rpcClient } = useRpcContext();
     const [filePath, setFilePath] = useState<string>("");
-    const [step, setStep] = useState<number>(2);
+
+    const [step, setStep] = useState<number>(0);
 
 
-    const [modelState, setModelState] = useState<number>(1);
-
+    const [modelState, setModelState] = useState<number>(1); // 1 = New | 2 = Existing
 
     const [openToolsForm, setOpenToolsForm] = useState<boolean>(false);
+
     const [agentFields, setAgentFields] = useState<FormField[]>([]);
-    const [agentEntryFields, setAgentEntryFields] = useState<FormField[]>([]);
-    const [entryPointFields, setEntryPointFields] = useState<FormField[]>([]);
     const [modelFields, setModelFields] = useState<FormField[]>([]);
     const [toolsFields, setToolsFields] = useState<FormField[]>([]);
 
-
     const [existingModels, setExistingModel] = useState<CodeData[]>([]);
-    const [selectedExistingModel, setSelectedExistingModel] = useState<string>("");
 
     const [newModels, setNewModels] = useState<CodeData[]>([]);
     const [selectedNewModel, setSelectedNewModel] = useState<string>("");
 
-
     const [newTools, setNewTools] = useState<AgentTool[]>([]);
-
-    const [agentRequest, setAgentRequest] = useState<AIAgentRequest>(undefined);
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [fetching, setFetching] = useState<boolean>(false);
     const [loadingMsg, setLoadingMsg] = useState<string>("Loading AI Agent...");
 
     useEffect(() => {
-        // rpcClient.getAIAgentRpcClient().getAllAgents().then(res => {
-        //     console.log("All Agents ", res);
-        // });
-        // rpcClient.getAIAgentRpcClient().getAllModels({ agent: "FunctionCallAgent" }).then(res => {
-        //     console.log("All FunctionCallAgent ", res);
-        // });
-
         rpcClient.getVisualizerLocation().then(res => {
             setFilePath(Utils.joinPath(URI.file(res.projectUri), 'agents.bal').fsPath)
-
         });
     }, []);
 
@@ -185,13 +146,15 @@ export function AIAgentWizard() {
     useEffect(() => {
         if (filePath) {
             setupAgentFields();
-            setupToolsFields();
+
         }
     }, [filePath]);
 
     useEffect(() => {
-        setupToolsFields();
-    }, [newTools]);
+        if (step === 2) {
+            setupToolsFields();
+        }
+    }, [newTools, step]);
 
     useEffect(() => {
         switch (modelState) {
@@ -206,142 +169,6 @@ export function AIAgentWizard() {
         }
     }, [modelState, selectedNewModel]);
 
-
-    // const setupEntryPointFields = async () => {
-    //     setIsLoading(true);
-    //     const field: FormField = {
-    //         key: `name`,
-    //         label: "Select Entry Point",
-    //         type: "DROPDOWN_CHOICE",
-    //         optional: false,
-    //         editable: true,
-    //         documentation: "Select your integration event",
-    //         value: "",
-    //         valueTypeConstraint: "",
-    //         enabled: true
-    //     }
-
-    //     const items: OptionProps[] = [];
-    //     const dynamicFormFields: { [key: string]: FormField[] } = {};
-
-    //     // Push Automation Entry
-    //     const automationContent = (
-    //         <div style={{ display: 'flex', alignItems: 'center', padding: '10px' }}>
-    //             <Icon name="bi-task" iconSx={{ fontSize: 20 }} sx={{ fontSize: 20 }} />
-    //             <span style={{ marginLeft: '10px' }}>Automation</span>
-    //         </div>
-    //     )
-    //     items.push({ value: "automation", content: automationContent })
-
-    //     // Push HTTP Service Entry
-    //     const serviceContent = (
-    //         <div style={{ display: 'flex', alignItems: 'center', padding: '10px' }}>
-    //             <Icon name="bi-http-service" iconSx={{ fontSize: 20 }} sx={{ fontSize: 20 }} />
-    //             <span style={{ marginLeft: '10px' }}>HTTP Service</span>
-    //         </div>
-    //     )
-    //     items.push({ value: "http", content: serviceContent })
-
-
-    //     // Fetch triggers and assign them to entry values
-    //     const triggerList = await rpcClient.getServiceDesignerRpcClient().getTriggerModels({ query: "" });
-    //     triggerList.local
-    //         .filter((t) => t.type === "event")
-    //         .forEach(async (trigger) => {
-    //             items.push({ value: trigger.moduleName, content: triggerItem(trigger) })
-
-    //             const triggerModel = await rpcClient.getServiceDesignerRpcClient().getServiceModel({ filePath: "", moduleName: trigger.moduleName });
-    //             if (triggerModel.service.functions) {
-    //                 dynamicFormFields[trigger.moduleName] = [{
-    //                     key: "functionName",
-    //                     label: "Select Entry Resource",
-    //                     type: "SINGLE_SELECT",
-    //                     optional: false,
-    //                     editable: true,
-    //                     documentation: "Select the trigger resource",
-    //                     value: "",
-    //                     items: triggerModel.service.functions.map(func => func.name.value),
-    //                     valueTypeConstraint: "",
-    //                     enabled: true
-    //                 }]
-    //             }
-    //         })
-
-    //     field.itemOptions = items;
-    //     field.items = items.map(item => item.value);
-    //     field.dynamicFormFields = dynamicFormFields;
-    //     console.log("Dynamic Fields ", dynamicFormFields);
-    //     setEntryPointFields([field]);
-    //     setIsLoading(false);
-    // }
-
-    // const setupAgentEntryPointFields = async () => {
-    //     setIsLoading(true);
-    //     const field: FormField = {
-    //         key: `name`,
-    //         label: "Entry Point Template",
-    //         type: "DROPDOWN_CHOICE",
-    //         optional: false,
-    //         editable: true,
-    //         documentation: "Choose the entry point for your integration",
-    //         value: "",
-    //         valueTypeConstraint: "",
-    //         enabled: true
-    //     }
-
-    //     const items: OptionProps[] = [];
-    //     const dynamicFormFields: { [key: string]: FormField[] } = {};
-
-    //     // Push Automation Entry
-    //     const automationContent = (
-    //         <div style={{ display: 'flex', alignItems: 'center', padding: '10px' }}>
-    //             <Icon name="bi-task" iconSx={{ fontSize: 20 }} sx={{ fontSize: 20 }} />
-    //             <span style={{ marginLeft: '10px' }}>Automation</span>
-    //         </div>
-    //     )
-    //     items.push({ value: "automation", content: automationContent })
-
-    //     // Push HTTP Service Entry
-    //     const serviceContent = (
-    //         <div style={{ display: 'flex', alignItems: 'center', padding: '10px' }}>
-    //             <Icon name="bi-http-service" iconSx={{ fontSize: 20 }} sx={{ fontSize: 20 }} />
-    //             <span style={{ marginLeft: '10px' }}>HTTP Service</span>
-    //         </div>
-    //     )
-    //     items.push({ value: "http", content: serviceContent })
-
-
-    //     // Fetch triggers and assign them to entry values
-    //     const triggerList = await rpcClient.getServiceDesignerRpcClient().getTriggerModels({ query: "" });
-    //     triggerList.local
-    //         .filter((t) => t.type === "event")
-    //         .forEach(async (trigger) => {
-    //             items.push({ value: trigger.moduleName, content: triggerItem(trigger) })
-
-    //             const triggerModel = await rpcClient.getServiceDesignerRpcClient().getServiceModel({ filePath: "", moduleName: trigger.moduleName });
-    //             if (triggerModel.service.functions) {
-    //                 dynamicFormFields[trigger.moduleName] = [{
-    //                     key: "functionName",
-    //                     label: "Select Entry Resource",
-    //                     type: "SINGLE_SELECT",
-    //                     optional: false,
-    //                     editable: true,
-    //                     documentation: "Select the trigger resource",
-    //                     value: "",
-    //                     items: triggerModel.service.functions.map(func => func.name.value),
-    //                     valueTypeConstraint: "",
-    //                     enabled: true
-    //                 }]
-    //             }
-    //         })
-
-    //     field.itemOptions = items;
-    //     field.items = items.map(item => item.value);
-    //     field.dynamicFormFields = dynamicFormFields;
-    //     console.log("Dynamic Fields ", dynamicFormFields);
-    //     setAgentEntryFields([..._agentFields, field]);
-    //     setIsLoading(false);
-    // }
 
     const setupAgentFields = async () => {
         setIsLoading(true);
@@ -398,7 +225,7 @@ export function AIAgentWizard() {
     }
 
     const setupToolsFields = async () => {
-        setIsLoading(true);
+        setFetching(true);
         const field: FormField = {
             key: `name`,
             label: "Add Tools",
@@ -422,89 +249,38 @@ export function AIAgentWizard() {
             })
         }
         setToolsFields([field]);
-        setIsLoading(false);
+        setFetching(false);
     }
-
-    const triggerItem = (item: ServiceModel) => {
-        return (
-            <div style={{ display: 'flex', alignItems: 'center', padding: '10px' }}>
-                {getEntryNodeIcon(item, "20px")}
-                <span style={{ marginLeft: '10px' }}>{item.displayName}</span>
-            </div>
-        );
-    }
-
 
     const handleAgentConfigFormSubmit = async (value: FormField[]) => {
         setAgentFields(value);
         console.log("handleAgentConfigFormSubmit Fields ", value);
         setStep(1);
     }
-    const handleAgentEntryConfigFormSubmit = async (value: FormField[]) => {
-        setAgentFields(value);
-        console.log("handleAgentConfigFormSubmit Fields ", value);
-        const name = value[0].value as string;
-        const description = value[1].value as string;
-        setAgentRequest({ ...agentRequest, agentModel: { name, instruction: description } })
-        setStep(1);
-    }
-    const handleEntryPointConfigFormSubmit = async (value: FormField[]) => {
-        console.log("handleEntryPointConfigFormSubmit Fields ", value);
-        setEntryPointFields(value);
-        setStep(2);
-    }
+
     const handleModelConfigFormSubmit = async (value: FormField[], data: FormValues) => {
         console.log("handleModelConfigFormSubmit Fields ", data, value);
         setModelFields(value);
         setStep(2);
     }
     const handleFinish = async (value: FormField[]) => {
-
-        console.log("handleFinish Fields ", value);
-
+        console.log("toolsFields ", value);
+        const selectedTools = value.at(0).value as string[];
+        const updatedNewTools = newTools.filter(tool => selectedTools.includes(tool.toolName));  // Remove all the unused tools from new tools array
         setIsLoading(true);
+        const req: AIAgentRequest = {
+            agentFields: agentFields,
+            modelState: modelState,
+            selectedModel: selectedNewModel,
+            modelFields: modelFields,
+            toolsFields: toolsFields,
+            newTools: updatedNewTools
+        }
+        const response = await rpcClient.getAIAgentRpcClient().createAIAgent(req);
+        console.log("Response: ", response)
 
-
-        // Mimic the agent creation flow with different messages as it takes some time.
-        setLoadingMsg("Creating AI Agent...");
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        setLoadingMsg("Configuring Entry Point...")
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        setLoadingMsg("Setting up Model Configuration...")
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        setLoadingMsg("Integrating Tools...")
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        setLoadingMsg("Finalizing AI Agent Creation...")
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        rpcClient.getVisualizerRpcClient().goHome();
-
-        // const dynamicResources = entryPointFields[0].dynamicFormFields[entryPointFields[0].value as string];
-        // const dynamicModelConfigs = modelFields[0].dynamicFormFields[modelFields[0].value as string];
-
-        // const modelConfigs: { [key: string]: string } = {};
-
-        // if (dynamicModelConfigs) {
-        //     dynamicModelConfigs.forEach(config => {
-        //         modelConfigs[config.key] = config.value as string;
-        //     })
-        // }
-        // const req: AIAgentRequest = {
-        //     agentModel: { name: agentFields[0].value as string, instruction: agentFields[1].value as string },
-        //     entryPoint: {
-        //         entryPoint: entryPointFields[0].value as string,
-        //         resource: dynamicResources && dynamicResources[0].value as string
-        //     },
-        //     agentAIModel: {
-        //         modelName: modelFields[0].value as string,
-        //         modelConfigs: modelConfigs
-        //     },
-        //     agentTools: {
-        //         tools: toolsFields[0].value as string[],
-        //         newTools: newTools
-        //     }
-        // }
-        // const response = await rpcClient.getAIAgentRpcClient().createAIAgent(req);
-        // setToolsFields(value);
+        // Redirect to relevant page
+        rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: response.filePath, position: response.position } })
     }
 
     const handleToolCreation = (data: AgentTool) => {
@@ -512,9 +288,6 @@ export function AIAgentWizard() {
         setOpenToolsForm(false);
     }
 
-    const onBack = () => {
-        setStep(1);
-    }
     const defaultSteps = ["Agent Configuration", "Model Configuration", "Tool Integration"];
 
     return (
@@ -560,7 +333,7 @@ export function AIAgentWizard() {
                                                 isRequired
                                                 errorMsg=""
                                                 id="drop-down"
-                                                items={[{ value: "Select Model" }, ...newModels.map((model) => ({ value: model.object, content: model.object }))]}
+                                                items={[{ value: "- Select -" }, ...newModels.map((model) => ({ value: model.object, content: model.object }))]}
                                                 label="Select AI Model"
                                                 description={"Available AI Models"}
                                                 onValueChange={(value: string) => {
@@ -574,9 +347,7 @@ export function AIAgentWizard() {
                                             />
                                         </ChoicePaddingSection>
                                         {fetching &&
-                                            <LoadingContainer>
-                                                <LoadingRing message={"Fetching Model Form"} />
-                                            </LoadingContainer>
+                                            <RelativeLoader message={"Fetching Model Form"} />
                                         }
                                         {!fetching && selectedNewModel &&
                                             <ModelConfigForm formFields={modelFields} onSubmit={handleModelConfigFormSubmit} onBack={() => setStep(0)} />
@@ -602,8 +373,13 @@ export function AIAgentWizard() {
                     }
                     {!isLoading && step === 2 &&
                         <>
-                            {!openToolsForm && <ToolsConfigForm formFields={toolsFields} onSubmit={handleFinish} openToolsForm={() => setOpenToolsForm(true)} onBack={() => setStep(1)} formSubmitText="Finish" />}
-                            {openToolsForm && <ToolsCreateForm onSubmit={handleToolCreation} onBack={() => setOpenToolsForm(false)} />}
+                            {fetching &&
+                                <BottomMarginTextWrapper>
+                                    <RelativeLoader message={"Loading tools.."} />
+                                </BottomMarginTextWrapper>
+                            }
+                            {!fetching && !openToolsForm && <ToolsConfigForm formFields={toolsFields} onSubmit={handleFinish} openToolsForm={() => setOpenToolsForm(true)} onBack={() => setStep(1)} formSubmitText="Finish" />}
+                            {!fetching && openToolsForm && <ToolsCreateForm onSubmit={handleToolCreation} onBack={() => setOpenToolsForm(false)} />}
                         </>
                     }
                 </Container>
