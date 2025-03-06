@@ -110,7 +110,7 @@ namespace S {
 
 export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
     const {
-        typeHelperHeight,
+        typeHelperHeight = "full",
         currentType,
         currentCursorPosition,
         typeBrowserRef,
