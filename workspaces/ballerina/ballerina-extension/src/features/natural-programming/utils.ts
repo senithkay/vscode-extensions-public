@@ -20,7 +20,11 @@ import {
     PROJECT_DOCUMENTATION_DRIFT_CHECK_ENDPOINT, API_DOCS_DRIFT_CHECK_ENDPOINT,
     DEVELOPER_OVERVIEW_FILENAME, NATURAL_PROGRAMMING_PATH, DEVELOPER_OVERVIEW_RELATIVE_PATH,
     REQUIREMENT_DOC_PREFIX, REQUIREMENT_TEXT_DOCUMENT, REQUIREMENT_MD_DOCUMENT,
-    README_FILE_NAME_LOWERCASE, DRIFT_DIAGNOSTIC_ID
+    README_FILE_NAME_LOWERCASE, DRIFT_DIAGNOSTIC_ID,
+    LACK_OF_DOCUMENTATION_WARNING,
+    NO_DOCUMENTATION_WARNING,
+    MISSING_README_FILE_WARNING,
+    MISSING_REQUIREMENT_FILE
 } from "./constants";
 import { isError, isNumber } from 'lodash';
 import { HttpStatusCode } from 'axios';
@@ -103,6 +107,7 @@ async function createDiagnosticCollection(responses: any[], projectUri: string, 
     }
 
     // Set diagnostics in VS Code
+    diagnosticCollection.clear();
     diagnosticsMap.forEach((diagnostics, filePath) => {
         const uri = vscode.Uri.file(filePath);
         diagnosticCollection.set(uri, diagnostics);
@@ -114,7 +119,7 @@ async function createDiagnosticsResponse(data: DriftResponseData, projectPath: s
     for(const result of data.results) {
         let fileName = result.fileName;
 
-        if (fileName.includes(DEVELOPER_OVERVIEW_FILENAME)) {
+        if (isInvalidDiagnostic(result)) {
             continue;
         }
         
@@ -426,3 +431,16 @@ export async function streamToString(stream: ReadableStream<Uint8Array>): Promis
 
     return result;
 }
+
+function isInvalidDiagnostic(result: ResultItem) {
+    if (result.fileName.includes(DEVELOPER_OVERVIEW_FILENAME)) {
+        return true;
+    }
+
+    if (result.cause.includes(LACK_OF_DOCUMENTATION_WARNING) || result.cause.includes(NO_DOCUMENTATION_WARNING)
+        || result.cause.includes(MISSING_README_FILE_WARNING) || result.cause.includes(MISSING_REQUIREMENT_FILE)) {
+            return true;
+    }
+    return false;
+}
+
