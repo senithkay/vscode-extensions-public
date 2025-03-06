@@ -28,6 +28,7 @@ export interface AgentTool {
     connectorFlowNode: FlowNode;
     // For both new and existing We will collect the action code data which can be used to the get the template of that "REMOTE_ACTION_CALL"
     connectorActionCodeData: CodeData;
+    connectionName: string;
 }
 
 export interface AIAgentRequest {

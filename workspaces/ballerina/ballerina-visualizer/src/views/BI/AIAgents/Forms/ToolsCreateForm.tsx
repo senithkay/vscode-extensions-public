@@ -182,6 +182,7 @@ export function ToolsCreateForm(props: ConfigProps) {
             connectorFlowNode: connectorFlowNode,
             connectorActionCodeData: actionCodeData?.codedata,
             connectorState: connectionState,
+            connectionName: connectionState === 2 ? selectedConnector : ""
         }
         console.log("New Agent Tool:", toolModel);
         onSubmit(toolModel);

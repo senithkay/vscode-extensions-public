@@ -1263,6 +1263,7 @@ export interface AIGentToolsRequest {
     filePath: string;
     flowNode: FlowNode;
     toolName: string;
+    connection: string;
 }
 
 export interface AIGentToolsResponse {

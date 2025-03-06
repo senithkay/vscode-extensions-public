@@ -141,13 +141,13 @@ export class AiAgentRpcManager implements AIAgentAPI {
 
 
                 if (params.modelState === 1) {
-                    const allModels = await StateMachine.langClient().getAllModels({ agent: fixedAgentCodeData.object, filePath })
+                    const allModels = await StateMachine.langClient().getAllModels({ agent: fixedAgentCodeData.object, filePath });
                     const modelCodeData = allModels.models.find(val => val.object === params.selectedModel);
                     const modelFlowNode = (await StateMachine.langClient().getNodeTemplate({ filePath, id: modelCodeData, position: { line: 0, offset: 0 } })).flowNode;
 
                     // Go through the modelFields and assign each value to the flow node
                     params.modelFields.forEach(field => {
-                        modelFlowNode.properties[field.key].value = field.value
+                        modelFlowNode.properties[field.key].value = field.value;
                     });
 
                     // Create a new model with given flow node
@@ -155,7 +155,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                         .getSourceCode({
                             filePath: filePath,
                             flowNode: modelFlowNode
-                        })
+                        });
                     await this.updateSource(codeEdits.textEdits);
                 } else {
                     const existingModels = await StateMachine.langClient().getModels({ agent: fixedAgentCodeData.object, filePath });
@@ -169,7 +169,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
 
                 // Go through the agentFields and assign each value to the flow node
                 params.agentFields.forEach(field => {
-                    agentFlowNode.properties[field.key].value = field.value
+                    agentFlowNode.properties[field.key].value = field.value;
                 });
 
                 // Create a new model with given flow node
@@ -177,7 +177,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                     .getSourceCode({
                         filePath: filePath,
                         flowNode: agentFlowNode
-                    })
+                    });
                 await this.updateSource(codeEdits.textEdits);
 
 
@@ -209,6 +209,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
         try {
             const projectUri = StateMachine.context().projectUri;
             const toolName = tool.toolName;
+            const connectionName = tool.connectionName;
             const toolsPath = Utils.joinPath(URI.file(projectUri), "agents.bal").fsPath;
             let flowNode: FlowNode; // REMOTE_ACTION_CALL| FUNCTION_DEFINITION
 
@@ -224,7 +225,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                             filePath: filePath,
                             flowNode: connectorFlowNode,
                             isConnector: true
-                        })
+                        });
                     await this.updateSource(codeEdits.textEdits);
                 }
                 // Get the flowNode for connector action
@@ -233,7 +234,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                         position: { line: 0, offset: 0 },
                         filePath: filePath,
                         id: connectorActionCodeData,
-                    })
+                    });
                 flowNode = connectorActionFlowNode.flowNode;
                 for (const key in flowNode.properties) {
                     flowNode.properties[key].value = key; // Update the action flow node property values with key
@@ -259,7 +260,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                         .getSourceCode({
                             filePath: filePath,
                             flowNode: flowNode
-                        })
+                        });
                     await this.updateSource(codeEdits.textEdits);
                 } else {
                     // Get the flowNode for existing function action
@@ -268,7 +269,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                             functionName: tool.functionName,
                             fileName: "functions.bal",
                             projectPath: projectUri
-                        })
+                        });
                     flowNode = existingFunctionFlowNode.functionDefinition as FlowNode;
                 }
             }
@@ -278,8 +279,9 @@ export class AiAgentRpcManager implements AIAgentAPI {
                 .genTool({
                     filePath: toolsPath,
                     flowNode: flowNode,
-                    toolName: toolName
-                })
+                    toolName: toolName,
+                    connection: connectionName
+                });
             await this.updateSource(codeEdits.textEdits);
         } catch (error) {
             console.error(`Failed to create tool: ${error}`);
