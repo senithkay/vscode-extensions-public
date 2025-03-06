@@ -22,7 +22,8 @@ import {
     REQUIREMENT_DOC_PREFIX, REQUIREMENT_TEXT_DOCUMENT, REQUIREMENT_MD_DOCUMENT,
     README_FILE_NAME_LOWERCASE, DRIFT_DIAGNOSTIC_ID
 } from "./constants";
-import { isNumber } from 'lodash';
+import { isError, isNumber } from 'lodash';
+import { HttpStatusCode } from 'axios';
 
 let controller = new AbortController();
 
@@ -73,6 +74,10 @@ async function getLLMResponses(sources: { balFiles: string; readme: string; requ
 
     const [commentResponse, documentationSourceResponse] = await Promise.all([commentResponsePromise, documentationSourceResponsePromise]);
     
+    if (isError(commentResponse) || isError(documentationSourceResponse)) {
+        return HttpStatusCode.Unauthorized;
+    }
+
     if (!commentResponse.ok) {
         return commentResponse.status;
     }
@@ -87,20 +92,32 @@ async function getLLMResponses(sources: { balFiles: string; readme: string; requ
 }
 
 async function createDiagnosticCollection(responses: any[], projectUri: string, diagnosticCollection: vscode.DiagnosticCollection) {
+    let diagnosticsMap = new Map<string, vscode.Diagnostic[]>();
+
     if (responses[0] != null) {
-        await createDiagnosticsResponse(responses[0], projectUri, diagnosticCollection);
+        diagnosticsMap = await createDiagnosticsResponse(responses[0], projectUri, diagnosticsMap);
     }
 
     if (responses[1] != null) {
-        await createDiagnosticsResponse(responses[1], projectUri, diagnosticCollection);
+        diagnosticsMap = await createDiagnosticsResponse(responses[1], projectUri, diagnosticsMap);
     }
+
+    // Set diagnostics in VS Code
+    diagnosticsMap.forEach((diagnostics, filePath) => {
+        const uri = vscode.Uri.file(filePath);
+        diagnosticCollection.set(uri, diagnostics);
+    });
 }
 
-async function createDiagnosticsResponse(data: DriftResponseData, projectPath: string, diagnosticCollection: vscode.DiagnosticCollection) {
-    const diagnosticsMap = new Map<string, vscode.Diagnostic[]>();
-
+async function createDiagnosticsResponse(data: DriftResponseData, projectPath: string, 
+                                diagnosticsMap: Map<string, vscode.Diagnostic[]>): Promise<Map<string, vscode.Diagnostic[]>> {
     for(const result of data.results) {
         let fileName = result.fileName;
+
+        if (fileName.includes(DEVELOPER_OVERVIEW_FILENAME)) {
+            continue;
+        }
+        
         if (result.codeFileName != undefined && result.codeFileName != null && result.codeFileName != "") {
             fileName = result.codeFileName;
         }
@@ -115,12 +132,7 @@ async function createDiagnosticsResponse(data: DriftResponseData, projectPath: s
         diagnosticsMap.get(uri.path)!.push(diagnostic);
     }
 
-    // Set diagnostics in VS Code
-    diagnosticsMap.forEach((diagnostics, filePath) => {
-        diagnosticCollection.set(vscode.Uri.file(filePath), diagnostics);
-    });
-
-    return;
+    return diagnosticsMap;
 }
 
 async function createDiagnostic(result: ResultItem, uri: Uri): Promise<CustomDiagnostic> {
@@ -359,21 +371,25 @@ export async function getBallerinaSourceFiles(folderPath: string): Promise<{ bal
 }
 
 export async function fetchWithToken(url: string, options: RequestInit) {
-    let response = await fetch(url, options);
-    console.log("Response status: ", response.status);
-    if (response.status === 401) {
-        console.log("Token expired. Refreshing token...");
-        const newToken = await refreshAccessToken();
-        console.log("refreshed token : " + newToken);
-        if (newToken) {
-            options.headers = {
-                ...options.headers,
-                'Authorization': `Bearer ${newToken}`,
-            };
-            response = await fetch(url, options);
+    try {
+        let response = await fetch(url, options);
+        console.log("Response status: ", response.status);
+        if (response.status === 401) {
+            console.log("Token expired. Refreshing token...");
+            const newToken = await refreshAccessToken();
+            console.log("refreshed token : " + newToken);
+            if (newToken) {
+                options.headers = {
+                    ...options.headers,
+                    'Authorization': `Bearer ${newToken}`,
+                };
+                response = await fetch(url, options);
+            }
         }
+        return response;
+    } catch (error) {
+        return Error("Error occured while sending the request");
     }
-    return response;
 }
 
 export function getPluginConfig(): BallerinaPluginConfig {
