@@ -107,6 +107,7 @@ interface TypeEditorProps {
     isGraphql?: boolean;
     typeHelper: {
         loading?: boolean;
+        loadingTypeBrowser?: boolean;
         basicTypes: TypeHelperCategory[];
         operators: TypeHelperOperator[];
         typeBrowserTypes: TypeHelperCategory[];
