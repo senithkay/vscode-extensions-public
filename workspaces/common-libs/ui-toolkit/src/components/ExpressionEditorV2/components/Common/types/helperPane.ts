@@ -20,6 +20,7 @@ export type LibraryBrowserProps = PropsWithChildren<{
     anchorRef: RefObject<HTMLDivElement>;
     loading?: boolean;
     searchValue: string;
+    title?: string;
     titleSx?: CSSProperties;
     onSearch: (searchTerm: string) => void;
     onClose: () => void;

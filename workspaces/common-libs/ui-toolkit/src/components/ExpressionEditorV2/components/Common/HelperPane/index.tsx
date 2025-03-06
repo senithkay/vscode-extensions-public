@@ -477,6 +477,7 @@ const LibraryBrowser: React.FC<LibraryBrowserProps> = ({
     children,
     loading = false,
     searchValue,
+    title = "Library Browser",
     titleSx,
     onSearch,
     onClose,
@@ -499,7 +500,7 @@ const LibraryBrowser: React.FC<LibraryBrowserProps> = ({
             <LibraryBrowserContainer>
                 <LibraryBrowserHeader>
                     <Typography variant="h2" sx={{ margin: 0, ...titleSx }}>
-                        Library Browser
+                        {title}
                     </Typography>
                     <Codicon name="close" onClick={handleClose} />
                 </LibraryBrowserHeader>

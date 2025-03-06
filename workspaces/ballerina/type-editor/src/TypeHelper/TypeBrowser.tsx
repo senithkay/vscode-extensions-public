@@ -53,6 +53,7 @@ export const TypeBrowser = (props: TypeBrowserProps) => {
             searchValue={searchValue}
             onSearch={handleSearch}
             onClose={onClose}
+            title="Type Browser"
             titleSx={{ fontFamily: 'GilmerRegular' }}
         >
             {typeBrowserTypes?.length > 0 &&
