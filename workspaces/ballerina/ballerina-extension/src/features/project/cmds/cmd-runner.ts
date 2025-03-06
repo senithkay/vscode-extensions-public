@@ -27,6 +27,7 @@ export enum PALETTE_COMMANDS {
     SAVE_ALL = 'workbench.action.files.saveFiles',
     TEST = 'kolab.project.test',
     PASTE_JSON_AS_RECORD = 'kolab.pasteAsRecord',
+    VERIFY_DOCS = 'kolab.verifyDocs',
     PASTE_XML_AS_RECORD = 'kolab.pasteXMLAsRecord',
     CHOREO_SIGNIN = 'kolab.choreo.signin',
     CHOREO_ANON_SIGNIN = 'kolab.choreo.anonymous.signin',

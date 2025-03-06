@@ -193,7 +193,27 @@ export interface PostProcessResponse {
     diagnostics: ProjectDiagnostics;
 }
 
+export interface AIChatSummary {
+    filepath: string;
+    summary: string;
+}
+
+export interface DeveloperDocument {
+    filepath: string;
+    content: string;
+}
+
+export interface RequirementSpecification {
+    filepath: string;
+    content: string;
+}
+
 export interface DocAssistantResponse {
     content: string;
     references: string[];
+}
+
+export interface LLMDiagnostics {
+    statusCode: number;
+    diags: string;
 }
