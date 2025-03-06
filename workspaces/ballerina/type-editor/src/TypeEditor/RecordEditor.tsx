@@ -14,6 +14,7 @@ import { Button } from '@wso2-enterprise/ui-toolkit';
 import { TextField } from '@wso2-enterprise/ui-toolkit';
 import { FieldEditor } from './FieldEditor';
 import styled from '@emotion/styled';
+import { TypeHelperCategory, TypeHelperOperator } from '../TypeHelper';
 
 
  const Header = styled.div`
@@ -101,7 +102,14 @@ export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorPr
             }
             {type.members.map((member, index) => (
                 <>
-                    <FieldEditor selected={selectedMembers.includes(index)} member={member} onChange={handleMemberChange(index)} onSelect={onSelect(index)} onDeselect={onDeselect(index)} />
+                    <FieldEditor
+                        key={index}
+                        selected={selectedMembers.includes(index)}
+                        member={member}
+                        onChange={handleMemberChange(index)}
+                        onSelect={onSelect(index)}
+                        onDeselect={onDeselect(index)}
+                    />
                 </>
             ))}
         </div >
