@@ -131,11 +131,11 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
 
     const handleTypeFieldBlur = (e: React.FocusEvent<HTMLInputElement>) => {
         /* Prevent blur event when clicked on the type helper */
+        const searchElements = Array.from(document.querySelectorAll('#helper-pane-search'));
         if (
             (typeHelperRef.current?.contains(e.relatedTarget as Node) ||
             typeBrowserRef.current?.contains(e.relatedTarget as Node)) &&
-            !document.getElementById('helper-pane-search')?.contains(e.relatedTarget as Node) &&
-            !document.getElementById('type-browser-search')?.contains(e.relatedTarget as Node)
+            !searchElements.some(element => element.contains(e.relatedTarget as Node))
         ) {
             e.preventDefault();
             e.stopPropagation();
