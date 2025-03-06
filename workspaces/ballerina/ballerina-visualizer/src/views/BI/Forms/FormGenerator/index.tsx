@@ -19,7 +19,6 @@ import {
     TriggerCharacter,
     FormDiagnostics,
     TextEdit,
-    FunctionKind,
     SubPanelView,
     LinePosition,
     ExpressionProperty,
@@ -31,10 +30,8 @@ import {
     Form,
     ExpressionFormField,
     FormExpressionEditorProps,
-    HelperPaneCompletionItem,
     PanelContainer
 } from "@wso2-enterprise/ballerina-side-panel";
-import { TypeEditor } from "@wso2-enterprise/type-editor";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight } from "@wso2-enterprise/ui-toolkit";
 
@@ -44,7 +41,6 @@ import {
     convertToFnSignature,
     convertToVisibleTypes,
     enrichFormPropertiesWithValueConstraint,
-    extractFunctionInsertText,
     getFormProperties,
     removeDuplicateDiagnostics,
     updateLineRange
@@ -105,6 +101,7 @@ export function FormGenerator(props: FormProps) {
     const { rpcClient } = useRpcContext();
 
     const [fields, setFields] = useState<FormField[]>([]);
+    const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false });
     const [visualizableFields, setVisualizableFields] = useState<string[]>([]);
 
     /* Expression editor related state and ref variables */
@@ -114,9 +111,6 @@ export function FormGenerator(props: FormProps) {
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
     const expressionOffsetRef = useRef<number>(0); // To track the expression offset on adding import statements
-
-    const [openTypeEditor, setOpenTypeEditor] = useState<boolean>(false);
-    const [editingField, setEditingField] = useState<FormField>();
 
     useEffect(() => {
         if (!node) {
@@ -228,9 +222,7 @@ export function FormGenerator(props: FormProps) {
         await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
 
-    const handleOpenTypeEditor = (isOpen: boolean, f: FormValues, editingField: FormField) => {
-        setOpenTypeEditor(isOpen);
-
+    const handleOpenTypeEditor = (isOpen: boolean, f: FormValues, editingField?: FormField) => {
         // Get f.value and assign that value to field value
         const updatedFields = fields.map((field) => {
             const updatedField = { ...field };
@@ -240,7 +232,7 @@ export function FormGenerator(props: FormProps) {
             return updatedField;
         });
         setFields(updatedFields);
-        setEditingField(editingField);
+        setTypeEditorState({ isOpen, fieldKey: editingField?.key });
     };
 
     /* Expression editor related functions */
@@ -482,60 +474,6 @@ export function FormGenerator(props: FormProps) {
         });
     }
 
-    /* Type editor related functions */
-    const defaultType = (): Type => {
-        return {
-            name: "MyType",
-            editable: true,
-            metadata: {
-                label: "",
-                description: ""
-            },
-            codedata: {
-                node: "CLASS"
-            },
-            properties: {},
-            members: [],
-            includes: [] as string[],
-            functions: []
-        };
-    }
-
-    const handleTypeChange = async (type: Type) => {
-        setOpenTypeEditor(false);
-
-        if (editingField) {
-            const updatedFields = fields.map(field => {
-                if (field.key === editingField.key) {
-                    // Only handle parameter type if editingField is a parameter
-                    if (editingField.type === 'PARAM_MANAGER' && field.type === 'PARAM_MANAGER' && field.paramManagerProps.formFields) {
-                        return {
-                            ...field,
-                            paramManagerProps: {
-                                ...field.paramManagerProps,
-                                formFields: field?.paramManagerProps?.formFields.map(subField =>
-                                    subField.key === 'type' ? { ...subField, value: type.name } : subField
-                                )
-                            }
-                        };
-                    }
-                    // Handle regular fields
-                    return {
-                        ...field,
-                        value: type.name
-                    };
-                }
-                return field;
-            });
-            setFields(updatedFields);
-        }
-    };
-
-    const onCloseTypeEditor = () => {
-        setOpenTypeEditor(false);
-    }
-    /* Type editor related functions ends here */
-
     const expressionEditor = useMemo(() => {
         return {
             completions: filteredCompletions,
@@ -638,13 +576,12 @@ export function FormGenerator(props: FormProps) {
                     disableSaveButton={disableSaveButton}
                 />
             )}
-            {openTypeEditor &&
-                <PanelContainer title={"New Type"} show={true} onClose={onCloseTypeEditor}>
+            {typeEditorState.isOpen &&
+                <PanelContainer title={"New Type"} show={true} onClose={onTypeEditorClosed}>
                     <FormTypeEditor
-                        type={defaultType()}
                         newType={true}
                         isGraphql={isGraphql}
-                        onTypeChange={handleTypeChange}
+                        onTypeChange={onTypeChange}
                     />
                 </PanelContainer>
             }

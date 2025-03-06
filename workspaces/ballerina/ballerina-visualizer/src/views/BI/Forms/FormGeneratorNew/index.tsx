@@ -40,7 +40,6 @@ import {
 } from "../../../../utils/bi";
 import { debounce, set } from "lodash";
 import { getHelperPane } from "../../HelperPane";
-import { RecordEditor } from "../../../RecordEditor/RecordEditor";
 import { FormTypeEditor } from "../../TypeEditor";
 
 interface TypeEditorState {
@@ -56,7 +55,7 @@ interface FormProps {
     submitText?: string;
     onBack?: () => void;
     editForm?: boolean;
-    isGraphql?: boolean;
+    isGraphqlEditor?: boolean;
     onSubmit: (data: FormValues) => void;
     isActiveSubPanel?: boolean;
     openSubPanel?: (subPanel: SubPanel) => void;
@@ -75,7 +74,7 @@ export function FormGeneratorNew(props: FormProps) {
         submitText,
         onBack,
         onSubmit,
-        isGraphql,
+        isGraphqlEditor,
         openSubPanel,
         updatedExpressionField,
         resetUpdatedExpressionField,
@@ -85,6 +84,8 @@ export function FormGeneratorNew(props: FormProps) {
 
     const { rpcClient } = useRpcContext();
     console.log("======FormGeneratorNew======,", fields)
+
+    const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false });
 
     /* Expression editor related state and ref variables */
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
@@ -341,9 +342,7 @@ export function FormGeneratorNew(props: FormProps) {
         }
     };
 
-    const handleOpenTypeEditor = (isOpen: boolean, f: FormValues, editingField: FormField) => {
-        setOpenTypeEditor(isOpen);
-
+    const handleOpenTypeEditor = (isOpen: boolean, f: FormValues, editingField?: FormField) => {
         // Get f.value and assign that value to field value
         const updatedFields = fields.map((field) => {
             const updatedField = { ...field };
@@ -463,16 +462,9 @@ export function FormGeneratorNew(props: FormProps) {
                     selectedNode={selectedNode}
                 />
             )}
-            {openTypeEditor &&
-                <PanelContainer title={"New Type"} show={true} onClose={onCloseTypeEditor}>
-                    <FormTypeEditor
-                        type={defaultType()}
-                        newType={true}
-                        isGraphql={isGraphql}
-                        onTypeChange={handleTypeChange}
-                    />
-                </PanelContainer>
-            }
+            {typeEditorState.isOpen && (
+                renderTypeEditor(isGraphqlEditor)
+            )}
         </>
     );
 }
