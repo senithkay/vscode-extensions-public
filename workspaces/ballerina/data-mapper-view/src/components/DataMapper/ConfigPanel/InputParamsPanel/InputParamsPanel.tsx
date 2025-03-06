@@ -18,8 +18,8 @@ import { getTypeIncompatibilityMsg } from "../utils";
 
 import { InputParamItem } from "./InputParam";
 import { InputParamEditor } from "./InputParamEditor";
-import { DataMapperInputParam, WarningBannerProps } from "./types";
-import { Icon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { DataMapperInputParam } from "./types";
+import { ErrorBanner } from "@wso2-enterprise/ui-toolkit";
 
 export interface InputConfigWidgetProps {
     inputParams: DataMapperInputParam[];
@@ -31,27 +31,6 @@ export interface InputConfigWidgetProps {
     loadingCompletions: boolean;
     isArraySupported: boolean;
 }
-
-const WarningContainer = styled.div`
-    margin-top: 20;
-    margin-left: 16;
-    margin-right: 16;
-    background-color: '#FFF5EB';
-    border-style: 'solid';
-    padding: 8;
-    min-width: 120;
-    width: 'fit-content';
-    text-align: 'left';
-    display: 'flex';
-    border-color: '#FFCC8C';
-`;
-
-const WarningBanner = (props: WarningBannerProps) => (
-    <WarningContainer>
-        <Icon sx={{ width: "16px", marginRight: "8px", marginTop: "5px" }} name="error-icon" />
-        <Typography variant="body1">{props.message}</Typography>
-    </WarningContainer>
-);
 
 export function InputParamsPanel(props: InputConfigWidgetProps) {
     const {
@@ -98,6 +77,7 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
     };
 
     const onEditClick = (index: number) => {
+        inputParams[index].isUnsupported = false;
         setEditingIndex(index);
     };
 
@@ -122,9 +102,8 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
                             isArraySupported={isArraySupported}
                         />
                         {param.isUnsupported && (
-                            <Warning
-                                data-testid="unsupported-input-banner"
-                                message={getTypeIncompatibilityMsg(param.typeNature, param.type, "input")}
+                            <ErrorBanner
+                                errorMsg={getTypeIncompatibilityMsg(param.typeNature, param.type, "input")}
                             />
                         )}
                     </>
@@ -137,9 +116,8 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
                             onDelete={onDeleteClick}
                         />
                         {param.isUnsupported && (
-                            <Warning
-                                data-testid="unsupported-input-banner"
-                                message={getTypeIncompatibilityMsg(param.typeNature, param.type, "input")}
+                            <ErrorBanner
+                                errorMsg={getTypeIncompatibilityMsg(param.typeNature, param.type, "input")}
                             />
                         )}
                     </>
@@ -166,12 +144,6 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
 }
 
 const InputParamsContainer = styled.div(() => ({
-    color: 'var(--vscode-foreground)'
+    color: 'var(--vscode-foreground)',
+    marginBottom: '10px'
 }));
-
-const Warning = styled(WarningBanner)`
-    border-width: 1px !important;
-    width: unset;
-    margin: 5px 0;
-`
-

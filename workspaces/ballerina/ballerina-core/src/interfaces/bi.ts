@@ -261,6 +261,7 @@ export type NodeKind =
     | "RESOURCE_ACTION_CALL"
     | "RETURN"
     | "EXPRESSION"
+    | "RAW_TEMPLATE"
     | "ERROR_HANDLER"
     | "WHILE"
     | "FOREACH"

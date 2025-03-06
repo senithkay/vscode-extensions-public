@@ -162,7 +162,11 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
             publishContract: publishContract.length > 0 ? publishContract.join('') : null,
             ...values
         }
-        await rpcClient.getMiDiagramRpcClient().createProxyService(createProxyServiceParams);
+        const file = await rpcClient.getMiDiagramRpcClient().createProxyService(createProxyServiceParams);
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: { view: MACHINE_VIEW.ProxyView, documentUri: file.path }
+        });
         handleCancel();
     };
 
