@@ -476,18 +476,27 @@ const LibraryBrowser: React.FC<LibraryBrowserProps> = ({
     onSearch,
     onClose,
 }) => {
+    const handleClose = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+        e.stopPropagation();
+        onClose();
+    };
+
     return createPortal(
-        <>
+        <LibraryBrowserWithOverlay ref={anchorRef}>
             <Overlay
-                sx={{ background: "var(--vscode-editor-inactiveSelectionBackground)", opacity: 0.4 }}
-                onClose={onClose}
+                sx={{
+                    background: "var(--vscode-editor-inactiveSelectionBackground)",
+                    opacity: 0.4,
+                    zIndex: 2001
+                }}
+                onClose={handleClose}
             />
-            <LibraryBrowserContainer ref={anchorRef}>
+            <LibraryBrowserContainer>
                 <LibraryBrowserHeader>
                     <Typography variant="h2" sx={{ margin: 0, ...titleSx }}>
                         Library Browser
                     </Typography>
-                    <Codicon name="close" onClick={onClose} />
+                    <Codicon name="close" onClick={handleClose} />
                 </LibraryBrowserHeader>
                 <Divider />
                 <LibraryBrowserSearchBoxContainer>
@@ -503,7 +512,7 @@ const LibraryBrowser: React.FC<LibraryBrowserProps> = ({
                     )}
                 </LibraryBrowserBody>
             </LibraryBrowserContainer>
-        </>,
+        </LibraryBrowserWithOverlay>,
         document.body
     );
 };
