@@ -106,7 +106,7 @@ export function getNodeDescription(stNode: any): string {
     }
 }
 
-export function getTextSizes(text: any, fontSize?: any, fontWidth?: string, fontFamily?: string, containerWidth?: number) {
+export function getTextSizes(text: any, fontSize?: any, fontWidth?: string, fontFamily?: string, containerWidth?: number, maxLineCount?: number) {
     function getCssStyle(element: Element, prop: string) {
         return window.getComputedStyle(element, null).getPropertyValue(prop);
     }
@@ -146,6 +146,13 @@ export function getTextSizes(text: any, fontSize?: any, fontWidth?: string, font
             } else {
                 lines.push(currentLine);
                 currentLine = word;
+            }
+
+            // Return early if maxLineCount is hit
+            if (maxLineCount && lines.length >= maxLineCount) {
+                const lineHeight = metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent;
+                const height = lineHeight * maxLineCount;
+                return { width: containerWidth, height, lineCount: maxLineCount };
             }
         }
         lines.push(currentLine);

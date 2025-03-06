@@ -166,9 +166,9 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
     const methodName = stNode.method;
     const systemPrompt = stNode.parameters?.filter((property: any) => property.name === "system")[0]?.value;
     const prompt = stNode.parameters?.filter((property: any) => property.name === "prompt")[0]?.value;
-    const systenPromptSize = getTextSizes(systemPrompt, "13px", undefined, undefined, 160);
+    const systemPromptSize = getTextSizes(systemPrompt, "13px", undefined, undefined, 160);
     const promptSize = getTextSizes(prompt, "13px", undefined, undefined, 160);
-    const systemPromptHeight = systemPrompt ? 36 + systenPromptSize.height : 0;
+    const systemPromptHeight = systemPrompt ? 36 + systemPromptSize.height : 0;
     const promptHeight = prompt ? 36 + promptSize.height : 0;
 
     const tooltip = hasDiagnotics
@@ -418,14 +418,41 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                         <Header showBorder={true}>
                             <Typography variant="h5" sx={{ margin: 0 }}>System Prompt</Typography>
                         </Header>
-                        <Typography variant="body3">{systemPrompt}</Typography>
+
+                        <Tooltip
+                            content={systemPromptSize.lineCount > 8 ? systemPrompt : undefined}
+                            sx={{
+                                maxWidth: "50%",
+                                textWrap: "wrap"
+                            }}
+                            position={'bottom'} >
+                            <Typography variant="body3" sx={{
+                                display: '-webkit-box',
+                                WebkitLineClamp: '8',
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden'
+                            }}>{systemPrompt}</Typography>
+                        </Tooltip>
                     </S.PromptBox>}
 
                     {prompt && <S.PromptBox style={{ marginTop: "5px" }}>
                         <Header showBorder={true}>
                             <Typography variant="h5" sx={{ margin: 0 }}>User Prompt</Typography>
                         </Header>
-                        <Typography variant="body3">{prompt}</Typography>
+                        <Tooltip
+                            content={promptSize.lineCount > 8 ? prompt : undefined}
+                            sx={{
+                                maxWidth: "50%",
+                                textWrap: "wrap"
+                            }}
+                            position={'bottom'} >
+                            <Typography variant="body3" sx={{
+                                display: '-webkit-box',
+                                WebkitLineClamp: '8',
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden'
+                            }}>{prompt}</Typography>
+                        </Tooltip>
                     </S.PromptBox>}
 
                     {stNode.tools && <div style={{ width: "90%", height: "0.2px", margin: "10px auto", backgroundColor: Colors.OUTLINE_VARIANT }} />}

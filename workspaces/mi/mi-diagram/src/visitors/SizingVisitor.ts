@@ -586,9 +586,9 @@ export class SizingVisitor implements Visitor {
                 tools.viewState.fw = subSequencesWidth;
             }
 
-            const systenPromptSize = getTextSizes(systemPrompt, "13px", undefined, undefined, 160);
-            const promptSize = getTextSizes(prompt, "13px", undefined, undefined, 160);
-            const systemPromptHeight = systemPrompt ? 36 + systenPromptSize.height : 0;
+            const systemPromptSize = getTextSizes(systemPrompt, "13px", undefined, undefined, 160, 8);
+            const promptSize = getTextSizes(prompt, "13px", undefined, undefined, 160, 8);
+            const systemPromptHeight = systemPrompt ? 36 + systemPromptSize.height : 0;
             const promptHeight = prompt ? 36 + promptSize.height : 0;
 
             const topGap = NODE_GAP.AI_AGENT_TOP + systemPromptHeight + 5 + promptHeight;
