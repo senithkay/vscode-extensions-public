@@ -360,7 +360,11 @@ const PanelView: React.FC<PanelViewProps> = ({ children, id }) => {
         <>
             {activePanelIndex === id && (
                 <PanelViewContainer>
-                    {children}
+                    {React.Children.toArray(children).length > 0 ? (
+                        children
+                    ) : (
+                        <Typography variant="body3">No items found.</Typography>
+                    )}
                 </PanelViewContainer>
             )}
         </>
