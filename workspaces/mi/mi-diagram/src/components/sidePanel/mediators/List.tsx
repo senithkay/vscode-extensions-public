@@ -175,26 +175,63 @@ export function Mediators(props: MediatorProps) {
         }
     };
 
-    const searchForm = (value: string, search?: boolean) => {
+    const searchForm = (value: string, search?: boolean): GetMediatorsResponse => {
         const normalizeString = (str: string) => str.toLowerCase().replace(/\s+/g, '');
         const searchValue = normalizeString(value || '');
 
-        return Object.keys(allMediators).reduce((acc: any, key: string) => {
-            const filtered = (allMediators as any)[key].items.filter((mediator: { title: string; operationName: string }) => {
-                if (search) {
-                    return normalizeString(mediator.operationName).includes(searchValue)
-                        || normalizeString(mediator.title).includes(searchValue)
-                        || normalizeString(key).includes(searchValue);
-                } else {
-                    return normalizeString(mediator.operationName) === searchValue;
-                }
-            });
+        const searchedMediators: GetMediatorsResponse = { ...allMediators };
 
-            if (filtered.length > 0) {
-                acc[key] = { "items": filtered };
+        Object.entries(allMediators).forEach(([key, values]) => {
+            const containsCategories = allMediators[key].isSupportCategories;
+            if (containsCategories) {
+                const items = values.items as unknown as MediatorCategory[];
+
+                const searchedCategories: any = { ...items }
+
+                Object.entries(items).forEach(([categoryKey, category]) => {
+                    const filtered = (category as any).filter((mediator: { title: string; operationName: string }) => {
+                        if (search) {
+                            return normalizeString(mediator.operationName).includes(searchValue)
+                                || normalizeString(mediator.title).includes(searchValue)
+                                || normalizeString(key).includes(searchValue)
+                                || normalizeString(categoryKey).includes(searchValue);
+                        } else {
+                            return normalizeString(mediator.operationName) === searchValue;
+                        }
+                    });
+
+                    if (filtered.length > 0) {
+                        searchedCategories[categoryKey] = filtered ;
+                    } else {
+                        delete searchedCategories[categoryKey];
+                    }
+                });
+
+                if (Object.keys(searchedCategories).length > 0) {
+                    searchedMediators[key] = { ...searchedMediators[key], items: searchedCategories };
+                } else {
+                    delete searchedMediators[key];
+                }
+            } else {
+                const filtered = (allMediators as any)[key].items.filter((mediator: { title: string; operationName: string }) => {
+                    if (search) {
+                        return normalizeString(mediator.operationName).includes(searchValue)
+                            || normalizeString(mediator.title).includes(searchValue)
+                            || normalizeString(key).includes(searchValue);
+                    } else {
+                        return normalizeString(mediator.operationName) === searchValue;
+                    }
+                });
+
+                if (filtered.length > 0) {
+                    searchedMediators[key] = { "items": filtered };
+                } else {
+                    delete searchedMediators[key];
+                }
             }
-            return acc;
-        }, {});
+        });
+
+        return searchedMediators;
     };
 
     const reloadPalette = async (connectorName?: string) => {
