@@ -22,7 +22,8 @@ const FormContainer = styled.div`
 
 const ButtonWrapper = styled.div`
     margin-top: 20px;
-    /* width: 130px; */
+    display: flex;
+    justify-content: flex-end;
 `;
 
 export function ProjectForm() {
@@ -69,8 +70,9 @@ export function ProjectForm() {
                 placeholder="Enter a integration name"
             />
             <LocationSelector
-                label="Select Integration Directory"
+                label="Select Integration Path"
                 selectedFile={path}
+                btnText="Select Path"
                 onSelect={handleProjecDirSelection}
             />
             <ButtonWrapper>
