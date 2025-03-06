@@ -26,6 +26,7 @@ import {
     COMMAND_GENERATE,
     COMMAND_TESTS,
     COMMAND_TYPECREATOR,
+    COMMAND_NATURAL_PROGRAMMING,
     getFileTypesForCommand,
 } from "../AIChat";
 import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
@@ -731,7 +732,8 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
             case COMMAND_TYPECREATOR:
                 attachmentHandler = new DataMapperAttachment(activeCommand);
                 break;
-            case COMMAND_GENERATE:
+            case COMMAND_GENERATE:            
+            case COMMAND_NATURAL_PROGRAMMING:
                 attachmentHandler = new GenerateAttachment(activeCommand);
                 break;
             case COMMAND_TESTS:

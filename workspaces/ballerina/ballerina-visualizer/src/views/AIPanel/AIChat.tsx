@@ -20,6 +20,7 @@ import {
     DataMappingRecord,
     PostProcessResponse,
     TestGenerationTarget,
+    LLMDiagnostics,
     ImportStatement,
 } from "@wso2-enterprise/ballerina-core";
 
@@ -73,12 +74,27 @@ interface ApiResponse {
     questions: string[];
 }
 
+interface ChatIndexes {
+    integratedChatIndex: number,
+    previouslyIntegratedChatIndex: number
+}
+
+enum CodeGenerationType {
+    CODE_FOR_USER_REQUIREMENT = "CODE_FOR_USER_REQUIREMENT",
+    TESTS_FOR_USER_REQUIREMENT = "TESTS_FOR_USER_REQUIREMENT",
+    CODE_GENERATION = "CODE_GENERATION"
+}
+
 var chatArray: ChatEntry[] = [];
+var integratedChatIndex = 0;
+var previouslyIntegratedChatIndex = 0;
+var previousDevelopmentDocumentContent = "";
 
 // A string array to store all code blocks
 const codeBlocks: string[] = [];
 var projectUuid = "";
 var backendRootUri = "";
+var chatLocation = "";
 
 let controller = new AbortController();
 let signal = controller.signal;
@@ -87,9 +103,12 @@ var remainingTokenPercentage: string | number;
 var remaingTokenLessThanOne: boolean = false;
 
 var timeToReset: number;
+export const INVALID_RECORD_REFERENCE = "Invalid record reference. Follow <org-name>/<package-name>:<record-name> format when referencing to record in another package.";
 
 // Define constants for command keys
 export const COMMAND_GENERATE = "/generate";
+export const COMMAND_SCAFFOLD = "/scaffold";
+export const COMMAND_NATURAL_PROGRAMMING = "/natural-programming";
 export const COMMAND_TESTS = "/tests";
 export const COMMAND_DATAMAP = "/datamap";
 export const COMMAND_TYPECREATOR = "/typecreator";
@@ -120,6 +139,13 @@ const DEFAULT_MENU_COMMANDS = [
     { command: COMMAND_DOCUMENTATION + " how to write a concurrent application?" },
 ];
 
+const GENERATE_TEST_AGAINST_THE_REQUIREMENT = "Generate tests against the requirements";
+const GENERATE_CODE_AGAINST_THE_REQUIREMENT = "Generate code based on the requirements";
+const CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION = "Check drift between code and documentation";
+const GENERATE_CODE_AGAINST_THE_REQUIREMENT_TEMPLATE = `${GENERATE_CODE_AGAINST_THE_REQUIREMENT}: <requirements>`;
+
+const TEMPLATE_NATURAL_PROGRAMMING: string[] = [];
+
 // Use the constants in the commandToTemplate map
 const commandToTemplate = new Map<string, string[]>([
     [COMMAND_GENERATE, TEMPLATE_GENERATE],
@@ -128,6 +154,7 @@ const commandToTemplate = new Map<string, string[]>([
     [COMMAND_TYPECREATOR, TEMPLATE_TYPECREATOR],
     [COMMAND_HEALTHCARE, TEMPLATE_HEALTHCARE],
     [COMMAND_DOCUMENTATION, TEMPLATE_DOCUMENTATION],
+    [COMMAND_NATURAL_PROGRAMMING, TEMPLATE_NATURAL_PROGRAMMING],
     [COMMAND_OPENAPI, TEMPLATE_OPENAPI]
 ]);
 
@@ -137,16 +164,9 @@ export const getFileTypesForCommand = (command: string): string[] => {
     switch (command) {
         case COMMAND_GENERATE:
         case COMMAND_TESTS:
-            return [
-                "text/plain",
-                "application/json",
-                "application/x-yaml",
-                "application/xml",
-                "text/xml",
-                ".sql",
-                ".graphql",
-                "",
-            ];
+            return ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml", ".sql", ".graphql", ""];
+        case COMMAND_NATURAL_PROGRAMMING:
+            return ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml", ".sql", ".graphql", ""];
         case COMMAND_DATAMAP:
         case COMMAND_TYPECREATOR:
             return [
@@ -188,6 +208,7 @@ export function AIChat() {
     const [isCodeLoading, setIsCodeLoading] = useState(false);
     const [currentGeneratingPromptIndex, setCurrentGeneratingPromptIndex] = useState(-1);
     const [isSyntaxError, setIsSyntaxError] = useState(false);
+    const [isReqFileExists, setIsReqFileExists] = useState(false);
     const [testGenIntermediaryState, setTestGenIntermediaryState] = useState<TestGeneratorIntermediaryState | null>(
         null
     );
@@ -202,6 +223,11 @@ export function AIChat() {
     async function fetchBackendUrl() {
         try {
             backendRootUri = await rpcClient.getAiPanelRpcClient().getBackendURL();
+            chatLocation = (await rpcClient.getVisualizerLocation()).projectUri;
+            setIsReqFileExists(chatLocation != null && chatLocation != undefined 
+                && (await rpcClient.getAiPanelRpcClient().isRequirementsSpecificationFileExist(chatLocation)));
+
+            generateNaturalProgrammingTemplate(isReqFileExists);
             // Do something with backendRootUri
         } catch (error) {
             console.error("Failed to fetch backend URL:", error);
@@ -217,6 +243,15 @@ export function AIChat() {
             .getProjectUuid()
             .then((response) => {
                 projectUuid = response;
+
+                const localStorageIndexFile = `chatArray-AIGenerationChat-${projectUuid}-developer-index`;
+                const storedIndexes = localStorage.getItem(localStorageIndexFile);
+                if (storedIndexes) {
+                    const indexes: ChatIndexes = JSON.parse(storedIndexes);
+                    integratedChatIndex = indexes.integratedChatIndex;
+                    previouslyIntegratedChatIndex = indexes.previouslyIntegratedChatIndex;
+                }
+
                 const localStorageFile = `chatArray-AIGenerationChat-${projectUuid}`;
                 const storedChatArray = localStorage.getItem(localStorageFile);
                 rpcClient
@@ -267,6 +302,23 @@ export function AIChat() {
             });
     }, []);
 
+    function generateNaturalProgrammingTemplate(isReqFileExists: boolean) {
+        TEMPLATE_NATURAL_PROGRAMMING.splice(0, TEMPLATE_NATURAL_PROGRAMMING.length);
+        if (isReqFileExists) {
+            TEMPLATE_NATURAL_PROGRAMMING.push(
+                CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION,
+                GENERATE_CODE_AGAINST_THE_REQUIREMENT, 
+                GENERATE_TEST_AGAINST_THE_REQUIREMENT
+            )
+        } else {
+            TEMPLATE_NATURAL_PROGRAMMING.push(
+                GENERATE_CODE_AGAINST_THE_REQUIREMENT_TEMPLATE, 
+                CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION,
+                GENERATE_TEST_AGAINST_THE_REQUIREMENT
+            )
+        }
+    }
+
     function addChatEntry(role: string, content: string): void {
         chatArray.push({
             actor: role,
@@ -292,6 +344,10 @@ export function AIChat() {
     useEffect(() => {
         console.log(isSyntaxError);
     }, [isSyntaxError]);
+
+    useEffect(() => {
+        generateNaturalProgrammingTemplate(isReqFileExists);
+    }, [isReqFileExists]);
 
     useEffect(() => {
         // Step 2: Scroll into view when messages state changes
@@ -403,6 +459,68 @@ export function AIChat() {
 
             if (parameters) {
                 switch (commandKey) {
+                    case COMMAND_NATURAL_PROGRAMMING: {
+                        if (isContentIncludedInMessageBody(messageBody, CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION)) {
+                            await processLLMDiagnostics(
+                                token,
+                                [
+                                    parameters.inputRecord.length === 1 && parameters.inputRecord[0] !== undefined
+                                        ? parameters.inputRecord[0]
+                                        : messageBody,
+                                    attachments,
+                                    null
+                                ],
+                                message
+                            );
+                            break;
+                        } else {
+                            const isRequirementsTemplateExists = isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT);
+                            if (isRequirementsTemplateExists && !isReqFileExists) {
+                                const handleExtractRequirements = () => {
+                                    const prefix = GENERATE_CODE_AGAINST_THE_REQUIREMENT;
+                                    if (messageBody.includes(prefix)) {
+                                      return removePrefixSymbols(messageBody.split(prefix)[1].trim());
+                                    } else {
+                                      return "";
+                                    }
+                                };
+
+                                function removePrefixSymbols(text: string) {
+                                    // Check if the text starts with ':' or '<'
+                                    if (text.startsWith(':') || text.startsWith('<')) {
+                                      // Remove the first character
+                                      return text.slice(1);
+                                    }
+                                    // Return the original text if it doesn't start with ':' or '<'
+                                    return text;
+                                  }
+                                const requirements = handleExtractRequirements();
+                                await rpcClient.getAiPanelRpcClient().updateRequirementSpecification(
+                                    {
+                                        filepath: chatLocation,
+                                        content: requirements
+                                    }
+                                );
+                                setIsReqFileExists(true);
+                            }
+
+                            await processCodeGeneration(
+                                token,
+                                [
+                                    parameters.inputRecord.length === 1 && parameters.inputRecord[0] !== undefined
+                                        ? parameters.inputRecord[0]
+                                        : messageBody,
+                                    attachments,
+                                    isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT) 
+                                        ? CodeGenerationType.CODE_FOR_USER_REQUIREMENT 
+                                        : isContentIncludedInMessageBody(messageBody, GENERATE_TEST_AGAINST_THE_REQUIREMENT) ? 
+                                            CodeGenerationType.TESTS_FOR_USER_REQUIREMENT : CodeGenerationType.CODE_GENERATION
+                                ],
+                                message
+                            );
+                            break;
+                        } 
+                    }
                     case COMMAND_GENERATE: {
                         await processCodeGeneration(
                             token,
@@ -411,6 +529,7 @@ export function AIChat() {
                                     ? parameters.inputRecord[0]
                                     : messageBody,
                                 attachments,
+                                CodeGenerationType.CODE_GENERATION
                             ],
                             cleanedMessage
                         );
@@ -465,7 +584,7 @@ export function AIChat() {
                     throw new Error("Error: Query is empty. Please enter a valid query");
                 }
                 if (commandKey === COMMAND_GENERATE) {
-                    await processCodeGeneration(token, [messageBody, attachments], message);
+                    await processCodeGeneration(token, [messageBody, attachments, CodeGenerationType.CODE_GENERATION], message);
                     return;
                 } else if (commandKey === COMMAND_DOCUMENTATION) {
                     await findInDocumentation(messageBody, token);
@@ -483,8 +602,12 @@ export function AIChat() {
                 );
             }
         } else {
-            await processCodeGeneration(token, content, cleanedMessage);
+            await processCodeGeneration(token, [message, attachments, CodeGenerationType.CODE_GENERATION], message);
         }
+    }
+
+    function isContentIncludedInMessageBody(messageBody: string, content: string): boolean {
+        return messageBody.includes(content);
     }
 
     function findCommand(input: string): string {
@@ -504,6 +627,7 @@ export function AIChat() {
                 .replace(/<recordname\(s\)>/g, "((?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+(?:[\\s,]+(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+)*)")
                 .replace(/<recordname>/g, "((?:[\\w\\/|.-]+\\s*:\\s*)?[\\w|:\\[\\]]+)")
                 .replace(/<use-case>/g, "([\\s\\S]+?)")
+                .replace(/<requirements>/g, "([\\s\\S]+?)")
                 .replace(/<functionname>/g, "(\\S+?)")
                 .replace(/<question>/g, "(.+?)")
                 .replace(/<method\(space\)path>/g, "([^\\n]+)");
@@ -543,6 +667,42 @@ export function AIChat() {
         return null;
     }
 
+    async function processLLMDiagnostics(token: string, content: [string, AttachmentResult[], string], message: string) {
+        const [useCase, attachments, operationType] = content;
+
+        let response: LLMDiagnostics =  rpcClient == null ? {statusCode: null, diags: ""} : 
+            await rpcClient.getAiPanelRpcClient().getDriftDiagnosticContents(chatLocation);
+
+        if (response == null) {
+            // TODO: Handle this properly
+            response = {statusCode: null, diags: ""};
+        }
+
+        const responseStatus = response.statusCode;
+
+        if (responseStatus < 200 && responseStatus >= 300) {
+            if (responseStatus > 400 && responseStatus < 500) {
+                await rpcClient.getAiPanelRpcClient().promptLogin();
+                setIsLoading(false);
+                return;
+            }
+
+            throw new Error(`Failed to check drift between code and documentation. Please try again.`);
+        }
+
+        setIsLoading(false);
+
+        const userMessage = getUserMessage([message, attachments]);
+        setMessages(prevMessages => {
+            const newMessage = [...prevMessages];
+            newMessage[newMessage.length -1].content = response.diags;
+            return newMessage;
+        });
+        addChatEntry("user", userMessage);
+        addChatEntry("assistant", response.diags);
+        setIsSyntaxError(false);
+    }
+
     async function loadMentions(command: string, template: string): Promise<string[]> {
         switch (command) {
             case COMMAND_GENERATE: {
@@ -568,15 +728,16 @@ export function AIChat() {
         }
     }
 
-    async function processCodeGeneration(token: string, content: [string, AttachmentResult[]], message: string) {
-        const [useCase, attachments] = content;
+    async function processCodeGeneration(token: string, content: [string, AttachmentResult[], string], message: string) {
+        const [useCase, attachments, operationType] = content;
 
         let assistant_response = "";
-        const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource();
+        const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource(operationType);
         const requestBody: any = {
             usecase: useCase,
             chatHistory: chatArray,
             sourceFiles: project.sourceFiles,
+            operationType
         };
 
         const stringifiedUploadedFiles = attachments.map((file) => JSON.stringify(file));
@@ -682,6 +843,7 @@ export function AIChat() {
                                 sourceFiles: project.sourceFiles,
                                 diagnosticRequest: diagReq,
                                 functions: functions,
+                                operationType
                             }),
                             signal: signal,
                         },
@@ -787,7 +949,34 @@ export function AIChat() {
             }
 
             if (command === "ai_map") {
-                segmentText = `${originalContent}\n${segmentText}`;
+                const importRegex = /import\s+[^;]+;/g;
+                const commentRegex = /^(?:(\/\/.*|#.*)\n)+/; // Matches both `//` and `#` comment blocks at the top
+            
+                const imports = segmentText.match(importRegex) || [];
+                const codeWithoutImports = segmentText.replace(importRegex, '').trim();
+            
+                let updatedContent = originalContent;
+            
+                // Extract existing comments at the top
+                const commentMatch = updatedContent.match(commentRegex);
+                const existingComments = commentMatch ? commentMatch[0].trim() + "\n\n" : ""; 
+                updatedContent = updatedContent.replace(commentRegex, '').trim(); 
+            
+                // Find any additional `#` comments that may exist before imports
+                const additionalCommentMatch = updatedContent.match(commentRegex);
+                const additionalComments = additionalCommentMatch ? additionalCommentMatch[0].trim() + "\n\n" : ""; 
+                updatedContent = updatedContent.replace(commentRegex, '').trim();
+            
+                // Ensure new imports are added after all comments
+                let updatedImports = '';
+                imports.forEach((imp: string) => {
+                    if (!updatedContent.includes(imp)) {
+                        updatedImports += `${imp}\n`;
+                    }
+                });
+            
+                updatedContent = `${existingComments}${additionalComments}${updatedImports}${updatedContent}\n${codeWithoutImports}`;
+                segmentText = updatedContent.trim(); 
             } else {
                 segmentText = `${segmentText}`;
             }
@@ -801,15 +990,56 @@ export function AIChat() {
                 .getAiPanelRpcClient()
                 .addToProject({ filePath: filePath, content: segmentText, isTestCode: isTestCode });
         }
+
+        const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
+        const developerMdContent = 
+                    await rpcClient.getAiPanelRpcClient().readDeveloperMdFile(chatLocation);
+        const response = await fetchWithToken(
+            backendRootUri + "/prompt/summarize",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({chats: chatArray.slice(integratedChatIndex), existingChatSummary: developerMdContent}),
+                signal: signal,
+            },
+            rpcClient
+        );
+
         setIsCodeAdded(true);
+        previouslyIntegratedChatIndex = integratedChatIndex;
+        integratedChatIndex = chatArray.length;
+        localStorage.setItem(`chatArray-AIGenerationChat-${projectUuid}-developer-index`, JSON.stringify({integratedChatIndex, previouslyIntegratedChatIndex}));
+        const chatSummaryResponseStr = await streamToString(response.body);
+        await rpcClient.getAiPanelRpcClient()
+            .addChatSummary({summary: chatSummaryResponseStr, filepath: chatLocation});
+        previousDevelopmentDocumentContent = developerMdContentWithTimeStamp;
     };
+
+    async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
+        const reader = stream.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let result = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) {
+            break;
+          }
+          result += decoder.decode(value, { stream: true });
+        }
+
+        return result;
+      }
 
     const handleRevertChanges = async (
         codeSegments: any,
         setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
         command: string
     ) => {
-        console.log("Revert integration called. Command: ", command);
+        console.log("Revert gration called. Command: ", command);
 
         for (const { filePath } of codeSegments) {
             let originalContent = tempStorage[filePath];
@@ -831,6 +1061,12 @@ export function AIChat() {
                     .addToProject({ filePath: filePath, content: revertContent, isTestCode: isTestCode });
             }
         }
+        rpcClient.getAiPanelRpcClient().updateDevelopmentDocument({
+            content: previousDevelopmentDocumentContent,
+            filepath: chatLocation
+        });
+        integratedChatIndex = previouslyIntegratedChatIndex;
+        localStorage.setItem(`chatArray-AIGenerationChat-${projectUuid}-developer-index`, JSON.stringify({integratedChatIndex, previouslyIntegratedChatIndex}));
         tempStorage = {};
         setIsCodeAdded(false);
     };
@@ -1104,6 +1340,7 @@ export function AIChat() {
         attachments?: AttachmentResult[]
     ) {
         let assistant_response = "";
+        let newImports;
         const recordMap = new Map();
         const importsMap = new Map();
         setIsLoading(true);
@@ -1122,11 +1359,14 @@ export function AIChat() {
         const activeFile = await rpcClient.getAiPanelRpcClient().getActiveFile();
         const projectComponents = await rpcClient.getBIDiagramRpcClient().getProjectComponents();
 
-        const activeFileImports =
-            projectImports.imports.find((file) => {
-                const fileName = file.filePath.split("/").pop();
-                return fileName === activeFile;
-            })?.statements || [];
+        const allImports: ImportStatement[] = [];
+        projectImports.imports.forEach((file) => {
+            if (file.statements && file.statements.length > 0) {
+                file.statements.forEach((statement) => {
+                    allImports.push(statement);
+                });
+            }
+        });
 
         projectComponents.components.packages?.forEach((pkg) => {
             pkg.modules?.forEach((mod) => {
@@ -1143,35 +1383,44 @@ export function AIChat() {
 
         const inputs: DataMappingRecord[] = inputParams.map((param: string) => {
             const isArray = param.endsWith("[]");
-            const recordName = param.replace(/\[\]$/, "");
-            const rec = recordMap.get(recordName);
+            const importedRecordName = param.replace(/\[\]$/, "");
+            const rec = recordMap.get(importedRecordName);
 
             if (!rec) {
-                if (recordName.includes(":")) {
-                    const [moduleName, alias] = recordName.split(":");
-                    const matchedImport = activeFileImports.find((imp) => {
-                        if (imp.alias) {
-                            // Match using alias if it exists
-                            return recordName.startsWith(imp.alias);
-                        }
-                        // If alias doesn't exist, match using the last part of the module name
-                        const moduleNameParts = imp.moduleName.split(".");
-                        const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
-                        return recordName.startsWith(inferredAlias);
-                    });
+                if (importedRecordName.includes(":")) {
+                    if (!importedRecordName.includes("/")) {
+                        const [moduleName, recordName] = importedRecordName.split(":");
+                        const matchedImport = allImports.find((imp) => {
+                            if (imp.alias) {
+                                // Match using alias if it exists
+                                return importedRecordName.startsWith(imp.alias);
+                            }
+                            // If alias doesn't exist, match using the last part of the module name
+                            const moduleNameParts = imp.moduleName.split(".");
+                            const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
+                            return importedRecordName.startsWith(inferredAlias);
+                        });
 
-                    if (!matchedImport) {
-                        throw new Error(`Must import the module for "${recordName}".`);
+                        if (!matchedImport) {
+                            return INVALID_RECORD_REFERENCE;
+                        }
+                        // Use the actual alias if present, otherwise infer from the module name
+                        const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
+                        importsMap.set(importedRecordName, {
+                            moduleName: matchedImport.moduleName,
+                            alias: matchedImport.alias,
+                            recordName: recordName
+                        });
+                    } else {
+                        const [moduleName, recordName] = importedRecordName.split(":");
+                        importsMap.set(importedRecordName, {
+                            moduleName: moduleName,
+                            recordName: recordName
+                        });
                     }
-                    // Use the actual alias if present, otherwise infer from the module name
-                    const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
-                    importsMap.set(recordName, {
-                        moduleName: matchedImport.moduleName,
-                        alias: resolvedAlias,
-                    });
-                    return { type: `${recordName}`, isArray, filePath: null };
+                    return { type: `${importedRecordName}`, isArray, filePath: null };
                 } else {
-                    throw new Error(`${recordName} is not defined.`);
+                    throw new Error(`${importedRecordName} is not defined.`);
                 }
             }
             return { ...rec, isArray };
@@ -1191,27 +1440,36 @@ export function AIChat() {
 
         if (!output) {
             if (outputRecordName.includes(":")) {
-                const [moduleName, alias] = outputRecordName.split(":");
-                const matchedImport = activeFileImports.find((imp) => {
-                    if (imp.alias) {
-                        // Match using alias if it exists
-                        return outputRecordName.startsWith(imp.alias);
-                    }
-                    // If alias doesn't exist, match using the last part of the module name
-                    const moduleNameParts = imp.moduleName.split(".");
-                    const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
-                    return outputRecordName.startsWith(inferredAlias);
-                });
+                if (!outputRecordName.includes("/")) {
+                    const [moduleName, recordName] = outputRecordName.split(":");
+                    const matchedImport = allImports.find((imp) => {
+                        if (imp.alias) {
+                            // Match using alias if it exists
+                            return outputRecordName.startsWith(imp.alias);
+                        }
+                        // If alias doesn't exist, match using the last part of the module name
+                        const moduleNameParts = imp.moduleName.split(".");
+                        const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
+                        return outputRecordName.startsWith(inferredAlias);
+                    });
 
-                if (!matchedImport) {
-                    throw new Error(`Must import the module for "${outputRecordName}".`);
+                    if (!matchedImport) {
+                        return INVALID_RECORD_REFERENCE;
+                    }
+                    // Use the actual alias if present, otherwise infer from the module name
+                    const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
+                    importsMap.set(outputRecordName, {
+                        moduleName: matchedImport.moduleName,
+                        alias: matchedImport.alias,
+                        recordName: recordName
+                    });
+                } else {
+                    const [moduleName, recordName] = outputRecordName.split(":");
+                    importsMap.set(outputRecordName, {
+                        moduleName: moduleName,
+                        recordName: recordName
+                    });
                 }
-                // Use the actual alias if present, otherwise infer from the module name
-                const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
-                importsMap.set(outputRecordName, {
-                    moduleName: matchedImport.moduleName,
-                    alias: resolvedAlias,
-                });
                 output = { type: `${outputRecordName}`, isArray: outputIsArray, filePath: null };
             } else {
                 throw new Error(`${outputRecordName} is not defined.`);
@@ -1248,10 +1506,17 @@ export function AIChat() {
         const needsImports = Array.from(importsMap.values()).length > 0;
 
         if (needsImports) {
-            const fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath });
-            finalContent = `${fileContent}\n${response.mappingCode}`;
+            let fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath });
+            const existingImports = new Set(fileContent.match(/import\s+([a-zA-Z0-9._]+)/g)?.map(imp => imp.split(" ")[1]) || []);
+            
+            newImports = Array.from(importsMap.values())
+                .filter(imp => !existingImports.has(imp.moduleName))
+                .map(imp => imp.alias ? `import ${imp.moduleName} as ${imp.alias};` : `import ${imp.moduleName};`)
+                .join("\n");
+            
+            finalContent = `${newImports}\n${response.mappingCode}`;
         }
-        assistant_response += `<code filename="${filePath}" type="ai_map">\n\`\`\`ballerina\n${response.mappingCode}\n\`\`\`\n</code>`;
+        assistant_response += `<code filename="${filePath}" type="ai_map">\n\`\`\`ballerina\n${finalContent}\n\`\`\`\n</code>`;
 
         setMessages((prevMessages) => {
             const newMessages = [...prevMessages];
@@ -1636,6 +1901,10 @@ export function AIChat() {
     function handleClearChat(): void {
         codeBlocks.length = 0;
         chatArray.length = 0;
+        integratedChatIndex = 0;
+        previouslyIntegratedChatIndex = 0;
+        localStorage.setItem(`chatArray-AIGenerationChat-${projectUuid}-developer-index`, 
+            JSON.stringify({integratedChatIndex, previouslyIntegratedChatIndex}));
 
         setMessages((prevMessages) => []);
 
