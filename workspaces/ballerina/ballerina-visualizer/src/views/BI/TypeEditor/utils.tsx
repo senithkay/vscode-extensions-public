@@ -11,6 +11,17 @@ import { AvailableNode, Category, Item, VisibleTypeItem } from '@wso2-enterprise
 import type { TypeHelperCategory, TypeHelperItem, TypeHelperOperator } from '@wso2-enterprise/type-editor';
 import { COMPLETION_ITEM_KIND, convertCompletionItemKind } from '@wso2-enterprise/ui-toolkit';
 
+// TODO: Remove this order onces the LS is fixed
+const TYPE_CATEGORY_ORDER = [
+    { label: "User-Defined", sortText: "0"},
+    { label: "Primitive Types", sortText: "1"},
+    { label: "Data Types", sortText: "2"},
+    { label: "Structural Types", sortText: "3"},
+    { label: "Error Types", sortText: "4"},
+    { label: "Behaviour Types", sortText: "5"},
+    { label: "Other Types", sortText: "6"},
+] as const;
+
 /**
  * Get the categories for the type editor
  *
@@ -34,10 +45,11 @@ export const getTypes = (types: VisibleTypeItem[]): TypeHelperCategory[] => {
 
     const categories = Object.entries(categoryRecord).map(([category, items]) => ({
         category,
+        sortText: TYPE_CATEGORY_ORDER.find((order) => order.label === category)?.sortText,
         items
     }));
 
-    return categories;
+    return categories.sort((a, b) => a.sortText.localeCompare(b.sortText));
 };
 
 export const filterTypes = (types: TypeHelperCategory[], searchText: string) => {
