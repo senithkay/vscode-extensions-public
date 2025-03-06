@@ -99,6 +99,7 @@ export function TypeEditor(props: TypeEditorProps) {
 
     const handleCancel = () => {
         onCancel?.();
+        handleChangeTypeHelperState(false);
         setShowDefaultCompletion(false);
     }
 
