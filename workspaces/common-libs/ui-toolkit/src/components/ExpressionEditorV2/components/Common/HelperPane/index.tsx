@@ -501,7 +501,7 @@ const LibraryBrowser: React.FC<LibraryBrowserProps> = ({
                 </LibraryBrowserHeader>
                 <Divider />
                 <LibraryBrowserSearchBoxContainer>
-                    <SearchBox id="library-browser-search" placeholder="Search" value={searchValue} onChange={onSearch} />
+                    <SearchBox id="helper-pane-search" placeholder="Search" value={searchValue} onChange={onSearch} />
                 </LibraryBrowserSearchBoxContainer>
                 <LibraryBrowserBody>
                     {loading ? (

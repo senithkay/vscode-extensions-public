@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Member, Type } from '@wso2-enterprise/ballerina-core';
-import { Button, CheckBox, Codicon, Icon, Position, TextField } from '@wso2-enterprise/ui-toolkit';
+import { Button, CheckBox, Codicon, Position, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
-import { parseType, typeToSource, defaultAnonymousRecordType } from './TypeUtil';
+import { typeToSource, defaultAnonymousRecordType } from './TypeUtil';
 import { RecordEditor } from './RecordEditor';
-import { TypeHelper, TypeHelperCategory, TypeHelperOperator } from '../TypeHelper';
+import { TypeHelper } from '../TypeHelper';
 
 interface FieldEditorProps {
     member: Member;
@@ -134,7 +134,8 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
         if (
             (typeHelperRef.current?.contains(e.relatedTarget as Node) ||
             typeBrowserRef.current?.contains(e.relatedTarget as Node)) &&
-            !document.getElementById('helper-pane-search')?.contains(e.relatedTarget as Node)
+            !document.getElementById('helper-pane-search')?.contains(e.relatedTarget as Node) &&
+            !document.getElementById('type-browser-search')?.contains(e.relatedTarget as Node)
         ) {
             e.preventDefault();
             e.stopPropagation();
