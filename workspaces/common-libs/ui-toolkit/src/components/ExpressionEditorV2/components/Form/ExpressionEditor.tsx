@@ -410,6 +410,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     useImperativeHandle(ref, () => ({
         shadowRoot: textAreaRef.current?.shadowRoot,
         inputElement: textAreaRef.current?.shadowRoot?.querySelector('textarea'),
+        parentElement: textAreaRef.current?.parentElement,
         focus: handleRefFocus,
         blur: handleRefBlur,
         setCursor: handleRefSetCursor,
