@@ -9,7 +9,13 @@
 
 import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
-import { Codicon, getIcon, HelperPane, Typography } from '@wso2-enterprise/ui-toolkit';
+import {
+    Codicon,
+    getIcon,
+    HelperPane,
+    HelperPaneHeight,
+    Typography
+} from '@wso2-enterprise/ui-toolkit';
 import { TypeHelperOperator } from '..';
 import { TypeHelperCategory, TypeHelperItem } from '.';
 import { TypeBrowser } from './TypeBrowser';
@@ -27,10 +33,11 @@ type TypeHelperComponentProps = {
     currentCursorPosition: number;
     loading?: boolean;
     loadingTypeBrowser?: boolean;
-    basicTypes?: TypeHelperCategory[];
-    operators?: TypeHelperOperator[];
+    basicTypes: TypeHelperCategory[];
+    operators: TypeHelperOperator[];
     typeBrowserTypes: TypeHelperCategory[];
     typeBrowserRef: React.RefObject<HTMLDivElement>;
+    typeHelperHeight?: HelperPaneHeight;
     onChange: (newType: string, newCursorPosition: number) => void;
     onSearchTypeHelper: (searchText: string, isType: boolean) => void;
     onSearchTypeBrowser: (searchText: string) => void;
@@ -103,6 +110,7 @@ namespace S {
 
 export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
     const {
+        typeHelperHeight,
         currentType,
         currentCursorPosition,
         typeBrowserRef,
@@ -171,7 +179,7 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
     }, [activePanelIndex]);
 
     return (
-        <HelperPane helperPaneHeight="full">
+        <HelperPane helperPaneHeight={typeHelperHeight}>
             <HelperPane.Header
                 title="Type Helper"
                 titleSx={{ fontFamily: 'GilmerRegular' }}
@@ -198,25 +206,24 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
                         {loading ? (
                             <HelperPane.Loader rows={3} columns={2} sections={3} />
                         ) : (
-                            basicTypes?.length > 0 && (
-                                basicTypes.map((category) => (
-                                    <HelperPane.Section
-                                        key={category.category}
-                                        title={category.category}
-                                        titleSx={{ fontFamily: 'GilmerMedium' }}
-                                        columns={2}
-                                    >
-                                        {category.items.map((item) => (
-                                            <HelperPane.CompletionItem
-                                                key={`${category.category}-${item.name}`}
-                                                label={item.name}
-                                                getIcon={() => getIcon(item.type)}
-                                                onClick={() => handleTypeItemClick(item)}
-                                            />
-                                        ))}
-                                    </HelperPane.Section>
-                                ))
-                            )
+                            basicTypes?.length > 0 &&
+                            basicTypes.map((category) => (
+                                <HelperPane.Section
+                                    key={category.category}
+                                    title={category.category}
+                                    titleSx={{ fontFamily: 'GilmerMedium' }}
+                                    columns={2}
+                                >
+                                    {category.items.map((item) => (
+                                        <HelperPane.CompletionItem
+                                            key={`${category.category}-${item.name}`}
+                                            label={item.name}
+                                            getIcon={() => getIcon(item.type)}
+                                            onClick={() => handleTypeItemClick(item)}
+                                        />
+                                    ))}
+                                </HelperPane.Section>
+                            ))
                         )}
                     </HelperPane.PanelView>
                     <HelperPane.PanelView id={PANEL_TABS.OPERATORS}>

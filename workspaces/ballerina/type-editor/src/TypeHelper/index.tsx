@@ -24,12 +24,6 @@ import { getArrowPosition, getHelperPanePosition } from '../utils';
 import { useTypeHelperContext } from '../Context';
 import { TypeHelperComponent } from './TypeHelper';
 
-/* Constants */
-const PANEL_TABS = {
-    TYPES: 0,
-    OPERATORS: 1
-} as const;
-
 /* Types */
 export type TypeHelperItem = {
     name: string;
