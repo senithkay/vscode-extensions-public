@@ -56,6 +56,7 @@ import {
 import ForkForm from "../ForkForm";
 import { getHelperPane } from "../../HelperPane"
 import { FormTypeEditor } from "../../TypeEditor";
+import { getTypeHelper } from "../../TypeHelper";
 
 interface TypeEditorState {
     isOpen: boolean;
@@ -474,6 +475,26 @@ export function FormGenerator(props: FormProps) {
         });
     }
 
+    const handleGetTypeHelper = (
+        typeBrowserRef: RefObject<HTMLDivElement>,
+        currentType: string,
+        currentCursorPosition: number,
+        onChange: (newType: string, newCursorPosition: number) => void,
+        changeHelperPaneState: (isOpen: boolean) => void,
+        typeHelperHeight: HelperPaneHeight
+    ) => {
+        return getTypeHelper(
+            typeBrowserRef,
+            fileName,
+            updateLineRange(targetLineRange, expressionOffsetRef.current),
+            currentType,
+            currentCursorPosition,
+            typeHelperHeight,
+            onChange,
+            () => changeHelperPaneState(false)
+        );
+    }
+
     const expressionEditor = useMemo(() => {
         return {
             completions: filteredCompletions,
@@ -483,12 +504,13 @@ export function FormGenerator(props: FormProps) {
             types: filteredTypes,
             retrieveVisibleTypes: handleGetVisibleTypes,
             getHelperPane: handleGetHelperPane,
+            getTypeHelper: handleGetTypeHelper,
             getExpressionFormDiagnostics: handleExpressionFormDiagnostics,
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
             onCancel: handleExpressionEditorCancel,
             helperPaneOrigin: "left",
-            helperPaneHeight: "full"
+            helperPaneHeight: "full",
         } as FormExpressionEditorProps;
     }, [
         filteredCompletions,

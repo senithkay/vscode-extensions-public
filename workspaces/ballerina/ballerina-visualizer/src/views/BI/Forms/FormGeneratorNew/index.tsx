@@ -41,6 +41,7 @@ import {
 import { debounce, set } from "lodash";
 import { getHelperPane } from "../../HelperPane";
 import { FormTypeEditor } from "../../TypeEditor";
+import { getTypeHelper } from "../../TypeHelper";
 
 interface TypeEditorState {
     isOpen: boolean;
@@ -309,6 +310,26 @@ export function FormGeneratorNew(props: FormProps) {
         });
     }
 
+    const handleGetTypeHelper = (
+        typeBrowserRef: RefObject<HTMLDivElement>,
+        currentType: string,
+        currentCursorPosition: number,
+        onChange: (newType: string, newCursorPosition: number) => void,
+        changeHelperPaneState: (isOpen: boolean) => void,
+        typeHelperHeight: HelperPaneHeight
+    ) => {
+        return getTypeHelper(
+            typeBrowserRef,
+            fileName,
+            updateLineRange(targetLineRange, expressionOffsetRef.current),
+            currentType,
+            currentCursorPosition,
+            typeHelperHeight,
+            onChange,
+            () => changeHelperPaneState(false)
+        );
+    }
+
     const handleTypeChange = async (type: Type) => {
         setTypeEditorState({ isOpen: false });
 
@@ -401,6 +422,7 @@ export function FormGeneratorNew(props: FormProps) {
             types: filteredTypes,
             retrieveVisibleTypes: handleGetVisibleTypes,
             getHelperPane: handleGetHelperPane,
+            getTypeHelper: handleGetTypeHelper,
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
             onCancel: handleExpressionEditorCancel,
@@ -429,9 +451,8 @@ export function FormGeneratorNew(props: FormProps) {
                 show={true}
                 onClose={onCloseTypeEditor}
             >
-                <TypeEditor
+                <FormTypeEditor
                     newType={true}
-                    rpcClient={rpcClient}
                     onTypeChange={handleTypeChange}
                     { ...(isGraphql && { type: defaultType(), isGraphql: true }) }
                 />
