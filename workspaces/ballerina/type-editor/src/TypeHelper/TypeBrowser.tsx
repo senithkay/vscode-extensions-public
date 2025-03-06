@@ -10,17 +10,25 @@
 import React, { RefObject, useEffect, useRef, useState } from 'react';
 import { getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { TypeHelperCategory, TypeHelperItem } from '.';
-import { useTypeHelperContext } from '../Context';
 
 type TypeBrowserProps = {
-    // Reference to the type browser element
+    loadingTypeBrowser: boolean;
+    typeBrowserTypes: TypeHelperCategory[];
+    onSearchTypeBrowser: (searchText: string) => void;
+    onTypeItemClick: (item: TypeHelperItem) => void;
     typeBrowserRef: RefObject<HTMLDivElement>;
-    // Callback to close the type browser
     onClose: () => void;
 };
 
-export const TypeBrowser = ({ typeBrowserRef, onClose }: TypeBrowserProps) => {
-    const { loadingTypeBrowser, typeBrowserTypes, onSearchTypeBrowser, onTypeItemClick } = useTypeHelperContext();
+export const TypeBrowser = (props: TypeBrowserProps) => {
+    const {
+        loadingTypeBrowser,
+        typeBrowserTypes,
+        onSearchTypeBrowser,
+        onTypeItemClick,
+        typeBrowserRef,
+        onClose
+    } = props;
 
     const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>('');

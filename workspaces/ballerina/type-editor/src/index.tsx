@@ -9,3 +9,4 @@
 
 export { TypeEditor } from "./TypeEditor/TypeEditor";
 export type { TypeHelperCategory, TypeHelperOperator, TypeHelperItem } from "./TypeHelper";
+export { TypeHelperComponent } from "./TypeHelper/TypeHelper";

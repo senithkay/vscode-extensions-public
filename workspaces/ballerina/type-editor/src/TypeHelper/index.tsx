@@ -15,19 +15,14 @@ import styled from '@emotion/styled';
 import { Transition } from '@headlessui/react';
 import {
     ARROW_HEIGHT,
-    Codicon,
     CompletionItemKind,
-    HelperPane,
-    Position,
-    Typography,
-    getIcon
+    Position
 } from '@wso2-enterprise/ui-toolkit';
 
 import { ANIMATION } from './constant';
 import { getArrowPosition, getHelperPanePosition } from '../utils';
-import { isTypePanelOpen } from './utils';
-import { TypeBrowser } from './TypeBrowser';
 import { useTypeHelperContext } from '../Context';
+import { TypeHelperComponent } from './TypeHelper';
 
 /* Constants */
 const PANEL_TABS = {
@@ -174,19 +169,20 @@ export const TypeHelper = forwardRef<HTMLDivElement, TypeHelperProps>((props, re
 
     const {
         loading,
+        loadingTypeBrowser,
         basicTypes,
         operators,
+        typeBrowserTypes,
         onSearchTypeHelper,
+        onSearchTypeBrowser,
+        onTypeItemClick
     } = useTypeHelperContext();
 
     const typeHelperRef = useRef<HTMLDivElement>(null);
-    const [searchValue, setSearchValue] = useState<string>('');
     const [position, setPosition] = useState<Record<string, Position>>({
         helperPane: { top: 0, left: 0 },
         arrow: { top: 0, left: 0 }
     });
-    const [isTypeBrowserOpen, setIsTypeBrowserOpen] = useState<boolean>(false);
-    const [activePanelIndex, setActivePanelIndex] = useState<number>(0);
 
     useImperativeHandle(ref, () => typeHelperRef.current);
 
@@ -211,46 +207,6 @@ export const TypeHelper = forwardRef<HTMLDivElement, TypeHelperProps>((props, re
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open, positionOffset]);
 
-    const handleOperatorClick = (operator: TypeHelperOperator) => {
-        if (operator.insertType === 'global') {
-            if (operator.insertLocation === 'start') {
-                onChange(
-                    operator.insertText + ' ' + currentType.trimStart(),
-                    currentCursorPosition + operator.insertText.length + 1
-                );
-            } else {
-                onChange(currentType.trimEnd() + operator.insertText, currentCursorPosition);
-            }
-        } else {
-            const suffixRegex = /^[a-zA-Z0-9_']*/;
-            const suffixMatch = currentType.slice(currentCursorPosition).match(suffixRegex);
-
-            if (suffixMatch) {
-                const newCursorPosition = currentCursorPosition + suffixMatch[0].length;
-                onChange(
-                    currentType.slice(0, newCursorPosition) +
-                        operator.insertText +
-                        currentType.slice(newCursorPosition),
-                    newCursorPosition + operator.insertText.length
-                );
-            }
-        }
-    };
-
-    const handleTypeItemClick = (item: TypeHelperItem) => {
-        const prefixRegex = /[a-zA-Z0-9_']*$/;
-        const suffixRegex = /^[a-zA-Z0-9_']*/;
-        const prefixMatch = currentType.slice(0, currentCursorPosition).match(prefixRegex);
-        const suffixMatch = currentType.slice(currentCursorPosition).match(suffixRegex);
-        const prefixCursorPosition = currentCursorPosition - (prefixMatch?.[0]?.length ?? 0);
-        const suffixCursorPosition = currentCursorPosition + (suffixMatch?.[0]?.length ?? 0);
-
-        onChange(
-            currentType.slice(0, prefixCursorPosition) + item.insertText + currentType.slice(suffixCursorPosition),
-            prefixCursorPosition + item.insertText.length
-        );
-    };
-
     /* Close the helper pane on outside click */
     useEffect(() => {
         const handleOutsideClick = (e: MouseEvent) => {
@@ -270,15 +226,6 @@ export const TypeHelper = forwardRef<HTMLDivElement, TypeHelperProps>((props, re
         };
     }, [typeFieldRef.current, typeBrowserRef.current, onClose]);
 
-    const handleHelperPaneSearch = (searchText: string) => {
-        setSearchValue(searchText);
-        onSearchTypeHelper(searchText, isTypePanelOpen(activePanelIndex));
-    };
-
-    useEffect(() => {
-        onSearchTypeHelper(searchValue, isTypePanelOpen(activePanelIndex));
-    }, [activePanelIndex]);
-
     return (
         <>
             {/* If a type field is focused */}
@@ -286,89 +233,21 @@ export const TypeHelper = forwardRef<HTMLDivElement, TypeHelperProps>((props, re
                 createPortal(
                     <S.Container tabIndex={0} ref={typeHelperRef} sx={position.helperPane}>
                         <Transition show={open} {...ANIMATION}>
-                            <HelperPane helperPaneHeight="full">
-                                <HelperPane.Header
-                                    title="Type Helper"
-                                    titleSx={{ fontFamily: 'GilmerRegular' }}
-                                    onClose={onClose}
-                                    searchValue={searchValue}
-                                    onSearch={handleHelperPaneSearch}
-                                />
-                                <HelperPane.Body>
-                                    <HelperPane.Panels>
-                                        {/* Type helper tabs */}
-                                        <HelperPane.PanelTab
-                                            title="Types"
-                                            id={PANEL_TABS.TYPES}
-                                            onClick={() => setActivePanelIndex(PANEL_TABS.TYPES)}
-                                        />
-                                        <HelperPane.PanelTab
-                                            title="Operators"
-                                            id={PANEL_TABS.OPERATORS}
-                                            onClick={() => setActivePanelIndex(PANEL_TABS.OPERATORS)}
-                                        />
-
-                                        {/* Type helper panel views */}
-                                        <HelperPane.PanelView id={PANEL_TABS.TYPES}>
-                                            {loading ? (
-                                                <HelperPane.Loader rows={3} columns={2} sections={3} />
-                                            ) : (
-                                                basicTypes?.length > 0 &&
-                                                basicTypes.map((category) => (
-                                                    <HelperPane.Section
-                                                        key={category.category}
-                                                        title={category.category}
-                                                        titleSx={{ fontFamily: 'GilmerMedium' }}
-                                                        columns={2}
-                                                    >
-                                                        {category.items.map((item) => (
-                                                            <HelperPane.CompletionItem
-                                                                key={`${category.category}-${item.name}`}
-                                                                label={item.name}
-                                                                getIcon={() => getIcon(item.type)}
-                                                                onClick={() => handleTypeItemClick(item)}
-                                                            />
-                                                        ))}
-                                                    </HelperPane.Section>
-                                                ))
-                                            )}
-                                        </HelperPane.PanelView>
-                                        <HelperPane.PanelView id={PANEL_TABS.OPERATORS}>
-                                            <S.OperatorContainer>
-                                                {operators?.length > 0 &&
-                                                    (loading ? (
-                                                        <HelperPane.Loader rows={5} columns={1} sections={1} />
-                                                    ) : (
-                                                        operators.map((operator) => (
-                                                            <S.Operator
-                                                                key={operator.name}
-                                                                onClick={() => handleOperatorClick(operator)}
-                                                            >
-                                                                <S.OptionIcon>{operator.getIcon()}</S.OptionIcon>
-                                                                <Typography variant="body3">{operator.name}</Typography>
-                                                            </S.Operator>
-                                                        ))
-                                                    ))}
-                                            </S.OperatorContainer>
-                                        </HelperPane.PanelView>
-                                    </HelperPane.Panels>
-                                </HelperPane.Body>
-                                <HelperPane.Footer>
-                                    <HelperPane.IconButton
-                                        title="Open type browser"
-                                        getIcon={() => <Codicon name="library" />}
-                                        onClick={() => setIsTypeBrowserOpen(true)}
-                                    />
-                                </HelperPane.Footer>
-
-                                {/* Type browser */}
-                                {isTypeBrowserOpen && (
-                                    <TypeBrowser
-                                        typeBrowserRef={typeBrowserRef}
-                                        onClose={() => setIsTypeBrowserOpen(false)}
-                                    />
-                                )}
-                            </HelperPane>
+                            <TypeHelperComponent
+                                currentType={currentType}
+                                currentCursorPosition={currentCursorPosition}
+                                loading={loading}
+                                loadingTypeBrowser={loadingTypeBrowser}
+                                basicTypes={basicTypes}
+                                operators={operators}
+                                typeBrowserTypes={typeBrowserTypes}
+                                typeBrowserRef={typeBrowserRef}
+                                onChange={onChange}
+                                onSearchTypeHelper={onSearchTypeHelper}
+                                onSearchTypeBrowser={onSearchTypeBrowser}
+                                onTypeItemClick={onTypeItemClick}
+                                onClose={onClose}
+                            />
                             <S.Arrow sx={position.arrow} />
                         </Transition>
                     </S.Container>,
