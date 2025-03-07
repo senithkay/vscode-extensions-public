@@ -70,6 +70,7 @@ export type Metadata = {
         isDataMappedFunction?: boolean;
         tools?: { [key: string]: string }; // for agent call
         model?: string; // for agent call
+        paramsToHide?: string[]; // List of properties keys to to hide from forms
     }
 };
 

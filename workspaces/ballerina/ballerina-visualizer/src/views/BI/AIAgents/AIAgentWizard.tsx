@@ -189,7 +189,7 @@ export function AIAgentWizard() {
         const nodeModel = await getNodeTemplate(fixedAgent, filePath);
         console.log("AI Agent node template: ", nodeModel);
 
-        const formProperties = convertConfig(nodeModel.properties);
+        const formProperties = convertConfig(nodeModel.properties, nodeModel.metadata.data.paramsToHide);
         console.log(">>> AI AGENT Form properties", formProperties);
         setAgentFields(formProperties);
         setIsLoading(false);

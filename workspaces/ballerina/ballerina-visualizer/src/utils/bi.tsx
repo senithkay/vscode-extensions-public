@@ -726,11 +726,14 @@ function handleRepeatableProperty(property: Property, formField: FormField): voi
     };
 }
 
-export function convertConfig(properties: NodeProperties): FormField[] {
+export function convertConfig(properties: NodeProperties, skipKeys: string[] = []): FormField[] {
     const formFields: FormField[] = [];
     const sortedKeys = Object.keys(properties).sort();
 
     for (const key of sortedKeys) {
+        if (skipKeys.includes(key)) {
+            continue;
+        }
         const property = properties[key as keyof NodeProperties];
         const formField = convertNodePropertyToFormField(key, property);
 
