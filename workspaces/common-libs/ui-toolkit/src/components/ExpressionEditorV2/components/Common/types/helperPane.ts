@@ -73,7 +73,9 @@ export type PanelTabProps = {
     title: string;
 };
 
-export type PanelsProps = PropsWithChildren<{}>;
+export type PanelsProps = PropsWithChildren<{
+    sx?: CSSProperties;
+}>;
 
 export type HelperPaneSectionProps = PropsWithChildren<{
     title: string;

@@ -20,7 +20,7 @@ import { isRequiredParam } from "../../utils";
 export default function RecordType(props: TypeProps) {
     const { param, depth, onChange } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
-    const requiredParam = isRequiredParam(param);
+    const requiredParam = isRequiredParam(param) && depth > 1; // Only apply required param logic after depth 1
     if (requiredParam) {
         param.selected = true;
     }

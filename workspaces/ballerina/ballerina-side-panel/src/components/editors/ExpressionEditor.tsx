@@ -315,7 +315,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
             value,
             onChange,
             handleChangeHelperPaneState,
-            helperPaneHeight
+            helperPaneHeight,
+            recordTypeField
         );
     };
 
@@ -339,11 +340,11 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                 <S.DataMapperBtnTxt>Map Data Inline</S.DataMapperBtnTxt>
             </Button>
         ),
-        recordTypeField && (
-            <Button appearance="icon" onClick={() => handleRecordTypeOpen(false)}>
-                <S.DataMapperBtnTxt>Construct Record</S.DataMapperBtnTxt>
-            </Button>
-        )
+        // recordTypeField && (
+        //     <Button appearance="icon" onClick={() => handleRecordTypeOpen(false)}>
+        //         <S.DataMapperBtnTxt>Construct Record</S.DataMapperBtnTxt>
+        //     </Button>
+        // )
     ];
 
     return (

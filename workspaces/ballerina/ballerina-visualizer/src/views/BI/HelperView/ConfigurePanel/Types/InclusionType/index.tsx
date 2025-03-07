@@ -20,7 +20,7 @@ import { isAllDefaultableFields, isRequiredParam } from "../../utils";
 export default function InclusionType(props: TypeProps) {
     const { param, depth, onChange } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
-    const requiredParam = isRequiredParam(param);
+    const requiredParam = isRequiredParam(param) && depth > 1; // Only apply required param logic after depth 1
     const isAllIncludedParamDefaultable = isAllDefaultableFields(param.inclusionType?.fields);
     if (requiredParam && !isAllIncludedParamDefaultable) {
         param.selected = true;
