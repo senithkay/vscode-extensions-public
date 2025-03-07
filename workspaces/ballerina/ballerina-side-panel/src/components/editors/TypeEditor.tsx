@@ -127,6 +127,7 @@ export function TypeEditor(props: TypeEditorProps) {
             typeBrowserRef,
             value,
             cursorPositionRef.current,
+            isTypeHelperOpen,
             onChange,
             handleChangeTypeHelperState,
             helperPaneHeight

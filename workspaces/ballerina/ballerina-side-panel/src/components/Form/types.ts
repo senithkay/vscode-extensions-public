@@ -116,6 +116,7 @@ type FormTypeConditionalProps = {
         typeBrowserRef: RefObject<HTMLDivElement>,
         currentType: string,
         currentCursorPosition: number,
+        typeHelperState: boolean,
         onChange: (newType: string, newCursorPosition: number) => void,
         changeTypeHelperState: (isOpen: boolean) => void,
         helperPaneHeight: HelperPaneHeight
