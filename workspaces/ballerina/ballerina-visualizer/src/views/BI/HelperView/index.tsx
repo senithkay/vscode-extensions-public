@@ -9,14 +9,13 @@
 
 import styled from '@emotion/styled';
 import React, { useEffect, useState } from 'react';
-import { VSCodeDropdown, VSCodeOption, VSCodePanels, VSCodePanelTab, VSCodePanelView } from "@vscode/webview-ui-toolkit/react";
-import { Button, Codicon, Divider, Dropdown, Typography } from '@wso2-enterprise/ui-toolkit';
-import { ConfigurePanelData, LineRange, PropertyTypeMemberInfo, RecordTypeField, SubPanel, SubPanelView } from '@wso2-enterprise/ballerina-core';
+import { VSCodePanels, VSCodePanelTab, VSCodePanelView } from "@vscode/webview-ui-toolkit/react";
+import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { ConfigurePanelData, LineRange, SubPanel, SubPanelView } from '@wso2-enterprise/ballerina-core';
 import { LibrariesView } from './LibrariesView';
 import { ExpressionFormField } from '@wso2-enterprise/ballerina-side-panel';
 import { VariablesView } from './VariablesView';
 import { ConfigureView } from './ConfigureView';
-import { RecordConfigView } from './RecordConfigView';
 
 interface HelperViewProps {
     filePath: string;
@@ -25,7 +24,6 @@ interface HelperViewProps {
     editorKey: string;
     onClosePanel: (subPanel: SubPanel) => void;
     configurePanelData?: ConfigurePanelData;
-    recordTypeField?: RecordTypeField;
 }
 
 enum TabElements {
@@ -36,6 +34,7 @@ enum TabElements {
 
 const Container = styled.div`
     height: 100%;
+    padding-top: 10px;
 `;
 
 const PanelContent = styled(VSCodePanelView)`
@@ -61,19 +60,44 @@ const StyledVSCodePanels = styled(VSCodePanels)`
 
 
 export function HelperView(props: HelperViewProps) {
-    const { filePath, position, updateFormField, editorKey, onClosePanel, configurePanelData, recordTypeField } = props;
+    const { filePath, position, updateFormField, editorKey, onClosePanel, configurePanelData } = props;
 
+    const [activeTab, setActiveTab] = useState(TabElements.variables);
 
     const onClose = () => {
         onClosePanel({ view: SubPanelView.UNDEFINED });
     }
 
+    useEffect(() => {
+        if (configurePanelData?.isEnable) {
+            console.log(">>> configurePanelData", configurePanelData);
+            setActiveTab(TabElements.configure);
+        }
+    }, [configurePanelData]);
+
     return (
         <Container>
-            {recordTypeField && (
-                <RecordConfigView filePath={filePath} position={position} updateFormField={updateFormField} editorKey={editorKey} onClosePanel={onClose} recordTypeField={recordTypeField} />
-            )}
+            <CloseButton appearance="icon" onClick={onClose}>
+                <Codicon name="close" />
+            </CloseButton>
+            <StyledVSCodePanels activeid={activeTab}>
+                <VSCodePanelTab id={TabElements.variables}>{TabElements.variables}</VSCodePanelTab>
+                <VSCodePanelTab id={TabElements.libraries}>{TabElements.libraries}</VSCodePanelTab>
+                {configurePanelData?.isEnable &&
+                    <VSCodePanelTab id={TabElements.configure}>{TabElements.configure}</VSCodePanelTab>
+                }
+                <PanelContent id={TabElements.variables} >
+                    <VariablesView filePath={filePath} position={position} updateFormField={updateFormField} editorKey={editorKey} />
+                </PanelContent>
+                <PanelContent id={TabElements.libraries}>
+                    <LibrariesView filePath={filePath} position={position} updateFormField={updateFormField} editorKey={editorKey} />
+                </PanelContent>
+                {configurePanelData?.isEnable &&
+                    <PanelContent id={TabElements.configure}>
+                        <ConfigureView filePath={filePath} position={position} updateFormField={updateFormField} editorKey={editorKey} configurePanelData={configurePanelData} />
+                    </PanelContent>
+                }
+            </StyledVSCodePanels>
         </Container>
     );
 };
-

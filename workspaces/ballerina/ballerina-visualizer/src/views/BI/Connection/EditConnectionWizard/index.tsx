@@ -184,7 +184,6 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                             updatedExpressionField={updatedExpressionField}
                             resetUpdatedExpressionField={handleResetUpdatedExpressionField}
                             openSubPanel={handleSubPanel}
-                            subPanelView={subPanel.view}
                         />
                     )}
                 </PanelContainer>

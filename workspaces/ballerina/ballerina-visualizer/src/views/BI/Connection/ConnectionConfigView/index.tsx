@@ -10,7 +10,7 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
-import { FlowNode, LineRange, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
+import { FlowNode, LineRange, SubPanel } from "@wso2-enterprise/ballerina-core";
 import FormGenerator from "../../Forms/FormGenerator";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 
@@ -43,7 +43,6 @@ interface ConnectionConfigViewProps {
     resetUpdatedExpressionField?: () => void;
     isActiveSubPanel?: boolean;
     isPullingConnector?: boolean;
-    subPanelView?: SubPanelView;
 }
 
 export function ConnectionConfigView(props: ConnectionConfigViewProps) {
@@ -55,7 +54,6 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
         updatedExpressionField,
         resetUpdatedExpressionField,
         isPullingConnector,
-        subPanelView
     } = props;
     const { rpcClient } = useRpcContext();
     const [targetLineRange, setTargetLineRange] = useState<LineRange>();
@@ -88,7 +86,6 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
                     targetLineRange={targetLineRange}
                     onSubmit={onSubmit}
                     openSubPanel={openSubPanel}
-                    subPanelView={subPanelView}
                     updatedExpressionField={updatedExpressionField}
                     resetUpdatedExpressionField={resetUpdatedExpressionField}
                     disableSaveButton={isPullingConnector}

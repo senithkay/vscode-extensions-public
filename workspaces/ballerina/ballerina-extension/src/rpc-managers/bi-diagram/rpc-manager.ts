@@ -1427,11 +1427,7 @@ export function getRepoRoot(projectRoot: string): string | undefined {
         return undefined;
     }
     return getRepoRoot(path.join(projectRoot, ".."));
-
-
 }
-
-
 
 export async function fetchWithToken(url: string, options: RequestInit) {
     let response = await fetch(url, options);

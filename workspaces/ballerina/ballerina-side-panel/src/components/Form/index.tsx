@@ -293,10 +293,6 @@ export const Form = forwardRef((props: FormProps, ref) => {
                         }
                     }
                 });
-            } else if (subPanelView === SubPanelView.HELPER_PANEL) {
-                const { key, value } = updatedExpressionField;
-                setValue(key, value);
-                resetUpdatedExpressionField && resetUpdatedExpressionField();
             }
         } 
     }, [updatedExpressionField]);
@@ -364,13 +360,6 @@ export const Form = forwardRef((props: FormProps, ref) => {
                 props: {
                     ...subPanel.props,
                     inlineDataMapper: inlineDMProps,
-                },
-            };
-        } else if (subPanel.view === SubPanelView.HELPER_PANEL) {
-            updatedSubPanel = {
-                ...subPanel,
-                props: {
-                    ...subPanel.props,
                 },
             };
         }

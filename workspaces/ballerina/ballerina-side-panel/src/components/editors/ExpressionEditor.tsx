@@ -281,23 +281,6 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         }
     };
 
-    const handleRecordTypeOpen = (isUpdate: boolean) => {
-        if (subPanelView === SubPanelView.HELPER_PANEL && !isUpdate) {
-            openSubPanel({ view: SubPanelView.UNDEFINED });
-        } else {
-            handleOpenSubPanel(SubPanelView.HELPER_PANEL, {
-                sidePanelData: {
-                    filePath: effectiveFileName,
-                    range: effectiveTargetLineRange,
-                    editorKey: field.key,
-                    recordField: recordTypeField
-                }
-
-
-            });
-            handleOnFieldFocus?.(field.key);
-        }
-    };
 
     const handleChangeHelperPaneState = (isOpen: boolean) => {
         setIsHelperPaneOpen(isOpen);
@@ -323,8 +306,6 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
     const updateSubPanelData = (value: string) => {
         if (subPanelView === SubPanelView.INLINE_DATA_MAPPER) {
             handleInlineDataMapperOpen(true);
-        } else if (subPanelView === SubPanelView.HELPER_PANEL) {
-            handleRecordTypeOpen(true);
         }
     };
 
@@ -339,12 +320,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
             <Button appearance="icon" onClick={() => handleInlineDataMapperOpen(false)}>
                 <S.DataMapperBtnTxt>Map Data Inline</S.DataMapperBtnTxt>
             </Button>
-        ),
-        // recordTypeField && (
-        //     <Button appearance="icon" onClick={() => handleRecordTypeOpen(false)}>
-        //         <S.DataMapperBtnTxt>Construct Record</S.DataMapperBtnTxt>
-        //     </Button>
-        // )
+        )
     ];
 
     return (
