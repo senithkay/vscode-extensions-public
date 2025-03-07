@@ -18,6 +18,8 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 import { LangClientRpcClient, RecordCreatorRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { RecordItemModel } from "../types";
+import { RefObject } from "react";
+import { ARROW_HEIGHT, ARROW_OFFSET, HELPER_PANE_HEIGHT, HELPER_PANE_WIDTH, Position } from "@wso2-enterprise/ui-toolkit";
 
 export const isNotSupportedType = (resp: JsonToRecord | NOT_SUPPORTED_TYPE): resp is NOT_SUPPORTED_TYPE => {
     return  !("diagnostics" in resp);
@@ -243,4 +245,23 @@ export function getRemoveCreatedRecordRange(recordNames: string[], syntaxTree: S
         }
     }
     return modifications;
+}
+
+export function getHelperPanePosition(typeFieldRef: RefObject<HTMLElement>, offset: Position): Position {
+    const rect = typeFieldRef.current.getBoundingClientRect();
+    const position: Position = {
+        top: 0,
+        left: rect.left - HELPER_PANE_WIDTH - ARROW_HEIGHT + offset.left
+    };
+
+    return position;
+}
+
+export function getArrowPosition(typeFieldRef: RefObject<HTMLElement>, helperPanePosition: Position): Position {
+    const rect = typeFieldRef.current.getBoundingClientRect();
+    const position: Position = { top: 0, left: 0 };
+    position.top = rect.top - helperPanePosition.top + ARROW_OFFSET;
+    position.left = HELPER_PANE_WIDTH;
+
+    return position;
 }

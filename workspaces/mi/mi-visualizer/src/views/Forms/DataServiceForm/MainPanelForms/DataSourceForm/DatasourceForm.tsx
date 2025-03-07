@@ -735,6 +735,7 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
                                 label="Datasource Name"
                                 filterType="dataSource"
                                 allowItemCreate={true}
+                                requireValidation={false}
                                 required
                                 onCreateButtonClick={onCreateButtonClick}
                                 {...renderPropsForObject('carbonDatasource.carbon_datasource_name')}

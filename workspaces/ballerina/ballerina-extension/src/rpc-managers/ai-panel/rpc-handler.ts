@@ -29,6 +29,7 @@ import {
     applyDoOnFailBlocks,
     checkSyntaxError,
     clearInitialPrompt,
+    createTestDirecoryIfNotExists,
     deleteFromProject,
     fetchData,
     generateMappings,
@@ -128,4 +129,5 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(readDeveloperMdFile, (args: string) => rpcManger.readDeveloperMdFile(args));
     messenger.onNotification(updateDevelopmentDocument, (args: DeveloperDocument) => rpcManger.updateDevelopmentDocument(args));
     messenger.onNotification(updateRequirementSpecification, (args: RequirementSpecification) => rpcManger.updateRequirementSpecification(args));
+    messenger.onNotification(createTestDirecoryIfNotExists, (args: string) => rpcManger.createTestDirecoryIfNotExists(args));
 }

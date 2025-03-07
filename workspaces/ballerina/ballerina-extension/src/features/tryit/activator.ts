@@ -180,7 +180,7 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
         let selectedService: ServiceInfo;
         // If in resource try it mode, find the service containing the resource path
         if (resourceMetadata) {
-            const matchingService = await findServiceForResource(services, resourceMetadata);
+            const matchingService = await findServiceForResource(services, resourceMetadata, serviceMetadata);
             if (!matchingService) {
                 vscode.window.showErrorMessage(`Could not find a service containing the resource path: ${resourceMetadata.pathValue}`);
                 return;
@@ -259,7 +259,7 @@ async function openInSplitView(fileUri: vscode.Uri, editorType: string = 'defaul
     }
 }
 
-async function findServiceForResource(services: ServiceInfo[], resourceMetadata: ResourceMetadata): Promise<ServiceInfo | undefined> {
+async function findServiceForResource(services: ServiceInfo[], resourceMetadata: ResourceMetadata, serviceMetadata: ServiceMetadata): Promise<ServiceInfo | undefined> {
     try {
         // Normalize path values for comparison
         const targetPath = resourceMetadata.pathValue?.trim();
@@ -271,6 +271,10 @@ async function findServiceForResource(services: ServiceInfo[], resourceMetadata:
         // TODO: Optimize this by checking only the relevant service once we have the lang server support for that
         for (const service of services) {
             try {
+                if (serviceMetadata && (service.basePath !== serviceMetadata.basePath || service.listener !== serviceMetadata.listener)) {
+                    continue;
+                }
+                
                 const openapiSpec: OAISpec = await getOpenAPIDefinition(service);
                 const matchingPaths = Object.keys(openapiSpec.paths || {}).filter((specPath) => {
                     return comparePathPatterns(specPath, targetPath);
@@ -308,7 +312,7 @@ async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> 
                 name: service.displayName || service.absolutePath.startsWith('/') ? service.absolutePath.trim().substring(1) : service.absolutePath.trim(),
                 basePath: service.absolutePath.trim(),
                 filePath: service.location.filePath,
-                listener: service.attachedListeners.map(listener => response.designModel.listeners.find(l => l.uuid === listener)?.symbol).join(', ')
+                listener: service.attachedListeners.map(listener => response.designModel.listeners.find(l => l.uuid === listener)?.symbol).join(',')
             }));
 
         return services || [];
