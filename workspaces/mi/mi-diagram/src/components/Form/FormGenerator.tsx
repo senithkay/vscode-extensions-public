@@ -697,11 +697,14 @@ export function FormGenerator(props: FormGeneratorProps) {
                     {
                         ...(isRequired) && {
                             validate: (value) => {
+                                if (value.fromAI) {
+                                    return true;
+                                }
                                 if (!value || (typeof value === 'object' && !value.value)) {
-                                    return "This field is required";
+                                    return "This field is required2";
                                 }
                                 if (typeof value === 'object' && 'isExpression' in value && value.isExpression && (!value.value || value.value.replace(/\s/g, '') === '${}')) {
-                                    return "Expression is required";
+                                    return "Expression is required3";
                                 }
                                 return true;
                             },
