@@ -40,6 +40,7 @@ export interface AIPanelAPI {
     getResourceSourceForMethodAndPath: (params: string) => Promise<string>;
     getServiceNames: () => Promise<TestGenerationMentions>;
     getResourceMethodAndPaths: () => Promise<TestGenerationMentions>;
+    abortTestGeneration: () => void;
     getMappingsFromRecord: (params: GenerateMappingsFromRecordRequest) => Promise<GenerateMappingFromRecordResponse>;
     getTypesFromRecord: (params: GenerateTypesFromRecordRequest) => Promise<GenerateTypesFromRecordResponse>;
     applyDoOnFailBlocks: () => void;

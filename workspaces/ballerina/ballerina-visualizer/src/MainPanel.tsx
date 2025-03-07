@@ -207,6 +207,19 @@ const MainPanel = () => {
                             );
                         });
                         break;
+                    case MACHINE_VIEW.BINPFunctionForm:
+                    rpcClient.getVisualizerLocation().then((location) => {
+                        setViewComponent(
+                            <FunctionForm
+                                projectPath={value.projectUri}
+                                fileName={"functions.bal"}
+                                functionName={value?.identifier}
+                                isDataMapper={false}
+                                isNpFunction={true}
+                            />
+                        );
+                    });
+                    break;
                     case MACHINE_VIEW.GraphQLDiagram:
                         setViewComponent(<GraphQLDiagram filePath={value?.documentUri} position={value?.position} projectUri={value?.projectUri} />);
                         break;
