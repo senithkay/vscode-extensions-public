@@ -152,7 +152,7 @@ jobs:
         uses: ./.github/actions/release
         with:
           repo: wso2/platform-vscode
-          name: platform
+          name: wso2-platform
           token: ${{ secrets.PUBLISH_PAT }}
           chatAPI: ${{ steps.chat.outputs.chatAPI }}
       
