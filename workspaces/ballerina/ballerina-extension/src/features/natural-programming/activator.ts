@@ -31,15 +31,25 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             return;
         }
 
+            // Set up debounced diagnostics and event listeners
+        const debouncedGetLLMDiagnostics = debounce(async () => {
+            const result: number|null = await getLLMDiagnostics(projectPath, diagnosticCollection);
+            if (result == null) {
+                return;
+            }
+
+            if (result > 400 && result < 500) {
+                vscode.window.showWarningMessage(WARNING_MESSAGE);
+                return;
+            }
+            vscode.window.showWarningMessage(WARNING_MESSAGE_DEFAULT);
+        }, 8000);
+
         vscode.workspace.onDidChangeTextDocument(async event => {
             debouncedGetLLMDiagnostics();
         }, null, ballerinaExtInstance.context.subscriptions);
 
         vscode.workspace.onDidDeleteFiles(async event => {
-            debouncedGetLLMDiagnostics();
-        }, null, ballerinaExtInstance.context.subscriptions);
-
-        vscode.workspace.onDidOpenTextDocument(async event => {
             debouncedGetLLMDiagnostics();
         }, null, ballerinaExtInstance.context.subscriptions);
     }
@@ -74,18 +84,4 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             }
         );
     });
-
-    // Set up debounced diagnostics and event listeners
-    const debouncedGetLLMDiagnostics = debounce(async () => {
-        const result: number|null = await getLLMDiagnostics(projectPath, diagnosticCollection);
-        if (result == null) {
-            return;
-        }
-
-        if (result > 400 && result < 500) {
-            vscode.window.showWarningMessage(WARNING_MESSAGE);
-            return;
-        }
-        vscode.window.showWarningMessage(WARNING_MESSAGE_DEFAULT);
-    }, 5000);
 }
