@@ -707,7 +707,7 @@ export type SearchQueryParams = {
     includeAvailableFunctions?: string;
 }
 
-export type SearchKind = 'FUNCTION' | 'CONNECTOR' | 'TYPE';
+export type SearchKind = 'FUNCTION' | 'CONNECTOR' | 'TYPE' | "NP_FUNCTION";
 
 export type BISearchRequest = {
     position: LineRange;
@@ -723,6 +723,7 @@ export type BISearchResponse = {
 export type BIGetEnclosedFunctionRequest = {
     filePath: string;
     position: LinePosition;
+    findClass?: boolean;
 }
 
 export type BIGetEnclosedFunctionResponse = {

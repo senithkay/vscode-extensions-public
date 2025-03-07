@@ -24,11 +24,13 @@ import {
     RequirementSpecification,
     TestGenerationRequest,
     TestGenerationResponse,
+    abortTestGeneration,
     addChatSummary,
     addToProject,
     applyDoOnFailBlocks,
     checkSyntaxError,
     clearInitialPrompt,
+    createTestDirecoryIfNotExists,
     deleteFromProject,
     fetchData,
     generateMappings,
@@ -108,6 +110,7 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getResourceSourceForMethodAndPath, (args: string) => rpcManger.getResourceSourceForMethodAndPath(args));
     messenger.onRequest(getServiceNames, () => rpcManger.getServiceNames());
     messenger.onRequest(getResourceMethodAndPaths, () => rpcManger.getResourceMethodAndPaths());
+    messenger.onNotification(abortTestGeneration, () => rpcManger.abortTestGeneration());
     messenger.onRequest(getMappingsFromRecord, (args: GenerateMappingsFromRecordRequest) => rpcManger.getMappingsFromRecord(args));
     messenger.onRequest(getTypesFromRecord, (args: GenerateTypesFromRecordRequest) => rpcManger.getTypesFromRecord(args));
     messenger.onNotification(applyDoOnFailBlocks, () => rpcManger.applyDoOnFailBlocks());
@@ -128,4 +131,5 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(readDeveloperMdFile, (args: string) => rpcManger.readDeveloperMdFile(args));
     messenger.onNotification(updateDevelopmentDocument, (args: DeveloperDocument) => rpcManger.updateDevelopmentDocument(args));
     messenger.onNotification(updateRequirementSpecification, (args: RequirementSpecification) => rpcManger.updateRequirementSpecification(args));
+    messenger.onNotification(createTestDirecoryIfNotExists, (args: string) => rpcManger.createTestDirecoryIfNotExists(args));
 }

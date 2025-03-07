@@ -172,6 +172,7 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
                         data-testid={`go-to-sub-mapping-btn-${index}`}
                         tooltip="Go to sub mapping"
                         onClick={onClickOnExpand}
+                        data-field-action
                     >
                         <Codicon
                             name="export"
@@ -184,6 +185,7 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
                             tooltip="Delete sub mapping"
                             onClick={onClickOnDelete}
                             data-testid={`delete-sub-mapping-btn-${index}`}
+                            data-field-action
                         >
                             <Codicon
                                 name="trash"

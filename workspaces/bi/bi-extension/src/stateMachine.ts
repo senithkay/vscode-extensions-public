@@ -33,7 +33,7 @@ const stateMachine = createMachine<MachineContext>({
                     {
                         target: 'ready',
                         actions: assign({
-                            isBI: (context, event) => event.data,
+                            isBI: (context, event) => event.data.isBI,
                             isMultiRoot: (context, event) => event.data.isMultiRoot
                         })
                     },

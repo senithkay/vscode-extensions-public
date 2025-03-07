@@ -42,7 +42,7 @@ const AddPanel = styled.div({
     position: "relative", // Add this line to position the close button absolutely
     display: "flex",
     flexDirection: "column",
-    gap: 25,
+    gap: 32,
     padding: 16,
 });
 
@@ -55,12 +55,13 @@ const PanelViewMore = styled.div({
 const CardGrid = styled.div`
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
+    gap: 12px;
     width: 100%;
 `;
 
 const Title = styled(Typography)`
-    margin: 8px 0;
+    margin: 4px 0;
+    font-size: 16px;
 `;
 
 const Card = styled.div`
@@ -79,6 +80,11 @@ const Card = styled.div`
     padding: 16px;
     border-radius: 4px;
     cursor: pointer;
+`;
+
+const TitleWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
 `;
 
 // Add this styled component for the close button
@@ -192,39 +198,43 @@ export function ComponentListView() {
                 <Container>
                     <AddPanel>
                         <PanelViewMore>
-                            <Title variant="h2">Automation</Title>
-                            <BodyText>Explore automation options to streamline your integration processes.</BodyText>
+                            <TitleWrapper>
+                                <Title variant="h2">Automation</Title>
+                                <BodyText>Explore automation options to streamline your integration processes.</BodyText>
+                            </TitleWrapper>
                             <CardGrid>
                                 <ButtonCard
                                     icon={<Icon name="bi-task" />}
                                     title="Automation"
-                                    description="Trigger your integration with a task. Perfect for scheduled/one-time jobs."
+                                    // description="Trigger your integration with a task. Perfect for scheduled/one-time jobs."
                                     onClick={() => handleClick(DIRECTORY_MAP.AUTOMATION)}
                                 />
                             </CardGrid>
                         </PanelViewMore>
                         <PanelViewMore>
-                            <Title variant="h2">Integration as API</Title>
-                            <BodyText>
-                                Explore and manage various components to enhance your integration capabilities.
-                            </BodyText>
+                            <TitleWrapper>
+                                <Title variant="h2">Integration as API</Title>
+                                <BodyText>
+                                    Explore and manage various components to enhance your integration capabilities.
+                                </BodyText>
+                            </TitleWrapper>
                             <CardGrid>
                                 <ButtonCard
                                     icon={<Icon name="bi-http-service" />}
                                     title="HTTP Service"
-                                    description="Handle web requests and responses."
+                                    // description="Handle web requests and responses."
                                     onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "http")}
                                 />
                                 <ButtonCard
-                                    icon={<Icon name="bi-graphql" />}
+                                    icon={<Icon name="bi-graphql" sx={{ color: "#e535ab" }} />}
                                     title="GraphQL Service"
-                                    description="Flexible and efficient data queries."
+                                    // description="Flexible and efficient data queries."
                                     onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "graphql")}
                                 />
                                 <ButtonCard
                                     icon={<Icon name="bi-tcp" />}
                                     title="TCP Service"
-                                    description="Process connection oriented messages."
+                                    // description="Process connection oriented messages."
                                     onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "tcp")}
                                 />
                                 {/* TODO: Add this when GRPC is working */}
@@ -237,12 +247,13 @@ export function ComponentListView() {
                             </CardGrid>
                         </PanelViewMore>
                         <PanelViewMore>
-                            <Divider />
-                            <Title variant="h2">Event Integration</Title>
-                            <BodyText>
-                                Configure event-driven integrations for your project. Explore the available options
-                                below.
-                            </BodyText>
+                            <TitleWrapper>
+                                <Title variant="h2">Event Integration</Title>
+                                <BodyText>
+                                    Configure event-driven integrations for your project. Explore the available options
+                                    below.
+                                </BodyText>
+                            </TitleWrapper>
                             <CardGrid>
                                 {triggers.local
                                     .filter((t) => t.type === "event")
@@ -251,7 +262,7 @@ export function ComponentListView() {
                                             <ButtonCard
                                                 key={item.id}
                                                 title={item.name}
-                                                description={`${item.orgName}/${item.moduleName}`}
+                                                // description={`${item.orgName}/${item.moduleName}`}
                                                 icon={getEntryNodeIcon(item)}
                                                 onClick={() => {
                                                     handleClick(DIRECTORY_MAP.SERVICES, item.moduleName);
@@ -259,18 +270,19 @@ export function ComponentListView() {
                                             />
                                         );
                                     })}
-                                <Card onClick={() => handleClick(DIRECTORY_MAP.TRIGGERS)}>
+                                {/* <Card onClick={() => handleClick(DIRECTORY_MAP.TRIGGERS)}>
                                     <LinkButton onClick={() => handleClick(DIRECTORY_MAP.TRIGGERS)}>
                                         {" "}
                                         View More
                                     </LinkButton>
-                                </Card>
+                                </Card> */}
                             </CardGrid>
                         </PanelViewMore>
                         <PanelViewMore>
-                            <Divider />
-                            <Title variant="h2">File Integration</Title>
-                            <BodyText>Select the file integration type that best suits your project's needs.</BodyText>
+                            <TitleWrapper>
+                                <Title variant="h2">File Integration</Title>
+                                <BodyText>Select the file integration type that best suits your project's needs.</BodyText>
+                            </TitleWrapper>
                             <CardGrid>
                                 {triggers.local
                                     .filter((t) => t.type === "file")
@@ -279,7 +291,7 @@ export function ComponentListView() {
                                             <ButtonCard
                                                 key={item.id}
                                                 title={item.name}
-                                                description={`${item.orgName}/${item.moduleName}`}
+                                                // description={`${item.orgName}/${item.moduleName}`}
                                                 icon={
                                                     item.icon ? (
                                                         <img
@@ -300,11 +312,12 @@ export function ComponentListView() {
                             </CardGrid>
                         </PanelViewMore>
                         <PanelViewMore>
-                            <Divider />
-                            <Title variant="h2">Other Artifacts</Title>
-                            <BodyText>
-                                Manage additional components for your integration. Select from the options below.
-                            </BodyText>
+                            <TitleWrapper>
+                                <Title variant="h2">Other Artifacts</Title>
+                                <BodyText>
+                                    Manage additional components for your integration. Select from the options below.
+                                </BodyText>
+                            </TitleWrapper>
                             <CardGrid>
                                 <ButtonCard
                                     icon={<Icon name="bi-connection" />}
@@ -354,7 +367,7 @@ export function getCustomEntryNodeIcon(type: string) {
         case "kafka":
             return <Icon name="bi-kafka" />;
         case "rabbitmq":
-            return <Icon name="bi-rabbitmq" />;
+            return <Icon name="bi-rabbitmq" sx={{ color: "#f60" }} />;
         case "nats":
             return <Icon name="bi-nats" />;
         case "mqtt":
@@ -362,14 +375,17 @@ export function getCustomEntryNodeIcon(type: string) {
         case "grpc":
             return <Icon name="bi-grpc" />;
         case "graphql":
-            return <Icon name="bi-graphql" />;
+            return <Icon name="bi-graphql" sx={{ color: "#e535ab" }} />;
         case "java.jms":
             return <Icon name="bi-java" />;
+        case "trigger.github":
+            return <Icon name="bi-github" />;
         default:
             return null;
     }
 }
 // TODO: This should be removed once the new icons are added to the BE API.
 export function getEntryNodeIcon(item: TriggerNode) {
-    return getCustomEntryNodeIcon(item.moduleName) || <img src={item.icon} alt={item.name} style={{ width: "40px" }} />;
+    console.log(">>> item", item);
+    return getCustomEntryNodeIcon(item.moduleName) || <img src={item.icon} alt={item.name} style={{ width: "38px" }} />;
 }
