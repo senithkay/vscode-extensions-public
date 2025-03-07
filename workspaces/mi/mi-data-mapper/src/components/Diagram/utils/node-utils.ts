@@ -29,7 +29,8 @@ import {
     ObjectOutputNode,
     OutputDataImportNodeModel,
     PrimitiveOutputNode,
-    SubMappingNode
+    SubMappingNode,
+    UnionOutputNode
 } from '../Node';
 import { DataMapperContext } from '../../../utils/DataMapperContext/DataMapperContext';
 import { getTypeName } from './common-utils';
@@ -37,7 +38,7 @@ import { InputOutputPortModel } from '../Port';
 import { SourceNodeType } from '../../../components/DataMapper/Views/DataMapperView';
 import { ARRAY_FILTER_NODE_PREFIX } from './constants';
 
-type SubMappingOutputNode = ArrayOutputNode | ObjectOutputNode | PrimitiveOutputNode;
+type SubMappingOutputNode = ArrayOutputNode | ObjectOutputNode | PrimitiveOutputNode | UnionOutputNode;
 
 export function createInputNodeForDmFunction(
     fnDecl: FunctionDeclaration,
@@ -123,14 +124,16 @@ export function getOutputNode(
         if (Node.isAsExpression(expression)) {
             expression = expression.getExpression();
         }
-        if (outputType.unionTypes.every(unionType =>
-            (unionType.kind === TypeKind.Interface || unionType.kind === TypeKind.Object))) {
-            return new ObjectOutputNode(context, expression, outputType, isSubMapping);
-        } else if (outputType.unionTypes.every(unionType => unionType.kind === TypeKind.Array)) {
-            return new ArrayOutputNode(context, expression, outputType, isSubMapping);
-        } else {
-            // TODO: handle mixed union types, i.e. MyType | string, MyType | MyType[]
-        }
+        // if (outputType.unionTypes.every(unionType =>
+        //     (unionType.kind === TypeKind.Interface || unionType.kind === TypeKind.Object))) {
+        //     return new ObjectOutputNode(context, expression, outputType, isSubMapping);
+        // } else if (outputType.unionTypes.every(unionType => unionType.kind === TypeKind.Array)) {
+        //     return new ArrayOutputNode(context, expression, outputType, isSubMapping);
+        // } else {
+        //     // TODO: handle mixed union types, i.e. MyType | string, MyType | MyType[]
+        // }
+        return new UnionOutputNode(context, expression, outputType, isSubMapping);
+
     }
     return new PrimitiveOutputNode(context, expression, outputType, isSubMapping);
 }
