@@ -73,6 +73,7 @@ export function AgentConfigForm(props: ConfigProps) {
                                     fileName={filePath}
                                     targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
                                     fields={formFields}
+                                    nestedForm={true}
                                     onBack={onBack}
                                     onSubmit={handleSubmit}
                                     submitText={formSubmitText}

@@ -183,12 +183,16 @@ function getFormFieldValue(expression: Property, clientName?: string) {
 }
 
 function getFormFieldValueType(expression: Property): string | undefined {
-    if (!expression.valueTypeConstraint) {
-        return undefined;
-    }
+    // if (!expression.valueTypeConstraint) {
+    //     return undefined;
+    // }
 
     if (Array.isArray(expression.valueTypeConstraint)) {
         return undefined;
+    }
+
+    if (expression.valueType) {
+        return expression.valueType;
     }
 
     return expression.valueTypeConstraint;
@@ -722,11 +726,14 @@ function handleRepeatableProperty(property: Property, formField: FormField): voi
     };
 }
 
-export function convertConfig(properties: NodeProperties): FormField[] {
+export function convertConfig(properties: NodeProperties, skipKeys: string[] = []): FormField[] {
     const formFields: FormField[] = [];
     const sortedKeys = Object.keys(properties).sort();
 
     for (const key of sortedKeys) {
+        if (skipKeys.includes(key)) {
+            continue;
+        }
         const property = properties[key as keyof NodeProperties];
         const formField = convertNodePropertyToFormField(key, property);
 

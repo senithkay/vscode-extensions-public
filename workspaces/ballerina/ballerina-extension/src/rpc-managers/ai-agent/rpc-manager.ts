@@ -26,7 +26,8 @@ import {
     NodePosition,
     STModification,
     SyntaxTree,
-    TextEdit
+    TextEdit,
+    AgentToolRequest
 } from "@wso2-enterprise/ballerina-core";
 import { writeFileSync } from "fs";
 import { Uri } from "vscode";
@@ -125,7 +126,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                 // Create the tools first
                 if (params.newTools.length > 0) {
                     for (const tool of params.newTools) { // create tools one by one
-                        await this.createTool(tool);
+                        await this.createAgentTool(tool);
                         selectedToolList.push(tool.toolName);
                     }
                 }
@@ -156,6 +157,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                             flowNode: modelFlowNode
                         });
                     await this.updateSource(codeEdits.textEdits);
+                    await new Promise(resolve => setTimeout(resolve, 2000));
                 } else {
                     const existingModels = await StateMachine.langClient().getModels({ agent: fixedAgentCodeData.object, filePath });
                     console.log("Get existingModels ", existingModels.models);
@@ -185,8 +187,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                         flowNode: agentFlowNode
                     });
                 await this.updateSource(codeEdits.textEdits);
-
-
+                await new Promise(resolve => setTimeout(resolve, 2000));
                 // TODO: Add the agent call to the diagram
                 // Create AI Agent call
                 // const agentCallRequest: BINodeTemplateRequest = {
@@ -296,6 +297,53 @@ export class AiAgentRpcManager implements AIAgentAPI {
                     connection: connectionName
                 });
             await this.updateSource(codeEdits.textEdits);
+        } catch (error) {
+            console.error(`Failed to create tool: ${error}`);
+        }
+    }
+
+    async createAgentTool(tool: AgentToolRequest): Promise<void> {
+        try {
+            const projectUri = StateMachine.context().projectUri;
+            const toolName = tool.toolName;
+            const toolsPath = Utils.joinPath(URI.file(projectUri), "agents.bal").fsPath;
+            let flowNode: FlowNode; // REMOTE_ACTION_CALL| FUNCTION_DEFINITION
+
+            if (tool.selectedCodeData.node === "REMOTE_ACTION_CALL") {
+                const filePath = Utils.joinPath(URI.file(projectUri), "connections.bal").fsPath;
+                const connectorActionCodeData = tool.selectedCodeData;
+                // Get the flowNode for connector action
+                const connectorActionFlowNode = await StateMachine.langClient()
+                    .getNodeTemplate({
+                        position: { line: 0, offset: 0 },
+                        filePath: filePath,
+                        id: connectorActionCodeData,
+                    });
+                flowNode = connectorActionFlowNode.flowNode;
+                this.updateFlowNodeProperties(flowNode);
+            }
+            if (tool.selectedCodeData.node === "FUNCTION_CALL") {
+                const filePath = Utils.joinPath(URI.file(projectUri), "functions.bal").fsPath;
+                // Get the flowNode for existing function action
+                const existingFunctionFlowNode = await StateMachine.langClient()
+                    .getFunctionNode({
+                        functionName: tool.selectedCodeData.symbol,
+                        fileName: "functions.bal",
+                        projectPath: projectUri
+                    });
+                flowNode = existingFunctionFlowNode.functionDefinition as FlowNode;
+            }
+
+            // Create a new tool
+            const codeEdits = await StateMachine.langClient()
+                .genTool({
+                    filePath: toolsPath,
+                    flowNode: flowNode,
+                    toolName: toolName,
+                    connection: tool.selectedCodeData.parentSymbol || ""
+                });
+            await this.updateSource(codeEdits.textEdits);
+            await new Promise(resolve => setTimeout(resolve, 2000));
         } catch (error) {
             console.error(`Failed to create tool: ${error}`);
         }

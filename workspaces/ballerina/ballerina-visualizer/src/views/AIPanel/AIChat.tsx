@@ -504,6 +504,12 @@ export function AIChat() {
                                 setIsReqFileExists(true);
                             }
 
+                            const isTestGenerationTemplateExists = 
+                                        isContentIncludedInMessageBody(messageBody, GENERATE_TEST_AGAINST_THE_REQUIREMENT)
+                            if (isTestGenerationTemplateExists) {
+                                rpcClient.getAiPanelRpcClient().createTestDirecoryIfNotExists(chatLocation);
+                            }
+
                             await processCodeGeneration(
                                 token,
                                 [
@@ -513,8 +519,8 @@ export function AIChat() {
                                     attachments,
                                     isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT) 
                                         ? CodeGenerationType.CODE_FOR_USER_REQUIREMENT 
-                                        : isContentIncludedInMessageBody(messageBody, GENERATE_TEST_AGAINST_THE_REQUIREMENT) ? 
-                                            CodeGenerationType.TESTS_FOR_USER_REQUIREMENT : CodeGenerationType.CODE_GENERATION
+                                        : isTestGenerationTemplateExists ? CodeGenerationType.TESTS_FOR_USER_REQUIREMENT 
+                                        : CodeGenerationType.CODE_GENERATION
                                 ],
                                 message
                             );
@@ -1015,7 +1021,7 @@ export function AIChat() {
         const chatSummaryResponseStr = await streamToString(response.body);
         await rpcClient.getAiPanelRpcClient()
             .addChatSummary({summary: chatSummaryResponseStr, filepath: chatLocation});
-        previousDevelopmentDocumentContent = developerMdContentWithTimeStamp;
+        previousDevelopmentDocumentContent = developerMdContent;
     };
 
     async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
@@ -1636,7 +1642,7 @@ export function AIChat() {
 
     async function processHealthcareCodeGeneration(token: string, useCase: string, message: string) {
         let assistant_response = "";
-        const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource();
+        const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource(CodeGenerationType.CODE_GENERATION);
         const requestBody: any = {
             usecase: useCase,
             chatHistory: chatArray,

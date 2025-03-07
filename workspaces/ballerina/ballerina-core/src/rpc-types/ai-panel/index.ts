@@ -60,4 +60,5 @@ export interface AIPanelAPI {
     readDeveloperMdFile:(directoryPath: string) => Promise<string>;
     updateDevelopmentDocument:(developerDocument: DeveloperDocument) => void;
     updateRequirementSpecification:(requirementsSpecification: RequirementSpecification) => void;
+    createTestDirecoryIfNotExists:(directoryPath: string) => void;
 }
