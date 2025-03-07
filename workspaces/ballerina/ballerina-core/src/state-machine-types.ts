@@ -58,7 +58,7 @@ export enum MACHINE_VIEW {
     EditConnectionWizard = "Edit Connection Wizard",
     BIMainFunctionForm = "Add Automation",
     BIFunctionForm = "Add Function",
-    BINPFunctionForm = "Add NP Function",
+    BINPFunctionForm = "Add Prompt as code function",
     BITestFunctionForm = "Add Test Function",
     BIServiceWizard = "Service Wizard",
     BIServiceConfigView = "Service Config View",
