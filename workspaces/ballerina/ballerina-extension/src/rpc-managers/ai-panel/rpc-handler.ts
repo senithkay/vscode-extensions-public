@@ -24,6 +24,7 @@ import {
     RequirementSpecification,
     TestGenerationRequest,
     TestGenerationResponse,
+    abortTestGeneration,
     addChatSummary,
     addToProject,
     applyDoOnFailBlocks,
@@ -109,6 +110,7 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getResourceSourceForMethodAndPath, (args: string) => rpcManger.getResourceSourceForMethodAndPath(args));
     messenger.onRequest(getServiceNames, () => rpcManger.getServiceNames());
     messenger.onRequest(getResourceMethodAndPaths, () => rpcManger.getResourceMethodAndPaths());
+    messenger.onNotification(abortTestGeneration, () => rpcManger.abortTestGeneration());
     messenger.onRequest(getMappingsFromRecord, (args: GenerateMappingsFromRecordRequest) => rpcManger.getMappingsFromRecord(args));
     messenger.onRequest(getTypesFromRecord, (args: GenerateTypesFromRecordRequest) => rpcManger.getTypesFromRecord(args));
     messenger.onNotification(applyDoOnFailBlocks, () => rpcManger.applyDoOnFailBlocks());

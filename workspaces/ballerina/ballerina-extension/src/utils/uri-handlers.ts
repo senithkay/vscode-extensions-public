@@ -46,9 +46,9 @@ export function activateUriHandlers(ballerinaExtInstance: BallerinaExtension) {
                     console.log("Code: " + code);
                     if (code) {
                         exchangeAuthCode(code);
-                    } else {
-                        // Handle error here
                     }
+                    console.log("Auth code not found. Ignoring");
+                    break;
                 case '/open':
                     const org = urlParams.get("org");
                     const project = urlParams.get("project");
