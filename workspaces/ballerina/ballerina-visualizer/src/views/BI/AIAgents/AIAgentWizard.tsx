@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { AgentTool, AIAgentRequest, CodeData, EVENT_TYPE, ListenerModel, ListenersResponse, PropertyModel, ServiceModel, TriggerModelsResponse } from '@wso2-enterprise/ballerina-core';
+import { AgentTool, AgentToolRequest, AIAgentRequest, CodeData, EVENT_TYPE, ListenerModel, ListenersResponse, PropertyModel, ServiceModel, TriggerModelsResponse } from '@wso2-enterprise/ballerina-core';
 import { Dropdown, Icon, OptionProps, RadioButtonGroup, Stepper, Typography, View, ViewContent } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
@@ -28,6 +28,7 @@ import { convertConfig } from '../../../utils/bi';
 import AgentEntryConfigForm from './Forms/AgentEntryConfigForm';
 import { FormHeader } from '../../../components/FormHeader';
 import { RelativeLoader } from '../../../components/RelativeLoader';
+import { AIAgentSidePanel } from './AIAgentSidePanel';
 
 const FORM_WIDTH = 600;
 
@@ -118,7 +119,7 @@ export function AIAgentWizard() {
     const [newModels, setNewModels] = useState<CodeData[]>([]);
     const [selectedNewModel, setSelectedNewModel] = useState<string>("");
 
-    const [newTools, setNewTools] = useState<AgentTool[]>([]);
+    const [newTools, setNewTools] = useState<AgentToolRequest[]>([]);
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [fetching, setFetching] = useState<boolean>(false);
@@ -151,7 +152,7 @@ export function AIAgentWizard() {
     }, [filePath]);
 
     useEffect(() => {
-        if (step === 2) {
+        if (step === 2 && !openToolsForm) {
             setupToolsFields();
         }
     }, [newTools, step]);
@@ -283,9 +284,25 @@ export function AIAgentWizard() {
         rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: response.filePath, position: response.position } })
     }
 
-    const handleToolCreation = (data: AgentTool) => {
+    // TODO: Remove these once side panel is final
+    // const handleToolCreation = (data: AgentTool) => {
+    //     setNewTools([...newTools, data]);
+    //     setOpenToolsForm(false);
+    // }
+
+    useEffect(() => {
+        console.log("xxx openToolsForm changed to:", openToolsForm);
+    }, [openToolsForm]);
+
+    const handleToolCreationSidePanel = (data: AgentToolRequest) => {
         setNewTools([...newTools, data]);
+        handleOnToolFormBack();
+    }
+    const handleOnToolFormBack = () => {
         setOpenToolsForm(false);
+    }
+    const handleToolFormOpen = () => {
+        setOpenToolsForm(true);
     }
 
     const defaultSteps = ["Agent Configuration", "Model Configuration", "Tool Integration"];
@@ -378,8 +395,9 @@ export function AIAgentWizard() {
                                     <RelativeLoader message={"Loading tools.."} />
                                 </BottomMarginTextWrapper>
                             }
-                            {!fetching && !openToolsForm && <ToolsConfigForm formFields={toolsFields} onSubmit={handleFinish} openToolsForm={() => setOpenToolsForm(true)} onBack={() => setStep(1)} formSubmitText="Finish" />}
-                            {!fetching && openToolsForm && <ToolsCreateForm onSubmit={handleToolCreation} onBack={() => setOpenToolsForm(false)} />}
+                            {!fetching && <ToolsConfigForm formFields={toolsFields} onSubmit={handleFinish} openToolsForm={handleToolFormOpen} onBack={() => setStep(1)} formSubmitText="Finish" />}
+                            {/* {!fetching && openToolsForm && <ToolsCreateForm onSubmit={handleToolCreation} onBack={() => setOpenToolsForm(false)} />} */}
+                            {!fetching && <AIAgentSidePanel projectPath={filePath} showSidePanel={openToolsForm} onSubmit={handleToolCreationSidePanel} onBack={handleOnToolFormBack} />}
                         </>
                     }
                 </Container>

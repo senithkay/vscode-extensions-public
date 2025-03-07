@@ -84,7 +84,7 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
     const { form } = useFormContext();
     const { register, unregister, setValue, watch } = form;
 
-    const NEW_OPTION = "NEW";
+    const NEW_OPTION = "Create New Tool";
 
     const noOfSelectedValues = field.items.length === 0 ? 0 : (field.value === "" ? 1 : field.value.length);
     const [dropdownCount, setDropdownCount] = useState(noOfSelectedValues);
@@ -93,10 +93,9 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
     const values = [...Array(dropdownCount)].map((_, index) => {
         const value = watch(`${field.key}-${index}`);
         if (value === NEW_OPTION) {
-            openSubPanel({ view: SubPanelView.ADD_NEW_FORM })
-        } else {
-            return value || getValueForDropdown(field, index);
+            return;
         }
+        return value || getValueForDropdown(field, index);
     }).filter(Boolean);
 
     // Update the main field with the array of values
@@ -110,18 +109,8 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
     }
 
     const getItemsList = (): OptionProps[] => {
-        const content = (
-            <S.AddNewButtonOption>
-                <Codicon name="add" />
-                {field.addNewButtonLabel || field.label}
-            </S.AddNewButtonOption>
-        )
         const items = field.items?.map((item) => ({ id: item, content: item, value: item }));
-        if (field.addNewButton && openSubPanel) {
-            return [...items, { value: NEW_OPTION, content }];
-        } else {
-            return items;
-        }
+        return items;
     }
 
     const onAddAnother = () => {
@@ -164,6 +153,8 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
                         disabled={!field.editable}
                         sx={{ width: "100%" }}
                         containerSx={{ width: "100%" }}
+                        addNewBtnClick={() => openSubPanel({ view: SubPanelView.ADD_NEW_FORM })}
+                        addNewBtnLabel={field.addNewButtonLabel || field.label}
                     />
                     {
                         <S.DeleteButton

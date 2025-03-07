@@ -105,6 +105,7 @@ export type CodeData = {
     symbol?: string;
     lineRange?: ELineRange;
     sourceCode?: string;
+    parentSymbol?: string;
 };
 
 export type Branch = {

@@ -31,13 +31,18 @@ export interface AgentTool {
     connectionName: string;
 }
 
+export interface AgentToolRequest {
+    toolName: string;
+    selectedCodeData: CodeData; // Codedata can be FUNCTION_CALL | REMOTE_ACTION_CALL
+}
+
 export interface AIAgentRequest {
     agentFields: any[]; // Need to fix this type
     modelFields: any[];
     modelState: number; // 1 = New, 2 = Existing
     selectedModel: string;
     toolsFields: any[];
-    newTools: AgentTool[];
+    newTools: AgentToolRequest[];
 }
 
 export interface AIAgentResponse {
