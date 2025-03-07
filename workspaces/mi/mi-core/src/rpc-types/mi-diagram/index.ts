@@ -229,7 +229,10 @@ import {
     CopyArtifactRequest,
     CopyArtifactResponse,
     GetArtifactTypeRequest,
-    GetArtifactTypeResponse
+    GetArtifactTypeResponse,
+    BuildProjectRequest,
+    DeployProjectRequest,
+    DeployProjectResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -346,7 +349,8 @@ export interface MiDiagramAPI {
     getArtifactType: (params: GetArtifactTypeRequest) => Promise<GetArtifactTypeResponse>;
     deleteArtifact: (params: DeleteArtifactRequest) => void;
     getAllAPIcontexts: () => Promise<APIContextsResponse>;
-    buildProject: () => void;
+    buildProject: (params: BuildProjectRequest) => void;
+    deployProject: (params: DeployProjectRequest) => Promise<DeployProjectResponse>;
     exportProject: (params: ExportProjectRequest) => void;
     checkOldProject: () => Promise<boolean>;
     refreshAccessToken: () => Promise<void>;
@@ -376,9 +380,9 @@ export interface MiDiagramAPI {
     tryOutMediator: (params: MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;
     shutDownTryoutServer: () => Promise<boolean>;
     getMIVersionFromPom: () => Promise<MiVersionResponse>;
-    saveInputPayload: (params:SavePayloadRequest) => Promise<boolean>;
-    getInputPayloads: (params:GetPayloadsRequest) => Promise<GetPayloadsResponse>;
-    getMediatorInputOutputSchema: (params:MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;
+    saveInputPayload: (params: SavePayloadRequest) => Promise<boolean>;
+    getInputPayloads: (params: GetPayloadsRequest) => Promise<GetPayloadsResponse>;
+    getMediatorInputOutputSchema: (params: MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;
     getMediators: (param: GetMediatorsRequest) => Promise<GetMediatorsResponse>;
     getMediator: (param: GetMediatorRequest) => Promise<GetMediatorResponse>;
     updateMediator: (param: UpdateMediatorRequest) => Promise<void>;

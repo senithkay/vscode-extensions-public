@@ -1628,6 +1628,16 @@ export interface APIContextsResponse {
     contexts: string[]
 }
 
+export interface BuildProjectRequest {
+    buildType?: 'docker' | 'capp';
+}
+
+export interface DeployProjectRequest {
+}
+export interface DeployProjectResponse {
+    success: boolean;
+}
+
 export interface ExportProjectRequest {
     projectPath: string;
 }
@@ -1909,7 +1919,7 @@ export interface GetMediatorsRequest {
 }
 
 export interface GetMediatorsResponse {
-    [key: string]: { 
+    [key: string]: {
         items: Mediator[] | MediatorCategory[],
         isConnector?: boolean;
         isSupportCategories?: boolean;
