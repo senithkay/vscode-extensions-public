@@ -799,17 +799,17 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async getDriftDiagnosticContents(projectPath: string): Promise<LLMDiagnostics> {
-        const response = await getLLMDiagnosticArrayAsString(projectPath);
-        if (isNumber(response)) {
+        const result = await getLLMDiagnosticArrayAsString(projectPath);
+        if (isNumber(result)) {
             return {
-                statusCode: response,
-                diags: null
+                statusCode: result,
+                diags: ""
             };
         }
 
         return {
-            statusCode: null,
-            diags: response
+            statusCode: 200,
+            diags: result
         };
     }
 

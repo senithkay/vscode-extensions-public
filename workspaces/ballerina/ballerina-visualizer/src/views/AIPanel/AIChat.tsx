@@ -679,12 +679,12 @@ export function AIChat() {
         let response: LLMDiagnostics =  rpcClient == null ? {statusCode: null, diags: ""} : 
             await rpcClient.getAiPanelRpcClient().getDriftDiagnosticContents(chatLocation);
 
-        if (response == null) {
-            // TODO: Handle this properly
-            response = {statusCode: null, diags: ""};
-        }
-
         const responseStatus = response.statusCode;
+        const invalidResponse = response == null|| response.statusCode == null;
+
+        if (invalidResponse) {
+            throw new Error(`Failed to check drift between code and documentation. Please try again.`);
+        }
 
         if (responseStatus < 200 && responseStatus >= 300) {
             if (responseStatus > 400 && responseStatus < 500) {
