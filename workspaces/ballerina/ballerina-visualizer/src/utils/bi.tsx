@@ -183,12 +183,16 @@ function getFormFieldValue(expression: Property, clientName?: string) {
 }
 
 function getFormFieldValueType(expression: Property): string | undefined {
-    if (!expression.valueTypeConstraint) {
-        return undefined;
-    }
+    // if (!expression.valueTypeConstraint) {
+    //     return undefined;
+    // }
 
     if (Array.isArray(expression.valueTypeConstraint)) {
         return undefined;
+    }
+
+    if (expression.valueType) {
+        return expression.valueType;
     }
 
     return expression.valueTypeConstraint;

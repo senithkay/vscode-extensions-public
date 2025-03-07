@@ -23,3 +23,7 @@ export const DRIFT_DIAGNOSTIC_ID = "NLE001";
 export const PROGRESS_BAR_MESSAGE = "Checking the drift between code and documentation...";
 export const WARNING_MESSAGE = "You need to sign up for Ballerina Copilot to detect drift between code and documentation.";
 export const WARNING_MESSAGE_DEFAULT = "Failed to detect drift between code and documentation. Please try again";
+export const LACK_OF_DOCUMENTATION_WARNING = "lack of documentation";
+export const NO_DOCUMENTATION_WARNING = "no documentation found";
+export const MISSING_README_FILE_WARNING = "missing readme";
+export const MISSING_REQUIREMENT_FILE = "missing requirement";

@@ -50,5 +50,6 @@ export type FormExpressionEditorElProps = FormExpressionEditorProps & {
 
 export type FormExpressionEditorRef = ExpressionEditorRef & {
     inputElement: HTMLTextAreaElement;
+    parentElement: HTMLElement;
     setCursor: (value: string, cursorPosition: number) => void;
 };

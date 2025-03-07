@@ -504,6 +504,12 @@ export function AIChat() {
                                 setIsReqFileExists(true);
                             }
 
+                            const isTestGenerationTemplateExists = 
+                                        isContentIncludedInMessageBody(messageBody, GENERATE_TEST_AGAINST_THE_REQUIREMENT)
+                            if (isTestGenerationTemplateExists) {
+                                rpcClient.getAiPanelRpcClient().createTestDirecoryIfNotExists(chatLocation);
+                            }
+
                             await processCodeGeneration(
                                 token,
                                 [
@@ -513,8 +519,8 @@ export function AIChat() {
                                     attachments,
                                     isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT) 
                                         ? CodeGenerationType.CODE_FOR_USER_REQUIREMENT 
-                                        : isContentIncludedInMessageBody(messageBody, GENERATE_TEST_AGAINST_THE_REQUIREMENT) ? 
-                                            CodeGenerationType.TESTS_FOR_USER_REQUIREMENT : CodeGenerationType.CODE_GENERATION
+                                        : isTestGenerationTemplateExists ? CodeGenerationType.TESTS_FOR_USER_REQUIREMENT 
+                                        : CodeGenerationType.CODE_GENERATION
                                 ],
                                 message
                             );
