@@ -592,6 +592,11 @@ export function AIChat() {
                 if (commandKey === COMMAND_GENERATE) {
                     await processCodeGeneration(token, [messageBody, attachments, CodeGenerationType.CODE_GENERATION], message);
                     return;
+                } else if (commandKey === COMMAND_NATURAL_PROGRAMMING) {
+                    if (isContentIncludedInMessageBody(messageBody, CodeGenerationType.CODE_FOR_USER_REQUIREMENT)) {
+                        await processCodeGeneration(token, [messageBody, attachments, CodeGenerationType.CODE_GENERATION], message);
+                    }
+                    return;
                 } else if (commandKey === COMMAND_DOCUMENTATION) {
                     await findInDocumentation(messageBody, token);
                     return;
@@ -686,7 +691,7 @@ export function AIChat() {
             throw new Error(`Failed to check drift between code and documentation. Please try again.`);
         }
 
-        if (responseStatus < 200 && responseStatus >= 300) {
+        if (!(responseStatus >= 200 && responseStatus < 300)) {
             if (responseStatus > 400 && responseStatus < 500) {
                 await rpcClient.getAiPanelRpcClient().promptLogin();
                 setIsLoading(false);
@@ -1022,7 +1027,7 @@ export function AIChat() {
         const chatSummaryResponseStr = await streamToString(response.body);
         await rpcClient.getAiPanelRpcClient()
             .addChatSummary({summary: chatSummaryResponseStr, filepath: chatLocation});
-        previousDevelopmentDocumentContent = developerMdContentWithTimeStamp;
+        previousDevelopmentDocumentContent = developerMdContent;
     };
 
     async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
@@ -1643,7 +1648,7 @@ export function AIChat() {
 
     async function processHealthcareCodeGeneration(token: string, useCase: string, message: string) {
         let assistant_response = "";
-        const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource();
+        const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource(CodeGenerationType.CODE_GENERATION);
         const requestBody: any = {
             usecase: useCase,
             chatHistory: chatArray,

@@ -21,7 +21,7 @@ import {
     DEVELOPER_OVERVIEW_FILENAME, NATURAL_PROGRAMMING_PATH, DEVELOPER_OVERVIEW_RELATIVE_PATH,
     REQUIREMENT_DOC_PREFIX, REQUIREMENT_TEXT_DOCUMENT, REQUIREMENT_MD_DOCUMENT,
     README_FILE_NAME_LOWERCASE, DRIFT_DIAGNOSTIC_ID,
-    LACK_OF_API_DOCUMENTATION_WARNING,
+    LACK_OF_API_DOCUMENTATION_WARNING, LACK_OF_API_DOCUMENTATION_WARNING_2,
     NO_DOCUMENTATION_WARNING,
     MISSING_README_FILE_WARNING,
     MISSING_REQUIREMENT_FILE
@@ -432,8 +432,9 @@ export async function streamToString(stream: ReadableStream<Uint8Array>): Promis
 }
 
 function isSkippedDiagnostic(result: ResultItem) {
-    if (result.cause.includes(LACK_OF_API_DOCUMENTATION_WARNING) || result.cause.includes(NO_DOCUMENTATION_WARNING)
-        || result.cause.includes(MISSING_README_FILE_WARNING) || result.cause.includes(MISSING_REQUIREMENT_FILE)) {
+    const cause = result.cause.toLowerCase();
+    if (cause.includes(LACK_OF_API_DOCUMENTATION_WARNING) || cause.includes(LACK_OF_API_DOCUMENTATION_WARNING_2) 
+        || cause.includes(NO_DOCUMENTATION_WARNING) || cause.includes(MISSING_README_FILE_WARNING) || cause.includes(MISSING_REQUIREMENT_FILE)) {
             return true;
     }
     return false;
