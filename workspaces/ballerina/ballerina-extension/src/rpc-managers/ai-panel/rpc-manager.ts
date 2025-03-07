@@ -32,7 +32,6 @@ import {
     GetFromFileRequest,
     InitialPrompt,
     LLMDiagnostics,
-    NOT_SUPPORTED_TYPE,
     NotifyAIMappingsRequest,
     PostProcessRequest,
     PostProcessResponse,
@@ -45,8 +44,7 @@ import {
     SyntaxTree,
     TestGenerationMentions,
     TestGenerationRequest,
-    TestGenerationResponse,
-    ProjectDiagnosticsResponse
+    TestGenerationResponse
 } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as crypto from 'crypto';
@@ -59,9 +57,10 @@ import { writeFileSync } from "fs";
 import { isNumber } from "lodash";
 import { getPluginConfig } from "../../../src/utils";
 import { extension } from "../../BalExtensionContext";
-import { ExtendedLangClient, NOT_SUPPORTED } from "../../core";
+import { NOT_SUPPORTED } from "../../core";
 import { generateDataMapping, generateTypeCreation } from "../../features/ai/dataMapping";
 import { generateTest, getDiagnostics, getResourceAccessorDef, getResourceAccessorNames, getServiceDeclaration, getServiceDeclarationNames } from "../../features/ai/testGenerator";
+import { closeAllBallerinaFiles } from "../../features/ai/utils";
 import { getLLMDiagnosticArrayAsString } from "../../features/natural-programming/utils";
 import { StateMachine, updateView } from "../../stateMachine";
 import { loginGithubCopilot } from "../../utils/ai/auth";
@@ -73,13 +72,11 @@ import {
     NATURAL_PROGRAMMING_DIR_NAME, REQUIREMENT_DOC_PREFIX,
     REQUIREMENT_MD_DOCUMENT,
     REQUIREMENT_TEXT_DOCUMENT,
-    REQ_KEY
+    REQ_KEY, TEST_DIR_NAME
 } from "./constants";
+import { attemptRepairProject, checkProjectDiagnostics } from "./repair-utils";
 import { getFunction, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, processMappings, refreshAccessToken, requirementsSpecification, searchDocumentation } from "./utils";
 import { fetchData } from "./utils/fetch-data-utils";
-import { TextDocumentEdit } from "vscode-languageserver-types";
-import { fileURLToPath } from "url";
-import { attemptRepairProject, checkProjectDiagnostics } from "./repair-utils";
 
 export let hasStopped: boolean = false;
 
@@ -433,6 +430,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
         const { langClient, tempDir } = environment;
         let remainingDiags: Diagnostics[] = await attemptRepairProject(langClient, tempDir);
         const filteredDiags: DiagnosticEntry[] = getErrorDiagnostics(remainingDiags);
+        await closeAllBallerinaFiles(tempDir);
         return {
             diagnostics: filteredDiags
         };
@@ -466,6 +464,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
         const { langClient, tempDir } = environment;
         // check project diagnostics
         const projectDiags: Diagnostics[] = await checkProjectDiagnostics(langClient, tempDir);
+        await closeAllBallerinaFiles(tempDir);
         for (const diagnostic of projectDiags) {
             for (const diag of diagnostic.diagnostics) {
                 console.log(diag.code);
@@ -546,7 +545,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
         let remainingDiags: Diagnostics[] = await attemptRepairProject(langClient, tempDir);
 
         const filteredDiags: DiagnosticEntry[] = getErrorDiagnostics(remainingDiags);
-
+        await closeAllBallerinaFiles(tempDir);
         const newAssistantResponse = getModifiedAssistantResponse(assist_resp, tempDir, project);
         return {
             assistant_response: newAssistantResponse,
@@ -812,6 +811,13 @@ export class AiPanelRpcManager implements AIPanelAPI {
             statusCode: null,
             diags: response
         };
+    }
+
+    async createTestDirecoryIfNotExists(directoryPath: string) {
+        const naturalProgrammingDirectory = path.join(directoryPath, TEST_DIR_NAME);
+        if (!fs.existsSync(naturalProgrammingDirectory)) {
+            fs.mkdirSync(naturalProgrammingDirectory, { recursive: true }); // Add recursive: true
+        }
     }
 }
 

@@ -11,34 +11,43 @@ import React from "react";
 import { LinkButton, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
-const Card = styled.div<{ active?: boolean }>`
+const Card = styled.div<{ active?: boolean; appearance?: ButtonCardAppearance }>`
     gap: 16px;
     max-width: 42rem;
-    padding: 16px;
+    padding: 12px;
     border-radius: 4px;
-    border: 2px solid ${(props: { active: boolean }) => (props.active ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT)};
-    background-color: ${(props: { active: boolean }) => (props.active ? ThemeColors.PRIMARY_CONTAINER : ThemeColors.SURFACE_DIM)};
+    border: 1px solid
+        ${(props: { active: boolean }) => (props.active ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT)};
+    background-color: ${(props: { active: boolean }) =>
+        props.active ? ThemeColors.PRIMARY_CONTAINER : ThemeColors.SURFACE_DIM};
     cursor: pointer;
     &:hover {
         background-color: ${ThemeColors.PRIMARY_CONTAINER};
-        border: 2px solid ${ThemeColors.PRIMARY};
+        border: 1px solid ${ThemeColors.PRIMARY};
     }
 `;
 
 const CardContainer = styled.div<{ active?: boolean }>`
     display: flex;
     gap: 12px;
-    align-items: flex-start;
+    align-items: center;
 `;
 
 const Text = styled.p`
-    font-size: 14px;
+    font-size: 13px;
     color: ${ThemeColors.ON_SURFACE};
     margin: 0;
 `;
 
-const Title = styled(Text)`
+interface TextProps {
+    truncate?: boolean;
+}
+
+const Title = styled(Text)<TextProps>`
     font-weight: bold;
+    white-space: ${(props: TextProps) => (props.truncate ? "nowrap" : "normal")};
+    overflow: ${(props: TextProps) => (props.truncate ? "hidden" : "visible")};
+    text-overflow: ${(props: TextProps) => (props.truncate ? "ellipsis" : "clip")};
 `;
 
 const Caption = styled(Text)`
@@ -47,13 +56,24 @@ const Caption = styled(Text)`
     opacity: 0.6;
 `;
 
-const Description = styled(Text)`
+const Description = styled(Text)<TextProps>`
     opacity: 0.8;
     margin-top: 4px;
+    overflow: hidden;
+    display: ${(props: TextProps) => (props.truncate ? "block" : "-webkit-box")};
+    white-space: ${(props: TextProps) => (props.truncate ? "nowrap" : "normal")};
+    text-overflow: ${(props: TextProps) => (props.truncate ? "ellipsis" : "clip")};
+    ${(props: TextProps) =>
+        !props.truncate &&
+        `
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+    `}
 `;
 
 const ContentContainer = styled.div`
     flex: 1;
+    overflow: hidden;
 `;
 
 const IconContainer = styled.div`
@@ -61,37 +81,50 @@ const IconContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    max-width: 32px;
+    max-width: 24px;
     > div:first-child {
-        width: 32px;
-        height: 32px;
-        font-size: 28px;
+        width: 24px;
+        height: 24px;
+        font-size: 24px;
     }
 `;
 
-const ActionButton = styled(LinkButton)`
-    padding: 8px 4px;
-`;
+export type ButtonCardAppearance = "large" | "small";
 
 export interface ButtonCardProps {
     title: string;
     caption?: string;
-    description: string;
+    description?: string;
     icon?: React.ReactNode;
     active?: boolean;
+    appearance?: ButtonCardAppearance;
+    truncate?: boolean;
     onClick: () => void;
 }
 
 export function ButtonCard(props: ButtonCardProps) {
-    const { title, caption, description, icon, active, onClick } = props;
+    const {
+        title,
+        caption,
+        description,
+        icon,
+        active,
+        appearance = "large",
+        truncate: explicitTruncate,
+        onClick,
+    } = props;
+
+    // Apply truncation by default for small appearance if not explicitly set
+    const truncate = explicitTruncate !== undefined ? explicitTruncate : appearance === "small";
+
     return (
-        <Card onClick={onClick} active={active ?? false}>
+        <Card onClick={onClick} active={active ?? false} appearance={appearance}>
             <CardContainer>
                 {icon && <IconContainer>{icon}</IconContainer>}
                 <ContentContainer>
                     {caption && <Caption>{caption}</Caption>}
-                    <Title>{title}</Title>
-                    <Description>{description}</Description>
+                    <Title truncate={truncate}>{title}</Title>
+                    {description && <Description truncate={truncate}>{description}</Description>}
                 </ContentContainer>
             </CardContainer>
         </Card>

@@ -19,6 +19,8 @@ import { EnumEditor } from "./EnumEditor";
 import { UnionEditor } from "./UnionEditor";
 import { ClassEditor } from "./ClassEditor";
 import { AdvancedOptions } from "./AdvancedOptions";
+import { TypeHelperCategory, TypeHelperItem, TypeHelperOperator } from "../TypeHelper";
+import { TypeHelperContext } from "../Context";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -103,6 +105,16 @@ interface TypeEditorProps {
     onTypeChange: (type: Type) => void;
     newType: boolean;
     isGraphql?: boolean;
+    typeHelper: {
+        loading?: boolean;
+        loadingTypeBrowser?: boolean;
+        basicTypes: TypeHelperCategory[];
+        operators: TypeHelperOperator[];
+        typeBrowserTypes: TypeHelperCategory[];
+        onSearchTypeHelper: (searchText: string, isType?: boolean) => void;
+        onSearchTypeBrowser: (searchText: string) => void;
+        onTypeItemClick: (item: TypeHelperItem) => void;
+    }
 }
 
 enum ConfigState {
@@ -383,130 +395,132 @@ export function TypeEditor(props: TypeEditorProps) {
     };
 
     return (
-        <S.Container>
-            {!type ? (
-                <ProgressRing />
-            ) : (
-                <div>
-                    <S.CategoryRow>
-                        {isNewType && (
-                            <Dropdown
-                                id="type-selector"
-                                label="Type"
-                                value={getTypeKindLabel(selectedTypeKind, isGraphql)}
-                                items={getAvailableTypeKinds(isGraphql, selectedTypeKind).map((kind) => ({
-                                    label: getTypeKindLabel(kind, isGraphql),
-                                    value: getTypeKindLabel(kind, isGraphql)
-                                }))}
-                                onChange={(e) => handleTypeKindChange(e.target.value)}
-                            />
-                        )}
-                        {!isNewType && !isEditing && !type.properties["name"].editable && (
-                            <InputWrapper>
+        <TypeHelperContext.Provider value={props.typeHelper}>
+            <S.Container>
+                {!type ? (
+                    <ProgressRing />
+                ) : (
+                    <div>
+                        <S.CategoryRow>
+                            {isNewType && (
+                                <Dropdown
+                                    id="type-selector"
+                                    label="Type"
+                                    value={getTypeKindLabel(selectedTypeKind, isGraphql)}
+                                    items={getAvailableTypeKinds(isGraphql, selectedTypeKind).map((kind) => ({
+                                        label: getTypeKindLabel(kind, isGraphql),
+                                        value: getTypeKindLabel(kind, isGraphql)
+                                    }))}
+                                    onChange={(e) => handleTypeKindChange(e.target.value)}
+                                />
+                            )}
+                            {!isNewType && !isEditing && !type.properties["name"].editable && (
+                                <InputWrapper>
+                                    <TextFieldWrapper>
+                                        <TextField
+                                            id={type.name}
+                                            name={type.name}
+                                            value={type.name}
+                                            label={type?.properties["name"]?.metadata?.label}
+                                            required={!type?.properties["name"]?.optional}
+                                            description={type?.properties["name"]?.metadata?.description}
+                                            readOnly={!type.properties["name"].editable}
+                                        />
+                                    </TextFieldWrapper>
+                                    <EditButton appearance="icon" onClick={startEditing} tooltip="Rename">
+                                        <Icon name="bi-edit" sx={{ width: 18, height: 18, fontSize: 18 }} />
+                                    </EditButton>
+                                </InputWrapper>
+                            )}
+                            {isEditing && (
+                                <>
+                                    <EditableRow>
+                                        <EditRow>
+                                            <TextFieldWrapper>
+                                                <TextField
+                                                    id={type.name}
+                                                    label={type.properties["name"].metadata.label}
+                                                    value={tempName}
+                                                    onChange={(e) => setTempName(e.target.value)}
+                                                    description={type.properties["name"].metadata.description}
+                                                    required={!type.properties["name"].optional}
+                                                    autoFocus
+                                                />
+                                            </TextFieldWrapper>
+                                            <ButtonGroup>
+                                                <StyledButton
+                                                    appearance="secondary"
+                                                    onClick={cancelEditing}
+                                                >
+                                                    Cancel
+                                                </StyledButton>
+                                                <StyledButton
+                                                    appearance="primary"
+                                                    onClick={editTypeName}
+                                                    disabled={!tempName || tempName === type.name}
+                                                >
+                                                    Save
+                                                </StyledButton>
+                                            </ButtonGroup>
+                                        </EditRow>
+
+                                        <WarningText variant="body3">
+                                            Note: Renaming will update all references across the project
+                                        </WarningText>
+                                    </EditableRow>
+
+                                </>
+                            )}
+                            {isNewType && (
                                 <TextFieldWrapper>
                                     <TextField
-                                        id={type.name}
-                                        name={type.name}
+                                        label="Name"
                                         value={type.name}
-                                        label={type?.properties["name"]?.metadata?.label}
-                                        required={!type?.properties["name"]?.optional}
-                                        description={type?.properties["name"]?.metadata?.description}
-                                        readOnly={!type.properties["name"].editable}
+                                        onChange={(e) => {
+                                            setType({ ...type, name: e.target.value });
+                                            setNameError("");  // Clear error when user types
+                                        }}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                onTypeChange(type);
+                                            }
+                                        }}
+                                        onFocus={(e) => e.target.select()}
+                                        ref={nameInputRef}
                                     />
                                 </TextFieldWrapper>
-                                <EditButton appearance="icon" onClick={startEditing} tooltip="Rename">
-                                    <Icon name="bi-edit" sx={{ width: 18, height: 18, fontSize: 18 }} />
-                                </EditButton>
-                            </InputWrapper>
-                        )}
-                        {isEditing && (
+                            )}
+                        </S.CategoryRow>
+
+                        {editorState === ConfigState.EDITOR_FORM &&
                             <>
-                                <EditableRow>
-                                    <EditRow>
-                                        <TextFieldWrapper>
-                                            <TextField
-                                                id={type.name}
-                                                label={type.properties["name"].metadata.label}
-                                                value={tempName}
-                                                onChange={(e) => setTempName(e.target.value)}
-                                                description={type.properties["name"].metadata.description}
-                                                required={!type.properties["name"].optional}
-                                                autoFocus
-                                            />
-                                        </TextFieldWrapper>
-                                        <ButtonGroup>
-                                            <StyledButton
-                                                appearance="secondary"
-                                                onClick={cancelEditing}
-                                            >
-                                                Cancel
-                                            </StyledButton>
-                                            <StyledButton
-                                                appearance="primary"
-                                                onClick={editTypeName}
-                                                disabled={!tempName || tempName === type.name}
-                                            >
-                                                Save
-                                            </StyledButton>
-                                        </ButtonGroup>
-                                    </EditRow>
-
-                                    <WarningText variant="body3">
-                                        Note: Renaming will update all references across the project
-                                    </WarningText>
-                                </EditableRow>
-
+                                {renderEditor()}
+                                <S.Footer>
+                                    <Button onClick={() => onTypeChange(type)}>Save</Button>
+                                </S.Footer>
                             </>
-                        )}
-                        {isNewType && (
-                            <TextFieldWrapper>
-                                <TextField
-                                    label="Name"
-                                    value={type.name}
-                                    onChange={(e) => {
-                                        setType({ ...type, name: e.target.value });
-                                        setNameError("");  // Clear error when user types
-                                    }}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            onTypeChange(type);
-                                        }
-                                    }}
-                                    onFocus={(e) => e.target.select()}
-                                    ref={nameInputRef}
-                                />
-                            </TextFieldWrapper>
-                        )}
-                    </S.CategoryRow>
-
-                    {editorState === ConfigState.EDITOR_FORM &&
-                        <>
-                            {renderEditor()}
-                            <S.Footer>
-                                <Button onClick={() => onTypeChange(type)}>Save</Button>
-                            </S.Footer>
-                        </>
-                    }
-                    {
-                        editorState === ConfigState.IMPORT_FROM_JSON &&
-                        <RecordFromJson
-                            rpcClient={props.rpcClient}
-                            name={type.name}
-                            onCancel={() => setEditorState(ConfigState.EDITOR_FORM)}
-                            onImport={handleTypeImport}
-                        />
-                    }
-                    {
-                        editorState === ConfigState.IMPORT_FROM_XML &&
-                        <RecordFromXml
-                            rpcClient={props.rpcClient}
-                            name={type.name}
-                            onCancel={() => setEditorState(ConfigState.EDITOR_FORM)}
-                            onImport={handleTypeImport}
-                        />
-                    }
-                </div >
-            )}
-        </S.Container >
+                        }
+                        {
+                            editorState === ConfigState.IMPORT_FROM_JSON &&
+                            <RecordFromJson
+                                rpcClient={props.rpcClient}
+                                name={type.name}
+                                onCancel={() => setEditorState(ConfigState.EDITOR_FORM)}
+                                onImport={handleTypeImport}
+                            />
+                        }
+                        {
+                            editorState === ConfigState.IMPORT_FROM_XML &&
+                            <RecordFromXml
+                                rpcClient={props.rpcClient}
+                                name={type.name}
+                                onCancel={() => setEditorState(ConfigState.EDITOR_FORM)}
+                                onImport={handleTypeImport}
+                            />
+                        }
+                    </div >
+                )}
+            </S.Container >
+        </TypeHelperContext.Provider>
     );
 }
