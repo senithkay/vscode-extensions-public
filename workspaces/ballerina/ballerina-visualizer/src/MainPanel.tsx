@@ -257,23 +257,19 @@ const MainPanel = () => {
                         setViewComponent(<ListenerEditView filePath={value.documentUri} position={value?.position} />);
                         break;
                     case MACHINE_VIEW.AddConnectionWizard:
-                        rpcClient.getVisualizerLocation().then((location) => {
-                            setViewComponent(
-                                <AddConnectionWizard
-                                    fileName={Utils.joinPath(URI.file(location.projectUri), 'connections.bal').fsPath}
-                                />
-                            );
-                        });
+                        setViewComponent(
+                            <AddConnectionWizard
+                                fileName={value.documentUri || value.projectUri}
+                            />
+                        );
                         break;
                     case MACHINE_VIEW.EditConnectionWizard:
-                        rpcClient.getVisualizerLocation().then((location) => {
-                            setViewComponent(
-                                <EditConnectionWizard
-                                    fileName={Utils.joinPath(URI.file(location.projectUri), 'connections.bal').fsPath}
-                                    connectionName={value?.identifier}
-                                />
-                            );
-                        });
+                        setViewComponent(
+                            <EditConnectionWizard
+                                fileName={value.documentUri || value.projectUri}
+                                connectionName={value?.identifier}
+                            />
+                        );
                         break;
                     case MACHINE_VIEW.BIMainFunctionForm:
                         setViewComponent(<MainForm />);
