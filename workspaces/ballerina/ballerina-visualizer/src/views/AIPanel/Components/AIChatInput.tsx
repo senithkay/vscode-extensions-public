@@ -844,7 +844,6 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
                                 ref={isActive ? activeSuggestionRef : null}
                                 active={isActive}
                                 onClick={() => handleSuggestionClick(suggestion)}
-                                // onMouseEnter={() => setActiveSuggestion(index, filteredSuggestions)}
                                 onMouseDown={handleSuggestionMouseDown}
                                 role="option"
                                 aria-selected={isActive}
