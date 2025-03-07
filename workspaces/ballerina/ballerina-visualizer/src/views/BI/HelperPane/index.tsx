@@ -63,7 +63,7 @@ const HelperPaneEl = ({
     };
 
     return (
-        <HelperPane helperPaneHeight={helperPaneHeight}>
+        <HelperPane helperPaneHeight={helperPaneHeight} sx={recordTypeField ? { width: 400 } : undefined}>
             <HelperPane.Header title="Expression Helper" titleSx={{ fontFamily: "GilmerRegular" }} onClose={onClose} />
             <HelperPane.Body>
                 <HelperPane.Panels sx={recordTypeField ? { gap: "15px" } : undefined}>

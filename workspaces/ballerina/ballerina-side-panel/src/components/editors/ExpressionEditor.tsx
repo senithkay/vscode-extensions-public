@@ -424,6 +424,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             helperPaneOrigin={helperPaneOrigin}
                             getHelperPane={handleGetHelperPane}
                             helperPaneHeight={helperPaneHeight}
+                            helperPaneWidth={recordTypeField ? 400 : undefined}
                             placeholder={field.placeholder}
                             sx={{ paddingInline: '0' }}
                             codeActions={codeActions}

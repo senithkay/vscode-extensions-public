@@ -379,7 +379,7 @@ const PanelTab: React.FC<PanelTabProps> = ({ title, id, onClick }) => {
 
     const handleClick = () => {
         setActivePanelIndex(id);
-        onClick(id);
+        onClick?.(id);
     };
 
     return (
