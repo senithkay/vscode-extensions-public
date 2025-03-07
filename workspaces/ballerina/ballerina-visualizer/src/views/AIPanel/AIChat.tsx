@@ -1891,6 +1891,8 @@ export function AIChat() {
     async function handleStop() {
         // Abort the fetch
         controller.abort();
+        // Abort test generation if running
+        rpcClient.getAiPanelRpcClient().abortTestGeneration();
 
         // Create a new AbortController for future fetches
         controller = new AbortController();
