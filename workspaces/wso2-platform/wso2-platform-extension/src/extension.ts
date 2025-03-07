@@ -65,8 +65,6 @@ export async function activate(context: vscode.ExtensionContext) {
 			activateURIHandlers();
 			activateCodeLenses(context);
 			continueCreateComponent();
-			// addTerminalHandlers();
-			// context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("*", new ChoreoConfigurationProvider()));
 			getLogger().debug("Choreo Extension activated");
 		})
 		.catch((e) => {
