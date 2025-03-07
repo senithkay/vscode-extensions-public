@@ -1021,7 +1021,7 @@ export function AIChat() {
         const chatSummaryResponseStr = await streamToString(response.body);
         await rpcClient.getAiPanelRpcClient()
             .addChatSummary({summary: chatSummaryResponseStr, filepath: chatLocation});
-        previousDevelopmentDocumentContent = developerMdContentWithTimeStamp;
+        previousDevelopmentDocumentContent = developerMdContent;
     };
 
     async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
@@ -1642,7 +1642,7 @@ export function AIChat() {
 
     async function processHealthcareCodeGeneration(token: string, useCase: string, message: string) {
         let assistant_response = "";
-        const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource();
+        const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource(CodeGenerationType.CODE_GENERATION);
         const requestBody: any = {
             usecase: useCase,
             chatHistory: chatArray,
@@ -1891,6 +1891,8 @@ export function AIChat() {
     async function handleStop() {
         // Abort the fetch
         controller.abort();
+        // Abort test generation if running
+        rpcClient.getAiPanelRpcClient().abortTestGeneration();
 
         // Create a new AbortController for future fetches
         controller = new AbortController();
