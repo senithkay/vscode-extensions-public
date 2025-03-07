@@ -212,7 +212,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
     }
 
     // Update the flow node properties with the given key. This is for LS code generation
-    private updateFlowNodeProperties(flowNode: FlowNode, excludedKeys: string[] = ["variable", "type", "checkError"]) {
+    private updateFlowNodeProperties(flowNode: FlowNode, excludedKeys: string[] = ["variable", "type", "checkError", "targetType"]) {
         for (const key in flowNode.properties) {
             if (!excludedKeys.includes(key)) {
                 flowNode.properties[key].value = key;
@@ -251,9 +251,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                         id: connectorActionCodeData,
                     });
                 flowNode = connectorActionFlowNode.flowNode;
-                for (const key in flowNode.properties) {
-                    flowNode.properties[key].value = key; // Update the action flow node property values with key
-                }
+                this.updateFlowNodeProperties(flowNode);
             }
             if (tool.toolType === "Function") {
                 const filePath = Utils.joinPath(URI.file(projectUri), "functions.bal").fsPath;
