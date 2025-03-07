@@ -39,8 +39,7 @@ export function PrimitiveOutputWidget(props: PrimitiveOutputWidgetProps) {
 	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField } = props;
 	const { views } = context;
 	const focusedView = views[views.length - 1];
-	const focuesOnSubMappingRoot = focusedView.subMappingInfo && focusedView.subMappingInfo.focusedOnSubMappingRoot;
-
+	const focusedOnSubMappingRoot = focusedView.subMappingInfo?.focusedOnSubMappingRoot;
 
 	const classes = useIONodesStyles();
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
@@ -84,7 +83,7 @@ export function PrimitiveOutputWidget(props: PrimitiveOutputWidgetProps) {
 
 	const onRightClick = (event: React.MouseEvent) => {
 		event.preventDefault();
-		onSubMappingEditBtnClick();
+		if(focusedOnSubMappingRoot) onSubMappingEditBtnClick();
 	};
 
 	const onSubMappingEditBtnClick = () => {
@@ -115,20 +114,19 @@ export function PrimitiveOutputWidget(props: PrimitiveOutputWidgetProps) {
 					</FieldActionWrapper>
 					{label}
 				</span>
-				{focuesOnSubMappingRoot && (
-					<FieldActionWrapper>
+				{focusedOnSubMappingRoot && (
 						<Button
 							appearance="icon"
 							data-testid={"edit-sub-mapping-btn"}
-							tooltip="Edit name and type of the sub mapping "
+							tooltip="Edit name and type of the sub mapping"
 							onClick={onSubMappingEditBtnClick}
+							data-field-action
 						>
 							<Codicon
-								name="settings-gear"
+								name="edit"
 								iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
 							/>
 						</Button>
-					</FieldActionWrapper>
 				)}
 			</TreeHeader>
 			{expanded && field && (

@@ -385,17 +385,15 @@ export const Form = forwardRef((props: FormProps, ref) => {
     ) => {
         // HACK: For variable nodes, update the type value in the node
         const isVariableNode = selectedNode === "VARIABLE";
-        if (expressionEditor?.getExpressionFormDiagnostics) {
-            await expressionEditor?.getExpressionFormDiagnostics(
-                showDiagnostics,
-                expression,
-                key,
-                property,
-                handleSetDiagnosticsInfo,
-                isVariableNode,
-                watch("type")
-            );
-        }
+        await expressionEditor?.getExpressionFormDiagnostics?.(
+            showDiagnostics,
+            expression,
+            key,
+            property,
+            handleSetDiagnosticsInfo,
+            isVariableNode,
+            watch("type")
+        );
     }
 
     // has advance fields

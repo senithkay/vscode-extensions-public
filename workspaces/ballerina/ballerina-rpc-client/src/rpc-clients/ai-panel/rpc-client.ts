@@ -40,6 +40,7 @@ import {
     applyDoOnFailBlocks,
     checkSyntaxError,
     clearInitialPrompt,
+    createTestDirecoryIfNotExists,
     deleteFromProject,
     fetchData,
     generateMappings,
@@ -289,5 +290,9 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     updateRequirementSpecification(requirementsSpecification: RequirementSpecification): void {
         return this._messenger.sendNotification(updateRequirementSpecification, HOST_EXTENSION, requirementsSpecification);
+    }
+
+    createTestDirecoryIfNotExists(directoryPath: string): void {
+        return this._messenger.sendNotification(createTestDirecoryIfNotExists, HOST_EXTENSION, directoryPath);
     }
 }
