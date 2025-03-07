@@ -16,7 +16,7 @@ import { Colors, DEFAULT_ICON } from '../../../resources/constants';
 import { ConnectorDependency } from '@wso2-enterprise/mi-core';
 
 
-const ButtonGrid = styled.div`
+export const ButtonGrid = styled.div`
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 5px 5px;
@@ -27,7 +27,6 @@ const ButtonGrid = styled.div`
 const VersionTag = styled.div`
     color: ${Colors.SECONDARY_TEXT};
     font-size: 10px;
-    padding-left: 2px;
 `;
 
 const CardContent = styled.div`

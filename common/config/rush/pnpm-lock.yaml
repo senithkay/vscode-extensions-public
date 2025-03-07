@@ -1819,6 +1819,7 @@ importers:
       '@emotion/styled': ~11.11.0
       '@headlessui/react': ~1.7.18
       '@tanstack/react-query': 4.0.10
+      '@types/lodash': ~4.17.15
       '@types/lodash.debounce': ^4.0.6
       '@types/react': ^18.2.55
       '@types/react-dom': ^18.2.19
@@ -1831,6 +1832,7 @@ importers:
       '@wso2-enterprise/ui-toolkit': workspace:*
       copyfiles: ~2.4.1
       eslint: ~8.56.0
+      lodash: ~4.17.21
       lodash.debounce: ^4.0.8
       monaco-editor: ~0.46.0
       react: ^18.2.0
@@ -1852,6 +1854,7 @@ importers:
       '@wso2-enterprise/ballerina-statement-editor': link:../statement-editor
       '@wso2-enterprise/syntax-tree': link:../syntax-tree
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
+      lodash: 4.17.21
       lodash.debounce: 4.0.8
       monaco-editor: 0.46.0
       react: 18.2.0
@@ -1860,6 +1863,7 @@ importers:
       react-lottie: 1.2.4_react@18.2.0
       vscode-uri: 3.0.8
     devDependencies:
+      '@types/lodash': 4.17.15
       '@types/lodash.debounce': 4.0.9
       '@types/react': 18.2.55
       '@types/react-dom': 18.2.19
@@ -19614,7 +19618,7 @@ packages:
       '@storybook/preview-api': 7.4.6
       '@storybook/theming': 7.4.6
       '@storybook/types': 7.4.6
-      '@types/lodash': 4.17.7
+      '@types/lodash': 4.17.15
       color-convert: 2.0.1
       dequal: 2.0.3
       lodash: 4.17.21
@@ -19650,7 +19654,7 @@ packages:
       '@storybook/preview-api': 7.4.6
       '@storybook/theming': 7.4.6_biqbaboplfbrettd7655fr4n2y
       '@storybook/types': 7.4.6
-      '@types/lodash': 4.17.7
+      '@types/lodash': 4.17.15
       color-convert: 2.0.1
       dequal: 2.0.3
       lodash: 4.17.21
@@ -19688,7 +19692,7 @@ packages:
       '@storybook/preview-api': 7.6.17
       '@storybook/theming': 7.6.17_biqbaboplfbrettd7655fr4n2y
       '@storybook/types': 7.6.17
-      '@types/lodash': 4.17.7
+      '@types/lodash': 4.17.15
       color-convert: 2.0.1
       dequal: 2.0.3
       lodash: 4.17.21
@@ -24055,7 +24059,7 @@ packages:
       '@babel/preset-env': 7.24.8
       '@babel/types': 7.25.6
       '@mdx-js/mdx': 1.6.22
-      '@types/lodash': 4.17.7
+      '@types/lodash': 4.17.15
       js-string-escape: 1.0.1
       loader-utils: 2.0.4
       lodash: 4.17.21
@@ -24074,7 +24078,7 @@ packages:
       '@babel/preset-env': 7.24.8_@babel+core@7.23.9
       '@babel/types': 7.25.6
       '@mdx-js/mdx': 1.6.22
-      '@types/lodash': 4.17.7
+      '@types/lodash': 4.17.15
       js-string-escape: 1.0.1
       loader-utils: 2.0.4
       lodash: 4.17.21
@@ -24093,7 +24097,7 @@ packages:
       '@babel/preset-env': 7.24.8_@babel+core@7.24.9
       '@babel/types': 7.25.6
       '@mdx-js/mdx': 1.6.22
-      '@types/lodash': 4.17.7
+      '@types/lodash': 4.17.15
       js-string-escape: 1.0.1
       loader-utils: 2.0.4
       lodash: 4.17.21
@@ -27419,6 +27423,10 @@ packages:
 
   /@types/lodash/4.17.0:
     resolution: {integrity: sha512-t7dhREVv6dbNj0q17X12j7yDG4bD/DHYX7o5/DbDxobP0HnGPgpRz2Ej77aL7TZT3DSw13fqUTj8J4mMnqa7WA==}
+    dev: true
+
+  /@types/lodash/4.17.15:
+    resolution: {integrity: sha512-w/P33JFeySuhN6JLkysYUK2gEmy9kHHFN7E8ro0tkfmlDOgxBDzWEZ/J8cWA+fHqFevpswDTFZnDx+R9lbL6xw==}
     dev: true
 
   /@types/lodash/4.17.7:

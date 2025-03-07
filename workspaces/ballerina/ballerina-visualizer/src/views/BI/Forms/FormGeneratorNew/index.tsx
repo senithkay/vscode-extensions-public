@@ -17,6 +17,7 @@ import {
     TRIGGER_CHARACTERS,
     TriggerCharacter,
     Type,
+    TextEdit,
     NodeKind,
     ExpressionProperty
 } from "@wso2-enterprise/ballerina-core";
@@ -35,9 +36,12 @@ import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight, Overlay, The
 import {
     convertBalCompletion,
     convertToVisibleTypes,
+    updateLineRange
 } from "../../../../utils/bi";
 import { debounce, set } from "lodash";
 import { getHelperPane } from "../../HelperPane";
+import { FormTypeEditor } from "../../TypeEditor";
+import { getTypeHelper } from "../../TypeHelper";
 
 interface TypeEditorState {
     isOpen: boolean;
@@ -71,9 +75,9 @@ export function FormGeneratorNew(props: FormProps) {
         submitText,
         onBack,
         onSubmit,
+        isGraphqlEditor,
         openSubPanel,
         updatedExpressionField,
-        isGraphqlEditor,
         resetUpdatedExpressionField,
         selectedNode,
         nestedForm
@@ -90,6 +94,7 @@ export function FormGeneratorNew(props: FormProps) {
     const [types, setTypes] = useState<CompletionItem[]>([]);
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
+    const expressionOffsetRef = useRef<number>(0); // To track the expression offset on adding import statements
 
     const [fieldsValues, setFields] = useState<FormField[]>(fields);
 
@@ -175,7 +180,7 @@ export function FormGeneratorNew(props: FormProps) {
                     filePath: fileName,
                     context: {
                         expression: value,
-                        startLine: targetLineRange.startLine,
+                        startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
                         offset: offset,
                         codedata: undefined,
                         property: property
@@ -244,7 +249,7 @@ export function FormGeneratorNew(props: FormProps) {
         if (!types.length) {
             const types = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
                 filePath: fileName,
-                position: targetLineRange.startLine,
+                position: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
             });
 
             visibleTypes = convertToVisibleTypes(types);
@@ -266,7 +271,14 @@ export function FormGeneratorNew(props: FormProps) {
         await debouncedGetVisibleTypes(value, cursorPosition);
     }, [debouncedGetVisibleTypes]);
 
-    const handleCompletionItemSelect = async () => {
+    const handleCompletionItemSelect = async (value: string, additionalTextEdits?: TextEdit[]) => {
+        if (additionalTextEdits?.[0].newText) {
+            const response = await rpcClient.getBIDiagramRpcClient().updateImports({
+                filePath: fileName,
+                importStatement: additionalTextEdits[0].newText
+            });
+            expressionOffsetRef.current += response.importStatementOffset;
+        }
         debouncedRetrieveCompletions.cancel();
         debouncedGetVisibleTypes.cancel();
         handleExpressionEditorCancel();
@@ -287,7 +299,7 @@ export function FormGeneratorNew(props: FormProps) {
     ) => {
         return getHelperPane({
             fileName: fileName,
-            targetLineRange: targetLineRange,
+            targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
             exprRef: exprRef,
             anchorRef: anchorRef,
             onClose: () => changeHelperPaneState(false),
@@ -296,6 +308,26 @@ export function FormGeneratorNew(props: FormProps) {
             onChange: onChange,
             helperPaneHeight: helperPaneHeight
         });
+    }
+
+    const handleGetTypeHelper = (
+        typeBrowserRef: RefObject<HTMLDivElement>,
+        currentType: string,
+        currentCursorPosition: number,
+        onChange: (newType: string, newCursorPosition: number) => void,
+        changeHelperPaneState: (isOpen: boolean) => void,
+        typeHelperHeight: HelperPaneHeight
+    ) => {
+        return getTypeHelper(
+            typeBrowserRef,
+            fileName,
+            updateLineRange(targetLineRange, expressionOffsetRef.current),
+            currentType,
+            currentCursorPosition,
+            typeHelperHeight,
+            onChange,
+            () => changeHelperPaneState(false)
+        );
     }
 
     const handleTypeChange = async (type: Type) => {
@@ -390,6 +422,7 @@ export function FormGeneratorNew(props: FormProps) {
             types: filteredTypes,
             retrieveVisibleTypes: handleGetVisibleTypes,
             getHelperPane: handleGetHelperPane,
+            getTypeHelper: handleGetTypeHelper,
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
             onCancel: handleExpressionEditorCancel,
@@ -418,9 +451,8 @@ export function FormGeneratorNew(props: FormProps) {
                 show={true}
                 onClose={onCloseTypeEditor}
             >
-                <TypeEditor
+                <FormTypeEditor
                     newType={true}
-                    rpcClient={rpcClient}
                     onTypeChange={handleTypeChange}
                     { ...(isGraphql && { type: defaultType(), isGraphql: true }) }
                 />
