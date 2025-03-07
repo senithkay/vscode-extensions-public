@@ -78,6 +78,7 @@ interface IKeylookupBase {
     onCreateButtonClick?: (fetchItems: any, handleValueChange: any) => void;
     additionalItems?: string[];
     artifactTypes?: { registryArtifacts: boolean, artifacts: boolean };
+    requireValidation?: boolean;
 }
 
 // Define the conditional properties for the ExpressionField
@@ -183,6 +184,7 @@ export const Keylookup = (props: IKeylookup) => {
         canChangeEx,
         openExpressionEditor,
         sx,
+        requireValidation,
         artifactTypes = { registryArtifacts: true, artifacts: true },
         ...rest
     } = props;
@@ -344,7 +346,7 @@ export const Keylookup = (props: IKeylookup) => {
                     required={props.required}
                     items={items}
                     allowItemCreate={allowItemCreate}
-                    requireValidation={allowItemCreate}
+                    requireValidation={requireValidation !== undefined ? requireValidation : allowItemCreate}
                     onCreateButtonClick={props.onCreateButtonClick ? () => {
                         handleValueChange("");
                         props.onCreateButtonClick(fetchItems, handleValueChange);
