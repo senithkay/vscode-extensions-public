@@ -8,7 +8,7 @@
  */
 
 import { GetRecordConfigResponse, GetRecordConfigRequest, LineRange, RecordTypeField, TypeField, PropertyTypeMemberInfo, UpdateRecordConfigRequest, RecordSourceGenRequest, RecordSourceGenResponse, GetRecordModelFromSourceRequest, GetRecordModelFromSourceResponse } from "@wso2-enterprise/ballerina-core";
-import { Dropdown, HelperPane } from "@wso2-enterprise/ui-toolkit";
+import { Dropdown, HelperPane, Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useEffect, useRef, useState } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -53,7 +53,11 @@ export function ConfigureRecordPage(props: ConfigureRecordPageProps) {
             }
         } else if (currentValue !== sourceCode.current) {
             // Only update if currentValue is different from our last known source code
-            getExistingRecordModel();
+            if (currentValue) {
+                getExistingRecordModel();
+            } else {
+                getNewRecordModel();
+            }
         }
     }, [currentValue]);
 
@@ -208,12 +212,15 @@ export function ConfigureRecordPage(props: ConfigureRecordPageProps) {
 
                             </LabelContainer>
                         )}
-                        {selectedMemberName && recordModel &&
-                            <RecordConfigView
-                                recordModel={recordModel}
-                                onModelChange={handleModelChange}
-                            />
-                        }
+                        {selectedMemberName && recordModel ?
+                            (
+                                <RecordConfigView
+                                    recordModel={recordModel}
+                                    onModelChange={handleModelChange}
+                                />
+                            ) : (
+                                <Typography variant="body3">No matching record found.</Typography>
+                            )}
                     </>
                 )}
             </HelperPane.Body>
