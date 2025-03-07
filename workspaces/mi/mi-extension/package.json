@@ -16,7 +16,8 @@
     "workspaceContains:.project",
     "workspaceContains:pom.xml",
     "onDebugResolve:mi",
-    "onDebugDynamicConfigurations:mi"
+    "onDebugDynamicConfigurations:mi",
+    "onUri"
   ],
   "main": "./dist/extension.js",
   "contributes": {
