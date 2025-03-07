@@ -8,12 +8,13 @@
  */
 
 import { join } from "path";
-import { CommandIds, type Organization, type Project, getComponentKindRepoSource } from "@wso2-enterprise/wso2-platform-core";
+import { CommandIds, type Organization, type Project, getComponentKindRepoSource, parseGitURL } from "@wso2-enterprise/wso2-platform-core";
 import { ProgressLocation, type ProviderResult, type QuickPickItem, type Uri, commands, window, workspace } from "vscode";
 import { ResponseError } from "vscode-jsonrpc";
 import { ErrorCode } from "./choreo-rpc/constants";
 import { getUserInfoForCmd } from "./cmds/cmd-utils";
 import { ext } from "./extensionVariables";
+import { getGitRemotes, getGitRoot } from "./git/util";
 import { getLogger } from "./logger/logger";
 import { authStore } from "./stores/auth-store";
 import { contextStore, getContextKey, waitForContextStoreToLoad } from "./stores/context-store";
@@ -75,6 +76,7 @@ export function activateURIHandlers() {
 				const componentName = urlParams.get("component");
 				const technology = urlParams.get("technology");
 				const integrationType = urlParams.get("integrationType");
+				const integrationDisplayType = urlParams.get("integrationDisplayType");
 				if (!orgHandle || !projectHandle) {
 					return;
 				}
@@ -100,7 +102,7 @@ export function activateURIHandlers() {
 
 					await waitForContextStoreToLoad();
 
-					await cloneOrOpenDir(org, project, componentName, technology, integrationType);
+					await cloneOrOpenDir(org, project, componentName, technology, integrationType, integrationDisplayType);
 				});
 			}
 		},
@@ -113,6 +115,7 @@ export const cloneOrOpenDir = async (
 	componentName: string | null,
 	technology: string | null,
 	integrationType: string | null,
+	integrationDisplayType: string | null,
 ) => {
 	const contextItems = contextStore.getState().getValidItems();
 	const isWithinDir = contextItems.find((item) => item.orgHandle === org.handle && item.projectHandle === project.handler);
@@ -129,25 +132,57 @@ export const cloneOrOpenDir = async (
 
 	if (componentName) {
 		const componentCache = dataCacheStore?.getState().getComponents(org.handle, project.handler);
-		const matchingComp = componentCache?.find((item) => item.metadata.name === componentName);
+		let matchingComp = componentCache?.find((item) => item.metadata.name === componentName);
+		if (!matchingComp) {
+			matchingComp = await window.withProgress({ title: "Fetching component details...", location: ProgressLocation.Notification }, () =>
+				ext.clients.rpcClient.getComponentItem({ componentName, orgId: org.id.toString(), projectHandle: project.handler }),
+			);
+		}
+		if (!matchingComp) {
+			window.showErrorMessage(`Failed to find component matching ${componentName}`);
+			return;
+		}
+
+		const selectedPaths = new Set<string>();
 		const subDir = matchingComp?.spec?.source ? getComponentKindRepoSource(matchingComp?.spec?.source)?.path || "" : "";
-		const filteredProjectLocations = projectLocations.filter((projectLocation) => {
-			if (projectLocation.componentItems.some((item) => item.component?.metadata?.name === componentName)) {
-				return true;
+		const repoUrl = getComponentKindRepoSource(matchingComp.spec.source).repo;
+		const parsedRepoUrl = parseGitURL(repoUrl);
+		if (parsedRepoUrl) {
+			const [repoOrg, repoName, repoProvider] = parsedRepoUrl;
+			for (const projectLocation of projectLocations) {
+				if (projectLocation.componentItems.some((item) => item.component?.metadata?.name === componentName)) {
+					const gitRoot = await getGitRoot(ext.context, projectLocation.fsPath);
+					if (gitRoot) {
+						const remotes = await getGitRemotes(ext.context, gitRoot);
+						const hasMatchingRemote = remotes.some((remote) => {
+							const parsedRemoteUrl = parseGitURL(remote.fetchUrl);
+							if (parsedRemoteUrl) {
+								const [remoteRepoOrg, remoteRepoName, remoteRepoProvider] = parsedRemoteUrl;
+								return remoteRepoOrg === repoOrg && remoteRepoName === repoName && remoteRepoProvider === repoProvider;
+							}
+						});
+						if (hasMatchingRemote) {
+							selectedPaths.add(projectLocation.fsPath);
+						}
+					}
+				}
 			}
-		});
-		if (filteredProjectLocations.length > 0) {
-			const selectedPath = await getSelectedPath(filteredProjectLocations.map((item) => item.fsPath));
-			if (selectedPath) {
-				openProjectDirectory(join(selectedPath, subDir), !!matchingComp);
-			}
-		} else if (projectLocations.length > 0) {
-			const selectedPath = await getSelectedPath(projectLocations.map((item) => item.fsPath));
+		}
+		if (selectedPaths.size > 0) {
+			const selectedPath = await getSelectedPath(Array.from(selectedPaths));
 			if (selectedPath) {
 				openProjectDirectory(join(selectedPath, subDir), !!matchingComp);
 			}
 		} else {
-			commands.executeCommand(CommandIds.CloneProject, { organization: org, project, componentName });
+			commands.executeCommand(CommandIds.CloneProject, {
+				organization: org,
+				project,
+				componentName,
+				component: matchingComp,
+				technology,
+				integrationType,
+				integrationDisplayType,
+			});
 		}
 	} else if (projectLocations.length > 0) {
 		const selectedPath = await getSelectedPath(projectLocations.map((item) => item.fsPath));
@@ -155,7 +190,14 @@ export const cloneOrOpenDir = async (
 			openProjectDirectory(selectedPath);
 		}
 	} else {
-		commands.executeCommand(CommandIds.CloneProject, { organization: org, project, componentName, technology, integrationType });
+		commands.executeCommand(CommandIds.CloneProject, {
+			organization: org,
+			project,
+			componentName,
+			technology,
+			integrationType,
+			integrationDisplayType,
+		});
 	}
 };
 

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { mkdirSync, readdirSync, createReadStream, writeFileSync } from "fs";
+import { createReadStream, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "fs";
 import * as os from "os";
 import { join } from "path";
 import {
@@ -28,13 +28,21 @@ import { createDirectory, openDirectory } from "../utils";
 import { getUserInfoForCmd, selectOrg, selectProject } from "./cmd-utils";
 import { updateContextFile } from "./create-directory-context-cmd";
 import { createWorkspaceFile } from "./create-project-workspace-cmd";
-const unzipper = require("unzipper")
+const unzipper = require("unzipper");
 
 export function cloneRepoCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(
 			CommandIds.CloneProject,
-			async (params: { organization: Organization; project: Project; componentName: string; technology: string; integrationType: string }) => {
+			async (params: {
+				organization: Organization;
+				project: Project;
+				componentName: string;
+				component: ComponentKind;
+				technology: string;
+				integrationType: string;
+				integrationDisplayType: string;
+			}) => {
 				try {
 					const userInfo = await getUserInfoForCmd("clone project repository");
 					if (userInfo) {
@@ -63,19 +71,24 @@ export function cloneRepoCommand(context: ExtensionContext) {
 						const selectedCloneDir = cloneDir[0];
 						const projectCache = dataCacheStore.getState().getProjects(selectedOrg.handle);
 
-						const components = await window.withProgress(
-							{
-								title: `Fetching components of ${selectedProject.name}...`,
-								location: ProgressLocation.Notification,
-							},
-							() =>
-								ext.clients.rpcClient.getComponentList({
-									orgId: selectedOrg.id.toString(),
-									orgHandle: selectedOrg.handle,
-									projectId: selectedProject.id,
-									projectHandle: selectedProject.handler,
-								}),
-						);
+						let components: ComponentKind[] = [];
+						if (params?.component) {
+							components = [params?.component];
+						} else {
+							components = await window.withProgress(
+								{
+									title: `Fetching components of ${selectedProject.name}...`,
+									location: ProgressLocation.Notification,
+								},
+								() =>
+									ext.clients.rpcClient.getComponentList({
+										orgId: selectedOrg.id.toString(),
+										orgHandle: selectedOrg.handle,
+										projectId: selectedProject.id,
+										projectHandle: selectedProject.handler,
+									}),
+							);
+						}
 
 						// clone single or multiple repos
 						if (components.length === 0) {
@@ -151,8 +164,8 @@ export function cloneRepoCommand(context: ExtensionContext) {
 							const subDir = matchingComp?.spec?.source ? getComponentKindRepoSource(matchingComp?.spec?.source)?.path || "" : "";
 							const subDirFullPath = join(clonedResp[0].clonedPath, subDir);
 							if (params?.technology === "ballerina") {
-								ensureBallerinaFilesIfEmpty(selectedOrg, params?.componentName || "bal-com", subDirFullPath, params?.integrationType);
-							}else if (params?.technology === "mi") {
+								ensureBallerinaFilesIfEmpty(selectedOrg, params?.componentName || "bal-com", subDirFullPath, params?.integrationDisplayType);
+							} else if (params?.technology === "mi") {
 								ensureMIFilesIfEmpty(subDirFullPath);
 							}
 							await openClonedDirectory(subDirFullPath);
@@ -192,31 +205,47 @@ export function cloneRepoCommand(context: ExtensionContext) {
 	);
 }
 
-async function ensureBallerinaFilesIfEmpty(org: Organization, componentName: string, directoryPath: string, integrationType: string): Promise<void> {
-	const createBalFiles = (directoryPath: string, integrationType: string) => {
+async function ensureBallerinaFilesIfEmpty(
+	org: Organization,
+	componentName: string,
+	directoryPath: string,
+	integrationDisplayType: string,
+): Promise<void> {
+	const createBalFiles = (directoryPath: string, integrationDisplayType: string) => {
 		writeFileSync(
 			join(directoryPath, "Ballerina.toml"),
-			`[package]\norg = "${org.handle}"\nname = "${componentName.replaceAll("-", "_")}"\nversion = "0.1.0"\n\nbi = true`,
+			`[package]\norg = "${org.handle}"\nname = "${componentName.replaceAll("-", "_")}"\nversion = "0.1.0"`,
 			"utf8",
 		);
-		writeFileSync(
-			join(directoryPath, "main.bal"),
-			`import ballerina/io;\n\npublic function main() {\n    io:println("Hello, World!");\n}`,
-		);
+		writeFileSync(join(directoryPath, "main.bal"), `import ballerina/io;\n\npublic function main() {\n    io:println("Hello, World!");\n}`);
+		if (integrationDisplayType) {
+			if (!existsSync(join(directoryPath, ".vscode"))) {
+				mkdirSync(join(directoryPath, ".vscode"));
+			}
+			const settingsPath = join(directoryPath, ".vscode", "settings.json");
+			if (existsSync(settingsPath)) {
+				// add property
+				const data = readFileSync(settingsPath, "utf8");
+				const settings = JSON.parse(data);
+				settings.scope = integrationDisplayType;
+				writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+			} else {
+				// create new json
+				writeFileSync(settingsPath, JSON.stringify({ scope: integrationDisplayType }, null, 2));
+			}
+		}
 	};
 
 	try {
-		let files = readdirSync(directoryPath);
-		files = files.filter((file) => !file.startsWith("."));
-
-		if (files.length === 0) {
-			createBalFiles(directoryPath, integrationType);
+		const files = readdirSync(directoryPath);
+		if (!files.some((file) => file.toLowerCase() === "ballerina.toml")) {
+			createBalFiles(directoryPath, integrationDisplayType);
 		}
 	} catch (err: any) {
 		if (err.code === "ENOENT") {
 			try {
 				mkdirSync(directoryPath, { recursive: true });
-				createBalFiles(directoryPath, integrationType);
+				createBalFiles(directoryPath, integrationDisplayType);
 			} catch (mkdirError: any) {
 				console.error("Error creating directory or files:", mkdirError);
 			}
@@ -228,17 +257,15 @@ async function ensureBallerinaFilesIfEmpty(org: Organization, componentName: str
 
 async function ensureMIFilesIfEmpty(directoryPath: string): Promise<void> {
 	try {
-		let files = readdirSync(directoryPath);
-		files = files.filter((file) => !file.startsWith("."));
-
-		if (files.length === 0) {
-			createReadStream(Uri.joinPath(ext.context.extensionUri,'sample-mi-project.zip').fsPath ).pipe(unzipper.Extract({ path: directoryPath }));
+		const files = readdirSync(directoryPath);
+		if (!files.some((file) => file.toLowerCase() === "pom.xml")) {
+			createReadStream(Uri.joinPath(ext.context.extensionUri, "sample-mi-project.zip").fsPath).pipe(unzipper.Extract({ path: directoryPath }));
 		}
 	} catch (err: any) {
 		if (err.code === "ENOENT") {
 			try {
 				mkdirSync(directoryPath, { recursive: true });
-				createReadStream(Uri.joinPath(ext.context.extensionUri,'sample-mi-project.zip').fsPath ).pipe(unzipper.Extract({ path: directoryPath }));
+				createReadStream(Uri.joinPath(ext.context.extensionUri, "sample-mi-project.zip").fsPath).pipe(unzipper.Extract({ path: directoryPath }));
 			} catch (mkdirError: any) {
 				console.error("Error creating directory or files:", mkdirError);
 			}

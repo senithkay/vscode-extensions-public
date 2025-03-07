@@ -55,9 +55,10 @@ export function activateUriHandlers(ballerinaExtInstance: BallerinaExtension) {
                     const component = urlParams.get("component");
                     const technology = urlParams.get("technology");
                     const integrationType = urlParams.get("integrationType");
+                    const integrationDisplayType = urlParams.get("integrationDisplayType");
                     if (org && project && component && technology && integrationType) {
                         commands.executeCommand('wso2.wso2-platform.open.component.src', {
-                            org, project, component, technology, integrationType
+                            org, project, component, technology, integrationType, integrationDisplayType
                         });
                     } else {
                         window.showErrorMessage('Invalid component URL parameters');
