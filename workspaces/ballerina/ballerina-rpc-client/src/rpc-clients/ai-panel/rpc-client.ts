@@ -35,11 +35,13 @@ import {
     TestGenerationMentions,
     TestGenerationRequest,
     TestGenerationResponse,
+    abortTestGeneration,
     addChatSummary,
     addToProject,
     applyDoOnFailBlocks,
     checkSyntaxError,
     clearInitialPrompt,
+    createTestDirecoryIfNotExists,
     deleteFromProject,
     fetchData,
     generateMappings,
@@ -211,6 +213,10 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(getResourceMethodAndPaths, HOST_EXTENSION);
     }
 
+    abortTestGeneration(): void {
+        return this._messenger.sendNotification(abortTestGeneration, HOST_EXTENSION);
+    }
+
     getMappingsFromRecord(params: GenerateMappingsFromRecordRequest): Promise<GenerateMappingFromRecordResponse> {
         return this._messenger.sendRequest(getMappingsFromRecord, HOST_EXTENSION, params);
     }
@@ -289,5 +295,9 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     updateRequirementSpecification(requirementsSpecification: RequirementSpecification): void {
         return this._messenger.sendNotification(updateRequirementSpecification, HOST_EXTENSION, requirementsSpecification);
+    }
+
+    createTestDirecoryIfNotExists(directoryPath: string): void {
+        return this._messenger.sendNotification(createTestDirecoryIfNotExists, HOST_EXTENSION, directoryPath);
     }
 }

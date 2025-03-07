@@ -19,7 +19,6 @@ import {
     TriggerCharacter,
     FormDiagnostics,
     TextEdit,
-    FunctionKind,
     SubPanelView,
     LinePosition,
     ExpressionProperty,
@@ -32,10 +31,8 @@ import {
     Form,
     ExpressionFormField,
     FormExpressionEditorProps,
-    HelperPaneCompletionItem,
     PanelContainer
 } from "@wso2-enterprise/ballerina-side-panel";
-import { TypeEditor } from "@wso2-enterprise/type-editor";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight } from "@wso2-enterprise/ui-toolkit";
 
@@ -45,7 +42,6 @@ import {
     convertToFnSignature,
     convertToVisibleTypes,
     enrichFormPropertiesWithValueConstraint,
-    extractFunctionInsertText,
     getFormProperties,
     removeDuplicateDiagnostics,
     updateLineRange
@@ -60,6 +56,8 @@ import {
 } from "../form-utils";
 import ForkForm from "../ForkForm";
 import { getHelperPane } from "../../HelperPane"
+import { FormTypeEditor } from "../../TypeEditor";
+import { getTypeHelper } from "../../TypeHelper";
 
 interface TypeEditorState {
     isOpen: boolean;
@@ -75,6 +73,7 @@ interface FormProps {
     targetLineRange: LineRange;
     projectPath?: string;
     editForm?: boolean;
+    isGraphql?: boolean;
     onSubmit: (node?: FlowNode, isDataMapper?: boolean) => void;
     subPanelView?: SubPanelView;
     openSubPanel?: (subPanel: SubPanel) => void;
@@ -92,6 +91,7 @@ export function FormGenerator(props: FormProps) {
         clientName,
         targetLineRange,
         projectPath,
+        isGraphql,
         onSubmit,
         openSubPanel,
         subPanelView,
@@ -451,20 +451,6 @@ export function FormGenerator(props: FormProps) {
         handleExpressionEditorCancel();
     };
 
-    const handleFunctionItemSelect = async (item: HelperPaneCompletionItem) => {
-        const response = await rpcClient.getBIDiagramRpcClient().addFunction({
-            filePath: fileName,
-            codedata: item.codedata,
-            kind: item.kind as FunctionKind
-        })
-
-        if (response.template) {
-            return extractFunctionInsertText(response.template);
-        }
-
-        return "";
-    }
-
     const handleExpressionEditorBlur = () => {
         handleExpressionEditorCancel();
     };
@@ -508,6 +494,26 @@ export function FormGenerator(props: FormProps) {
         });
     }
 
+    const handleGetTypeHelper = (
+        typeBrowserRef: RefObject<HTMLDivElement>,
+        currentType: string,
+        currentCursorPosition: number,
+        onChange: (newType: string, newCursorPosition: number) => void,
+        changeHelperPaneState: (isOpen: boolean) => void,
+        typeHelperHeight: HelperPaneHeight
+    ) => {
+        return getTypeHelper(
+            typeBrowserRef,
+            fileName,
+            updateLineRange(targetLineRange, expressionOffsetRef.current),
+            currentType,
+            currentCursorPosition,
+            typeHelperHeight,
+            onChange,
+            () => changeHelperPaneState(false)
+        );
+    }
+
     const expressionEditor = useMemo(() => {
         return {
             completions: filteredCompletions,
@@ -517,20 +523,25 @@ export function FormGenerator(props: FormProps) {
             types: filteredTypes,
             retrieveVisibleTypes: handleGetVisibleTypes,
             getHelperPane: handleGetHelperPane,
+            getTypeHelper: handleGetTypeHelper,
             getExpressionFormDiagnostics: handleExpressionFormDiagnostics,
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
             onCancel: handleExpressionEditorCancel,
             helperPaneOrigin: "left",
-            helperPaneHeight: "full"
+            helperPaneHeight: "full",
         } as FormExpressionEditorProps;
     }, [
         filteredCompletions,
         filteredTypes,
         handleRetrieveCompletions,
+        extractArgsFromFunction,
         handleGetVisibleTypes,
-        handleFunctionItemSelect,
-        handleExpressionFormDiagnostics
+        handleGetHelperPane,
+        handleExpressionFormDiagnostics,
+        handleCompletionItemSelect,
+        handleExpressionEditorBlur,
+        handleExpressionEditorCancel
     ]);
 
     const fetchVisualizableFields = async (filePath: string, flowNode: FlowNode, position: LinePosition) => {
@@ -607,19 +618,15 @@ export function FormGenerator(props: FormProps) {
                     recordTypeFields={recordTypeFields}
                 />
             )}
-            {typeEditorState.isOpen && (
-                <PanelContainer
-                    title={"New Type"}
-                    show={true}
-                    onClose={onTypeEditorClosed}
-                >
-                    <TypeEditor
+            {typeEditorState.isOpen &&
+                <PanelContainer title={"New Type"} show={true} onClose={onTypeEditorClosed}>
+                    <FormTypeEditor
                         newType={true}
-                        rpcClient={rpcClient}
+                        isGraphql={isGraphql}
                         onTypeChange={onTypeChange}
                     />
                 </PanelContainer>
-            )}
+            }
         </>
     );
 }

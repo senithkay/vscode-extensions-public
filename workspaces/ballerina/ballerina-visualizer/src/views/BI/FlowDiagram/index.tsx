@@ -85,6 +85,7 @@ export enum SidePanelView {
     FORM = "FORM",
     FUNCTION_LIST = "FUNCTION_LIST",
     DATA_MAPPER_LIST = "DATA_MAPPER_LIST",
+    NP_FUNCTION_LIST = "NP_FUNCTION_LIST"
 }
 
 export interface BIFlowDiagramProps {
@@ -311,6 +312,41 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             });
     };
 
+    const handleSearchNpFunction = async (searchText: string, functionType: FUNCTION_TYPE) => {
+        const request: BISearchRequest = {
+            position: {
+                startLine: targetRef.current.startLine,
+                endLine: targetRef.current.endLine,
+            },
+            filePath: model.fileName,
+            queryMap: searchText.trim()
+                ? {
+                      q: searchText,
+                      limit: 12,
+                      offset: 0,
+                      includeAvailableFunctions: "true",
+                  }
+                : undefined,
+            searchKind: "NP_FUNCTION",
+        };
+        console.log(">>> Search np function request", request);
+        setShowProgressIndicator(true);
+        rpcClient
+            .getBIDiagramRpcClient()
+            .search(request)
+            .then((response) => {
+                console.log(">>> Searched List of np functions", response);
+                setCategories(
+                    convertFunctionCategoriesToSidePanelCategories(response.categories as Category[], functionType)
+                );
+                setSidePanelView(SidePanelView.NP_FUNCTION_LIST);
+                setShowSidePanel(true);
+            })
+            .finally(() => {
+                setShowProgressIndicator(false);
+            });
+    }
+
     const handleSearchFunction = async (searchText: string, functionType: FUNCTION_TYPE) => {
         const request: BISearchRequest = {
             position: {
@@ -396,6 +432,30 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         )
                     );
                     setSidePanelView(SidePanelView.DATA_MAPPER_LIST);
+                    setShowSidePanel(true);
+                })
+                .finally(() => {
+                    setShowProgressIndicator(false);
+                });
+        } else if (nodeType === "NP_FUNCTION") {
+            setShowProgressIndicator(true);
+            rpcClient
+                .getBIDiagramRpcClient()
+                .search({
+                    position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
+                    filePath: model.fileName,
+                    queryMap: undefined,
+                    searchKind: "NP_FUNCTION",
+                })
+                .then((response) => {
+                    console.log(">>> List of np functions", response);
+                    setCategories(
+                        convertFunctionCategoriesToSidePanelCategories(
+                            response.categories as Category[],
+                            FUNCTION_TYPE.REGULAR
+                        )
+                    );
+                    setSidePanelView(SidePanelView.NP_FUNCTION_LIST);
                     setShowSidePanel(true);
                 })
                 .finally(() => {
@@ -574,7 +634,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     };
 
     const handleOnFormBack = () => {
-        if (sidePanelView === SidePanelView.FUNCTION_LIST || sidePanelView === SidePanelView.DATA_MAPPER_LIST) {
+        if (sidePanelView === SidePanelView.FUNCTION_LIST 
+            || sidePanelView === SidePanelView.DATA_MAPPER_LIST 
+            || sidePanelView === SidePanelView.NP_FUNCTION_LIST) {
             // Reset categories to the initial available nodes
             setCategories(initialCategoriesRef.current);
             setSidePanelView(SidePanelView.NODE_LIST);
@@ -616,6 +678,15 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
                 view: MACHINE_VIEW.BIFunctionForm,
+            },
+        });
+    };
+
+    const handleOnAddNPFunction = () => {
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.BINPFunctionForm,
             },
         });
     };
@@ -817,6 +888,17 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             onAddFunction={handleOnAddFunction}
                             onClose={handleOnCloseSidePanel}
                             title={"Functions"}
+                            onBack={handleOnFormBack}
+                        />
+                    )}
+                    {sidePanelView === SidePanelView.NP_FUNCTION_LIST && categories?.length && (
+                        <NodeList
+                            categories={categories}
+                            onSelect={handleOnSelectNode}
+                            onSearchTextChange={(searchText) => handleSearchNpFunction(searchText, FUNCTION_TYPE.REGULAR)}
+                            onAddFunction={handleOnAddNPFunction}
+                            onClose={handleOnCloseSidePanel}
+                            title={"Prompt as code"}
                             onBack={handleOnFormBack}
                         />
                     )}

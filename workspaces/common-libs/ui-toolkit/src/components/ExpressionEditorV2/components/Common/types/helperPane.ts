@@ -20,6 +20,7 @@ export type LibraryBrowserProps = PropsWithChildren<{
     anchorRef: RefObject<HTMLDivElement>;
     loading?: boolean;
     searchValue: string;
+    title?: string;
     titleSx?: CSSProperties;
     onSearch: (searchTerm: string) => void;
     onClose: () => void;
@@ -71,6 +72,7 @@ export type PanelViewProps = PropsWithChildren<{
 export type PanelTabProps = {
     id: number;
     title: string;
+    onClick?: (panelId: number) => void;
 };
 
 export type PanelsProps = PropsWithChildren<{

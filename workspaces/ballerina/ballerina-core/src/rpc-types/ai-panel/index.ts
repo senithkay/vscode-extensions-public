@@ -40,6 +40,7 @@ export interface AIPanelAPI {
     getResourceSourceForMethodAndPath: (params: string) => Promise<string>;
     getServiceNames: () => Promise<TestGenerationMentions>;
     getResourceMethodAndPaths: () => Promise<TestGenerationMentions>;
+    abortTestGeneration: () => void;
     getMappingsFromRecord: (params: GenerateMappingsFromRecordRequest) => Promise<GenerateMappingFromRecordResponse>;
     getTypesFromRecord: (params: GenerateTypesFromRecordRequest) => Promise<GenerateTypesFromRecordResponse>;
     applyDoOnFailBlocks: () => void;
@@ -60,4 +61,5 @@ export interface AIPanelAPI {
     readDeveloperMdFile:(directoryPath: string) => Promise<string>;
     updateDevelopmentDocument:(developerDocument: DeveloperDocument) => void;
     updateRequirementSpecification:(requirementsSpecification: RequirementSpecification) => void;
+    createTestDirecoryIfNotExists:(directoryPath: string) => void;
 }
