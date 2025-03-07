@@ -12,6 +12,7 @@ export const OVERRIDE_BALLERINA_HOME = "kolab.pluginDevMode";
 export const ENABLE_TELEMETRY = "kolab.enableTelemetry";
 export const ENABLE_ALL_CODELENS = "kolab.codeLens.all.enabled";
 export const ENABLE_SEMANTIC_HIGHLIGHTING = "kolab.enableSemanticHighlighting";
+export const ENABLE_NATURAL_PROGRAMMING = "kolab.enableNaturalProgramming";
 export const ENABLE_PERFORMANCE_FORECAST = "kolab.enablePerformanceForecast";
 export const ENABLE_DEBUG_LOG = "kolab.debugLog";
 export const ENABLE_LIVE_RELOAD = "kolab.enableLiveReload";

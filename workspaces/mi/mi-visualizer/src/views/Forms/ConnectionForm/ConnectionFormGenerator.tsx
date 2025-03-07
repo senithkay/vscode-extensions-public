@@ -319,7 +319,7 @@ export function AddConnection(props: AddConnectionProps) {
     }
 
     const handleOnClose = () => {
-        if (props.fromSidePanel) {
+        if (props.isPopup) {
             handlePopupClose();
         } else if (props.changeConnectionType) {
             props.changeConnectionType();

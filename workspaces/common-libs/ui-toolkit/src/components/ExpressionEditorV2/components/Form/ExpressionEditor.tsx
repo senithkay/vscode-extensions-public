@@ -410,6 +410,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     useImperativeHandle(ref, () => ({
         shadowRoot: textAreaRef.current?.shadowRoot,
         inputElement: textAreaRef.current?.shadowRoot?.querySelector('textarea'),
+        parentElement: textAreaRef.current?.parentElement,
         focus: handleRefFocus,
         blur: handleRefBlur,
         setCursor: handleRefSetCursor,
@@ -428,7 +429,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                 !textAreaRef.current?.contains(e.target) &&
                 !dropdownContainerRef.current?.contains(e.target) &&
                 !helperPaneContainerRef.current?.contains(e.target) &&
-                !anchorRef.current?.contains(e.target)
+                !anchorRef?.current?.contains(e.target)
             ) {
                 // Additional actions to be performed when the expression editor loses focus
                 setIsFocused(false);

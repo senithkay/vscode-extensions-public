@@ -2941,34 +2941,34 @@ ${endpointAttributes}
             window.showInformationMessage(`Successfully created ${name} project`);
             const projectOpened = StateMachine.context().projectOpened;
 
-            if (open) {
-                if (projectOpened) {
-                    const answer = await window.showInformationMessage(
-                        "Do you want to open the created project in the current window or new window?",
-                        "Current Window",
-                        "New Window"
-                    );
+            commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
+            resolve({ filePath: path.join(directory, name) });
 
-                    if (answer === "Current Window") {
-                        const folderUri = Uri.file(path.join(directory, name));
+            // FIX ME: Enable when multiproject support provided
+            // if (open) {
+            //     if (projectOpened) {
+            //         const answer = await window.showInformationMessage(
+            //             "Do you want to open the created project in the current window or new window?",
+            //             "Current Window",
+            //             "New Window"
+            //         );
 
-                        // Get the currently opened workspaces
-                        const workspaceFolders = workspace.workspaceFolders || [];
+            //         if (answer === "Current Window") {
+            //             const folderUri = Uri.file(path.join(directory, name));
 
-                        // Check if the folder is not already part of the workspace
-                        if (!workspaceFolders.some(folder => folder.uri.fsPath === folderUri.fsPath)) {
-                            workspace.updateWorkspaceFolders(workspaceFolders.length, 0, { uri: folderUri });
-                        }
-                    } else {
-                        commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
-                        resolve({ filePath: path.join(directory, name) });
-                    }
+            //             // Get the currently opened workspaces
+            //             const workspaceFolders = workspace.workspaceFolders || [];
 
-                } else {
-                    commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
-                    resolve({ filePath: path.join(directory, name) });
-                }
-            }
+            //             // Check if the folder is not already part of the workspace
+            //             if (!workspaceFolders.some(folder => folder.uri.fsPath === folderUri.fsPath)) {
+            //                 workspace.updateWorkspaceFolders(workspaceFolders.length, 0, { uri: folderUri });
+            //             }
+            //         } else {
+            //             commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
+            //             resolve({ filePath: path.join(directory, name) });
+            //         }
+
+            //     }
 
             resolve({ filePath: path.join(directory, name) });
         });
