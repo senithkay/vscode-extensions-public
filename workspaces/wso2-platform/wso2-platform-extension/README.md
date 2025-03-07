@@ -5,8 +5,8 @@ The WSO2 Platform VS Code extension enhances your local development experience w
 ## Getting Started
 
 1. [Create an account on Choreo](https://console.choreo.dev/).
-2. Install the [WSO2 Platform VS Code extension](https://marketplace.visualstudio.com/items?itemName=WSO2.platform).
-3. Sign in to Choreo via VS Code (see screenshot below).
+2. Install the [WSO2 Platform VS Code extension](https://marketplace.visualstudio.com/items?itemName=WSO2.wso2-platform).
+3. Sign in to WSO2 via VS Code by running the VS Code command.
 4. Refer to this [guide](https://wso2.com/choreo/docs/develop-components/develop-components-using-vs-code/#create-a-new-component) for instructions on creating a new component.
 <!-- 
 ## Feature List

@@ -75,7 +75,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	// activateStatusBarItem();
 	commands.registerCommand(CommandIds.OpenWalkthrough, () => {
-		commands.executeCommand("workbench.action.openWalkthrough", "wso2.platform#choreo.getStarted", false);
+		commands.executeCommand("workbench.action.openWalkthrough", "wso2.wso2-platform#choreo.getStarted", false);
 	});
 	registerPreInitHandlers();
 	registerYamlLanguageServer();
@@ -84,13 +84,13 @@ export async function activate(context: vscode.ExtensionContext) {
 
 function registerPreInitHandlers(): any {
 	workspace.onDidChangeConfiguration(async ({ affectsConfiguration }: ConfigurationChangeEvent) => {
-		if (affectsConfiguration("WSO2.Platform.Advanced.ChoreoEnvironment") || affectsConfiguration("WSO2.Platform.Advanced.RpcPath")) {
+		if (affectsConfiguration("WSO2.WSO2-Platform.Advanced.ChoreoEnvironment") || affectsConfiguration("WSO2.WSO2-Platform.Advanced.RpcPath")) {
 			const selection = await window.showInformationMessage(
 				"Choreo extension configuration changed. Please restart vscode for changes to take effect.",
 				"Restart Now",
 			);
 			if (selection === "Restart Now") {
-				if (affectsConfiguration("WSO2.Platform.Advanced.ChoreoEnvironment")) {
+				if (affectsConfiguration("WSO2.WSO2-Platform.Advanced.ChoreoEnvironment")) {
 					authStore.getState().logout();
 				}
 				commands.executeCommand("workbench.action.reloadWindow");

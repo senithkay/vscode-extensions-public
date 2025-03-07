@@ -56,7 +56,7 @@ export function activateUriHandlers(ballerinaExtInstance: BallerinaExtension) {
                     const technology = urlParams.get("technology");
                     const integrationType = urlParams.get("integrationType");
                     if (org && project && component && technology && integrationType) {
-                        commands.executeCommand('wso2.platform.open.component.src', {
+                        commands.executeCommand('wso2.wso2-platform.open.component.src', {
                             org, project, component, technology, integrationType
                         });
                     } else {

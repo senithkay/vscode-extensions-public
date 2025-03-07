@@ -225,7 +225,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 		// todo: export the env from here
 		if (getChoreoEnv() !== "prod") {
 			window.showErrorMessage(
-				"Choreo extension currently displays runtime logs is only if 'WSO2.Platform.Advanced.ChoreoEnvironment' is set to 'prod'",
+				"Choreo extension currently displays runtime logs is only if 'WSO2.WSO2-Platform.Advanced.ChoreoEnvironment' is set to 'prod'",
 			);
 			return;
 		}
@@ -233,7 +233,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 		window.createTerminal(`${componentName}:${type.replace("component-", "")}-logs`, getChoreoExecPath(), args).show();
 	});
 	const _getGithubUrlState = async (orgId: string): Promise<string> => {
-		const callbackUrl = await env.asExternalUri(Uri.parse(`${env.uriScheme}://wso2.platform/ghapp`));
+		const callbackUrl = await env.asExternalUri(Uri.parse(`${env.uriScheme}://wso2.wso2-platform/ghapp`));
 		const state = { origin: "vscode.choreo.ext", orgId, callbackUri: callbackUrl.toString() };
 		return Buffer.from(JSON.stringify(state), "binary").toString("base64");
 	};

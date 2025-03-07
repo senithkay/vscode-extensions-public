@@ -23,7 +23,7 @@ export const webviewStateStore = createStore<WebviewStateStore>((set) => ({
 	state: {
 		openedComponentKey: "",
 		componentViews: {},
-		choreoEnv: workspace.getConfiguration().get<string>("WSO2.Platform.Advanced.ChoreoEnvironment") || "prod",
+		choreoEnv: workspace.getConfiguration().get<string>("WSO2.WSO2-Platform.Advanced.ChoreoEnvironment") || "prod",
 	},
 	setOpenedComponentKey: (openedComponentKey) => set(({ state }) => ({ state: { ...state, openedComponentKey } })),
 	onCloseComponentView: (openedComponentKey) =>

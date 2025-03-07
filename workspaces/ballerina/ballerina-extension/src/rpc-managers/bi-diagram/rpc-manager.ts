@@ -667,7 +667,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             },
         };
 
-        await commands.executeCommand("wso2.platform.create.component", params);
+        await commands.executeCommand("wso2.wso2-platform.create.component", params);
     }
 
     async deployProject(): Promise<void> {
@@ -685,7 +685,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             name: path.basename(StateMachine.context().projectUri),
             componentDir: StateMachine.context().projectUri
         };
-        commands.executeCommand("wso2.platform.create.component", params);
+        commands.executeCommand("wso2.wso2-platform.create.component", params);
     }
 
     openAIChat(params: AIChatRequest): void {
