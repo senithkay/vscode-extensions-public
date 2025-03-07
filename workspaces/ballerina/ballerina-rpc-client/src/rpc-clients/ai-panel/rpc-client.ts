@@ -9,10 +9,12 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    AIChatSummary,
     AIPanelAPI,
     AIVisualizerState,
     AddToProjectRequest,
     DeleteFromProjectRequest,
+    DeveloperDocument,
     FetchDataRequest,
     FetchDataResponse,
     GenerateMappingFromRecordResponse,
@@ -23,18 +25,22 @@ import {
     GenerateTypesFromRecordResponse,
     GetFromFileRequest,
     InitialPrompt,
+    LLMDiagnostics,
     NotifyAIMappingsRequest,
     PostProcessRequest,
     PostProcessResponse,
     ProjectDiagnostics,
     ProjectSource,
+    RequirementSpecification,
     TestGenerationMentions,
     TestGenerationRequest,
     TestGenerationResponse,
+    addChatSummary,
     addToProject,
     applyDoOnFailBlocks,
     checkSyntaxError,
     clearInitialPrompt,
+    createTestDirecoryIfNotExists,
     deleteFromProject,
     fetchData,
     generateMappings,
@@ -42,6 +48,7 @@ import {
     getActiveFile,
     getAiPanelState,
     getBackendURL,
+    getDriftDiagnosticContents,
     getFileExists,
     getFromDocumentation,
     getFromFile,
@@ -59,6 +66,7 @@ import {
     getTestDiagnostics,
     getTypesFromRecord,
     isCopilotSignedIn,
+    isRequirementsSpecificationFileExist,
     isWSO2AISignedIn,
     login,
     logout,
@@ -70,10 +78,13 @@ import {
     promptGithubAuthorize,
     promptLogin,
     promptWSO2AILogout,
+    readDeveloperMdFile,
     refreshAccessToken,
     showSignInAlert,
     stopAIMappings,
-    updateProject
+    updateDevelopmentDocument,
+    updateProject,
+    updateRequirementSpecification
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -157,8 +168,8 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(promptLogin, HOST_EXTENSION);
     }
 
-    getProjectSource(): Promise<ProjectSource> {
-        return this._messenger.sendRequest(getProjectSource, HOST_EXTENSION);
+    getProjectSource(requestType: string): Promise<ProjectSource> {
+        return this._messenger.sendRequest(getProjectSource, HOST_EXTENSION, requestType);
     }
 
     getShadowDiagnostics(project: ProjectSource): Promise<ProjectDiagnostics> {
@@ -255,5 +266,33 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     getFromDocumentation(content: string): Promise<string> {
         return this._messenger.sendRequest(getFromDocumentation, HOST_EXTENSION, content);
+    }
+
+    isRequirementsSpecificationFileExist(filePath: string): Promise<boolean> {
+        return this._messenger.sendRequest(isRequirementsSpecificationFileExist, HOST_EXTENSION, filePath);
+    }
+
+    getDriftDiagnosticContents(projectPath: string): Promise<LLMDiagnostics> {
+        return this._messenger.sendRequest(getDriftDiagnosticContents, HOST_EXTENSION, projectPath);
+    }
+
+    addChatSummary(filepathAndSummary: AIChatSummary): void {
+        return this._messenger.sendNotification(addChatSummary, HOST_EXTENSION, filepathAndSummary);
+    }
+
+    readDeveloperMdFile(directoryPath: string): Promise<string> {
+        return this._messenger.sendRequest(readDeveloperMdFile, HOST_EXTENSION, directoryPath);
+    }
+
+    updateDevelopmentDocument(developerDocument: DeveloperDocument): void {
+        return this._messenger.sendNotification(updateDevelopmentDocument, HOST_EXTENSION, developerDocument);
+    }
+
+    updateRequirementSpecification(requirementsSpecification: RequirementSpecification): void {
+        return this._messenger.sendNotification(updateRequirementSpecification, HOST_EXTENSION, requirementsSpecification);
+    }
+
+    createTestDirecoryIfNotExists(directoryPath: string): void {
+        return this._messenger.sendNotification(createTestDirecoryIfNotExists, HOST_EXTENSION, directoryPath);
     }
 }

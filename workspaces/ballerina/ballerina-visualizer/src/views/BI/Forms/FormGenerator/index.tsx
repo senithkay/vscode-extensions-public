@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { RefObject, useCallback, useEffect, useMemo, useRef,useState } from "react";
+import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     EVENT_TYPE,
     FlowNode,
@@ -19,27 +19,33 @@ import {
     TriggerCharacter,
     FormDiagnostics,
     TextEdit,
-    FunctionKind,
     SubPanelView,
     LinePosition,
-    ExpressionProperty
+    ExpressionProperty,
+    Type
 } from "@wso2-enterprise/ballerina-core";
-import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditorProps, HelperPaneData, HelperPaneCompletionItem } from "@wso2-enterprise/ballerina-side-panel";
+import {
+    FormField,
+    FormValues,
+    Form,
+    ExpressionFormField,
+    FormExpressionEditorProps,
+    PanelContainer
+} from "@wso2-enterprise/ballerina-side-panel";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight } from "@wso2-enterprise/ui-toolkit";
+
 import {
     convertBalCompletion,
     convertNodePropertiesToFormFields,
     convertToFnSignature,
     convertToVisibleTypes,
     enrichFormPropertiesWithValueConstraint,
-    extractFunctionInsertText,
     getFormProperties,
     removeDuplicateDiagnostics,
     updateLineRange
 } from "../../../../utils/bi";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { RecordEditor } from "../../../RecordEditor/RecordEditor";
 import IfForm from "../IfForm";
-import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight } from "@wso2-enterprise/ui-toolkit";
 import { cloneDeep, debounce } from "lodash";
 import {
     createNodeWithUpdatedLineRange,
@@ -49,6 +55,13 @@ import {
 } from "../form-utils";
 import ForkForm from "../ForkForm";
 import { getHelperPane } from "../../HelperPane"
+import { FormTypeEditor } from "../../TypeEditor";
+import { getTypeHelper } from "../../TypeHelper";
+
+interface TypeEditorState {
+    isOpen: boolean;
+    fieldKey?: string; // Optional, to store the key of the field being edited
+}
 
 interface FormProps {
     fileName: string;
@@ -59,11 +72,13 @@ interface FormProps {
     targetLineRange: LineRange;
     projectPath?: string;
     editForm?: boolean;
+    isGraphql?: boolean;
     onSubmit: (node?: FlowNode, isDataMapper?: boolean) => void;
     subPanelView?: SubPanelView;
     openSubPanel?: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
+    disableSaveButton?: boolean;
 }
 
 export function FormGenerator(props: FormProps) {
@@ -75,18 +90,19 @@ export function FormGenerator(props: FormProps) {
         clientName,
         targetLineRange,
         projectPath,
-        editForm,
+        isGraphql,
         onSubmit,
         openSubPanel,
         subPanelView,
         updatedExpressionField,
-        resetUpdatedExpressionField
+        resetUpdatedExpressionField,
+        disableSaveButton
     } = props;
 
     const { rpcClient } = useRpcContext();
 
     const [fields, setFields] = useState<FormField[]>([]);
-    const [showRecordEditor, setShowRecordEditor] = useState(false);
+    const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false });
     const [visualizableFields, setVisualizableFields] = useState<string[]>([]);
 
     /* Expression editor related state and ref variables */
@@ -160,7 +176,7 @@ export function FormGenerator(props: FormProps) {
 
         rpcClient
             .getInlineDataMapperRpcClient()
-            .getVisualizableFields({filePath: fileName, flowNode: node, position: targetLineRange.startLine})
+            .getVisualizableFields({ filePath: fileName, flowNode: node, position: targetLineRange.startLine })
             .then((res) => {
                 setVisualizableFields(res.visualizableProperties);
             });
@@ -207,7 +223,7 @@ export function FormGenerator(props: FormProps) {
         await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
 
-    const handleOpenRecordEditor = (isOpen: boolean, f: FormValues) => {
+    const handleOpenTypeEditor = (isOpen: boolean, f: FormValues, editingField?: FormField) => {
         // Get f.value and assign that value to field value
         const updatedFields = fields.map((field) => {
             const updatedField = { ...field };
@@ -217,7 +233,7 @@ export function FormGenerator(props: FormProps) {
             return updatedField;
         });
         setFields(updatedFields);
-        setShowRecordEditor(isOpen);
+        setTypeEditorState({ isOpen, fieldKey: editingField?.key });
     };
 
     /* Expression editor related functions */
@@ -418,22 +434,23 @@ export function FormGenerator(props: FormProps) {
         handleExpressionEditorCancel();
     };
 
-    const handleFunctionItemSelect = async (item: HelperPaneCompletionItem) => {
-        const response = await rpcClient.getBIDiagramRpcClient().addFunction({
-            filePath: fileName,
-            codedata: item.codedata,
-            kind: item.kind as FunctionKind
-        })
-
-        if (response.template) {
-            return extractFunctionInsertText(response.template);
-        }
-
-        return "";
-    }
-
     const handleExpressionEditorBlur = () => {
         handleExpressionEditorCancel();
+    };
+
+    const onTypeEditorClosed = () => {
+        setTypeEditorState({ isOpen: false });
+    };
+
+    const onTypeChange = async (type: Type) => {
+        const updatedFields = fields.map((field) => {
+            if (field.key === typeEditorState.fieldKey) {
+                return { ...field, value: type.name };
+            }
+            return field;
+        });
+        setFields(updatedFields);
+        setTypeEditorState({ isOpen: false });
     };
 
     const handleGetHelperPane = (
@@ -458,6 +475,26 @@ export function FormGenerator(props: FormProps) {
         });
     }
 
+    const handleGetTypeHelper = (
+        typeBrowserRef: RefObject<HTMLDivElement>,
+        currentType: string,
+        currentCursorPosition: number,
+        onChange: (newType: string, newCursorPosition: number) => void,
+        changeHelperPaneState: (isOpen: boolean) => void,
+        typeHelperHeight: HelperPaneHeight
+    ) => {
+        return getTypeHelper(
+            typeBrowserRef,
+            fileName,
+            updateLineRange(targetLineRange, expressionOffsetRef.current),
+            currentType,
+            currentCursorPosition,
+            typeHelperHeight,
+            onChange,
+            () => changeHelperPaneState(false)
+        );
+    }
+
     const expressionEditor = useMemo(() => {
         return {
             completions: filteredCompletions,
@@ -467,24 +504,29 @@ export function FormGenerator(props: FormProps) {
             types: filteredTypes,
             retrieveVisibleTypes: handleGetVisibleTypes,
             getHelperPane: handleGetHelperPane,
+            getTypeHelper: handleGetTypeHelper,
             getExpressionFormDiagnostics: handleExpressionFormDiagnostics,
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
             onCancel: handleExpressionEditorCancel,
             helperPaneOrigin: "left",
-            helperPaneHeight: "full"
+            helperPaneHeight: "full",
         } as FormExpressionEditorProps;
     }, [
         filteredCompletions,
         filteredTypes,
         handleRetrieveCompletions,
+        extractArgsFromFunction,
         handleGetVisibleTypes,
-        handleFunctionItemSelect,
-        handleExpressionFormDiagnostics
+        handleGetHelperPane,
+        handleExpressionFormDiagnostics,
+        handleCompletionItemSelect,
+        handleExpressionEditorBlur,
+        handleExpressionEditorCancel
     ]);
 
     const fetchVisualizableFields = async (filePath: string, flowNode: FlowNode, position: LinePosition) => {
-        const res = await rpcClient.getInlineDataMapperRpcClient().getVisualizableFields({filePath, flowNode, position});
+        const res = await rpcClient.getInlineDataMapperRpcClient().getVisualizableFields({ filePath, flowNode, position });
         setVisualizableFields(res.visualizableProperties);
     }
 
@@ -522,6 +564,15 @@ export function FormGenerator(props: FormProps) {
         );
     }
 
+    if (!node) {
+        console.log(">>> Node is undefined");
+        return null;
+    }
+
+    const notSupportedLabel =
+        "This statement is not supported in low-code yet. Please use the Ballerina source code to modify it accordingly.";
+    const infoLabel = node.codedata.node === "EXPRESSION" ? notSupportedLabel : undefined;
+
     // default form
     return (
         <>
@@ -530,7 +581,7 @@ export function FormGenerator(props: FormProps) {
                     formFields={fields}
                     projectPath={projectPath}
                     selectedNode={node.codedata.node}
-                    openRecordEditor={handleOpenRecordEditor}
+                    openRecordEditor={handleOpenTypeEditor}
                     onSubmit={handleOnSubmit}
                     openView={handleOpenView}
                     openSubPanel={openSubPanel}
@@ -543,17 +594,19 @@ export function FormGenerator(props: FormProps) {
                     mergeFormDataWithFlowNode={mergeFormDataWithFlowNode}
                     handleVisualizableFields={fetchVisualizableFields}
                     visualizableFields={visualizableFields}
+                    infoLabel={infoLabel}
+                    disableSaveButton={disableSaveButton}
                 />
             )}
-            {showRecordEditor && (
-                <RecordEditor
-                    fields={fields}
-                    isRecordEditorOpen={showRecordEditor}
-                    onClose={() => setShowRecordEditor(false)}
-                    updateFields={(updatedFields) => setFields(updatedFields)}
-                    rpcClient={rpcClient}
-                />
-            )}
+            {typeEditorState.isOpen &&
+                <PanelContainer title={"New Type"} show={true} onClose={onTypeEditorClosed}>
+                    <FormTypeEditor
+                        newType={true}
+                        isGraphql={isGraphql}
+                        onTypeChange={onTypeChange}
+                    />
+                </PanelContainer>
+            }
         </>
     );
 }

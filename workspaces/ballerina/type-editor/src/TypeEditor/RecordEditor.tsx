@@ -14,6 +14,7 @@ import { Button } from '@wso2-enterprise/ui-toolkit';
 import { TextField } from '@wso2-enterprise/ui-toolkit';
 import { FieldEditor } from './FieldEditor';
 import styled from '@emotion/styled';
+import { TypeHelperCategory, TypeHelperOperator } from '../TypeHelper';
 
 
  const Header = styled.div`
@@ -85,13 +86,13 @@ export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorPr
         <div className="record-editor">
             {!isAnonymous &&
                 <Header>
-                    <SectionTitle>{isGraphql ? 'Input Object Fields' : 'Record'}</SectionTitle>
+                    <SectionTitle>{isGraphql ? 'Input Object Fields' : 'Fields'}</SectionTitle>
                     <div style={{ display: 'flex', gap: '8px' }}>
                         <Button appearance="icon" onClick={onImportJson}>
-                            <Codicon name="arrow-circle-down" />&nbsp;JSON
+                            <Codicon name="arrow-circle-up" />&nbsp;JSON
                         </Button>
                         <Button appearance="icon" onClick={onImportXml}>
-                            <Codicon name="arrow-circle-down" />&nbsp;XML
+                            <Codicon name="arrow-circle-up" />&nbsp;XML
                         </Button>
                         <Button appearance="icon" onClick={addMember}><Codicon name="add" /></Button>
                         <Button appearance="icon" onClick={deleteSelected}><Codicon name="trash" /></Button>
@@ -101,7 +102,14 @@ export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorPr
             }
             {type.members.map((member, index) => (
                 <>
-                    <FieldEditor selected={selectedMembers.includes(index)} member={member} onChange={handleMemberChange(index)} onSelect={onSelect(index)} onDeselect={onDeselect(index)} />
+                    <FieldEditor
+                        key={index}
+                        selected={selectedMembers.includes(index)}
+                        member={member}
+                        onChange={handleMemberChange(index)}
+                        onSelect={onSelect(index)}
+                        onDeselect={onDeselect(index)}
+                    />
                 </>
             ))}
         </div >

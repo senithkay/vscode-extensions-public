@@ -34,16 +34,16 @@ const Container = styled.div`
 const ListContainer = styled.div`
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    margin-top: 24px;
+    gap: 8px;
     height: 80vh;
     overflow-y: scroll;
+    margin-top: 16px;
 `;
 
 const GridContainer = styled.div`
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
     width: 100%;
 `;
 
@@ -66,10 +66,6 @@ const TopBar = styled.div`
     align-items: center;
     padding-bottom: 16px;
 `;
-
-const capitalizeFirstLetter = (str: string): string => {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-};
 
 interface ConnectorViewProps {
     fileName: string;
@@ -102,7 +98,7 @@ export function ConnectorView(props: ConnectorViewProps) {
                 },
                 filePath: fileName,
                 queryMap: { limit: 60 },
-                searchKind: "CONNECTOR"
+                searchKind: "CONNECTOR",
             })
             .then((model) => {
                 console.log(">>> bi connectors", model);
@@ -129,7 +125,7 @@ export function ConnectorView(props: ConnectorViewProps) {
                 },
                 filePath: fileName,
                 queryMap: { q: text, limit: 60 },
-                searchKind: "CONNECTOR"
+                searchKind: "CONNECTOR",
             })
             .then((model) => {
                 console.log(">>> bi searched connectors", model);
@@ -178,16 +174,14 @@ export function ConnectorView(props: ConnectorViewProps) {
     });
 
     const isFullView = onClose === undefined;
+    const isLoading = isSearching || fetchingInfo;
 
     return (
         <ViewWrapper>
             {isFullView && (
                 <>
                     <TopNavigationBar />
-                    <TitleBar
-                        title="Connectors"
-                        subtitle="Select a connector to integrate with external services"
-                    />
+                    <TitleBar title="Connectors" subtitle="Select a connector to integrate with external services" />
                 </>
             )}
             <Container>
@@ -218,7 +212,7 @@ export function ConnectorView(props: ConnectorViewProps) {
                         sx={{ width: "100%" }}
                     />
                 </Row>
-                {(isSearching || fetchingInfo) && (
+                {isLoading && (
                     <ListContainer>
                         <div
                             style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}
@@ -227,7 +221,7 @@ export function ConnectorView(props: ConnectorViewProps) {
                         </div>
                     </ListContainer>
                 )}
-                {filteredCategories && filteredCategories.length > 0 && (
+                {!isLoading && filteredCategories && filteredCategories.length > 0 && (
                     <ListContainer>
                         {/* Default connectors of LS is hardcoded and is sent with categories with item field */}
                         {filteredCategories[0]?.items ? (
@@ -240,12 +234,13 @@ export function ConnectorView(props: ConnectorViewProps) {
                                                 return (
                                                     <ButtonCard
                                                         key={connector.metadata.label + index}
-                                                        title={capitalizeFirstLetter(connector.metadata.label)}
+                                                        title={connector.metadata.label}
                                                         description={
                                                             (connector as AvailableNode).codedata.org +
                                                             " / " +
                                                             (connector as AvailableNode).codedata.module
                                                         }
+                                                        truncate={true}
                                                         icon={
                                                             connector.metadata.icon ? (
                                                                 <ConnectorIcon
@@ -272,7 +267,7 @@ export function ConnectorView(props: ConnectorViewProps) {
                                     return (
                                         <ButtonCard
                                             key={connector.metadata.label + index}
-                                            title={capitalizeFirstLetter(connector.metadata.label)}
+                                            title={connector.metadata.label}
                                             description={
                                                 (connector as AvailableNode).codedata.org +
                                                 " / " +

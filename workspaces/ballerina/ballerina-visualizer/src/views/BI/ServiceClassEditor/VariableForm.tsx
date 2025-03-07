@@ -82,13 +82,13 @@ export function VariableForm(props: VariableFormProps) {
         <>
             {fields.length > 0 && (
                 <FormGeneratorNew
-                    isGraphqlEditor={true}
                     fileName={filePath}
                     targetLineRange={lineRange}
                     fields={fields}
                     onSubmit={handleVariableSave}
                     onBack={onClose}
                     submitText="Save"
+                    isGraphql={true}
                 />
             )}
         </>

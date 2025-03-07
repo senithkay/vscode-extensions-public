@@ -431,34 +431,40 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                                         <VersionTag>{connector.version}</VersionTag>
                                     </div>
                                 }
-                                <SampleGrid>
-                                    {Object.entries(connector.connectionUiSchema).map(([connectionType, connectionData]) => (
-                                        (allowedConnectionTypes && !allowedConnectionTypes.some(
-                                            type => type.toLowerCase() === connectionType.toLowerCase() // Ignore case on allowedtype check
-                                        )) ? null : (
-                                            <ComponentCard
-                                                key={connectionType}
-                                                onClick={() => selectConnectionType(connector, connectionType)}
-                                                sx={connectorCardStyle}
-                                            >
-                                                <CardContent>
-                                                    <IconContainer>
-                                                        <img
-                                                            src={(connectionData as any).iconPathUri}
-                                                            alt="Icon"
-                                                        />
-                                                    </IconContainer>
-                                                    <CardLabel>
-                                                        <LabelContainer>
-                                                            <NameLabel>
-                                                                {capitalizeFirstChar(connectionType)}
-                                                            </NameLabel>
-                                                        </LabelContainer>
-                                                    </CardLabel>
-                                                </CardContent>
-                                            </ComponentCard>
-                                        )))}
-                                </SampleGrid>
+                                <>
+                                    {Object.entries(connector.connectionUiSchema).length > 0 ? (
+                                        <SampleGrid>
+                                            {Object.entries(connector.connectionUiSchema).map(([connectionType, connectionData]) => (
+                                                (allowedConnectionTypes && !allowedConnectionTypes.some(
+                                                    type => type.toLowerCase() === connectionType.toLowerCase() // Ignore case on allowedtype check
+                                                )) ? null : (
+                                                    <ComponentCard
+                                                        key={connectionType}
+                                                        onClick={() => selectConnectionType(connector, connectionType)}
+                                                        sx={connectorCardStyle}
+                                                    >
+                                                        <CardContent>
+                                                            <IconContainer>
+                                                                <img
+                                                                    src={(connectionData as any).iconPathUri}
+                                                                    alt="Icon"
+                                                                />
+                                                            </IconContainer>
+                                                            <CardLabel>
+                                                                <LabelContainer>
+                                                                    <NameLabel>
+                                                                        {capitalizeFirstChar(connectionType)}
+                                                                    </NameLabel>
+                                                                </LabelContainer>
+                                                            </CardLabel>
+                                                        </CardContent>
+                                                    </ComponentCard>
+                                                )))}
+                                        </SampleGrid>
+                                    ) : (
+                                        <div style={{ color: Colors.SECONDARY_TEXT}}>No connections available</div>
+                                    )}
+                                </>
                             </div>
                         ))}
 

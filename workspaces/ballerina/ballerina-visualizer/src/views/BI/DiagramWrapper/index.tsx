@@ -67,12 +67,38 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
     const [enableSequenceDiagram, setEnableSequenceDiagram] = useState(false);
     const [loadingDiagram, setLoadingDiagram] = useState(false);
     const [fileName, setFileName] = useState("");
+    const [serviceType, setServiceType] = useState("");
+    const [basePath, setBasePath] = useState("");
+    const [listener, setListener] = useState("");
 
     useEffect(() => {
         rpcClient.getVisualizerLocation().then((location) => {
             if (location.metadata?.enableSequenceDiagram) {
                 setEnableSequenceDiagram(true);
             }
+
+            rpcClient.getBIDiagramRpcClient().getEnclosedFunction({
+                filePath: location.documentUri,
+                position: {
+                    line: location?.position?.startLine,
+                    offset: location?.position?.startColumn
+                },
+                findClass: true
+            }).then((serviceLocation) => {
+                rpcClient.getServiceDesignerRpcClient().getServiceModelFromCode({
+                    filePath: serviceLocation.filePath,
+                    codedata: {
+                        lineRange: {
+                            startLine: { line: serviceLocation?.startLine.line, offset: serviceLocation?.startLine.offset },
+                            endLine: { line: serviceLocation?.endLine.line, offset: serviceLocation?.endLine.offset }
+                        }
+                    }
+                }).then((serviceModel) => {
+                    setServiceType(serviceModel.service.type);
+                    setBasePath(serviceModel.service.properties?.basePath?.value?.trim());
+                    setListener(serviceModel.service.properties?.listener?.value?.trim());
+                })
+            });
         });
     }, [rpcClient]);
 
@@ -101,7 +127,7 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
     };
 
     const handleResourceTryIt = (methodValue: string, pathValue: string) => {
-        const commands = ["kolab.tryit", false, { methodValue, pathValue }]
+        const commands = ["kolab.tryit", false, { methodValue, pathValue }, { basePath, listener }]
         rpcClient.getCommonRpcClient().executeCommand({ commands });
     };
 
@@ -136,10 +162,12 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                         </SubTitleWrapper>
                     }
                     actions={
-                        <ActionButton appearance="secondary" onClick={() => handleResourceTryIt(method, getResourcePath(syntaxTree))}>
-                            <Icon name="play" isCodicon={true} sx={{ marginRight: 5, width: 16, height: 16, fontSize: 14 }} />
-                            Try It
-                        </ActionButton>
+                        serviceType === 'http' ? (
+                            <ActionButton appearance="secondary" onClick={() => handleResourceTryIt(method, getResourcePath(syntaxTree))}      >
+                                <Icon name="play" isCodicon={true} sx={{ marginRight: 5, width: 16, height: 16, fontSize: 14 }} />
+                                Try It
+                            </ActionButton>
+                        ) : null
                     }
                 />
             )}

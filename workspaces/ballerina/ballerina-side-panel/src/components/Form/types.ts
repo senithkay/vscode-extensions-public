@@ -112,9 +112,22 @@ type FormCompletionConditionalProps = {
 type FormTypeConditionalProps = {
     types: CompletionItem[];
     retrieveVisibleTypes: (value: string, cursorPosition: number) => Promise<void>;
+    getTypeHelper: (
+        typeBrowserRef: RefObject<HTMLDivElement>,
+        currentType: string,
+        currentCursorPosition: number,
+        onChange: (newType: string, newCursorPosition: number) => void,
+        changeTypeHelperState: (isOpen: boolean) => void,
+        helperPaneHeight: HelperPaneHeight
+    ) => JSX.Element;
+    helperPaneOrigin?: HelperPaneOrigin;
+    helperPaneHeight: HelperPaneHeight;
 } | {
     types?: never;
     retrieveVisibleTypes?: never;
+    getTypeHelper?: never;
+    helperPaneOrigin?: never;
+    helperPaneHeight?: never;
 }
 
 type FormHelperPaneConditionalProps = {
@@ -160,8 +173,14 @@ type FormExpressionEditorBaseProps = {
     onSaveConfigurables?: (values: any) => void;
 }
 
+type SanitizedExpressionEditorProps = {
+    rawExpression?: (expression: string) => string; // original expression
+    sanitizedExpression?: (expression: string) => string; // sanitized expression that will be rendered in the editor
+}
+
 export type FormExpressionEditorProps =
     FormCompletionConditionalProps &
     FormTypeConditionalProps &
     FormHelperPaneConditionalProps &
-    FormExpressionEditorBaseProps;
+    FormExpressionEditorBaseProps &
+    SanitizedExpressionEditorProps;
