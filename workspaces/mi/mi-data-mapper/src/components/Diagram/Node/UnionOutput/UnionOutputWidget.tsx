@@ -10,15 +10,14 @@
 import React, { useEffect, useState } from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { Button, Codicon, ProgressRing, TruncatedLabel } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Icon, ProgressRing, Tooltip, TruncatedLabel, Typography } from '@wso2-enterprise/ui-toolkit';
 import { Node } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { MappingMetadata } from "../../Mappings/MappingMetadata";
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Port';
-import { ObjectFieldAdder, TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
-import { UnionOutputFieldWidget } from "./UnionOutputFieldWidget";
+import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { useIONodesStyles } from '../../../styles';
 import {
 	useDMCollapsedFieldsStore,
@@ -188,35 +187,35 @@ export function UnionOutputWidget(props: UnionOutputWidgetProps) {
 		}
 	];
 
-	// TODO: Create separate node to handle union types and implement this logic there
-	if (dmTypeWithValue.type.kind === TypeKind.Union) {
-		const handleInitAsUnionType = async (resolvedUnionType: DMType) => {
-			setIsLoading(true);
-			try {
-				let node = value;
-				if (Node.isAsExpression(node.getParent())) {
-					node = node.getParent();
-				}
-				let initValue = getDefaultValue(resolvedUnionType);
-				if (initValue === "{}" && resolvedUnionType.kind !== TypeKind.Object && resolvedUnionType.typeName) {
-					initValue += ` as ${resolvedUnionType.typeName}`;
-				}
-				node.replaceWithText(initValue);
-				await context.applyModifications(node.getSourceFile().getFullText());
-			} finally {
-				setIsLoading(false);
-			}
-		};
 
-		const initAsUnionTypeMenuItems: ValueConfigMenuItem[] =  dmTypeWithValue.type.unionTypes?.map((unionType)=>{
-			return {
-				title: `Initialize as ${unionType.typeName || unionType.kind}`,
-				onClick: () => handleInitAsUnionType(unionType)
-			}
-		});
 
-		valConfigMenuItems.unshift(...initAsUnionTypeMenuItems);
-	}
+	const handleInitAsUnionType = async (resolvedUnionType: DMType) => {
+		setIsLoading(true);
+		try {
+			let node = value;
+			if (Node.isAsExpression(node.getParent())) {
+				node = node.getParent();
+			}
+			let initValue = getDefaultValue(resolvedUnionType);
+			if (initValue === "{}" && resolvedUnionType.kind !== TypeKind.Object && resolvedUnionType.typeName) {
+				initValue += ` as ${resolvedUnionType.typeName}`;
+			}
+			node.replaceWithText(initValue);
+			await context.applyModifications(node.getSourceFile().getFullText());
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	const initAsUnionTypeMenuItems: ValueConfigMenuItem[] = dmTypeWithValue.type.unionTypes?.map((unionType) => {
+		return {
+			title: `Initialize as ${unionType.typeName || unionType.kind}`,
+			onClick: () => handleInitAsUnionType(unionType)
+		}
+	});
+
+	valConfigMenuItems.unshift(...initAsUnionTypeMenuItems);
+
 
 	return (
 		<>
@@ -268,13 +267,56 @@ export function UnionOutputWidget(props: UnionOutputWidgetProps) {
 					)}
 				</TreeHeader>
 				<TreeBody>
-					{dmTypeWithValue.type.unionTypes?.map((item, index) => {
+					<span>Types are ambiguous. Select one to access child fields</span>
+					{dmTypeWithValue.type.unionTypes?.map((dmType) => {
 						return (
-							<span key={index}>{item.typeName}</span>
+							<UnionTypeListItem dmType={dmType} onHandleInit={handleInitAsUnionType} />
 						);
 					})}
 				</TreeBody>
 			</TreeContainer>
 		</>
 	);
+}
+
+interface UnionTypeListItemProps {
+	dmType: DMType;
+	onHandleInit: (resolvedUnionType: DMType) => Promise<void>;
+}
+
+function UnionTypeListItem(props: UnionTypeListItemProps) {
+	const { dmType, onHandleInit } = props;
+	const [isAddingTypeCast, setIsAddingTypeCast] = useState(false);
+	const classes = useIONodesStyles();
+
+	const onClickOnListItem = async () => {
+		setIsAddingTypeCast(true)
+		await onHandleInit(dmType);
+	};
+
+	return (
+		<Tooltip
+			content={`Initialize as ${dmType.typeName}`}
+			position="right"
+		>
+			<div
+				onMouseDown={onClickOnListItem}
+				// className={classes.outputTypeLabel}
+				style={{ display: "flex", alignItems: "center" }}
+			>
+				{isAddingTypeCast ? (
+					<ProgressRing />
+				) : (
+					<Icon
+						name="symbol-struct-icon"
+						sx={{ height: "15px", width: "15px" }}
+					/>
+				)}
+				<Typography variant="h4" className={classes.label} sx={{ margin: "0 0 0 6px" }} >
+					{dmType.typeName}
+				</Typography>
+			</div>
+		</Tooltip>
+	);
+
 }
