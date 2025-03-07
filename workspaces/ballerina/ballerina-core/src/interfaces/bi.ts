@@ -287,6 +287,8 @@ export type NodeKind =
     | "FUNCTION"
     | "FUNCTION_CALL"
     | "NP_FUNCTION_CALL"
+    | "NP_FUNCTION"
+    | "NP_FUNCTION_DEFINITION"
     | "ASSIGN"
     | "DATA_MAPPER_DEFINITION"
     | "DATA_MAPPER_CALL"
