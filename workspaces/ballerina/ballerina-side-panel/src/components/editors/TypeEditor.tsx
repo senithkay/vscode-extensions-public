@@ -209,6 +209,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             getHelperPane={handleGetTypeHelper}
                             helperPaneOrigin={typeHelperOrigin}
                             helperPaneHeight={typeHelperHeight}
+                            expressionEditorIconName="bi-type"
                             onBlur={handleBlur}
                             onSave={onSave}
                             onCancel={handleCancel}
