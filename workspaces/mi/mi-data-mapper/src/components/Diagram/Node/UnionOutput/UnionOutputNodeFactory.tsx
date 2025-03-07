@@ -19,6 +19,9 @@ import { UnionOutputWidget } from "./UnionOutputWidget";
 import { OutputSearchNoResultFound, SearchNoResultFoundKind } from "../commons/Search";
 
 import { UnionOutputNode, UNION_OUTPUT_NODE_TYPE } from './UnionOutputNode';
+import { TypeKind } from '@wso2-enterprise/mi-core';
+import { ObjectOutputWidget } from '../ObjectOutput/ObjectOutputWidget';
+import { UnsupportedIO } from '../UnsupportedIO/UnsupportedIONodeWidget';
 
 export class UnionOutputNodeFactory extends AbstractReactFactory<UnionOutputNode, DiagramEngine> {
 	constructor() {
@@ -33,24 +36,46 @@ export class UnionOutputNodeFactory extends AbstractReactFactory<UnionOutputNode
 		if ((isMapFn && !isMapFnAtFnReturn) || isSubMapping) {
 			valueLabel = views[views.length - 1].label.replace(/\[\]/g, '');
 		}
+		const resolvedUnionType = event.model.dmType.resolvedUnionType;
 		return (
 			<>
 				{event.model.hasNoMatchingFields ? (
-					<OutputSearchNoResultFound kind={SearchNoResultFoundKind.OutputField}/>
+					<OutputSearchNoResultFound kind={SearchNoResultFoundKind.OutputField} />
 				) : (
-					<UnionOutputWidget
-						engine={this.engine}
-						id={`${OBJECT_OUTPUT_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
-						dmTypeWithValue={event.model.dmTypeWithValue}
-						typeName={event.model.typeName}
-						value={event.model.value}
-						getPort={(portId: string) => event.model.getPort(portId) as InputOutputPortModel}
-						context={event.model.context}
-						mappings={event.model.mappings}
-						valueLabel={valueLabel}
-						deleteField={(node: Node) => event.model.deleteField(node)}
-						originalTypeName={event.model.dmType?.fieldName}
-					/>
+					(resolvedUnionType) ? (
+						resolvedUnionType.kind === TypeKind.Interface ? (
+							<ObjectOutputWidget
+								engine={this.engine}
+								id={`${OBJECT_OUTPUT_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
+								dmTypeWithValue={event.model.dmTypeWithValue}
+								typeName={event.model.typeName}
+								value={event.model.value}
+								getPort={(portId: string) => event.model.getPort(portId) as InputOutputPortModel}
+								context={event.model.context}
+								mappings={event.model.mappings}
+								valueLabel={valueLabel}
+								deleteField={(node: Node) => event.model.deleteField(node)}
+								originalTypeName={event.model.dmType?.fieldName} />
+						) : (
+							<UnsupportedIO
+								message="Unsupported Union Type"
+							/>
+						)
+					) : (
+						<UnionOutputWidget
+							engine={this.engine}
+							id={`${OBJECT_OUTPUT_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
+							dmTypeWithValue={event.model.dmTypeWithValue}
+							typeName={event.model.typeName}
+							value={event.model.value}
+							getPort={(portId: string) => event.model.getPort(portId) as InputOutputPortModel}
+							context={event.model.context}
+							mappings={event.model.mappings}
+							valueLabel={valueLabel}
+							deleteField={(node: Node) => event.model.deleteField(node)}
+							originalTypeName={event.model.dmType?.fieldName}
+						/>
+					)
 				)}
 			</>
 		);
