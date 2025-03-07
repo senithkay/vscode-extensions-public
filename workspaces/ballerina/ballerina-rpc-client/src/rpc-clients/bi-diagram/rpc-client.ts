@@ -34,11 +34,13 @@ import {
     BISourceCodeRequest,
     BISourceCodeResponse,
     BreakpointRequest,
+    BuildMode,
     ClassFieldModifierRequest,
     ComponentRequest,
     ConfigVariableResponse,
     CreateComponentResponse,
     CurrentBreakpointsResponse,
+    DevantComponentResponse,
     EndOfFileRequest,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -62,9 +64,9 @@ import {
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
-    RecordsInWorkspaceMentions,
     RecordSourceGenRequest,
     RecordSourceGenResponse,
+    RecordsInWorkspaceMentions,
     RenameIdentifierRequest,
     ServiceClassModelResponse,
     ServiceClassSourceRequest,
@@ -99,6 +101,7 @@ import {
     getBreakpointInfo,
     getConfigVariables,
     getDesignModel,
+    getDevantComponent,
     getEnclosedFunction,
     getEndOfFile,
     getExpressionCompletions,
@@ -110,8 +113,11 @@ import {
     getProjectComponents,
     getProjectStructure,
     getReadmeContent,
-    getRecordNames,
     getRecordConfig,
+    getRecordModelFromSource,
+    GetRecordModelFromSourceRequest,
+    GetRecordModelFromSourceResponse,   
+    getRecordNames,
     getRecordSource,
     getServiceClassModel,
     getSignatureHelp,
@@ -133,10 +139,7 @@ import {
     updateImports,
     updateRecordConfig,
     updateServiceClass,
-    updateType,
-    BuildMode,
-    DevantComponentResponse,
-    getDevantComponent
+    updateType
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -330,6 +333,10 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     updateRecordConfig(params: UpdateRecordConfigRequest): Promise<GetRecordConfigResponse> {
         return this._messenger.sendRequest(updateRecordConfig, HOST_EXTENSION, params);
+    }
+
+    getRecordModelFromSource(params: GetRecordModelFromSourceRequest): Promise<GetRecordModelFromSourceResponse> {
+        return this._messenger.sendRequest(getRecordModelFromSource, HOST_EXTENSION, params);
     }
 
     getRecordSource(params: RecordSourceGenRequest): Promise<RecordSourceGenResponse> {

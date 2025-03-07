@@ -39,12 +39,14 @@ import {
     BISuggestedFlowModelRequest,
     BI_COMMANDS,
     BreakpointRequest,
+    BuildMode,
     ClassFieldModifierRequest,
     ComponentRequest,
     ConfigVariableResponse,
     CreateComponentResponse,
     CurrentBreakpointsResponse,
     DIRECTORY_MAP,
+    DevantComponentResponse,
     EVENT_TYPE,
     EndOfFileRequest,
     ExpressionCompletionsRequest,
@@ -73,9 +75,9 @@ import {
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
-    RecordsInWorkspaceMentions,
     RecordSourceGenRequest,
     RecordSourceGenResponse,
+    RecordsInWorkspaceMentions,
     RenameIdentifierRequest,
     RenameRequest,
     STModification,
@@ -98,8 +100,8 @@ import {
     WorkspaceFolder,
     WorkspacesResponse,
     buildProjectStructure,
-    BuildMode,
-    DevantComponentResponse,
+    GetRecordModelFromSourceRequest,
+    GetRecordModelFromSourceResponse
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import { writeFileSync } from "fs";
@@ -1397,6 +1399,17 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 resolve(res);
             }).catch((error) => {
                 console.log(">>> error getting record source", error);
+                reject(error);
+            });
+        });
+    }
+
+    async getRecordModelFromSource(params: GetRecordModelFromSourceRequest): Promise<GetRecordModelFromSourceResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient().getRecordModelFromSource(params).then((res) => {
+                resolve(res);
+            }).catch((error) => {
+                console.log(">>> error getting record model from source", error);
                 reject(error);
             });
         });

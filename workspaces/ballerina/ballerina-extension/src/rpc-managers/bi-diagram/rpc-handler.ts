@@ -21,6 +21,7 @@ import {
     BISearchRequest,
     BISourceCodeRequest,
     BreakpointRequest,
+    BuildMode,
     ClassFieldModifierRequest,
     ComponentRequest,
     EndOfFileRequest,
@@ -62,6 +63,7 @@ import {
     getBreakpointInfo,
     getConfigVariables,
     getDesignModel,
+    getDevantComponent,
     getEnclosedFunction,
     getEndOfFile,
     getExpressionCompletions,
@@ -73,8 +75,10 @@ import {
     getProjectComponents,
     getProjectStructure,
     getReadmeContent,
-    getRecordNames,
     getRecordConfig,
+    getRecordModelFromSource,
+    GetRecordModelFromSourceRequest,
+    getRecordNames,
     getRecordSource,
     getServiceClassModel,
     getSignatureHelp,
@@ -97,8 +101,6 @@ import {
     updateRecordConfig,
     updateServiceClass,
     updateType,
-    BuildMode,
-    getDevantComponent
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { BiDiagramRpcManager } from "./rpc-manager";
@@ -151,6 +153,7 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(createGraphqlClassType, (args: UpdateTypeRequest) => rpcManger.createGraphqlClassType(args));
     messenger.onRequest(getRecordConfig, (args: GetRecordConfigRequest) => rpcManger.getRecordConfig(args));
     messenger.onRequest(updateRecordConfig, (args: UpdateRecordConfigRequest) => rpcManger.updateRecordConfig(args));
+    messenger.onRequest(getRecordModelFromSource, (args: GetRecordModelFromSourceRequest) => rpcManger.getRecordModelFromSource(args));
     messenger.onRequest(getRecordSource, (args: RecordSourceGenRequest) => rpcManger.getRecordSource(args));
     messenger.onRequest(updateImports, (args: UpdateImportsRequest) => rpcManger.updateImports(args));
     messenger.onRequest(addFunction, (args: AddFunctionRequest) => rpcManger.addFunction(args));
