@@ -107,9 +107,9 @@ jobs:
             version=ballerina-${fileName%.*}
           fi  
           if [[ "${{ github.event.inputs.wso2-platform }}" == "true" ]]; then
-            file=$(ls platform*.vsix)
+            file=$(ls wso2-platform*.vsix)
             fileName=${file#*-}
-            version=$version+platform-${fileName%.*}
+            version=$version+wso2-platform-${fileName%.*}
           fi  
           if [[ "${{ github.event.inputs.choreo }}" == "true" ]]; then
             file=$(ls choreo*.vsix)
