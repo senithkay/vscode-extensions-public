@@ -52,7 +52,7 @@ export function FunctionForm(props: FunctionFormProps) {
     const formType = useRef(isDataMapper ? "Data Mapper" : "Function");
 
     useEffect(() => {
-        setFilePath(Utils.joinPath(URI.file(projectPath), fileName).fsPath)
+        setFilePath(fileName)
         if (functionName) {
             getExistingFunctionNode();
         } else {

@@ -200,7 +200,7 @@ const MainPanel = () => {
                             setViewComponent(
                                 <FunctionForm
                                     projectPath={value.projectUri}
-                                    fileName={"data_mappings.bal"}
+                                    fileName={value.documentUri || value.projectUri}
                                     functionName={value?.identifier}
                                     isDataMapper={true}
                                 />
@@ -275,8 +275,7 @@ const MainPanel = () => {
                         setViewComponent(<MainForm />);
                         break;
                     case MACHINE_VIEW.BIFunctionForm:
-                        const fileName = value?.documentUri ? URI.parse(value.documentUri).path.split('/').pop() : 'functions.bal';
-                        setViewComponent(<FunctionForm projectPath={value.projectUri} fileName={fileName} functionName={value?.identifier} />);
+                        setViewComponent(<FunctionForm projectPath={value.projectUri} fileName={value.documentUri || value.projectUri} functionName={value?.identifier} />);
                         break;
                     case MACHINE_VIEW.BITestFunctionForm:
                         setViewComponent(<TestFunctionForm

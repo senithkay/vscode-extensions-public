@@ -972,7 +972,6 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 version = textDocument.version;
                 text = textDocument.getText();
             } catch (error) {
-                console.error("Error opening file in didOpen", error);
                 languageId = "ballerina";
                 version = 1;
                 text = "";
