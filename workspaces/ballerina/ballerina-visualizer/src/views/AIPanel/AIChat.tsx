@@ -1000,6 +1000,7 @@ export function AIChat() {
         const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
         const developerMdContent = 
                     await rpcClient.getAiPanelRpcClient().readDeveloperMdFile(chatLocation);
+        const updatedChatHistory = generateChatHistoryForSummarize(chatArray);
         const response = await fetchWithToken(
             backendRootUri + "/prompt/summarize",
             {
@@ -1008,7 +1009,7 @@ export function AIChat() {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({chats: chatArray.slice(integratedChatIndex), existingChatSummary: developerMdContent}),
+                body: JSON.stringify({chats: updatedChatHistory, existingChatSummary: developerMdContent}),
                 signal: signal,
             },
             rpcClient
@@ -2922,3 +2923,12 @@ export function splitContent(content: string): Segment[] {
 
     return segments;
 }
+function generateChatHistoryForSummarize(chatArray: ChatEntry[]): ChatEntry[] {
+    return chatArray.slice(integratedChatIndex).filter( chatEntry =>
+            chatEntry.actor.toLowerCase() == "user" 
+            && !chatEntry.message.includes(GENERATE_TEST_AGAINST_THE_REQUIREMENT) 
+            && !chatEntry.message.includes(GENERATE_CODE_AGAINST_THE_REQUIREMENT)
+            && !chatEntry.message.includes(CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION)
+    );
+}
+
