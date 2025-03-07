@@ -69,18 +69,6 @@ export function isSupportedSLVersion(ballerinaExtInstance: BallerinaExtension, m
     return false;
 }
 
-export function isBIEnabledInWorkspaces() {
-    const workspaceUris = workspace.workspaceFolders ? workspace.workspaceFolders.map(folder => folder.uri) : [];
-    
-    // Check each workspace folder's configuration for 'isBI'
-    for (const uri of workspaceUris) {
-        if (checkIsBI(uri)) {
-            return true; // Return true if any workspace has isBI set to true
-        }
-    }
-    return false; // Return false if none of the workspaces have isBI set to true
-}
-
 export function checkIsBI(uri: Uri): boolean {
     const config = workspace.getConfiguration('kolab', uri);
     const inspected = config.inspect<boolean>('isBI');

@@ -7,7 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Uri, Webview, window, workspace } from "vscode";
+import { Uri, Webview, workspace } from "vscode";
+
+export interface ProjectInfo {
+    isBI: boolean;
+    isMultiRoot: boolean;
+};
 
 export function getUri(webview: Webview, extensionUri: Uri, pathList: string[]) {
     if (process.env.WEB_VIEW_DEV_MODE === "true") {
@@ -16,16 +21,22 @@ export function getUri(webview: Webview, extensionUri: Uri, pathList: string[]) 
     return webview.asWebviewUri(Uri.joinPath(extensionUri, ...pathList));
 }
 
-export function isBIEnabledInWorkspaces() {
+export function fetchProjectInfo(): ProjectInfo {
     const workspaceUris = workspace.workspaceFolders ? workspace.workspaceFolders.map(folder => folder.uri) : [];
+    let isBICount = 0; // Counter for workspaces with isBI set to true
     
     // Check each workspace folder's configuration for 'isBI'
     for (const uri of workspaceUris) {
         if (checkIsBI(uri)) {
-            return true; // Return true if any workspace has isBI set to true
+            isBICount++; // Increment the count if isBI is true
         }
     }
-    return false; // Return false if none of the workspaces have isBI set to true
+
+    // Return true if any workspace has isBI set to true
+    return {
+        isBI: isBICount > 0,
+        isMultiRoot: isBICount > 1 // Set to true only if more than one workspace has isBI set to true
+    };
 }
 
 export function checkIsBI(uri: Uri): boolean {

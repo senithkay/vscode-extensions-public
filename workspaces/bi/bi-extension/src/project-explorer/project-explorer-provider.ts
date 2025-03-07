@@ -126,29 +126,28 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 async function getProjectStructureData(): Promise<ProjectExplorerEntry[]> {
     if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
         const data: ProjectExplorerEntry[] = [];
-        if (extension.langClient) {
-            const workspaceFolders = vscode.workspace.workspaceFolders;
-            for (const workspace of workspaceFolders) {
+        if (extension.langClient && extension.projectPath) {
+            const workspace = vscode
+                .workspace
+                .workspaceFolders
+                .find(folder => folder.uri.fsPath === extension.projectPath);
 
-                const isBI = checkIsBI(workspace.uri);
-                if (!isBI) {
-                    continue;
-                }
+            if (!workspace || !checkIsBI(workspace.uri)) {
+                return [];
+            }
 
-                const rootPath = workspace.uri.fsPath;
-                const resp = await buildProjectStructure(rootPath, extension.langClient);
-                // Add all the configurations to the project tree
-                // await addConfigurations(rootPath, resp);
-                const projectTree = generateTreeData(workspace, resp);
-                if (projectTree) {
-                    data.push(projectTree);
-                }
-            };
+            const resp = await buildProjectStructure(extension.projectPath, extension.langClient);
+            // Add all the configurations to the project tree
+            // await addConfigurations(rootPath, resp);
+            const projectTree = generateTreeData(workspace, resp);
+            if (projectTree) {
+                data.push(projectTree);
+            }
+
             return data;
         }
     }
     return [];
-
 }
 
 function generateTreeData(project: vscode.WorkspaceFolder, components: ProjectStructureResponse): ProjectExplorerEntry | undefined {

@@ -10,10 +10,11 @@
 import { assign, createMachine, interpret } from 'xstate';
 import { activateProjectExplorer } from './project-explorer/activate';
 import { extension } from './biExtentionContext';
-import { isBIEnabledInWorkspaces } from './utils';
+import { fetchProjectInfo, ProjectInfo } from './utils';
 
 interface MachineContext {
     isBI: boolean;
+    isMultiRoot?: boolean;
 }
 
 const stateMachine = createMachine<MachineContext>({
@@ -27,12 +28,13 @@ const stateMachine = createMachine<MachineContext>({
     states: {
         initialize: {
             invoke: {
-                src: hasAtLeastOneBIProject,
+                src: findProjectInfo,
                 onDone: [
                     {
                         target: 'ready',
                         actions: assign({
                             isBI: (context, event) => event.data,
+                            isMultiRoot: (context, event) => event.data.isMultiRoot
                         })
                     },
                 ],
@@ -51,7 +53,7 @@ const stateMachine = createMachine<MachineContext>({
 }, {
     actions: {
         activateExplorer: (context, event) => {
-            activateProjectExplorer(extension.context, context.isBI);
+            activateProjectExplorer(extension.context, context.isBI, context.isMultiRoot);
         }
     },
 });
@@ -65,6 +67,6 @@ export const StateMachine = {
     initialize: () => stateService.start()
 };
 
-async function hasAtLeastOneBIProject(): Promise<boolean> {
-    return isBIEnabledInWorkspaces();
+async function findProjectInfo(): Promise<ProjectInfo> {
+    return fetchProjectInfo();
 };
