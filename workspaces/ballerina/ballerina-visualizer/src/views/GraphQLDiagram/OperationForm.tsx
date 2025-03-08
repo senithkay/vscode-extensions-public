@@ -165,7 +165,7 @@ export function OperationForm(props: OperationFormProps) {
                     onSubmit={handleFunctionCreate}
                     onBack={onClose}
                     submitText="Save"
-                    isGraphql={true}
+                    isGraphqlEditor={isGraphqlView}
                 />
             )}
         </>
