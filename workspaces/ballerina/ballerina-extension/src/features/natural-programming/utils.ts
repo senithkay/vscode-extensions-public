@@ -248,7 +248,14 @@ async function createDiagnosticArray(responses: any[], projectUri: string): Prom
 
 export function extractResponseAsJsonFromString(jsonString: string): any {
     try {
-        const driftResponse: DriftResponse = JSON.parse(jsonString);
+        const jsonRegex = /\{[\s\S]*\}/;
+        const jsonMatch = jsonString.match(jsonRegex);
+        if (!jsonMatch) {
+            return null;
+        }
+    
+        const extractedJson = jsonMatch[0];
+        const driftResponse: DriftResponse = JSON.parse(extractedJson);
         const data: DriftResponseData = JSON.parse(driftResponse.drift);
         if (!data.results || !Array.isArray(data.results)) {
             return null;
