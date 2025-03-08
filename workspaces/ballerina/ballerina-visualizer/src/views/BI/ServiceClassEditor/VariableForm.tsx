@@ -18,10 +18,11 @@ interface VariableFormProps {
     lineRange: LineRange;
     onSave: (model: FieldType) => void;
     onClose: () => void;
+    isGraphqlEditor: boolean;
 }
 
 export function VariableForm(props: VariableFormProps) {
-    const { model, onSave, onClose, filePath, lineRange } = props;
+    const { model, onSave, onClose, filePath, lineRange, isGraphqlEditor } = props;
     const [fields, setFields] = useState<FormField[]>([]);
 
     // Initialize form fields
@@ -88,7 +89,7 @@ export function VariableForm(props: VariableFormProps) {
                     onSubmit={handleVariableSave}
                     onBack={onClose}
                     submitText="Save"
-                    isGraphql={true}
+                    isGraphqlEditor={isGraphqlEditor}
                 />
             )}
         </>
