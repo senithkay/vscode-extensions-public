@@ -11,6 +11,7 @@ import { NotificationType, RequestType } from "vscode-messenger-common";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./interfaces/common";
 import { Type } from "./interfaces/extended-lang-client";
+import { ALL } from "dns";
 
 export type MachineStateValue =
     | 'initialize'
@@ -41,7 +42,8 @@ export enum SCOPE {
     AUTOMATION = "automation",
     INTEGRATION_AS_API = "integration-as-api",
     EVENT_INTEGRATION = "event-integration",
-    FILE_INTEGRATION = "file-integration"
+    FILE_INTEGRATION = "file-integration",
+    ANY = "any"
 }
 
 export type VoidCommands = "OPEN_LOW_CODE" | "OPEN_PROJECT" | "CREATE_PROJECT";

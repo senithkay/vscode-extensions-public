@@ -22,7 +22,7 @@ interface AutomationPanelProps {
 
 export function AutomationPanel(props: AutomationPanelProps) {
     const { rpcClient } = useRpcContext();
-    const isDisabled = props.scope && props.scope !== SCOPE.AUTOMATION;
+    const isDisabled = props.scope && (props.scope !== SCOPE.AUTOMATION && props.scope !== SCOPE.ANY);
 
     const handleClick = async () => {
         await rpcClient.getVisualizerRpcClient().openView({

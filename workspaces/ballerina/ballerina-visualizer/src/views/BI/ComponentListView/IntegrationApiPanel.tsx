@@ -22,7 +22,7 @@ interface IntegrationAPIPanelProps {
 
 export function IntegrationAPIPanel(props: IntegrationAPIPanelProps) {
     const { rpcClient } = useRpcContext();
-    const isDisabled = props.scope && props.scope !== SCOPE.INTEGRATION_AS_API;
+    const isDisabled = props.scope && (props.scope !== SCOPE.INTEGRATION_AS_API && props.scope !== SCOPE.ANY);
 
     const handleClick = async (serviceType: string) => {
         await rpcClient.getVisualizerRpcClient().openView({

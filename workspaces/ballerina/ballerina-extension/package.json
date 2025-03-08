@@ -93,20 +93,22 @@
                     },
                     "kolab.scope": {
                         "type": "string",
-                        "default": "automation",
+                        "default": "any",
                         "scope": "resource",
                         "description": "Define the scope of the project.",
                         "enum": [
                             "automation",
                             "integration-as-api",
                             "event-integration",
-                            "file-integration"
+                            "file-integration",
+                            "any"
                         ],
                         "enumDescriptions": [
                             "Automation",
                             "Integration as API",
                             "Event Integration",
-                            "File Integration"
+                            "File Integration",
+                            "Any"
                         ]
                     },
                     "kolab.debugLog": {

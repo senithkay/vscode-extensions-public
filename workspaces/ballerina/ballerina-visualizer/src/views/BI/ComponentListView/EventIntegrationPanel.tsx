@@ -26,7 +26,7 @@ export function EventIntegrationPanel(props: EventIntegrationPanelProps) {
     const [triggers, setTriggers] = useState<TriggerModelsResponse>({ local: [] });
     const { cacheTriggers, setCacheTriggers } = useVisualizerContext();
 
-    const isDisabled = props.scope && props.scope !== SCOPE.EVENT_INTEGRATION;
+    const isDisabled = props.scope && (props.scope !== SCOPE.EVENT_INTEGRATION && props.scope !== SCOPE.ANY);
 
     useEffect(() => {
         getTriggers();
