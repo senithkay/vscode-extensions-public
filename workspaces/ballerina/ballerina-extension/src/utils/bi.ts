@@ -86,7 +86,12 @@ org = "wso2"
 name = "${name}"
 version = "0.1.0"
 
-bi = true  
+`;
+
+    const settingsJsonContent = `
+{
+    "kolab.isBI": true
+}
 `;
 
     const launchJsonContent = `
@@ -164,6 +169,7 @@ bi = true
 
     // Create settings.json file
     const settingsPath = path.join(vscodeDir, 'settings.json');
+    fs.writeFileSync(settingsPath, settingsJsonContent);
 
     console.log(`BI project created successfully at ${projectRoot}`);
     commands.executeCommand('vscode.openFolder', Uri.file(path.resolve(projectRoot)));
