@@ -42,7 +42,6 @@ export const PanelBody = styled.div`
 
 
 export function RecordConfigView(props: ConfigureViewProps) {
-  console.log("===RecordConfigView", props);
   const { recordModel, onModelChange } = props;
 
 

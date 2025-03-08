@@ -10,10 +10,10 @@
 import { GetRecordConfigResponse, GetRecordConfigRequest, LineRange, RecordTypeField, TypeField, PropertyTypeMemberInfo, UpdateRecordConfigRequest, RecordSourceGenRequest, RecordSourceGenResponse, GetRecordModelFromSourceRequest, GetRecordModelFromSourceResponse } from "@wso2-enterprise/ballerina-core";
 import { Dropdown, HelperPane, Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { RecordConfigView } from "./RecordConfigView";
-
+import { debounce } from "lodash";
 
 type ConfigureRecordPageProps = {
     fileName: string;
@@ -31,7 +31,6 @@ export const LabelContainer = styled.div({
 });
 
 export function ConfigureRecordPage(props: ConfigureRecordPageProps) {
-    console.log("ConfigureRecordPage", props);
     const { fileName, targetLineRange, onChange, currentValue, recordTypeField } = props;
     const { rpcClient } = useRpcContext();
 
@@ -41,7 +40,13 @@ export function ConfigureRecordPage(props: ConfigureRecordPageProps) {
     const sourceCode = useRef<string>(currentValue);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-
+    const debouncedGetExistingRecordModel = useCallback(
+        (currentValue: string) => {
+            setIsLoading(true);
+            getDebouncedExistingRecordModel(currentValue);
+        },
+        [recordTypeField]
+    );
 
     useEffect(() => {
         if (firstRender.current) {
@@ -54,15 +59,15 @@ export function ConfigureRecordPage(props: ConfigureRecordPageProps) {
         } else if (currentValue !== sourceCode.current) {
             // Only update if currentValue is different from our last known source code
             if (currentValue) {
-                getExistingRecordModel();
+                // getExistingRecordModel();
+                debouncedGetExistingRecordModel(currentValue);
             } else {
                 getNewRecordModel();
             }
         }
     }, [currentValue]);
 
-
-    const getExistingRecordModel = async () => {
+    const fetchRecordModelFromSource = async (currentValue: string) => {
         setIsLoading(true);
         const getRecordModelFromSourceRequest: GetRecordModelFromSourceRequest = {
             filePath: fileName,
@@ -70,10 +75,8 @@ export function ConfigureRecordPage(props: ConfigureRecordPageProps) {
             expr: currentValue
         }
 
-        console.log("GET RECORD MODEL FROM SOURCE REQUEST", getRecordModelFromSourceRequest);
-
         const getRecordModelFromSourceResponse: GetRecordModelFromSourceResponse = await rpcClient.getBIDiagramRpcClient().getRecordModelFromSource(getRecordModelFromSourceRequest);
-        console.log("GET RECORD MODEL FROM SOURCE RESPONSE", getRecordModelFromSourceResponse);
+        console.log(">>> getRecordModelFromSourceResponse", getRecordModelFromSourceResponse);
         const newRecordModel = getRecordModelFromSourceResponse.recordConfig;
 
         if (newRecordModel) {
@@ -88,6 +91,14 @@ export function ConfigureRecordPage(props: ConfigureRecordPageProps) {
 
         setIsLoading(false);
     }
+
+    const getExistingRecordModel = async () => {
+        await fetchRecordModelFromSource(currentValue);
+    };
+
+    const getDebouncedExistingRecordModel = debounce(async (currentValue: string) => {
+        await fetchRecordModelFromSource(currentValue);
+    }, 500);
 
     const getNewRecordModel = async () => {
         setIsLoading(true);
@@ -116,10 +127,8 @@ export function ConfigureRecordPage(props: ConfigureRecordPageProps) {
             typeConstraint: defaultSelection.type,
         }
         const typeFieldResponse: GetRecordConfigResponse = await rpcClient.getBIDiagramRpcClient().getRecordConfig(request);
+        console.log(">>> GetRecordConfigResponse", typeFieldResponse);
         if (typeFieldResponse.recordConfig) {
-
-            console.log("TYPE FIELD RESPONSE", typeFieldResponse);
-
             const recordConfig: TypeField = {
                 name: defaultSelection.type,
                 ...typeFieldResponse.recordConfig
@@ -180,7 +189,7 @@ export function ConfigureRecordPage(props: ConfigureRecordPageProps) {
             type: updatedModel[0]
         }
         const recordSourceResponse: RecordSourceGenResponse = await rpcClient.getBIDiagramRpcClient().getRecordSource(request);
-        console.log("====>>> recordSourceResponse: ", recordSourceResponse);
+        console.log(">>> recordSourceResponse", recordSourceResponse);
 
         if (recordSourceResponse.recordValue !== undefined) {
             const content = recordSourceResponse.recordValue;
