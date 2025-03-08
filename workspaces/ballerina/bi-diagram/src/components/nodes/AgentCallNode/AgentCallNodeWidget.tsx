@@ -366,7 +366,6 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                     />
                     <foreignObject x="68" y="12" width="44" height="44" fill={ThemeColors.ON_SURFACE}>
                         <ConnectorIcon
-                            node={undefined}
                             url={model.node.metadata.data.model}
                             fallbackIcon={
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -415,7 +414,6 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                         />
                         <foreignObject x="68" y="12" width="44" height="44" fill={ThemeColors.ON_SURFACE}>
                             <ConnectorIcon
-                                node={undefined}
                                 url={tool.iconUrl}
                                 fallbackIcon={<Icon name="bi-function" sx={{ fontSize: "24px" }} />}
                             />
