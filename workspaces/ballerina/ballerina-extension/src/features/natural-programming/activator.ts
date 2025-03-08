@@ -31,7 +31,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             return;
         }
 
-            // Set up debounced diagnostics and event listeners
+        // Set up debounced diagnostics and event listeners
         const debouncedGetLLMDiagnostics = debounce(async () => {
             const result: number|null = await getLLMDiagnostics(projectPath, diagnosticCollection);
             if (result == null) {

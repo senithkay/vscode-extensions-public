@@ -109,6 +109,7 @@ async function getContext(): Promise<VisualizerLocation> {
                 recordFilePath: path.join(context.projectUri, "types.bal"),
                 enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
             },
+            scope: context.scope,
         });
     });
 }

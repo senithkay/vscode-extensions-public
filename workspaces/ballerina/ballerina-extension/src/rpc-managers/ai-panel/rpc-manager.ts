@@ -852,24 +852,24 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async getDriftDiagnosticContents(projectPath: string): Promise<LLMDiagnostics> {
-        const response = await getLLMDiagnosticArrayAsString(projectPath);
-        if (isNumber(response)) {
+        const result = await getLLMDiagnosticArrayAsString(projectPath);
+        if (isNumber(result)) {
             return {
-                statusCode: response,
-                diags: null
+                statusCode: result,
+                diags: ""
             };
         }
 
         return {
-            statusCode: null,
-            diags: response
+            statusCode: 200,
+            diags: result
         };
     }
 
     async createTestDirecoryIfNotExists(directoryPath: string) {
-        const naturalProgrammingDirectory = path.join(directoryPath, TEST_DIR_NAME);
-        if (!fs.existsSync(naturalProgrammingDirectory)) {
-            fs.mkdirSync(naturalProgrammingDirectory, { recursive: true }); // Add recursive: true
+        const testDirName = path.join(directoryPath, TEST_DIR_NAME);
+        if (!fs.existsSync(testDirName)) {
+            fs.mkdirSync(testDirName, { recursive: true }); // Add recursive: true
         }
     }
 }
