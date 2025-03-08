@@ -223,7 +223,6 @@ export function NodeList(props: NodeListProps) {
         onClose,
     } = props;
 
-    console.log(">>> categories", { categories });
 
     const [searchText, setSearchText] = useState<string>("");
     const [showGeneratePanel, setShowGeneratePanel] = useState(false);
