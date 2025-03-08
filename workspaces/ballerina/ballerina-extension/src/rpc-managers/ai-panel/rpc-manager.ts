@@ -44,7 +44,7 @@ import {
     SyntaxTree,
     TestGenerationMentions,
     TestGenerationRequest,
-    TestGenerationResponse
+    TestGenerationResponse,
 } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as crypto from 'crypto';
@@ -81,6 +81,9 @@ import { fetchData } from "./utils/fetch-data-utils";
 export let hasStopped: boolean = false;
 
 export class AiPanelRpcManager implements AIPanelAPI {
+
+    private testGenAbortController: AbortController | null = null;
+
     async getBackendURL(): Promise<string> {
         return new Promise(async (resolve) => {
             const config = getPluginConfig();
@@ -304,9 +307,9 @@ export class AiPanelRpcManager implements AIPanelAPI {
             return { error: PARSING_ERROR };
         }
 
-        if (fnSt.functionBody && 
-            fnSt.functionBody["expression"] && 
-            fnSt.functionBody["expression"].fields && 
+        if (fnSt.functionBody &&
+            fnSt.functionBody["expression"] &&
+            fnSt.functionBody["expression"].fields &&
             fnSt.functionBody["expression"].fields.length > 0) {
             // There are existing mappings, show confirmation
             const confirmResult = await window.showWarningMessage(
@@ -314,7 +317,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
                 { modal: true },
                 "Overwrite"
             );
-            
+
             if (confirmResult !== "Overwrite") {
                 return { userAborted: true };
             }
@@ -484,41 +487,91 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async getGeneratedTests(params: TestGenerationRequest): Promise<TestGenerationResponse> {
-        const projectRoot = await getBallerinaProjectRoot();
-        return await generateTest(projectRoot, params);
+        return new Promise(async (resolve, reject) => {
+            try {
+                const projectRoot = await getBallerinaProjectRoot();
+
+                if (this.testGenAbortController) {
+                    this.testGenAbortController.abort();
+                }
+                this.testGenAbortController = new AbortController();
+                const generatedTests = await generateTest(projectRoot, params, this.testGenAbortController);
+                resolve(generatedTests);
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     async getTestDiagnostics(params: TestGenerationResponse): Promise<ProjectDiagnostics> {
-        const projectRoot = await getBallerinaProjectRoot();
-        return await getDiagnostics(projectRoot, params);
+        return new Promise(async (resolve, reject) => {
+            try {
+                const projectRoot = await getBallerinaProjectRoot();
+                const diagnostics = await getDiagnostics(projectRoot, params);
+                resolve(diagnostics);
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     async getServiceSourceForName(params: string): Promise<string> {
-        const projectRoot = await getBallerinaProjectRoot();
-        const { serviceDeclaration, serviceDocFilePath } = await getServiceDeclaration(projectRoot, params);
-        return serviceDeclaration.source;
+        return new Promise(async (resolve, reject) => {
+            try {
+                const projectRoot = await getBallerinaProjectRoot();
+                const { serviceDeclaration, serviceDocFilePath } = await getServiceDeclaration(projectRoot, params);
+                resolve(serviceDeclaration.source);
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     async getResourceSourceForMethodAndPath(params: string): Promise<string> {
-        const projectRoot = await getBallerinaProjectRoot();
-        const { serviceDeclaration, resourceAccessorDef, serviceDocFilePath } = await getResourceAccessorDef(projectRoot, params);
-        return resourceAccessorDef.source;
+        return new Promise(async (resolve, reject) => {
+            try {
+                const projectRoot = await getBallerinaProjectRoot();
+                const { serviceDeclaration, resourceAccessorDef, serviceDocFilePath } = await getResourceAccessorDef(projectRoot, params);
+                resolve(resourceAccessorDef.source);
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     async getServiceNames(): Promise<TestGenerationMentions> {
-        const projectRoot = await getBallerinaProjectRoot();
-        const serviceDeclNames = await getServiceDeclarationNames(projectRoot);
-        return {
-            mentions: serviceDeclNames
-        };
+        return new Promise(async (resolve, reject) => {
+            try {
+                const projectRoot = await getBallerinaProjectRoot();
+                const serviceDeclNames = await getServiceDeclarationNames(projectRoot);
+                resolve({
+                    mentions: serviceDeclNames
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     async getResourceMethodAndPaths(): Promise<TestGenerationMentions> {
-        const projectRoot = await getBallerinaProjectRoot();
-        const resourceAccessorNames = await getResourceAccessorNames(projectRoot);
-        return {
-            mentions: resourceAccessorNames
-        };
+        return new Promise(async (resolve, reject) => {
+            try {
+                const projectRoot = await getBallerinaProjectRoot();
+                const resourceAccessorNames = await getResourceAccessorNames(projectRoot);
+                resolve({
+                    mentions: resourceAccessorNames
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    async abortTestGeneration(): Promise<void> {
+        if (this.testGenAbortController) {
+            this.testGenAbortController.abort();
+            this.testGenAbortController = null;
+        }
     }
 
     async getMappingsFromRecord(params: GenerateMappingsFromRecordRequest): Promise<GenerateMappingFromRecordResponse> {
@@ -747,7 +800,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
         const files = fs.readdirSync(dirPath);
         return Promise.resolve(files.some(file => file.toLowerCase().startsWith(REQUIREMENT_DOC_PREFIX)));
     }
-    
+
     async addChatSummary(filepathAndSummary: AIChatSummary): Promise<void> {
         const filepath = filepathAndSummary.filepath;
         var summaryResponse = filepathAndSummary.summary;
@@ -770,7 +823,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
         if (!fs.existsSync(developerMdPath)) {
             return "";
         }
-        
+
         let developerMdContent = fs.readFileSync(developerMdPath, 'utf8');
         return Promise.resolve(developerMdContent);
     }

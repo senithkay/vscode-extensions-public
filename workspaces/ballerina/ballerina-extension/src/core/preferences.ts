@@ -22,6 +22,6 @@ export const ENABLE_NOTEBOOK_DEBUG = "kolab.enableNotebookDebug";
 export const ENABLE_RUN_FAST = "kolab.enableRunFast";
 export const FILE_DOWNLOAD_PATH = "kolab.samplesDownloadDirectory";
 export const ENABLE_INLAY_HINTS = "kolab.enableInlayHints";
-
 export const ENABLE_SEQUENCE_DIAGRAM_VIEW = "kolab.enableSequenceDiagramView";
 export const ENABLE_AI_SUGGESTIONS = "kolab.enableAiSuggestions";
+export const ENABLE_BALLERINA_INTEGRATOR = "kolab.isBI";

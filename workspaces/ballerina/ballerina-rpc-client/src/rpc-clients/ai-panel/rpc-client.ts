@@ -35,6 +35,7 @@ import {
     TestGenerationMentions,
     TestGenerationRequest,
     TestGenerationResponse,
+    abortTestGeneration,
     addChatSummary,
     addToProject,
     applyDoOnFailBlocks,
@@ -210,6 +211,10 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     getResourceMethodAndPaths(): Promise<TestGenerationMentions> {
         return this._messenger.sendRequest(getResourceMethodAndPaths, HOST_EXTENSION);
+    }
+
+    abortTestGeneration(): void {
+        return this._messenger.sendNotification(abortTestGeneration, HOST_EXTENSION);
     }
 
     getMappingsFromRecord(params: GenerateMappingsFromRecordRequest): Promise<GenerateMappingFromRecordResponse> {

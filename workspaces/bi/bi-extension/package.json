@@ -100,6 +100,11 @@
             ],
             "view/title": [
                 {
+                    "command": "BI.project-explorer.switch-project",
+                    "when": "view == BI.project-explorer && BI.project == true && BI.isMultiRoot == true",
+                    "group": "navigation"
+                },
+                {
                     "command": "BI.project-explorer.add",
                     "when": "view == BI.project-explorer && BI.project == true",
                     "group": "navigation"
