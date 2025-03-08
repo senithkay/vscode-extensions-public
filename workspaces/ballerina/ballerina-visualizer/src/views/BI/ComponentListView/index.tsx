@@ -208,13 +208,13 @@ export function ComponentListView() {
                         <PanelViewMore>
                             <TitleWrapper>
                                 <Title variant="h2">Automation</Title>
-                                <BodyText>Explore automation options to streamline your integration processes.</BodyText>
+                                <BodyText>Create a task that can be triggered manually or on a schedule.</BodyText>
                             </TitleWrapper>
                             <CardGrid>
                                 <ButtonCard
                                     icon={<Icon name="bi-task" />}
                                     title="Automation"
-                                    // description="Trigger your integration with a task. Perfect for scheduled/one-time jobs."
+                                    // description="Creates a main method for the integration."
                                     onClick={() => handleClick(DIRECTORY_MAP.AUTOMATION)}
                                 />
                             </CardGrid>
@@ -223,26 +223,26 @@ export function ComponentListView() {
                             <TitleWrapper>
                                 <Title variant="h2">Integration as API</Title>
                                 <BodyText>
-                                    Explore and manage various components to enhance your integration capabilities.
+                                    Expose your integration as an API with the following supported protocols.
                                 </BodyText>
                             </TitleWrapper>
                             <CardGrid>
                                 <ButtonCard
                                     icon={<Icon name="bi-http-service" />}
                                     title="HTTP Service"
-                                    // description="Handle web requests and responses."
+                                    //description="Creates a HTTP service for the integration."
                                     onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "http")}
                                 />
                                 <ButtonCard
                                     icon={<Icon name="bi-graphql" sx={{ color: "#e535ab" }} />}
                                     title="GraphQL Service"
-                                    // description="Flexible and efficient data queries."
+                                    //description="Creates a GraphQL service for the integration."
                                     onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "graphql")}
                                 />
                                 <ButtonCard
                                     icon={<Icon name="bi-tcp" />}
                                     title="TCP Service"
-                                    // description="Process connection oriented messages."
+                                    // description="Creates a TCP service for the integration."
                                     onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "tcp")}
                                 />
                                 {/* TODO: Add this when GRPC is working */}
@@ -255,11 +255,28 @@ export function ComponentListView() {
                             </CardGrid>
                         </PanelViewMore>
                         <PanelViewMore>
+                            <Divider />
                             <TitleWrapper>
+                                <Title variant="h2">Agent Integration</Title>
+                                <BodyText>
+                                    Create an AI agent with a chat interface.
+                                </BodyText>
+                            </TitleWrapper>
+                            <CardGrid>
+                                <ButtonCard
+                                    icon={<Codicon name="hubot" iconSx={{ fontSize: "30px" }} />}
+                                    title="AI Agent"
+                                    // description="Creates an AI agent service with a chat interface"
+                                    onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "ai.agent")}
+                                />
+                            </CardGrid>
+                        </PanelViewMore>
+                        <PanelViewMore>
+                            <TitleWrapper>
+                                <Divider />
                                 <Title variant="h2">Event Integration</Title>
                                 <BodyText>
-                                    Configure event-driven integrations for your project. Explore the available options
-                                    below.
+                                    Create an event-driven integration that can be triggered by an event.
                                 </BodyText>
                             </TitleWrapper>
                             <CardGrid>
@@ -278,18 +295,14 @@ export function ComponentListView() {
                                             />
                                         );
                                     })}
-                                {/* <Card onClick={() => handleClick(DIRECTORY_MAP.TRIGGERS)}>
-                                    <LinkButton onClick={() => handleClick(DIRECTORY_MAP.TRIGGERS)}>
-                                        {" "}
-                                        View More
-                                    </LinkButton>
-                                </Card> */}
                             </CardGrid>
                         </PanelViewMore>
                         <PanelViewMore>
                             <TitleWrapper>
                                 <Title variant="h2">File Integration</Title>
-                                <BodyText>Select the file integration type that best suits your project's needs.</BodyText>
+                                <BodyText>
+                                    Create a file-based integration that can be triggered by a file event.
+                                </BodyText>
                             </TitleWrapper>
                             <CardGrid>
                                 {triggers.local
@@ -323,7 +336,7 @@ export function ComponentListView() {
                             <TitleWrapper>
                                 <Title variant="h2">Other Artifacts</Title>
                                 <BodyText>
-                                    Manage additional components for your integration. Select from the options below.
+                                    Following components are part of the library and can be used in the integration.
                                 </BodyText>
                             </TitleWrapper>
                             <CardGrid>
