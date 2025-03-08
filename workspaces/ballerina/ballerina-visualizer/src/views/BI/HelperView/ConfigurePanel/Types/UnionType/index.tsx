@@ -22,10 +22,7 @@ export default function UnionType(props: TypeProps) {
     const { param, depth, onChange } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
 
-    const requiredParam = isRequiredParam(param) && depth > 1; // Only apply required param logic after depth 1
-    if (requiredParam) {
-        param.selected = true;
-    }
+    const requiredParam = isRequiredParam(param);
     const memberTypes = param.members?.map((field, index) => ({ id: index.toString(), value: getUnionParamName(field) }));
     const initSelectedMember = getSelectedUnionMember(param);
 
@@ -96,7 +93,7 @@ export default function UnionType(props: TypeProps) {
                             value={selectedMemberType}
                             items={memberTypes}
                             data-testid="arg-dropdown-component"
-                            sx={{ marginLeft: '5px', width: 'fit-content' }}
+                            sx={{ marginLeft: '5px' }}
                         />
                     </div>
                 </div>

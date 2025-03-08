@@ -20,10 +20,6 @@ export default function CustomType(props: TypeProps) {
     const { param, onChange } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const requiredParam = isRequiredParam(param);
-    if (requiredParam) {
-        param.selected = true;
-    }
-
 
     const [paramSelected, setParamSelected] = useState<boolean>(param.selected || requiredParam);
 
