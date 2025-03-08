@@ -304,8 +304,7 @@ export type NodeKind =
     | "AGENT"
     | "AGENT_CALL"
     | "FUNCTION_DEFINITION"
-    | "CONFIG_VARIABLE"
-    | "AGENT_CALL";
+    | "CONFIG_VARIABLE";
 
 export type OverviewFlow = {
     entryPoints: EntryPoint[];
