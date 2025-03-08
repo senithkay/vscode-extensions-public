@@ -253,20 +253,25 @@ export function extractResponseAsJsonFromString(jsonString: string): any {
         if (drift == null) {
             return null;
         }
-        
+
         const jsonRegex = /\{[\s\S]*\}/;
-        const jsonMatch = drift.match(jsonRegex);
-        if (!jsonMatch) {
-            return null;
-        }
-    
-        const extractedJson = jsonMatch[0];
-        const data: DriftResponseData = JSON.parse(extractedJson);
-        if (!data.results || !Array.isArray(data.results)) {
+        const jsonMatches = drift.match(jsonRegex);
+        if (!jsonMatches || jsonMatches.length === 0) {
             return null;
         }
 
-        return data;
+        for (let i = jsonMatches.length - 1; i >= 0; i--) {
+            try {
+                const extractedJson = jsonMatches[i];
+                const parsedJson: DriftResponseData = JSON.parse(extractedJson);
+                if (parsedJson && parsedJson.results && Array.isArray(parsedJson.results)) {
+                    return parsedJson;
+                }
+            } catch (error) {
+                // Ignore parsing errors and continue checking earlier JSON objects
+            }
+        }
+        return null;
     } catch (error) {
         return null;
     }
