@@ -88,10 +88,7 @@ const SubTitle = styled.div`
 
 export enum SidePanelView {
     NODE_LIST = "NODE_LIST",
-    FORM = "FORM",
     TOOL_FORM = "TOOL_FORM",
-    FUNCTION_LIST = "FUNCTION_LIST",
-    DATA_MAPPER_LIST = "DATA_MAPPER_LIST",
 }
 
 export interface BIFlowDiagramProps {
@@ -130,57 +127,38 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
         });
     }, [rpcClient]);
 
-
-    const handleOnCloseSidePanel = () => {
-        setSidePanelView(SidePanelView.NODE_LIST);
-        setSubPanel({ view: SubPanelView.UNDEFINED });
-        onBack();
-    };
-
     const fetchNodes = () => {
         const getNodeRequest: BIAvailableNodesRequest = {
             position: targetRef.current.startLine,
             filePath: projectPath,
         };
-        console.log(">>> get available node request", getNodeRequest);
-        // show side panel with available nodes
         rpcClient
             .getBIDiagramRpcClient()
             .getAvailableNodes(getNodeRequest)
-            .then((response) => {
+            .then(async (response) => {
                 console.log(">>> Available nodes", response);
                 if (!response.categories) {
                     console.error(">>> Error getting available nodes", response);
                     return;
                 }
-                // filter out some categories that are not supported in the diagram
-                // TODO: these categories should be supported in the future
-                const notSupportedCategories = [
-                    "PARALLEL_FLOW",
-                    "LOCK",
-                    "START",
-                    "TRANSACTION",
-                    "COMMIT",
-                    "ROLLBACK",
-                    "RETRY",
-                ];
-                const filteredCategories = response.categories.map((category) => ({
-                    ...category,
-                    items: category?.items?.filter(
-                        (item) =>
-                            !("codedata" in item) ||
-                            !notSupportedCategories.includes((item as AvailableNode).codedata?.node)
-                    ),
-                })) as Category[];
-                const convertedCategories = convertBICategoriesToSidePanelCategories(filteredCategories);
-                setCategories(convertedCategories);
-                initialCategoriesRef.current = convertedCategories; // Store initial categories
+                const connectionsCategory = response.categories.filter(item => item.metadata.label === "Connections") as Category[];
+                console.log("connectionsCategory", connectionsCategory);
+                const convertedCategories = convertBICategoriesToSidePanelCategories(connectionsCategory);
+                console.log("convertedCategories", convertedCategories);
+
+                const filteredFunctions = await handleSearchFunction("", FUNCTION_TYPE.REGULAR, false);
+                console.log("filteredFunctions", filteredFunctions);
+
+                const filteredCategories = convertedCategories.concat(filteredFunctions);
+                setCategories(filteredCategories);
+                console.log("filteredCategories", filteredCategories);
+                initialCategoriesRef.current = filteredCategories; // Store initial categories
                 setSidePanelView(SidePanelView.NODE_LIST);
             });
     };
 
 
-    const handleSearchFunction = async (searchText: string, functionType: FUNCTION_TYPE) => {
+    const handleSearchFunction = async (searchText: string, functionType: FUNCTION_TYPE, isSearching: boolean = true) => {
         const request: BISearchRequest = {
             position: {
                 startLine: targetRef.current.startLine,
@@ -197,68 +175,30 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
                 : undefined,
             searchKind: "FUNCTION",
         };
-        rpcClient
-            .getBIDiagramRpcClient()
-            .search(request)
-            .then((response) => {
-                setCategories(
-                    convertFunctionCategoriesToSidePanelCategories(response.categories as Category[], functionType)
-                );
-                setSidePanelView(
-                    functionType === FUNCTION_TYPE.REGULAR
-                        ? SidePanelView.FUNCTION_LIST
-                        : SidePanelView.DATA_MAPPER_LIST
-                );
-            })
-            .finally(() => {
-            });
+        const response = await rpcClient.getBIDiagramRpcClient().search(request);
+        if (isSearching && !searchText) {
+            setCategories(initialCategoriesRef.current); // Reset the categories list when the search input is empty
+            return;
+        }
+        if (isSearching && searchText) {
+            setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[], functionType));
+            return;
+        }
+        return convertFunctionCategoriesToSidePanelCategories(response.categories as Category[], functionType)
     };
 
     const handleOnSelectNode = (nodeId: string, metadata?: any) => {
         const { node } = metadata as { node: AvailableNode };
-        // node is function
-        const nodeType: NodeKind = node.codedata.node;
-        if (nodeType === "FUNCTION") {
-            rpcClient
-                .getBIDiagramRpcClient()
-                .search({
-                    position: { startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } },
-                    filePath: projectPath,
-                    queryMap: undefined,
-                    searchKind: "FUNCTION",
-                })
-                .then((response) => {
-                    console.log(">>> List of functions", response);
-                    setCategories(
-                        convertFunctionCategoriesToSidePanelCategories(
-                            response.categories as Category[],
-                            FUNCTION_TYPE.REGULAR
-                        )
-                    );
-                    setSidePanelView(SidePanelView.FUNCTION_LIST);
-
-                })
-                .finally(() => {
-
-                });
-        } else {
-            // default node
-            console.log(">>> on select node", { nodeId, metadata });
-            setSelectedNodeCodeData(node.codedata);
-            setSidePanelView(SidePanelView.TOOL_FORM);
-        }
+        // default node
+        console.log(">>> on select node", { nodeId, metadata });
+        setSelectedNodeCodeData(node.codedata);
+        setSidePanelView(SidePanelView.TOOL_FORM);
     };
 
     const handleOnFormBack = () => {
-        if (sidePanelView === SidePanelView.FUNCTION_LIST || sidePanelView === SidePanelView.DATA_MAPPER_LIST) {
-            // Reset categories to the initial available nodes
-            setCategories(initialCategoriesRef.current);
-            setSidePanelView(SidePanelView.NODE_LIST);
-        } else {
-            setSidePanelView(SidePanelView.NODE_LIST);
-            setSubPanel({ view: SubPanelView.UNDEFINED });
-            setCategories(initialCategoriesRef.current);
-        }
+        setSidePanelView(SidePanelView.NODE_LIST);
+        setSubPanel({ view: SubPanelView.UNDEFINED });
+        setCategories(initialCategoriesRef.current);
     };
 
     const handleOnAddConnection = () => {
@@ -344,7 +284,6 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
                 title={"New Tool Integration"}
                 show={showSidePanel}
                 onClose={onBack}
-                onBack={handleOnFormBack}
                 subPanelWidth={subPanel?.view === SubPanelView.INLINE_DATA_MAPPER ? 800 : 400}
                 subPanel={findSubPanelComponent(subPanel)}
             >
@@ -354,16 +293,9 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
                             categories={categories}
                             onSelect={handleOnSelectNode}
                             onAddConnection={handleOnAddConnection}
-                        />
-                    )}
-                    {sidePanelView === SidePanelView.FUNCTION_LIST && categories?.length > 0 && (
-                        <NodeList
-                            categories={categories}
-                            onSelect={handleOnSelectNode}
                             onSearchTextChange={(searchText) => handleSearchFunction(searchText, FUNCTION_TYPE.REGULAR)}
                             onAddFunction={handleOnAddFunction}
                             title={"Functions"}
-                            onBack={handleOnFormBack}
                         />
                     )}
                     {sidePanelView === SidePanelView.TOOL_FORM && (

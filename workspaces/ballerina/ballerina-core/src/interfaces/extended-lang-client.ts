@@ -1246,6 +1246,9 @@ export interface AINodesResponse {
     agents?: CodeData[];
     models?: CodeData[];
 }
+export interface AIModelsResponse {
+    models: string[];
+}
 
 // TODO: Correct the data type
 export interface AIModelsRequest {
@@ -1336,7 +1339,7 @@ export interface BIInterface extends BaseLangClientInterface {
     // AI Agent APIs
     getAllAgents: (params: AINodesRequest) => Promise<AINodesResponse>;
     getAllModels: (params: AIModelsRequest) => Promise<AINodesResponse>;
-    getModels: (params: AIModelsRequest) => Promise<AINodesResponse>;
+    getModels: (params: AIModelsRequest) => Promise<AIModelsResponse>;
     getTools: (params: AIToolsRequest) => Promise<AIToolsResponse>;
     genTool: (params: AIGentToolsRequest) => Promise<AIGentToolsResponse>;
     getConnectorActions: (params: AIConnectorActionsRequest) => Promise<AIConnectorActionsResponse>;

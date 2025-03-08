@@ -17,6 +17,7 @@ import {
     AIGentToolsRequest,
     AIGentToolsResponse,
     AIModelsRequest,
+    AIModelsResponse,
     AINodesRequest,
     AINodesResponse,
     AIToolsRequest,
@@ -47,7 +48,7 @@ export class AiAgentRpcClient implements AIAgentAPI {
         return this._messenger.sendRequest(getAllModels, HOST_EXTENSION, params);
     }
 
-    getModels(params: AIModelsRequest): Promise<AINodesResponse> {
+    getModels(params: AIModelsRequest): Promise<AIModelsResponse> {
         return this._messenger.sendRequest(getModels, HOST_EXTENSION, params);
     }
 
