@@ -185,7 +185,8 @@ import {
     BISearchRequest,
     BISearchResponse,
     AIConnectorActionsRequest,
-    AIConnectorActionsResponse
+    AIConnectorActionsResponse,
+    AIModelsResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -974,8 +975,8 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<AINodesResponse>(EXTENDED_APIS.BI_AI_ALL_MODELS, params);
     }
 
-    async getModels(params: AIModelsRequest): Promise<AINodesResponse> {
-        return this.sendRequest<AINodesResponse>(EXTENDED_APIS.BI_AI_GET_MODELS, params);
+    async getModels(params: AIModelsRequest): Promise<AIModelsResponse> {
+        return this.sendRequest<AIModelsResponse>(EXTENDED_APIS.BI_AI_GET_MODELS, params);
     }
 
     async getTools(params: AIToolsRequest): Promise<AIToolsResponse> {

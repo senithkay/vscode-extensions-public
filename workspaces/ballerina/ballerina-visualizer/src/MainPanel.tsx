@@ -163,7 +163,7 @@ const MainPanel = () => {
                 switch (value?.view) {
                     case MACHINE_VIEW.Overview:
                         if (value.isBI) {
-                            setViewComponent(<OverviewBI />);
+                            setViewComponent(<OverviewBI projectPath={value.projectUri} />);
                             break;
                         }
                         setViewComponent(<Overview visualizerLocation={value} />);
@@ -215,6 +215,19 @@ const MainPanel = () => {
                             );
                         });
                         break;
+                    case MACHINE_VIEW.BINPFunctionForm:
+                    rpcClient.getVisualizerLocation().then((location) => {
+                        setViewComponent(
+                            <FunctionForm
+                                projectPath={value.projectUri}
+                                fileName={"functions.bal"}
+                                functionName={value?.identifier}
+                                isDataMapper={false}
+                                isNpFunction={true}
+                            />
+                        );
+                    });
+                    break;
                     case MACHINE_VIEW.GraphQLDiagram:
                         setViewComponent(<GraphQLDiagram filePath={value?.documentUri} position={value?.position} projectUri={value?.projectUri} />);
                         break;
@@ -236,7 +249,7 @@ const MainPanel = () => {
                         setViewComponent(<ProjectForm />);
                         break;
                     case MACHINE_VIEW.BIComponentView:
-                        setViewComponent(<ComponentListView />);
+                        setViewComponent(<ComponentListView scope={value.scope} />);
                         break;
                     case MACHINE_VIEW.BIServiceWizard:
                         setViewComponent(<ServiceWizard type={value.serviceType} />);

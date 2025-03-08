@@ -12,22 +12,24 @@ import {
     AIAgentAPI,
     AIAgentRequest,
     AIAgentResponse,
+    AIConnectorActionsRequest,
+    AIConnectorActionsResponse,
     AIGentToolsRequest,
     AIGentToolsResponse,
     AIModelsRequest,
+    AIModelsResponse,
     AINodesRequest,
     AINodesResponse,
     AIToolsRequest,
     AIToolsResponse,
     AgentTool,
-    AIConnectorActionsRequest,
-    AIConnectorActionsResponse,
+    AgentToolRequest,
+    CodeData,
     FlowNode,
     NodePosition,
     STModification,
     SyntaxTree,
-    TextEdit,
-    AgentToolRequest
+    TextEdit
 } from "@wso2-enterprise/ballerina-core";
 import { writeFileSync } from "fs";
 import { Uri } from "vscode";
@@ -65,11 +67,11 @@ export class AiAgentRpcManager implements AIAgentAPI {
         });
     }
 
-    async getModels(params: AIModelsRequest): Promise<AINodesResponse> {
+    async getModels(params: AIModelsRequest): Promise<AIModelsResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             try {
-                const res: AINodesResponse = await context.langClient.getModels(params);
+                const res: AIModelsResponse = await context.langClient.getModels(params);
                 resolve(res);
             } catch (error) {
                 console.log(error);
@@ -123,6 +125,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
 
                 // selected tool list
                 const selectedToolList = [];
+                let selectedModel = "";
                 // Create the tools first
                 if (params.newTools.length > 0) {
                     for (const tool of params.newTools) { // create tools one by one
@@ -144,9 +147,12 @@ export class AiAgentRpcManager implements AIAgentAPI {
 
                     // Go through the modelFields and assign each value to the flow node
                     params.modelFields.forEach(field => {
-                        const excludedKeys = ["variable", "type", "checkError"];
+                        const excludedKeys = ["type", "checkError"];
                         if (!excludedKeys.includes(field.key)) {
                             modelFlowNode.properties[field.key].value = field.value;
+                        }
+                        if (field.key === "variable") {
+                            selectedModel = field.value;
                         }
                     });
 
@@ -159,9 +165,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                     await this.updateSource(codeEdits.textEdits);
                     await new Promise(resolve => setTimeout(resolve, 2000));
                 } else {
-                    const existingModels = await StateMachine.langClient().getModels({ agent: fixedAgentCodeData.object, filePath });
-                    console.log("Get existingModels ", existingModels.models);
-                    // TODO: Existing model selection
+                    selectedModel = params.modelFields.at(0).value;
                 }
 
 
@@ -170,14 +174,14 @@ export class AiAgentRpcManager implements AIAgentAPI {
 
                 // Go through the agentFields and assign each value to the flow node
                 params.agentFields.forEach(field => {
-                    const excludedKeys = ["variable", "type", "checkError"];
+                    const excludedKeys = ["type", "checkError"];
                     if (!excludedKeys.includes(field.key)) {
                         agentFlowNode.properties[field.key].value = field.value;
                     }
                 });
 
                 // set agent model name and tools
-                agentFlowNode.properties["model"].value = params.modelFields.find(field => field.key === "variable").value;
+                agentFlowNode.properties["model"].value = selectedModel;
                 agentFlowNode.properties["tools"].value = selectedToolList;
 
                 // Create a new model with given flow node

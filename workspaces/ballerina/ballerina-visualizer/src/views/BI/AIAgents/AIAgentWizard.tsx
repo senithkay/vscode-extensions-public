@@ -114,7 +114,7 @@ export function AIAgentWizard() {
     const [modelFields, setModelFields] = useState<FormField[]>([]);
     const [toolsFields, setToolsFields] = useState<FormField[]>([]);
 
-    const [existingModels, setExistingModel] = useState<CodeData[]>([]);
+    const [existingModels, setExistingModel] = useState<string[]>([]);
 
     const [newModels, setNewModels] = useState<CodeData[]>([]);
     const [selectedNewModel, setSelectedNewModel] = useState<string>("");
@@ -179,7 +179,7 @@ export function AIAgentWizard() {
         const fixedAgent = allAgents.agents.at(0);
 
         const existingModels = await rpcClient.getAIAgentRpcClient().getModels({ agent: fixedAgent.object, filePath });
-        console.log("Get existingModels ", existingModels.models);
+        console.log("Get existingModels ", existingModels);
         setExistingModel(existingModels.models);
 
         const newModels = await rpcClient.getAIAgentRpcClient().getAllModels({ agent: fixedAgent.object, filePath })
@@ -217,7 +217,7 @@ export function AIAgentWizard() {
             editable: true,
             documentation: "Add existing model to AI Agent",
             value: "",
-            items: existingModels.map(val => val.object),
+            items: existingModels.map(val => val),
             valueTypeConstraint: "",
             enabled: true
         }
@@ -234,19 +234,20 @@ export function AIAgentWizard() {
             optional: false,
             editable: true,
             documentation: "Add Tools to your AI Agent",
-            value: "",
+            value: [],
             valueTypeConstraint: "",
             addNewButton: true,
             addNewButtonLabel: "Create New Tool",
             enabled: true
         }
         const existingTools = await rpcClient.getAIAgentRpcClient().getTools({ filePath });
-        field.items = existingTools?.tools.map(item => item);
+        field.items = existingTools?.tools ? existingTools?.tools.map(item => item) : [];
         if (newTools.length > 0) {
-            field.value = [];
             newTools.forEach(tool => {
                 field.items.push(tool.toolName);
-                (field.value as any[]).push(tool.toolName);
+                if (!(field.value as any[]).includes(tool.toolName)) {
+                    (field.value as any[]).push(tool.toolName);
+                }
             })
         }
         setToolsFields([field]);
