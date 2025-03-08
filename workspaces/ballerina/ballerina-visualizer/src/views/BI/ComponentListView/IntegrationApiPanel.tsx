@@ -1,0 +1,68 @@
+/**
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+import React from 'react';
+import { Icon } from '@wso2-enterprise/ui-toolkit';
+import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/ballerina-core';
+
+import { CardGrid, PanelViewMore, Title, TitleWrapper } from './styles';
+import { BodyText } from '../../styles';
+import ButtonCard from '../../../components/ButtonCard';
+
+export function IntegrationAPIPanel() {
+    const { rpcClient } = useRpcContext();
+
+    const handleClick = async (serviceType: string) => {
+        await rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.BIServiceWizard,
+                serviceType: serviceType,
+            },
+        });
+    };
+
+    return (
+        <PanelViewMore>
+            <TitleWrapper>
+                <Title variant="h2">Integration as API</Title>
+                <BodyText>
+                    Explore and manage various components to enhance your integration capabilities.
+                </BodyText>
+            </TitleWrapper>
+            <CardGrid>
+                <ButtonCard
+                    icon={<Icon name="bi-http-service" />}
+                    title="HTTP Service"
+                    // description="Handle web requests and responses."
+                    onClick={() => handleClick("http")}
+                />
+                <ButtonCard
+                    icon={<Icon name="bi-graphql" sx={{ color: "#e535ab" }} />}
+                    title="GraphQL Service"
+                    // description="Flexible and efficient data queries."
+                    onClick={() => handleClick("graphql")}
+                />
+                <ButtonCard
+                    icon={<Icon name="bi-tcp" />}
+                    title="TCP Service"
+                    // description="Process connection oriented messages."
+                    onClick={() => handleClick("tcp")}
+                />
+                {/* TODO: Add this when GRPC is working */}
+                {/* <ButtonCard
+                    icon={<Icon name="bi-grpc" />}
+                    title="gRPC Service"
+                    description="High-performance, cross-platform communication."
+                    onClick={() => handleClick("grpc")}
+                /> */}
+            </CardGrid>
+        </PanelViewMore>
+    );
+};
