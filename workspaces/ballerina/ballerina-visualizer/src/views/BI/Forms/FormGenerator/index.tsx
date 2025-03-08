@@ -169,9 +169,9 @@ export function FormGenerator(props: FormProps) {
 
         // hide connection property if node is a REMOTE_ACTION_CALL or RESOURCE_ACTION_CALL node
         if (node.codedata.node === "REMOTE_ACTION_CALL" || node.codedata.node === "RESOURCE_ACTION_CALL") {
-            if (enrichedNodeProperties) {
+            if (enrichedNodeProperties?.connection) {
                 enrichedNodeProperties.connection.optional = true;
-            } else {
+            } else if (formProperties?.connection) {
                 formProperties.connection.optional = true;
             }
         }

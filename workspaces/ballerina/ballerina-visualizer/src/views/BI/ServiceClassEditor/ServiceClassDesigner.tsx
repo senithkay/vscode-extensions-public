@@ -549,7 +549,7 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
                             model={editingFunction}
                             filePath={Utils.joinPath(URI.file(projectUri), serviceClassModel.codedata.lineRange.fileName).fsPath}
                             lineRange={serviceClassModel.codedata.lineRange}
-                            isGraphqlView={false}
+                            isGraphqlView={isGraphql}
                             onClose={handleCloseFunctionForm}
                             onSave={handleFunctionSave}
                         />
@@ -569,6 +569,7 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
                             lineRange={serviceClassModel.codedata.lineRange}
                             onClose={handleCloseVariableForm}
                             onSave={handleVariableSave}
+                            isGraphqlEditor={isGraphql}
                         />
                     </PanelContainer>
                 )}

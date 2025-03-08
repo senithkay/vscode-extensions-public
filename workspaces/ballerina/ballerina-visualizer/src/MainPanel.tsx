@@ -161,7 +161,7 @@ const MainPanel = () => {
                 switch (value?.view) {
                     case MACHINE_VIEW.Overview:
                         if (value.isBI) {
-                            setViewComponent(<OverviewBI />);
+                            setViewComponent(<OverviewBI projectPath={value.projectUri} />);
                             break;
                         }
                         setViewComponent(<Overview visualizerLocation={value} />);
@@ -241,7 +241,7 @@ const MainPanel = () => {
                         setViewComponent(<ProjectForm />);
                         break;
                     case MACHINE_VIEW.BIComponentView:
-                        setViewComponent(<ComponentListView />);
+                        setViewComponent(<ComponentListView scope={value.scope} />);
                         break;
                     case MACHINE_VIEW.BIServiceWizard:
                         setViewComponent(<ServiceWizard type={value.serviceType} />);
