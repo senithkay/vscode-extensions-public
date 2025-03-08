@@ -14,7 +14,7 @@ import { Typography } from "@wso2-enterprise/ui-toolkit";
 import { TypeProps } from "../../ParameterBranch";
 import { useHelperPaneStyles } from "../../styles";
 import { MemoizedParameterBranch } from "../../ParameterBranch";
-import { isRequiredParam } from "../../utils";
+import { isRequiredParam, updateFieldsSelection } from "../../utils";
 
 export default function RecordType(props: TypeProps) {
     const { param, depth, onChange } = props;
@@ -28,8 +28,15 @@ export default function RecordType(props: TypeProps) {
 
     const toggleParamCheck = () => {
         if (!requiredParam) {
-            param.selected = !paramSelected;
-            setParamSelected(!paramSelected);
+            const newSelectedState = !paramSelected;
+            param.selected = newSelectedState;
+            
+            // If the record has fields, update their selection state
+            if (param.fields && param.fields.length > 0) {
+                updateFieldsSelection(param.fields, newSelectedState);
+            }
+            
+            setParamSelected(newSelectedState);
             onChange();
         }
     };

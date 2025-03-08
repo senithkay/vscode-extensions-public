@@ -54,3 +54,20 @@ export function getUnionFormFieldName(field: FormField): string {
 export function checkFormFieldValue(field: FormField): boolean {
     return field.value !== undefined && field.value !== null;
 }
+
+export function updateFieldsSelection(fields: FormField[], selected: boolean): void {
+    if (!fields || !fields.length) return;
+
+    fields.forEach(field => {
+        // When selecting: only select required fields
+        // When deselecting: deselect all fields (both required and optional)
+        if (!selected || isRequiredParam(field)) {
+            field.selected = selected;
+        }
+
+        // Recursively process nested fields
+        if (field.fields && field.fields.length > 0) {
+            updateFieldsSelection(field.fields, selected);
+        }
+    });
+}

@@ -179,7 +179,6 @@ export function ConfigureRecordPage(props: ConfigureRecordPageProps) {
             filePath: fileName,
             type: updatedModel[0]
         }
-        console.log("====>>> request for recordConfig: ", request);
         const recordSourceResponse: RecordSourceGenResponse = await rpcClient.getBIDiagramRpcClient().getRecordSource(request);
         console.log("====>>> recordSourceResponse: ", recordSourceResponse);
 

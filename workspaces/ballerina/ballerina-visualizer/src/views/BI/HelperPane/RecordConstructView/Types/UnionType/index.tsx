@@ -6,7 +6,6 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-// tslint:disable: jsx-no-multiline-js
 import React, { useRef, useState } from "react";
 
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
@@ -16,7 +15,7 @@ import { Dropdown, Typography } from "@wso2-enterprise/ui-toolkit";
 import { TypeProps } from "../../ParameterBranch";
 import { useHelperPaneStyles } from "../../styles";
 import { ParameterBranch } from "../../ParameterBranch";
-import { getSelectedUnionMember, isRequiredParam } from "../../utils";
+import { getSelectedUnionMember, isRequiredParam, updateFieldsSelection } from "../../utils";
 
 export default function UnionType(props: TypeProps) {
     const { param, depth, onChange } = props;
@@ -32,7 +31,6 @@ export default function UnionType(props: TypeProps) {
     const [paramSelected, setParamSelected] = useState(param.selected || requiredParam);
     const [selectedMemberType, setSelectedMemberType] = useState(getUnionParamName(initSelectedMember));
     const [parameter, setParameter] = useState<TypeField>(initSelectedMember);
-    const initialRendering = useRef(false);
 
     if (!(param.members && param.members.length > 0)) {
         return <></>;
@@ -50,16 +48,37 @@ export default function UnionType(props: TypeProps) {
         updateFormFieldMemberSelection(selectedMember);
         setSelectedMemberType(type);
         setParameter(selectedMember);
-        if (initialRendering.current) {
-            // INFO: avoid onChange call in initial rendering to prevent multiple rendering.
-            onChange();
-        }
-        initialRendering.current = true;
+        onChange();
     };
 
     const toggleParamCheck = () => {
-        param.selected = !paramSelected;
-        setParamSelected(!paramSelected);
+        const newSelectedState = !paramSelected;
+        param.selected = newSelectedState;
+
+        // When checkbox is checked, ensure the currently selected member is also marked as selected
+        if (newSelectedState) {
+            const selectedMember = param.members.find((field) => getUnionParamName(field) === selectedMemberType);
+            if (selectedMember) {
+                updateFormFieldMemberSelection(selectedMember);
+
+                // If the selected member has fields, recursively set required fields to selected
+                if (selectedMember.fields && selectedMember.fields.length > 0) {
+                    updateFieldsSelection(selectedMember.fields, true);
+                }
+            }
+        } else {
+            // When unchecking, clear all member selections
+            param.members.forEach((field) => {
+                field.selected = false;
+
+                // If the member has fields, recursively deselect all fields
+                if (field.fields && field.fields.length > 0) {
+                    updateFieldsSelection(field.fields, false);
+                }
+            });
+        }
+
+        setParamSelected(newSelectedState);
         onChange();
     };
 

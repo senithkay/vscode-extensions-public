@@ -27,8 +27,9 @@ export default function CustomType(props: TypeProps) {
 
     const toggleParamCheck = () => {
         if (!requiredParam) {
-            param.selected = !paramSelected;
-            setParamSelected(!paramSelected);
+            const newSelectedState = !paramSelected;
+            param.selected = newSelectedState;
+            setParamSelected(newSelectedState);
             onChange();
         }
     };

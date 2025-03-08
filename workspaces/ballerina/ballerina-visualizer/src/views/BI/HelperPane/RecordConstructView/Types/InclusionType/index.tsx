@@ -14,7 +14,7 @@ import { Typography } from "@wso2-enterprise/ui-toolkit";
 import { TypeProps } from "../../ParameterBranch";
 import { useHelperPaneStyles } from "../../styles";
 import { ParameterBranch } from "../../ParameterBranch";
-import { isAllDefaultableFields, isRequiredParam } from "../../utils";
+import { isAllDefaultableFields, isRequiredParam, updateFieldsSelection } from "../../utils";
 
 export default function InclusionType(props: TypeProps) {
     const { param, depth, onChange } = props;
@@ -30,9 +30,16 @@ export default function InclusionType(props: TypeProps) {
     );
 
     const toggleParamCheck = () => {
-        param.selected = !paramSelected;
-        param.inclusionType.selected = !paramSelected;
-        setParamSelected(!paramSelected);
+        const newSelectedState = !paramSelected;
+        param.selected = newSelectedState;
+        param.inclusionType.selected = newSelectedState;
+        
+        // If the inclusion type has fields, update their selection state
+        if (param.inclusionType?.fields && param.inclusionType.fields.length > 0) {
+            updateFieldsSelection(param.inclusionType.fields, newSelectedState);
+        }
+        
+        setParamSelected(newSelectedState);
         onChange();
     };
 
