@@ -8,7 +8,7 @@
  */
 
 import { BallerinaExtension } from '../core';
-import { WorkspaceConfiguration, workspace } from 'vscode';
+import { WorkspaceConfiguration, workspace, Uri } from 'vscode';
 
 export enum VERSION {
     BETA = 'beta',
@@ -69,3 +69,17 @@ export function isSupportedSLVersion(ballerinaExtInstance: BallerinaExtension, m
     return false;
 }
 
+export function checkIsBI(uri: Uri): boolean {
+    const config = workspace.getConfiguration('kolab', uri);
+    const inspected = config.inspect<boolean>('isBI');
+
+    if (inspected) {
+        const valuesToCheck = [
+            inspected.workspaceFolderValue,
+            inspected.workspaceValue,
+            inspected.globalValue
+        ];
+        return valuesToCheck.find(value => value === true) !== undefined; // Return true if isBI is set to true
+    }
+    return false; // Return false if isBI is not set
+}

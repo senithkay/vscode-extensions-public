@@ -15,7 +15,8 @@ export function activate(context: vscode.ExtensionContext) {
 	const ballerinaExt = vscode.extensions.getExtension('wso2.kolab');
 	if (ballerinaExt) {
 		extension.context = context;
-		extension.langClient = ballerinaExt.exports.langClient;
+		extension.langClient = ballerinaExt.exports.ballerinaExtInstance.langClient;
+		extension.projectPath = ballerinaExt.exports.projectPath;
 		StateMachine.initialize();
 		return;
 	}

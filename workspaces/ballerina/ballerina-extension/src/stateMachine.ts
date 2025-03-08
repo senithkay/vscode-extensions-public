@@ -1,19 +1,19 @@
 
-import { ExtendedLangClient, ballerinaExtInstance } from './core';
+import { ExtendedLangClient } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
 import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './features/library-browser';
 import { VisualizerWebview } from './views/visualizer/webview';
-import { commands, Uri, workspace } from 'vscode';
+import { commands, Uri, window, workspace, WorkspaceFolder } from 'vscode';
 import { notifyCurrentWebview, RPCLayer } from './RPCLayer';
 import { generateUid, getComponentIdentifier, getNodeByIndex, getNodeByName, getNodeByUid, getView } from './utils/state-machine-utils';
-import * as fs from 'fs';
 import * as path from 'path';
 import { extension } from './BalExtensionContext';
 import { BiDiagramRpcManager } from './rpc-managers/bi-diagram/rpc-manager';
 import { StateMachineAI } from './views/ai-panel/aiMachine';
 import { StateMachinePopup } from './stateMachinePopup';
+import { checkIsBI } from './utils';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
@@ -412,25 +412,49 @@ export function updateView() {
 }
 
 async function checkForProjects() {
-    let isBI = false;
-    let projectUri = '';
-    try {
-        const workspaceFolders = workspace.workspaceFolders;
-        if (!workspaceFolders || workspaceFolders.length === 0) {
-            throw new Error("No workspace folders found");
-        }
-        // Assume we are only interested in the root workspace folder
-        const rootFolder = workspaceFolders[0].uri.fsPath;
-        const ballerinaTomlPath = path.join(rootFolder, 'Ballerina.toml');
-        projectUri = rootFolder;
+    const workspaceFolders = workspace.workspaceFolders;
 
-        if (fs.existsSync(ballerinaTomlPath)) {
-            const data = await fs.promises.readFile(ballerinaTomlPath, 'utf8');
-            isBI = data.includes('bi = true');
-        }
-    } catch (err) {
-        console.error(err);
+    if (!workspaceFolders) {
+        return { isBI: false, projectUri: '' };
     }
-    commands.executeCommand('setContext', 'isBIProject', isBI);
+
+    if (workspaceFolders.length > 1) {
+        return await handleMultipleWorkspaces(workspaceFolders);
+    }
+
+    return await handleSingleWorkspace(workspaceFolders[0].uri);
+}
+
+async function handleMultipleWorkspaces(workspaceFolders: readonly WorkspaceFolder[]) {
+    const biProjects = workspaceFolders.filter(folder => checkIsBI(folder.uri));
+
+    if (biProjects.length > 1) {
+        const projectPaths = biProjects.map(folder => folder.uri.fsPath);
+        const selectedProject = await window.showQuickPick(projectPaths, {
+            placeHolder: 'Select a project to load the Ballerina Integrator'
+        });
+        const isBI = checkIsBI(Uri.file(selectedProject));
+        setBIContext(isBI);
+        return { isBI, projectUri: selectedProject };
+    }
+
+    const isBI = biProjects.length > 0;
+    setBIContext(isBI);
+    return { isBI, projectUri: isBI ? biProjects[0].uri.fsPath : '' };
+}
+
+async function handleSingleWorkspace(workspaceURI: any) {
+    const isBI = checkIsBI(workspaceURI);
+    const projectUri = isBI ? workspaceURI.fsPath : "";
+
+    setBIContext(isBI);
+    if (!isBI) {
+        console.error("No BI enabled workspace found");
+    }
+
     return { isBI, projectUri };
+}
+
+function setBIContext(isBI: boolean) {
+    commands.executeCommand('setContext', 'isBIProject', isBI);
 }
