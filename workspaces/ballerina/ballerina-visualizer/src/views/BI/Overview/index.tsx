@@ -396,7 +396,7 @@ function IntegrationControlPlane({ enabled, handleICP }: IntegrationControlPlane
 }
 
 interface ComponentDiagramProps {
-    //
+    projectPath: string;
 }
 
 export function Overview(props: ComponentDiagramProps) {
@@ -425,7 +425,10 @@ export function Overview(props: ComponentDiagramProps) {
             .getBIDiagramRpcClient()
             .getWorkspaces()
             .then((res) => {
-                setProjectName(res.workspaces[0].name);
+                const workspace = res.workspaces.find(workspace => workspace.fsPath === props.projectPath);
+                if (workspace) {
+                    setProjectName(workspace.name);
+                }
             });
 
         rpcClient
