@@ -30,7 +30,7 @@ import NodeIcon from "../../NodeIcon";
 import ConnectorIcon from "../../ConnectorIcon";
 import { useDiagramContext } from "../../DiagramContext";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
-import { getAgentNodeTools, getNodeTitle, nodeHasError } from "../../../utils/node";
+import { getAgentNodeTools, nodeHasError } from "../../../utils/node";
 import { BreakpointMenu } from "../../BreakNodeMenu/BreakNodeMenu";
 
 export namespace NodeStyles {
@@ -38,7 +38,6 @@ export namespace NodeStyles {
         display: flex;
         flex-direction: row;
         align-items: flex-start;
-        cursor: pointer;
     `;
 
     export type NodeStyleProp = {
@@ -50,7 +49,7 @@ export namespace NodeStyles {
     export const Box = styled.div<NodeStyleProp>`
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        justify-content: center;
         align-items: center;
         width: ${NODE_WIDTH}px;
         min-height: ${NODE_HEIGHT}px;
@@ -68,6 +67,7 @@ export namespace NodeStyles {
         background-color: ${(props: NodeStyleProp) =>
             props?.isActiveBreakpoint ? ThemeColors.DEBUGGER_BREAKPOINT_BACKGROUND : ThemeColors.SURFACE_DIM};
         color: ${ThemeColors.ON_SURFACE};
+        cursor: pointer;
     `;
 
     export const Header = styled.div<{}>`
@@ -200,7 +200,6 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
         useDiagramContext();
 
     const [isBoxHovered, setIsBoxHovered] = useState(false);
-    const [isCircleHovered, setIsCircleHovered] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(anchorEl);
     const hasBreakpoint = model.hasBreakpoint();
@@ -270,7 +269,7 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
     ];
 
     const disabled = model.node.suggested;
-    const nodeTitle = getNodeTitle(model.node);
+    const nodeTitle = "AI Agent : " + model.node.properties.connection?.value;
     const hasError = nodeHasError(model.node);
     const tools = getAgentNodeTools(model.node);
 
@@ -283,7 +282,6 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                 isActiveBreakpoint={isActiveBreakpoint}
                 onMouseEnter={() => setIsBoxHovered(true)}
                 onMouseLeave={() => setIsBoxHovered(false)}
-                style={{ height: `${model.node.viewState?.ch}px` }}
             >
                 {hasBreakpoint && (
                     <div
@@ -298,56 +296,61 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                     />
                 )}
                 <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
-                <NodeStyles.Row>
-                    <NodeStyles.Icon onClick={handleOnClick}>
-                        <NodeIcon type={model.node.codedata.node} size={24} />
-                    </NodeStyles.Icon>
+                <NodeStyles.Row style={{ height: `${model.node.viewState?.ch}px` }}>
                     <NodeStyles.Row>
-                        <NodeStyles.Header onClick={handleOnClick}>
-                            <NodeStyles.Title>{nodeTitle}</NodeStyles.Title>
-                            <NodeStyles.Description>{model.node.properties.variable?.value}</NodeStyles.Description>
-                        </NodeStyles.Header>
-                        <NodeStyles.ActionButtonGroup>
-                            {hasError && <DiagnosticsPopUp node={model.node} />}
-                            {!readOnly && (
-                                <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
-                                    <MoreVertIcon />
-                                </NodeStyles.MenuButton>
-                            )}
-                        </NodeStyles.ActionButtonGroup>
+                        <NodeStyles.Icon onClick={handleOnClick}>
+                            <NodeIcon type={model.node.codedata.node} size={24} />
+                        </NodeStyles.Icon>
+                        <NodeStyles.Row>
+                            <NodeStyles.Header onClick={handleOnClick}>
+                                <NodeStyles.Title>{nodeTitle}</NodeStyles.Title>
+                                <NodeStyles.Description>{model.node.properties.variable?.value}</NodeStyles.Description>
+                            </NodeStyles.Header>
+                            <NodeStyles.ActionButtonGroup>
+                                {hasError && <DiagnosticsPopUp node={model.node} />}
+                                {!readOnly && (
+                                    <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
+                                        <MoreVertIcon />
+                                    </NodeStyles.MenuButton>
+                                )}
+                            </NodeStyles.ActionButtonGroup>
+                        </NodeStyles.Row>
+                        <Popover
+                            open={isMenuOpen}
+                            anchorEl={anchorEl}
+                            handleClose={handleOnMenuClose}
+                            sx={{
+                                padding: 0,
+                                borderRadius: 0,
+                            }}
+                        >
+                            <Menu>
+                                <>
+                                    {menuItems.map((item) => (
+                                        <MenuItem key={item.id} item={item} />
+                                    ))}
+                                    <BreakpointMenu
+                                        hasBreakpoint={hasBreakpoint}
+                                        onAddBreakpoint={onAddBreakpoint}
+                                        onRemoveBreakpoint={onRemoveBreakpoint}
+                                    />
+                                </>
+                            </Menu>
+                        </Popover>
                     </NodeStyles.Row>
-                    <Popover
-                        open={isMenuOpen}
-                        anchorEl={anchorEl}
-                        handleClose={handleOnMenuClose}
-                        sx={{
-                            padding: 0,
-                            borderRadius: 0,
-                        }}
-                    >
-                        <Menu>
-                            <>
-                                {menuItems.map((item) => (
-                                    <MenuItem key={item.id} item={item} />
-                                ))}
-                                <BreakpointMenu
-                                    hasBreakpoint={hasBreakpoint}
-                                    onAddBreakpoint={onAddBreakpoint}
-                                    onRemoveBreakpoint={onRemoveBreakpoint}
-                                />
-                            </>
-                        </Menu>
-                    </Popover>
                 </NodeStyles.Row>
                 <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
             </NodeStyles.Box>
 
             <svg
                 width={NODE_GAP_X + NODE_HEIGHT + LABEL_HEIGHT + LABEL_WIDTH}
-                height={NODE_HEIGHT * 2 + (tools.length || 0) * (NODE_HEIGHT + LABEL_HEIGHT)}
-                viewBox={`0 0 300 ${70 + (tools.length || 0) * 70}`}
-                onMouseEnter={() => setIsCircleHovered(true)}
-                onMouseLeave={() => setIsCircleHovered(false)}
+                height={model.node.viewState?.ch}
+                viewBox={`0 0 300 ${
+                    tools.length > 0
+                        ? NODE_HEIGHT + AGENT_NODE_TOOL_SECTION_GAP + tools.length * (NODE_HEIGHT + AGENT_NODE_TOOL_GAP)
+                        : NODE_HEIGHT
+                }`}
+                style={{ marginLeft: "-5px" }}
             >
                 {/* ai agent model circle */}
                 <g>
@@ -356,13 +359,26 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                         cy="24"
                         r="22"
                         fill={ThemeColors.SURFACE_DIM}
-                        stroke={isCircleHovered && !disabled ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT}
+                        stroke={ThemeColors.OUTLINE_VARIANT}
                         strokeWidth={1.5}
                         strokeDasharray={disabled ? "5 5" : "none"}
                         opacity={disabled ? 0.7 : 1}
                     />
                     <foreignObject x="68" y="12" width="44" height="44" fill={ThemeColors.ON_SURFACE}>
-                        <ConnectorIcon node={model.node} />
+                        <ConnectorIcon
+                            url={model.node.metadata.data.model}
+                            fallbackIcon={
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                    <g fill="none">
+                                        <path d="m12.594 23.258l-.012.002l-.071.035l-.02.004l-.014-.004l-.071-.036q-.016-.004-.024.006l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.016-.018m.264-.113l-.014.002l-.184.093l-.01.01l-.003.011l.018.43l.005.012l.008.008l.201.092q.019.005.029-.008l.004-.014l-.034-.614q-.005-.019-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.003-.011l.018-.43l-.003-.012l-.01-.01z" />
+                                        <path
+                                            fill="currentColor"
+                                            d="M9.107 5.448c.598-1.75 3.016-1.803 3.725-.159l.06.16l.807 2.36a4 4 0 0 0 2.276 2.411l.217.081l2.36.806c1.75.598 1.803 3.016.16 3.725l-.16.06l-2.36.807a4 4 0 0 0-2.412 2.276l-.081.216l-.806 2.361c-.598 1.75-3.016 1.803-3.724.16l-.062-.16l-.806-2.36a4 4 0 0 0-2.276-2.412l-.216-.081l-2.36-.806c-1.751-.598-1.804-3.016-.16-3.724l.16-.062l2.36-.806A4 4 0 0 0 8.22 8.025l.081-.216zM11 6.094l-.806 2.36a6 6 0 0 1-3.49 3.649l-.25.091l-2.36.806l2.36.806a6 6 0 0 1 3.649 3.49l.091.25l.806 2.36l.806-2.36a6 6 0 0 1 3.49-3.649l.25-.09l2.36-.807l-2.36-.806a6 6 0 0 1-3.649-3.49l-.09-.25zM19 2a1 1 0 0 1 .898.56l.048.117l.35 1.026l1.027.35a1 1 0 0 1 .118 1.845l-.118.048l-1.026.35l-.35 1.027a1 1 0 0 1-1.845.117l-.048-.117l-.35-1.026l-1.027-.35a1 1 0 0 1-.118-1.845l.118-.048l1.026-.35l.35-1.027A1 1 0 0 1 19 2"
+                                        />
+                                    </g>
+                                </svg>
+                            }
+                        />
                     </foreignObject>
                     <line
                         x1="0"
@@ -370,13 +386,10 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                         x2="57"
                         y2="25"
                         style={{
-                            stroke: disabled
-                                ? ThemeColors.ON_SURFACE
-                                : isBoxHovered
-                                ? ThemeColors.PRIMARY
-                                : ThemeColors.ON_SURFACE,
+                            stroke: ThemeColors.ON_SURFACE,
                             strokeWidth: 1.5,
                             markerEnd: `url(#${model.node.id}-arrow-head)`,
+                            markerStart: `url(#${model.node.id}-diamond-start)`,
                         }}
                     />
                 </g>
@@ -400,7 +413,10 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                             opacity={disabled ? 0.7 : 1}
                         />
                         <foreignObject x="68" y="12" width="44" height="44" fill={ThemeColors.ON_SURFACE}>
-                            <ConnectorIcon node={undefined} url={tool.iconUrl} />
+                            <ConnectorIcon
+                                url={tool.iconUrl}
+                                fallbackIcon={<Icon name="bi-function" sx={{ fontSize: "24px" }} />}
+                            />
                         </foreignObject>
                         <text
                             x="110"
@@ -439,6 +455,24 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                         orient="auto"
                     >
                         <polygon points="0,4 0,0 4,2" fill={ThemeColors.ON_SURFACE}></polygon>
+                    </marker>
+                    <marker
+                        id={`${model.node.id}-diamond-start`}
+                        markerWidth="8"
+                        markerHeight="8"
+                        refX="4.5"
+                        refY="4"
+                        viewBox="0 0 8 8"
+                        orient="auto"
+                    >
+                        <circle
+                            cx="4"
+                            cy="4"
+                            r="3"
+                            fill={ThemeColors.SURFACE_DIM}
+                            stroke={ThemeColors.OUTLINE_VARIANT}
+                            strokeWidth="1"
+                        />
                     </marker>
                     {tools.map((tool: AgentNodeTools) => (
                         <marker

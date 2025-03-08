@@ -184,6 +184,9 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
             setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[], functionType));
             return;
         }
+        if (!response || !response.categories) {
+            return [];
+        }
         return convertFunctionCategoriesToSidePanelCategories(response.categories as Category[], functionType)
     };
 
