@@ -10,7 +10,7 @@
 import { TypeField } from "@wso2-enterprise/ballerina-core";
 
 import styled from "@emotion/styled";
-import { MemoizedParameterBranch } from "../HelperView/ConfigurePanel";
+import { MemoizedParameterBranch } from "./RecordConstructView/ParameterBranch";
 
 interface ConfigureViewProps {
   recordModel: TypeField[];
