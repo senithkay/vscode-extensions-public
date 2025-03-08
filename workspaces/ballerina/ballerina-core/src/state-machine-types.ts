@@ -39,9 +39,9 @@ export enum EVENT_TYPE {
 
 export enum SCOPE {
     AUTOMATION = "automation",
-    INTEGRATION_AS_API = "integrationAsApi",
-    EVENT_INTEGRATION = "eventIntegration",
-    FILE_INTEGRATION = "fileIntegration"
+    INTEGRATION_AS_API = "integration-as-api",
+    EVENT_INTEGRATION = "event-integration",
+    FILE_INTEGRATION = "file-integration"
 }
 
 export type VoidCommands = "OPEN_LOW_CODE" | "OPEN_PROJECT" | "CREATE_PROJECT";
