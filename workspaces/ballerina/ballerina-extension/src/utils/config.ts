@@ -7,6 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { SCOPE } from '@wso2-enterprise/ballerina-core';
 import { BallerinaExtension } from '../core';
 import { WorkspaceConfiguration, workspace, Uri } from 'vscode';
 
@@ -82,4 +83,18 @@ export function checkIsBI(uri: Uri): boolean {
         return valuesToCheck.find(value => value === true) !== undefined; // Return true if isBI is set to true
     }
     return false; // Return false if isBI is not set
+}
+
+export function fetchScope(uri: Uri): SCOPE {
+    const config = workspace.getConfiguration('kolab', uri);
+    const inspected = config.inspect<SCOPE>('scope');
+
+    if (inspected) {
+        const valuesToCheck = [
+            inspected.workspaceFolderValue,
+            inspected.workspaceValue,
+            inspected.globalValue
+        ];
+        return valuesToCheck.find(value => value !== undefined) as SCOPE;
+    }
 }

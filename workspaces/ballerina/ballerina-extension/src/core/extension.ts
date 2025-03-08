@@ -33,7 +33,8 @@ import {
     ENABLE_AI_SUGGESTIONS,
     ENABLE_SEQUENCE_DIAGRAM_VIEW,
     ENABLE_NATURAL_PROGRAMMING,
-    ENABLE_BALLERINA_INTEGRATOR
+    ENABLE_BALLERINA_INTEGRATOR,
+    DEFINE_BALLERINA_INTEGRATOR_SCOPE
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -738,6 +739,7 @@ export class BallerinaExtension {
                 || params.affectsConfiguration(ENABLE_NOTEBOOK_DEBUG)
                 || params.affectsConfiguration(ENABLE_LIVE_RELOAD)
                 || params.affectsConfiguration(ENABLE_BALLERINA_INTEGRATOR)
+                || params.affectsConfiguration(DEFINE_BALLERINA_INTEGRATOR_SCOPE)
             ) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
