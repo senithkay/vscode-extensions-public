@@ -79,7 +79,7 @@ async function getLLMResponses(sources: { balFiles: string; readme: string; requ
     const [commentResponse, documentationSourceResponse] = await Promise.all([commentResponsePromise, documentationSourceResponsePromise]);
     
     if (isError(commentResponse) || isError(documentationSourceResponse)) {
-        return HttpStatusCode.Unauthorized;
+        return HttpStatusCode.InternalServerError;
     }
 
     if (!commentResponse.ok) {
@@ -142,32 +142,43 @@ async function createDiagnosticsResponse(data: DriftResponseData, projectPath: s
 
 async function createDiagnostic(result: ResultItem, uri: Uri): Promise<CustomDiagnostic> {
     function hasCodeChangedRows(item: Partial<ResultItem>): boolean {
-        return item.startRowforCodeChangedAction != undefined && item.startRowforCodeChangedAction != null 
-                && item.endRowforCodeChangedAction != undefined && item.endRowforCodeChangedAction != null;
+        return isValidRow(item.startRowforImplementationChangedAction) && isValidRow(item.endRowforImplementationChangedAction);
     }
 
     function hasDocChangedRows(item: Partial<ResultItem>): boolean {
-        return item.startRowforDocChangedAction != undefined && item.startRowforDocChangedAction != null 
-                && item.endRowforDocChangedAction != undefined && item.endRowforDocChangedAction != null;
+        return isValidRow(item.startRowforDocChangedAction) && isValidRow(item.endRowforDocChangedAction);
+    }
+
+    function isValidRow(row: number) {
+        return row != undefined && row != null && row >= 1;
     }
 
     const isSolutionsAvailable = hasCodeChangedRows(result);
     const isDocChangeSolutionsAvailable: boolean = hasDocChangedRows(result);
-    let codeChangeEndPosition = new vscode.Position(result.endRowforCodeChangedAction - 1, 0);
-    let docChangeEndPosition = new vscode.Position(result.endRowforDocChangedAction - 1, 0);
+    let codeChangeEndPosition = isSolutionsAvailable 
+                                    ? new vscode.Position(result.endRowforImplementationChangedAction - 1, 0)
+                                    : new vscode.Position(0, 0);
+    let docChangeEndPosition = isDocChangeSolutionsAvailable 
+                                    ? new vscode.Position(result.endRowforDocChangedAction - 1, 0)
+                                    : new vscode.Position(0, 0);
 
     let range = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 0));
 
     try {
-        if (isSolutionsAvailable){
+        if (isSolutionsAvailable) {
             const document = await vscode.workspace.openTextDocument(uri);
-            codeChangeEndPosition = document.lineAt(result.endRowforCodeChangedAction - 1).range.end;
+            codeChangeEndPosition = document.lineAt(result.endRowforImplementationChangedAction - 1).range.end;
             if (isDocChangeSolutionsAvailable) {
                 docChangeEndPosition = document.lineAt(result.endRowforDocChangedAction - 1).range.end;
             }
             range = new vscode.Range(
-                new vscode.Position(result.startRowforCodeChangedAction - 1, 0),
+                new vscode.Position(result.startRowforImplementationChangedAction - 1, 0),
                 codeChangeEndPosition
+            );
+        } else if (isDocChangeSolutionsAvailable) {
+            range = new vscode.Range(
+                new vscode.Position(result.startRowforDocChangedAction - 1, 0),
+                docChangeEndPosition
             );
         }
     } catch (error) {
@@ -179,7 +190,7 @@ async function createDiagnostic(result: ResultItem, uri: Uri): Promise<CustomDia
         result.cause,
         vscode.DiagnosticSeverity.Warning,
         {
-            codeChangeSolution: result.codeChangeSolution,
+            implementationChangeSolution: result.implementationChangeSolution,
             docChangeSolution: result.docChangeSolution,
             fileName: result.fileName,
             id: DRIFT_DIAGNOSTIC_ID,
@@ -254,7 +265,7 @@ export function extractResponseAsJsonFromString(jsonString: string): any {
             return null;
         }
 
-        const jsonRegex = /\{[\s\S]*\}/;
+        const jsonRegex = /\{\s*"results":\s*\[[\s\S]*?\]\s*\}/g;
         const jsonMatches = drift.match(jsonRegex);
         if (!jsonMatches || jsonMatches.length === 0) {
             return null;
@@ -268,6 +279,7 @@ export function extractResponseAsJsonFromString(jsonString: string): any {
                     return parsedJson;
                 }
             } catch (error) {
+                console.log(error);
                 // Ignore parsing errors and continue checking earlier JSON objects
             }
         }

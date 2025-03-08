@@ -856,7 +856,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
         if (isNumber(result)) {
             return {
                 statusCode: result,
-                diags: ""
+                diags: "Failed to check drift between code and documentation. Please try again."
             };
         }
 
