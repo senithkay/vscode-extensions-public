@@ -59,7 +59,6 @@ export function ConfigureRecordPage(props: ConfigureRecordPageProps) {
         } else if (currentValue !== sourceCode.current) {
             // Only update if currentValue is different from our last known source code
             if (currentValue) {
-                // getExistingRecordModel();
                 debouncedGetExistingRecordModel(currentValue);
             } else {
                 getNewRecordModel();
@@ -75,7 +74,8 @@ export function ConfigureRecordPage(props: ConfigureRecordPageProps) {
             expr: currentValue
         }
 
-        const getRecordModelFromSourceResponse: GetRecordModelFromSourceResponse = await rpcClient.getBIDiagramRpcClient().getRecordModelFromSource(getRecordModelFromSourceRequest);
+        const getRecordModelFromSourceResponse: GetRecordModelFromSourceResponse =
+            await rpcClient.getBIDiagramRpcClient().getRecordModelFromSource(getRecordModelFromSourceRequest);
         console.log(">>> getRecordModelFromSourceResponse", getRecordModelFromSourceResponse);
         const newRecordModel = getRecordModelFromSourceResponse.recordConfig;
 
@@ -136,7 +136,6 @@ export function ConfigureRecordPage(props: ConfigureRecordPageProps) {
 
             setRecordModel([recordConfig]);
         }
-
         setIsLoading(false);
     }
 
