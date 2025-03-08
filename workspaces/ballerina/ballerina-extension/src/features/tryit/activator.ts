@@ -380,7 +380,7 @@ async function generateTryItFileContent(projectRoot: string, openapiSpec: OAISpe
             basePath: service.basePath,
             serviceName: service.name || 'Default',
             isResourceMode: isResourceMode,
-            resourceMethod: isResourceMode ? resourceMetadata.methodValue.toLowerCase() : '',
+            resourceMethod: isResourceMode ? resourceMetadata.methodValue.toUpperCase() : '',
             resourcePath: resourcePath,
         };
 
@@ -462,6 +462,11 @@ async function getOpenAPIDefinition(service: ServiceInfo): Promise<OAISpec> {
 
 async function getServicePort(projectDir: string, service: ServiceInfo, openapiSpec: OAISpec): Promise<number> {
     try {
+        // If the service has an anonymous listener, directly use the port defined inline
+        if (service.listener.port) {
+            return parseInt(service.listener.port);
+        }
+
         // Try to get default port from OpenAPI spec first
         let portInSpec: number;
         const portInSpecStr = openapiSpec.servers?.[0]?.variables?.port?.default;
@@ -498,7 +503,8 @@ async function getServicePort(projectDir: string, service: ServiceInfo, openapiS
         }));
 
         const selected = await vscode.window.showQuickPick(portItems, {
-            placeHolder: `Port auto-detection failed due to multiple service ports. Pick the correct port for the service '${service.name || service.basePath}' to continue`,
+            placeHolder: `Multiple service ports found. Select the port of the service '${service.name || service.basePath}'`,
+            title: 'Select Service Port'
         });
 
         if (!selected) {
