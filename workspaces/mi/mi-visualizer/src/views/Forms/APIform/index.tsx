@@ -395,6 +395,9 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
         rpcClient.getMiVisualizerRpcClient().goBack();
     }
 
+    // If apiCreateOption is "swagger-to-api" or "wsdl-to-api", save button is disabled until the file is selected
+    const isSaveDisabled = (apiCreateOption === "swagger-to-api" && !swaggerDefPath) || (apiCreateOption === "wsdl-to-api" && !wsdlDefPath);
+
     const getAdvanceAPICreationOptions = () => {
         switch (apiCreateOption) {
             case "swagger-to-api":
@@ -572,7 +575,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 <Button
                     appearance="primary"
                     onClick={handleSubmit(handleCreateAPI)}
-                    disabled={!isDirty}
+                    disabled={!isDirty || isSaveDisabled || Object.keys(errors).length > 0}
                 >
                     {apiData ? "Save changes" : "Create"}
                 </Button>

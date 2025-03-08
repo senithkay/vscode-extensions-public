@@ -21,18 +21,20 @@ import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore } from '../../../../store/store';
 import { getTypeName } from "../../utils/common-utils";
 import { ARRAY_FILTER_NODE_PREFIX } from "../../utils/constants";
-
+import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 export interface InputNodeWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
     dmType: DMType;
     engine: DiagramEngine;
     getPort: (portId: string) => InputOutputPortModel;
+    context: IDataMapperContext;
     valueLabel?: string;
     nodeHeaderSuffix?: string;
 }
 
 export function InputNodeWidget(props: InputNodeWidgetProps) {
-    const { engine, dmType, id, getPort, valueLabel, nodeHeaderSuffix } = props;
+    const { engine, dmType, id, getPort, context, valueLabel, nodeHeaderSuffix } = props;
+    const focusedOnRoot = context.views.length === 1;
     
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
@@ -99,11 +101,15 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
         setIsHovered(false);
     };
 
-    const onRightClick = (event: React.MouseEvent) => {
-        event.preventDefault(); 
+    const handleChangeSchema = () => {
         setIOConfigPanelType(IOType.Input);
         setIsSchemaOverridden(true);
         setIsIOConfigPanelOpen(true);
+    };
+
+    const onRightClick = (event: React.MouseEvent) => {
+        event.preventDefault();
+        if (focusedOnRoot) handleChangeSchema();
     };
 
     return (
@@ -132,6 +138,21 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
                     {label}
                     <span className={classes.nodeType}>{nodeHeaderSuffix}</span>
                 </span>
+                {focusedOnRoot && (
+                    <Button
+                        appearance="icon"
+                        data-testid={"change-input-schema-btn"}
+                        tooltip="Change input schema"
+                        sx={{ marginRight: "5px" }}
+                        onClick={handleChangeSchema}
+                        data-field-action
+                    >
+                        <Codicon
+                            name="edit"
+                            iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
+                        />
+                    </Button>
+                )}
                 <span className={classes.outPort}>
                     {portOut &&
                         <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />

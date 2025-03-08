@@ -39,7 +39,6 @@ export async function fetchData(url: string, options: RequestInit): Promise<Resp
 
         return response;
     } catch (error) {
-        console.error("Fetch Error:", error);
-        throw new Error(error instanceof Error ? error.message : "An unexpected error occurred.");
+        throw error;
     }
 }
