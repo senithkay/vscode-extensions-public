@@ -181,9 +181,9 @@ export function ConfigureRecordPage(props: ConfigureRecordPageProps) {
         }
         console.log("====>>> request for recordConfig: ", request);
         const recordSourceResponse: RecordSourceGenResponse = await rpcClient.getBIDiagramRpcClient().getRecordSource(request);
-        console.log("====>>> recordSourceResponse: ", recordSourceResponse.recordValue);
+        console.log("====>>> recordSourceResponse: ", recordSourceResponse);
 
-        if (recordSourceResponse.recordValue) {
+        if (recordSourceResponse.recordValue !== undefined) {
             const content = recordSourceResponse.recordValue;
             onChange(content, true);
             sourceCode.current = content;

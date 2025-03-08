@@ -1394,6 +1394,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
     }
     
     async getRecordSource(params: RecordSourceGenRequest): Promise<RecordSourceGenResponse> {
+        console.log(">>> requesting record source", params);
         return new Promise((resolve, reject) => {
             StateMachine.langClient().getRecordSource(params).then((res) => {
                 resolve(res);
