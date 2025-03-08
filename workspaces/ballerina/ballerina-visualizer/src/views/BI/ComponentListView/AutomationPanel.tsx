@@ -9,14 +9,20 @@
 import React from 'react';
 import { Icon } from '@wso2-enterprise/ui-toolkit';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
-import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/ballerina-core';
+import { EVENT_TYPE, MACHINE_VIEW, SCOPE } from '@wso2-enterprise/ballerina-core';
 
 import { CardGrid, PanelViewMore, Title, TitleWrapper } from './styles';
 import { BodyText } from '../../styles';
 import ButtonCard from '../../../components/ButtonCard';
+import { componentListItemTooltip } from './componentListUtils';
 
-export function AutomationPanel() {
+interface AutomationPanelProps {
+    scope: SCOPE;
+};
+
+export function AutomationPanel(props: AutomationPanelProps) {
     const { rpcClient } = useRpcContext();
+    const isDisabled = props.scope && props.scope !== SCOPE.AUTOMATION;
 
     const handleClick = async () => {
         await rpcClient.getVisualizerRpcClient().openView({
@@ -28,7 +34,7 @@ export function AutomationPanel() {
     };
 
     return (
-        <PanelViewMore>
+        <PanelViewMore disabled={isDisabled}>
             <TitleWrapper>
                 <Title variant="h2">Automation</Title>
                 <BodyText>Explore automation options to streamline your integration processes.</BodyText>
@@ -38,6 +44,8 @@ export function AutomationPanel() {
                     icon={<Icon name="bi-task" />}
                     title="Automation"
                     onClick={handleClick}
+                    disabled={isDisabled}
+                    tooltip={componentListItemTooltip(isDisabled)}
                 />
             </CardGrid>
         </PanelViewMore>

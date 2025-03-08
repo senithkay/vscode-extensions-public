@@ -9,17 +9,24 @@
 import React, { useEffect, useState } from 'react';
 import { Icon } from '@wso2-enterprise/ui-toolkit';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
-import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, TriggerModelsResponse, ServiceModel } from '@wso2-enterprise/ballerina-core';
+import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, TriggerModelsResponse, ServiceModel, SCOPE } from '@wso2-enterprise/ballerina-core';
 
 import { useVisualizerContext } from '../../../Context';
 import { CardGrid, PanelViewMore, Title, TitleWrapper } from './styles';
 import { BodyText } from '../../styles';
 import ButtonCard from '../../../components/ButtonCard';
+import { componentListItemTooltip } from './componentListUtils';
 
-export function EventIntegrationPanel() {
+interface EventIntegrationPanelProps {
+    scope: SCOPE;
+};
+
+export function EventIntegrationPanel(props: EventIntegrationPanelProps) {
     const { rpcClient } = useRpcContext();
     const [triggers, setTriggers] = useState<TriggerModelsResponse>({ local: [] });
     const { cacheTriggers, setCacheTriggers } = useVisualizerContext();
+
+    const isDisabled = props.scope && props.scope !== SCOPE.EVENT_INTEGRATION;
 
     useEffect(() => {
         getTriggers();
@@ -51,7 +58,7 @@ export function EventIntegrationPanel() {
     };
 
     return (
-        <PanelViewMore>
+        <PanelViewMore disabled={isDisabled}>
             <TitleWrapper>
                 <Title variant="h2">Event Integration</Title>
                 <BodyText>
@@ -71,6 +78,8 @@ export function EventIntegrationPanel() {
                                     onClick={() => {
                                         handleClick(DIRECTORY_MAP.SERVICES, item.moduleName);
                                     }}
+                                    disabled={isDisabled}
+                                    tooltip={componentListItemTooltip(isDisabled)}
                                 />
                             );
                         }

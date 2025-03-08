@@ -9,17 +9,24 @@
 import React, { useEffect, useState } from 'react';
 import { Codicon } from '@wso2-enterprise/ui-toolkit';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
-import { EVENT_TYPE, MACHINE_VIEW, ServiceModel, TriggerModelsResponse } from '@wso2-enterprise/ballerina-core';
+import { EVENT_TYPE, MACHINE_VIEW, SCOPE, ServiceModel, TriggerModelsResponse } from '@wso2-enterprise/ballerina-core';
 
 import { CardGrid, PanelViewMore, Title, TitleWrapper } from './styles';
 import { BodyText } from '../../styles';
 import ButtonCard from '../../../components/ButtonCard';
 import { useVisualizerContext } from '../../../Context';
+import { componentListItemTooltip } from './componentListUtils';
 
-export function FileIntegrationPanel() {
+interface FileIntegrationPanelProps {
+    scope: SCOPE;
+};
+
+export function FileIntegrationPanel(props: FileIntegrationPanelProps) {
     const { rpcClient } = useRpcContext();
     const [triggers, setTriggers] = useState<TriggerModelsResponse>({ local: [] });
     const { cacheTriggers, setCacheTriggers } = useVisualizerContext();
+
+    const isDisabled = props.scope && props.scope !== SCOPE.FILE_INTEGRATION;
 
     useEffect(() => {
         getTriggers();
@@ -51,7 +58,7 @@ export function FileIntegrationPanel() {
     };
 
     return (
-        <PanelViewMore>
+        <PanelViewMore disabled={isDisabled}>
             <TitleWrapper>
                 <Title variant="h2">File Integration</Title>
                 <BodyText>Select the file integration type that best suits your project's needs.</BodyText>
@@ -78,6 +85,8 @@ export function FileIntegrationPanel() {
                                 onClick={() => {
                                     handleOnSelect(item);
                                 }}
+                                disabled={isDisabled}
+                                tooltip={componentListItemTooltip(isDisabled)}
                             />
                         );
                     })}

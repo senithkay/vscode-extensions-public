@@ -37,6 +37,13 @@ export enum EVENT_TYPE {
     CLOSE_VIEW = "CLOSE_VIEW"
 }
 
+export enum SCOPE {
+    AUTOMATION = "automation",
+    INTEGRATION_AS_API = "integrationAsApi",
+    EVENT_INTEGRATION = "eventIntegration",
+    FILE_INTEGRATION = "fileIntegration"
+}
+
 export type VoidCommands = "OPEN_LOW_CODE" | "OPEN_PROJECT" | "CREATE_PROJECT";
 
 export enum MACHINE_VIEW {
@@ -91,6 +98,7 @@ export interface VisualizerLocation {
     type?: Type;
     isGraphql?: boolean;
     metadata?: VisualizerMetadata;
+    scope?: SCOPE;
 }
 
 export interface VisualizerMetadata {

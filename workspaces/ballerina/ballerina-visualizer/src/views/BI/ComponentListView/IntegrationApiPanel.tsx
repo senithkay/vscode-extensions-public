@@ -9,14 +9,20 @@
 import React from 'react';
 import { Icon } from '@wso2-enterprise/ui-toolkit';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
-import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/ballerina-core';
+import { EVENT_TYPE, MACHINE_VIEW, SCOPE } from '@wso2-enterprise/ballerina-core';
 
 import { CardGrid, PanelViewMore, Title, TitleWrapper } from './styles';
 import { BodyText } from '../../styles';
 import ButtonCard from '../../../components/ButtonCard';
+import { componentListItemTooltip } from './componentListUtils';
 
-export function IntegrationAPIPanel() {
+interface IntegrationAPIPanelProps {
+    scope: SCOPE;
+};
+
+export function IntegrationAPIPanel(props: IntegrationAPIPanelProps) {
     const { rpcClient } = useRpcContext();
+    const isDisabled = props.scope && props.scope !== SCOPE.INTEGRATION_AS_API;
 
     const handleClick = async (serviceType: string) => {
         await rpcClient.getVisualizerRpcClient().openView({
@@ -29,7 +35,7 @@ export function IntegrationAPIPanel() {
     };
 
     return (
-        <PanelViewMore>
+        <PanelViewMore disabled={isDisabled}>
             <TitleWrapper>
                 <Title variant="h2">Integration as API</Title>
                 <BodyText>
@@ -42,18 +48,24 @@ export function IntegrationAPIPanel() {
                     title="HTTP Service"
                     // description="Handle web requests and responses."
                     onClick={() => handleClick("http")}
+                    disabled={isDisabled}
+                    tooltip={componentListItemTooltip(isDisabled)}
                 />
                 <ButtonCard
                     icon={<Icon name="bi-graphql" sx={{ color: "#e535ab" }} />}
                     title="GraphQL Service"
                     // description="Flexible and efficient data queries."
                     onClick={() => handleClick("graphql")}
+                    disabled={isDisabled}
+                    tooltip={componentListItemTooltip(isDisabled)}
                 />
                 <ButtonCard
                     icon={<Icon name="bi-tcp" />}
                     title="TCP Service"
                     // description="Process connection oriented messages."
                     onClick={() => handleClick("tcp")}
+                    disabled={isDisabled}
+                    tooltip={componentListItemTooltip(isDisabled)}
                 />
                 {/* TODO: Add this when GRPC is working */}
                 {/* <ButtonCard

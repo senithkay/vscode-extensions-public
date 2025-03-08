@@ -9,6 +9,8 @@
 
 import React from "react";
 import { View, ViewContent } from "@wso2-enterprise/ui-toolkit";
+import { SCOPE } from "@wso2-enterprise/ballerina-core";
+
 import { TitleBar } from "../../../components/TitleBar";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { AddPanel, Container } from "./styles";
@@ -18,7 +20,13 @@ import { FileIntegrationPanel } from "./FileIntegrationPanel";
 import { IntegrationAPIPanel } from "./IntegrationApiPanel";
 import { OtherArtifactsPanel } from "./OtherArtifactsPanel";
 
-export function ComponentListView() {
+interface ComponentListViewProps {
+    scope: SCOPE;
+};
+
+export function ComponentListView(props: ComponentListViewProps) {
+    const { scope } = props;
+
     return (
         <View>
             <TopNavigationBar />
@@ -26,10 +34,10 @@ export function ComponentListView() {
             <ViewContent padding>
                 <Container>
                     <AddPanel>
-                        <AutomationPanel />
-                        <IntegrationAPIPanel />
-                        <EventIntegrationPanel />
-                        <FileIntegrationPanel />
+                        <AutomationPanel scope={scope} />
+                        <IntegrationAPIPanel scope={scope} />
+                        <EventIntegrationPanel scope={scope} />
+                        <FileIntegrationPanel scope={scope} />
                         <OtherArtifactsPanel />
                     </AddPanel>
                 </Container>

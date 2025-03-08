@@ -31,11 +31,13 @@ export const AddPanel = styled.div({
     padding: 16,
 });
 
-export const PanelViewMore = styled.div({
-    display: "flex",
-    flexDirection: "column",
-    gap: 10,
-});
+export const PanelViewMore = styled.div<{ disabled?: boolean }>`
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    opacity: ${(props: { disabled: boolean }) => (props.disabled ? 0.5 : 1)};
+    pointer-events: ${(props: { disabled: boolean }) => (props.disabled ? "none" : "auto")};
+`;
 
 export const CardGrid = styled.div`
     display: grid;
