@@ -64,7 +64,7 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
             return;
         }
 
-        if (rpcClient) {
+        if (rpcClient && fileName) {
             rpcClient
                 .getBIDiagramRpcClient()
                 .getEndOfFile({ filePath: fileName })
@@ -74,6 +74,11 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
                         endLine: res,
                     });
                 });
+        } else {
+            setTargetLineRange({
+                startLine: { line: 0, offset: 0 },
+                endLine: { line: 0, offset: 0 },
+            })
         }
     }, [fileName, selectedNode, rpcClient]);
 

@@ -29,6 +29,7 @@ const PANEL_TABS = {
 
 /* Types */
 type TypeHelperComponentProps = {
+    open: boolean;
     currentType: string;
     currentCursorPosition: number;
     loading?: boolean;
@@ -110,6 +111,7 @@ namespace S {
 
 export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
     const {
+        open,
         typeHelperHeight = "full",
         currentType,
         currentCursorPosition,
@@ -175,8 +177,10 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
     };
 
     useEffect(() => {
-        onSearchTypeHelper(searchValue, isTypePanelOpen(activePanelIndex));
-    }, [activePanelIndex]);
+        if (open) {
+            onSearchTypeHelper(searchValue, isTypePanelOpen(activePanelIndex));
+        }
+    }, [activePanelIndex, open]);
 
     return (
         <HelperPane helperPaneHeight={typeHelperHeight}>
@@ -256,10 +260,13 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
             {isTypeBrowserOpen && (
                 <TypeBrowser
                     typeBrowserRef={typeBrowserRef}
+                    currentType={currentType}
+                    currentCursorPosition={currentCursorPosition}
                     loadingTypeBrowser={loadingTypeBrowser}
                     typeBrowserTypes={typeBrowserTypes}
                     onSearchTypeBrowser={onSearchTypeBrowser}
                     onTypeItemClick={onTypeItemClick}
+                    onChange={onChange}
                     onClose={() => setIsTypeBrowserOpen(false)}
                 />
             )}

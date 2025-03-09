@@ -127,6 +127,7 @@ export function TypeEditor(props: TypeEditorProps) {
             typeBrowserRef,
             value,
             cursorPositionRef.current,
+            isTypeHelperOpen,
             onChange,
             handleChangeTypeHelperState,
             helperPaneHeight
@@ -208,6 +209,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             getHelperPane={handleGetTypeHelper}
                             helperPaneOrigin={typeHelperOrigin}
                             helperPaneHeight={typeHelperHeight}
+                            expressionEditorIconName="bi-type"
                             onBlur={handleBlur}
                             onSave={onSave}
                             onCancel={handleCancel}
