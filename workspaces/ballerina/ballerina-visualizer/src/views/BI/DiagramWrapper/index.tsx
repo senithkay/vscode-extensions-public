@@ -94,9 +94,9 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                         }
                     }
                 }).then((serviceModel) => {
-                    setServiceType(serviceModel.service.type);
-                    setBasePath(serviceModel.service.properties?.basePath?.value?.trim());
-                    setListener(serviceModel.service.properties?.listener?.value?.trim());
+                    setServiceType(serviceModel.service?.type);
+                    setBasePath(serviceModel.service?.properties?.basePath?.value?.trim());
+                    setListener(serviceModel.service?.properties?.listener?.value?.trim());
                 })
             });
         });
