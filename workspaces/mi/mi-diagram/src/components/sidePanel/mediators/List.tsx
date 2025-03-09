@@ -241,15 +241,29 @@ export function Mediators(props: MediatorProps) {
         connectorName ? setExpandedModules([connectorName]) : initializeExpandedModules(allMediators);;
     };
 
-    const deleteConnector = async (connectorName: string, artifactId: string, version: string, iconUrl: string, connectorPath: string) => {
-        const removePage = <RemoveConnectorPage
-            connectorName={connectorName}
-            artifactId={artifactId}
-            version={version}
-            connectorPath={connectorPath}
-            onRemoveSuccess={reloadPalette} />;
+    const deleteConnector = async (connectorName: string, artifactId: string, version: string, iconUrl: string,
+                                   connectorPath: string, isRefresh: boolean, ballerinaModulePath: string) => {
+        if (isRefresh) {
+            await rpcClient.getMiDiagramRpcClient().buildBallerinaModule(ballerinaModulePath);
+            reloadPalette(connectorName);
+        } else {
+            const removePage = <RemoveConnectorPage
+                connectorName={connectorName}
+                artifactId={artifactId}
+                version={version}
+                connectorPath={connectorPath}
+                onRemoveSuccess={reloadPalette} />;
 
-        sidepanelAddPage(sidePanelContext, removePage, FirstCharToUpperCase(connectorName), iconUrl);
+            sidepanelAddPage(sidePanelContext, removePage, FirstCharToUpperCase(connectorName), iconUrl);
+        }
+    }
+
+    const firstCharToUpperCaseForDefault = (name: string) => {
+        if (INBUILT_MODULES.includes(name)) {
+            return FirstCharToUpperCase(name);
+        } else {
+            return name;
+        }
     }
 
     const addModule = () => {
@@ -314,11 +328,11 @@ export function Mediators(props: MediatorProps) {
                     <div key={key} style={{ marginTop: '15px' }} data-key={key}>
                         <ButtonGroup
                             key={key}
-                            title={FirstCharToUpperCase(key)}
+                            title={firstCharToUpperCaseForDefault(key)}
                             isCollapsed={props.searchValue ? false : !expandedModules.includes(key)}
                             connectorDetails={values["isConnector"] ?
-                                { artifactId: values["artifactId"], version: values["version"], connectorPath: values["connectorPath"] }
-                                : undefined}
+                                { artifactId: values["artifactId"], version: values["version"], connectorPath: values["connectorPath"],
+                                    isBallerinaModule: values["isBallerinaModule"], ballerinaModulePath: values["ballerinaModulePath"] } : undefined}
                             onDelete={deleteConnector}
                             versionTag={values.version}
                             disableGrid={values.isSupportCategories}>

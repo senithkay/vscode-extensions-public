@@ -12,7 +12,7 @@ import { ProjectStructureResponse, ProjectStructureEntry, RegistryResourcesFolde
 import { COMMANDS, EndpointTypes, InboundEndpointTypes, MessageProcessorTypes, MessageStoreTypes, TemplateTypes } from '../constants';
 import { window } from 'vscode';
 import path = require('path');
-import { findJavaFiles } from '../util/fileOperations';
+import { findJavaFiles, findBallerinaFiles } from '../util/fileOperations';
 import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 import { RUNTIME_VERSION_440 } from "../constants";
 import { compareVersions } from '../util/onboardingUtils';
@@ -337,6 +337,8 @@ function generateArtifactsPath(projectPath: string, key: string): string {
 			return path.join(projectPath, 'src', 'main', 'wso2mi', 'artifacts', 'data-sources');
 		case 'Class Mediators':
 			return path.join(projectPath, 'src', 'main', 'java');
+		case 'Ballerina Modules':
+			return path.join(projectPath, 'src', 'main', 'ballerina');
 		default:
 			return path.join(projectPath, 'src', 'main', 'wso2mi', 'artifacts', key.toLowerCase());
 	}
@@ -549,6 +551,13 @@ function generateArtifacts(
 				parentEntry.contextValue = 'class-mediator';
 				break;
 			}
+			case 'Ballerina Modules': {
+				const ballerinaPath = path.join(project.uri.fsPath, 'src', 'main', 'ballerina');
+				parentEntry.id = 'ballerina-module';
+				parentEntry.children = generateTreeDataOfBallerinaModule(project, projectStructure);
+				parentEntry.contextValue = 'ballerina-module';
+				break;
+			}
 			case 'Data Mappers': {
 				parentEntry.contextValue = 'data-mappers';
 				parentEntry.id = 'data-mapper';
@@ -598,6 +607,33 @@ function generateTreeDataOfClassMediator(project: vscode.WorkspaceFolder, data: 
 			resourceEntry.command = {
 				"title": "Edit Class Mediator",
 				"command": COMMANDS.EDIT_CLASS_MEDIATOR_COMMAND,
+				"arguments": [vscode.Uri.file(filePath)]
+			};
+			result.push(resourceEntry);
+		}
+	}
+	return result;
+}
+
+function generateTreeDataOfBallerinaModule(project: vscode.WorkspaceFolder, data: ProjectStructureResponse): ProjectExplorerEntry[] {
+	const directoryMap = data.directoryMap;
+	const main = (directoryMap as any)?.src?.main;
+	const result: ProjectExplorerEntry[] = [];
+	if (main && main['ballerina']) {
+		const ballerinaPath = path.join(project.uri.fsPath, 'src', 'main', 'ballerina');
+		const mediators = findBallerinaFiles(ballerinaPath);
+		for (var entry of mediators.entries()) {
+			const filePath = entry[0];
+			const packageName = entry[1];
+			const fileName = path.basename(filePath);
+			const resourceEntry = new ProjectExplorerEntry(fileName + " (" + packageName + ")", isCollapsibleState(false), {
+				name: fileName,
+				type: 'resource',
+				path: filePath
+			}, 'file');
+			resourceEntry.command = {
+				"title": "Edit Ballerina Module",
+				"command": COMMANDS.EDIT_BALLERINA_MODULE_COMMAND,
 				"arguments": [vscode.Uri.file(filePath)]
 			};
 			result.push(resourceEntry);

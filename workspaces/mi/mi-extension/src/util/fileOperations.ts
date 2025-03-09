@@ -845,6 +845,38 @@ export function findJavaFiles(folderPath): Map<string, string> {
     return results;
 }
 
+export function findBallerinaFiles(folderPath): Map<string, string> {
+    const results = new Map();
+    function traverse(currentPath) {
+        if (!fs.existsSync(currentPath)) {
+            console.error(`Directory does not exist: ${currentPath}`);
+            return results;
+        }
+
+        const files = fs.readdirSync(currentPath);
+        for (const file of files) {
+            const filePath = path.join(currentPath, file);
+            const stats = fs.statSync(filePath);
+
+            if (stats.isDirectory()) {
+                traverse(filePath);
+            } else if (stats.isFile() && path.extname(filePath) === '.bal') {
+                const fileContents = fs.readFileSync(filePath, 'utf8');
+                const extendsPattern = /import\s+wso2\/mi;/g;
+                const matches = fileContents.match(extendsPattern);
+                if (matches) {
+                    const packagePath = path.dirname(filePath).replace(folderPath, '');
+                    const packageName = packagePath.split(path.sep).filter(part => part);
+                    results.set(filePath, packageName.join('.'));
+                }
+            }
+        }
+    }
+
+    traverse(folderPath);
+    return results;
+}
+
 /**
  * Change the packaging of the root pom.xml file to the given value.
  * @param projectDir project directory.     
