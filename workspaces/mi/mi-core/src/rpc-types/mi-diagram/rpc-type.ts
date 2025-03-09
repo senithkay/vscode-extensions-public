@@ -234,7 +234,9 @@ import {
     GetArtifactTypeResponse,
     BuildProjectRequest,
     DeployProjectRequest,
-    DeployProjectResponse
+    DeployProjectResponse,
+    CreateBallerinaModuleResponse,
+    CreateBallerinaModuleRequest
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -318,6 +320,8 @@ export const browseFile: RequestType<BrowseFileRequest, BrowseFileResponse> = { 
 export const createRegistryResource: RequestType<CreateRegistryResourceRequest, CreateRegistryResourceResponse> = { method: `${_preFix}/createRegistryResource` };
 export const getAvailableResources: RequestType<GetAvailableResourcesRequest, GetAvailableResourcesResponse> = { method: `${_preFix}/getAvailableResources` };
 export const createClassMediator: RequestType<CreateClassMediatorRequest, CreateClassMediatorResponse> = { method: `${_preFix}/createClassMediator` };
+export const createBallerinaModule: RequestType<CreateBallerinaModuleRequest, CreateBallerinaModuleResponse> = { method: `${_preFix}/createBallerinaModule` };
+export const buildBallerinaModule: RequestType<string, void> = { method: `${_preFix}/buildBallerinaModule` };
 export const getSelectiveWorkspaceContext: RequestType<void, GetSelectiveWorkspaceContextResponse> = { method: `${_preFix}/getSelectiveWorkspaceContext` };
 export const getSelectiveArtifacts: RequestType<GetSelectiveArtifactsRequest, GetSelectiveArtifactsResponse> = { method: `${_preFix}/getSelectiveArtifacts` };
 export const getBackendRootUrl: RequestType<void, GetBackendRootUrlResponse> = { method: `${_preFix}/getBackendRootUrl` };

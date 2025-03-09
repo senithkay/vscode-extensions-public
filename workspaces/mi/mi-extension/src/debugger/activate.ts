@@ -18,7 +18,7 @@ import { refreshUI } from '../stateMachine';
 import * as fs from 'fs';
 import * as path from 'path';
 import { SELECTED_SERVER_PATH, SELECTED_JAVA_HOME } from './constants';
-import { setPathsInWorkSpace, verifyJavaHomePath, verifyMIPath } from '../util/onboardingUtils';
+import { buildBallerinaModule, setPathsInWorkSpace, verifyJavaHomePath, verifyMIPath } from '../util/onboardingUtils';
 
 
 class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
@@ -237,6 +237,15 @@ export function activateDebugger(context: vscode.ExtensionContext) {
         } else {
             vscode.window.showErrorMessage('No workspace folder found');
         }
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand(COMMANDS.BUILD_BAL_MODULE, async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            return;
+        }
+        const filePath = editor.document.uri.fsPath;
+        await buildBallerinaModule(path.dirname(filePath));
     }));
 
 
