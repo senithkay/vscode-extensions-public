@@ -13,6 +13,8 @@ import { openView } from "../../stateMachine";
 import { prepareAndGenerateConfig } from "../config-generator/configGenerator";
 import { StateMachine } from "../../stateMachine";
 import { BiDiagramRpcManager } from "../../rpc-managers/bi-diagram/rpc-manager";
+import { readFileSync, readdirSync, statSync } from "fs";
+import path from "path";
 
 export function activate(context: BallerinaExtension) {
     commands.registerCommand(BI_COMMANDS.BI_RUN_PROJECT, () => {
@@ -96,7 +98,66 @@ export function activate(context: BallerinaExtension) {
             await handleComponentDeletion('configurableVariables', item.label, item.info);
         }
     });
+
+    //HACK: Open all Ballerina files in the project
+    openAllBallerinaFiles(context);
 }
+
+function openAllBallerinaFiles(context: BallerinaExtension) {
+    const projectRoot = StateMachine.context().projectUri;
+
+    if (context.langClient && projectRoot) {
+        try {
+            // Find all Ballerina files in the project
+            const ballerinaFiles = findBallerinaFiles(projectRoot);
+            console.log(`>>> Found ${ballerinaFiles.length} Ballerina files in the project`);
+
+            // Open each Ballerina file
+            ballerinaFiles.forEach((filePath) => {
+                try {
+                    const content = readFileSync(filePath, "utf8");
+                    if (content) {
+                        context.langClient.didOpen({
+                            textDocument: {
+                                uri: filePath,
+                                languageId: "ballerina",
+                                version: 1,
+                                text: content,
+                            },
+                        });
+                        console.log(`>>> Opened file: ${filePath}`);
+                    } else {
+                        console.error(`>>> No content found for file ${filePath}`);
+                    }
+                } catch (error) {
+                    console.error(`Error opening file ${filePath}:`, error);
+                }
+            });
+        } catch (error) {
+            console.error("Error finding Ballerina files:", error);
+        }
+    }
+}
+
+// Function to recursively find all Ballerina files
+const findBallerinaFiles = (dir: string, fileList: string[] = []): string[] => {
+    const files = readdirSync(dir);
+
+    files.forEach((file: string) => {
+        const filePath = path.join(dir, file);
+        const stat = statSync(filePath);
+
+        if (stat.isDirectory() && !file.startsWith(".")) {
+            // Recursively search directories, skip hidden directories
+            fileList = findBallerinaFiles(filePath, fileList);
+        } else if (file.endsWith(".bal")) {
+            // Add Ballerina files to the list
+            fileList.push(filePath);
+        }
+    });
+
+    return fileList;
+};
 
 const handleComponentDeletion = async (componentType: string, itemLabel: string, filePath: string) => {
     const rpcClient = new BiDiagramRpcManager();
