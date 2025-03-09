@@ -9,7 +9,7 @@
 
 import React from "react";
 
-import { NodeKind, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
+import { NodeKind, RecordTypeField, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 
 import { FormField } from "../Form/types";
 import { MultiSelectEditor } from "./MultiSelectEditor";
@@ -41,6 +41,7 @@ interface FormFieldEditorProps {
     autoFocus?: boolean;
     handleOnTypeChange?: () => void;
     visualizableFields?: string[];
+    recordTypeFields?: RecordTypeField[];
 }
 
 export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormFieldEditorProps>((props, ref) => {
@@ -53,7 +54,8 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
         handleOnFieldFocus,
         autoFocus,
         handleOnTypeChange,
-        visualizableFields
+        visualizableFields,
+        recordTypeFields
     } = props;
     if (!field.enabled) {
         return <></>;
@@ -104,6 +106,7 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
                 handleOnFieldFocus={handleOnFieldFocus}
                 autoFocus={autoFocus}
                 visualizable={visualizableFields?.includes(field.key)}
+                recordTypeField={recordTypeFields?.find(recordField => recordField.key === field.key)}
             />
         );
     } else if (!field.items && field.type === "RAW_TEMPLATE" && field.editable) {
