@@ -137,7 +137,7 @@ export function TypeEditor(props: TypeEditorProps) {
     /* Track cursor position */
     const handleSelectionChange = () => {
         const selection = window.getSelection();
-        if (!selection) {
+        if (!selection || selection.rangeCount === 0) {
             return;
         }
 
