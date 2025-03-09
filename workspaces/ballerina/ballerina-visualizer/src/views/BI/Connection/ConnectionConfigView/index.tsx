@@ -53,7 +53,7 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
         openSubPanel,
         updatedExpressionField,
         resetUpdatedExpressionField,
-        isPullingConnector
+        isPullingConnector,
     } = props;
     const { rpcClient } = useRpcContext();
     const [targetLineRange, setTargetLineRange] = useState<LineRange>();

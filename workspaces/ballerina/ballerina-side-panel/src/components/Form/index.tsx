@@ -22,7 +22,7 @@ import styled from "@emotion/styled";
 import { ExpressionFormField, FormExpressionEditorProps, FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, FlowNode, LinePosition, ExpressionProperty } from "@wso2-enterprise/ballerina-core";
+import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, FlowNode, LinePosition, ExpressionProperty, RecordTypeField } from "@wso2-enterprise/ballerina-core";
 import { FormContext, Provider } from "../../context";
 import { formatJSONLikeString } from "./utils";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -184,6 +184,7 @@ export interface FormProps {
     mergeFormDataWithFlowNode?: (data: FormValues, targetLineRange: LineRange) => FlowNode;
     handleVisualizableFields?: (filePath: string, flowNode: FlowNode, position: LinePosition) => void;
     visualizableFields?: string[];
+    recordTypeFields?: RecordTypeField[];
     nestedForm?: boolean;
     disableSaveButton?: boolean;
 }
@@ -210,6 +211,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         mergeFormDataWithFlowNode,
         handleVisualizableFields,
         visualizableFields,
+        recordTypeFields,
         nestedForm,
     } = props;
 
@@ -292,7 +294,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     }
                 });
             }
-        }
+        } 
     }, [updatedExpressionField]);
 
     const handleOnSave = (data: FormValues) => {
@@ -471,6 +473,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 handleOnFieldFocus={handleOnFieldFocus}
                                 autoFocus={firstEditableFieldIndex === formFields.indexOf(variableField)}
                                 visualizableFields={visualizableFields}
+                                recordTypeFields={recordTypeFields}
                             />
                         }
                         {typeField && (
@@ -481,6 +484,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 handleOnFieldFocus={handleOnFieldFocus}
                                 handleOnTypeChange={handleOnTypeChange}
                                 visualizableFields={visualizableFields}
+                                recordTypeFields={recordTypeFields}
                             />
                         )}
                     </S.CategoryRow>
@@ -507,6 +511,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                         handleOnFieldFocus={handleOnFieldFocus}
                                         autoFocus={firstEditableFieldIndex === formFields.indexOf(field)}
                                         visualizableFields={visualizableFields}
+                                        recordTypeFields={recordTypeFields}
                                     />
                                 </S.Row>
                             );
@@ -551,6 +556,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                             subPanelView={subPanelView}
                                             handleOnFieldFocus={handleOnFieldFocus}
                                             visualizableFields={visualizableFields}
+                                            recordTypeFields={recordTypeFields}
                                         />
                                     </S.Row>
                                 );
