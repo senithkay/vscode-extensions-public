@@ -295,6 +295,7 @@ import path = require("path");
 import { importCapp } from "../../util/importCapp";
 import { compareVersions, filterConnectorVersion, generateInitialDependencies, getDefaultProjectPath, getMIVersionFromPom } from "../../util/onboardingUtils";
 import { Range as STRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { checkForDevantExt } from "../../extension";
 
 const AdmZip = require('adm-zip');
 
@@ -4349,6 +4350,9 @@ ${keyValuesXML}`;
 
     async deployProject(params: DeployProjectRequest): Promise<DeployProjectResponse> {
         return new Promise(async (resolve) => {
+            if (!checkForDevantExt()) {
+                return;
+            }
             const params = {
                 buildPackLang: "microintegrator",
                 name: path.basename(StateMachine.context().projectUri!),
