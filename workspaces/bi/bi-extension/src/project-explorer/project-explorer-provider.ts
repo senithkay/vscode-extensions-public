@@ -12,6 +12,7 @@ import { window, Uri } from 'vscode';
 import path = require('path');
 import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse, SHARED_COMMANDS, BI_COMMANDS, buildProjectStructure, PackageConfigSchema, BallerinaProject, DIRECTORY_SUB_TYPE } from "@wso2-enterprise/ballerina-core";
 import { extension } from "../biExtentionContext";
+import { checkIsBI } from '../utils';
 
 interface Property {
     name?: string;
@@ -125,23 +126,28 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 async function getProjectStructureData(): Promise<ProjectExplorerEntry[]> {
     if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
         const data: ProjectExplorerEntry[] = [];
-        if (extension.langClient) {
-            const workspaceFolders = vscode.workspace.workspaceFolders;
-            for (const workspace of workspaceFolders) {
-                const rootPath = workspace.uri.fsPath;
-                const resp = await buildProjectStructure(rootPath, extension.langClient);
-                // Add all the configurations to the project tree
-                // await addConfigurations(rootPath, resp);
-                const projectTree = generateTreeData(workspace, resp);
-                if (projectTree) {
-                    data.push(projectTree);
-                }
-            };
+        if (extension.langClient && extension.projectPath) {
+            const workspace = vscode
+                .workspace
+                .workspaceFolders
+                .find(folder => folder.uri.fsPath === extension.projectPath);
+
+            if (!workspace || !checkIsBI(workspace.uri)) {
+                return [];
+            }
+
+            const resp = await buildProjectStructure(extension.projectPath, extension.langClient);
+            // Add all the configurations to the project tree
+            // await addConfigurations(rootPath, resp);
+            const projectTree = generateTreeData(workspace, resp);
+            if (projectTree) {
+                data.push(projectTree);
+            }
+
             return data;
         }
     }
     return [];
-
 }
 
 function generateTreeData(project: vscode.WorkspaceFolder, components: ProjectStructureResponse): ProjectExplorerEntry | undefined {
@@ -290,7 +296,8 @@ function getComponents(items: ProjectStructureArtifactResponse[], itemType?: DIR
             [DIRECTORY_MAP.RECORDS]: DIRECTORY_SUB_TYPE.TYPE,
             [DIRECTORY_MAP.ENUMS]: DIRECTORY_SUB_TYPE.TYPE,
             [DIRECTORY_MAP.CLASSES]: DIRECTORY_SUB_TYPE.TYPE,
-            [DIRECTORY_MAP.DATA_MAPPERS]: DIRECTORY_SUB_TYPE.DATA_MAPPER
+            [DIRECTORY_MAP.DATA_MAPPERS]: DIRECTORY_SUB_TYPE.DATA_MAPPER,
+            [DIRECTORY_MAP.AGENTS]: DIRECTORY_SUB_TYPE.AGENTS
         };
 
         fileEntry.contextValue = contextValueMap[itemType] || comp.icon;

@@ -306,7 +306,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 const xml = getXML(ARTIFACT_TEMPLATES.ADD_API, formValues);
                 createAPIParams = { ...createAPIParams, xmlData: xml, version: values.version }
             }
-
+            createAPIParams = { ...createAPIParams, projectDir: projectDir }
             const file = await rpcClient.getMiDiagramRpcClient().createAPI(createAPIParams);
             console.log("API created");
             rpcClient.getMiVisualizerRpcClient().log({ message: "API created successfully." });
@@ -394,6 +394,9 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
     const handleOnClose = () => {
         rpcClient.getMiVisualizerRpcClient().goBack();
     }
+
+    // If apiCreateOption is "swagger-to-api" or "wsdl-to-api", save button is disabled until the file is selected
+    const isSaveDisabled = (apiCreateOption === "swagger-to-api" && !swaggerDefPath) || (apiCreateOption === "wsdl-to-api" && !wsdlDefPath);
 
     const getAdvanceAPICreationOptions = () => {
         switch (apiCreateOption) {
@@ -572,7 +575,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 <Button
                     appearance="primary"
                     onClick={handleSubmit(handleCreateAPI)}
-                    disabled={!isDirty}
+                    disabled={!isDirty || isSaveDisabled || Object.keys(errors).length > 0}
                 >
                     {apiData ? "Save changes" : "Create"}
                 </Button>

@@ -153,6 +153,11 @@ export function AddArtifactView() {
             await rpcClient
                 .getMiDiagramRpcClient()
                 .executeCommand({ commands: ["MI.project-explorer.add-class-mediator", entry] });
+        } else if (key === "ballerinaModule") {
+            entry = { info: { path: path.join(activeWorkspaces.fsPath, 'src', 'main', 'ballerina') } };
+            await rpcClient
+                .getMiDiagramRpcClient()
+                .executeCommand({ commands: ["MI.project-explorer.add-ballerina-module", entry] });
         } else if (key === "inboundEndpoints") {
             await rpcClient
                 .getMiDiagramRpcClient()
@@ -371,6 +376,13 @@ export function AddArtifactView() {
                                         title="Class Mediator"
                                         description="Execute a custom logic in the mediation flow."
                                         onClick={() => handleClick("classMediators")}
+                                    />
+                                    <Card
+                                        icon="file-code"
+                                        isCodicon
+                                        title="Ballerina Module"
+                                        description="Create a Ballerina module"
+                                        onClick={() => handleClick("ballerinaModule")}
                                     />
                                     <Card
                                         icon="registry"

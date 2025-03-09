@@ -39,8 +39,8 @@ export const SuggestionsPage = ({ fileName, targetLineRange, defaultValue, onCha
                     filePath: fileName,
                     position: {
                         line: targetLineRange.startLine.line,
-                        offset: targetLineRange.startLine.offset,
-                    },
+                        offset: targetLineRange.startLine.offset
+                    }
                 })
                 .then((response) => {
                     if (response.categories?.length) {
@@ -50,7 +50,7 @@ export const SuggestionsPage = ({ fileName, targetLineRange, defaultValue, onCha
                     }
                 })
                 .then(() => setIsLoading(false));
-        }, 1100)
+        }, 150);
     }, [rpcClient, fileName, targetLineRange]);
 
     useEffect(() => {
@@ -64,7 +64,7 @@ export const SuggestionsPage = ({ fileName, targetLineRange, defaultValue, onCha
         debounce((searchText: string) => {
             setFilteredVariableInfo(filterHelperPaneVariables(variableInfo, searchText));
             setIsLoading(false);
-        }, 1100),
+        }, 150),
         [variableInfo, setFilteredVariableInfo, setIsLoading, filterHelperPaneVariables]
     );
 
@@ -81,7 +81,7 @@ export const SuggestionsPage = ({ fileName, targetLineRange, defaultValue, onCha
                 onSearch={handleSearch}
                 titleSx={{ fontFamily: "GilmerRegular" }}
             />
-            <HelperPane.Body loading={isLoading}>
+            <HelperPane.Body>
                 {defaultValue && defaultValue !== '""' && (
                     <HelperPane.Section
                         title="Suggestions"
@@ -94,23 +94,33 @@ export const SuggestionsPage = ({ fileName, targetLineRange, defaultValue, onCha
                         />
                     </HelperPane.Section>
                 )}
-                {filteredVariableInfo?.category.map((category) => (
-                    <HelperPane.Section
-                        key={category.label}
-                        title={category.label}
-                        titleSx={{ fontFamily: "GilmerMedium" }}
-                    >
-                        {category.items?.map((item) => (
-                            <HelperPane.CompletionItem
-                                key={`${category.label}-${item.label}`}
-                                label={item.label}
-                                type={item.type}
-                                onClick={() => onChange(item.label)}
-                                getIcon={() => getIcon(item.type as CompletionItemKind)}
-                            />
-                        ))}
-                    </HelperPane.Section>
-                ))}
+                {isLoading ? (
+                    <HelperPane.Loader />
+                ) : (
+                    filteredVariableInfo?.category.map((category) => {
+                        if (category.items.length === 0) {
+                            return null;
+                        }
+
+                        return (
+                            <HelperPane.Section
+                                key={category.label}
+                                title={category.label}
+                                titleSx={{ fontFamily: 'GilmerMedium' }}
+                            >
+                                {category.items.map((item) => (
+                                    <HelperPane.CompletionItem
+                                        key={`${category.label}-${item.label}`}
+                                        label={item.label}
+                                        type={item.type}
+                                        onClick={() => onChange(item.label)}
+                                        getIcon={() => getIcon(item.type as CompletionItemKind)}
+                                    />
+                                ))}
+                            </HelperPane.Section>
+                        );
+                    })
+                )}
             </HelperPane.Body>
         </>
     );

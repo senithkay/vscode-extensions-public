@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { URLSearchParams } from "url";
-import { window, Uri, ProviderResult } from "vscode";
+import { window, Uri, ProviderResult, commands } from "vscode";
 import { BallerinaExtension } from "../core";
 import { handleOpenFile, handleOpenRepo } from ".";
 import { CMP_OPEN_VSCODE_URL, TM_EVENT_OPEN_FILE_URL_START, TM_EVENT_OPEN_REPO_URL_START, sendTelemetryEvent } from "../features/telemetry";
@@ -46,9 +46,24 @@ export function activateUriHandlers(ballerinaExtInstance: BallerinaExtension) {
                     console.log("Code: " + code);
                     if (code) {
                         exchangeAuthCode(code);
-                    } else {
-                        // Handle error here
                     }
+                    console.log("Auth code not found. Ignoring");
+                    break;
+                case '/open':
+                    const org = urlParams.get("org");
+                    const project = urlParams.get("project");
+                    const component = urlParams.get("component");
+                    const technology = urlParams.get("technology");
+                    const integrationType = urlParams.get("integrationType");
+                    if (org && project && component && technology && integrationType) {
+                        commands.executeCommand('wso2.platform.open.component.src', {
+                            org, project, component, technology, integrationType
+                        });
+                    } else {
+                        window.showErrorMessage('Invalid component URL parameters');
+                    }
+                    break;
+
             }
         }
     });

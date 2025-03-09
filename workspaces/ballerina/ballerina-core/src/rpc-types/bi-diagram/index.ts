@@ -60,7 +60,14 @@ import {
     AddFieldRequest,
     RenameIdentifierRequest,
     BISearchRequest,
-    BISearchResponse
+    BISearchResponse,
+    GetRecordConfigRequest,
+    GetRecordConfigResponse,
+    UpdateRecordConfigRequest,
+    RecordSourceGenRequest,
+    RecordSourceGenResponse,
+    GetRecordModelFromSourceResponse,
+    GetRecordModelFromSourceRequest
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -78,7 +85,10 @@ import {
     CurrentBreakpointsResponse,
     FormDidOpenParams,
     FormDidCloseParams,
-    EndOfFileRequest
+    EndOfFileRequest,
+    RecordsInWorkspaceMentions,
+    BuildMode,
+    DevantComponentResponse
 } from "./interfaces";
 
 export interface BIDiagramAPI {
@@ -107,7 +117,7 @@ export interface BIDiagramAPI {
     deployProject: () => void;
     openAIChat: (params: AIChatRequest) => void;
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
-    buildProject: () => void;
+    buildProject: (mode: BuildMode) => void;
     runProject: () => void;
     getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
     addBreakpointToSource: (params: BreakpointRequest) => void;
@@ -126,9 +136,15 @@ export interface BIDiagramAPI {
     addClassField: (params: AddFieldRequest) => Promise<SourceEditResponse>;
     updateServiceClass: (params: ServiceClassSourceRequest) => Promise<SourceEditResponse>;
     createGraphqlClassType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
+    getRecordConfig: (params: GetRecordConfigRequest) => Promise<GetRecordConfigResponse>;
+    updateRecordConfig: (params: UpdateRecordConfigRequest) => Promise<GetRecordConfigResponse>;
+    getRecordModelFromSource: (params: GetRecordModelFromSourceRequest) => Promise<GetRecordModelFromSourceResponse>;
+    getRecordSource: (params: RecordSourceGenRequest) => Promise<RecordSourceGenResponse>;
     updateImports: (params: UpdateImportsRequest) => Promise<UpdateImportsResponse>;
     addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
     getFunctionNode: (params: FunctionNodeRequest) => Promise<FunctionNodeResponse>;
     getEndOfFile: (params: EndOfFileRequest) => Promise<LinePosition>;
     search: (params: BISearchRequest) => Promise<BISearchResponse>;
+    getRecordNames: () => Promise<RecordsInWorkspaceMentions>;
+    getDevantComponent: () => Promise<DevantComponentResponse | undefined>;
 }

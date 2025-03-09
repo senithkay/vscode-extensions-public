@@ -159,13 +159,13 @@ export function OperationForm(props: OperationFormProps) {
         <>
             {fields.length > 0 && (
                 <FormGeneratorNew
-                    isGraphqlEditor={true}
                     fileName={filePath}
                     targetLineRange={lineRange}
                     fields={fields}
                     onSubmit={handleFunctionCreate}
                     onBack={onClose}
                     submitText="Save"
+                    isGraphqlEditor={isGraphqlView}
                 />
             )}
         </>

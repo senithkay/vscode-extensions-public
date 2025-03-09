@@ -9,7 +9,7 @@
 
 import React, { CSSProperties, useState } from 'react';
 import { Position } from 'vscode-languageserver-types';
-import { HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { HelperPane, HelperPaneHeight } from '@wso2-enterprise/ui-toolkit';
 import { CategoryPage } from './CategoryPage';
 import { VariablesPage } from './VariablesPage';
 import { PayloadPage } from './PayloadPage';
@@ -19,17 +19,18 @@ import { ParamsPage } from './ParamsPage';
 
 export type HelperPaneProps = {
     position: Position;
+    helperPaneHeight: HelperPaneHeight;
     onClose: () => void;
     onChange: (value: string) => void;
     addFunction?: (value: string) => void;
     sx?: CSSProperties;
 };
 
-const HelperPaneEl = ({ position, sx, onClose, onChange, addFunction }: HelperPaneProps) => {
+const HelperPaneEl = ({ position, helperPaneHeight, sx, onClose, onChange, addFunction }: HelperPaneProps) => {
     const [currentPage, setCurrentPage] = useState<number>(0);
 
     return (
-        <HelperPane sx={{ ' *': { boxSizing: 'border-box' }, ...sx }}>
+        <HelperPane helperPaneHeight={helperPaneHeight} sx={{ ' *': { boxSizing: 'border-box' }, ...sx }}>
             {currentPage === 0 && (
                 <CategoryPage
                     position={position}
@@ -80,10 +81,20 @@ const HelperPaneEl = ({ position, sx, onClose, onChange, addFunction }: HelperPa
 
 export const getHelperPane = (
     position: Position,
+    helperPaneHeight: HelperPaneHeight,
     onClose: () => void,
     onChange: (value: string) => void,
     addFunction?: (value: string) => void,
     sx?: CSSProperties
 ) => {
-    return <HelperPaneEl position={position} sx={sx} onClose={onClose} onChange={onChange} addFunction={addFunction} />;
+    return (
+        <HelperPaneEl
+            position={position}
+            helperPaneHeight={helperPaneHeight}
+            sx={sx}
+            onClose={onClose}
+            onChange={onChange}
+            addFunction={addFunction}
+        />
+    );
 };

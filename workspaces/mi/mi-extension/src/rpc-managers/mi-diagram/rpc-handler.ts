@@ -123,6 +123,8 @@ import {
     compareSwaggerAndAPI,
     createAPI,
     createClassMediator,
+    createBallerinaModule,
+    buildBallerinaModule,
     createConnection,
     createDataService,
     createDataSource,
@@ -271,7 +273,11 @@ import {
     copyArtifact,
     GetArtifactTypeRequest,
     getArtifactType,
-    askImportFileDir
+    askImportFileDir,
+    BuildProjectRequest,
+    deployProject,
+    DeployProjectRequest,
+    CreateBallerinaModuleRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -357,6 +363,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(createRegistryResource, (args: CreateRegistryResourceRequest) => rpcManger.createRegistryResource(args));
     messenger.onRequest(getAvailableResources, (args: GetAvailableResourcesRequest) => rpcManger.getAvailableResources(args));
     messenger.onRequest(createClassMediator, (args: CreateClassMediatorRequest) => rpcManger.createClassMediator(args));
+    messenger.onRequest(createBallerinaModule, (args: CreateBallerinaModuleRequest) => rpcManger.createBallerinaModule(args));
+    messenger.onRequest(buildBallerinaModule, (args: string) => rpcManger.buildBallerinaModule(args));
     messenger.onRequest(getSelectiveWorkspaceContext, () => rpcManger.getSelectiveWorkspaceContext());
     messenger.onRequest(getSelectiveArtifacts, (args: GetSelectiveArtifactsRequest) => rpcManger.getSelectiveArtifacts(args));
     messenger.onRequest(getBackendRootUrl, () => rpcManger.getBackendRootUrl());
@@ -391,7 +399,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getArtifactType, (argas: GetArtifactTypeRequest) => rpcManger.getArtifactType(argas));
     messenger.onNotification(deleteArtifact, (args: DeleteArtifactRequest) => rpcManger.deleteArtifact(args));
     messenger.onRequest(getAllAPIcontexts, () => rpcManger.getAllAPIcontexts());
-    messenger.onNotification(buildProject, () => rpcManger.buildProject());
+    messenger.onNotification(buildProject, (args: BuildProjectRequest) => rpcManger.buildProject(args));
+    messenger.onRequest(deployProject, (args: DeployProjectRequest) => rpcManger.deployProject(args));
     messenger.onNotification(exportProject, (args: ExportProjectRequest) => rpcManger.exportProject(args));
     messenger.onRequest(checkOldProject, () => rpcManger.checkOldProject());
     messenger.onNotification(refreshAccessToken, () => rpcManger.refreshAccessToken());

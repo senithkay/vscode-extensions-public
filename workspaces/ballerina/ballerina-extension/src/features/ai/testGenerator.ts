@@ -23,10 +23,10 @@ import { writeBallerinaFileDidOpen } from '../../utils/modification';
 import { fetchData } from '../../rpc-managers/ai-panel/utils/fetch-data-utils';
 import { request } from 'http';
 import { openExternalUrl } from 'src/utils/runCommand';
+import { closeAllBallerinaFiles } from './utils';
 
 const balVersionRegex = new RegExp("^[0-9]{4}.[0-9]+.[0-9]+");
 
-let hasStopped: boolean = false;
 const config = workspace.getConfiguration('ballerina');
 const BAL_HOME = config.get('home') as string;
 const PLUGIN_DEV_MODE = config.get('pluginDevMode') as boolean;
@@ -35,7 +35,8 @@ const TEST_GEN_REQUEST_TIMEOUT = 100000;
 // ----------- TEST GENERATOR -----------
 export async function generateTest(
     projectRoot: string,
-    testGenRequest: TestGenerationRequest
+    testGenRequest: TestGenerationRequest,
+    abortController: AbortController
 ): Promise<TestGenerationResponse> {
     const projectSource = await getProjectSource(projectRoot);
     if (!projectSource) {
@@ -56,13 +57,13 @@ export async function generateTest(
         const testPlan = testGenRequest.testPlan;
 
         if (typeof testGenRequest.existingTests === 'undefined' || typeof testGenRequest.diagnostics === 'undefined') {
-            const unitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests(testGenRequest, projectSource, openApiSpec);
+            const unitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests(testGenRequest, projectSource, abortController, openApiSpec);
             if (isErrorCode(unitTestResp)) {
                 throw new Error((unitTestResp as ErrorCode).message);
             }
             return unitTestResp as TestGenerationResponse;
         } else {
-            const updatedUnitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests(testGenRequest, projectSource, openApiSpec);
+            const updatedUnitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests(testGenRequest, projectSource, abortController, openApiSpec);
             if (isErrorCode(updatedUnitTestResp)) {
                 throw new Error((updatedUnitTestResp as ErrorCode).message);
             }
@@ -85,7 +86,7 @@ export async function generateTest(
             ]
         };
 
-        const unitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests(testGenRequest, serviceProjectSource);
+        const unitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests(testGenRequest, serviceProjectSource, abortController);
         if (isErrorCode(unitTestResp)) {
             throw new Error((unitTestResp as ErrorCode).message);
         }
@@ -207,6 +208,7 @@ export async function getDiagnostics(
     writeBallerinaFileDidOpen(tempTestFilePath, generatedTestSource.testSource);
 
     const diagnosticsResult = await langClient.getDiagnostics({ documentIdentifier: { uri: Uri.file(tempTestFilePath).toString() } });
+    await closeAllBallerinaFiles(tempDir);
     fs.rmSync(tempDir, { recursive: true, force: true });
     if (Array.isArray(diagnosticsResult)) {
         const errorDiagnostics = getErrorDiagnostics(diagnosticsResult, tempTestFilePath);
@@ -312,9 +314,9 @@ async function getOpenAPISpecification(documentFilePath: string): Promise<string
     }
 }
 
-async function getUnitTests(request: TestGenerationRequest, projectSource: ProjectSource, openApiSpec?: string): Promise<TestGenerationResponse | ErrorCode> {
+async function getUnitTests(request: TestGenerationRequest, projectSource: ProjectSource, abortController: AbortController, openApiSpec?: string): Promise<TestGenerationResponse | ErrorCode> {
     try {
-        let response = await sendTestGeneRequest(request, projectSource, openApiSpec);
+        let response = await sendTestGeneRequest(request, projectSource, abortController, openApiSpec);
         if (isErrorCode(response)) {
             return (response as ErrorCode);
         }
@@ -325,20 +327,7 @@ async function getUnitTests(request: TestGenerationRequest, projectSource: Proje
     }
 }
 
-// export async function getUnitTestsForFunction(projectRoot: string, request: GenerateTestForFuncRequest): Promise<TestGenerationResponse | ErrorCode> {
-//     try {
-//         let response = await sendTestGeneRequestForFunction(projectRoot, request);
-//         if (isErrorCode(response)) {
-//             return (response as ErrorCode);
-//         }
-//         response = (response as Response);
-//         return await filterTestGenResponse(response);
-//     } catch (error) {
-//         return UNKNOWN_ERROR;
-//     }
-// }
-
-async function sendTestGeneRequest(request: TestGenerationRequest, projectSource: ProjectSource, openApiSpec?: string): Promise<Response | ErrorCode> {
+async function sendTestGeneRequest(request: TestGenerationRequest, projectSource: ProjectSource, abortController: AbortController, openApiSpec?: string): Promise<Response | ErrorCode> {
     const body = {
         targetType: request.targetType,
         targetIdentifier: request.targetIdentifier,
@@ -373,29 +362,9 @@ async function sendTestGeneRequest(request: TestGenerationRequest, projectSource
             'User-Agent': 'Ballerina-VSCode-Plugin'
         },
         body: JSON.stringify(body)
-    }, TEST_GEN_REQUEST_TIMEOUT);
+    }, abortController, TEST_GEN_REQUEST_TIMEOUT);
     return response;
 }
-
-// async function sendTestGeneRequestForFunction(projectRoot: string, request: GenerateTestForFuncRequest): Promise<Response | ErrorCode> {
-//     const { serviceDeclaration, resourceAccessorDef, serviceDocFilePath } = await getResourceAccessorDef(projectRoot, request.resourceFunction);
-//     const body = {
-//         functionSource: resourceAccessorDef.source,
-//         serviceSource: serviceDeclaration.source,
-//         testPlan: request.testPlan,
-//     };
-
-//     const response = await fetchWithTimeout(request.backendUri + "/tests", {
-//         method: "POST",
-//         headers: {
-//             'Accept': 'application/json',
-//             'Content-Type': 'application/json',
-//             'User-Agent': 'Ballerina-VSCode-Plugin'
-//         },
-//         body: JSON.stringify(body)
-//     }, TEST_GEN_REQUEST_TIMEOUT);
-//     return response;
-// }
 
 async function getOpenAPISpec(serviceFilePath: string): Promise<string> {
     const tempDir = os.tmpdir();
@@ -516,10 +485,10 @@ async function findBallerinaProjectRoot(dirPath: string): Promise<string | null>
 const fetchWithTimeout = async (
     url: string,
     options: RequestInit,
+    abortController: AbortController,
     timeout = 300000
 ): Promise<Response | ErrorCode> => {
-    const abortController = new AbortController();
-    const id = setTimeout(() => abortController.abort(), timeout);
+    const id = setTimeout(() => abortController?.abort(), timeout);
 
     try {
         options = {
@@ -530,10 +499,17 @@ const fetchWithTimeout = async (
         const response = await fetchData(url, options);
         return response;
     } catch (error: any) {
-        if (error.name === 'AbortError' && !hasStopped) {
-            return TIMEOUT;
-        } else if (error.name === 'AbortError' && hasStopped) {
-            return USER_ABORTED;
+        if (error.name === 'AbortError') {
+            return {
+                code: -1,
+                message: "Request aborted"
+            };
+        }
+        if (error instanceof Error) {
+            return {
+                code: -2,
+                message: error.message
+            };
         }
         return UNKNOWN_ERROR;
     } finally {

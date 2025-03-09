@@ -223,7 +223,6 @@ export function NodeList(props: NodeListProps) {
         onClose,
     } = props;
 
-    console.log(">>> categories", { categories });
 
     const [searchText, setSearchText] = useState<string>("");
     const [showGeneratePanel, setShowGeneratePanel] = useState(false);
@@ -306,7 +305,7 @@ export function NodeList(props: NodeListProps) {
                 {groups.map((group, index) => {
                     const isConnectionCategory = group.title === "Connections";
                     const isProjectFunctionsCategory = group.title === "Current Integration";
-                    const isFunctionsCategory = isProjectFunctionsCategory && title === "Functions";
+                    const isDataMapperCategory = isProjectFunctionsCategory && title === "Data Mappers";
                     if ((!group || group.items.length === 0) && !isConnectionCategory && !isProjectFunctionsCategory) {
                         return null;
                     }
@@ -330,7 +329,7 @@ export function NodeList(props: NodeListProps) {
                                                 tooltip={
                                                     isConnectionCategory
                                                         ? "Add Connection"
-                                                        : `Create ${isFunctionsCategory ? "Function" : "Data Mapper"}`
+                                                        : `Create ${isDataMapperCategory ? "Data Mapper" : "Function"}`
                                                 }
                                                 onClick={
                                                     isConnectionCategory
@@ -354,7 +353,7 @@ export function NodeList(props: NodeListProps) {
                             {isProjectFunctionsCategory && group.items.length === 0 && !searchText && !isSearching && (
                                 <S.HighlightedButton onClick={handleAddFunction}>
                                     <Codicon name="add" iconSx={{ fontSize: 12 }} />
-                                    {`Create ${isFunctionsCategory ? "Function" : "Data Mapper"}`}
+                                    {`Create ${isDataMapperCategory ? "Data Mapper" : "Function"}`}
                                 </S.HighlightedButton>
                             )}
                             {group.items.length > 0 && "id" in group.items.at(0)
