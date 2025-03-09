@@ -13,6 +13,7 @@ import { Button, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useState } from "react";
 import { DevantComponentResponse } from ".";
 import { DeployProjectRequest } from "@wso2-enterprise/mi-core";
+import { Colors } from "@wso2-enterprise/mi-diagram/lib/resources/constants";
 
 interface DeploymentOptionProps {
     title: string;
@@ -30,18 +31,16 @@ const Title = styled(Typography)`
 
 const DeploymentOptionContainer = styled.div<{ isExpanded: boolean }>`
     cursor: pointer;
-    border: ${(props: { isExpanded: any; }) => props.isExpanded ? '1px solid var(--vscode-welcomePage-tileBorder)' : 'none'};
-    background: ${(props: { isExpanded: any; }) => props.isExpanded ? 'var(--vscode-welcomePage-tileBackground)' : 'transparent'};
+    background: ${(props: { isExpanded: any; }) => props.isExpanded ? Colors.TILE_BACKGROUND : 'transparent'};
     border-radius: 6px;
     display: flex;
     overflow: hidden;
-    width: 100%;
     padding: 10px;
     flex-direction: column;
     margin-bottom: 8px;
 
     &:hover {
-        background: var(--vscode-welcomePage-tileHoverBackground);
+        background: ${Colors.TILE_HOVER_BACKGROUND};
     }
 `;
 
