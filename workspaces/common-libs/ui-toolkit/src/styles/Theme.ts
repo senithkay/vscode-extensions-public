@@ -47,7 +47,7 @@ export enum VSCodeColors {
     SURFACE_DIM = "var(--vscode-menu-background)",
     SURFACE_DIM_2 = "var(--vscode-tab-unfocusedInactiveBackground)",
     ON_SURFACE = "var(--vscode-foreground)",
-    ON_SURFACE_VARIANT = "var(--vscode-icon-foreground)",
+    ON_SURFACE_VARIANT = "var(--vscode-descriptionForeground)",
     SURFACE_CONTAINER = "var(--vscode-editor-inactiveSelectionBackground)",
 
     OUTLINE = "var(--vscode-sideBar-border)",

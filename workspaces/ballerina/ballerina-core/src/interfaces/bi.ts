@@ -68,16 +68,17 @@ export type Metadata = {
     draft?: boolean; // for diagram draft nodes
     data?: {
         isDataMappedFunction?: boolean;
+        tools?: { [key: string]: string }; // for agent call
+        model?: string; // for agent call
+        paramsToHide?: string[]; // List of properties keys to to hide from forms
     }
-    tools?: string[]; // for agent call
-    model?: string; // for agent call
 };
 
 export type Property = {
     metadata: Metadata;
     diagnostics?: Diagnostic;
     valueType: string;
-    value: string | ELineRange | NodeProperties;
+    value: string | ELineRange | NodeProperties | string[];
     optional: boolean;
     editable: boolean;
     advanced?: boolean;
@@ -118,6 +119,7 @@ export type CodeData = {
     symbol?: string;
     lineRange?: ELineRange;
     sourceCode?: string;
+    parentSymbol?: string;
 };
 
 export type Branch = {
@@ -174,7 +176,8 @@ export enum DIRECTORY_MAP {
     CONFIGURATIONS = "configurations",
     DATA_MAPPERS = "dataMappers",
     ENUMS = "enums",
-    CLASSES = "classes"
+    CLASSES = "classes",
+    AGENTS = "agents"
 }
 
 export enum DIRECTORY_SUB_TYPE {
@@ -186,6 +189,7 @@ export enum DIRECTORY_SUB_TYPE {
     AUTOMATION = "automation",
     TRIGGER = "trigger",
     DATA_MAPPER = "dataMapper",
+    AGENTS = "agents",
 }
 
 export enum FUNCTION_TYPE {
@@ -256,6 +260,8 @@ export type NodePropertyKey =
     | "defaultable"
     | "scope"
     | "parameters"
+    | "model"
+    | "tools"
     | "functionName";
 
 export type BranchKind = "block" | "worker";
@@ -310,9 +316,11 @@ export type NodeKind =
     | "ROLLBACK"
     | "FAIL"
     | "RETRY"
+    | "CLASS"
+    | "AGENT"
+    | "AGENT_CALL"
     | "FUNCTION_DEFINITION"
-    | "CONFIG_VARIABLE"
-    | "AGENT_CALL";
+    | "CONFIG_VARIABLE";
 
 export type OverviewFlow = {
     entryPoints: EntryPoint[];
