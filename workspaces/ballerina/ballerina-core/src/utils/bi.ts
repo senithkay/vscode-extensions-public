@@ -31,7 +31,8 @@ export async function buildProjectStructure(projectDir: string, langClient: Exte
             [DIRECTORY_MAP.RECORDS]: [],
             [DIRECTORY_MAP.DATA_MAPPERS]: [],
             [DIRECTORY_MAP.ENUMS]: [],
-            [DIRECTORY_MAP.CLASSES]: []
+            [DIRECTORY_MAP.CLASSES]: [],
+            [DIRECTORY_MAP.PROMPT_AS_CODE]: []
         }
     };
     const components = await langClient.getBallerinaProjectComponents({
