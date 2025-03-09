@@ -108,7 +108,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
     response.directoryMap[DIRECTORY_MAP.FUNCTIONS] = [];
     for (const func of functions) {
         const st = func.st;
-        if (STKindChecker.isFunctionDefinition(st) && STKindChecker.isExpressionFunctionBody(st.functionBody)) {
+        if (st && STKindChecker.isFunctionDefinition(st) && STKindChecker.isExpressionFunctionBody(st.functionBody)) {
             func.icon = "dataMapper";
             response.directoryMap[DIRECTORY_MAP.DATA_MAPPERS].push(func);
         } else {
