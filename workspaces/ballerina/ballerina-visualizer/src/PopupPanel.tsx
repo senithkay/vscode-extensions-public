@@ -61,7 +61,7 @@ const PopupPanel = (props: PopupPanelProps) => {
                     rpcClient.getVisualizerLocation().then((location) => {
                         setViewComponent(
                             <AddConnectionWizard
-                                fileName={Utils.joinPath(URI.file(location.projectUri), "connections.bal").fsPath}
+                                fileName={location.documentUri || location.projectUri}
                                 target={machineState.metadata?.target || undefined}
                                 onClose={onClose}
                             />
@@ -73,7 +73,7 @@ const PopupPanel = (props: PopupPanelProps) => {
                         setViewComponent(
                             <>
                                 <EditConnectionWizard
-                                    fileName={Utils.joinPath(URI.file(location.projectUri), "connections.bal").fsPath}
+                                    fileName={location.documentUri || location.projectUri}
                                     connectionName={machineState?.identifier}
                                     onClose={onClose}
                                 />

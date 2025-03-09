@@ -16,7 +16,11 @@
     "workspaceContains:.project",
     "workspaceContains:pom.xml",
     "onDebugResolve:mi",
-    "onDebugDynamicConfigurations:mi"
+    "onDebugDynamicConfigurations:mi",
+    "onUri"
+  ],
+  "extensionDependencies": [
+    "wso2.wso2-platform"
   ],
   "main": "./dist/extension.js",
   "contributes": {

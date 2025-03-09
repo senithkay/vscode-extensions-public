@@ -316,6 +316,7 @@ export function FormGeneratorNew(props: FormProps) {
         typeBrowserRef: RefObject<HTMLDivElement>,
         currentType: string,
         currentCursorPosition: number,
+        typeHelperState: boolean,
         onChange: (newType: string, newCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void,
         typeHelperHeight: HelperPaneHeight
@@ -327,6 +328,7 @@ export function FormGeneratorNew(props: FormProps) {
             currentType,
             currentCursorPosition,
             typeHelperHeight,
+            typeHelperState,
             onChange,
             () => changeHelperPaneState(false)
         );
