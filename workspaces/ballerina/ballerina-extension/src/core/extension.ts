@@ -225,7 +225,7 @@ export class BallerinaExtension {
         });
 
         commands.registerCommand('kolab-setup.installBallerina', () => {
-            this.installBallerina();
+            this.installBallerina(true);
         });
 
         commands.registerCommand('kolab-setup.setupKola', () => {
@@ -355,7 +355,7 @@ export class BallerinaExtension {
 
     async installBallerina(restartWindow?: boolean) {
         try {
-            // Remove the existing Ballerina Kola version
+            // Remove the existing Ballerina version
             fs.rmSync(this.ballerinaInstallationDir, { recursive: true, force: true });
 
             // Get the latest distribution version
@@ -395,7 +395,7 @@ export class BallerinaExtension {
             if (restartWindow) {
                 commands.executeCommand('workbench.action.reloadWindow');
             } else {
-                window.showInformationMessage("Ballerina has been set up successfully for Kola version");
+                window.showInformationMessage("Ballerina has been installed successfully");
             }
         } catch (error) {
             console.error('Error downloading or setting up Ballerina:', error);
