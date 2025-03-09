@@ -84,8 +84,11 @@ const PopupPanel = (props: PopupPanelProps) => {
                     break;
                 case MACHINE_VIEW.BIFunctionForm:
                     rpcClient.getVisualizerLocation().then((location) => {
-                        const fileName = location?.documentUri ? URI.parse(location.documentUri).path.split('/').pop() : 'functions.bal';
-                        setViewComponent(<FunctionForm projectPath={location.projectUri} fileName={fileName} functionName={location?.identifier} />);
+                        let defaultFunctionsFile = Utils.joinPath(URI.file(location.projectUri), 'functions.bal').fsPath;
+                        if (location.documentUri) {
+                            defaultFunctionsFile = location.documentUri
+                        }
+                        setViewComponent(<FunctionForm projectPath={location.projectUri} filePath={defaultFunctionsFile} functionName={location?.identifier} />);
                     });
                     break;
                 default:
