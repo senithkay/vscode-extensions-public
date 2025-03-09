@@ -21,6 +21,7 @@ import { RegistryMetadataForm } from './views/Forms/RegistryMetadataForm';
 import { ProxyServiceWizard } from "./views/Forms/ProxyServiceForm";
 import { TemplateWizard } from "./views/Forms/TemplateForm";
 import { ClassMediatorForm } from './views/Forms/ClassMediatorForm';
+import { BallerinaModuleForm } from './views/Forms/BallerinaModuleForm';
 import { DataSourceWizard } from './views/Forms/DataSourceForm';
 import { HttpEndpointWizard } from "./views/Forms/HTTPEndpointForm/index";
 import { AddressEndpointWizard } from "./views/Forms/AddressEndpointForm";
@@ -328,6 +329,9 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
                     break;
                 case MACHINE_VIEW.ClassMediatorForm:
                     setViewComponent(<ClassMediatorForm path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.BallerinaModuleForm:
+                    setViewComponent(<BallerinaModuleForm path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.DataSourceForm:
                     setViewComponent(<DataSourceWizard path={machineView.documentUri} />);

@@ -1401,6 +1401,17 @@ export interface CreateClassMediatorRequest {
 export interface CreateClassMediatorResponse {
     path: string;
 }
+
+export interface CreateBallerinaModuleRequest {
+    projectDirectory: string;
+    moduleName: string;
+    version: string;
+}
+
+export interface CreateBallerinaModuleResponse {
+    path: string;
+}
+
 export interface GetBackendRootUrlResponse {
     url: string;
 }
@@ -1469,6 +1480,8 @@ export interface ConnectorDependency {
     artifactId: string;
     version: string;
     connectorPath?: string;
+    isBallerinaModule?: boolean;
+    ballerinaModulePath?: string;
 }
 
 export interface UpdateConnectorRequest {
@@ -1926,6 +1939,8 @@ export interface GetMediatorsResponse {
         artifactId?: string;
         version?: string;
         connectorPath?: string;
+        isBallerinaModule?: boolean;
+        ballerinaModulePath?: string
     };
 }
 

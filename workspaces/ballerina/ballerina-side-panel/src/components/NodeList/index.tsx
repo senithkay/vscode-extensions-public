@@ -306,6 +306,7 @@ export function NodeList(props: NodeListProps) {
                     const isConnectionCategory = group.title === "Connections";
                     const isProjectFunctionsCategory = group.title === "Current Integration";
                     const isDataMapperCategory = isProjectFunctionsCategory && title === "Data Mappers";
+                    const isNpFunctionCategory = isProjectFunctionsCategory && title === "Prompt as code";
                     if ((!group || group.items.length === 0) && !isConnectionCategory && !isProjectFunctionsCategory) {
                         return null;
                     }
@@ -329,7 +330,11 @@ export function NodeList(props: NodeListProps) {
                                                 tooltip={
                                                     isConnectionCategory
                                                         ? "Add Connection"
-                                                        : `Create ${isDataMapperCategory ? "Data Mapper" : "Function"}`
+                                                        : `Create ${isDataMapperCategory 
+                                                            ? "Data Mapper" 
+                                                            : isNpFunctionCategory
+                                                                ? "Prompt as code"
+                                                                : "Function"}`
                                                 }
                                                 onClick={
                                                     isConnectionCategory
@@ -353,7 +358,7 @@ export function NodeList(props: NodeListProps) {
                             {isProjectFunctionsCategory && group.items.length === 0 && !searchText && !isSearching && (
                                 <S.HighlightedButton onClick={handleAddFunction}>
                                     <Codicon name="add" iconSx={{ fontSize: 12 }} />
-                                    {`Create ${isDataMapperCategory ? "Data Mapper" : "Function"}`}
+                                    {`Create ${isDataMapperCategory ? "Data Mapper" : isNpFunctionCategory ? "Prompt as code" : "Function"}`}
                                 </S.HighlightedButton>
                             )}
                             {group.items.length > 0 && "id" in group.items.at(0)

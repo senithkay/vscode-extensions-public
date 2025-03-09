@@ -123,6 +123,8 @@ import {
     compareSwaggerAndAPI,
     createAPI,
     createClassMediator,
+    createBallerinaModule,
+    buildBallerinaModule,
     createConnection,
     createDataService,
     createDataSource,
@@ -274,7 +276,8 @@ import {
     askImportFileDir,
     BuildProjectRequest,
     deployProject,
-    DeployProjectRequest
+    DeployProjectRequest,
+    CreateBallerinaModuleRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -360,6 +363,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(createRegistryResource, (args: CreateRegistryResourceRequest) => rpcManger.createRegistryResource(args));
     messenger.onRequest(getAvailableResources, (args: GetAvailableResourcesRequest) => rpcManger.getAvailableResources(args));
     messenger.onRequest(createClassMediator, (args: CreateClassMediatorRequest) => rpcManger.createClassMediator(args));
+    messenger.onRequest(createBallerinaModule, (args: CreateBallerinaModuleRequest) => rpcManger.createBallerinaModule(args));
+    messenger.onRequest(buildBallerinaModule, (args: string) => rpcManger.buildBallerinaModule(args));
     messenger.onRequest(getSelectiveWorkspaceContext, () => rpcManger.getSelectiveWorkspaceContext());
     messenger.onRequest(getSelectiveArtifacts, (args: GetSelectiveArtifactsRequest) => rpcManger.getSelectiveArtifacts(args));
     messenger.onRequest(getBackendRootUrl, () => rpcManger.getBackendRootUrl());
