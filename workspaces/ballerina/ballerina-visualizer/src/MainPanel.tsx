@@ -158,6 +158,10 @@ const MainPanel = () => {
     const fetchContext = () => {
         setNavActive(true);
         rpcClient.getVisualizerLocation().then((value) => {
+            let defaultFunctionsFile = Utils.joinPath(URI.file(value.projectUri), 'functions.bal').fsPath;
+            if (value.documentUri) {
+                defaultFunctionsFile = value.documentUri
+            }
             if (!value?.view) {
                 setViewComponent(<LoadingRing />);
             } else {
@@ -205,29 +209,25 @@ const MainPanel = () => {
                         );
                         break;
                     case MACHINE_VIEW.BIDataMapperForm:
-                        rpcClient.getVisualizerLocation().then((location) => {
-                            setViewComponent(
-                                <FunctionForm
-                                    projectPath={value.projectUri}
-                                    fileName={value.documentUri || value.projectUri}
-                                    functionName={value?.identifier}
-                                    isDataMapper={true}
-                                />
-                            );
-                        });
+                        setViewComponent(
+                            <FunctionForm
+                                projectPath={value.projectUri}
+                                filePath={defaultFunctionsFile}
+                                functionName={value?.identifier}
+                                isDataMapper={true}
+                            />
+                        );
                         break;
                     case MACHINE_VIEW.BINPFunctionForm:
-                        rpcClient.getVisualizerLocation().then((location) => {
-                            setViewComponent(
-                                <FunctionForm
-                                    projectPath={value.projectUri}
-                                    fileName={"functions.bal"}
-                                    functionName={value?.identifier}
-                                    isDataMapper={false}
-                                    isNpFunction={true}
-                                />
-                            );
-                        });
+                        setViewComponent(
+                            <FunctionForm
+                                projectPath={value.projectUri}
+                                filePath={defaultFunctionsFile}
+                                functionName={value?.identifier}
+                                isDataMapper={false}
+                                isNpFunction={true}
+                            />
+                        );
                         break;
                     case MACHINE_VIEW.GraphQLDiagram:
                         setViewComponent(<GraphQLDiagram filePath={value?.documentUri} position={value?.position} projectUri={value?.projectUri} />);
@@ -303,7 +303,7 @@ const MainPanel = () => {
                         setViewComponent(<MainForm />);
                         break;
                     case MACHINE_VIEW.BIFunctionForm:
-                        setViewComponent(<FunctionForm projectPath={value.projectUri} fileName={value.documentUri || value.projectUri} functionName={value?.identifier} />);
+                        setViewComponent(<FunctionForm projectPath={value.projectUri} filePath={defaultFunctionsFile} functionName={value?.identifier} />);
                         break;
                     case MACHINE_VIEW.BITestFunctionForm:
                         setViewComponent(<TestFunctionForm
