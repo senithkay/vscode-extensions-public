@@ -157,7 +157,7 @@ export function FunctionForm(props: FunctionFormProps) {
                         <FormHeader title={`Edit ${formType.current}`} />
                     )}
                     {!functionName && (
-                        <FormHeader title={`Create New ${formType.current}`} subtitle={`Define a ${formType.current} that can be used within the integration.`} />
+                        <FormHeader title={`Create New ${formType.current}`} subtitle={`Define a ${formType.current.toLowerCase()} that can be used within the integration.`} />
                     )}
                     <FormContainer>
                         {filePath && targetLineRange && functionFields.length > 0 &&
