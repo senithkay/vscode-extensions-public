@@ -319,11 +319,13 @@ export function NodeList(props: NodeListProps) {
                     const isProjectFunctionsCategory = group.title === "Current Integration";
                     const isDataMapperCategory = isProjectFunctionsCategory && title === "Data Mappers";
                     const isAgentCategory = group.title === "Agents";
+                    const isNpFunctionCategory = isProjectFunctionsCategory && title === "Prompt as code";
                     if (
                         (!group || group.items.length === 0) &&
                         !isConnectionCategory &&
                         !isProjectFunctionsCategory &&
-                        !isAgentCategory
+                        !isAgentCategory &&
+                        !isNpFunctionCategory
                     ) {
                         return null;
                     }
@@ -349,7 +351,13 @@ export function NodeList(props: NodeListProps) {
                                                         ? "Add Connection"
                                                         : isAgentCategory
                                                         ? "Add Agent"
-                                                        : `Create ${isDataMapperCategory ? "Data Mapper" : "Function"}`
+                                                        : `Create ${
+                                                              isDataMapperCategory
+                                                                  ? "Data Mapper"
+                                                                  : isNpFunctionCategory
+                                                                  ? "Prompt as code"
+                                                                  : "Function"
+                                                          }`
                                                 }
                                                 onClick={
                                                     isConnectionCategory
@@ -378,12 +386,14 @@ export function NodeList(props: NodeListProps) {
                             )}
                             {isProjectFunctionsCategory && group.items.length === 0 && !searchText && !isSearching && (
                                 <S.HighlightedButton onClick={handleAddFunction}>
-                                    <Codicon
-                                        name="add"
-                                        iconSx={{ fontSize: 12 }}
-                                        sx={{ display: "flex", alignItems: "center" }}
-                                    />
-                                    {`Create ${isDataMapperCategory ? "Data Mapper" : "Function"}`}
+                                    <Codicon name="add" iconSx={{ fontSize: 12 }} />
+                                    {`Create ${
+                                        isDataMapperCategory
+                                            ? "Data Mapper"
+                                            : isNpFunctionCategory
+                                            ? "Prompt as code"
+                                            : "Function"
+                                    }`}
                                 </S.HighlightedButton>
                             )}
                             {isAgentCategory && group.items.length === 0 && (

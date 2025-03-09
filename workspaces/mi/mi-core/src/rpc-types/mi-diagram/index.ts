@@ -87,6 +87,8 @@ import {
     GetProjectUuidResponse,
     CreateClassMediatorRequest,
     CreateClassMediatorResponse,
+    CreateBallerinaModuleRequest,
+    CreateBallerinaModuleResponse,
     CreateDataServiceRequest,
     CreateDataServiceResponse,
     CreateDssDataSourceRequest,
@@ -315,6 +317,8 @@ export interface MiDiagramAPI {
     createRegistryResource: (params: CreateRegistryResourceRequest) => Promise<CreateRegistryResourceResponse>;
     getAvailableResources: (params: GetAvailableResourcesRequest) => Promise<GetAvailableResourcesResponse>;
     createClassMediator: (params: CreateClassMediatorRequest) => Promise<CreateClassMediatorResponse>;
+    createBallerinaModule: (params: CreateBallerinaModuleRequest) => Promise<CreateBallerinaModuleResponse>;
+    buildBallerinaModule: (projectPath: string) => Promise<void>;
     getSelectiveWorkspaceContext: () => Promise<GetSelectiveWorkspaceContextResponse>;
     getSelectiveArtifacts: (params: GetSelectiveArtifactsRequest) => Promise<GetSelectiveArtifactsResponse>;
     getBackendRootUrl: () => Promise<GetBackendRootUrlResponse>;
