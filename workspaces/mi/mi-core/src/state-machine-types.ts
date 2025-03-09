@@ -62,6 +62,7 @@ export enum MACHINE_VIEW {
     RegistryMetadataForm = "Registry Metadata Form",
     MessageStoreForm = "Message Store Form",
     ClassMediatorForm = "ClassMediator Creation Form",
+    BallerinaModuleForm = "Ballerina Module Creation Form",
     DataSourceForm = "Data Source Creation Form",
     ImportArtifactForm = "Add Artifact Form",
     AddDriverPopup = "Add Driver Popup",
