@@ -281,6 +281,8 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
         <Container>
             <>
                 <ConnectorView
+                    fileName={fileName}
+                    targetLinePosition={target}
                     onSelectConnector={handleOnSelectConnector}
                     fetchingInfo={fetchingInfo}
                     onClose={onClose}
