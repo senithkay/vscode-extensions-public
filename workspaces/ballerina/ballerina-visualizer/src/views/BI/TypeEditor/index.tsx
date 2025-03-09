@@ -99,27 +99,24 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
     const debouncedSearchTypeBrowser = useCallback(
         debounce((searchText: string) => {
             if (rpcClient) {
-                setLoadingTypeBrowser(true);
-                rpcClient.getVisualizerLocation().then((machineView) => {
-                    rpcClient
-                        .getBIDiagramRpcClient()
-                        .search({
-                            filePath: machineView.metadata.recordFilePath,
-                            position: targetLineRange,
-                            queryMap: {
-                                q: searchText,
-                                offset: 0,
-                                limit: 60
-                            },
-                            searchKind: 'TYPE'
+                rpcClient
+                    .getBIDiagramRpcClient()
+                    .search({
+                        filePath: filePath,
+                        position: targetLineRange,
+                        queryMap: {
+                            q: searchText,
+                            offset: 0,
+                            limit: 60
+                        },
+                        searchKind: 'TYPE'
                         })
-                        .then((response) => {
-                            setFilteredTypeBrowserTypes(getTypeBrowserTypes(response.categories));
-                        })
-                        .finally(() => {
-                            setLoadingTypeBrowser(false);
-                        });
-                });
+                    .then((response) => {
+                        setFilteredTypeBrowserTypes(getTypeBrowserTypes(response.categories));
+                    })
+                    .finally(() => {
+                        setLoadingTypeBrowser(false);
+                    });
             }
         }, 150),
         [filteredTypeBrowserTypes]
@@ -134,6 +131,7 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
     );
 
     const handleTypeItemClick = (item: TypeHelperItem) => {
+        // TODO: Implement this onces the LS API is ready
         console.log(item);
     };
 
