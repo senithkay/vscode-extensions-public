@@ -7,13 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { StateMachine } from '../stateMachine';
 import { ProjectExplorerEntryProvider } from './project-explorer-provider';
 import { ExtensionContext, commands, window, workspace } from 'vscode';
 import { SHARED_COMMANDS, BI_COMMANDS } from '@wso2-enterprise/ballerina-core';
 import { extension } from '../biExtentionContext';
 
-export function activateProjectExplorer(context: ExtensionContext, isBI: boolean) {
+export function activateProjectExplorer(context: ExtensionContext, isBI: boolean, isMultiRoot?: boolean) {
 	if (extension.langClient) {
 		commands.executeCommand('setContext', 'BI.status', 'loading');
 	}
@@ -24,6 +23,9 @@ export function activateProjectExplorer(context: ExtensionContext, isBI: boolean
 		commands.executeCommand(BI_COMMANDS.FOCUS_PROJECT_EXPLORER);
 		commands.executeCommand(SHARED_COMMANDS.SHOW_VISUALIZER);
 		commands.executeCommand('setContext', 'BI.project', true);
+		if (isMultiRoot) {
+			commands.executeCommand('setContext', 'BI.isMultiRoot', true);
+		}
 	}
 	projectTree.onDidChangeVisibility(res => {
 		if (res.visible) {

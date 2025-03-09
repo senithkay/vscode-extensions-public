@@ -22,7 +22,8 @@ import {
     SubPanelView,
     LinePosition,
     ExpressionProperty,
-    Type
+    Type,
+    RecordTypeField
 } from "@wso2-enterprise/ballerina-core";
 import {
     FormField,
@@ -104,6 +105,7 @@ export function FormGenerator(props: FormProps) {
     const [fields, setFields] = useState<FormField[]>([]);
     const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false });
     const [visualizableFields, setVisualizableFields] = useState<string[]>([]);
+    const [recordTypeFields, setRecordTypeFields] = useState<RecordTypeField[]>([]);
 
     /* Expression editor related state and ref variables */
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
@@ -167,9 +169,9 @@ export function FormGenerator(props: FormProps) {
 
         // hide connection property if node is a REMOTE_ACTION_CALL or RESOURCE_ACTION_CALL node
         if (node.codedata.node === "REMOTE_ACTION_CALL" || node.codedata.node === "RESOURCE_ACTION_CALL") {
-            if (enrichedNodeProperties) {
+            if (enrichedNodeProperties?.connection) {
                 enrichedNodeProperties.connection.optional = true;
-            } else {
+            } else if (formProperties?.connection) {
                 formProperties.connection.optional = true;
             }
         }
@@ -180,6 +182,21 @@ export function FormGenerator(props: FormProps) {
             .then((res) => {
                 setVisualizableFields(res.visualizableProperties);
             });
+
+        // Extract fields with typeMembers where kind is RECORD_TYPE
+        const recordTypeFields = Object.entries(formProperties)
+            .filter(([_, property]) =>
+                property.typeMembers &&
+                property.typeMembers.some(member => member.kind === "RECORD_TYPE")
+            )
+            .map(([key, property]) => ({
+                key,
+                property,
+                recordTypeMembers: property.typeMembers.filter(member => member.kind === "RECORD_TYPE")
+            }));
+
+        setRecordTypeFields(recordTypeFields);
+        console.log(">>> Fields with RECORD_TYPE:", recordTypeFields);
 
         // get node properties
         setFields(convertNodePropertiesToFormFields(enrichedNodeProperties || formProperties, connections, clientName));
@@ -460,7 +477,8 @@ export function FormGenerator(props: FormProps) {
         value: string,
         onChange: (value: string, updatedCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void,
-        helperPaneHeight: HelperPaneHeight
+        helperPaneHeight: HelperPaneHeight,
+        recordTypeField?: RecordTypeField
     ) => {
         return getHelperPane({
             fileName: fileName,
@@ -471,7 +489,8 @@ export function FormGenerator(props: FormProps) {
             defaultValue: defaultValue,
             currentValue: value,
             onChange: onChange,
-            helperPaneHeight: helperPaneHeight
+            helperPaneHeight: helperPaneHeight,
+            recordTypeField: recordTypeField
         });
     }
 
@@ -479,6 +498,7 @@ export function FormGenerator(props: FormProps) {
         typeBrowserRef: RefObject<HTMLDivElement>,
         currentType: string,
         currentCursorPosition: number,
+        typeHelperState: boolean,
         onChange: (newType: string, newCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void,
         typeHelperHeight: HelperPaneHeight
@@ -490,6 +510,7 @@ export function FormGenerator(props: FormProps) {
             currentType,
             currentCursorPosition,
             typeHelperHeight,
+            typeHelperState,
             onChange,
             () => changeHelperPaneState(false)
         );
@@ -596,6 +617,7 @@ export function FormGenerator(props: FormProps) {
                     visualizableFields={visualizableFields}
                     infoLabel={infoLabel}
                     disableSaveButton={disableSaveButton}
+                    recordTypeFields={recordTypeFields}
                 />
             )}
             {typeEditorState.isOpen &&

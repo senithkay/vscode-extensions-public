@@ -53,7 +53,7 @@ export function FunctionForm(props: FunctionFormProps) {
     const formType = useRef(isDataMapper ? "Data Mapper" : isNpFunction ? "Prompt as code" : "Function");
 
     useEffect(() => {
-        setFilePath(Utils.joinPath(URI.file(projectPath), fileName).fsPath)
+        setFilePath(fileName)
         if (functionName) {
             getExistingFunctionNode();
         } else {

@@ -161,7 +161,7 @@ const MainPanel = () => {
                 switch (value?.view) {
                     case MACHINE_VIEW.Overview:
                         if (value.isBI) {
-                            setViewComponent(<OverviewBI />);
+                            setViewComponent(<OverviewBI projectPath={value.projectUri} />);
                             break;
                         }
                         setViewComponent(<Overview visualizerLocation={value} />);
@@ -200,7 +200,7 @@ const MainPanel = () => {
                             setViewComponent(
                                 <FunctionForm
                                     projectPath={value.projectUri}
-                                    fileName={"data_mappings.bal"}
+                                    fileName={value.documentUri || value.projectUri}
                                     functionName={value?.identifier}
                                     isDataMapper={true}
                                 />
@@ -241,7 +241,7 @@ const MainPanel = () => {
                         setViewComponent(<ProjectForm />);
                         break;
                     case MACHINE_VIEW.BIComponentView:
-                        setViewComponent(<ComponentListView />);
+                        setViewComponent(<ComponentListView scope={value.scope} />);
                         break;
                     case MACHINE_VIEW.BIServiceWizard:
                         setViewComponent(<ServiceWizard type={value.serviceType} />);
@@ -270,30 +270,25 @@ const MainPanel = () => {
                         setViewComponent(<ListenerEditView filePath={value.documentUri} position={value?.position} />);
                         break;
                     case MACHINE_VIEW.AddConnectionWizard:
-                        rpcClient.getVisualizerLocation().then((location) => {
-                            setViewComponent(
-                                <AddConnectionWizard
-                                    fileName={Utils.joinPath(URI.file(location.projectUri), 'connections.bal').fsPath}
-                                />
-                            );
-                        });
+                        setViewComponent(
+                            <AddConnectionWizard
+                                fileName={value.documentUri || value.projectUri}
+                            />
+                        );
                         break;
                     case MACHINE_VIEW.EditConnectionWizard:
-                        rpcClient.getVisualizerLocation().then((location) => {
-                            setViewComponent(
-                                <EditConnectionWizard
-                                    fileName={Utils.joinPath(URI.file(location.projectUri), 'connections.bal').fsPath}
-                                    connectionName={value?.identifier}
-                                />
-                            );
-                        });
+                        setViewComponent(
+                            <EditConnectionWizard
+                                fileName={value.documentUri || value.projectUri}
+                                connectionName={value?.identifier}
+                            />
+                        );
                         break;
                     case MACHINE_VIEW.BIMainFunctionForm:
                         setViewComponent(<MainForm />);
                         break;
                     case MACHINE_VIEW.BIFunctionForm:
-                        const fileName = value?.documentUri ? URI.parse(value.documentUri).path.split('/').pop() : 'functions.bal';
-                        setViewComponent(<FunctionForm projectPath={value.projectUri} fileName={fileName} functionName={value?.identifier} />);
+                        setViewComponent(<FunctionForm projectPath={value.projectUri} fileName={value.documentUri || value.projectUri} functionName={value?.identifier} />);
                         break;
                     case MACHINE_VIEW.BITestFunctionForm:
                         setViewComponent(<TestFunctionForm
