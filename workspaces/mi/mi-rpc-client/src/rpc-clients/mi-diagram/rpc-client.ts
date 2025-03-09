@@ -387,6 +387,10 @@ import {
     getArtifactType,
     GetArtifactTypeResponse,
     askImportFileDir,
+    BuildProjectRequest,
+    deployProject,
+    DeployProjectRequest,
+    DeployProjectResponse,
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -850,8 +854,12 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getAllAPIcontexts, HOST_EXTENSION);
     }
 
-    buildProject(): void {
-        return this._messenger.sendNotification(buildProject, HOST_EXTENSION);
+    buildProject(params: BuildProjectRequest): void {
+        return this._messenger.sendNotification(buildProject, HOST_EXTENSION, params);
+    }
+
+    deployProject(params: DeployProjectRequest): Promise<DeployProjectResponse> {
+        return this._messenger.sendRequest(deployProject, HOST_EXTENSION, params);
     }
 
     refreshAccessToken(): Promise<void> {

@@ -19,9 +19,11 @@ import { activateDebugger } from './debugger/activate';
 import { activateMigrationSupport } from './migration';
 import { activateRuntimeService } from './runtime-services-panel/activate';
 import { MILanguageClient } from './lang-client/activator';
+import { activateUriHandlers } from './uri-handler';
 
 export async function activate(context: vscode.ExtensionContext) {
 	extension.context = context;
+	activateUriHandlers();
 	RPCLayer.init();
 	activateHistory();
 
