@@ -66,6 +66,7 @@ const PanelTabContainer = styled.div<{ isActive: boolean }>`
     padding: 4px 0;
     color: var(--panel-tab-foreground);
     cursor: pointer;
+    text-wrap: nowrap;
     ${({ isActive }: { isActive: boolean }) =>
         isActive &&
         `
@@ -81,10 +82,11 @@ const ViewContainer = styled.div`
     overflow-y: auto;
 `;
 
-const TabContainer = styled.div`
+const TabContainer = styled.div<{ sx?: CSSProperties }>`
     display: flex;
     align-items: center;
     gap: 32px;
+    ${({ sx }: { sx?: CSSProperties }) => sx}
 `;
 
 const PanelContainer = styled.div`
@@ -377,7 +379,7 @@ const PanelTab: React.FC<PanelTabProps> = ({ title, id, onClick }) => {
 
     const handleClick = () => {
         setActivePanelIndex(id);
-        onClick(id);
+        onClick?.(id);
     };
 
     return (
@@ -388,7 +390,7 @@ const PanelTab: React.FC<PanelTabProps> = ({ title, id, onClick }) => {
 };
 PanelTab.displayName = 'PanelTab';
 
-const Panels: React.FC<PanelsProps> = ({ children }) => {
+const Panels: React.FC<PanelsProps> = ({ children, sx }) => {
     const [activePanelIndex, setActivePanelIndex] = useState<number>(0);
 
     const tabs = React.Children.toArray(children).filter(child => 
@@ -402,7 +404,7 @@ const Panels: React.FC<PanelsProps> = ({ children }) => {
     return (
         <HelperPanePanelProvider activePanelIndex={activePanelIndex} setActivePanelIndex={setActivePanelIndex}>
             <PanelContainer>
-                <TabContainer>
+                <TabContainer sx={{ ...sx }}>
                     {tabs}
                 </TabContainer>
                 <ViewContainer>
