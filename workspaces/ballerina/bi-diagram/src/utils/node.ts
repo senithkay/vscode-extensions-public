@@ -97,6 +97,5 @@ export function getAgentNodeTools(node: FlowNode): AgentNodeTools[] {
               };
           })
         : [];
-    console.log(">>> get agent node tools", { node, tools });
     return tools;
 }

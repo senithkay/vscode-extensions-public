@@ -222,13 +222,12 @@ export class SizingVisitor implements BaseVisitor {
         // Calculate node height based on node type
         const tools = getAgentNodeTools(node);
         const numberOfCircles = tools.length || 0;
-        let nodeHeight =
-            NODE_HEIGHT + AGENT_NODE_TOOL_SECTION_GAP + numberOfCircles * (NODE_HEIGHT + AGENT_NODE_TOOL_GAP);
-
-        let containerHeight = nodeHeight;
-        if (node.properties?.variable?.value || node.properties?.type?.value) {
-            containerHeight += LABEL_HEIGHT;
+        let nodeHeight = NODE_HEIGHT;
+        // if agent has tools, add tool section gap
+        if (tools.length > 0) {
+            nodeHeight += AGENT_NODE_TOOL_SECTION_GAP + numberOfCircles * (NODE_HEIGHT + AGENT_NODE_TOOL_GAP);
         }
+        let containerHeight = nodeHeight;
 
         this.setNodeSize(node, containerLeftWidth, containerRightWidth, containerHeight);
     }

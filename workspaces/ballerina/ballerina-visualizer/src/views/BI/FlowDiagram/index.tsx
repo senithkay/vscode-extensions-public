@@ -817,6 +817,21 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         setUpdatedExpressionField(undefined);
     };
 
+    const handleEditAgent = () => {
+        const agentName = selectedNodeRef.current.properties?.connection?.value as string;
+        if (!agentName) {
+            console.error("Agent name not found for node:", selectedNodeRef.current);
+            return;
+        }
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.AIAgentWizard,
+                identifier: agentName,
+            },
+        });
+    };
+
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
 
     const memoizedDiagramProps = useMemo(
@@ -929,6 +944,16 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             openSubPanel={handleSubPanel}
                             updatedExpressionField={updatedExpressionField}
                             resetUpdatedExpressionField={handleResetUpdatedExpressionField}
+                            actionButtonConfig={
+                                selectedNodeRef.current?.codedata.node === "AGENT_CALL"  && 
+                                selectedNodeRef.current?.codedata.sourceCode
+                                ? {
+                                    actionLabel: "Configure Agent",
+                                    description: "Change the agent's behavior by adjusting the system prompt, model, and tools. Click 'Configure Agent'.",
+                                    callback: handleEditAgent
+                                  } 
+                                : undefined
+                            }
                         />
                     )}
                 </div>
