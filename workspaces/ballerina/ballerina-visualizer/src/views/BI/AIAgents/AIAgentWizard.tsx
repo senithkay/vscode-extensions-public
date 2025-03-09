@@ -143,15 +143,9 @@ export function AIAgentWizard() {
     useEffect(() => {
         if (filePath) {
             setupAgentFields();
-
-        }
-    }, [filePath]);
-
-    useEffect(() => {
-        if (step === 2 && !openToolsForm) {
             setupToolsFields();
         }
-    }, [newTools, step]);
+    }, [filePath]);
 
     useEffect(() => {
         switch (modelState) {
@@ -238,14 +232,6 @@ export function AIAgentWizard() {
         }
         const existingTools = await rpcClient.getAIAgentRpcClient().getTools({ filePath });
         field.items = existingTools?.tools ? existingTools?.tools.map(item => item) : [];
-        if (newTools.length > 0) {
-            newTools.forEach(tool => {
-                field.items.push(tool.toolName);
-                if (!(field.value as any[]).includes(tool.toolName)) {
-                    (field.value as any[]).push(tool.toolName);
-                }
-            })
-        }
         setToolsFields([field]);
         setFetching(false);
     }
@@ -278,14 +264,8 @@ export function AIAgentWizard() {
         console.log("Response: ", response)
 
         // Redirect to relevant page
-        rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: response.filePath, position: response.position } })
+        rpcClient.getVisualizerRpcClient().goBack();
     }
-
-    // TODO: Remove these once side panel is final
-    // const handleToolCreation = (data: AgentTool) => {
-    //     setNewTools([...newTools, data]);
-    //     setOpenToolsForm(false);
-    // }
 
     useEffect(() => {
         console.log("xxx openToolsForm changed to:", openToolsForm);
@@ -293,6 +273,9 @@ export function AIAgentWizard() {
 
     const handleToolCreationSidePanel = (data: AgentToolRequest) => {
         setNewTools([...newTools, data]);
+        toolsFields.at(0).items.push(data.toolName);
+        (toolsFields.at(0).value as string[]).push(data.toolName);
+        setToolsFields([...toolsFields]);
         handleOnToolFormBack();
     }
     const handleOnToolFormBack = () => {

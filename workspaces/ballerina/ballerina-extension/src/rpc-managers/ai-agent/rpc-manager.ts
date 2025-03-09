@@ -122,15 +122,11 @@ export class AiAgentRpcManager implements AIAgentAPI {
 
                 const projectUri = context.projectUri;
                 const filePath = Utils.joinPath(URI.file(projectUri), "agents.bal").fsPath;
-
-                // selected tool list
-                const selectedToolList: string[] = [];
                 let selectedModel = "";
                 // Create the tools first
                 if (params.newTools.length > 0) {
                     for (const tool of params.newTools) { // create tools one by one
                         await this.createAgentTool(tool);
-                        selectedToolList.push(tool.toolName);
                     }
                 }
 
@@ -182,7 +178,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
 
                 // set agent model name and tools
                 agentFlowNode.properties["model"].value = selectedModel;
-                agentFlowNode.properties["tools"].value = selectedToolList;
+                agentFlowNode.properties["tools"].value = params.toolsFields.at(0).value;
 
                 // Create a new model with given flow node
                 const codeEdits = await StateMachine.langClient()
