@@ -12,6 +12,7 @@ import {
     AIAgentAPI,
     AIAgentRequest,
     AIAgentResponse,
+    AIAgentToolsUpdateRequest,
     AIConnectorActionsRequest,
     AIConnectorActionsResponse,
     AIGentToolsRequest,
@@ -24,7 +25,6 @@ import {
     AIToolsResponse,
     AgentTool,
     AgentToolRequest,
-    CodeData,
     FlowNode,
     NodePosition,
     STModification,
@@ -192,24 +192,39 @@ export class AiAgentRpcManager implements AIAgentAPI {
                     });
                 await this.updateSource(codeEdits.textEdits);
                 await new Promise(resolve => setTimeout(resolve, 2000));
-                // TODO: Add the agent call to the diagram
-                // Create AI Agent call
-                // const agentCallRequest: BINodeTemplateRequest = {
-                //     filePath: entryPosition.filePath,
-                //     position: { line: entryPosition.position.startLine + 1, offset: 0 },
-                //     id: {
-                //         node: "AGENT_CALL"
-                //     }
-                // };
-
-                // // Get the Node template for AI Model
-                // const agentCallFlowNode = (await StateMachine.langClient().getNodeTemplate(agentCallRequest)).flowNode;
-
-                // // Generate the agent call code
-                // const agentCallRes = (await new BiDiagramRpcManager().getSourceCode({ filePath: entryPosition.filePath, flowNode: agentFlowNode }));
-
                 resolve({ response: true, filePath, position: undefined });
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
 
+    async updateAIAgentTools(params: AIAgentToolsUpdateRequest): Promise<AIAgentResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const projectUri = context.projectUri;
+                const filePath = Utils.joinPath(URI.file(projectUri), "agents.bal").fsPath;
+                // Create the tools if there are any
+                if (params.newTools.length > 0) {
+                    for (const tool of params.newTools) {
+                        await this.createAgentTool(tool);
+                    }
+                }
+                // Get the agent flow node
+                const agentFlowNode = params.agentFlowNode;
+                // set agent tools
+                agentFlowNode.properties["tools"].value = params.toolsFields.at(0).value;
+
+                // Update the agent node with given flow node
+                const codeEdits = await StateMachine.langClient()
+                    .getSourceCode({
+                        filePath: filePath,
+                        flowNode: agentFlowNode
+                    });
+                await this.updateSource(codeEdits.textEdits);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                resolve({ response: true, filePath, position: undefined });
             } catch (error) {
                 console.log(error);
             }

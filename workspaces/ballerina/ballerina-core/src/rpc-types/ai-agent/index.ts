@@ -8,7 +8,7 @@
  */
 
 import { AIGentToolsRequest, AIGentToolsResponse, AIModelsRequest, AINodesRequest, AINodesResponse, AIToolsRequest, AIToolsResponse, AIConnectorActionsRequest, AIConnectorActionsResponse, AIModelsResponse } from "../../interfaces/extended-lang-client";
-import { AIAgentRequest, AIAgentResponse } from "./interfaces";
+import { AIAgentRequest, AIAgentResponse, AIAgentToolsUpdateRequest } from "./interfaces";
 
 export interface AIAgentAPI {
     getAllAgents: (params: AINodesRequest) => Promise<AINodesResponse>;
@@ -17,5 +17,6 @@ export interface AIAgentAPI {
     getTools: (params: AIToolsRequest) => Promise<AIToolsResponse>;
     genTool: (params: AIGentToolsRequest) => Promise<AIGentToolsResponse>;
     createAIAgent: (params: AIAgentRequest) => Promise<AIAgentResponse>;
+    updateAIAgentTools: (params: AIAgentToolsUpdateRequest) => Promise<AIAgentResponse>;
     getActions: (params: AIConnectorActionsRequest) => Promise<AIConnectorActionsResponse>;
 }
