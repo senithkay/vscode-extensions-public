@@ -241,21 +241,20 @@ export function Mediators(props: MediatorProps) {
         connectorName ? setExpandedModules([connectorName]) : initializeExpandedModules(allMediators);;
     };
 
-    const deleteConnector = async (connectorName: string, artifactId: string, version: string, iconUrl: string,
-                                   connectorPath: string, isRefresh: boolean, ballerinaModulePath: string) => {
-        if (isRefresh) {
-            await rpcClient.getMiDiagramRpcClient().buildBallerinaModule(ballerinaModulePath);
-            reloadPalette(connectorName);
-        } else {
-            const removePage = <RemoveConnectorPage
-                connectorName={connectorName}
-                artifactId={artifactId}
-                version={version}
-                connectorPath={connectorPath}
-                onRemoveSuccess={reloadPalette} />;
+    const deleteConnector = async (connectorName: string, artifactId: string, version: string, iconUrl: string, connectorPath: string) => {
+        const removePage = <RemoveConnectorPage
+                        connectorName={connectorName}
+                        artifactId={artifactId}
+                        version={version}
+                        connectorPath={connectorPath}
+                        onRemoveSuccess={reloadPalette} />;
 
-            sidepanelAddPage(sidePanelContext, removePage, FirstCharToUpperCase(connectorName), iconUrl);
-        }
+        sidepanelAddPage(sidePanelContext, removePage, FirstCharToUpperCase(connectorName), iconUrl);
+    }
+
+    const refreshConnector = async (connectorName: string, ballerinaModulePath: string) => {
+            await rpcClient.getMiDiagramRpcClient().buildBallerinaModule(ballerinaModulePath);
+                        reloadPalette(connectorName);
     }
 
     const firstCharToUpperCaseForDefault = (name: string) => {
@@ -334,6 +333,7 @@ export function Mediators(props: MediatorProps) {
                                 { artifactId: values["artifactId"], version: values["version"], connectorPath: values["connectorPath"],
                                     isBallerinaModule: values["isBallerinaModule"], ballerinaModulePath: values["ballerinaModulePath"] } : undefined}
                             onDelete={deleteConnector}
+                            onRefresh={refreshConnector}
                             versionTag={values.version}
                             disableGrid={values.isSupportCategories}>
                             {!values.isSupportCategories ? (

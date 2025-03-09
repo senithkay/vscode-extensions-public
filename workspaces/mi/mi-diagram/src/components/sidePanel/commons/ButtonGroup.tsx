@@ -104,8 +104,8 @@ interface ButtonroupProps {
     versionTag?: string;
     onDownload?: any;
     connectorDetails?: ConnectorDependency;
-    onDelete?: (connectorName: string, artifactId: string, version: string, iconUrl: string, connectorPath: string,
-                isRefresh: boolean, ballerinaModulePath: string) => void;
+    onDelete?: (connectorName: string, artifactId: string, version: string, iconUrl: string, connectorPath: string) => void;
+    onRefresh?: (connectorName: string, ballerinaModulePath: string) => void;
     disableGrid?: boolean;
 }
 export const ButtonGroup: React.FC<ButtonroupProps> = ({
@@ -117,6 +117,7 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({
     onDownload,
     connectorDetails,
     onDelete,
+    onRefresh,
     disableGrid
 }) => {
     const [collapsed, setCollapsed] = useState(isCollapsed);
@@ -181,14 +182,13 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({
                             <>
                                 <DeleteIconContainer
                                     onClick={() => onDelete(title, connectorDetails.artifactId, connectorDetails.version,
-                                        iconUri, connectorDetails.connectorPath, false, connectorDetails.ballerinaModulePath)}
+                                        iconUri, connectorDetails.connectorPath)}
                                     className="delete-icon">
                                     <Codicon name="trash" iconSx={{ fontSize: 20 }} />
                                 </DeleteIconContainer>
                                 {connectorDetails.isBallerinaModule &&
                                     <RefreshIconContainer
-                                        onClick={() => onDelete(title, connectorDetails.artifactId, connectorDetails.version,
-                                            iconUri, connectorDetails.connectorPath, true, connectorDetails.ballerinaModulePath)}
+                                        onClick={() => onRefresh(title, connectorDetails.ballerinaModulePath)}
                                         className="refresh-icon">
                                         <Codicon name="refresh" iconSx={{fontSize: 20}}/>
                                     </RefreshIconContainer>
