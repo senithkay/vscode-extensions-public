@@ -44,6 +44,11 @@ export interface AIAgentRequest {
     toolsFields: any[];
     newTools: AgentToolRequest[];
 }
+export interface AIAgentToolsUpdateRequest {
+    agentFlowNode: FlowNode;
+    toolsFields: any[];
+    newTools: AgentToolRequest[];
+}
 
 export interface AIAgentResponse {
     response: boolean;

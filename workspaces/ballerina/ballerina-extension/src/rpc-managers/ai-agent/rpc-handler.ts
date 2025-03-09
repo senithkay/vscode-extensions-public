@@ -10,6 +10,7 @@
  */
 import {
     AIAgentRequest,
+    AIAgentToolsUpdateRequest,
     AIConnectorActionsRequest,
     AIGentToolsRequest,
     AIModelsRequest,
@@ -21,7 +22,8 @@ import {
     getAllAgents,
     getAllModels,
     getModels,
-    getTools
+    getTools,
+    updateAIAgentTools
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { AiAgentRpcManager } from "./rpc-manager";
@@ -34,5 +36,6 @@ export function registerAiAgentRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getTools, (args: AIToolsRequest) => rpcManger.getTools(args));
     messenger.onRequest(genTool, (args: AIGentToolsRequest) => rpcManger.genTool(args));
     messenger.onRequest(createAIAgent, (args: AIAgentRequest) => rpcManger.createAIAgent(args));
+    messenger.onRequest(updateAIAgentTools, (args: AIAgentToolsUpdateRequest) => rpcManger.updateAIAgentTools(args));
     messenger.onRequest(getActions, (args: AIConnectorActionsRequest) => rpcManger.getActions(args));
 }

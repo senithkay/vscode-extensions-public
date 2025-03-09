@@ -12,6 +12,7 @@ import {
     AIAgentAPI,
     AIAgentRequest,
     AIAgentResponse,
+    AIAgentToolsUpdateRequest,
     AIConnectorActionsRequest,
     AIConnectorActionsResponse,
     AIGentToolsRequest,
@@ -28,7 +29,8 @@ import {
     getAllAgents,
     getAllModels,
     getModels,
-    getTools
+    getTools,
+    updateAIAgentTools
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -62,6 +64,10 @@ export class AiAgentRpcClient implements AIAgentAPI {
 
     createAIAgent(params: AIAgentRequest): Promise<AIAgentResponse> {
         return this._messenger.sendRequest(createAIAgent, HOST_EXTENSION, params);
+    }
+
+    updateAIAgentTools(params: AIAgentToolsUpdateRequest): Promise<AIAgentResponse> {
+        return this._messenger.sendRequest(updateAIAgentTools, HOST_EXTENSION, params);
     }
 
     getActions(params: AIConnectorActionsRequest): Promise<AIConnectorActionsResponse> {
