@@ -42,12 +42,13 @@ interface ConfigProps {
     onBack?: () => void;
     formSubmitText?: string;
     formCancelText?: string;
+    isEdit?: boolean;
 }
 
 export function AgentConfigForm(props: ConfigProps) {
     const { rpcClient } = useRpcContext();
 
-    const { formFields, onSubmit, onBack, formCancelText = "Back", formSubmitText = "Next" } = props;
+    const { isEdit, formFields, onSubmit, onBack, formCancelText = "Back", formSubmitText = "Next" } = props;
     const [filePath, setFilePath] = useState<string>('');
 
     useEffect(() => {
@@ -67,7 +68,7 @@ export function AgentConfigForm(props: ConfigProps) {
                 <>
                     {formFields.length > 0 &&
                         <FormContainer>
-                            <FormHeader title={`Initialize AI Agent`} subtitle={`Name your AI Agent and define its core purpose`} />
+                            {!isEdit && <FormHeader title={`Initialize AI Agent`} subtitle={`Name your AI Agent and define its core purpose`} />}
                             {filePath &&
                                 <FormGeneratorNew
                                     fileName={filePath}

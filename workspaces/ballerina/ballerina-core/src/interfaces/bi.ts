@@ -246,6 +246,8 @@ export type NodePropertyKey =
     | "defaultable"
     | "scope"
     | "parameters"
+    | "model"
+    | "tools"
     | "functionName";
 
 export type BranchKind = "block" | "worker";

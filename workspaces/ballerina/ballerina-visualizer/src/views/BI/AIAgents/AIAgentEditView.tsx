@@ -8,8 +8,8 @@
  */
 
 import { useEffect, useState } from 'react';
-import { AgentTool, AgentToolRequest, AIAgentRequest, CodeData, EVENT_TYPE, ListenerModel, ListenersResponse, PropertyModel, ServiceModel, TriggerModelsResponse } from '@wso2-enterprise/ballerina-core';
-import { Dropdown, Icon, OptionProps, RadioButtonGroup, Stepper, Typography, View, ViewContent } from '@wso2-enterprise/ui-toolkit';
+import { AgentTool, AgentToolRequest, AIAgentRequest, CodeData, EVENT_TYPE, FlowNode, ListenerModel, ListenersResponse, NodePosition, PropertyModel, ServiceModel, TriggerModelsResponse } from '@wso2-enterprise/ballerina-core';
+import { Dropdown, Icon, OptionProps, RadioButtonGroup, Stepper, Tabs, Typography, View, ViewContent, ViewItem } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import AgentConfigForm from './Forms/AgentConfigForm';
@@ -98,11 +98,30 @@ const ChoicePaddingSection = styled.div`
 `;
 
 
-export function AIAgentWizard() {
+enum Views {
+    AGENT = "AGENT",
+    MODEL = "MODEL",
+    TOOLS = "TOOLS"
+}
+
+interface AIAgentEditViewProps {
+    agentName: string;
+}
+
+
+export function AIAgentEditView(params: AIAgentEditViewProps) {
     const { rpcClient } = useRpcContext();
+
+    const { agentName = "agent" } = params;
+
+    const [agentFlowNode, setAgentFlowNode] = useState<FlowNode>();
+
+
     const [filePath, setFilePath] = useState<string>("");
 
     const [step, setStep] = useState<number>(0);
+
+    const [currentView, setCurrentView] = useState(Views.AGENT);
 
 
     const [modelState, setModelState] = useState<number>(1); // 1 = New | 2 = Existing
@@ -125,10 +144,41 @@ export function AIAgentWizard() {
     const [loadingMsg, setLoadingMsg] = useState<string>("Loading AI Agent...");
 
     useEffect(() => {
-        rpcClient.getVisualizerLocation().then(res => {
-            setFilePath(Utils.joinPath(URI.file(res.projectUri), 'agents.bal').fsPath)
-        });
+        rpcClient
+            .getBIDiagramRpcClient()
+            .getModuleNodes()
+            .then((res) => {
+                console.log(">>> moduleNodes", { moduleNodes: res });
+                if (!res.flowModel.connections || res.flowModel.connections.length === 0) {
+                    return;
+                }
+                const agentFlowNode = res.flowModel.connections.find(
+                    (node) => node.properties.variable.value === agentName
+                );
+                if (!agentFlowNode) {
+                    console.error(">>> Error finding connector", { agentName });
+                    return;
+                }
+                setAgentFlowNode(agentFlowNode);
+                const formProperties = convertConfig(agentFlowNode.properties);
+                console.log(">>> AI AGENT Form properties", formProperties);
+                setAgentFields(formProperties);
+
+
+                // Get the model name and find its connection
+                const modelCodeData = agentFlowNode.properties.model.codedata;
+
+                rpcClient.getVisualizerLocation().then(res => {
+                    const filePathx = Utils.joinPath(URI.file(res.projectUri), 'agents.bal').fsPath
+                    getNodeTemplate(modelCodeData, filePathx).then(res => {
+                        console.log("Model node template: ", res);
+                    });
+                });
+
+
+            });
     }, []);
+
 
 
     const getNodeTemplate = async (codeData: CodeData, filePath: string) => {
@@ -305,100 +355,56 @@ export function AIAgentWizard() {
         setOpenToolsForm(true);
     }
 
-    const defaultSteps = ["Agent Configuration", "Model Configuration", "Tool Integration"];
+    const handleViewChange = (view: string) => {
+        setCurrentView(view as Views);
+    };
+
 
     return (
         <View>
             <TopNavigationBar />
-            <TitleBar title="AI Agent" subtitle="Create a new AI agent for your integration" />
+            <TitleBar title="AI Agent" subtitle="Update AI agent configurations" />
             <ViewContent>
                 <Container>
-                    <StepperContainer>
-                        <Stepper alignment='flex-start' steps={defaultSteps} currentStep={step} />
-                    </StepperContainer>
                     {isLoading &&
                         <LoadingContainer>
                             <LoadingRing message={loadingMsg} />
                         </LoadingContainer>
                     }
-                    {!isLoading && step === 0 &&
-                        <>
-                            <AgentConfigForm formFields={agentFields} onSubmit={handleAgentConfigFormSubmit} />
-                        </>
-                    }
-                    {!isLoading && step === 1 &&
-                        <>
-                            <ChoiceSection>
-                                <FormHeader title={`Configure LLM Model`} subtitle={`Choose a foundation model or reuse an existing configuration.`} />
-                                <ChoicePaddingSection>
-                                    <RadioButtonGroup
-                                        id="model-options"
-                                        defaultValue={1}
-                                        defaultChecked={true}
-                                        value={modelState}
-                                        options={[{ value: 1, content: "Create New Model" }, { value: 2, content: "Use Existing Model" }]}
-                                        onChange={(e) => {
-                                            const checkedValue = Number(e.target.value);
-                                            setModelState(checkedValue);
-                                        }}
-                                    />
-                                </ChoicePaddingSection>
-                                {modelState === 1 &&
-                                    <>
-                                        <ChoicePaddingSection>
-                                            <Dropdown
-                                                isRequired
-                                                errorMsg=""
-                                                id="drop-down"
-                                                items={[{ value: "- Select -" }, ...newModels.map((model) => ({ value: model.object, content: model.object }))]}
-                                                label="Select AI Model"
-                                                description={"Available AI Models"}
-                                                onValueChange={(value: string) => {
-                                                    if (value === "Select Model") {
-                                                        return; // Skip the init option
-                                                    }
-                                                    setSelectedNewModel(value)
-                                                }}
-                                                value={selectedNewModel}
-                                                containerSx={{ paddingRight: 16 }}
-                                            />
-                                        </ChoicePaddingSection>
-                                        {fetching &&
-                                            <RelativeLoader message={"Fetching Model Form"} />
-                                        }
-                                        {!fetching && selectedNewModel &&
-                                            <ModelConfigForm formFields={modelFields} onSubmit={handleModelConfigFormSubmit} onBack={() => setStep(0)} />
-                                        }
-                                    </>
+                    {!isLoading &&
+                        <Tabs
+                            sx={{ paddingLeft: 10 }}
+                            childrenSx={{ overflowY: "auto" }}
+                            tabTitleSx={{ marginLeft: 5 }}
+                            titleContainerSx={{
+                                position: "sticky",
+                                top: 0,
+                                zIndex: 5,
+                            }}
+                            views={[
+                                { id: Views.AGENT, name: 'Agent Configuration' },
+                                { id: Views.MODEL, name: 'Model Configuration' },
+                                { id: Views.TOOLS, name: 'Tool Integration' },
+                            ]}
+                            currentViewId={currentView}
+                            onViewChange={handleViewChange}
+                        >
+                            <div id={Views.AGENT}>
+                                <AgentConfigForm isEdit={true} formFields={agentFields} onSubmit={handleAgentConfigFormSubmit} />
+                            </div>
+                            <div id={Views.MODEL}>
+                                <ModelConfigForm formFields={modelFields} onSubmit={handleModelConfigFormSubmit} onBack={() => setStep(0)} />
+                            </div>
+                            <div id={Views.TOOLS}>
+                                {fetching &&
+                                    <BottomMarginTextWrapper>
+                                        <RelativeLoader message={"Loading tools.."} />
+                                    </BottomMarginTextWrapper>
                                 }
-                                {modelState === 2 &&
-                                    <>
-                                        {existingModels.length > 0 &&
-                                            <ModelConfigForm formFields={modelFields} onSubmit={handleModelConfigFormSubmit} onBack={() => setStep(0)} />
-                                        }
-                                        {existingModels.length === 0 &&
-                                            <BottomMarginTextWrapper>
-                                                <Typography variant="body3">
-                                                    There are no existing models. Please create a new model
-                                                </Typography>
-                                            </BottomMarginTextWrapper>
-                                        }
-                                    </>
-                                }
-                            </ChoiceSection>
-                        </>
-                    }
-                    {!isLoading && step === 2 &&
-                        <>
-                            {fetching &&
-                                <BottomMarginTextWrapper>
-                                    <RelativeLoader message={"Loading tools.."} />
-                                </BottomMarginTextWrapper>
-                            }
-                            {!fetching && <ToolsConfigForm formFields={toolsFields} onSubmit={handleFinish} openToolsForm={handleToolFormOpen} onBack={() => setStep(1)} formSubmitText="Finish" />}
-                            {/* {!fetching && openToolsForm && <ToolsCreateForm onSubmit={handleToolCreation} onBack={() => setOpenToolsForm(false)} />} */}
-                            {!fetching && <AIAgentSidePanel projectPath={filePath} showSidePanel={openToolsForm} onSubmit={handleToolCreationSidePanel} onBack={handleOnToolFormBack} />}
-                        </>
+                                {!fetching && <ToolsConfigForm formFields={toolsFields} onSubmit={handleFinish} openToolsForm={handleToolFormOpen} onBack={() => setStep(1)} formSubmitText="Finish" />}
+                                {!fetching && <AIAgentSidePanel projectPath={filePath} showSidePanel={openToolsForm} onSubmit={handleToolCreationSidePanel} onBack={handleOnToolFormBack} />}
+                            </div>
+                        </Tabs>
                     }
                 </Container>
             </ViewContent>
