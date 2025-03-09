@@ -39,12 +39,14 @@ import {
     BISuggestedFlowModelRequest,
     BI_COMMANDS,
     BreakpointRequest,
+    BuildMode,
     ClassFieldModifierRequest,
     ComponentRequest,
     ConfigVariableResponse,
     CreateComponentResponse,
     CurrentBreakpointsResponse,
     DIRECTORY_MAP,
+    DevantComponentResponse,
     EVENT_TYPE,
     EndOfFileRequest,
     ExpressionCompletionsRequest,
@@ -57,6 +59,8 @@ import {
     FunctionNode,
     FunctionNodeRequest,
     FunctionNodeResponse,
+    GetRecordConfigRequest,
+    GetRecordConfigResponse,
     GetTypeRequest,
     GetTypeResponse,
     GetTypesRequest,
@@ -71,6 +75,8 @@ import {
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
+    RecordSourceGenRequest,
+    RecordSourceGenResponse,
     RecordsInWorkspaceMentions,
     RenameIdentifierRequest,
     RenameRequest,
@@ -86,6 +92,7 @@ import {
     UpdateConfigVariableResponse,
     UpdateImportsRequest,
     UpdateImportsResponse,
+    UpdateRecordConfigRequest,
     UpdateTypeRequest,
     UpdateTypeResponse,
     VisibleTypesRequest,
@@ -93,8 +100,8 @@ import {
     WorkspaceFolder,
     WorkspacesResponse,
     buildProjectStructure,
-    BuildMode,
-    DevantComponentResponse,
+    GetRecordModelFromSourceRequest,
+    GetRecordModelFromSourceResponse
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import { writeFileSync } from "fs";
@@ -965,25 +972,33 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async formDidOpen(params: FormDidOpenParams): Promise<void> {
         return new Promise(async (resolve, reject) => {
+            const { filePath } = params;
+            const fileUri = Uri.file(filePath);
+            const exprFileSchema = fileUri.with({ scheme: 'expr' });
+    
+            let languageId: string;
+            let version: number;
+            let text: string;
+            
             try {
-                const { filePath } = params;
-                const fileUri = Uri.file(filePath);
                 const textDocument = await workspace.openTextDocument(fileUri);
-                const exprFileSchema = fileUri.with({ scheme: 'expr' });
-
-                StateMachine.langClient().didOpen({
-                    textDocument: {
-                        uri: exprFileSchema.toString(),
-                        languageId: textDocument.languageId,
-                        version: textDocument.version,
-                        text: textDocument.getText()
-                    }
-                });
-                resolve();
+                languageId = textDocument.languageId;
+                version = textDocument.version;
+                text = textDocument.getText();
             } catch (error) {
-                console.error("Error opening file in didOpen", error);
-                reject(error);
+                languageId = "ballerina";
+                version = 1;
+                text = "";
             }
+
+            StateMachine.langClient().didOpen({
+                textDocument: {
+                    uri: exprFileSchema.toString(),
+                    languageId,
+                    version,
+                    text
+                }
+            });
         });
     }
 
@@ -1311,7 +1326,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 resolve({ line: lines.length - 1, offset: lastLineLength });
             } catch (error) {
                 console.log(error);
-                reject(error);
+                resolve({ line: 0, offset: 0 });
             }
         });
     }
@@ -1369,6 +1384,51 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         const project = contextYaml.match(/project: (.*)/)[1];
         const component = path.basename(projectRoot);
         return { org, project, component };
+    }
+
+    async getRecordConfig(params: GetRecordConfigRequest): Promise<GetRecordConfigResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient().getRecordConfig(params).then((res) => {
+                resolve(res);
+            }).catch((error) => {
+                console.log(">>> error getting record config", error);
+                reject(error);
+            });
+        });
+    }
+    
+    async updateRecordConfig(params: UpdateRecordConfigRequest): Promise<GetRecordConfigResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient().updateRecordConfig(params).then((res) => {
+                resolve(res);
+            }).catch((error) => {
+                console.log(">>> error updating record config", error);
+                reject(error);
+            });
+        });
+    }
+    
+    async getRecordSource(params: RecordSourceGenRequest): Promise<RecordSourceGenResponse> {
+        console.log(">>> requesting record source", params);
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient().getRecordSource(params).then((res) => {
+                resolve(res);
+            }).catch((error) => {
+                console.log(">>> error getting record source", error);
+                reject(error);
+            });
+        });
+    }
+
+    async getRecordModelFromSource(params: GetRecordModelFromSourceRequest): Promise<GetRecordModelFromSourceResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient().getRecordModelFromSource(params).then((res) => {
+                resolve(res);
+            }).catch((error) => {
+                console.log(">>> error getting record model from source", error);
+                reject(error);
+            });
+        });
     }
 }
 

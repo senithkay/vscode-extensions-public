@@ -190,7 +190,7 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
         } else if (services.length > 1) {
             if (serviceMetadata) {
                 const matchingService = services.find(service =>
-                    service.basePath === serviceMetadata.basePath && service.listener === serviceMetadata.listener
+                    service.basePath === serviceMetadata.basePath && compareListeners(service.listener, serviceMetadata.listener)
                 );
 
                 if (matchingService) {
@@ -271,7 +271,7 @@ async function findServiceForResource(services: ServiceInfo[], resourceMetadata:
         // TODO: Optimize this by checking only the relevant service once we have the lang server support for that
         for (const service of services) {
             try {
-                if (serviceMetadata && (service.basePath !== serviceMetadata.basePath || service.listener !== serviceMetadata.listener)) {
+                if (serviceMetadata && (service.basePath !== serviceMetadata.basePath || !compareListeners(service.listener, serviceMetadata.listener))) {
                     continue;
                 }
                 
@@ -312,7 +312,10 @@ async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> 
                 name: service.displayName || service.absolutePath.startsWith('/') ? service.absolutePath.trim().substring(1) : service.absolutePath.trim(),
                 basePath: service.absolutePath.trim(),
                 filePath: service.location.filePath,
-                listener: service.attachedListeners.map(listener => response.designModel.listeners.find(l => l.uuid === listener)?.symbol).join(',')
+                listener: {
+                    name: service.attachedListeners.map(listener => response.designModel.listeners.find(l => l.uuid === listener)?.symbol).join(','),
+                    port: service.attachedListeners.map(listener => response.designModel.listeners.find(l => l.uuid === listener)?.args.find(arg => arg.key === 'port')?.value).join(',')
+                }
             }));
 
         return services || [];
@@ -377,7 +380,7 @@ async function generateTryItFileContent(projectRoot: string, openapiSpec: OAISpe
             basePath: service.basePath,
             serviceName: service.name || 'Default',
             isResourceMode: isResourceMode,
-            resourceMethod: isResourceMode ? resourceMetadata.methodValue.toLowerCase() : '',
+            resourceMethod: isResourceMode ? resourceMetadata.methodValue.toUpperCase() : '',
             resourcePath: resourcePath,
         };
 
@@ -459,6 +462,11 @@ async function getOpenAPIDefinition(service: ServiceInfo): Promise<OAISpec> {
 
 async function getServicePort(projectDir: string, service: ServiceInfo, openapiSpec: OAISpec): Promise<number> {
     try {
+        // If the service has an anonymous listener, directly use the port defined inline
+        if (service.listener.port) {
+            return parseInt(service.listener.port);
+        }
+
         // Try to get default port from OpenAPI spec first
         let portInSpec: number;
         const portInSpecStr = openapiSpec.servers?.[0]?.variables?.port?.default;
@@ -495,7 +503,8 @@ async function getServicePort(projectDir: string, service: ServiceInfo, openapiS
         }));
 
         const selected = await vscode.window.showQuickPick(portItems, {
-            placeHolder: `Port auto-detection failed due to multiple service ports. Pick the correct port for the service '${service.name || service.basePath}' to continue`,
+            placeHolder: `Multiple service ports found. Select the port of the service '${service.name || service.basePath}'`,
+            title: 'Select Service Port'
         });
 
         if (!selected) {
@@ -822,6 +831,26 @@ function resolveSchemaRef(ref: string, context: OAISpec): Schema | undefined {
     return current as Schema;
 }
 
+// helper function to compare listeners
+function compareListeners(serviceInfoListener: { name: string, port?: string }, serviceMetadataListener: string): boolean {
+    // named listeners
+    if (serviceInfoListener.name && serviceMetadataListener === serviceInfoListener.name) {
+        return true;
+    }
+
+    // anonymous listeners
+    if (serviceMetadataListener.startsWith('new http:Listener') && serviceInfoListener.port) {
+        // Extract port from 'http:Listener(9090)'
+        const portMatch = serviceMetadataListener.match(/new http:Listener\((\d+)\)/);
+        if (portMatch && portMatch[1]) {
+            const port = parseInt(portMatch[1], 10);
+            return port === parseInt(serviceInfoListener.port);
+        }
+    }
+
+    return false;
+}
+
 // Function to setup error log watching
 function setupErrorLogWatcher(targetDir: string) {
     const errorLogPath = path.join(targetDir, 'httpyac_errors.log');
@@ -882,8 +911,11 @@ interface ServiceInfo {
     name?: string;
     basePath: string;
     filePath: string;
-    listener: string;
     port?: number;
+    listener: {
+        name: string;
+        port?: string;
+    };
 }
 
 // Main OpenAPI specification interface

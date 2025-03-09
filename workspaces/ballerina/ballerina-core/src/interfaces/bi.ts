@@ -84,7 +84,21 @@ export type Property = {
     placeholder?: string;
     valueTypeConstraint?: string | string[];
     codedata?: CodeData;
+    typeMembers?: PropertyTypeMemberInfo[];
 };
+
+export type PropertyTypeMemberInfo = {
+    type: string;
+    kind: string;
+    packageInfo: string;
+    selected: boolean;
+};
+
+export type RecordTypeField = {
+    key: string;
+    property: Property;
+    recordTypeMembers: PropertyTypeMemberInfo[];
+}
 
 export type Diagnostic = {
     hasDiagnostics: boolean;
