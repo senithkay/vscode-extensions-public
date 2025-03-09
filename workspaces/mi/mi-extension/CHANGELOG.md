@@ -7,6 +7,8 @@ All notable changes to the "micro-integrator" extension will be documented in th
 ### New Features
 
 Added: Devant support ([#290](https://github.com/wso2-enterprise/devant/issues/290))  
+Added: Ballerina modules generation support ([#942](https://github.com/wso2/mi-vscode/issues/942))
+
 ### Fixed
 
 Fixed: After creating proxy, wrong redirection ([#635](https://github.com/wso2/mi-vscode/issues/635))  
