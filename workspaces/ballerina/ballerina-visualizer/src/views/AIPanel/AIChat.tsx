@@ -595,10 +595,10 @@ export function AIChat() {
                     await processCodeGeneration(token, [messageBody, attachments, CodeGenerationType.CODE_GENERATION], message);
                     return;
                 } else if (commandKey === COMMAND_NATURAL_PROGRAMMING) {
-                    if (isContentIncludedInMessageBody(messageBody, CodeGenerationType.CODE_FOR_USER_REQUIREMENT)) {
-                        await processCodeGeneration(token, [messageBody, attachments, CodeGenerationType.CODE_GENERATION], message);
+                    if (isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT)) {
+                        await processCodeGeneration(token, [messageBody, attachments, CodeGenerationType.CODE_FOR_USER_REQUIREMENT], message);
+                        return;
                     }
-                    return;
                 } else if (commandKey === COMMAND_DOCUMENTATION) {
                     await findInDocumentation(messageBody, token);
                     return;
