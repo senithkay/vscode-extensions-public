@@ -972,25 +972,33 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async formDidOpen(params: FormDidOpenParams): Promise<void> {
         return new Promise(async (resolve, reject) => {
+            const { filePath } = params;
+            const fileUri = Uri.file(filePath);
+            const exprFileSchema = fileUri.with({ scheme: 'expr' });
+    
+            let languageId: string;
+            let version: number;
+            let text: string;
+            
             try {
-                const { filePath } = params;
-                const fileUri = Uri.file(filePath);
                 const textDocument = await workspace.openTextDocument(fileUri);
-                const exprFileSchema = fileUri.with({ scheme: 'expr' });
-
-                StateMachine.langClient().didOpen({
-                    textDocument: {
-                        uri: exprFileSchema.toString(),
-                        languageId: textDocument.languageId,
-                        version: textDocument.version,
-                        text: textDocument.getText()
-                    }
-                });
-                resolve();
+                languageId = textDocument.languageId;
+                version = textDocument.version;
+                text = textDocument.getText();
             } catch (error) {
-                console.error("Error opening file in didOpen", error);
-                reject(error);
+                languageId = "ballerina";
+                version = 1;
+                text = "";
             }
+
+            StateMachine.langClient().didOpen({
+                textDocument: {
+                    uri: exprFileSchema.toString(),
+                    languageId,
+                    version,
+                    text
+                }
+            });
         });
     }
 
@@ -1318,7 +1326,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 resolve({ line: lines.length - 1, offset: lastLineLength });
             } catch (error) {
                 console.log(error);
-                reject(error);
+                resolve({ line: 0, offset: 0 });
             }
         });
     }
