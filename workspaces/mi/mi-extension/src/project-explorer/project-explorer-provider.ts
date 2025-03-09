@@ -12,7 +12,7 @@ import { ProjectStructureResponse, ProjectStructureEntry, RegistryResourcesFolde
 import { COMMANDS, EndpointTypes, InboundEndpointTypes, MessageProcessorTypes, MessageStoreTypes, TemplateTypes } from '../constants';
 import { window } from 'vscode';
 import path = require('path');
-import { findJavaFiles, findBallerinaFiles } from '../util/fileOperations';
+import { findJavaFiles } from '../util/fileOperations';
 import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 import { RUNTIME_VERSION_440 } from "../constants";
 import { compareVersions } from '../util/onboardingUtils';
@@ -554,7 +554,8 @@ function generateArtifacts(
 			case 'Ballerina Modules': {
 				const ballerinaPath = path.join(project.uri.fsPath, 'src', 'main', 'ballerina');
 				parentEntry.id = 'ballerina-module';
-				parentEntry.children = generateTreeDataOfBallerinaModule(project, projectStructure);
+				parentEntry.children = generateTreeDataOfBallerinaModule(project, projectStructure,
+					data[key].filter(file => file.name !== "Ballerina.toml"));
 				parentEntry.contextValue = 'ballerina-module';
 				break;
 			}
@@ -615,14 +616,18 @@ function generateTreeDataOfClassMediator(project: vscode.WorkspaceFolder, data: 
 	return result;
 }
 
-function generateTreeDataOfBallerinaModule(project: vscode.WorkspaceFolder, data: ProjectStructureResponse): ProjectExplorerEntry[] {
+function generateTreeDataOfBallerinaModule(project: vscode.WorkspaceFolder, data: ProjectStructureResponse, ballerinaFiles: any): ProjectExplorerEntry[] {
 	const directoryMap = data.directoryMap;
 	const main = (directoryMap as any)?.src?.main;
 	const result: ProjectExplorerEntry[] = [];
 	if (main && main['ballerina']) {
-		const ballerinaPath = path.join(project.uri.fsPath, 'src', 'main', 'ballerina');
-		const mediators = findBallerinaFiles(ballerinaPath);
-		for (var entry of mediators.entries()) {
+		let modules = new Map();
+		ballerinaFiles.forEach(file => {
+			const nameWithoutExtension = file.name.replace('.bal', '');
+			modules.set(file.path, nameWithoutExtension.endsWith("-module") ?
+				nameWithoutExtension.replace('-module','') : nameWithoutExtension);
+		});;
+		for (var entry of modules.entries()) {
 			const filePath = entry[0];
 			const packageName = entry[1];
 			const fileName = path.basename(filePath);
