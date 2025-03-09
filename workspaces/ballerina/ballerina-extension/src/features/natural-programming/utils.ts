@@ -163,10 +163,10 @@ async function createDiagnostic(result: ResultItem, uri: Uri): Promise<CustomDia
                                     : new vscode.Position(0, 0);
 
     let range = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 0));
+    const document = await vscode.workspace.openTextDocument(uri);
 
     try {
         if (isSolutionsAvailable) {
-            const document = await vscode.workspace.openTextDocument(uri);
             codeChangeEndPosition = document.lineAt(result.endRowforImplementationChangedAction - 1).range.end;
             if (isDocChangeSolutionsAvailable) {
                 docChangeEndPosition = document.lineAt(result.endRowforDocChangedAction - 1).range.end;
@@ -176,6 +176,7 @@ async function createDiagnostic(result: ResultItem, uri: Uri): Promise<CustomDia
                 codeChangeEndPosition
             );
         } else if (isDocChangeSolutionsAvailable) {
+            docChangeEndPosition = document.lineAt(result.endRowforDocChangedAction - 1).range.end;
             range = new vscode.Range(
                 new vscode.Position(result.startRowforDocChangedAction - 1, 0),
                 docChangeEndPosition

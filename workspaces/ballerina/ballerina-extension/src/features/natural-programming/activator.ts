@@ -14,7 +14,7 @@ import { StateMachine } from "../../stateMachine";
 import { getLLMDiagnostics } from "./utils";
 import { NLCodeActionProvider, showTextOptions } from './nl-code-action-provider';
 import { BallerinaExtension } from 'src/core';
-import { PROGRESS_BAR_MESSAGE, WARNING_MESSAGE, WARNING_MESSAGE_DEFAULT } from './constants';
+import { PROGRESS_BAR_MESSAGE, WARNING_MESSAGE, WARNING_MESSAGE_DEFAULT, MONITERED_EXTENSIONS } from './constants';
 
 let diagnosticCollection: vscode.DiagnosticCollection;
 
@@ -31,26 +31,44 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             return;
         }
 
-        // Set up debounced diagnostics and event listeners
         const debouncedGetLLMDiagnostics = debounce(async () => {
-            const result: number|null = await getLLMDiagnostics(projectPath, diagnosticCollection);
+            const result: number | null = await getLLMDiagnostics(projectPath, diagnosticCollection);
             if (result == null) {
                 return;
             }
-
+        
             if (result > 400 && result < 500) {
                 vscode.window.showWarningMessage(WARNING_MESSAGE);
                 return;
             }
             vscode.window.showWarningMessage(WARNING_MESSAGE_DEFAULT);
         }, 8000);
-
+        
         vscode.workspace.onDidChangeTextDocument(async event => {
-            debouncedGetLLMDiagnostics();
+            const filePath = event.document.uri.fsPath; // Get the file path
+            const fileExtension = filePath.substring(filePath.lastIndexOf('.')); // Extract the file extension
+        
+            // Check if the file extension is in the monitoredExtensions array
+            if (MONITERED_EXTENSIONS.includes(fileExtension)) {
+                debouncedGetLLMDiagnostics();
+            }
         }, null, ballerinaExtInstance.context.subscriptions);
-
+        
         vscode.workspace.onDidDeleteFiles(async event => {
-            debouncedGetLLMDiagnostics();
+            let isMoniteredFileGotDeleted = false;
+            event.files.forEach(file => {
+                const filePath = file.fsPath; // Get the file path
+                const fileExtension = filePath.substring(filePath.lastIndexOf('.')); // Extract the file extension
+        
+                // Check if the file extension is in the monitoredExtensions array
+                if (MONITERED_EXTENSIONS.includes(fileExtension)) {
+                    isMoniteredFileGotDeleted = true;
+                }
+            });
+
+            if (isMoniteredFileGotDeleted) {
+                debouncedGetLLMDiagnostics();
+            }
         }, null, ballerinaExtInstance.context.subscriptions);
     }
 
