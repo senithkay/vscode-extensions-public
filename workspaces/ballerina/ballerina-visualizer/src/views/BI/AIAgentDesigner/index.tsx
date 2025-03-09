@@ -150,109 +150,11 @@ export function AIAgentDesigner(props: AIAgentDesignerProps) {
         });
     };
 
-    const handleNewResourceFunction = () => {
-        rpcClient
-            .getServiceDesignerRpcClient()
-            .getHttpResourceModel({ type: "http", functionName: "resource" })
-            .then((res) => {
-                console.log("New Function Model: ", res.function);
-                setFunctionModel(res.function);
-                setIsNew(true);
-                setShowForm(true);
-            });
-    };
-
-    const handleNewFunction = () => {
-        setIsNew(true);
-        setShowFunctionConfigForm(true);
-    };
-
-    const handleNewFunctionClose = () => {
-        setIsNew(false);
-        setShowForm(false);
-    };
-
     const handleFunctionEdit = (value: FunctionModel) => {
+        console.log("Function Model: ", value);
         setFunctionModel(value);
         setIsNew(false);
         setShowForm(true);
-    };
-
-    const handleFunctionDelete = async (model: FunctionModel) => {
-        if (model.kind === "REMOTE") {
-            model.enabled = false;
-            await handleResourceSubmit(model);
-        } else {
-            console.log("Deleting Resource Model:", model);
-            const targetPosition: NodePosition = {
-                startLine: model.codedata.lineRange.startLine.line,
-                startColumn: model.codedata.lineRange.startLine.offset,
-                endLine: model.codedata.lineRange.endLine.line,
-                endColumn: model.codedata.lineRange.endLine.offset,
-            };
-            const deleteAction: STModification = removeStatement(targetPosition);
-            await applyModifications(rpcClient, [deleteAction]);
-            fetchService();
-        }
-    };
-
-    const handleResourceSubmit = async (value: FunctionModel) => {
-        setIsSaving(true);
-        const lineRange: LineRange = {
-            startLine: { line: position.startLine, offset: position.startColumn },
-            endLine: { line: position.endLine, offset: position.endColumn },
-        };
-        let res = undefined;
-        if (isNew) {
-            res = await rpcClient
-                .getServiceDesignerRpcClient()
-                .addResourceSourceCode({ filePath, codedata: { lineRange }, function: value });
-        } else {
-            res = await rpcClient
-                .getServiceDesignerRpcClient()
-                .updateResourceSourceCode({ filePath, codedata: { lineRange }, function: value });
-        }
-        setIsNew(false);
-        handleNewFunctionClose();
-        await rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                documentUri: res.filePath,
-                position: res.position,
-            },
-        });
-    };
-
-    const handleFunctionSubmit = async (value: FunctionModel) => {
-        setIsSaving(true);
-        const lineRange: LineRange = {
-            startLine: { line: position.startLine, offset: position.startColumn },
-            endLine: { line: position.endLine, offset: position.endColumn },
-        };
-        let res = undefined;
-        if (isNew) {
-            res = await rpcClient
-                .getServiceDesignerRpcClient()
-                .addFunctionSourceCode({ filePath, codedata: { lineRange }, function: value });
-        } else {
-            res = await rpcClient
-                .getServiceDesignerRpcClient()
-                .updateResourceSourceCode({ filePath, codedata: { lineRange }, function: value });
-        }
-        setIsNew(false);
-        handleNewFunctionClose();
-        handleFunctionConfigClose();
-        await rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                documentUri: res.filePath,
-                position: res.position,
-            },
-        });
-    };
-
-    const handleFunctionConfigClose = () => {
-        setShowFunctionConfigForm(false);
     };
 
     const handleServiceTryIt = () => {
@@ -261,10 +163,6 @@ export function AIAgentDesigner(props: AIAgentDesignerProps) {
         const commands = ["kolab.tryit", false, undefined, { basePath, listener }];
         rpcClient.getCommonRpcClient().executeCommand({ commands });
     }
-
-    const handleExportOAS = () => {
-        rpcClient.getServiceDesignerRpcClient().exportOASFile({});
-    };
 
     const findIcon = (label: string) => {
         label = label.toLowerCase();
@@ -382,7 +280,7 @@ export function AIAgentDesigner(props: AIAgentDesignerProps) {
                             {serviceModel.functions
                                 .map((functionModel, index) => (
                                     <VSCodeButton appearance="icon" onClick={() => { handleFunctionEdit(functionModel) }}>
-                                        <Codicon name="edit" sx={{ marginRight: 8, fontSize: 16 }} />{functionModel.name.value}
+                                        <Codicon name="edit" sx={{ marginRight: 8, fontSize: 16 }} />Configure Chat Flow
                                     </VSCodeButton>
                                 ))}
                         </InfoContainer>
