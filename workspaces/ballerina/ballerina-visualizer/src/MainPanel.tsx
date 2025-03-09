@@ -259,7 +259,7 @@ const MainPanel = () => {
                         setViewComponent(<AIAgentWizard />);
                         break;
                     case MACHINE_VIEW.AIAgentEditView:
-                        setViewComponent(<AIAgentEditView />);
+                        setViewComponent(<AIAgentEditView agentName={value.identifier} />);
                         break;
                     case MACHINE_VIEW.BIServiceClassDesigner:
                         setViewComponent(

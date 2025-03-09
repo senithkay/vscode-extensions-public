@@ -78,7 +78,7 @@ export type Property = {
     metadata: Metadata;
     diagnostics?: Diagnostic;
     valueType: string;
-    value: string | ELineRange | NodeProperties;
+    value: string | ELineRange | NodeProperties | string[];
     optional: boolean;
     editable: boolean;
     advanced?: boolean;

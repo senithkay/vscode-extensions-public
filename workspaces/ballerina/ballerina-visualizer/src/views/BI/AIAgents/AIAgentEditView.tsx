@@ -112,170 +112,86 @@ interface AIAgentEditViewProps {
 export function AIAgentEditView(params: AIAgentEditViewProps) {
     const { rpcClient } = useRpcContext();
 
-    const { agentName = "agent" } = params;
+    const { agentName } = params;
 
     const [agentFlowNode, setAgentFlowNode] = useState<FlowNode>();
+    const [modelFlowNode, setModelFlowNode] = useState<FlowNode>();
+    const [savedTools, setSavedTools] = useState<string[]>();
 
 
     const [filePath, setFilePath] = useState<string>("");
 
-    const [step, setStep] = useState<number>(0);
-
     const [currentView, setCurrentView] = useState(Views.AGENT);
-
-
-    const [modelState, setModelState] = useState<number>(1); // 1 = New | 2 = Existing
-
     const [openToolsForm, setOpenToolsForm] = useState<boolean>(false);
 
     const [agentFields, setAgentFields] = useState<FormField[]>([]);
     const [modelFields, setModelFields] = useState<FormField[]>([]);
     const [toolsFields, setToolsFields] = useState<FormField[]>([]);
 
-    const [existingModels, setExistingModel] = useState<string[]>([]);
-
-    const [newModels, setNewModels] = useState<CodeData[]>([]);
-    const [selectedNewModel, setSelectedNewModel] = useState<string>("");
-
     const [newTools, setNewTools] = useState<AgentToolRequest[]>([]);
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [fetching, setFetching] = useState<boolean>(false);
-    const [loadingMsg, setLoadingMsg] = useState<string>("Loading AI Agent...");
+    const [loadingMsg, setLoadingMsg] = useState<string>("Loading Configurations...");
 
     useEffect(() => {
-        rpcClient
-            .getBIDiagramRpcClient()
-            .getModuleNodes()
-            .then((res) => {
-                console.log(">>> moduleNodes", { moduleNodes: res });
-                if (!res.flowModel.connections || res.flowModel.connections.length === 0) {
-                    return;
-                }
-                const agentFlowNode = res.flowModel.connections.find(
-                    (node) => node.properties.variable.value === agentName
-                );
-                if (!agentFlowNode) {
-                    console.error(">>> Error finding connector", { agentName });
-                    return;
-                }
-                setAgentFlowNode(agentFlowNode);
-                const formProperties = convertConfig(agentFlowNode.properties);
-                console.log(">>> AI AGENT Form properties", formProperties);
-                setAgentFields(formProperties);
-
-
-                // Get the model name and find its connection
-                const modelCodeData = agentFlowNode.properties.model.codedata;
-
-                rpcClient.getVisualizerLocation().then(res => {
-                    const filePathx = Utils.joinPath(URI.file(res.projectUri), 'agents.bal').fsPath
-                    getNodeTemplate(modelCodeData, filePathx).then(res => {
-                        console.log("Model node template: ", res);
-                    });
-                });
-
-
-            });
+        rpcClient.getVisualizerLocation().then(res => {
+            setFilePath(Utils.joinPath(URI.file(res.projectUri), 'agents.bal').fsPath)
+            fetchData();
+        });
     }, []);
 
 
-
-    const getNodeTemplate = async (codeData: CodeData, filePath: string) => {
-        const res = await rpcClient
-            .getBIDiagramRpcClient()
-            .getNodeTemplate({
-                position: { line: 0, offset: 0 },
-                filePath: filePath,
-                id: codeData,
-            });
-        const flowNode = res.flowNode;
-        return flowNode;
-    }
-
-    useEffect(() => {
-        if (filePath) {
-            setupAgentFields();
-
-        }
-    }, [filePath]);
-
-    useEffect(() => {
-        if (step === 2 && !openToolsForm) {
-            setupToolsFields();
-        }
-    }, [newTools, step]);
-
-    useEffect(() => {
-        switch (modelState) {
-            case 1: // Set New Models Form Values
-                selectedNewModel && setupModelFields();
-                break;
-            case 2: // Set Existing Models Form Values
-                setupModelFieldsExisting();
-                break;
-            default:
-                break;
-        }
-    }, [modelState, selectedNewModel]);
-
-
-    const setupAgentFields = async () => {
+    const fetchData = async () => {
         setIsLoading(true);
+        const res = await rpcClient.getBIDiagramRpcClient().getModuleNodes();
 
-        const allAgents = (await rpcClient.getAIAgentRpcClient().getAllAgents({ filePath }));
-        console.log("All Agents: ", allAgents);
-        const fixedAgent = allAgents.agents.at(0);
+        console.log("Module Node List: ", res);
+        if (!res.flowModel.connections || res.flowModel.connections.length === 0) {
+            return;
+        }
+        const agentFlowNode = res.flowModel.connections.find(
+            (node) => node.properties.variable.value === agentName
+        );
+        if (!agentFlowNode) {
+            console.error(">>> Error finding agent node", { agentName });
+        }
+        setAgentFlowNode(agentFlowNode); // Get the agent node
+        console.log("Agent Node: ", agentFlowNode);
+        const agentProperties = convertConfig(agentFlowNode.properties);
+        setAgentFields(agentProperties);
 
-        const existingModels = await rpcClient.getAIAgentRpcClient().getModels({ agent: fixedAgent.object, filePath });
-        console.log("Get existingModels ", existingModels);
-        setExistingModel(existingModels.models);
 
-        const newModels = await rpcClient.getAIAgentRpcClient().getAllModels({ agent: fixedAgent.object, filePath })
-        console.log("Get newModels ", newModels);
-        setNewModels(newModels.models);
+        // Get the model name and find its connection
+        const modelName = agentFlowNode.properties.model.value;
 
+        const modelFlowNode = res.flowModel.connections.find(
+            (node) => node.properties.variable.value === modelName
+        );
+        if (!modelFlowNode) {
+            console.error(">>> Error finding model node", { modelName });
+        }
+        setModelFlowNode(modelFlowNode); // Get the model node
+        console.log("Model Node: ", modelFlowNode);
+        const modelProperties = convertConfig(modelFlowNode.properties);
+        setModelFields(modelProperties);
 
-        const nodeModel = await getNodeTemplate(fixedAgent, filePath);
-        console.log("AI Agent node template: ", nodeModel);
-
-        const formProperties = convertConfig(nodeModel.properties, nodeModel.metadata.data.paramsToHide);
-        console.log(">>> AI AGENT Form properties", formProperties);
-        setAgentFields(formProperties);
+        const toolsList: string[] = agentFlowNode.properties.tools.value as string[];
+        console.log("Tools List: ", toolsList);
+        setSavedTools(toolsList);
+        setupToolsFields(toolsList);
         setIsLoading(false);
     }
 
-    const setupModelFields = async () => {
-        setFetching(true);
-
-        const nodeModel = await getNodeTemplate(newModels.find(val => val.object === selectedNewModel), filePath);
-        console.log("New Model node template: ", nodeModel);
-
-        const formProperties = convertConfig(nodeModel.properties);
-        console.log(">>> New Model node Form properties", formProperties);
-        setModelFields(formProperties);
-        setFetching(false);
-    }
-
-    const setupModelFieldsExisting = async () => {
-        const field: FormField = {
-            key: `models`,
-            label: "Existing Models",
-            type: "SINGLE_SELECT",
-            optional: false,
-            editable: true,
-            documentation: "Add existing model to AI Agent",
-            value: "",
-            items: existingModels.map(val => val),
-            valueTypeConstraint: "",
-            enabled: true
+    useEffect(() => {
+        if (!openToolsForm) {
+            setupToolsFields(savedTools);
         }
-        console.log(">>> Existing Model node Form properties", field);
-        setModelFields([field]);
-    }
+    }, [newTools]);
 
-    const setupToolsFields = async () => {
-        setFetching(true);
+
+
+    const setupToolsFields = async (toolsList: string[]) => {
         const field: FormField = {
             key: `name`,
             label: "Add Tools",
@@ -283,7 +199,7 @@ export function AIAgentEditView(params: AIAgentEditViewProps) {
             optional: false,
             editable: true,
             documentation: "Add Tools to your AI Agent",
-            value: [],
+            value: toolsList,
             valueTypeConstraint: "",
             addNewButton: true,
             addNewButtonLabel: "Create New Tool",
@@ -300,45 +216,47 @@ export function AIAgentEditView(params: AIAgentEditViewProps) {
             })
         }
         setToolsFields([field]);
-        setFetching(false);
     }
 
     const handleAgentConfigFormSubmit = async (value: FormField[]) => {
-        setAgentFields(value);
-        console.log("handleAgentConfigFormSubmit Fields ", value);
-        setStep(1);
+        value.forEach(field => {
+            if (field.editable) {
+                agentFlowNode.properties[field.key as keyof typeof agentFlowNode.properties].value = field.value;
+            }
+        });
+        await rpcClient.getBIDiagramRpcClient().getSourceCode({ filePath, flowNode: agentFlowNode });
+        console.log("Updated agent node: ", agentFlowNode);
+        fetchData();
     }
 
     const handleModelConfigFormSubmit = async (value: FormField[], data: FormValues) => {
-        console.log("handleModelConfigFormSubmit Fields ", data, value);
-        setModelFields(value);
-        setStep(2);
+        value.forEach(field => {
+            if (field.editable) {
+                modelFlowNode.properties[field.key as keyof typeof modelFlowNode.properties].value = field.value;
+            }
+        });
+        await rpcClient.getBIDiagramRpcClient().getSourceCode({ filePath, flowNode: modelFlowNode });
+        console.log("Updated model node: ", modelFlowNode);
+        fetchData();
     }
-    const handleFinish = async (value: FormField[]) => {
+
+    const handleToolsConfigFormSubmit = async (value: FormField[]) => {
         console.log("toolsFields ", value);
         const selectedTools = value.at(0).value as string[];
         const updatedNewTools = newTools.filter(tool => selectedTools.includes(tool.toolName));  // Remove all the unused tools from new tools array
         setIsLoading(true);
         const req: AIAgentRequest = {
             agentFields: agentFields,
-            modelState: modelState,
-            selectedModel: selectedNewModel,
+            modelState: 999,
+            selectedModel: "",
             modelFields: modelFields,
             toolsFields: toolsFields,
             newTools: updatedNewTools
         }
         const response = await rpcClient.getAIAgentRpcClient().createAIAgent(req);
-        console.log("Response: ", response)
-
-        // Redirect to relevant page
-        rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: response.filePath, position: response.position } })
+        console.log("Updated tools node: ", modelFlowNode);
+        fetchData();
     }
-
-    // TODO: Remove these once side panel is final
-    // const handleToolCreation = (data: AgentTool) => {
-    //     setNewTools([...newTools, data]);
-    //     setOpenToolsForm(false);
-    // }
 
     useEffect(() => {
         console.log("xxx openToolsForm changed to:", openToolsForm);
@@ -357,6 +275,7 @@ export function AIAgentEditView(params: AIAgentEditViewProps) {
 
     const handleViewChange = (view: string) => {
         setCurrentView(view as Views);
+        fetchData();
     };
 
 
@@ -366,46 +285,49 @@ export function AIAgentEditView(params: AIAgentEditViewProps) {
             <TitleBar title="AI Agent" subtitle="Update AI agent configurations" />
             <ViewContent>
                 <Container>
-                    {isLoading &&
-                        <LoadingContainer>
-                            <LoadingRing message={loadingMsg} />
-                        </LoadingContainer>
-                    }
-                    {!isLoading &&
-                        <Tabs
-                            sx={{ paddingLeft: 10 }}
-                            childrenSx={{ overflowY: "auto" }}
-                            tabTitleSx={{ marginLeft: 5 }}
-                            titleContainerSx={{
-                                position: "sticky",
-                                top: 0,
-                                zIndex: 5,
-                            }}
-                            views={[
-                                { id: Views.AGENT, name: 'Agent Configuration' },
-                                { id: Views.MODEL, name: 'Model Configuration' },
-                                { id: Views.TOOLS, name: 'Tool Integration' },
-                            ]}
-                            currentViewId={currentView}
-                            onViewChange={handleViewChange}
-                        >
-                            <div id={Views.AGENT}>
-                                <AgentConfigForm isEdit={true} formFields={agentFields} onSubmit={handleAgentConfigFormSubmit} />
-                            </div>
-                            <div id={Views.MODEL}>
-                                <ModelConfigForm formFields={modelFields} onSubmit={handleModelConfigFormSubmit} onBack={() => setStep(0)} />
-                            </div>
-                            <div id={Views.TOOLS}>
-                                {fetching &&
-                                    <BottomMarginTextWrapper>
-                                        <RelativeLoader message={"Loading tools.."} />
-                                    </BottomMarginTextWrapper>
-                                }
-                                {!fetching && <ToolsConfigForm formFields={toolsFields} onSubmit={handleFinish} openToolsForm={handleToolFormOpen} onBack={() => setStep(1)} formSubmitText="Finish" />}
-                                {!fetching && <AIAgentSidePanel projectPath={filePath} showSidePanel={openToolsForm} onSubmit={handleToolCreationSidePanel} onBack={handleOnToolFormBack} />}
-                            </div>
-                        </Tabs>
-                    }
+                    <Tabs
+                        sx={{ paddingLeft: 10 }}
+                        childrenSx={{ overflowY: "auto" }}
+                        tabTitleSx={{ marginLeft: 5 }}
+                        titleContainerSx={{
+                            position: "sticky",
+                            top: 0,
+                            zIndex: 5,
+                        }}
+                        views={[
+                            { id: Views.AGENT, name: 'Agent Configuration' },
+                            { id: Views.MODEL, name: 'Model Configuration' },
+                            { id: Views.TOOLS, name: 'Tool Integration' },
+                        ]}
+                        currentViewId={currentView}
+                        onViewChange={handleViewChange}
+                    >
+                        <div id={Views.AGENT}>
+                            {isLoading &&
+                                <LoadingContainer>
+                                    <LoadingRing message={loadingMsg} />
+                                </LoadingContainer>
+                            }
+                            {!isLoading && <AgentConfigForm isEdit={true} formFields={agentFields} onSubmit={handleAgentConfigFormSubmit} formSubmitText={"Save"} />}
+                        </div>
+                        <div id={Views.MODEL}>
+                            {isLoading &&
+                                <LoadingContainer>
+                                    <LoadingRing message={loadingMsg} />
+                                </LoadingContainer>
+                            }
+                            {!isLoading && <ModelConfigForm formFields={modelFields} onSubmit={handleModelConfigFormSubmit} formSubmitText={"Save"} />}
+                        </div>
+                        <div id={Views.TOOLS}>
+                            {fetching &&
+                                <BottomMarginTextWrapper>
+                                    <RelativeLoader message={"Loading tools.."} />
+                                </BottomMarginTextWrapper>
+                            }
+                            {!fetching && <ToolsConfigForm isEdit={true} formFields={toolsFields} onSubmit={handleToolsConfigFormSubmit} openToolsForm={handleToolFormOpen} formSubmitText="Save" />}
+                            {!fetching && <AIAgentSidePanel projectPath={filePath} showSidePanel={openToolsForm} onSubmit={handleToolCreationSidePanel} onBack={handleOnToolFormBack} />}
+                        </div>
+                    </Tabs>
                 </Container>
             </ViewContent>
         </View >

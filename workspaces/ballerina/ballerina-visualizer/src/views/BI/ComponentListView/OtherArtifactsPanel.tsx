@@ -60,7 +60,7 @@ export function OtherArtifactsPanel() {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
-                    view: MACHINE_VIEW.AIAgentEditView,
+                    view: MACHINE_VIEW.AIAgentWizard,
                 },
             });
         } else {
