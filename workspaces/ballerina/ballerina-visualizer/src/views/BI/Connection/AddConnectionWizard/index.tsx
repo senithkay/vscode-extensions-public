@@ -207,6 +207,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                         editorKey={subPanel.props.sidePanelData.editorKey}
                         onClosePanel={handleSubPanel}
                         configurePanelData={subPanel.props.sidePanelData?.configurePanelData}
+                        recordTypeField={subPanel.props.sidePanelData?.recordField}
                     />
                 );
             default:
@@ -345,6 +346,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                             updatedExpressionField={updatedExpressionField}
                             resetUpdatedExpressionField={handleResetUpdatedExpressionField}
                             openSubPanel={handleSubPanel}
+                            subPanelView={subPanel.view}
                             isPullingConnector={
                                 pullingStatus === PullingStatus.PULLING || savingFormStatus === SavingFormStatus.SAVING
                             }

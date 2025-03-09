@@ -43,12 +43,13 @@ interface ConfigProps {
     onBack?: () => void;
     formSubmitText?: string;
     formCancelText?: string;
+    isEdit?: boolean;
 }
 
 export function ToolsConfigForm(props: ConfigProps) {
     const { rpcClient } = useRpcContext();
 
-    const { formFields, onSubmit, onBack, formCancelText = "Back", formSubmitText = "Next", openToolsForm } = props;
+    const { isEdit, formFields, onSubmit, onBack, formCancelText = "Back", formSubmitText = "Next", openToolsForm } = props;
     const [filePath, setFilePath] = useState<string>('');
 
     useEffect(() => {
@@ -75,7 +76,7 @@ export function ToolsConfigForm(props: ConfigProps) {
                 <>
                     {formFields.length > 0 &&
                         <FormContainer>
-                            <FormHeader title={`Tool Integration`} subtitle={`Connect services or add custom logic to empower your agent.`} />
+                            {!isEdit && <FormHeader title={`Tool Integration`} subtitle={`Connect services or add custom logic to empower your agent.`} />}
                             {filePath &&
                                 <FormGeneratorNew
                                     fileName={filePath}

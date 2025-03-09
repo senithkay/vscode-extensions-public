@@ -12,7 +12,9 @@ import { FormExpressionEditorRef, HelperPane, HelperPaneHeight } from '@wso2-ent
 import { ConfigurablePage } from './ConfigurablePage';
 import { FunctionsPage } from './FunctionsPage';
 import { SuggestionsPage } from './SuggestionsPage';
+import { ConfigureRecordPage } from './ConfigureRecordPage';
 import { LineRange } from '@wso2-enterprise/ballerina-core';
+import { RecordTypeField } from '@wso2-enterprise/ballerina-core';
 
 export type HelperPaneProps = {
     fileName: string;
@@ -24,6 +26,7 @@ export type HelperPaneProps = {
     currentValue: string;
     onChange: (value: string, updatedCursorPosition: number) => void;
     helperPaneHeight: HelperPaneHeight;
+    recordTypeField?: RecordTypeField;
 };
 
 const HelperPaneEl = ({
@@ -35,12 +38,17 @@ const HelperPaneEl = ({
     defaultValue,
     currentValue,
     onChange,
-    helperPaneHeight
+    helperPaneHeight,
+    recordTypeField
 }: HelperPaneProps) => {
-    const handleChange = (value: string) => {
+    const handleChange = (value: string, isRecordConfigureChange?: boolean) => {
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
-        const updatedValue = currentValue.slice(0, cursorPosition) + value + currentValue.slice(cursorPosition);
         const updatedCursorPosition = cursorPosition + value.length;
+        let updatedValue = value;
+
+        if (!isRecordConfigureChange) {
+            updatedValue = currentValue.slice(0, cursorPosition) + value + currentValue.slice(cursorPosition);
+        }
 
         // Update the value in the expression editor
         onChange(updatedValue, updatedCursorPosition);
@@ -48,46 +56,63 @@ const HelperPaneEl = ({
         exprRef.current?.focus();
         // Set the cursor
         exprRef.current?.setCursor(updatedValue, updatedCursorPosition);
-        // Close the helper pane
-        onClose();
+        if (!isRecordConfigureChange) {
+            // Close the helper pane
+            onClose();
+        }
     };
 
     return (
-        <HelperPane helperPaneHeight={helperPaneHeight}>
+        <HelperPane helperPaneHeight={helperPaneHeight} sx={recordTypeField ? { width: 400 } : undefined}>
             <HelperPane.Header title="Expression Helper" titleSx={{ fontFamily: "GilmerRegular" }} onClose={onClose} />
             <HelperPane.Body>
-            <HelperPane.Panels>
-                {/* Tabs for the helper pane */}
-                <HelperPane.PanelTab id={0} title="Suggestions" />
-                <HelperPane.PanelTab id={1} title="Functions" />
-                <HelperPane.PanelTab id={2} title="Configurables" />
-                
-                {/* Panels for the helper pane */}
-                <HelperPane.PanelView id={0}>
-                    <SuggestionsPage
-                        fileName={fileName}
-                        targetLineRange={targetLineRange}
-                        defaultValue={defaultValue}
-                        onChange={handleChange}
-                    />
-                </HelperPane.PanelView>
-                <HelperPane.PanelView id={1}>
-                    <FunctionsPage
-                        anchorRef={anchorRef}
-                        fileName={fileName}
-                        targetLineRange={targetLineRange}
-                        onClose={onClose}
-                        onChange={handleChange}
-                    />
-                </HelperPane.PanelView>
-                <HelperPane.PanelView id={2}>
-                    <ConfigurablePage
-                        fileName={fileName}
-                        targetLineRange={targetLineRange}
-                        onChange={handleChange}
-                    />
-                </HelperPane.PanelView>
-            </HelperPane.Panels>
+                <HelperPane.Panels sx={recordTypeField ? { gap: "15px" } : undefined}>
+                    {/* Tabs for the helper pane */}
+                    {recordTypeField && (
+                        <HelperPane.PanelTab id={0} title="Construct Record" />
+                    )}
+                    <HelperPane.PanelTab id={recordTypeField ? 1 : 0} title="Suggestions" />
+                    <HelperPane.PanelTab id={recordTypeField ? 2 : 1} title="Functions" />
+                    <HelperPane.PanelTab id={recordTypeField ? 3 : 2} title="Configurables" />
+
+
+                    {/* Panels for the helper pane */}
+                    {recordTypeField && (
+                        <HelperPane.PanelView id={0}>
+                            <ConfigureRecordPage
+                                fileName={fileName}
+                                targetLineRange={targetLineRange}
+                                onChange={handleChange}
+                                currentValue={currentValue}
+                                recordTypeField={recordTypeField}
+                            />
+                        </HelperPane.PanelView>
+                    )}
+                    <HelperPane.PanelView id={recordTypeField ? 1 : 0}>
+                        <SuggestionsPage
+                            fileName={fileName}
+                            targetLineRange={targetLineRange}
+                            defaultValue={defaultValue}
+                            onChange={handleChange}
+                        />
+                    </HelperPane.PanelView>
+                    <HelperPane.PanelView id={recordTypeField ? 2 : 1}>
+                        <FunctionsPage
+                            anchorRef={anchorRef}
+                            fileName={fileName}
+                            targetLineRange={targetLineRange}
+                            onClose={onClose}
+                            onChange={handleChange}
+                        />
+                    </HelperPane.PanelView>
+                    <HelperPane.PanelView id={recordTypeField ? 3 : 2}>
+                        <ConfigurablePage
+                            fileName={fileName}
+                            targetLineRange={targetLineRange}
+                            onChange={handleChange}
+                        />
+                    </HelperPane.PanelView>
+                </HelperPane.Panels>
             </HelperPane.Body>
         </HelperPane>
     );
@@ -105,6 +130,7 @@ const HelperPaneEl = ({
  * @param currentValue Current value of the expression editor
  * @param onChange Function to handle changes in the expression editor
  * @param helperPaneHeight Height of the helper pane
+ * @param recordTypeField Record type field
  * @returns JSX.Element Helper pane element
  */
 export const getHelperPane = (props: HelperPaneProps) => {
@@ -117,7 +143,8 @@ export const getHelperPane = (props: HelperPaneProps) => {
         defaultValue,
         currentValue,
         onChange,
-        helperPaneHeight
+        helperPaneHeight,
+        recordTypeField
     } = props;
 
     return (
@@ -131,6 +158,7 @@ export const getHelperPane = (props: HelperPaneProps) => {
             currentValue={currentValue}
             onChange={onChange}
             helperPaneHeight={helperPaneHeight}
+            recordTypeField={recordTypeField}
         />
     );
 };

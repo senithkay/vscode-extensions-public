@@ -21,7 +21,6 @@ import { FormField, FormValues } from '@wso2-enterprise/ballerina-side-panel';
 import EntryPointConfigForm from './Forms/EntryPointConfigForm';
 import ModelConfigForm from './Forms/ModelConfigForm';
 import ToolsConfigForm from './Forms/ToolsConfigForm';
-import { getCustomEntryNodeIcon, getEntryNodeIcon } from '../ComponentListView';
 import { URI, Utils } from 'vscode-uri';
 import ToolsCreateForm from './Forms/ToolsCreateForm';
 import { convertConfig } from '../../../utils/bi';
@@ -397,7 +396,6 @@ export function AIAgentWizard() {
                                 </BottomMarginTextWrapper>
                             }
                             {!fetching && <ToolsConfigForm formFields={toolsFields} onSubmit={handleFinish} openToolsForm={handleToolFormOpen} onBack={() => setStep(1)} formSubmitText="Finish" />}
-                            {/* {!fetching && openToolsForm && <ToolsCreateForm onSubmit={handleToolCreation} onBack={() => setOpenToolsForm(false)} />} */}
                             {!fetching && <AIAgentSidePanel projectPath={filePath} showSidePanel={openToolsForm} onSubmit={handleToolCreationSidePanel} onBack={handleOnToolFormBack} />}
                         </>
                     }

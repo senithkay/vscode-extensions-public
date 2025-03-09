@@ -124,7 +124,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                 const filePath = Utils.joinPath(URI.file(projectUri), "agents.bal").fsPath;
 
                 // selected tool list
-                const selectedToolList = [];
+                const selectedToolList: string[] = [];
                 let selectedModel = "";
                 // Create the tools first
                 if (params.newTools.length > 0) {
@@ -312,30 +312,30 @@ export class AiAgentRpcManager implements AIAgentAPI {
             const toolName = tool.toolName;
             const toolsPath = Utils.joinPath(URI.file(projectUri), "agents.bal").fsPath;
             let flowNode: FlowNode; // REMOTE_ACTION_CALL| FUNCTION_DEFINITION
+            const selectedCodeData = tool.selectedCodeData;
 
-            if (tool.selectedCodeData.node === "REMOTE_ACTION_CALL") {
+            if (selectedCodeData.node === "REMOTE_ACTION_CALL") {
                 const filePath = Utils.joinPath(URI.file(projectUri), "connections.bal").fsPath;
-                const connectorActionCodeData = tool.selectedCodeData;
                 // Get the flowNode for connector action
                 const connectorActionFlowNode = await StateMachine.langClient()
                     .getNodeTemplate({
                         position: { line: 0, offset: 0 },
                         filePath: filePath,
-                        id: connectorActionCodeData,
+                        id: selectedCodeData,
                     });
                 flowNode = connectorActionFlowNode.flowNode;
                 this.updateFlowNodeProperties(flowNode);
             }
-            if (tool.selectedCodeData.node === "FUNCTION_CALL") {
+            if (selectedCodeData.node === "FUNCTION_CALL") {
                 const filePath = Utils.joinPath(URI.file(projectUri), "functions.bal").fsPath;
                 // Get the flowNode for existing function action
                 const existingFunctionFlowNode = await StateMachine.langClient()
-                    .getFunctionNode({
-                        functionName: tool.selectedCodeData.symbol,
-                        fileName: "functions.bal",
-                        projectPath: projectUri
+                    .getNodeTemplate({
+                        position: { line: 0, offset: 0 },
+                        filePath: filePath,
+                        id: selectedCodeData,
                     });
-                flowNode = existingFunctionFlowNode.functionDefinition as FlowNode;
+                flowNode = existingFunctionFlowNode.flowNode;
             }
 
             // Create a new tool

@@ -34,11 +34,13 @@ import {
     BISourceCodeRequest,
     BISourceCodeResponse,
     BreakpointRequest,
+    BuildMode,
     ClassFieldModifierRequest,
     ComponentRequest,
     ConfigVariableResponse,
     CreateComponentResponse,
     CurrentBreakpointsResponse,
+    DevantComponentResponse,
     EndOfFileRequest,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -48,6 +50,8 @@ import {
     FormDidOpenParams,
     FunctionNodeRequest,
     FunctionNodeResponse,
+    GetRecordConfigRequest,
+    GetRecordConfigResponse,
     GetTypeRequest,
     GetTypeResponse,
     GetTypesRequest,
@@ -60,6 +64,8 @@ import {
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
+    RecordSourceGenRequest,
+    RecordSourceGenResponse,
     RecordsInWorkspaceMentions,
     RenameIdentifierRequest,
     ServiceClassModelResponse,
@@ -71,6 +77,7 @@ import {
     UpdateConfigVariableResponse,
     UpdateImportsRequest,
     UpdateImportsResponse,
+    UpdateRecordConfigRequest,
     UpdateTypeRequest,
     UpdateTypeResponse,
     VisibleTypesRequest,
@@ -94,6 +101,7 @@ import {
     getBreakpointInfo,
     getConfigVariables,
     getDesignModel,
+    getDevantComponent,
     getEnclosedFunction,
     getEndOfFile,
     getExpressionCompletions,
@@ -105,7 +113,12 @@ import {
     getProjectComponents,
     getProjectStructure,
     getReadmeContent,
+    getRecordConfig,
+    getRecordModelFromSource,
+    GetRecordModelFromSourceRequest,
+    GetRecordModelFromSourceResponse,   
     getRecordNames,
+    getRecordSource,
     getServiceClassModel,
     getSignatureHelp,
     getSourceCode,
@@ -124,11 +137,9 @@ import {
     updateClassField,
     updateConfigVariables,
     updateImports,
+    updateRecordConfig,
     updateServiceClass,
-    updateType,
-    BuildMode,
-    DevantComponentResponse,
-    getDevantComponent
+    updateType
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -314,6 +325,22 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     createGraphqlClassType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
         return this._messenger.sendRequest(createGraphqlClassType, HOST_EXTENSION, params);
+    }
+
+    getRecordConfig(params: GetRecordConfigRequest): Promise<GetRecordConfigResponse> {
+        return this._messenger.sendRequest(getRecordConfig, HOST_EXTENSION, params);
+    }
+
+    updateRecordConfig(params: UpdateRecordConfigRequest): Promise<GetRecordConfigResponse> {
+        return this._messenger.sendRequest(updateRecordConfig, HOST_EXTENSION, params);
+    }
+
+    getRecordModelFromSource(params: GetRecordModelFromSourceRequest): Promise<GetRecordModelFromSourceResponse> {
+        return this._messenger.sendRequest(getRecordModelFromSource, HOST_EXTENSION, params);
+    }
+
+    getRecordSource(params: RecordSourceGenRequest): Promise<RecordSourceGenResponse> {
+        return this._messenger.sendRequest(getRecordSource, HOST_EXTENSION, params);
     }
 
     updateImports(params: UpdateImportsRequest): Promise<UpdateImportsResponse> {

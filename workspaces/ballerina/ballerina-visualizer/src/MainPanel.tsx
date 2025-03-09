@@ -62,6 +62,7 @@ import { AIAgentWizard } from "./views/BI/AIAgents/AIAgentWizard";
 import { ServiceClassDesigner } from "./views/BI/ServiceClassEditor/ServiceClassDesigner";
 import { ServiceClassConfig } from "./views/BI/ServiceClassEditor/ServiceClassConfig";
 import { AIAgentDesigner } from "./views/BI/AIAgentDesigner";
+import { AIAgentEditView } from "./views/BI/AIAgents/AIAgentEditView";
 
 const globalStyles = css`
     *,
@@ -216,18 +217,18 @@ const MainPanel = () => {
                         });
                         break;
                     case MACHINE_VIEW.BINPFunctionForm:
-                    rpcClient.getVisualizerLocation().then((location) => {
-                        setViewComponent(
-                            <FunctionForm
-                                projectPath={value.projectUri}
-                                fileName={"functions.bal"}
-                                functionName={value?.identifier}
-                                isDataMapper={false}
-                                isNpFunction={true}
-                            />
-                        );
-                    });
-                    break;
+                        rpcClient.getVisualizerLocation().then((location) => {
+                            setViewComponent(
+                                <FunctionForm
+                                    projectPath={value.projectUri}
+                                    fileName={"functions.bal"}
+                                    functionName={value?.identifier}
+                                    isDataMapper={false}
+                                    isNpFunction={true}
+                                />
+                            );
+                        });
+                        break;
                     case MACHINE_VIEW.GraphQLDiagram:
                         setViewComponent(<GraphQLDiagram filePath={value?.documentUri} position={value?.position} projectUri={value?.projectUri} />);
                         break;
@@ -256,6 +257,9 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.AIAgentWizard:
                         setViewComponent(<AIAgentWizard />);
+                        break;
+                    case MACHINE_VIEW.AIAgentEditView:
+                        setViewComponent(<AIAgentEditView agentName={value.identifier} />);
                         break;
                     case MACHINE_VIEW.BIServiceClassDesigner:
                         setViewComponent(

@@ -78,14 +78,28 @@ export type Property = {
     metadata: Metadata;
     diagnostics?: Diagnostic;
     valueType: string;
-    value: string | ELineRange | NodeProperties;
+    value: string | ELineRange | NodeProperties | string[];
     optional: boolean;
     editable: boolean;
     advanced?: boolean;
     placeholder?: string;
     valueTypeConstraint?: string | string[];
     codedata?: CodeData;
+    typeMembers?: PropertyTypeMemberInfo[];
 };
+
+export type PropertyTypeMemberInfo = {
+    type: string;
+    kind: string;
+    packageInfo: string;
+    selected: boolean;
+};
+
+export type RecordTypeField = {
+    key: string;
+    property: Property;
+    recordTypeMembers: PropertyTypeMemberInfo[];
+}
 
 export type Diagnostic = {
     hasDiagnostics: boolean;
@@ -246,6 +260,8 @@ export type NodePropertyKey =
     | "defaultable"
     | "scope"
     | "parameters"
+    | "model"
+    | "tools"
     | "functionName";
 
 export type BranchKind = "block" | "worker";

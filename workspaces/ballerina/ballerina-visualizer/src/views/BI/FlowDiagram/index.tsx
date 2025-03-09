@@ -321,11 +321,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             filePath: model.fileName,
             queryMap: searchText.trim()
                 ? {
-                      q: searchText,
-                      limit: 12,
-                      offset: 0,
-                      includeAvailableFunctions: "true",
-                  }
+                    q: searchText,
+                    limit: 12,
+                    offset: 0,
+                    includeAvailableFunctions: "true",
+                }
                 : undefined,
             searchKind: "NP_FUNCTION",
         };
@@ -356,11 +356,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             filePath: model.fileName,
             queryMap: searchText.trim()
                 ? {
-                      q: searchText,
-                      limit: 12,
-                      offset: 0,
-                      includeAvailableFunctions: "true",
-                  }
+                    q: searchText,
+                    limit: 12,
+                    offset: 0,
+                    includeAvailableFunctions: "true",
+                }
                 : undefined,
             searchKind: "FUNCTION",
         };
@@ -634,8 +634,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     };
 
     const handleOnFormBack = () => {
-        if (sidePanelView === SidePanelView.FUNCTION_LIST 
-            || sidePanelView === SidePanelView.DATA_MAPPER_LIST 
+        if (sidePanelView === SidePanelView.FUNCTION_LIST
+            || sidePanelView === SidePanelView.DATA_MAPPER_LIST
             || sidePanelView === SidePanelView.NP_FUNCTION_LIST) {
             // Reset categories to the initial available nodes
             setCategories(initialCategoriesRef.current);
@@ -806,6 +806,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         editorKey={subPanel.props.sidePanelData.editorKey}
                         onClosePanel={handleSubPanel}
                         configurePanelData={subPanel.props.sidePanelData?.configurePanelData}
+                        recordTypeField={subPanel.props.sidePanelData?.recordField}
                     />
                 );
             default:
@@ -826,7 +827,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         rpcClient.getVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
-                view: MACHINE_VIEW.AIAgentWizard,
+                view: MACHINE_VIEW.AIAgentEditView,
                 identifier: agentName,
             },
         });
@@ -945,14 +946,14 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             updatedExpressionField={updatedExpressionField}
                             resetUpdatedExpressionField={handleResetUpdatedExpressionField}
                             actionButtonConfig={
-                                selectedNodeRef.current?.codedata.node === "AGENT_CALL"  && 
-                                selectedNodeRef.current?.codedata.sourceCode
-                                ? {
-                                    actionLabel: "Configure Agent",
-                                    description: "Change the agent's behavior by adjusting the system prompt, model, and tools. Click 'Configure Agent'.",
-                                    callback: handleEditAgent
-                                  } 
-                                : undefined
+                                selectedNodeRef.current?.codedata.node === "AGENT_CALL" &&
+                                    selectedNodeRef.current?.codedata.sourceCode
+                                    ? {
+                                        actionLabel: "Configure Agent",
+                                        description: "Change the agent's behavior by adjusting the system prompt, model, and tools. Click 'Configure Agent'.",
+                                        callback: handleEditAgent
+                                    }
+                                    : undefined
                             }
                         />
                     )}
