@@ -182,7 +182,7 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
                 <S.AddNewButton
                     appearance='icon'
                     aria-label="add"
-                    onClick={() => openSubPanel({ view: SubPanelView.ADD_NEW_FORM })}
+                    onClick={() => { openSubPanel({ view: SubPanelView.ADD_NEW_FORM }); onAddAnother(); }}
                 >
                     <Codicon name="add" />
                     {field.addNewButtonLabel || field.label}
