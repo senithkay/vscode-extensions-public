@@ -10,6 +10,7 @@ import { URLSearchParams } from "url";
 import { window, Uri, ProviderResult, commands } from "vscode";
 import { exchangeAuthCode } from "./ai-panel/auth";
 import { COMMANDS } from "./constants";
+import { checkForDevantExt } from "./extension";
 
 export function activateUriHandlers() {
     window.registerUriHandler({
@@ -28,6 +29,9 @@ export function activateUriHandlers() {
                     }
                     break;
                 case '/open':
+                    if(!checkForDevantExt()) {
+                        return;
+                    }
                     const org = urlParams.get("org");
                     const project = urlParams.get("project");
                     const component = urlParams.get("component");
