@@ -83,7 +83,7 @@ export function EventIntegrationPanel(props: EventIntegrationPanelProps) {
                                 />
                             );
                         }
-                    )
+                        )
                 }
             </CardGrid>
         </PanelViewMore>
@@ -109,7 +109,7 @@ export function getCustomEntryNodeIcon(type: string) {
         case "nats":
             return <Icon name="bi-nats" />;
         case "mqtt":
-            return <Icon name="bi-mqtt" />;
+            return <Icon name="bi-mqtt" sx={{ color: "#606" }} />;
         case "grpc":
             return <Icon name="bi-grpc" />;
         case "graphql":

@@ -296,7 +296,8 @@ function getComponents(items: ProjectStructureArtifactResponse[], itemType?: DIR
             [DIRECTORY_MAP.RECORDS]: DIRECTORY_SUB_TYPE.TYPE,
             [DIRECTORY_MAP.ENUMS]: DIRECTORY_SUB_TYPE.TYPE,
             [DIRECTORY_MAP.CLASSES]: DIRECTORY_SUB_TYPE.TYPE,
-            [DIRECTORY_MAP.DATA_MAPPERS]: DIRECTORY_SUB_TYPE.DATA_MAPPER
+            [DIRECTORY_MAP.DATA_MAPPERS]: DIRECTORY_SUB_TYPE.DATA_MAPPER,
+            [DIRECTORY_MAP.AGENTS]: DIRECTORY_SUB_TYPE.AGENTS
         };
 
         fileEntry.contextValue = contextValueMap[itemType] || comp.icon;
