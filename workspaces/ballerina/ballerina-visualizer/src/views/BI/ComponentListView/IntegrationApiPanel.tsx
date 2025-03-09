@@ -77,22 +77,6 @@ export function IntegrationAPIPanel(props: IntegrationAPIPanelProps) {
                 /> */}
                 </CardGrid>
             </PanelViewMore>
-            <PanelViewMore>
-                <TitleWrapper>
-                    <Title variant="h2">Agent Integration</Title>
-                    <BodyText>
-                        Create an AI agent with a chat interface.
-                    </BodyText>
-                </TitleWrapper>
-                <CardGrid>
-                    <ButtonCard
-                        icon={<Codicon name="hubot" iconSx={{ fontSize: "30px" }} />}
-                        title="AI Agent"
-                        // description="Creates an AI agent service with a chat interface"
-                        onClick={() => handleClick("ai.agent")}
-                    />
-                </CardGrid>
-            </PanelViewMore>
         </>
     );
 };
