@@ -24,7 +24,7 @@ import {
     LACK_OF_API_DOCUMENTATION_WARNING, LACK_OF_API_DOCUMENTATION_WARNING_2,
     NO_DOCUMENTATION_WARNING,
     MISSING_README_FILE_WARNING,
-    MISSING_REQUIREMENT_FILE
+    MISSING_REQUIREMENT_FILE, MISSING_API_DOCS
 } from "./constants";
 import { isError, isNumber } from 'lodash';
 import { HttpStatusCode } from 'axios';
@@ -463,7 +463,7 @@ export async function streamToString(stream: ReadableStream<Uint8Array>): Promis
 
 function isSkippedDiagnostic(result: ResultItem) {
     const cause = result.cause.toLowerCase();
-    if (cause.includes(LACK_OF_API_DOCUMENTATION_WARNING) || cause.includes(LACK_OF_API_DOCUMENTATION_WARNING_2) 
+    if (cause.includes(LACK_OF_API_DOCUMENTATION_WARNING) || cause.includes(LACK_OF_API_DOCUMENTATION_WARNING_2) || cause.includes(MISSING_API_DOCS) 
         || cause.includes(NO_DOCUMENTATION_WARNING) || cause.includes(MISSING_README_FILE_WARNING) || cause.includes(MISSING_REQUIREMENT_FILE)) {
             return true;
     }
