@@ -11,7 +11,9 @@ export interface ConfigProperty {
     name: string;
     type: string;
     property: Property;
-    required: boolean;
+    required?: boolean;
+    orgKey?: string;   // Organization key (wso2, ballerina, etc.)
+    pkgKey?: string;   // Package key within the organization
 }
 
 export interface Property {

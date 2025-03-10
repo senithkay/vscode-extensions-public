@@ -99,55 +99,60 @@ export async function checkConfigGenerationRequired(ballerinaExtInstance: Baller
             return { needsConfig: false };
         }
 
-        // Find organization name and package configs
-        const props: object = context.configSchema.configSchema.properties;
-        let orgName: string;
-        for (const key of Object.keys(props)) {
-            if (props[key].properties[context.packageName]) {
-                orgName = props[key].properties;
-                break;
-            }
-        }
-
-        if (!orgName) {
-            return { needsConfig: false };
-        }
-
-        const configs: Property = orgName[context.packageName];
-
-        if (configs.required?.length === 0) {
-            return { needsConfig: false };
-        }
-
-        // Check existing configs
+        // Process all configuration sections including imported modules
+        const allProps = context.configSchema.configSchema.properties;
         const newValues: ConfigProperty[] = [];
         let updatedContent = '';
+        let existingConfigs = {};
 
+        // Check existing configs
         if (existsSync(context.configFilePath)) {
             const tomlContent: string = readFileSync(Uri.file(context.configFilePath).fsPath, 'utf8');
-            const existingConfigs: object = generateExistingValues(
-                parseTomlToConfig(tomlContent),
-                orgName,
-                context.packageName
-            );
+            existingConfigs = parseTomlToConfig(tomlContent);
             context.existingConfigs = existingConfigs;
-
-            const obj = existingConfigs['[object Object]'][context.packageName];
-
-            if (Object.keys(obj).length > 0 || tomlContent.length > 0) {
-                findPropertyValues(configs, newValues, obj, tomlContent);
-                updatedContent = tomlContent + '\n';
-            } else {
-                findPropertyValues(configs, newValues);
-            }
-        } else {
-            findPropertyValues(configs, newValues);
+            updatedContent = tomlContent + '\n';
         }
 
-        const haveRequired = newValues.filter(value => value.required);
+        let requiredConfigsFound = false;
+
+        // Process each root organization (ballerina, ballerinax, etc.)
+        for (const orgKey of Object.keys(allProps)) {
+            const orgProps = allProps[orgKey].properties;
+            
+            // Process each package within the organization
+            for (const pkgKey of Object.keys(orgProps)) {
+                const pkgConfig = orgProps[pkgKey];
+                
+                // Skip if there are no required properties
+                if (!pkgConfig.required || pkgConfig.required.length === 0) {
+                    continue;
+                }
+                
+                // Get existing configs for this path if available
+                const existingModuleConfigs = getExistingConfigsForPath(existingConfigs, orgKey, pkgKey);
+                
+                // Find missing required configs
+                const moduleNewValues: ConfigProperty[] = [];
+                findPropertyValues(pkgConfig, moduleNewValues, existingModuleConfigs, updatedContent || '');
+                
+                // Add to our collection with organization prefix
+                if (moduleNewValues.length > 0) {
+                    moduleNewValues.forEach(value => {
+                        value.orgKey = orgKey;
+                        value.pkgKey = pkgKey;
+                    });
+                    newValues.push(...moduleNewValues);
+                    
+                    // Check if we have any required configs
+                    if (moduleNewValues.some(v => v.required)) {
+                        requiredConfigsFound = true;
+                    }
+                }
+            }
+        }
 
         return {
-            needsConfig: newValues.length > 0 && haveRequired.length > 0,
+            needsConfig: newValues.length > 0 && requiredConfigsFound,
             context,
             newValues,
             updatedContent
@@ -157,6 +162,24 @@ export async function checkConfigGenerationRequired(ballerinaExtInstance: Baller
         console.error('Error while checking config generation requirement:', error);
         return { needsConfig: false };
     }
+}
+
+// Helper function to navigate nested toml structure and get existing configs
+function getExistingConfigsForPath(existingConfigs: any, orgKey: string, pkgKey: string): any {
+    if (!existingConfigs) return {};
+    
+    // Try first as a dotted key like "wso2.testbi"
+    const dottedKey = `${orgKey}.${pkgKey}`;
+    if (existingConfigs[dottedKey]) {
+        return existingConfigs[dottedKey];
+    }
+    
+    // Try as nested objects
+    if (existingConfigs[orgKey] && existingConfigs[orgKey][pkgKey]) {
+        return existingConfigs[orgKey][pkgKey];
+    }
+    
+    return {};
 }
 
 export function findPropertyValues(configs: Property, newValues: ConfigProperty[], obj?: any, tomlContent?: string, skipAnyOf?: boolean): void {
@@ -256,7 +279,9 @@ export async function handleNewValues(packageName: string, newValues: ConfigProp
                 return 0; // the order of a and b remains unchanged
             }
         });
-        updateConfigToml(newValues, updatedContent, uri.fsPath);
+        
+        const groupedValues = groupConfigsByModule(newValues);
+        updateConfigTomlByModule(groupedValues, updatedContent, uri.fsPath);
 
         await workspace.openTextDocument(uri).then(async document => {
             window.showTextDocument(document, { preview: false });
@@ -264,6 +289,91 @@ export async function handleNewValues(packageName: string, newValues: ConfigProp
     } else if (!isCommand && result === ignoreButton) {
         executeRunCommand(ballerinaExtInstance, configFile, isBi);
     }
+}
+
+// Function to group config properties by module
+function groupConfigsByModule(configProperties: ConfigProperty[]): Map<string, Map<string, ConfigProperty[]>> {
+    const result = new Map<string, Map<string, ConfigProperty[]>>();
+    
+    for (const prop of configProperties) {
+        const orgKey = prop.orgKey || '';
+        const pkgKey = prop.pkgKey || '';
+        
+        if (!result.has(orgKey)) {
+            result.set(orgKey, new Map<string, ConfigProperty[]>());
+        }
+        
+        const orgMap = result.get(orgKey)!;
+        if (!orgMap.has(pkgKey)) {
+            orgMap.set(pkgKey, []);
+        }
+        
+        orgMap.get(pkgKey)!.push(prop);
+    }
+    
+    return result;
+}
+
+// Updated function to write configs by organization and module
+function updateConfigTomlByModule(groupedValues: Map<string, Map<string, ConfigProperty[]>>, updatedContent: string, configPath: string): void {
+    // Sort organizations alphabetically
+    const sortedOrgs = Array.from(groupedValues.keys()).sort();
+    
+    for (const orgKey of sortedOrgs) {
+        const orgMap = groupedValues.get(orgKey)!;
+        const sortedPackages = Array.from(orgMap.keys()).sort();
+        
+        for (const pkgKey of sortedPackages) {
+            const configProps = orgMap.get(pkgKey)!;
+            
+            // Skip empty sections
+            if (configProps.length === 0) {
+                continue;
+            }
+            
+            // Add section header if not in content already
+            const sectionHeader = `[${orgKey}.${pkgKey}]`;
+            if (!updatedContent.includes(sectionHeader)) {
+                updatedContent += `${sectionHeader}\n`;
+            }
+            
+            // Process required configs
+            const requiredProps = configProps.filter(prop => prop.required);
+            const optionalProps = configProps.filter(prop => !prop.required);
+            
+            // Add required properties
+            for (const prop of requiredProps) {
+                let comment = { value: `# ${typeOfComment} ${prop.type && prop.type.toUpperCase() || "STRING"}` };
+                let configValue = getConfigValue(prop.name, prop.property, comment);
+                updatedContent += configValue + comment.value + '\n\n';
+            }
+            
+            // Add optional properties as comments
+            for (const prop of optionalProps) {
+                let comment = { value: `# ${typeOfComment} ${prop.type && prop.type.toUpperCase() || "STRING"}` };
+                const optional = `# "${prop.name}" is an optional value\n`;
+                let configValue = getConfigValue(prop.name, prop.property, comment);
+                updatedContent += `${optional}# ${configValue}${comment.value}\n\n`;
+            }
+            
+            // Add a blank line between sections if not the last one
+            if (pkgKey !== sortedPackages[sortedPackages.length - 1]) {
+                updatedContent += '\n';
+            }
+        }
+        
+        // Add a blank line between organizations if not the last one
+        if (orgKey !== sortedOrgs[sortedOrgs.length - 1]) {
+            updatedContent += '\n';
+        }
+    }
+    
+    writeFile(configPath, updatedContent, function (error) {
+        if (error) {
+            return window.showErrorMessage("Unable to update the configurable values: " + error);
+        }
+        window.showInformationMessage("Successfully updated the configurable values.");
+    });
 }
 
 async function executeRunCommand(ballerinaExtInstance: BallerinaExtension, filePath: string, isBi?: boolean) {
