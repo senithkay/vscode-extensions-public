@@ -1,5 +1,13 @@
+/**
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
 import { commands, window, workspace, FileSystemWatcher, Disposable, Uri } from "vscode";
-import * as crypto from 'crypto';
 import { clearTerminal, PALETTE_COMMANDS } from "../project/cmds/cmd-runner";
 import * as fs from 'fs';
 import * as path from 'path';
@@ -9,6 +17,7 @@ import Handlebars from "handlebars";
 import { clientManager, findRunningBallerinaProcesses, handleError, waitForBallerinaService } from "./utils";
 import { BIDesignModelResponse, OpenAPISpec } from "@wso2-enterprise/ballerina-core";
 import { startDebugging } from "../editor-support/codelens-provider";
+import { v4 as uuidv4 } from "uuid";
 
 let errorLogWatcher: FileSystemWatcher | undefined;
 
@@ -269,20 +278,12 @@ async function openInSplitView(fileUri: vscode.Uri, editorType: string = 'defaul
 }
 
 async function openChatView(basePath: string, port: string) {
-
-    function generateRandomString(length: number = 32): string {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        const array = new Uint8Array(length);
-        crypto.getRandomValues(array);
-        return Array.from(array, byte => chars[byte % chars.length]).join('');
-    }
-
     try {
         const baseUrl = `http://localhost:${port}`;
         const chatPath = "chatMessage";
         const fullUrl = new URL(chatPath, new URL(basePath, baseUrl));
 
-        const sessionId = generateRandomString();
+        const sessionId = uuidv4();
 
         commands.executeCommand("kolab.open.agent.chat", { chatEp: fullUrl.href, chatSessionId: sessionId });
     } catch (error) {
