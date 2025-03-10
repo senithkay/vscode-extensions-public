@@ -32,5 +32,5 @@ export const MISSING_REQUIREMENT_FILE = "requirement specification is missing";
 export const MISSING_API_DOCS = "missing api documentation";
 export const MISSING_API_DOCS_2 = "api documentation is missing";
 export const MONITERED_EXTENSIONS = [
-    ".bal", ".md", ".txt", ".pdf", ".docx", ".doc", ".jpeg", ".jpg", ".png", ".heic", ".heif"
+    ".bal", ".md", ".txt", ".pdf", ".docx"
 ];
