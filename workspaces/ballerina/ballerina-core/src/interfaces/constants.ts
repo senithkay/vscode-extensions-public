@@ -13,8 +13,8 @@ export enum SHARED_COMMANDS {
     OPEN_SERVICE_FORM = 'kolab.open.service.form',
     OPEN_AI_PANEL = 'kolab.open.ai.panel',
     CLEAR_AI_PROMPT = 'kolab.clear.ai.prompt',
+    OPEN_AGENT_CHAT = 'kolab.open.agent.chat'
 }
-
 
 export const BI_COMMANDS = {
     BI_RUN_PROJECT: 'BI.project.run',
