@@ -156,7 +156,8 @@ export function convertNodePropertyToFormField(
         diagnostics: property.diagnostics?.diagnostics || [],
         valueTypeConstraint: property.valueTypeConstraint,
         lineRange: property?.codedata?.lineRange,
-        metadata: property.metadata
+        metadata: property.metadata,
+        codedata: property.codedata
     };
     return formField;
 }

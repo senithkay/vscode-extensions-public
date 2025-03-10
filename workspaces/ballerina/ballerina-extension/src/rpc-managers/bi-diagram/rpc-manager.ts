@@ -671,6 +671,18 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
+    async createChoreoComponent(name: string, type: "service" | "manualTask" | "scheduleTask"): Promise<void> {
+        const params = {
+            initialValues: {
+                name,
+                type,
+                buildPackLang: "ballerina",
+            },
+        };
+
+        await commands.executeCommand("wso2.wso2-platform.create.component", params);
+    }
+
     async deployProject(): Promise<void> {
         // If has an automation set the type to scheduled task
         const projectStructure = await this.getProjectStructure();
@@ -686,7 +698,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             name: path.basename(StateMachine.context().projectUri),
             componentDir: StateMachine.context().projectUri
         };
-        commands.executeCommand("wso2.platform.create.component", params);
+        commands.executeCommand("wso2.wso2-platform.create.component", params);
     }
 
     openAIChat(params: AIChatRequest): void {

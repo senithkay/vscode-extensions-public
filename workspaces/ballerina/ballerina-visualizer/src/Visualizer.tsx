@@ -13,11 +13,13 @@ import { AIMachineStateValue, MachineStateValue } from "@wso2-enterprise/balleri
 import MainPanel from "./MainPanel";
 import { LoadingRing } from "./components/Loader";
 import AIPanel from "./views/AIPanel/AIPanel";
+import { AgentChat } from "./views/AgentChatPanel/AgentChat";
 
 const MODES = {
     VISUALIZER: "visualizer",
     AI: "ai",
-    RUNTIME_SERVICES: "runtime-services"
+    RUNTIME_SERVICES: "runtime-services",
+    AGENT_CHAT: "agent-chat"
 };
 
 export function Visualizer({ mode }: { mode: string }) {
@@ -51,6 +53,8 @@ export function Visualizer({ mode }: { mode: string }) {
                         return <VisualizerComponent state={state} />
                     case MODES.AI:
                         return <AIPanel state={aiState} />  
+                    case MODES.AGENT_CHAT:
+                        return <AgentChat />
                 }
             })()}
         </>
