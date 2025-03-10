@@ -143,6 +143,7 @@ export function FormGenerator(props: FormProps) {
     const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false });
     const [visualizableFields, setVisualizableFields] = useState<string[]>([]);
     const [recordTypeFields, setRecordTypeFields] = useState<RecordTypeField[]>([]);
+    const [isInferredReturnType, setInferredReturnType] = useState<boolean>(false);
 
     /* Expression editor related state and ref variables */
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
@@ -234,6 +235,10 @@ export function FormGenerator(props: FormProps) {
 
         setRecordTypeFields(recordTypeFields);
         console.log(">>> Fields with RECORD_TYPE:", recordTypeFields);
+
+        if (node.codedata?.inferredReturnType) {
+            setInferredReturnType(true);
+        }
 
         // get node properties
         setFields(convertNodePropertiesToFormFields(enrichedNodeProperties || formProperties, connections, clientName));
@@ -692,6 +697,7 @@ export function FormGenerator(props: FormProps) {
                     disableSaveButton={disableSaveButton}
                     actionButton={actionButton}
                     recordTypeFields={recordTypeFields}
+                    isInferredReturnType={isInferredReturnType}
                 />
             )}
             {typeEditorState.isOpen && (
