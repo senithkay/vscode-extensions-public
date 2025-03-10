@@ -28,7 +28,7 @@ export const LACK_OF_API_DOCUMENTATION_WARNING_2 = "does not have any api docume
 export const NO_DOCUMENTATION_WARNING = "no documentation found";
 export const MISSING_README_FILE_WARNING = "missing readme";
 export const MISSING_REQUIREMENT_FILE = "requirement specification is missing";
-export const MISSING_API_DOCS = "missing api documentation"
+export const MISSING_API_DOCS = "missing api documentation";
 export const MONITERED_EXTENSIONS = [
     ".bal", ".md", ".txt", ".pdf", ".docx", ".doc", ".jpeg", ".jpg", ".png", ".heic", ".heif"
 ];
