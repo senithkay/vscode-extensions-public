@@ -223,7 +223,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 if (StateMachine.context().isBI) {
                     commands.executeCommand("BI.project-explorer.refresh");
                 }
-                await this.injectAIAgent(params.service, result);
+                // await this.injectAIAgent(params.service, result);
                 resolve(result);
             } catch (error) {
                 console.log(error);

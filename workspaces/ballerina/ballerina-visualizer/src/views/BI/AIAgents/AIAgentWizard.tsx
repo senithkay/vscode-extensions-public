@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { AgentTool, AgentToolRequest, AIAgentRequest, CodeData, EVENT_TYPE, ListenerModel, ListenersResponse, PropertyModel, ServiceModel, TriggerModelsResponse } from '@wso2-enterprise/ballerina-core';
+import { AgentTool, AgentToolRequest, AIAgentRequest, CodeData, EVENT_TYPE, ListenerModel, ListenersResponse, NodePosition, PropertyModel, ServiceModel, TriggerModelsResponse } from '@wso2-enterprise/ballerina-core';
 import { Dropdown, Icon, OptionProps, RadioButtonGroup, Stepper, Typography, View, ViewContent } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
@@ -94,8 +94,13 @@ const ChoicePaddingSection = styled.div`
     padding: 16px;
 `;
 
+interface AIAgentWizardProps {
+    hideTitleBar?: boolean;
+    onSave?: (agentName: string) => void;
+}
 
-export function AIAgentWizard() {
+export function AIAgentWizard(props: AIAgentWizardProps) {
+    const { hideTitleBar, onSave } = props;
     const { rpcClient } = useRpcContext();
     const [filePath, setFilePath] = useState<string>("");
 
@@ -289,8 +294,12 @@ export function AIAgentWizard() {
 
     return (
         <View>
-            <TopNavigationBar />
-            <TitleBar title="AI Agent" subtitle="Create a new AI agent for your integration" />
+            {!hideTitleBar && (
+                <>
+                    <TopNavigationBar />
+                    <TitleBar title="AI Agent" subtitle="Create a new AI agent for your integration" />
+                </>
+            )}
             <ViewContent>
                 <Container>
                     <StepperContainer>
