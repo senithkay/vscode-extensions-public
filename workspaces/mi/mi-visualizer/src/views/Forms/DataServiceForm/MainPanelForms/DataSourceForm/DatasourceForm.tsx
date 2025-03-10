@@ -31,6 +31,7 @@ export interface DataServiceDataSourceWizardProps {
     datasources?: any;
     setValue?: any;
     isPopup?: boolean;
+    fromSidePanel?: boolean;
     handlePopupClose?: () => void;
 }
 
@@ -738,7 +739,7 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
                                 control={control}
                                 label="Datasource Name"
                                 filterType="dataSource"
-                                allowItemCreate={props.isPopup ? false : true}
+                                allowItemCreate={props.fromSidePanel ? false : true}
                                 requireValidation={false}
                                 required
                                 onCreateButtonClick={onCreateButtonClick}
