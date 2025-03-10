@@ -62,6 +62,7 @@ interface IKeylookupBase {
     widthOffset?: number;
     nullable?: boolean;
     allowItemCreate?: boolean;
+    hideCreateNewButton?: boolean;
     sx?: React.CSSProperties;
     borderBox?: boolean;
     errorMsg?: string;
@@ -178,6 +179,7 @@ export const Keylookup = (props: IKeylookup) => {
         value = "",
         onValueChange,
         allowItemCreate = true,
+        hideCreateNewButton,
         path,
         errorMsg,
         exprToggleEnabled,
@@ -346,6 +348,7 @@ export const Keylookup = (props: IKeylookup) => {
                     required={props.required}
                     items={items}
                     allowItemCreate={allowItemCreate}
+                    hideCreateNewButton={hideCreateNewButton}
                     requireValidation={requireValidation !== undefined ? requireValidation : allowItemCreate}
                     onCreateButtonClick={props.onCreateButtonClick ? () => {
                         handleValueChange("");
