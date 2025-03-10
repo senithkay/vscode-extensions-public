@@ -225,12 +225,10 @@ const stateMachine = createMachine<MachineContext>(
             return new Promise(async (resolve, reject) => {
                 if (!context.view && context.langClient) {
                     if (!context.position || ("groupId" in context.position)) {
-                        if (context.isBI) {
-                            const entryPoints = (await new BiDiagramRpcManager().getProjectStructure()).directoryMap[DIRECTORY_MAP.SERVICES].length;
-                            if (entryPoints === 0) {
-                                history.push({ location: { view: MACHINE_VIEW.Overview, documentUri: context.documentUri } });
-                                return resolve();
-                            }
+                        const entryPoints = (await new BiDiagramRpcManager().getProjectStructure()).directoryMap[DIRECTORY_MAP.SERVICES].length;
+                        if (entryPoints === 0) {
+                            history.push({ location: { view: MACHINE_VIEW.Overview, documentUri: context.documentUri } });
+                            return resolve();
                         }
                         history.push({ location: { view: MACHINE_VIEW.Overview, documentUri: context.documentUri } });
                         return resolve();
@@ -406,9 +404,7 @@ export function updateView() {
     const historyStack = history.get();
     const lastView = historyStack[historyStack.length - 1];
     stateService.send({ type: "VIEW_UPDATE", viewLocation: lastView ? lastView.location : { view: "Overview" } });
-    if (StateMachine.context().isBI) {
-        commands.executeCommand("BI.project-explorer.refresh");
-    }
+    commands.executeCommand("BI.project-explorer.refresh");
     notifyCurrentWebview();
 }
 

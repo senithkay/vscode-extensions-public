@@ -12,22 +12,25 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { AgentCallNodeModel } from "./AgentCallNodeModel";
 import {
+    AGENT_NODE_TOOL_GAP,
+    AGENT_NODE_TOOL_SECTION_GAP,
     DRAFT_NODE_BORDER_WIDTH,
     LABEL_HEIGHT,
+    LABEL_WIDTH,
     NODE_BORDER_WIDTH,
     NODE_GAP_X,
     NODE_HEIGHT,
     NODE_PADDING,
     NODE_WIDTH,
 } from "../../../resources/constants";
-import { Button, Item, Menu, MenuItem, Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, Item, Menu, MenuItem, Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
-import { FlowNode } from "../../../utils/types";
+import { AgentNodeTools, FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
 import ConnectorIcon from "../../ConnectorIcon";
 import { useDiagramContext } from "../../DiagramContext";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
-import { getNodeTitle, nodeHasError } from "../../../utils/node";
+import { getAgentNodeTools, nodeHasError } from "../../../utils/node";
 import { BreakpointMenu } from "../../BreakNodeMenu/BreakNodeMenu";
 
 export namespace NodeStyles {
@@ -35,7 +38,6 @@ export namespace NodeStyles {
         display: flex;
         flex-direction: row;
         align-items: flex-start;
-        cursor: pointer;
     `;
 
     export type NodeStyleProp = {
@@ -47,7 +49,7 @@ export namespace NodeStyles {
     export const Box = styled.div<NodeStyleProp>`
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        justify-content: center;
         align-items: center;
         width: ${NODE_WIDTH}px;
         min-height: ${NODE_HEIGHT}px;
@@ -65,6 +67,7 @@ export namespace NodeStyles {
         background-color: ${(props: NodeStyleProp) =>
             props?.isActiveBreakpoint ? ThemeColors.DEBUGGER_BREAKPOINT_BACKGROUND : ThemeColors.SURFACE_DIM};
         color: ${ThemeColors.ON_SURFACE};
+        cursor: pointer;
     `;
 
     export const Header = styled.div<{}>`
@@ -197,7 +200,6 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
         useDiagramContext();
 
     const [isBoxHovered, setIsBoxHovered] = useState(false);
-    const [isCircleHovered, setIsCircleHovered] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(anchorEl);
     const hasBreakpoint = model.hasBreakpoint();
@@ -267,8 +269,9 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
     ];
 
     const disabled = model.node.suggested;
-    const nodeTitle = getNodeTitle(model.node);
+    const nodeTitle = "AI Agent : " + model.node.properties.connection?.value;
     const hasError = nodeHasError(model.node);
+    const tools = getAgentNodeTools(model.node);
 
     return (
         <NodeStyles.Node>
@@ -279,7 +282,6 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                 isActiveBreakpoint={isActiveBreakpoint}
                 onMouseEnter={() => setIsBoxHovered(true)}
                 onMouseLeave={() => setIsBoxHovered(false)}
-                style={{ height: `${model.node.viewState?.ch}px` }}
             >
                 {hasBreakpoint && (
                     <div
@@ -294,57 +296,61 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                     />
                 )}
                 <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
-                <NodeStyles.Row>
-                    <NodeStyles.Icon onClick={handleOnClick}>
-                        <NodeIcon type={model.node.codedata.node} size={24} />
-                    </NodeStyles.Icon>
+                <NodeStyles.Row style={{ height: `${model.node.viewState?.ch}px` }}>
                     <NodeStyles.Row>
-                        <NodeStyles.Header onClick={handleOnClick}>
-                            <NodeStyles.Title>{nodeTitle}</NodeStyles.Title>
-                            <NodeStyles.Description>{model.node.properties.variable?.value}</NodeStyles.Description>
-                        </NodeStyles.Header>
-                        <NodeStyles.ActionButtonGroup>
-                            {hasError && <DiagnosticsPopUp node={model.node} />}
-                            {!readOnly && (
-                                <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
-                                    <MoreVertIcon />
-                                </NodeStyles.MenuButton>
-                            )}
-                        </NodeStyles.ActionButtonGroup>
+                        <NodeStyles.Icon onClick={handleOnClick}>
+                            <NodeIcon type={model.node.codedata.node} size={24} />
+                        </NodeStyles.Icon>
+                        <NodeStyles.Row>
+                            <NodeStyles.Header onClick={handleOnClick}>
+                                <NodeStyles.Title>{nodeTitle}</NodeStyles.Title>
+                                <NodeStyles.Description>{model.node.properties.variable?.value}</NodeStyles.Description>
+                            </NodeStyles.Header>
+                            <NodeStyles.ActionButtonGroup>
+                                {hasError && <DiagnosticsPopUp node={model.node} />}
+                                {!readOnly && (
+                                    <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
+                                        <MoreVertIcon />
+                                    </NodeStyles.MenuButton>
+                                )}
+                            </NodeStyles.ActionButtonGroup>
+                        </NodeStyles.Row>
+                        <Popover
+                            open={isMenuOpen}
+                            anchorEl={anchorEl}
+                            handleClose={handleOnMenuClose}
+                            sx={{
+                                padding: 0,
+                                borderRadius: 0,
+                            }}
+                        >
+                            <Menu>
+                                <>
+                                    {menuItems.map((item) => (
+                                        <MenuItem key={item.id} item={item} />
+                                    ))}
+                                    <BreakpointMenu
+                                        hasBreakpoint={hasBreakpoint}
+                                        onAddBreakpoint={onAddBreakpoint}
+                                        onRemoveBreakpoint={onRemoveBreakpoint}
+                                    />
+                                </>
+                            </Menu>
+                        </Popover>
                     </NodeStyles.Row>
-                    <Popover
-                        open={isMenuOpen}
-                        anchorEl={anchorEl}
-                        handleClose={handleOnMenuClose}
-                        sx={{
-                            padding: 0,
-                            borderRadius: 0,
-                        }}
-                    >
-                        <Menu>
-                            <>
-                                {menuItems.map((item) => (
-                                    <MenuItem key={item.id} item={item} />
-                                ))}
-                                <BreakpointMenu
-                                    hasBreakpoint={hasBreakpoint}
-                                    onAddBreakpoint={onAddBreakpoint}
-                                    onRemoveBreakpoint={onRemoveBreakpoint}
-                                />
-                            </>
-                        </Menu>
-                    </Popover>
                 </NodeStyles.Row>
                 <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
             </NodeStyles.Box>
 
             <svg
-                width={NODE_GAP_X + NODE_HEIGHT + LABEL_HEIGHT}
-                height={NODE_HEIGHT * 2 + (model.node.metadata?.tools?.length || 0) * (NODE_HEIGHT + LABEL_HEIGHT)}
-                viewBox={`0 0 130 ${70 + (model.node.metadata?.tools?.length || 0) * 70}`}
-                onClick={onConnectionClick}
-                onMouseEnter={() => setIsCircleHovered(true)}
-                onMouseLeave={() => setIsCircleHovered(false)}
+                width={NODE_GAP_X + NODE_HEIGHT + LABEL_HEIGHT + LABEL_WIDTH}
+                height={model.node.viewState?.ch}
+                viewBox={`0 0 300 ${
+                    tools.length > 0
+                        ? NODE_HEIGHT + AGENT_NODE_TOOL_SECTION_GAP + tools.length * (NODE_HEIGHT + AGENT_NODE_TOOL_GAP)
+                        : NODE_HEIGHT
+                }`}
+                style={{ marginLeft: "-5px" }}
             >
                 {/* ai agent model circle */}
                 <g>
@@ -353,23 +359,26 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                         cy="24"
                         r="22"
                         fill={ThemeColors.SURFACE_DIM}
-                        stroke={isCircleHovered && !disabled ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT}
+                        stroke={ThemeColors.OUTLINE_VARIANT}
                         strokeWidth={1.5}
                         strokeDasharray={disabled ? "5 5" : "none"}
                         opacity={disabled ? 0.7 : 1}
                     />
                     <foreignObject x="68" y="12" width="44" height="44" fill={ThemeColors.ON_SURFACE}>
-                        {/* <ConnectorIcon node={model.node} /> */}
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            x="0px"
-                            y="0px"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 50 50"
-                        >
-                            <path d="M45.403,25.562c-0.506-1.89-1.518-3.553-2.906-4.862c1.134-2.665,0.963-5.724-0.487-8.237	c-1.391-2.408-3.636-4.131-6.322-4.851c-1.891-0.506-3.839-0.462-5.669,0.088C28.276,5.382,25.562,4,22.647,4	c-4.906,0-9.021,3.416-10.116,7.991c-0.01,0.001-0.019-0.003-0.029-0.002c-2.902,0.36-5.404,2.019-6.865,4.549	c-1.391,2.408-1.76,5.214-1.04,7.9c0.507,1.891,1.519,3.556,2.909,4.865c-1.134,2.666-0.97,5.714,0.484,8.234	c1.391,2.408,3.636,4.131,6.322,4.851c0.896,0.24,1.807,0.359,2.711,0.359c1.003,0,1.995-0.161,2.957-0.45	C21.722,44.619,24.425,46,27.353,46c4.911,0,9.028-3.422,10.12-8.003c2.88-0.35,5.431-2.006,6.891-4.535	C45.754,31.054,46.123,28.248,45.403,25.562z M35.17,9.543c2.171,0.581,3.984,1.974,5.107,3.919c1.049,1.817,1.243,4,0.569,5.967	c-0.099-0.062-0.193-0.131-0.294-0.19l-9.169-5.294c-0.312-0.179-0.698-0.177-1.01,0.006l-10.198,6.041l-0.052-4.607l8.663-5.001	C30.733,9.26,33,8.963,35.17,9.543z M29.737,22.195l0.062,5.504l-4.736,2.805l-4.799-2.699l-0.062-5.504l4.736-2.805L29.737,22.195z M14.235,14.412C14.235,9.773,18.009,6,22.647,6c2.109,0,4.092,0.916,5.458,2.488C28,8.544,27.891,8.591,27.787,8.651l-9.17,5.294	c-0.312,0.181-0.504,0.517-0.5,0.877l0.133,11.851l-4.015-2.258V14.412z M6.528,23.921c-0.581-2.17-0.282-4.438,0.841-6.383	c1.06-1.836,2.823-3.074,4.884-3.474c-0.004,0.116-0.018,0.23-0.018,0.348V25c0,0.361,0.195,0.694,0.51,0.872l10.329,5.81	L19.11,34.03l-8.662-5.002C8.502,27.905,7.11,26.092,6.528,23.921z M14.83,40.457c-2.171-0.581-3.984-1.974-5.107-3.919	c-1.053-1.824-1.249-4.001-0.573-5.97c0.101,0.063,0.196,0.133,0.299,0.193l9.169,5.294c0.154,0.089,0.327,0.134,0.5,0.134	c0.177,0,0.353-0.047,0.51-0.14l10.198-6.041l0.052,4.607l-8.663,5.001C19.269,40.741,17.001,41.04,14.83,40.457z M35.765,35.588	c0,4.639-3.773,8.412-8.412,8.412c-2.119,0-4.094-0.919-5.459-2.494c0.105-0.056,0.216-0.098,0.32-0.158l9.17-5.294	c0.312-0.181,0.504-0.517,0.5-0.877L31.75,23.327l4.015,2.258V35.588z M42.631,32.462c-1.056,1.83-2.84,3.086-4.884,3.483	c0.004-0.12,0.018-0.237,0.018-0.357V25c0-0.361-0.195-0.694-0.51-0.872l-10.329-5.81l3.964-2.348l8.662,5.002	c1.946,1.123,3.338,2.937,3.92,5.107C44.053,28.249,43.754,30.517,42.631,32.462z"></path>
-                        </svg>
+                        <ConnectorIcon
+                            url={model.node.metadata.data.model}
+                            fallbackIcon={
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                    <g fill="none">
+                                        <path d="m12.594 23.258l-.012.002l-.071.035l-.02.004l-.014-.004l-.071-.036q-.016-.004-.024.006l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.016-.018m.264-.113l-.014.002l-.184.093l-.01.01l-.003.011l.018.43l.005.012l.008.008l.201.092q.019.005.029-.008l.004-.014l-.034-.614q-.005-.019-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.003-.011l.018-.43l-.003-.012l-.01-.01z" />
+                                        <path
+                                            fill="currentColor"
+                                            d="M9.107 5.448c.598-1.75 3.016-1.803 3.725-.159l.06.16l.807 2.36a4 4 0 0 0 2.276 2.411l.217.081l2.36.806c1.75.598 1.803 3.016.16 3.725l-.16.06l-2.36.807a4 4 0 0 0-2.412 2.276l-.081.216l-.806 2.361c-.598 1.75-3.016 1.803-3.724.16l-.062-.16l-.806-2.36a4 4 0 0 0-2.276-2.412l-.216-.081l-2.36-.806c-1.751-.598-1.804-3.016-.16-3.724l.16-.062l2.36-.806A4 4 0 0 0 8.22 8.025l.081-.216zM11 6.094l-.806 2.36a6 6 0 0 1-3.49 3.649l-.25.091l-2.36.806l2.36.806a6 6 0 0 1 3.649 3.49l.091.25l.806 2.36l.806-2.36a6 6 0 0 1 3.49-3.649l.25-.09l2.36-.807l-2.36-.806a6 6 0 0 1-3.649-3.49l-.09-.25zM19 2a1 1 0 0 1 .898.56l.048.117l.35 1.026l1.027.35a1 1 0 0 1 .118 1.845l-.118.048l-1.026.35l-.35 1.027a1 1 0 0 1-1.845.117l-.048-.117l-.35-1.026l-1.027-.35a1 1 0 0 1-.118-1.845l.118-.048l1.026-.35l.35-1.027A1 1 0 0 1 19 2"
+                                        />
+                                    </g>
+                                </svg>
+                            }
+                        />
                     </foreignObject>
                     <line
                         x1="0"
@@ -377,46 +386,59 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                         x2="57"
                         y2="25"
                         style={{
-                            stroke: disabled
-                                ? ThemeColors.ON_SURFACE
-                                : isBoxHovered
-                                ? ThemeColors.PRIMARY
-                                : ThemeColors.ON_SURFACE,
+                            stroke: ThemeColors.ON_SURFACE,
                             strokeWidth: 1.5,
                             markerEnd: `url(#${model.node.id}-arrow-head)`,
+                            markerStart: `url(#${model.node.id}-diamond-start)`,
                         }}
                     />
                 </g>
 
                 {/* circles for tools */}
-                {model.node.metadata?.tools?.map((tool: any, index: number) => (
-                    <g key={index} transform={`translate(0, ${(index + 1) * 70})`}>
+                {tools.map((tool: AgentNodeTools, index: number) => (
+                    <g
+                        key={index}
+                        transform={`translate(0, ${
+                            (index + 1) * (NODE_HEIGHT + AGENT_NODE_TOOL_GAP) + AGENT_NODE_TOOL_SECTION_GAP
+                        })`}
+                    >
                         <circle
                             cx="80"
                             cy="24"
                             r="22"
                             fill={ThemeColors.SURFACE_DIM}
-                            stroke={isCircleHovered && !disabled ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT}
+                            stroke={ThemeColors.OUTLINE_VARIANT}
                             strokeWidth={1.5}
                             strokeDasharray={disabled ? "5 5" : "none"}
                             opacity={disabled ? 0.7 : 1}
                         />
                         <foreignObject x="68" y="12" width="44" height="44" fill={ThemeColors.ON_SURFACE}>
-                            <ConnectorIcon node={model.node} />
+                            <ConnectorIcon
+                                url={tool.iconUrl}
+                                fallbackIcon={<Icon name="bi-function" sx={{ fontSize: "24px" }} />}
+                            />
                         </foreignObject>
+                        <text
+                            x="110"
+                            y="28"
+                            textAnchor="start"
+                            fill={ThemeColors.ON_SURFACE}
+                            fontSize="14px"
+                            fontFamily="GilmerRegular"
+                            dominantBaseline="middle"
+                        >
+                            {tool.name.length > 20 ? `${tool.name.slice(0, 20)}...` : tool.name}
+                            <title>{tool.name}</title>
+                        </text>
                         <line
                             x1="0"
                             y1="25"
                             x2="57"
                             y2="25"
                             style={{
-                                stroke: disabled
-                                    ? ThemeColors.ON_SURFACE
-                                    : isBoxHovered
-                                    ? ThemeColors.PRIMARY
-                                    : ThemeColors.ON_SURFACE,
+                                stroke: ThemeColors.ON_SURFACE,
                                 strokeWidth: 1.5,
-                                markerEnd: `url(#${model.node.id}-arrow-head-${index})`,
+                                markerEnd: `url(#${model.node.id}-arrow-head-tool-${tool.name})`,
                             }}
                         />
                     </g>
@@ -424,46 +446,46 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
 
                 <defs>
                     <marker
+                        id={`${model.node.id}-arrow-head`}
                         markerWidth="4"
                         markerHeight="4"
                         refX="3"
                         refY="2"
                         viewBox="0 0 4 4"
                         orient="auto"
-                        id={`${model.node.id}-arrow-head`}
                     >
-                        <polygon
-                            points="0,4 0,0 4,2"
-                            fill={
-                                disabled
-                                    ? ThemeColors.ON_SURFACE
-                                    : isBoxHovered
-                                    ? ThemeColors.PRIMARY
-                                    : ThemeColors.ON_SURFACE
-                            }
-                        ></polygon>
+                        <polygon points="0,4 0,0 4,2" fill={ThemeColors.ON_SURFACE}></polygon>
                     </marker>
-                    {model.node.metadata?.tools?.map((_, index: number) => (
+                    <marker
+                        id={`${model.node.id}-diamond-start`}
+                        markerWidth="8"
+                        markerHeight="8"
+                        refX="4.5"
+                        refY="4"
+                        viewBox="0 0 8 8"
+                        orient="auto"
+                    >
+                        <circle
+                            cx="4"
+                            cy="4"
+                            r="3"
+                            fill={ThemeColors.SURFACE_DIM}
+                            stroke={ThemeColors.OUTLINE_VARIANT}
+                            strokeWidth="1"
+                        />
+                    </marker>
+                    {tools.map((tool: AgentNodeTools) => (
                         <marker
-                            key={index}
+                            key={tool.name}
+                            id={`${model.node.id}-arrow-head-tool-${tool.name}`}
                             markerWidth="4"
                             markerHeight="4"
                             refX="3"
                             refY="2"
                             viewBox="0 0 4 4"
                             orient="auto"
-                            id={`${model.node.id}-arrow-head-${index}`}
                         >
-                            <polygon
-                                points="0,4 0,0 4,2"
-                                fill={
-                                    disabled
-                                        ? ThemeColors.ON_SURFACE
-                                        : isBoxHovered
-                                        ? ThemeColors.PRIMARY
-                                        : ThemeColors.ON_SURFACE
-                                }
-                            ></polygon>
+                            <polygon points="0,4 0,0 4,2" fill={ThemeColors.ON_SURFACE}></polygon>
                         </marker>
                     ))}
                 </defs>

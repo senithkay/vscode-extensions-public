@@ -6,10 +6,10 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-
-import { ProjectExplorerEntryProvider } from './project-explorer-provider';
-import { ExtensionContext, commands, window, workspace } from 'vscode';
 import { SHARED_COMMANDS, BI_COMMANDS } from '@wso2-enterprise/ballerina-core';
+
+import { ProjectExplorerEntry, ProjectExplorerEntryProvider } from './project-explorer-provider';
+import { ExtensionContext, TreeView, commands, window, workspace } from 'vscode';
 import { extension } from '../biExtentionContext';
 
 interface ExplorerActivationConfig {
@@ -23,39 +23,61 @@ export function activateProjectExplorer(config: ExplorerActivationConfig) {
 	const { context, isBI, isBallerina, isMultiRoot } = config;
 
 	if (extension.langClient) {
-		commands.executeCommand('setContext', 'BI.status', 'loading');
+		setLoadingStatus();
 	}
 
 	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(isBallerina);
-	const projectTree = window.createTreeView(BI_COMMANDS.PROJECT_EXPLORER, { treeDataProvider: projectExplorerDataProvider });
+	const projectTree = createProjectTree(projectExplorerDataProvider);
 
-	if (isBI) {
-		registerBICommands(projectExplorerDataProvider, isMultiRoot);
+	if (isBallerina) {
+		registerBallerinaCommands(projectExplorerDataProvider, isBI, isMultiRoot);
 	}
 
-	projectTree.onDidChangeVisibility(res => handleVisibilityChange(res, projectExplorerDataProvider, isBallerina));
+	handleVisibilityChangeEvents(projectTree, projectExplorerDataProvider, isBallerina);
 	context.subscriptions.push(workspace.onDidDeleteFiles(() => projectExplorerDataProvider.refresh()));
 }
 
-function registerBICommands(projectExplorerDataProvider: ProjectExplorerEntryProvider, isMultiRoot?: boolean) {
-	commands.registerCommand(BI_COMMANDS.REFRESH_COMMAND, () => projectExplorerDataProvider.refresh());
+function setLoadingStatus() {
+	commands.executeCommand('setContext', 'BI.status', 'loading');
+}
+
+function createProjectTree(dataProvider: ProjectExplorerEntryProvider) {
+	return window.createTreeView(BI_COMMANDS.PROJECT_EXPLORER, { treeDataProvider: dataProvider });
+}
+
+function registerBallerinaCommands(dataProvider: ProjectExplorerEntryProvider, isBI: boolean, isMultiRoot?: boolean) {
+	commands.registerCommand(BI_COMMANDS.REFRESH_COMMAND, () => dataProvider.refresh());
+	if (isBI) {
+		registerBICommands(isMultiRoot);
+	}
+}
+
+function handleVisibilityChangeEvents(tree: TreeView<ProjectExplorerEntry>, dataProvider: ProjectExplorerEntryProvider, isBallerina?: boolean) {
+	tree.onDidChangeVisibility(res => handleVisibilityChange(res, dataProvider, isBallerina));
+}
+
+function handleVisibilityChange(res: { visible: boolean }, dataProvider: ProjectExplorerEntryProvider, isBallerina?: boolean) {
+	if (res.visible) {
+		if (isBallerina) {
+			dataProvider.refresh();
+		} else {
+			handleNonBallerinaVisibility();
+		}
+	}
+}
+
+function handleNonBallerinaVisibility() {
+	if (extension.langClient) {
+		commands.executeCommand('setContext', 'BI.status', 'unknownProject');
+	}
+	commands.executeCommand(SHARED_COMMANDS.OPEN_BI_WELCOME);
+}
+
+function registerBICommands(isMultiRoot?: boolean) {
 	commands.executeCommand(BI_COMMANDS.FOCUS_PROJECT_EXPLORER);
 	commands.executeCommand(SHARED_COMMANDS.SHOW_VISUALIZER);
 	commands.executeCommand('setContext', 'BI.project', true);
 	if (isMultiRoot) {
 		commands.executeCommand('setContext', 'BI.isMultiRoot', true);
-	}
-}
-
-function handleVisibilityChange(res: { visible: boolean }, projectExplorerDataProvider: ProjectExplorerEntryProvider, isBallerina?: boolean) {
-	if (res.visible) {
-		if (isBallerina) {
-			projectExplorerDataProvider.refresh();
-		} else {
-			if (extension.langClient) {
-				commands.executeCommand('setContext', 'BI.status', 'unknownProject');
-			}
-			commands.executeCommand(SHARED_COMMANDS.OPEN_BI_WELCOME);
-		}
 	}
 }

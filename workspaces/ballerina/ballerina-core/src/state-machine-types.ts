@@ -42,6 +42,7 @@ export enum SCOPE {
     INTEGRATION_AS_API = "integration-as-api",
     EVENT_INTEGRATION = "event-integration",
     FILE_INTEGRATION = "file-integration",
+    AI_AGENT = "ai-agent",
     ANY = "any"
 }
 
@@ -74,6 +75,9 @@ export enum MACHINE_VIEW {
     BIServiceClassDesigner = "Service Class Designer",
     BIServiceClassConfigView = "Service Class Config View",
     BIDataMapperForm = "Add Data Mapper",
+    AIAgentWizard = "AI Agent Wizard",
+    AIAgentEditView = "AI Agent Edit View",
+    AIAgentDesigner = "AI Agent Designer",
 }
 
 export interface MachineEvent {

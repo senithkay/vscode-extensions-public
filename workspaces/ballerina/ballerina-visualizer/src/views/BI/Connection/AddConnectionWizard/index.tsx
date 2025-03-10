@@ -122,7 +122,6 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
             // get node properties
             setCurrentStep(WizardStep.CONNECTION_CONFIG);
             // Start pulling connector after transitioning to config step
-            handlePullConnector();
         } finally {
             setFetchingInfo(false);
         }
@@ -132,21 +131,17 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
         console.log(">>> on form submit", node);
         if (selectedNodeRef.current) {
             setSavingFormStatus(SavingFormStatus.SAVING);
-            // get connections.bal file path
             const visualizerLocation = await rpcClient.getVisualizerLocation();
-            let connectionsFilePath = "";
-            if (visualizerLocation.projectUri) {
-                connectionsFilePath = visualizerLocation.projectUri + "/connections.bal";
-            }
+            let connectionsFilePath = visualizerLocation.documentUri || visualizerLocation.projectUri;
+
             if (connectionsFilePath === "") {
-                console.error(">>> Error updating source code. No connections.bal file found");
+                console.error(">>> Error updating source code. No source file found");
                 setSavingFormStatus(SavingFormStatus.ERROR);
                 return;
             }
 
             // node property scope is local. then use local file path and line position
             if ((node.properties?.scope?.value as string)?.toLowerCase() === "local") {
-                connectionsFilePath = visualizerLocation.documentUri;
                 node.codedata.lineRange = {
                     fileName: visualizerLocation.documentUri,
                     startLine: target,
@@ -207,6 +202,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                         editorKey={subPanel.props.sidePanelData.editorKey}
                         onClosePanel={handleSubPanel}
                         configurePanelData={subPanel.props.sidePanelData?.configurePanelData}
+                        recordTypeField={subPanel.props.sidePanelData?.recordField}
                     />
                 );
             default:
@@ -284,6 +280,8 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
         <Container>
             <>
                 <ConnectorView
+                    fileName={fileName}
+                    targetLinePosition={target}
                     onSelectConnector={handleOnSelectConnector}
                     fetchingInfo={fetchingInfo}
                     onClose={onClose}
@@ -345,6 +343,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                             updatedExpressionField={updatedExpressionField}
                             resetUpdatedExpressionField={handleResetUpdatedExpressionField}
                             openSubPanel={handleSubPanel}
+                            subPanelView={subPanel.view}
                             isPullingConnector={
                                 pullingStatus === PullingStatus.PULLING || savingFormStatus === SavingFormStatus.SAVING
                             }
