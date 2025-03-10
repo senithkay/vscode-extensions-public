@@ -74,7 +74,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
             setUpdatingContent(true);
 
             if (fileName === "") {
-                console.error(">>> Error updating source code. No connections.bal file found");
+                console.error(">>> Error updating source code. No source file found");
                 setUpdatingContent(false);
                 return;
             }
@@ -143,6 +143,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                         editorKey={subPanel.props.sidePanelData.editorKey}
                         onClosePanel={handleSubPanel}
                         configurePanelData={subPanel.props.sidePanelData?.configurePanelData}
+                        recordTypeField={subPanel.props.sidePanelData?.recordField}
                     />
                 );
             default:

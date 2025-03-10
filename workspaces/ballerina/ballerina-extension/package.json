@@ -2,7 +2,7 @@
     "name": "kolab",
     "displayName": "KolaB",
     "description": "KolaB Extension for Kola.",
-    "version": "0.4.6",
+    "version": "0.4.7",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
@@ -85,6 +85,32 @@
                         "type": "string",
                         "default": "",
                         "description": "Specify the Ballerina home directory path."
+                    },
+                    "kolab.isBI": {
+                        "type": "boolean",
+                        "default": false,
+                        "scope": "resource",
+                        "description": "Activate features for Ballerina Integrator."
+                    },
+                    "kolab.scope": {
+                        "type": "string",
+                        "default": "any",
+                        "scope": "resource",
+                        "description": "Define the scope of the project.",
+                        "enum": [
+                            "automation",
+                            "integration-as-api",
+                            "event-integration",
+                            "file-integration",
+                            "any"
+                        ],
+                        "enumDescriptions": [
+                            "Automation",
+                            "Integration as API",
+                            "Event Integration",
+                            "File Integration",
+                            "Any"
+                        ]
                     },
                     "kolab.debugLog": {
                         "type": "boolean",
@@ -626,6 +652,13 @@
                 "category": "BI"
             },
             {
+                "command": "BI.project-explorer.switch-project",
+                "title": "Switch Project",
+                "icon": "$(distro-switch-project)",
+                "group": "navigation",
+                "category": "BI"
+            },
+            {
                 "command": "BI.project-explorer.add",
                 "title": "Add Construct",
                 "icon": "$(add)",
@@ -999,6 +1032,13 @@
                 "default": {
                     "fontPath": "./resources/codicons/codicon.ttf",
                     "fontCharacter": "\\eaec"
+                }
+            },
+            "distro-switch-project": {
+                "description": "switch-project",
+                "default": {
+                    "fontPath": "./resources/codicons/codicon.ttf",
+                    "fontCharacter": "\\ea77"
                 }
             }
         },

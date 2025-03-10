@@ -54,6 +54,7 @@ interface FormProps {
     targetLineRange: LineRange;
     projectPath?: string;
     submitText?: string;
+    cancelText?: string;
     onBack?: () => void;
     editForm?: boolean;
     isGraphqlEditor?: boolean;
@@ -73,6 +74,7 @@ export function FormGeneratorNew(props: FormProps) {
         targetLineRange,
         projectPath,
         submitText,
+        cancelText,
         onBack,
         onSubmit,
         isGraphqlEditor,
@@ -314,6 +316,7 @@ export function FormGeneratorNew(props: FormProps) {
         typeBrowserRef: RefObject<HTMLDivElement>,
         currentType: string,
         currentCursorPosition: number,
+        typeHelperState: boolean,
         onChange: (newType: string, newCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void,
         typeHelperHeight: HelperPaneHeight
@@ -325,6 +328,7 @@ export function FormGeneratorNew(props: FormProps) {
             currentType,
             currentCursorPosition,
             typeHelperHeight,
+            typeHelperState,
             onChange,
             () => changeHelperPaneState(false)
         );
@@ -472,6 +476,7 @@ export function FormGeneratorNew(props: FormProps) {
                     openRecordEditor={handleOpenTypeEditor}
                     onCancelForm={onBack}
                     submitText={submitText}
+                    cancelText={cancelText}
                     onSubmit={handleSubmit}
                     openView={handleOpenView}
                     openSubPanel={openSubPanel}
