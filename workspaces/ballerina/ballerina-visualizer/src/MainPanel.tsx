@@ -58,8 +58,11 @@ import ViewConfigurableVariables from "./views/BI/Configurables/ViewConfigurable
 import { ServiceWizard } from "./views/BI/ServiceDesigner/ServiceWizard";
 import { ServiceEditView } from "./views/BI/ServiceDesigner/ServiceEditView";
 import { ListenerEditView } from "./views/BI/ServiceDesigner/ListenerEditView";
+import { AIAgentWizard } from "./views/BI/AIAgents/AIAgentWizard";
 import { ServiceClassDesigner } from "./views/BI/ServiceClassEditor/ServiceClassDesigner";
 import { ServiceClassConfig } from "./views/BI/ServiceClassEditor/ServiceClassConfig";
+import { AIAgentDesigner } from "./views/BI/AIAgentDesigner";
+import { AIAgentEditView } from "./views/BI/AIAgents/AIAgentEditView";
 
 const globalStyles = css`
     *,
@@ -155,6 +158,10 @@ const MainPanel = () => {
     const fetchContext = () => {
         setNavActive(true);
         rpcClient.getVisualizerLocation().then((value) => {
+            let defaultFunctionsFile = Utils.joinPath(URI.file(value.projectUri), 'functions.bal').fsPath;
+            if (value.documentUri) {
+                defaultFunctionsFile = value.documentUri
+            }
             if (!value?.view) {
                 setViewComponent(<LoadingRing />);
             } else {
@@ -173,6 +180,12 @@ const MainPanel = () => {
                                 position={value?.position}
                             />
                         );
+                        break;
+                    case MACHINE_VIEW.AIAgentDesigner:
+                        setViewComponent(<AIAgentDesigner
+                            filePath={value.documentUri}
+                            position={value?.position}
+                        />);
                         break;
                     case MACHINE_VIEW.BIDiagram:
                         setViewComponent(
@@ -196,30 +209,26 @@ const MainPanel = () => {
                         );
                         break;
                     case MACHINE_VIEW.BIDataMapperForm:
-                        rpcClient.getVisualizerLocation().then((location) => {
-                            setViewComponent(
-                                <FunctionForm
-                                    projectPath={value.projectUri}
-                                    fileName={value.documentUri || value.projectUri}
-                                    functionName={value?.identifier}
-                                    isDataMapper={true}
-                                />
-                            );
-                        });
-                        break;
-                    case MACHINE_VIEW.BINPFunctionForm:
-                    rpcClient.getVisualizerLocation().then((location) => {
                         setViewComponent(
                             <FunctionForm
                                 projectPath={value.projectUri}
-                                fileName={"functions.bal"}
+                                filePath={defaultFunctionsFile}
+                                functionName={value?.identifier}
+                                isDataMapper={true}
+                            />
+                        );
+                        break;
+                    case MACHINE_VIEW.BINPFunctionForm:
+                        setViewComponent(
+                            <FunctionForm
+                                projectPath={value.projectUri}
+                                filePath={defaultFunctionsFile}
                                 functionName={value?.identifier}
                                 isDataMapper={false}
                                 isNpFunction={true}
                             />
                         );
-                    });
-                    break;
+                        break;
                     case MACHINE_VIEW.GraphQLDiagram:
                         setViewComponent(<GraphQLDiagram filePath={value?.documentUri} position={value?.position} projectUri={value?.projectUri} />);
                         break;
@@ -245,6 +254,12 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.BIServiceWizard:
                         setViewComponent(<ServiceWizard type={value.serviceType} />);
+                        break;
+                    case MACHINE_VIEW.AIAgentWizard:
+                        setViewComponent(<AIAgentWizard />);
+                        break;
+                    case MACHINE_VIEW.AIAgentEditView:
+                        setViewComponent(<AIAgentEditView agentName={value.identifier} />);
                         break;
                     case MACHINE_VIEW.BIServiceClassDesigner:
                         setViewComponent(
@@ -288,7 +303,7 @@ const MainPanel = () => {
                         setViewComponent(<MainForm />);
                         break;
                     case MACHINE_VIEW.BIFunctionForm:
-                        setViewComponent(<FunctionForm projectPath={value.projectUri} fileName={value.documentUri || value.projectUri} functionName={value?.identifier} />);
+                        setViewComponent(<FunctionForm projectPath={value.projectUri} filePath={defaultFunctionsFile} functionName={value?.identifier} />);
                         break;
                     case MACHINE_VIEW.BITestFunctionForm:
                         setViewComponent(<TestFunctionForm

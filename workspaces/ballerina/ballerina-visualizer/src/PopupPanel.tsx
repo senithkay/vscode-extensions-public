@@ -15,6 +15,7 @@ import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
 import { ThemeColors, Overlay } from "@wso2-enterprise/ui-toolkit";
 import EditConnectionWizard from "./views/BI/Connection/EditConnectionWizard";
+import { FunctionForm } from "./views/BI";
 
 const ViewContainer = styled.div`
     position: fixed;
@@ -79,6 +80,15 @@ const PopupPanel = (props: PopupPanelProps) => {
                                 <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3`, zIndex: 1000 }} />
                             </>
                         );
+                    });
+                    break;
+                case MACHINE_VIEW.BIFunctionForm:
+                    rpcClient.getVisualizerLocation().then((location) => {
+                        let defaultFunctionsFile = Utils.joinPath(URI.file(location.projectUri), 'functions.bal').fsPath;
+                        if (location.documentUri) {
+                            defaultFunctionsFile = location.documentUri
+                        }
+                        setViewComponent(<FunctionForm projectPath={location.projectUri} filePath={defaultFunctionsFile} functionName={location?.identifier} />);
                     });
                     break;
                 default:

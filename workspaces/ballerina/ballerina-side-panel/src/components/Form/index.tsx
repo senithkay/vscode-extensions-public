@@ -162,11 +162,18 @@ namespace S {
         font-size: var(--vscode-font-size);
         color: ${ThemeColors.ON_SURFACE_VARIANT};
     `;
+
+    export const ActionButtonContainer = styled.div`
+        display: flex;
+        justify-content: flex-start;
+    `;
 }
 export interface FormProps {
     infoLabel?: string;
     formFields: FormField[];
     submitText?: string;
+    cancelText?: string;
+    actionButton?: React.ReactNode; // Action button to display at the top
     targetLineRange?: LineRange; // TODO: make them required after connector wizard is fixed
     fileName?: string; // TODO: make them required after connector wizard is fixed
     projectPath?: string;
@@ -196,6 +203,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
         projectPath,
         selectedNode,
         submitText,
+        cancelText,
+        actionButton,
         onSubmit,
         onCancelForm,
         oneTimeForm,
@@ -464,6 +473,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
     return (
         <Provider {...contextValue}>
             <S.Container nestedForm={nestedForm}>
+                {actionButton && <S.ActionButtonContainer>{actionButton}</S.ActionButtonContainer>}
                 {infoLabel && <S.InfoLabel>{infoLabel}</S.InfoLabel>}
                 {prioritizeVariableField && variableField && (
                     <S.CategoryRow showBorder={true}>
@@ -565,7 +575,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                 </S.CategoryRow>
                 {onSubmit && (
                     <S.Footer>
-                        {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  Cancel </Button>}
+                        {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  {cancelText || "Cancel"} </Button>}
                         <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
                             {submitText || "Save"}
                         </S.PrimaryButton>

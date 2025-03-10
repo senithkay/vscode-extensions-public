@@ -173,10 +173,20 @@ import {
     FunctionModelRequest,
     FunctionModelResponse,
     TypeDataWithReferences,
+    AINodesResponse,
+    AIModelsRequest,
+    AIToolsRequest,
+    AIToolsResponse,
+    AIGentToolsRequest,
+    AIGentToolsResponse,
     ICPEnabledRequest,
     ICPEnabledResponse,
+    AINodesRequest,
     BISearchRequest,
     BISearchResponse,
+    AIConnectorActionsRequest,
+    AIConnectorActionsResponse,
+    AIModelsResponse,
     GetRecordConfigRequest,
     GetRecordConfigResponse,
     UpdateRecordConfigRequest,
@@ -311,6 +321,12 @@ enum EXTENDED_APIS {
     BI_ADD_TEST_FUNCTION = 'testManagerService/addTestFunction',
     BI_UPDATE_TEST_FUNCTION = 'testManagerService/updateTestFunction',
     BI_EDIT_FUNCTION_NODE = 'flowDesignService/functionDefinition',
+    BI_AI_ALL_AGENTS = 'agentManager/getAllAgents',
+    BI_AI_ALL_MODELS = 'agentManager/getAllModels',
+    BI_AI_GET_MODELS = 'agentManager/getModels',
+    BI_AI_GET_TOOLS = 'agentManager/getTools',
+    BI_AI_GEN_TOOLS = 'agentManager/genTool',
+    BI_AI_CONNECTOR_ACTIONS = 'agentManager/getActions',
     BI_IS_ICP_ENABLED = 'icpService/isIcpEnabled',
     BI_ADD_ICP = 'icpService/addICP',
     BI_DISABLE_ICP = 'icpService/disableICP',
@@ -672,7 +688,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     async isIcpEnabled(params: ICPEnabledRequest): Promise<ICPEnabledResponse | NOT_SUPPORTED_TYPE> {
         return this.sendRequest(EXTENDED_APIS.BI_IS_ICP_ENABLED, params);
     }
-    
+
     async addICP(params: ICPEnabledRequest): Promise<TestSourceEditResponse | NOT_SUPPORTED_TYPE> {
         return this.sendRequest(EXTENDED_APIS.BI_ADD_ICP, params);
     }
@@ -978,9 +994,35 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<AddFunctionResponse>(EXTENDED_APIS.BI_ADD_FUNCTION, params);
     }
 
+    async getAllAgents(params: AINodesRequest): Promise<AINodesResponse> {
+        return this.sendRequest<AINodesResponse>(EXTENDED_APIS.BI_AI_ALL_AGENTS, params);
+    }
+
+    async getAllModels(params: AIModelsRequest): Promise<AINodesResponse> {
+        return this.sendRequest<AINodesResponse>(EXTENDED_APIS.BI_AI_ALL_MODELS, params);
+    }
+
+    async getModels(params: AIModelsRequest): Promise<AIModelsResponse> {
+        return this.sendRequest<AIModelsResponse>(EXTENDED_APIS.BI_AI_GET_MODELS, params);
+    }
+
+    async getTools(params: AIToolsRequest): Promise<AIToolsResponse> {
+        return this.sendRequest<AIToolsResponse>(EXTENDED_APIS.BI_AI_GET_TOOLS, params);
+    }
+
+    async genTool(params: AIGentToolsRequest): Promise<AIGentToolsResponse> {
+        return this.sendRequest<AIGentToolsResponse>(EXTENDED_APIS.BI_AI_GEN_TOOLS, params);
+    }
+
+    async getConnectorActions(params: AIConnectorActionsRequest): Promise<AIConnectorActionsResponse> {
+        return this.sendRequest<AIConnectorActionsResponse>(EXTENDED_APIS.BI_AI_CONNECTOR_ACTIONS, params);
+    }
+
     async search(params: BISearchRequest): Promise<BISearchResponse> {
         return this.sendRequest<BISearchResponse>(EXTENDED_APIS.BI_SEARCH, params);
     }
+
+
 
     // <------------ BI APIS END --------------->
 

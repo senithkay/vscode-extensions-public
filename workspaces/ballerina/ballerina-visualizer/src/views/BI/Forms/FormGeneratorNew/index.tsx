@@ -19,7 +19,8 @@ import {
     Type,
     TextEdit,
     NodeKind,
-    ExpressionProperty
+    ExpressionProperty,
+    RecordTypeField
 } from "@wso2-enterprise/ballerina-core";
 import {
     FormField,
@@ -54,6 +55,7 @@ interface FormProps {
     targetLineRange: LineRange;
     projectPath?: string;
     submitText?: string;
+    cancelText?: string;
     onBack?: () => void;
     editForm?: boolean;
     isGraphqlEditor?: boolean;
@@ -73,6 +75,7 @@ export function FormGeneratorNew(props: FormProps) {
         targetLineRange,
         projectPath,
         submitText,
+        cancelText,
         onBack,
         onSubmit,
         isGraphqlEditor,
@@ -295,20 +298,27 @@ export function FormGeneratorNew(props: FormProps) {
         value: string,
         onChange: (value: string, updatedCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void,
-        helperPaneHeight: HelperPaneHeight
+        helperPaneHeight: HelperPaneHeight,
+        recordTypeField?: RecordTypeField
     ) => {
+        const handleHelperPaneClose = () => {
+            changeHelperPaneState(false);
+            handleExpressionEditorCancel();
+        }
+
         return getHelperPane({
             fileName: fileName,
             targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
             exprRef: exprRef,
             anchorRef: anchorRef,
-            onClose: () => changeHelperPaneState(false),
+            onClose: handleHelperPaneClose,
             defaultValue: defaultValue,
             currentValue: value,
             onChange: onChange,
-            helperPaneHeight: helperPaneHeight
+            helperPaneHeight: helperPaneHeight,
+            recordTypeField: recordTypeField
         });
-    }
+    };
 
     const handleGetTypeHelper = (
         typeBrowserRef: RefObject<HTMLDivElement>,
@@ -319,17 +329,17 @@ export function FormGeneratorNew(props: FormProps) {
         changeHelperPaneState: (isOpen: boolean) => void,
         typeHelperHeight: HelperPaneHeight
     ) => {
-        return getTypeHelper(
-            typeBrowserRef,
-            fileName,
-            updateLineRange(targetLineRange, expressionOffsetRef.current),
-            currentType,
-            currentCursorPosition,
-            typeHelperHeight,
-            typeHelperState,
-            onChange,
-            () => changeHelperPaneState(false)
-        );
+        return getTypeHelper({
+            typeBrowserRef: typeBrowserRef,
+            filePath: fileName,
+            targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
+            currentType: currentType,
+            currentCursorPosition: currentCursorPosition,
+            helperPaneHeight: typeHelperHeight,
+            typeHelperState: typeHelperState,
+            onChange: onChange,
+            changeTypeHelperState: changeHelperPaneState
+        });
     }
 
     const handleTypeChange = async (type: Type) => {
@@ -474,6 +484,7 @@ export function FormGeneratorNew(props: FormProps) {
                     openRecordEditor={handleOpenTypeEditor}
                     onCancelForm={onBack}
                     submitText={submitText}
+                    cancelText={cancelText}
                     onSubmit={handleSubmit}
                     openView={handleOpenView}
                     openSubPanel={openSubPanel}

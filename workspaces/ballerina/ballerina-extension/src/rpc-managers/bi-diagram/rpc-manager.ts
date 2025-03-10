@@ -243,21 +243,20 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 })) as SyntaxTree;
 
                 if (parseSuccess) {
-                    writeFileSync(request.filePath, source);
-                    await StateMachine.langClient().didChange({
-                        textDocument: { uri: fileUriString, version: 1 },
-                        contentChanges: [
-                            {
-                                text: source,
-                            },
-                        ],
-                    });
+                    const fileUri = Uri.file(request.filePath);
+                    const workspaceEdit = new vscode.WorkspaceEdit();
+                    workspaceEdit.replace(
+                        fileUri,
+                        new vscode.Range(
+                            new vscode.Position(0, 0),
+                            new vscode.Position(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
+                        ),
+                        source
+                    );
+                    await workspace.applyEdit(workspaceEdit);
 
                     if (isConnector) {
-                        await StateMachine.langClient().resolveMissingDependencies({
-                            documentIdentifier: { uri: fileUriString },
-                        });
-                        // Temp fix: ResolveMissingDependencies does not work uless we call didOpen, This needs to be fixed in the LS
+                        // Temp fix: ResolveMissingDependencies does not work unless we call didOpen, This needs to be fixed in the LS
                         await StateMachine.langClient().didOpen({
                             textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
                         });
@@ -672,6 +671,18 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
+    async createChoreoComponent(name: string, type: "service" | "manualTask" | "scheduleTask"): Promise<void> {
+        const params = {
+            initialValues: {
+                name,
+                type,
+                buildPackLang: "ballerina",
+            },
+        };
+
+        await commands.executeCommand("wso2.wso2-platform.create.component", params);
+    }
+
     async deployProject(): Promise<void> {
         // If has an automation set the type to scheduled task
         const projectStructure = await this.getProjectStructure();
@@ -687,7 +698,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             name: path.basename(StateMachine.context().projectUri),
             componentDir: StateMachine.context().projectUri
         };
-        commands.executeCommand("wso2.platform.create.component", params);
+        commands.executeCommand("wso2.wso2-platform.create.component", params);
     }
 
     openAIChat(params: AIChatRequest): void {
@@ -1293,15 +1304,18 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                         })) as SyntaxTree;
 
                         if (parseSuccess) {
-                            writeFileSync(request.filePath, source);
-                            await StateMachine.langClient().didChange({
-                                textDocument: { uri: fileUriString, version: 1 },
-                                contentChanges: [
-                                    {
-                                        text: source,
-                                    },
-                                ],
-                            });
+                            const fileUri = Uri.file(request.filePath);
+                            const workspaceEdit = new vscode.WorkspaceEdit();
+                            workspaceEdit.replace(
+                                fileUri,
+                                new vscode.Range(
+                                    new vscode.Position(0, 0),
+                                    new vscode.Position(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
+                                ),
+                                source
+                            );
+                            
+                            await workspace.applyEdit(workspaceEdit);
                         }
                     }
                 } catch (error) {

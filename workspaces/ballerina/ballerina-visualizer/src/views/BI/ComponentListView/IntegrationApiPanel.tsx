@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from 'react';
-import { Icon } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { EVENT_TYPE, MACHINE_VIEW, SCOPE } from '@wso2-enterprise/ballerina-core';
 
@@ -35,46 +35,48 @@ export function IntegrationAPIPanel(props: IntegrationAPIPanelProps) {
     };
 
     return (
-        <PanelViewMore disabled={isDisabled}>
-            <TitleWrapper>
-                <Title variant="h2">Integration as API</Title>
-                <BodyText>
-                    Explore and manage various components to enhance your integration capabilities.
-                </BodyText>
-            </TitleWrapper>
-            <CardGrid>
-                <ButtonCard
-                    icon={<Icon name="bi-http-service" />}
-                    title="HTTP Service"
-                    // description="Handle web requests and responses."
-                    onClick={() => handleClick("http")}
-                    disabled={isDisabled}
-                    tooltip={componentListItemTooltip(isDisabled)}
-                />
-                <ButtonCard
-                    icon={<Icon name="bi-graphql" sx={{ color: "#e535ab" }} />}
-                    title="GraphQL Service"
-                    // description="Flexible and efficient data queries."
-                    onClick={() => handleClick("graphql")}
-                    disabled={isDisabled}
-                    tooltip={componentListItemTooltip(isDisabled)}
-                />
-                <ButtonCard
-                    icon={<Icon name="bi-tcp" />}
-                    title="TCP Service"
-                    // description="Process connection oriented messages."
-                    onClick={() => handleClick("tcp")}
-                    disabled={isDisabled}
-                    tooltip={componentListItemTooltip(isDisabled)}
-                />
-                {/* TODO: Add this when GRPC is working */}
-                {/* <ButtonCard
+        <>
+            <PanelViewMore disabled={isDisabled}>
+                <TitleWrapper>
+                    <Title variant="h2">Integration as API</Title>
+                    <BodyText>
+                        Explore and manage various components to enhance your integration capabilities.
+                    </BodyText>
+                </TitleWrapper>
+                <CardGrid>
+                    <ButtonCard
+                        icon={<Icon name="bi-http-service" />}
+                        title="HTTP Service"
+                        // description="Handle web requests and responses."
+                        onClick={() => handleClick("http")}
+                        disabled={isDisabled}
+                        tooltip={componentListItemTooltip(isDisabled)}
+                    />
+                    <ButtonCard
+                        icon={<Icon name="bi-graphql" sx={{ color: "#e535ab" }} />}
+                        title="GraphQL Service"
+                        // description="Flexible and efficient data queries."
+                        onClick={() => handleClick("graphql")}
+                        disabled={isDisabled}
+                        tooltip={componentListItemTooltip(isDisabled)}
+                    />
+                    <ButtonCard
+                        icon={<Icon name="bi-tcp" />}
+                        title="TCP Service"
+                        // description="Process connection oriented messages."
+                        onClick={() => handleClick("tcp")}
+                        disabled={isDisabled}
+                        tooltip={componentListItemTooltip(isDisabled)}
+                    />
+                    {/* TODO: Add this when GRPC is working */}
+                    {/* <ButtonCard
                     icon={<Icon name="bi-grpc" />}
                     title="gRPC Service"
                     description="High-performance, cross-platform communication."
                     onClick={() => handleClick("grpc")}
                 /> */}
-            </CardGrid>
-        </PanelViewMore>
+                </CardGrid>
+            </PanelViewMore>
+        </>
     );
 };

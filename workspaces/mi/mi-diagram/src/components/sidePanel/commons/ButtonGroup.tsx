@@ -62,6 +62,23 @@ const DeleteIconContainer = styled.div`
     }
 `;
 
+const RefreshIconContainer = styled.div`
+    width: 25px;
+    height: 10px;
+    cursor: pointer;
+    border-radius: 2px;
+    align-content: center;
+    padding: 5px 5px 15px 12px;
+    color: ${Colors.SECONDARY_TEXT};
+    &:hover, &.active {
+        background-color: ${Colors.BUTTON_HOVER};
+        color: ${Colors.PRIMARY};
+    }
+    & img {
+        width: 25px;
+    }
+`;
+
 const DownloadIconContainer = styled.div`
     width: 35px;
     height: 25px;
@@ -88,6 +105,7 @@ interface ButtonroupProps {
     onDownload?: any;
     connectorDetails?: ConnectorDependency;
     onDelete?: (connectorName: string, artifactId: string, version: string, iconUrl: string, connectorPath: string) => void;
+    onRefresh?: (connectorName: string, ballerinaModulePath: string) => void;
     disableGrid?: boolean;
 }
 export const ButtonGroup: React.FC<ButtonroupProps> = ({
@@ -99,6 +117,7 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({
     onDownload,
     connectorDetails,
     onDelete,
+    onRefresh,
     disableGrid
 }) => {
     const [collapsed, setCollapsed] = useState(isCollapsed);
@@ -160,11 +179,21 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                             {connectorDetails &&
+                            <>
                                 <DeleteIconContainer
-                                    onClick={() => onDelete(title, connectorDetails.artifactId, connectorDetails.version, iconUri, connectorDetails.connectorPath)}
+                                    onClick={() => onDelete(title, connectorDetails.artifactId, connectorDetails.version,
+                                        iconUri, connectorDetails.connectorPath)}
                                     className="delete-icon">
                                     <Codicon name="trash" iconSx={{ fontSize: 20 }} />
                                 </DeleteIconContainer>
+                                {connectorDetails.isBallerinaModule &&
+                                    <RefreshIconContainer
+                                        onClick={() => onRefresh(title, connectorDetails.ballerinaModulePath)}
+                                        className="refresh-icon">
+                                        <Codicon name="refresh" iconSx={{fontSize: 20}}/>
+                                    </RefreshIconContainer>
+                                }
+                            </>
                             }
                             {onDownload &&
                                 <DownloadIconContainer onClick={onDownload} className="download-icon">

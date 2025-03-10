@@ -9,10 +9,12 @@
  */
 
 import { ExtensionContext } from "vscode";
+import { AgentChatContext } from "./views/agent-chat/activate";
 
 export class BalExtensionContext {
     public context!: ExtensionContext;
     public initialPrompt?: string;
+    public agentChatContext?: AgentChatContext;
 }
 
 export const extension = new BalExtensionContext();

@@ -31,7 +31,8 @@ export async function buildProjectStructure(projectDir: string, langClient: Exte
             [DIRECTORY_MAP.RECORDS]: [],
             [DIRECTORY_MAP.DATA_MAPPERS]: [],
             [DIRECTORY_MAP.ENUMS]: [],
-            [DIRECTORY_MAP.CLASSES]: []
+            [DIRECTORY_MAP.CLASSES]: [],
+            [DIRECTORY_MAP.PROMPT_AS_CODE]: []
         }
     };
     const components = await langClient.getBallerinaProjectComponents({
@@ -100,6 +101,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
             response.directoryMap[DIRECTORY_MAP.ENUMS].push(...await getComponents(langClient, module.enums, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.CLASSES].push(...await getComponents(langClient, module.classes, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.CONFIGURATIONS].push(...await getComponents(langClient, module.configurableVariables, pkg.filePath, "config"));
+            response.directoryMap[DIRECTORY_MAP.PROMPT_AS_CODE].push(...await getComponents(langClient, module.promptAsCode, pkg.filePath, "promptAsCode"));
         }
     }
 
@@ -108,7 +110,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
     response.directoryMap[DIRECTORY_MAP.FUNCTIONS] = [];
     for (const func of functions) {
         const st = func.st;
-        if (STKindChecker.isFunctionDefinition(st) && STKindChecker.isExpressionFunctionBody(st.functionBody)) {
+        if (st && STKindChecker.isFunctionDefinition(st) && STKindChecker.isExpressionFunctionBody(st.functionBody)) {
             func.icon = "dataMapper";
             response.directoryMap[DIRECTORY_MAP.DATA_MAPPERS].push(func);
         } else {

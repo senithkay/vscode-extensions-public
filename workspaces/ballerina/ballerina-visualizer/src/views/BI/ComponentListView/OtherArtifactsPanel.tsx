@@ -56,6 +56,13 @@ export function OtherArtifactsPanel() {
                     view: MACHINE_VIEW.BIFunctionForm,
                 },
             });
+        } else if (key === DIRECTORY_MAP.AGENTS) {
+            await rpcClient.getVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.AIAgentWizard,
+                },
+            });
         } else {
             setPopupMessage(true);
         }
@@ -70,6 +77,12 @@ export function OtherArtifactsPanel() {
                 </BodyText>
             </TitleWrapper>
             <CardGrid>
+                <ButtonCard
+                    icon={<Icon name="wand" isCodicon={true} iconSx={{ fontSize: 25 }} />}
+                    title="AI Agents"
+                    description="Explore AI capabilities for workflow enhancements."
+                    onClick={() => handleClick(DIRECTORY_MAP.AGENTS)}
+                />
                 <ButtonCard
                     icon={<Icon name="bi-connection" />}
                     title="Connections"
