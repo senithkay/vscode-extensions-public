@@ -12,34 +12,50 @@ import { ExtensionContext, commands, window, workspace } from 'vscode';
 import { SHARED_COMMANDS, BI_COMMANDS } from '@wso2-enterprise/ballerina-core';
 import { extension } from '../biExtentionContext';
 
-export function activateProjectExplorer(context: ExtensionContext, isBI: boolean, isMultiRoot?: boolean) {
+interface ExplorerActivationConfig {
+	context: ExtensionContext;
+	isBI: boolean;
+	isBallerina?: boolean;
+	isMultiRoot?: boolean;
+}
+
+export function activateProjectExplorer(config: ExplorerActivationConfig) {
+	const { context, isBI, isBallerina, isMultiRoot } = config;
+
 	if (extension.langClient) {
 		commands.executeCommand('setContext', 'BI.status', 'loading');
 	}
-	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(isBI);
+
+	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(isBallerina);
 	const projectTree = window.createTreeView(BI_COMMANDS.PROJECT_EXPLORER, { treeDataProvider: projectExplorerDataProvider });
+
 	if (isBI) {
-		commands.registerCommand(BI_COMMANDS.REFRESH_COMMAND, () => { projectExplorerDataProvider.refresh(); });
-		commands.executeCommand(BI_COMMANDS.FOCUS_PROJECT_EXPLORER);
-		commands.executeCommand(SHARED_COMMANDS.SHOW_VISUALIZER);
-		commands.executeCommand('setContext', 'BI.project', true);
-		if (isMultiRoot) {
-			commands.executeCommand('setContext', 'BI.isMultiRoot', true);
+		registerBICommands(projectExplorerDataProvider, isMultiRoot);
+	}
+
+	projectTree.onDidChangeVisibility(res => handleVisibilityChange(res, projectExplorerDataProvider, isBallerina));
+	context.subscriptions.push(workspace.onDidDeleteFiles(() => projectExplorerDataProvider.refresh()));
+}
+
+function registerBICommands(projectExplorerDataProvider: ProjectExplorerEntryProvider, isMultiRoot?: boolean) {
+	commands.registerCommand(BI_COMMANDS.REFRESH_COMMAND, () => projectExplorerDataProvider.refresh());
+	commands.executeCommand(BI_COMMANDS.FOCUS_PROJECT_EXPLORER);
+	commands.executeCommand(SHARED_COMMANDS.SHOW_VISUALIZER);
+	commands.executeCommand('setContext', 'BI.project', true);
+	if (isMultiRoot) {
+		commands.executeCommand('setContext', 'BI.isMultiRoot', true);
+	}
+}
+
+function handleVisibilityChange(res: { visible: boolean }, projectExplorerDataProvider: ProjectExplorerEntryProvider, isBallerina?: boolean) {
+	if (res.visible) {
+		if (isBallerina) {
+			projectExplorerDataProvider.refresh();
+		} else {
+			if (extension.langClient) {
+				commands.executeCommand('setContext', 'BI.status', 'unknownProject');
+			}
+			commands.executeCommand(SHARED_COMMANDS.OPEN_BI_WELCOME);
 		}
 	}
-	projectTree.onDidChangeVisibility(res => {
-		if (res.visible) {
-			if (isBI) {
-				projectExplorerDataProvider.refresh();
-			} else {
-				if (extension.langClient) {
-					commands.executeCommand('setContext', 'BI.status', 'unknownProject');
-				}
-				commands.executeCommand(SHARED_COMMANDS.OPEN_BI_WELCOME);
-			}
-		}
-	});
-	context.subscriptions.push(workspace.onDidDeleteFiles(() => {
-		projectExplorerDataProvider.refresh();
-	}));
 }
