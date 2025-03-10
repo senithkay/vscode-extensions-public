@@ -740,10 +740,9 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
                                 label="Datasource Name"
                                 filterType="dataSource"
                                 allowItemCreate={true}
-                                hideCreateNewButton={true}
                                 requireValidation={false}
                                 required
-                                onCreateButtonClick={onCreateButtonClick}
+                                onCreateButtonClick={!props.fromSidePanel ? onCreateButtonClick : undefined}
                                 {...renderPropsForObject('carbonDatasource.carbon_datasource_name')}
                             />
                         )}

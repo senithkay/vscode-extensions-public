@@ -268,7 +268,6 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
         widthOffset = 157,
         nullable,
         allowItemCreate = false,
-        hideCreateNewButton = false,
         sx,
         borderBox,
         onBlur,
@@ -359,7 +358,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                             {labelAdornment && labelAdornment}
                         </LabelContainer>
                     )}
-                    {allowItemCreate && !hideCreateNewButton && onCreateButtonClick && <LinkButton onClick={onCreateButtonClick}>
+                    {allowItemCreate && onCreateButtonClick && <LinkButton onClick={onCreateButtonClick}>
                         <Codicon name="plus" />Add new
                     </LinkButton>}
                 </div>
