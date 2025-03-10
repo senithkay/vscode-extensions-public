@@ -78,6 +78,7 @@ export enum MACHINE_VIEW {
     AIAgentWizard = "AI Agent Wizard",
     AIAgentEditView = "AI Agent Edit View",
     AIAgentDesigner = "AI Agent Designer",
+    AIChatAgentWizard = "AI Chat Agent Wizard",
 }
 
 export interface MachineEvent {

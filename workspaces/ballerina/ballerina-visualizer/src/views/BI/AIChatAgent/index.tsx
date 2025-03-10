@@ -214,7 +214,7 @@ export function AIAgentDesigner(props: AIAgentDesignerProps) {
             <TopNavigationBar />
             <TitleBar
                 title="AI Chat Agent"
-                subtitle="Configure your AI Chat Agent"
+                subtitle="Chattable AI agent using an LLM, prompts and tools."
                 actions={
                     <>
                         <VSCodeButton appearance="secondary" title="Edit Service" onClick={handleServiceEdit}>
