@@ -41,7 +41,7 @@ export async function prepareAndGenerateConfig(ballerinaExtInstance: BallerinaEx
     const ignoreFile = `${context.projectPath}/.gitignore`;
 
     await handleNewValues(
-        context.packageName,
+        context,
         newValues,
         context.configFilePath,
         updatedContent,
@@ -76,6 +76,7 @@ export async function checkConfigGenerationRequired(ballerinaExtInstance: Baller
     }
 
     const context: ConfigGenerationContext = {
+        orgName: currentProject.orgName!,
         packageName: currentProject.packageName!,
         projectPath: currentProject.path,
         configFilePath: `${currentProject.path}/${BAL_CONFIG_FILE}`
@@ -118,23 +119,23 @@ export async function checkConfigGenerationRequired(ballerinaExtInstance: Baller
         // Process each root organization (ballerina, ballerinax, etc.)
         for (const orgKey of Object.keys(allProps)) {
             const orgProps = allProps[orgKey].properties;
-            
+
             // Process each package within the organization
             for (const pkgKey of Object.keys(orgProps)) {
                 const pkgConfig = orgProps[pkgKey];
-                
+
                 // Skip if there are no required properties
                 if (!pkgConfig.required || pkgConfig.required.length === 0) {
                     continue;
                 }
-                
+
                 // Get existing configs for this path if available
                 const existingModuleConfigs = getExistingConfigsForPath(existingConfigs, orgKey, pkgKey);
-                
+
                 // Find missing required configs
                 const moduleNewValues: ConfigProperty[] = [];
                 findPropertyValues(pkgConfig, moduleNewValues, existingModuleConfigs, updatedContent || '');
-                
+
                 // Add to our collection with organization prefix
                 if (moduleNewValues.length > 0) {
                     moduleNewValues.forEach(value => {
@@ -142,7 +143,7 @@ export async function checkConfigGenerationRequired(ballerinaExtInstance: Baller
                         value.pkgKey = pkgKey;
                     });
                     newValues.push(...moduleNewValues);
-                    
+
                     // Check if we have any required configs
                     if (moduleNewValues.some(v => v.required)) {
                         requiredConfigsFound = true;
@@ -167,18 +168,18 @@ export async function checkConfigGenerationRequired(ballerinaExtInstance: Baller
 // Helper function to navigate nested toml structure and get existing configs
 function getExistingConfigsForPath(existingConfigs: any, orgKey: string, pkgKey: string): any {
     if (!existingConfigs) return {};
-    
+
     // Try first as a dotted key like "wso2.testbi"
     const dottedKey = `${orgKey}.${pkgKey}`;
     if (existingConfigs[dottedKey]) {
         return existingConfigs[dottedKey];
     }
-    
+
     // Try as nested objects
     if (existingConfigs[orgKey] && existingConfigs[orgKey][pkgKey]) {
         return existingConfigs[orgKey][pkgKey];
     }
-    
+
     return {};
 }
 
@@ -228,7 +229,7 @@ export async function getCurrentBIProject(projectPath: string): Promise<Ballerin
     return currentProject;
 }
 
-export async function handleNewValues(packageName: string, newValues: ConfigProperty[], configFile: string, updatedContent: string, uri: Uri, ignoreFile: string, ballerinaExtInstance: BallerinaExtension, isCommand: boolean, isBi: boolean): Promise<void> {
+export async function handleNewValues(context: ConfigGenerationContext, newValues: ConfigProperty[], configFile: string, updatedContent: string, uri: Uri, ignoreFile: string, ballerinaExtInstance: BallerinaExtension, isCommand: boolean, isBi: boolean): Promise<void> {
     let result;
     let btnTitle: string;
     let message: string;
@@ -254,7 +255,18 @@ export async function handleNewValues(packageName: string, newValues: ConfigProp
     if (isCommand || result === openConfigButton) {
         if (!existsSync(configFile)) {
             openSync(configFile, 'w');
-            updatedContent = `# Configuration file for "${packageName}"\n# How to use see:\n# ${docLink}\n\n\n` + updatedContent;
+            updatedContent = `
+# Configuration file for "${context.packageName}"
+# 
+# This file contains configuration values for configurable variables in your Ballerina code.
+# Both package-specific and imported module configurations are included below.
+# 
+# Learn more about configurable variables:
+# ${docLink}
+#
+# Note: This file is automatically added to .gitignore to protect sensitive information. ${updatedContent}
+
+`;
             if (existsSync(ignoreFile)) {
                 const ignoreUri = Uri.file(ignoreFile);
                 let ignoreContent: string = readFileSync(ignoreUri.fsPath, 'utf8');
@@ -279,9 +291,9 @@ export async function handleNewValues(packageName: string, newValues: ConfigProp
                 return 0; // the order of a and b remains unchanged
             }
         });
-        
+
         const groupedValues = groupConfigsByModule(newValues);
-        updateConfigTomlByModule(groupedValues, updatedContent, uri.fsPath);
+        updateConfigTomlByModule(context, groupedValues, updatedContent, uri.fsPath);
 
         await workspace.openTextDocument(uri).then(async document => {
             window.showTextDocument(document, { preview: false });
@@ -294,60 +306,58 @@ export async function handleNewValues(packageName: string, newValues: ConfigProp
 // Function to group config properties by module
 function groupConfigsByModule(configProperties: ConfigProperty[]): Map<string, Map<string, ConfigProperty[]>> {
     const result = new Map<string, Map<string, ConfigProperty[]>>();
-    
+
     for (const prop of configProperties) {
         const orgKey = prop.orgKey || '';
         const pkgKey = prop.pkgKey || '';
-        
+
         if (!result.has(orgKey)) {
             result.set(orgKey, new Map<string, ConfigProperty[]>());
         }
-        
+
         const orgMap = result.get(orgKey)!;
         if (!orgMap.has(pkgKey)) {
             orgMap.set(pkgKey, []);
         }
-        
+
         orgMap.get(pkgKey)!.push(prop);
     }
-    
+
     return result;
 }
 
-// Updated function to write configs by organization and module
-function updateConfigTomlByModule(groupedValues: Map<string, Map<string, ConfigProperty[]>>, updatedContent: string, configPath: string): void {
-    // Sort organizations alphabetically
-    const sortedOrgs = Array.from(groupedValues.keys()).sort();
-    
-    for (const orgKey of sortedOrgs) {
+
+function updateConfigTomlByModule(context: ConfigGenerationContext, groupedValues: Map<string, Map<string, ConfigProperty[]>>, updatedContent: string, configPath: string): void {
+    const orgs = Array.from(groupedValues.keys());
+    for (const orgKey of orgs) {
         const orgMap = groupedValues.get(orgKey)!;
         const sortedPackages = Array.from(orgMap.keys()).sort();
-        
+
         for (const pkgKey of sortedPackages) {
             const configProps = orgMap.get(pkgKey)!;
-            
-            // Skip empty sections
+
             if (configProps.length === 0) {
                 continue;
             }
-            
+
             // Add section header if not in content already
             const sectionHeader = `[${orgKey}.${pkgKey}]`;
-            if (!updatedContent.includes(sectionHeader)) {
+            const isDefaultModule = orgKey === context.orgName && pkgKey === context.packageName;
+            if (!updatedContent.includes(sectionHeader) && !isDefaultModule) {
                 updatedContent += `${sectionHeader}\n`;
             }
-            
+
             // Process required configs
             const requiredProps = configProps.filter(prop => prop.required);
             const optionalProps = configProps.filter(prop => !prop.required);
-            
+
             // Add required properties
             for (const prop of requiredProps) {
                 let comment = { value: `# ${typeOfComment} ${prop.type && prop.type.toUpperCase() || "STRING"}` };
                 let configValue = getConfigValue(prop.name, prop.property, comment);
                 updatedContent += configValue + comment.value + '\n\n';
             }
-            
+
             // Add optional properties as comments
             for (const prop of optionalProps) {
                 let comment = { value: `# ${typeOfComment} ${prop.type && prop.type.toUpperCase() || "STRING"}` };
@@ -355,19 +365,17 @@ function updateConfigTomlByModule(groupedValues: Map<string, Map<string, ConfigP
                 let configValue = getConfigValue(prop.name, prop.property, comment);
                 updatedContent += `${optional}# ${configValue}${comment.value}\n\n`;
             }
-            
-            // Add a blank line between sections if not the last one
+
             if (pkgKey !== sortedPackages[sortedPackages.length - 1]) {
                 updatedContent += '\n';
             }
         }
-        
-        // Add a blank line between organizations if not the last one
-        if (orgKey !== sortedOrgs[sortedOrgs.length - 1]) {
+
+        if (orgKey !== orgs[orgs.length - 1]) {
             updatedContent += '\n';
         }
     }
-    
+
     writeFile(configPath, updatedContent, function (error) {
         if (error) {
             return window.showErrorMessage("Unable to update the configurable values: " + error);
@@ -548,22 +556,17 @@ function getInlineObjectConfigValue(name: string, property: Property): string {
             }
         }
     } else {
-        // If no required properties, add some from available properties as examples
         const propertyKeys = Object.keys(property.properties);
         const keysToInclude = propertyKeys.slice(0, Math.min(3, propertyKeys.length));
-        
+
         for (const key of keysToInclude) {
             const propValue = getDefaultValueForType(property.properties[key]);
             parts.push(`${key} = ${propValue}`);
         }
     }
 
-    // Add all parts with a comma between them
     configValue += parts.join(", ");
-    
-    // Close the inline object
     configValue += " }\t";
-    
     return configValue;
 }
 
@@ -574,7 +577,7 @@ function getDefaultValueForType(property: Property): string {
     if (!property || !property.type) {
         return '""';
     }
-    
+
     switch (property.type) {
         case ConfigTypes.INTEGER:
             return "0";
@@ -676,6 +679,7 @@ function getObjectConfigValue(comment: { value: string }, name: string, property
 }
 
 export interface ConfigGenerationContext {
+    orgName: string;
     packageName: string;
     projectPath: string;
     configFilePath: string;
