@@ -17,7 +17,8 @@ import {
     NO_SUCH_FILE, CONFIG_CHANGED, OLD_BALLERINA_VERSION, UNKNOWN_ERROR, INVALID_FILE, INVALID_PROJECT,
     OLD_PLUGIN_INSTALLED,
     COOKIE_SETTINGS,
-    UPDATE_BALLERINA_VERSION
+    UPDATE_BALLERINA_VERSION,
+    UPDATE_BALLERINA_VERSION_TO_LATEST
 } from "./messages";
 import { join, sep } from 'path';
 import { exec, spawnSync } from 'child_process';
@@ -261,10 +262,14 @@ export class BallerinaExtension {
                 this.ballerinaHome = home;
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${this.ballerinaVersion}`);
 
+                // Check if the ballerina version is supported with latest language server features.
                 const ballerinaShortVersion = this.ballerinaVersion.split(' ')[0];
                 const ballerinaUpdateVersion = ballerinaShortVersion.split('.')[1];
+                const latestBallerinaVersion = await this.getLatestBallerinaVersion();
                 if (parseInt(ballerinaUpdateVersion) < 12) {
                     this.showMessageUpdateBallerina();
+                } else if (latestBallerinaVersion !== ballerinaShortVersion) {
+                    this.showMessageUpdateBallerinaToLatest();
                 }
 
                 if (!this.ballerinaVersion.match(SWAN_LAKE_REGEX) || (this.ballerinaVersion.match(SWAN_LAKE_REGEX) &&
@@ -342,7 +347,7 @@ export class BallerinaExtension {
         return null;
     }
 
-    async getLatestDistributionVersion(): Promise<string> {
+    async getLatestBallerinaVersion(): Promise<string> {
         try {
             const latestDistributionVersionResponse = await axios.get(this.updateToolServerUrl + "/distributions/latest?version=2201.0.0&type=patch");
             const latestDistributionVersion = latestDistributionVersionResponse.data.patch;
@@ -365,7 +370,7 @@ export class BallerinaExtension {
             await this.downloadUpdateTool();
 
             // Get the latest distribution version
-            const latestDistributionVersion = await this.getLatestDistributionVersion();
+            const latestDistributionVersion = await this.getLatestBallerinaVersion();
 
             // Download the latest distribution zip
             await this.downloadBallerina(latestDistributionVersion);
@@ -399,7 +404,7 @@ export class BallerinaExtension {
             let res: DownloadProgress = {
                 message: `Success..`,
                 success: true,
-                step: 12 // This is the last step
+                step: 14 // This is the last step
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             console.log('Ballerina has been installed successfully');
@@ -432,7 +437,7 @@ export class BallerinaExtension {
                 percentage: 0,
                 success: false,
                 totalSize: 0,
-                step: 6
+                step: 10
             };
             try {
                 RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
@@ -470,7 +475,7 @@ export class BallerinaExtension {
                                     percentage: percentCompleted,
                                     success: false,
                                     totalSize: progressEvent.total / sizeMB,
-                                    step: 7
+                                    step: 11
                                 };
                                 RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
                             }
@@ -499,7 +504,7 @@ export class BallerinaExtension {
                 ...res,
                 message: `Setting the Ballerina dependencies...`,
                 success: false,
-                step: 4
+                step: 12
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             const zip = new AdmZip(zipFilePath);
@@ -510,7 +515,7 @@ export class BallerinaExtension {
                 ...res,
                 message: `Cleaning up the temporary files...`,
                 success: false,
-                step: 8
+                step: 13
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             fs.rmSync(zipFilePath);
@@ -1234,6 +1239,18 @@ export class BallerinaExtension {
     showMessageUpdateBallerina(): any {
         const update = 'Update';
         window.showWarningMessage(UPDATE_BALLERINA_VERSION, update).then(selection => {
+            if (selection === update) {
+                const terminal = window.createTerminal('Update Ballerina');
+                terminal.show();
+                terminal.sendText('sudo bal dist update');
+                window.showInformationMessage('Ballerina update started. Please wait...');
+            }
+        });
+    }
+
+    showMessageUpdateBallerinaToLatest(): any {
+        const update = 'Update';
+        window.showInformationMessage(UPDATE_BALLERINA_VERSION_TO_LATEST, update).then(selection => {
             if (selection === update) {
                 const terminal = window.createTerminal('Update Ballerina');
                 terminal.show();
