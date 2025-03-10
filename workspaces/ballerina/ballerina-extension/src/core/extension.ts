@@ -17,8 +17,7 @@ import {
     NO_SUCH_FILE, CONFIG_CHANGED, OLD_BALLERINA_VERSION, UNKNOWN_ERROR, INVALID_FILE, INVALID_PROJECT,
     OLD_PLUGIN_INSTALLED,
     COOKIE_SETTINGS,
-    UPDATE_BALLERINA_VERSION,
-    UPDATE_BALLERINA_VERSION_TO_LATEST
+    UPDATE_BALLERINA_VERSION
 } from "./messages";
 import { join, sep } from 'path';
 import { exec, spawnSync } from 'child_process';
@@ -265,11 +264,8 @@ export class BallerinaExtension {
                 // Check if the ballerina version is supported with latest language server features.
                 const ballerinaShortVersion = this.ballerinaVersion.split(' ')[0];
                 const ballerinaUpdateVersion = ballerinaShortVersion.split('.')[1];
-                const latestBallerinaVersion = await this.getLatestBallerinaVersion();
                 if (parseInt(ballerinaUpdateVersion) < 12) {
                     this.showMessageUpdateBallerina();
-                } else if (latestBallerinaVersion !== ballerinaShortVersion) {
-                    this.showMessageUpdateBallerinaToLatest();
                 }
 
                 if (!this.ballerinaVersion.match(SWAN_LAKE_REGEX) || (this.ballerinaVersion.match(SWAN_LAKE_REGEX) &&
@@ -1239,18 +1235,6 @@ export class BallerinaExtension {
     showMessageUpdateBallerina(): any {
         const update = 'Update';
         window.showWarningMessage(UPDATE_BALLERINA_VERSION, update).then(selection => {
-            if (selection === update) {
-                const terminal = window.createTerminal('Update Ballerina');
-                terminal.show();
-                terminal.sendText('sudo bal dist update');
-                window.showInformationMessage('Ballerina update started. Please wait...');
-            }
-        });
-    }
-
-    showMessageUpdateBallerinaToLatest(): any {
-        const update = 'Update';
-        window.showInformationMessage(UPDATE_BALLERINA_VERSION_TO_LATEST, update).then(selection => {
             if (selection === update) {
                 const terminal = window.createTerminal('Update Ballerina');
                 terminal.show();
