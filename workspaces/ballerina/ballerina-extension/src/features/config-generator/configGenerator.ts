@@ -12,7 +12,7 @@ import { existsSync, openSync, readFileSync, writeFile } from "fs";
 import { BAL_TOML, BAL_CONFIG_FILE, PALETTE_COMMANDS, clearTerminal } from "../project";
 import { BallerinaExtension, ballerinaExtInstance, ExtendedLangClient } from "../../core";
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
-import { generateExistingValues, parseTomlToConfig, typeOfComment } from "./utils";
+import { parseTomlToConfig, typeOfComment } from "./utils";
 import { ConfigProperty, ConfigTypes, Constants, Property } from "./model";
 import { BallerinaProject, PackageConfigSchema, ProjectDiagnosticsResponse, SyntaxTree } from "@wso2-enterprise/ballerina-core";
 import { TextDocumentEdit } from "vscode-languageserver-types";
@@ -22,7 +22,7 @@ import { startDebugging } from "../editor-support/codelens-provider";
 
 const UNUSED_IMPORT_ERR_CODE = "BCE2002";
 
-export async function prepareAndGenerateConfig(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean, isBi?: boolean, executeRun: boolean = true): Promise<void> {
+export async function prepareAndGenerateConfig(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean, isBi?: boolean, executeRun: boolean = true, includeOptional: boolean = false): Promise<void> {
     const configRequirement: ConfigRequirementResult = await checkConfigGenerationRequired(ballerinaExtInstance, filePath, isBi);
 
     if (!configRequirement.needsConfig) {
@@ -49,7 +49,8 @@ export async function prepareAndGenerateConfig(ballerinaExtInstance: BallerinaEx
         ignoreFile,
         ballerinaExtInstance,
         isCommand,
-        isBi
+        isBi,
+        includeOptional
     );
 }
 
@@ -229,7 +230,7 @@ export async function getCurrentBIProject(projectPath: string): Promise<Ballerin
     return currentProject;
 }
 
-export async function handleNewValues(context: ConfigGenerationContext, newValues: ConfigProperty[], configFile: string, updatedContent: string, uri: Uri, ignoreFile: string, ballerinaExtInstance: BallerinaExtension, isCommand: boolean, isBi: boolean): Promise<void> {
+export async function handleNewValues(context: ConfigGenerationContext, newValues: ConfigProperty[], configFile: string, updatedContent: string, uri: Uri, ignoreFile: string, ballerinaExtInstance: BallerinaExtension, isCommand: boolean, isBi: boolean, includeOptional: boolean): Promise<void> {
     let result;
     let btnTitle: string;
     let message: string;
@@ -293,7 +294,7 @@ export async function handleNewValues(context: ConfigGenerationContext, newValue
         });
 
         const groupedValues = groupConfigsByModule(newValues);
-        updateConfigTomlByModule(context, groupedValues, updatedContent, uri.fsPath);
+        updateConfigTomlByModule(context, groupedValues, updatedContent, uri.fsPath, includeOptional);
 
         await workspace.openTextDocument(uri).then(async document => {
             window.showTextDocument(document, { preview: false });
@@ -327,7 +328,7 @@ function groupConfigsByModule(configProperties: ConfigProperty[]): Map<string, M
 }
 
 
-function updateConfigTomlByModule(context: ConfigGenerationContext, groupedValues: Map<string, Map<string, ConfigProperty[]>>, updatedContent: string, configPath: string): void {
+function updateConfigTomlByModule(context: ConfigGenerationContext, groupedValues: Map<string, Map<string, ConfigProperty[]>>, updatedContent: string, configPath: string, includeOptional: boolean): void {
     const orgs = Array.from(groupedValues.keys());
     for (const orgKey of orgs) {
         const orgMap = groupedValues.get(orgKey)!;
@@ -359,11 +360,13 @@ function updateConfigTomlByModule(context: ConfigGenerationContext, groupedValue
             }
 
             // Add optional properties as comments
-            for (const prop of optionalProps) {
-                let comment = { value: `# ${typeOfComment} ${prop.type && prop.type.toUpperCase() || "STRING"}` };
-                const optional = `# "${prop.name}" is an optional value\n`;
-                let configValue = getConfigValue(prop.name, prop.property, comment);
-                updatedContent += `${optional}# ${configValue}${comment.value}\n\n`;
+            if (includeOptional) {
+                for (const prop of optionalProps) {
+                    let comment = { value: `# ${typeOfComment} ${prop.type && prop.type.toUpperCase() || "STRING"}` };
+                    const optional = `# "${prop.name}" is an optional value\n`;
+                    let configValue = getConfigValue(prop.name, prop.property, comment);
+                    updatedContent += `${optional}# ${configValue}${comment.value}\n\n`;
+                }
             }
 
             if (pkgKey !== sortedPackages[sortedPackages.length - 1]) {
