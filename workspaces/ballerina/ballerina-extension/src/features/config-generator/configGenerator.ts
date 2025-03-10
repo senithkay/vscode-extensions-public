@@ -135,7 +135,7 @@ export async function checkConfigGenerationRequired(ballerinaExtInstance: Baller
 
                 // Find missing required configs
                 const moduleNewValues: ConfigProperty[] = [];
-                findPropertyValues(pkgConfig, moduleNewValues, existingModuleConfigs, updatedContent || '');
+                findPropertyValues(pkgConfig, moduleNewValues, existingModuleConfigs);
 
                 // Add to our collection with organization prefix
                 if (moduleNewValues.length > 0) {
@@ -170,13 +170,34 @@ export async function checkConfigGenerationRequired(ballerinaExtInstance: Baller
 function getExistingConfigsForPath(existingConfigs: any, orgKey: string, pkgKey: string): any {
     if (!existingConfigs) return {};
 
-    // Try first as a dotted key like "wso2.testbi"
-    const dottedKey = `${orgKey}.${pkgKey}`;
-    if (existingConfigs[dottedKey]) {
-        return existingConfigs[dottedKey];
+     // Try as a dotted key like "wso2.testbi"
+     const dottedKey = `${orgKey}.${pkgKey}`;
+     if (existingConfigs[dottedKey]) {
+         return existingConfigs[dottedKey];
+     }
+
+    // Handle case where pkgKey itself contains dots (e.g., "wso2.controlplane")
+    let currentObj = existingConfigs[orgKey];
+    if (currentObj) {
+        // Split the pkgKey by dots to navigate nested structure
+        const pkgParts = pkgKey.split('.');
+
+        // Traverse the object structure following the path
+        for (const part of pkgParts) {
+            if (currentObj && currentObj[part]) {
+                currentObj = currentObj[part];
+            } else {
+                currentObj = undefined;
+                break;
+            }
+        }
+
+        if (currentObj) {
+            return currentObj;
+        }
     }
 
-    // Try as nested objects
+    // check if there's a direct property match 
     if (existingConfigs[orgKey] && existingConfigs[orgKey][pkgKey]) {
         return existingConfigs[orgKey][pkgKey];
     }
@@ -184,7 +205,7 @@ function getExistingConfigsForPath(existingConfigs: any, orgKey: string, pkgKey:
     return {};
 }
 
-export function findPropertyValues(configs: Property, newValues: ConfigProperty[], obj?: any, tomlContent?: string, skipAnyOf?: boolean): void {
+export function findPropertyValues(configs: Property, newValues: ConfigProperty[], obj?: any, skipAnyOf?: boolean): void {
     const properties = configs.properties;
     const requiredKeys = configs.required || [];
 
@@ -193,9 +214,9 @@ export function findPropertyValues(configs: Property, newValues: ConfigProperty[
             const property: Property = properties[propertyKey];
             const isRequired = requiredKeys.includes(propertyKey);
             if (!isRequired && property.required && property.required.length > 0) {
-                findPropertyValues(property, newValues, obj, tomlContent);
+                findPropertyValues(property, newValues, obj);
             } else {
-                const valueExists = obj ? (propertyKey in obj || tomlContent.includes(propertyKey)) : false;
+                const valueExists = obj ? (propertyKey in obj) : false;
                 const anyOfValue = skipAnyOf && Constants.ANY_OF in property;
                 if ((anyOfValue && valueExists) || !valueExists) {
                     newValues.push({
