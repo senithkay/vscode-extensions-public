@@ -199,7 +199,6 @@ const MainPanel = () => {
                             <DataMapper
                                 filePath={value.documentUri}
                                 model={value?.syntaxTree as FunctionDefinition}
-                                isBI={value.isBI}
                                 applyModifications={applyModifications}
                             />
                         );
