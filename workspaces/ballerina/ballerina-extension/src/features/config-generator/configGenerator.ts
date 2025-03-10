@@ -501,7 +501,9 @@ export function getConfigValue(name: string, obj: Property, comment: { value: st
             newConfigValue = getArrayConfigValue(comment, name, obj);
             break;
         case ConfigTypes.OBJECT:
-            newConfigValue = getObjectConfigValue(comment, name, obj);
+            // Use inline object format for nested objects
+            newConfigValue = getInlineObjectConfigValue(name, obj);
+            comment.value = `# ${typeOfComment} ${ConfigTypes.OBJECT.toUpperCase()}`;
             break;
         default:
             if (Constants.ANY_OF in obj) {
@@ -511,13 +513,12 @@ export function getConfigValue(name: string, obj: Property, comment: { value: st
                     newConfigValue = `${name} = 0\t`;
                 } else if (anyType.type === ConfigTypes.STRING) {
                     newConfigValue = `${name} = ""\t`;
-                } else if (anyType.type === ConfigTypes.OBJECT && anyType.name.includes(Constants.HTTP)) {
-                    comment.value = `# ${typeOfComment} ${ConfigTypes.OBJECT.toUpperCase()}\n`;
-                    const moreInfo = `# For more information refer https://lib.ballerina.io/ballerina/http/\n`;
-                    newConfigValue = `${moreInfo}[${name}]\t`;
-                } else {
+                } else if (anyType.type === ConfigTypes.OBJECT) {
+                    // For other objects, use inline format
+                    newConfigValue = getInlineObjectConfigValue(name, anyType);
                     comment.value = `# ${typeOfComment} ${ConfigTypes.OBJECT.toUpperCase()}`;
-                    newConfigValue = `[${name}]\t`;
+                } else {
+                    newConfigValue = `${name} = ""\t`;
                 }
             } else {
                 newConfigValue = `${name} = ""\t`;
@@ -527,39 +528,107 @@ export function getConfigValue(name: string, obj: Property, comment: { value: st
     return newConfigValue;
 }
 
+/**
+ * Generate an inline TOML object format for nested objects
+ */
+function getInlineObjectConfigValue(name: string, property: Property): string {
+    if (!property || !property.properties) {
+        return `${name} = {}\t`;
+    }
+
+    let configValue = `${name} = { `;
+    const parts: string[] = [];
+
+    // Add required properties if any
+    if (property.required && property.required.length > 0) {
+        for (const requiredKey of property.required) {
+            if (property.properties[requiredKey]) {
+                const propValue = getDefaultValueForType(property.properties[requiredKey]);
+                parts.push(`${requiredKey} = ${propValue}`);
+            }
+        }
+    } else {
+        // If no required properties, add some from available properties as examples
+        const propertyKeys = Object.keys(property.properties);
+        const keysToInclude = propertyKeys.slice(0, Math.min(3, propertyKeys.length));
+        
+        for (const key of keysToInclude) {
+            const propValue = getDefaultValueForType(property.properties[key]);
+            parts.push(`${key} = ${propValue}`);
+        }
+    }
+
+    // Add all parts with a comma between them
+    configValue += parts.join(", ");
+    
+    // Close the inline object
+    configValue += " }\t";
+    
+    return configValue;
+}
+
+/**
+ * Get default value string for different property types
+ */
+function getDefaultValueForType(property: Property): string {
+    if (!property || !property.type) {
+        return '""';
+    }
+    
+    switch (property.type) {
+        case ConfigTypes.INTEGER:
+            return "0";
+        case ConfigTypes.NUMBER:
+            return "0.0";
+        case ConfigTypes.BOOLEAN:
+            return "false";
+        case ConfigTypes.OBJECT:
+            return "{}";
+        case ConfigTypes.ARRAY:
+            return "[]";
+        case ConfigTypes.STRING:
+        default:
+            return '""';
+    }
+}
+
 function getArrayConfigValue(comment: { value: string }, name: string, item: Property): string {
     let newConfigValue = '';
-    switch (item.type) {
+    switch (item.items?.type) {
         case ConfigTypes.BOOLEAN:
             comment.value = ``;
-            newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.BOOLEAN.toUpperCase()} array\n# Example: ${name} = [false, false]\n`;
+            newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.BOOLEAN.toUpperCase()} array\n`;
             break;
         case ConfigTypes.INTEGER:
             comment.value = ``;
-            newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.INTEGER.toUpperCase()} array\n# Example: ${name} = [0, 0]\n`;
+            newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.INTEGER.toUpperCase()} array\n`;
             break;
         case ConfigTypes.NUMBER:
             comment.value = ``;
-            newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.NUMBER.toUpperCase()} array\n# Example: ${name} = [0.0, 0.0]\n`;
+            newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.NUMBER.toUpperCase()} array\n`;
             break;
         case ConfigTypes.STRING:
             comment.value = ``;
-            newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.STRING.toUpperCase()} array\n# Example: ${name} = ["red", "green"]\n`;
-            break;
-        case ConfigTypes.ARRAY:
-            comment.value = `# ${typeOfComment} ${ConfigTypes.ARRAY.toUpperCase()} of array\n`;
-            newConfigValue = getArrayConfigValue(comment, name, item.items);
+            newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.STRING.toUpperCase()} array\n`;
             break;
         case ConfigTypes.OBJECT:
             comment.value = ``;
-            if (item.additionalProperties && item.additionalProperties.type === ConfigTypes.STRING) {
-                newConfigValue = `[[${name}]]\t# ${typeOfComment} ${ConfigTypes.OBJECT.toUpperCase()} array\n# Example:\n# [[${name}]]\n# name = "John"\n# city = "Paris"\n# [[${name}]]\n# name = "Jack"\n# city = "Colombo"\n`;
+            if (item.items.additionalProperties && item.items.additionalProperties.type === ConfigTypes.STRING) {
+                // For arrays of map-like objects
+                newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.OBJECT.toUpperCase()} array\n`;
+            } else if (item.items.properties) {
+                // For arrays of structured objects
+                newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.OBJECT.toUpperCase()} array\n`;
             } else {
-                newConfigValue = getObjectConfigValue(comment, `[${name}]`, item);
+                newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.OBJECT.toUpperCase()} array\n`;
             }
             break;
+        case ConfigTypes.ARRAY:
+            comment.value = `# ${typeOfComment} ${ConfigTypes.ARRAY.toUpperCase()} of array\n`;
+            newConfigValue = `${name} = []\t# ${typeOfComment} Nested array\n`;
+            break;
         default:
-            newConfigValue = `${name} = ""\t`;
+            newConfigValue = `${name} = []\t# ${typeOfComment} Array\n`;
             break;
     }
     return newConfigValue;
