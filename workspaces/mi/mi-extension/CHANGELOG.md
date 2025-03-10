@@ -2,6 +2,13 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [2.0.4] - 2025-03-10
+
+### Fixed
+
+Fixed: Artifact creation in windows ([#943](https://github.com/wso2/mi-vscode/issues/943))
+
+
 ## [2.0.3] - 2025-03-09
 
 ### New Features

@@ -10,15 +10,14 @@
 import { Position, Range, Uri, WorkspaceEdit, commands, workspace } from "vscode";
 import * as fs from "fs";
 import { COMMANDS } from "../constants";
-import { StateMachine } from "../stateMachine";
+import path from "path";
 
 export async function replaceFullContentToFile(documentUri: string, content: string) {
     // Create the file if not present
     let isNewFile = false;
     if (!fs.existsSync(documentUri)) {
-        const seperator = StateMachine.context()?.pathSeparator || '/';
         // Create parent directories if they don't exist
-        fs.mkdirSync(documentUri.substring(0, documentUri.lastIndexOf(seperator)), { recursive: true });
+        fs.mkdirSync(documentUri.substring(0, documentUri.lastIndexOf(path.sep)), { recursive: true });
         fs.writeFileSync(documentUri, "");
         isNewFile = true;
     }
