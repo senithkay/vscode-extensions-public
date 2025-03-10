@@ -170,11 +170,11 @@ export async function checkConfigGenerationRequired(ballerinaExtInstance: Baller
 function getExistingConfigsForPath(existingConfigs: any, orgKey: string, pkgKey: string): any {
     if (!existingConfigs) return {};
 
-     // Try as a dotted key like "wso2.testbi"
-     const dottedKey = `${orgKey}.${pkgKey}`;
-     if (existingConfigs[dottedKey]) {
-         return existingConfigs[dottedKey];
-     }
+    // Try as a dotted key like "wso2.testbi"
+    const dottedKey = `${orgKey}.${pkgKey}`;
+    if (existingConfigs[dottedKey]) {
+        return existingConfigs[dottedKey];
+    }
 
     // Handle case where pkgKey itself contains dots (e.g., "wso2.controlplane")
     let currentObj = existingConfigs[orgKey];
@@ -350,7 +350,15 @@ function groupConfigsByModule(configProperties: ConfigProperty[]): Map<string, M
 
 
 function updateConfigTomlByModule(context: ConfigGenerationContext, groupedValues: Map<string, Map<string, ConfigProperty[]>>, updatedContent: string, configPath: string, includeOptional: boolean): void {
-    const orgs = Array.from(groupedValues.keys());
+    const allOrgs = Array.from(groupedValues.keys());
+    const defaultOrgKey = context.orgName;
+
+    // Reorder to put default org first (IMPORTANT as wrong order can cause issues in config resolution)
+    const orgs = allOrgs.filter(org => org !== defaultOrgKey);
+    if (groupedValues.has(defaultOrgKey)) {
+        orgs.unshift(defaultOrgKey);
+    }
+
     for (const orgKey of orgs) {
         const orgMap = groupedValues.get(orgKey)!;
         const sortedPackages = Array.from(orgMap.keys()).sort();
