@@ -26,6 +26,7 @@ import { FormField, FormExpressionEditorProps } from '../Form/types';
 import { useFormContext } from '../../context';
 import {
     LineRange,
+    RecordTypeField,
     SubPanel,
     SubPanelView,
     SubPanelViewProps
@@ -38,6 +39,7 @@ export type ContextAwareExpressionEditorProps = {
     handleOnFieldFocus?: (key: string) => void;
     autoFocus?: boolean;
     visualizable?: boolean;
+    recordTypeField?: RecordTypeField;
 };
 
 type ExpressionEditorProps = ContextAwareExpressionEditorProps &
@@ -176,6 +178,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         visualizable,
         helperPaneOrigin,
         helperPaneHeight,
+        recordTypeField,
         rawExpression, // original expression
         sanitizedExpression // sanitized expression that will be rendered in the editor
     } = props as ExpressionEditorProps;
@@ -278,6 +281,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         }
     };
 
+
     const handleChangeHelperPaneState = (isOpen: boolean) => {
         setIsHelperPaneOpen(isOpen);
     };
@@ -294,7 +298,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
             value,
             onChange,
             handleChangeHelperPaneState,
-            helperPaneHeight
+            helperPaneHeight,
+            recordTypeField
         );
     };
 
@@ -395,6 +400,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             helperPaneOrigin={helperPaneOrigin}
                             getHelperPane={handleGetHelperPane}
                             helperPaneHeight={helperPaneHeight}
+                            helperPaneWidth={recordTypeField ? 400 : undefined}
                             placeholder={field.placeholder}
                             sx={{ paddingInline: '0' }}
                             codeActions={codeActions}

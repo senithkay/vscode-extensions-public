@@ -17,6 +17,8 @@ type HelperPaneConditionalProps = {
     helperPaneOrigin?: HelperPaneOrigin;
     // - Height of the helper pane
     helperPaneHeight?: HelperPaneHeight;
+    // - Width of the helper pane
+    helperPaneWidth?: number;
     // - Callback function to open/close the helper pane
     changeHelperPaneState: (isOpen: boolean) => void;
     // - Get the helper panel component
@@ -31,6 +33,7 @@ type HelperPaneConditionalProps = {
     isHelperPaneOpen?: never;
     helperPaneOrigin?: never;
     helperPaneHeight?: never;
+    helperPaneWidth?: never;
     changeHelperPaneState?: never;
     getHelperPane?: never;
     getExpressionEditorIcon?: never;
@@ -41,6 +44,7 @@ export type FormExpressionEditorProps = ExpressionEditorProps & HelperPaneCondit
     startAdornment?: ReactNode;
     endAdornment?: ReactNode;
     anchorRef?: MutableRefObject<HTMLDivElement>;
+    expressionEditorIconName?: string;
 };
 
 export type FormExpressionEditorElProps = FormExpressionEditorProps & {

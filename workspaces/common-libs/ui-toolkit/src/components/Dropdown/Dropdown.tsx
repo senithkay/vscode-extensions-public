@@ -15,7 +15,6 @@ import {
 import styled from "@emotion/styled";
 import { ErrorBanner } from "../Commons/ErrorBanner";
 import { RequiredFormInput } from "../Commons/RequiredInput";
-import { Button } from "../Button/Button";
 import { Codicon } from "../Codicon/Codicon";
 
 export interface OptionProps {
@@ -84,17 +83,6 @@ const LabelContainer = styled.div<ContainerProps>`
     align-items: center;
 `;
 
-const AddNewButton = styled(Button)`
-    & > vscode-button {
-        color: var(--vscode-textLink-activeForeground);
-        border-radius: 0px;
-        padding: 3px 5px;
-    };
-    & > vscode-button > * {
-        margin-right: 6px;
-    };
-`;
-
 export const Dropdown = React.forwardRef<HTMLSelectElement, DropdownProps>((props, ref) => {
     const { isLoading, isRequired, id, items, label, errorMsg, sx, containerSx, addNewBtnLabel, addNewBtnClick, description, descriptionSx, dropdownContainerSx, labelAdornment, ...rest } = props;
 
@@ -116,16 +104,6 @@ export const Dropdown = React.forwardRef<HTMLSelectElement, DropdownProps>((prop
                                 {(isRequired) && (<RequiredFormInput />)}
                                 {labelAdornment && labelAdornment}
                             </Label>
-                            {addNewBtnClick &&
-                                <AddNewButton
-                                    appearance='icon'
-                                    aria-label="add"
-                                    onClick={() => addNewBtnClick()}
-                                >
-                                    <Codicon name="add" />
-                                    {addNewBtnLabel ? addNewBtnLabel : label}
-                                </AddNewButton>
-                            }
                         </LabelContainer>
                     )}
                     {description && (
@@ -139,6 +117,18 @@ export const Dropdown = React.forwardRef<HTMLSelectElement, DropdownProps>((prop
                                 {item?.content || item.value}
                             </VSCodeOption>
                         ))}
+                        {addNewBtnClick &&
+                            <VSCodeOption
+                                key={"NEW"}
+                                onClick={() => addNewBtnClick()}
+                                value={undefined}
+                            >
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <Codicon name="add" />
+                                    {addNewBtnLabel}
+                                </div>
+                            </VSCodeOption>
+                        }
                     </VSCodeDropdown>
                     {errorMsg && (
                         <ErrorBanner errorMsg={errorMsg} />

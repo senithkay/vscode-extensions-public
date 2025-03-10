@@ -41,6 +41,7 @@ export const getServiceSourceForName: RequestType<string, string> = { method: `$
 export const getResourceSourceForMethodAndPath: RequestType<string, string> = { method: `${_preFix}/getResourceSourceForMethodAndPath` };
 export const getServiceNames: RequestType<void, TestGenerationMentions> = { method: `${_preFix}/getServiceNames` };
 export const getResourceMethodAndPaths: RequestType<void, TestGenerationMentions> = { method: `${_preFix}/getResourceMethodAndPaths` };
+export const abortTestGeneration: NotificationType<void> = { method: `${_preFix}/abortTestGeneration` };
 export const getMappingsFromRecord: RequestType<GenerateMappingsFromRecordRequest, GenerateMappingFromRecordResponse> = { method: `${_preFix}/getMappingsFromRecord` };
 export const getTypesFromRecord: RequestType<GenerateTypesFromRecordRequest, GenerateTypesFromRecordResponse> = { method: `${_preFix}/getTypesFromRecord` };
 export const applyDoOnFailBlocks: NotificationType<void> = { method: `${_preFix}/applyDoOnFailBlocks` };

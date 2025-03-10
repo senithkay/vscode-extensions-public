@@ -245,12 +245,16 @@ import {
     TestConnectorConnectionResponse,
     MiVersionResponse,
     CheckDBDriverResponse,
-    RemoveDBDriverResponse,
     CopyArtifactRequest,
     CopyArtifactResponse,
     GetArtifactTypeRequest,
     GetArtifactTypeResponse,
-    ExtendedTextEdit
+    ExtendedTextEdit,
+    BuildProjectRequest,
+    DeployProjectRequest,
+    DeployProjectResponse,
+    CreateBallerinaModuleRequest,
+    CreateBallerinaModuleResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -263,7 +267,6 @@ import { Transform } from 'stream';
 import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
-import * as syntaxTree from '../../../../syntax-tree/lib/src';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { parse, stringify } from "yaml";
 import { UnitTest } from "../../../../syntax-tree/lib/src";
@@ -284,6 +287,7 @@ import { importProject } from "../../util/migrationUtils";
 import { getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
 import { getDataSourceXml } from "../../util/template-engine/mustach-templates/DataSource";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
+import { getBallerinaModuleContent, getBallerinaConfigContent } from "../../util/template-engine/mustach-templates/ballerinaModule";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
 import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/recipientEndpoint";
 import { dockerfileContent, rootPomXmlContent } from "../../util/templates";
@@ -291,8 +295,9 @@ import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 import { importCapp } from "../../util/importCapp";
-import { compareVersions, filterConnectorVersion, generateInitialDependencies, getDefaultProjectPath, getMIVersionFromPom } from "../../util/onboardingUtils";
+import { compareVersions, filterConnectorVersion, generateInitialDependencies, getDefaultProjectPath, getMIVersionFromPom, buildBallerinaModule} from "../../util/onboardingUtils";
 import { Range as STRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { checkForDevantExt } from "../../extension";
 
 const AdmZip = require('adm-zip');
 
@@ -1691,6 +1696,10 @@ ${endpointAttributes}
                 resolve({ path: filePath, content: "" });
             }
         });
+    }
+
+    async buildBallerinaModule(projectPath: string): Promise<void> {
+        await buildBallerinaModule(projectPath);
     }
 
     async getTemplate(params: RetrieveTemplateRequest): Promise<RetrieveTemplateResponse> {
@@ -3743,6 +3752,25 @@ ${endpointAttributes}
         });
     }
 
+    async createBallerinaModule(params: CreateBallerinaModuleRequest): Promise<CreateBallerinaModuleResponse> {
+        return new Promise(async (resolve) => {
+            const content = getBallerinaModuleContent();
+            const configContent = getBallerinaConfigContent({ name: params.moduleName, version: params.version });
+            const fullPath = path.join(params.projectDirectory, params.moduleName);
+            fs.mkdirSync(fullPath, { recursive: true });
+            const filePath = path.join(fullPath, `${params.moduleName}-module.bal`);
+            await replaceFullContentToFile(filePath, content);
+            const balFile = await vscode.workspace.openTextDocument(filePath);
+            await balFile.save();
+            const configFilePath = path.join(fullPath, "Ballerina.toml");
+            await replaceFullContentToFile(configFilePath, configContent);
+            const configFile = await vscode.workspace.openTextDocument(configFilePath);
+            await configFile.save();
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
+
     async getSelectiveWorkspaceContext(): Promise<GetSelectiveWorkspaceContextResponse> {
         const workspaceFolders = workspace.workspaceFolders;
         if (!workspaceFolders) {
@@ -4339,15 +4367,33 @@ ${keyValuesXML}`;
         }
     }
 
-    async buildProject(): Promise<void> {
+    async buildProject(params: BuildProjectRequest): Promise<void> {
         return new Promise(async (resolve) => {
-            const selection = await window.showQuickPick(["Build CAPP", "Create Docker Image"]);
-            if (selection === "Build CAPP") {
+            let selection = params?.buildType?.toString();
+            if (!selection) {
+                selection = await window.showQuickPick(["Build CAPP", "Create Docker Image"]);
+            }
+            if (selection === "Build CAPP" || selection === "capp") {
                 await commands.executeCommand(COMMANDS.BUILD_PROJECT, false);
-            } else if (selection === "Create Docker Image") {
+            } else if (selection === "Create Docker Image" || selection === "docker") {
                 await commands.executeCommand(COMMANDS.CREATE_DOCKER_IMAGE);
             }
             resolve();
+        });
+    }
+
+    async deployProject(params: DeployProjectRequest): Promise<DeployProjectResponse> {
+        return new Promise(async (resolve) => {
+            if (!checkForDevantExt()) {
+                return;
+            }
+            const params = {
+                buildPackLang: "microintegrator",
+                name: path.basename(StateMachine.context().projectUri!),
+                componentDir: StateMachine.context().projectUri
+            };
+            commands.executeCommand(COMMANDS.DEVAN_DEPLOY, params);
+            resolve({ success: true });
         });
     }
 
@@ -5231,6 +5277,6 @@ export async function askImportFileDir() {
         canSelectMany: false,
         defaultUri: Uri.file(os.homedir()),
         title: "Select a file to import",
-        filters: { 'ATF': ['xml','dbs'] }
+        filters: { 'ATF': ['xml', 'dbs'] }
     });
 }

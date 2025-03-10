@@ -8,10 +8,10 @@
  */
 
 import React from "react";
-import { LinkButton, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { ThemeColors, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
-const Card = styled.div<{ active?: boolean; appearance?: ButtonCardAppearance }>`
+const Card = styled.div<{ active?: boolean; appearance?: ButtonCardAppearance, disabled?: boolean }>`
     gap: 16px;
     max-width: 42rem;
     padding: 12px;
@@ -20,11 +20,11 @@ const Card = styled.div<{ active?: boolean; appearance?: ButtonCardAppearance }>
         ${(props: { active: boolean }) => (props.active ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT)};
     background-color: ${(props: { active: boolean }) =>
         props.active ? ThemeColors.PRIMARY_CONTAINER : ThemeColors.SURFACE_DIM};
-    cursor: pointer;
+    cursor: ${(props: { disabled: boolean }) => (props.disabled ? 'not-allowed' : 'pointer')};;
     &:hover {
         background-color: ${ThemeColors.PRIMARY_CONTAINER};
         border: 1px solid ${ThemeColors.PRIMARY};
-    }
+    };
 `;
 
 const CardContainer = styled.div<{ active?: boolean }>`
@@ -100,6 +100,8 @@ export interface ButtonCardProps {
     appearance?: ButtonCardAppearance;
     truncate?: boolean;
     onClick: () => void;
+    disabled?: boolean;
+    tooltip?: string;
 }
 
 export function ButtonCard(props: ButtonCardProps) {
@@ -112,22 +114,31 @@ export function ButtonCard(props: ButtonCardProps) {
         appearance = "large",
         truncate: explicitTruncate,
         onClick,
+        disabled,
+        tooltip,
     } = props;
 
     // Apply truncation by default for small appearance if not explicitly set
     const truncate = explicitTruncate !== undefined ? explicitTruncate : appearance === "small";
 
     return (
-        <Card onClick={onClick} active={active ?? false} appearance={appearance}>
-            <CardContainer>
-                {icon && <IconContainer>{icon}</IconContainer>}
-                <ContentContainer>
-                    {caption && <Caption>{caption}</Caption>}
-                    <Title truncate={truncate}>{title}</Title>
-                    {description && <Description truncate={truncate}>{description}</Description>}
-                </ContentContainer>
-            </CardContainer>
-        </Card>
+        <Tooltip content={tooltip}>
+            <Card
+                onClick={disabled ? undefined : onClick}
+                active={active ?? false}
+                appearance={appearance}
+                disabled={disabled}
+            >
+                <CardContainer>
+                    {icon && <IconContainer>{icon}</IconContainer>}
+                    <ContentContainer>
+                        {caption && <Caption>{caption}</Caption>}
+                        <Title truncate={truncate}>{title}</Title>
+                        {description && <Description truncate={truncate}>{description}</Description>}
+                    </ContentContainer>
+                </CardContainer>
+            </Card>
+        </Tooltip>
     );
 }
 

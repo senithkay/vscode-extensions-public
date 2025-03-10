@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, { useEffect, useState } from "react";
-import { Button, Dropdown, FormActions, FormGroup, FormView, LocationSelector, OptionProps, TextField } from "@wso2-enterprise/ui-toolkit";
+import { Button, Dropdown, FormActions, FormGroup, FormView, LocationSelector, OptionProps, TextField, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { yupResolver } from "@hookform/resolvers/yup"
@@ -48,6 +48,7 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
     const [dirContent, setDirContent] = useState([]);
 
     const [supportedMIVersions, setSupportedMIVersions] = useState<OptionProps[]>([]);
+    const [formSaved, setFormSaved] = useState(false);
 
     const loweCasedDirContent = dirContent.map((folder: string) => folder.toLowerCase());
     const schema = yup.object({
@@ -106,6 +107,7 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
             ...values,
             open: true,
         }
+        setFormSaved(true);
         await rpcClient.getMiDiagramRpcClient().createProject(createProjectParams);
     };
 
@@ -183,9 +185,14 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
                 <Button
                     appearance="primary"
                     onClick={handleSubmit(handleCreateProject)}
-                    disabled={(!isDirty) || Object.keys(errors).length > 0}
+                    disabled={(!isDirty) || Object.keys(errors).length > 0 || formSaved}
                 >
-                    Create
+                    {formSaved ? (
+                        <>
+                            <ProgressRing sx={{height: 16, marginLeft: -5, marginRight: 2}} color="white"/>
+                            Creating
+                        </>
+                    ) : "Create"}
                 </Button>
             </FormActions>
         </FormView>
