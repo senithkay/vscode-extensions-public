@@ -199,7 +199,6 @@ interface BaseProps {
     widthOffset?: number;
     nullable?: boolean;
     allowItemCreate?: boolean;
-    hideCreateNewButton?: boolean;
     sx?: React.CSSProperties;
     borderBox?: boolean;
     onValueChange?: (item: string, index?: number) => void;
