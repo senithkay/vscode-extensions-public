@@ -543,12 +543,18 @@ export function FormGenerator(props: FormProps) {
         helperPaneHeight: HelperPaneHeight,
         recordTypeField?: RecordTypeField
     ) => {
+        const handleHelperPaneClose = () => {
+            debouncedRetrieveCompletions.cancel();
+            changeHelperPaneState(false);
+            handleExpressionEditorCancel();
+        }
+
         return getHelperPane({
             fileName: fileName,
             targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
             exprRef: exprRef,
             anchorRef: anchorRef,
-            onClose: () => changeHelperPaneState(false),
+            onClose: handleHelperPaneClose,
             defaultValue: defaultValue,
             currentValue: value,
             onChange: onChange,
@@ -566,18 +572,18 @@ export function FormGenerator(props: FormProps) {
         changeHelperPaneState: (isOpen: boolean) => void,
         typeHelperHeight: HelperPaneHeight
     ) => {
-        return getTypeHelper(
-            typeBrowserRef,
-            fileName,
-            updateLineRange(targetLineRange, expressionOffsetRef.current),
-            currentType,
-            currentCursorPosition,
-            typeHelperHeight,
-            typeHelperState,
-            onChange,
-            () => changeHelperPaneState(false)
-        );
-    };
+        return getTypeHelper({
+            typeBrowserRef: typeBrowserRef,
+            filePath: fileName,
+            targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
+            currentType: currentType,
+            currentCursorPosition: currentCursorPosition,
+            helperPaneHeight: typeHelperHeight,
+            typeHelperState: typeHelperState,
+            onChange: onChange,
+            changeTypeHelperState: changeHelperPaneState
+        });
+    }
 
     const expressionEditor = useMemo(() => {
         return {

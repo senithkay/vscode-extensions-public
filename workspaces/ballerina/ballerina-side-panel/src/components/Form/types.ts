@@ -41,6 +41,7 @@ export type FormField = {
     enabled: boolean;
     lineRange?: LineRange;
     metadata?: Metadata;
+    codedata?: {[key: string]: any};
 };
 
 export type ParameterValue = {

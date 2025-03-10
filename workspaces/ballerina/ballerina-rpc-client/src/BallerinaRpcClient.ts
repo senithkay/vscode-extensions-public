@@ -44,6 +44,7 @@ import { InlineDataMapperRpcClient } from "./rpc-clients/inline-data-mapper/rpc-
 import { TestManagerServiceRpcClient } from "./rpc-clients";
 import { AiAgentRpcClient } from "./rpc-clients/ai-agent/rpc-client";
 import { ICPServiceRpcClient } from "./rpc-clients/icp-service/rpc-client";
+import { AgentChatRpcClient } from "./rpc-clients/agent-chat/rpc-client";
 
 export class BallerinaRpcClient {
 
@@ -64,6 +65,7 @@ export class BallerinaRpcClient {
     private _testManager: TestManagerServiceRpcClient;
     private _aiAgent: AiAgentRpcClient;
     private _icpManager: ICPServiceRpcClient;
+    private _agentChat: AgentChatRpcClient;
 
     constructor() {
         this.messenger = new Messenger(vscode);
@@ -84,6 +86,7 @@ export class BallerinaRpcClient {
         this._testManager = new TestManagerServiceRpcClient(this.messenger);
         this._aiAgent = new AiAgentRpcClient(this.messenger);
         this._icpManager = new ICPServiceRpcClient(this.messenger);
+        this._agentChat = new AgentChatRpcClient(this.messenger);
     }
 
     getAIAgentRpcClient(): AiAgentRpcClient {
@@ -194,4 +197,7 @@ export class BallerinaRpcClient {
         return this.messenger.sendRequest(getPopupVisualizerState, HOST_EXTENSION);
     }
 
+    getAgentChatRpcClient(): AgentChatRpcClient {
+        return this._agentChat;
+    }
 }
