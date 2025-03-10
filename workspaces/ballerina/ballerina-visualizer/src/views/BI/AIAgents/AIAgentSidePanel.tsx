@@ -237,6 +237,7 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
         }
         console.log("New Agent Tool:", toolModel);
         onSubmit(toolModel);
+        handleOnCancel();
     };
 
     const updateExpressionField = (data: ExpressionFormField) => {
@@ -281,12 +282,21 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
         enabled: true
     }
 
+    const handleOnCancel = () => {
+        setSidePanelView(SidePanelView.NODE_LIST);
+    }
+
+    const handleOnBack = () => {
+        onBack();
+        setSidePanelView(SidePanelView.NODE_LIST);
+    }
+
     return (
         <>
             <PanelContainer
                 title={"New Tool Integration"}
                 show={showSidePanel}
-                onClose={onBack}
+                onClose={handleOnBack}
                 subPanelWidth={subPanel?.view === SubPanelView.INLINE_DATA_MAPPER ? 800 : 400}
                 subPanel={findSubPanelComponent(subPanel)}
             >
@@ -306,7 +316,7 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
                             fileName={projectPath}
                             targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
                             fields={[field]}
-                            onBack={onBack}
+                            onBack={handleOnCancel}
                             onSubmit={handleToolSubmit}
                             submitText={"Save Tool"}
                         />

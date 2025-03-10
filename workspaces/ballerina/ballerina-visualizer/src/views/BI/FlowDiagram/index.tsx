@@ -662,6 +662,19 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         });
     };
 
+    const handleOnAddAgent = () => {
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.AIAgentWizard,
+                documentUri: model.fileName,
+                metadata: {
+                    target: targetRef.current.startLine,
+                },
+            },
+        });
+    };
+
     const handleOnEditConnection = (connectionName: string) => {
         rpcClient.getVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
@@ -892,6 +905,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             categories={categories}
                             onSelect={handleOnSelectNode}
                             onAddConnection={handleOnAddConnection}
+                            onAddAgent={handleOnAddAgent}
                             onClose={handleOnCloseSidePanel}
                         />
                     )}
