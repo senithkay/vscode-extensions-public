@@ -355,7 +355,7 @@ async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> 
                         .map(listenerId => response.designModel.listeners.find(l => l.uuid === listenerId)?.args.find(arg => arg.key === 'port')?.value)
                         .filter(Boolean)
                         .join(','),
-                }
+                };
 
 
 
