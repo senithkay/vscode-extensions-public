@@ -592,6 +592,11 @@ export function AIChat() {
                 if (commandKey === COMMAND_GENERATE) {
                     await processCodeGeneration(token, [messageBody, attachments, CodeGenerationType.CODE_GENERATION], message);
                     return;
+                } else if (commandKey === COMMAND_NATURAL_PROGRAMMING) {
+                    if (isContentIncludedInMessageBody(messageBody, CodeGenerationType.CODE_FOR_USER_REQUIREMENT)) {
+                        await processCodeGeneration(token, [messageBody, attachments, CodeGenerationType.CODE_GENERATION], message);
+                    }
+                    return;
                 } else if (commandKey === COMMAND_DOCUMENTATION) {
                     await findInDocumentation(messageBody, token);
                     return;
@@ -679,14 +684,14 @@ export function AIChat() {
         let response: LLMDiagnostics =  rpcClient == null ? {statusCode: null, diags: ""} : 
             await rpcClient.getAiPanelRpcClient().getDriftDiagnosticContents(chatLocation);
 
-        if (response == null) {
-            // TODO: Handle this properly
-            response = {statusCode: null, diags: ""};
+        const responseStatus = response.statusCode;
+        const invalidResponse = response == null|| response.statusCode == null;
+
+        if (invalidResponse) {
+            throw new Error(`Failed to check drift between code and documentation. Please try again.`);
         }
 
-        const responseStatus = response.statusCode;
-
-        if (responseStatus < 200 && responseStatus >= 300) {
+        if (!(responseStatus >= 200 && responseStatus < 300)) {
             if (responseStatus > 400 && responseStatus < 500) {
                 await rpcClient.getAiPanelRpcClient().promptLogin();
                 setIsLoading(false);
@@ -1000,6 +1005,7 @@ export function AIChat() {
         const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
         const developerMdContent = 
                     await rpcClient.getAiPanelRpcClient().readDeveloperMdFile(chatLocation);
+        const updatedChatHistory = generateChatHistoryForSummarize(chatArray);
         const response = await fetchWithToken(
             backendRootUri + "/prompt/summarize",
             {
@@ -1008,7 +1014,7 @@ export function AIChat() {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({chats: chatArray.slice(integratedChatIndex), existingChatSummary: developerMdContent}),
+                body: JSON.stringify({chats: updatedChatHistory, existingChatSummary: developerMdContent}),
                 signal: signal,
             },
             rpcClient
@@ -1021,7 +1027,7 @@ export function AIChat() {
         const chatSummaryResponseStr = await streamToString(response.body);
         await rpcClient.getAiPanelRpcClient()
             .addChatSummary({summary: chatSummaryResponseStr, filepath: chatLocation});
-        previousDevelopmentDocumentContent = developerMdContentWithTimeStamp;
+        previousDevelopmentDocumentContent = developerMdContent;
     };
 
     async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
@@ -1642,7 +1648,7 @@ export function AIChat() {
 
     async function processHealthcareCodeGeneration(token: string, useCase: string, message: string) {
         let assistant_response = "";
-        const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource();
+        const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource(CodeGenerationType.CODE_GENERATION);
         const requestBody: any = {
             usecase: useCase,
             chatHistory: chatArray,
@@ -1891,6 +1897,8 @@ export function AIChat() {
     async function handleStop() {
         // Abort the fetch
         controller.abort();
+        // Abort test generation if running
+        rpcClient.getAiPanelRpcClient().abortTestGeneration();
 
         // Create a new AbortController for future fetches
         controller = new AbortController();
@@ -2922,3 +2930,12 @@ export function splitContent(content: string): Segment[] {
 
     return segments;
 }
+function generateChatHistoryForSummarize(chatArray: ChatEntry[]): ChatEntry[] {
+    return chatArray.slice(integratedChatIndex).filter( chatEntry =>
+            chatEntry.actor.toLowerCase() == "user" 
+            && !chatEntry.message.includes(GENERATE_TEST_AGAINST_THE_REQUIREMENT) 
+            && !chatEntry.message.includes(GENERATE_CODE_AGAINST_THE_REQUIREMENT)
+            && !chatEntry.message.includes(CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION)
+    );
+}
+

@@ -123,6 +123,18 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 		console.log('Add Class Mediator');
 	});
 
+	commands.registerCommand(COMMANDS.ADD_BALLERINA_MODULE_COMMAND, async (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BallerinaModuleForm, documentUri: entry.info?.path });
+		console.log('Add Ballerina Module');
+	});
+
+	commands.registerCommand(COMMANDS.EDIT_BALLERINA_MODULE_COMMAND, async (entry: string) => {
+    		workspace.openTextDocument(entry).then((doc) => {
+    			window.showTextDocument(doc, { preview: false });
+    		});
+    		commands.executeCommand('workbench.files.action.focusFilesExplorer');
+    	});
+
 	commands.registerCommand(COMMANDS.ADD_DATA_SERVICE_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DataServiceForm, documentUri: entry.info?.path });
 		console.log('Add Data Service');

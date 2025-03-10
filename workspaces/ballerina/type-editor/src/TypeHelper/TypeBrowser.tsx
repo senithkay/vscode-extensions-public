@@ -12,21 +12,27 @@ import { getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { TypeHelperCategory, TypeHelperItem } from '.';
 
 type TypeBrowserProps = {
+    typeBrowserRef: RefObject<HTMLDivElement>;
+    currentType: string;
+    currentCursorPosition: number;
     loadingTypeBrowser: boolean;
     typeBrowserTypes: TypeHelperCategory[];
     onSearchTypeBrowser: (searchText: string) => void;
     onTypeItemClick: (item: TypeHelperItem) => void;
-    typeBrowserRef: RefObject<HTMLDivElement>;
+    onChange: (newType: string, newCursorPosition: number) => void;
     onClose: () => void;
 };
 
 export const TypeBrowser = (props: TypeBrowserProps) => {
     const {
+        typeBrowserRef,
+        currentType,
+        currentCursorPosition,
         loadingTypeBrowser,
         typeBrowserTypes,
         onSearchTypeBrowser,
         onTypeItemClick,
-        typeBrowserRef,
+        onChange,
         onClose
     } = props;
 
@@ -45,6 +51,25 @@ export const TypeBrowser = (props: TypeBrowserProps) => {
             return;
         }
     }, [typeBrowserTypes]);
+
+    const handleTypeItemClick = (item: TypeHelperItem) => {
+        const prefixRegex = /[a-zA-Z0-9_']*$/;
+        const suffixRegex = /^[a-zA-Z0-9_']*/;
+        const prefixMatch = currentType.slice(0, currentCursorPosition).match(prefixRegex);
+        const suffixMatch = currentType.slice(currentCursorPosition).match(suffixRegex);
+        const prefixCursorPosition = currentCursorPosition - (prefixMatch?.[0]?.length ?? 0);
+        const suffixCursorPosition = currentCursorPosition + (suffixMatch?.[0]?.length ?? 0);
+
+        onChange(
+            currentType.slice(0, prefixCursorPosition) + item.insertText + currentType.slice(suffixCursorPosition),
+            prefixCursorPosition + item.insertText.length
+        );
+
+        onTypeItemClick(item);
+
+        // Close the type browser
+        onClose();
+    };
 
     return (
         <HelperPane.LibraryBrowser
@@ -72,7 +97,7 @@ export const TypeBrowser = (props: TypeBrowserProps) => {
                                 key={`${category.category}-${item.name}`}
                                 label={item.name}
                                 getIcon={() => getIcon(item.type)}
-                                onClick={() => onTypeItemClick(item)}
+                                onClick={() => handleTypeItemClick(item)}
                             />
                         ))}
                         {category.subCategory?.map((subCategory) => (
@@ -86,7 +111,7 @@ export const TypeBrowser = (props: TypeBrowserProps) => {
                                         key={`${subCategory.category}-${item.name}`}
                                         label={item.name}
                                         getIcon={() => getIcon(item.type)}
-                                        onClick={() => onTypeItemClick(item)}
+                                        onClick={() => handleTypeItemClick(item)}
                                     />
                                 ))}
                             </HelperPane.LibraryBrowserSubSection>

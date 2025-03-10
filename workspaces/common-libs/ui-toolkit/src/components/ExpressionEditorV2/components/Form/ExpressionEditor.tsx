@@ -77,6 +77,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         isHelperPaneOpen,
         helperPaneOrigin = 'bottom',
         helperPaneHeight = 'default',
+        helperPaneWidth,
         changeHelperPaneState,
         getHelperPane,
         actionButtons,
@@ -310,7 +311,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     }
 
     const getHelperPaneComponent = (): JSX.Element => {
-        const helperPanePosition = getHelperPanePosition(containerRef, helperPaneOrigin, helperPaneHeight);
+        const helperPanePosition = getHelperPanePosition(containerRef, helperPaneOrigin, helperPaneHeight, helperPaneWidth);
         const arrowPosition = getHelperPaneArrowPosition(containerRef, helperPaneOrigin, helperPanePosition);
         
         return (
