@@ -739,7 +739,8 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
                                 control={control}
                                 label="Datasource Name"
                                 filterType="dataSource"
-                                allowItemCreate={props.fromSidePanel ? false : true}
+                                allowItemCreate={true}
+                                hideCreateNewButton={true}
                                 requireValidation={false}
                                 required
                                 onCreateButtonClick={onCreateButtonClick}
