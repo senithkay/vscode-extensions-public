@@ -219,6 +219,7 @@ async function ensureBallerinaFilesIfEmpty(
 		);
 		writeFileSync(join(directoryPath, "main.bal"), `import ballerina/io;\n\npublic function main() {\n    io:println("Hello, World!");\n}`);
 		if (integrationDisplayType) {
+			const scopeVal = integrationDisplayType.toLowerCase().replaceAll(" ","-")
 			if (!existsSync(join(directoryPath, ".vscode"))) {
 				mkdirSync(join(directoryPath, ".vscode"));
 			}
@@ -227,11 +228,11 @@ async function ensureBallerinaFilesIfEmpty(
 				// add property
 				const data = readFileSync(settingsPath, "utf8");
 				const settings = JSON.parse(data);
-				settings.scope = integrationDisplayType;
+				settings.scope = scopeVal;
 				writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
 			} else {
 				// create new json
-				writeFileSync(settingsPath, JSON.stringify({ scope: integrationDisplayType }, null, 2));
+				writeFileSync(settingsPath, JSON.stringify({ scope: scopeVal }, null, 2));
 			}
 		}
 	};
