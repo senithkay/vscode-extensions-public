@@ -101,6 +101,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
             response.directoryMap[DIRECTORY_MAP.ENUMS].push(...await getComponents(langClient, module.enums, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.CLASSES].push(...await getComponents(langClient, module.classes, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.CONFIGURATIONS].push(...await getComponents(langClient, module.configurableVariables, pkg.filePath, "config"));
+            response.directoryMap[DIRECTORY_MAP.PROMPT_AS_CODE].push(...await getComponents(langClient, module.promptAsCode, pkg.filePath, "promptAsCode"));
         }
     }
 
