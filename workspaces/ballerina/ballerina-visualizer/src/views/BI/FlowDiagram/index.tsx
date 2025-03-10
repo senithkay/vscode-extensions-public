@@ -34,7 +34,7 @@ import {
     CurrentBreakpointsResponse as BreakpointInfo,
     FUNCTION_TYPE,
     ParentPopupData,
-    BISearchRequest
+    BISearchRequest,
 } from "@wso2-enterprise/ballerina-core";
 
 import {
@@ -50,6 +50,7 @@ import { applyModifications, textToModifications } from "../../../utils/utils";
 import FormGenerator from "../Forms/FormGenerator";
 import { InlineDataMapper } from "../../InlineDataMapper";
 import { HelperView } from "../HelperView";
+import { cloneDeep } from "lodash";
 
 const Container = styled.div`
     width: 100%;
@@ -67,7 +68,7 @@ interface ColoredTagProps {
     color: string;
 }
 
-const ColoredTag = styled(VSCodeTag) <ColoredTagProps>`
+const ColoredTag = styled(VSCodeTag)<ColoredTagProps>`
     ::part(control) {
         color: var(--button-primary-foreground);
         background-color: ${({ color }: ColoredTagProps) => color};
@@ -85,7 +86,7 @@ export enum SidePanelView {
     FORM = "FORM",
     FUNCTION_LIST = "FUNCTION_LIST",
     DATA_MAPPER_LIST = "DATA_MAPPER_LIST",
-    NP_FUNCTION_LIST = "NP_FUNCTION_LIST"
+    NP_FUNCTION_LIST = "NP_FUNCTION_LIST",
 }
 
 export interface BIFlowDiagramProps {
@@ -136,7 +137,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             fetchNodesAndAISuggestions(toNode, target, false, false);
         });
     }, [rpcClient]);
-
 
     const getFlowModel = () => {
         setShowProgressIndicator(true);
@@ -208,25 +208,10 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     console.error(">>> Error getting available nodes", response);
                     return;
                 }
-                // filter out some categories that are not supported in the diagram
-                // TODO: these categories should be supported in the future
-                const notSupportedCategories = [
-                    "PARALLEL_FLOW",
-                    "LOCK",
-                    "START",
-                    "TRANSACTION",
-                    "COMMIT",
-                    "ROLLBACK",
-                    "RETRY",
-                ];
-                const filteredCategories = response.categories.map((category) => ({
-                    ...category,
-                    items: category?.items?.filter(
-                        (item) =>
-                            !("codedata" in item) ||
-                            !notSupportedCategories.includes((item as AvailableNode).codedata?.node)
-                    ),
-                })) as Category[];
+                
+                // Use the new utility function instead of inline code
+                const filteredCategories = transformCategories(response.categories);
+
                 const convertedCategories = convertBICategoriesToSidePanelCategories(filteredCategories);
                 setCategories(convertedCategories);
                 initialCategoriesRef.current = convertedCategories; // Store initial categories
@@ -321,11 +306,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             filePath: model.fileName,
             queryMap: searchText.trim()
                 ? {
-                    q: searchText,
-                    limit: 12,
-                    offset: 0,
-                    includeAvailableFunctions: "true",
-                }
+                      q: searchText,
+                      limit: 12,
+                      offset: 0,
+                      includeAvailableFunctions: "true",
+                  }
                 : undefined,
             searchKind: "NP_FUNCTION",
         };
@@ -345,7 +330,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             .finally(() => {
                 setShowProgressIndicator(false);
             });
-    }
+    };
 
     const handleSearchFunction = async (searchText: string, functionType: FUNCTION_TYPE) => {
         const request: BISearchRequest = {
@@ -356,11 +341,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             filePath: model.fileName,
             queryMap: searchText.trim()
                 ? {
-                    q: searchText,
-                    limit: 12,
-                    offset: 0,
-                    includeAvailableFunctions: "true",
-                }
+                      q: searchText,
+                      limit: 12,
+                      offset: 0,
+                      includeAvailableFunctions: "true",
+                  }
                 : undefined,
             searchKind: "FUNCTION",
         };
@@ -388,101 +373,111 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
 
     const handleOnSelectNode = (nodeId: string, metadata?: any) => {
         const { node, category } = metadata as { node: AvailableNode; category?: string };
-        // node is function
-        const nodeType: NodeKind = node.codedata.node;
-        if (nodeType === "FUNCTION") {
-            setShowProgressIndicator(true);
-            rpcClient
-                .getBIDiagramRpcClient()
-                .search({
-                    position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
-                    filePath: model.fileName,
-                    queryMap: undefined,
-                    searchKind: "FUNCTION",
-                })
-                .then((response) => {
-                    console.log(">>> List of functions", response);
-                    setCategories(
-                        convertFunctionCategoriesToSidePanelCategories(
-                            response.categories as Category[],
-                            FUNCTION_TYPE.REGULAR
-                        )
-                    );
-                    setSidePanelView(SidePanelView.FUNCTION_LIST);
-                    setShowSidePanel(true);
-                })
-                .finally(() => {
-                    setShowProgressIndicator(false);
-                });
-        } else if (nodeType === "DATA_MAPPER_CALL") {
-            setShowProgressIndicator(true);
-            rpcClient
-                .getBIDiagramRpcClient()
-                .search({
-                    position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
-                    filePath: model.fileName,
-                    queryMap: undefined,
-                    searchKind: "FUNCTION",
-                })
-                .then((response) => {
-                    setCategories(
-                        convertFunctionCategoriesToSidePanelCategories(
-                            response.categories as Category[],
-                            FUNCTION_TYPE.EXPRESSION_BODIED
-                        )
-                    );
-                    setSidePanelView(SidePanelView.DATA_MAPPER_LIST);
-                    setShowSidePanel(true);
-                })
-                .finally(() => {
-                    setShowProgressIndicator(false);
-                });
-        } else if (nodeType === "NP_FUNCTION") {
-            setShowProgressIndicator(true);
-            rpcClient
-                .getBIDiagramRpcClient()
-                .search({
-                    position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
-                    filePath: model.fileName,
-                    queryMap: undefined,
-                    searchKind: "NP_FUNCTION",
-                })
-                .then((response) => {
-                    console.log(">>> List of np functions", response);
-                    setCategories(
-                        convertFunctionCategoriesToSidePanelCategories(
-                            response.categories as Category[],
-                            FUNCTION_TYPE.REGULAR
-                        )
-                    );
-                    setSidePanelView(SidePanelView.NP_FUNCTION_LIST);
-                    setShowSidePanel(true);
-                })
-                .finally(() => {
-                    setShowProgressIndicator(false);
-                });
-        } else {
-            // default node
-            console.log(">>> on select panel node", { nodeId, metadata });
-            selectedClientName.current = category;
-            setShowProgressIndicator(true);
-            rpcClient
-                .getBIDiagramRpcClient()
-                .getNodeTemplate({
-                    position: targetRef.current.startLine,
-                    filePath: model.fileName,
-                    id: node.codedata,
-                })
-                .then((response) => {
-                    console.log(">>> FlowNode template", response);
-                    selectedNodeRef.current = response.flowNode;
-                    showEditForm.current = false;
-                    setSidePanelView(SidePanelView.FORM);
-                    setShowSidePanel(true);
-                })
-                .finally(() => {
-                    setShowProgressIndicator(false);
-                });
+        switch (node.codedata.node) {
+            case "AGENT_CALL":
+                handleOnAddAgent();
+                return;
+                
+            case "FUNCTION":
+                setShowProgressIndicator(true);
+                rpcClient
+                    .getBIDiagramRpcClient()
+                    .search({
+                        position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
+                        filePath: model.fileName,
+                        queryMap: undefined,
+                        searchKind: "FUNCTION",
+                    })
+                    .then((response) => {
+                        console.log(">>> List of functions", response);
+                        setCategories(
+                            convertFunctionCategoriesToSidePanelCategories(
+                                response.categories as Category[],
+                                FUNCTION_TYPE.REGULAR
+                            )
+                        );
+                        setSidePanelView(SidePanelView.FUNCTION_LIST);
+                        setShowSidePanel(true);
+                    })
+                    .finally(() => {
+                        setShowProgressIndicator(false);
+                    });
+                break;
+                
+            case "DATA_MAPPER_CALL":
+                setShowProgressIndicator(true);
+                rpcClient
+                    .getBIDiagramRpcClient()
+                    .search({
+                        position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
+                        filePath: model.fileName,
+                        queryMap: undefined,
+                        searchKind: "FUNCTION",
+                    })
+                    .then((response) => {
+                        setCategories(
+                            convertFunctionCategoriesToSidePanelCategories(
+                                response.categories as Category[],
+                                FUNCTION_TYPE.EXPRESSION_BODIED
+                            )
+                        );
+                        setSidePanelView(SidePanelView.DATA_MAPPER_LIST);
+                        setShowSidePanel(true);
+                    })
+                    .finally(() => {
+                        setShowProgressIndicator(false);
+                    });
+                break;
+                
+            case "NP_FUNCTION":
+                setShowProgressIndicator(true);
+                rpcClient
+                    .getBIDiagramRpcClient()
+                    .search({
+                        position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
+                        filePath: model.fileName,
+                        queryMap: undefined,
+                        searchKind: "NP_FUNCTION",
+                    })
+                    .then((response) => {
+                        console.log(">>> List of np functions", response);
+                        setCategories(
+                            convertFunctionCategoriesToSidePanelCategories(
+                                response.categories as Category[],
+                                FUNCTION_TYPE.REGULAR
+                            )
+                        );
+                        setSidePanelView(SidePanelView.NP_FUNCTION_LIST);
+                        setShowSidePanel(true);
+                    })
+                    .finally(() => {
+                        setShowProgressIndicator(false);
+                    });
+                break;
+                
+            default:
+                // default node
+                console.log(">>> on select panel node", { nodeId, metadata });
+                selectedClientName.current = category;
+                setShowProgressIndicator(true);
+                rpcClient
+                    .getBIDiagramRpcClient()
+                    .getNodeTemplate({
+                        position: targetRef.current.startLine,
+                        filePath: model.fileName,
+                        id: node.codedata,
+                    })
+                    .then((response) => {
+                        console.log(">>> FlowNode template", response);
+                        selectedNodeRef.current = response.flowNode;
+                        showEditForm.current = false;
+                        setSidePanelView(SidePanelView.FORM);
+                        setShowSidePanel(true);
+                    })
+                    .finally(() => {
+                        setShowProgressIndicator(false);
+                    });
+                break;
         }
     };
 
@@ -634,9 +629,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     };
 
     const handleOnFormBack = () => {
-        if (sidePanelView === SidePanelView.FUNCTION_LIST
-            || sidePanelView === SidePanelView.DATA_MAPPER_LIST
-            || sidePanelView === SidePanelView.NP_FUNCTION_LIST) {
+        if (
+            sidePanelView === SidePanelView.FUNCTION_LIST ||
+            sidePanelView === SidePanelView.DATA_MAPPER_LIST ||
+            sidePanelView === SidePanelView.NP_FUNCTION_LIST
+        ) {
             // Reset categories to the initial available nodes
             setCategories(initialCategoriesRef.current);
             setSidePanelView(SidePanelView.NODE_LIST);
@@ -787,7 +784,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         const context: VisualizerLocation = {
             view: MACHINE_VIEW.BIFunctionForm,
             identifier: (props?.syntaxTree as ResourceAccessorDefinition).functionName.value,
-            documentUri: model.fileName
+            documentUri: model.fileName,
         };
         rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
@@ -924,7 +921,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         <NodeList
                             categories={categories}
                             onSelect={handleOnSelectNode}
-                            onSearchTextChange={(searchText) => handleSearchNpFunction(searchText, FUNCTION_TYPE.REGULAR)}
+                            onSearchTextChange={(searchText) =>
+                                handleSearchNpFunction(searchText, FUNCTION_TYPE.REGULAR)
+                            }
                             onAddFunction={handleOnAddNPFunction}
                             onClose={handleOnCloseSidePanel}
                             title={"Prompt as code"}
@@ -961,12 +960,13 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             resetUpdatedExpressionField={handleResetUpdatedExpressionField}
                             actionButtonConfig={
                                 selectedNodeRef.current?.codedata.node === "AGENT_CALL" &&
-                                    selectedNodeRef.current?.codedata.sourceCode
+                                selectedNodeRef.current?.codedata.sourceCode
                                     ? {
-                                        actionLabel: "Configure Agent",
-                                        description: "Change the agent's behavior by adjusting the system prompt, model, and tools. Click 'Configure Agent'.",
-                                        callback: handleEditAgent
-                                    }
+                                          actionLabel: "Configure Agent",
+                                          description:
+                                              "Change the agent's behavior by adjusting the system prompt, model, and tools. Click 'Configure Agent'.",
+                                          callback: handleEditAgent,
+                                      }
                                     : undefined
                             }
                         />
@@ -976,3 +976,59 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         </>
     );
 }
+
+
+// Add new utility function for transforming categories
+const transformCategories = (categories: Category[]): Category[] => {
+    // filter out some categories that are not supported in the diagram
+    // TODO: these categories should be supported in the future
+    const notSupportedCategories = [
+        "PARALLEL_FLOW",
+        "LOCK",
+        "START",
+        "TRANSACTION",
+        "COMMIT",
+        "ROLLBACK",
+        "RETRY",
+    ];
+    
+    let filteredCategories = categories.map((category) => ({
+        ...category,
+        items: category?.items?.filter(
+            (item) =>
+                !("codedata" in item) ||
+                !notSupportedCategories.includes((item as AvailableNode).codedata?.node)
+        ),
+    })) as Category[];
+    
+    // remove agents from categories
+    filteredCategories = filteredCategories.filter((category) => category.metadata.label !== "Agents");
+    
+    // rename "Prompt as code" from categories to "AI" and move it to 2nd position
+    const aiCategory = cloneDeep(filteredCategories.find((category) => category.metadata.label === "Prompt as code"));
+    if (aiCategory) {
+        aiCategory.metadata.label = "AI";
+    }
+    
+    // remove "Prompt as code" from categories
+    filteredCategories = filteredCategories.filter(
+        (category) => category.metadata.label !== "Prompt as code"
+    );
+    
+    // add ai category to 2nd position
+    filteredCategories.splice(1, 0, aiCategory);
+    
+    // add new item to ai category called "Agent"
+    filteredCategories[1].items.push({
+        codedata: {
+            node: "AGENT_CALL",
+        },
+        enabled: true,
+        metadata: {
+            label: "Agent",
+            description: "Add an AI Agent to the flow",
+        },
+    });
+    
+    return filteredCategories;
+};
