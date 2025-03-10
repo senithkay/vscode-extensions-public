@@ -256,7 +256,7 @@ export function DataServiceWizard(props: DataServiceWizardProps) {
                     setShowComponent={setShowDatasourceComponent}
                     datasources={datasources}
                     setValue={setValue}
-                    isPopup={props.isPopup} />}
+                    fromSidePanel={props.isPopup} />}
             {!showDatasourceComponent &&
                 <>
                     <FormView title='Data Service' onClose={handleCancel}>
