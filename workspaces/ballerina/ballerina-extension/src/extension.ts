@@ -36,6 +36,7 @@ import { RPCLayer } from './RPCLayer';
 import { activateAIFeatures } from './features/ai/activator';
 import { activateTryItCommand } from './features/tryit/activator';
 import { activate as activateNPFeatures } from './features/natural-programming/activator';
+import { activateAgentChatPanel } from './views/agent-chat/activate';
 
 let langClient: ExtendedLangClient;
 export let isPluginStartup = true;
@@ -147,6 +148,9 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
 
         // Activate natural programming features
         activateNPFeatures(ballerinaExtInstance);
+
+        // Activate Agent Chat Panel
+        activateAgentChatPanel(ballerinaExtInstance);
 
         langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         // Register showTextDocument listener
