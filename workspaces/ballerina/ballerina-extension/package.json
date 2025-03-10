@@ -2,7 +2,7 @@
     "name": "kolab",
     "displayName": "KolaB",
     "description": "KolaB Extension for Kola.",
-    "version": "0.4.7",
+    "version": "0.4.8",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
@@ -30,7 +30,8 @@
         "onUri"
     ],
     "extensionDependencies": [
-        "anweber.httpbook"
+        "anweber.httpbook",
+        "wso2.wso2-platform"
     ],
     "contributes": {
         "languages": [
