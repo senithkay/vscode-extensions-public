@@ -111,6 +111,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         suffix: /^((?:\w|')*)/,
     };
 
+    const manualFocusTrigger = useRef<boolean>(false);
+
     const showCompletions = showDefaultCompletion || completions?.length > 0;
 
     const updatePosition = throttle(() => {
@@ -199,7 +201,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
 
         await handleChange(newTextValue, newCursorPosition);
         onCompletionSelect && await onCompletionSelect(newTextValue, item);
-        setCursor(textAreaRef, 'textarea', newTextValue, newCursorPosition);
+        setCursor(textAreaRef, 'textarea', newTextValue, newCursorPosition, manualFocusTrigger);
     };
 
     const handleExpressionSave = async (value: string, ref?: React.MutableRefObject<string>) => {
@@ -375,8 +377,9 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         }
     };
 
-    const handleRefFocus = () => {
+    const handleRefFocus = (manualTrigger?: boolean) => {
         if (document.activeElement !== elementRef.current) {
+            manualFocusTrigger.current = manualTrigger ?? false;
             textAreaRef.current?.focus();
         }
     }
@@ -392,15 +395,19 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     }
 
     const handleRefSetCursor = (value: string, cursorPosition: number) => {
-        setCursor(textAreaRef, 'textarea', value, cursorPosition);
+        setCursor(textAreaRef, 'textarea', value, cursorPosition, manualFocusTrigger);
     }
 
     const handleTextAreaFocus = async () => {
         // Additional actions to be performed when the expression editor gains focus
         setIsFocused(true);
-        changeHelperPaneState?.(true);
 
-        await onFocus?.();
+        if (!manualFocusTrigger.current) {
+            changeHelperPaneState?.(true);
+            await onFocus?.();
+        }
+
+        manualFocusTrigger.current = false;
     }
 
     const handleTextAreaBlur = (e: React.FocusEvent) => {
