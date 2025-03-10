@@ -23,8 +23,8 @@ import {
     README_FILE_NAME_LOWERCASE, DRIFT_DIAGNOSTIC_ID,
     LACK_OF_API_DOCUMENTATION_WARNING, LACK_OF_API_DOCUMENTATION_WARNING_2,
     NO_DOCUMENTATION_WARNING,
-    MISSING_README_FILE_WARNING,
-    MISSING_REQUIREMENT_FILE, MISSING_API_DOCS
+    MISSING_README_FILE_WARNING, MISSING_README_FILE_WARNING_2,
+    MISSING_REQUIREMENT_FILE, MISSING_API_DOCS, MISSING_API_DOCS_2
 } from "./constants";
 import { isError, isNumber } from 'lodash';
 import { HttpStatusCode } from 'axios';
@@ -163,24 +163,30 @@ async function createDiagnostic(result: ResultItem, uri: Uri): Promise<CustomDia
                                     : new vscode.Position(0, 0);
 
     let range = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 0));
-    const document = await vscode.workspace.openTextDocument(uri);
+    const filePath = uri.fsPath;
+    let document = null;
+    if (fs.existsSync(filePath)) {
+        document = await vscode.workspace.openTextDocument(uri);
+    }
 
     try {
-        if (isSolutionsAvailable) {
-            codeChangeEndPosition = document.lineAt(result.endRowforImplementationChangedAction - 1).range.end;
-            if (isDocChangeSolutionsAvailable) {
+        if (document != null) {
+            if (isSolutionsAvailable) {
+                codeChangeEndPosition = document.lineAt(result.endRowforImplementationChangedAction - 1).range.end;
+                if (isDocChangeSolutionsAvailable) {
+                    docChangeEndPosition = document.lineAt(result.endRowforDocChangedAction - 1).range.end;
+                }
+                range = new vscode.Range(
+                    new vscode.Position(result.startRowforImplementationChangedAction - 1, 0),
+                    codeChangeEndPosition
+                );
+            } else if (isDocChangeSolutionsAvailable) {
                 docChangeEndPosition = document.lineAt(result.endRowforDocChangedAction - 1).range.end;
+                range = new vscode.Range(
+                    new vscode.Position(result.startRowforDocChangedAction - 1, 0),
+                    docChangeEndPosition
+                );
             }
-            range = new vscode.Range(
-                new vscode.Position(result.startRowforImplementationChangedAction - 1, 0),
-                codeChangeEndPosition
-            );
-        } else if (isDocChangeSolutionsAvailable) {
-            docChangeEndPosition = document.lineAt(result.endRowforDocChangedAction - 1).range.end;
-            range = new vscode.Range(
-                new vscode.Position(result.startRowforDocChangedAction - 1, 0),
-                docChangeEndPosition
-            );
         }
     } catch (error) {
         // ignore
@@ -463,10 +469,10 @@ export async function streamToString(stream: ReadableStream<Uint8Array>): Promis
 
 function isSkippedDiagnostic(result: ResultItem) {
     const cause = result.cause.toLowerCase();
-    if (cause.includes(LACK_OF_API_DOCUMENTATION_WARNING) || cause.includes(LACK_OF_API_DOCUMENTATION_WARNING_2) || cause.includes(MISSING_API_DOCS) 
-        || cause.includes(NO_DOCUMENTATION_WARNING) || cause.includes(MISSING_README_FILE_WARNING) || cause.includes(MISSING_REQUIREMENT_FILE)) {
+    if (cause.includes(LACK_OF_API_DOCUMENTATION_WARNING) || cause.includes(LACK_OF_API_DOCUMENTATION_WARNING_2) || cause.includes(MISSING_API_DOCS_2) 
+        || cause.includes(MISSING_API_DOCS) || cause.includes(NO_DOCUMENTATION_WARNING) || cause.includes(MISSING_README_FILE_WARNING) 
+        || cause.includes(MISSING_REQUIREMENT_FILE) || cause.includes(MISSING_README_FILE_WARNING_2)) {
             return true;
     }
     return false;
 }
-
