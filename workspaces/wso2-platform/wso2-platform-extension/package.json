@@ -3,7 +3,7 @@
   "displayName": "WSO2 Platform",
   "description": "An extension for managing all things related to WSO2",
   "license": "Apache-2.0",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "cliVersion": "v1.2.82412081830",
   "publisher": "wso2",
   "bugs": {
