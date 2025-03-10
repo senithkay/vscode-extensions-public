@@ -131,7 +131,7 @@ export async function checkConfigGenerationRequired(ballerinaExtInstance: Baller
                 }
 
                 // Get existing configs for this path if available
-                const existingModuleConfigs = getExistingConfigsForPath(existingConfigs, orgKey, pkgKey);
+                const existingModuleConfigs = getExistingConfigsForPath(context, existingConfigs, orgKey, pkgKey);
 
                 // Find missing required configs
                 const moduleNewValues: ConfigProperty[] = [];
@@ -167,16 +167,32 @@ export async function checkConfigGenerationRequired(ballerinaExtInstance: Baller
 }
 
 // Helper function to navigate nested toml structure and get existing configs
-function getExistingConfigsForPath(existingConfigs: any, orgKey: string, pkgKey: string): any {
-    if (!existingConfigs) return {};
+function getExistingConfigsForPath(context: ConfigGenerationContext, existingConfigs: any, orgKey: string, pkgKey: string): any {
+    if (!existingConfigs) {
+        return {};
+    }
 
-    // Try as a dotted key like "wso2.testbi"
+    // For the default module, return root level configs
+    if (!existingConfigs[orgKey] && orgKey == context.orgName && pkgKey == context.packageName) {
+        const rootLevelConfigs = {};
+        for (const key in existingConfigs) {
+            if (typeof existingConfigs[key] !== 'object' || existingConfigs[key] === null) {
+                rootLevelConfigs[key] = existingConfigs[key];
+            }
+        }
+
+        if (Object.keys(rootLevelConfigs).length > 0) {
+            return rootLevelConfigs;
+        }
+    }
+
+    // Try as a dotted key
     const dottedKey = `${orgKey}.${pkgKey}`;
     if (existingConfigs[dottedKey]) {
         return existingConfigs[dottedKey];
     }
 
-    // Handle case where pkgKey itself contains dots (e.g., "wso2.controlplane")
+    // Handle case where pkgKey itself contains dots
     let currentObj = existingConfigs[orgKey];
     if (currentObj) {
         // Split the pkgKey by dots to navigate nested structure
