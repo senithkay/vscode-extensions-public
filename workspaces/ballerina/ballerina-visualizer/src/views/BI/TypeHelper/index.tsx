@@ -31,12 +31,14 @@ type TypeHelperProps = {
     currentType: string;
     currentCursorPosition: number;
     helperPaneHeight: HelperPaneHeight;
+    typeHelperState: boolean;
     onChange: (newType: string, newCursorPosition: number) => void;
     changeTypeHelperState: (isOpen: boolean) => void;
 };
 
 const TypeHelperEl = (props: TypeHelperProps) => {
     const {
+        typeHelperState,
         filePath,
         targetLineRange,
         currentType,
@@ -100,27 +102,24 @@ const TypeHelperEl = (props: TypeHelperProps) => {
     const debouncedSearchTypeBrowser = useCallback(
         debounce((searchText: string) => {
             if (rpcClient) {
-                setLoadingTypeBrowser(true);
-                rpcClient.getVisualizerLocation().then((machineView) => {
-                    rpcClient
-                        .getBIDiagramRpcClient()
-                        .search({
-                            filePath: machineView.metadata.recordFilePath,
-                            position: targetLineRange,
-                            queryMap: {
-                                q: searchText,
-                                offset: 0,
-                                limit: 60
-                            },
-                            searchKind: 'TYPE'
+                rpcClient
+                    .getBIDiagramRpcClient()
+                    .search({
+                        filePath: filePath,
+                        position: targetLineRange,
+                        queryMap: {
+                            q: searchText,
+                            offset: 0,
+                            limit: 60
+                        },
+                        searchKind: 'TYPE'
                         })
-                        .then((response) => {
-                            setFilteredTypeBrowserTypes(getTypeBrowserTypes(response.categories));
-                        })
-                        .finally(() => {
-                            setLoadingTypeBrowser(false);
-                        });
-                });
+                    .then((response) => {
+                        setFilteredTypeBrowserTypes(getTypeBrowserTypes(response.categories));
+                    })
+                    .finally(() => {
+                        setLoadingTypeBrowser(false);
+                    });
             }
         }, 150),
         [filteredTypeBrowserTypes]
@@ -135,6 +134,7 @@ const TypeHelperEl = (props: TypeHelperProps) => {
     );
 
     const handleTypeItemClick = (item: TypeHelperItem) => {
+        // TODO: Implement this onces the LS API is ready
         console.log(item);
     };
 
@@ -144,6 +144,7 @@ const TypeHelperEl = (props: TypeHelperProps) => {
 
     return (
         <TypeHelperComponent
+            open={typeHelperState}
             currentType={currentType}
             currentCursorPosition={currentCursorPosition}
             loading={loading}
@@ -162,26 +163,8 @@ const TypeHelperEl = (props: TypeHelperProps) => {
     );
 };
 
-export const getTypeHelper = (
-    typeBrowserRef: RefObject<HTMLDivElement>,
-    filePath: string,
-    targetLineRange: LineRange,
-    currentType: string,
-    currentCursorPosition: number,
-    helperPaneHeight: HelperPaneHeight,
-    onChange: (newType: string, newCursorPosition: number) => void,
-    changeTypeHelperState: (isOpen: boolean) => void
-) => {
+export const getTypeHelper = (props: TypeHelperProps) => {
     return (
-        <TypeHelperEl
-            typeBrowserRef={typeBrowserRef}
-            filePath={filePath}
-            targetLineRange={targetLineRange}
-            currentType={currentType}
-            currentCursorPosition={currentCursorPosition}
-            helperPaneHeight={helperPaneHeight}
-            onChange={onChange}
-            changeTypeHelperState={changeTypeHelperState}
-        />
+        <TypeHelperEl {...props} />
     );
 };
