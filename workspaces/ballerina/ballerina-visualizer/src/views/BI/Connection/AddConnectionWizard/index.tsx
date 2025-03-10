@@ -122,7 +122,6 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
             // get node properties
             setCurrentStep(WizardStep.CONNECTION_CONFIG);
             // Start pulling connector after transitioning to config step
-            handlePullConnector();
         } finally {
             setFetchingInfo(false);
         }
@@ -281,6 +280,8 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
         <Container>
             <>
                 <ConnectorView
+                    fileName={fileName}
+                    targetLinePosition={target}
                     onSelectConnector={handleOnSelectConnector}
                     fetchingInfo={fetchingInfo}
                     onClose={onClose}

@@ -19,7 +19,7 @@ import { EventIntegrationPanel } from "./EventIntegrationPanel";
 import { FileIntegrationPanel } from "./FileIntegrationPanel";
 import { IntegrationAPIPanel } from "./IntegrationApiPanel";
 import { OtherArtifactsPanel } from "./OtherArtifactsPanel";
-
+import { AIAgentPanel } from "./AIAgentPanel";
 interface ComponentListViewProps {
     scope: SCOPE;
 };
@@ -35,6 +35,7 @@ export function ComponentListView(props: ComponentListViewProps) {
                 <Container>
                     <AddPanel>
                         <AutomationPanel scope={scope} />
+                        <AIAgentPanel scope={scope} />
                         <IntegrationAPIPanel scope={scope} />
                         <EventIntegrationPanel scope={scope} />
                         <FileIntegrationPanel scope={scope} />
