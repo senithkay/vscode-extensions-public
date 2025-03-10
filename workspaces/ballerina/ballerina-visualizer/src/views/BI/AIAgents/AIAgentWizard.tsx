@@ -8,8 +8,8 @@
  */
 
 import { useEffect, useState } from 'react';
-import { AgentTool, AgentToolRequest, AIAgentRequest, CodeData, EVENT_TYPE, ListenerModel, ListenersResponse, PropertyModel, ServiceModel, TriggerModelsResponse } from '@wso2-enterprise/ballerina-core';
-import { Dropdown, Icon, OptionProps, RadioButtonGroup, Stepper, Typography, View, ViewContent } from '@wso2-enterprise/ui-toolkit';
+import { AgentToolRequest, AIAgentRequest, CodeData } from '@wso2-enterprise/ballerina-core';
+import { Dropdown, RadioButtonGroup, Stepper, Typography, View, ViewContent } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import AgentConfigForm from './Forms/AgentConfigForm';
@@ -26,25 +26,6 @@ import { FormHeader } from '../../../components/FormHeader';
 import { RelativeLoader } from '../../../components/RelativeLoader';
 import { AIAgentSidePanel } from './AIAgentSidePanel';
 
-const FORM_WIDTH = 600;
-
-const FormContainer = styled.div`
-    padding-top: 15px;
-    padding-bottom: 15px;
-`;
-
-
-const ContainerX = styled.div`
-    padding: 0 20px 20px;
-    max-width: 600px;
-    > div:last-child {
-        padding: 20px 0;
-        > div:last-child {
-            justify-content: flex-start;
-        }
-    }
-`;
-
 const Container = styled.div`
     display: "flex";
     flex-direction: "column";
@@ -59,26 +40,6 @@ const BottomMarginTextWrapper = styled.div`
     margin-bottom: 10px;
 `;
 
-const HorizontalCardContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-`;
-
-const IconWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-`;
-
-const ButtonWrapper = styled.div`
-    max-width: 600px;
-    display: flex;
-    gap: 10px;
-    justify-content: right;
-`;
-
 const StepperContainer = styled.div`
     margin-top: 16px;
     margin-left: 16px;
@@ -91,9 +52,15 @@ const ChoiceSection = styled.div`
 `;
 
 const ChoicePaddingSection = styled.div`
-    padding: 16px;
+    padding: 16px 16px 0 16px;
 `;
 
+const LoaderContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+`;
 
 export function AIAgentWizard() {
     const { rpcClient } = useRpcContext();
@@ -309,14 +276,14 @@ export function AIAgentWizard() {
                     {!isLoading && step === 1 &&
                         <>
                             <ChoiceSection>
-                                <FormHeader title={`Configure LLM Model`} subtitle={`Choose a foundation model or reuse an existing configuration.`} />
+                                <FormHeader title={`Configure LLM Model`} subtitle={`Choose a foundation model or reuse an existing model.`} />
                                 <ChoicePaddingSection>
                                     <RadioButtonGroup
                                         id="model-options"
                                         defaultValue={1}
                                         defaultChecked={true}
                                         value={modelState}
-                                        options={[{ value: 1, content: "Create New Model" }, { value: 2, content: "Use Existing Model" }]}
+                                        options={[{ value: 1, content: "Create Model Connection" }, { value: 2, content: "Use Existing Model Connection" }]}
                                         onChange={(e) => {
                                             const checkedValue = Number(e.target.value);
                                             setModelState(checkedValue);
@@ -330,11 +297,11 @@ export function AIAgentWizard() {
                                                 isRequired
                                                 errorMsg=""
                                                 id="drop-down"
-                                                items={[{ value: "- Select -" }, ...newModels.map((model) => ({ value: model.object, content: model.object }))]}
-                                                label="Select AI Model"
-                                                description={"Available AI Models"}
+                                                items={[{ value: "Select a model...", content: "Select a model..." }, ...newModels.map((model) => ({ value: model.object, content: model.object }))]}
+                                                label="Select Model Family"
+                                                description={"Available Model Families"}
                                                 onValueChange={(value: string) => {
-                                                    if (value === "Select Model") {
+                                                    if (value === "Select a model...") {
                                                         return; // Skip the init option
                                                     }
                                                     setSelectedNewModel(value)
@@ -344,7 +311,9 @@ export function AIAgentWizard() {
                                             />
                                         </ChoicePaddingSection>
                                         {fetching &&
-                                            <RelativeLoader message={"Fetching Model Form"} />
+                                            <LoaderContainer>
+                                                <RelativeLoader message={"Fetching Model Form"} />
+                                            </LoaderContainer>
                                         }
                                         {!fetching && selectedNewModel &&
                                             <ModelConfigForm formFields={modelFields} onSubmit={handleModelConfigFormSubmit} onBack={() => setStep(0)} />
@@ -371,9 +340,9 @@ export function AIAgentWizard() {
                     {!isLoading && step === 2 &&
                         <>
                             {fetching &&
-                                <BottomMarginTextWrapper>
+                                <LoaderContainer>
                                     <RelativeLoader message={"Loading tools.."} />
-                                </BottomMarginTextWrapper>
+                                </LoaderContainer>
                             }
                             {!fetching && <ToolsConfigForm formFields={toolsFields} onSubmit={handleFinish} openToolsForm={handleToolFormOpen} onBack={() => setStep(1)} formSubmitText="Finish" />}
                             {!fetching && <AIAgentSidePanel projectPath={filePath} showSidePanel={openToolsForm} onSubmit={handleToolCreationSidePanel} onBack={handleOnToolFormBack} />}
