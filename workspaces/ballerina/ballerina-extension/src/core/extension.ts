@@ -16,7 +16,8 @@ import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY, ERROR, COMMAND_NOT_FOUND,
     NO_SUCH_FILE, CONFIG_CHANGED, OLD_BALLERINA_VERSION, UNKNOWN_ERROR, INVALID_FILE, INVALID_PROJECT,
     OLD_PLUGIN_INSTALLED,
-    COOKIE_SETTINGS
+    COOKIE_SETTINGS,
+    UPDATE_BALLERINA_VERSION
 } from "./messages";
 import { join, sep } from 'path';
 import { exec, spawnSync } from 'child_process';
@@ -260,6 +261,12 @@ export class BallerinaExtension {
                 this.ballerinaHome = home;
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${this.ballerinaVersion}`);
 
+                const ballerinaShortVersion = this.ballerinaVersion.split(' ')[0];
+                const ballerinaUpdateVersion = ballerinaShortVersion.split('.')[1];
+                if (parseInt(ballerinaUpdateVersion) < 12) {
+                    this.showMessageUpdateBallerina();
+                }
+
                 if (!this.ballerinaVersion.match(SWAN_LAKE_REGEX) || (this.ballerinaVersion.match(SWAN_LAKE_REGEX) &&
                     !isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 3))) {
                     this.showMessageOldBallerina();
@@ -295,8 +302,12 @@ export class BallerinaExtension {
 
             }, (reason) => {
                 sendTelemetryException(this, reason, CMP_EXTENSION_CORE);
-                this.showMessageInstallBallerina();
-                throw new Error(reason);
+                if (reason.message.includes('No such file or directory')) {
+                    this.installBallerina(true);
+                } else {
+                    this.showMessageInstallBallerina();
+                    throw new Error(reason);
+                }
             }).catch(e => {
                 const msg = `Error when checking ballerina version. ${e.message}`;
                 sendTelemetryException(this, e, CMP_EXTENSION_CORE, getMessageObject(msg));
@@ -344,6 +355,8 @@ export class BallerinaExtension {
     }
 
     async installBallerina(restartWindow?: boolean) {
+        const ballerinaVersion = await this.getBallerinaVersion;
+
         try {
             // Remove the existing Ballerina version
             fs.rmSync(this.ballerinaInstallationDir, { recursive: true, force: true });
@@ -1215,6 +1228,18 @@ export class BallerinaExtension {
                 }
             }
 
+        });
+    }
+
+    showMessageUpdateBallerina(): any {
+        const update = 'Update';
+        window.showWarningMessage(UPDATE_BALLERINA_VERSION, update).then(selection => {
+            if (selection === update) {
+                const terminal = window.createTerminal('Update Ballerina');
+                terminal.show();
+                terminal.sendText('sudo bal dist update');
+                window.showInformationMessage('Ballerina update started. Please wait...');
+            }
         });
     }
 
