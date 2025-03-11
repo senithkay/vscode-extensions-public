@@ -82,7 +82,7 @@ export function AIAgentDesigner(props: AIAgentDesignerProps) {
     const [showFunctionConfigForm, setShowFunctionConfigForm] = useState<boolean>(false);
     const [projectListeners, setProjectListeners] = useState<ProjectStructureArtifactResponse[]>([]);
 
-    const supportedServiceTypes = ['http', 'ai.agent'];
+    const supportedServiceTypes = ["http", "ai.agent"];
 
     useEffect(() => {
         fetchService();
@@ -164,7 +164,7 @@ export function AIAgentDesigner(props: AIAgentDesignerProps) {
         const listener = serviceModel.properties?.listener?.value?.trim();
         const commands = ["kolab.tryit", false, undefined, { basePath, listener }];
         rpcClient.getCommonRpcClient().executeCommand({ commands });
-    }
+    };
 
     const findIcon = (label: string) => {
         label = label.toLowerCase();
@@ -219,8 +219,17 @@ export function AIAgentDesigner(props: AIAgentDesignerProps) {
                             <Icon name="bi-edit" sx={{ marginRight: 8, fontSize: 16 }} /> Edit
                         </VSCodeButton>
                         {serviceModel && supportedServiceTypes.includes(serviceModel.moduleName) && (
-                            <VSCodeButton appearance="secondary" title="Try Service" onClick={handleServiceTryIt}>
-                                <Icon name="play" isCodicon={true} sx={{ marginRight: 8, fontSize: 16 }} /> Try It
+                            <VSCodeButton
+                                appearance="secondary"
+                                title={serviceModel.moduleName === "ai.agent" ? "Chat with Agent" : "Try Service"}
+                                onClick={handleServiceTryIt}
+                            >
+                                <Icon
+                                    name={serviceModel.moduleName === "ai.agent" ? "comment-discussion" : "play"}
+                                    isCodicon={true}
+                                    sx={{ marginRight: 8, fontSize: 16 }}
+                                />{" "}
+                                {serviceModel.moduleName === "ai.agent" ? "Chat" : "Try It"}
                             </VSCodeButton>
                         )}
                     </>
@@ -279,12 +288,17 @@ export function AIAgentDesigner(props: AIAgentDesignerProps) {
                                         </InfoSection>
                                     ))}
 
-                            {serviceModel.functions
-                                .map((functionModel, index) => (
-                                    <VSCodeButton appearance="icon" onClick={() => { handleFunctionEdit(functionModel) }}>
-                                        <Codicon name="edit" sx={{ marginRight: 8, fontSize: 16 }} />Configure Chat Flow
-                                    </VSCodeButton>
-                                ))}
+                            {serviceModel.functions.map((functionModel, index) => (
+                                <VSCodeButton
+                                    appearance="icon"
+                                    onClick={() => {
+                                        handleFunctionEdit(functionModel);
+                                    }}
+                                >
+                                    <Codicon name="edit" sx={{ marginRight: 8, fontSize: 16 }} />
+                                    Configure Chat Flow
+                                </VSCodeButton>
+                            ))}
                         </InfoContainer>
                         {/* TODO: Add the AI Agent Config Form here */}
                     </>
