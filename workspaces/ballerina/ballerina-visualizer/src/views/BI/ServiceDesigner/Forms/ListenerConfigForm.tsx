@@ -58,23 +58,23 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const [recordTypeFields, setRecordTypeFields] = useState<RecordTypeField[]>([]);
 
     useEffect(() => {
-        const recordTypeFields: { key: string; property: Property; recordTypeMembers: PropertyTypeMemberInfo[] }[] = Object.entries(listenerModel.properties)
-        .filter(([_, property]) =>
-            property.typeMembers &&
-            property.typeMembers.some(member => member.kind === "RECORD_TYPE")
-        )
-        .map(([key, property]) => ({
-            key,
-            property: {
-                ...property,
-                metadata: {
-                    label: property.metadata?.label || key,
-                    description: property.metadata?.description || ''
-                },
-                valueType: property?.valueType || 'string'
-            } as Property,
-            recordTypeMembers: property.typeMembers.filter(member => member.kind === "RECORD_TYPE")
-        }));
+        const recordTypeFields: RecordTypeField[] = Object.entries(listenerModel.properties)
+            .filter(([_, property]) =>
+                property.typeMembers &&
+                property.typeMembers.some(member => member.kind === "RECORD_TYPE")
+            )
+            .map(([key, property]) => ({
+                key,
+                property: {
+                    ...property,
+                    metadata: {
+                        label: property.metadata?.label || key,
+                        description: property.metadata?.description || ''
+                    },
+                    valueType: property?.valueType || 'string'
+                } as Property,
+                recordTypeMembers: property.typeMembers.filter(member => member.kind === "RECORD_TYPE")
+            }));
         console.log(">>> recordTypeFields", recordTypeFields);
         setRecordTypeFields(recordTypeFields);
 

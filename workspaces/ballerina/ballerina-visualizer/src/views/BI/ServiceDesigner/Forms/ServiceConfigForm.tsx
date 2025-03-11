@@ -71,23 +71,23 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const editTitle = `Update the configuration details for the ${serviceModel.displayAnnotation.label} as needed.`
 
     useEffect(() => {
-        const recordTypeFields: { key: string; property: Property; recordTypeMembers: PropertyTypeMemberInfo[] }[] = Object.entries(serviceModel.properties)
-        .filter(([_, property]) =>
-            property.typeMembers &&
-            property.typeMembers.some(member => member.kind === "RECORD_TYPE")
-        )
-        .map(([key, property]) => ({
-            key,
-            property: {
-                ...property,
-                metadata: {
-                    label: property.metadata?.label || key,
-                    description: property.metadata?.description || ''
-                },
-                valueType: property?.valueType || 'string'
-            } as Property,
-            recordTypeMembers: property.typeMembers.filter(member => member.kind === "RECORD_TYPE")
-        }));
+        const recordTypeFields: RecordTypeField[] = Object.entries(serviceModel.properties)
+            .filter(([_, property]) =>
+                property.typeMembers &&
+                property.typeMembers.some(member => member.kind === "RECORD_TYPE")
+            )
+            .map(([key, property]) => ({
+                key,
+                property: {
+                    ...property,
+                    metadata: {
+                        label: property.metadata?.label || key,
+                        description: property.metadata?.description || ''
+                    },
+                    valueType: property?.valueType || 'string'
+                } as Property,
+                recordTypeMembers: property.typeMembers.filter(member => member.kind === "RECORD_TYPE")
+            }));
         console.log(">>> recordTypeFields of serviceModel", recordTypeFields);
         setRecordTypeFields(recordTypeFields);
 
