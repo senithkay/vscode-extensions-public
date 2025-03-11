@@ -8,10 +8,10 @@
  */
 
 import { useEffect, useState } from 'react';
-import { AgentTool, AgentToolRequest, AIAgentRequest, CodeData, EVENT_TYPE, ListenerModel, ListenersResponse, NodePosition, PropertyModel, ServiceModel, TriggerModelsResponse } from '@wso2-enterprise/ballerina-core';
-import { Dropdown, Icon, OptionProps, RadioButtonGroup, Stepper, Typography, View, ViewContent } from '@wso2-enterprise/ui-toolkit';
+import { AgentToolRequest, AIAgentRequest, CodeData, EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/ballerina-core';
+import { Dropdown, RadioButtonGroup, Stepper, Typography, View, ViewContent } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
-import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { BallerinaRpcClient, useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import AgentConfigForm from './Forms/AgentConfigForm';
 import { LoadingContainer } from '../../styles';
 import { TitleBar } from '../../../components/TitleBar';
@@ -25,25 +25,6 @@ import { convertConfig } from '../../../utils/bi';
 import { FormHeader } from '../../../components/FormHeader';
 import { RelativeLoader } from '../../../components/RelativeLoader';
 import { AIAgentSidePanel } from './AIAgentSidePanel';
-
-const FORM_WIDTH = 600;
-
-const FormContainer = styled.div`
-    padding-top: 15px;
-    padding-bottom: 15px;
-`;
-
-
-const ContainerX = styled.div`
-    padding: 0 20px 20px;
-    max-width: 600px;
-    > div:last-child {
-        padding: 20px 0;
-        > div:last-child {
-            justify-content: flex-start;
-        }
-    }
-`;
 
 const Container = styled.div`
     display: "flex";
@@ -59,26 +40,6 @@ const BottomMarginTextWrapper = styled.div`
     margin-bottom: 10px;
 `;
 
-const HorizontalCardContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-`;
-
-const IconWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-`;
-
-const ButtonWrapper = styled.div`
-    max-width: 600px;
-    display: flex;
-    gap: 10px;
-    justify-content: right;
-`;
-
 const StepperContainer = styled.div`
     margin-top: 16px;
     margin-left: 16px;
@@ -91,37 +52,45 @@ const ChoiceSection = styled.div`
 `;
 
 const ChoicePaddingSection = styled.div`
-    padding: 16px;
+    padding: 16px 16px 0 16px;
 `;
 
+const LoaderContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+`;
+
+interface NodeTarget {
+    filePath?: string;
+    position?: {
+        line: number;
+        offset: number;
+    };
+}
+
 interface AIAgentWizardProps {
+    target: NodeTarget;
     hideTitleBar?: boolean;
     onSave?: (agentName: string) => void;
 }
 
 export function AIAgentWizard(props: AIAgentWizardProps) {
-    const { hideTitleBar, onSave } = props;
+    const { target, hideTitleBar, onSave } = props;
     const { rpcClient } = useRpcContext();
+
     const [filePath, setFilePath] = useState<string>("");
-
     const [step, setStep] = useState<number>(0);
-
-
     const [modelState, setModelState] = useState<number>(1); // 1 = New | 2 = Existing
-
     const [openToolsForm, setOpenToolsForm] = useState<boolean>(false);
-
     const [agentFields, setAgentFields] = useState<FormField[]>([]);
     const [modelFields, setModelFields] = useState<FormField[]>([]);
     const [toolsFields, setToolsFields] = useState<FormField[]>([]);
-
     const [existingModels, setExistingModel] = useState<string[]>([]);
-
     const [newModels, setNewModels] = useState<CodeData[]>([]);
     const [selectedNewModel, setSelectedNewModel] = useState<string>("");
-
     const [newTools, setNewTools] = useState<AgentToolRequest[]>([]);
-
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [fetching, setFetching] = useState<boolean>(false);
     const [loadingMsg, setLoadingMsg] = useState<string>("Loading AI Agent...");
@@ -132,18 +101,9 @@ export function AIAgentWizard(props: AIAgentWizardProps) {
         });
     }, []);
 
-
-    const getNodeTemplate = async (codeData: CodeData, filePath: string) => {
-        const res = await rpcClient
-            .getBIDiagramRpcClient()
-            .getNodeTemplate({
-                position: { line: 0, offset: 0 },
-                filePath: filePath,
-                id: codeData,
-            });
-        const flowNode = res.flowNode;
-        return flowNode;
-    }
+    useEffect(() => {
+        console.log("xxx openToolsForm changed to:", openToolsForm);
+    }, [openToolsForm]);
 
     useEffect(() => {
         if (filePath) {
@@ -165,6 +125,17 @@ export function AIAgentWizard(props: AIAgentWizardProps) {
         }
     }, [modelState, selectedNewModel]);
 
+    const getNodeTemplate = async (codeData: CodeData, filePath: string) => {
+        const res = await rpcClient
+            .getBIDiagramRpcClient()
+            .getNodeTemplate({
+                position: { line: 0, offset: 0 },
+                filePath: filePath,
+                id: codeData,
+            });
+        const flowNode = res.flowNode;
+        return flowNode;
+    }
 
     const setupAgentFields = async () => {
         setIsLoading(true);
@@ -180,7 +151,6 @@ export function AIAgentWizard(props: AIAgentWizardProps) {
         const newModels = await rpcClient.getAIAgentRpcClient().getAllModels({ agent: fixedAgent.object, filePath })
         console.log("Get newModels ", newModels);
         setNewModels(newModels.models);
-
 
         const nodeModel = await getNodeTemplate(fixedAgent, filePath);
         console.log("AI Agent node template: ", nodeModel);
@@ -252,6 +222,7 @@ export function AIAgentWizard(props: AIAgentWizardProps) {
         setModelFields(value);
         setStep(2);
     }
+
     const handleFinish = async (value: FormField[]) => {
         console.log("toolsFields ", value);
         const selectedTools = value.at(0).value as string[];
@@ -268,13 +239,16 @@ export function AIAgentWizard(props: AIAgentWizardProps) {
         const response = await rpcClient.getAIAgentRpcClient().createAIAgent(req);
         console.log("Response: ", response)
 
+        // Call the function to add agent call statement
+        if (target.filePath && target.position) {
+            await addAgentCallStatement(rpcClient, target, agentFields);
+        }
+
         // Redirect to relevant page
         rpcClient.getVisualizerRpcClient().goBack();
     }
 
-    useEffect(() => {
-        console.log("xxx openToolsForm changed to:", openToolsForm);
-    }, [openToolsForm]);
+    
 
     const handleToolCreationSidePanel = (data: AgentToolRequest) => {
         setNewTools([...newTools, data]);
@@ -318,14 +292,14 @@ export function AIAgentWizard(props: AIAgentWizardProps) {
                     {!isLoading && step === 1 &&
                         <>
                             <ChoiceSection>
-                                <FormHeader title={`Configure LLM Model`} subtitle={`Choose a foundation model or reuse an existing configuration.`} />
+                                <FormHeader title={`Configure LLM Model`} subtitle={`Choose a foundation model or reuse an existing model.`} />
                                 <ChoicePaddingSection>
                                     <RadioButtonGroup
                                         id="model-options"
                                         defaultValue={1}
                                         defaultChecked={true}
                                         value={modelState}
-                                        options={[{ value: 1, content: "Create New Model" }, { value: 2, content: "Use Existing Model" }]}
+                                        options={[{ value: 1, content: "Create Model Connection" }, { value: 2, content: "Use Existing Model Connection" }]}
                                         onChange={(e) => {
                                             const checkedValue = Number(e.target.value);
                                             setModelState(checkedValue);
@@ -339,11 +313,11 @@ export function AIAgentWizard(props: AIAgentWizardProps) {
                                                 isRequired
                                                 errorMsg=""
                                                 id="drop-down"
-                                                items={[{ value: "- Select -" }, ...newModels.map((model) => ({ value: model.object, content: model.object }))]}
-                                                label="Select AI Model"
-                                                description={"Available AI Models"}
+                                                items={[{ value: "Select a model...", content: "Select a model..." }, ...newModels.map((model) => ({ value: model.object, content: model.object }))]}
+                                                label="Select Model Family"
+                                                description={"Available Model Families"}
                                                 onValueChange={(value: string) => {
-                                                    if (value === "Select Model") {
+                                                    if (value === "Select a model...") {
                                                         return; // Skip the init option
                                                     }
                                                     setSelectedNewModel(value)
@@ -353,7 +327,9 @@ export function AIAgentWizard(props: AIAgentWizardProps) {
                                             />
                                         </ChoicePaddingSection>
                                         {fetching &&
-                                            <RelativeLoader message={"Fetching Model Form"} />
+                                            <LoaderContainer>
+                                                <RelativeLoader message={"Fetching Model Form"} />
+                                            </LoaderContainer>
                                         }
                                         {!fetching && selectedNewModel &&
                                             <ModelConfigForm formFields={modelFields} onSubmit={handleModelConfigFormSubmit} onBack={() => setStep(0)} />
@@ -380,9 +356,9 @@ export function AIAgentWizard(props: AIAgentWizardProps) {
                     {!isLoading && step === 2 &&
                         <>
                             {fetching &&
-                                <BottomMarginTextWrapper>
+                                <LoaderContainer>
                                     <RelativeLoader message={"Loading tools.."} />
-                                </BottomMarginTextWrapper>
+                                </LoaderContainer>
                             }
                             {!fetching && <ToolsConfigForm formFields={toolsFields} onSubmit={handleFinish} openToolsForm={handleToolFormOpen} onBack={() => setStep(1)} formSubmitText="Finish" />}
                             {!fetching && <AIAgentSidePanel projectPath={filePath} showSidePanel={openToolsForm} onSubmit={handleToolCreationSidePanel} onBack={handleOnToolFormBack} />}
@@ -395,3 +371,82 @@ export function AIAgentWizard(props: AIAgentWizardProps) {
 
     );
 };
+
+// TODO: Move this logic to LS
+export async function addAgentCallStatement(rpcClient: BallerinaRpcClient, target: NodeTarget, agentFields: FormField[]) {
+    try {
+        // Validate input parameters
+        if (!rpcClient || !target || !target.filePath || !target.position || !agentFields || agentFields.length === 0) {
+            console.error("Invalid parameters for addAgentCallStatement");
+            return null;
+        }
+
+        // Get agent variable name and validate
+        const agentVarName = agentFields.find(field => field.key === "variable")?.value as string;
+        if (!agentVarName) {
+            console.error("Agent variable name not found in agent fields");
+            return null;
+        }
+
+        // add agent call statement
+        // get the node template for agent call
+        const agentCallNode = await rpcClient.getBIDiagramRpcClient().getNodeTemplate({
+            position: target.position,
+            filePath: target.filePath,
+            id: {
+                module: "ai.agent",
+                node: "AGENT_CALL",
+                object: "Agent",
+                org: "ballerinax",
+                parentSymbol: agentVarName,
+                symbol: "run",
+            },
+        });
+        if (!agentCallNode || !agentCallNode.flowNode || !agentCallNode.flowNode.properties) {
+            console.error("Invalid agent call node template response", agentCallNode);
+            return null;
+        }
+        console.log(">>> Agent Call node template: ", agentCallNode);
+        
+        // fill connection and query fields - with validation
+        const properties = agentCallNode.flowNode.properties;
+        if (!properties.connection) {
+            console.error("Connection field not found in node properties");
+            return null;
+        }
+        
+        const connectionField = properties.connection;
+        connectionField.value = agentVarName;
+        
+        if (properties.query) {
+            const queryField = properties.query as any;
+            queryField.value = "";
+        }
+
+        if (!agentCallNode.flowNode.codedata) {
+            console.error("Codedata not found in flowNode");
+            return null;
+        }
+
+        agentCallNode.flowNode.codedata.lineRange = {
+            fileName: target.filePath,
+            startLine: { line: target.position.line, offset: target.position.offset },
+            endLine: { line: target.position.line, offset: target.position.offset },
+        }
+        
+        console.log(">>> Agent Call node template after modifications: ", agentCallNode);
+        
+        // call getSourceCode
+        const sourceCode = await rpcClient.getBIDiagramRpcClient().getSourceCode({
+            filePath: target.filePath,
+            flowNode: agentCallNode.flowNode,
+            isConnector: false,
+        });
+        
+        console.log(">>> Source Code: ", sourceCode);
+        return sourceCode;
+    } catch (error) {
+        console.error("Error in addAgentCallStatement:", error);
+        return null;
+    }
+}

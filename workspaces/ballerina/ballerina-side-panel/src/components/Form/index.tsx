@@ -28,12 +28,15 @@ import { formatJSONLikeString } from "./utils";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 namespace S {
-    export const Container = styled(SidePanelBody) <{ nestedForm?: boolean }>`
+    export const Container = styled(SidePanelBody) <{ nestedForm?: boolean, compact?: boolean }>`
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: ${({ compact }) => (compact ? "8px" : "20px")};
         height: ${({ nestedForm }) => nestedForm ? 'unset' : 'calc(100vh - 100px)'};
         overflow-y: ${({ nestedForm }) => nestedForm ? 'visible' : 'scroll'};
+        & > :last-child {
+            margin-top: ${({ compact }) => (compact ? "12px" : "0")};
+        }
     `;
 
     export const Row = styled.div<{}>`
@@ -52,7 +55,7 @@ namespace S {
         gap: 12px;
         width: 100%;
         margin-top: 8px;
-        padding-bottom: 14px;
+        padding-bottom: ${({ showBorder }) => (showBorder ? "14px" : "0")};
         border-bottom: ${({ showBorder }) => (showBorder ? `1px solid ${ThemeColors.OUTLINE_VARIANT}` : "none")};
     `;
 
@@ -194,6 +197,7 @@ export interface FormProps {
     recordTypeFields?: RecordTypeField[];
     nestedForm?: boolean;
     disableSaveButton?: boolean;
+    compact?: boolean;
 }
 
 export const Form = forwardRef((props: FormProps, ref) => {
@@ -222,6 +226,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         visualizableFields,
         recordTypeFields,
         nestedForm,
+        compact = false
     } = props;
 
     const {
@@ -472,11 +477,11 @@ export const Form = forwardRef((props: FormProps, ref) => {
     // TODO: support multiple type fields
     return (
         <Provider {...contextValue}>
-            <S.Container nestedForm={nestedForm}>
+            <S.Container nestedForm={nestedForm} compact={compact}>
                 {actionButton && <S.ActionButtonContainer>{actionButton}</S.ActionButtonContainer>}
                 {infoLabel && <S.InfoLabel>{infoLabel}</S.InfoLabel>}
                 {prioritizeVariableField && variableField && (
-                    <S.CategoryRow showBorder={true}>
+                    <S.CategoryRow showBorder={!compact}>
                         {variableField &&
                             <EditorFactory
                                 field={variableField}

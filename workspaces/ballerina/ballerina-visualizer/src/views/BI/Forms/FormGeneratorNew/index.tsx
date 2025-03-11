@@ -66,6 +66,7 @@ interface FormProps {
     resetUpdatedExpressionField?: () => void;
     selectedNode?: NodeKind;
     nestedForm?: boolean;
+    compact?: boolean;
 }
 
 export function FormGeneratorNew(props: FormProps) {
@@ -83,7 +84,8 @@ export function FormGeneratorNew(props: FormProps) {
         updatedExpressionField,
         resetUpdatedExpressionField,
         selectedNode,
-        nestedForm
+        nestedForm,
+        compact = false
     } = props;
 
     const { rpcClient } = useRpcContext();
@@ -494,6 +496,7 @@ export function FormGeneratorNew(props: FormProps) {
                     updatedExpressionField={updatedExpressionField}
                     resetUpdatedExpressionField={resetUpdatedExpressionField}
                     selectedNode={selectedNode}
+                    compact={compact}
                 />
             )}
             {typeEditorState.isOpen && (

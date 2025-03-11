@@ -260,7 +260,7 @@ const MainPanel = () => {
                         setViewComponent(<ServiceWizard type={value.serviceType} />);
                         break;
                     case MACHINE_VIEW.AIAgentWizard:
-                        setViewComponent(<AIAgentWizard />);
+                        setViewComponent(<AIAgentWizard target={{ filePath: value.documentUri, position: value.metadata.target }} />);
                         break;
                     case MACHINE_VIEW.AIAgentEditView:
                         setViewComponent(<AIAgentEditView agentName={value.identifier} />);
