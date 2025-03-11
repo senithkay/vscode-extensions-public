@@ -257,7 +257,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             const serviceFile = path.join(StateMachine.context().projectUri, `main.bal`);
             const serviceEdit = new WorkspaceEdit();
             const serviceSourceCode = `        return error("Not implemented");
-`;
+    `;
             serviceEdit.insert(Uri.file(serviceFile), new Position(injectionPosition.line, 0), serviceSourceCode);
             await workspace.applyEdit(serviceEdit);
         }

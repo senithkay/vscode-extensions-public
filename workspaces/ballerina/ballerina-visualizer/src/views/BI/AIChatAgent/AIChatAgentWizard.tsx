@@ -106,6 +106,7 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
     const [isCreating, setIsCreating] = useState<boolean>(false);
     const [currentStep, setCurrentStep] = useState<number>(0);
     const steps = [
+        { label: "Creating Agent", description: "Creating the AI chat agent" },
         { label: "Initializing", description: "Setting up the agent configuration" },
         { label: "Creating Listener", description: "Configuring the service listener" },
         { label: "Creating Service", description: "Setting up the AI chat service" },
@@ -209,8 +210,9 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
         } catch (error) {
             console.error("Error creating AI Chat Agent:", error);
             setIsCreating(false);
-        } finally {
             setCurrentStep(0);
+        } finally {
+
         }
     }
 
@@ -219,34 +221,43 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
             <TopNavigationBar />
             <TitleBar title="AI Chat Agent" subtitle="" />
             <ViewContent>
-                <FormContainer>
-                    <FormHeader
-                        title="Create AI Chat Agent"
-                        subtitle="Create a chattable AI agent using an LLM, prompts and tools."
-                    />
-                    <FormFields>
-                        <TextField
-                            label="Name"
-                            description="Agent will be identified by this name. Cannot contain spaces or dashes, and cannot start with a number."
-                            value={agentName}
-                            onChange={(e) => {
-                                setAgentName(e.target.value);
-                                validateName(e.target.value);
-                            }}
-                            errorMsg={nameError}
+                {currentStep === 0 &&
+                    <FormContainer>
+                        <FormHeader
+                            title="Create AI Chat Agent"
+                            subtitle="Create a chattable AI agent using an LLM, prompts and tools."
                         />
-                        <ButtonContainer>
-                            <Button
-                                appearance="primary"
-                                onClick={handleCreateService}
-                                disabled={isCreating || !!nameError || !agentName}
-                            >
-                                {isCreating ? 'Creating...' : 'Create'}
-                            </Button>
-                            <Button appearance="secondary">Cancel</Button>
-                        </ButtonContainer>
-                    </FormFields>
-                </FormContainer>
+                        <FormFields>
+                            <TextField
+                                label="Name"
+                                description="Agent will be identified by this name. Cannot contain spaces or dashes, and cannot start with a number."
+                                value={agentName}
+                                onChange={(e) => {
+                                    setAgentName(e.target.value);
+                                    validateName(e.target.value);
+                                }}
+                                errorMsg={nameError}
+                            />
+                            <ButtonContainer>
+                                <Button
+                                    appearance="primary"
+                                    onClick={handleCreateService}
+                                    disabled={isCreating || !!nameError || !agentName}
+                                >
+                                    {isCreating ? 'Creating...' : 'Create'}
+                                </Button>
+                                <Button appearance="secondary">Cancel</Button>
+                            </ButtonContainer>
+                        </FormFields>
+                    </FormContainer>
+                }
+                {currentStep !== 0 &&
+                    <Container>
+                        <LoadingContainer>
+                            <LoadingRing message={steps[currentStep].description} />
+                        </LoadingContainer>
+                    </Container>
+                }
             </ViewContent>
         </View>
     );
