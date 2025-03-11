@@ -145,7 +145,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                             <BodyText>
                                 {formSubmitText === "Save" ? editTitle : createTitle}
                             </BodyText> */}
-                            <FormHeader title={`${serviceModel.displayAnnotation.label} Configuration`} subtitle={`${formSubmitText === "Save" ? editTitle : createTitle}`} />
+                            <FormHeader title={`${serviceModel.displayAnnotation.label} Configuration`} />
                             {filePath && targetLineRange &&
                                 <FormGeneratorNew
                                     fileName={filePath}
