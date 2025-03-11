@@ -29,15 +29,15 @@ export class NLCodeActionProvider implements vscode.CodeActionProvider {
                 const customDiagnostic = diagnostic as CustomDiagnostic;
 
                 if (customDiagnostic.data.id == DRIFT_DIAGNOSTIC_ID){
-                    const codeChangeSolution = customDiagnostic.data.codeChangeSolution;
+                    const implementationChangeSolution = customDiagnostic.data.implementationChangeSolution;
                     const docChangeSolution = customDiagnostic.data.docChangeSolution;
 
-                    if (codeChangeSolution != null && codeChangeSolution != undefined && codeChangeSolution != "") {
+                    if (implementationChangeSolution != null && implementationChangeSolution != undefined && implementationChangeSolution != "") {
                         const replaceAction = new vscode.CodeAction(UPDATE_CODE_ACTION_CONTENT, vscode.CodeActionKind.QuickFix);
                         replaceAction.command = {
                             command: COMMAND_SHOW_TEXT,
                             title: UPDATE_CODE_ACTION_CONTENT,
-                            arguments: [document, customDiagnostic, customDiagnostic.data.codeChangeSolution, diagnostic.range]
+                            arguments: [document, customDiagnostic, customDiagnostic.data.implementationChangeSolution, diagnostic.range]
                         };
                         actions.push(replaceAction);
                     }
