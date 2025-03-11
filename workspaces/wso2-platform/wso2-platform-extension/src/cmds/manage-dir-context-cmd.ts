@@ -12,8 +12,8 @@ import { type ExtensionContext, ProgressLocation, type QuickPickItem, QuickPickI
 import { ext } from "../extensionVariables";
 import { authStore } from "../stores/auth-store";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
-import { removeContext } from "./create-directory-context-cmd";
 import { webviewStateStore } from "../stores/webview-state-store";
+import { removeContext } from "./create-directory-context-cmd";
 
 export function manageProjectContextCommand(context: ExtensionContext) {
 	context.subscriptions.push(

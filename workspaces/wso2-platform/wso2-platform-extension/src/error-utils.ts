@@ -16,6 +16,7 @@ import { authStore } from "./stores/auth-store";
 import { webviewStateStore } from "./stores/webview-state-store";
 
 export function handlerError(err: any) {
+	const extensionName = webviewStateStore.getState().state.extensionName;
 	if (err instanceof ResponseError) {
 		switch (err.code) {
 			case ErrorCode.ParseError:
@@ -103,15 +104,14 @@ export function handlerError(err: any) {
 				);
 				break;
 			case ErrorCode.NoOrgsAvailable:
-				const extensionName = webviewStateStore.getState().state.extensionName;
 				w.showErrorMessage(
 					`No organizations attached to the user. Please create an organization in ${extensionName} and try logging in again`,
 					`Open ${extensionName} Console`,
 				).then((res) => {
 					if (res === `Open ${extensionName} Console`) {
-						if(extensionName === "Devant"){
+						if (extensionName === "Devant") {
 							commands.executeCommand("vscode.open", choreoEnvConfig.getDevantUrl());
-						}else{
+						} else {
 							commands.executeCommand("vscode.open", choreoEnvConfig.getConsoleUrl());
 						}
 					}

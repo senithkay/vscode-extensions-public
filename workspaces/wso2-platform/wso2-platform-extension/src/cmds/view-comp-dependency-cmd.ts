@@ -32,11 +32,16 @@ export function viewComponentDependencyCommand(context: ExtensionContext) {
 					if (userInfo) {
 						const selected = contextStore.getState().state.selected;
 						if (!selected?.org || !selected.project) {
-							window.showInformationMessage(`This directory has not yet been linked to a ${webviewStateStore.getState().state.extensionName} project`, "Link Directory").then((res) => {
-								if (res === "Link Directory") {
-									commands.executeCommand(CommandIds.CreateDirectoryContext);
-								}
-							});
+							window
+								.showInformationMessage(
+									`This directory has not yet been linked to a ${webviewStateStore.getState().state.extensionName} project`,
+									"Link Directory",
+								)
+								.then((res) => {
+									if (res === "Link Directory") {
+										commands.executeCommand(CommandIds.CreateDirectoryContext);
+									}
+								});
 							return;
 						}
 

@@ -218,7 +218,7 @@ async function ensureBallerinaFilesIfEmpty(
 			"utf8",
 		);
 		if (integrationDisplayType) {
-			const scopeVal = integrationDisplayType.toLowerCase().replaceAll(" ","-")
+			const scopeVal = integrationDisplayType.toLowerCase().replaceAll(" ", "-");
 			if (!existsSync(join(directoryPath, ".vscode"))) {
 				mkdirSync(join(directoryPath, ".vscode"));
 			}

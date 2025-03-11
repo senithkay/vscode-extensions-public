@@ -18,6 +18,7 @@ import {
 	type SubmitComponentCreateReq,
 	type WorkspaceConfig,
 	getComponentTypeText,
+	getIntegrationComponentTypeText,
 } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, ProgressLocation, type QuickPickItem, Uri, commands, window, workspace } from "vscode";
 import { choreoEnvConfig } from "../config";
@@ -26,6 +27,7 @@ import { getGitRoot } from "../git/util";
 import { authStore } from "../stores/auth-store";
 import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
+import { webviewStateStore } from "../stores/webview-state-store";
 import { convertFsPathToUriPath, delay, getSubPath, goTosource, isSubpath, openDirectory } from "../utils";
 import { showComponentDetailsView } from "../webviews/ComponentDetailsView";
 import { ComponentFormView, type IComponentCreateFormParams } from "../webviews/ComponentFormView";
@@ -39,6 +41,9 @@ export function createNewComponentCommand(context: ExtensionContext) {
 		commands.registerCommand(CommandIds.CreateNewComponent, async (params: ICreateComponentParams) => {
 			try {
 				const userInfo = await getUserInfoForCmd("create a component");
+				if (params.isIntegration) {
+					webviewStateStore.getState().setExtensionName("Devant");
+				}
 				if (userInfo) {
 					const selected = contextStore.getState().state.selected;
 					let selectedProject = selected?.project;
@@ -56,19 +61,37 @@ export function createNewComponentCommand(context: ExtensionContext) {
 					}
 
 					let selectedType: string | undefined = params?.type;
-					if (!selectedType) {
-						const typeQuickPicks: (QuickPickItem & { value: string })[] = [
-							{ label: getComponentTypeText(ChoreoComponentType.Service), value: ChoreoComponentType.Service },
-							{ label: getComponentTypeText(ChoreoComponentType.WebApplication), value: ChoreoComponentType.WebApplication },
-							{ label: getComponentTypeText(ChoreoComponentType.ScheduledTask), value: ChoreoComponentType.ScheduledTask },
-							{ label: getComponentTypeText(ChoreoComponentType.ManualTrigger), value: ChoreoComponentType.ManualTrigger },
-						];
+
+					const componentTypes: string[] = [];
+					if (params?.isIntegration) {
+						componentTypes.push(ChoreoComponentType.ScheduledTask, ChoreoComponentType.Service);
+					} else {
+						componentTypes.push(
+							ChoreoComponentType.Service,
+							ChoreoComponentType.WebApplication,
+							ChoreoComponentType.ScheduledTask,
+							ChoreoComponentType.ManualTrigger,
+						);
 						const isProxyCreateEnabled = workspace.getConfiguration().get<boolean>("WSO2.WSO2-Platform.FeaturePreview.ProxyCreation");
 						if (isProxyCreateEnabled) {
-							// check proxy item order from console, when adding it back
-							typeQuickPicks.push({ label: getComponentTypeText(ChoreoComponentType.ApiProxy), value: ChoreoComponentType.ApiProxy });
+							componentTypes.push(ChoreoComponentType.ApiProxy);
 						}
-						const selectedTypePick = await window.showQuickPick(typeQuickPicks, { title: "Select Component Type" });
+					}
+
+					if (selectedType && !componentTypes.includes(selectedType)) {
+						selectedType = "";
+					}
+
+					if (!selectedType) {
+						// todo: change these options if isIntegration
+						const typeQuickPicks: (QuickPickItem & { value: string })[] = componentTypes.map((item) => ({
+							label: params?.isIntegration ? getIntegrationComponentTypeText(item) : getComponentTypeText(item),
+							value: item,
+						}));
+
+						const selectedTypePick = await window.showQuickPick(typeQuickPicks, {
+							title: `Select ${params?.isIntegration ? "Integration" : "Component"} Type`,
+						});
 						if (selectedTypePick?.value) {
 							selectedType = selectedTypePick?.value;
 						}
@@ -155,6 +178,7 @@ export const continueCreateComponent = () => {
 };
 
 export const submitCreateComponentHandler = async ({ createParams, org, project }: SubmitComponentCreateReq) => {
+	const extensionName = webviewStateStore.getState().state?.extensionName;
 	const createdComponent = await window.withProgress(
 		{
 			title: `Creating new component ${createParams.displayName}...`,
@@ -188,15 +212,20 @@ export const submitCreateComponentHandler = async ({ createParams, org, project 
 		}
 		*/
 
-		// showComponentDetailsView(org, project, createdComponent, createParams?.componentDir);
-		// Showing a notification message instead of opening the created component details in WSO2 platform
+		if (extensionName !== "Devant") {
+			showComponentDetailsView(org, project, createdComponent, createParams?.componentDir);
+		}
+
 		window
-			.showInformationMessage(`Integration '${createdComponent.metadata.name}', was successfully created`, "Open in Devant")
+			.showInformationMessage(
+				`${extensionName === "Devant" ? "Integration" : "Component"} '${createdComponent.metadata.name}' was successfully created`,
+				`Open in ${extensionName}`,
+			)
 			.then(async (resp) => {
-				if (resp === "Open in Devant") {
+				if (resp === `Open in ${extensionName}`) {
 					commands.executeCommand(
 						"vscode.open",
-						`${choreoEnvConfig.getDevantUrl()}/organizations/${org.handle}/projects/${project.id}/components/${createdComponent.metadata.handler}/overview`,
+						`${extensionName === "Devant" ? choreoEnvConfig.getDevantUrl() : choreoEnvConfig.getConsoleUrl()}/organizations/${org.handle}/projects/${project.id}/components/${createdComponent.metadata.handler}/overview`,
 					);
 				}
 			});

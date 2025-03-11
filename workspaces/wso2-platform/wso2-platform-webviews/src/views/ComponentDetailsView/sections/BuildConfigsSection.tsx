@@ -16,6 +16,7 @@ import {
 	getTypeForDisplayType,
 } from "@wso2-enterprise/wso2-platform-core";
 import React, { type FC } from "react";
+import { useExtWebviewContext } from "../../../providers/ext-vewview-ctx-provider";
 import { type IRightPanelSectionItem, RightPanelSection, RightPanelSectionItem } from "./RightPanelSection";
 
 export const BuildConfigsSection: FC<{ component: ComponentKind }> = ({ component }) => {
@@ -32,10 +33,11 @@ export const BuildConfigsSection: FC<{ component: ComponentKind }> = ({ componen
 
 const getBuildConfigViewList = (component: ComponentKind): IRightPanelSectionItem[] => {
 	const buildConfigs: IRightPanelSectionItem[] = [];
+	const { extensionName } = useExtWebviewContext();
 
 	const componentBuildPack = getBuildpackForComponent(component);
 	if (componentBuildPack) {
-		buildConfigs.push({ label: "Build Pack", value: componentBuildPack });
+		buildConfigs.push({ label: extensionName === "Devant" ? "Technology" : "Build Pack", value: componentBuildPack });
 	}
 
 	const dirPath = getComponentKindRepoSource(component.spec.source)?.path;

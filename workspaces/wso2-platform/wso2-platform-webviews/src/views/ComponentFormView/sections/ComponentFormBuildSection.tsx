@@ -25,6 +25,7 @@ import { Dropdown } from "../../../components/FormElements/Dropdown";
 import { PathSelect } from "../../../components/FormElements/PathSelect";
 import { TextField } from "../../../components/FormElements/TextField";
 import { useGetBuildPacks } from "../../../hooks/use-queries";
+import { useExtWebviewContext } from "../../../providers/ext-vewview-ctx-provider";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
 import { type componentBuildDetailsSchema, getPossibleBuildPack } from "../componentFormSchema";
 
@@ -41,7 +42,8 @@ interface Props extends NewComponentWebviewProps {
 }
 
 export const ComponentFormBuildSection: FC<Props> = (props) => {
-	const { onBackClick, onNextClick, baseUriPath, gitRoot, subPath, organization, selectedType, form, directoryFsPath } = props;
+	const { onBackClick, onNextClick, initialValues, gitRoot, subPath, organization, selectedType, form, directoryFsPath } = props;
+	const { extensionName } = useExtWebviewContext();
 
 	const [buildConfigSections] = useAutoAnimate();
 
@@ -184,7 +186,7 @@ export const ComponentFormBuildSection: FC<Props> = (props) => {
 		<>
 			<div className="grid gap-4 md:grid-cols-2" ref={buildConfigSections}>
 				<Dropdown
-					label="Build Pack"
+					label={extensionName === "Devant" ? "Technology" : "Build Pack"}
 					required
 					name="buildPackLang"
 					wrapClassName="col-span-full"
@@ -194,7 +196,7 @@ export const ComponentFormBuildSection: FC<Props> = (props) => {
 						value: item.language,
 					}))}
 					loading={isLoadingBuildPacks}
-					disabled={buildpacks.length === 0}
+					disabled={buildpacks.length === 0 || !!initialValues.buildPackLang}
 				/>
 				{buildConfigs}
 				{/** TODO: enable autoBuildOnCommit once its stable */}

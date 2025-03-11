@@ -12,15 +12,15 @@ import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { CommandIds } from "@wso2-enterprise/wso2-platform-core";
 import React, { type FC } from "react";
 import { Button } from "../../components/Button";
-import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 import { useExtWebviewContext } from "../../providers/ext-vewview-ctx-provider";
+import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 
 interface Props {
 	loading?: boolean;
 }
 
 export const NoContextView: FC<Props> = ({ loading }) => {
-	const { extensionName } = useExtWebviewContext()
+	const { extensionName } = useExtWebviewContext();
 	return (
 		<>
 			{loading && <ProgressIndicator />}

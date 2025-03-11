@@ -122,6 +122,19 @@ export const getComponentTypeText = (componentType: string): string => {
 	}
 };
 
+export const getIntegrationComponentTypeText = (componentType: string): string => {
+	switch (componentType) {
+		case ChoreoComponentType.Service:
+			return "Integration as API";
+		case ChoreoComponentType.ManualTrigger:
+			return "Automation";
+		case ChoreoComponentType.ScheduledTask:
+			return "Automation";
+		default:
+			return componentType;
+	}
+};
+
 export const toTitleCase = (str: string): string => {
 	return str
 		?.replaceAll("_", " ")

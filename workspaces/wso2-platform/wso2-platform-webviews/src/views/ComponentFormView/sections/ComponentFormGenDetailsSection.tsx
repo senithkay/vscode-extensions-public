@@ -18,9 +18,9 @@ import { Button } from "../../../components/Button";
 import { Dropdown } from "../../../components/FormElements/Dropdown";
 import { TextField } from "../../../components/FormElements/TextField";
 import { useGetGitBranches } from "../../../hooks/use-queries";
+import { useExtWebviewContext } from "../../../providers/ext-vewview-ctx-provider";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
 import type { componentGeneralDetailsSchema } from "../componentFormSchema";
-import { useExtWebviewContext } from "../../../providers/ext-vewview-ctx-provider";
 
 type ComponentFormGenDetailsType = z.infer<typeof componentGeneralDetailsSchema>;
 
@@ -33,14 +33,13 @@ interface Props extends NewComponentWebviewProps {
 
 export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organization, directoryFsPath, form }) => {
 	const [compDetailsSections] = useAutoAnimate();
-	const { extensionName } = useExtWebviewContext()
-	
+	const { extensionName } = useExtWebviewContext();
+
 	const repoUrl = form.watch("repoUrl");
 	const credential = form.watch("credential");
 	const provider = form.watch("gitProvider");
 
-	const {	
-
+	const {
 		data: gitData,
 		isLoading: isLoadingGitData,
 		refetch: refetchGitData,
@@ -194,7 +193,8 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 			if (isRepoAuthorizedResp?.retrievedRepos) {
 				invalidRepoMsg = (
 					<span>
-						{extensionName} lacks access to the selected repository. <span className="font-thin">(Only public repos are allowed within the free tier.)</span>
+						{extensionName} lacks access to the selected repository.{" "}
+						<span className="font-thin">(Only public repos are allowed within the free tier.)</span>
 					</span>
 				);
 				invalidRepoAction = "Grant Access";

@@ -23,7 +23,7 @@ const defaultContext: {
 const LinkedDirStateContext = React.createContext(defaultContext);
 
 export const useLinkedDirStateContext = () => {
-	return useContext(LinkedDirStateContext);
+	return useContext(LinkedDirStateContext) || defaultContext;
 };
 
 interface Props {

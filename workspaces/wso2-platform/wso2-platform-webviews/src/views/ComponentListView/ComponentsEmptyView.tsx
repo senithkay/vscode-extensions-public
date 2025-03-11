@@ -12,8 +12,8 @@ import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { CommandIds, type ContextItemEnriched } from "@wso2-enterprise/wso2-platform-core";
 import React, { type FC } from "react";
 import { Button } from "../../components/Button";
-import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 import { useExtWebviewContext } from "../../providers/ext-vewview-ctx-provider";
+import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 
 interface Props {
 	loading?: boolean;
@@ -23,15 +23,15 @@ interface Props {
 
 export const ComponentsEmptyView: FC<Props> = ({ items, loading, selected }) => {
 	const manageContext = () => ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.ManageDirectoryContext);
-	const { extensionName } = useExtWebviewContext()
+	const { extensionName } = useExtWebviewContext();
 
 	return (
 		<>
 			{loading && <ProgressIndicator />}
 			<div className="flex w-full flex-col gap-[10px] px-6 py-2">
 				<p>
-					{extensionName} component directories associated with project <VSCodeLink onClick={manageContext}>{selected.project?.name}</VSCodeLink>, are not
-					detected within the current workspace.
+					{extensionName} component directories associated with project <VSCodeLink onClick={manageContext}>{selected.project?.name}</VSCodeLink>, are
+					not detected within the current workspace.
 				</p>
 				<p>Create a new component.</p>
 				<Button

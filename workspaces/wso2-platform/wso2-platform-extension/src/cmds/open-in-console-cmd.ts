@@ -13,8 +13,8 @@ import { choreoEnvConfig } from "../config";
 import { ext } from "../extensionVariables";
 import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
-import { getUserInfoForCmd, quickPickWithLoader, selectOrg, selectProject } from "./cmd-utils";
 import { webviewStateStore } from "../stores/webview-state-store";
+import { getUserInfoForCmd, quickPickWithLoader, selectOrg, selectProject } from "./cmd-utils";
 
 export function openInConsoleCommand(context: ExtensionContext) {
 	context.subscriptions.push(
@@ -46,9 +46,9 @@ export function openInConsoleCommand(context: ExtensionContext) {
 							);
 						}
 					}
-					
+
 					let projectBaseUrl = `${choreoEnvConfig.getConsoleUrl()}/organizations/${selectedOrg?.handle}/projects/${selectedProject.id}`;
-					if(extensionName === 'Devant'){
+					if (extensionName === "Devant") {
 						projectBaseUrl = `${choreoEnvConfig.getDevantUrl()}/organizations/${selectedOrg?.handle}/projects/${selectedProject.id}`;
 					}
 

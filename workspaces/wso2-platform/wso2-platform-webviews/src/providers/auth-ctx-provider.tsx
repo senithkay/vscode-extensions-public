@@ -25,7 +25,7 @@ const defaultContext: IAuthContext = {
 const ChoreoAuthContext = React.createContext(defaultContext);
 
 export const useAuthContext = () => {
-	return useContext(ChoreoAuthContext);
+	return useContext(ChoreoAuthContext) || defaultContext;
 };
 
 interface Props {

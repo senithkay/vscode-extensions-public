@@ -16,6 +16,7 @@ import {
 	type NewComponentWebviewProps,
 	WebAppSPATypes,
 	getComponentTypeText,
+	getIntegrationComponentTypeText,
 } from "@wso2-enterprise/wso2-platform-core";
 import classNames from "classnames";
 import React, { type HTMLProps, type FC, type ReactNode, useMemo } from "react";
@@ -24,6 +25,7 @@ import type { z } from "zod";
 import { Banner } from "../../../components/Banner";
 import { Button } from "../../../components/Button";
 import { queryKeys } from "../../../hooks/use-queries";
+import { useExtWebviewContext } from "../../../providers/ext-vewview-ctx-provider";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
 import type {
 	componentBuildDetailsSchema,
@@ -31,7 +33,6 @@ import type {
 	componentGeneralDetailsSchema,
 	componentGitProxyFormSchema,
 } from "../componentFormSchema";
-import { useExtWebviewContext } from "../../../providers/ext-vewview-ctx-provider";
 
 type ComponentFormGenDetailsType = z.infer<typeof componentGeneralDetailsSchema>;
 type ComponentFormBuildDetailsType = z.infer<typeof componentBuildDetailsSchema>;
@@ -62,7 +63,7 @@ export const ComponentFormSummarySection: FC<Props> = ({
 }) => {
 	const [summaryWrapRef] = useAutoAnimate();
 	const queryClient = useQueryClient();
-	const { extensionName } = useExtWebviewContext()
+	const { extensionName } = useExtWebviewContext();
 
 	const genDetails = genDetailsForm.getValues();
 	const buildDetails = buildDetailsForm.getValues();
@@ -118,7 +119,7 @@ export const ComponentFormSummarySection: FC<Props> = ({
 		}
 		items.push(<ComponentSummaryItem title="Target URL" text={gitProxyDetails?.proxyTargetUrl} className="col-span-2" />);
 	} else if (buildPackName) {
-		items.push(<ComponentSummaryItem title="Build Pack" text={buildPackName} />);
+		items.push(<ComponentSummaryItem title={extensionName === "Devant" ? "Technology" : "Build Pack"} text={buildPackName} />);
 
 		if (
 			[ChoreoBuildPackNames.Ballerina, ChoreoBuildPackNames.MicroIntegrator, ChoreoBuildPackNames.StaticFiles].includes(
@@ -178,7 +179,7 @@ export const ComponentFormSummarySection: FC<Props> = ({
 				className={classNames("grid grid-cols-2 gap-1 md:grid-cols-3 md:gap-2 xl:grid-cols-4 xl:gap-3", isLoadingConfigDriftFiles && "animate-pulse")}
 			>
 				<ComponentSummaryItem title="Name" text={genDetails?.name} />
-				<ComponentSummaryItem title="Type" text={getComponentTypeText(type)} />
+				<ComponentSummaryItem title="Type" text={extensionName === "Devant" ? getIntegrationComponentTypeText(type) : getComponentTypeText(type)} />
 				<ComponentSummaryItem title="Repository" text={genDetails?.repoUrl} className="col-span-2" />
 				<ComponentSummaryItem title="Branch" text={genDetails?.branch} />
 				{genDetails?.subPath && genDetails?.subPath !== "." && <ComponentSummaryItem title="Directory" text={genDetails?.subPath} />}

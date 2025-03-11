@@ -21,6 +21,7 @@ import {
 	type SubmitComponentCreateReq,
 	WebAppSPATypes,
 	getComponentTypeText,
+	getIntegrationComponentTypeText,
 	getRandomNumber,
 	makeURLSafe,
 	parseGitURL,
@@ -31,6 +32,7 @@ import type { z } from "zod";
 import { HeaderSection } from "../../components/HeaderSection";
 import { type StepItem, VerticalStepper } from "../../components/VerticalStepper";
 import { useComponentList } from "../../hooks/use-queries";
+import { useExtWebviewContext } from "../../providers/ext-vewview-ctx-provider";
 import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 import {
 	type componentBuildDetailsSchema,
@@ -66,6 +68,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 	} = props;
 	const type = initialValues?.type;
 	const [formSections] = useAutoAnimate();
+	const { extensionName } = useExtWebviewContext();
 
 	const [stepIndex, setStepIndex] = useState(0);
 
@@ -255,7 +258,22 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 		},
 	];
 
+	let showBuildDetails = false;
 	if (type !== ChoreoComponentType.ApiProxy) {
+		if (!initialValues?.buildPackLang) {
+			showBuildDetails = true;
+		} else {
+			if (initialValues?.buildPackLang === ChoreoBuildPackNames.Ballerina) {
+				showBuildDetails = false;
+			} else if (initialValues?.buildPackLang === ChoreoBuildPackNames.MicroIntegrator) {
+				showBuildDetails = type === ChoreoComponentType.Service;
+			} else {
+				showBuildDetails = true;
+			}
+		}
+	}
+
+	if (showBuildDetails) {
 		steps.push({
 			label: "Build Details",
 			content: (
@@ -325,7 +343,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 		),
 	});
 
-	const componentTypeText = getComponentTypeText(type);
+	const componentTypeText = extensionName === "Devant" ? getIntegrationComponentTypeText(type) : getComponentTypeText(type);
 
 	return (
 		<div className="flex flex-row justify-center p-1 md:p-3 lg:p-4 xl:p-6">

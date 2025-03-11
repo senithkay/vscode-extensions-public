@@ -25,9 +25,9 @@ import { type ExtensionContext, ProgressLocation, Uri, commands, window, workspa
 import { ext } from "../extensionVariables";
 import { getGitRemotes, getGitRoot } from "../git/util";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
+import { webviewStateStore } from "../stores/webview-state-store";
 import { convertFsPathToUriPath, isSubpath, openDirectory } from "../utils";
 import { getUserInfoForCmd, resolveWorkspaceDirectory, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
-import { webviewStateStore } from "../stores/webview-state-store";
 
 export function createDirectoryContextCommand(context: ExtensionContext) {
 	context.subscriptions.push(

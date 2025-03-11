@@ -12,8 +12,8 @@ import { CommandIds } from "@wso2-enterprise/wso2-platform-core";
 import classNames from "classnames";
 import React, { type FC, type HTMLProps } from "react";
 import { Button } from "../../components/Button";
-import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 import { useExtWebviewContext } from "../../providers/ext-vewview-ctx-provider";
+import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 
 interface Props {
 	className?: HTMLProps<HTMLElement>["className"];
@@ -23,7 +23,7 @@ export const SignInView: FC<Props> = ({ className }) => {
 	const { mutate: signInCmd, isLoading: isInitSignIn } = useMutation({
 		mutationFn: async () => ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.SignIn),
 	});
-	const { extensionName } = useExtWebviewContext()
+	const { extensionName } = useExtWebviewContext();
 	return (
 		<div className={classNames("flex w-full flex-col gap-[10px] px-6 py-2", className)}>
 			<p>Sign in to {extensionName} to get started.</p>

@@ -14,12 +14,14 @@ import {
 	type DeploymentTrack,
 	getComponentKindRepoSource,
 	getComponentTypeText,
+	getIntegrationComponentTypeText,
 	getTypeForDisplayType,
 } from "@wso2-enterprise/wso2-platform-core";
 import React, { type FC } from "react";
 import { Button } from "../../../components/Button";
 import { Codicon } from "../../../components/Codicon";
 import { HeaderSection as HeaderSectionView } from "../../../components/HeaderSection";
+import { useExtWebviewContext } from "../../../providers/ext-vewview-ctx-provider";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
 
 export const HeaderSection: FC<
@@ -29,6 +31,7 @@ export const HeaderSection: FC<
 		onChangeDeploymentTrack: () => void;
 	}
 > = ({ allDeploymentTracks, onChangeDeploymentTrack, deploymentTrack, component, organization, project }) => {
+	const { extensionName } = useExtWebviewContext();
 	const openInConsole = () =>
 		ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.OpenInConsole, {
 			component,
@@ -63,11 +66,11 @@ export const HeaderSection: FC<
 	}
 
 	headerLabels.push({ label: "Project", value: project.name }, { label: "Organization", value: organization.name });
-
+	const componentTypeTxt = getTypeForDisplayType(component?.spec?.type);
 	return (
 		<HeaderSectionView
 			title={component.metadata.displayName}
-			secondaryTitle={getComponentTypeText(getTypeForDisplayType(component?.spec?.type))}
+			secondaryTitle={extensionName === "Devant" ? getIntegrationComponentTypeText(componentTypeTxt) : getComponentTypeText(componentTypeTxt)}
 			tags={headerLabels}
 			buttons={[
 				{ label: "Open in Console", onClick: () => openInConsole() },

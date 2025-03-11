@@ -13,9 +13,9 @@ import { type ExtensionContext, ProgressLocation, QuickPickItem, Uri, commands, 
 import { ext } from "../extensionVariables";
 import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
+import { webviewStateStore } from "../stores/webview-state-store";
 import { closeComponentDetailsView } from "../webviews/ComponentDetailsView";
 import { getUserInfoForCmd, selectComponent, selectOrg, selectProject } from "./cmd-utils";
-import { webviewStateStore } from "../stores/webview-state-store";
 
 export function deleteComponentCommand(context: ExtensionContext) {
 	context.subscriptions.push(
