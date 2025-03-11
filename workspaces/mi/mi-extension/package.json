@@ -20,9 +20,6 @@
     "onUri"
   ],
   "main": "./dist/extension.js",
-  "extensionDependencies": [
-    "wso2.wso2-platform"
-  ],
   "contributes": {
     "languages": [
       {
