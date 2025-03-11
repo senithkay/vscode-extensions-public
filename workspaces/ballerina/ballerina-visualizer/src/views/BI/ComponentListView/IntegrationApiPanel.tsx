@@ -14,7 +14,7 @@ import { EVENT_TYPE, MACHINE_VIEW, SCOPE } from '@wso2-enterprise/ballerina-core
 import { CardGrid, PanelViewMore, Title, TitleWrapper } from './styles';
 import { BodyText } from '../../styles';
 import ButtonCard from '../../../components/ButtonCard';
-import { componentListItemTooltip } from './componentListUtils';
+import { OutOfScopeComponentTooltip } from './componentListUtils';
 
 interface IntegrationAPIPanelProps {
     scope: SCOPE;
@@ -50,7 +50,7 @@ export function IntegrationAPIPanel(props: IntegrationAPIPanelProps) {
                         // description="Handle web requests and responses."
                         onClick={() => handleClick("http")}
                         disabled={isDisabled}
-                        tooltip={componentListItemTooltip(isDisabled)}
+                        tooltip={isDisabled ? OutOfScopeComponentTooltip : ""}
                     />
                     <ButtonCard
                         icon={<Icon name="bi-graphql" sx={{ color: "#e535ab" }} />}
@@ -58,7 +58,7 @@ export function IntegrationAPIPanel(props: IntegrationAPIPanelProps) {
                         // description="Flexible and efficient data queries."
                         onClick={() => handleClick("graphql")}
                         disabled={isDisabled}
-                        tooltip={componentListItemTooltip(isDisabled)}
+                        tooltip={isDisabled ? OutOfScopeComponentTooltip : ""}
                     />
                     <ButtonCard
                         icon={<Icon name="bi-tcp" />}
@@ -66,7 +66,7 @@ export function IntegrationAPIPanel(props: IntegrationAPIPanelProps) {
                         // description="Process connection oriented messages."
                         onClick={() => handleClick("tcp")}
                         disabled={isDisabled}
-                        tooltip={componentListItemTooltip(isDisabled)}
+                        tooltip={isDisabled ? OutOfScopeComponentTooltip : ""}
                     />
                     {/* TODO: Add this when GRPC is working */}
                     {/* <ButtonCard

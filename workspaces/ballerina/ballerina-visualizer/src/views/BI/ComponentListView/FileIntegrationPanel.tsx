@@ -15,7 +15,7 @@ import { CardGrid, PanelViewMore, Title, TitleWrapper } from './styles';
 import { BodyText } from '../../styles';
 import ButtonCard from '../../../components/ButtonCard';
 import { useVisualizerContext } from '../../../Context';
-import { componentListItemTooltip } from './componentListUtils';
+import { OutOfScopeComponentTooltip } from './componentListUtils';
 
 interface FileIntegrationPanelProps {
     scope: SCOPE;
@@ -86,7 +86,7 @@ export function FileIntegrationPanel(props: FileIntegrationPanelProps) {
                                     handleOnSelect(item);
                                 }}
                                 disabled={isDisabled}
-                                tooltip={componentListItemTooltip(isDisabled)}
+                                tooltip={isDisabled ? OutOfScopeComponentTooltip : ""}
                             />
                         );
                     })}
