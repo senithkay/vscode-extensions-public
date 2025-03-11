@@ -1172,7 +1172,9 @@ export interface UpdateTypesRequest {
 }
 
 export interface UpdateTypesResponse {
-    types?: Type[];
+    textEdits: {
+        [filePath: string]: TextEdit[];
+    };
     errorMsg?: string;
     stacktrace?: string;
 }
