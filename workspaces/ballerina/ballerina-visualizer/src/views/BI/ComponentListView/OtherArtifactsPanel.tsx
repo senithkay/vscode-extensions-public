@@ -80,44 +80,38 @@ export function OtherArtifactsPanel() {
             <TitleWrapper>
                 <Title variant="h2">Other Artifacts</Title>
                 <BodyText>
-                    Manage additional components for your integration. Select from the options below.
+                    Create supportive artifacts for your integration.
                 </BodyText>
             </TitleWrapper>
             <CardGrid>
                 <ButtonCard
                     icon={<Icon name="wand" isCodicon={true} iconSx={{ fontSize: 25 }} />}
                     title="AI Agents"
-                    description="Explore AI capabilities for workflow enhancements."
                     onClick={() => handleClick(DIRECTORY_MAP.AGENTS)}
                 />
                 <ButtonCard
                     icon={<Icon name="bi-connection" />}
                     title="Connections"
-                    description="Set up external service connections, like databases and APIs."
                     onClick={() => handleClick(DIRECTORY_MAP.CONNECTIONS)}
                 />
                 <ButtonCard
                     icon={<Icon name="bi-connection" />}
                     title="Data Mappers"
-                    description="Create data mappings for reusable transformations"
                     onClick={() => handleClick(DIRECTORY_MAP.DATA_MAPPERS)}
                 />
                 <ButtonCard
                     icon={<Icon name="bi-type" />}
                     title="Types"
-                    description="Define and manage data types with JSON schema."
                     onClick={() => handleClick(DIRECTORY_MAP.TYPES)}
                 />
                 <ButtonCard
                     icon={<Icon name="bi-config" />}
                     title="Configurations"
-                    description="Handle environment variables and secrets for your project."
                     onClick={() => handleClick(DIRECTORY_MAP.CONFIGURATIONS)}
                 />
                 <ButtonCard
                     icon={<Icon name="bi-function" />}
                     title="Functions"
-                    description="Create reusable functions to streamline your integration logic."
                     onClick={() => handleClick(DIRECTORY_MAP.FUNCTIONS)}
                 />
                 <ButtonCard
