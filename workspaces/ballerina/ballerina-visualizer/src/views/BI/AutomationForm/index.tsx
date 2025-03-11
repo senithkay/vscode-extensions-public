@@ -12,7 +12,7 @@ import { DIRECTORY_MAP, EVENT_TYPE, LineRange, ProjectStructureArtifactResponse 
 import { View, ViewContent, Button } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { getFunctionParametersList } from "../../../utils/utils";
+import { getMainFunctionParametersList } from "../../../utils/utils";
 import { FormField, FormValues, Parameter } from "@wso2-enterprise/ballerina-side-panel";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { URI, Utils } from "vscode-uri";
@@ -34,28 +34,6 @@ const Container = styled.div`
     display: "flex";
     flex-direction: "column";
     gap: 10;
-`;
-
-const ButtonWrapper = styled.div`
-    margin-top: 20px;
-    width: 130px;
-`;
-
-const Link = styled.a`
-    cursor: pointer;
-    font-size: 12px;
-    margin-left: auto;
-    margin-right: 15px;
-    margin-bottom: -5px;
-    color: var(--button-primary-background);
-`;
-
-const CardGrid = styled.div`
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin-top: 20px;
-    width: 100%;
 `;
 
 export function MainForm() {
@@ -83,7 +61,7 @@ export function MainForm() {
     const handleFunctionCreate = async (data: FormValues) => {
         setIsLoading(true);
         const params = data["params"];
-        const paramList = params ? getFunctionParametersList(params) : [];
+        const paramList = params ? getMainFunctionParametersList(params) : [];
         const res = await rpcClient
             .getBIDiagramRpcClient()
             .createComponent({ type: DIRECTORY_MAP.AUTOMATION, functionType: { parameters: paramList } });
@@ -160,13 +138,13 @@ export function MainForm() {
     const currentFields: FormField[] = [
         {
             key: `params`,
-            label: "Parameters",
+            label: "Startup Parameters",
             type: "PARAM_MANAGER",
             optional: true,
             advanced: true,
             editable: true,
             enabled: true,
-            documentation: "Parameters allow dynamic input values, making automation adaptable to different execution needs.",
+            documentation: "Define parameters to be passed to the automation",
             valueTypeConstraint: "",
             value: "",
             paramManagerProps: {
