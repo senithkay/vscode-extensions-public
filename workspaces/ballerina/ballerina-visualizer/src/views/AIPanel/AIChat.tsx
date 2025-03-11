@@ -637,8 +637,8 @@ export function AIChat() {
         for (const template of expectedTemplates ?? []) {
             let pattern = template
                 .replace(/<servicename>/g, "(\\S+?)")
-                .replace(/<recordname\(s\)>/g, "((?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+(?:[\\s,]+(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+)*)")
-                .replace(/<recordname>/g, "((?:[\\w\\/|.-]+\\s*:\\s*)?[\\w|:\\[\\]]+)")
+                .replace(/<recordname\(s\)>/g, "(\\s*(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+(?:[\\s,]+(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+)*\\s*)")
+                .replace(/<recordname>/g, "(\\s*(?:[\\w\\/|.-]+\\s*:\\s*)?[\\w|:\\[\\]]+\\s*)")
                 .replace(/<use-case>/g, "([\\s\\S]+?)")
                 .replace(/<requirements>/g, "([\\s\\S]+?)")
                 .replace(/<functionname>/g, "(\\S+?)")
@@ -1530,7 +1530,12 @@ export function AIChat() {
             
             newImports = Array.from(importsMap.values())
                 .filter(imp => !existingImports.has(imp.moduleName))
-                .map(imp => imp.alias ? `import ${imp.moduleName} as ${imp.alias};` : `import ${imp.moduleName};`)
+                .map(imp => {
+                    const moduleName = imp.moduleName.trim();
+                    return imp.alias ?
+                        `import ${moduleName} as ${imp.alias};` :
+                        `import ${moduleName};`;
+                })
                 .join("\n");
             
             finalContent = `${newImports}\n${response.mappingCode}`;
