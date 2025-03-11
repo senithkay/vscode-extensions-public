@@ -35,6 +35,7 @@ export interface AuthState {
 }
 
 export interface WebviewState {
+	extensionName: "WSO2" | "Choreo" | "Devant";
 	choreoEnv: string;
 	openedComponentKey: string;
 	componentViews: {

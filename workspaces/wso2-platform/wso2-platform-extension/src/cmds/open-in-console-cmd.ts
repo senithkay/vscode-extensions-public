@@ -14,12 +14,14 @@ import { ext } from "../extensionVariables";
 import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { getUserInfoForCmd, quickPickWithLoader, selectOrg, selectProject } from "./cmd-utils";
+import { webviewStateStore } from "../stores/webview-state-store";
 
 export function openInConsoleCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.OpenInConsole, async (params: { organization: Organization; project: Project; component: ComponentKind }) => {
 			try {
-				const userInfo = await getUserInfoForCmd("open a component in Choreo console");
+				const extensionName = webviewStateStore.getState().state.extensionName;
+				const userInfo = await getUserInfoForCmd(`open a component in ${extensionName} console`);
 				if (userInfo) {
 					let selectedOrg = params?.organization;
 					let selectedProject = params?.project;
@@ -44,8 +46,11 @@ export function openInConsoleCommand(context: ExtensionContext) {
 							);
 						}
 					}
-
-					const projectBaseUrl = `${choreoEnvConfig.getConsoleUrl()}/organizations/${selectedOrg?.handle}/projects/${selectedProject.id}`;
+					
+					let projectBaseUrl = `${choreoEnvConfig.getConsoleUrl()}/organizations/${selectedOrg?.handle}/projects/${selectedProject.id}`;
+					if(extensionName === 'Devant'){
+						projectBaseUrl = `${choreoEnvConfig.getDevantUrl()}/organizations/${selectedOrg?.handle}/projects/${selectedProject.id}`;
+					}
 
 					if (params?.component) {
 						env.openExternal(Uri.parse(`${projectBaseUrl}/components/${params?.component.metadata.handler}/overview`));
@@ -63,7 +68,7 @@ export function openInConsoleCommand(context: ExtensionContext) {
 						const cacheQuickPicks: (QuickPickItem & { item?: any })[] = [
 							{
 								label: selectedProject.name,
-								detail: "Open project in Choreo console",
+								detail: `Open project in ${extensionName} console`,
 								item: { data: selectedProject, type: "project" },
 							},
 						];
@@ -91,7 +96,7 @@ export function openInConsoleCommand(context: ExtensionContext) {
 								const cacheQuickPicks: (QuickPickItem & { item?: any; type?: string })[] = [
 									{
 										label: selectedProject.name,
-										detail: "Open project in Choreo console",
+										detail: `Open project in ${extensionName} console`,
 										item: { data: selectedProject, type: "project" },
 										type: "project",
 									},
@@ -104,7 +109,7 @@ export function openInConsoleCommand(context: ExtensionContext) {
 								return cacheQuickPicks;
 							},
 							loadingTitle: `Loading components of project ${selectedProject.name}`,
-							selectTitle: "Select an option to open in Choreo Console",
+							selectTitle: `Select an option to open in ${extensionName} Console`,
 						});
 
 						if (selectedOption?.type === "project") {

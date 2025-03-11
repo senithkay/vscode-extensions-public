@@ -33,7 +33,7 @@ function isChoreoCliInstalled(): Promise<boolean> {
 export async function initRPCServer() {
 	const installed = await isChoreoCliInstalled();
 	if (!installed) {
-		console.log(`Choreo RPC version ${getCliVersion()} not installed`);
+		console.log(`WSO2 Platform RPC version ${getCliVersion()} not installed`);
 		await downloadCLI();
 	}
 

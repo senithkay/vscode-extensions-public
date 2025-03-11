@@ -13,6 +13,7 @@ import { ErrorCode } from "./choreo-rpc/constants";
 import { choreoEnvConfig } from "./config";
 import { getLogger } from "./logger/logger";
 import { authStore } from "./stores/auth-store";
+import { webviewStateStore } from "./stores/webview-state-store";
 
 export function handlerError(err: any) {
 	if (err instanceof ResponseError) {
@@ -102,12 +103,17 @@ export function handlerError(err: any) {
 				);
 				break;
 			case ErrorCode.NoOrgsAvailable:
+				const extensionName = webviewStateStore.getState().state.extensionName;
 				w.showErrorMessage(
-					"No organizations attached to the user. Please create an organization in Choreo and try logging in again",
-					"Open Choreo Console",
+					`No organizations attached to the user. Please create an organization in ${extensionName} and try logging in again`,
+					`Open ${extensionName} Console`,
 				).then((res) => {
-					if (res === "Open Choreo Console") {
-						commands.executeCommand("vscode.open", choreoEnvConfig.getConsoleUrl());
+					if (res === `Open ${extensionName} Console`) {
+						if(extensionName === "Devant"){
+							commands.executeCommand("vscode.open", choreoEnvConfig.getDevantUrl());
+						}else{
+							commands.executeCommand("vscode.open", choreoEnvConfig.getConsoleUrl());
+						}
 					}
 				});
 				break;

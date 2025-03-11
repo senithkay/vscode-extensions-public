@@ -29,7 +29,7 @@ import { registerYamlLanguageServer } from "./yaml-ls";
 export async function activate(context: vscode.ExtensionContext) {
 	activateTelemetry(context);
 	await initLogger(context);
-	getLogger().debug("Activating Choreo Extension");
+	getLogger().debug("Activating WSO2 Platform Extension");
 	ext.context = context;
 	ext.api = new ChoreoExtensionApi();
 
@@ -65,7 +65,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			activateURIHandlers();
 			activateCodeLenses(context);
 			continueCreateComponent();
-			getLogger().debug("Choreo Extension activated");
+			getLogger().debug("WSO2 Platform Extension activated");
 		})
 		.catch((e) => {
 			getLogger().error("Failed to initialize rpc client", e);
@@ -84,7 +84,7 @@ function registerPreInitHandlers(): any {
 	workspace.onDidChangeConfiguration(async ({ affectsConfiguration }: ConfigurationChangeEvent) => {
 		if (affectsConfiguration("WSO2.WSO2-Platform.Advanced.ChoreoEnvironment") || affectsConfiguration("WSO2.WSO2-Platform.Advanced.RpcPath")) {
 			const selection = await window.showInformationMessage(
-				"Choreo extension configuration changed. Please restart vscode for changes to take effect.",
+				"WSO2 Platform extension configuration changed. Please restart vscode for changes to take effect.",
 				"Restart Now",
 			);
 			if (selection === "Restart Now") {

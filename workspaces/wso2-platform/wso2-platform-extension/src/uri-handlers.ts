@@ -28,16 +28,16 @@ export function activateURIHandlers() {
 			getLogger().debug(`Handling URI: ${uri.toString()}`);
 
 			if (uri.path === "/signin") {
-				getLogger().info("Choreo Login Callback hit");
+				getLogger().info("WSO2 Platform Login Callback hit");
 				const urlParams = new URLSearchParams(uri.query);
 				const authCode = urlParams.get("code");
 				if (authCode) {
-					getLogger().debug("Initiating Choreo sign in flow from auth code");
+					getLogger().debug("Initiating WSO2 Platform sign in flow from auth code");
 					// TODO: Check if status is equal to STATUS_LOGGING_IN, if not, show error message.
 					// It means that the login was initiated from somewhere else or an old page was opened/refreshed in the browser
 					window.withProgress(
 						{
-							title: "Verifying user details and logging into Choreo...",
+							title: "Verifying user details and logging into WSO2 Platform...",
 							location: ProgressLocation.Notification,
 						},
 						async () => {
@@ -52,16 +52,16 @@ export function activateURIHandlers() {
 								if (!(error instanceof ResponseError) || error.code !== ErrorCode.NoOrgsAvailable) {
 									window.showErrorMessage("Sign in failed. Please check the logs for more details.");
 								}
-								getLogger().error(`Choreo sign in Failed: ${error.message}`);
+								getLogger().error(`WSO2 Platform sign in Failed: ${error.message}`);
 							}
 						},
 					);
 				} else {
-					getLogger().error("Choreo Login Failed: Authorization code not found!");
-					window.showErrorMessage("Choreo Login Failed: Authorization code not found!");
+					getLogger().error("WSO2 Platform Login Failed: Authorization code not found!");
+					window.showErrorMessage("WSO2 Platform Login Failed: Authorization code not found!");
 				}
 			} else if (uri.path === "/ghapp") {
-				getLogger().info("Choreo Githup auth Callback hit");
+				getLogger().info("WSO2 Platform Githup auth Callback hit");
 				const urlParams = new URLSearchParams(uri.query);
 				const authCode = urlParams.get("code");
 				// const installationId = urlParams.get("installationId");
@@ -202,7 +202,7 @@ export const cloneOrOpenDir = async (
 };
 
 const openProjectDirectory = async (openingPath: string, isComponent = false) => {
-	openDirectory(openingPath, `Where do you want to open the Choreo ${isComponent ? "component" : "project"} directory ${openingPath} ?`);
+	openDirectory(openingPath, `Where do you want to open the ${isComponent ? "component" : "project"} directory ${openingPath} ?`);
 };
 
 const cloneOrOpenDirectory = (organization: Organization, project: Project, componentName = "") => {

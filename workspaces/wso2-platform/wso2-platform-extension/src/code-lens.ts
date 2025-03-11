@@ -11,6 +11,7 @@ import * as path from "path";
 import { CommandIds } from "@wso2-enterprise/wso2-platform-core";
 import * as vscode from "vscode";
 import * as yaml from "yaml";
+import { webviewStateStore } from "./stores/webview-state-store";
 
 // Register all code lenses here
 export function activateCodeLenses(context: vscode.ExtensionContext) {
@@ -26,7 +27,7 @@ class YAMLCodeLensProvider implements vscode.CodeLensProvider {
 		const addDependencyCmd: vscode.Command = {
 			title: "Add Connection",
 			command: CommandIds.CreateComponentDependency,
-			tooltip: "Add a new API connection to your Choreo component",
+			tooltip: `Add a new API connection to your ${webviewStateStore.getState().state.extensionName} component`,
 			arguments: [{ componentFsPath, isCodeLens: true }],
 		};
 

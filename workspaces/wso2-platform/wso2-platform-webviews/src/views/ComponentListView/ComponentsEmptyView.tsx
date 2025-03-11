@@ -13,6 +13,7 @@ import { CommandIds, type ContextItemEnriched } from "@wso2-enterprise/wso2-plat
 import React, { type FC } from "react";
 import { Button } from "../../components/Button";
 import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
+import { useExtWebviewContext } from "../../providers/ext-vewview-ctx-provider";
 
 interface Props {
 	loading?: boolean;
@@ -22,20 +23,21 @@ interface Props {
 
 export const ComponentsEmptyView: FC<Props> = ({ items, loading, selected }) => {
 	const manageContext = () => ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.ManageDirectoryContext);
+	const { extensionName } = useExtWebviewContext()
 
 	return (
 		<>
 			{loading && <ProgressIndicator />}
 			<div className="flex w-full flex-col gap-[10px] px-6 py-2">
 				<p>
-					Choreo component directories associated with project <VSCodeLink onClick={manageContext}>{selected.project?.name}</VSCodeLink>, are not
+					{extensionName} component directories associated with project <VSCodeLink onClick={manageContext}>{selected.project?.name}</VSCodeLink>, are not
 					detected within the current workspace.
 				</p>
 				<p>Create a new component.</p>
 				<Button
 					className="w-full max-w-80 self-center sm:self-start"
 					onClick={() => ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.CreateNewComponent)}
-					title="Create a Choreo component linked to your local directory. Build and deploy it to the cloud effortlessly."
+					title={`Create a ${extensionName} component linked to your local directory. Build and deploy it to the cloud effortlessly.`}
 				>
 					Create Component
 				</Button>

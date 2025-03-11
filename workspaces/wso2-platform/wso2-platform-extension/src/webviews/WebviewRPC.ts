@@ -161,7 +161,11 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 		vscode.env.openExternal(vscode.Uri.parse(url));
 	});
 	messenger.onRequest(OpenExternalChoreo, (choreoPath: string) => {
-		vscode.env.openExternal(vscode.Uri.joinPath(vscode.Uri.parse(choreoEnvConfig.getConsoleUrl()), choreoPath));
+		if(webviewStateStore.getState().state.extensionName==='Devant'){
+			vscode.env.openExternal(vscode.Uri.joinPath(vscode.Uri.parse(choreoEnvConfig.getDevantUrl()), choreoPath));
+		}else{
+			vscode.env.openExternal(vscode.Uri.joinPath(vscode.Uri.parse(choreoEnvConfig.getConsoleUrl()), choreoPath));
+		}
 	});
 	messenger.onRequest(SetWebviewCache, async (params) => {
 		await ext.context.workspaceState.update(params.cacheKey, params.data);
@@ -222,15 +226,8 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 		outputChanelMap.get(params.key)?.show();
 	});
 	messenger.onRequest(ViewRuntimeLogs, async ({ orgName, projectName, componentName, deploymentTrackName, envName, type }) => {
-		// todo: export the env from here
-		if (getChoreoEnv() !== "prod") {
-			window.showErrorMessage(
-				"Choreo extension currently displays runtime logs is only if 'WSO2.WSO2-Platform.Advanced.ChoreoEnvironment' is set to 'prod'",
-			);
-			return;
-		}
 		const args = ["logs", "-t", type, "-o", orgName, "-p", projectName, "-c", componentName, "-d", deploymentTrackName, "-e", envName, "-f"];
-		window.createTerminal(`${componentName}:${type.replace("component-", "")}-logs`, getChoreoExecPath(), args).show();
+		window.createTerminal(`${componentName}:${type.replace("component-", "")}-logs`, `export CHOREO_ENV=${vscode.workspace.getConfiguration().get("WSO2.WSO2-Platform.Advanced.ChoreoEnvironment")} && ${getChoreoExecPath()}`, args).show();
 	});
 	const _getGithubUrlState = async (orgId: string): Promise<string> => {
 		const callbackUrl = await env.asExternalUri(Uri.parse(`${env.uriScheme}://wso2.wso2-platform/ghapp`));

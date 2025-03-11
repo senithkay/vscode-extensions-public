@@ -23,7 +23,8 @@ export function createComponentDependencyCommand(context: ExtensionContext) {
 				if (userInfo) {
 					const selected = contextStore.getState().state.selected;
 					if (!selected?.org || !selected.project) {
-						window.showInformationMessage("This directory has not yet been linked to a Choreo project", "Link Directory").then((res) => {
+						const extensionName = webviewStateStore.getState().state.extensionName;
+						window.showInformationMessage(`This directory has not yet been linked to a ${extensionName} project`, "Link Directory").then((res) => {
 							if (res === "Link Directory") {
 								commands.executeCommand(CommandIds.CreateDirectoryContext);
 							}

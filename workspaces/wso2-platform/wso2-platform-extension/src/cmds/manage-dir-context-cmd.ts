@@ -13,10 +13,12 @@ import { ext } from "../extensionVariables";
 import { authStore } from "../stores/auth-store";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
 import { removeContext } from "./create-directory-context-cmd";
+import { webviewStateStore } from "../stores/webview-state-store";
 
 export function manageProjectContextCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.ManageDirectoryContext, async (params: { onlyShowSwitchProject?: boolean }) => {
+			const extensionName = webviewStateStore.getState().state.extensionName;
 			try {
 				const userInfo = authStore.getState().state.userInfo;
 				if (!userInfo) {
@@ -30,7 +32,7 @@ export function manageProjectContextCommand(context: ExtensionContext) {
 					quickPickOptions.push(
 						{ kind: QuickPickItemKind.Separator, label: "Selected Project" },
 						{ label: selected?.project?.name!, detail: selected?.org?.name, picked: true },
-						{ label: "Open in Console", detail: `Open the project '${selected.project?.name}' in Choreo console` },
+						{ label: "Open in Console", detail: `Open the project '${selected.project?.name}' in ${extensionName} console` },
 					);
 				}
 
@@ -51,7 +53,7 @@ export function manageProjectContextCommand(context: ExtensionContext) {
 					{ kind: QuickPickItemKind.Separator, label: "Other options" },
 					{
 						label: selected ? "Link with a different project" : "Link with a project",
-						detail: "Associate your workspace with a different Choreo project",
+						detail: `Associate your workspace with a different ${extensionName} project`,
 					},
 				);
 

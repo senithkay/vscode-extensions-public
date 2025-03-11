@@ -16,11 +16,11 @@ export function signOutCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.SignOut, async () => {
 			try {
-				getLogger().debug("Signing out from Choreo");
+				getLogger().debug("Signing out from WSO2 Platform");
 				authStore.getState().logout();
-				window.showInformationMessage("Successfully signed out from Choreo!");
+				window.showInformationMessage("Successfully signed out from WSO2 Platform!");
 			} catch (error: any) {
-				getLogger().error(`Error while signing out from Choreo. ${error?.message}${error?.cause ? `\nCause: ${error.cause.message}` : ""}`);
+				getLogger().error(`Error while signing out from WSO2 Platform. ${error?.message}${error?.cause ? `\nCause: ${error.cause.message}` : ""}`);
 				if (error instanceof Error) {
 					window.showErrorMessage(error.message);
 				}

@@ -15,6 +15,7 @@ import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { closeComponentDetailsView } from "../webviews/ComponentDetailsView";
 import { getUserInfoForCmd, selectComponent, selectOrg, selectProject } from "./cmd-utils";
+import { webviewStateStore } from "../stores/webview-state-store";
 
 export function deleteComponentCommand(context: ExtensionContext) {
 	context.subscriptions.push(
@@ -22,6 +23,7 @@ export function deleteComponentCommand(context: ExtensionContext) {
 			CommandIds.DeleteComponent,
 			async (params: { organization: Organization; project: Project; component: ComponentKind }) => {
 				try {
+					const extensionName = webviewStateStore.getState().state.extensionName;
 					const userInfo = await getUserInfoForCmd("delete a component");
 					if (userInfo) {
 						let selectedOrg = params?.organization;
@@ -58,7 +60,7 @@ export function deleteComponentCommand(context: ExtensionContext) {
 							));
 
 						const accepted = await window.showInformationMessage(
-							"Are you sure you want to delete this Choreo component? This action will not affect any local files and will only delete the component created in Choreo. Please note that this action is not reversible.",
+							`Are you sure you want to delete this ${extensionName} component? This action will not affect any local files and will only delete the component created in ${extensionName}. Please note that this action is not reversible.`,
 							{ modal: true },
 							"Delete",
 						);

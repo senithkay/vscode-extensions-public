@@ -67,7 +67,7 @@ export const downloadCLI = async () => {
 
 	const INSTALLER_URL = `https://github.com/wso2/choreo-cli/releases/download/${CLI_VERSION}/${FILE_NAME}${FILE_TYPE}`;
 
-	console.log(`Choreo RPC download URL: ${INSTALLER_URL}`);
+	console.log(`WSO2 Platform RPC download URL: ${INSTALLER_URL}`);
 
 	await downloadFile(INSTALLER_URL, CHOREO_TMP_FILE_DEST);
 
@@ -94,7 +94,7 @@ export const downloadCLI = async () => {
 		await fs.promises.chmod(CHOREO_CLI_EXEC, 0o755);
 	}
 
-	console.log("Choreo RPC server was installed successfully 🎉");
+	console.log("WSO2 Platform RPC server was installed successfully 🎉");
 };
 
 async function downloadFile(url: string, dest: string) {
@@ -102,7 +102,7 @@ async function downloadFile(url: string, dest: string) {
 	const response = await axios({ url, method: "GET", responseType: "stream", signal: controller.signal });
 	await window.withProgress(
 		{
-			title: "Initializing Choreo extension",
+			title: "Initializing WSO2 Platform extension",
 			location: ProgressLocation.Notification,
 			cancellable: true,
 		},

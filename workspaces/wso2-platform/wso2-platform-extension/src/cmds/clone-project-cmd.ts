@@ -217,7 +217,6 @@ async function ensureBallerinaFilesIfEmpty(
 			`[package]\norg = "${org.handle}"\nname = "${componentName.replaceAll("-", "_")}"\nversion = "0.1.0"`,
 			"utf8",
 		);
-		writeFileSync(join(directoryPath, "main.bal"), `import ballerina/io;\n\npublic function main() {\n    io:println("Hello, World!");\n}`);
 		if (integrationDisplayType) {
 			const scopeVal = integrationDisplayType.toLowerCase().replaceAll(" ","-")
 			if (!existsSync(join(directoryPath, ".vscode"))) {

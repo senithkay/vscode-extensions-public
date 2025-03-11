@@ -30,6 +30,7 @@ import { CommitLink } from "../../../components/CommitLink";
 import { Divider } from "../../../components/Divider";
 import { SkeletonText } from "../../../components/SkeletonText";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
+import { useExtWebviewContext } from "../../../providers/ext-vewview-ctx-provider";
 
 interface Props {
 	component: ComponentKind;
@@ -332,8 +333,9 @@ const BuildDetailsSectionSubItem: FC<{
 };
 
 const ViewLogsButton: FC<{ logs: string }> = ({ logs }) => {
+	const { extensionName } = useExtWebviewContext()
 	const { mutate: showLogs } = useMutation({
-		mutationFn: () => ChoreoWebViewAPI.getInstance().showTextInOutputPanel({ key: "Choreo: Build Logs", output: logs }),
+		mutationFn: () => ChoreoWebViewAPI.getInstance().showTextInOutputPanel({ key: `${extensionName}: Build Logs`, output: logs }),
 	});
 
 	return (

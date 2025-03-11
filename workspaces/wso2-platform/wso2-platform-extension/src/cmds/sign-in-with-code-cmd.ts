@@ -21,7 +21,7 @@ export function signInWithAuthCodeCommand(context: ExtensionContext) {
 		commands.registerCommand(CommandIds.SignInWithAuthCode, async () => {
 			try {
 				// This is used in the extension test runner to sign into choreo
-				getLogger().debug("Signing in to Choreo using code");
+				getLogger().debug("Signing in to WSO2 Platform using code");
 
 				const authCode = await vscode.window.showInputBox({
 					prompt: "Enter Authentication Code: ",
@@ -42,7 +42,7 @@ export function signInWithAuthCodeCommand(context: ExtensionContext) {
 				if (!(error instanceof ResponseError) || error.code !== ErrorCode.NoOrgsAvailable) {
 					window.showErrorMessage("Sign in failed. Please check the logs for more details.");
 				}
-				getLogger().error(`Choreo sign in Failed: ${error.message}`);
+				getLogger().error(`WSO2 Platform sign in Failed: ${error.message}`);
 			}
 		}),
 	);

@@ -32,7 +32,7 @@ export function viewComponentDependencyCommand(context: ExtensionContext) {
 					if (userInfo) {
 						const selected = contextStore.getState().state.selected;
 						if (!selected?.org || !selected.project) {
-							window.showInformationMessage("This directory has not yet been linked to a Choreo project", "Link Directory").then((res) => {
+							window.showInformationMessage(`This directory has not yet been linked to a ${webviewStateStore.getState().state.extensionName} project`, "Link Directory").then((res) => {
 								if (res === "Link Directory") {
 									commands.executeCommand(CommandIds.CreateDirectoryContext);
 								}
@@ -115,7 +115,7 @@ export const getComponentStateOfPath = async (componentFsPath = "", components: 
 		if (!component?.component) {
 			window
 				.showInformationMessage(
-					`Could not find any Choreo components that match this directory within the the linked project context. (${selected?.project?.name})`,
+					`Could not find any ${webviewStateStore.getState().state.extensionName} components that match this directory within the the linked project context. (${selected?.project?.name})`,
 					"Create Component",
 					"Manage Context",
 				)

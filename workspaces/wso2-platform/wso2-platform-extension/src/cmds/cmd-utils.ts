@@ -12,6 +12,7 @@ import { ProgressLocation, type QuickPickItem, QuickPickItemKind, type Workspace
 import { ext } from "../extensionVariables";
 import { authStore, waitForLogin } from "../stores/auth-store";
 import { dataCacheStore } from "../stores/data-cache-store";
+import { webviewStateStore } from "../stores/webview-state-store";
 
 export const selectComponent = async (
 	org: Organization,
@@ -206,7 +207,8 @@ export const selectOrg = async (userInfo: UserInfo, selectTitle = "Select organi
 	}));
 
 	if (!items || items.length === 0) {
-		throw new Error("Please visit Choreo to create a new organization");
+		const extensionName = webviewStateStore.getState().state.extensionName;
+		throw new Error(`Please visit ${extensionName} to create a new organization`);
 	}
 
 	if (userInfo.organizations.length === 1) {
@@ -308,7 +310,7 @@ export const getUserInfoForCmd = async (message: string): Promise<UserInfo | nul
 	let userInfo = authStore.getState().state.userInfo;
 	if (!userInfo) {
 		const loginSelection = await window.showInformationMessage(
-			"You are not logged into Choreo.",
+			"You are not logged into WSO2 Platform.",
 			{ modal: true, detail: `Please login to continue and ${message}` },
 			"Login",
 		);
@@ -317,7 +319,7 @@ export const getUserInfoForCmd = async (message: string): Promise<UserInfo | nul
 			userInfo = await waitForLogin();
 
 			const response = await window.showInformationMessage(
-				"Successfully logged into Choreo",
+				"Successfully logged into WSO2 Platform",
 				{ modal: true, detail: `Do you want to continue and ${message}` },
 				"Continue",
 			);

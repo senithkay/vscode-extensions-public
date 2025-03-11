@@ -31,6 +31,7 @@ import type {
 	componentGeneralDetailsSchema,
 	componentGitProxyFormSchema,
 } from "../componentFormSchema";
+import { useExtWebviewContext } from "../../../providers/ext-vewview-ctx-provider";
 
 type ComponentFormGenDetailsType = z.infer<typeof componentGeneralDetailsSchema>;
 type ComponentFormBuildDetailsType = z.infer<typeof componentBuildDetailsSchema>;
@@ -61,6 +62,7 @@ export const ComponentFormSummarySection: FC<Props> = ({
 }) => {
 	const [summaryWrapRef] = useAutoAnimate();
 	const queryClient = useQueryClient();
+	const { extensionName } = useExtWebviewContext()
 
 	const genDetails = genDetailsForm.getValues();
 	const buildDetails = buildDetailsForm.getValues();
@@ -159,7 +161,7 @@ export const ComponentFormSummarySection: FC<Props> = ({
 					type="warning"
 					className="mb-4"
 					title="Configuration Changes Detected"
-					subTitle={`Choreo requires the metadata in the ${configDriftFiles.join(",")} ${configDriftFiles?.length > 1 ? "files" : "file"} to be committed and pushed to the selected remote repository for proper functionality.`}
+					subTitle={`${extensionName} requires the metadata in the ${configDriftFiles.join(",")} ${configDriftFiles?.length > 1 ? "files" : "file"} to be committed and pushed to the selected remote repository for proper functionality.`}
 					refreshBtn={{ isRefreshing: isFetchingConfigDrift, onClick: refetchConfigDrift }}
 				/>
 			)}
@@ -168,7 +170,7 @@ export const ComponentFormSummarySection: FC<Props> = ({
 				<Banner
 					className="mb-4"
 					title="Local Changes Detected"
-					subTitle="Choreo builds your component from the source code in the selected remote repository. Please commit and push your local changes to the remote Git repository."
+					subTitle={`${extensionName} builds your component from the source code in the selected remote repository. Please commit and push your local changes to the remote Git repository.`}
 				/>
 			)}
 

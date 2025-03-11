@@ -17,14 +17,17 @@ interface WebviewStateStore {
 	onCloseComponentView: (openedComponentKey: string) => void;
 	onOpenComponentDrawer: (componentKey: string, drawer: ComponentViewDrawers, params?: any) => void;
 	onCloseComponentDrawer: (componentKey: string) => void;
+	setExtensionName: (name: "WSO2" | "Choreo" | "Devant") => void;
 }
 
 export const webviewStateStore = createStore<WebviewStateStore>((set) => ({
 	state: {
+		extensionName: "WSO2",
 		openedComponentKey: "",
 		componentViews: {},
 		choreoEnv: workspace.getConfiguration().get<string>("WSO2.WSO2-Platform.Advanced.ChoreoEnvironment") || "prod",
 	},
+	setExtensionName: (extensionName)=> set(({ state }) => ({ state: { ...state, extensionName } })),
 	setOpenedComponentKey: (openedComponentKey) => set(({ state }) => ({ state: { ...state, openedComponentKey } })),
 	onCloseComponentView: (openedComponentKey) =>
 		set(({ state }) => ({

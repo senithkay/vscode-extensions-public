@@ -27,12 +27,14 @@ import { getGitRemotes, getGitRoot } from "../git/util";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
 import { convertFsPathToUriPath, isSubpath, openDirectory } from "../utils";
 import { getUserInfoForCmd, resolveWorkspaceDirectory, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
+import { webviewStateStore } from "../stores/webview-state-store";
 
 export function createDirectoryContextCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.CreateDirectoryContext, async () => {
+			const extensionName = webviewStateStore.getState().state.extensionName;
 			try {
-				const userInfo = await getUserInfoForCmd("link a directory with a Choreo project");
+				const userInfo = await getUserInfoForCmd(`link a directory with a ${extensionName} project`);
 				let gitRoot: string | undefined = "";
 				if (userInfo) {
 					let directoryUrl: Uri;
@@ -51,12 +53,12 @@ export function createDirectoryContextCommand(context: ExtensionContext) {
 							canSelectFolders: true,
 							canSelectFiles: false,
 							canSelectMany: false,
-							title: "Select directory that needs to be linked with Choreo",
+							title: `Select directory that needs to be linked with ${extensionName}`,
 							defaultUri: workspace.workspaceFolders?.[0]?.uri || Uri.file(os.homedir()),
 						});
 
 						if (componentDir === undefined || componentDir.length === 0) {
-							throw new Error("Directory is required to link with Choreo");
+							throw new Error(`Directory is required to link with ${extensionName}`);
 						}
 
 						directoryUrl = componentDir[0];
@@ -143,8 +145,8 @@ export function createDirectoryContextCommand(context: ExtensionContext) {
 					}
 				}
 			} catch (err: any) {
-				console.error("Failed to link directory with Choreo project", err);
-				window.showErrorMessage(`Failed to link directory with Choreo project. ${err?.message}`);
+				console.error(`Failed to link directory with ${extensionName} project`, err);
+				window.showErrorMessage(`Failed to link directory with ${extensionName} project. ${err?.message}`);
 			}
 		}),
 	);
