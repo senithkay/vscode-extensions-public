@@ -232,7 +232,7 @@ export class BallerinaExtension {
         });
 
         commands.registerCommand('kolab-setup.setupBallerina', () => {
-            this.setUpBallerina(true);
+            this.setupBallerina(true);
         });
 
         try {
@@ -344,7 +344,7 @@ export class BallerinaExtension {
         }
     }
 
-    async setUpBallerina(restartWindow?: boolean) {
+    async setupBallerina(restartWindow?: boolean) {
         this.getBallerinaVersion(this.ballerinaHome, false).then(async runtimeVersion => {
             const currentBallerinaVersion = runtimeVersion.split('-')[0];
             console.log('Current Ballerina version:', currentBallerinaVersion);
