@@ -138,13 +138,13 @@ export function MainForm() {
     const currentFields: FormField[] = [
         {
             key: `params`,
-            label: "Parameters",
+            label: "Startup Parameters",
             type: "PARAM_MANAGER",
             optional: true,
             advanced: true,
             editable: true,
             enabled: true,
-            documentation: "Define parameters to be passed to the automation",
+            documentation: "Define the parameters to be passed to the automation at startup",
             valueTypeConstraint: "",
             value: "",
             paramManagerProps: {
@@ -158,7 +158,7 @@ export function MainForm() {
     return (
         <View>
             <TopNavigationBar />
-            <TitleBar title="Automation"/>
+            <TitleBar title="Automation" subtitle="Create an automation that can be invoked periodically or manually"/>
             <ViewContent padding>
                 <Container>
                     {isLoading && (
@@ -181,7 +181,7 @@ export function MainForm() {
                         <>
                             <FormHeader
                                 title="Create an Automation"
-                                subtitle="Implement an automation for either scheduled or manual jobs."
+                                subtitle="Periodic invocation should be scheduled in an external system such as cronjob, k8s, or Devant."
                             />
                             <FormContainer>
                                 {filePath && targetLineRange && currentFields.length > 0 &&
