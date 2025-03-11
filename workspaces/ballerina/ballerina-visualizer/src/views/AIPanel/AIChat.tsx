@@ -2637,7 +2637,9 @@ const CodeSection: React.FC<CodeSectionProps> = ({
         <div>
             <EntryContainer onClick={() => !loading && setIsOpen(!isOpen)}>
                 <div style={{ flex: 9, fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>
-                    {!isOpen ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
+                    {!loading && isReady && language === "ballerina" && (
+                        !isOpen ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />
+                    )}
                     {name}
                 </div>
                 <div style={{ marginLeft: "auto" }}>
