@@ -104,6 +104,8 @@ var remaingTokenLessThanOne: boolean = false;
 
 var timeToReset: number;
 export const INVALID_RECORD_REFERENCE = "Invalid record reference. Follow <org-name>/<package-name>:<record-name> format when referencing to record in another package.";
+const NO_DRIFT_FOUND = "No drift identified between the code and the documentation.";
+const DRIFT_CHECK_ERROR = "Failed to check drift between the code and the documentation. Please try again.";
 
 // Define constants for command keys
 export const COMMAND_GENERATE = "/generate";
@@ -593,10 +595,10 @@ export function AIChat() {
                     await processCodeGeneration(token, [messageBody, attachments, CodeGenerationType.CODE_GENERATION], message);
                     return;
                 } else if (commandKey === COMMAND_NATURAL_PROGRAMMING) {
-                    if (isContentIncludedInMessageBody(messageBody, CodeGenerationType.CODE_FOR_USER_REQUIREMENT)) {
-                        await processCodeGeneration(token, [messageBody, attachments, CodeGenerationType.CODE_GENERATION], message);
+                    if (isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT)) {
+                        await processCodeGeneration(token, [messageBody, attachments, CodeGenerationType.CODE_FOR_USER_REQUIREMENT], message);
+                        return;
                     }
-                    return;
                 } else if (commandKey === COMMAND_DOCUMENTATION) {
                     await findInDocumentation(messageBody, token);
                     return;
@@ -681,14 +683,15 @@ export function AIChat() {
     async function processLLMDiagnostics(token: string, content: [string, AttachmentResult[], string], message: string) {
         const [useCase, attachments, operationType] = content;
 
-        let response: LLMDiagnostics =  rpcClient == null ? {statusCode: null, diags: ""} : 
+        let response: LLMDiagnostics =  rpcClient == null ? 
+            {statusCode: 500, diags: DRIFT_CHECK_ERROR}: 
             await rpcClient.getAiPanelRpcClient().getDriftDiagnosticContents(chatLocation);
 
         const responseStatus = response.statusCode;
         const invalidResponse = response == null|| response.statusCode == null;
 
         if (invalidResponse) {
-            throw new Error(`Failed to check drift between code and documentation. Please try again.`);
+            throw new Error(DRIFT_CHECK_ERROR);
         }
 
         if (!(responseStatus >= 200 && responseStatus < 300)) {
@@ -698,7 +701,11 @@ export function AIChat() {
                 return;
             }
 
-            throw new Error(`Failed to check drift between code and documentation. Please try again.`);
+            throw new Error(DRIFT_CHECK_ERROR);
+        }
+
+        if (response.diags == null || response.diags == "") {
+            response.diags = NO_DRIFT_FOUND;
         }
 
         setIsLoading(false);

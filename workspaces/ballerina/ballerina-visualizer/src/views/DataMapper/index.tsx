@@ -14,26 +14,21 @@ import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { STModification, HistoryEntry } from "@wso2-enterprise/ballerina-core";
 import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
 import { RecordEditor, StatementEditorComponentProps } from "@wso2-enterprise/record-creator";
-import { useExperimentalEnabled } from "../../Hooks";
-import { LoadingRing } from "../../components/Loader";
 import { View } from "@wso2-enterprise/ui-toolkit";
 import { TopNavigationBar } from "../../components/TopNavigationBar";
 
 interface DataMapperProps {
     filePath: string;
     model: FunctionDefinition;
-    isBI: boolean;
     applyModifications: (modifications: STModification[], isRecordModification?: boolean) => Promise<void>;
 }
 
 export function DataMapper(props: DataMapperProps) {
-    const { filePath, model, isBI, applyModifications } = props;
+    const { filePath, model, applyModifications } = props;
     const { rpcClient } = useRpcContext();
     const langServerRpcClient = rpcClient.getLangClientRpcClient();
     const libraryBrowserRPCClient = rpcClient.getLibraryBrowserRPCClient();
     const recordCreatorRpcClient = rpcClient.getRecordCreatorRpcClient();
-
-    const { experimentalEnabled, isFetchingExperimentalEnabled } = useExperimentalEnabled();
 
     const goToFunction = async (entry: HistoryEntry) => {
         rpcClient.getVisualizerRpcClient().addToHistory(entry);
@@ -58,10 +53,6 @@ export function DataMapper(props: DataMapperProps) {
         );
     };
 
-    if (isFetchingExperimentalEnabled) {
-        return <LoadingRing />;
-    }
-
     return (
         <View>
             <TopNavigationBar />
@@ -73,8 +64,6 @@ export function DataMapper(props: DataMapperProps) {
                 applyModifications={applyModifications}
                 goToFunction={goToFunction}
                 renderRecordPanel={renderRecordPanel}
-                isBI={isBI}
-                experimentalEnabled={experimentalEnabled}
             />
         </View>
     );
