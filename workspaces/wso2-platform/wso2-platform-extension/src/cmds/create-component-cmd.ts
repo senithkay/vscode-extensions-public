@@ -12,6 +12,7 @@ import * as os from "os";
 import * as path from "path";
 import { join } from "path";
 import {
+	ChoreoBuildPackNames,
 	ChoreoComponentType,
 	CommandIds,
 	type ICreateComponentParams,
@@ -41,7 +42,9 @@ export function createNewComponentCommand(context: ExtensionContext) {
 		commands.registerCommand(CommandIds.CreateNewComponent, async (params: ICreateComponentParams) => {
 			try {
 				const userInfo = await getUserInfoForCmd("create a component");
-				if (params.isIntegration) {
+				let isIntegration = false;
+				if (params?.buildPackLang === ChoreoBuildPackNames.Ballerina || params?.buildPackLang === ChoreoBuildPackNames.MicroIntegrator) {
+					isIntegration = true;
 					webviewStateStore.getState().setExtensionName("Devant");
 				}
 				if (userInfo) {
@@ -63,7 +66,7 @@ export function createNewComponentCommand(context: ExtensionContext) {
 					let selectedType: string | undefined = params?.type;
 
 					const componentTypes: string[] = [];
-					if (params?.isIntegration) {
+					if (isIntegration) {
 						componentTypes.push(ChoreoComponentType.ScheduledTask, ChoreoComponentType.Service);
 					} else {
 						componentTypes.push(
@@ -85,12 +88,12 @@ export function createNewComponentCommand(context: ExtensionContext) {
 					if (!selectedType) {
 						// todo: change these options if isIntegration
 						const typeQuickPicks: (QuickPickItem & { value: string })[] = componentTypes.map((item) => ({
-							label: params?.isIntegration ? getIntegrationComponentTypeText(item) : getComponentTypeText(item),
+							label: isIntegration ? getIntegrationComponentTypeText(item) : getComponentTypeText(item),
 							value: item,
 						}));
 
 						const selectedTypePick = await window.showQuickPick(typeQuickPicks, {
-							title: `Select ${params?.isIntegration ? "Integration" : "Component"} Type`,
+							title: `Select ${isIntegration ? "Integration" : "Component"} Type`,
 						});
 						if (selectedTypePick?.value) {
 							selectedType = selectedTypePick?.value;

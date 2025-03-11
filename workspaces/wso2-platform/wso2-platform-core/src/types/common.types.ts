@@ -301,7 +301,6 @@ export interface ICreateComponentParams {
 	type: ChoreoComponentType;
 	buildPackLang: string;
 	name: string;
-	isIntegration?: boolean;
 	/** Full path of the component directory */
 	componentDir: string;
 }

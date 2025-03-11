@@ -7,12 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CommandIds, type Organization, type Project } from "@wso2-enterprise/wso2-platform-core";
+import { ChoreoBuildPackNames, CommandIds, type Organization, type Project } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, commands, window } from "vscode";
 import { waitForContextStoreToLoad } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { cloneOrOpenDir } from "../uri-handlers";
 import { getUserInfoForCmd, selectOrg, selectProject } from "./cmd-utils";
+import { webviewStateStore } from "../stores/webview-state-store";
 
 export function openCompSrcCommand(context: ExtensionContext) {
 	context.subscriptions.push(
@@ -29,6 +30,9 @@ export function openCompSrcCommand(context: ExtensionContext) {
 				try {
 					const userInfo = await getUserInfoForCmd("clone project repository");
 					if (userInfo) {
+						if (params?.technology === ChoreoBuildPackNames.Ballerina || params?.technology === ChoreoBuildPackNames.MicroIntegrator) {
+							webviewStateStore.getState().setExtensionName("Devant");
+						}
 						let selectedOrg: Organization;
 						if (typeof params?.org === "string") {
 							selectedOrg =
