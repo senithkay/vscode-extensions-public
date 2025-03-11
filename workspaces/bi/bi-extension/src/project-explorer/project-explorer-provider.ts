@@ -12,7 +12,6 @@ import { window, Uri } from 'vscode';
 import path = require('path');
 import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse, SHARED_COMMANDS, BI_COMMANDS, buildProjectStructure, PackageConfigSchema, BallerinaProject, DIRECTORY_SUB_TYPE } from "@wso2-enterprise/ballerina-core";
 import { extension } from "../biExtentionContext";
-import { checkIsBI } from '../utils';
 
 interface Property {
     name?: string;
@@ -74,9 +73,9 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
         });
     }
 
-    constructor(isBI: boolean) {
+    constructor(isBallerina: boolean) {
         this._data = [];
-        isBI && this.refresh();
+        isBallerina && this.refresh();
     }
 
     getTreeItem(element: ProjectExplorerEntry): vscode.TreeItem | Thenable<vscode.TreeItem> {
@@ -132,7 +131,7 @@ async function getProjectStructureData(): Promise<ProjectExplorerEntry[]> {
                 .workspaceFolders
                 .find(folder => folder.uri.fsPath === extension.projectPath);
 
-            if (!workspace || !checkIsBI(workspace.uri)) {
+            if (!workspace) {
                 return [];
             }
 

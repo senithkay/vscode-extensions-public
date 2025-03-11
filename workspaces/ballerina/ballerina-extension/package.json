@@ -98,6 +98,7 @@
                         "description": "Define the scope of the project.",
                         "enum": [
                             "automation",
+                            "ai-agent",
                             "integration-as-api",
                             "event-integration",
                             "file-integration",
@@ -105,6 +106,7 @@
                         ],
                         "enumDescriptions": [
                             "Automation",
+                            "AI Agent",
                             "Integration as API",
                             "Event Integration",
                             "File Integration",

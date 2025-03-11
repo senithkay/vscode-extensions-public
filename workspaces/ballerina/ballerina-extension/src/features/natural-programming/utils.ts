@@ -23,8 +23,8 @@ import {
     README_FILE_NAME_LOWERCASE, DRIFT_DIAGNOSTIC_ID,
     LACK_OF_API_DOCUMENTATION_WARNING, LACK_OF_API_DOCUMENTATION_WARNING_2,
     NO_DOCUMENTATION_WARNING,
-    MISSING_README_FILE_WARNING,
-    MISSING_REQUIREMENT_FILE
+    MISSING_README_FILE_WARNING, MISSING_README_FILE_WARNING_2,
+    MISSING_REQUIREMENT_FILE, MISSING_API_DOCS, MISSING_API_DOCS_2
 } from "./constants";
 import { isError, isNumber } from 'lodash';
 import { HttpStatusCode } from 'axios';
@@ -79,7 +79,7 @@ async function getLLMResponses(sources: { balFiles: string; readme: string; requ
     const [commentResponse, documentationSourceResponse] = await Promise.all([commentResponsePromise, documentationSourceResponsePromise]);
     
     if (isError(commentResponse) || isError(documentationSourceResponse)) {
-        return HttpStatusCode.Unauthorized;
+        return HttpStatusCode.InternalServerError;
     }
 
     if (!commentResponse.ok) {
@@ -142,33 +142,51 @@ async function createDiagnosticsResponse(data: DriftResponseData, projectPath: s
 
 async function createDiagnostic(result: ResultItem, uri: Uri): Promise<CustomDiagnostic> {
     function hasCodeChangedRows(item: Partial<ResultItem>): boolean {
-        return item.startRowforCodeChangedAction != undefined && item.startRowforCodeChangedAction != null 
-                && item.endRowforCodeChangedAction != undefined && item.endRowforCodeChangedAction != null;
+        return isValidRow(item.startRowforImplementationChangedAction) && isValidRow(item.endRowforImplementationChangedAction);
     }
 
     function hasDocChangedRows(item: Partial<ResultItem>): boolean {
-        return item.startRowforDocChangedAction != undefined && item.startRowforDocChangedAction != null 
-                && item.endRowforDocChangedAction != undefined && item.endRowforDocChangedAction != null;
+        return isValidRow(item.startRowforDocChangedAction) && isValidRow(item.endRowforDocChangedAction);
+    }
+
+    function isValidRow(row: number) {
+        return row != undefined && row != null && row >= 1;
     }
 
     const isSolutionsAvailable = hasCodeChangedRows(result);
     const isDocChangeSolutionsAvailable: boolean = hasDocChangedRows(result);
-    let codeChangeEndPosition = new vscode.Position(result.endRowforCodeChangedAction - 1, 0);
-    let docChangeEndPosition = new vscode.Position(result.endRowforDocChangedAction - 1, 0);
+    let codeChangeEndPosition = isSolutionsAvailable 
+                                    ? new vscode.Position(result.endRowforImplementationChangedAction - 1, 0)
+                                    : new vscode.Position(0, 0);
+    let docChangeEndPosition = isDocChangeSolutionsAvailable 
+                                    ? new vscode.Position(result.endRowforDocChangedAction - 1, 0)
+                                    : new vscode.Position(0, 0);
 
     let range = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 0));
+    const filePath = uri.fsPath;
+    let document = null;
+    if (fs.existsSync(filePath)) {
+        document = await vscode.workspace.openTextDocument(uri);
+    }
 
     try {
-        if (isSolutionsAvailable){
-            const document = await vscode.workspace.openTextDocument(uri);
-            codeChangeEndPosition = document.lineAt(result.endRowforCodeChangedAction - 1).range.end;
-            if (isDocChangeSolutionsAvailable) {
+        if (document != null) {
+            if (isSolutionsAvailable) {
+                codeChangeEndPosition = document.lineAt(result.endRowforImplementationChangedAction - 1).range.end;
+                if (isDocChangeSolutionsAvailable) {
+                    docChangeEndPosition = document.lineAt(result.endRowforDocChangedAction - 1).range.end;
+                }
+                range = new vscode.Range(
+                    new vscode.Position(result.startRowforImplementationChangedAction - 1, 0),
+                    codeChangeEndPosition
+                );
+            } else if (isDocChangeSolutionsAvailable) {
                 docChangeEndPosition = document.lineAt(result.endRowforDocChangedAction - 1).range.end;
+                range = new vscode.Range(
+                    new vscode.Position(result.startRowforDocChangedAction - 1, 0),
+                    docChangeEndPosition
+                );
             }
-            range = new vscode.Range(
-                new vscode.Position(result.startRowforCodeChangedAction - 1, 0),
-                codeChangeEndPosition
-            );
         }
     } catch (error) {
         // ignore
@@ -179,7 +197,7 @@ async function createDiagnostic(result: ResultItem, uri: Uri): Promise<CustomDia
         result.cause,
         vscode.DiagnosticSeverity.Warning,
         {
-            codeChangeSolution: result.codeChangeSolution,
+            implementationChangeSolution: result.implementationChangeSolution,
             docChangeSolution: result.docChangeSolution,
             fileName: result.fileName,
             id: DRIFT_DIAGNOSTIC_ID,
@@ -247,14 +265,32 @@ async function createDiagnosticArray(responses: any[], projectUri: string): Prom
 }
 
 export function extractResponseAsJsonFromString(jsonString: string): any {
-    try {
+    try {        
         const driftResponse: DriftResponse = JSON.parse(jsonString);
-        const data: DriftResponseData = JSON.parse(driftResponse.drift);
-        if (!data.results || !Array.isArray(data.results)) {
+        const drift = driftResponse.drift;
+        if (drift == null) {
             return null;
         }
 
-        return data;
+        const jsonRegex = /\{\s*"results":\s*\[[\s\S]*?\]\s*\}/g;
+        const jsonMatches = drift.match(jsonRegex);
+        if (!jsonMatches || jsonMatches.length === 0) {
+            return null;
+        }
+
+        for (let i = jsonMatches.length - 1; i >= 0; i--) {
+            try {
+                const extractedJson = jsonMatches[i];
+                const parsedJson: DriftResponseData = JSON.parse(extractedJson);
+                if (parsedJson && parsedJson.results && Array.isArray(parsedJson.results)) {
+                    return parsedJson;
+                }
+            } catch (error) {
+                console.log(error);
+                // Ignore parsing errors and continue checking earlier JSON objects
+            }
+        }
+        return null;
     } catch (error) {
         return null;
     }
@@ -433,10 +469,10 @@ export async function streamToString(stream: ReadableStream<Uint8Array>): Promis
 
 function isSkippedDiagnostic(result: ResultItem) {
     const cause = result.cause.toLowerCase();
-    if (cause.includes(LACK_OF_API_DOCUMENTATION_WARNING) || cause.includes(LACK_OF_API_DOCUMENTATION_WARNING_2) 
-        || cause.includes(NO_DOCUMENTATION_WARNING) || cause.includes(MISSING_README_FILE_WARNING) || cause.includes(MISSING_REQUIREMENT_FILE)) {
+    if (cause.includes(LACK_OF_API_DOCUMENTATION_WARNING) || cause.includes(LACK_OF_API_DOCUMENTATION_WARNING_2) || cause.includes(MISSING_API_DOCS_2) 
+        || cause.includes(MISSING_API_DOCS) || cause.includes(NO_DOCUMENTATION_WARNING) || cause.includes(MISSING_README_FILE_WARNING) 
+        || cause.includes(MISSING_REQUIREMENT_FILE) || cause.includes(MISSING_README_FILE_WARNING_2)) {
             return true;
     }
     return false;
 }
-
