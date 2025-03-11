@@ -86,7 +86,8 @@ const stateMachine = createMachine<MachineContext>(
                             identifier: (context, event) => event.viewLocation.identifier,
                             serviceType: (context, event) => event.viewLocation.serviceType,
                             type: (context, event) => event.viewLocation?.type,
-                            isGraphql: (context, event) => event.viewLocation?.isGraphql
+                            isGraphql: (context, event) => event.viewLocation?.isGraphql,
+                            metadata: (context, event) => event.viewLocation?.metadata
                         })
                     }
                 }
@@ -136,7 +137,8 @@ const stateMachine = createMachine<MachineContext>(
                                     identifier: (context, event) => event.viewLocation.identifier,
                                     serviceType: (context, event) => event.viewLocation.serviceType,
                                     type: (context, event) => event.viewLocation?.type,
-                                    isGraphql: (context, event) => event.viewLocation?.isGraphql
+                                    isGraphql: (context, event) => event.viewLocation?.isGraphql,
+                                    metadata: (context, event) => event.viewLocation?.metadata
                                 })
                             },
                             VIEW_UPDATE: {

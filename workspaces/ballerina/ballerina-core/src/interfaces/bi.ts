@@ -265,6 +265,7 @@ export type NodePropertyKey =
     | "parameters"
     | "model"
     | "tools"
+    | "query"
     | "functionName";
 
 export type BranchKind = "block" | "worker";
