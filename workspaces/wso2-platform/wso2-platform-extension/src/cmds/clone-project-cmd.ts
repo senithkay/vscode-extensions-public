@@ -228,11 +228,12 @@ async function ensureBallerinaFilesIfEmpty(
 				// add property
 				const data = readFileSync(settingsPath, "utf8");
 				const settings = JSON.parse(data);
-				settings.scope = scopeVal;
+				settings["kolab.scope"] = scopeVal;
+				settings["kolab.isBI"] = true;
 				writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
 			} else {
 				// create new json
-				writeFileSync(settingsPath, JSON.stringify({ scope: scopeVal }, null, 2));
+				writeFileSync(settingsPath, JSON.stringify({ "kolab.scope": scopeVal, "kolab.isBI": true }, null, 2));
 			}
 		}
 	};
