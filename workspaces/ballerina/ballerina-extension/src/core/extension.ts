@@ -223,16 +223,16 @@ export class BallerinaExtension {
             this.showMessageInstallBallerina();
         });
 
-        commands.registerCommand('kolab-setup.installBallerina', () => {
-            this.installBallerina(true);
-        });
-
         commands.registerCommand('kolab-setup.setupKola', () => {
             this.updateKolaVersion();
         });
 
         commands.registerCommand('kolab-setup.updateKola', () => {
             this.updateKolaVersion(true);
+        });
+
+        commands.registerCommand('kolab-setup.setupBallerina', () => {
+            this.setUpBallerina(true);
         });
 
         try {
@@ -260,13 +260,6 @@ export class BallerinaExtension {
                 const { home } = this.autoDetectBallerinaHome();
                 this.ballerinaHome = home;
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${this.ballerinaVersion}`);
-
-                // Check if the ballerina version is supported with latest language server features.
-                const ballerinaShortVersion = this.ballerinaVersion.split(' ')[0];
-                const ballerinaUpdateVersion = ballerinaShortVersion.split('.')[1];
-                if (parseInt(ballerinaUpdateVersion) < 12) {
-                    this.showMessageUpdateBallerina();
-                }
 
                 if (!this.ballerinaVersion.match(SWAN_LAKE_REGEX) || (this.ballerinaVersion.match(SWAN_LAKE_REGEX) &&
                     !isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 3))) {
@@ -302,13 +295,9 @@ export class BallerinaExtension {
                 });
 
             }, (reason) => {
-                sendTelemetryException(this, reason, CMP_EXTENSION_CORE);
-                if (reason.message.includes(this.getPathErrorMessage())) {
-                    this.installBallerina(true);
-                } else {
-                    this.showMessageInstallBallerina();
-                    throw new Error(reason);
-                }
+                sendTelemetryException(this, reason, CMP_EXTENSION_CORE);    
+                this.showMessageInstallBallerina();
+                throw new Error(reason);
             }).catch(e => {
                 const msg = `Error when checking ballerina version. ${e.message}`;
                 sendTelemetryException(this, e, CMP_EXTENSION_CORE, getMessageObject(msg));
@@ -326,19 +315,6 @@ export class BallerinaExtension {
             }
             return Promise.reject(msg);
         }
-    }
-
-    private getPathErrorMessage(): string {
-        const platform = os.platform();
-        let msg = '';
-        if (platform === 'win32') {
-            msg = "The system cannot find the path specified";
-        } else if (platform === 'linux') {
-            msg = "Command 'bal' not found";
-        } else if (platform === 'darwin') {
-            msg = "No such file or directory";
-        }
-        return msg;
     }
 
     private getUpdateToolUserAgent(): string {
@@ -368,9 +344,27 @@ export class BallerinaExtension {
         }
     }
 
-    async installBallerina(restartWindow?: boolean) {
-        const ballerinaVersion = await this.getBallerinaVersion;
+    async setUpBallerina(restartWindow?: boolean) {
+        this.getBallerinaVersion(this.ballerinaHome, false).then(async runtimeVersion => {
+            const currentBallerinaVersion = runtimeVersion.split('-')[0];
+            console.log('Current Ballerina version:', currentBallerinaVersion);
+            // Check if the ballerina version is supported with latest language server features.
+            if (currentBallerinaVersion.includes('Swan Lake')) {
+                const ballerinaShortVersion = currentBallerinaVersion.split(' ')[0];
+                const ballerinaUpdateVersion = ballerinaShortVersion.split('.')[1];
+                if (parseInt(ballerinaUpdateVersion) < 12) {
+                    this.showMessageUpdateBallerina();
+                } 
+            } else {
+                this.showMessageUpdateBallerina();
+            }
+        }, (reason) => {
+            console.error('Error getting the ballerina version:', reason.message);
+            this.showMessageSetupBallerina(restartWindow);
+        });
+    }
 
+    private async installBallerina(restartWindow?: boolean) {
         try {
             // Remove the existing Ballerina version
             fs.rmSync(this.ballerinaInstallationDir, { recursive: true, force: true });
@@ -1253,6 +1247,15 @@ export class BallerinaExtension {
                 terminal.show();
                 terminal.sendText('sudo bal dist update');
                 window.showInformationMessage('Ballerina update started. Please wait...');
+            }
+        });
+    }
+
+    showMessageSetupBallerina(restartWindow?: boolean): any {
+        const installBallerina = 'Install Ballerina';
+        window.showWarningMessage(INSTALL_BALLERINA, installBallerina).then(selection => {
+            if (selection === installBallerina) {
+                this.installBallerina(restartWindow);
             }
         });
     }

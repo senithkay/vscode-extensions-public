@@ -343,8 +343,8 @@
         ],
         "commands": [
             {
-                "command": "kolab-setup.installBallerina",
-                "title": "Install Ballerina",
+                "command": "kolab-setup.setupBallerina",
+                "title": "Set up Ballerina",
                 "category": "Ballerina"
             },
             {
