@@ -62,7 +62,13 @@ const LoaderContainer = styled.div`
     height: 300px;
 `;
 
-export function AIAgentWizard() {
+interface AIAgentWizardProps {
+    hideTitleBar?: boolean;
+    onSave?: (agentName: string) => void;
+}
+
+export function AIAgentWizard(props: AIAgentWizardProps) {
+    const { hideTitleBar, onSave } = props;
     const { rpcClient } = useRpcContext();
     const [filePath, setFilePath] = useState<string>("");
 
@@ -256,8 +262,12 @@ export function AIAgentWizard() {
 
     return (
         <View>
-            <TopNavigationBar />
-            <TitleBar title="AI Agent" subtitle="Create a new AI agent for your integration" />
+            {!hideTitleBar && (
+                <>
+                    <TopNavigationBar />
+                    <TitleBar title="AI Agent" subtitle="Create a new AI agent for your integration" />
+                </>
+            )}
             <ViewContent>
                 <Container>
                     <StepperContainer>
