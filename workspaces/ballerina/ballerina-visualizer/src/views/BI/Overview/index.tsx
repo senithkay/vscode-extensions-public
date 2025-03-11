@@ -717,7 +717,7 @@ export function Overview(props: ComponentDiagramProps) {
                                     variant="body1"
                                     sx={{ marginBottom: "24px", color: "var(--vscode-descriptionForeground)" }}
                                 >
-                                    Start by adding constructs or use AI to generate your project structure
+                                    Start by adding artifacts or use AI to generate your project structure
                                 </Typography>
                                 <ButtonContainer>
                                     <Button appearance="primary" onClick={handleAddConstruct}>
@@ -759,7 +759,7 @@ export function Overview(props: ComponentDiagramProps) {
                     ) : (
                         <EmptyReadmeContainer>
                             <Description variant="body2">
-                                Describe your integration and generate your constructs with AI
+                                Describe your integration and generate your artifacts with AI
                             </Description>
                             <VSCodeLink onClick={handleEditReadme}>Add a README</VSCodeLink>
                         </EmptyReadmeContainer>
