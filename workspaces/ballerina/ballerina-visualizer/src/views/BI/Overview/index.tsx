@@ -703,7 +703,7 @@ export function Overview(props: ComponentDiagramProps) {
                                 <Codicon name="wand" sx={{ marginRight: 8 }} /> Generate
                             </Button>
                             <Button appearance="primary" onClick={handleAddConstruct}>
-                                <Codicon name="add" sx={{ marginRight: 8 }} /> Add Construct
+                                <Codicon name="add" sx={{ marginRight: 8 }} /> Add Artifact
                             </Button>
                         </ActionContainer>)}
                     </DiagramHeaderContainer>
@@ -721,7 +721,7 @@ export function Overview(props: ComponentDiagramProps) {
                                 </Typography>
                                 <ButtonContainer>
                                     <Button appearance="primary" onClick={handleAddConstruct}>
-                                        <Codicon name="add" sx={{ marginRight: 8 }} /> Add Construct
+                                        <Codicon name="add" sx={{ marginRight: 8 }} /> Add Artifact
                                     </Button>
                                     <Button appearance="secondary" onClick={handleGenerate}>
                                         <Codicon name="wand" sx={{ marginRight: 8 }} /> Generate with AI
