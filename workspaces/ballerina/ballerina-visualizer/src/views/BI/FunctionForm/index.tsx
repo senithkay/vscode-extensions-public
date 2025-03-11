@@ -58,7 +58,7 @@ export function FunctionForm(props: FunctionFormProps) {
         } else {
             getFunctionNode();
         }
-    }, [filePath, functionName]);
+    }, [filePath, functionName, isDataMapper]);
 
     useEffect(() => {
         let fields = functionNode ? convertConfig(functionNode.properties) : [];
