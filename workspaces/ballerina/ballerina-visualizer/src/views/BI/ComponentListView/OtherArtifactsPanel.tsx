@@ -63,6 +63,13 @@ export function OtherArtifactsPanel() {
                     view: MACHINE_VIEW.AIAgentWizard,
                 },
             });
+        } else if (key === DIRECTORY_MAP.NATURAL_FUNCTIONS) {
+            await rpcClient.getVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.BINPFunctionForm,
+                },
+            });
         } else {
             setPopupMessage(true);
         }
@@ -106,6 +113,12 @@ export function OtherArtifactsPanel() {
                     icon={<Icon name="bi-function" />}
                     title="Functions"
                     onClick={() => handleClick(DIRECTORY_MAP.FUNCTIONS)}
+                />
+                <ButtonCard
+                    icon={<Icon name="bi-function" />}
+                    title="Natural Functions"
+                    description="Create reusable natural functions."
+                    onClick={() => handleClick(DIRECTORY_MAP.NATURAL_FUNCTIONS)}
                 />
             </CardGrid>
         </PanelViewMore>
