@@ -10,7 +10,7 @@
 import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
-import { LineRange, ServiceModel, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
+import { LineRange, Property, PropertyTypeMemberInfo, RecordTypeField, ServiceModel, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { URI, Utils } from "vscode-uri";
 import { FormGeneratorNew } from "../../Forms/FormGeneratorNew";
@@ -65,11 +65,32 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const { serviceModel, onSubmit, onBack, openListenerForm, formSubmitText = "Next" } = props;
     const [filePath, setFilePath] = useState<string>('');
     const [targetLineRange, setTargetLineRange] = useState<LineRange>();
+    const [recordTypeFields, setRecordTypeFields] = useState<RecordTypeField[]>([]);
 
     const createTitle = `Provide the necessary configuration details for the ${serviceModel.displayAnnotation.label} to complete the setup.`;
     const editTitle = `Update the configuration details for the ${serviceModel.displayAnnotation.label} as needed.`
 
     useEffect(() => {
+        const recordTypeFields: { key: string; property: Property; recordTypeMembers: PropertyTypeMemberInfo[] }[] = Object.entries(serviceModel.properties)
+        .filter(([_, property]) =>
+            property.typeMembers &&
+            property.typeMembers.some(member => member.kind === "RECORD_TYPE")
+        )
+        .map(([key, property]) => ({
+            key,
+            property: {
+                ...property,
+                metadata: {
+                    label: property.metadata?.label || key,
+                    description: property.metadata?.description || ''
+                },
+                valueType: property?.valueType || 'string'
+            } as Property,
+            recordTypeMembers: property.typeMembers.filter(member => member.kind === "RECORD_TYPE")
+        }));
+        console.log(">>> recordTypeFields of serviceModel", recordTypeFields);
+        setRecordTypeFields(recordTypeFields);
+
         serviceModel && setServiceFields(convertConfig(serviceModel));
         rpcClient.getVisualizerLocation().then(res => { setFilePath(Utils.joinPath(URI.file(res.projectUri), 'main.bal').fsPath) });
     }, [serviceModel]);
@@ -134,6 +155,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                                     openSubPanel={handleListenerForm}
                                     onSubmit={handleListenerSubmit}
                                     submitText={formSubmitText}
+                                    recordTypeFields={recordTypeFields}
                                 />
                             }
                         </FormContainer>
