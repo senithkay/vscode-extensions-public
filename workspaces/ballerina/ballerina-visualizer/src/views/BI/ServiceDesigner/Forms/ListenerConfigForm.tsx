@@ -106,7 +106,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                             <BodyText>
                                 {formSubmitText === "Save" ? editTitle : createTitle}
                             </BodyText> */}
-                            <FormHeader title={`${listenerModel.displayAnnotation.label.charAt(0).toUpperCase() + listenerModel.displayAnnotation.label.slice(1)} Configuration`} subtitle={`${formSubmitText === "Save" ? editTitle : createTitle}`} />
+                            <FormHeader title={`${listenerModel.displayAnnotation.label.charAt(0).toUpperCase() + listenerModel.displayAnnotation.label.slice(1)} Configuration`} />
                             {filePath && targetLineRange &&
                                 <FormGeneratorNew
                                     fileName={filePath}
