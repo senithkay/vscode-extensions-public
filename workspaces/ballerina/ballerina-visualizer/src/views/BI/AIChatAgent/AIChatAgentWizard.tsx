@@ -9,7 +9,7 @@
 
 import { useEffect, useState } from 'react';
 import { EVENT_TYPE, ListenerModel, ListenersResponse, ServiceModel } from '@wso2-enterprise/ballerina-core';
-import { Stepper, View, ViewContent } from '@wso2-enterprise/ui-toolkit';
+import { Stepper, View, ViewContent, TextField, Button } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import ListenerConfigForm from '../ServiceDesigner/Forms/ListenerConfigForm';
@@ -18,14 +18,22 @@ import { LoadingContainer } from '../../styles';
 import { TitleBar } from '../../../components/TitleBar';
 import { TopNavigationBar } from '../../../components/TopNavigationBar';
 import { LoadingRing } from '../../../components/Loader';
+import { FormHeader } from '../../../components/FormHeader';
 
 const FORM_WIDTH = 600;
 
 const FormContainer = styled.div`
-    padding-top: 15px;
-    padding-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    max-width: 600px;
+    gap: 20px;
+    padding: 20px;
 `;
 
+const ButtonContainer = styled.div`
+    display: flex;
+    gap: 10px;
+`;
 
 const ContainerX = styled.div`
     padding: 0 20px 20px;
@@ -78,138 +86,168 @@ const StepperContainer = styled.div`
     margin-bottom: 20px;
 `;
 
+const FormFields = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+`;
+
 export interface AIChatAgentWizardProps {
-    type: string;
 }
 
 export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
-    const { type } = props;
+    // module name for ai.agent
+    const type = "ai.agent";
     const { rpcClient } = useRpcContext();
-
-    const [step, setStep] = useState<number>(0);
-
+    const [agentName, setAgentName] = useState<string>("");
+    const [nameError, setNameError] = useState<string>("");
     const [listenerModel, setListenerModel] = useState<ListenerModel>(undefined);
-    const [serviceModel, setServiceModel] = useState<ServiceModel>(undefined);
-    const [listeners, setListeners] = useState<ListenersResponse>(undefined);
-
-    const [existing, setExisting] = useState<boolean>(false);
-    const [creatingListener, setCreatingListener] = useState<boolean>(false);
-
-    const [saving, setSaving] = useState<boolean>(false);
-    const [existingListener, setExistingListener] = useState<string>(undefined);
+    const [isCreating, setIsCreating] = useState<boolean>(false);
+    const [currentStep, setCurrentStep] = useState<number>(0);
+    const steps = [
+        { label: "Initializing", description: "Setting up the agent configuration" },
+        { label: "Creating Listener", description: "Configuring the service listener" },
+        { label: "Creating Service", description: "Setting up the AI chat service" },
+        { label: "Completing", description: "Finalizing the agent setup" }
+    ];
 
     useEffect(() => {
-        rpcClient.getServiceDesignerRpcClient().getListeners({ filePath: "", moduleName: type }).then(res => {
-            console.log("Existing Listeners: ", res);
-            setExisting(res.hasListeners);
-            if (res.hasListeners) {
-                rpcClient.getServiceDesignerRpcClient().getServiceModel({ filePath: "", moduleName: type, listenerName: "" }).then(res => {
-                    console.log("Service Model: ", res);
-                    res.service.properties["listener"].editable = true;
-                    setServiceModel(res.service);
-                    setStep(1);
-                });
-            }
-            setListeners(res);
-        });
         rpcClient.getServiceDesignerRpcClient().getListenerModel({ moduleName: type }).then(res => {
-            console.log("Listener Model: ", res);
             setListenerModel(res.listener);
         });
     }, []);
 
-    const handleListenerSubmit = async (value?: ListenerModel) => {
-        setSaving(true);
-        let listenerName;
-        if (value) {
-            await rpcClient.getServiceDesignerRpcClient().addListenerSourceCode({ filePath: "", listener: value });
-            if (value.properties['name'].value) {
-                listenerName = value.properties['name'].value;
-            }
+    const validateName = (name: string): boolean => {
+        if (!name) {
+            setNameError("Name is required");
+            return false;
         }
-        if (!value && existing) {
-            listenerName = existingListener;
+        if (/^[0-9]/.test(name)) {
+            setNameError("Name cannot start with a number");
+            return false;
         }
-        rpcClient.getServiceDesignerRpcClient().getServiceModel({ filePath: "", moduleName: type, listenerName }).then(res => {
-            console.log("Service Model: ", res);
-            if (existing) {
-                res.service.properties["listener"].editable = true;
-            }
-            setServiceModel(res.service);
-            setSaving(false);
-            setStep(1);
-        });
+        if (/[\s-]/.test(name)) {
+            setNameError("Name cannot contain spaces or dashes");
+            return false;
+        }
+        setNameError("");
+        return true;
     };
 
-    const handleServiceSubmit = async (value: ServiceModel) => {
-        setSaving(true);
-        const res = await rpcClient.getServiceDesignerRpcClient().addServiceSourceCode({ filePath: "", service: value });
-        rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                documentUri: res.filePath,
-                position: res.position
+    const constructStringLiteral = (name: string): any => {
+        return {
+            "addNewButton": false,
+            "advanced": false,
+            "codedata": {
+                "inDisplayAnnotation": false,
+                "inListenerInit": false,
+                "isBasePath": false,
+                "type": "STRING_LITERAL"
             },
-        });
+            "editable": true,
+            "enabled": true,
+            "isType": false,
+            "metadata": {
+                "description": "The string literal of the service",
+                "label": "String Literal"
+            },
+            "optional": false,
+            "placeholder": "\"/path\"",
+            "value": `"${name}"`,
+            "values": [],
+            "valueType": "EXPRESSION",
+            "valueTypeConstraint": "string"
+        }
     }
 
-    const onBack = () => {
-        setStep(1);
-    }
+    const handleCreateService = async () => {
+        if (!validateName(agentName)) {
+            return;
+        }
+        setIsCreating(true);
+        try {
+            setCurrentStep(0);
+            // Update the listener name and create the listener
+            const listener = listenerModel;
+            const listenerName = agentName + "Listener";
+            listener.properties['name'].value = listenerName;
 
-    const openListenerForm = () => {
-        setCreatingListener(true);
-        setStep(0);
-    }
+            setCurrentStep(1);
+            await rpcClient.getServiceDesignerRpcClient().addListenerSourceCode({ filePath: "", listener });
 
-    const onListenerSelect = (value: string) => {
-        setExistingListener(value);
-    }
+            setCurrentStep(2);
+            // Update the service name and create the service
+            await rpcClient.getServiceDesignerRpcClient().getServiceModel({
+                filePath: "",
+                moduleName: type,
+                listenerName: listenerName
+            }).then(res => {
+                const serviceModel = res.service;
+                serviceModel.properties["listener"].editable = true;
+                serviceModel.properties["listener"].items = [listenerName];
+                serviceModel.properties["listener"].values = [listenerName];
+                serviceModel.properties["stringLiteral"] = constructStringLiteral(agentName);
+                console.log("Service Model: ", serviceModel);
+                rpcClient.getServiceDesignerRpcClient().addServiceSourceCode({
+                    filePath: "",
+                    service: res.service
+                }).then((res) => {
+                    rpcClient.getVisualizerRpcClient().openView({
+                        type: EVENT_TYPE.OPEN_VIEW,
+                        location: {
+                            documentUri: res.filePath,
+                            position: res.position
+                        },
+                    });
+                    setCurrentStep(3);
+                    setIsCreating(false);
+                });
+            });
 
-    const defaultSteps = ["Listener Configuration", "Service Configuration"];
+            setCurrentStep(3);
+        } catch (error) {
+            console.error("Error creating AI Chat Agent:", error);
+            setIsCreating(false);
+        } finally {
+            setCurrentStep(0);
+        }
+    }
 
     return (
         <View>
             <TopNavigationBar />
-            <TitleBar title="AI Chat Agent" subtitle="Create a chattable AI agent using an LLM, prompts and tools." />
+            <TitleBar title="AI Chat Agent" subtitle="" />
             <ViewContent>
-                {!listenerModel && !listeners &&
-                    <LoadingContainer>
-                        <LoadingRing message="Loading listener..." />
-                    </LoadingContainer>
-                }
-                {listenerModel &&
-                    <Container>
-                        {!listeners?.hasListeners &&
-                            <StepperContainer>
-                                <Stepper alignment='flex-start' steps={defaultSteps} currentStep={step} />
-                            </StepperContainer>
-                        }
-                        {step === 0 && !saving &&
-                            <>
-                                <ListenerConfigForm listenerModel={listenerModel} onSubmit={handleListenerSubmit} onBack={creatingListener && onBack} formSubmitText={listeners?.hasListeners ? "Create" : undefined} />
-                            </>
-                        }
-                        {step === 0 && saving &&
-                            <LoadingContainer>
-                                <LoadingRing message="Saving listener..." />
-                            </LoadingContainer>
-                        }
-                        {step === 1 && !saving &&
-                            <>
-                                <ServiceConfigForm serviceModel={serviceModel} onSubmit={handleServiceSubmit} openListenerForm={existing && openListenerForm} formSubmitText={"Create"} />
-                            </>
-                        }
-                        {step === 1 && saving &&
-                            <LoadingContainer>
-                                <LoadingRing message="Saving service..." />
-                            </LoadingContainer>
-                        }
-                    </Container>
-                }
+                <FormContainer>
+                    <FormHeader
+                        title="Create AI Chat Agent"
+                        subtitle="Create a chattable AI agent using an LLM, prompts and tools."
+                    />
+                    <FormFields>
+                        <TextField
+                            label="Name"
+                            description="Agent will be identified by this name. Cannot contain spaces or dashes, and cannot start with a number."
+                            value={agentName}
+                            onChange={(e) => {
+                                setAgentName(e.target.value);
+                                validateName(e.target.value);
+                            }}
+                            errorMsg={nameError}
+                        />
+                        <ButtonContainer>
+                            <Button
+                                appearance="primary"
+                                onClick={handleCreateService}
+                                disabled={isCreating || !!nameError || !agentName}
+                            >
+                                {isCreating ? 'Creating...' : 'Create'}
+                            </Button>
+                            <Button appearance="secondary">Cancel</Button>
+                        </ButtonContainer>
+                    </FormFields>
+                </FormContainer>
             </ViewContent>
-        </View >
-
-
+        </View>
     );
 };

@@ -28,8 +28,7 @@ export function AIAgentPanel(props: AIAgentPanelProps) {
         await rpcClient.getVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
-                view: MACHINE_VIEW.AIChatAgentWizard,
-                serviceType: "ai.agent",
+                view: MACHINE_VIEW.AIChatAgentWizard
             },
         });
     };

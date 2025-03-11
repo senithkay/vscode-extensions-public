@@ -223,7 +223,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 if (StateMachine.context().isBI) {
                     commands.executeCommand("BI.project-explorer.refresh");
                 }
-                // await this.injectAIAgent(params.service, result);
+                await this.injectAIAgent(params.service, result);
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -235,35 +235,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     // This has to be replaced once we have a proper design for AI Agent Chat Service
     async injectAIAgent(service: ServiceModel, result: SourceUpdateResponse) {
         // We will only inject if the typpe is ai.agent and serviceType is ChatService
-        if (service.type === "ai.agent" && service?.properties?.serviceType?.value === "ChatService") {
-            // Create agents.bal in the same directory and inject agent
-            const targetFile = path.join(StateMachine.context().projectUri, `agents.bal`);
-            const sourceCode = `
-import ballerinax/ai.agent;
-
-configurable string apiKey = ?;
-configurable string deploymentId = ?;
-configurable string apiVersion = ?;
-configurable string serviceUrl = ?;
-
-final agent:Model model = check new agent:AzureOpenAiModel({auth: {apiKey}}, serviceUrl, deploymentId, apiVersion);
-final agent:Agent agent = check new (
-    systemPrompt = {
-        role: "",
-        instructions: ""
-    },
-    model = model,
-    tools = []
-);            
-`;
-
-            //Create or update the file using VSCode workspace API
-            const uri = Uri.file(targetFile);
-            const edit = new WorkspaceEdit();
-            edit.createFile(uri, { overwrite: true });
-            edit.insert(uri, new Position(0, 0), sourceCode);
-            await workspace.applyEdit(edit);
-
+        if (service.type === "ai.agent") {
             // retrive the service model
             const service = await this.getServiceModelFromCode({
                 filePath: result.filePath,
@@ -284,11 +256,8 @@ final agent:Agent agent = check new (
             // Update the service function code 
             const serviceFile = path.join(StateMachine.context().projectUri, `main.bal`);
             const serviceEdit = new WorkspaceEdit();
-            const serviceSourceCode = `        string agentResponse = check agent->run(chatRequest.message);
-            return {
-                message: agentResponse
-            };
-        `;
+            const serviceSourceCode = `        return error("Not implemented");
+`;
             serviceEdit.insert(Uri.file(serviceFile), new Position(injectionPosition.line, 0), serviceSourceCode);
             await workspace.applyEdit(serviceEdit);
         }

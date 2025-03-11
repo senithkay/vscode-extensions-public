@@ -254,7 +254,7 @@ const MainPanel = () => {
                         setViewComponent(<ComponentListView scope={value.scope} />);
                         break;
                     case MACHINE_VIEW.AIChatAgentWizard:
-                        setViewComponent(<AIChatAgentWizard type={value.serviceType} />);
+                        setViewComponent(<AIChatAgentWizard />);
                         break;
                     case MACHINE_VIEW.BIServiceWizard:
                         setViewComponent(<ServiceWizard type={value.serviceType} />);
