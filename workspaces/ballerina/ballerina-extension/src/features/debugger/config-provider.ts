@@ -183,7 +183,7 @@ async function showInputBox(paramName: string, value: string, type: string, isRe
         value: value,
         validateInput: (input: string) => {
             if (!isOptional && input === "") {
-            return `Parameter is required and cannot be empty`;
+            return `The input is required`;
             }
 
             // Validate the input value based on its type
@@ -192,25 +192,25 @@ async function showInputBox(paramName: string, value: string, type: string, isRe
                     return null;
                 case 'int':
                     if (!Number.isInteger(Number(input)) || isNaN(Number(input))) {
-                        return "Value must be an integer";
+                        return "The input must be an integer";
                     }
                     return null;
                 case 'float':
                 case 'decimal':
                     if (isNaN(Number(input))) {
-                        return "Value must be a number";
+                        return "The input must be a number";
                     }
                     return null;
                 case 'byte':
                     const byteValue = Number(input);
                     if (!Number.isInteger(byteValue) || isNaN(byteValue) || byteValue < 0 || byteValue > 255) {
-                        return "Value must be an integer between 0 and 255";
+                        return "The input must be an integer between 0 and 255";
                     }
                     return null;
                 case 'boolean':
                     const lowerInput = input.toLowerCase();
                     if (lowerInput !== 'true' && lowerInput !== 'false') {
-                        return "Value must be 'true' or 'false'";
+                        return "The input must be either 'true' or 'false'";
                     }
                     return null;
                 default:
