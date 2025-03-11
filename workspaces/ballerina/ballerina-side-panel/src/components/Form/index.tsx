@@ -25,7 +25,6 @@ import { getValueForDropdown, isDropdownField } from "../editors/utils";
 import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, FlowNode, LinePosition, ExpressionProperty, RecordTypeField } from "@wso2-enterprise/ballerina-core";
 import { FormContext, Provider } from "../../context";
 import { formatJSONLikeString } from "./utils";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 namespace S {
     export const Container = styled(SidePanelBody) <{ nestedForm?: boolean }>`
@@ -196,11 +195,6 @@ export interface FormProps {
     disableSaveButton?: boolean;
 }
 
-enum View {
-    "GraphQL",
-    "Automation"
-}
-
 export const Form = forwardRef((props: FormProps, ref) => {
     const {
         infoLabel,
@@ -243,24 +237,13 @@ export const Form = forwardRef((props: FormProps, ref) => {
         formState: { isValidating, errors, isDirty }
     } = useForm<FormValues>();
 
-    const { rpcClient } = useRpcContext();
-
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [activeFormField, setActiveFormField] = useState<string | undefined>(undefined);
     const [diagnosticsInfo, setDiagnosticsInfo] = useState<FormDiagnostics[] | undefined>(undefined);
-    const [isGraphql, setIsGraphql] = useState<boolean>(false);
-    const [view, setView] = useState<View>();
 
     const exprRef = useRef<FormExpressionEditorRef>(null);
 
     useEffect(() => {
-        rpcClient.getVisualizerLocation().then(context => {
-            if (context.view === "GraphQL Diagram") {
-                setView(View.GraphQL);
-            } else if (context.view === "Add Automation") {
-                setView(View.Automation);
-            }
-        });
         // Check if the form is a onetime usage or not. This is checked due to reset issue with nested forms in param manager
         if (!oneTimeForm) {
             // Reset form with new values when formFields change
@@ -477,15 +460,6 @@ export const Form = forwardRef((props: FormProps, ref) => {
 
     const disableSaveButton = !isValid || isValidating || props.disableSaveButton;
 
-    const getAdvancedParamsLabel = () => {
-        if (view === View.GraphQL) {
-            return 'Advance Arguments';
-        } else if (view === View.Automation) {
-            return 'Startup Parameters';
-        }
-        return 'Advance Parameters';
-    }
-
     // TODO: support multiple type fields
     return (
         <Provider {...contextValue}>
@@ -546,7 +520,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     }
                     {hasAdvanceFields && (
                         <S.Row>
-                            {getAdvancedParamsLabel()}
+                            Advance Configurations
                             <S.ButtonContainer>
                                 {!showAdvancedOptions && (
                                     <LinkButton
