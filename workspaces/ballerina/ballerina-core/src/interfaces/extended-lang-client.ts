@@ -341,6 +341,7 @@ export interface BallerinaProject {
     version?: string;
     author?: string;
     packageName?: string;
+    orgName?: string;
 }
 
 export interface BallerinaPackagesParams {
