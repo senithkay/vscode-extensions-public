@@ -196,6 +196,11 @@ export interface FormProps {
     disableSaveButton?: boolean;
 }
 
+enum View {
+    "GraphQL",
+    "Automation"
+}
+
 export const Form = forwardRef((props: FormProps, ref) => {
     const {
         infoLabel,
@@ -244,13 +249,16 @@ export const Form = forwardRef((props: FormProps, ref) => {
     const [activeFormField, setActiveFormField] = useState<string | undefined>(undefined);
     const [diagnosticsInfo, setDiagnosticsInfo] = useState<FormDiagnostics[] | undefined>(undefined);
     const [isGraphql, setIsGraphql] = useState<boolean>(false);
+    const [view, setView] = useState<View>();
 
     const exprRef = useRef<FormExpressionEditorRef>(null);
 
     useEffect(() => {
         rpcClient.getVisualizerLocation().then(context => {
             if (context.view === "GraphQL Diagram") {
-                setIsGraphql(true);
+                setView(View.GraphQL);
+            } else if (context.view === "Add Automation") {
+                setView(View.Automation);
             }
         });
         // Check if the form is a onetime usage or not. This is checked due to reset issue with nested forms in param manager
@@ -469,6 +477,15 @@ export const Form = forwardRef((props: FormProps, ref) => {
 
     const disableSaveButton = !isValid || isValidating || props.disableSaveButton;
 
+    const getAdvancedParamsLabel = () => {
+        if (view === View.GraphQL) {
+            return 'Advance Arguments';
+        } else if (view === View.Automation) {
+            return 'Startup Parameters';
+        }
+        return 'Advance Parameters';
+    }
+
     // TODO: support multiple type fields
     return (
         <Provider {...contextValue}>
@@ -529,7 +546,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     }
                     {hasAdvanceFields && (
                         <S.Row>
-                            {isGraphql ? 'Advance Arguments' : 'Advance Parameters'}
+                            {getAdvancedParamsLabel()}
                             <S.ButtonContainer>
                                 {!showAdvancedOptions && (
                                     <LinkButton

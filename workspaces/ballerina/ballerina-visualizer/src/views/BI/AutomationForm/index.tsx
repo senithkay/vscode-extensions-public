@@ -12,7 +12,7 @@ import { DIRECTORY_MAP, EVENT_TYPE, LineRange, ProjectStructureArtifactResponse 
 import { View, ViewContent, Button } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { getMainFunctionParametersList } from "../../../utils/utils";
+import { getFunctionParametersList } from "../../../utils/utils";
 import { FormField, FormValues, Parameter } from "@wso2-enterprise/ballerina-side-panel";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { URI, Utils } from "vscode-uri";
@@ -61,7 +61,7 @@ export function MainForm() {
     const handleFunctionCreate = async (data: FormValues) => {
         setIsLoading(true);
         const params = data["params"];
-        const paramList = params ? getMainFunctionParametersList(params) : [];
+        const paramList = params ? getFunctionParametersList(params) : [];
         const res = await rpcClient
             .getBIDiagramRpcClient()
             .createComponent({ type: DIRECTORY_MAP.AUTOMATION, functionType: { parameters: paramList } });
@@ -138,7 +138,7 @@ export function MainForm() {
     const currentFields: FormField[] = [
         {
             key: `params`,
-            label: "Startup Parameters",
+            label: "Parameters",
             type: "PARAM_MANAGER",
             optional: true,
             advanced: true,
@@ -158,7 +158,7 @@ export function MainForm() {
     return (
         <View>
             <TopNavigationBar />
-            <TitleBar title="Automation" subtitle="Create a new automation for your integration" />
+            <TitleBar title="Automation"/>
             <ViewContent padding>
                 <Container>
                     {isLoading && (
