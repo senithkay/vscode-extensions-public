@@ -228,6 +228,7 @@ export const TypeHelper = forwardRef<HTMLDivElement, TypeHelperProps>((props, re
                     <S.Container tabIndex={0} ref={typeHelperRef} sx={position.helperPane}>
                         <Transition show={open} {...ANIMATION}>
                             <TypeHelperComponent
+                                open={open}
                                 currentType={currentType}
                                 currentCursorPosition={currentCursorPosition}
                                 loading={loading}

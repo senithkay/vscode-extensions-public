@@ -17,19 +17,22 @@ import { TreeContainer, TreeHeader } from './Tree/Tree';
 import { useIONodesStyles } from "../../../styles";
 import { getTypeName } from "../../utils/common-utils";
 import { useDMIOConfigPanelStore } from "../../../../store/store";
-import { TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
+import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 
 export interface PrimitiveTypeItemWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
     dmType: DMType;
     engine: DiagramEngine;
     getPort: (portId: string) => InputOutputPortModel;
+    context: IDataMapperContext;
     valueLabel?: string;
     nodeHeaderSuffix?: string;
 }
 
 export function PrimitiveTypeInputWidget(props: PrimitiveTypeItemWidgetProps) {
-    const { engine, dmType, id, getPort, valueLabel, nodeHeaderSuffix } = props;
+    const { engine, dmType, id, getPort, context, valueLabel, nodeHeaderSuffix } = props;
+    const focusedOnRoot = context.views.length === 1 || undefined;
 
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 
@@ -63,11 +66,15 @@ export function PrimitiveTypeInputWidget(props: PrimitiveTypeItemWidgetProps) {
         </TruncatedLabel>
     );
 
-    const onRightClick = (event: React.MouseEvent) => {
-        event.preventDefault(); 
+    const handleChangeSchema = () => {
         setIOConfigPanelType(IOType.Input);
         setIsSchemaOverridden(true);
         setIsIOConfigPanelOpen(true);
+    };
+
+    const onRightClick = (event: React.MouseEvent) => {
+        event.preventDefault();
+        if (focusedOnRoot) handleChangeSchema();
     };
 
     return (
@@ -77,6 +84,21 @@ export function PrimitiveTypeInputWidget(props: PrimitiveTypeItemWidgetProps) {
                     {label}
                     <span className={classes.nodeType}>{nodeHeaderSuffix}</span>
                 </span>
+                {focusedOnRoot && (
+                    <Button
+                        appearance="icon"
+                        data-testid={"open-change-schema-btn"}
+                        tooltip="Change input schema"
+                        sx={{ marginRight: "5px" }}
+                        onClick={handleChangeSchema}
+                        data-field-action
+                    >
+                        <Codicon
+                            name="edit"
+                            iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
+                        />
+                    </Button>
+                )}
                 <span className={classes.outPort}>
                     {portOut &&
                         <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
