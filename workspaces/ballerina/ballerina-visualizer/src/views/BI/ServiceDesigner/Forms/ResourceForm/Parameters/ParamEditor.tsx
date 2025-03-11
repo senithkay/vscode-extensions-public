@@ -42,18 +42,6 @@ export function ParamEditor(props: ParamProps) {
         onChange({ ...param, httpParamType: value as "QUERY" | "Header" | "PAYLOAD" });
     };
 
-    const handleTypeChange = (value: string) => {
-        onChange({ ...param, type: { ...param.type, value } });
-    };
-
-    const handleChange = (value: string) => {
-        onChange({ ...param, name: { ...param.name, value } });
-    };
-
-    const handleValueChange = (value: string) => {
-        onChange({ ...param, defaultValue: { ...param.defaultValue, value } });
-    };
-
     const handleReqFieldChange = () => {
         const kind = param.kind === 'REQUIRED' ? "OPTIONAL" : "REQUIRED";
         onChange({ ...param, kind });
@@ -63,10 +51,6 @@ export function ParamEditor(props: ParamProps) {
         onCancel(param);
     };
 
-    const handleOnSave = () => {
-        onSave(param);
-    };
-
     useEffect(() => {
         rpcClient.getVisualizerLocation().then(res => { setFilePath(Utils.joinPath(URI.file(res.projectUri), 'main.bal').fsPath) });
     }, []);
@@ -74,9 +58,9 @@ export function ParamEditor(props: ParamProps) {
 
     const currentFields: FormField[] = [
         {
-            key: `variable`,
+            key: `name`,
             label: 'Name',
-            type: 'string',
+            type: param.name.valueType,
             optional: false,
             editable: true,
             documentation: '',
@@ -89,7 +73,7 @@ export function ParamEditor(props: ParamProps) {
     !hideType && currentFields.push({
         key: `type`,
         label: 'Type',
-        type: 'TYPE',
+        type: param.type.valueType,
         optional: false,
         editable: true,
         documentation: '',
@@ -99,9 +83,9 @@ export function ParamEditor(props: ParamProps) {
     })
 
     param.defaultValue && currentFields.push({
-        key: `defaultable`,
+        key: `defaultValue`,
         label: 'Default Value',
-        type: 'string',
+        type: param.defaultValue.valueType,
         optional: true,
         advanced: true,
         editable: true,
@@ -115,9 +99,9 @@ export function ParamEditor(props: ParamProps) {
         console.log("Param values", dataValues);
         onSave({
             ...param,
-            type: { ...param.type, value: dataValues['type'] },
-            name: { ...param.name, value: dataValues['variable'] },
-            defaultValue: { ...param.defaultValue, value: dataValues['defaultable'] }
+            type: { ...param.type, value: dataValues['type'] ?? param.type.value },
+            name: { ...param.name, value: dataValues['name'] ?? param.name.value },
+            defaultValue: { ...param.defaultValue, value: dataValues['defaultValue'] ?? param.defaultValue?.value }
         });
     }
 
