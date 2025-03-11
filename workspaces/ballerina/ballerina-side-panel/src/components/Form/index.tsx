@@ -531,7 +531,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     }
                     {hasAdvanceFields && (
                         <S.Row>
-                            {isGraphql ? 'Advance Arguments' : 'Advance Parameters'}
+                            {isGraphql ? 'Advanced Arguments' : 'Advanced Parameters'}
                             <S.ButtonContainer>
                                 {!showAdvancedOptions && (
                                     <LinkButton

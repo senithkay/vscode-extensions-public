@@ -10,7 +10,7 @@
 import vscode from "vscode";
 
 export interface CustomDiagnosticData {
-    codeChangeSolution: string;
+    implementationChangeSolution: string;
     docChangeSolution: string|undefined|null;
     fileName: string;
     id: string;

@@ -341,6 +341,7 @@ export interface BallerinaProject {
     version?: string;
     author?: string;
     packageName?: string;
+    orgName?: string;
 }
 
 export interface BallerinaPackagesParams {
@@ -1164,6 +1165,19 @@ export interface UpdateTypeRequest {
     filePath: string;
     description: string;
     type: Type;
+}
+
+export interface UpdateTypesRequest {
+    filePath: string;
+    types: Type[];
+}
+
+export interface UpdateTypesResponse {
+    textEdits: {
+        [filePath: string]: TextEdit[];
+    };
+    errorMsg?: string;
+    stacktrace?: string;
 }
 
 export interface GetTypesResponse {

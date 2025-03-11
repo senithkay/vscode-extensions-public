@@ -8,6 +8,7 @@
  */
 
 import { DisplayAnnotation } from "./ballerina";
+import { PropertyTypeMemberInfo } from "./bi";
 import { LineRange } from "./common";
 
 
@@ -132,6 +133,7 @@ export interface PropertyModel {
     choices?: PropertyModel[];
     properties?: ConfigProperties;
     addNewButton?: boolean;
+    typeMembers?: PropertyTypeMemberInfo[];
     httpParamType?: "QUERY" | "Header" | "PAYLOAD";
 }
 

@@ -926,7 +926,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             onSearchTextChange={(searchText) => handleSearchNpFunction(searchText, FUNCTION_TYPE.REGULAR)}
                             onAddFunction={handleOnAddNPFunction}
                             onClose={handleOnCloseSidePanel}
-                            title={"Prompt as code"}
+                            title={"Natural Functions"}
                             onBack={handleOnFormBack}
                         />
                     )}
