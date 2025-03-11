@@ -68,11 +68,17 @@ export type Metadata = {
     draft?: boolean; // for diagram draft nodes
     data?: {
         isDataMappedFunction?: boolean;
-        tools?: { [key: string]: string }; // for agent call
-        model?: string; // for agent call
+        tools?: ToolData[];
+        model?: ToolData;
         paramsToHide?: string[]; // List of properties keys to to hide from forms
     }
 };
+
+export type ToolData = {
+    name: string;
+    description?: string;
+    path?: string;
+}
 
 export type Property = {
     metadata: Metadata;

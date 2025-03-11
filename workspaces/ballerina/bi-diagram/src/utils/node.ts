@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { AgentNodeTools, Branch, FlowNode } from "./types";
+import { Branch, FlowNode } from "./types";
 
 export function getNodeIdFromModel(node: FlowNode, prefix?: string) {
     if (!node) {
@@ -85,17 +85,4 @@ export function getNodeTitle(node: FlowNode) {
         return `${module} : ${label}`;
     }
     return label;
-}
-
-// get agent node tools
-export function getAgentNodeTools(node: FlowNode): AgentNodeTools[] {
-    const tools = node.metadata?.data?.tools
-        ? Object.entries(node.metadata.data.tools).map(([key, value]) => {
-              return {
-                  name: key,
-                  iconUrl: value,
-              };
-          })
-        : [];
-    return tools;
 }
