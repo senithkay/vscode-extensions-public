@@ -63,6 +63,7 @@ import { ServiceClassConfig } from "./views/BI/ServiceClassEditor/ServiceClassCo
 import { AIAgentDesigner } from "./views/BI/AIChatAgent";
 import { AIAgentEditView } from "./views/BI/AIAgents/AIAgentEditView";
 import { AIChatAgentWizard } from "./views/BI/AIChatAgent/AIChatAgentWizard";
+import { BI_FOCUS_FLOW_DIAGRAM } from "./views/BI/FocusFlowDiagram";
 
 const globalStyles = css`
     *,
@@ -185,7 +186,12 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.BIDiagram:
                         setViewComponent(
-                            <DiagramWrapper syntaxTree={value?.syntaxTree} projectPath={value.projectUri} />
+                            <DiagramWrapper
+                                syntaxTree={value?.syntaxTree}
+                                projectPath={value?.projectUri}
+                                filePath={value?.documentUri}
+                                view={value?.focusFlowDiagramView}
+                            />
                         );
                         break;
                     case MACHINE_VIEW.ERDiagram:

@@ -19,6 +19,7 @@ import { EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
 import { VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import styled from "@emotion/styled";
+import { BIFocusFlowDiagram, BIFocusFlowDiagramView } from "../FocusFlowDiagram";
 
 const ActionButton = styled(Button)`
     display: flex;
@@ -57,10 +58,12 @@ const Parameters = styled.span`
 export interface DiagramWrapperProps {
     syntaxTree: STNode;
     projectPath: string;
+    filePath?: string;
+    view?: BIFocusFlowDiagramView;
 }
 
 export function DiagramWrapper(param: DiagramWrapperProps) {
-    const { syntaxTree, projectPath } = param;
+    const { syntaxTree, projectPath, filePath, view } = param;
     const { rpcClient } = useRpcContext();
 
     const [showSequenceDiagram, setShowSequenceDiagram] = useState(false);
@@ -229,14 +232,25 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                     onUpdate={handleUpdateDiagram}
                     onReady={handleReadyDiagram}
                 />
-            ) : (
-                <BIFlowDiagram
-                    syntaxTree={syntaxTree}
-                    projectPath={projectPath}
-                    onUpdate={handleUpdateDiagram}
-                    onReady={handleReadyDiagram}
-                />
-            )}
+            ) : 
+                view ? (
+                    <BIFocusFlowDiagram
+                        syntaxTree={syntaxTree}
+                        projectPath={projectPath}
+                        filePath={filePath}
+                        onUpdate={handleUpdateDiagram}
+                        onReady={handleReadyDiagram}
+                        view={view}
+                    />
+                ) : (
+                    <BIFlowDiagram
+                        syntaxTree={syntaxTree}
+                        projectPath={projectPath}
+                        onUpdate={handleUpdateDiagram}
+                        onReady={handleReadyDiagram}
+                    />
+                )
+            }
         </View>
     );
 }

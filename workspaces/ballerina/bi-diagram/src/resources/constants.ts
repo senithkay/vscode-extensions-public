@@ -21,6 +21,7 @@ export enum NodeTypes {
     END_NODE = "end-node",
     ERROR_NODE = "error-node",
     AGENT_CALL_NODE = "agent-call-node",
+    PROMPT_NODE = "prompt-node",
 }
 
 export const NODE_LINK = "node-link";
@@ -79,3 +80,7 @@ export const LAST_NODE = "lastNode";
 export const AGENT_NODE_TOOL_GAP = 5;
 export const AGENT_NODE_TOOL_SECTION_GAP = 30;
 export const AGENT_NODE_ADD_TOOL_BUTTON_WIDTH = 20;
+
+// prompt node
+export const PROMPT_NODE_WIDTH = 280;
+export const PROMPT_NODE_HEIGHT = 300;
