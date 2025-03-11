@@ -144,7 +144,7 @@ const aiStateMachine = createMachine<AiMachineContext>({
                 }
             },
             on: {
-                SIGN_IN_SUCCESS: "Settings",
+                SIGN_IN_SUCCESS: "Ready",
                 CANCEL: "Settings",
                 FAILIER: "Settings"
             }
@@ -235,7 +235,10 @@ async function checkToken(context, event): Promise<UserToken> {
 async function openLogin(context, event) {
     return new Promise(async (resolve, reject) => {
         try {
-            initiateInbuiltAuth();
+            const status:boolean = await initiateInbuiltAuth();
+            if (!status) {
+                aiStateService.send({ type: "CANCEL" })
+            }
         } catch (error) {
             reject(error);
         }
