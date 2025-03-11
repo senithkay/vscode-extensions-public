@@ -40,6 +40,10 @@ export const ContentSection = styled.div<CSSObject>`
     display: flex;
     flex-direction: row;
     width: 100%;
+    ${(props: any) => props.justifyEnd && `
+        justify-content: space-between;
+        margin-right: 20px;
+    `}
 `;
 
 export const EditIconWrapper = styled.div<CSSObject>`

@@ -68,6 +68,7 @@ export function ResourceForm(props: ResourceFormProps) {
 	};
 
 	const handleSave = () => {
+		console.log("Saved Resource", functionModel);
 		onSave(functionModel);
 	}
 

@@ -161,6 +161,7 @@ export function ParamEditor(props: ParamProps) {
                         onSubmit={onParameterSubmit}
                         submitText={param.type.value ? "Save" : "Add"}
                         nestedForm={true}
+                        helperPaneSide='left'
                     />
                 }
 

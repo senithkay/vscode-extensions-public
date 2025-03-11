@@ -79,7 +79,8 @@ export function ResourcePath(props: ResourcePathProps) {
 			<PathContainer>
 				<div
 					style={{
-						width: 160
+						width: 160,
+						marginTop: -1.3
 					}}
 				>
 					<Dropdown
