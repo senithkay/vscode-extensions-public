@@ -8,9 +8,12 @@
  */
 
 import { Uri, Webview, workspace } from "vscode";
+import * as fs from 'fs';
+import * as path from 'path';
 
 export interface ProjectInfo {
     isBI: boolean;
+    isBallerina: boolean;
     isMultiRoot: boolean;
 };
 
@@ -24,18 +27,22 @@ export function getUri(webview: Webview, extensionUri: Uri, pathList: string[]) 
 export function fetchProjectInfo(): ProjectInfo {
     const workspaceUris = workspace.workspaceFolders ? workspace.workspaceFolders.map(folder => folder.uri) : [];
     let isBICount = 0; // Counter for workspaces with isBI set to true
+    let isBalCount = 0; // Counter for workspaces with Ballerina project
     
     // Check each workspace folder's configuration for 'isBI'
     for (const uri of workspaceUris) {
         if (checkIsBI(uri)) {
-            isBICount++; // Increment the count if isBI is true
+            isBICount++;
+            isBalCount++;
+        } else if (checkIsBallerina(uri)) {
+            isBalCount++;
         }
     }
 
-    // Return true if any workspace has isBI set to true
     return {
         isBI: isBICount > 0,
-        isMultiRoot: isBICount > 1 // Set to true only if more than one workspace has isBI set to true
+        isBallerina: isBalCount > 0,
+        isMultiRoot: isBalCount > 1 // Set to true only if more than one workspace has a Ballerina project
     };
 }
 
@@ -52,4 +59,9 @@ export function checkIsBI(uri: Uri): boolean {
         return valuesToCheck.find(value => value === true) !== undefined; // Return true if isBI is set to true
     }
     return false; // Return false if isBI is not set
+}
+
+export function checkIsBallerina(uri: Uri): boolean {
+    const ballerinaTomlPath = path.join(uri.fsPath, 'Ballerina.toml');
+    return fs.existsSync(ballerinaTomlPath);
 }
