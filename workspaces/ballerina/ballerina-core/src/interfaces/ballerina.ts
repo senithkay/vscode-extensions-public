@@ -524,7 +524,7 @@ export interface ComponentSummary {
     moduleVariables: ComponentInfo[],
     automations: ComponentInfo[],
     configurableVariables: ComponentInfo[],
-    promptAsCode: ComponentInfo[],
+    promptAsCode: ComponentInfo[]
 }
 
 export interface ComponentInfo {
