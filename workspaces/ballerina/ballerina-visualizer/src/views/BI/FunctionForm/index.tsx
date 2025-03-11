@@ -50,7 +50,7 @@ export function FunctionForm(props: FunctionFormProps) {
     const [targetLineRange, setTargetLineRange] = useState<LineRange>();
 
     const fileName = filePath.split(/[\\/]/).pop();
-    const formType = useRef(isDataMapper ? "Data Mapper" : isNpFunction ? "Prompt as code" : "Function");
+    const formType = useRef(isDataMapper ? "Data Mapper" : isNpFunction ? "Natural Function" : "Function");
 
     useEffect(() => {
         if (functionName) {
@@ -149,7 +149,7 @@ export function FunctionForm(props: FunctionFormProps) {
     return (
         <View>
             <TopNavigationBar />
-            <TitleBar title={formType.current} subtitle={`Manage ${isDataMapper ? "data mappers" : isNpFunction ? "prompt as code" : "functions"} in your integration`} />
+            <TitleBar title={formType.current} subtitle={`Manage ${isDataMapper ? "data mappers" : isNpFunction ? "natural functions" : "functions"} in your integration`} />
             <ViewContent padding>
                 <Container>
                     {functionName && (

@@ -12,7 +12,6 @@ import { window, Uri } from 'vscode';
 import path = require('path');
 import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse, SHARED_COMMANDS, BI_COMMANDS, buildProjectStructure, PackageConfigSchema, BallerinaProject, DIRECTORY_SUB_TYPE } from "@wso2-enterprise/ballerina-core";
 import { extension } from "../biExtentionContext";
-import { checkIsBI } from '../utils';
 
 interface Property {
     name?: string;
@@ -74,9 +73,9 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
         });
     }
 
-    constructor(isBI: boolean) {
+    constructor(isBallerina: boolean) {
         this._data = [];
-        isBI && this.refresh();
+        isBallerina && this.refresh();
     }
 
     getTreeItem(element: ProjectExplorerEntry): vscode.TreeItem | Thenable<vscode.TreeItem> {
@@ -132,7 +131,7 @@ async function getProjectStructureData(): Promise<ProjectExplorerEntry[]> {
                 .workspaceFolders
                 .find(folder => folder.uri.fsPath === extension.projectPath);
 
-            if (!workspace || !checkIsBI(workspace.uri)) {
+            if (!workspace) {
                 return [];
             }
 
@@ -264,17 +263,17 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     configs.children = getComponents(components.directoryMap[DIRECTORY_MAP.CONFIGURATIONS], DIRECTORY_MAP.CONFIGURATIONS);
     entries.push(configs);
 
-    // Prompt as code
-    const promptAsCode = new ProjectExplorerEntry(
-        "Prompt as code",
+    // Natural Functions
+    const naturalFunctions = new ProjectExplorerEntry(
+        "Natural Functions",
         vscode.TreeItemCollapsibleState.Expanded,
         null,
         'function',
         false
     );
-    promptAsCode.contextValue = "promptAsCode";
-    promptAsCode.children = getComponents(components.directoryMap[DIRECTORY_MAP.PROMPT_AS_CODE], DIRECTORY_MAP.PROMPT_AS_CODE);
-    entries.push(promptAsCode);
+    naturalFunctions.contextValue = "naturalFunctions";
+    naturalFunctions.children = getComponents(components.directoryMap[DIRECTORY_MAP.NATURAL_FUNCTIONS], DIRECTORY_MAP.NATURAL_FUNCTIONS);
+    entries.push(naturalFunctions);
 
     return entries;
 }
@@ -313,7 +312,7 @@ function getComponents(items: ProjectStructureArtifactResponse[], itemType?: DIR
             [DIRECTORY_MAP.CLASSES]: DIRECTORY_SUB_TYPE.TYPE,
             [DIRECTORY_MAP.DATA_MAPPERS]: DIRECTORY_SUB_TYPE.DATA_MAPPER,
             [DIRECTORY_MAP.AGENTS]: DIRECTORY_SUB_TYPE.AGENTS,
-            [DIRECTORY_MAP.PROMPT_AS_CODE]: DIRECTORY_SUB_TYPE.PROMPT_AS_CODE
+            [DIRECTORY_MAP.NATURAL_FUNCTIONS]: DIRECTORY_SUB_TYPE.NATURAL_FUNCTIONS
         };
 
         fileEntry.contextValue = contextValueMap[itemType] || comp.icon;
