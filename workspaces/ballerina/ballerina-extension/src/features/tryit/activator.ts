@@ -246,7 +246,6 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
             await openChatView(selectedService.basePath, selectedPort.toString());
         }
 
-
         // Setup the error log watcher
         setupErrorLogWatcher(targetDir);
     } catch (error) {
@@ -280,12 +279,15 @@ async function openInSplitView(fileUri: vscode.Uri, editorType: string = 'defaul
 async function openChatView(basePath: string, port: string) {
     try {
         const baseUrl = `http://localhost:${port}`;
-        const chatPath = "chatMessage";
-        const fullUrl = new URL(chatPath, new URL(basePath, baseUrl));
+        const chatPath = "chat";
+
+        const serviceEp = new URL(basePath, baseUrl);
+        const cleanedServiceEp = serviceEp.pathname.replace(/\/$/, '') + "/" + chatPath.replace(/^\//, '');
+        const chatEp = new URL(cleanedServiceEp, serviceEp.origin);
 
         const sessionId = uuidv4();
 
-        commands.executeCommand("kolab.open.agent.chat", { chatEp: fullUrl.href, chatSessionId: sessionId });
+        commands.executeCommand("kolab.open.agent.chat", { chatEp: chatEp.href, chatSessionId: sessionId });
     } catch (error) {
         vscode.window.showErrorMessage(`Failed to call Chat-Agent: ${error}`);
     }
