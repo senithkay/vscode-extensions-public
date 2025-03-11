@@ -14,6 +14,7 @@ import { fetchProjectInfo, ProjectInfo } from './utils';
 
 interface MachineContext {
     isBI: boolean;
+    isBallerina?: boolean;
     isMultiRoot?: boolean;
 }
 
@@ -34,6 +35,7 @@ const stateMachine = createMachine<MachineContext>({
                         target: 'ready',
                         actions: assign({
                             isBI: (context, event) => event.data.isBI,
+                            isBallerina: (context, event) => event.data.isBallerina,
                             isMultiRoot: (context, event) => event.data.isMultiRoot
                         })
                     },
@@ -53,7 +55,12 @@ const stateMachine = createMachine<MachineContext>({
 }, {
     actions: {
         activateExplorer: (context, event) => {
-            activateProjectExplorer(extension.context, context.isBI, context.isMultiRoot);
+            activateProjectExplorer({
+                context: extension.context,
+                isBI: context.isBI,
+                isBallerina: context.isBallerina,
+                isMultiRoot: context.isMultiRoot
+            });
         }
     },
 });
