@@ -2,7 +2,7 @@
     "name": "kolab",
     "displayName": "KolaB",
     "description": "KolaB Extension for Kola.",
-    "version": "0.4.7",
+    "version": "0.4.8",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
@@ -569,6 +569,12 @@
                 "icon": "$(wand)"
             },
             {
+                "command": "kolab.open.agent.chat",
+                "title": "Open Agent Chat Panel",
+                "category": "Ballerina",
+                "icon": "$(comment-discussion)"
+            },
+            {
                 "command": "kolab.open.bi.welcome",
                 "title": "Open Welcome",
                 "category": "BI"
@@ -1118,7 +1124,8 @@
         "vscode-test": "^1.6.1",
         "vscode-uri": "^3.0.8",
         "xml-js": "^1.6.11",
-        "xstate": "^4.38.3"
+        "xstate": "^4.38.3",
+        "uuid": "^11.1.0"
     },
     "devDependencies": {
         "@sentry/webpack-plugin": "^1.20.1",

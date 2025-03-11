@@ -82,6 +82,8 @@ export function AIAgentDesigner(props: AIAgentDesignerProps) {
     const [showFunctionConfigForm, setShowFunctionConfigForm] = useState<boolean>(false);
     const [projectListeners, setProjectListeners] = useState<ProjectStructureArtifactResponse[]>([]);
 
+    const supportedServiceTypes = ['http', 'ai.agent'];
+
     useEffect(() => {
         fetchService();
     }, [position]);
@@ -158,7 +160,7 @@ export function AIAgentDesigner(props: AIAgentDesignerProps) {
     };
 
     const handleServiceTryIt = () => {
-        const basePath = serviceModel.properties?.basePath?.value?.trim();
+        const basePath = serviceModel.properties?.basePath?.value?.trim() ?? "";
         const listener = serviceModel.properties?.listener?.value?.trim();
         const commands = ["kolab.tryit", false, undefined, { basePath, listener }];
         rpcClient.getCommonRpcClient().executeCommand({ commands });
@@ -216,7 +218,7 @@ export function AIAgentDesigner(props: AIAgentDesignerProps) {
                         <VSCodeButton appearance="secondary" title="Edit Service" onClick={handleServiceEdit}>
                             <Icon name="bi-edit" sx={{ marginRight: 8, fontSize: 16 }} /> Edit
                         </VSCodeButton>
-                        {serviceModel && serviceModel.moduleName === "http" && (
+                        {serviceModel && supportedServiceTypes.includes(serviceModel.moduleName) && (
                             <VSCodeButton appearance="secondary" title="Try Service" onClick={handleServiceTryIt}>
                                 <Icon name="play" isCodicon={true} sx={{ marginRight: 8, fontSize: 16 }} /> Try It
                             </VSCodeButton>
