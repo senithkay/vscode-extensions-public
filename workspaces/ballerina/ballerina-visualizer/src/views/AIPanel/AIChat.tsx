@@ -104,8 +104,8 @@ var remaingTokenLessThanOne: boolean = false;
 
 var timeToReset: number;
 export const INVALID_RECORD_REFERENCE = "Invalid record reference. Follow <org-name>/<package-name>:<record-name> format when referencing to record in another package.";
-const NO_DRIFT_FOUND = "No issues found between the program and the documentation.";
-const DRIFT_CHECK_ERROR = "Failed to check drift between code and documentation. Please try again.";
+const NO_DRIFT_FOUND = "No drift identified between the code and the documentation.";
+const DRIFT_CHECK_ERROR = "Failed to check drift between the code and the documentation. Please try again.";
 
 // Define constants for command keys
 export const COMMAND_GENERATE = "/generate";

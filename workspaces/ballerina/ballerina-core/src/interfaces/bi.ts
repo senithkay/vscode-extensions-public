@@ -120,6 +120,7 @@ export type CodeData = {
     lineRange?: ELineRange;
     sourceCode?: string;
     parentSymbol?: string;
+    inferredReturnType?: string;
 };
 
 export type Branch = {
