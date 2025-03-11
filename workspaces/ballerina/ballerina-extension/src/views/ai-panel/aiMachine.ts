@@ -237,7 +237,7 @@ async function openLogin(context, event) {
         try {
             const status:boolean = await initiateInbuiltAuth();
             if (!status) {
-                aiStateService.send({ type: "CANCEL" })
+                aiStateService.send({ type: "CANCEL" });
             }
         } catch (error) {
             reject(error);
