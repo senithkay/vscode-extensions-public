@@ -1166,6 +1166,17 @@ export interface UpdateTypeRequest {
     type: Type;
 }
 
+export interface UpdateTypesRequest {
+    filePath: string;
+    types: Type[];
+}
+
+export interface UpdateTypesResponse {
+    types?: Type[];
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
 export interface GetTypesResponse {
     types: Type[];
 }

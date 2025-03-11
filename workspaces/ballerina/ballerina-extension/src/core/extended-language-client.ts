@@ -193,7 +193,9 @@ import {
     RecordSourceGenResponse,
     RecordSourceGenRequest,
     GetRecordModelFromSourceRequest,
-    GetRecordModelFromSourceResponse
+    GetRecordModelFromSourceResponse,
+    UpdateTypesRequest,
+    UpdateTypesResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -286,6 +288,7 @@ enum EXTENDED_APIS {
     BI_GET_TYPES = 'typesManager/getTypes',
     BI_GET_TYPE = 'typesManager/getType',
     BI_UPDATE_TYPE = 'typesManager/updateType',
+    BI_UPDATE_TYPES = 'typesManager/updateTypes',
     BI_GET_GRAPHQL_TYPE = 'typesManager/getGraphqlType',
     BI_CREATE_GRAPHQL_CLASS_TYPE = 'typesManager/createGraphqlClassType',
     BI_GET_RECORD_CONFIG = 'typesManager/recordConfig',
@@ -960,6 +963,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async updateType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
         return this.sendRequest<UpdateTypeResponse>(EXTENDED_APIS.BI_UPDATE_TYPE, params);
+    }
+
+    async updateTypes(params: UpdateTypesRequest): Promise<UpdateTypesResponse> {
+        return this.sendRequest<UpdateTypesResponse>(EXTENDED_APIS.BI_UPDATE_TYPES, params);
     }
 
     async createGraphqlClassType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {

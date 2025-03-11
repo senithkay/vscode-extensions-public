@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -31,6 +31,7 @@ import {
     FormDidOpenParams,
     FunctionNodeRequest,
     GetRecordConfigRequest,
+    GetRecordModelFromSourceRequest,
     GetTypeRequest,
     GetTypesRequest,
     ModelFromCodeRequest,
@@ -44,6 +45,7 @@ import {
     UpdateImportsRequest,
     UpdateRecordConfigRequest,
     UpdateTypeRequest,
+    UpdateTypesRequest,
     VisibleTypesRequest,
     addBreakpointToSource,
     addClassField,
@@ -77,7 +79,6 @@ import {
     getReadmeContent,
     getRecordConfig,
     getRecordModelFromSource,
-    GetRecordModelFromSourceRequest,
     getRecordNames,
     getRecordSource,
     getServiceClassModel,
@@ -101,6 +102,7 @@ import {
     updateRecordConfig,
     updateServiceClass,
     updateType,
+    updateTypes,
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { BiDiagramRpcManager } from "./rpc-manager";
@@ -146,6 +148,7 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getTypes, (args: GetTypesRequest) => rpcManger.getTypes(args));
     messenger.onRequest(getType, (args: GetTypeRequest) => rpcManger.getType(args));
     messenger.onRequest(updateType, (args: UpdateTypeRequest) => rpcManger.updateType(args));
+    messenger.onRequest(updateTypes, (args: UpdateTypesRequest) => rpcManger.updateTypes(args));
     messenger.onRequest(getServiceClassModel, (args: ModelFromCodeRequest) => rpcManger.getServiceClassModel(args));
     messenger.onRequest(updateClassField, (args: ClassFieldModifierRequest) => rpcManger.updateClassField(args));
     messenger.onRequest(addClassField, (args: AddFieldRequest) => rpcManger.addClassField(args));
