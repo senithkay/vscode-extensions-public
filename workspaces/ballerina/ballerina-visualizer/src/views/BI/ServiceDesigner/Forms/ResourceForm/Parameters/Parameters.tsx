@@ -180,7 +180,7 @@ export function Parameters(props: ParametersProps) {
             }
             {/* <-------------------- Payload Parameters End --------------------> */}
 
-            {/* <-------------------- Advance Parameters Start --------------------> */}
+            {/* <-------------------- Advanced Parameters Start --------------------> */}
 
             <AdvancedParamTitleWrapper>
                 <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Advanced Parameters</Typography>
@@ -216,7 +216,7 @@ export function Parameters(props: ParametersProps) {
                 />
             }
             <Divider />
-            {/* <-------------------- Advance Parameters End --------------------> */}
+            {/* <-------------------- Advanced Parameters End --------------------> */}
 
         </div >
     );
