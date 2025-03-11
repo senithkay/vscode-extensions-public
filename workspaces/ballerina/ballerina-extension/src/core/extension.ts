@@ -332,11 +332,11 @@ export class BallerinaExtension {
         const platform = os.platform();
         let msg = '';
         if (platform === 'win32') {
-            msg = 'The system cannot find the path specified';
+            msg = "The system cannot find the path specified";
         } else if (platform === 'linux') {
-            msg = 'No such file or directory';
+            msg = "Command 'bal' not found";
         } else if (platform === 'darwin') {
-            msg = 'No such file or directory';
+            msg = "No such file or directory";
         }
         return msg;
     }
