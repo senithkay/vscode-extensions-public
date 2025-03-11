@@ -698,6 +698,7 @@ export function FormGenerator(props: FormProps) {
                     disableSaveButton={disableSaveButton}
                     actionButton={actionButton}
                     recordTypeFields={recordTypeFields}
+                    isInferredReturnType={!!node.codedata?.inferredReturnType}
                 />
             )}
             {typeEditorState.isOpen && (

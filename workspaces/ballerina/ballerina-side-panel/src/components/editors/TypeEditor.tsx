@@ -178,7 +178,7 @@ export function TypeEditor(props: TypeEditorProps) {
                 defaultValue={field.value}
                 rules={{
                     required: {
-                        value: !field.optional && !field.placeholder,
+                        value: !field.optional,
                         message: `${field.label} is required`
                     }
                 }}
@@ -217,7 +217,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             autoFocus={autoFocus}
                             sx={{ paddingInline: '0' }}
                         />
-                        {error && <ErrorBanner errorMsg={error.message.toString()} />}
+                        {error?.message && <ErrorBanner errorMsg={error.message.toString()} />}
                     </div>
                 )}
             />
