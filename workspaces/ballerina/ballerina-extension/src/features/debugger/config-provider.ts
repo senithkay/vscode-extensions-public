@@ -114,7 +114,7 @@ async function handleMainFunctionParams(config: DebugConfiguration) {
             for (i = 0; i < params.length; i++) {
                 let param = params[i];
                 let value = param.defaultValue ? param.defaultValue : getValueFromProgramArgs(programArgs, i);
-                await showInputBox(param.paramName, value).then(r => {
+                await showInputBox(param.paramName, value, param.type, false).then(r => {
                     values.push(r);
                 });
             }
@@ -123,7 +123,7 @@ async function handleMainFunctionParams(config: DebugConfiguration) {
             while (true) {
                 let value = getValueFromProgramArgs(programArgs, i);
                 i++;
-                let result = await showInputBox(res.restParams.paramName, value);
+                let result = await showInputBox(res.restParams.paramName, value, res.restParams.type, true);
                 if (result) {
                     values.push(result);
                 } else {
@@ -135,15 +135,92 @@ async function handleMainFunctionParams(config: DebugConfiguration) {
     }
 }
 
-async function showInputBox(paramName: string, value: string) {
+async function showInputBox(paramName: string, value: string, type: string, isRest: boolean) {
+    // TODO: The type information should come from the LS
+    let baseType = type;
+    let isOptional = false;
+    if (baseType.endsWith('?')) {
+        isOptional = true;
+        baseType = baseType.substring(0, baseType.length - 1);
+    }
+
+    // Construct prompt message based on the flags
+    let promptMessage = '';
+    if (isOptional) {
+        promptMessage = 'This is optional and can be left empty';
+    } else if (isRest) {
+        promptMessage = 'This parameter accepts multiple values. ' +
+        "You'll be prompted to enter each value one by one. Press 'Escape' when finished.";
+    }
+
+    // Construct placeholder message based on the type and the flags
+    let placeholderMessage = `Enter value for '${paramName}'`;
+    switch (baseType) {
+        case 'boolean':
+            placeholderMessage += ' (enter "true" or "false")';
+            break;
+        case 'int':
+            placeholderMessage += ' (e.g., 42)';
+            break;
+        case 'float':
+        case 'decimal':
+            placeholderMessage += ' (e.g., 3.14)';
+            break;
+        case 'byte':
+            placeholderMessage += ' (e.g. 127)';
+            break;
+        case 'string':
+            placeholderMessage += ' (e.g., text)';
+            break;
+    }
+
+    // Show the input box to the user
     const inout = await window.showInputBox({
-        title: paramName,
+        title: `${paramName} (type: ${type})`,
         ignoreFocusOut: true,
-        placeHolder: `Enter value for parameter: ${paramName}`,
-        prompt: "",
-        value: value
+        placeHolder: placeholderMessage,
+        prompt: promptMessage,
+        value: value,
+        validateInput: (input: string) => {
+            if (!isOptional && input === "") {
+            return `Parameter is required and cannot be empty`;
+            }
+
+            // Validate the input value based on its type
+            switch (baseType) {
+                case 'string':
+                    return null;
+                case 'int':
+                    if (!Number.isInteger(Number(input)) || isNaN(Number(input))) {
+                        return "Value must be an integer";
+                    }
+                    return null;
+                case 'float':
+                case 'decimal':
+                    if (isNaN(Number(input))) {
+                        return "Value must be a number";
+                    }
+                    return null;
+                case 'byte':
+                    const byteValue = Number(input);
+                    if (!Number.isInteger(byteValue) || isNaN(byteValue) || byteValue < 0 || byteValue > 255) {
+                        return "Value must be an integer between 0 and 255";
+                    }
+                    return null;
+                case 'boolean':
+                    const lowerInput = input.toLowerCase();
+                    if (lowerInput !== 'true' && lowerInput !== 'false') {
+                        return "Value must be 'true' or 'false'";
+                    }
+                    return null;
+                default:
+                    return `Unsupported type: ${baseType}. Expected one of: string, int, float, decimal, byte, boolean`;
+            }
+        },
     });
-    return inout;
+
+    // Add quotes to string by default
+    return baseType === "string" && !isOptional ? `"${inout}"` : inout;
 }
 
 async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: DebugConfiguration) {
