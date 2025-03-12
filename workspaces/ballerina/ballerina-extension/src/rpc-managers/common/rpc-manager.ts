@@ -37,6 +37,7 @@ import { ballerinaExtInstance } from "../../core";
 import { StateMachine } from "../../stateMachine";
 import { goToSource } from "../../utils";
 import { askFilePath, askProjectPath, getUpdatedSource } from "./utils";
+import path from 'path';
 
 export class CommonRpcManager implements CommonRPCAPI {
     async getTypeCompletions(): Promise<TypeResponse> {
@@ -177,12 +178,24 @@ export class CommonRpcManager implements CommonRPCAPI {
     }
 
     async runBackgroundTerminalCommand(params: RunExternalCommandRequest): Promise<RunExternalCommandResponse> {
+        // if command start with bal, then run the command with ballerina home
+        if (params.command.startsWith("bal")) {
+            const ballerinaHome = ballerinaExtInstance.getBallerinaHome();
+            const devMode = ballerinaExtInstance.overrideBallerinaHome();
+            if (devMode && ballerinaHome) {
+                const binPath = path.join(ballerinaHome, 'bin');
+                params.command = `cd "${binPath}" && ${params.command}`;
+            }
+        }
+        console.log(">>> running command: ", params.command);
+
         return new Promise<CommandResponse>(function (resolve) {
             child_process.exec(`${params.command}`, async (err, stdout, stderr) => {
+                console.log(">>> command stdout: ", stdout);
                 if (err) {
                     resolve({
                         error: true,
-                        message: stderr
+                        message: stderr + "\n" + stdout
                     });
                 } else {
                     resolve({

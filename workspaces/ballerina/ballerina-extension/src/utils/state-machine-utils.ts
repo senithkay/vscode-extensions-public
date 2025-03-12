@@ -8,7 +8,7 @@
  */
 
 import { HistoryEntry, MACHINE_VIEW, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
-import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { StateMachine } from "../stateMachine";
 import { Uri } from "vscode";
 import { UIDGenerationVisitor } from "./history/uid-generation-visitor";
@@ -130,6 +130,16 @@ export async function getView(documentUri: string, position: NodePosition, proje
                         projectUri: projectUri
                     }
                 };
+            }
+            else if (expr?.typeData?.typeSymbol?.signature?.includes("ballerinax/ai.agent")
+                && expr?.typeData?.typeSymbol?.signature?.includes("Listener")) {
+                return {
+                    location: {
+                        view: MACHINE_VIEW.AIAgentDesigner,
+                        documentUri: documentUri,
+                        position: position
+                    }
+                };
             } else {
                 return {
                     location: {
@@ -154,32 +164,32 @@ export async function getView(documentUri: string, position: NodePosition, proje
                 dataMapperDepth: 0
             };
         } else if (
+            STKindChecker.isFunctionDefinition(node.syntaxTree) &&
+            node.syntaxTree.functionBody.source.includes("@np:NaturalFunction external")
+        ) {
+            return {
+                location: {
+                    view: MACHINE_VIEW.BINPFunctionForm,
+                    identifier: node.syntaxTree.functionName.value,
+                    documentUri: documentUri
+                },
+            };
+        } else if (
             STKindChecker.isFunctionDefinition(node.syntaxTree)
             || STKindChecker.isResourceAccessorDefinition(node.syntaxTree)
             || STKindChecker.isObjectMethodDefinition(node.syntaxTree)
         ) {
-            if (StateMachine.context().isBI) {
-                return {
-                    location: {
-                        view: MACHINE_VIEW.BIDiagram,
-                        documentUri: documentUri,
-                        position: node.syntaxTree.position,
-                        metadata: {
-                            enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
-                        }
-                    },
-                    dataMapperDepth: 0
-                };
-            }
             return {
                 location: {
-                    view: MACHINE_VIEW.SequenceDiagram,
+                    view: MACHINE_VIEW.BIDiagram,
                     documentUri: documentUri,
-                    position: position
+                    position: node.syntaxTree.position,
+                    metadata: {
+                        enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
+                    }
                 },
                 dataMapperDepth: 0
             };
-
         }
 
         // config variables

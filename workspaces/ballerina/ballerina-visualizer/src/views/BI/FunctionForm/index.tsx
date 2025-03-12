@@ -34,31 +34,31 @@ const Container = styled.div`
 `;
 
 interface FunctionFormProps {
-    fileName: string;
+    filePath: string;
     projectPath: string;
     functionName: string;
     isDataMapper?: boolean;
+    isNpFunction?: boolean;
 }
 
 export function FunctionForm(props: FunctionFormProps) {
     const { rpcClient } = useRpcContext();
-    const { projectPath, fileName, functionName, isDataMapper } = props;
+    const { projectPath, functionName, filePath, isDataMapper, isNpFunction } = props;
 
     const [functionFields, setFunctionFields] = useState<FormField[]>([]);
-    const [filePath, setFilePath] = useState<string>('');
     const [functionNode, setFunctionNode] = useState<FunctionNode>(undefined);
     const [targetLineRange, setTargetLineRange] = useState<LineRange>();
 
-    const formType = useRef(isDataMapper ? "Data Mapper" : "Function");
+    const fileName = filePath.split(/[\\/]/).pop();
+    const formType = useRef(isDataMapper ? "Data Mapper" : isNpFunction ? "Natural Function" : "Function");
 
     useEffect(() => {
-        setFilePath(Utils.joinPath(URI.file(projectPath), fileName).fsPath)
         if (functionName) {
             getExistingFunctionNode();
         } else {
             getFunctionNode();
         }
-    }, [fileName]);
+    }, [filePath, functionName, isDataMapper]);
 
     useEffect(() => {
         let fields = functionNode ? convertConfig(functionNode.properties) : [];
@@ -82,7 +82,7 @@ export function FunctionForm(props: FunctionFormProps) {
             .getNodeTemplate({
                 position: { line: 0, offset: 0 },
                 filePath: Utils.joinPath(URI.file(projectPath), fileName).fsPath,
-                id: { node: isDataMapper ? 'DATA_MAPPER_DEFINITION' : 'FUNCTION_DEFINITION' },
+                id: { node: isDataMapper ? 'DATA_MAPPER_DEFINITION' : isNpFunction ? 'NP_FUNCTION_DEFINITION' : 'FUNCTION_DEFINITION' },
             });
         const flowNode = res.flowNode;
         setFunctionNode(flowNode);
@@ -149,14 +149,14 @@ export function FunctionForm(props: FunctionFormProps) {
     return (
         <View>
             <TopNavigationBar />
-            <TitleBar title={formType.current} subtitle={`Manage ${isDataMapper ? "data mappers" : "functions"} in your integration`} />
+            <TitleBar title={formType.current} subtitle={`Manage ${isDataMapper ? "data mappers" : isNpFunction ? "natural functions" : "functions"} in your integration`} />
             <ViewContent padding>
                 <Container>
                     {functionName && (
                         <FormHeader title={`Edit ${formType.current}`} />
                     )}
                     {!functionName && (
-                        <FormHeader title={`Create New ${formType.current}`} subtitle={`Define a ${formType.current} that can be used within the integration.`} />
+                        <FormHeader title={`Create New ${formType.current}`} />
                     )}
                     <FormContainer>
                         {filePath && targetLineRange && functionFields.length > 0 &&

@@ -23,9 +23,9 @@ export const ComponentNode = styled.div<ComponentNodeStyleProps>`
     gap: 10px;
     padding: 2px;
     pointer-events: all;
-    cursor: ${(props: ComponentNodeStyleProps) => (props.previewMode ? "default" : "grab")};
+    cursor: ${(props: ComponentNodeStyleProps) => (props.previewMode ? "pointer" : "grab")};
     &:active {
-        cursor: ${(props: ComponentNodeStyleProps) => (props.previewMode ? "default" : "grabbing")};
+        cursor: ${(props: ComponentNodeStyleProps) => (props.previewMode ? "pointer" : "grabbing")};
     }
 `;
 

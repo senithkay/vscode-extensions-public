@@ -2,6 +2,43 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [2.0.4] - 2025-03-10
+
+### Fixed
+
+Fixed: Artifact creation in windows ([#943](https://github.com/wso2/mi-vscode/issues/943))
+
+
+## [2.0.3] - 2025-03-09
+
+### New Features
+
+Added: Devant support ([#290](https://github.com/wso2-enterprise/devant/issues/290))  
+Added: Ballerina modules generation support ([#942](https://github.com/wso2/mi-vscode/issues/942))
+
+### Fixed
+
+Fixed: After creating proxy, wrong redirection ([#635](https://github.com/wso2/mi-vscode/issues/635))  
+Fixed: Resource Path gets overwritten by default values in "Create New Resource" form ([#788](https://github.com/wso2/mi-vscode/issues/788))  
+Fixed: Can create a new project with existing project name ([#839](https://github.com/wso2/mi-vscode/issues/839))  
+Fixed: When creating an API with openAPI definition without the swagger file the `create` button is enabled. ([#908](https://github.com/wso2/mi-vscode/issues/908))  
+
+
+## [2.0.2] - 2025-03-03
+
+### Fixed
+
+Fixed: Editing Task Properties Adds Invalid @_xmlns Attribute to XML in the VSCode Extension ([#512](https://github.com/wso2/mi-vscode/issues/512))  
+Fixed: Can add duplicate config values ([#682](https://github.com/wso2/mi-vscode/issues/682))  
+Fixed: Adding connector operations in a switch case make the connector icon in left case hidden from the right one. ([#692](https://github.com/wso2/mi-vscode/issues/692))  
+Fixed: Cancel button in some template forms not working. ([#808](https://github.com/wso2/mi-vscode/issues/808))  
+Fixed: Syntax issue in Scheduled Task xml after adding a new property ([#844](https://github.com/wso2/mi-vscode/issues/844))  
+Fixed: Required `Template` field is not indicated in template endpoint ([#858](https://github.com/wso2/mi-vscode/issues/858))  
+Fixed: Generating incorrect code when updating the task ([#899](https://github.com/wso2/mi-vscode/issues/899))  
+Fixed: Debezium CDC Connector form doesn't work properly ([#915](https://github.com/wso2/mi-vscode/issues/915))  
+Fixed: State changing issue in the checkbox component ([#919](https://github.com/wso2/mi-vscode/issues/919))  
+Fixed: Copy pasting values for Inline Expression editors gets ignored. ([#922](https://github.com/wso2/mi-vscode/issues/922))  
+
 ## [2.0.1] - 2025-02-25
 
 ### Improvements

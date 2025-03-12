@@ -2,7 +2,7 @@
     "name": "kolab",
     "displayName": "WSO2 Ballerina",
     "description": "WSO2 Ballerina Extension",
-    "version": "0.4.5",
+    "version": "0.5.0",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
@@ -85,6 +85,34 @@
                         "default": "",
                         "description": "Specify the Ballerina home directory path."
                     },
+                    "kolab.isBI": {
+                        "type": "boolean",
+                        "default": false,
+                        "scope": "resource",
+                        "description": "Activate features for Ballerina Integrator."
+                    },
+                    "kolab.scope": {
+                        "type": "string",
+                        "default": "any",
+                        "scope": "resource",
+                        "description": "Define the scope of the project.",
+                        "enum": [
+                            "automation",
+                            "ai-agent",
+                            "integration-as-api",
+                            "event-integration",
+                            "file-integration",
+                            "any"
+                        ],
+                        "enumDescriptions": [
+                            "Automation",
+                            "AI Agent",
+                            "Integration as API",
+                            "Event Integration",
+                            "File Integration",
+                            "Any"
+                        ]
+                    },
                     "kolab.debugLog": {
                         "type": "boolean",
                         "default": false,
@@ -119,6 +147,11 @@
                         "type": "boolean",
                         "default": true,
                         "description": "Enable semantic highlighting for Ballerina source."
+                    },
+                    "kolab.enableBackgroundDriftCheck": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Enable background drift check for Ballerina source."
                     },
                     "kolab.enablePerformanceForecast": {
                         "type": "boolean",
@@ -449,6 +482,11 @@
                 "category": "Ballerina"
             },
             {
+                "command": "kolab.verifyDocs",
+                "title": "Check drift between code and documentation",
+                "category": "Ballerina"
+            },
+            {
                 "command": "kolab.pasteXMLAsRecord",
                 "title": "Paste XML as Record",
                 "category": "Ballerina"
@@ -532,8 +570,19 @@
                 "icon": "$(wand)"
             },
             {
+                "command": "kolab.open.agent.chat",
+                "title": "Open Agent Chat Panel",
+                "category": "Ballerina",
+                "icon": "$(comment-discussion)"
+            },
+            {
                 "command": "kolab.open.bi.welcome",
                 "title": "Open Welcome",
+                "category": "BI"
+            },
+            {
+                "command": "kolab.open.bi.new",
+                "title": "New Ballerina Integration",
                 "category": "BI"
             },
             {
@@ -611,6 +660,13 @@
                 "command": "BI.project-explorer.add-configuration",
                 "title": "Add Configuration",
                 "icon": "$(add)",
+                "group": "navigation",
+                "category": "BI"
+            },
+            {
+                "command": "BI.project-explorer.switch-project",
+                "title": "Switch Project",
+                "icon": "$(distro-switch-project)",
                 "group": "navigation",
                 "category": "BI"
             },
@@ -875,21 +931,21 @@
                 "description": "design-view",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f163"
+                    "fontCharacter": "\\f169"
                 }
             },
             "distro-start": {
                 "description": "start",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f1d7"
+                    "fontCharacter": "\\f1dd"
                 }
             },
             "distro-debug": {
                 "description": "debug",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f15e"
+                    "fontCharacter": "\\f164"
                 }
             },
             "distro-source-view": {
@@ -903,7 +959,7 @@
                 "description": "persist-diagram",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f1b2"
+                    "fontCharacter": "\\f1b8"
                 }
             },
             "distro-cached-rounded": {
@@ -989,6 +1045,13 @@
                     "fontPath": "./resources/codicons/codicon.ttf",
                     "fontCharacter": "\\eaec"
                 }
+            },
+            "distro-switch-project": {
+                "description": "switch-project",
+                "default": {
+                    "fontPath": "./resources/codicons/codicon.ttf",
+                    "fontCharacter": "\\ea77"
+                }
             }
         },
         "uriHandler": {
@@ -1067,7 +1130,8 @@
         "vscode-test": "^1.6.1",
         "vscode-uri": "^3.0.8",
         "xml-js": "^1.6.11",
-        "xstate": "^4.38.3"
+        "xstate": "^4.38.3",
+        "uuid": "^11.1.0"
     },
     "devDependencies": {
         "@sentry/webpack-plugin": "^1.20.1",

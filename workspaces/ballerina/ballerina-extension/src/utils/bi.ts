@@ -78,15 +78,34 @@ export function createBIProjectPure(name: string, projectPath: string) {
         fs.mkdirSync(projectRoot);
     }
 
+    // Get current username from the system across different OS platforms
+    let username;
+    try {
+        if (process.platform === 'win32') {
+            // Windows
+            username = process.env.USERNAME || 'myOrg';
+        } else {
+            // macOS and Linux
+            username = process.env.USER || 'myOrg';
+        }
+    } catch (error) {
+        console.error('Error getting username:', error);
+    }
+
     const EMPTY = "\n";
 
     const ballerinaTomlContent = `
 [package]
-org = "wso2"
+org = "${username}"
 name = "${name}"
 version = "0.1.0"
 
-bi = true  
+`;
+
+    const settingsJsonContent = `
+{
+    "kolab.isBI": true
+}
 `;
 
     const launchJsonContent = `
@@ -97,7 +116,7 @@ bi = true
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Ballerina Run/Debug",
+            "name": "Ballerina Debug",
             "type": "ballerina",
             "request": "launch",
             "programArgs": [],
@@ -144,6 +163,10 @@ bi = true
     const mainBal = path.join(projectRoot, 'main.bal');
     writeBallerinaFileDidOpen(mainBal, EMPTY);
 
+    // Create main.bal file
+    const agentsBal = path.join(projectRoot, 'agents.bal');
+    writeBallerinaFileDidOpen(agentsBal, EMPTY);
+
     // Create functions.bal file
     const functionsBal = path.join(projectRoot, 'functions.bal');
     writeBallerinaFileDidOpen(functionsBal, EMPTY);
@@ -164,6 +187,7 @@ bi = true
 
     // Create settings.json file
     const settingsPath = path.join(vscodeDir, 'settings.json');
+    fs.writeFileSync(settingsPath, settingsJsonContent);
 
     console.log(`BI project created successfully at ${projectRoot}`);
     commands.executeCommand('vscode.openFolder', Uri.file(path.resolve(projectRoot)));
@@ -221,7 +245,7 @@ export async function createBIFunction(params: ComponentRequest): Promise<Create
 // <---------- Task Source Generation START-------->
 export async function handleAutomationCreation(params: ComponentRequest) {
     let paramList = '';
-    const paramLength = params.functionType.parameters.length;
+    const paramLength = params.functionType?.parameters.length;
     if (paramLength > 0) {
         params.functionType.parameters.forEach((param, index) => {
             let paramValue = param.defaultValue ? `${param.type} ${param.name} = ${param.defaultValue}, ` : `${param.type} ${param.name}, `;

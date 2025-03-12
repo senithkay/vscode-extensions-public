@@ -27,6 +27,7 @@ export interface FetchDataResponse {
 
 export interface ProjectSource {
     projectModules?: ProjectModule[];
+    projectTests?: SourceFile[];
     sourceFiles: SourceFile[];
 }
 
@@ -88,6 +89,28 @@ export interface NotifyAIMappingsRequest {
     newFnPosition: NodePosition;
     prevFnSource: string;
     filePath: string;
+}
+
+export interface ParameterMetadata {
+    inputs: object;
+    output: object;
+    inputMetadata: object;
+    outputMetadata: object;
+    mapping_fields?: object;
+}
+
+export interface RecordDefinitonObject {
+    recordFields: object;
+    recordFieldsMetadata: object;
+}
+
+export interface MappingFileRecord {
+    mapping_fields: object;
+}
+
+export interface ParameterDefinitions {
+    parameterMetadata: ParameterMetadata,
+    errorStatus: boolean
 }
 
 // Test-generator related interfaces
@@ -171,7 +194,27 @@ export interface PostProcessResponse {
     diagnostics: ProjectDiagnostics;
 }
 
+export interface AIChatSummary {
+    filepath: string;
+    summary: string;
+}
+
+export interface DeveloperDocument {
+    filepath: string;
+    content: string;
+}
+
+export interface RequirementSpecification {
+    filepath: string;
+    content: string;
+}
+
 export interface DocAssistantResponse {
     content: string;
     references: string[];
+}
+
+export interface LLMDiagnostics {
+    statusCode: number;
+    diags: string;
 }

@@ -1,19 +1,19 @@
 
-import { ExtendedLangClient, ballerinaExtInstance } from './core';
+import { ExtendedLangClient } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
-import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP, SCOPE } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './features/library-browser';
 import { VisualizerWebview } from './views/visualizer/webview';
-import { commands, Uri, workspace } from 'vscode';
+import { commands, Uri, window, workspace, WorkspaceFolder } from 'vscode';
 import { notifyCurrentWebview, RPCLayer } from './RPCLayer';
 import { generateUid, getComponentIdentifier, getNodeByIndex, getNodeByName, getNodeByUid, getView } from './utils/state-machine-utils';
-import * as fs from 'fs';
 import * as path from 'path';
 import { extension } from './BalExtensionContext';
 import { BiDiagramRpcManager } from './rpc-managers/bi-diagram/rpc-manager';
 import { StateMachineAI } from './views/ai-panel/aiMachine';
 import { StateMachinePopup } from './stateMachinePopup';
+import { checkIsBallerina, checkIsBI, fetchScope } from './utils';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
@@ -47,7 +47,8 @@ const stateMachine = createMachine<MachineContext>(
                         target: "activateLS",
                         actions: assign({
                             isBI: (context, event) => event.data.isBI,
-                            projectUri: (context, event) => event.data.projectUri
+                            projectUri: (context, event) => event.data.projectPath,
+                            scope: (context, event) => event.data.scope
                         })
                     },
                     onError: {
@@ -224,12 +225,10 @@ const stateMachine = createMachine<MachineContext>(
             return new Promise(async (resolve, reject) => {
                 if (!context.view && context.langClient) {
                     if (!context.position || ("groupId" in context.position)) {
-                        if (context.isBI) {
-                            const entryPoints = (await new BiDiagramRpcManager().getProjectStructure()).directoryMap[DIRECTORY_MAP.SERVICES].length;
-                            if (entryPoints === 0) {
-                                history.push({ location: { view: MACHINE_VIEW.Overview, documentUri: context.documentUri } });
-                                return resolve();
-                            }
+                        const entryPoints = (await new BiDiagramRpcManager().getProjectStructure()).directoryMap[DIRECTORY_MAP.SERVICES].length;
+                        if (entryPoints === 0) {
+                            history.push({ location: { view: MACHINE_VIEW.Overview, documentUri: context.documentUri } });
+                            return resolve();
                         }
                         history.push({ location: { view: MACHINE_VIEW.Overview, documentUri: context.documentUri } });
                         return resolve();
@@ -396,7 +395,7 @@ export const StateMachine = {
 
 export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation, resetHistory = false) {
     if (resetHistory) {
-        history.clear();
+        history?.clear();
     }
     stateService.send({ type: type, viewLocation: viewLocation });
 }
@@ -405,32 +404,61 @@ export function updateView() {
     const historyStack = history.get();
     const lastView = historyStack[historyStack.length - 1];
     stateService.send({ type: "VIEW_UPDATE", viewLocation: lastView ? lastView.location : { view: "Overview" } });
-    if (StateMachine.context().isBI) {
-        commands.executeCommand("BI.project-explorer.refresh");
-    }
+    commands.executeCommand("BI.project-explorer.refresh");
     notifyCurrentWebview();
 }
 
-async function checkForProjects() {
-    let isBI = false;
-    let projectUri = '';
-    try {
-        const workspaceFolders = workspace.workspaceFolders;
-        if (!workspaceFolders || workspaceFolders.length === 0) {
-            throw new Error("No workspace folders found");
-        }
-        // Assume we are only interested in the root workspace folder
-        const rootFolder = workspaceFolders[0].uri.fsPath;
-        const ballerinaTomlPath = path.join(rootFolder, 'Ballerina.toml');
-        projectUri = rootFolder;
+async function checkForProjects(): Promise<{ isBI: boolean, projectPath: string, scope?: SCOPE }> {
+    const workspaceFolders = workspace.workspaceFolders;
 
-        if (fs.existsSync(ballerinaTomlPath)) {
-            const data = await fs.promises.readFile(ballerinaTomlPath, 'utf8');
-            isBI = data.includes('bi = true');
-        }
-    } catch (err) {
-        console.error(err);
+    if (!workspaceFolders) {
+        return { isBI: false, projectPath: '' };
     }
+
+    if (workspaceFolders.length > 1) {
+        return await handleMultipleWorkspaces(workspaceFolders);
+    }
+
+    return await handleSingleWorkspace(workspaceFolders[0].uri);
+}
+
+async function handleMultipleWorkspaces(workspaceFolders: readonly WorkspaceFolder[]) {
+    const balProjects = workspaceFolders.filter(folder => checkIsBallerina(folder.uri));
+
+    if (balProjects.length > 1) {
+        const projectPaths = balProjects.map(folder => folder.uri.fsPath);
+        const selectedProject = await window.showQuickPick(projectPaths, {
+            placeHolder: 'Select a project to load the Ballerina Integrator'
+        });
+    
+        const isBI = checkIsBI(Uri.file(selectedProject));
+        const scope = isBI && fetchScope(Uri.file(selectedProject));
+        setBIContext(isBI);
+        return { isBI, projectPath: selectedProject, scope };
+    } else if (balProjects.length === 1) {
+        const isBI = checkIsBI(balProjects[0].uri);
+        const scope = isBI && fetchScope(balProjects[0].uri);
+        setBIContext(isBI);
+        return { isBI, projectPath: balProjects[0].uri.fsPath, scope };
+    }
+
+    return { isBI: false, projectPath: '' };
+}
+
+async function handleSingleWorkspace(workspaceURI: any) {
+    const isBI = checkIsBI(workspaceURI);
+    const isBallerina = checkIsBallerina(workspaceURI);
+    const scope = fetchScope(workspaceURI);
+    const projectPath = isBallerina ? workspaceURI.fsPath : "";
+
+    setBIContext(isBI);
+    if (!isBI) {
+        console.error("No BI enabled workspace found");
+    }
+
+    return { isBI, projectPath, scope };
+}
+
+function setBIContext(isBI: boolean) {
     commands.executeCommand('setContext', 'isBIProject', isBI);
-    return { isBI, projectUri };
 }

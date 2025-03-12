@@ -73,9 +73,9 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
         });
     }
 
-    constructor(isBI: boolean) {
+    constructor(isBallerina: boolean) {
         this._data = [];
-        isBI && this.refresh();
+        isBallerina && this.refresh();
     }
 
     getTreeItem(element: ProjectExplorerEntry): vscode.TreeItem | Thenable<vscode.TreeItem> {
@@ -125,23 +125,28 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 async function getProjectStructureData(): Promise<ProjectExplorerEntry[]> {
     if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
         const data: ProjectExplorerEntry[] = [];
-        if (extension.langClient) {
-            const workspaceFolders = vscode.workspace.workspaceFolders;
-            for (const workspace of workspaceFolders) {
-                const rootPath = workspace.uri.fsPath;
-                const resp = await buildProjectStructure(rootPath, extension.langClient);
-                // Add all the configurations to the project tree
-                // await addConfigurations(rootPath, resp);
-                const projectTree = generateTreeData(workspace, resp);
-                if (projectTree) {
-                    data.push(projectTree);
-                }
-            };
+        if (extension.langClient && extension.projectPath) {
+            const workspace = vscode
+                .workspace
+                .workspaceFolders
+                .find(folder => folder.uri.fsPath === extension.projectPath);
+
+            if (!workspace) {
+                return [];
+            }
+
+            const resp = await buildProjectStructure(extension.projectPath, extension.langClient);
+            // Add all the configurations to the project tree
+            // await addConfigurations(rootPath, resp);
+            const projectTree = generateTreeData(workspace, resp);
+            if (projectTree) {
+                data.push(projectTree);
+            }
+
             return data;
         }
     }
     return [];
-
 }
 
 function generateTreeData(project: vscode.WorkspaceFolder, components: ProjectStructureResponse): ProjectExplorerEntry | undefined {
@@ -258,10 +263,25 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     configs.children = getComponents(components.directoryMap[DIRECTORY_MAP.CONFIGURATIONS], DIRECTORY_MAP.CONFIGURATIONS);
     entries.push(configs);
 
+    // Natural Functions
+    const naturalFunctions = new ProjectExplorerEntry(
+        "Natural Functions",
+        vscode.TreeItemCollapsibleState.Expanded,
+        null,
+        'function',
+        false
+    );
+    naturalFunctions.contextValue = "naturalFunctions";
+    naturalFunctions.children = getComponents(components.directoryMap[DIRECTORY_MAP.NATURAL_FUNCTIONS], DIRECTORY_MAP.NATURAL_FUNCTIONS);
+    entries.push(naturalFunctions);
+
     return entries;
 }
 
 function getComponents(items: ProjectStructureArtifactResponse[], itemType?: DIRECTORY_MAP): ProjectExplorerEntry[] {
+    if(!items) {
+        return [];
+    }
     const entries: ProjectExplorerEntry[] = [];
     const resetHistory = true;
     for (const comp of items) {
@@ -290,7 +310,9 @@ function getComponents(items: ProjectStructureArtifactResponse[], itemType?: DIR
             [DIRECTORY_MAP.RECORDS]: DIRECTORY_SUB_TYPE.TYPE,
             [DIRECTORY_MAP.ENUMS]: DIRECTORY_SUB_TYPE.TYPE,
             [DIRECTORY_MAP.CLASSES]: DIRECTORY_SUB_TYPE.TYPE,
-            [DIRECTORY_MAP.DATA_MAPPERS]: DIRECTORY_SUB_TYPE.DATA_MAPPER
+            [DIRECTORY_MAP.DATA_MAPPERS]: DIRECTORY_SUB_TYPE.DATA_MAPPER,
+            [DIRECTORY_MAP.AGENTS]: DIRECTORY_SUB_TYPE.AGENTS,
+            [DIRECTORY_MAP.NATURAL_FUNCTIONS]: DIRECTORY_SUB_TYPE.NATURAL_FUNCTIONS
         };
 
         fileEntry.contextValue = contextValueMap[itemType] || comp.icon;

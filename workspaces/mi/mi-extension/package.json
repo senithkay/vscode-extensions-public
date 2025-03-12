@@ -3,7 +3,7 @@
   "displayName": "Micro Integrator",
   "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
   "icon": "resources/images/wso2-micro-integrator-image.png",
-  "version": "2.0.1",
+  "version": "2.0.4",
   "publisher": "wso2",
   "engines": {
     "vscode": "^1.81.0"
@@ -16,7 +16,8 @@
     "workspaceContains:.project",
     "workspaceContains:pom.xml",
     "onDebugResolve:mi",
-    "onDebugDynamicConfigurations:mi"
+    "onDebugDynamicConfigurations:mi",
+    "onUri"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -405,6 +406,13 @@
         "category": "MI"
       },
       {
+        "command": "MI.project-explorer.add-ballerina-module",
+        "title": "Add Ballerina Module",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
         "command": "MI.project-explorer.add-task",
         "title": "Add Scheduled Task",
         "icon": "$(add)",
@@ -482,6 +490,12 @@
         "command": "MI.build-and-run",
         "title": "Build and Run",
         "icon": "$(play)",
+        "category": "MI"
+      },
+      {
+        "command": "MI.build-bal-module",
+        "title": "Build Ballerina Module",
+        "icon": "$(distro-build-package)",
         "category": "MI"
       },
       {
@@ -574,6 +588,10 @@
           "when": "false"
         },
         {
+          "command": "MI.project-explorer.add-ballerina-module",
+          "when": "false"
+        },
+        {
           "command": "MI.project-explorer.add-message-processor",
           "when": "false"
         },
@@ -631,6 +649,10 @@
         },
         {
           "command": "MI.build-and-run",
+          "when": "false"
+        },
+        {
+          "command": "MI.build-bal-module",
           "when": "false"
         },
         {
@@ -713,7 +735,7 @@
         {
           "command": "MI.build-and-run",
           "group": "navigation@1",
-          "when": "MI.status == 'projectLoaded' && (isVisualizerActive || resourceLangId == SynapseXml) && (MI.isRunning !== 'true')",
+          "when": "MI.status == 'projectLoaded' && (isVisualizerActive || resourceLangId == SynapseXml) && (MI.isRunning !== 'true') && !editorTextFocus",
           "title": "Build and Run Project"
         }
       ],
@@ -721,7 +743,7 @@
         {
           "command": "MI.openAiPanel",
           "group": "navigation@1",
-          "when": "MI.projectType == 'miProject' && (isVisualizerActive || resourceLangId == SynapseXml)",
+          "when": "MI.projectType == 'miProject' && (isVisualizerActive || resourceLangId == SynapseXml) && !editorTextFocus",
           "title": "Open AI Panel"
         },
         {
@@ -741,6 +763,12 @@
           "when": "isVisualizerActive && showGoToSource",
           "group": "navigation@3",
           "title": "Show Source"
+        },
+        {
+          "command": "MI.build-bal-module",
+          "group": "navigation",
+          "when": "resourceExtname == .bal",
+          "title": "Build Ballerina Module"
         }
       ],
       "view/item/context": [
@@ -802,6 +830,11 @@
         {
           "command": "MI.project-explorer.add-class-mediator",
           "when": "view == MI.project-explorer && viewItem == class-mediator",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-ballerina-module",
+          "when": "view == MI.project-explorer && viewItem == ballerina-module",
           "group": "inline"
         },
         {
@@ -895,7 +928,14 @@
         "description": "design-view",
         "default": {
           "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-          "fontCharacter": "\\f163"
+          "fontCharacter": "\\f169"
+        }
+      },
+      "distro-build-package": {
+        "description": "build-package",
+        "default": {
+          "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
+          "fontCharacter": "\\f144"
         }
       }
     }

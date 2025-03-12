@@ -9,6 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    AIChatSummary,
     AIPanelAPI,
     AIVisualizerState,
     AI_EVENT_TYPE,
@@ -16,6 +17,7 @@ import {
     BIModuleNodesRequest,
     BISourceCodeResponse,
     DeleteFromProjectRequest,
+    DeveloperDocument,
     DiagnosticEntry,
     Diagnostics,
     ErrorCode,
@@ -29,19 +31,20 @@ import {
     GenerateTypesFromRecordResponse,
     GetFromFileRequest,
     InitialPrompt,
-    NOT_SUPPORTED_TYPE,
+    LLMDiagnostics,
     NotifyAIMappingsRequest,
     PostProcessRequest,
     PostProcessResponse,
     ProjectDiagnostics,
     ProjectModule,
     ProjectSource,
+    RequirementSpecification,
     STModification,
     SourceFile,
     SyntaxTree,
     TestGenerationMentions,
     TestGenerationRequest,
-    TestGenerationResponse
+    TestGenerationResponse,
 } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as crypto from 'crypto';
@@ -51,22 +54,36 @@ import path from "path";
 import { Uri, window, workspace } from 'vscode';
 
 import { writeFileSync } from "fs";
+import { isNumber } from "lodash";
 import { getPluginConfig } from "../../../src/utils";
 import { extension } from "../../BalExtensionContext";
 import { NOT_SUPPORTED } from "../../core";
 import { generateDataMapping, generateTypeCreation } from "../../features/ai/dataMapping";
 import { generateTest, getDiagnostics, getResourceAccessorDef, getResourceAccessorNames, getServiceDeclaration, getServiceDeclarationNames } from "../../features/ai/testGenerator";
+import { closeAllBallerinaFiles } from "../../features/ai/utils";
+import { getLLMDiagnosticArrayAsString } from "../../features/natural-programming/utils";
 import { StateMachine, updateView } from "../../stateMachine";
 import { loginGithubCopilot } from "../../utils/ai/auth";
 import { modifyFileContent, writeBallerinaFileDidOpen } from "../../utils/modification";
 import { StateMachineAI } from '../../views/ai-panel/aiMachine';
 import { MODIFIYING_ERROR, PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
-import { getFunction, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, processMappings, refreshAccessToken, searchDocumentation } from "./utils";
+import {
+    DEVELOPMENT_DOCUMENT,
+    NATURAL_PROGRAMMING_DIR_NAME, REQUIREMENT_DOC_PREFIX,
+    REQUIREMENT_MD_DOCUMENT,
+    REQUIREMENT_TEXT_DOCUMENT,
+    REQ_KEY, TEST_DIR_NAME
+} from "./constants";
+import { attemptRepairProject, checkProjectDiagnostics } from "./repair-utils";
+import { getFunction, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, processMappings, refreshAccessToken, requirementsSpecification, searchDocumentation } from "./utils";
 import { fetchData } from "./utils/fetch-data-utils";
 
 export let hasStopped: boolean = false;
 
 export class AiPanelRpcManager implements AIPanelAPI {
+
+    private testGenAbortController: AbortController | null = null;
+
     async getBackendURL(): Promise<string> {
         return new Promise(async (resolve) => {
             const config = getPluginConfig();
@@ -290,6 +307,22 @@ export class AiPanelRpcManager implements AIPanelAPI {
             return { error: PARSING_ERROR };
         }
 
+        if (fnSt.functionBody &&
+            fnSt.functionBody["expression"] &&
+            fnSt.functionBody["expression"].fields &&
+            fnSt.functionBody["expression"].fields.length > 0) {
+            // There are existing mappings, show confirmation
+            const confirmResult = await window.showWarningMessage(
+                "Proceeding with Auto Map will overwrite existing mappings. Do you want to continue?",
+                { modal: true },
+                "Overwrite"
+            );
+
+            if (confirmResult !== "Overwrite") {
+                return { userAborted: true };
+            }
+        }
+
         const st = await processMappings(fnSt, fileUri, file);
         if (isErrorCode(st)) {
             if ((st as ErrorCode).code === 6) {
@@ -357,9 +390,9 @@ export class AiPanelRpcManager implements AIPanelAPI {
         return true;
     }
 
-    async getProjectSource(): Promise<ProjectSource> {
+    async getProjectSource(requestType: string): Promise<ProjectSource> {
         // Fetch the Ballerina project source
-        const project: BallerinaProject = await getCurrentProjectSource();
+        const project: BallerinaProject = await getCurrentProjectSource(requestType);
 
         // Initialize the ProjectSource object
         const projectSource: ProjectSource = {
@@ -398,19 +431,9 @@ export class AiPanelRpcManager implements AIPanelAPI {
         }
 
         const { langClient, tempDir } = environment;
-        // check project diagnostics
-        let projectDiags: Diagnostics[] = await checkProjectDiagnostics(project, langClient, tempDir);
-
-        let projectModified = await addMissingImports(projectDiags);
-        if (projectModified) {
-            projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
-        }
-
-        let isDiagsRefreshed = await isModuleNotFoundDiagsExist(projectDiags, langClient);
-        if (isDiagsRefreshed) {
-            projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
-        }
-        const filteredDiags: DiagnosticEntry[] = getErrorDiagnostics(projectDiags);
+        let remainingDiags: Diagnostics[] = await attemptRepairProject(langClient, tempDir);
+        const filteredDiags: DiagnosticEntry[] = getErrorDiagnostics(remainingDiags);
+        await closeAllBallerinaFiles(tempDir);
         return {
             diagnostics: filteredDiags
         };
@@ -443,8 +466,8 @@ export class AiPanelRpcManager implements AIPanelAPI {
 
         const { langClient, tempDir } = environment;
         // check project diagnostics
-        const projectDiags: Diagnostics[] = await checkProjectDiagnostics(project, langClient, tempDir);
-
+        const projectDiags: Diagnostics[] = await checkProjectDiagnostics(langClient, tempDir);
+        await closeAllBallerinaFiles(tempDir);
         for (const diagnostic of projectDiags) {
             for (const diag of diagnostic.diagnostics) {
                 console.log(diag.code);
@@ -464,41 +487,91 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async getGeneratedTests(params: TestGenerationRequest): Promise<TestGenerationResponse> {
-        const projectRoot = await getBallerinaProjectRoot();
-        return await generateTest(projectRoot, params);
+        return new Promise(async (resolve, reject) => {
+            try {
+                const projectRoot = await getBallerinaProjectRoot();
+
+                if (this.testGenAbortController) {
+                    this.testGenAbortController.abort();
+                }
+                this.testGenAbortController = new AbortController();
+                const generatedTests = await generateTest(projectRoot, params, this.testGenAbortController);
+                resolve(generatedTests);
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     async getTestDiagnostics(params: TestGenerationResponse): Promise<ProjectDiagnostics> {
-        const projectRoot = await getBallerinaProjectRoot();
-        return await getDiagnostics(projectRoot, params);
+        return new Promise(async (resolve, reject) => {
+            try {
+                const projectRoot = await getBallerinaProjectRoot();
+                const diagnostics = await getDiagnostics(projectRoot, params);
+                resolve(diagnostics);
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     async getServiceSourceForName(params: string): Promise<string> {
-        const projectRoot = await getBallerinaProjectRoot();
-        const { serviceDeclaration, serviceDocFilePath } = await getServiceDeclaration(projectRoot, params);
-        return serviceDeclaration.source;
+        return new Promise(async (resolve, reject) => {
+            try {
+                const projectRoot = await getBallerinaProjectRoot();
+                const { serviceDeclaration, serviceDocFilePath } = await getServiceDeclaration(projectRoot, params);
+                resolve(serviceDeclaration.source);
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     async getResourceSourceForMethodAndPath(params: string): Promise<string> {
-        const projectRoot = await getBallerinaProjectRoot();
-        const { serviceDeclaration, resourceAccessorDef, serviceDocFilePath } = await getResourceAccessorDef(projectRoot, params);
-        return resourceAccessorDef.source;
+        return new Promise(async (resolve, reject) => {
+            try {
+                const projectRoot = await getBallerinaProjectRoot();
+                const { serviceDeclaration, resourceAccessorDef, serviceDocFilePath } = await getResourceAccessorDef(projectRoot, params);
+                resolve(resourceAccessorDef.source);
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     async getServiceNames(): Promise<TestGenerationMentions> {
-        const projectRoot = await getBallerinaProjectRoot();
-        const serviceDeclNames = await getServiceDeclarationNames(projectRoot);
-        return {
-            mentions: serviceDeclNames
-        };
+        return new Promise(async (resolve, reject) => {
+            try {
+                const projectRoot = await getBallerinaProjectRoot();
+                const serviceDeclNames = await getServiceDeclarationNames(projectRoot);
+                resolve({
+                    mentions: serviceDeclNames
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     async getResourceMethodAndPaths(): Promise<TestGenerationMentions> {
-        const projectRoot = await getBallerinaProjectRoot();
-        const resourceAccessorNames = await getResourceAccessorNames(projectRoot);
-        return {
-            mentions: resourceAccessorNames
-        };
+        return new Promise(async (resolve, reject) => {
+            try {
+                const projectRoot = await getBallerinaProjectRoot();
+                const resourceAccessorNames = await getResourceAccessorNames(projectRoot);
+                resolve({
+                    mentions: resourceAccessorNames
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    async abortTestGeneration(): Promise<void> {
+        if (this.testGenAbortController) {
+            this.testGenAbortController.abort();
+            this.testGenAbortController = null;
+        }
     }
 
     async getMappingsFromRecord(params: GenerateMappingsFromRecordRequest): Promise<GenerateMappingFromRecordResponse> {
@@ -522,23 +595,10 @@ export class AiPanelRpcManager implements AIPanelAPI {
 
         const { langClient, tempDir } = environment;
         // check project diagnostics
-        let projectDiags: Diagnostics[] = await checkProjectDiagnostics(project, langClient, tempDir);
+        let remainingDiags: Diagnostics[] = await attemptRepairProject(langClient, tempDir);
 
-        let projectModified = await addMissingImports(projectDiags);
-        if (projectModified) {
-            projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
-        }
-
-        projectModified = await removeUnusedImports(projectDiags);
-        if (projectModified) {
-            projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
-        }
-
-        let isDiagsRefreshed = await isModuleNotFoundDiagsExist(projectDiags, langClient);
-        if (isDiagsRefreshed) {
-            projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
-        }
-        const filteredDiags: DiagnosticEntry[] = getErrorDiagnostics(projectDiags);
+        const filteredDiags: DiagnosticEntry[] = getErrorDiagnostics(remainingDiags);
+        await closeAllBallerinaFiles(tempDir);
         const newAssistantResponse = getModifiedAssistantResponse(assist_resp, tempDir, project);
         return {
             assistant_response: newAssistantResponse,
@@ -730,6 +790,88 @@ export class AiPanelRpcManager implements AIPanelAPI {
         await extension.context.secrets.store('LOGIN_ALERT_SHOWN', 'true');
     }
 
+    async isRequirementsSpecificationFileExist(filePath: string): Promise<boolean> {
+        const dirPath = path.join(filePath, NATURAL_PROGRAMMING_DIR_NAME);
+
+        if (!fs.existsSync(dirPath) || !fs.lstatSync(dirPath).isDirectory()) {
+            return false; // Directory doesn't exist or isn't a folder
+        }
+
+        const files = fs.readdirSync(dirPath);
+        return Promise.resolve(files.some(file => file.toLowerCase().startsWith(REQUIREMENT_DOC_PREFIX)));
+    }
+
+    async addChatSummary(filepathAndSummary: AIChatSummary): Promise<void> {
+        const filepath = filepathAndSummary.filepath;
+        var summaryResponse = filepathAndSummary.summary;
+
+        const summaryJson: SummaryResponse = JSON.parse(summaryResponse);
+        let summary = summaryJson.summary;
+
+        const naturalProgrammingDirectory = path.join(filepath, NATURAL_PROGRAMMING_DIR_NAME);
+
+        if (!fs.existsSync(naturalProgrammingDirectory)) {
+            fs.mkdirSync(naturalProgrammingDirectory, { recursive: true }); // Add recursive: true
+        }
+
+        const developerMdPath = path.join(naturalProgrammingDirectory, DEVELOPMENT_DOCUMENT);
+        fs.writeFileSync(developerMdPath, summary, 'utf8');
+    }
+
+    async readDeveloperMdFile(directoryPath: string): Promise<string> {
+        const developerMdPath = path.join(directoryPath, NATURAL_PROGRAMMING_DIR_NAME, DEVELOPMENT_DOCUMENT);
+        if (!fs.existsSync(developerMdPath)) {
+            return "";
+        }
+
+        let developerMdContent = fs.readFileSync(developerMdPath, 'utf8');
+        return Promise.resolve(developerMdContent);
+    }
+
+    async updateDevelopmentDocument(developerDocument: DeveloperDocument) {
+        const projectPath = developerDocument.filepath;
+        const content = developerDocument.content;
+
+        const developerMdPath = path.join(projectPath, NATURAL_PROGRAMMING_DIR_NAME, DEVELOPMENT_DOCUMENT);
+        if (fs.existsSync(developerMdPath)) {
+            fs.writeFileSync(developerMdPath, content, 'utf8');
+        }
+    }
+
+    async updateRequirementSpecification(requirementsSpecification: RequirementSpecification) {
+        const naturalProgrammingDir = path.join(requirementsSpecification.filepath, 'natural-programming');
+        const requirementsFilePath = path.join(naturalProgrammingDir, 'requirements.txt');
+
+        // Create the 'natural-programming' directory if it doesn't exist
+        if (!fs.existsSync(naturalProgrammingDir)) {
+            fs.mkdirSync(naturalProgrammingDir, { recursive: true });
+        }
+
+        // Write the requirements to the 'requirements.txt' file
+        fs.writeFileSync(requirementsFilePath, requirementsSpecification.content, 'utf8');
+    }
+
+    async getDriftDiagnosticContents(projectPath: string): Promise<LLMDiagnostics> {
+        const result = await getLLMDiagnosticArrayAsString(projectPath);
+        if (isNumber(result)) {
+            return {
+                statusCode: result,
+                diags: "Failed to check drift between the code and the documentation. Please try again."
+            };
+        }
+
+        return {
+            statusCode: 200,
+            diags: result
+        };
+    }
+
+    async createTestDirecoryIfNotExists(directoryPath: string) {
+        const testDirName = path.join(directoryPath, TEST_DIR_NAME);
+        if (!fs.existsSync(testDirName)) {
+            fs.mkdirSync(testDirName, { recursive: true }); // Add recursive: true
+        }
+    }
 }
 
 function getModifiedAssistantResponse(originalAssistantResponse: string, tempDir: string, project: ProjectSource): string {
@@ -760,6 +902,10 @@ function getModifiedAssistantResponse(originalAssistantResponse: string, tempDir
     );
 
     return modifiedResponse;
+}
+
+interface SummaryResponse {
+    summary: string;
 }
 
 interface BalModification {
@@ -805,165 +951,9 @@ export function getProjectFromResponse(req: string): ProjectSource {
     return { sourceFiles };
 }
 
-async function removeUnusedImports(diagnosticsResult: Diagnostics[]): Promise<boolean> {
-    let modifications: BalModification[] = [];
-    let projectModified = false;
-
-    for (const diagnostic of diagnosticsResult) {
-        const fielUri = diagnostic.uri;
-
-        for (const diag of diagnostic.diagnostics) {
-            //unused module prefix 'redis'
-            if (diag.code !== "BCE2002") {
-                continue;
-            }
-            const module = getContentInsideQuotes(diag.message);
-            modifications.push({ fileUri: fielUri, moduleName: module });
-        }
-    }
-
-    for (const mod of modifications) {
-        const fileUri = mod.fileUri;
-        const moduleName = mod.moduleName;
-
-        const document = await workspace.openTextDocument(Uri.parse(fileUri));
-        const content = document.getText();
-        const lines = content.split('\n');
-
-        // Create a regex to match the import statement of the unused module
-        const importRegex = new RegExp(`^import\\s+.*\\b${moduleName}\\b.*;`);
-
-        // Filter out the import statement
-        const updatedLines = lines.filter(line => !importRegex.test(line));
-
-        const updatedContent = updatedLines.join('\n');
-        await modifyFileContent({ filePath: Uri.parse(fileUri).fsPath, content: updatedContent });
-        projectModified = true;
-    }
-    return projectModified;
-}
-
-async function addMissingImports(diagnosticsResult: Diagnostics[]): Promise<boolean> {
-    let modifications: BalModification[] = [];
-    let projectModified = false;
-    for (const diagnostic of diagnosticsResult) {
-        const fielUri = diagnostic.uri;
-        for (const diag of diagnostic.diagnostics) {
-            // undefined module 'io'(BCE2000)
-            if (diag.code !== "BCE2000") {
-                continue;
-            }
-            const module = getContentInsideQuotes(diag.message);
-            if (module === null) {
-                continue;
-            }
-            // Prevent duplicate entries
-            if (!modifications.some(mod => mod.fileUri === fielUri && mod.moduleName === module)) {
-                modifications.push({ fileUri: fielUri, moduleName: module });
-            }
-        }
-    }
-    //TODO: Replace with code acction
-    for (const mod of modifications) {
-        const fileUri = mod.fileUri;
-        const moduleName = mod.moduleName;
-        let importStatement = "";
-        if (moduleName == 'io') {
-            importStatement = `import ballerina/io;\n`;
-        } else if (moduleName == 'http') {
-            importStatement = `import ballerina/http;\n`;
-        } else if (moduleName == 'log') {
-            importStatement = `import ballerina/log;\n`;
-        } else if (moduleName == 'runtime') {
-            importStatement = `import ballerina/lang.runtime;\n`;
-        } else if (moduleName == 'sql') {
-            importStatement = `import ballerina/sql;\n`;
-        } else if (moduleName == 'time') {
-            importStatement = `import ballerina/time;\n`;
-        } else {
-            continue;
-        }
-
-        const document = await workspace.openTextDocument(Uri.parse(fileUri));
-        const content = document.getText();
-        const updatedContent = importStatement + content;
-
-        await modifyFileContent({ filePath: Uri.parse(fileUri).fsPath, content: updatedContent });
-        projectModified = true;
-    }
-
-    return projectModified;
-}
-
 function getContentInsideQuotes(input: string): string | null {
     const match = input.match(/'([^']+)'/);
     return match ? match[1] : null;
-}
-
-async function isModuleNotFoundDiagsExist(diagnosticsResult: Diagnostics[], langClient): Promise<boolean> {
-    for (const diagnostic of diagnosticsResult) {
-        // if (diagnostic.uri !== Uri.file(tempFilePath).toString()) {
-        //     continue;
-        // }
-        for (const diag of diagnostic.diagnostics) {
-            //Example: cannot resolve module 'ballerinax/aws.s3 as s3'(BCE2003)
-            if (diag.code !== "BCE2003") {
-                continue;
-            }
-            //resolve unresolved modules
-            const dependenciesResponse = await langClient.resolveMissingDependencies({
-                documentIdentifier: {
-                    uri: diagnostic.uri
-                }
-            });
-
-
-            const response = dependenciesResponse as SyntaxTree;
-            if (response.parseSuccess) {
-                // TODO: Need to see why this isnt working and why didOpen needed.
-                // await langClient.didChange({
-                //     contentChanges: [{ text: "" }],
-                //     textDocument: {
-                //         uri: uriString,
-                //         version: 1
-                //     }
-                // });
-
-                // Read and save content to a string
-                const sourceFile = await workspace.openTextDocument(Uri.parse(diagnostic.uri));
-                const content = sourceFile.getText();
-
-                langClient.didOpen({
-                    textDocument: {
-                        uri: diagnostic.uri,
-                        languageId: 'ballerina',
-                        version: 1,
-                        text: content
-                    }
-                });
-                return true;
-            } else {
-                throw Error("Module resolving failedd");
-            }
-        }
-    }
-    return false;
-}
-
-async function checkProjectDiagnostics(project: ProjectSource, langClient, tempDir: string): Promise<Diagnostics[]> {
-    const allDiags: Diagnostics[] = [];
-    for (const sourceFile of project.sourceFiles) {
-        if (sourceFile.filePath.endsWith('.bal')) {
-            const tempFilePath = path.join(tempDir, sourceFile.filePath);
-            let diagnosticsResult: Diagnostics[] | NOT_SUPPORTED_TYPE = await langClient.getDiagnostics({ documentIdentifier: { uri: Uri.file(tempFilePath).toString() } });
-            if (!Array.isArray(diagnosticsResult)) {
-                throw new Error("Something happend while checking diags");
-            }
-
-            allDiags.push(...diagnosticsResult);
-        }
-    }
-    return allDiags;
 }
 
 function getErrorDiagnostics(diagnostics: Diagnostics[]): DiagnosticEntry[] {
@@ -994,7 +984,13 @@ interface BallerinaModule {
     sources: { [key: string]: string };
 }
 
-async function getCurrentProjectSource(): Promise<BallerinaProject> {
+enum CodeGenerationType {
+    CODE_FOR_USER_REQUIREMENT = "CODE_FOR_USER_REQUIREMENT",
+    TESTS_FOR_USER_REQUIREMENT = "TESTS_FOR_USER_REQUIREMENT",
+    CODE_GENERATION = "CODE_GENERATION"
+}
+
+async function getCurrentProjectSource(requestType: string): Promise<BallerinaProject> {
     const projectRoot = await getBallerinaProjectRoot();
 
     if (!projectRoot) {
@@ -1012,6 +1008,27 @@ async function getCurrentProjectSource(): Promise<BallerinaProject> {
         if (file.endsWith('.bal') || file.toLowerCase() === "readme.md") {
             const filePath = path.join(projectRoot, file);
             project.sources[file] = await fs.promises.readFile(filePath, 'utf-8');
+        }
+    }
+
+    if (requestType != CodeGenerationType.CODE_GENERATION) {
+        const naturalProgrammingDirectory = projectRoot + `/${NATURAL_PROGRAMMING_DIR_NAME}`;
+        if (fs.existsSync(naturalProgrammingDirectory)) {
+            const reqFiles = fs.readdirSync(naturalProgrammingDirectory);
+            for (const file of reqFiles) {
+                const filePath = path.join(projectRoot, `${NATURAL_PROGRAMMING_DIR_NAME}`, file);
+                if (file.toLowerCase() == REQUIREMENT_TEXT_DOCUMENT || file.toLowerCase() == REQUIREMENT_MD_DOCUMENT) {
+                    project.sources[REQ_KEY] = await fs.promises.readFile(filePath, 'utf-8');
+                    continue;
+                } else if (file.toLowerCase().startsWith(REQUIREMENT_DOC_PREFIX)) {
+                    const requirements = await requirementsSpecification(filePath);
+                    if (!isErrorCode(requirements)) {
+                        project.sources[REQ_KEY] = requirements.toString();
+                        continue;
+                    }
+                    project.sources[REQ_KEY] = "";
+                }
+            }
         }
     }
 

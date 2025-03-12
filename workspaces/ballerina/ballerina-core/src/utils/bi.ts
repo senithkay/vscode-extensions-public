@@ -13,11 +13,13 @@ import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureRespon
 import { BallerinaProjectComponents, ExtendedLangClientInterface, SyntaxTree } from "../interfaces/extended-lang-client";
 import { CDModel } from "../interfaces/component-diagram";
 import { URI, Utils } from "vscode-uri";
+import path from "path";
 import { LineRange } from "../interfaces/common";
 import { ServiceModel } from "../interfaces/service";
 
 export async function buildProjectStructure(projectDir: string, langClient: ExtendedLangClientInterface): Promise<ProjectStructureResponse> {
     const result: ProjectStructureResponse = {
+        projectName: "",
         directoryMap: {
             [DIRECTORY_MAP.SERVICES]: [],
             [DIRECTORY_MAP.AUTOMATION]: [],
@@ -30,7 +32,8 @@ export async function buildProjectStructure(projectDir: string, langClient: Exte
             [DIRECTORY_MAP.RECORDS]: [],
             [DIRECTORY_MAP.DATA_MAPPERS]: [],
             [DIRECTORY_MAP.ENUMS]: [],
-            [DIRECTORY_MAP.CLASSES]: []
+            [DIRECTORY_MAP.CLASSES]: [],
+            [DIRECTORY_MAP.NATURAL_FUNCTIONS]: []
         }
     };
     const components = await langClient.getBallerinaProjectComponents({
@@ -52,8 +55,8 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
             const resources: ComponentInfo[] = [];
             service.resourceFunctions.forEach(func => {
                 const resourceInfo: ComponentInfo = {
-                    name: `${func.accessor} - ${func.path}`,
-                    filePath: func.location.filePath.split('/').pop(),
+                    name: `${func.accessor}-${func.path}`,
+                    filePath: path.basename(func.location.filePath),
                     startLine: func.location.startLine.line,
                     startColumn: func.location.startLine.offset,
                     endLine: func.location.endLine.line,
@@ -65,7 +68,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
             service.remoteFunctions.forEach(func => {
                 const resourceInfo: ComponentInfo = {
                     name: func.name,
-                    filePath: func.location.filePath.split('/').pop(),
+                    filePath: path.basename(func.location.filePath),
                     startLine: func.location.startLine.line,
                     startColumn: func.location.startLine.offset,
                     endLine: func.location.endLine.line,
@@ -76,7 +79,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
 
             const serviceInfo: ComponentInfo = {
                 name: service.absolutePath ? service.absolutePath : service.type,
-                filePath: service.location.filePath.split('/').pop(),
+                filePath: path.basename(service.location.filePath),
                 startLine: service.location.startLine.line,
                 startColumn: service.location.startLine.offset,
                 endLine: service.location.endLine.line,
@@ -88,17 +91,19 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
     }
 
     for (const pkg of components.packages) {
+        response.projectName = pkg.name;
         for (const module of pkg.modules) {
             response.directoryMap[DIRECTORY_MAP.AUTOMATION].push(...await getComponents(langClient, module.automations, pkg.filePath, "task", DIRECTORY_MAP.AUTOMATION));
             response.directoryMap[DIRECTORY_MAP.SERVICES].push(...await getComponents(langClient, designServices.length > 0 ? designServices : module.services, pkg.filePath, "http-service", DIRECTORY_MAP.SERVICES));
             response.directoryMap[DIRECTORY_MAP.LISTENERS].push(...await getComponents(langClient, module.listeners, pkg.filePath, "http-service", DIRECTORY_MAP.LISTENERS));
-            response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(...await getComponents(langClient, module.functions, pkg.filePath, "function"));
+            response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(...await getComponents(langClient, module.functions, pkg.filePath, "function", DIRECTORY_MAP.FUNCTIONS));
             response.directoryMap[DIRECTORY_MAP.CONNECTIONS].push(...await getComponents(langClient, module.moduleVariables, pkg.filePath, "connection", DIRECTORY_MAP.CONNECTIONS));
             response.directoryMap[DIRECTORY_MAP.TYPES].push(...await getComponents(langClient, module.types, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.RECORDS].push(...await getComponents(langClient, module.records, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.ENUMS].push(...await getComponents(langClient, module.enums, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.CLASSES].push(...await getComponents(langClient, module.classes, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.CONFIGURATIONS].push(...await getComponents(langClient, module.configurableVariables, pkg.filePath, "config"));
+            response.directoryMap[DIRECTORY_MAP.NATURAL_FUNCTIONS].push(...await getComponents(langClient, module.naturalFunctions, pkg.filePath, "function"));
         }
     }
 
@@ -107,7 +112,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
     response.directoryMap[DIRECTORY_MAP.FUNCTIONS] = [];
     for (const func of functions) {
         const st = func.st;
-        if (STKindChecker.isFunctionDefinition(st) && STKindChecker.isExpressionFunctionBody(st.functionBody)) {
+        if (st && STKindChecker.isFunctionDefinition(st) && STKindChecker.isExpressionFunctionBody(st.functionBody)) {
             func.icon = "dataMapper";
             response.directoryMap[DIRECTORY_MAP.DATA_MAPPERS].push(func);
         } else {
@@ -117,10 +122,16 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
 }
 
 async function getComponents(langClient: ExtendedLangClientInterface, components: ComponentInfo[], projectPath: string, icon: string, dtype?: DIRECTORY_MAP): Promise<ProjectStructureArtifactResponse[]> {
+    if (!components) {
+        return [];
+    }
     const entries: ProjectStructureArtifactResponse[] = [];
     let compType = "HTTP";
     let serviceModel: ServiceModel = undefined;
     for (const comp of components) {
+        if (dtype === DIRECTORY_MAP.FUNCTIONS && comp.name === "main") {
+            continue; // Skip main function
+        }
         const componentFile = Utils.joinPath(URI.parse(projectPath), comp.filePath).fsPath;
         let stNode: SyntaxTree;
         try {
