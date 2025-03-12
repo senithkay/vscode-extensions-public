@@ -11,11 +11,11 @@ import vscode from 'vscode';
 import { ENABLE_BACKGROUND_DRIFT_CHECK } from "../../core/preferences";
 import { debounce } from 'lodash';
 import { StateMachine } from "../../stateMachine";
-import { addAccessTokenToConfig, getBackendURL, getLLMDiagnostics, getAccessToken } from "./utils";
+import { addDefaultModelConfigForNaturalFunctions, getBackendURL, getLLMDiagnostics, getAccessToken } from "./utils";
 import { NLCodeActionProvider, showTextOptions } from './nl-code-action-provider';
 import { BallerinaExtension } from 'src/core';
 import { PROGRESS_BAR_MESSAGE_FOR_DRIFT, WARNING_MESSAGE, WARNING_MESSAGE_DEFAULT, MONITERED_EXTENSIONS,
-    WARNING_MESSAGE_FOR_TEST, PROGRESS_BAR_MESSAGE_FOR_TEST
+    WARNING_MESSAGE_FOR_TOKEN_NOT_FOUND, PROGRESS_BAR_MESSAGE_FOR_TEST
  } from './constants';
 
 let diagnosticCollection: vscode.DiagnosticCollection;
@@ -115,11 +115,11 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             async () => {
                 const token: string = await getAccessToken();
                 if (token == null) {
-                    vscode.window.showWarningMessage(WARNING_MESSAGE_FOR_TEST);
+                    vscode.window.showWarningMessage(WARNING_MESSAGE_FOR_TOKEN_NOT_FOUND);
                     return;
                 }
 
-                addAccessTokenToConfig(projectPath, token, await getBackendURL());
+                addDefaultModelConfigForNaturalFunctions(projectPath, token, await getBackendURL());
             }
         );
     });

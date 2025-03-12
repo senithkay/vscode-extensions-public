@@ -468,7 +468,7 @@ export async function streamToString(stream: ReadableStream<Uint8Array>): Promis
     return result;
 }
 
-export function addAccessTokenToConfig(projectPath: string, token: string, backendUrl: string) {
+export function addDefaultModelConfigForNaturalFunctions(projectPath: string, token: string, backendUrl: string) {
     const configFilePath = path.join(projectPath, 'Config.toml');
     const targetTable = '[ballerinax.np.defaultModelConfig]';
     const urlLine = `url = "${backendUrl}"`;
