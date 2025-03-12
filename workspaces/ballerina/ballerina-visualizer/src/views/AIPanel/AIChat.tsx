@@ -1382,7 +1382,7 @@ export function AIChat() {
 
         try {
             const response = await rpcClient.getAiPanelRpcClient().getGeneratedTests({
-                backendUri: backendRootUri,
+                backendUri: "http://localhost:9094/ai",
                 targetType: TestGenerationTarget.Function,
                 targetIdentifier: functionIdentifier,
                 testPlan,
@@ -1415,7 +1415,7 @@ export function AIChat() {
                     `\n<progress>Refining tests based on feedback to ensure accuracy and reliability.</progress>`
                 );
                 const fixedCode = await rpcClient.getAiPanelRpcClient().getGeneratedTests({
-                    backendUri: backendRootUri,
+                    backendUri: "http://localhost:9094/ai",
                     targetType: TestGenerationTarget.Function,
                     targetIdentifier: functionIdentifier,
                     testPlan: testPlan,
