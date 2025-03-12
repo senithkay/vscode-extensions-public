@@ -120,6 +120,9 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
 }
 
 async function getComponents(langClient: ExtendedLangClientInterface, components: ComponentInfo[], projectPath: string, icon: string, dtype?: DIRECTORY_MAP): Promise<ProjectStructureArtifactResponse[]> {
+    if (!components) {
+        return [];
+    }
     const entries: ProjectStructureArtifactResponse[] = [];
     let compType = "HTTP";
     let serviceModel: ServiceModel = undefined;
