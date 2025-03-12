@@ -487,6 +487,11 @@
                 "category": "Ballerina"
             },
             {
+                "command": "kolab.getAcessToken",
+                "title": "Setup configurations for natural function",
+                "category": "Ballerina"
+            },
+            {
                 "command": "kolab.pasteXMLAsRecord",
                 "title": "Paste XML as Record",
                 "category": "Ballerina"
