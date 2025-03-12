@@ -482,7 +482,13 @@ export function addDefaultModelConfigForNaturalFunctions(projectPath: string, to
 
     const tableStartIndex = fileContent.indexOf(targetTable);
 
-    if (tableStartIndex !== -1) {
+    if (tableStartIndex === -1) {
+        // Table doesn't exist, create it
+        if (fileContent.length > 0 && !fileContent.endsWith('\n')) {
+            fileContent += '\n\n';
+        }
+        fileContent += `\n${targetTable}\n${urlLine}\n${accessTokenLine}\n`;
+    } else {
         // Table exists, update it
         const tableEndIndex = fileContent.indexOf('\n', tableStartIndex);
 
@@ -517,12 +523,6 @@ export function addDefaultModelConfigForNaturalFunctions(projectPath: string, to
                 }
             }
         }
-    } else {
-        // Table doesn't exist, create it
-        if (fileContent.length > 0 && !fileContent.endsWith('\n')) {
-            fileContent += '\n\n';
-        }
-        fileContent += `\n${targetTable}\n${urlLine}\n${accessTokenLine}\n`;
     }
 
     fs.writeFileSync(configFilePath, fileContent);
