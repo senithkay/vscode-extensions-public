@@ -28,9 +28,6 @@ const miDownloadUrls: { [key: string]: string } = {
 };
 
 const CACHED_FOLDER = path.join(os.homedir(), '.wso2-mi');
-const KOLA_EXTENSION = "WSO2.kola-extension";
-const KOLA_OPEN_COMMAND = "kolab.open.bi.welcome";
-const INSTALL_EXTENSION_COMMAND = "workbench.extensions.installExtension";
 
 export async function setupEnvironment(projectUri: string, isOldProject: boolean): Promise<boolean> {
     try {
@@ -929,8 +926,8 @@ async function showExtensionPrompt() {
         'Install Now'
     ).then(async (selection) => {
         if (selection === 'Install Now') {
-            await vscode.commands.executeCommand(INSTALL_EXTENSION_COMMAND, KOLA_EXTENSION);
-            await vscode.commands.executeCommand(KOLA_OPEN_COMMAND);
+            await vscode.commands.executeCommand(COMMANDS.INSTALL_EXTENSION_COMMAND, COMMANDS.KOLA_EXTENSION);
+            await vscode.commands.executeCommand(COMMANDS.KOLA_OPEN_COMMAND);
         }
     });
 }
