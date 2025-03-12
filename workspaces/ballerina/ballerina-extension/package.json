@@ -581,6 +581,11 @@
                 "category": "BI"
             },
             {
+                "command": "kolab.open.bi.new",
+                "title": "New Ballerina Integration",
+                "category": "BI"
+            },
+            {
                 "command": "BI.project.run",
                 "title": "Run",
                 "icon": {
