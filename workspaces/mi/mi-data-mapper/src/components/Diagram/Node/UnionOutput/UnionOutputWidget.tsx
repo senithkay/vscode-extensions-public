@@ -10,7 +10,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { Button, Codicon, Icon, ProgressRing, Tooltip, TruncatedLabel, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, ProgressRing, TruncatedLabel } from '@wso2-enterprise/ui-toolkit';
 import { Node } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -32,6 +32,7 @@ import FieldActionWrapper from '../commons/FieldActionWrapper';
 import { ValueConfigMenu, ValueConfigMenuItem, ValueConfigOption } from '../commons/ValueConfigButton';
 import { modifyChildFieldsOptionality } from '../../utils/modification-utils';
 import { getDefaultValue } from '../../utils/common-utils';
+import { UnionTypeSelector } from './UnionTypeSelector';
 export interface UnionOutputWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
 	dmTypeWithValue: DMTypeWithValue;
@@ -267,56 +268,11 @@ export function UnionOutputWidget(props: UnionOutputWidgetProps) {
 					)}
 				</TreeHeader>
 				<TreeBody>
-					<span>Types are ambiguous. Select one to access child fields</span>
-					{dmTypeWithValue.type.unionTypes?.map((dmType) => {
-						return (
-							<UnionTypeListItem dmType={dmType} onHandleInit={handleInitAsUnionType} />
-						);
-					})}
+					<UnionTypeSelector
+						unionTypes={dmTypeWithValue.type.unionTypes}
+						onHandleSelect={handleInitAsUnionType} />
 				</TreeBody>
 			</TreeContainer>
 		</>
 	);
-}
-
-interface UnionTypeListItemProps {
-	dmType: DMType;
-	onHandleInit: (resolvedUnionType: DMType) => Promise<void>;
-}
-
-function UnionTypeListItem(props: UnionTypeListItemProps) {
-	const { dmType, onHandleInit } = props;
-	const [isAddingTypeCast, setIsAddingTypeCast] = useState(false);
-	const classes = useIONodesStyles();
-
-	const onClickOnListItem = async () => {
-		setIsAddingTypeCast(true)
-		await onHandleInit(dmType);
-	};
-
-	return (
-		<Tooltip
-			content={`Initialize as ${dmType.typeName}`}
-			position="right"
-		>
-			<div
-				onMouseDown={onClickOnListItem}
-				// className={classes.outputTypeLabel}
-				style={{ display: "flex", alignItems: "center" }}
-			>
-				{isAddingTypeCast ? (
-					<ProgressRing />
-				) : (
-					<Icon
-						name="symbol-struct-icon"
-						sx={{ height: "15px", width: "15px" }}
-					/>
-				)}
-				<Typography variant="h4" className={classes.label} sx={{ margin: "0 0 0 6px" }} >
-					{dmType.typeName}
-				</Typography>
-			</div>
-		</Tooltip>
-	);
-
 }
