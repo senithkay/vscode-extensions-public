@@ -121,7 +121,7 @@ export function ServiceClassConfig(props: ServiceClassConfigProps) {
                             <>
                                 {serviceClassFields?.length > 0 && (
                                     <FormContainer>
-                                        <FormHeader title={`Service Class Configuration`} subtitle={editTitle} />
+                                        <FormHeader title={`Service Class Configuration`} />
                                         {fileName &&
                                             <FormGeneratorNew
                                                 fileName={Utils.joinPath(URI.file(projectUri), fileName).fsPath}

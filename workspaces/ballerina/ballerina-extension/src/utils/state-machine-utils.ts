@@ -165,7 +165,7 @@ export async function getView(documentUri: string, position: NodePosition, proje
             };
         } else if (
             STKindChecker.isFunctionDefinition(node.syntaxTree) &&
-            node.syntaxTree.functionBody.source.includes("@np:LlmCall external")
+            node.syntaxTree.functionBody.source.includes("@np:NaturalFunction external")
         ) {
             return {
                 location: {
