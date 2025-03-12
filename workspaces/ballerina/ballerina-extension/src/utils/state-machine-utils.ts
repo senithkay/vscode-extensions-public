@@ -8,7 +8,7 @@
  */
 
 import { HistoryEntry, MACHINE_VIEW, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
-import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { StateMachine } from "../stateMachine";
 import { Uri } from "vscode";
 import { UIDGenerationVisitor } from "./history/uid-generation-visitor";
@@ -162,6 +162,17 @@ export async function getView(documentUri: string, position: NodePosition, proje
                     position: position
                 },
                 dataMapperDepth: 0
+            };
+        } else if (
+            STKindChecker.isFunctionDefinition(node.syntaxTree) &&
+            node.syntaxTree.functionBody.source.includes("@np:LlmCall external")
+        ) {
+            return {
+                location: {
+                    view: MACHINE_VIEW.BINPFunctionForm,
+                    identifier: node.syntaxTree.functionName.value,
+                    documentUri: documentUri
+                },
             };
         } else if (
             STKindChecker.isFunctionDefinition(node.syntaxTree)

@@ -858,6 +858,8 @@ function handleSpawnProcess(command: string, args: string[], options: child_proc
 }
 
 async function runBallerinaBuildsWithProgress(projectPath: string) {
+    const isWindows = process.platform === 'win32';
+    const command = isWindows ? 'cmd.exe' : 'bal';
     await vscode.window.withProgress(
         {
             location: vscode.ProgressLocation.Notification,
@@ -867,13 +869,15 @@ async function runBallerinaBuildsWithProgress(projectPath: string) {
         async (progress, token) => {
             try {
                 progress.report({ increment: 40, message: "Generating module..." });
-                await handleSpawnProcess(process.platform === 'win32' ? "bal.bat" : "bal", ["tool", "pull", "mi-module-gen"], {
+                let args = isWindows ? ['/c', 'bal.bat', 'tool', 'pull', 'mi-module-gen'] : ['tool', 'pull', 'mi-module-gen'];
+                await handleSpawnProcess(command,  args, {
                     cwd: projectPath,
-                    env: { ...process.env, PATH: process.env.PATH + ":" + path.join(os.homedir(), '.ballerina', 'ballerina-home', 'bin').toString() }
+                    env: { ...process.env, PATH: process.env.PATH + path.delimiter + path.join(os.homedir(), '.ballerina', 'ballerina-home', 'bin').toString() }
                 });
-                await handleSpawnProcess(process.platform === 'win32' ? "bal.bat" : "bal", ["mi-module-gen", "-i", "."], {
+                args = isWindows ? ['/c', 'bal.bat', 'mi-module-gen', '-i', '.'] : ['mi-module-gen', '-i', '.'];
+                await handleSpawnProcess(command, args, {
                     cwd: projectPath,
-                    env: { ...process.env, PATH: process.env.PATH + ":" + path.join(os.homedir(), '.ballerina', 'ballerina-home', 'bin').toString() }
+                    env: { ...process.env, PATH: process.env.PATH + path.delimiter + path.join(os.homedir(), '.ballerina', 'ballerina-home', 'bin').toString() }
                 });
 
                 progress.report({ increment: 40, message: "Copying Ballerina module..." });
