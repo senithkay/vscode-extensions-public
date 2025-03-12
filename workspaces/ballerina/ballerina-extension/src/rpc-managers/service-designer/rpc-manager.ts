@@ -32,6 +32,7 @@ import {
     ResourceSourceCodeResponse,
     STModification,
     ServiceDesignerAPI,
+    ServiceModel,
     ServiceModelFromCodeRequest,
     ServiceModelFromCodeResponse,
     ServiceModelRequest,
@@ -48,7 +49,7 @@ import * as fs from 'fs';
 import { existsSync, writeFileSync } from "fs";
 import * as yaml from 'js-yaml';
 import * as path from 'path';
-import { Uri, commands, window, workspace } from "vscode";
+import { Uri, commands, window, workspace, WorkspaceEdit, Position } from "vscode";
 import { StateMachine } from "../../stateMachine";
 
 export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
@@ -138,9 +139,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
-                if (StateMachine.context().isBI) {
-                    commands.executeCommand("BI.project-explorer.refresh");
-                }
+                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -161,9 +160,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
-                if (StateMachine.context().isBI) {
-                    commands.executeCommand("BI.project-explorer.refresh");
-                }
+                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -219,14 +216,76 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
-                if (StateMachine.context().isBI) {
-                    commands.executeCommand("BI.project-explorer.refresh");
-                }
+                commands.executeCommand("BI.project-explorer.refresh");
+                await this.injectAIAgent(params.service, result);
                 resolve(result);
             } catch (error) {
                 console.log(error);
             }
         });
+    }
+
+    // This is a hack to inject the AI agent code into the chat service function
+    // This has to be replaced once we have a proper design for AI Agent Chat Service
+    async injectAIAgent(service: ServiceModel, result: SourceUpdateResponse) {
+        // We will only inject if the typpe is ai.agent and serviceType is ChatService
+        if (service.type === "ai.agent" && service?.properties?.serviceType?.value === "ChatService") {
+            // Create agents.bal in the same directory and inject agent
+            const targetFile = path.join(StateMachine.context().projectUri, `agents.bal`);
+            const sourceCode = `
+import ballerinax/ai.agent;
+
+configurable string apiKey = ?;
+configurable string deploymentId = ?;
+configurable string apiVersion = ?;
+configurable string serviceUrl = ?;
+
+final agent:Model model = check new agent:AzureOpenAiModel({auth: {apiKey}}, serviceUrl, deploymentId, apiVersion);
+final agent:Agent agent = check new (
+    systemPrompt = {
+        role: "",
+        instructions: ""
+    },
+    model = model,
+    tools = []
+);            
+`;
+
+            //Create or update the file using VSCode workspace API
+            const uri = Uri.file(targetFile);
+            const edit = new WorkspaceEdit();
+            edit.createFile(uri, { overwrite: true });
+            edit.insert(uri, new Position(0, 0), sourceCode);
+            await workspace.applyEdit(edit);
+
+            // retrive the service model
+            const service = await this.getServiceModelFromCode({
+                filePath: result.filePath,
+                codedata: {
+                    lineRange: {
+                        startLine: { line: result.position.startLine, offset: result.position.startColumn },
+                        endLine: { line: result.position.endLine, offset: result.position.endColumn }
+                    }
+                }
+            });
+
+            if (!service?.service?.functions?.[0]?.codedata?.lineRange?.endLine) {
+                console.error('Unable to determine injection position: Invalid service structure');
+                return;
+            }
+            const injectionPosition = service.service.functions[0].codedata.lineRange.endLine;
+
+            // Update the service function code 
+            const serviceFile = path.join(StateMachine.context().projectUri, `main.bal`);
+            const serviceEdit = new WorkspaceEdit();
+            const serviceSourceCode = `        string agentResponse = check agent->run(chatRequest.message);
+            return {
+                message: agentResponse
+            };
+        `;
+            serviceEdit.insert(Uri.file(serviceFile), new Position(injectionPosition.line, 0), serviceSourceCode);
+            await workspace.applyEdit(serviceEdit);
+        }
     }
 
     async updateServiceSourceCode(params: ServiceSourceCodeRequest): Promise<SourceUpdateResponse> {
@@ -249,9 +308,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
-                if (StateMachine.context().isBI) {
-                    commands.executeCommand("BI.project-explorer.refresh");
-                }
+                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);

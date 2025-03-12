@@ -2,7 +2,7 @@
     "name": "kola-extension",
     "displayName": "Kola",
     "description": "Project Kola.",
-    "version": "0.4.6",
+    "version": "0.4.9",
     "publisher": "wso2",
     "repository": {
         "url": "http://repo.url"
@@ -33,7 +33,7 @@
         "viewsWelcome": [
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to Kola Integrator. You can open a folder containing a Kola integration or create a new integration.\n[Open Kola Integration](command:vscode.openFolder)\n[Create New Integration](command:kolab.open.bi.welcome)\nTo learn more about how to use Kola Integrator in VS Code [read our docs](https://wso2.github.io/docs-kola/).",
+                "contents": "Welcome to Kola Integrator. You can open a folder containing a Kola integration or create a new integration.\n[Open Kola Integration](command:vscode.openFolder)\n[Create New Integration](command:kolab.open.bi.new)\nTo learn more about how to use Kola Integrator in VS Code [read our docs](https://wso2.github.io/docs-kola/).",
                 "when": "BI.status == 'unknownProject'"
             },
             {
@@ -99,6 +99,11 @@
                 }
             ],
             "view/title": [
+                {
+                    "command": "BI.project-explorer.switch-project",
+                    "when": "view == BI.project-explorer && BI.project == true && BI.isMultiRoot == true",
+                    "group": "navigation"
+                },
                 {
                     "command": "BI.project-explorer.add",
                     "when": "view == BI.project-explorer && BI.project == true",

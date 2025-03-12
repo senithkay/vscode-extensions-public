@@ -337,6 +337,8 @@ function generateArtifactsPath(projectPath: string, key: string): string {
 			return path.join(projectPath, 'src', 'main', 'wso2mi', 'artifacts', 'data-sources');
 		case 'Class Mediators':
 			return path.join(projectPath, 'src', 'main', 'java');
+		case 'Ballerina Modules':
+			return path.join(projectPath, 'src', 'main', 'ballerina');
 		default:
 			return path.join(projectPath, 'src', 'main', 'wso2mi', 'artifacts', key.toLowerCase());
 	}
@@ -549,6 +551,14 @@ function generateArtifacts(
 				parentEntry.contextValue = 'class-mediator';
 				break;
 			}
+			case 'Ballerina Modules': {
+				const ballerinaPath = path.join(project.uri.fsPath, 'src', 'main', 'ballerina');
+				parentEntry.id = 'ballerina-module';
+				parentEntry.children = generateTreeDataOfBallerinaModule(project, projectStructure,
+					data[key].filter(file => file.name !== "Ballerina.toml"));
+				parentEntry.contextValue = 'ballerina-module';
+				break;
+			}
 			case 'Data Mappers': {
 				parentEntry.contextValue = 'data-mappers';
 				parentEntry.id = 'data-mapper';
@@ -598,6 +608,37 @@ function generateTreeDataOfClassMediator(project: vscode.WorkspaceFolder, data: 
 			resourceEntry.command = {
 				"title": "Edit Class Mediator",
 				"command": COMMANDS.EDIT_CLASS_MEDIATOR_COMMAND,
+				"arguments": [vscode.Uri.file(filePath)]
+			};
+			result.push(resourceEntry);
+		}
+	}
+	return result;
+}
+
+function generateTreeDataOfBallerinaModule(project: vscode.WorkspaceFolder, data: ProjectStructureResponse, ballerinaFiles: any): ProjectExplorerEntry[] {
+	const directoryMap = data.directoryMap;
+	const main = (directoryMap as any)?.src?.main;
+	const result: ProjectExplorerEntry[] = [];
+	if (main && main['ballerina']) {
+		let modules = new Map();
+		ballerinaFiles.forEach(file => {
+			const nameWithoutExtension = file.name.replace('.bal', '');
+			modules.set(file.path, nameWithoutExtension.endsWith("-module") ?
+				nameWithoutExtension.replace('-module','') : nameWithoutExtension);
+		});;
+		for (var entry of modules.entries()) {
+			const filePath = entry[0];
+			const packageName = entry[1];
+			const fileName = path.basename(filePath);
+			const resourceEntry = new ProjectExplorerEntry(fileName + " (" + packageName + ")", isCollapsibleState(false), {
+				name: fileName,
+				type: 'resource',
+				path: filePath
+			}, 'file');
+			resourceEntry.command = {
+				"title": "Edit Ballerina Module",
+				"command": COMMANDS.EDIT_BALLERINA_MODULE_COMMAND,
 				"arguments": [vscode.Uri.file(filePath)]
 			};
 			result.push(resourceEntry);

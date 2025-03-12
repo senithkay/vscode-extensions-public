@@ -60,7 +60,16 @@ import {
     AddFieldRequest,
     RenameIdentifierRequest,
     BISearchRequest,
-    BISearchResponse
+    BISearchResponse,
+    GetRecordConfigRequest,
+    GetRecordConfigResponse,
+    UpdateRecordConfigRequest,
+    RecordSourceGenRequest,
+    RecordSourceGenResponse,
+    GetRecordModelFromSourceResponse,
+    GetRecordModelFromSourceRequest,
+    UpdateTypesRequest,
+    UpdateTypesResponse
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -124,11 +133,16 @@ export interface BIDiagramAPI {
     getTypes: (params: GetTypesRequest) => Promise<GetTypesResponse>;
     getType: (params: GetTypeRequest) => Promise<GetTypeResponse>;
     updateType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
+    updateTypes: (params: UpdateTypesRequest) => Promise<UpdateTypesResponse>;
     getServiceClassModel: (params: ModelFromCodeRequest) => Promise<ServiceClassModelResponse>;
     updateClassField: (params: ClassFieldModifierRequest) => Promise<SourceEditResponse>;
     addClassField: (params: AddFieldRequest) => Promise<SourceEditResponse>;
     updateServiceClass: (params: ServiceClassSourceRequest) => Promise<SourceEditResponse>;
     createGraphqlClassType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
+    getRecordConfig: (params: GetRecordConfigRequest) => Promise<GetRecordConfigResponse>;
+    updateRecordConfig: (params: UpdateRecordConfigRequest) => Promise<GetRecordConfigResponse>;
+    getRecordModelFromSource: (params: GetRecordModelFromSourceRequest) => Promise<GetRecordModelFromSourceResponse>;
+    getRecordSource: (params: RecordSourceGenRequest) => Promise<RecordSourceGenResponse>;
     updateImports: (params: UpdateImportsRequest) => Promise<UpdateImportsResponse>;
     addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
     getFunctionNode: (params: FunctionNodeRequest) => Promise<FunctionNodeResponse>;

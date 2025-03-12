@@ -72,7 +72,16 @@ const State = {
 } as const;
 
 export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, FormExpressionEditorProps>((props, ref) => {
-    const { id, getExpressionEditorIcon, onRemove, codeActions, startAdornment, endAdornment, ...rest } = props;
+    const {
+        id,
+        getExpressionEditorIcon,
+        onRemove,
+        codeActions,
+        startAdornment,
+        endAdornment,
+        expressionEditorIconName = 'function-icon',
+        ...rest
+    } = props;
     const expressionEditorRef = useRef<FormExpressionEditorRef>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLDivElement>(null)
@@ -127,7 +136,7 @@ export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, F
                             buttonSx={{ width: "26px", height: "26px" }}
                         >
                             <Icon
-                                name="function-icon"
+                                name={expressionEditorIconName}
                                 sx={{ height: "20px", width: "18px" }}
                                 iconSx={{
                                     fontSize: "16px",

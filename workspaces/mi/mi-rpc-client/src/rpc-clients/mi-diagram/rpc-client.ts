@@ -198,6 +198,7 @@ import {
     compareSwaggerAndAPI,
     createAPI,
     createClassMediator,
+    createBallerinaModule,
     createConnection,
     createDataService,
     createDataSource,
@@ -389,6 +390,13 @@ import {
     askImportFileDir,
     LocalInboundConnectorsResponse,
     getLocalInboundConnectors,
+    BuildProjectRequest,
+    deployProject,
+    DeployProjectRequest,
+    DeployProjectResponse,
+    CreateBallerinaModuleRequest,
+    CreateBallerinaModuleResponse,
+    buildBallerinaModule
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -716,6 +724,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(createClassMediator, HOST_EXTENSION, params);
     }
 
+    createBallerinaModule(params: CreateBallerinaModuleRequest): Promise<CreateBallerinaModuleResponse> {
+        return this._messenger.sendRequest(createBallerinaModule, HOST_EXTENSION, params);
+    }
+
+    buildBallerinaModule(projectPath: string): Promise<void> {
+        return this._messenger.sendRequest(buildBallerinaModule, HOST_EXTENSION, projectPath);
+    }
+
     getSelectiveWorkspaceContext(): Promise<GetSelectiveWorkspaceContextResponse> {
         return this._messenger.sendRequest(getSelectiveWorkspaceContext, HOST_EXTENSION);
     }
@@ -852,8 +868,12 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getAllAPIcontexts, HOST_EXTENSION);
     }
 
-    buildProject(): void {
-        return this._messenger.sendNotification(buildProject, HOST_EXTENSION);
+    buildProject(params: BuildProjectRequest): void {
+        return this._messenger.sendNotification(buildProject, HOST_EXTENSION, params);
+    }
+
+    deployProject(params: DeployProjectRequest): Promise<DeployProjectResponse> {
+        return this._messenger.sendRequest(deployProject, HOST_EXTENSION, params);
     }
 
     refreshAccessToken(): Promise<void> {

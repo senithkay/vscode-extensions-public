@@ -15,7 +15,7 @@ import {
     ParameterValue,
     Parameter,
 } from "@wso2-enterprise/ballerina-side-panel";
-import { AddNodeVisitor, RemoveNodeVisitor, NodeIcon, traverseFlow } from "@wso2-enterprise/bi-diagram";
+import { AddNodeVisitor, RemoveNodeVisitor, NodeIcon, traverseFlow, ConnectorIcon } from "@wso2-enterprise/bi-diagram";
 import {
     Category,
     AvailableNode,
@@ -38,7 +38,7 @@ import {
     functionKinds,
     TRIGGER_CHARACTERS,
     Diagnostic,
-    FUNCTION_TYPE
+    FUNCTION_TYPE,
 } from "@wso2-enterprise/ballerina-core";
 import {
     HelperPaneVariableInfo,
@@ -47,9 +47,8 @@ import {
     HelperPaneCompletionItem
 } from "@wso2-enterprise/ballerina-side-panel";
 import { SidePanelView } from "../views/BI/FlowDiagram";
-import React from "react";
 import { cloneDeep } from "lodash";
-import { COMPLETION_ITEM_KIND, CompletionItem, CompletionItemKind, convertCompletionItemKind } from "@wso2-enterprise/ui-toolkit";
+import { CompletionItem, CompletionItemKind, convertCompletionItemKind } from "@wso2-enterprise/ui-toolkit";
 
 function convertAvailableNodeToPanelNode(node: AvailableNode, functionType?: FUNCTION_TYPE): PanelNode {
     // Check if node should be filtered based on function type
@@ -90,7 +89,7 @@ function convertDiagramCategoryToSidePanelCategory(category: Category, functionT
     return {
         title: category.metadata.label,
         description: category.metadata.description,
-        icon: icon ? <img src={icon} alt={category.metadata.label} style={{ width: "20px" }} /> : undefined,
+        icon: <ConnectorIcon url={icon} style={{ width: "20px" }} />,
         items: items,
     };
 }
@@ -157,7 +156,8 @@ export function convertNodePropertyToFormField(
         diagnostics: property.diagnostics?.diagnostics || [],
         valueTypeConstraint: property.valueTypeConstraint,
         lineRange: property?.codedata?.lineRange,
-        metadata: property.metadata
+        metadata: property.metadata,
+        codedata: property.codedata
     };
     return formField;
 }
@@ -183,12 +183,16 @@ function getFormFieldValue(expression: Property, clientName?: string) {
 }
 
 function getFormFieldValueType(expression: Property): string | undefined {
-    if (!expression.valueTypeConstraint) {
-        return undefined;
-    }
+    // if (!expression.valueTypeConstraint) {
+    //     return undefined;
+    // }
 
     if (Array.isArray(expression.valueTypeConstraint)) {
         return undefined;
+    }
+
+    if (expression.valueType) {
+        return expression.valueType;
     }
 
     return expression.valueTypeConstraint;
@@ -722,11 +726,14 @@ function handleRepeatableProperty(property: Property, formField: FormField): voi
     };
 }
 
-export function convertConfig(properties: NodeProperties): FormField[] {
+export function convertConfig(properties: NodeProperties, skipKeys: string[] = []): FormField[] {
     const formFields: FormField[] = [];
     const sortedKeys = Object.keys(properties).sort();
 
     for (const key of sortedKeys) {
+        if (skipKeys.includes(key)) {
+            continue;
+        }
         const property = properties[key as keyof NodeProperties];
         const formField = convertNodePropertyToFormField(key, property);
 

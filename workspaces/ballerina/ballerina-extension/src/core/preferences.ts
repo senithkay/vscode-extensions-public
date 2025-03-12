@@ -12,6 +12,7 @@ export const OVERRIDE_BALLERINA_HOME = "kolab.pluginDevMode";
 export const ENABLE_TELEMETRY = "kolab.enableTelemetry";
 export const ENABLE_ALL_CODELENS = "kolab.codeLens.all.enabled";
 export const ENABLE_SEMANTIC_HIGHLIGHTING = "kolab.enableSemanticHighlighting";
+export const ENABLE_BACKGROUND_DRIFT_CHECK = "kolab.enableBackgroundDriftCheck";
 export const ENABLE_PERFORMANCE_FORECAST = "kolab.enablePerformanceForecast";
 export const ENABLE_DEBUG_LOG = "kolab.debugLog";
 export const ENABLE_LIVE_RELOAD = "kolab.enableLiveReload";
@@ -21,6 +22,7 @@ export const ENABLE_NOTEBOOK_DEBUG = "kolab.enableNotebookDebug";
 export const ENABLE_RUN_FAST = "kolab.enableRunFast";
 export const FILE_DOWNLOAD_PATH = "kolab.samplesDownloadDirectory";
 export const ENABLE_INLAY_HINTS = "kolab.enableInlayHints";
-
 export const ENABLE_SEQUENCE_DIAGRAM_VIEW = "kolab.enableSequenceDiagramView";
 export const ENABLE_AI_SUGGESTIONS = "kolab.enableAiSuggestions";
+export const ENABLE_BALLERINA_INTEGRATOR = "kolab.isBI";
+export const DEFINE_BALLERINA_INTEGRATOR_SCOPE = "kolab.scope";

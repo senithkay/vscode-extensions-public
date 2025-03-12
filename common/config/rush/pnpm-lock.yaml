@@ -506,6 +506,7 @@ importers:
       ts-loader: ^9.5.0
       tslint: ^6.1.3
       typescript: ^4.9.5
+      uuid: ^11.1.0
       vscode-debugadapter: ^1.51.0
       vscode-debugadapter-testsupport: ^1.51.0
       vscode-debugprotocol: ^1.51.0
@@ -545,6 +546,7 @@ importers:
       portfinder: 1.0.32
       source-map-support: 0.5.21
       toml: 3.0.0
+      uuid: 11.1.0
       vscode-debugadapter: 1.51.0
       vscode-debugprotocol: 1.51.0
       vscode-extension-telemetry: 0.1.7
@@ -1819,6 +1821,7 @@ importers:
       '@emotion/styled': ~11.11.0
       '@headlessui/react': ~1.7.18
       '@tanstack/react-query': 4.0.10
+      '@types/lodash': ~4.17.15
       '@types/lodash.debounce': ^4.0.6
       '@types/react': ^18.2.55
       '@types/react-dom': ^18.2.19
@@ -1831,6 +1834,7 @@ importers:
       '@wso2-enterprise/ui-toolkit': workspace:*
       copyfiles: ~2.4.1
       eslint: ~8.56.0
+      lodash: ~4.17.21
       lodash.debounce: ^4.0.8
       monaco-editor: ~0.46.0
       react: ^18.2.0
@@ -1852,6 +1856,7 @@ importers:
       '@wso2-enterprise/ballerina-statement-editor': link:../statement-editor
       '@wso2-enterprise/syntax-tree': link:../syntax-tree
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
+      lodash: 4.17.21
       lodash.debounce: 4.0.8
       monaco-editor: 0.46.0
       react: 18.2.0
@@ -1860,6 +1865,7 @@ importers:
       react-lottie: 1.2.4_react@18.2.0
       vscode-uri: 3.0.8
     devDependencies:
+      '@types/lodash': 4.17.15
       '@types/lodash.debounce': 4.0.9
       '@types/react': 18.2.55
       '@types/react-dom': 18.2.19
@@ -2886,7 +2892,7 @@ importers:
       react-dom: 18.2.0_react@18.2.0
       react-hook-form: 7.51.2_react@18.2.0
       react-json-view: 1.21.3_jczjbtsmbzi7zofs22bstoer6y
-      react-json-view-lite: 2.3.0_react@18.2.0
+      react-json-view-lite: 2.4.1_react@18.2.0
       react-markdown: 9.0.1_eteh3so6nztr56vqc4nbg6qqla
       vscode-languageserver-types: 3.17.5
       xmlbuilder2: 3.1.1
@@ -18342,7 +18348,7 @@ packages:
       '@storybook/preview-api': 7.4.6
       '@storybook/theming': 7.4.6
       '@storybook/types': 7.4.6
-      '@types/lodash': 4.17.7
+      '@types/lodash': 4.17.15
       color-convert: 2.0.1
       dequal: 2.0.3
       lodash: 4.17.21
@@ -18378,7 +18384,7 @@ packages:
       '@storybook/preview-api': 7.4.6
       '@storybook/theming': 7.4.6_biqbaboplfbrettd7655fr4n2y
       '@storybook/types': 7.4.6
-      '@types/lodash': 4.17.7
+      '@types/lodash': 4.17.15
       color-convert: 2.0.1
       dequal: 2.0.3
       lodash: 4.17.21
@@ -18416,7 +18422,7 @@ packages:
       '@storybook/preview-api': 7.6.17
       '@storybook/theming': 7.6.17_biqbaboplfbrettd7655fr4n2y
       '@storybook/types': 7.6.17
-      '@types/lodash': 4.17.7
+      '@types/lodash': 4.17.15
       color-convert: 2.0.1
       dequal: 2.0.3
       lodash: 4.17.21
@@ -22783,7 +22789,7 @@ packages:
       '@babel/preset-env': 7.24.8
       '@babel/types': 7.25.6
       '@mdx-js/mdx': 1.6.22
-      '@types/lodash': 4.17.7
+      '@types/lodash': 4.17.15
       js-string-escape: 1.0.1
       loader-utils: 2.0.4
       lodash: 4.17.21
@@ -22802,7 +22808,7 @@ packages:
       '@babel/preset-env': 7.24.8_@babel+core@7.23.9
       '@babel/types': 7.25.6
       '@mdx-js/mdx': 1.6.22
-      '@types/lodash': 4.17.7
+      '@types/lodash': 4.17.15
       js-string-escape: 1.0.1
       loader-utils: 2.0.4
       lodash: 4.17.21
@@ -22821,7 +22827,7 @@ packages:
       '@babel/preset-env': 7.24.8_@babel+core@7.24.9
       '@babel/types': 7.25.6
       '@mdx-js/mdx': 1.6.22
-      '@types/lodash': 4.17.7
+      '@types/lodash': 4.17.15
       js-string-escape: 1.0.1
       loader-utils: 2.0.4
       lodash: 4.17.21
@@ -26147,6 +26153,10 @@ packages:
 
   /@types/lodash/4.17.0:
     resolution: {integrity: sha512-t7dhREVv6dbNj0q17X12j7yDG4bD/DHYX7o5/DbDxobP0HnGPgpRz2Ej77aL7TZT3DSw13fqUTj8J4mMnqa7WA==}
+    dev: true
+
+  /@types/lodash/4.17.15:
+    resolution: {integrity: sha512-w/P33JFeySuhN6JLkysYUK2gEmy9kHHFN7E8ro0tkfmlDOgxBDzWEZ/J8cWA+fHqFevpswDTFZnDx+R9lbL6xw==}
     dev: true
 
   /@types/lodash/4.17.7:
@@ -49348,8 +49358,8 @@ packages:
   /react-is/18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
 
-  /react-json-view-lite/2.3.0_react@18.2.0:
-    resolution: {integrity: sha512-btGE+nynBIPRPLWMkE7ASOeF7QzzG6S3bTOTL0FLFNvprMsODmv8eUMFCUK9SOJqV8GCOW/avCpDJnMSchTafQ==}
+  /react-json-view-lite/2.4.1_react@18.2.0:
+    resolution: {integrity: sha512-fwFYknRIBxjbFm0kBDrzgBy1xa5tDg2LyXXBepC5f1b+MY3BUClMCsvanMPn089JbV1Eg3nZcrp0VCuH43aXnA==}
     engines: {node: '>=18'}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
@@ -55931,6 +55941,11 @@ packages:
     resolution: {integrity: sha512-dsNgbLaTrd6l3MMxTtouOCFw4CBFc/3a+GgYA2YyrJvyQ1u6q4pcu3ktLoUZ/VN/Aw9WsauazbgsgdfVWgAKQg==}
     deprecated: Package no longer supported and required. Use the uuid package or crypto.randomUUID instead
     dev: true
+
+  /uuid/11.1.0:
+    resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
+    hasBin: true
+    dev: false
 
   /uuid/3.4.0:
     resolution: {integrity: sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==}

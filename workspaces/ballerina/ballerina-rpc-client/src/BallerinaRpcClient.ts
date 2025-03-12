@@ -42,7 +42,9 @@ import { ConnectorWizardRpcClient } from "./rpc-clients/connector-wizard/rpc-cli
 import { SequenceDiagramRpcClient } from "./rpc-clients/sequence-diagram/rpc-client";
 import { InlineDataMapperRpcClient } from "./rpc-clients/inline-data-mapper/rpc-client";
 import { TestManagerServiceRpcClient } from "./rpc-clients";
+import { AiAgentRpcClient } from "./rpc-clients/ai-agent/rpc-client";
 import { ICPServiceRpcClient } from "./rpc-clients/icp-service/rpc-client";
+import { AgentChatRpcClient } from "./rpc-clients/agent-chat/rpc-client";
 
 export class BallerinaRpcClient {
 
@@ -61,7 +63,9 @@ export class BallerinaRpcClient {
     private _connectorWizard: ConnectorWizardRpcClient;
     private _inlineDataMapper: InlineDataMapperRpcClient;
     private _testManager: TestManagerServiceRpcClient;
+    private _aiAgent: AiAgentRpcClient;
     private _icpManager: ICPServiceRpcClient;
+    private _agentChat: AgentChatRpcClient;
 
     constructor() {
         this.messenger = new Messenger(vscode);
@@ -80,7 +84,13 @@ export class BallerinaRpcClient {
         this._connectorWizard = new ConnectorWizardRpcClient(this.messenger);
         this._inlineDataMapper = new InlineDataMapperRpcClient(this.messenger);
         this._testManager = new TestManagerServiceRpcClient(this.messenger);
+        this._aiAgent = new AiAgentRpcClient(this.messenger);
         this._icpManager = new ICPServiceRpcClient(this.messenger);
+        this._agentChat = new AgentChatRpcClient(this.messenger);
+    }
+
+    getAIAgentRpcClient(): AiAgentRpcClient {
+        return this._aiAgent;
     }
 
     getICPRpcClient(): ICPServiceRpcClient {
@@ -187,4 +197,7 @@ export class BallerinaRpcClient {
         return this.messenger.sendRequest(getPopupVisualizerState, HOST_EXTENSION);
     }
 
+    getAgentChatRpcClient(): AgentChatRpcClient {
+        return this._agentChat;
+    }
 }

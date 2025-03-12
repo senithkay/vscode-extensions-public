@@ -37,6 +37,15 @@ export enum EVENT_TYPE {
     CLOSE_VIEW = "CLOSE_VIEW"
 }
 
+export enum SCOPE {
+    AUTOMATION = "automation",
+    INTEGRATION_AS_API = "integration-as-api",
+    EVENT_INTEGRATION = "event-integration",
+    FILE_INTEGRATION = "file-integration",
+    AI_AGENT = "ai-agent",
+    ANY = "any"
+}
+
 export type VoidCommands = "OPEN_LOW_CODE" | "OPEN_PROJECT" | "CREATE_PROJECT";
 
 export enum MACHINE_VIEW {
@@ -58,6 +67,7 @@ export enum MACHINE_VIEW {
     EditConnectionWizard = "Edit Connection Wizard",
     BIMainFunctionForm = "Add Automation",
     BIFunctionForm = "Add Function",
+    BINPFunctionForm = "Add Natural Function",
     BITestFunctionForm = "Add Test Function",
     BIServiceWizard = "Service Wizard",
     BIServiceConfigView = "Service Config View",
@@ -65,6 +75,9 @@ export enum MACHINE_VIEW {
     BIServiceClassDesigner = "Service Class Designer",
     BIServiceClassConfigView = "Service Class Config View",
     BIDataMapperForm = "Add Data Mapper",
+    AIAgentWizard = "AI Agent Wizard",
+    AIAgentEditView = "AI Agent Edit View",
+    AIAgentDesigner = "AI Agent Designer",
 }
 
 export interface MachineEvent {
@@ -90,6 +103,7 @@ export interface VisualizerLocation {
     type?: Type;
     isGraphql?: boolean;
     metadata?: VisualizerMetadata;
+    scope?: SCOPE;
 }
 
 export interface VisualizerMetadata {

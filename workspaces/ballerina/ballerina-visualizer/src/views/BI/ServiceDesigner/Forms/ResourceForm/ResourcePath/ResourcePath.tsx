@@ -79,7 +79,8 @@ export function ResourcePath(props: ResourcePathProps) {
 			<PathContainer>
 				<div
 					style={{
-						width: 160
+						width: 160,
+						marginTop: -1.3
 					}}
 				>
 					<Dropdown
@@ -96,6 +97,7 @@ export function ResourcePath(props: ResourcePathProps) {
 				<TextField
 					sx={{ marginLeft: 15, flexGrow: 1 }}
 					autoFocus
+					required
 					errorMsg={""}
 					label="Resource Path"
 					size={70}

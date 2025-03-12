@@ -232,7 +232,12 @@ import {
     CopyArtifactResponse,
     GetArtifactTypeRequest,
     GetArtifactTypeResponse,
-    LocalInboundConnectorsResponse
+    LocalInboundConnectorsResponse,
+    BuildProjectRequest,
+    DeployProjectRequest,
+    DeployProjectResponse,
+    CreateBallerinaModuleResponse,
+    CreateBallerinaModuleRequest
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -316,6 +321,8 @@ export const browseFile: RequestType<BrowseFileRequest, BrowseFileResponse> = { 
 export const createRegistryResource: RequestType<CreateRegistryResourceRequest, CreateRegistryResourceResponse> = { method: `${_preFix}/createRegistryResource` };
 export const getAvailableResources: RequestType<GetAvailableResourcesRequest, GetAvailableResourcesResponse> = { method: `${_preFix}/getAvailableResources` };
 export const createClassMediator: RequestType<CreateClassMediatorRequest, CreateClassMediatorResponse> = { method: `${_preFix}/createClassMediator` };
+export const createBallerinaModule: RequestType<CreateBallerinaModuleRequest, CreateBallerinaModuleResponse> = { method: `${_preFix}/createBallerinaModule` };
+export const buildBallerinaModule: RequestType<string, void> = { method: `${_preFix}/buildBallerinaModule` };
 export const getSelectiveWorkspaceContext: RequestType<void, GetSelectiveWorkspaceContextResponse> = { method: `${_preFix}/getSelectiveWorkspaceContext` };
 export const getSelectiveArtifacts: RequestType<GetSelectiveArtifactsRequest, GetSelectiveArtifactsResponse> = { method: `${_preFix}/getSelectiveArtifacts` };
 export const getBackendRootUrl: RequestType<void, GetBackendRootUrlResponse> = { method: `${_preFix}/getBackendRootUrl` };
@@ -350,7 +357,8 @@ export const getAllArtifacts: RequestType<GetAllArtifactsRequest, GetAllArtifact
 export const getArtifactType: RequestType<GetArtifactTypeRequest, GetArtifactTypeResponse> = { method: `${_preFix}/getArtifactType` };
 export const deleteArtifact: NotificationType<DeleteArtifactRequest> = { method: `${_preFix}/deleteArtifact` };
 export const getAllAPIcontexts: RequestType<void, APIContextsResponse> = { method: `${_preFix}/getAllAPIcontexts` };
-export const buildProject: NotificationType<void> = { method: `${_preFix}/buildProject` };
+export const buildProject: NotificationType<BuildProjectRequest> = { method: `${_preFix}/buildProject` };
+export const deployProject: RequestType<DeployProjectRequest, DeployProjectResponse> = { method: `${_preFix}/deployProject` };
 export const exportProject: NotificationType<ExportProjectRequest> = { method: `${_preFix}/exportProject` };
 export const checkOldProject: RequestType<void, boolean> = { method: `${_preFix}/checkOldProject` };
 export const refreshAccessToken: NotificationType<void> = { method: `${_preFix}/refreshAccessToken` };
@@ -379,10 +387,10 @@ export const generateDSSQueries: RequestType<ExtendedDSSQueryGenRequest, boolean
 export const fetchDSSTables: RequestType<DSSFetchTablesRequest, DSSFetchTablesResponse> = { method: `${_preFix}/fetchDSSTables` };
 export const tryOutMediator: RequestType<MediatorTryOutRequest, MediatorTryOutResponse> = { method: `${_preFix}/tryOutMediator` };
 export const shutDownTryoutServer: RequestType<void, boolean> = { method: `${_preFix}/shutDownTryoutServer` };
-export const getMIVersionFromPom: RequestType<void, MiVersionResponse> = { method: `${_preFix}/getMIVersionFromPom`};
+export const getMIVersionFromPom: RequestType<void, MiVersionResponse> = { method: `${_preFix}/getMIVersionFromPom` };
 export const getMediatorInputOutputSchema: RequestType<MediatorTryOutRequest, MediatorTryOutResponse> = { method: `${_preFix}/getMediatorInputOutputSchema` };
-export const saveInputPayload: RequestType<SavePayloadRequest,boolean> = { method: `${_preFix}/saveInputPayload` };
-export const getInputPayloads: RequestType<GetPayloadsRequest,GetPayloadsResponse> = { method: `${_preFix}/getInputPayloads` };
+export const saveInputPayload: RequestType<SavePayloadRequest, boolean> = { method: `${_preFix}/saveInputPayload` };
+export const getInputPayloads: RequestType<GetPayloadsRequest, GetPayloadsResponse> = { method: `${_preFix}/getInputPayloads` };
 export const getMediators: RequestType<GetMediatorsRequest, GetMediatorsResponse> = { method: `${_preFix}/getMediators` };
 export const getMediator: RequestType<GetMediatorRequest, GetMediatorResponse> = { method: `${_preFix}/getMediator` };
 export const updateMediator: NotificationType<UpdateMediatorRequest> = { method: `${_preFix}/updateMediator` };
