@@ -19,6 +19,13 @@ import { BIDesignModelResponse, OpenAPISpec } from "@wso2-enterprise/ballerina-c
 import { startDebugging } from "../editor-support/codelens-provider";
 import { v4 as uuidv4 } from "uuid";
 
+// File constants
+const FILE_NAMES = {
+    TRYIT: 'tryit.http',
+    HTTPYAC_CONFIG: 'httpyac.config.js',
+    ERROR_LOG: 'httpyac_errors.log'
+};
+
 let errorLogWatcher: FileSystemWatcher | undefined;
 
 const TRYIT_TEMPLATE = `/*
@@ -71,7 +78,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Define the log file path relative to the config file location
-const LOG_FILE_PATH = path.join(__dirname, 'httpyac_errors.log');
+const LOG_FILE_PATH = path.join(__dirname, '${FILE_NAMES.ERROR_LOG}');
 
 // Helper function to format error groups
 const formatErrorGroup = (title, params) => {
@@ -237,7 +244,7 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
             const selectedPort: number = await getServicePort(workspaceRoot, selectedService, openapiSpec);
             selectedService.port = selectedPort;
 
-            const tryitFileUri = await generateTryItFileContent(workspaceRoot, openapiSpec, selectedService, resourceMetadata);
+            const tryitFileUri = await generateTryItFileContent(targetDir, openapiSpec, selectedService, resourceMetadata);
             await openInSplitView(tryitFileUri, 'http');
         } else {
             const selectedPort: number = await getServicePort(workspaceRoot, selectedService);
@@ -378,7 +385,7 @@ async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> 
     }
 }
 
-async function generateTryItFileContent(projectRoot: string, openapiSpec: OAISpec, service: ServiceInfo, resourceMetadata?: ResourceMetadata): Promise<vscode.Uri | undefined> {
+async function generateTryItFileContent(targetDir: string, openapiSpec: OAISpec, service: ServiceInfo, resourceMetadata?: ResourceMetadata): Promise<vscode.Uri | undefined> {
     try {
         // Register Handlebars helpers
         registerHandlebarsHelpers(openapiSpec);
@@ -440,9 +447,8 @@ async function generateTryItFileContent(projectRoot: string, openapiSpec: OAISpe
         const compiledTemplate = Handlebars.compile(TRYIT_TEMPLATE);
         const content = compiledTemplate(templateData);
 
-        const tryitFileName = `tryit.http`;
-        const tryitFilePath = path.join(projectRoot, tryitFileName);
-        const configFilePath = path.join(projectRoot, 'httpyac.config.js');
+        const tryitFilePath = path.join(targetDir, FILE_NAMES.TRYIT);
+        const configFilePath = path.join(targetDir, FILE_NAMES.HTTPYAC_CONFIG);
         fs.writeFileSync(tryitFilePath, content);
         fs.writeFileSync(configFilePath, HTTPYAC_CONFIG_TEMPLATE);
         return vscode.Uri.file(tryitFilePath);
@@ -451,7 +457,6 @@ async function generateTryItFileContent(projectRoot: string, openapiSpec: OAISpe
         return undefined;
     }
 }
-
 
 // Helper function to compare path patterns, considering path parameters
 function comparePathPatterns(specPath: string, targetPath: string): boolean {
@@ -906,7 +911,7 @@ function compareListeners(serviceInfoListener: { name: string, port?: string }, 
 
 // Function to setup error log watching
 function setupErrorLogWatcher(targetDir: string) {
-    const errorLogPath = path.join(targetDir, 'httpyac_errors.log');
+    const errorLogPath = path.join(targetDir, FILE_NAMES.ERROR_LOG);
 
     // Dispose existing watcher if any
     disposeErrorWatcher();
