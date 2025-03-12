@@ -14,7 +14,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { BallerinaExtension } from "src/core";
 import Handlebars from "handlebars";
-import { clientManager, findRunningBallerinaProcesses, handleError, waitForBallerinaService } from "./utils";
+import { clientManager, findRunningBallerinaProcesses, handleError, HTTPYAC_CONFIG_TEMPLATE, TRYIT_TEMPLATE, waitForBallerinaService } from "./utils";
 import { BIDesignModelResponse, OpenAPISpec } from "@wso2-enterprise/ballerina-core";
 import { startDebugging } from "../editor-support/codelens-provider";
 import { v4 as uuidv4 } from "uuid";
@@ -27,117 +27,6 @@ const FILE_NAMES = {
 };
 
 let errorLogWatcher: FileSystemWatcher | undefined;
-
-const TRYIT_TEMPLATE = `/*
-### {{#if isResourceMode}}Try Resource: '{{resourceMethod}} {{resourcePath}}'{{else}}Try Service: '{{serviceName}}' (http://localhost:{{port}}{{trim basePath}}){{/if}}
-{{info.description}}
-*/
-
-{{#each paths}}
-{{#each this}}
-/*
-{{#unless ../../isResourceMode}}#### {{uppercase @key}} {{@../key}}{{/unless}}
-
-{{#if parameters}}
-{{#with (groupParams parameters)}}
-{{#if path}}
-**Path Parameters:**
-{{#each path}}
-- \`{{name}}\` [{{schema.type}}]{{#if description}} - {{description}}{{/if}}{{#if required}} (Required){{/if}}
-{{/each}}
-{{/if}}
-
-{{#if query}}
-**Query Parameters:**
-{{#each query}}
-- \`{{name}}\` [{{schema.type}}]{{#if description}} - {{description}}{{/if}}{{#if required}} (Required){{/if}}
-{{/each}}
-{{/if}}
-
-{{#if header}}
-**Header Parameters:**
-{{#each header}}
-- \`{{name}}\` [{{schema.type}}]{{#if description}} - {{description}}{{/if}}{{#if required}} (Required){{/if}}
-{{/each}}
-{{/if}}
-{{/with}}
-{{/if}}
-*/
-###
-{{uppercase @key}} http://localhost:{{../../port}}{{trim ../../basePath}}{{{@../key}}}{{queryParams parameters}}{{#if parameters}}{{headerParams parameters}}{{/if}}
-{{#if requestBody}}Content-Type: {{getContentType requestBody}}
-
-{{generateRequestBody requestBody}}
-{{/if}}
-
-{{/each}}
-{{/each}}`;
-
-const HTTPYAC_CONFIG_TEMPLATE = `
-const fs = require('fs');
-const path = require('path');
-
-// Define the log file path relative to the config file location
-const LOG_FILE_PATH = path.join(__dirname, '${FILE_NAMES.ERROR_LOG}');
-
-// Helper function to format error groups
-const formatErrorGroup = (title, params) => {
-  if (params.length === 0) return '';
-  return \`\${title}:\\n\${params.map(p => \`  - \${p}\`).join('\\n')}\\n\`;
-};
-
-module.exports = {
-  configureHooks: function (api) {
-    api.hooks.onRequest.addHook('validatePlaceholders', function (request) {
-      const missingParams = {
-        path: [],
-        query: [],
-        header: []
-      };
-
-      // Check URL path parameters
-      const url = new URL(request.url);
-      const decodedPath = decodeURIComponent(url.pathname);
-      const pathParamRegex = /[{]([^{}]+)[}]/g;
-      const pathMatches = [...decodedPath.matchAll(pathParamRegex)];
-      
-      pathMatches.forEach(match => {
-        missingParams.path.push(match[1]);
-      });
-
-      // Check query parameters
-      for (const [key, value] of url.searchParams.entries()) {
-        if (value === '{?}') {
-          missingParams.query.push(key);
-        }
-      }
-
-      // Check headers
-      for (const [key, value] of Object.entries(request.headers || {})) {
-        if (value === '{?}') {
-          missingParams.header.push(key);
-        }
-      }
-
-      // Check if any parameters are missing
-      const hasMissingParams = Object.values(missingParams)
-        .some(group => group.length > 0);
-
-      if (hasMissingParams) {
-        const errorMessage = [
-          \`Request to "\${request.url}" has missing required parameters:\\n\`,
-          formatErrorGroup('Path Parameters', missingParams.path),
-          formatErrorGroup('Query Parameters', missingParams.query),
-          formatErrorGroup('Header Parameters', missingParams.header),
-          '\\nPlease provide values for these parameters before sending the request.'
-        ].filter(Boolean).join('\\n');
-
-        // Write to log file
-        fs.writeFileSync(LOG_FILE_PATH, errorMessage, 'utf8');
-      }
-    });
-  }
-};`;
 
 export function activateTryItCommand(ballerinaExtInstance: BallerinaExtension) {
     try {
@@ -433,24 +322,27 @@ async function generateTryItFileContent(targetDir: string, openapiSpec: OAISpec,
             }
         }
 
-        // Generate content using template
-        const templateData = {
+        const tryitCompiledTemplate = Handlebars.compile(TRYIT_TEMPLATE);
+        const tryitContent = tryitCompiledTemplate({
             ...openapiSpec,
             port: service.port.toString(),
             basePath: service.basePath,
             serviceName: service.name || 'Default',
             isResourceMode: isResourceMode,
-            resourceMethod: isResourceMode ? resourceMetadata.methodValue.toUpperCase() : '',
+            resourceMethod: isResourceMode ? resourceMetadata?.methodValue.toUpperCase() : '',
             resourcePath: resourcePath,
-        };
+        });
 
-        const compiledTemplate = Handlebars.compile(TRYIT_TEMPLATE);
-        const content = compiledTemplate(templateData);
+        const httpyacCompiledTemplate = Handlebars.compile(HTTPYAC_CONFIG_TEMPLATE);
+        const httpyacContent = httpyacCompiledTemplate({
+            errorLogFile: FILE_NAMES.ERROR_LOG,
+        });
 
         const tryitFilePath = path.join(targetDir, FILE_NAMES.TRYIT);
         const configFilePath = path.join(targetDir, FILE_NAMES.HTTPYAC_CONFIG);
-        fs.writeFileSync(tryitFilePath, content);
-        fs.writeFileSync(configFilePath, HTTPYAC_CONFIG_TEMPLATE);
+        fs.writeFileSync(tryitFilePath, tryitContent);
+        fs.writeFileSync(configFilePath, httpyacContent);
+
         return vscode.Uri.file(tryitFilePath);
     } catch (error) {
         handleError(error, "Try It client initialization failed");
