@@ -223,7 +223,7 @@ export function TypeEditor(props: TypeEditorProps) {
         } else {
             selectedKind = value as TypeKind;
         }
-
+        setEditorState(ConfigState.EDITOR_FORM);
         setSelectedTypeKind(selectedKind);
         const typeValue = selectedKind === TypeKind.CLASS ? "CLASS" : selectedKind.toUpperCase();
 
@@ -471,7 +471,7 @@ export function TypeEditor(props: TypeEditorProps) {
 
                                 </>
                             )}
-                            {isNewType && (
+                            {isNewType && (editorState === ConfigState.EDITOR_FORM || editorState === ConfigState.IMPORT_FROM_JSON) && (
                                 <TextFieldWrapper>
                                     <TextField
                                         label="Name"
