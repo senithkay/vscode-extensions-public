@@ -101,9 +101,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
             response.directoryMap[DIRECTORY_MAP.ENUMS].push(...await getComponents(langClient, module.enums, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.CLASSES].push(...await getComponents(langClient, module.classes, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.CONFIGURATIONS].push(...await getComponents(langClient, module.configurableVariables, pkg.filePath, "config"));
-            if (module.naturalFunctions) {
-                response.directoryMap[DIRECTORY_MAP.NATURAL_FUNCTIONS].push(...await getComponents(langClient, module.naturalFunctions, pkg.filePath, "function"));
-            }
+            response.directoryMap[DIRECTORY_MAP.NATURAL_FUNCTIONS].push(...await getComponents(langClient, module.naturalFunctions, pkg.filePath, "function"));
         }
     }
 
@@ -122,6 +120,9 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
 }
 
 async function getComponents(langClient: ExtendedLangClientInterface, components: ComponentInfo[], projectPath: string, icon: string, dtype?: DIRECTORY_MAP): Promise<ProjectStructureArtifactResponse[]> {
+    if (!components) {
+        return [];
+    }
     const entries: ProjectStructureArtifactResponse[] = [];
     let compType = "HTTP";
     let serviceModel: ServiceModel = undefined;
