@@ -148,10 +148,10 @@
                         "default": true,
                         "description": "Enable semantic highlighting for Ballerina source."
                     },
-                    "kolab.enableNaturalProgramming": {
+                    "kolab.enableBackgroundDriftCheck": {
                         "type": "boolean",
                         "default": false,
-                        "description": "Enable natural programming for Ballerina source."
+                        "description": "Enable background drift check for Ballerina source."
                     },
                     "kolab.enablePerformanceForecast": {
                         "type": "boolean",
