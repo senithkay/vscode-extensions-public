@@ -32,7 +32,6 @@ import {
     ProjectForm,
     ComponentListView,
     PopupMessage,
-    MainForm,
     FunctionForm,
     SetupView,
     TestFunctionForm
@@ -295,7 +294,7 @@ const MainPanel = () => {
                         );
                         break;
                     case MACHINE_VIEW.BIMainFunctionForm:
-                        setViewComponent(<MainForm />);
+                        setViewComponent(<FunctionForm projectPath={value.projectUri} filePath={defaultFunctionsFile} functionName={value?.identifier} isAutomation={true} />);
                         break;
                     case MACHINE_VIEW.BIFunctionForm:
                         setViewComponent(<FunctionForm projectPath={value.projectUri} filePath={defaultFunctionsFile} functionName={value?.identifier} />);

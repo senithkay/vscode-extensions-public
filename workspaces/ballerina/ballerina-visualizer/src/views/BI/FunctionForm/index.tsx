@@ -39,18 +39,24 @@ interface FunctionFormProps {
     functionName: string;
     isDataMapper?: boolean;
     isNpFunction?: boolean;
+    isAutomation?: boolean;
 }
 
 export function FunctionForm(props: FunctionFormProps) {
     const { rpcClient } = useRpcContext();
-    const { projectPath, functionName, filePath, isDataMapper, isNpFunction } = props;
+    const { projectPath, functionName, filePath, isDataMapper, isNpFunction, isAutomation } = props;
 
     const [functionFields, setFunctionFields] = useState<FormField[]>([]);
     const [functionNode, setFunctionNode] = useState<FunctionNode>(undefined);
     const [targetLineRange, setTargetLineRange] = useState<LineRange>();
 
     const fileName = filePath.split(/[\\/]/).pop();
-    const formType = useRef(isDataMapper ? "Data Mapper" : isNpFunction ? "Natural Function" : "Function");
+    const formType = useRef(
+        isAutomation ? "Automation" : 
+        isDataMapper ? "Data Mapper" : 
+        isNpFunction ? "Natural Function" : 
+        "Function"
+    );
 
     useEffect(() => {
         if (functionName) {
@@ -58,15 +64,17 @@ export function FunctionForm(props: FunctionFormProps) {
         } else {
             getFunctionNode();
         }
-    }, [filePath, functionName, isDataMapper]);
+    }, [filePath, functionName, isDataMapper, isAutomation]);
 
     useEffect(() => {
         let fields = functionNode ? convertConfig(functionNode.properties) : [];
-        if (functionNode?.properties.functionName.value === "main") {
+        
+        if (isAutomation || functionName === "main") {
             formType.current = "Automation";
             const automationFields = fields.filter(field => field.key !== "functionName" && field.key !== "type");
             fields = automationFields;
         }
+        
         if (isDataMapper && fields.length > 0) {
             fields.forEach((field) => {
                 field.optional = false;
@@ -74,7 +82,7 @@ export function FunctionForm(props: FunctionFormProps) {
         }
 
         setFunctionFields(fields);
-    }, [functionNode]);
+    }, [functionNode, isAutomation, isDataMapper]);
 
     const getFunctionNode = async () => {
         const res = await rpcClient
@@ -82,7 +90,12 @@ export function FunctionForm(props: FunctionFormProps) {
             .getNodeTemplate({
                 position: { line: 0, offset: 0 },
                 filePath: Utils.joinPath(URI.file(projectPath), fileName).fsPath,
-                id: { node: isDataMapper ? 'DATA_MAPPER_DEFINITION' : isNpFunction ? 'NP_FUNCTION_DEFINITION' : 'FUNCTION_DEFINITION' },
+                id: { 
+                    node: isAutomation ? 'AUTOMATION' :
+                          isDataMapper ? 'DATA_MAPPER_DEFINITION' : 
+                          isNpFunction ? 'NP_FUNCTION_DEFINITION' : 
+                          'FUNCTION_DEFINITION' 
+                },
             });
         const flowNode = res.flowNode;
         setFunctionNode(flowNode);
@@ -103,7 +116,8 @@ export function FunctionForm(props: FunctionFormProps) {
     }
 
     const handleSubmit = async (data: FormValues) => {
-        console.log("Function Form Data: ", data)
+        console.log("Function Form Data: ", data);
+    
         const functionNodeCopy = { ...functionNode };
         for (const [dataKey, dataValue] of Object.entries(data)) {
             const properties = functionNodeCopy.properties as NodeProperties;
@@ -146,17 +160,36 @@ export function FunctionForm(props: FunctionFormProps) {
         }
     }, [filePath, rpcClient]);
 
+    const getTitleSubtitle = () => {
+        if (isAutomation || functionName === "main") {
+            return "Periodic invocation should be scheduled in an external system such as cronjob, k8s, or Devant";
+        } 
+        let keyword = isDataMapper ? "data mappers" : isNpFunction ? "natural functions" : "functions";
+        return `Manage ${keyword} in your integration`;  
+    };
+
+    const getFormSubtitle = () => {
+        if (isAutomation || functionName === "main") {
+            return 'Create an automation that can be invoked periodically or manually';
+        }
+        // TOOD: Define the subtitle for data mappers and natural functions
+        return '';
+    };
+
     return (
         <View>
             <TopNavigationBar />
-            <TitleBar title={formType.current} subtitle={`Manage ${isDataMapper ? "data mappers" : isNpFunction ? "natural functions" : "functions"} in your integration`} />
+            <TitleBar 
+                title={formType.current} 
+                subtitle={getFormSubtitle()} 
+            />
             <ViewContent padding>
                 <Container>
                     {functionName && (
-                        <FormHeader title={`Edit ${formType.current}`} />
+                        <FormHeader title={`Edit ${formType.current}`} subtitle={getTitleSubtitle()} />
                     )}
                     {!functionName && (
-                        <FormHeader title={`Create New ${formType.current}`} />
+                        <FormHeader title={`Create New ${formType.current}`} subtitle={getFormSubtitle()} />
                     )}
                     <FormContainer>
                         {filePath && targetLineRange && functionFields.length > 0 &&
