@@ -142,6 +142,7 @@ export function ResourceResponse(props: ResourceParamProps) {
             {editModel &&
                 <ResponseEditor
                     index={editingSegmentId}
+                    method={method}
                     response={{ ...editModel }}
                     isEdit={editingSegmentId !== 999}
                     onSave={onSaveParam}

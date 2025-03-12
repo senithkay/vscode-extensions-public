@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react';
 import { CheckBox, Divider, Tabs, Typography } from '@wso2-enterprise/ui-toolkit';
 import { EditorContainer, EditorContent } from '../../../styles';
 import { LineRange, PropertyModel, StatusCodeResponse, responseCodes } from '@wso2-enterprise/ballerina-core';
-import { getTitleFromResponseCode } from '../../../utils';
+import { getDefaultResponse, getTitleFromResponseCode, HTTP_METHOD } from '../../../utils';
 import { FormField, FormValues } from '@wso2-enterprise/ballerina-side-panel';
 import FormGeneratorNew from '../../../../Forms/FormGeneratorNew';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
@@ -28,6 +28,7 @@ enum Views {
 
 export interface ParamProps {
     index: number;
+    method: HTTP_METHOD;
     response: StatusCodeResponse;
     isEdit: boolean;
     onSave: (param: StatusCodeResponse, index: number) => void;
@@ -35,7 +36,7 @@ export interface ParamProps {
 }
 
 export function ResponseEditor(props: ParamProps) {
-    const { index, response, isEdit, onSave, onCancel } = props;
+    const { method, index, response, isEdit, onSave, onCancel } = props;
 
     const { rpcClient } = useRpcContext();
 
@@ -43,6 +44,8 @@ export function ResponseEditor(props: ParamProps) {
     const [currentView, setCurrentView] = useState(response.type.value ? Views.EXISTING : Views.NEW);
 
     const [targetLineRange, setTargetLineRange] = useState<LineRange>();
+
+    const [newFields, setNewFields] = useState<FormField[]>([]);
 
     useEffect(() => {
         rpcClient.getVisualizerLocation().then(res => { setFilePath(Utils.joinPath(URI.file(res.projectUri), 'main.bal').fsPath) });
@@ -52,7 +55,7 @@ export function ResponseEditor(props: ParamProps) {
         onCancel(index);
     };
 
-    const convertPropertyToFormField = (property: PropertyModel) => {
+    const convertPropertyToFormField = (property: PropertyModel, isArray?: boolean) => {
         const converted: FormField = {
             key: "",
             label: property.metadata.label,
@@ -61,33 +64,41 @@ export function ResponseEditor(props: ParamProps) {
             editable: property.editable,
             enabled: property.enabled,
             documentation: property.metadata.description,
-            value: property.value,
+            value: isArray ? property.values || [] : property.value,
             items: property.items,
+            diagnostics: property.diagnostics,
             valueTypeConstraint: property.valueTypeConstraint,
         }
         return converted;
     }
 
-    const newFields: FormField[] = [
-        {
-            ...convertPropertyToFormField(response.statusCode),
-            key: `statusCode`,
-            value: getTitleFromResponseCode(Number(response.statusCode.value)),
-            items: responseCodes.map(code => code.title),
-        },
-        {
-            ...convertPropertyToFormField(response.body),
-            key: `body`,
-        },
-        {
-            ...convertPropertyToFormField(response.name),
-            key: `name`,
-        },
-        {
-            ...convertPropertyToFormField(response.headers),
-            key: `headers`,
-        }
-    ];
+    const updateNewFields = (res: StatusCodeResponse) => {
+        const fields = [
+            {
+                ...convertPropertyToFormField(res.statusCode),
+                key: `statusCode`,
+                value: getTitleFromResponseCode(Number(res.statusCode.value)),
+                items: responseCodes.map(code => code.title),
+            },
+            {
+                ...convertPropertyToFormField(res.body),
+                key: `body`,
+            },
+            {
+                ...convertPropertyToFormField(res.name),
+                key: `name`,
+            },
+            {
+                ...convertPropertyToFormField(res.headers, true),
+                key: `headers`,
+            }
+        ];
+        setNewFields(fields);
+    };
+
+    useEffect(() => {
+        updateNewFields(response);
+    }, [response]);
 
 
     const existingFields: FormField[] = [
@@ -97,15 +108,52 @@ export function ResponseEditor(props: ParamProps) {
         }
     ];
 
-    const handleOnNewSubmit = (dataValues: FormValues) => {
-        console.log("Add New Response: ", dataValues);
-        // Set the values
+
+    const isValidResponse = (dataValues: FormValues) => {
+        if (dataValues['name']) {
+            return true;
+        }
         const code = responseCodes.find(code => code.title === dataValues['statusCode']).code;
+        const defaultCode = getDefaultResponse(method);
+
+        // Set optional false for the response name
+        response.name.optional = false;
+        response.name.diagnostics = [{ severity: "ERROR", message: "Response Name Required" }]
+
+        // Set all the other values
         response.statusCode.value = String(code);
         response.body.value = dataValues['body'];
         response.name.value = dataValues['name'];
         response.headers.values = dataValues['headers'];
-        onSave(response, index);
+
+        if (code === defaultCode) { // Case 1: Use select the default response success for the accessor
+            // If the user add a header type then user should fill the name field as well
+            if (dataValues['headers'] && dataValues['headers'].length > 0) {
+                updateNewFields({ ...response });
+                return false;
+            }
+        } else { // Case 2: User select a response other than the default success response
+            // If user add a body or header values then user must add a name.
+            if (dataValues['body'] || (dataValues['headers'] && dataValues['headers'].length > 0)) {
+                updateNewFields({ ...response });
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    const handleOnNewSubmit = (dataValues: FormValues) => {
+        console.log("Add New Response: ", dataValues);
+        if (isValidResponse(dataValues)) {
+            // Set the values
+            const code = responseCodes.find(code => code.title === dataValues['statusCode']).code;
+            response.statusCode.value = String(code);
+            response.body.value = dataValues['body'];
+            response.name.value = dataValues['name'];
+            response.headers.values = dataValues['headers'];
+            onSave(response, index);
+        }
     }
 
     const handleOnExistingSubmit = (dataValues: FormValues) => {
@@ -131,10 +179,6 @@ export function ResponseEditor(props: ParamProps) {
                 });
         }
     }, [filePath, rpcClient]);
-
-    const handleViewChange = (view: string) => {
-        setCurrentView(view as Views);
-    };
 
     const handleCheckChange = (view: string) => {
         if (currentView === Views.EXISTING) {
