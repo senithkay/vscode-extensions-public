@@ -48,9 +48,6 @@ interface AddConnectorProps {
     dirtyFields: any;
 }
 
-
-const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression', 'textOrExpression'];
-
 const AddConnector = (props: AddConnectorProps) => {
     const { formData, nodePosition, control, errors, setValue, reset, watch, getValues, dirtyFields, handleSubmit, documentUri } = props;
     const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
@@ -61,37 +58,16 @@ const AddConnector = (props: AddConnectorProps) => {
     const handleOnCancelExprEditorRef = useRef(() => { });
     const [parameters, setParameters] = useState<string[]>(props.parameters);
 
-    const paramConfigs: ParamConfig = {
-        paramValues: [],
-        paramFields: [
-            {
-                id: 0,
-                type: "TextField",
-                label: "Key",
-                defaultValue: "",
-                isRequired: true
-            },
-            {
-                id: 1,
-                type: "TextField",
-                label: "Value",
-                defaultValue: "",
-                isRequired: true
-            }]
-    };
-
-    const [params, setParams] = useState(paramConfigs);
-
     const fetchConnections = async () => {
+        const connectionsData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
+            documentUri: props.documentUri,
+            connectorName: props.formData?.connectorName ?? props.connectorName.replace(/\s/g, '')
+        });
+
         if (props.formData && props.formData !== "") {
             const allowedTypes = findAllowedConnectionTypes(props.formData.elements);
 
-            const connectorData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
-                documentUri: props.documentUri,
-                connectorName: props.formData?.connectorName ?? props.connectorName.replace(/\s/g, '')
-            });
-
-            const filteredConnections = connectorData.connections.filter(
+            const filteredConnections = connectionsData.connections.filter(
                 connection => allowedTypes?.some(
                     // Ignore case in checking allowed connection types
                     type => type.toLowerCase() === connection.connectionType.toLowerCase()
@@ -101,11 +77,6 @@ const AddConnector = (props: AddConnectorProps) => {
             setConnections(connectionNames);
         } else {
             // Fetch connections for old connectors (No ConnectionType)
-            const connectionsData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
-                documentUri: props.documentUri,
-                connectorName: props.connectorName.replace(/\s/g, '')
-            });
-
             const connectionsNames = connectionsData.connections.map(connection => connection.name);
             setConnections(connectionsNames);
         }
@@ -136,27 +107,8 @@ const AddConnector = (props: AddConnectorProps) => {
     }, [props.formData]);
 
     useEffect(() => {
-        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0 && sidePanelContext.formValues?.parameters) {
-            if (sidePanelContext.formValues.form) {
-                sidePanelContext.formValues?.parameters.forEach((param: any) => {
-                    const inputType = getInputType(formData, param.name);
-                    param.name = getNameForController(param.name);
-                    if (expressionFieldTypes.includes(inputType)) {
-                        if (param.isExpression) {
-                            let namespacesArray: any[] = [];
-                            if (param.namespaces) {
-                                namespacesArray = Object.entries(param.namespaces).map(([prefix, uri]) => ({ prefix: prefix.split(':')[1], uri: uri }));
-                            }
-                            setValue(param.name, { isExpression: true, value: param.value.replace(/[{}]/g, ''), namespaces: namespacesArray });
-                        } else {
-                            param.namespaces = [];
-                            setValue(param.name, param);
-                        }
-                    } else {
-                        setValue(param.name, param.value);
-                    }
-                });
-            } else {
+        if (!sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0 && sidePanelContext.formValues?.parameters) {
+            if (!sidePanelContext.formValues.form) {
                 //Handle connectors without uischema
                 fetchParameters(sidePanelContext.formValues.operationName);
 
@@ -173,11 +125,6 @@ const AddConnector = (props: AddConnectorProps) => {
                         setValue(param.name, param);
                     }
                 });
-
-                const modifiedParams = {
-                    ...params, paramValues: generateParams(sidePanelContext.formValues.parameters)
-                };
-                setParams(modifiedParams);
             }
 
             if (sidePanelContext.formValues?.connectionName) {
@@ -200,29 +147,7 @@ const AddConnector = (props: AddConnectorProps) => {
     function getNameForController(name: string | number) {
         return String(name).replace('.', '__dot__');
     }
-
-
-    function getInputType(formData: any, paramName: string): string {
-        let inputType = null;
-
-        function traverseElements(elements: any) {
-            for (let element of elements) {
-                if (element.type === 'attribute' && element.value.name === paramName) {
-                    inputType = element.value.inputType;
-                    return;
-                }
-
-                if (element.type === 'attributeGroup') {
-                    traverseElements(element.value.elements);
-                }
-            }
-        }
-
-        traverseElements(formData.elements);
-
-        return inputType;
-    }
-
+    
     const addNewConnection = async () => {
 
         rpcClient.getMiVisualizerRpcClient().openView({
@@ -247,10 +172,6 @@ const AddConnector = (props: AddConnectorProps) => {
 
     const onClick = async (values: any) => {
         setDiagramLoading(true);
-
-        params.paramValues.forEach(param => {
-            setValue(param.key, { "value": param.value });
-        });
 
         const connectorName = props.formData?.connectorName ??
             props.connectorName?.toLowerCase().replace(/\s/g, '') ??
@@ -280,26 +201,6 @@ const AddConnector = (props: AddConnectorProps) => {
         clearSidePanelState(sidePanelContext);
 
     };
-
-    function generateParams(parameters: any[]) {
-        return parameters.map((param: any, id) => {
-            return {
-                id: id,
-                key: param.name,
-                value: param.value,
-                icon: "query",
-                paramValues: [
-                    {
-                        value: param.name,
-                    },
-                    {
-                        value: param.value,
-                    },
-                ]
-            }
-        });
-    }
-
 
     if (isLoading) {
         return <ProgressIndicator />;
