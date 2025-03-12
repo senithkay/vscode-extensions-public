@@ -77,7 +77,7 @@ export async function getConfigCompletions(ballerinaExtInstance: BallerinaExtens
         const tomlContentLength = tomlContent.length;
 
         if (objKeysLength > 0 || tomlContentLength > 0) {
-            findPropertyValues(configs, newValues, obj, tomlContent, true);
+            findPropertyValues(configs, newValues, obj, true);
         } else {
             findPropertyValues(configs, newValues);
         }

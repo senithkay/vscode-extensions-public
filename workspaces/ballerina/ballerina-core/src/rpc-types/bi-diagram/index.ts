@@ -67,7 +67,9 @@ import {
     RecordSourceGenRequest,
     RecordSourceGenResponse,
     GetRecordModelFromSourceResponse,
-    GetRecordModelFromSourceRequest
+    GetRecordModelFromSourceRequest,
+    UpdateTypesRequest,
+    UpdateTypesResponse
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -131,6 +133,7 @@ export interface BIDiagramAPI {
     getTypes: (params: GetTypesRequest) => Promise<GetTypesResponse>;
     getType: (params: GetTypeRequest) => Promise<GetTypeResponse>;
     updateType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
+    updateTypes: (params: UpdateTypesRequest) => Promise<UpdateTypesResponse>;
     getServiceClassModel: (params: ModelFromCodeRequest) => Promise<ServiceClassModelResponse>;
     updateClassField: (params: ClassFieldModifierRequest) => Promise<SourceEditResponse>;
     addClassField: (params: AddFieldRequest) => Promise<SourceEditResponse>;
