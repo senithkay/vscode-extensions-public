@@ -78,11 +78,25 @@ export function createBIProjectPure(name: string, projectPath: string) {
         fs.mkdirSync(projectRoot);
     }
 
+    // Get current username from the system across different OS platforms
+    let username = 'myOrg';
+    try {
+        if (process.platform === 'win32') {
+            // Windows
+            username = process.env.USERNAME || '';
+        } else {
+            // macOS and Linux
+            username = process.env.USER || '';
+        }
+    } catch (error) {
+        console.error('Error getting username:', error);
+    }
+
     const EMPTY = "\n";
 
     const ballerinaTomlContent = `
 [package]
-org = "wso2"
+org = "${username}"
 name = "${name}"
 version = "0.1.0"
 
