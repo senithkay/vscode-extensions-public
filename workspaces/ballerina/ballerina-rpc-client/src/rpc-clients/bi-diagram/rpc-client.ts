@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -10,14 +10,13 @@
  */
 import {
     AIChatRequest,
+    AddFieldRequest,
     AddFunctionRequest,
     AddFunctionResponse,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
     BIAvailableNodesResponse,
-    BIConnectorsRequest,
-    BIConnectorsResponse,
     BIDeleteByComponentInfoRequest,
     BIDeleteByComponentInfoResponse,
     BIDesignModelResponse,
@@ -25,21 +24,23 @@ import {
     BIFlowModelResponse,
     BIGetEnclosedFunctionRequest,
     BIGetEnclosedFunctionResponse,
-    BIGetFunctionsRequest,
-    BIGetFunctionsResponse,
     BIGetVisibleVariableTypesRequest,
     BIGetVisibleVariableTypesResponse,
     BIModuleNodesResponse,
     BINodeTemplateRequest,
     BINodeTemplateResponse,
+    BISearchRequest,
+    BISearchResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
     BreakpointRequest,
+    BuildMode,
     ClassFieldModifierRequest,
     ComponentRequest,
     ConfigVariableResponse,
     CreateComponentResponse,
     CurrentBreakpointsResponse,
+    DevantComponentResponse,
     EndOfFileRequest,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -49,6 +50,10 @@ import {
     FormDidOpenParams,
     FunctionNodeRequest,
     FunctionNodeResponse,
+    GetRecordConfigRequest,
+    GetRecordConfigResponse,
+    GetRecordModelFromSourceRequest,
+    GetRecordModelFromSourceResponse,
     GetTypeRequest,
     GetTypeResponse,
     GetTypesRequest,
@@ -61,20 +66,29 @@ import {
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
+    RecordSourceGenRequest,
+    RecordSourceGenResponse,
+    RecordsInWorkspaceMentions,
+    RenameIdentifierRequest,
     ServiceClassModelResponse,
+    ServiceClassSourceRequest,
     SignatureHelpRequest,
     SignatureHelpResponse,
     SourceEditResponse,
     UpdateConfigVariableRequest,
     UpdateConfigVariableResponse,
-    UpdateTypeRequest,
-    UpdateTypeResponse,
     UpdateImportsRequest,
     UpdateImportsResponse,
+    UpdateRecordConfigRequest,
+    UpdateTypeRequest,
+    UpdateTypeResponse,
+    UpdateTypesRequest,
+    UpdateTypesResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspacesResponse,
     addBreakpointToSource,
+    addClassField,
     addFunction,
     buildProject,
     createComponent,
@@ -88,22 +102,25 @@ import {
     getAiSuggestions,
     getAllImports,
     getAvailableNodes,
-    getBIConnectors,
     getBreakpointInfo,
     getConfigVariables,
     getDesignModel,
+    getDevantComponent,
     getEnclosedFunction,
     getEndOfFile,
     getExpressionCompletions,
     getExpressionDiagnostics,
     getFlowModel,
     getFunctionNode,
-    getFunctions,
     getModuleNodes,
     getNodeTemplate,
     getProjectComponents,
     getProjectStructure,
     getReadmeContent,
+    getRecordConfig,
+    getRecordModelFromSource,
+    getRecordNames,
+    getRecordSource,
     getServiceClassModel,
     getSignatureHelp,
     getSourceCode,
@@ -116,17 +133,16 @@ import {
     openAIChat,
     openReadme,
     removeBreakpointFromSource,
+    renameIdentifier,
     runProject,
+    search,
     updateClassField,
-    addClassField,
     updateConfigVariables,
     updateImports,
+    updateRecordConfig,
     updateServiceClass,
     updateType,
-    ServiceClassSourceRequest,
-    AddFieldRequest,
-    RenameIdentifierRequest,
-    renameIdentifier
+    updateTypes
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -156,10 +172,6 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     getAvailableNodes(params: BIAvailableNodesRequest): Promise<BIAvailableNodesResponse> {
         return this._messenger.sendRequest(getAvailableNodes, HOST_EXTENSION, params);
-    }
-
-    getFunctions(params: BIGetFunctionsRequest): Promise<BIGetFunctionsResponse> {
-        return this._messenger.sendRequest(getFunctions, HOST_EXTENSION, params);
     }
 
     getEnclosedFunction(params: BIGetEnclosedFunctionRequest): Promise<BIGetEnclosedFunctionResponse> {
@@ -192,10 +204,6 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     createComponent(params: ComponentRequest): Promise<CreateComponentResponse> {
         return this._messenger.sendRequest(createComponent, HOST_EXTENSION, params);
-    }
-
-    getBIConnectors(params: BIConnectorsRequest): Promise<BIConnectorsResponse> {
-        return this._messenger.sendRequest(getBIConnectors, HOST_EXTENSION, params);
     }
 
     handleReadmeContent(params: ReadmeContentRequest): Promise<ReadmeContentResponse> {
@@ -246,8 +254,8 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(getSignatureHelp, HOST_EXTENSION, params);
     }
 
-    buildProject(): void {
-        return this._messenger.sendNotification(buildProject, HOST_EXTENSION);
+    buildProject(params: BuildMode): void {
+        return this._messenger.sendNotification(buildProject, HOST_EXTENSION, params);
     }
 
     runProject(): void {
@@ -289,7 +297,7 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
     getDesignModel(): Promise<BIDesignModelResponse> {
         return this._messenger.sendRequest(getDesignModel, HOST_EXTENSION);
     }
-    
+
     getTypes(params: GetTypesRequest): Promise<GetTypesResponse> {
         return this._messenger.sendRequest(getTypes, HOST_EXTENSION, params);
     }
@@ -300,6 +308,10 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     updateType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
         return this._messenger.sendRequest(updateType, HOST_EXTENSION, params);
+    }
+
+    updateTypes(params: UpdateTypesRequest): Promise<UpdateTypesResponse> {
+        return this._messenger.sendRequest(updateTypes, HOST_EXTENSION, params);
     }
 
     getServiceClassModel(params: ModelFromCodeRequest): Promise<ServiceClassModelResponse> {
@@ -322,6 +334,22 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(createGraphqlClassType, HOST_EXTENSION, params);
     }
 
+    getRecordConfig(params: GetRecordConfigRequest): Promise<GetRecordConfigResponse> {
+        return this._messenger.sendRequest(getRecordConfig, HOST_EXTENSION, params);
+    }
+
+    updateRecordConfig(params: UpdateRecordConfigRequest): Promise<GetRecordConfigResponse> {
+        return this._messenger.sendRequest(updateRecordConfig, HOST_EXTENSION, params);
+    }
+
+    getRecordModelFromSource(params: GetRecordModelFromSourceRequest): Promise<GetRecordModelFromSourceResponse> {
+        return this._messenger.sendRequest(getRecordModelFromSource, HOST_EXTENSION, params);
+    }
+
+    getRecordSource(params: RecordSourceGenRequest): Promise<RecordSourceGenResponse> {
+        return this._messenger.sendRequest(getRecordSource, HOST_EXTENSION, params);
+    }
+
     updateImports(params: UpdateImportsRequest): Promise<UpdateImportsResponse> {
         return this._messenger.sendRequest(updateImports, HOST_EXTENSION, params);
     }
@@ -336,5 +364,16 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     getEndOfFile(params: EndOfFileRequest): Promise<LinePosition> {
         return this._messenger.sendRequest(getEndOfFile, HOST_EXTENSION, params);
+    }
+
+    search(params: BISearchRequest): Promise<BISearchResponse> {
+        return this._messenger.sendRequest(search, HOST_EXTENSION, params);
+    }
+
+    getRecordNames(): Promise<RecordsInWorkspaceMentions> {
+        return this._messenger.sendRequest(getRecordNames, HOST_EXTENSION);
+    }
+    getDevantComponent(): Promise<DevantComponentResponse | undefined> {
+        return this._messenger.sendRequest(getDevantComponent, HOST_EXTENSION);
     }
 }

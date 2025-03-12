@@ -8,9 +8,9 @@
  */
 
 import { RefObject } from "react";
-import { DiagnosticMessage, FormDiagnostics, TextEdit, PropertyModel, LinePosition, LineRange  } from "@wso2-enterprise/ballerina-core";
+import { DiagnosticMessage, FormDiagnostics, TextEdit, PropertyModel, LinePosition, LineRange, ExpressionProperty, Metadata, RecordTypeField  } from "@wso2-enterprise/ballerina-core";
 import { ParamConfig } from "../ParamManager/ParamManager";
-import { CompletionItem, FormExpressionEditorRef, HelperPaneOrigin } from "@wso2-enterprise/ui-toolkit";
+import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight, HelperPaneOrigin, OptionProps } from "@wso2-enterprise/ui-toolkit";
 
 export type FormValues = {
     [key: string]: any;
@@ -29,14 +29,19 @@ export type FormField = {
     valueType?: string;
     diagnostics?: DiagnosticMessage[];
     items?: string[];
+    itemOptions?: OptionProps[]
     choices?: PropertyModel[];
+    dynamicFormFields?: { [key: string]: FormField[] }
     paramManagerProps?: ParamConfig;
     valueTypeConstraint: string | string[];
     groupNo?: number;
     groupName?: string;
     addNewButton?: boolean;
-    enabled?: boolean;
+    addNewButtonLabel?: string;
+    enabled: boolean;
     lineRange?: LineRange;
+    metadata?: Metadata;
+    codedata?: {[key: string]: any};
 };
 
 export type ParameterValue = {
@@ -87,14 +92,14 @@ type FormCompletionConditionalProps = {
     triggerCharacters: readonly string[];
     retrieveCompletions: (
         value: string,
-        key: string,
+        property: ExpressionProperty,
         offset: number,
         triggerCharacter?: string,
         onlyVariables?: boolean
     ) => Promise<void>;
     extractArgsFromFunction?: (
         value: string,
-        key: string,
+        property: ExpressionProperty,
         cursorPosition: number
     ) => Promise<{
         label: string;
@@ -111,35 +116,56 @@ type FormCompletionConditionalProps = {
 type FormTypeConditionalProps = {
     types: CompletionItem[];
     retrieveVisibleTypes: (value: string, cursorPosition: number) => Promise<void>;
+    getTypeHelper: (
+        typeBrowserRef: RefObject<HTMLDivElement>,
+        currentType: string,
+        currentCursorPosition: number,
+        typeHelperState: boolean,
+        onChange: (newType: string, newCursorPosition: number) => void,
+        changeTypeHelperState: (isOpen: boolean) => void,
+        helperPaneHeight: HelperPaneHeight
+    ) => JSX.Element;
+    helperPaneOrigin?: HelperPaneOrigin;
+    helperPaneHeight: HelperPaneHeight;
 } | {
     types?: never;
     retrieveVisibleTypes?: never;
+    getTypeHelper?: never;
+    helperPaneOrigin?: never;
+    helperPaneHeight?: never;
 }
 
 type FormHelperPaneConditionalProps = {
     getHelperPane: (
         exprRef: RefObject<FormExpressionEditorRef>,
+        anchorRef: RefObject<HTMLDivElement>,
         defaultValue: string,
         value: string,
         onChange: (value: string, updatedCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void,
+        helperPaneHeight: HelperPaneHeight,
+        recordTypeField?: RecordTypeField
     ) => JSX.Element;
     helperPaneOrigin?: HelperPaneOrigin;
+    helperPaneHeight: HelperPaneHeight;
 } | {
     getHelperPane?: never;
     helperPaneOrigin?: never;
+    helperPaneHeight?: never;
 }
 
 type FormExpressionEditorBaseProps = {
     getExpressionEditorDiagnostics?: (
         showDiagnostics: boolean,
         expression: string,
-        key: string
+        key: string,
+        property: ExpressionProperty
     ) => Promise<void>;
     getExpressionFormDiagnostics?: (
         showDiagnostics: boolean,
         expression: string,
         key: string,
+        property: ExpressionProperty,
         setDiagnosticsInfo: (diagnostics: FormDiagnostics) => void,
         shouldUpdateNode?: boolean,
         variableType?: string
@@ -153,8 +179,14 @@ type FormExpressionEditorBaseProps = {
     onSaveConfigurables?: (values: any) => void;
 }
 
+type SanitizedExpressionEditorProps = {
+    rawExpression?: (expression: string) => string; // original expression
+    sanitizedExpression?: (expression: string) => string; // sanitized expression that will be rendered in the editor
+}
+
 export type FormExpressionEditorProps =
     FormCompletionConditionalProps &
     FormTypeConditionalProps &
     FormHelperPaneConditionalProps &
-    FormExpressionEditorBaseProps;
+    FormExpressionEditorBaseProps &
+    SanitizedExpressionEditorProps;

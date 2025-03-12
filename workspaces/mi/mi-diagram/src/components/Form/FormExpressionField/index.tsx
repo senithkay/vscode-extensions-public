@@ -295,7 +295,12 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                 ? nodeRange.start
                 : { line: nodeRange.start.line, character: nodeRange.start.character + 1 } : undefined;
 
-        return getHelperPane(position, () => handleChangeHelperPaneState(false), handleHelperPaneChange);
+        return getHelperPane(
+            position,
+            'default',
+            () => handleChangeHelperPaneState(false),
+            handleHelperPaneChange
+        );
     }, [expressionRef.current, handleChangeHelperPaneState, nodeRange, getHelperPane]);
 
     const handleFunctionEdit = (functionName: string) => {

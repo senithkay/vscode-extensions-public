@@ -48,6 +48,7 @@ export interface CreateAPIRequest {
     wsdlType?: "file" | "url";
     wsdlDefPath?: string;
     wsdlEndpointName?: string;
+    projectDir?: string;
 }
 
 export interface EditAPIRequest {
@@ -1400,6 +1401,17 @@ export interface CreateClassMediatorRequest {
 export interface CreateClassMediatorResponse {
     path: string;
 }
+
+export interface CreateBallerinaModuleRequest {
+    projectDirectory: string;
+    moduleName: string;
+    version: string;
+}
+
+export interface CreateBallerinaModuleResponse {
+    path: string;
+}
+
 export interface GetBackendRootUrlResponse {
     url: string;
 }
@@ -1468,6 +1480,8 @@ export interface ConnectorDependency {
     artifactId: string;
     version: string;
     connectorPath?: string;
+    isBallerinaModule?: boolean;
+    ballerinaModulePath?: string;
 }
 
 export interface UpdateConnectorRequest {
@@ -1625,6 +1639,16 @@ export interface DeleteArtifactRequest {
 
 export interface APIContextsResponse {
     contexts: string[]
+}
+
+export interface BuildProjectRequest {
+    buildType?: 'docker' | 'capp';
+}
+
+export interface DeployProjectRequest {
+}
+export interface DeployProjectResponse {
+    success: boolean;
 }
 
 export interface ExportProjectRequest {
@@ -1908,12 +1932,15 @@ export interface GetMediatorsRequest {
 }
 
 export interface GetMediatorsResponse {
-    [key: string]: { 
-        items: Mediator[],
+    [key: string]: {
+        items: Mediator[] | MediatorCategory[],
         isConnector?: boolean;
+        isSupportCategories?: boolean;
         artifactId?: string;
         version?: string;
         connectorPath?: string;
+        isBallerinaModule?: boolean;
+        ballerinaModulePath?: string
     };
 }
 
@@ -1926,6 +1953,10 @@ export interface Mediator {
     operationName?: string;
     iconPath?: string;
     tooltip?: string;
+}
+
+export interface MediatorCategory {
+    [key: string]: Mediator[];
 }
 
 export interface GetMediatorRequest {

@@ -249,7 +249,12 @@ import {
     CopyArtifactRequest,
     CopyArtifactResponse,
     GetArtifactTypeRequest,
-    GetArtifactTypeResponse
+    GetArtifactTypeResponse,
+    BuildProjectRequest,
+    DeployProjectRequest,
+    DeployProjectResponse,
+    CreateBallerinaModuleRequest,
+    CreateBallerinaModuleResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -269,7 +274,7 @@ import { UnitTest } from "../../../../syntax-tree/lib/src";
 import { extension } from '../../MIExtensionContext';
 import { RPCLayer } from "../../RPCLayer";
 import { StateMachineAI } from '../../ai-panel/aiMachine';
-import { APIS, COMMANDS, DEFAULT_PROJECT_VERSION, LAST_EXPORTED_CAR_PATH, MI_COPILOT_BACKEND_URL, SWAGGER_REL_DIR } from "../../constants";
+import { APIS, COMMANDS, DEFAULT_PROJECT_VERSION, LAST_EXPORTED_CAR_PATH, MI_COPILOT_BACKEND_URL, RUNTIME_VERSION_440, SWAGGER_REL_DIR } from "../../constants";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { openSwaggerWebview } from "../../swagger/activate";
@@ -283,6 +288,7 @@ import { importProject } from "../../util/migrationUtils";
 import { getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
 import { getDataSourceXml } from "../../util/template-engine/mustach-templates/DataSource";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
+import { getBallerinaModuleContent, getBallerinaConfigContent } from "../../util/template-engine/mustach-templates/ballerinaModule";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
 import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/recipientEndpoint";
 import { dockerfileContent, rootPomXmlContent } from "../../util/templates";
@@ -290,8 +296,9 @@ import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 import { importCapp } from "../../util/importCapp";
-import { filterConnectorVersion, generateInitialDependencies, getDefaultProjectPath, getMIVersionFromPom } from "../../util/onboardingUtils";
+import { compareVersions, filterConnectorVersion, generateInitialDependencies, getDefaultProjectPath, getMIVersionFromPom, buildBallerinaModule} from "../../util/onboardingUtils";
 import { Range as STRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { checkForDevantExt } from "../../extension";
 
 const AdmZip = require('adm-zip');
 
@@ -502,7 +509,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 swaggerDefPath,
                 wsdlType,
                 wsdlDefPath,
-                wsdlEndpointName
+                wsdlEndpointName,
+                projectDir
             } = params;
 
             const getSwaggerName = (swaggerDefPath: string) => {
@@ -513,12 +521,26 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             let response: GenerateAPIResponse = { apiXml: "", endpointXml: "" };
             if (!xmlData) {
                 const langClient = StateMachine.context().langClient!;
+                const projectDetailsRes = await langClient?.getProjectDetails();
+                const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
+                const isRegistrySupported = compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0;
+
+                const getPublishSwaggerPath = (swaggerDefPath: string) => {
+                    if (isRegistrySupported) {
+                        return `gov:swaggerFiles/${getSwaggerName(swaggerDefPath)}`;
+                    } else {
+                        return `gov:mi-resources/api-definitions/${getSwaggerName(swaggerDefPath)}`;
+                    }
+                }
+                if (!isRegistrySupported) {
+                    const swaggerArtifactName = `resources_api-definitions_${getSwaggerName(swaggerDefPath ?? '')}`.replace(/\./g, '_');
+                    addNewEntryToArtifactXML(projectDir ?? '', swaggerArtifactName, getSwaggerName(swaggerDefPath ?? ''), "/_system/governance/mi-resources/api-definitions", "application/yaml", false, false);
+                }
                 if (swaggerDefPath) {
                     response = await langClient.generateAPI({
                         apiName: name,
                         swaggerOrWsdlPath: swaggerDefPath,
-                        publishSwaggerPath:
-                            saveSwaggerDef ? `gov:swaggerFiles/${getSwaggerName(swaggerDefPath)}` : undefined,
+                        publishSwaggerPath: saveSwaggerDef ? getPublishSwaggerPath(swaggerDefPath) : undefined,
                         mode: "create.api.from.swagger"
                     });
                 } else if (wsdlDefPath) {
@@ -1675,6 +1697,10 @@ ${endpointAttributes}
                 resolve({ path: filePath, content: "" });
             }
         });
+    }
+
+    async buildBallerinaModule(projectPath: string): Promise<void> {
+        await buildBallerinaModule(projectPath);
     }
 
     async getTemplate(params: RetrieveTemplateRequest): Promise<RetrieveTemplateResponse> {
@@ -2916,34 +2942,34 @@ ${endpointAttributes}
             window.showInformationMessage(`Successfully created ${name} project`);
             const projectOpened = StateMachine.context().projectOpened;
 
-            if (open) {
-                if (projectOpened) {
-                    const answer = await window.showInformationMessage(
-                        "Do you want to open the created project in the current window or new window?",
-                        "Current Window",
-                        "New Window"
-                    );
+            commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
+            resolve({ filePath: path.join(directory, name) });
 
-                    if (answer === "Current Window") {
-                        const folderUri = Uri.file(path.join(directory, name));
+            // FIX ME: Enable when multiproject support provided
+            // if (open) {
+            //     if (projectOpened) {
+            //         const answer = await window.showInformationMessage(
+            //             "Do you want to open the created project in the current window or new window?",
+            //             "Current Window",
+            //             "New Window"
+            //         );
 
-                        // Get the currently opened workspaces
-                        const workspaceFolders = workspace.workspaceFolders || [];
+            //         if (answer === "Current Window") {
+            //             const folderUri = Uri.file(path.join(directory, name));
 
-                        // Check if the folder is not already part of the workspace
-                        if (!workspaceFolders.some(folder => folder.uri.fsPath === folderUri.fsPath)) {
-                            workspace.updateWorkspaceFolders(workspaceFolders.length, 0, { uri: folderUri });
-                        }
-                    } else {
-                        commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
-                        resolve({ filePath: path.join(directory, name) });
-                    }
+            //             // Get the currently opened workspaces
+            //             const workspaceFolders = workspace.workspaceFolders || [];
 
-                } else {
-                    commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
-                    resolve({ filePath: path.join(directory, name) });
-                }
-            }
+            //             // Check if the folder is not already part of the workspace
+            //             if (!workspaceFolders.some(folder => folder.uri.fsPath === folderUri.fsPath)) {
+            //                 workspace.updateWorkspaceFolders(workspaceFolders.length, 0, { uri: folderUri });
+            //             }
+            //         } else {
+            //             commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
+            //             resolve({ filePath: path.join(directory, name) });
+            //         }
+
+            //     }
 
             resolve({ filePath: path.join(directory, name) });
         });
@@ -3718,6 +3744,25 @@ ${endpointAttributes}
         });
     }
 
+    async createBallerinaModule(params: CreateBallerinaModuleRequest): Promise<CreateBallerinaModuleResponse> {
+        return new Promise(async (resolve) => {
+            const content = getBallerinaModuleContent();
+            const configContent = getBallerinaConfigContent({ name: params.moduleName, version: params.version });
+            const fullPath = path.join(params.projectDirectory, params.moduleName);
+            fs.mkdirSync(fullPath, { recursive: true });
+            const filePath = path.join(fullPath, `${params.moduleName}-module.bal`);
+            await replaceFullContentToFile(filePath, content);
+            const balFile = await vscode.workspace.openTextDocument(filePath);
+            await balFile.save();
+            const configFilePath = path.join(fullPath, "Ballerina.toml");
+            await replaceFullContentToFile(configFilePath, configContent);
+            const configFile = await vscode.workspace.openTextDocument(configFilePath);
+            await configFile.save();
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
+
     async getSelectiveWorkspaceContext(): Promise<GetSelectiveWorkspaceContextResponse> {
         const workspaceFolders = workspace.workspaceFolders;
         if (!workspaceFolders) {
@@ -4314,15 +4359,33 @@ ${keyValuesXML}`;
         }
     }
 
-    async buildProject(): Promise<void> {
+    async buildProject(params: BuildProjectRequest): Promise<void> {
         return new Promise(async (resolve) => {
-            const selection = await window.showQuickPick(["Build CAPP", "Create Docker Image"]);
-            if (selection === "Build CAPP") {
+            let selection = params?.buildType?.toString();
+            if (!selection) {
+                selection = await window.showQuickPick(["Build CAPP", "Create Docker Image"]);
+            }
+            if (selection === "Build CAPP" || selection === "capp") {
                 await commands.executeCommand(COMMANDS.BUILD_PROJECT, false);
-            } else if (selection === "Create Docker Image") {
+            } else if (selection === "Create Docker Image" || selection === "docker") {
                 await commands.executeCommand(COMMANDS.CREATE_DOCKER_IMAGE);
             }
             resolve();
+        });
+    }
+
+    async deployProject(params: DeployProjectRequest): Promise<DeployProjectResponse> {
+        return new Promise(async (resolve) => {
+            if (!checkForDevantExt()) {
+                return;
+            }
+            const params = {
+                buildPackLang: "microintegrator",
+                name: path.basename(StateMachine.context().projectUri!),
+                componentDir: StateMachine.context().projectUri
+            };
+            commands.executeCommand(COMMANDS.DEVAN_DEPLOY, params);
+            resolve({ success: true });
         });
     }
 
@@ -5206,6 +5269,6 @@ export async function askImportFileDir() {
         canSelectMany: false,
         defaultUri: Uri.file(os.homedir()),
         title: "Select a file to import",
-        filters: { 'ATF': ['xml','dbs'] }
+        filters: { 'ATF': ['xml', 'dbs'] }
     });
 }

@@ -62,7 +62,10 @@ export enum VSCodeColors {
 
     WARNING = "var(--vscode-editorWarning-foreground)",
 
-    BUTTON_HOVER = "var(--vscode-pickerGroup-border)"
+    BUTTON_HOVER = "var(--vscode-pickerGroup-border)",
+
+    TILE_BACKGROUND = "var(--vscode-welcomePage-tileBackground)",
+    TILE_HOVER_BACKGROUND = "var(--vscode-welcomePage-tileHoverBackground)",
 }
 
 export const Colors = {
@@ -104,7 +107,10 @@ export const Colors = {
 
     SECONDARY_TEXT: VSCodeColors.SECONDARY_TEXT,
 
-    BUTTON_HOVER: VSCodeColors.BUTTON_HOVER
+    BUTTON_HOVER: VSCodeColors.BUTTON_HOVER,
+
+    TILE_BACKGROUND: VSCodeColors.TILE_BACKGROUND,
+    TILE_HOVER_BACKGROUND: VSCodeColors.TILE_HOVER_BACKGROUND,
 };
 
 export const SIDE_PANEL_WIDTH = 450;

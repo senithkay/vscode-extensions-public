@@ -16,36 +16,34 @@ const copilotPrefix = `// Path: eggplant/main.bal
 // Compare this snippet from examples/example.bal:
 ${getCommentedExamples()}`;
 
-const copilotBaseUrl: string = 'https://copilot-proxy.githubusercontent.com/v1';
+const copilotBaseUrl: string = 'https://proxy.individual.githubcopilot.com/v1';
 
 export async function getCompleteSuggestions(request: CompletionRequest): Promise<CompletionResponse> {
-  let suggestion = '';
   let prefix = request.prefix;
   const trailingSpaces = getTrailingSpaces(prefix);
   const spaces = ' '.repeat(trailingSpaces);
 
-  for (let i = 0; i < (request.maxCompletions || 1); i++) {
-    const copilotResponse = await getCopilotResponse(prefix, request.suffix, 0);
-    const stringResult = copilotResponse.completions[0];
-    if (stringResult.trim() === '') {
-      break;
-    }
-
-    prefix = `${prefix}${trimRight(stringResult)}\n${spaces}`;
-    suggestion = `${suggestion}${trimRight(stringResult)}\n${spaces}`;
+  const copilotResponse = await getCopilotResponse(prefix, request.suffix, 0);
+  let stringResult = copilotResponse.completion;
+  if (stringResult === '') {
+    return { completion : '' };
   }
 
-  return { completions: [suggestion] };
+  if (stringResult.endsWith("\n")) {
+    stringResult = stringResult + spaces;
+  }
+
+  return { completion: stringResult };
 }
 
 async function getCopilotResponse(prefix: string, suffix: string, retryCount: number): Promise<CompletionResponse> {
-  const nextIndent = getTrailingSpaces(prefix) - 1;
+  const nextIndent = getTrailingSpaces(prefix);
 
   const req: GithubCompletionRequest = {
     prompt: copilotPrefix + prefix,
     suffix,
     n: 1,
-    max_tokens: 1000,
+    max_tokens: 500,
     temperature: 0,
     top_p: 1,
     stop: ['\n\n\n', '\n```'],
@@ -56,7 +54,7 @@ async function getCopilotResponse(prefix: string, suffix: string, retryCount: nu
 
   try {
     const accessToken = await extension.context.secrets.get('GITHUB_COPILOT_TOKEN');
-    const response = await fetch(`${copilotBaseUrl}/engines/copilot-codex/completions`, {
+    const response = await fetch(`${copilotBaseUrl}/engines/gpt-4o-copilot/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -108,7 +106,7 @@ async function getCopilotResponse(prefix: string, suffix: string, retryCount: nu
         boundary = buffer.indexOf("\n\n");
       }
     }
-    return { completions: [output] };
+    return { completion: output };
   } catch (error: any) {
     if (error.message.includes('401')) {
       if (retryCount === 1) {

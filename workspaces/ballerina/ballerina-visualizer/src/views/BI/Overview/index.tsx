@@ -14,9 +14,11 @@ import {
     ProjectStructureResponse,
     EVENT_TYPE,
     MACHINE_VIEW,
+    BuildMode,
+    DevantComponentResponse
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Typography, Codicon, ProgressRing, Button, Icon } from "@wso2-enterprise/ui-toolkit";
+import { Typography, Codicon, ProgressRing, Button, Icon, Divider, CheckBox } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { getProjectFromResponse, parseSSEEvent, replaceCodeBlocks, splitContent } from "../../AIPanel/AIChat";
@@ -97,9 +99,7 @@ const MainPanel = styled.div<{ noPadding?: boolean }>`
 `;
 
 const SidePanel = styled.div`
-    border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
-    border-radius: 4px;
-    padding: 16px;
+    padding: 0px 10px 10px 10px;
     overflow: auto;
 `;
 
@@ -144,6 +144,19 @@ const DiagramContent = styled.div`
 const DeploymentContent = styled.div`
     margin-top: 16px;
     min-width: 130px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    color: var(--vscode-descriptionForeground);
+
+    h3 {
+        margin: 0 0 16px 0;
+        color: inherit;
+    }
+
+    p {
+        color: inherit;
+    }
 `;
 
 const DeployButtonContainer = styled.div`
@@ -195,8 +208,195 @@ const ProjectSubtitle = styled.h2`
     }
 `;
 
+const DeployButton = styled.div`
+    border: 1px solid var(--vscode-welcomePage-tileBorder);
+    cursor: default !important;
+    background: var(--vscode-welcomePage-tileBackground);
+    border-radius: 6px;
+    display: flex;
+    overflow: hidden;
+    width: 100%;
+    padding: 10px;
+    flex-direction: column;
+`;
+
+const DeploymentOptionContainer = styled.div<{ isExpanded: boolean }>`
+    cursor: pointer;
+    border: ${props => props.isExpanded ? '1px solid var(--vscode-welcomePage-tileBorder)' : 'none'};
+    background: ${props => props.isExpanded ? 'var(--vscode-welcomePage-tileBackground)' : 'transparent'};
+    border-radius: 6px;
+    display: flex;
+    overflow: hidden;
+    width: 100%;
+    padding: 10px;
+    flex-direction: column;
+    margin-bottom: 8px;
+
+    &:hover {
+        background: var(--vscode-welcomePage-tileHoverBackground);
+    }
+`;
+
+const DeploymentHeader = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0;
+    }
+`;
+
+const DeploymentBody = styled.div<{ isExpanded: boolean }>`
+    max-height: ${props => props.isExpanded ? '200px' : '0'};
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+    margin-top: ${props => props.isExpanded ? '8px' : '0'};
+`;
+
+interface DeploymentOptionProps {
+    title: string;
+    description: string;
+    buttonText: string;
+    isExpanded: boolean;
+    onToggle: () => void;
+    onDeploy: () => void;
+    learnMoreLink?: boolean;
+}
+
+function DeploymentOption({
+    title,
+    description,
+    buttonText,
+    isExpanded,
+    onToggle,
+    onDeploy,
+    learnMoreLink
+}: DeploymentOptionProps) {
+    return (
+        <DeploymentOptionContainer
+            isExpanded={isExpanded}
+            onClick={onToggle}
+        >
+            <DeploymentHeader>
+                <Codicon
+                    name={'circle-outline'}
+                    sx={{ color: isExpanded ? 'var(--vscode-textLink-foreground)' : 'inherit' }}
+                />
+                <h3>{title}</h3>
+            </DeploymentHeader>
+            <DeploymentBody isExpanded={isExpanded}>
+                <p style={{ marginTop: 8 }}>
+                    {description}
+                    {learnMoreLink && <> <VSCodeLink>Learn more</VSCodeLink></>}
+                </p>
+                <Button appearance="secondary" onClick={(e) => {
+                    e.stopPropagation();
+                    onDeploy();
+                }}>
+                    {buttonText}
+                </Button>
+            </DeploymentBody>
+        </DeploymentOptionContainer>
+    );
+}
+
+interface DeploymentOptionsProps {
+    handleDockerBuild: () => void;
+    handleJarBuild: () => void;
+    handleDeploy: () => void;
+    goToDevant: (devantComponent: DevantComponentResponse) => void;
+    devantComponent: DevantComponentResponse | undefined;
+}
+
+function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, goToDevant, devantComponent }: DeploymentOptionsProps) {
+    const [expandedOptions, setExpandedOptions] = useState<Set<string>>(new Set(['cloud', 'devant']));
+
+    const toggleOption = (option: string) => {
+        setExpandedOptions(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(option)) {
+                newSet.delete(option);
+            } else {
+                newSet.add(option);
+            }
+            return newSet;
+        });
+    };
+
+    return (
+        <div>
+            <Title variant="h3">Deployment Options</Title>
+
+            {devantComponent == undefined &&
+                <DeploymentOption
+                    title="Deploy to Devant"
+                    description="Deploy your integration to the cloud using WSO2 Devant."
+                    buttonText="Deploy to Cloud"
+                    isExpanded={expandedOptions.has('cloud')}
+                    onToggle={() => toggleOption('cloud')}
+                    onDeploy={handleDeploy}
+                    learnMoreLink={true}
+                />
+            }
+
+            {devantComponent != undefined &&
+                <DeploymentOption
+                    title="Deployed in Devant"
+                    description="This integration is already deployed in Devant."
+                    buttonText="View in Devant"
+                    isExpanded={expandedOptions.has('devant')}
+                    onToggle={() => toggleOption('devant')}
+                    onDeploy={() => goToDevant(devantComponent)}
+                    learnMoreLink={true}
+                />
+            }
+
+            <DeploymentOption
+                title="Deploy with Docker"
+                description="Create a Docker image of your integration and deploy it to any Docker-enabled system."
+                buttonText="Create Docker Image"
+                isExpanded={expandedOptions.has('docker')}
+                onToggle={() => toggleOption('docker')}
+                onDeploy={handleDockerBuild}
+            />
+
+            <DeploymentOption
+                title="Deploy on a VM"
+                description="Create a self-contained Ballerina executable and run it on any system with Java installed."
+                buttonText="Create Executable"
+                isExpanded={expandedOptions.has('vm')}
+                onToggle={() => toggleOption('vm')}
+                onDeploy={handleJarBuild}
+            />
+        </div>
+    );
+}
+
+interface IntegrationControlPlaneProps {
+    enabled: boolean;
+    handleICP: (checked: boolean) => void;
+}
+
+function IntegrationControlPlane({ enabled, handleICP }: IntegrationControlPlaneProps) {
+
+    return (
+        <div>
+            <Title variant="h3">Integration Control Plane</Title>
+            <p>Moniter the deployment runtime using WSO2 Integration Control Plane. Click the {enabled ? "Disable ICP" : "Integrate ICP"} button to {enabled ? "diable" : "enable"} ICP
+                for the integration.</p>
+            <CheckBox
+                checked={enabled}
+                onChange={handleICP}
+                label="Enable ICP"
+            />
+        </div>
+    );
+}
+
 interface ComponentDiagramProps {
-    //
+    projectPath: string;
 }
 
 export function Overview(props: ComponentDiagramProps) {
@@ -211,6 +411,7 @@ export function Overview(props: ComponentDiagramProps) {
     const [loadingMessage, setLoadingMessage] = useState("");
     const backendRootUri = useRef("");
     const [enabled, setEnableICP] = useState(false);
+    const [devantComponent, setDevantComponent] = useState<DevantComponentResponse | undefined>(undefined);
 
 
     const fetchContext = () => {
@@ -224,7 +425,10 @@ export function Overview(props: ComponentDiagramProps) {
             .getBIDiagramRpcClient()
             .getWorkspaces()
             .then((res) => {
-                setProjectName(res.workspaces[0].name);
+                const workspace = res.workspaces.find(workspace => workspace.fsPath === props.projectPath);
+                if (workspace) {
+                    setProjectName(workspace.name);
+                }
             });
 
         rpcClient
@@ -285,6 +489,14 @@ export function Overview(props: ComponentDiagramProps) {
             }
         });
     }, [responseText]);
+
+    useEffect(() => {
+        rpcClient.getBIDiagramRpcClient().getDevantComponent()
+            .then((res) => {
+                console.log(">>> devant component", { res });
+                setDevantComponent(res);
+            });
+    }, []);
 
     function isEmptyProject(): boolean {
         return Object.values(projectStructure.directoryMap || {}).every((array) => array.length === 0);
@@ -423,8 +635,8 @@ export function Overview(props: ComponentDiagramProps) {
         rpcClient.getBIDiagramRpcClient().deployProject();
     };
 
-    const handleICP = () => {
-        if (!enabled) {
+    const handleICP = (icpEnabled: boolean) => {
+        if (icpEnabled) {
             rpcClient.getICPRpcClient().addICP({ projectPath: '' })
                 .then((res) => {
                     setEnableICP(true);
@@ -454,9 +666,19 @@ export function Overview(props: ComponentDiagramProps) {
         rpcClient.getBIDiagramRpcClient().runProject();
     };
 
-    const handleBuild = () => {
-        rpcClient.getBIDiagramRpcClient().buildProject();
+    const handleDockerBuild = () => {
+        rpcClient.getBIDiagramRpcClient().buildProject(BuildMode.DOCKER);
     };
+
+    const handleJarBuild = () => {
+        rpcClient.getBIDiagramRpcClient().buildProject(BuildMode.JAR);
+    };
+
+    const goToDevant = (devantComponent: DevantComponentResponse) => {
+        rpcClient.getCommonRpcClient().openExternalUrl({ url: `https://devant.wso2.com/devant/projects/${devantComponent.org}/${devantComponent.project}/${devantComponent.component}` });
+    };
+
+
 
     return (
         <PageLayout>
@@ -467,10 +689,7 @@ export function Overview(props: ComponentDiagramProps) {
                 </TitleContainer>
                 <IconButtonContainer>
                     <Button appearance="icon" onClick={handlePlay} buttonSx={{ padding: "4px 8px" }}>
-                        <Codicon name="play" sx={{ marginRight: 5 }} /> Run
-                    </Button>
-                    <Button appearance="icon" onClick={handleBuild} buttonSx={{ padding: "4px 8px" }}>
-                        <Icon name="bi-build" sx={{ marginRight: 8, fontSize: 16 }} /> Build
+                        <Codicon name="play" sx={{ marginRight: 5 }} /> Run & Debug
                     </Button>
                 </IconButtonContainer>
             </HeaderRow>
@@ -484,7 +703,7 @@ export function Overview(props: ComponentDiagramProps) {
                                 <Codicon name="wand" sx={{ marginRight: 8 }} /> Generate
                             </Button>
                             <Button appearance="primary" onClick={handleAddConstruct}>
-                                <Codicon name="add" sx={{ marginRight: 8 }} /> Add Construct
+                                <Codicon name="add" sx={{ marginRight: 8 }} /> Add Artifact
                             </Button>
                         </ActionContainer>)}
                     </DiagramHeaderContainer>
@@ -498,11 +717,11 @@ export function Overview(props: ComponentDiagramProps) {
                                     variant="body1"
                                     sx={{ marginBottom: "24px", color: "var(--vscode-descriptionForeground)" }}
                                 >
-                                    Start by adding constructs or use AI to generate your project structure
+                                    Start by adding artifacts or use AI to generate your project structure
                                 </Typography>
                                 <ButtonContainer>
                                     <Button appearance="primary" onClick={handleAddConstruct}>
-                                        <Codicon name="add" sx={{ marginRight: 8 }} /> Add Construct
+                                        <Codicon name="add" sx={{ marginRight: 8 }} /> Add Artifact
                                     </Button>
                                     <Button appearance="secondary" onClick={handleGenerate}>
                                         <Codicon name="wand" sx={{ marginRight: 8 }} /> Generate with AI
@@ -516,28 +735,14 @@ export function Overview(props: ComponentDiagramProps) {
                 </MainPanel>
 
                 <SidePanel>
-                    <Title variant="h2">Deployment</Title>
-                    <DeploymentContent>
-                        <Description variant="body2">
-                            Easily deploy the integration to the cloud using Choreo. Click the Deploy button to continue
-                            with the deployment.
-                        </Description>
-                        <DeployButtonContainer>
-                            <Button appearance="primary" onClick={handleDeploy} buttonSx={{ minWidth: '130px' }}>
-                                <Codicon name="cloud-upload" sx={{ marginRight: 8 }} /> Deploy
-                            </Button>
-                        </DeployButtonContainer>
-                        <Description variant="body2">
-                            Moniter the deployment runtime using WSO2 Integration Control Plane. Click the {enabled ? "Disable ICP" : "Integrate ICP"} button to {enabled ? "diable" : "enable"} ICP
-                            for the integration.
-                        </Description>
-                        <DeployButtonContainer>
-                            <Button appearance="primary" onClick={handleICP} buttonSx={{ minWidth: '130px' }}>
-                                <Codicon name="cloud-upload" sx={{ marginRight: 8 }} />
-                                {enabled ? "Disable ICP" : "Integrate ICP"}
-                            </Button>
-                        </DeployButtonContainer>
-                    </DeploymentContent>
+                    <DeploymentOptions
+                        handleDockerBuild={handleDockerBuild}
+                        handleJarBuild={handleJarBuild}
+                        handleDeploy={handleDeploy}
+                        goToDevant={goToDevant}
+                        devantComponent={devantComponent} />
+                    <Divider sx={{ margin: "16px 0" }} />
+                    <IntegrationControlPlane enabled={enabled} handleICP={handleICP} />
                 </SidePanel>
             </MainContent>
 
@@ -554,7 +759,7 @@ export function Overview(props: ComponentDiagramProps) {
                     ) : (
                         <EmptyReadmeContainer>
                             <Description variant="body2">
-                                Describe your integration and generate your constructs with AI
+                                Describe your integration and generate your artifacts with AI
                             </Description>
                             <VSCodeLink onClick={handleEditReadme}>Add a README</VSCodeLink>
                         </EmptyReadmeContainer>

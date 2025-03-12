@@ -1,12 +1,23 @@
-import { commands, window, workspace, FileSystemWatcher, Disposable } from "vscode";
-import { PALETTE_COMMANDS } from "../project/cmds/cmd-runner";
+/**
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import { commands, window, workspace, FileSystemWatcher, Disposable, Uri } from "vscode";
+import { clearTerminal, PALETTE_COMMANDS } from "../project/cmds/cmd-runner";
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { BallerinaExtension } from "src/core";
 import Handlebars from "handlebars";
-import { clientManager, findRunningBallerinaProcesses, handleError } from "./utils";
+import { clientManager, findRunningBallerinaProcesses, handleError, waitForBallerinaService } from "./utils";
 import { BIDesignModelResponse, OpenAPISpec } from "@wso2-enterprise/ballerina-core";
+import { startDebugging } from "../editor-support/codelens-provider";
+import { v4 as uuidv4 } from "uuid";
 
 let errorLogWatcher: FileSystemWatcher | undefined;
 
@@ -155,7 +166,7 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
 
         const services: ServiceInfo[] = await getAvailableServices(workspaceRoot);
         if (!services || services.length === 0) {
-            vscode.window.showInformationMessage('No HTTP services found in the project');
+            vscode.window.showInformationMessage('No services found in the project');
             return;
         }
 
@@ -169,12 +180,17 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
             if (selection !== "Test") {
                 return;
             }
+        } else {
+            const processesRunning = await checkBallerinaProcessRunning(workspaceRoot);
+            if (!processesRunning) {
+                return;
+            }
         }
 
         let selectedService: ServiceInfo;
         // If in resource try it mode, find the service containing the resource path
         if (resourceMetadata) {
-            const matchingService = await findServiceForResource(services, resourceMetadata);
+            const matchingService = await findServiceForResource(services, resourceMetadata, serviceMetadata);
             if (!matchingService) {
                 vscode.window.showErrorMessage(`Could not find a service containing the resource path: ${resourceMetadata.pathValue}`);
                 return;
@@ -184,7 +200,7 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
         } else if (services.length > 1) {
             if (serviceMetadata) {
                 const matchingService = services.find(service =>
-                    service.basePath === serviceMetadata.basePath && service.listener === serviceMetadata.listener
+                    service.basePath === serviceMetadata.basePath && compareListeners(service.listener, serviceMetadata.listener)
                 );
 
                 if (matchingService) {
@@ -216,20 +232,19 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
             fs.mkdirSync(targetDir);
         }
 
-        const tryitFileName = `tryit.http`;
-        const tryitFilePath = path.join(targetDir, tryitFileName);
-        const configFilePath = path.join(targetDir, 'httpyac.config.js');
+        if (selectedService.type === ServiceType.HTTP) {
+            const openapiSpec: OAISpec = await getOpenAPIDefinition(selectedService);
+            const selectedPort: number = await getServicePort(workspaceRoot, selectedService, openapiSpec);
+            selectedService.port = selectedPort;
 
-        const content = await generateTryItFileContent(workspaceRoot, selectedService, resourceMetadata);
-        if (!content) {
-            return;
+            const tryitFileUri = await generateTryItFileContent(workspaceRoot, openapiSpec, selectedService, resourceMetadata);
+            await openInSplitView(tryitFileUri, 'http');
+        } else {
+            const selectedPort: number = await getServicePort(workspaceRoot, selectedService);
+            selectedService.port = selectedPort;
+
+            await openChatView(selectedService.basePath, selectedPort.toString());
         }
-
-        fs.writeFileSync(tryitFilePath, content);
-        fs.writeFileSync(configFilePath, HTTPYAC_CONFIG_TEMPLATE);
-
-        const tryitFileUri = vscode.Uri.file(tryitFilePath);
-        await openInSplitView(tryitFileUri, 'http');
 
         // Setup the error log watcher
         setupErrorLogWatcher(targetDir);
@@ -261,7 +276,24 @@ async function openInSplitView(fileUri: vscode.Uri, editorType: string = 'defaul
     }
 }
 
-async function findServiceForResource(services: ServiceInfo[], resourceMetadata: ResourceMetadata): Promise<ServiceInfo | undefined> {
+async function openChatView(basePath: string, port: string) {
+    try {
+        const baseUrl = `http://localhost:${port}`;
+        const chatPath = "chat";
+
+        const serviceEp = new URL(basePath, baseUrl);
+        const cleanedServiceEp = serviceEp.pathname.replace(/\/$/, '') + "/" + chatPath.replace(/^\//, '');
+        const chatEp = new URL(cleanedServiceEp, serviceEp.origin);
+
+        const sessionId = uuidv4();
+
+        commands.executeCommand("kolab.open.agent.chat", { chatEp: chatEp.href, chatSessionId: sessionId });
+    } catch (error) {
+        vscode.window.showErrorMessage(`Failed to call Chat-Agent: ${error}`);
+    }
+}
+
+async function findServiceForResource(services: ServiceInfo[], resourceMetadata: ResourceMetadata, serviceMetadata: ServiceMetadata): Promise<ServiceInfo | undefined> {
     try {
         // Normalize path values for comparison
         const targetPath = resourceMetadata.pathValue?.trim();
@@ -273,6 +305,10 @@ async function findServiceForResource(services: ServiceInfo[], resourceMetadata:
         // TODO: Optimize this by checking only the relevant service once we have the lang server support for that
         for (const service of services) {
             try {
+                if (serviceMetadata && (service.basePath !== serviceMetadata.basePath || !compareListeners(service.listener, serviceMetadata.listener))) {
+                    continue;
+                }
+
                 const openapiSpec: OAISpec = await getOpenAPIDefinition(service);
                 const matchingPaths = Object.keys(openapiSpec.paths || {}).filter((specPath) => {
                     return comparePathPatterns(specPath, targetPath);
@@ -305,13 +341,35 @@ async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> 
         });
 
         const services = response.designModel.services
-            .filter(service => service.type.toLowerCase().includes('http'))
-            .map(service => ({
-                name: service.displayName || service.absolutePath.startsWith('/') ? service.absolutePath.trim().substring(1) : service.absolutePath.trim(),
-                basePath: service.absolutePath.trim(),
-                filePath: service.location.filePath,
-                listener: service.attachedListeners.map(listener => response.designModel.listeners.find(l => l.uuid === listener)?.symbol).join(', ')
-            }));
+            .filter(({ type }) => {
+                const lowerType = type.toLowerCase();
+                return lowerType.includes('http') || lowerType.includes('agent');
+            })
+            .map(({ displayName, absolutePath, location, attachedListeners, type }) => {
+                const trimmedPath = absolutePath.trim();
+                const name = displayName || (trimmedPath.startsWith('/') ? trimmedPath.substring(1) : trimmedPath);
+                const serviceType = type.toLowerCase().includes('http') ? ServiceType.HTTP : ServiceType.AGENT;
+                const listener = {
+                    name: attachedListeners
+                        .map(listenerId => response.designModel.listeners.find(l => l.uuid === listenerId)?.symbol)
+                        .filter(Boolean)
+                        .join(','),
+                    port: attachedListeners
+                        .map(listenerId => response.designModel.listeners.find(l => l.uuid === listenerId)?.args.find(arg => arg.key === 'port')?.value)
+                        .filter(Boolean)
+                        .join(','),
+                };
+
+
+
+                return {
+                    name,
+                    basePath: trimmedPath,
+                    filePath: location.filePath,
+                    type: serviceType,
+                    listener,
+                };
+            });
 
         return services || [];
     } catch (error) {
@@ -320,14 +378,8 @@ async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> 
     }
 }
 
-async function generateTryItFileContent(projectDir: string, service: ServiceInfo, resourceMetadata?: ResourceMetadata): Promise<string | undefined> {
+async function generateTryItFileContent(projectRoot: string, openapiSpec: OAISpec, service: ServiceInfo, resourceMetadata?: ResourceMetadata): Promise<vscode.Uri | undefined> {
     try {
-        // Get OpenAPI definition
-        const openapiSpec = await getOpenAPIDefinition(service);
-
-        // Get service port
-        const selectedPort = await getServicePort(projectDir, service, openapiSpec);
-
         // Register Handlebars helpers
         registerHandlebarsHelpers(openapiSpec);
 
@@ -377,16 +429,23 @@ async function generateTryItFileContent(projectDir: string, service: ServiceInfo
         // Generate content using template
         const templateData = {
             ...openapiSpec,
-            port: selectedPort.toString(),
+            port: service.port.toString(),
             basePath: service.basePath,
             serviceName: service.name || 'Default',
             isResourceMode: isResourceMode,
-            resourceMethod: isResourceMode ? resourceMetadata.methodValue.toLowerCase() : '',
+            resourceMethod: isResourceMode ? resourceMetadata.methodValue.toUpperCase() : '',
             resourcePath: resourcePath,
         };
 
         const compiledTemplate = Handlebars.compile(TRYIT_TEMPLATE);
-        return compiledTemplate(templateData);
+        const content = compiledTemplate(templateData);
+
+        const tryitFileName = `tryit.http`;
+        const tryitFilePath = path.join(projectRoot, tryitFileName);
+        const configFilePath = path.join(projectRoot, 'httpyac.config.js');
+        fs.writeFileSync(tryitFilePath, content);
+        fs.writeFileSync(configFilePath, HTTPYAC_CONFIG_TEMPLATE);
+        return vscode.Uri.file(tryitFilePath);
     } catch (error) {
         handleError(error, "Try It client initialization failed");
         return undefined;
@@ -435,7 +494,7 @@ async function getOpenAPIDefinition(service: ServiceInfo): Promise<OAISpec> {
 
         const matchingDefinition = (openapiDefinitions as OpenAPISpec).content.filter(content =>
             content.serviceName.toLowerCase() === service?.name.toLowerCase()
-            || (content.spec?.servers[0]?.url.endsWith(service.basePath) && service?.name === '')
+            || (content.spec?.servers[0]?.url?.endsWith(service.basePath) && service?.name === '')
             || (content.spec?.servers[0]?.url == undefined && service?.name === '' // TODO: Update the condition after fixing the issue in the OpenAPI tool
             ));
 
@@ -454,11 +513,16 @@ async function getOpenAPIDefinition(service: ServiceInfo): Promise<OAISpec> {
     }
 }
 
-async function getServicePort(projectDir: string, service: ServiceInfo, openapiSpec: OAISpec): Promise<number> {
+async function getServicePort(projectDir: string, service: ServiceInfo, openapiSpec?: OAISpec): Promise<number> {
     try {
+        // If the service has an anonymous listener, directly use the port defined inline
+        if (service.listener.port) {
+            return parseInt(service.listener.port);
+        }
+
         // Try to get default port from OpenAPI spec first
         let portInSpec: number;
-        const portInSpecStr = openapiSpec.servers?.[0]?.variables?.port?.default;
+        const portInSpecStr = openapiSpec?.servers?.[0]?.variables?.port?.default;
         if (portInSpecStr) {
             const parsedPort = parseInt(portInSpecStr);
             portInSpec = isNaN(parsedPort) ? parsedPort : undefined;
@@ -492,7 +556,8 @@ async function getServicePort(projectDir: string, service: ServiceInfo, openapiS
         }));
 
         const selected = await vscode.window.showQuickPick(portItems, {
-            placeHolder: `Port auto-detection failed due to multiple service ports. Pick the correct port for the service '${service.name || service.basePath}' to continue`,
+            placeHolder: `Multiple service ports found. Select the port of the service '${service.name || service.basePath}'`,
+            title: 'Select Service Port'
         });
 
         if (!selected) {
@@ -503,6 +568,46 @@ async function getServicePort(projectDir: string, service: ServiceInfo, openapiS
     } catch (error) {
         handleError(error, "Getting service port", false);
         throw error;
+    }
+}
+
+/**
+ * Helper function to detect running Ballerina processes and, prompt the user to run the program if not found
+ */
+async function checkBallerinaProcessRunning(projectDir: string): Promise<boolean> {
+    try {
+        const balProcesses = await findRunningBallerinaProcesses(projectDir)
+            .catch(error => {
+                throw new Error(`Failed to find running Ballerina processes: ${error.message}`);
+            });
+
+        if (!balProcesses?.length) {
+            const selection = await vscode.window.showWarningMessage(
+                'The "Try It" feature requires a running Ballerina service. Would you like to run the integration first?',
+                'Run Integration',
+                'Cancel'
+            );
+
+            if (selection === 'Run Integration') {
+                // Execute the run command
+                clearTerminal();
+                await startDebugging(Uri.file(projectDir), false, false, true);
+
+                // Wait for the Ballerina service(s) to start
+                const newProcesses = await waitForBallerinaService(projectDir).then(() => {
+                    return findRunningBallerinaProcesses(projectDir);
+                });
+
+                return newProcesses?.length > 0;
+            }
+
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        handleError(error, "Checking Ballerina processes", false);
+        return false;
     }
 }
 
@@ -779,6 +884,26 @@ function resolveSchemaRef(ref: string, context: OAISpec): Schema | undefined {
     return current as Schema;
 }
 
+// helper function to compare listeners
+function compareListeners(serviceInfoListener: { name: string, port?: string }, serviceMetadataListener: string): boolean {
+    // named listeners
+    if (serviceInfoListener.name && serviceMetadataListener === serviceInfoListener.name) {
+        return true;
+    }
+
+    // anonymous listeners
+    if (serviceMetadataListener.startsWith('new http:Listener') && serviceInfoListener.port) {
+        // Extract port from 'http:Listener(9090)'
+        const portMatch = serviceMetadataListener.match(/new http:Listener\((\d+)\)/);
+        if (portMatch && portMatch[1]) {
+            const port = parseInt(portMatch[1], 10);
+            return port === parseInt(serviceInfoListener.port);
+        }
+    }
+
+    return false;
+}
+
 // Function to setup error log watching
 function setupErrorLogWatcher(targetDir: string) {
     const errorLogPath = path.join(targetDir, 'httpyac_errors.log');
@@ -835,11 +960,21 @@ function disposeErrorWatcher() {
 }
 
 // Service information interface
+enum ServiceType {
+    HTTP = 'http',
+    AGENT = 'agent'
+}
+
 interface ServiceInfo {
     name?: string;
     basePath: string;
     filePath: string;
-    listener: string;
+    port?: number;
+    type: ServiceType;
+    listener: {
+        name: string;
+        port?: string;
+    };
 }
 
 // Main OpenAPI specification interface

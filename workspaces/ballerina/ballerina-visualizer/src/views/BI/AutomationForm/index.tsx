@@ -122,6 +122,7 @@ export function MainForm() {
             editable: true,
             documentation: "",
             value: "",
+            enabled: true,
             valueTypeConstraint: "",
         },
         {
@@ -132,6 +133,7 @@ export function MainForm() {
             editable: true,
             documentation: '',
             value: "",
+            enabled: true,
             items: ["string", "int", "float", "decimal"],
             valueTypeConstraint: "",
             addNewButton: false
@@ -163,6 +165,7 @@ export function MainForm() {
             optional: true,
             advanced: true,
             editable: true,
+            enabled: true,
             documentation: "Parameters allow dynamic input values, making automation adaptable to different execution needs.",
             valueTypeConstraint: "",
             value: "",
@@ -177,7 +180,7 @@ export function MainForm() {
     return (
         <View>
             <TopNavigationBar />
-            <TitleBar title="Automation" subtitle="Create a new automation for your integration" />
+            <TitleBar title="Automation" />
             <ViewContent padding>
                 <Container>
                     {isLoading && (
@@ -200,7 +203,7 @@ export function MainForm() {
                         <>
                             <FormHeader
                                 title="Create an Automation"
-                                subtitle="Implement an automation for either scheduled or manual jobs."
+                                subtitle="Create an automation that can be invoked periodically or manually."
                             />
                             <FormContainer>
                                 {filePath && targetLineRange && currentFields.length > 0 &&

@@ -10,14 +10,13 @@
  */
 import {
     AIChatRequest,
+    AddFieldRequest,
     AddFunctionRequest,
     AddFunctionResponse,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
     BIAvailableNodesResponse,
-    BIConnectorsRequest,
-    BIConnectorsResponse,
     BICopilotContextRequest,
     BIDeleteByComponentInfoRequest,
     BIDeleteByComponentInfoResponse,
@@ -27,25 +26,27 @@ import {
     BIFlowModelResponse,
     BIGetEnclosedFunctionRequest,
     BIGetEnclosedFunctionResponse,
-    BIGetFunctionsRequest,
-    BIGetFunctionsResponse,
     BIGetVisibleVariableTypesRequest,
     BIGetVisibleVariableTypesResponse,
     BIModuleNodesRequest,
     BIModuleNodesResponse,
     BINodeTemplateRequest,
     BINodeTemplateResponse,
+    BISearchRequest,
+    BISearchResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
     BISuggestedFlowModelRequest,
     BI_COMMANDS,
     BreakpointRequest,
+    BuildMode,
     ClassFieldModifierRequest,
     ComponentRequest,
     ConfigVariableResponse,
     CreateComponentResponse,
     CurrentBreakpointsResponse,
     DIRECTORY_MAP,
+    DevantComponentResponse,
     EVENT_TYPE,
     EndOfFileRequest,
     ExpressionCompletionsRequest,
@@ -58,6 +59,10 @@ import {
     FunctionNode,
     FunctionNodeRequest,
     FunctionNodeResponse,
+    GetRecordConfigRequest,
+    GetRecordConfigResponse,
+    GetRecordModelFromSourceRequest,
+    GetRecordModelFromSourceResponse,
     GetTypeRequest,
     GetTypeResponse,
     GetTypesRequest,
@@ -72,31 +77,35 @@ import {
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
+    RecordSourceGenRequest,
+    RecordSourceGenResponse,
+    RecordsInWorkspaceMentions,
+    RenameIdentifierRequest,
+    RenameRequest,
     STModification,
     ServiceClassModelResponse,
     ServiceClassSourceRequest,
     SignatureHelpRequest,
     SignatureHelpResponse,
+    SourceEditResponse,
     SyntaxTree,
+    TextEdit,
     UpdateConfigVariableRequest,
     UpdateConfigVariableResponse,
-    UpdateTypeRequest,
-    UpdateTypeResponse,
     UpdateImportsRequest,
     UpdateImportsResponse,
+    UpdateRecordConfigRequest,
+    UpdateTypeRequest,
+    UpdateTypeResponse,
+    UpdateTypesRequest,
+    UpdateTypesResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspaceFolder,
     WorkspacesResponse,
-    buildProjectStructure,
-    TextEdit,
-    SourceEditResponse,
-    AddFieldRequest,
-    RenameRequest,
-    RenameIdentifierRequest,
+    buildProjectStructure
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
-import { writeFileSync } from "fs";
 import * as path from 'path';
 import * as vscode from "vscode";
 
@@ -118,7 +127,7 @@ import { getCompleteSuggestions } from '../../utils/ai/completions';
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure } from "../../utils/bi";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
-import { DATA_MAPPING_FILE_NAME, getFunctionNodePosition } from "./utils";
+import { getFunctionNodePosition } from "./utils";
 
 export class BiDiagramRpcManager implements BIDiagramAPI {
 
@@ -235,21 +244,20 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 })) as SyntaxTree;
 
                 if (parseSuccess) {
-                    writeFileSync(request.filePath, source);
-                    await StateMachine.langClient().didChange({
-                        textDocument: { uri: fileUriString, version: 1 },
-                        contentChanges: [
-                            {
-                                text: source,
-                            },
-                        ],
-                    });
+                    const fileUri = Uri.file(request.filePath);
+                    const workspaceEdit = new vscode.WorkspaceEdit();
+                    workspaceEdit.replace(
+                        fileUri,
+                        new vscode.Range(
+                            new vscode.Position(0, 0),
+                            new vscode.Position(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
+                        ),
+                        source
+                    );
+                    await workspace.applyEdit(workspaceEdit);
 
                     if (isConnector) {
-                        await StateMachine.langClient().resolveMissingDependencies({
-                            documentIdentifier: { uri: fileUriString },
-                        });
-                        // Temp fix: ResolveMissingDependencies does not work uless we call didOpen, This needs to be fixed in the LS
+                        // Temp fix: ResolveMissingDependencies does not work unless we call didOpen, This needs to be fixed in the LS
                         await StateMachine.langClient().didOpen({
                             textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
                         });
@@ -333,6 +341,13 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         console.log(">>> requesting bi node template from ls", params);
         params.forceAssign = true; // TODO: remove this
 
+        // Check if the file exists
+        if (!fs.existsSync(params.filePath)) {
+            // Create the file if it does not exist
+            fs.writeFileSync(params.filePath, "");
+            console.log(`>>> Created file at ${params.filePath}`);
+        }
+
         return new Promise((resolve) => {
             StateMachine.langClient()
                 .getNodeTemplate(params)
@@ -402,23 +417,6 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async getBIConnectors(params: BIConnectorsRequest): Promise<BIConnectorsResponse> {
-        return new Promise((resolve) => {
-            StateMachine.langClient()
-                .getBIConnectors(params)
-                .then((model) => {
-                    console.log(">>> bi connectors from ls", model);
-                    resolve(model);
-                })
-                .catch((error) => {
-                    console.log(">>> error fetching connectors from ls", error);
-                    return new Promise((resolve) => {
-                        resolve(undefined);
-                    });
-                });
-        });
-    }
-
     async getAiSuggestions(params: BIAiSuggestionsRequest): Promise<BIAiSuggestionsResponse> {
         return new Promise(async (resolve) => {
             const { filePath, position, prompt } = params;
@@ -485,8 +483,8 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                             prefix: copilotContext.prefix,
                             suffix: copilotContext.suffix,
                         });
-                        console.log(">>> ai suggestion", { response: resp });
-                        suggestedContent = resp.completions.at(0);
+                        console.log(">>> ai suggestion from local", { response: resp });
+                        suggestedContent = resp.completion;
                     }
 
                 }
@@ -496,7 +494,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     resolve(undefined);
                 });
             }
-            if (!suggestedContent) {
+            if (!suggestedContent || suggestedContent.trim() === "") {
                 console.log(">>> ai suggested content not found");
                 return new Promise((resolve) => {
                     resolve(undefined);
@@ -583,26 +581,6 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     console.log(">>> Updated readme.md with content:", params.content);
                 }
             }
-        });
-    }
-
-    async getFunctions(params: BIGetFunctionsRequest): Promise<BIGetFunctionsResponse> {
-        console.log(">>> requesting bi function list from ls", params);
-        params.queryMap = params?.queryMap || {};
-
-        return new Promise((resolve) => {
-            StateMachine.langClient()
-                .getFunctions(params)
-                .then((model) => {
-                    console.log(">>> bi function list from ls", model);
-                    resolve(model);
-                })
-                .catch((error) => {
-                    console.log(">>> error fetching function list from ls", error);
-                    return new Promise((resolve) => {
-                        resolve(undefined);
-                    });
-                });
         });
     }
 
@@ -703,39 +681,25 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             },
         };
 
-        await commands.executeCommand("wso2.choreo.create.component", params);
+        await commands.executeCommand("wso2.wso2-platform.create.component", params);
     }
 
-    deployProject(): void {
+    async deployProject(): Promise<void> {
+        // If has an automation set the type to scheduled task
+        const projectStructure = await this.getProjectStructure();
+        const automation = projectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION];
+        let type = "service";
+        if (automation) {
+            type = "scheduleTask";
+        }
         // Show a quick pick to select deployment option
-        window
-            .showQuickPick(
-                [
-                    {
-                        label: "$(cloud) Deploy on Choreo",
-                        detail: "Deploy your project to Choreo cloud platform",
-                        key: "deploy-on-choreo",
-                    },
-                ].map((item) => ({
-                    ...item,
-                })),
-                {
-                    placeHolder: "Select deployment option",
-                }
-            )
-            .then((selection) => {
-                if (!selection) {
-                    return; // User cancelled the selection
-                }
-
-                switch (selection.label) {
-                    case "$(cloud) Deploy on Choreo":
-                        this.createChoreoComponent("test", "service");
-                        break;
-                    default:
-                        window.showErrorMessage("Invalid deployment option selected");
-                }
-            });
+        const params = {
+            type: type, // Assuming this is a valid enum value
+            buildPackLang: "ballerina", // Example language
+            name: path.basename(StateMachine.context().projectUri),
+            componentDir: StateMachine.context().projectUri
+        };
+        commands.executeCommand("wso2.wso2-platform.create.component", params);
     }
 
     openAIChat(params: AIChatRequest): void {
@@ -802,6 +766,15 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
+    async checkDockerAvailability(): Promise<boolean> {
+        return new Promise((resolve) => {
+            const { exec } = require('child_process');
+            exec('docker --version', (error: any) => {
+                resolve(!error);
+            });
+        });
+    }
+
     async runBallerinaBuildTask(docker: boolean): Promise<void> {
         const taskDefinition: TaskDefinition = {
             type: 'shell',
@@ -809,6 +782,15 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         };
 
         let buildCommand = docker ? 'bal build --cloud="docker"' : 'bal build';
+
+        // If docker is true check if docker command is available
+        if (docker) {
+            const dockerAvailable = await this.checkDockerAvailability();
+            if (!dockerAvailable) {
+                window.showErrorMessage('Docker is not available. Please install Docker to build Docker images.');
+                return;
+            }
+        }
 
         // Get Ballerina home path from settings
         const config = workspace.getConfiguration('kolab');
@@ -835,38 +817,17 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         }
     }
 
-    buildProject(): void {
-        window.showQuickPick([
-            {
-                label: "$(package) Executable JAR",
-                detail: "Build a self-contained, runnable JAR file for your project",
-            },
-            {
-                label: "$(docker) Docker Image",
-                detail: "Create a Docker image to containerize your Ballerina Integration",
-            }
-        ].map(item => ({
-            ...item,
-        })), {
-            placeHolder: "Choose a build option"
-        })
-            .then((selection) => {
-                if (!selection) {
-                    return; // User cancelled the selection
-                }
+    buildProject(mode: BuildMode): void {
 
-                switch (selection.label) {
-                    case "$(package) Executable JAR":
-                        console.log(selection);
-                        this.runBallerinaBuildTask(false);
-                        break;
-                    case "$(docker) Docker Image":
-                        this.runBallerinaBuildTask(true);
-                        break;
-                    default:
-                        window.showErrorMessage("Invalid deployment option selected");
-                }
-            });
+        switch (mode) {
+            case BuildMode.JAR:
+                this.runBallerinaBuildTask(false);
+                break;
+            case BuildMode.DOCKER:
+                this.runBallerinaBuildTask(true);
+                break;
+        }
+
     }
 
     runProject(): void {
@@ -1023,25 +984,33 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async formDidOpen(params: FormDidOpenParams): Promise<void> {
         return new Promise(async (resolve, reject) => {
-            try {
-                const { filePath } = params;
-                const fileUri = Uri.file(filePath);
-                const textDocument = await workspace.openTextDocument(fileUri);
-                const exprFileSchema = fileUri.with({ scheme: 'expr' });
+            const { filePath } = params;
+            const fileUri = Uri.file(filePath);
+            const exprFileSchema = fileUri.with({ scheme: 'expr' });
 
-                StateMachine.langClient().didOpen({
-                    textDocument: {
-                        uri: exprFileSchema.toString(),
-                        languageId: textDocument.languageId,
-                        version: textDocument.version,
-                        text: textDocument.getText()
-                    }
-                });
-                resolve();
+            let languageId: string;
+            let version: number;
+            let text: string;
+
+            try {
+                const textDocument = await workspace.openTextDocument(fileUri);
+                languageId = textDocument.languageId;
+                version = textDocument.version;
+                text = textDocument.getText();
             } catch (error) {
-                console.error("Error opening file in didOpen", error);
-                reject(error);
+                languageId = "ballerina";
+                version = 1;
+                text = "";
             }
+
+            StateMachine.langClient().didOpen({
+                textDocument: {
+                    uri: exprFileSchema.toString(),
+                    languageId,
+                    version,
+                    text
+                }
+            });
         });
     }
 
@@ -1175,7 +1144,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async getCompletionsWithHostedAI(token, copilotContext): Promise<void> {
+    async getCompletionsWithHostedAI(token, copilotContext): Promise<string> {
         // get suggestions from ai
         const requestBody = {
             ...copilotContext,
@@ -1195,8 +1164,8 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             });
         }
         const data = await response.json();
-        console.log(">>> ai suggestion", { response: data });
-        const suggestedContent = (data as any).completions.at(0);
+        console.log(">>> ai suggestion from remote", { response: data });
+        const suggestedContent = (data as any).completion;
         return suggestedContent;
     }
 
@@ -1336,15 +1305,18 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                         })) as SyntaxTree;
 
                         if (parseSuccess) {
-                            writeFileSync(request.filePath, source);
-                            await StateMachine.langClient().didChange({
-                                textDocument: { uri: fileUriString, version: 1 },
-                                contentChanges: [
-                                    {
-                                        text: source,
-                                    },
-                                ],
-                            });
+                            const fileUri = Uri.file(request.filePath);
+                            const workspaceEdit = new vscode.WorkspaceEdit();
+                            workspaceEdit.replace(
+                                fileUri,
+                                new vscode.Range(
+                                    new vscode.Position(0, 0),
+                                    new vscode.Position(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
+                                ),
+                                source
+                            );
+
+                            await workspace.applyEdit(workspaceEdit);
                         }
                     }
                 } catch (error) {
@@ -1369,10 +1341,146 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 resolve({ line: lines.length - 1, offset: lastLineLength });
             } catch (error) {
                 console.log(error);
-                reject(error);
+                resolve({ line: 0, offset: 0 });
             }
         });
     }
+
+    async search(params: BISearchRequest): Promise<BISearchResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient().search(params).then((res) => {
+                resolve(res);
+            }).catch((error) => {
+                console.log(">>> error searching", error);
+                reject(error);
+            });
+        });
+    }
+
+    async getRecordNames(): Promise<RecordsInWorkspaceMentions> {
+        const projectComponents = await this.getProjectComponents();
+
+        // Extracting all record names
+        const recordNames: string[] = [];
+
+        if (projectComponents?.components?.packages) {
+            for (const pkg of projectComponents.components.packages) {
+                for (const module of pkg.modules) {
+                    if (module.records) {
+                        for (const record of module.records) {
+                            recordNames.push(record.name);
+                        }
+                    }
+                }
+            }
+        }
+
+        return { mentions: recordNames };
+    }
+
+    async getDevantComponent(): Promise<DevantComponentResponse | undefined> {
+        // get project root from state machine 
+        // find the repo root from the project root
+        // read .choreo/context.yaml in repo root 
+        // extract org and project from context.yaml
+        // use the current directory name as component name 
+        // return the response 
+        const projectRoot = StateMachine.context().projectUri;
+        const repoRoot = getRepoRoot(projectRoot);
+        if (!repoRoot) {
+            return undefined;
+        }
+        const contextYamlPath = path.join(repoRoot, ".choreo", "context.yaml");
+        if (!fs.existsSync(contextYamlPath)) {
+            return undefined;
+        }
+        const contextYaml = fs.readFileSync(contextYamlPath, "utf8");
+        const org = contextYaml.match(/org: (.*)/)[1];
+        const project = contextYaml.match(/project: (.*)/)[1];
+        const component = path.basename(projectRoot);
+        return { org, project, component };
+    }
+
+    async getRecordConfig(params: GetRecordConfigRequest): Promise<GetRecordConfigResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient().getRecordConfig(params).then((res) => {
+                resolve(res);
+            }).catch((error) => {
+                console.log(">>> error getting record config", error);
+                reject(error);
+            });
+        });
+    }
+
+    async updateRecordConfig(params: UpdateRecordConfigRequest): Promise<GetRecordConfigResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient().updateRecordConfig(params).then((res) => {
+                resolve(res);
+            }).catch((error) => {
+                console.log(">>> error updating record config", error);
+                reject(error);
+            });
+        });
+    }
+
+    async getRecordSource(params: RecordSourceGenRequest): Promise<RecordSourceGenResponse> {
+        console.log(">>> requesting record source", params);
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient().getRecordSource(params).then((res) => {
+                resolve(res);
+            }).catch((error) => {
+                console.log(">>> error getting record source", error);
+                reject(error);
+            });
+        });
+    }
+
+    async getRecordModelFromSource(params: GetRecordModelFromSourceRequest): Promise<GetRecordModelFromSourceResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient().getRecordModelFromSource(params).then((res) => {
+                resolve(res);
+            }).catch((error) => {
+                console.log(">>> error getting record model from source", error);
+                reject(error);
+            });
+        });
+    }
+
+    async updateTypes(params: UpdateTypesRequest): Promise<UpdateTypesResponse> {
+        return new Promise((resolve, reject) => {
+            const projectUri = StateMachine.context().projectUri;
+            const completeFilePath = path.join(projectUri, params.filePath);
+
+            StateMachine.langClient().updateTypes(
+                { filePath: completeFilePath, types: params.types }
+            ).then((updateTypesresponse: UpdateTypesResponse) => {
+                console.log(">>> update type response", updateTypesresponse);
+                if (updateTypesresponse.textEdits) {
+                    this.updateSource({ textEdits: updateTypesresponse.textEdits });
+                    resolve(updateTypesresponse);
+                } else {
+                    console.log(">>> error updating types", updateTypesresponse?.errorMsg);
+                    resolve(undefined);
+                }
+            }).catch((error) => {
+                console.log(">>> error updating types", error);
+                reject(error);
+            });
+        });
+    }
+}
+
+export function getRepoRoot(projectRoot: string): string | undefined {
+    // traverse up the directory tree until .git directory is found
+    const gitDir = path.join(projectRoot, ".git");
+    if (fs.existsSync(gitDir)) {
+        return projectRoot;
+    }
+    // path is root return undefined
+    if (projectRoot === path.parse(projectRoot).root) {
+        return undefined;
+    }
+    return getRepoRoot(path.join(projectRoot, ".."));
 }
 
 export async function fetchWithToken(url: string, options: RequestInit) {

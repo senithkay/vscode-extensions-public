@@ -2,7 +2,7 @@
     "name": "kola-extension",
     "displayName": "Kola",
     "description": "Project Kola.",
-    "version": "0.4.5",
+    "version": "0.4.7",
     "publisher": "wso2",
     "repository": {
         "url": "http://repo.url"
@@ -99,6 +99,11 @@
                 }
             ],
             "view/title": [
+                {
+                    "command": "BI.project-explorer.switch-project",
+                    "when": "view == BI.project-explorer && BI.project == true && BI.isMultiRoot == true",
+                    "group": "navigation"
+                },
                 {
                     "command": "BI.project-explorer.add",
                     "when": "view == BI.project-explorer && BI.project == true",

@@ -118,6 +118,7 @@ export function OperationForm(props: OperationFormProps) {
                 type: 'PARAM_MANAGER',
                 optional: true,
                 editable: true,
+                enabled: true,
                 documentation: '',
                 value: '',
                 paramManagerProps: {
@@ -158,13 +159,13 @@ export function OperationForm(props: OperationFormProps) {
         <>
             {fields.length > 0 && (
                 <FormGeneratorNew
-                    isGraphqlEditor={true}
                     fileName={filePath}
                     targetLineRange={lineRange}
                     fields={fields}
                     onSubmit={handleFunctionCreate}
                     onBack={onClose}
                     submitText="Save"
+                    isGraphqlEditor={isGraphqlView}
                 />
             )}
         </>
@@ -204,7 +205,7 @@ export function convertParameterToFormField(key: string, param: ParameterModel):
         documentation: param.metadata?.description || '',
         value: param.value || '',
         valueTypeConstraint: param?.valueTypeConstraint || '',
-        enabled: param.enabled || true,
+        enabled: param.enabled ?? true,
         lineRange: param?.codedata?.lineRange
     };
 }

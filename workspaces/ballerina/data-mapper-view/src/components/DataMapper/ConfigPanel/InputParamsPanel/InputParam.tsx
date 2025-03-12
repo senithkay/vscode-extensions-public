@@ -34,12 +34,16 @@ export function InputParamItem(props: InputParamItemProps) {
     const handleDelete = () => {
         onDelete(index, inputParam);
     };
+
     const handleEdit = () => {
-        onEditClick(index, inputParam);
+        if (!inputParam.isUnsupported) {
+            onEditClick(index, inputParam);
+        }
     };
+
     return (
         <InputParamContainer >
-            <ClickToEditContainer isInvalid={inputParam.isUnsupported} onClick={!inputParam.isUnsupported && handleEdit}>
+            <ClickToEditContainer isInvalid={inputParam.isUnsupported} onClick={handleEdit}>
                 {label}
             </ClickToEditContainer>
             <Box>

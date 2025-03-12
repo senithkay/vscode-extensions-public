@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -14,14 +14,10 @@ import {
     BIAvailableNodesRequest,
     BIAvailableNodesResponse,
     BIFlowModelResponse,
-    BIConnectorsRequest,
-    BIConnectorsResponse,
     BINodeTemplateRequest,
     BINodeTemplateResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
-    BIGetFunctionsRequest,
-    BIGetFunctionsResponse,
     BIModuleNodesResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -59,7 +55,18 @@ import {
     SourceEditResponse,
     ServiceClassSourceRequest,
     AddFieldRequest,
-    RenameIdentifierRequest
+    RenameIdentifierRequest,
+    BISearchRequest,
+    BISearchResponse,
+    GetRecordConfigRequest,
+    GetRecordConfigResponse,
+    UpdateRecordConfigRequest,
+    RecordSourceGenRequest,
+    RecordSourceGenResponse,
+    GetRecordModelFromSourceResponse,
+    GetRecordModelFromSourceRequest,
+    UpdateTypesRequest,
+    UpdateTypesResponse
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -77,7 +84,10 @@ import {
     CurrentBreakpointsResponse,
     FormDidOpenParams,
     FormDidCloseParams,
-    EndOfFileRequest
+    EndOfFileRequest,
+    RecordsInWorkspaceMentions,
+    BuildMode,
+    DevantComponentResponse
 } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -87,7 +97,6 @@ export const getSourceCode: RequestType<BISourceCodeRequest, BISourceCodeRespons
 export const deleteFlowNode: RequestType<BISourceCodeRequest, BISourceCodeResponse> = { method: `${_preFix}/deleteFlowNode` };
 export const deleteByComponentInfo: RequestType<BIDeleteByComponentInfoRequest, BIDeleteByComponentInfoResponse> = { method: `${_preFix}/deleteByComponentInfo` };
 export const getAvailableNodes: RequestType<BIAvailableNodesRequest, BIAvailableNodesResponse> = { method: `${_preFix}/getAvailableNodes` };
-export const getFunctions: RequestType<BIGetFunctionsRequest, BIGetFunctionsResponse> = { method: `${_preFix}/getFunctions` };
 export const getEnclosedFunction: RequestType<BIGetEnclosedFunctionRequest, BIGetEnclosedFunctionResponse> = { method: `${_preFix}/getEnclosedFunction` };
 export const getNodeTemplate: RequestType<BINodeTemplateRequest, BINodeTemplateResponse> = { method: `${_preFix}/getNodeTemplate` };
 export const getAiSuggestions: RequestType<BIAiSuggestionsRequest, BIAiSuggestionsResponse> = { method: `${_preFix}/getAiSuggestions` };
@@ -96,7 +105,6 @@ export const getWorkspaces: RequestType<void, WorkspacesResponse> = { method: `$
 export const getProjectStructure: RequestType<void, ProjectStructureResponse> = { method: `${_preFix}/getProjectStructure` };
 export const getProjectComponents: RequestType<void, ProjectComponentsResponse> = { method: `${_preFix}/getProjectComponents` };
 export const createComponent: RequestType<ComponentRequest, CreateComponentResponse> = { method: `${_preFix}/createComponent` };
-export const getBIConnectors: RequestType<BIConnectorsRequest, BIConnectorsResponse> = { method: `${_preFix}/getBIConnectors` };
 export const handleReadmeContent: RequestType<ReadmeContentRequest, ReadmeContentResponse> = { method: `${_preFix}/handleReadmeContent` };
 export const getVisibleVariableTypes: RequestType<BIGetVisibleVariableTypesRequest, BIGetVisibleVariableTypesResponse> = { method: `${_preFix}/getVisibleVariableTypes` };
 export const getExpressionCompletions: RequestType<ExpressionCompletionsRequest, ExpressionCompletionsResponse> = { method: `${_preFix}/getExpressionCompletions` };
@@ -109,7 +117,7 @@ export const renameIdentifier: RequestType<RenameIdentifierRequest, void> = { me
 export const deployProject: NotificationType<void> = { method: `${_preFix}/deployProject` };
 export const openAIChat: NotificationType<AIChatRequest> = { method: `${_preFix}/openAIChat` };
 export const getSignatureHelp: RequestType<SignatureHelpRequest, SignatureHelpResponse> = { method: `${_preFix}/getSignatureHelp` };
-export const buildProject: NotificationType<void> = { method: `${_preFix}/buildProject` };
+export const buildProject: NotificationType<BuildMode> = { method: `${_preFix}/buildProject` };
 export const runProject: NotificationType<void> = { method: `${_preFix}/runProject` };
 export const getVisibleTypes: RequestType<VisibleTypesRequest, VisibleTypesResponse> = { method: `${_preFix}/getVisibleTypes` };
 export const addBreakpointToSource: NotificationType<BreakpointRequest> = { method: `${_preFix}/addBreakpointToSource` };
@@ -123,12 +131,20 @@ export const getDesignModel: RequestType<void, BIDesignModelResponse> = { method
 export const getTypes: RequestType<GetTypesRequest, GetTypesResponse> = { method: `${_preFix}/getTypes` };
 export const getType: RequestType<GetTypeRequest, GetTypeResponse> = { method: `${_preFix}/getType` };
 export const updateType: RequestType<UpdateTypeRequest, UpdateTypeResponse> = { method: `${_preFix}/updateType` };
+export const updateTypes: RequestType<UpdateTypesRequest, UpdateTypesResponse> = { method: `${_preFix}/updateTypes` };
 export const getServiceClassModel: RequestType<ModelFromCodeRequest, ServiceClassModelResponse> = { method: `${_preFix}/getServiceClassModel` };
 export const updateClassField: RequestType<ClassFieldModifierRequest, SourceEditResponse> = { method: `${_preFix}/updateClassField` };
 export const addClassField: RequestType<AddFieldRequest, SourceEditResponse> = { method: `${_preFix}/addClassField` };
 export const updateServiceClass: RequestType<ServiceClassSourceRequest, SourceEditResponse> = { method: `${_preFix}/updateServiceClass` };
 export const createGraphqlClassType: RequestType<UpdateTypeRequest, UpdateTypeResponse> = { method: `${_preFix}/createGraphqlClassType` };
+export const getRecordConfig: RequestType<GetRecordConfigRequest, GetRecordConfigResponse> = { method: `${_preFix}/getRecordConfig` };
+export const updateRecordConfig: RequestType<UpdateRecordConfigRequest, GetRecordConfigResponse> = { method: `${_preFix}/updateRecordConfig` };
+export const getRecordModelFromSource: RequestType<GetRecordModelFromSourceRequest, GetRecordModelFromSourceResponse> = { method: `${_preFix}/getRecordModelFromSource` };
+export const getRecordSource: RequestType<RecordSourceGenRequest, RecordSourceGenResponse> = { method: `${_preFix}/getRecordSource` };
 export const updateImports: RequestType<UpdateImportsRequest, UpdateImportsResponse> = { method: `${_preFix}/updateImports` };
 export const addFunction: RequestType<AddFunctionRequest, AddFunctionResponse> = { method: `${_preFix}/addFunction` };
 export const getFunctionNode: RequestType<FunctionNodeRequest, FunctionNodeResponse> = { method: `${_preFix}/getFunctionNode` };
 export const getEndOfFile: RequestType<EndOfFileRequest, LinePosition> = { method: `${_preFix}/getEndOfFile` };
+export const search: RequestType<BISearchRequest, BISearchResponse> = { method: `${_preFix}/search` };
+export const getRecordNames: RequestType<void, RecordsInWorkspaceMentions> = { method: `${_preFix}/getRecordNames` };
+export const getDevantComponent: RequestType<void, DevantComponentResponse> = { method: `${_preFix}/getDevantComponent` };

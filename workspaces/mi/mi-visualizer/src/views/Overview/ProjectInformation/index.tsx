@@ -144,6 +144,7 @@ export function ProjectInformation(props: ProjectInformationProps) {
         return <>
             {!configs || configs.length === 0 ? <Typography sx={{opacity: 0.6}}>No configurables found</Typography> :
                 <ParamManager
+                    allowDuplicates={false}
                     sx={{ opacity: 0.8 }}
                     paramConfigs={{
                         paramValues: configurables.map((config, index) => (

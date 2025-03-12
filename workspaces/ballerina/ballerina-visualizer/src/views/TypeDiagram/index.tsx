@@ -11,13 +11,12 @@ import React, { useEffect } from "react";
 import { VisualizerLocation, NodePosition, Type, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TypeDiagram as TypeDesignDiagram } from "@wso2-enterprise/type-diagram";
-import { RecordEditor } from "../RecordEditor/RecordEditor";
 import { Button, Codicon, ProgressRing, ThemeColors, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
-import { TypeEditor } from "@wso2-enterprise/type-editor";
 import { TopNavigationBar } from "../../components/TopNavigationBar";
 import { TitleBar } from "../../components/TitleBar";
+import { FormTypeEditor } from "../BI/TypeEditor";
 
 const HeaderContainer = styled.div`
     align-items: center;
@@ -230,10 +229,9 @@ export function TypeDiagram(props: TypeDiagramProps) {
                     show={true}
                     onClose={onTypeEditorClosed}
                 >
-                    <TypeEditor
+                    <FormTypeEditor
                         type={findSelectedType(editingTypeId)}
                         newType={editingTypeId ? false : true}
-                        rpcClient={rpcClient}
                         onTypeChange={onTypeChange}
                     />
                 </PanelContainer>

@@ -27,7 +27,7 @@ const rpcTypeTsFile = tsFileDirPath;
 console.log("Generating related typescript files. Please wait...");
 
 const headerComment = `/**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained

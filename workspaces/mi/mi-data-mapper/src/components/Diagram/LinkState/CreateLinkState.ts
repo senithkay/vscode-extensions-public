@@ -51,7 +51,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 						this.clearState();
 					} else if (!(element instanceof PortModel)) {
 						if (isOutputNode(element)) {
-							const targetElement = event.target as Element;
+							const targetElement = actionEvent.event.target as Element;
 							const recordFieldElement = targetElement.closest('div[id^="recordfield"]');
 							const isNotFieldAction = targetElement.closest('[data-field-action]') == null;
 							if (recordFieldElement && isNotFieldAction) {
@@ -64,10 +64,10 @@ export class CreateLinkState extends State<DiagramEngine> {
 						}
 
 						if (isInputNode(element)) {
-							const isGoToSubMappingBtn = (actionEvent.event.target as Element)
-								.closest('div[id^="go-to-sub-mapping-btn"]');
-							if (isGoToSubMappingBtn) return;
-							const recordFieldElement = (event.target as Element).closest('div[id^="recordfield"]');
+							const targetElement = actionEvent.event.target as Element;
+							const isFieldAction = targetElement.closest('[data-field-action]');
+							if (isFieldAction) return;
+							const recordFieldElement = targetElement.closest('div[id^="recordfield"]');
 							if (recordFieldElement) {
 								const fieldId = (recordFieldElement.id.split("-"))[1] + ".OUT";
 								const portModel = (element as any).getPort(fieldId) as InputOutputPortModel;

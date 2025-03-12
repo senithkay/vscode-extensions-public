@@ -269,6 +269,7 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
                 type: 'PARAM_MANAGER',
                 optional: false,
                 editable: true,
+                enabled: true,
                 advanced: true,
                 documentation: '',
                 value: '',
@@ -320,7 +321,9 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
                 },
                 key: key,
                 value: value,
-                icon: ''
+                icon: '',
+                identifierEditable: param.variable?.editable,
+                identifierRange: param.variable?.codedata?.lineRange
             });
 
             id++;
@@ -336,6 +339,7 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
             optional: property.optional,
             editable: property.editable,
             advanced: property.advanced,
+            enabled: true,
             documentation: property.metadata.description,
             value: property.value,
             valueTypeConstraint: ""
@@ -493,6 +497,7 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
             type: 'string',
             optional: false,
             editable: true,
+            enabled: true,
             documentation: '',
             value: '',
             valueTypeConstraint: ""
@@ -503,6 +508,7 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
             type: 'TYPE',
             optional: false,
             editable: true,
+            enabled: true,
             documentation: '',
             value: '',
             valueTypeConstraint: ""
@@ -514,6 +520,7 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
             optional: true,
             advanced: true,
             editable: true,
+            enabled: true,
             documentation: '',
             value: '',
             valueTypeConstraint: ""
@@ -526,7 +533,7 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
             <TitleBar title="Test" subtitle="Create a new test for your integration" />
             <ViewContent padding>
                 <Container>
-                    <FormHeader title={formTitle} subtitle={`Define a test case that can be used within the integration.`} />
+                    <FormHeader title={formTitle} />
                     <FormContainer>
                         <Form
                             formFields={formFields}

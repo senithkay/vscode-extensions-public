@@ -13,6 +13,7 @@ import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureRespon
 import { BallerinaProjectComponents, ExtendedLangClientInterface, SyntaxTree } from "../interfaces/extended-lang-client";
 import { CDModel } from "../interfaces/component-diagram";
 import { URI, Utils } from "vscode-uri";
+import path from "path";
 import { LineRange } from "../interfaces/common";
 import { ServiceModel } from "../interfaces/service";
 
@@ -30,7 +31,8 @@ export async function buildProjectStructure(projectDir: string, langClient: Exte
             [DIRECTORY_MAP.RECORDS]: [],
             [DIRECTORY_MAP.DATA_MAPPERS]: [],
             [DIRECTORY_MAP.ENUMS]: [],
-            [DIRECTORY_MAP.CLASSES]: []
+            [DIRECTORY_MAP.CLASSES]: [],
+            [DIRECTORY_MAP.NATURAL_FUNCTIONS]: []
         }
     };
     const components = await langClient.getBallerinaProjectComponents({
@@ -52,8 +54,8 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
             const resources: ComponentInfo[] = [];
             service.resourceFunctions.forEach(func => {
                 const resourceInfo: ComponentInfo = {
-                    name: `${func.accessor} - ${func.path}`,
-                    filePath: func.location.filePath.split('/').pop(),
+                    name: `${func.accessor}-${func.path}`,
+                    filePath: path.basename(func.location.filePath),
                     startLine: func.location.startLine.line,
                     startColumn: func.location.startLine.offset,
                     endLine: func.location.endLine.line,
@@ -65,7 +67,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
             service.remoteFunctions.forEach(func => {
                 const resourceInfo: ComponentInfo = {
                     name: func.name,
-                    filePath: func.location.filePath.split('/').pop(),
+                    filePath: path.basename(func.location.filePath),
                     startLine: func.location.startLine.line,
                     startColumn: func.location.startLine.offset,
                     endLine: func.location.endLine.line,
@@ -76,7 +78,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
 
             const serviceInfo: ComponentInfo = {
                 name: service.absolutePath ? service.absolutePath : service.type,
-                filePath: service.location.filePath.split('/').pop(),
+                filePath: path.basename(service.location.filePath),
                 startLine: service.location.startLine.line,
                 startColumn: service.location.startLine.offset,
                 endLine: service.location.endLine.line,
@@ -99,6 +101,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
             response.directoryMap[DIRECTORY_MAP.ENUMS].push(...await getComponents(langClient, module.enums, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.CLASSES].push(...await getComponents(langClient, module.classes, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.CONFIGURATIONS].push(...await getComponents(langClient, module.configurableVariables, pkg.filePath, "config"));
+            response.directoryMap[DIRECTORY_MAP.NATURAL_FUNCTIONS].push(...await getComponents(langClient, module.naturalFunctions, pkg.filePath, "function"));
         }
     }
 
@@ -107,7 +110,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
     response.directoryMap[DIRECTORY_MAP.FUNCTIONS] = [];
     for (const func of functions) {
         const st = func.st;
-        if (STKindChecker.isFunctionDefinition(st) && STKindChecker.isExpressionFunctionBody(st.functionBody)) {
+        if (st && STKindChecker.isFunctionDefinition(st) && STKindChecker.isExpressionFunctionBody(st.functionBody)) {
             func.icon = "dataMapper";
             response.directoryMap[DIRECTORY_MAP.DATA_MAPPERS].push(func);
         } else {

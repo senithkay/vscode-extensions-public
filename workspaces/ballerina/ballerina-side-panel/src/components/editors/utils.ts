@@ -9,6 +9,7 @@
 
 import { startCase } from "lodash";
 import { FormField } from "../Form/types";
+import { ExpressionProperty } from "@wso2-enterprise/ballerina-core";
 
 export function isDropdownField(field: FormField) {
     return field.type === "MULTIPLE_SELECT" || field.type === "SINGLE_SELECT" || field.type?.toUpperCase() === "ENUM";
@@ -40,4 +41,18 @@ export function sanitizeType(type: string) {
         return type;
     }
     return type.includes(':') ? type.split(':').pop() : type;
+}
+
+export function getPropertyFromFormField(field: FormField): ExpressionProperty {
+    return {
+        metadata: field.metadata,
+        valueType: field.valueType,
+        value: field.value as string,
+        optional: field.optional,
+        editable: field.editable,
+        advanced: field.advanced,
+        placeholder: field.placeholder,
+        valueTypeConstraint: field.valueTypeConstraint,
+        codedata: field.codedata,
+    }
 }

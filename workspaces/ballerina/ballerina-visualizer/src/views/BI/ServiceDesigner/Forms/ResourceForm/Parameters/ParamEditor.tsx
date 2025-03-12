@@ -80,6 +80,7 @@ export function ParamEditor(props: ParamProps) {
             optional: false,
             editable: true,
             documentation: '',
+            enabled: param.name?.enabled ?? true,
             value: param.name.value,
             valueTypeConstraint: ""
         }
@@ -92,6 +93,7 @@ export function ParamEditor(props: ParamProps) {
         optional: false,
         editable: true,
         documentation: '',
+        enabled: param.type?.enabled ?? true,
         value: param.type.value,
         valueTypeConstraint: ""
     })
@@ -104,6 +106,7 @@ export function ParamEditor(props: ParamProps) {
         advanced: true,
         editable: true,
         documentation: '',
+        enabled: param.defaultValue?.enabled ?? true,
         value: param.defaultValue?.value,
         valueTypeConstraint: ""
     })

@@ -4,9 +4,9 @@ type: "REST"
 version: 1.0.0
 endpointConfigurations:
   production:
-    endpoint: "https://endpoint/production"
+    - endpoint: "https://endpoint/production"
   sandbox:
-    endpoint: "https://endpoint/sandbox"
+    - endpoint: "https://endpoint/sandbox"
 operations: []
 apiPolicies:
   request: []

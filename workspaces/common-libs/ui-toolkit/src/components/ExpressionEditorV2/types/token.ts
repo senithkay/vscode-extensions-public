@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { MutableRefObject, ReactNode } from 'react';
+import { CSSProperties, MutableRefObject, ReactNode } from 'react';
 import { ActionButtonType, HelperPaneOrigin } from './common';
 
 export type ResizeHandleProps = {
@@ -23,6 +23,7 @@ type TokenEditorBaseProps = {
     onFocus?: () => void;
     onBlur?: () => void;
     getExpressionEditorIcon?: () => ReactNode;
+    editorSx?: CSSProperties;
 };
 
 type HelperPaneConditionalProps =

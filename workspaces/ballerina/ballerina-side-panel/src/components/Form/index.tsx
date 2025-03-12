@@ -22,7 +22,7 @@ import styled from "@emotion/styled";
 import { ExpressionFormField, FormExpressionEditorProps, FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, FlowNode, LinePosition } from "@wso2-enterprise/ballerina-core";
+import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, FlowNode, LinePosition, ExpressionProperty, RecordTypeField } from "@wso2-enterprise/ballerina-core";
 import { FormContext, Provider } from "../../context";
 import { formatJSONLikeString } from "./utils";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -157,10 +157,23 @@ namespace S {
         }
         align-self: center;
     `;
+
+    export const InfoLabel = styled.div`
+        font-size: var(--vscode-font-size);
+        color: ${ThemeColors.ON_SURFACE_VARIANT};
+    `;
+
+    export const ActionButtonContainer = styled.div`
+        display: flex;
+        justify-content: flex-start;
+    `;
 }
 export interface FormProps {
+    infoLabel?: string;
     formFields: FormField[];
     submitText?: string;
+    cancelText?: string;
+    actionButton?: React.ReactNode; // Action button to display at the top
     targetLineRange?: LineRange; // TODO: make them required after connector wizard is fixed
     fileName?: string; // TODO: make them required after connector wizard is fixed
     projectPath?: string;
@@ -178,15 +191,21 @@ export interface FormProps {
     mergeFormDataWithFlowNode?: (data: FormValues, targetLineRange: LineRange) => FlowNode;
     handleVisualizableFields?: (filePath: string, flowNode: FlowNode, position: LinePosition) => void;
     visualizableFields?: string[];
+    recordTypeFields?: RecordTypeField[];
     nestedForm?: boolean;
+    isInferredReturnType?: boolean;
+    disableSaveButton?: boolean;
 }
 
 export const Form = forwardRef((props: FormProps, ref) => {
     const {
+        infoLabel,
         formFields,
         projectPath,
         selectedNode,
         submitText,
+        cancelText,
+        actionButton,
         onSubmit,
         onCancelForm,
         oneTimeForm,
@@ -202,7 +221,9 @@ export const Form = forwardRef((props: FormProps, ref) => {
         mergeFormDataWithFlowNode,
         handleVisualizableFields,
         visualizableFields,
-        nestedForm
+        recordTypeFields,
+        nestedForm,
+        isInferredReturnType
     } = props;
 
     const {
@@ -284,10 +305,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     }
                 });
             }
-        }
+        } 
     }, [updatedExpressionField]);
-
-    console.log(">>> form fields", { formFields, values: getValues() });
 
     const handleOnSave = (data: FormValues) => {
         console.log(">>> saved form fields", { data });
@@ -373,19 +392,19 @@ export const Form = forwardRef((props: FormProps, ref) => {
         showDiagnostics: boolean,
         expression: string,
         key: string,
+        property: ExpressionProperty
     ) => {
         // HACK: For variable nodes, update the type value in the node
         const isVariableNode = selectedNode === "VARIABLE";
-        if (expressionEditor?.getExpressionFormDiagnostics) {
-            await expressionEditor?.getExpressionFormDiagnostics(
-                showDiagnostics,
-                expression,
-                key,
-                handleSetDiagnosticsInfo,
-                isVariableNode,
-                watch("type")
-            );
-        }
+        await expressionEditor?.getExpressionFormDiagnostics?.(
+            showDiagnostics,
+            expression,
+            key,
+            property,
+            handleSetDiagnosticsInfo,
+            isVariableNode,
+            watch("type")
+        );
     }
 
     // has advance fields
@@ -450,12 +469,14 @@ export const Form = forwardRef((props: FormProps, ref) => {
         return hasDiagnostics;
     }, [diagnosticsInfo])
 
-    const disableSaveButton = !isValid || isValidating;
+    const disableSaveButton = !isValid || isValidating || props.disableSaveButton;
 
     // TODO: support multiple type fields
     return (
         <Provider {...contextValue}>
             <S.Container nestedForm={nestedForm}>
+                {actionButton && <S.ActionButtonContainer>{actionButton}</S.ActionButtonContainer>}
+                {infoLabel && <S.InfoLabel>{infoLabel}</S.InfoLabel>}
                 {prioritizeVariableField && variableField && (
                     <S.CategoryRow showBorder={true}>
                         {variableField &&
@@ -464,9 +485,10 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 handleOnFieldFocus={handleOnFieldFocus}
                                 autoFocus={firstEditableFieldIndex === formFields.indexOf(variableField)}
                                 visualizableFields={visualizableFields}
+                                recordTypeFields={recordTypeFields}
                             />
                         }
-                        {typeField && (
+                        {typeField && !isInferredReturnType && (
                             <EditorFactory
                                 field={typeField}
                                 openRecordEditor={openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, typeField))}
@@ -474,6 +496,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 handleOnFieldFocus={handleOnFieldFocus}
                                 handleOnTypeChange={handleOnTypeChange}
                                 visualizableFields={visualizableFields}
+                                recordTypeFields={recordTypeFields}
                             />
                         )}
                     </S.CategoryRow>
@@ -500,6 +523,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                         handleOnFieldFocus={handleOnFieldFocus}
                                         autoFocus={firstEditableFieldIndex === formFields.indexOf(field)}
                                         visualizableFields={visualizableFields}
+                                        recordTypeFields={recordTypeFields}
                                     />
                                 </S.Row>
                             );
@@ -507,7 +531,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     }
                     {hasAdvanceFields && (
                         <S.Row>
-                            {isGraphql ? 'Advance Arguments' : 'Advance Parameters'}
+                            {isGraphql ? 'Advanced Arguments' : 'Advanced Parameters'}
                             <S.ButtonContainer>
                                 {!showAdvancedOptions && (
                                     <LinkButton
@@ -544,6 +568,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                             subPanelView={subPanelView}
                                             handleOnFieldFocus={handleOnFieldFocus}
                                             visualizableFields={visualizableFields}
+                                            recordTypeFields={recordTypeFields}
                                         />
                                     </S.Row>
                                 );
@@ -552,7 +577,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                 </S.CategoryRow>
                 {onSubmit && (
                     <S.Footer>
-                        {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  Cancel </Button>}
+                        {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  {cancelText || "Cancel"} </Button>}
                         <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
                             {submitText || "Save"}
                         </S.PrimaryButton>
