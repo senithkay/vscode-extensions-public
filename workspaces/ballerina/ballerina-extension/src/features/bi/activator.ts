@@ -224,7 +224,7 @@ function isComponentOpenInDiagram(component: ComponentInfo) {
         endLine: component.endLine,
         endColumn: component.endColumn
     };
-    const componentFilePath = StateMachine.context().projectUri + "/" + component.filePath;
+    const componentFilePath = path.join(StateMachine.context().projectUri, component.filePath);
 
     return isFilePathsEqual(openedComponentFilePath, componentFilePath)
         && isPositionEqual(openedCompoentPosition, componentPosition);
@@ -244,7 +244,7 @@ function isFlowNodeOpenInDiagram(connector: FlowNode) {
         endLine: connector.codedata.lineRange.endLine.line,
         endColumn: connector.codedata.lineRange.endLine.offset
     };
-    const flowNodeFilePath = StateMachine.context().projectUri + "/" + connector.codedata.lineRange.fileName;
+    const flowNodeFilePath = path.join(StateMachine.context().projectUri, connector.codedata.lineRange.fileName);
 
     return isFilePathsEqual(openedComponentFilePath, flowNodeFilePath)
         && isPositionEqual(openedCompoentPosition, flowNodePosition);
