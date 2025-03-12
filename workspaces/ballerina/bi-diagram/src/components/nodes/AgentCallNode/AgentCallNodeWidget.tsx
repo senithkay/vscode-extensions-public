@@ -130,8 +130,7 @@ export namespace NodeStyles {
 
     export const Role = styled(StyledText)`
         font-size: 12px;
-        color: ${ThemeColors.ON_SURFACE};
-        opacity: 0.7;
+        color: ${ThemeColors.PRIMARY};
         font-family: "GilmerMedium";
         font-weight: bold;
         white-space: nowrap;
@@ -338,7 +337,7 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                 )}
                 <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
                 <NodeStyles.Column style={{ height: `${model.node.viewState?.ch}px` }}>
-                    <NodeStyles.Row>
+                    <NodeStyles.Row style={{ borderBottom: `1px solid ${ThemeColors.OUTLINE_VARIANT}` }}>
                         <NodeStyles.Icon onClick={handleOnClick}>
                             <NodeIcon type={model.node.codedata.node} size={24} />
                         </NodeStyles.Icon>
