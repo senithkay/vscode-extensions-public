@@ -56,13 +56,6 @@ export function OtherArtifactsPanel() {
                     view: MACHINE_VIEW.BIFunctionForm,
                 },
             });
-        } else if (key === DIRECTORY_MAP.AGENTS) {
-            await rpcClient.getVisualizerRpcClient().openView({
-                type: EVENT_TYPE.OPEN_VIEW,
-                location: {
-                    view: MACHINE_VIEW.AIAgentWizard,
-                },
-            });
         } else if (key === DIRECTORY_MAP.NATURAL_FUNCTIONS) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
@@ -85,40 +78,34 @@ export function OtherArtifactsPanel() {
             </TitleWrapper>
             <CardGrid>
                 <ButtonCard
-                    icon={<Icon name="wand" isCodicon={true} iconSx={{ fontSize: 25 }} />}
-                    title="AI Agents"
-                    onClick={() => handleClick(DIRECTORY_MAP.AGENTS)}
-                />
-                <ButtonCard
-                    icon={<Icon name="bi-connection" />}
-                    title="Connections"
-                    onClick={() => handleClick(DIRECTORY_MAP.CONNECTIONS)}
-                />
-                <ButtonCard
-                    icon={<Icon name="bi-connection" />}
-                    title="Data Mappers"
-                    onClick={() => handleClick(DIRECTORY_MAP.DATA_MAPPERS)}
-                />
-                <ButtonCard
-                    icon={<Icon name="bi-type" />}
-                    title="Types"
-                    onClick={() => handleClick(DIRECTORY_MAP.TYPES)}
-                />
-                <ButtonCard
-                    icon={<Icon name="bi-config" />}
-                    title="Configurations"
-                    onClick={() => handleClick(DIRECTORY_MAP.CONFIGURATIONS)}
-                />
-                <ButtonCard
                     icon={<Icon name="bi-function" />}
-                    title="Functions"
+                    title="Function"
                     onClick={() => handleClick(DIRECTORY_MAP.FUNCTIONS)}
                 />
                 <ButtonCard
                     icon={<Icon name="bi-function" />}
-                    title="Natural Functions"
-                    description="Create reusable natural functions."
+                    title="Natural Function"
                     onClick={() => handleClick(DIRECTORY_MAP.NATURAL_FUNCTIONS)}
+                />
+                <ButtonCard
+                    icon={<Icon name="dataMapper" />}
+                    title="Data Mapper"
+                    onClick={() => handleClick(DIRECTORY_MAP.DATA_MAPPERS)}
+                />
+                <ButtonCard
+                    icon={<Icon name="bi-type" />}
+                    title="Type"
+                    onClick={() => handleClick(DIRECTORY_MAP.TYPES)}
+                />
+                <ButtonCard
+                    icon={<Icon name="bi-connection" />}
+                    title="Connection"
+                    onClick={() => handleClick(DIRECTORY_MAP.CONNECTIONS)}
+                />
+                <ButtonCard
+                    icon={<Icon name="bi-config" />}
+                    title="Configuration"
+                    onClick={() => handleClick(DIRECTORY_MAP.CONFIGURATIONS)}
                 />
             </CardGrid>
         </PanelViewMore>
