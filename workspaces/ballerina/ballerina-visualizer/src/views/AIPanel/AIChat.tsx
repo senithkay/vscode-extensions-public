@@ -1377,7 +1377,7 @@ export function AIChat() {
         );
 
         updateAssistantMessage(
-            `\n\n<progress>Generating tests for the function ${functionIdentifier}. This may take a moment.</progress>`
+            `\n\n<progress>Generating tests for the function **${functionIdentifier}**. This may take a moment.</progress>`
         );
 
         try {
