@@ -208,8 +208,7 @@ async function showInputBox(paramName: string, value: string, type: string, isRe
                     }
                     return null;
                 case 'boolean':
-                    const lowerInput = input.toLowerCase();
-                    if (lowerInput !== 'true' && lowerInput !== 'false') {
+                    if (input !== 'true' && input !== 'false') {
                         return "The input must be either 'true' or 'false'";
                     }
                     return null;
