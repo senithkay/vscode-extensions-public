@@ -401,7 +401,7 @@ interface ComponentDiagramProps {
 
 export function Overview(props: ComponentDiagramProps) {
     const { rpcClient } = useRpcContext();
-    const [projectName, setProjectName] = React.useState<string>("");
+    const [workspaceName, setWorkspaceName] = React.useState<string>("");
     const [readmeContent, setReadmeContent] = React.useState<string>("");
     const [isCodeGenerating, setIsCodeGenerating] = React.useState<boolean>(false);
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>();
@@ -427,7 +427,7 @@ export function Overview(props: ComponentDiagramProps) {
             .then((res) => {
                 const workspace = res.workspaces.find(workspace => workspace.fsPath === props.projectPath);
                 if (workspace) {
-                    setProjectName(workspace.name);
+                    setWorkspaceName(workspace.name);
                 }
             });
 
@@ -684,7 +684,7 @@ export function Overview(props: ComponentDiagramProps) {
         <PageLayout>
             <HeaderRow>
                 <TitleContainer>
-                    <ProjectTitle>{projectName}</ProjectTitle>
+                    <ProjectTitle>{projectStructure.projectName || workspaceName}</ProjectTitle>
                     <ProjectSubtitle>Integration</ProjectSubtitle>
                 </TitleContainer>
                 <IconButtonContainer>
@@ -729,7 +729,7 @@ export function Overview(props: ComponentDiagramProps) {
                                 </ButtonContainer>
                             </EmptyStateContainer>
                         ) : (
-                            <ComponentDiagram projectName={projectName} projectStructure={projectStructure} />
+                            <ComponentDiagram projectStructure={projectStructure} />
                         )}
                     </DiagramContent>
                 </MainPanel>

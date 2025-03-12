@@ -19,6 +19,7 @@ import { ServiceModel } from "../interfaces/service";
 
 export async function buildProjectStructure(projectDir: string, langClient: ExtendedLangClientInterface): Promise<ProjectStructureResponse> {
     const result: ProjectStructureResponse = {
+        projectName: "",
         directoryMap: {
             [DIRECTORY_MAP.SERVICES]: [],
             [DIRECTORY_MAP.AUTOMATION]: [],
@@ -90,11 +91,12 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
     }
 
     for (const pkg of components.packages) {
+        response.projectName = pkg.name;
         for (const module of pkg.modules) {
             response.directoryMap[DIRECTORY_MAP.AUTOMATION].push(...await getComponents(langClient, module.automations, pkg.filePath, "task", DIRECTORY_MAP.AUTOMATION));
             response.directoryMap[DIRECTORY_MAP.SERVICES].push(...await getComponents(langClient, designServices.length > 0 ? designServices : module.services, pkg.filePath, "http-service", DIRECTORY_MAP.SERVICES));
             response.directoryMap[DIRECTORY_MAP.LISTENERS].push(...await getComponents(langClient, module.listeners, pkg.filePath, "http-service", DIRECTORY_MAP.LISTENERS));
-            response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(...await getComponents(langClient, module.functions, pkg.filePath, "function"));
+            response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(...await getComponents(langClient, module.functions, pkg.filePath, "function", DIRECTORY_MAP.FUNCTIONS));
             response.directoryMap[DIRECTORY_MAP.CONNECTIONS].push(...await getComponents(langClient, module.moduleVariables, pkg.filePath, "connection", DIRECTORY_MAP.CONNECTIONS));
             response.directoryMap[DIRECTORY_MAP.TYPES].push(...await getComponents(langClient, module.types, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.RECORDS].push(...await getComponents(langClient, module.records, pkg.filePath, "type"));
@@ -127,6 +129,9 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
     let compType = "HTTP";
     let serviceModel: ServiceModel = undefined;
     for (const comp of components) {
+        if (dtype === DIRECTORY_MAP.FUNCTIONS && comp.name === "main") {
+            continue; // Skip main function
+        }
         const componentFile = Utils.joinPath(URI.parse(projectPath), comp.filePath).fsPath;
         let stNode: SyntaxTree;
         try {

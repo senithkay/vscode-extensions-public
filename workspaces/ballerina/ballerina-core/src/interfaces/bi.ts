@@ -202,6 +202,7 @@ export enum FUNCTION_TYPE {
 }
 
 export interface ProjectStructureResponse {
+    projectName: string;
     directoryMap: {
         [DIRECTORY_MAP.SERVICES]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.AUTOMATION]: ProjectStructureArtifactResponse[];
