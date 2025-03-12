@@ -31,6 +31,8 @@ import path = require('path');
 import { activateTestExplorer } from './test-explorer/activator';
 import { DMProject } from './datamapper/DMProject';
 import { setupEnvironment } from './util/onboardingUtils';
+import { MiDiagramRpcManager } from './rpc-managers/mi-diagram/rpc-manager';
+const fs = require('fs');
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -73,7 +75,7 @@ const stateMachine = createMachine<MachineContext>({
                         cond: (context, event) =>
                             event.data.isOldProject || event.data.isProject,
                         actions: assign({
-                            view: (context, event) => event.data.emptyProject ? MACHINE_VIEW.ADD_ARTIFACT : MACHINE_VIEW.Overview,
+                            view: (context, event) => event.data.view,
                             projectUri: (context, event) => event.data.projectUri,
                             isOldProject: (context, event) => event.data.isOldProject,
                             displayOverview: (context, event) => event.data.displayOverview
@@ -629,7 +631,7 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
 async function checkIfMiProject() {
     log('Detecting project ' + new Date().toLocaleTimeString());
 
-    let isProject = false, isOldProject = false, displayOverview = true, emptyProject = false, isEnvironmentSetUp = false;
+    let isProject = false, isOldProject = false, displayOverview = true, view = MACHINE_VIEW.Overview, isEnvironmentSetUp = false;
     let projectUri = '';
     try {
         // Check for pom.xml files excluding node_modules directory
@@ -662,7 +664,23 @@ async function checkIfMiProject() {
         // Check if the project is empty
         const files = await vscode.workspace.findFiles('src/main/wso2mi/artifacts/*/*.xml', '**/node_modules/**', 1);
         if (files.length === 0) {
-            emptyProject = true;
+            const config = vscode.workspace.getConfiguration('MI', vscode.workspace.workspaceFolders?.[0].uri);
+            const scope = config.get<string>("Scope");
+            switch (scope) {
+                case "integration-as-api":
+                    view = MACHINE_VIEW.APIForm;
+                    break;
+                case "automation":
+                    view = MACHINE_VIEW.TaskForm;
+                    break;
+                case "event-integration":
+                case "file-integration":
+                    view = MACHINE_VIEW.InboundEPForm;
+                    break;
+                default:
+                    view = MACHINE_VIEW.ADD_ARTIFACT;
+                    break;
+            }
         }
 
         projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
@@ -691,9 +709,25 @@ async function checkIfMiProject() {
 
     // Register Project Creation command in any of the above cases
     if (!(await vscode.commands.getCommands()).includes(COMMANDS.CREATE_PROJECT_COMMAND)) {
-        vscode.commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
-            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
-            log('Create New Project');
+        vscode.commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, async (args) => {
+            if (args.name && args.path && args.scope) {
+                const rpcManager = new MiDiagramRpcManager();
+                if (rpcManager) {
+                    await rpcManager.createProject(
+                        {
+                            directory: args.path,
+                            name: args.name,
+                            open: false,
+                            miVersion: "4.4.0"
+                        }
+                    );
+                    await createSettingsFile(args);
+                    vscode.commands.executeCommand('workbench.action.closeFolder');
+                }
+            } else {
+                openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
+                log('Create New Project');
+            }
         });
     }
 
@@ -703,10 +737,26 @@ async function checkIfMiProject() {
         isOldProject,
         displayOverview,
         projectUri, // Return the path of the detected project
-        emptyProject,
+        view,
         isEnvironmentSetUp
     };
 }
+
+async function createSettingsFile(args) {
+    const projectPath = args.path;
+    const settingsPath = path.join(projectPath, args.name, '.vscode', 'settings.json');
+    try {
+        const vscodeDir = path.join(projectPath, args.name, '.vscode');
+        if (!fs.existsSync(vscodeDir)) {
+            fs.mkdirSync(vscodeDir);
+        }
+        const settings = {
+            "MI.Scope": args.scope
+        };
+        fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 4));
+    } catch (error: any) {
+        vscode.window.showErrorMessage(`Failed to create settings file: ${error.message}`);
+    }}
 
 function findViewIcon(view) {
     let icon = 'icon';
