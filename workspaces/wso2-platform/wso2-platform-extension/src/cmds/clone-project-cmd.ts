@@ -14,7 +14,6 @@ import {
 	CommandIds,
 	type ComponentKind,
 	DevantScopes,
-	GitProvider,
 	type Organization,
 	type Project,
 	getComponentKindRepoSource,

@@ -191,6 +191,15 @@ export enum ChoreoBuildPackNames {
 	Prism = "prism",
 }
 
+export enum DevantScopes {
+    AUTOMATION = "automation",
+    INTEGRATION_AS_API = "integration-as-api",
+    EVENT_INTEGRATION = "event-integration",
+    FILE_INTEGRATION = "file-integration",
+    AI_AGENT = "ai-agent",
+    ANY = "any"
+}
+
 export interface WebviewQuickPickItem {
 	kind?: WebviewQuickPickItemKind;
 	/**  A human-readable string which is rendered prominent. */
