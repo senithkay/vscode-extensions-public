@@ -7,9 +7,5 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export function componentListItemTooltip(isDisabled: boolean) {
-    if (isDisabled) {
-        return "This feature is not available in the current scope." ;
-    }
-    return "";
-}
+export const OutOfScopeComponentTooltip = "This feature is not available in the current scope.";
+export const AutomationAlreadyExistsTooltip = "An integration can only have one automation. You have already created an automation.";

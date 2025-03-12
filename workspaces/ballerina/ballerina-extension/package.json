@@ -2,7 +2,7 @@
     "name": "kolab",
     "displayName": "KolaB",
     "description": "KolaB Extension for Kola.",
-    "version": "0.4.8",
+    "version": "0.4.9",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
@@ -578,6 +578,11 @@
             {
                 "command": "kolab.open.bi.welcome",
                 "title": "Open Welcome",
+                "category": "BI"
+            },
+            {
+                "command": "kolab.open.bi.new",
+                "title": "New Ballerina Integration",
                 "category": "BI"
             },
             {

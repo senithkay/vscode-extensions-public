@@ -38,19 +38,18 @@ const DiagramContainer = styled.div`
 `;
 
 interface ComponentDiagramProps {
-    projectName: string;
     projectStructure: ProjectStructureResponse;
 }
 
 export function ComponentDiagram(props: ComponentDiagramProps) {
-    const { projectName, projectStructure } = props;
+    const { projectStructure } = props;
 
     const [project, setProject] = useState<CDModel | null>(null);
     const { rpcClient } = useRpcContext();
 
     useEffect(() => {
         fetchProject();
-    }, []);
+    }, [projectStructure]);
 
     const fetchProject = () => {
         rpcClient
