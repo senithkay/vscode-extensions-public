@@ -12,6 +12,7 @@ import { Dropdown, Button, Icon, Codicon, TextField } from "@wso2-enterprise/ui-
 import styled from "@emotion/styled";
 import { Type, Member, TypeWithIdentifier, VisibleType } from "@wso2-enterprise/ballerina-core";
 import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { TypeField } from "./TypeField";
 
 namespace S {
     export const Container = styled.div`
@@ -110,9 +111,10 @@ export function UnionEditor({ type, onChange, rpcClient }: UnionEditorProps) {
             </S.Header>
             {type.members.map((member, index) => (
                 <S.MemberRow key={index}>
-                    <TextField
-                        value={typeof member.type === 'string' ? member.type : member.name}
-                        onChange={(e) => updateMember(index, e.target.value)}
+                    <TypeField
+                        type={member.type}
+                        memberName={typeof member.type === 'string' ? member.type : member.name}
+                        onChange={(newType) => updateMember(index, newType)}
                         placeholder="Enter type"
                         sx={{ flexGrow: 1 }}
                     />
