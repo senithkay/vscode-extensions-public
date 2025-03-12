@@ -79,6 +79,8 @@ export async function generateTest(
         const { serviceDeclaration, resourceAccessorDef, serviceDocFilePath } = await getResourceAccessorDef(projectRoot, functionIdentifier);
         const openApiSpec = await getOpenAPISpecification(serviceDocFilePath);
 
+        // TODO: At the moment we just look at the test.bal file, technically we should be maintain a state of the test file that we are working,
+        // and do the amendments accordingly.
         const testFile = projectSource.projectTests.find(test =>
             test.filePath.split('/').pop() === 'test.bal'
         );

@@ -1381,7 +1381,7 @@ export function AIChat() {
 
         try {
             const response = await rpcClient.getAiPanelRpcClient().getGeneratedTests({
-                backendUri: "http://localhost:9094/ai",
+                backendUri: backendRootUri,
                 targetType: TestGenerationTarget.Function,
                 targetIdentifier: functionIdentifier,
                 testPlan,
