@@ -10,6 +10,7 @@
 export enum SHARED_COMMANDS {
     SHOW_VISUALIZER = 'kolab.show.visualizer',
     OPEN_BI_WELCOME = 'kolab.open.bi.welcome',
+    OPEN_BI_NEW_PROJECT = 'kolab.open.bi.new',
     OPEN_SERVICE_FORM = 'kolab.open.service.form',
     OPEN_AI_PANEL = 'kolab.open.ai.panel',
     CLEAR_AI_PROMPT = 'kolab.clear.ai.prompt',
