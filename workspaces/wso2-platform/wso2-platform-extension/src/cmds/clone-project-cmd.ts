@@ -13,13 +13,14 @@ import { join } from "path";
 import {
 	CommandIds,
 	type ComponentKind,
+	DevantScopes,
 	GitProvider,
 	type Organization,
 	type Project,
 	getComponentKindRepoSource,
 	parseGitURL,
 } from "@wso2-enterprise/wso2-platform-core";
-import { type ExtensionContext, ProgressLocation, type QuickPickItem, QuickPickItemKind, Uri, commands, window } from "vscode";
+import { type ExtensionContext, ProgressLocation, type QuickPickItem, QuickPickItemKind, Uri, commands, extensions, window } from "vscode";
 import { ext } from "../extensionVariables";
 import { initGit } from "../git/main";
 import { authStore } from "../stores/auth-store";
@@ -27,8 +28,6 @@ import { dataCacheStore } from "../stores/data-cache-store";
 import { createDirectory, openDirectory } from "../utils";
 import { getUserInfoForCmd, selectOrg, selectProject } from "./cmd-utils";
 import { updateContextFile } from "./create-directory-context-cmd";
-import { createWorkspaceFile } from "./create-project-workspace-cmd";
-const unzipper = require("unzipper");
 
 export function cloneRepoCommand(context: ExtensionContext) {
 	context.subscriptions.push(
@@ -164,9 +163,9 @@ export function cloneRepoCommand(context: ExtensionContext) {
 							const subDir = matchingComp?.spec?.source ? getComponentKindRepoSource(matchingComp?.spec?.source)?.path || "" : "";
 							const subDirFullPath = join(clonedResp[0].clonedPath, subDir);
 							if (params?.technology === "ballerina") {
-								ensureBallerinaFilesIfEmpty(selectedOrg, params?.componentName || "bal-com", subDirFullPath, params?.integrationDisplayType);
-							} else if (params?.technology === "mi") {
-								ensureMIFilesIfEmpty(subDirFullPath);
+								ensureBallerinaFilesIfEmpty(selectedOrg, params?.componentName || "bal-component", subDirFullPath, params?.integrationDisplayType || DevantScopes.ANY);
+							} else if (params?.technology === "mi" || params?.technology === "microintegrator") {
+								ensureMIFilesIfEmpty(params?.componentName || "mi-component", subDirFullPath, params?.integrationDisplayType || DevantScopes.ANY);
 							}
 							await openClonedDirectory(subDirFullPath);
 						} else if (repoSet.size > 1) {
@@ -218,7 +217,7 @@ async function ensureBallerinaFilesIfEmpty(
 			"utf8",
 		);
 		if (integrationDisplayType) {
-			const scopeVal = integrationDisplayType.toLowerCase().replaceAll(" ", "-");
+			const scopeVal = integrationDisplayType.toLowerCase().replaceAll(" ", "-").replaceAll("+","-");
 			if (!existsSync(join(directoryPath, ".vscode"))) {
 				mkdirSync(join(directoryPath, ".vscode"));
 			}
@@ -256,17 +255,29 @@ async function ensureBallerinaFilesIfEmpty(
 	}
 }
 
-async function ensureMIFilesIfEmpty(directoryPath: string): Promise<void> {
+async function ensureMIFilesIfEmpty(name: string, directoryPath: string, integrationDisplayType: string): Promise<void> {
+	const createMiFiles = ()=>{
+		const wso2Ext = extensions.getExtension("wso2.micro-integrator");
+		if (!wso2Ext) {
+			console.error("Skipping MI project scaffolding as 'wso2.micro-integrator' is not installed")
+		}
+		const scopeVal = integrationDisplayType.toLowerCase().replaceAll(" ", "-").replaceAll("+","-");;
+		commands.executeCommand("MI.project-explorer.create-project", {
+			name: name,
+			path: directoryPath,
+			scope: scopeVal
+		})
+	}
 	try {
 		const files = readdirSync(directoryPath);
 		if (!files.some((file) => file.toLowerCase() === "pom.xml")) {
-			createReadStream(Uri.joinPath(ext.context.extensionUri, "sample-mi-project.zip").fsPath).pipe(unzipper.Extract({ path: directoryPath }));
+			createMiFiles()
 		}
 	} catch (err: any) {
 		if (err.code === "ENOENT") {
 			try {
 				mkdirSync(directoryPath, { recursive: true });
-				createReadStream(Uri.joinPath(ext.context.extensionUri, "sample-mi-project.zip").fsPath).pipe(unzipper.Extract({ path: directoryPath }));
+				createMiFiles()
 			} catch (mkdirError: any) {
 				console.error("Error creating directory or files:", mkdirError);
 			}

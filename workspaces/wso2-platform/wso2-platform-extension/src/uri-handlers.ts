@@ -117,6 +117,8 @@ export const cloneOrOpenDir = async (
 	integrationType: string | null,
 	integrationDisplayType: string | null,
 ) => {
+	// TODO: following only checks if you are within matching project but we need to check if matching component also exists
+	/*
 	const contextItems = contextStore.getState().getValidItems();
 	const isWithinDir = contextItems.find((item) => item.orgHandle === org.handle && item.projectHandle === project.handler);
 	if (isWithinDir) {
@@ -127,6 +129,7 @@ export const cloneOrOpenDir = async (
 		window.showInformationMessage(`You are already within the ${componentName ? "component" : "project"} directory`);
 		return;
 	}
+	*/
 
 	const projectLocations = locationStore.getState().getLocations(project.handler, org.handle);
 

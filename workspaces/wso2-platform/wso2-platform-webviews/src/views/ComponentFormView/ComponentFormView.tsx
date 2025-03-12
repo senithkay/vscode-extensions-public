@@ -264,7 +264,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 			showBuildDetails = true;
 		} else {
 			if (initialValues?.buildPackLang === ChoreoBuildPackNames.Ballerina) {
-				showBuildDetails = false;
+				showBuildDetails = type === ChoreoComponentType.Service;
 			} else if (initialValues?.buildPackLang === ChoreoBuildPackNames.MicroIntegrator) {
 				showBuildDetails = type === ChoreoComponentType.Service;
 			} else {
@@ -293,7 +293,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 	}
 
 	if (type === ChoreoComponentType.Service) {
-		if (buildPackLang !== ChoreoBuildPackNames.MicroIntegrator || (buildPackLang === ChoreoBuildPackNames.MicroIntegrator && !useDefaultEndpoints)) {
+		if ( ![ChoreoBuildPackNames.MicroIntegrator, ChoreoBuildPackNames.Ballerina].includes(buildPackLang as ChoreoBuildPackNames) || ([ChoreoBuildPackNames.MicroIntegrator, ChoreoBuildPackNames.Ballerina].includes(buildPackLang as ChoreoBuildPackNames) && !useDefaultEndpoints)) {
 			steps.push({
 				label: "Endpoint Details",
 				content: (
