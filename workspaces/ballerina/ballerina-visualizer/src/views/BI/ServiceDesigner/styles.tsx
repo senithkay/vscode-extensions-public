@@ -24,7 +24,8 @@ export const EditorContent = styled.div<CSSObject>`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 10px 0;
+    padding-left: 16px;
+    padding-right: 16px;
     gap: 10px;
 `;
 
@@ -40,6 +41,10 @@ export const ContentSection = styled.div<CSSObject>`
     display: flex;
     flex-direction: row;
     width: 100%;
+    ${(props: any) => props.justifyEnd && `
+        justify-content: space-between;
+        margin-right: 20px;
+    `}
 `;
 
 export const EditIconWrapper = styled.div<CSSObject>`

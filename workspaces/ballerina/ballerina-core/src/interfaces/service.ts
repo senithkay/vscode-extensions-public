@@ -93,7 +93,7 @@ export interface StatusCodeResponse extends PropertyModel {
     body: PropertyModel;
     name: PropertyModel;
     type: PropertyModel;
-    createStatusCodeResponse: PropertyModel;
+    headers: PropertyModel;
 }
 
 interface MetaData {
@@ -120,6 +120,7 @@ export interface PropertyModel {
     codedata?: CodeData;
     enabled?: boolean;
     editable?: boolean;
+    isHttpResponseType?: boolean;
     value?: string;
     values?: string[];
     valueType?: string;
