@@ -27,6 +27,7 @@ export interface FetchDataResponse {
 
 export interface ProjectSource {
     projectModules?: ProjectModule[];
+    projectTests?: SourceFile[];
     sourceFiles: SourceFile[];
 }
 

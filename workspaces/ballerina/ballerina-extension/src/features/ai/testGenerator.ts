@@ -77,6 +77,17 @@ export async function generateTest(
 
         const functionIdentifier = testGenRequest.targetIdentifier;
         const { serviceDeclaration, resourceAccessorDef, serviceDocFilePath } = await getResourceAccessorDef(projectRoot, functionIdentifier);
+        const openApiSpec = await getOpenAPISpecification(serviceDocFilePath);
+
+        // TODO: At the moment we just look at the test.bal file, technically we should be maintain a state of the test file that we are working,
+        // and do the amendments accordingly.
+        const testFile = projectSource.projectTests.find(test =>
+            test.filePath.split('/').pop() === 'test.bal'
+        );
+        const updatedTestGenRequest: TestGenerationRequest = {
+            ...testGenRequest,
+            existingTests: testFile?.content,
+        };
         const serviceProjectSource: ProjectSource = {
             sourceFiles: [
                 {
@@ -86,7 +97,7 @@ export async function generateTest(
             ]
         };
 
-        const unitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests(testGenRequest, serviceProjectSource, abortController);
+        const unitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests(updatedTestGenRequest, serviceProjectSource, abortController, openApiSpec);
         if (isErrorCode(unitTestResp)) {
             throw new Error((unitTestResp as ErrorCode).message);
         }
@@ -137,7 +148,11 @@ export async function getResourceAccessorDef(projectRoot: string, resourceMethod
     let resourceAccessorDef: ResourceAccessorDefinition | null = null;
     let serviceDocFilePath = "";
 
+    let found = false;
+
     for (const sourceFile of projectSource.sourceFiles) {
+        if (found) { break; }
+
         serviceDocFilePath = sourceFile.filePath;
         const fileUri = Uri.file(serviceDocFilePath).toString();
         const syntaxTree = await langClient.getSyntaxTree({
@@ -151,6 +166,8 @@ export async function getResourceAccessorDef(projectRoot: string, resourceMethod
         }
 
         for (const member of (syntaxTree.syntaxTree as ModulePart).members) {
+            if (found) { break; }
+
             if (STKindChecker.isServiceDeclaration(member)) {
                 const resourceAccessors = (member as ServiceDeclaration).members.filter(m => STKindChecker.isResourceAccessorDefinition(m));
                 for (const resourceAccessor of resourceAccessors) {
@@ -178,10 +195,10 @@ export async function getResourceAccessorDef(projectRoot: string, resourceMethod
                     if (constructedResource.toLowerCase() === resourceMethodAndPath) {
                         serviceDeclaration = member as ServiceDeclaration;
                         resourceAccessorDef = resourceAccessor as ResourceAccessorDefinition;
+                        found = true;
                         break;
                     }
                 }
-                if (serviceDeclaration) { break; }
             }
         }
     }
@@ -228,6 +245,7 @@ async function getProjectSource(dirPath: string): Promise<ProjectSource | null> 
 
     const projectSource: ProjectSource = {
         sourceFiles: [],
+        projectTests: [],
         projectModules: [],
     };
 
@@ -262,6 +280,19 @@ async function getProjectSource(dirPath: string): Promise<ProjectSource | null> 
                 }
 
                 projectSource.projectModules.push(projectModule);
+            }
+        }
+    }
+
+    // Read tests
+    const testsDir = path.join(projectRoot, 'tests');
+    if (fs.existsSync(testsDir)) {
+        const testFiles = fs.readdirSync(testsDir);
+        for (const file of testFiles) {
+            if (file.endsWith('.bal') || file.endsWith('Config.toml')) {
+                const filePath = path.join(testsDir, file);
+                const content = await fs.promises.readFile(filePath, 'utf-8');
+                projectSource.projectTests.push({ filePath, content });
             }
         }
     }
