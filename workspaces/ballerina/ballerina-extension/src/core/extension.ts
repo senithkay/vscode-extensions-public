@@ -440,7 +440,7 @@ export class BallerinaExtension {
             // Get the latest successful daily build run and artifacts
             let res: DownloadProgress = {
                 downloadedSize: 0,
-                message: "Fetching kola release details..",
+                message: "Fetching ballerina release details..",
                 percentage: 0,
                 success: false,
                 totalSize: 0,
@@ -459,7 +459,7 @@ export class BallerinaExtension {
             // Get the latest successful daily build run and artifacts
             res = {
                 downloadedSize: 0,
-                message: "Fetching latest kola distribution details..",
+                message: "Fetching latest ballerina distribution details..",
                 percentage: 0,
                 success: false,
                 totalSize: 0,
