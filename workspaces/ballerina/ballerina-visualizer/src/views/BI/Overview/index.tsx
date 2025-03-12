@@ -703,7 +703,7 @@ export function Overview(props: ComponentDiagramProps) {
                                 <Codicon name="wand" sx={{ marginRight: 8 }} /> Generate
                             </Button>
                             <Button appearance="primary" onClick={handleAddConstruct}>
-                                <Codicon name="add" sx={{ marginRight: 8 }} /> Add Construct
+                                <Codicon name="add" sx={{ marginRight: 8 }} /> Add Artifact
                             </Button>
                         </ActionContainer>)}
                     </DiagramHeaderContainer>
@@ -717,11 +717,11 @@ export function Overview(props: ComponentDiagramProps) {
                                     variant="body1"
                                     sx={{ marginBottom: "24px", color: "var(--vscode-descriptionForeground)" }}
                                 >
-                                    Start by adding constructs or use AI to generate your project structure
+                                    Start by adding artifacts or use AI to generate your project structure
                                 </Typography>
                                 <ButtonContainer>
                                     <Button appearance="primary" onClick={handleAddConstruct}>
-                                        <Codicon name="add" sx={{ marginRight: 8 }} /> Add Construct
+                                        <Codicon name="add" sx={{ marginRight: 8 }} /> Add Artifact
                                     </Button>
                                     <Button appearance="secondary" onClick={handleGenerate}>
                                         <Codicon name="wand" sx={{ marginRight: 8 }} /> Generate with AI
@@ -759,7 +759,7 @@ export function Overview(props: ComponentDiagramProps) {
                     ) : (
                         <EmptyReadmeContainer>
                             <Description variant="body2">
-                                Describe your integration and generate your constructs with AI
+                                Describe your integration and generate your artifacts with AI
                             </Description>
                             <VSCodeLink onClick={handleEditReadme}>Add a README</VSCodeLink>
                         </EmptyReadmeContainer>

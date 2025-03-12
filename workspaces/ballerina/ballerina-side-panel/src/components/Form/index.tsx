@@ -196,6 +196,7 @@ export interface FormProps {
     visualizableFields?: string[];
     recordTypeFields?: RecordTypeField[];
     nestedForm?: boolean;
+    isInferredReturnType?: boolean;
     disableSaveButton?: boolean;
     compact?: boolean;
 }
@@ -226,7 +227,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
         visualizableFields,
         recordTypeFields,
         nestedForm,
-        compact = false
+        compact = false,
+        isInferredReturnType
     } = props;
 
     const {
@@ -491,7 +493,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 recordTypeFields={recordTypeFields}
                             />
                         }
-                        {typeField && (
+                        {typeField && !isInferredReturnType && (
                             <EditorFactory
                                 field={typeField}
                                 openRecordEditor={openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, typeField))}
@@ -534,7 +536,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     }
                     {hasAdvanceFields && (
                         <S.Row>
-                            {isGraphql ? 'Advance Arguments' : 'Advance Parameters'}
+                            {isGraphql ? 'Advanced Arguments' : 'Advanced Parameters'}
                             <S.ButtonContainer>
                                 {!showAdvancedOptions && (
                                     <LinkButton

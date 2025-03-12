@@ -168,11 +168,7 @@ const MainPanel = () => {
             } else {
                 switch (value?.view) {
                     case MACHINE_VIEW.Overview:
-                        if (value.isBI) {
-                            setViewComponent(<OverviewBI projectPath={value.projectUri} />);
-                            break;
-                        }
-                        setViewComponent(<Overview visualizerLocation={value} />);
+                        setViewComponent(<OverviewBI projectPath={value.projectUri} />);
                         break;
                     case MACHINE_VIEW.ServiceDesigner:
                         setViewComponent(
@@ -204,7 +200,6 @@ const MainPanel = () => {
                             <DataMapper
                                 filePath={value.documentUri}
                                 model={value?.syntaxTree as FunctionDefinition}
-                                isBI={value.isBI}
                                 applyModifications={applyModifications}
                             />
                         );

@@ -139,9 +139,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
-                if (StateMachine.context().isBI) {
-                    commands.executeCommand("BI.project-explorer.refresh");
-                }
+                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -162,9 +160,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
-                if (StateMachine.context().isBI) {
-                    commands.executeCommand("BI.project-explorer.refresh");
-                }
+                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -220,9 +216,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
-                if (StateMachine.context().isBI) {
-                    commands.executeCommand("BI.project-explorer.refresh");
-                }
+                commands.executeCommand("BI.project-explorer.refresh");
                 await this.injectAIAgent(params.service, result);
                 resolve(result);
             } catch (error) {
@@ -283,9 +277,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
-                if (StateMachine.context().isBI) {
-                    commands.executeCommand("BI.project-explorer.refresh");
-                }
+                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);

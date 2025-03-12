@@ -62,7 +62,7 @@ export function EventIntegrationPanel(props: EventIntegrationPanelProps) {
             <TitleWrapper>
                 <Title variant="h2">Event Integration</Title>
                 <BodyText>
-                    Configure event-driven integrations for your project. Explore the available options below.
+                    Create an integration that can be triggered by an event.
                 </BodyText>
             </TitleWrapper>
             <CardGrid>

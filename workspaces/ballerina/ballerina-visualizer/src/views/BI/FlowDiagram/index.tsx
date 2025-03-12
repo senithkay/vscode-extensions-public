@@ -816,7 +816,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         editorKey={subPanel.props.sidePanelData.editorKey}
                         onClosePanel={handleSubPanel}
                         configurePanelData={subPanel.props.sidePanelData?.configurePanelData}
-                        recordTypeField={subPanel.props.sidePanelData?.recordField}
                     />
                 );
             default:
@@ -926,7 +925,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             }
                             onAddFunction={handleOnAddNPFunction}
                             onClose={handleOnCloseSidePanel}
-                            title={"Prompt as code"}
+                            title={"Natural Functions"}
                             onBack={handleOnFormBack}
                         />
                     )}

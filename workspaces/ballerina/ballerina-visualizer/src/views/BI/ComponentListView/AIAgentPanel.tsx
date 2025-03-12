@@ -37,7 +37,7 @@ export function AIAgentPanel(props: AIAgentPanelProps) {
         <PanelViewMore disabled={isDisabled}>
             <TitleWrapper>
                 <Title variant="h2">AI Agent</Title>
-                <BodyText>Create a chattable AI agent using an LLM, prompts and tools.</BodyText>
+                <BodyText>Create an agent that you can chat with or use as an API.</BodyText>
             </TitleWrapper>
             <CardGrid>
                 <ButtonCard
