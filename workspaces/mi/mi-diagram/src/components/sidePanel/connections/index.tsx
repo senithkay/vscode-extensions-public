@@ -133,10 +133,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
 
     useEffect(() => {
         const handler = setTimeout(() => {
-            setDebouncedValue(props.searchValue);
-            if (!props.searchValue) {
-                setExpandedConnections([]);
-            }
+            setDebouncedValue(!props.searchValue ? [] : props.searchValue);
         }, 400);
 
         return () => {
