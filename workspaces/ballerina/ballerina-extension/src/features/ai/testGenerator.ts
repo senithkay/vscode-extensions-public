@@ -82,7 +82,7 @@ export async function generateTest(
         // TODO: At the moment we just look at the test.bal file, technically we should be maintain a state of the test file that we are working,
         // and do the amendments accordingly.
 
-        if (typeof testGenRequest.diagnostics === 'undefined') {
+        if (!testGenRequest.diagnostics) {
             const projectSourceWithTests = await getProjectSourceWithTests(projectRoot);
             const testFile = projectSourceWithTests.projectTests.find(test =>
                 test.filePath.split('/').pop() === 'test.bal'
