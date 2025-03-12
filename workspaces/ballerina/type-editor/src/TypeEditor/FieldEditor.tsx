@@ -148,7 +148,7 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
         const searchElements = Array.from(document.querySelectorAll('#helper-pane-search'));
         if (
             (typeHelperRef.current?.contains(e.relatedTarget as Node) ||
-            typeBrowserRef.current?.contains(e.relatedTarget as Node)) &&
+                typeBrowserRef.current?.contains(e.relatedTarget as Node)) &&
             !searchElements.some(element => element.contains(e.relatedTarget as Node))
         ) {
             e.preventDefault();
@@ -186,10 +186,10 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', border: '1px solid var(--vscode-welcomePage-tileBorder)', marginLeft: '25px', marginBottom: '10px', padding: '8px', borderRadius: '4px' }}>
                     <TextField label='Default Value' value={member.defaultValue} onChange={handleMemberDefaultValueChange} style={{ width: '180px' }} />
                     <TextField label='Description' value={member.docs} onChange={handleDescriptionChange} style={{ width: '180px' }} />
-                    <CheckBox 
-                        label="Is Optional Field" 
-                        checked={member?.optional} 
-                        onChange={toggleOptional} 
+                    <CheckBox
+                        label="Is Optional Field"
+                        checked={member?.optional}
+                        onChange={toggleOptional}
                     />
                 </div >
             )}

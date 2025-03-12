@@ -21,7 +21,7 @@ interface TypeFieldProps {
     sx?: React.CSSProperties;
 }
 
-// TODO: User TypeField for all the Type fields in TypeEditor
+// TODO: Use this component for all the Type fields in TypeEditor
 export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, ref) => {
     const { type, onChange, placeholder, sx, memberName } = props;
 
