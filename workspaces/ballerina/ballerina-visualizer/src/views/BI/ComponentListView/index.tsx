@@ -30,7 +30,7 @@ export function ComponentListView(props: ComponentListViewProps) {
     return (
         <View>
             <TopNavigationBar />
-            <TitleBar title="Constructs" subtitle="Add a new construct to your integration" />
+            <TitleBar title="Artifacts" subtitle="Add a new artifact to your integration" />
             <ViewContent padding>
                 <Container>
                     <AddPanel>

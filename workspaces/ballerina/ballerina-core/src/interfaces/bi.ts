@@ -120,6 +120,7 @@ export type CodeData = {
     lineRange?: ELineRange;
     sourceCode?: string;
     parentSymbol?: string;
+    inferredReturnType?: string;
 };
 
 export type Branch = {
@@ -177,7 +178,7 @@ export enum DIRECTORY_MAP {
     DATA_MAPPERS = "dataMappers",
     ENUMS = "enums",
     CLASSES = "classes",
-    PROMPT_AS_CODE = "promptAsCode",
+    NATURAL_FUNCTIONS = "naturalFunctions",
     AGENTS = "agents"
 }
 
@@ -190,7 +191,7 @@ export enum DIRECTORY_SUB_TYPE {
     AUTOMATION = "automation",
     TRIGGER = "trigger",
     DATA_MAPPER = "dataMapper",
-    PROMPT_AS_CODE = "promptAsCode",
+    NATURAL_FUNCTIONS = "naturalFunction",
     AGENTS = "agents",
 }
 
@@ -201,6 +202,7 @@ export enum FUNCTION_TYPE {
 }
 
 export interface ProjectStructureResponse {
+    projectName: string;
     directoryMap: {
         [DIRECTORY_MAP.SERVICES]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.AUTOMATION]: ProjectStructureArtifactResponse[];
@@ -214,7 +216,7 @@ export interface ProjectStructureResponse {
         [DIRECTORY_MAP.DATA_MAPPERS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.ENUMS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.CLASSES]: ProjectStructureArtifactResponse[];
-        [DIRECTORY_MAP.PROMPT_AS_CODE]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.NATURAL_FUNCTIONS]: ProjectStructureArtifactResponse[];
     };
 }
 

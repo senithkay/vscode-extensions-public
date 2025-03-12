@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { TypeField } from "@wso2-enterprise/ballerina-core";
@@ -32,6 +32,13 @@ export default function UnionType(props: TypeProps) {
     const [selectedMemberType, setSelectedMemberType] = useState(getUnionParamName(initSelectedMember));
     const [parameter, setParameter] = useState<TypeField>(initSelectedMember);
 
+    // Initialize: If the union is selected, ensure the selected member and its required fields are also selected
+    useEffect(() => {
+        if (paramSelected && initSelectedMember) {
+            handleMemberType(paramSelected ? selectedMemberType : "");
+        }
+    }, []);
+
     if (!(param.members && param.members.length > 0)) {
         return <></>;
     }
@@ -40,6 +47,15 @@ export default function UnionType(props: TypeProps) {
         const unionFieldName = getUnionParamName(unionField);
         param.members.forEach((field) => {
             field.selected = getUnionParamName(field) === unionFieldName;
+            
+            // If this is the selected field and it has nested fields, update them
+            if (field.selected && field.fields && field.fields.length > 0) {
+                // Set required fields to selected
+                updateFieldsSelection(field.fields, true);
+            } else if (!field.selected && field.fields && field.fields.length > 0) {
+                // Deselect all fields of non-selected members
+                updateFieldsSelection(field.fields, false);
+            }
         });
     };
 
@@ -48,6 +64,12 @@ export default function UnionType(props: TypeProps) {
         updateFormFieldMemberSelection(selectedMember);
         setSelectedMemberType(type);
         setParameter(selectedMember);
+        
+        // If the parent is selected and the selected member has fields, ensure required fields are selected
+        if (param.selected && selectedMember && selectedMember.fields && selectedMember.fields.length > 0) {
+            updateFieldsSelection(selectedMember.fields, true);
+        }
+        
         onChange();
     };
 

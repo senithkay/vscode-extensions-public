@@ -8,10 +8,11 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { Button, LocationSelector, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, LocationSelector, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { BodyText } from "../../styles";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 
 const FormContainer = styled.div`
     display: flex;
@@ -24,6 +25,17 @@ const ButtonWrapper = styled.div`
     margin-top: 20px;
     display: flex;
     justify-content: flex-end;
+`;
+
+const IconButton = styled.div`
+    cursor: pointer;
+    border-radius: 4px;
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    &:hover {
+        background-color: var(--vscode-toolbar-hoverBackground);
+    }
 `;
 
 export function ProjectForm() {
@@ -55,8 +67,20 @@ export function ProjectForm() {
 
     }, []);
 
+    const gotToWelcome = () => {
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.BIWelcome,
+            },
+        });
+    };
+
     return (
         <FormContainer>
+            <IconButton onClick={gotToWelcome}>
+                <Icon name="bi-arrow-back" iconSx={{ color: "var(--vscode-foreground)" }} />
+            </IconButton>
             <Typography variant="h2">Create Your Kola Integration</Typography>
             <BodyText>
                 Start by naming your project and selecting a location to save it. This will be the foundation for
