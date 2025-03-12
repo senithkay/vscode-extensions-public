@@ -11,10 +11,12 @@ import vscode from 'vscode';
 import { ENABLE_NATURAL_PROGRAMMING } from "../../core/preferences";
 import { debounce } from 'lodash';
 import { StateMachine } from "../../stateMachine";
-import { getLLMDiagnostics } from "./utils";
+import { addAccessTokenToConfig, getBackendURL, getLLMDiagnostics, getAccessToken } from "./utils";
 import { NLCodeActionProvider, showTextOptions } from './nl-code-action-provider';
 import { BallerinaExtension } from 'src/core';
-import { PROGRESS_BAR_MESSAGE, WARNING_MESSAGE, WARNING_MESSAGE_DEFAULT, MONITERED_EXTENSIONS } from './constants';
+import { PROGRESS_BAR_MESSAGE_FOR_DRIFT, WARNING_MESSAGE, WARNING_MESSAGE_DEFAULT, MONITERED_EXTENSIONS,
+    WARNING_MESSAGE_FOR_TEST, PROGRESS_BAR_MESSAGE_FOR_TEST
+ } from './constants';
 
 let diagnosticCollection: vscode.DiagnosticCollection;
 
@@ -85,7 +87,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         await vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
-                title: PROGRESS_BAR_MESSAGE,
+                title: PROGRESS_BAR_MESSAGE_FOR_DRIFT,
                 cancellable: false,
             },
             async () => {
@@ -99,6 +101,24 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                     return;
                 }
                 vscode.window.showWarningMessage(WARNING_MESSAGE_DEFAULT);
+            }
+        );
+    });
+
+    vscode.commands.registerCommand("kolab.getAcessToken", async (...args: any[]) => {    
+        await vscode.window.withProgress(
+            {
+                location: vscode.ProgressLocation.Notification,
+                title: PROGRESS_BAR_MESSAGE_FOR_TEST,
+                cancellable: false,
+            },
+            async () => {
+                const token: string = await getAccessToken();
+                if (token == null) {
+                    vscode.window.showWarningMessage(WARNING_MESSAGE_FOR_TEST);
+                }
+
+                addAccessTokenToConfig(projectPath, token, await getBackendURL());
             }
         );
     });

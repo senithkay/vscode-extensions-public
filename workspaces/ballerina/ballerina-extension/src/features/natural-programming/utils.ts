@@ -28,6 +28,7 @@ import {
 } from "./constants";
 import { isError, isNumber } from 'lodash';
 import { HttpStatusCode } from 'axios';
+import * as toml from 'toml';
 
 let controller = new AbortController();
 
@@ -466,6 +467,66 @@ export async function streamToString(stream: ReadableStream<Uint8Array>): Promis
 
     return result;
 }
+
+export function addAccessTokenToConfig(projectPath: string, token: string, backendUrl: string) {
+    const configFilePath = path.join(projectPath, 'Config.toml');
+    const targetTable = '[ballerinax.np.defaultModelConfig]';
+    const urlLine = `url = "${backendUrl}"`;
+    const accessTokenLine = `accessToken = "${token}"`;
+  
+    let fileContent = '';
+  
+    if (fs.existsSync(configFilePath)) {
+      fileContent = fs.readFileSync(configFilePath, 'utf-8');
+    }
+  
+    const tableStartIndex = fileContent.indexOf(targetTable);
+  
+    if (tableStartIndex !== -1) {
+      // Table exists, update it
+      const tableEndIndex = fileContent.indexOf('\n', tableStartIndex);
+  
+      let updatedTableContent = `${targetTable}\n${urlLine}\n${accessTokenLine}`;
+  
+      let urlLineIndex = fileContent.indexOf('url =', tableStartIndex);
+      let accessTokenLineIndex = fileContent.indexOf('accessToken =', tableStartIndex);
+  
+      if (urlLineIndex !== -1 && accessTokenLineIndex !== -1) {
+        // url and accessToken lines exist, replace them
+        const existingUrlLineEnd = fileContent.indexOf('\n', urlLineIndex);
+        const existingAccessTokenLineEnd = fileContent.indexOf('\n', accessTokenLineIndex);
+  
+        fileContent =
+          fileContent.substring(0, urlLineIndex) +
+          urlLine +
+          fileContent.substring(existingUrlLineEnd, accessTokenLineIndex) +
+          accessTokenLine +
+          fileContent.substring(existingAccessTokenLineEnd);
+  
+      } else {
+          //If url or accessToken line not exist, just replace the entire table
+          let nextTableStartIndex = fileContent.indexOf('[', tableEndIndex + 1);
+          if(nextTableStartIndex === -1){
+              fileContent = fileContent.substring(0, tableStartIndex) + updatedTableContent + fileContent.substring(tableEndIndex + 1);
+          } else {
+              let nextLineBreakIndex = fileContent.substring(tableEndIndex+1).indexOf('\n');
+              if (nextLineBreakIndex === -1){
+                  fileContent = fileContent.substring(0, tableStartIndex) + updatedTableContent;
+              } else {
+                   fileContent = fileContent.substring(0, tableStartIndex) + updatedTableContent + fileContent.substring(tableEndIndex + 1);
+              }
+          }
+      }
+    } else {
+      // Table doesn't exist, create it
+      if (fileContent.length > 0 && !fileContent.endsWith('\n')) {
+        fileContent += '\n\n';
+      }
+      fileContent += `\n${targetTable}\n${urlLine}\n${accessTokenLine}\n`;
+    }
+  
+    fs.writeFileSync(configFilePath, fileContent);
+  }
 
 function isSkippedDiagnostic(result: ResultItem) {
     const cause = result.cause.toLowerCase();
