@@ -36,28 +36,6 @@ const Container = styled.div`
     gap: 10;
 `;
 
-const ButtonWrapper = styled.div`
-    margin-top: 20px;
-    width: 130px;
-`;
-
-const Link = styled.a`
-    cursor: pointer;
-    font-size: 12px;
-    margin-left: auto;
-    margin-right: 15px;
-    margin-bottom: -5px;
-    color: var(--button-primary-background);
-`;
-
-const CardGrid = styled.div`
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin-top: 20px;
-    width: 100%;
-`;
-
 export function MainForm() {
     const { rpcClient } = useRpcContext();
     const [isLoading, setIsLoading] = useState(true);
@@ -160,13 +138,13 @@ export function MainForm() {
     const currentFields: FormField[] = [
         {
             key: `params`,
-            label: "Parameters",
+            label: "Startup Parameters",
             type: "PARAM_MANAGER",
             optional: true,
             advanced: true,
             editable: true,
             enabled: true,
-            documentation: "Parameters allow dynamic input values, making automation adaptable to different execution needs.",
+            documentation: "Define the parameters to be passed to the automation at startup",
             valueTypeConstraint: "",
             value: "",
             paramManagerProps: {
@@ -180,7 +158,7 @@ export function MainForm() {
     return (
         <View>
             <TopNavigationBar />
-            <TitleBar title="Automation" />
+            <TitleBar title="Automation" subtitle="Create an automation that can be invoked periodically or manually"/>
             <ViewContent padding>
                 <Container>
                     {isLoading && (
@@ -203,7 +181,7 @@ export function MainForm() {
                         <>
                             <FormHeader
                                 title="Create an Automation"
-                                subtitle="Create an automation that can be invoked periodically or manually."
+                                subtitle="Periodic invocation should be scheduled in an external system such as cronjob, k8s, or Devant."
                             />
                             <FormContainer>
                                 {filePath && targetLineRange && currentFields.length > 0 &&
