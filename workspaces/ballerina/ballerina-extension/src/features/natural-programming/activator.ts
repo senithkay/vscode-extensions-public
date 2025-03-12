@@ -116,6 +116,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                 const token: string = await getAccessToken();
                 if (token == null) {
                     vscode.window.showWarningMessage(WARNING_MESSAGE_FOR_TEST);
+                    return;
                 }
 
                 addAccessTokenToConfig(projectPath, token, await getBackendURL());
