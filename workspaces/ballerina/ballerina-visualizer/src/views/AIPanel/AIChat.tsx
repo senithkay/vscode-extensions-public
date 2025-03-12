@@ -1377,12 +1377,12 @@ export function AIChat() {
         );
 
         updateAssistantMessage(
-            `\n\n<progress>Generating tests for the function **${functionIdentifier}**. This may take a moment.</progress>`
+            `\n\n<progress>Generating tests for the function ${functionIdentifier}. This may take a moment.</progress>`
         );
 
         try {
             const response = await rpcClient.getAiPanelRpcClient().getGeneratedTests({
-                backendUri: "http://localhost:9094/ai",
+                backendUri: backendRootUri,
                 targetType: TestGenerationTarget.Function,
                 targetIdentifier: functionIdentifier,
                 testPlan,
@@ -1415,7 +1415,7 @@ export function AIChat() {
                     `\n<progress>Refining tests based on feedback to ensure accuracy and reliability.</progress>`
                 );
                 const fixedCode = await rpcClient.getAiPanelRpcClient().getGeneratedTests({
-                    backendUri: "http://localhost:9094/ai",
+                    backendUri: backendRootUri,
                     targetType: TestGenerationTarget.Function,
                     targetIdentifier: functionIdentifier,
                     testPlan: testPlan,
