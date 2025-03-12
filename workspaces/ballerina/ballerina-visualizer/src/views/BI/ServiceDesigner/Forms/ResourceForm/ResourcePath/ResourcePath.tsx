@@ -97,6 +97,7 @@ export function ResourcePath(props: ResourcePathProps) {
 				<TextField
 					sx={{ marginLeft: 15, flexGrow: 1 }}
 					autoFocus
+					required
 					errorMsg={""}
 					label="Resource Path"
 					size={70}

@@ -11,13 +11,14 @@
 import { useEffect, useState } from 'react';
 
 import { CheckBox, Divider, Tabs, Typography } from '@wso2-enterprise/ui-toolkit';
-import { EditorContainer } from '../../../styles';
+import { EditorContainer, EditorContent } from '../../../styles';
 import { LineRange, PropertyModel, StatusCodeResponse, responseCodes } from '@wso2-enterprise/ballerina-core';
 import { getTitleFromResponseCode } from '../../../utils';
 import { FormField, FormValues } from '@wso2-enterprise/ballerina-side-panel';
 import FormGeneratorNew from '../../../../Forms/FormGeneratorNew';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { URI, Utils } from 'vscode-uri';
+import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 
 
 enum Views {
@@ -135,55 +136,50 @@ export function ResponseEditor(props: ParamProps) {
         setCurrentView(view as Views);
     };
 
+    const handleCheckChange = (view: string) => {
+        if (currentView === Views.EXISTING) {
+            setCurrentView(Views.NEW);
+        } else {
+            setCurrentView(Views.EXISTING);
+        }
+    };
+
     return (
         <EditorContainer>
-            <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Response Configuration</Typography>
+            <EditorContent>
+                <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Response Configuration</Typography>
+                <VSCodeCheckbox checked={currentView === Views.EXISTING} onChange={handleCheckChange} id="is-req-checkbox">
+                    Use Existing
+                </VSCodeCheckbox>
+            </EditorContent>
             <Divider />
-            <Tabs
-                sx={{ paddingLeft: 10 }}
-                childrenSx={{ overflowY: "auto" }}
-                tabTitleSx={{ marginLeft: 5 }}
-                titleContainerSx={{
-                    position: "sticky",
-                    top: 0,
-                    zIndex: 5,
-                }}
-                views={[
-                    { id: Views.NEW, name: 'Create New' },
-                    { id: Views.EXISTING, name: 'Use Existing' }
-                ]}
-                currentViewId={currentView}
-                onViewChange={handleViewChange}
-            >
-                <div id={Views.NEW}>
-                    {filePath && targetLineRange &&
-                        <FormGeneratorNew
-                            fileName={filePath}
-                            targetLineRange={targetLineRange}
-                            fields={newFields}
-                            onBack={handleOnCancel}
-                            onSubmit={handleOnNewSubmit}
-                            submitText={isEdit ? "Save" : "Add"}
-                            nestedForm={true}
-                            helperPaneSide='left'
-                        />
-                    }
+            {currentView === Views.NEW && filePath && targetLineRange &&
+                <div>
+                    <FormGeneratorNew
+                        fileName={filePath}
+                        targetLineRange={targetLineRange}
+                        fields={newFields}
+                        onBack={handleOnCancel}
+                        onSubmit={handleOnNewSubmit}
+                        submitText={isEdit ? "Save" : "Add"}
+                        nestedForm={true}
+                        helperPaneSide='left'
+                    />
+                </div>}
+            {currentView === Views.EXISTING && filePath && targetLineRange &&
+                <div>
+                    <FormGeneratorNew
+                        fileName={filePath}
+                        targetLineRange={targetLineRange}
+                        fields={existingFields}
+                        onBack={handleOnCancel}
+                        onSubmit={handleOnExistingSubmit}
+                        submitText={isEdit ? "Save" : "Add"}
+                        nestedForm={true}
+                        helperPaneSide='left'
+                    />
                 </div>
-                <div id={Views.EXISTING}>
-                    {filePath && targetLineRange &&
-                        <FormGeneratorNew
-                            fileName={filePath}
-                            targetLineRange={targetLineRange}
-                            fields={existingFields}
-                            onBack={handleOnCancel}
-                            onSubmit={handleOnExistingSubmit}
-                            submitText={isEdit ? "Save" : "Add"}
-                            nestedForm={true}
-                            helperPaneSide='left'
-                        />
-                    }
-                </div>
-            </Tabs>
+            }
         </EditorContainer >
     );
 }

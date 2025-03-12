@@ -24,7 +24,8 @@ export const EditorContent = styled.div<CSSObject>`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 16px;
+    padding-left: 16px;
+    padding-right: 16px;
     gap: 10px;
 `;
 
