@@ -319,7 +319,8 @@ export function TypeEditor(props: TypeEditorProps) {
                             onImportJson={() => setEditorState(ConfigState.IMPORT_FROM_JSON)}
                             onImportXml={() => setEditorState(ConfigState.IMPORT_FROM_XML)}
                         />
-                        <AdvancedOptions type={type} onChange={setType} />
+                        {/* Temporary disabled till we get the LS support for closed records creation */}
+                        {/* <AdvancedOptions type={type} onChange={setType} /> */}
                     </>
                 );
             case TypeKind.ENUM:
