@@ -19,11 +19,11 @@ export interface ResultItem {
     id: string;
     fileName: string;
     codeFileName: string;
-    startRowforCodeChangedAction: number;
-    endRowforCodeChangedAction: number;
+    startRowforImplementationChangedAction: number;
+    endRowforImplementationChangedAction: number;
     startRowforDocChangedAction: number;
     endRowforDocChangedAction: number;
-    codeChangeSolution: string;
+    implementationChangeSolution: string;
     docChangeSolution: string;
     cause: string;
 }

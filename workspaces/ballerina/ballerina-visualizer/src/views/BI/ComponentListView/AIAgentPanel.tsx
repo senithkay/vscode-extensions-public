@@ -37,8 +37,8 @@ export function AIAgentPanel(props: AIAgentPanelProps) {
     return (
         <PanelViewMore disabled={isDisabled}>
             <TitleWrapper>
-                <Title variant="h2">AI Agents</Title>
-                <BodyText>Create an agentic system by integrating an LLM with other services and tools.</BodyText>
+                <Title variant="h2">AI Agent</Title>
+                <BodyText>Create an agent that you can chat with or use as an API.</BodyText>
             </TitleWrapper>
             <CardGrid>
                 <ButtonCard

@@ -61,7 +61,7 @@ export function FileIntegrationPanel(props: FileIntegrationPanelProps) {
         <PanelViewMore disabled={isDisabled}>
             <TitleWrapper>
                 <Title variant="h2">File Integration</Title>
-                <BodyText>Select the file integration type that best suits your project's needs.</BodyText>
+                <BodyText>Create an integration that can be triggered by the availability of files in a location.</BodyText>
             </TitleWrapper>
             <CardGrid>
                 {triggers.local
