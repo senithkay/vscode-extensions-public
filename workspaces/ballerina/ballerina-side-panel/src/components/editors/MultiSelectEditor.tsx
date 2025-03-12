@@ -153,8 +153,8 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
                         disabled={!field.editable}
                         sx={{ width: "100%" }}
                         containerSx={{ width: "100%" }}
-                        addNewBtnClick={() => openSubPanel({ view: SubPanelView.ADD_NEW_FORM })}
-                        addNewBtnLabel={field.addNewButtonLabel || field.label}
+                        addNewBtnClick={field.addNewButton ? () => openSubPanel({ view: SubPanelView.ADD_NEW_FORM }) : undefined}
+                        addNewBtnLabel={field.addNewButton ? (field.addNewButtonLabel || field.label) : undefined}
                     />
                     {
                         <S.DeleteButton
