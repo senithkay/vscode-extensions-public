@@ -50,7 +50,7 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
 
     useEffect(() => {
         fetchProject();
-    }, []);
+    }, [projectStructure]);
 
     const fetchProject = () => {
         rpcClient
