@@ -1359,6 +1359,7 @@ export function AIChat() {
         functionIdentifier: string,
         testPlan: string
     ) {
+        const testPath = "tests/test.bal";
         setIsCodeLoading(true);
         let assistantResponse = `${testPlan}`;
 
@@ -1386,6 +1387,43 @@ export function AIChat() {
                 targetIdentifier: functionIdentifier,
                 testPlan,
             });
+            updateAssistantMessage(`\n<progress>Analyzing generated tests for potential issues.</progress>`);
+
+            let existingSource = "";
+            try {
+                existingSource = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: testPath });
+            } catch {
+                // File doesn't exist
+            }
+            const generatedFullSource = existingSource
+                ? existingSource +
+                  "\n\n// >>>>>>>>>>>>>>TEST CASES NEED TO BE FIXED <<<<<<<<<<<<<<<\n\n" +
+                  response.testSource
+                : response.testSource;
+
+            const diagnostics = await rpcClient.getAiPanelRpcClient().getTestDiagnostics({
+                testSource: generatedFullSource,
+            });
+
+            console.log(diagnostics);
+
+            let testCode = response.testSource;
+            const testConfig = response.testConfig;
+
+            if (diagnostics.diagnostics.length > 0) {
+                updateAssistantMessage(
+                    `\n<progress>Refining tests based on feedback to ensure accuracy and reliability.</progress>`
+                );
+                const fixedCode = await rpcClient.getAiPanelRpcClient().getGeneratedTests({
+                    backendUri: backendRootUri,
+                    targetType: TestGenerationTarget.Function,
+                    targetIdentifier: functionIdentifier,
+                    testPlan: testPlan,
+                    diagnostics: diagnostics,
+                    existingTests: generatedFullSource,
+                });
+                testCode = fixedCode.testSource;
+            }
 
             updateAssistantMessage(
                 `\n\nTest generation completed. Displaying the generated tests for the function ${functionIdentifier} below:`
@@ -1395,8 +1433,13 @@ export function AIChat() {
             setIsCodeLoading(false);
 
             updateAssistantMessage(
-                `\n\n<code filename="tests/test.bal" type="test">\n\`\`\`ballerina\n${response.testSource}\n\`\`\`\n</code>`
+                `\n\n<code filename="${testPath}" type="test">\n\`\`\`ballerina\n${testCode}\n\`\`\`\n</code>`
             );
+            if (testConfig) {
+                updateAssistantMessage(
+                    `\n\n<code filename="tests/Config.toml" type="test">\n\`\`\`ballerina\n${testConfig}\n\`\`\`\n</code>`
+                );
+            }
 
             const userMessage = getUserMessage(content);
             addChatEntry("user", userMessage);
