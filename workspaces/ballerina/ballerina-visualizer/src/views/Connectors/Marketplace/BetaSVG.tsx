@@ -13,11 +13,11 @@ export const BETA_SVG_HEIGHT = 12;
 
 export function BetaSVG() {
     return (
-        <svg width={BETA_SVG_WIDTH} height={BETA_SVG_HEIGHT} >
-            <rect id="Rectangle" className="beta-button" width="26" height="12" rx="4"/>
-            <text id="Beta" className="beta-text" transform="translate(3.75 8.5)">
-                <tspan x="0" y="0">Beta</tspan>
+        <svg width={40} height={16} viewBox="0 0 40 16" xmlns="http://www.w3.org/2000/svg">
+            <rect width="40" height="16" rx="8" fill="#4A90E2" />
+            <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="12" fontFamily="'Roboto', sans-serif">
+                Beta
             </text>
         </svg>
-    )
+    );
 }
