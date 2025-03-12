@@ -86,6 +86,7 @@ export function OtherArtifactsPanel() {
                     icon={<Icon name="bi-ai-function" />}
                     title="Natural Function"
                     onClick={() => handleClick(DIRECTORY_MAP.NATURAL_FUNCTIONS)}
+                    isBeta
                 />
                 <ButtonCard
                     icon={<Icon name="dataMapper" />}
