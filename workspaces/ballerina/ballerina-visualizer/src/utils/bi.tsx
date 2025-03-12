@@ -152,6 +152,7 @@ export function convertNodePropertyToFormField(
         placeholder: property.placeholder,
         editable: isFieldEditable(property, connections, clientName),
         enabled: true,
+        hidden: property.hidden,
         documentation: property.metadata?.description || "",
         value: getFormFieldValue(property, clientName),
         valueType: getFormFieldValueType(property),

@@ -95,6 +95,7 @@ export type Property = {
     optional: boolean;
     editable: boolean;
     advanced?: boolean;
+    hidden?: boolean;
     placeholder?: string;
     valueTypeConstraint?: string | string[];
     codedata?: CodeData;
