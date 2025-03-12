@@ -6,23 +6,41 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Icon } from '@wso2-enterprise/ui-toolkit';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
-import { EVENT_TYPE, MACHINE_VIEW, SCOPE } from '@wso2-enterprise/ballerina-core';
+import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, SCOPE } from '@wso2-enterprise/ballerina-core';
 
 import { CardGrid, PanelViewMore, Title, TitleWrapper } from './styles';
 import { BodyText } from '../../styles';
 import ButtonCard from '../../../components/ButtonCard';
-import { componentListItemTooltip } from './componentListUtils';
+import { AutomationAlreadyExistsTooltip, OutOfScopeComponentTooltip } from './componentListUtils';
 
 interface AutomationPanelProps {
     scope: SCOPE;
 };
 
 export function AutomationPanel(props: AutomationPanelProps) {
+    const [automationExists, setAutomationExists] = useState(false);
     const { rpcClient } = useRpcContext();
-    const isDisabled = props.scope && (props.scope !== SCOPE.AUTOMATION && props.scope !== SCOPE.ANY);
+
+    useEffect(() => {
+        rpcClient
+            .getBIDiagramRpcClient()
+            .getProjectStructure()
+            .then((res) => {
+                setAutomationExists(res.directoryMap[DIRECTORY_MAP.AUTOMATION].length > 0);
+            });
+    }, []);
+
+    const outOfScope = props.scope && (props.scope !== SCOPE.AUTOMATION && props.scope !== SCOPE.ANY);
+    const isDisabled = outOfScope || automationExists;
+
+    const tooltip = outOfScope
+        ? OutOfScopeComponentTooltip
+        : automationExists
+            ? AutomationAlreadyExistsTooltip
+            : "";
 
     const handleClick = async () => {
         await rpcClient.getVisualizerRpcClient().openView({
@@ -45,7 +63,7 @@ export function AutomationPanel(props: AutomationPanelProps) {
                     title="Automation"
                     onClick={handleClick}
                     disabled={isDisabled}
-                    tooltip={componentListItemTooltip(isDisabled)}
+                    tooltip={tooltip}
                 />
             </CardGrid>
         </PanelViewMore>
