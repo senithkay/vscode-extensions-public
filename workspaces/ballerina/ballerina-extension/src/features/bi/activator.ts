@@ -14,6 +14,7 @@ import {
     DIRECTORY_SUB_TYPE,
     EVENT_TYPE,
     FlowNode,
+    FOCUS_FLOW_DIAGRAM_VIEW,
     MACHINE_VIEW
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "../../core";
@@ -69,6 +70,10 @@ export function activate(context: BallerinaExtension) {
 
     commands.registerCommand(BI_COMMANDS.ADD_DATA_MAPPER, () => {
         openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BIDataMapperForm });
+    });
+
+    commands.registerCommand(BI_COMMANDS.ADD_NATURAL_FUNCTION, () => {
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BINPFunctionForm });
     });
 
     commands.registerCommand(BI_COMMANDS.SWITCH_PROJECT, async () => {

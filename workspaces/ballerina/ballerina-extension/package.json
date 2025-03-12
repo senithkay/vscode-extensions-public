@@ -700,6 +700,13 @@
                 "icon": "$(add)",
                 "group": "navigation",
                 "category": "BI"
+            },
+            {
+                "command": "BI.project-explorer.add-natural-function",
+                "title": "Add Natural Function",
+                "icon": "$(add)",
+                "group": "navigation",
+                "category": "BI"
             }
         ],
         "views": {
