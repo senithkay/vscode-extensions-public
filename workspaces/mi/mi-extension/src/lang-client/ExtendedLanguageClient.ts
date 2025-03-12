@@ -65,7 +65,8 @@ import {
     TestConnectorConnectionRequest,
     TestConnectorConnectionResponse,
     CheckDBDriverResponse,
-    RemoveDBDriverResponse
+    RemoveDBDriverResponse,
+    LocalInboundConnectorsResponse
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -270,7 +271,7 @@ export class ExtendedLanguageClient extends LanguageClient {
     }
 
     async getInboundEPUischema(req: GetInboundEPUischemaRequest): Promise<GetInboundEPUischemaResponse> {
-        return this.sendRequest("synapse/getInboundConnectorSchema", { documentPath: req.documentPath, connectorName: req.connectorName });
+        return this.sendRequest("synapse/getInboundConnectorSchema", { documentPath: req.documentPath, connectorId: req.connectorName });
     }
 
     async validateBreakpoints(req: ValidateBreakpointsRequest): Promise<ValidateBreakpointsResponse> {
@@ -387,6 +388,10 @@ export class ExtendedLanguageClient extends LanguageClient {
             return this.sendRequest("synapse/getMediatorUISchemaWithValues", { documentIdentifier: { uri: Uri.file(request.documentUri).toString() }, position: request.range.start });
         }
         return this.sendRequest("synapse/getMediatorUISchema", { mediatorType: request.mediatorType, documentIdentifier: { uri: Uri.file(request.documentUri).toString() }, position: request.range.start });
+    }
+
+    async getLocalInboundConnectors(): Promise<LocalInboundConnectorsResponse> {
+        return this.sendRequest('synapse/getLocalInboundConnectors');
     }
 
     async getConnectionSchema(request: GetConnectionSchemaRequest): Promise<GetConnectionSchemaResponse> {

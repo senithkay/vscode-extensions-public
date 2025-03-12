@@ -232,6 +232,7 @@ import {
     CopyArtifactResponse,
     GetArtifactTypeRequest,
     GetArtifactTypeResponse,
+    LocalInboundConnectorsResponse,
     BuildProjectRequest,
     DeployProjectRequest,
     DeployProjectResponse
@@ -390,6 +391,7 @@ export interface MiDiagramAPI {
     getMediators: (param: GetMediatorsRequest) => Promise<GetMediatorsResponse>;
     getMediator: (param: GetMediatorRequest) => Promise<GetMediatorResponse>;
     updateMediator: (param: UpdateMediatorRequest) => Promise<void>;
+    getLocalInboundConnectors: () => Promise<LocalInboundConnectorsResponse>;
     getConnectionSchema: (param: GetConnectionSchemaRequest) => Promise<GetConnectionSchemaResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
     getHelperPaneInfo: (params: GetHelperPaneInfoRequest) => Promise<GetHelperPaneInfoResponse>;
