@@ -151,7 +151,7 @@
                     "kolab.enableBackgroundDriftCheck": {
                         "type": "boolean",
                         "default": false,
-                        "description": "Enable background drift check for Ballerina program"
+                        "description": "Enable background drift check for Ballerina source"
                     },
                     "kolab.enablePerformanceForecast": {
                         "type": "boolean",
