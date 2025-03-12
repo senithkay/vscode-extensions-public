@@ -19,6 +19,7 @@ import { ServiceModel } from "../interfaces/service";
 
 export async function buildProjectStructure(projectDir: string, langClient: ExtendedLangClientInterface): Promise<ProjectStructureResponse> {
     const result: ProjectStructureResponse = {
+        projectName: "",
         directoryMap: {
             [DIRECTORY_MAP.SERVICES]: [],
             [DIRECTORY_MAP.AUTOMATION]: [],
@@ -90,6 +91,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
     }
 
     for (const pkg of components.packages) {
+        response.projectName = pkg.name;
         for (const module of pkg.modules) {
             response.directoryMap[DIRECTORY_MAP.AUTOMATION].push(...await getComponents(langClient, module.automations, pkg.filePath, "task", DIRECTORY_MAP.AUTOMATION));
             response.directoryMap[DIRECTORY_MAP.SERVICES].push(...await getComponents(langClient, designServices.length > 0 ? designServices : module.services, pkg.filePath, "http-service", DIRECTORY_MAP.SERVICES));
