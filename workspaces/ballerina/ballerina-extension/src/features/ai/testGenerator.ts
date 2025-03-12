@@ -81,27 +81,37 @@ export async function generateTest(
 
         // TODO: At the moment we just look at the test.bal file, technically we should be maintain a state of the test file that we are working,
         // and do the amendments accordingly.
-        const testFile = projectSource.projectTests.find(test =>
-            test.filePath.split('/').pop() === 'test.bal'
-        );
-        const updatedTestGenRequest: TestGenerationRequest = {
-            ...testGenRequest,
-            existingTests: testFile?.content,
-        };
-        const serviceProjectSource: ProjectSource = {
-            sourceFiles: [
-                {
-                    filePath: "service.bal",
-                    content: serviceDeclaration.source
-                }
-            ]
-        };
 
-        const unitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests(updatedTestGenRequest, serviceProjectSource, abortController, openApiSpec);
-        if (isErrorCode(unitTestResp)) {
-            throw new Error((unitTestResp as ErrorCode).message);
+        if (!testGenRequest.diagnostics) {
+            const projectSourceWithTests = await getProjectSourceWithTests(projectRoot);
+            const testFile = projectSourceWithTests.projectTests.find(test =>
+                test.filePath.split('/').pop() === 'test.bal'
+            );
+            const updatedTestGenRequest: TestGenerationRequest = {
+                ...testGenRequest,
+                existingTests: testFile?.content,
+            };
+            const serviceProjectSource: ProjectSource = {
+                sourceFiles: [
+                    {
+                        filePath: "service.bal",
+                        content: serviceDeclaration.source
+                    }
+                ]
+            };
+
+            const unitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests(updatedTestGenRequest, serviceProjectSource, abortController, openApiSpec);
+            if (isErrorCode(unitTestResp)) {
+                throw new Error((unitTestResp as ErrorCode).message);
+            }
+            return unitTestResp as TestGenerationResponse;
+        } else {
+            const updatedUnitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests(testGenRequest, projectSource, abortController, openApiSpec);
+            if (isErrorCode(updatedUnitTestResp)) {
+                throw new Error((updatedUnitTestResp as ErrorCode).message);
+            }
+            return updatedUnitTestResp as TestGenerationResponse;
         }
-        return unitTestResp as TestGenerationResponse;
     } else {
         throw new Error("Invalid test generation target type.");
     }
@@ -284,6 +294,18 @@ async function getProjectSource(dirPath: string): Promise<ProjectSource | null> 
         }
     }
 
+    return projectSource;
+}
+
+async function getProjectSourceWithTests(dirPath: string): Promise<ProjectSource | null> {
+    const projectRoot = await findBallerinaProjectRoot(dirPath);
+
+    if (!projectRoot) {
+        return null;
+    }
+
+    const projectSourceWithTests: ProjectSource = await getProjectSource(dirPath);
+
     // Read tests
     const testsDir = path.join(projectRoot, 'tests');
     if (fs.existsSync(testsDir)) {
@@ -292,12 +314,12 @@ async function getProjectSource(dirPath: string): Promise<ProjectSource | null> 
             if (file.endsWith('.bal') || file.endsWith('Config.toml')) {
                 const filePath = path.join(testsDir, file);
                 const content = await fs.promises.readFile(filePath, 'utf-8');
-                projectSource.projectTests.push({ filePath, content });
+                projectSourceWithTests.projectTests.push({ filePath, content });
             }
         }
     }
 
-    return projectSource;
+    return projectSourceWithTests;
 }
 
 const findMatchingServiceDeclaration = (syntaxTree: SyntaxTree, targetServiceName: string): ServiceDeclaration | null => {

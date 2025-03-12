@@ -219,14 +219,14 @@ export function ConfigureRecordPage(props: ConfigureRecordPageProps) {
 
                             </LabelContainer>
                         )}
-                        {selectedMemberName && recordModel ?
+                        {selectedMemberName && recordModel?.length > 0 ?
                             (
                                 <RecordConfigView
                                     recordModel={recordModel}
                                     onModelChange={handleModelChange}
                                 />
                             ) : (
-                                <Typography variant="body3">No matching record found.</Typography>
+                                <Typography variant="body3">Record construction assistance is unavailable. Please check the Suggestions tab.</Typography>
                             )}
                     </>
                 )}
