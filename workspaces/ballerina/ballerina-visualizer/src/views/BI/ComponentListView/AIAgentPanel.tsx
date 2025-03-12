@@ -9,12 +9,12 @@
 import React from 'react';
 import { Icon } from '@wso2-enterprise/ui-toolkit';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
-import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, SCOPE } from '@wso2-enterprise/ballerina-core';
+import { EVENT_TYPE, MACHINE_VIEW, SCOPE } from '@wso2-enterprise/ballerina-core';
 
 import { CardGrid, PanelViewMore, Title, TitleWrapper } from './styles';
 import { BodyText } from '../../styles';
 import ButtonCard from '../../../components/ButtonCard';
-import { componentListItemTooltip } from './componentListUtils';
+import { OutOfScopeComponentTooltip } from './componentListUtils';
 
 interface AIAgentPanelProps {
     scope: SCOPE;
@@ -37,8 +37,8 @@ export function AIAgentPanel(props: AIAgentPanelProps) {
     return (
         <PanelViewMore disabled={isDisabled}>
             <TitleWrapper>
-                <Title variant="h2">AI Agents</Title>
-                <BodyText>Create an agentic system by integrating an LLM with other services and tools..</BodyText>
+                <Title variant="h2">AI Agent</Title>
+                <BodyText>Create an agent that you can chat with or use as an API.</BodyText>
             </TitleWrapper>
             <CardGrid>
                 <ButtonCard
@@ -46,7 +46,7 @@ export function AIAgentPanel(props: AIAgentPanelProps) {
                     title="AI Chat Agent"
                     onClick={handleClick}
                     disabled={isDisabled}
-                    tooltip={componentListItemTooltip(isDisabled)}
+                    tooltip={isDisabled ? OutOfScopeComponentTooltip : ""}
                 />
             </CardGrid>
         </PanelViewMore>

@@ -13,8 +13,7 @@ import styled from '@emotion/styled';
 import { FileSelect } from '../style';
 import { FileSelector } from '../components/FileSelector';
 import { BallerinaRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
-import { JsonToRecord, Type, TypeDataWithReferences } from '@wso2-enterprise/ballerina-core';
-import { NOT_SUPPORTED_TYPE } from '@wso2-enterprise/ballerina-core';
+import { Type, TypeDataWithReferences, UpdateTypesResponse } from '@wso2-enterprise/ballerina-core';
 
 interface RecordFromJsonProps {
     name: string;
@@ -80,7 +79,25 @@ export const RecordFromJson = (props: RecordFromJsonProps) => {
             isRecordTypeDesc: !isSeparateDefinitions,
             prefix: ""
         });
-        onImport(resp.types.map((t) => t.type));
+
+        //  find the record with the name
+        const record = resp.types.find((t) => t.type.name === name);
+        // if there are other records than the matching name, get the types
+        const otherRecords = resp.types
+            .filter((t) => t.type.name !== name)
+            .map((t) => t.type);
+
+
+        if (otherRecords.length > 0) {
+            await rpcClient.getBIDiagramRpcClient().updateTypes({
+                filePath: 'types.bal',
+                types: otherRecords
+            });
+        }
+
+        if (record) {
+            onImport([record.type]);
+        }
     }
 
     return (

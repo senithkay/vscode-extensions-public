@@ -61,6 +61,8 @@ import {
     FunctionNodeResponse,
     GetRecordConfigRequest,
     GetRecordConfigResponse,
+    GetRecordModelFromSourceRequest,
+    GetRecordModelFromSourceResponse,
     GetTypeRequest,
     GetTypeResponse,
     GetTypesRequest,
@@ -95,16 +97,15 @@ import {
     UpdateRecordConfigRequest,
     UpdateTypeRequest,
     UpdateTypeResponse,
+    UpdateTypesRequest,
+    UpdateTypesResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspaceFolder,
     WorkspacesResponse,
-    buildProjectStructure,
-    GetRecordModelFromSourceRequest,
-    GetRecordModelFromSourceResponse
+    buildProjectStructure
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
-import { writeFileSync } from "fs";
 import * as path from 'path';
 import * as vscode from "vscode";
 
@@ -671,6 +672,18 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
+    async createChoreoComponent(name: string, type: "service" | "manualTask" | "scheduleTask"): Promise<void> {
+        const params = {
+            initialValues: {
+                name,
+                type,
+                buildPackLang: "ballerina",
+            },
+        };
+
+        await commands.executeCommand("wso2.wso2-platform.create.component", params);
+    }
+
     async deployProject(): Promise<void> {
         // If has an automation set the type to scheduled task
         const projectStructure = await this.getProjectStructure();
@@ -686,7 +699,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             name: path.basename(StateMachine.context().projectUri),
             componentDir: StateMachine.context().projectUri
         };
-        commands.executeCommand("wso2.platform.create.component", params);
+        commands.executeCommand("wso2.wso2-platform.create.component", params);
     }
 
     openAIChat(params: AIChatRequest): void {
@@ -974,11 +987,11 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             const { filePath } = params;
             const fileUri = Uri.file(filePath);
             const exprFileSchema = fileUri.with({ scheme: 'expr' });
-    
+
             let languageId: string;
             let version: number;
             let text: string;
-            
+
             try {
                 const textDocument = await workspace.openTextDocument(fileUri);
                 languageId = textDocument.languageId;
@@ -1302,7 +1315,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                                 ),
                                 source
                             );
-                            
+
                             await workspace.applyEdit(workspaceEdit);
                         }
                     }
@@ -1398,7 +1411,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             });
         });
     }
-    
+
     async updateRecordConfig(params: UpdateRecordConfigRequest): Promise<GetRecordConfigResponse> {
         return new Promise((resolve, reject) => {
             StateMachine.langClient().updateRecordConfig(params).then((res) => {
@@ -1409,7 +1422,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             });
         });
     }
-    
+
     async getRecordSource(params: RecordSourceGenRequest): Promise<RecordSourceGenResponse> {
         console.log(">>> requesting record source", params);
         return new Promise((resolve, reject) => {
@@ -1428,6 +1441,29 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 resolve(res);
             }).catch((error) => {
                 console.log(">>> error getting record model from source", error);
+                reject(error);
+            });
+        });
+    }
+
+    async updateTypes(params: UpdateTypesRequest): Promise<UpdateTypesResponse> {
+        return new Promise((resolve, reject) => {
+            const projectUri = StateMachine.context().projectUri;
+            const completeFilePath = path.join(projectUri, params.filePath);
+
+            StateMachine.langClient().updateTypes(
+                { filePath: completeFilePath, types: params.types }
+            ).then((updateTypesresponse: UpdateTypesResponse) => {
+                console.log(">>> update type response", updateTypesresponse);
+                if (updateTypesresponse.textEdits) {
+                    this.updateSource({ textEdits: updateTypesresponse.textEdits });
+                    resolve(updateTypesresponse);
+                } else {
+                    console.log(">>> error updating types", updateTypesresponse?.errorMsg);
+                    resolve(undefined);
+                }
+            }).catch((error) => {
+                console.log(">>> error updating types", error);
                 reject(error);
             });
         });

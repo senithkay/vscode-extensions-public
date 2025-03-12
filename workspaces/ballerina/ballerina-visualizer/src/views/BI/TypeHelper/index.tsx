@@ -31,8 +31,8 @@ type TypeHelperProps = {
     currentType: string;
     currentCursorPosition: number;
     helperPaneHeight: HelperPaneHeight;
-    onChange: (newType: string, newCursorPosition: number) => void;
     typeHelperState: boolean;
+    onChange: (newType: string, newCursorPosition: number) => void;
     changeTypeHelperState: (isOpen: boolean) => void;
 };
 
@@ -163,28 +163,8 @@ const TypeHelperEl = (props: TypeHelperProps) => {
     );
 };
 
-export const getTypeHelper = (
-    typeBrowserRef: RefObject<HTMLDivElement>,
-    filePath: string,
-    targetLineRange: LineRange,
-    currentType: string,
-    currentCursorPosition: number,
-    helperPaneHeight: HelperPaneHeight,
-    typeHelperState: boolean,
-    onChange: (newType: string, newCursorPosition: number) => void,
-    changeTypeHelperState: (isOpen: boolean) => void
-) => {
+export const getTypeHelper = (props: TypeHelperProps) => {
     return (
-        <TypeHelperEl
-            typeHelperState={typeHelperState}
-            typeBrowserRef={typeBrowserRef}
-            filePath={filePath}
-            targetLineRange={targetLineRange}
-            currentType={currentType}
-            currentCursorPosition={currentCursorPosition}
-            helperPaneHeight={helperPaneHeight}
-            onChange={onChange}
-            changeTypeHelperState={changeTypeHelperState}
-        />
+        <TypeHelperEl {...props} />
     );
 };
