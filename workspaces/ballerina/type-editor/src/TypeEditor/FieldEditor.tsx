@@ -41,6 +41,13 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
         });
     };
 
+    const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        onChange({
+            ...member,
+            docs: e.target.value
+        });
+    }
+
     const handleMemberNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onChange({
             ...member,
@@ -178,7 +185,7 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
             {panelOpened && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', border: '1px solid var(--vscode-welcomePage-tileBorder)', marginLeft: '25px', marginBottom: '10px', padding: '8px', borderRadius: '4px' }}>
                     <TextField label='Default Value' value={member.defaultValue} onChange={handleMemberDefaultValueChange} style={{ width: '180px' }} />
-                    <TextField label='Description' value={''} onChange={() => { }} style={{ width: '180px' }} />
+                    <TextField label='Description' value={member.docs} onChange={handleDescriptionChange} style={{ width: '180px' }} />
                     <CheckBox 
                         label="Is Optional Field" 
                         checked={member?.optional} 
