@@ -32,7 +32,7 @@ import * as toml from 'toml';
 
 let controller = new AbortController();
 
-export async function getLLMDiagnostics(projectUri: string, diagnosticCollection: vscode.DiagnosticCollection): Promise<number|null> {
+export async function getLLMDiagnostics(projectUri: string, diagnosticCollection: vscode.DiagnosticCollection): Promise<number | null> {
     const sources = await getBallerinaSourceFiles(projectUri);
     const backendurl = await getBackendURL();
     const token = await getAccessToken();
@@ -50,7 +50,7 @@ export async function getLLMDiagnostics(projectUri: string, diagnosticCollection
     await createDiagnosticCollection(responses, projectUri, diagnosticCollection);
 }
 
-async function getLLMResponses(sources: { balFiles: string; readme: string; requirements: string; developerOverview: string; }, token: string, backendurl: string): Promise<any[]|number> {
+async function getLLMResponses(sources: { balFiles: string; readme: string; requirements: string; developerOverview: string; }, token: string, backendurl: string): Promise<any[] | number> {
     const commentResponsePromise = fetchWithToken(
         backendurl + API_DOCS_DRIFT_CHECK_ENDPOINT,
         {
@@ -78,7 +78,7 @@ async function getLLMResponses(sources: { balFiles: string; readme: string; requ
     );
 
     const [commentResponse, documentationSourceResponse] = await Promise.all([commentResponsePromise, documentationSourceResponsePromise]);
-    
+
     if (isError(commentResponse) || isError(documentationSourceResponse)) {
         return HttpStatusCode.InternalServerError;
     }
@@ -115,15 +115,15 @@ async function createDiagnosticCollection(responses: any[], projectUri: string, 
     });
 }
 
-async function createDiagnosticsResponse(data: DriftResponseData, projectPath: string, 
-                                diagnosticsMap: Map<string, vscode.Diagnostic[]>): Promise<Map<string, vscode.Diagnostic[]>> {
-    for(const result of data.results) {
+async function createDiagnosticsResponse(data: DriftResponseData, projectPath: string,
+    diagnosticsMap: Map<string, vscode.Diagnostic[]>): Promise<Map<string, vscode.Diagnostic[]>> {
+    for (const result of data.results) {
         let fileName = result.fileName;
 
         if (isSkippedDiagnostic(result)) {
             continue;
         }
-        
+
         if (result.codeFileName != undefined && result.codeFileName != null && result.codeFileName != "") {
             fileName = result.codeFileName;
         }
@@ -156,12 +156,12 @@ async function createDiagnostic(result: ResultItem, uri: Uri): Promise<CustomDia
 
     const isSolutionsAvailable = hasCodeChangedRows(result);
     const isDocChangeSolutionsAvailable: boolean = hasDocChangedRows(result);
-    let codeChangeEndPosition = isSolutionsAvailable 
-                                    ? new vscode.Position(result.endRowforImplementationChangedAction - 1, 0)
-                                    : new vscode.Position(0, 0);
-    let docChangeEndPosition = isDocChangeSolutionsAvailable 
-                                    ? new vscode.Position(result.endRowforDocChangedAction - 1, 0)
-                                    : new vscode.Position(0, 0);
+    let codeChangeEndPosition = isSolutionsAvailable
+        ? new vscode.Position(result.endRowforImplementationChangedAction - 1, 0)
+        : new vscode.Position(0, 0);
+    let docChangeEndPosition = isDocChangeSolutionsAvailable
+        ? new vscode.Position(result.endRowforDocChangedAction - 1, 0)
+        : new vscode.Position(0, 0);
 
     let range = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 0));
     const filePath = uri.fsPath;
@@ -205,7 +205,7 @@ async function createDiagnostic(result: ResultItem, uri: Uri): Promise<CustomDia
             docRange: isDocChangeSolutionsAvailable ? new vscode.Range(
                 new vscode.Position(result.startRowforDocChangedAction - 1, 0),
                 docChangeEndPosition
-            ): null
+            ) : null
         }
     );
 
@@ -217,7 +217,7 @@ async function createDiagnostic(result: ResultItem, uri: Uri): Promise<CustomDia
     return diagnostic;
 }
 
-export async function getLLMDiagnosticArrayAsString(projectUri: string): Promise<string|number> {
+export async function getLLMDiagnosticArrayAsString(projectUri: string): Promise<string | number> {
     const sources = await getBallerinaSourceFiles(projectUri);
     const backendurl = await getBackendURL();
     const token = await getAccessToken();
@@ -253,7 +253,7 @@ async function createDiagnosticArray(responses: any[], projectUri: string): Prom
 
     function filterUniqueDiagnostics(diagnostics: vscode.Diagnostic[]): vscode.Diagnostic[] {
         const messageCount = new Map<string, number>();
-    
+
         diagnostics.forEach(diagnostic => {
             const message = diagnostic.message;
             messageCount.set(message, (messageCount.get(message) || 0) + 1);
@@ -266,7 +266,7 @@ async function createDiagnosticArray(responses: any[], projectUri: string): Prom
 }
 
 export function extractResponseAsJsonFromString(jsonString: string): any {
-    try {        
+    try {
         const driftResponse: DriftResponse = JSON.parse(jsonString);
         const drift = driftResponse.drift;
         if (drift == null) {
@@ -473,67 +473,67 @@ export function addAccessTokenToConfig(projectPath: string, token: string, backe
     const targetTable = '[ballerinax.np.defaultModelConfig]';
     const urlLine = `url = "${backendUrl}"`;
     const accessTokenLine = `accessToken = "${token}"`;
-  
+
     let fileContent = '';
-  
+
     if (fs.existsSync(configFilePath)) {
-      fileContent = fs.readFileSync(configFilePath, 'utf-8');
+        fileContent = fs.readFileSync(configFilePath, 'utf-8');
     }
-  
+
     const tableStartIndex = fileContent.indexOf(targetTable);
-  
+
     if (tableStartIndex !== -1) {
-      // Table exists, update it
-      const tableEndIndex = fileContent.indexOf('\n', tableStartIndex);
-  
-      let updatedTableContent = `${targetTable}\n${urlLine}\n${accessTokenLine}`;
-  
-      let urlLineIndex = fileContent.indexOf('url =', tableStartIndex);
-      let accessTokenLineIndex = fileContent.indexOf('accessToken =', tableStartIndex);
-  
-      if (urlLineIndex !== -1 && accessTokenLineIndex !== -1) {
-        // url and accessToken lines exist, replace them
-        const existingUrlLineEnd = fileContent.indexOf('\n', urlLineIndex);
-        const existingAccessTokenLineEnd = fileContent.indexOf('\n', accessTokenLineIndex);
-  
-        fileContent =
-          fileContent.substring(0, urlLineIndex) +
-          urlLine +
-          fileContent.substring(existingUrlLineEnd, accessTokenLineIndex) +
-          accessTokenLine +
-          fileContent.substring(existingAccessTokenLineEnd);
-  
-      } else {
-          //If url or accessToken line not exist, just replace the entire table
-          let nextTableStartIndex = fileContent.indexOf('[', tableEndIndex + 1);
-          if(nextTableStartIndex === -1){
-              fileContent = fileContent.substring(0, tableStartIndex) + updatedTableContent + fileContent.substring(tableEndIndex + 1);
-          } else {
-              let nextLineBreakIndex = fileContent.substring(tableEndIndex+1).indexOf('\n');
-              if (nextLineBreakIndex === -1){
-                  fileContent = fileContent.substring(0, tableStartIndex) + updatedTableContent;
-              } else {
-                   fileContent = fileContent.substring(0, tableStartIndex) + updatedTableContent + fileContent.substring(tableEndIndex + 1);
-              }
-          }
-      }
+        // Table exists, update it
+        const tableEndIndex = fileContent.indexOf('\n', tableStartIndex);
+
+        let updatedTableContent = `${targetTable}\n${urlLine}\n${accessTokenLine}`;
+
+        let urlLineIndex = fileContent.indexOf('url =', tableStartIndex);
+        let accessTokenLineIndex = fileContent.indexOf('accessToken =', tableStartIndex);
+
+        if (urlLineIndex !== -1 && accessTokenLineIndex !== -1) {
+            // url and accessToken lines exist, replace them
+            const existingUrlLineEnd = fileContent.indexOf('\n', urlLineIndex);
+            const existingAccessTokenLineEnd = fileContent.indexOf('\n', accessTokenLineIndex);
+
+            fileContent =
+                fileContent.substring(0, urlLineIndex) +
+                urlLine +
+                fileContent.substring(existingUrlLineEnd, accessTokenLineIndex) +
+                accessTokenLine +
+                fileContent.substring(existingAccessTokenLineEnd);
+
+        } else {
+            //If url or accessToken line not exist, just replace the entire table
+            let nextTableStartIndex = fileContent.indexOf('[', tableEndIndex + 1);
+            if (nextTableStartIndex === -1) {
+                fileContent = fileContent.substring(0, tableStartIndex) + updatedTableContent + fileContent.substring(tableEndIndex + 1);
+            } else {
+                let nextLineBreakIndex = fileContent.substring(tableEndIndex + 1).indexOf('\n');
+                if (nextLineBreakIndex === -1) {
+                    fileContent = fileContent.substring(0, tableStartIndex) + updatedTableContent;
+                } else {
+                    fileContent = fileContent.substring(0, tableStartIndex) + updatedTableContent + fileContent.substring(tableEndIndex + 1);
+                }
+            }
+        }
     } else {
-      // Table doesn't exist, create it
-      if (fileContent.length > 0 && !fileContent.endsWith('\n')) {
-        fileContent += '\n\n';
-      }
-      fileContent += `\n${targetTable}\n${urlLine}\n${accessTokenLine}\n`;
+        // Table doesn't exist, create it
+        if (fileContent.length > 0 && !fileContent.endsWith('\n')) {
+            fileContent += '\n\n';
+        }
+        fileContent += `\n${targetTable}\n${urlLine}\n${accessTokenLine}\n`;
     }
-  
+
     fs.writeFileSync(configFilePath, fileContent);
-  }
+}
 
 function isSkippedDiagnostic(result: ResultItem) {
     const cause = result.cause.toLowerCase();
-    if (cause.includes(LACK_OF_API_DOCUMENTATION_WARNING) || cause.includes(LACK_OF_API_DOCUMENTATION_WARNING_2) || cause.includes(MISSING_API_DOCS_2) 
-        || cause.includes(MISSING_API_DOCS) || cause.includes(NO_DOCUMENTATION_WARNING) || cause.includes(MISSING_README_FILE_WARNING) 
+    if (cause.includes(LACK_OF_API_DOCUMENTATION_WARNING) || cause.includes(LACK_OF_API_DOCUMENTATION_WARNING_2) || cause.includes(MISSING_API_DOCS_2)
+        || cause.includes(MISSING_API_DOCS) || cause.includes(NO_DOCUMENTATION_WARNING) || cause.includes(MISSING_README_FILE_WARNING)
         || cause.includes(MISSING_REQUIREMENT_FILE) || cause.includes(MISSING_README_FILE_WARNING_2)) {
-            return true;
+        return true;
     }
     return false;
 }
