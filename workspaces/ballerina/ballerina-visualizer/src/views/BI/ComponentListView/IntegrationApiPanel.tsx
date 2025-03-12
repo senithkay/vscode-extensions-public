@@ -40,7 +40,7 @@ export function IntegrationAPIPanel(props: IntegrationAPIPanelProps) {
                 <TitleWrapper>
                     <Title variant="h2">Integration as API</Title>
                     <BodyText>
-                        Explore and manage various components to enhance your integration capabilities.
+                        Create an integration that can be exposed as an API in the specified protocol.
                     </BodyText>
                 </TitleWrapper>
                 <CardGrid>

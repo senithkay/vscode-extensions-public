@@ -533,7 +533,7 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
             <TitleBar title="Test" subtitle="Create a new test for your integration" />
             <ViewContent padding>
                 <Container>
-                    <FormHeader title={formTitle} subtitle={`Define a test case that can be used within the integration.`} />
+                    <FormHeader title={formTitle} />
                     <FormContainer>
                         <Form
                             formFields={formFields}

@@ -129,7 +129,7 @@ function getShortNames(name: string) {
         case "BI Diagram":
             return "Diagram";
         case "BI Component View":
-            return "Constructs";
+            return "Artifacts";
         case "BI Welcome":
             return "Welcome";
         case "BI Project Form":
