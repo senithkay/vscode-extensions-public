@@ -255,13 +255,13 @@ async function ensureBallerinaFilesIfEmpty(
 }
 
 async function ensureMIFilesIfEmpty(name: string, directoryPath: string, integrationDisplayType: string): Promise<void> {
-	const createMiFiles = ()=>{
+	const createMiFiles = async()=>{
 		const wso2Ext = extensions.getExtension("wso2.micro-integrator");
 		if (!wso2Ext) {
 			console.error("Skipping MI project scaffolding as 'wso2.micro-integrator' is not installed")
 		}
 		const scopeVal = integrationDisplayType.toLowerCase().replaceAll(" ", "-").replaceAll("+","-");;
-		commands.executeCommand("MI.project-explorer.create-project", {
+		await commands.executeCommand("MI.project-explorer.create-project", {
 			name: name,
 			path: directoryPath,
 			scope: scopeVal
@@ -270,13 +270,13 @@ async function ensureMIFilesIfEmpty(name: string, directoryPath: string, integra
 	try {
 		const files = readdirSync(directoryPath);
 		if (!files.some((file) => file.toLowerCase() === "pom.xml")) {
-			createMiFiles()
+			await createMiFiles()
 		}
 	} catch (err: any) {
 		if (err.code === "ENOENT") {
 			try {
 				mkdirSync(directoryPath, { recursive: true });
-				createMiFiles()
+				await createMiFiles()
 			} catch (mkdirError: any) {
 				console.error("Error creating directory or files:", mkdirError);
 			}
