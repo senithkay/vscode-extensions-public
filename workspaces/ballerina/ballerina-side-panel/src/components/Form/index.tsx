@@ -296,7 +296,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     }
                 });
             }
-        } 
+        }
     }, [updatedExpressionField]);
 
     const handleOnSave = (data: FormValues) => {
@@ -399,7 +399,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
     }
 
     // has advance fields
-    const hasAdvanceFields = formFields.some((field) => field.advanced);
+    const hasAdvanceFields = formFields.some((field) => field.advanced && field.enabled);
     const variableField = formFields.find((field) => field.key === "variable");
     const typeField = formFields.find((field) => field.key === "type");
     const dataMapperField = formFields.find((field) => field.label.includes("Data mapper"));
