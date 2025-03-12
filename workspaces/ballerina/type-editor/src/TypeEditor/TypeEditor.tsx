@@ -405,7 +405,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             {isNewType && (
                                 <Dropdown
                                     id="type-selector"
-                                    label="Type"
+                                    label="Kind"
                                     value={getTypeKindLabel(selectedTypeKind, isGraphql)}
                                     items={getAvailableTypeKinds(isGraphql, selectedTypeKind).map((kind) => ({
                                         label: getTypeKindLabel(kind, isGraphql),
