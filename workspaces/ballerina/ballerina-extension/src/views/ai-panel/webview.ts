@@ -33,7 +33,7 @@ export class AiPanelWebview {
     private static createWebview(): vscode.WebviewPanel {
         const panel = vscode.window.createWebviewPanel(
             AiPanelWebview.viewType,
-            StateMachine.context().isBI ? "WSO2 Copilot" : "WSO2 Copilot",
+            "WSO2 Copilot",
             ViewColumn.Beside,
             {
                 enableScripts: true,
@@ -42,8 +42,8 @@ export class AiPanelWebview {
             }
         );
         panel.iconPath = {
-            light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'dark-hubot.svg')),
-            dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'light-hubot.svg'))
+            light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'dark-ai-chat.svg')),
+            dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'light-ai-chat.svg'))
         };
         return panel;
     }
