@@ -715,8 +715,8 @@ async function checkIfMiProject() {
                 if (rpcManager) {
                     await rpcManager.createProject(
                         {
-                            directory: args.path,
-                            name: args.name,
+                            directory: path.dirname(args.path),
+                            name: path.basename(args.path),
                             open: false,
                             miVersion: "4.4.0"
                         }
@@ -744,9 +744,9 @@ async function checkIfMiProject() {
 
 async function createSettingsFile(args) {
     const projectPath = args.path;
-    const settingsPath = path.join(projectPath, args.name, '.vscode', 'settings.json');
+    const settingsPath = path.join(projectPath, '.vscode', 'settings.json');
     try {
-        const vscodeDir = path.join(projectPath, args.name, '.vscode');
+        const vscodeDir = path.join(projectPath, '.vscode');
         if (!fs.existsSync(vscodeDir)) {
             fs.mkdirSync(vscodeDir);
         }
