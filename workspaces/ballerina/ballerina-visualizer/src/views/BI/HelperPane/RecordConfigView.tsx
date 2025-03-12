@@ -13,19 +13,19 @@ import styled from "@emotion/styled";
 import { MemoizedParameterBranch } from "./RecordConstructView/ParameterBranch";
 
 interface ConfigureViewProps {
-  recordModel: TypeField[];
-  onModelChange: (updatedModel: TypeField[]) => void;
+    recordModel: TypeField[];
+    onModelChange: (updatedModel: TypeField[]) => void;
 }
 
 export const LabelContainer = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'flex-start',
-  paddingBottom: '10px'
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    paddingBottom: '10px'
 });
 
 export const Description = styled.div({
-  color: 'var(--vscode-list-deemphasizedForeground)',
+    color: 'var(--vscode-list-deemphasizedForeground)',
 });
 
 const Label = styled.div<{}>`
@@ -42,26 +42,20 @@ export const PanelBody = styled.div`
 
 
 export function RecordConfigView(props: ConfigureViewProps) {
-  const { recordModel, onModelChange } = props;
+    const { recordModel, onModelChange } = props;
 
-  const handleOnChange = async () => {
-    onModelChange(recordModel);
-  }
+    const handleOnChange = async () => {
+        onModelChange(recordModel);
+    }
 
-  return (
-    <PanelBody>
-      {recordModel?.length > 0 ? (
-        <>
-          <LabelContainer>
-            <Description >{`Select fields to construct the record`}</Description>
-          </LabelContainer>
-          <MemoizedParameterBranch key={JSON.stringify(recordModel)} parameters={recordModel} depth={1} onChange={handleOnChange} />
-        </>
-      ) :
-        <LabelContainer>
-          <Label>{`No record fields found`}</Label>
-        </LabelContainer>
-      }
-    </PanelBody>
-  );
+    return (
+        <PanelBody>
+            <>
+                <LabelContainer>
+                    <Description >{`Select fields to construct the record`}</Description>
+                </LabelContainer>
+                <MemoizedParameterBranch key={JSON.stringify(recordModel)} parameters={recordModel} depth={1} onChange={handleOnChange} />
+            </>
+        </PanelBody>
+    );
 }
