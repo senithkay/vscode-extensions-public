@@ -37,7 +37,7 @@ export function AutomationPanel(props: AutomationPanelProps) {
         <PanelViewMore disabled={isDisabled}>
             <TitleWrapper>
                 <Title variant="h2">Automation</Title>
-                <BodyText>Explore automation options to streamline your integration processes.</BodyText>
+                <BodyText>Create an automation that can be invoked periodically or manually.</BodyText>
             </TitleWrapper>
             <CardGrid>
                 <ButtonCard

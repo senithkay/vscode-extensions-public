@@ -165,7 +165,7 @@ export async function getView(documentUri: string, position: NodePosition, proje
             };
         } else if (
             STKindChecker.isFunctionDefinition(node.syntaxTree) &&
-            node.syntaxTree.functionBody.source.includes("@np:LlmCall external")
+            node.syntaxTree.functionBody.source.includes("@np:NaturalFunction external")
         ) {
             return {
                 location: {
@@ -179,28 +179,17 @@ export async function getView(documentUri: string, position: NodePosition, proje
             || STKindChecker.isResourceAccessorDefinition(node.syntaxTree)
             || STKindChecker.isObjectMethodDefinition(node.syntaxTree)
         ) {
-            if (StateMachine.context().isBI) {
-                return {
-                    location: {
-                        view: MACHINE_VIEW.BIDiagram,
-                        documentUri: documentUri,
-                        position: node.syntaxTree.position,
-                        metadata: {
-                            enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
-                        }
-                    },
-                    dataMapperDepth: 0
-                };
-            }
             return {
                 location: {
-                    view: MACHINE_VIEW.SequenceDiagram,
+                    view: MACHINE_VIEW.BIDiagram,
                     documentUri: documentUri,
-                    position: position
+                    position: node.syntaxTree.position,
+                    metadata: {
+                        enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
+                    }
                 },
                 dataMapperDepth: 0
             };
-
         }
 
         // config variables
