@@ -15,10 +15,11 @@ import { BISequenceDiagram } from "../SequenceDiagram";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { TitleBar } from "../../../components/TitleBar";
-import { EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, FOCUS_FLOW_DIAGRAM_VIEW, FocusFlowDiagramView } from "@wso2-enterprise/ballerina-core";
 import { VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import styled from "@emotion/styled";
+import { BIFocusFlowDiagram } from "../FocusFlowDiagram";
 
 const ActionButton = styled(Button)`
     display: flex;
@@ -57,10 +58,12 @@ const Parameters = styled.span`
 export interface DiagramWrapperProps {
     syntaxTree: STNode;
     projectPath: string;
+    filePath?: string;
+    view?: FocusFlowDiagramView;
 }
 
 export function DiagramWrapper(param: DiagramWrapperProps) {
-    const { syntaxTree, projectPath } = param;
+    const { syntaxTree, projectPath, filePath, view } = param;
     const { rpcClient } = useRpcContext();
 
     const [showSequenceDiagram, setShowSequenceDiagram] = useState(false);
@@ -179,7 +182,7 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
             )}
             {!isResource && !isAutomation && (
                 <TitleBar
-                    title={"Function"}
+                    title={getTitle(view)}
                     subtitleElement={
                         <SubTitleWrapper>
                             <Path>{method}</Path>
@@ -235,16 +238,34 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                     onUpdate={handleUpdateDiagram}
                     onReady={handleReadyDiagram}
                 />
-            ) : (
-                <BIFlowDiagram
-                    syntaxTree={syntaxTree}
-                    projectPath={projectPath}
-                    onUpdate={handleUpdateDiagram}
-                    onReady={handleReadyDiagram}
-                />
-            )}
+            ) : 
+                view ? (
+                    <BIFocusFlowDiagram
+                        syntaxTree={syntaxTree}
+                        projectPath={projectPath}
+                        filePath={filePath}
+                        onUpdate={handleUpdateDiagram}
+                        onReady={handleReadyDiagram}
+                        view={view}
+                    />
+                ) : (
+                    <BIFlowDiagram
+                        syntaxTree={syntaxTree}
+                        projectPath={projectPath}
+                        onUpdate={handleUpdateDiagram}
+                        onReady={handleReadyDiagram}
+                    />
+                )
+            }
         </View>
     );
+}
+
+function getTitle(view: FocusFlowDiagramView) {
+    if (view === FOCUS_FLOW_DIAGRAM_VIEW.NP_FUNCTION) {
+        return "Natural Function";
+    }
+    return "Function";
 }
 
 function getResourcePath(resource: STNode) {
@@ -262,6 +283,23 @@ function getParameters(syntaxTree: STNode) {
         return syntaxTree.functionSignature.parameters
             .map((param) => {
                 if (!STKindChecker.isCommaToken(param)) {
+                    return `${param.paramName.value}: ${param.typeName.source.trim()}`;
+                }
+                return null;
+            })
+            .filter(Boolean)
+            .join(", ");
+    } else if (
+        STKindChecker.isFunctionDefinition(syntaxTree) &&
+        syntaxTree.functionBody.source.includes("@np:NaturalFunction external")
+    ) {
+        return syntaxTree.functionSignature.parameters
+            .map((param) => {
+                if (
+                    !STKindChecker.isCommaToken(param) &&
+                    param.paramName.value !== "prompt" &&
+                    param.paramName.value !== "context"
+                ) {
                     return `${param.paramName.value}: ${param.typeName.source.trim()}`;
                 }
                 return null;
