@@ -147,7 +147,6 @@ export namespace NodeStyles {
         overflow: hidden;
         text-overflow: ellipsis;
         display: -webkit-box;
-        -webkit-line-clamp: 10;
         -webkit-box-orient: vertical;
         width: 100%;
         max-height: calc(100% - 5px);
