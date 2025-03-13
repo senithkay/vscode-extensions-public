@@ -170,7 +170,7 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                     actions={
                         serviceType === 'http' || isAgent ? (
                             <ActionButton appearance="secondary" onClick={() => handleResourceTryIt(method, getResourcePath(syntaxTree))}      >
-                                <Icon name={isAgent ? "chat" : "play"} isCodicon={true} sx={{ marginRight: 5, width: 16, height: 16, fontSize: 14 }} />
+                                <Icon name={isAgent ? "comment-discussion" : "play"} isCodicon={true} sx={{ marginRight: 5, width: 16, height: 16, fontSize: 14 }} />
                                 {isAgent ? "Chat" : "Try It"}
                             </ActionButton>
                         ) : null
@@ -210,7 +210,7 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                     }
                 />
             )}
-            {enableSequenceDiagram && (
+            {enableSequenceDiagram && !isAgent && (
                 <Switch
                     leftLabel="Flow"
                     rightLabel="Sequence"
