@@ -903,6 +903,10 @@ async function runBallerinaBuildsWithProgress(projectPath: string) {
                             const copyTo = path.join(workspaceFolder?.uri.fsPath || '', 'src', 'main', 'wso2mi', 'resources', 'connectors', zipName);
                             if (fs.existsSync(copyTo)) {
                                 await fs.promises.rm(copyTo, { force: true });
+
+                                // TODO: Remove this after fixing the issue from LS side
+                                // https://github.com/wso2/mi-vscode/issues/952
+                                await new Promise((resolve) => setTimeout(resolve, 1000));
                             }
                             await fs.promises.copyFile(zipPath, copyTo);
                             await fs.promises.rm(zipPath);
