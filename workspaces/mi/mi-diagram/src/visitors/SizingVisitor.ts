@@ -80,7 +80,7 @@ import {
 import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { Diagnostic } from "vscode-languageserver-types";
 import { StartNodeType } from "../components/nodes/StartNode/StartNodeModel";
-import { Tool } from "@wso2-enterprise/mi-syntax-tree/src";
+import { AIConnector, Tool } from "@wso2-enterprise/mi-syntax-tree/src";
 import { getTextSizes } from "../utils/node";
 
 export interface DiagramDimensions {
@@ -557,14 +557,21 @@ export class SizingVisitor implements Visitor {
     endVisitRewrite = (node: Rewrite): void => this.calculateBasicMediator(node);
 
     // Connectors
-    beginVisitConnector = (node: Connector): void => { this.skipChildrenVisit = true; }
-    endVisitConnector = (node: Connector): void => {
+    beginVisitConnector = (node: AIConnector): void => { this.skipChildrenVisit = true; }
+    endVisitConnector = (node: AIConnector): void => {
         this.calculateBasicMediator(node, NODE_DIMENSIONS.AI_AGENT.WIDTH);
         if (node.connectorName === 'ai') {
             const tools = node.tools;
             const toolsList = tools?.tools;
             const systemPrompt = node?.parameters?.filter((property: any) => property.name === "system")[0]?.value;
             const prompt = node?.parameters?.filter((property: any) => property.name === "prompt")[0]?.value;
+
+            const connections: any[] = [];
+            if (node.connections?.["LLM Connection"]) connections.push(node.connections["LLM Connection"]);
+            if (node.connections?.["Memory Connection"]) connections.push(node.connections["Memory Connection"]);
+            if (node.connections?.["Embedding Connection"]) connections.push(node.connections["Embedding Connection"]);
+            if (node.connections?.["Vector Store Connection"]) connections.push(node.connections["Vector Store Connection"]);
+            const connectionsHeight = (NODE_DIMENSIONS.CONNECTOR.HEIGHT + NODE_GAP.CONNECTION_CIRCLE_Y) * connections.length;
 
             let subSequencesWidth = 0;
             let subSequencesHeight = 0;
@@ -591,7 +598,7 @@ export class SizingVisitor implements Visitor {
             const systemPromptHeight = systemPrompt ? 36 + systemPromptSize.height : 0;
             const promptHeight = prompt ? 36 + promptSize.height : 0;
 
-            const topGap = NODE_GAP.AI_AGENT_TOP + systemPromptHeight + 5 + promptHeight;
+            const topGap = Math.max((NODE_GAP.AI_AGENT_TOP + systemPromptHeight + 5 + promptHeight), connectionsHeight);
             const bottomGap = NODE_GAP.AI_AGENT_BOTTOM;
 
             node.viewState.fh = topGap + subSequencesHeight + bottomGap;

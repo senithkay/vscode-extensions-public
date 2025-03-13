@@ -12,7 +12,7 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { AiAgentNodeModel } from "./AiAgentNodeModel";
 import { Colors, NODE_DIMENSIONS, NODE_GAP } from "../../../resources/constants";
-import { Connector, STNode } from "@wso2-enterprise/mi-syntax-tree/src";
+import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { ClickAwayListener, Menu, MenuItem, Popover, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
@@ -21,8 +21,8 @@ import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";
 import { Body, Description, Header, Name, OptionsMenu } from "../BaseNodeModel";
 import path from "path";
 import { FirstCharToUpperCase } from "../../../utils/commons";
-import { handleOnConnectionClick } from "../CommonUtils";
 import { getTextSizes } from "../../../utils/node";
+import { AIConnector, AIConnectorConnection } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 namespace S {
     export type NodeStyleProp = {
@@ -126,14 +126,6 @@ namespace S {
         font-family: var(--font-family);
         font-size: var(--type-ramp-base-font-size);
     `;
-
-    export const ConnectionText = styled.div`
-        width: 170px;
-        text-align: center;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    `;
 }
 
 interface CallNodeWidgetProps {
@@ -144,12 +136,12 @@ interface CallNodeWidgetProps {
 
 export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine } = props;
-    const [isHovered, setIsHovered] = React.useState(false);
     const [isSelected, setIsSelected] = useState(false);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-    const [isHoveredConfigCircle, setIsHoveredConfigCircle] = React.useState(false);
-    const [isHoveredMemoryConfigCircle, setIsHoveredMemoryConfigCircle] = React.useState(false);
+    const [isHovered, setIsHovered] = React.useState({
+        node: false,
+    });
 
 
     const [iconPath, setIconPath] = useState(null);
@@ -161,11 +153,15 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
     const hasDiagnotics = node.hasDiagnotics();
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
-    const stNode = node.getStNode() as Connector;
+    const stNode = node.getStNode() as AIConnector;
     const connectorName = stNode.connectorName;
     const methodName = stNode.method;
-    const configKey = stNode.configKey;
-    const memoryConfigKey = stNode.memoryConfigKey;
+
+    const connections: any = {};
+    if (stNode.connections?.["LLM Connection"]) connections["LLM"] = stNode.connections["LLM Connection"];
+    if (stNode.connections?.["Memory Connection"]) connections["Memory"] = stNode.connections["Memory Connection"];
+    if (stNode.connections?.["Embedding Connection"]) connections["Embedding"] = stNode.connections["Embedding Connection"];
+    if (stNode.connections?.["Vector Store Connection"]) connections["Vector Store"] = stNode.connections["Vector Store Connection"];
 
     const systemPrompt = stNode.parameters?.filter((property: any) => property.name === "system")[0]?.value;
     const prompt = stNode.parameters?.filter((property: any) => property.name === "prompt")[0]?.value;
@@ -207,7 +203,7 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                 documentUri: node.documentUri,
                 connectorName: stNode.tag.split(".")[0]
             });
-            const connection = connectionData.connections.find((connection: any) => connection.name === configKey);
+            const connection = connectionData.connections.find((connection: any) => connection.name === "llmConnection");
             const connectionType = connection ? connection.connectionType : null;
 
             const connectionIconPath = await rpcClient.getMiDiagramRpcClient().getIconPathUri({
@@ -257,7 +253,7 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                     parameters: stNode.parameters ?? [],
                     connectorName: connectorData.name,
                     operationName: operationName,
-                    connectionName: configKey,
+                    connectionName: "llmConnection",
                     icon: iconPath,
                 },
                 parentNode: node.mediatorName,
@@ -275,34 +271,51 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
         );
     }, [tooltip])
 
-
-    const ConnectionCircle = () => {
-        return <S.CircleContainer
-        >
-            <svg width="110" height="50" viewBox="0 0 103 40"
-                onClick={(e) => handleOnConnectionClick(e, node, stNode, rpcClient)}
-            >
-                <g onMouseEnter={() => setIsHoveredConfigCircle(true)} onMouseLeave={() => setIsHoveredConfigCircle(false)}>
+    const ConnectionCircle = (connection: AIConnectorConnection, marginTop: string, type: string) => {
+        return <S.CircleContainer style={{ marginTop }}>
+            <svg width="135" height="70" viewBox="0 0 128 60">
+                <g onMouseEnter={() => setIsHovered({ ...isHovered, [type]: true })} onMouseLeave={() => setIsHovered({ ...isHovered, [type]: false })}>
                     <circle
-                        cx="80"
+                        cx="100"
                         cy="20"
                         r="22"
                         fill={Colors.SURFACE_BRIGHT}
                         strokeWidth={2}
-                        style={{ stroke: isHoveredConfigCircle ? Colors.SECONDARY : Colors.OUTLINE_VARIANT }}
+                        style={{ stroke: isHovered[type as keyof typeof isHovered] ? Colors.SECONDARY : Colors.OUTLINE_VARIANT }}
                     />
 
-                    {connectionIconPath && <g transform="translate(68,7)">
+                    {connectionIconPath && <g transform="translate(88,7)">
                         <foreignObject width="25" height="25">
                             <img src={connectionIconPath} alt="Icon" />
                         </foreignObject>
                     </g>}
+
+                    <text
+                        x="100"
+                        y="55"
+                        textAnchor="middle"
+                        fill={Colors.ON_SURFACE}
+                        fontSize="12"
+                        fontFamily="Arial, sans-serif"
+                    >
+                        {connection.name}
+                    </text>
                 </g>
 
+                <text
+                    x="37"
+                    y="15"
+                    textAnchor="middle"
+                    fill={Colors.OUTLINE_VARIANT}
+                    fontSize="12"
+                    fontFamily="Arial, sans-serif"
+                >
+                    {type}
+                </text>
                 <line
                     x1="0"
                     y1="20"
-                    x2="57"
+                    x2="76"
                     y2="20"
                     style={{
                         stroke: Colors.PRIMARY,
@@ -324,62 +337,6 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                     </marker>
                 </defs>
             </svg>
-            {configKey &&
-                <S.ConnectionText>
-                    {configKey}
-                </S.ConnectionText>}
-        </S.CircleContainer>
-    }
-
-    const MemoryConnectionCircle = () => {
-        return <S.CircleContainer style={{ marginTop: "80px" }}>
-            <svg width="110" height="50" viewBox="0 0 103 40">
-                <g onMouseEnter={() => setIsHoveredMemoryConfigCircle(true)} onMouseLeave={() => setIsHoveredMemoryConfigCircle(false)}>
-                    <circle
-                        cx="80"
-                        cy="20"
-                        r="22"
-                        fill={Colors.SURFACE_BRIGHT}
-                        strokeWidth={2}
-                        style={{ stroke: isHoveredMemoryConfigCircle ? Colors.SECONDARY : Colors.OUTLINE_VARIANT }}
-                    />
-
-                    {connectionIconPath && <g transform="translate(68,7)">
-                        <foreignObject width="25" height="25">
-                            <img src={connectionIconPath} alt="Icon" />
-                        </foreignObject>
-                    </g>}
-                </g>
-
-                <line
-                    x1="0"
-                    y1="20"
-                    x2="57"
-                    y2="20"
-                    style={{
-                        stroke: Colors.PRIMARY,
-                        strokeWidth: 2,
-                        markerEnd: `url(#${node.getID()}-arrow-head)`,
-                    }}
-                />
-                <defs>
-                    <marker
-                        markerWidth="4"
-                        markerHeight="4"
-                        refX="3"
-                        refY="2"
-                        viewBox="0 0 4 4"
-                        orient="auto"
-                        id={`${node.getID()}-arrow-head`}
-                    >
-                        <polygon points="0,4 0,0 4,2" fill={Colors.PRIMARY}></polygon>
-                    </marker>
-                </defs>
-            </svg>
-            {memoryConfigKey &&
-                <S.ConnectionText>
-                    {memoryConfigKey}
-                </S.ConnectionText>}
         </S.CircleContainer>
     }
 
@@ -390,10 +347,10 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                     width={stNode.viewState.fw} height={stNode.viewState.fh} left={stNode.viewState.l} right={stNode.viewState.r}
                     selected={isSelected}
                     hasError={hasDiagnotics}
-                    hovered={isHovered || isActiveBreakpoint}
+                    hovered={isHovered.node || isActiveBreakpoint}
                     isActiveBreakpoint={isActiveBreakpoint}
-                    onMouseEnter={() => setIsHovered(true)}
-                    onMouseLeave={() => setIsHovered(false)}
+                    onMouseEnter={() => setIsHovered({ ...isHovered, node: true })}
+                    onMouseLeave={() => setIsHovered({ ...isHovered, node: false })}
                     onClick={(e) => handleOnClick(e)}
                 >
                     {hasBreakpoint && (
@@ -476,12 +433,9 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                 }}>
                     Tools
                 </Typography>}
-                {memoryConfigKey &&
-                    MemoryConnectionCircle()
-                }
-                {configKey &&
-                    ConnectionCircle()
-                }
+                {Object.entries(connections).map(([key, value], index) => {
+                    return ConnectionCircle(value as AIConnectorConnection, `${index * (NODE_DIMENSIONS.CONNECTOR.HEIGHT + NODE_GAP.CONNECTION_CIRCLE_Y)}px`, key);
+                })}
             </>
 
             <Popover

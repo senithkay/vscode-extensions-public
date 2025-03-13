@@ -1845,8 +1845,19 @@ export interface Connector extends STNode {
     method: string;
     parameters: ConnectorParameter[];
     configKey?: string;
-    memoryConfigKey?: string;
     tools?: Tools;
+}
+
+export interface AIConnector extends Connector {
+    connections: { [key: string]: AIConnectorConnection };
+}
+
+export interface AIConnectorConnection {
+    name: string;
+    path: string;
+    connectionType?: string;
+    connectorName?: string;
+    parameters: any[]
 }
 
 export interface Tools extends STNode {
