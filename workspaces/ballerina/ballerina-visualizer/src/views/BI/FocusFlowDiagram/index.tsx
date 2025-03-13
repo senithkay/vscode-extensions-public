@@ -26,6 +26,7 @@ import {
     VisualizerLocation,
     CurrentBreakpointsResponse as BreakpointInfo,
     ParentPopupData,
+    FocusFlowDiagramView
 } from "@wso2-enterprise/ballerina-core";
 
 import {
@@ -49,17 +50,11 @@ const SpinnerContainer = styled.div`
     height: 100%;
 `;
 
-export const BI_FOCUS_FLOW_DIAGRAM = {
-    NP_FUNCTION: "NP_FUNCTION",
-} as const;
-
-export type BIFocusFlowDiagramView = typeof BI_FOCUS_FLOW_DIAGRAM[keyof typeof BI_FOCUS_FLOW_DIAGRAM];
-
 export interface BIFocusFlowDiagramProps {
     syntaxTree: STNode; // INFO: this is used to make the diagram rerender when code changes
     projectPath: string;
     filePath: string;
-    view: BIFocusFlowDiagramView;
+    view: FocusFlowDiagramView;
     onUpdate: () => void;
     onReady: (fileName: string) => void;
 }

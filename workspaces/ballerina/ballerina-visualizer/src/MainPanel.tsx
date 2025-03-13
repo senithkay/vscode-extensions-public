@@ -63,7 +63,6 @@ import { ServiceClassConfig } from "./views/BI/ServiceClassEditor/ServiceClassCo
 import { AIAgentDesigner } from "./views/BI/AIChatAgent";
 import { AIAgentEditView } from "./views/BI/AIAgents/AIAgentEditView";
 import { AIChatAgentWizard } from "./views/BI/AIChatAgent/AIChatAgentWizard";
-import { BI_FOCUS_FLOW_DIAGRAM } from "./views/BI/FocusFlowDiagram";
 
 const globalStyles = css`
     *,

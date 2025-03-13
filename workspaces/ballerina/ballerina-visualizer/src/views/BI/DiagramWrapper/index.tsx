@@ -15,11 +15,11 @@ import { BISequenceDiagram } from "../SequenceDiagram";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { TitleBar } from "../../../components/TitleBar";
-import { EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, FOCUS_FLOW_DIAGRAM_VIEW, FocusFlowDiagramView } from "@wso2-enterprise/ballerina-core";
 import { VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import styled from "@emotion/styled";
-import { BI_FOCUS_FLOW_DIAGRAM, BIFocusFlowDiagram, BIFocusFlowDiagramView } from "../FocusFlowDiagram";
+import { BIFocusFlowDiagram } from "../FocusFlowDiagram";
 
 const ActionButton = styled(Button)`
     display: flex;
@@ -59,7 +59,7 @@ export interface DiagramWrapperProps {
     syntaxTree: STNode;
     projectPath: string;
     filePath?: string;
-    view?: BIFocusFlowDiagramView;
+    view?: FocusFlowDiagramView;
 }
 
 export function DiagramWrapper(param: DiagramWrapperProps) {
@@ -255,8 +255,8 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
     );
 }
 
-function getTitle(view: BIFocusFlowDiagramView) {
-    if (view === BI_FOCUS_FLOW_DIAGRAM.NP_FUNCTION) {
+function getTitle(view: FocusFlowDiagramView) {
+    if (view === FOCUS_FLOW_DIAGRAM_VIEW.NP_FUNCTION) {
         return "Natural Function";
     }
     return "Function";

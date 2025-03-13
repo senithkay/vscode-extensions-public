@@ -39,7 +39,9 @@ import {
     TRIGGER_CHARACTERS,
     Diagnostic,
     FUNCTION_TYPE,
-    FunctionNode
+    FunctionNode,
+    FocusFlowDiagramView,
+    FOCUS_FLOW_DIAGRAM_VIEW
 } from "@wso2-enterprise/ballerina-core";
 import {
     HelperPaneVariableInfo,
@@ -51,7 +53,6 @@ import { SidePanelView } from "../views/BI/FlowDiagram/PanelManager";
 import { cloneDeep } from "lodash";
 import { CompletionItem, CompletionItemKind, convertCompletionItemKind } from "@wso2-enterprise/ui-toolkit";
 import { FunctionDefinition, STNode } from "@wso2-enterprise/syntax-tree";
-import { BI_FOCUS_FLOW_DIAGRAM, BIFocusFlowDiagramView } from "../views/BI/FocusFlowDiagram";
 
 function convertAvailableNodeToPanelNode(node: AvailableNode, functionType?: FUNCTION_TYPE): PanelNode {
     // Check if node should be filtered based on function type
@@ -759,8 +760,8 @@ export function convertConfig(properties: NodeProperties, skipKeys: string[] = [
     return formFields;
 }
 
-export function isNaturalFunction(node: STNode, view: BIFocusFlowDiagramView): node is FunctionDefinition {
-    return view === BI_FOCUS_FLOW_DIAGRAM.NP_FUNCTION;
+export function isNaturalFunction(node: STNode, view: FocusFlowDiagramView): node is FunctionDefinition {
+    return view === FOCUS_FLOW_DIAGRAM_VIEW.NP_FUNCTION;
 }
 
 export function getFlowNodeForNaturalFunction(node: FunctionNode): FlowNode {
