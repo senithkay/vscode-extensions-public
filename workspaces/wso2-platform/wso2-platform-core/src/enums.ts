@@ -105,6 +105,20 @@ export enum ChoreoComponentType {
 	ApiProxy = "proxy",
 }
 
+export enum ChoreoComponentSubType {
+    AiAgent = "aiAgent",
+	fileIntegration = "fileIntegration",
+}
+
+export enum DevantScopes {
+    AUTOMATION = "automation",
+    INTEGRATION_AS_API = "integration-as-api",
+    EVENT_INTEGRATION = "event-integration",
+    FILE_INTEGRATION = "file-integration",
+    AI_AGENT = "ai-agent",
+    ANY = "any"
+}
+
 export enum ComponentViewDrawers {
 	Test = "Test",
 	CreateConnection = "CreateConnection",

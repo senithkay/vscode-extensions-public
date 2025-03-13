@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import type { ChoreoComponentType, DeploymentStatus } from "../enums";
+import type { ChoreoComponentType, DeploymentStatus, DevantScopes } from "../enums";
 
 export interface Organization {
 	id: number;
@@ -80,6 +80,7 @@ export interface ComponentKindMetadata {
 
 export interface ComponentKindSpec {
 	type: string;
+	subType: string;
 	source: ComponentKindSource;
 	build: ComponentKindSpecBuild;
 }
@@ -191,15 +192,6 @@ export enum ChoreoBuildPackNames {
 	Prism = "prism",
 }
 
-export enum DevantScopes {
-    AUTOMATION = "automation",
-    INTEGRATION_AS_API = "integration-as-api",
-    EVENT_INTEGRATION = "event-integration",
-    FILE_INTEGRATION = "file-integration",
-    AI_AGENT = "ai-agent",
-    ANY = "any"
-}
-
 export interface WebviewQuickPickItem {
 	kind?: WebviewQuickPickItemKind;
 	/**  A human-readable string which is rendered prominent. */
@@ -308,6 +300,7 @@ export interface ComponentDeployment {
 
 export interface ICreateComponentParams {
 	type: ChoreoComponentType;
+	integrationType?: DevantScopes;
 	buildPackLang: string;
 	name: string;
 	/** Full path of the component directory */

@@ -15,11 +15,13 @@ import {
 	ChoreoBuildPackNames,
 	ChoreoComponentType,
 	CommandIds,
+	DevantScopes,
 	type ICreateComponentParams,
 	type SubmitComponentCreateReq,
 	type WorkspaceConfig,
 	getComponentTypeText,
-	getIntegrationComponentTypeText,
+	getIntegrationScopeText,
+	getTypeOfIntegrationType,
 } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, ProgressLocation, type QuickPickItem, Uri, commands, window, workspace } from "vscode";
 import { choreoEnvConfig } from "../config";
@@ -63,11 +65,20 @@ export function createNewComponentCommand(context: ExtensionContext) {
 						selectedProject = createdProjectRes.selectedProject;
 					}
 
-					let selectedType: string | undefined = params?.type;
 
 					const componentTypes: string[] = [];
+
+					let selectedType: string | undefined = undefined;
+					let selectedSubType: string | undefined = undefined;
+
 					if (isIntegration) {
-						componentTypes.push(ChoreoComponentType.ScheduledTask, ChoreoComponentType.Service);
+						componentTypes.push(DevantScopes.AUTOMATION, DevantScopes.AI_AGENT, DevantScopes.INTEGRATION_AS_API, DevantScopes.EVENT_INTEGRATION, DevantScopes.FILE_INTEGRATION);
+						if(params?.integrationType && componentTypes.includes(params.integrationType)){
+							// map integrationType to type and subtype
+							const intType = getTypeOfIntegrationType(params?.integrationType)
+							selectedType = intType.type
+							selectedSubType = intType.subType
+						}
 					} else {
 						componentTypes.push(
 							ChoreoComponentType.Service,
@@ -79,16 +90,17 @@ export function createNewComponentCommand(context: ExtensionContext) {
 						if (isProxyCreateEnabled) {
 							componentTypes.push(ChoreoComponentType.ApiProxy);
 						}
+						if(params?.type && componentTypes.includes(params.type)){
+							selectedType = params?.type;
+						}
 					}
 
-					if (selectedType && !componentTypes.includes(selectedType)) {
-						selectedType = "";
-					}
+					
 
 					if (!selectedType) {
 						// todo: change these options if isIntegration
 						const typeQuickPicks: (QuickPickItem & { value: string })[] = componentTypes.map((item) => ({
-							label: isIntegration ? getIntegrationComponentTypeText(item) : getComponentTypeText(item),
+							label: isIntegration ? getIntegrationScopeText(item) : getComponentTypeText(item),
 							value: item,
 						}));
 
@@ -96,7 +108,13 @@ export function createNewComponentCommand(context: ExtensionContext) {
 							title: `Select ${isIntegration ? "Integration" : "Component"} Type`,
 						});
 						if (selectedTypePick?.value) {
-							selectedType = selectedTypePick?.value;
+							if(isIntegration){
+								const intType = getTypeOfIntegrationType(selectedTypePick?.value)
+								selectedType = intType.type
+								selectedSubType = intType.subType
+							}else{
+								selectedType = selectedTypePick?.value;
+							}
 						}
 					}
 
@@ -138,8 +156,10 @@ export function createNewComponentCommand(context: ExtensionContext) {
 						directoryName: dirName,
 						organization: selectedOrg!,
 						project: selectedProject!,
+						extensionName: webviewStateStore.getState().state.extensionName,
 						initialValues: {
 							type: selectedType,
+							subType: selectedSubType,
 							buildPackLang: params?.buildPackLang,
 							name: params?.name || dirName || "",
 						},
@@ -175,6 +195,9 @@ export const continueCreateComponent = () => {
 	if (compParams) {
 		ext.context.globalState.update("create-comp-params", null);
 		const createCompParams: IComponentCreateFormParams = JSON.parse(compParams);
+		if(createCompParams?.extensionName){
+			webviewStateStore.getState().setExtensionName(createCompParams?.extensionName as "WSO2" | "Choreo" | "Devant");
+		}
 		componentWizard = new ComponentFormView(ext.context.extensionUri, createCompParams);
 		componentWizard.getWebview()?.reveal();
 	}

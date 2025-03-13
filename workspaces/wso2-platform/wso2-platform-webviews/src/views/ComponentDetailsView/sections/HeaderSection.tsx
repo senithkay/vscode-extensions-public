@@ -70,7 +70,7 @@ export const HeaderSection: FC<
 	return (
 		<HeaderSectionView
 			title={component.metadata.displayName}
-			secondaryTitle={extensionName === "Devant" ? getIntegrationComponentTypeText(componentTypeTxt) : getComponentTypeText(componentTypeTxt)}
+			secondaryTitle={extensionName === "Devant" ? getIntegrationComponentTypeText(componentTypeTxt, component?.spec?.subType) : getComponentTypeText(componentTypeTxt)}
 			tags={headerLabels}
 			buttons={[
 				{ label: "Open in Console", onClick: () => openInConsole() },

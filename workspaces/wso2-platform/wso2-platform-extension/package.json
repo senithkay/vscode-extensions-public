@@ -1,10 +1,10 @@
 {
   "name": "wso2-platform",
   "displayName": "WSO2 Platform",
-  "description": "An extension for managing all things related to WSO2",
+  "description": "Manage WSO2 Choreo and Devant projects in VS Code.",
   "license": "Apache-2.0",
-  "version": "0.0.9",
-  "cliVersion": "v1.2.82412081830",
+  "version": "1.0.0",
+  "cliVersion": "v1.2.82503131200",
   "publisher": "wso2",
   "bugs": {
     "url": "https://github.com/wso2/choreo-vscode/issues"

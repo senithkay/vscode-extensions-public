@@ -81,6 +81,7 @@ export interface CreateComponentReq {
 	name: string;
 	displayName: string;
 	type: string;
+	componentSubType: string;
 	buildPackLang: string;
 	componentDir: string;
 	repoUrl: string;
@@ -96,6 +97,7 @@ export interface CreateComponentReq {
 	proxyApiVersion: string;
 	proxyEndpointUrl: string;
 	proxyApiContext: string;
+	originCloud?: string;
 	// todo: remove
 	proxyAccessibility: string;
 }

@@ -1,46 +1,21 @@
 # WSO2 Platform Extension for Visual Studio Code
 
-The WSO2 Platform VS Code extension enhances your local development experience with [Choreo](https://wso2.com/choreo/) projects, providing comprehensive project and component management capabilities in VS Code. For more details, visit the [Choreo documentation](https://wso2.com/choreo/docs/).
+The WSO2 Platform VS Code extension enhances your local development experience with [Choreo](https://wso2.com/choreo/) and [Devant](https://devant.wso2.com/) projects, providing comprehensive project and component management capabilities in VS Code. For more details, visit the [Choreo documentation](https://wso2.com/choreo/docs/).
+
 
 ## Getting Started
 
-1. [Create an account on Choreo](https://console.choreo.dev/).
-2. Install the [WSO2 Platform VS Code extension](https://marketplace.visualstudio.com/items?itemName=WSO2.wso2-platform).
-3. Sign in to WSO2 via VS Code by running the VS Code command.
-4. Refer to this [guide](https://wso2.com/choreo/docs/develop-components/develop-components-using-vs-code/#create-a-new-component) for instructions on creating a new component.
-<!-- 
-## Feature List
-
-- **Manage Projects**: Work with Choreo [projects](https://wso2.com/choreo/docs/choreo-concepts/project/) directly in your VS Code workspace.
-- **Create Components**: Generate [components](https://wso2.com/choreo/docs/choreo-concepts/component/) linked to your application source.
-- **Trigger Builds**: Initiate builds for your components in the cloud and view the build logs.
-- **Deploy Builds**: Deploy your component builds to any chosen [environments](https://wso2.com/choreo/docs/choreo-concepts/environments/).
-- **Test Services**: Verify the functionality of publicly exposed services.
-- **Monitor Components**: Access runtime logs to monitor your deployed components.
-
-## Screenshots
-
-| ![sign-in.png](./docs/choreo-extension/images/v2/sign-in.png) |
-| :-----------------------------------------------------------: |
-|                _Sign in to Choreo via VS Code_                |
-
-<br>
-
-| ![component-form.png](./docs/choreo-extension/images/v2/component-form.png) |
-| :-------------------------------------------------------------------------: |
-|                          _Component creation form_                          |
-
-<br>
-
-| ![component-details-view.png](./docs/choreo-extension/images/v2/component-details-view.png) |
-| :-----------------------------------------------------------------------------------------: |
-|                                  _Component details view_                                   |
-
-<br>
-
-| ![component-details-view.png](./docs/choreo-extension/images/v2/logs.png) |
-| :-----------------------------------------------------------------------: |
-|                       _View component runtime logs_                       | -->
+1.  **Create an Account:** Sign up for an account on [Choreo](https://console.choreo.dev/) or [Devant](https://devant.wso2.com/).
+2.  **Install the Extension:**
+    * Open Visual Studio Code.
+    * Navigate to the Extensions view by pressing `Ctrl+Shift+X` (or `Cmd+Shift+X` on macOS).
+    * Search for "WSO2 Platform" and click "Install."
+3.  **Sign In to Choreo:**
+    * Open the Command Palette by pressing `Ctrl+Shift+P` (or `Cmd+Shift+P` on macOS).
+    * Type "WSO2: Sign In" and press Enter. Follow the on-screen prompts to authenticate with your Choreo account.
+4.  **Explore Functionality:**
+    * Once signed in, open the Command Palette again (`Ctrl+Shift+P` or `Cmd+Shift+P` on macOS).
+    * Type "WSO2:" to see a list of available commands and functionalities provided by the extension.
 
 ## Documentation
 

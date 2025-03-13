@@ -166,6 +166,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 				name: componentName,
 				displayName: genDetails.name,
 				type,
+				componentSubType: initialValues?.subType || "",
 				buildPackLang: buildDetails.buildPackLang,
 				componentDir: directoryFsPath,
 				repoUrl: genDetails.repoUrl,
@@ -173,6 +174,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 				branch: genDetails.branch,
 				langVersion: buildDetails.langVersion,
 				port: buildDetails.webAppPort,
+				originCloud: extensionName === 'Devant' ? "devant" :"choreo"
 			};
 
 			if (provider !== GitProvider.GITHUB) {
@@ -343,7 +345,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 		),
 	});
 
-	const componentTypeText = extensionName === "Devant" ? getIntegrationComponentTypeText(type) : getComponentTypeText(type);
+	const componentTypeText = extensionName === "Devant" ? getIntegrationComponentTypeText(type, initialValues?.subType) : getComponentTypeText(type);
 
 	return (
 		<div className="flex flex-row justify-center p-1 md:p-3 lg:p-4 xl:p-6">

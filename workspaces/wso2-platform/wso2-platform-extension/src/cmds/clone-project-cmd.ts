@@ -162,9 +162,9 @@ export function cloneRepoCommand(context: ExtensionContext) {
 							const subDir = matchingComp?.spec?.source ? getComponentKindRepoSource(matchingComp?.spec?.source)?.path || "" : "";
 							const subDirFullPath = join(clonedResp[0].clonedPath, subDir);
 							if (params?.technology === "ballerina") {
-								ensureBallerinaFilesIfEmpty(selectedOrg, params?.componentName || "bal-component", subDirFullPath, params?.integrationDisplayType || DevantScopes.ANY);
+								await ensureBallerinaFilesIfEmpty(selectedOrg, params?.componentName || "bal-component", subDirFullPath, params?.integrationDisplayType || DevantScopes.ANY);
 							} else if (params?.technology === "mi" || params?.technology === "microintegrator") {
-								ensureMIFilesIfEmpty(params?.componentName || "mi-component", subDirFullPath, params?.integrationDisplayType || DevantScopes.ANY);
+								await ensureMIFilesIfEmpty(params?.componentName || "mi-component", subDirFullPath, params?.integrationDisplayType || DevantScopes.ANY);
 							}
 							await openClonedDirectory(subDirFullPath);
 						} else if (repoSet.size > 1) {
@@ -256,10 +256,6 @@ async function ensureBallerinaFilesIfEmpty(
 
 async function ensureMIFilesIfEmpty(name: string, directoryPath: string, integrationDisplayType: string): Promise<void> {
 	const createMiFiles = async()=>{
-		const wso2Ext = extensions.getExtension("wso2.micro-integrator");
-		if (!wso2Ext) {
-			console.error("Skipping MI project scaffolding as 'wso2.micro-integrator' is not installed")
-		}
 		const scopeVal = integrationDisplayType.toLowerCase().replaceAll(" ", "-").replaceAll("+","-");;
 		await commands.executeCommand("MI.project-explorer.create-project", {
 			name: name,

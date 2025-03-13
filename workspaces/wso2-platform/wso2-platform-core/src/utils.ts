@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ChoreoComponentType, ComponentDisplayType, GitProvider } from "./enums";
+import { ChoreoComponentSubType, ChoreoComponentType, ComponentDisplayType, DevantScopes, GitProvider } from "./enums";
 import type { ComponentKind, ComponentKindSource, Organization, Project } from "./types/common.types";
 
 export const makeURLSafe = (input: string) => input?.trim()?.toLowerCase().replace(/\s+/g, "-");
@@ -122,16 +122,52 @@ export const getComponentTypeText = (componentType: string): string => {
 	}
 };
 
-export const getIntegrationComponentTypeText = (componentType: string): string => {
+export const getIntegrationComponentTypeText = (componentType: string, subType: string): string => {
 	switch (componentType) {
 		case ChoreoComponentType.Service:
-			return "Integration as API";
+			return subType === ChoreoComponentSubType.AiAgent ? "AI Agent" : "Integration as API";
 		case ChoreoComponentType.ManualTrigger:
 			return "Automation";
 		case ChoreoComponentType.ScheduledTask:
 			return "Automation";
+		case ChoreoComponentType.EventHandler:
+			return subType === ChoreoComponentSubType.fileIntegration ? "File Integration" : "Event Integration";
 		default:
-			return componentType;
+			return getComponentTypeText(componentType);
+	}
+};
+
+export const getIntegrationScopeText = (integrationScope: string): string => {
+	switch (integrationScope) {
+		case DevantScopes.AUTOMATION:
+			return "Automation";
+		case DevantScopes.INTEGRATION_AS_API:
+			return "Integration as API";
+		case DevantScopes.EVENT_INTEGRATION:
+			return "Event Integration";
+		case DevantScopes.FILE_INTEGRATION:
+			return "File Integration";
+		case DevantScopes.AI_AGENT:
+			return "AI Agent";
+		default:
+			return integrationScope;
+	}
+};
+
+export const getTypeOfIntegrationType = (integrationScope: string): {type?: string, subType?: string} => {
+	switch (integrationScope) {
+		case DevantScopes.AUTOMATION:
+			return {type:ChoreoComponentType.ScheduledTask};
+		case DevantScopes.INTEGRATION_AS_API:
+			return {type:ChoreoComponentType.Service};
+		case DevantScopes.EVENT_INTEGRATION:
+			return {type:ChoreoComponentType.EventHandler};
+		case DevantScopes.FILE_INTEGRATION:
+			return {type:ChoreoComponentType.EventHandler, subType: ChoreoComponentSubType.fileIntegration};
+		case DevantScopes.AI_AGENT:
+			return {type:ChoreoComponentType.Service, subType: ChoreoComponentSubType.AiAgent};
+		default:
+			return {};
 	}
 };
 
