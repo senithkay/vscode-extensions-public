@@ -567,7 +567,10 @@
                 "command": "ballerina.open.ai.panel",
                 "title": "Open AI Panel",
                 "category": "Ballerina",
-                "icon": "$(wand)"
+                "icon": {
+                    "dark": "./resources/icons/light-ai-chat.svg",
+                    "light": "./resources/icons/dark-ai-chat.svg"
+                }
             },
             {
                 "command": "ballerina.open.agent.chat",
