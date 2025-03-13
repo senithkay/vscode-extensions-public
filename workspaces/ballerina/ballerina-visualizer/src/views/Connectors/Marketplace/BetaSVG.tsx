@@ -14,8 +14,23 @@ export const BETA_SVG_HEIGHT = 12;
 export function BetaSVG() {
     return (
         <svg width={40} height={16} viewBox="0 0 40 16" xmlns="http://www.w3.org/2000/svg">
-            <rect width="40" height="16" rx="8" fill="#4A90E2" />
-            <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="12" fontFamily="'Roboto', sans-serif">
+            <rect
+                width="40"
+                height="16"
+                rx="8"
+                fill="#4A90E2"
+                opacity={0.5}
+            />
+            <text
+                x="50%"
+                y="55%"
+                dominantBaseline="middle"
+                textAnchor="middle"
+                fill="var(--vscode-keybindingLabel-foreground)"
+                fontSize="12"
+                fontFamily="'Roboto', sans-serif"
+                fontWeight="500"
+            >
                 Beta
             </text>
         </svg>
