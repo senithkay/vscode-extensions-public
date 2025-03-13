@@ -587,10 +587,19 @@
             },
             {
                 "command": "BI.project.run",
-                "title": "Run",
+                "title": "Run Integration",
                 "icon": {
                     "dark": "./resources/images/icons/start-inverse.svg",
                     "light": "./resources/images/icons/start.svg"
+                },
+                "category": "BI"
+            },
+            {
+                "command": "BI.project.debug",
+                "title": "Debug Integration",
+                "icon": {
+                    "dark": "./resources/images/icons/debug-inverse.svg",
+                    "light": "./resources/images/icons/debug.svg"
                 },
                 "category": "BI"
             },
@@ -802,7 +811,13 @@
                 {
                     "command": "BI.project.run",
                     "group": "navigation@1",
-                    "title": "Run project",
+                    "title": "Run Integration",
+                    "when": "isBalVisualizerActive && isBIProject"
+                },
+                {
+                    "command": "BI.project.debug",
+                    "group": "navigation@1",
+                    "title": "Debug Integration",
                     "when": "isBalVisualizerActive && isBIProject"
                 }
             ],
