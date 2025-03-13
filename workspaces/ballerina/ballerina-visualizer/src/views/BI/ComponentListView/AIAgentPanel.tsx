@@ -14,7 +14,7 @@ import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, SCOPE } from '@wso2-enterprise
 import { CardGrid, PanelViewMore, Title, TitleWrapper } from './styles';
 import { BodyText } from '../../styles';
 import ButtonCard from '../../../components/ButtonCard';
-import { componentListItemTooltip } from './componentListUtils';
+import { OutOfScopeComponentTooltip } from './componentListUtils';
 
 interface AIAgentPanelProps {
     scope: SCOPE;
@@ -45,7 +45,7 @@ export function AIAgentPanel(props: AIAgentPanelProps) {
                     title="AI Chat Agent"
                     onClick={handleClick}
                     disabled={isDisabled}
-                    tooltip={componentListItemTooltip(isDisabled)}
+                    tooltip={isDisabled ? OutOfScopeComponentTooltip : ""}
                     isBeta
                 />
             </CardGrid>
