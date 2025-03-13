@@ -71,7 +71,11 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                         label: property.metadata?.label || key,
                         description: property.metadata?.description || ''
                     },
-                    valueType: property?.valueType || 'string'
+                    valueType: property?.valueType || 'string',
+                    diagnostics: {
+                        hasDiagnostics: property.diagnostics && property.diagnostics.length > 0, 
+                        diagnostics: property.diagnostics
+                    }
                 } as Property,
                 recordTypeMembers: property.typeMembers.filter(member => member.kind === "RECORD_TYPE")
             }));
