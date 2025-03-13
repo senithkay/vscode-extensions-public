@@ -12,7 +12,7 @@ import { extension } from './biExtentionContext';
 import { StateMachine } from './stateMachine';
 
 export function activate(context: vscode.ExtensionContext) {
-	const ballerinaExt = vscode.extensions.getExtension('wso2.kolab');
+	const ballerinaExt = vscode.extensions.getExtension('wso2.ballerina');
 	if (ballerinaExt) {
 		extension.context = context;
 		extension.langClient = ballerinaExt.exports.ballerinaExtInstance.langClient;

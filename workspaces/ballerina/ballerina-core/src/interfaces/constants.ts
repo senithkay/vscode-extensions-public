@@ -8,13 +8,13 @@
  */
 
 export enum SHARED_COMMANDS {
-    SHOW_VISUALIZER = 'kolab.show.visualizer',
-    OPEN_BI_WELCOME = 'kolab.open.bi.welcome',
-    OPEN_BI_NEW_PROJECT = 'kolab.open.bi.new',
-    OPEN_SERVICE_FORM = 'kolab.open.service.form',
-    OPEN_AI_PANEL = 'kolab.open.ai.panel',
-    CLEAR_AI_PROMPT = 'kolab.clear.ai.prompt',
-    OPEN_AGENT_CHAT = 'kolab.open.agent.chat'
+    SHOW_VISUALIZER = 'ballerina.show.visualizer',
+    OPEN_BI_WELCOME = 'ballerina.open.bi.welcome',
+    OPEN_BI_NEW_PROJECT = 'ballerina.open.bi.new',
+    OPEN_SERVICE_FORM = 'ballerina.open.service.form',
+    OPEN_AI_PANEL = 'ballerina.open.ai.panel',
+    CLEAR_AI_PROMPT = 'ballerina.clear.ai.prompt',
+    OPEN_AGENT_CHAT = 'ballerina.open.agent.chat'
 }
 
 export const BI_COMMANDS = {

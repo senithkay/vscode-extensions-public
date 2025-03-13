@@ -104,7 +104,7 @@ version = "0.1.0"
 
     const settingsJsonContent = `
 {
-    "kolab.isBI": true
+    "ballerina.isBI": true
 }
 `;
 

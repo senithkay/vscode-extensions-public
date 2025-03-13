@@ -610,7 +610,7 @@
     //   "versionPolicyName": "ballerina-extension"
     // },
     {
-      "packageName": "kolab",
+      "packageName": "ballerina",
       "projectFolder": "workspaces/ballerina/ballerina-extension",
       "versionPolicyName": "ballerina-extension"
     },
@@ -662,9 +662,9 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
-      "packageName": "kola-extension",
+      "packageName": "ballerina-integrator",
       "projectFolder": "workspaces/bi/bi-extension",
-      "versionPolicyName": "kola-extension"
+      "versionPolicyName": "ballerina-extension"
     },
     // {
     //   "packageName": "@wso2-enterprise/bi-diagram",

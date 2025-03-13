@@ -59,7 +59,7 @@ import { VisualizerWebview } from "../views/visualizer/webview";
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
 
-export const EXTENSION_ID = 'wso2.kolab';
+export const EXTENSION_ID = 'wso2.ballerina';
 const PREV_EXTENSION_ID = 'ballerina.ballerina';
 export enum LANGUAGE {
     BALLERINA = 'ballerina',
@@ -120,7 +120,7 @@ export interface WebviewContext {
     type?: WEBVIEW_TYPE;
 }
 
-const showMessageInstallBallerinaCommand = 'kolab.showMessageInstallBallerina';
+const showMessageInstallBallerinaCommand = 'ballerina.showMessageInstallBallerina';
 const SDK_PREFIX = 'Ballerina ';
 export class BallerinaExtension {
     public telemetryReporter: TelemetryReporter;
@@ -214,7 +214,7 @@ export class BallerinaExtension {
             this.showUninstallOldVersion();
         }
         // Register show logs command.
-        const showLogs = commands.registerCommand('kolab.showLogs', () => {
+        const showLogs = commands.registerCommand('ballerina.showLogs', () => {
             outputChannel.show();
         });
         this.context!.subscriptions.push(showLogs);
@@ -223,15 +223,15 @@ export class BallerinaExtension {
             this.showMessageInstallBallerina();
         });
 
-        commands.registerCommand('kolab-setup.setupKola', () => {
+        commands.registerCommand('ballerina-setup.setupKola', () => {
             this.updateKolaVersion();
         });
 
-        commands.registerCommand('kolab-setup.updateKola', () => {
+        commands.registerCommand('ballerina-setup.updateKola', () => {
             this.updateKolaVersion(true);
         });
 
-        commands.registerCommand('kolab-setup.setupBallerina', () => {
+        commands.registerCommand('ballerina-setup.setupBallerina', () => {
             this.setupBallerina(true);
         });
 
@@ -290,12 +290,12 @@ export class BallerinaExtension {
                     sendTelemetryEvent(this, TM_EVENT_EXTENSION_INIT, CMP_EXTENSION_CORE);
                 }
 
-                commands.registerCommand('kolab.stopLangServer', () => {
+                commands.registerCommand('ballerina.stopLangServer', () => {
                     this.langClient.stop();
                 });
 
             }, (reason) => {
-                sendTelemetryException(this, reason, CMP_EXTENSION_CORE);    
+                sendTelemetryException(this, reason, CMP_EXTENSION_CORE);
                 this.showMessageInstallBallerina();
                 throw new Error(reason);
             }).catch(e => {
@@ -336,7 +336,7 @@ export class BallerinaExtension {
         try {
             const latestDistributionVersionResponse = await axios.get(this.updateToolServerUrl + "/distributions/latest?version=2201.0.0&type=patch");
             const latestDistributionVersion = latestDistributionVersionResponse.data.patch;
-            
+
             return latestDistributionVersion.toString();
         } catch (error) {
             window.showErrorMessage('Error getting the latest distribution version:', error);
@@ -354,7 +354,7 @@ export class BallerinaExtension {
                 const ballerinaUpdateVersion = ballerinaShortVersion.split('.')[1];
                 if (parseInt(ballerinaUpdateVersion) < 12) {
                     this.showMessageUpdateBallerina();
-                } 
+                }
             } else {
                 this.showMessageUpdateBallerina();
             }
@@ -386,7 +386,7 @@ export class BallerinaExtension {
                 }
             });
             const supportedJreVersion = distributionsResponse.data.list.filter((distribution: any) => distribution.version === latestDistributionVersion)[0].dependencies[0].name;
-            
+
             // Download the JRE zip
             await this.downloadJre(supportedJreVersion);
 
@@ -512,7 +512,7 @@ export class BallerinaExtension {
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             const zip = new AdmZip(zipFilePath);
             zip.extractAllTo(ballerinaDependenciesPath, true);
-            
+
             // Cleanup: Remove the downloaded zip file
             res = {
                 ...res,
@@ -760,7 +760,7 @@ export class BallerinaExtension {
     }
 
     private setBallerinaCommandForUser() {
-        const binFolderPath  = path.join(this.getBallerinaHome(), 'bin');
+        const binFolderPath = path.join(this.getBallerinaHome(), 'bin');
         // Update the configuration with the new Ballerina Home
         let res: DownloadProgress = {
             message: `Setting the environment variables for user...`,
@@ -803,7 +803,7 @@ export class BallerinaExtension {
             });
         } else {
             console.log(`Running on ${platform}`);
-        } 
+        }
     }
 
     async updateKolaVersion(restartWindow?: boolean) {
@@ -814,8 +814,8 @@ export class BallerinaExtension {
                 await new Promise(resolve => setTimeout(resolve, 15000)); // Wait for 15 seconds
             }
 
-            window.showInformationMessage(`Updating Ballerina Kola version`);
-            // Remove the existing Ballerina Kola version
+            window.showInformationMessage(`Updating Ballerina version`);
+            // Remove the existing Ballerina version
             fs.rmSync(this.ballerinaInstallationDir, { recursive: true, force: true });
 
             await this.downloadAndUnzipBallerina(restartWindow);
@@ -859,7 +859,7 @@ export class BallerinaExtension {
             const releases = releasesResponse.data;
             const tags = releases.map((release: any) => release.tag_name).filter((tag: string) => tag.includes("bi-pack"));
             if (tags.length === 0) {
-                throw new Error('No Kola distribution found in the releases');
+                throw new Error('No Ballerina distribution found in the releases');
             }
             const latestTag = tags[0];
             console.log(`Latest release tag: ${latestTag}`);
@@ -1008,8 +1008,8 @@ export class BallerinaExtension {
 
             console.log('Cleanup complete.');
         } catch (error) {
-            console.error('Error downloading or unzipping Ballerina Kola version:', error);
-            window.showErrorMessage('Error downloading or unzipping Ballerina Kola version:', error);
+            console.error('Error downloading or unzipping Ballerina version:', error);
+            window.showErrorMessage('Error downloading or unzipping Ballerina version:', error);
         }
     }
 
@@ -1084,7 +1084,7 @@ export class BallerinaExtension {
     showStatusBarItem() {
         this.sdkVersion = window.createStatusBarItem(StatusBarAlignment.Right, 100);
         this.updateStatusBar("Detecting");
-        this.sdkVersion.command = "kolab.showLogs";
+        this.sdkVersion.command = "ballerina.showLogs";
         this.sdkVersion.show();
 
         window.onDidChangeActiveTextEditor((editor) => {
@@ -1113,7 +1113,7 @@ export class BallerinaExtension {
         // ask to enable debug logs.
         // we can ask the user to report the issue.
 
-        // HACK: Remove this for the Kola extension. This should handle with Ballerina setup page.
+        // HACK: Remove this for the Ballerina extension. This should handle with Ballerina setup page.
         // this.updateStatusBar("Error");
         // this.sdkVersion.backgroundColor = new ThemeColor("statusBarItem.errorBackground");
         // window.showErrorMessage(UNKNOWN_ERROR);

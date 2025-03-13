@@ -19,8 +19,8 @@ import { LANGUAGE } from "../../core";
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
-    public static readonly viewType = "kolab.visualizer";
-    public static readonly panelTitle = "WSO2 Ballerina Integrator";
+    public static readonly viewType = "ballerina.visualizer";
+    public static readonly panelTitle = "Ballerina Integrator";
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
 

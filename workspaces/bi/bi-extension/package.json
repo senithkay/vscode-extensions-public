@@ -1,5 +1,5 @@
 {
-    "name": "kola-extension",
+    "name": "ballerina-extension",
     "displayName": "WSO2 Ballerina Integrator",
     "description": "Project WSO2 Ballerina Integrator",
     "version": "0.5.0",
@@ -18,13 +18,13 @@
     ],
     "main": "./out/extension",
     "extensionDependencies": [
-        "wso2.kolab"
+        "wso2.ballerina"
     ],
     "contributes": {
         "viewsContainers": {
             "activitybar": [
                 {
-                    "id": "kola-integrator",
+                    "id": "ballerina-integrator",
                     "title": "WSO2 Ballerina Integrator",
                     "icon": "assets/icon.svg"
                 }
@@ -33,12 +33,12 @@
         "viewsWelcome": [
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to Ballerina Integrator. You can open a folder containing a Ballerina integration or create a new integration.\n[Open Ballerina Integration](command:vscode.openFolder)\n[Create New Integration](command:kolab.open.bi.new)\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://wso2.github.io/docs-kola/).",
+                "contents": "Welcome to Ballerina Integrator. You can open a folder containing a Ballerina integration or create a new integration.\n[Open Ballerina Integration](command:vscode.openFolder)\n[Create New Integration](command:ballerina.open.bi.new)\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://wso2.github.io/docs-ballerina-integrator/).",
                 "when": "BI.status == 'unknownProject'"
             },
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to WSO2 Ballerina Integrator! The WSO2 Ballerina distribution is required but not found. [Set up WSO2 Ballerina distribution](command:kolab.open.bi.welcome) to get started.",
+                "contents": "Welcome to WSO2 Ballerina Integrator! The WSO2 Ballerina distribution is required but not found. [Set up WSO2 Ballerina distribution](command:ballerina.open.bi.welcome) to get started.",
                 "when": "BI.status == 'noLS'"
             },
             {
@@ -48,7 +48,7 @@
             }
         ],
         "views": {
-            "kola-integrator": [
+            "ballerina-integrator": [
                 {
                     "id": "BI.project-explorer",
                     "name": ""
@@ -58,7 +58,7 @@
         "menus": {
             "view/item/context": [
                 {
-                    "command": "kolab.show.visualizer",
+                    "command": "ballerina.show.visualizer",
                     "when": "view == BI.project-explorer && viewItem == bi-project",
                     "group": "inline"
                 },

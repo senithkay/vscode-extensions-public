@@ -112,13 +112,13 @@ export function WelcomeView() {
 
     const openGettingStartedGuide = () => {
         rpcClient.getCommonRpcClient().openExternalUrl({
-            url: "https://wso2.github.io/docs-kola/get-started/quick-start-guide/"
+            url: "https://wso2.github.io/docs-ballerina-integrator/get-started/quick-start-guide/"
         })
     };
 
     const openSamples = () => {
         rpcClient.getCommonRpcClient().openExternalUrl({
-            url: "https://wso2.github.io/docs-kola/learn/message-transformation/"
+            url: "https://wso2.github.io/docs-ballerina-integrator/learn/message-transformation/"
         })
     };
 

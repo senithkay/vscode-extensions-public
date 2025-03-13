@@ -111,7 +111,7 @@ export function SetupView(props: SetupViewProps) {
     const [progress, setProgress] = React.useState<DownloadProgress>(null);
 
     const downloadLS = () => {
-        rpcClient.getCommonRpcClient().executeCommand({ commands: ["kolab-setup.setupKola"] });
+        rpcClient.getCommonRpcClient().executeCommand({ commands: ["ballerina-setup.setupKola"] });
     };
 
     const reloadVscode = () => {

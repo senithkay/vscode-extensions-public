@@ -19,7 +19,7 @@ import { StateMachine } from '../../stateMachine';
 
 export class AiPanelWebview {
     public static currentPanel: AiPanelWebview | undefined;
-    public static readonly viewType = 'kolab.ai-panel';
+    public static readonly viewType = 'ballerina.ai-panel';
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
 
