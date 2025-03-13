@@ -32,7 +32,6 @@ import {
     ProjectForm,
     ComponentListView,
     PopupMessage,
-    MainForm,
     FunctionForm,
     SetupView,
     TestFunctionForm
@@ -186,7 +185,12 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.BIDiagram:
                         setViewComponent(
-                            <DiagramWrapper syntaxTree={value?.syntaxTree} projectPath={value.projectUri} />
+                            <DiagramWrapper
+                                syntaxTree={value?.syntaxTree}
+                                projectPath={value?.projectUri}
+                                filePath={value?.documentUri}
+                                view={value?.focusFlowDiagramView}
+                            />
                         );
                         break;
                     case MACHINE_VIEW.ERDiagram:
@@ -299,7 +303,7 @@ const MainPanel = () => {
                         );
                         break;
                     case MACHINE_VIEW.BIMainFunctionForm:
-                        setViewComponent(<MainForm />);
+                        setViewComponent(<FunctionForm projectPath={value.projectUri} filePath={defaultFunctionsFile} functionName={value?.identifier} isAutomation={true} />);
                         break;
                     case MACHINE_VIEW.BIFunctionForm:
                         setViewComponent(<FunctionForm projectPath={value.projectUri} filePath={defaultFunctionsFile} functionName={value?.identifier} />);

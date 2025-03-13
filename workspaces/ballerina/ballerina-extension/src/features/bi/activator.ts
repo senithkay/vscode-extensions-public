@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { commands } from "vscode";
+import { commands, Uri } from "vscode";
 import {
     BI_COMMANDS,
     BIDeleteByComponentInfoRequest,
@@ -14,6 +14,7 @@ import {
     DIRECTORY_SUB_TYPE,
     EVENT_TYPE,
     FlowNode,
+    FOCUS_FLOW_DIAGRAM_VIEW,
     MACHINE_VIEW
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "../../core";
@@ -24,10 +25,18 @@ import { BiDiagramRpcManager } from "../../rpc-managers/bi-diagram/rpc-manager";
 import { readFileSync, readdirSync, statSync } from "fs";
 import path from "path";
 import { isPositionEqual } from "../../utils/history/util";
+import { startDebugging } from "../editor-support/codelens-provider";
+
+const FOCUS_DEBUG_CONSOLE_COMMAND = 'workbench.debug.action.focusRepl';
 
 export function activate(context: BallerinaExtension) {
     commands.registerCommand(BI_COMMANDS.BI_RUN_PROJECT, () => {
         prepareAndGenerateConfig(context, StateMachine.context().projectUri, false, true);
+    });
+
+    commands.registerCommand(BI_COMMANDS.BI_DEBUG_PROJECT, () => {
+        commands.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
+        startDebugging(Uri.file(StateMachine.context().projectUri), false);
     });
 
     commands.registerCommand(BI_COMMANDS.ADD_CONNECTIONS, () => {
@@ -63,6 +72,10 @@ export function activate(context: BallerinaExtension) {
         openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BIDataMapperForm });
     });
 
+    commands.registerCommand(BI_COMMANDS.ADD_NATURAL_FUNCTION, () => {
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BINPFunctionForm });
+    });
+
     commands.registerCommand(BI_COMMANDS.SWITCH_PROJECT, async () => {
         // Hack to switch the project. This will reload the window and prompt the user to select the project.
         // This is a temporary solution until we provide the support for multi root workspaces.
@@ -85,6 +98,8 @@ export function activate(context: BallerinaExtension) {
             await handleComponentDeletion('automations', item.tooltip, item.info);
         } else if (item.contextValue === DIRECTORY_SUB_TYPE.CONFIGURATION) {
             await handleComponentDeletion('configurableVariables', item.label, item.info);
+        } else if (item.contextValue === DIRECTORY_SUB_TYPE.NATURAL_FUNCTION) {
+            await handleComponentDeletion('naturalFunctions', item.label, item.info);
         }
     });
 
@@ -108,7 +123,7 @@ function openAllBallerinaFiles(context: BallerinaExtension) {
                     if (content) {
                         context.langClient.didOpen({
                             textDocument: {
-                                uri: filePath,
+                                uri: Uri.file(filePath).toString(),
                                 languageId: "ballerina",
                                 version: 1,
                                 text: content,

@@ -95,6 +95,7 @@ export type Property = {
     optional: boolean;
     editable: boolean;
     advanced?: boolean;
+    hidden?: boolean;
     placeholder?: string;
     valueTypeConstraint?: string | string[];
     codedata?: CodeData;
@@ -206,7 +207,7 @@ export enum DIRECTORY_SUB_TYPE {
     AUTOMATION = "automation",
     TRIGGER = "trigger",
     DATA_MAPPER = "dataMapper",
-    NATURAL_FUNCTIONS = "naturalFunction",
+    NATURAL_FUNCTION = "naturalFunction",
     AGENTS = "agents",
 }
 
@@ -242,7 +243,6 @@ export interface ProjectStructureArtifactResponse {
     icon?: string;
     context?: string;
     position?: NodePosition;
-    st?: STNode;
     serviceModel?: ServiceModel;
     resources?: ProjectStructureArtifactResponse[];
 }
@@ -342,6 +342,7 @@ export type NodeKind =
     | "AGENT"
     | "AGENT_CALL"
     | "FUNCTION_DEFINITION"
+    | "AUTOMATION"
     | "CONFIG_VARIABLE";
 
 export type OverviewFlow = {

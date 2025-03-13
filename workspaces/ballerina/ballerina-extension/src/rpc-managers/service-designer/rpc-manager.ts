@@ -51,19 +51,20 @@ import * as yaml from 'js-yaml';
 import * as path from 'path';
 import { Uri, commands, window, workspace, WorkspaceEdit, Position } from "vscode";
 import { StateMachine } from "../../stateMachine";
-
+import { injectAgent, injectImportIfMissing, injectAgentCode } from "../../utils";
 export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
 
+    // TODO: Remove this as its no longer used
     async getRecordST(params: RecordSTRequest): Promise<RecordSTResponse> {
         return new Promise(async (resolve) => {
-            const context = StateMachine.context();
-            const res: ProjectStructureResponse = await buildProjectStructure(context.projectUri, context.langClient);
-            res.directoryMap[DIRECTORY_MAP.TYPES].forEach(type => {
-                if (type.name === params.recordName) {
-                    resolve({ recordST: type.st as TypeDefinition });
-                }
-            });
-            resolve(null);
+            // const context = StateMachine.context();
+            // const res: ProjectStructureResponse = await buildProjectStructure(context.projectUri, context.langClient);
+            // res.directoryMap[DIRECTORY_MAP.TYPES].forEach(type => {
+            //     if (type.name === params.recordName) {
+            //         resolve({ recordST: type.st as TypeDefinition });
+            //     }
+            // });
+            // resolve(null);
         });
     }
 
@@ -216,8 +217,8 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
-                commands.executeCommand("BI.project-explorer.refresh");
                 await this.injectAIAgent(params.service, result);
+                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -230,8 +231,17 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     async injectAIAgent(service: ServiceModel, result: SourceUpdateResponse) {
         // We will only inject if the typpe is ai.agent and serviceType is ChatService
         if (service.type === "ai.agent") {
+            // Inject the import if missing
+            const importStatement = `import ballerinax/ai.agent`;
+            await injectImportIfMissing(importStatement, path.join(StateMachine.context().projectUri, `agents.bal`));
+
+            //get AgentName
+            const agentName = service.properties.basePath.value.replace("/", "");
+
+            // Inject the agent code
+            await injectAgent(agentName, StateMachine.context().projectUri);
             // retrive the service model
-            const service = await this.getServiceModelFromCode({
+            const updatedService = await this.getServiceModelFromCode({
                 filePath: result.filePath,
                 codedata: {
                     lineRange: {
@@ -240,20 +250,13 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     }
                 }
             });
-
-            if (!service?.service?.functions?.[0]?.codedata?.lineRange?.endLine) {
+            if (!updatedService?.service?.functions?.[0]?.codedata?.lineRange?.endLine) {
                 console.error('Unable to determine injection position: Invalid service structure');
                 return;
             }
-            const injectionPosition = service.service.functions[0].codedata.lineRange.endLine;
-
-            // Update the service function code 
+            const injectionPosition = updatedService.service.functions[0].codedata.lineRange.endLine;
             const serviceFile = path.join(StateMachine.context().projectUri, `main.bal`);
-            const serviceEdit = new WorkspaceEdit();
-            const serviceSourceCode = `        return error("Not implemented");
-    `;
-            serviceEdit.insert(Uri.file(serviceFile), new Position(injectionPosition.line, 0), serviceSourceCode);
-            await workspace.applyEdit(serviceEdit);
+            await injectAgentCode(agentName, serviceFile, injectionPosition);
         }
     }
 

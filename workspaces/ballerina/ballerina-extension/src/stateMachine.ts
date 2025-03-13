@@ -5,7 +5,7 @@ import { activateBallerina } from './extension';
 import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP, SCOPE } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './features/library-browser';
 import { VisualizerWebview } from './views/visualizer/webview';
-import { commands, Uri, window, workspace, WorkspaceFolder } from 'vscode';
+import { commands, extensions, Uri, window, workspace, WorkspaceFolder } from 'vscode';
 import { notifyCurrentWebview, RPCLayer } from './RPCLayer';
 import { generateUid, getComponentIdentifier, getNodeByIndex, getNodeByName, getNodeByUid, getView } from './utils/state-machine-utils';
 import * as path from 'path';
@@ -121,7 +121,7 @@ const stateMachine = createMachine<MachineContext>(
                                     identifier: (context, event) => event.data.identifier,
                                     position: (context, event) => event.data.position,
                                     syntaxTree: (context, event) => event.data.syntaxTree,
-                                    
+                                    focusFlowDiagramView: (context, event) => event.data.focusFlowDiagramView
                                 })
                             }
                         }
@@ -208,10 +208,11 @@ const stateMachine = createMachine<MachineContext>(
                         undoRedoManager = new UndoRedoManager();
                         const webview = VisualizerWebview.currentPanel?.getWebview();
                         if (webview && (context.isBI || context.view === MACHINE_VIEW.BIWelcome)) {
-                            webview.title = "Kola";
+                            const biExtension = extensions.getExtension('wso2.ballerina-integrator');
+                            webview.title = biExtension ? "Ballerina Integrator" : "Ballerina Visualizer";
                             webview.iconPath = {
-                                light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'dark-icon.svg')),
-                                dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'light-icon.svg'))
+                                light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', biExtension ? 'light-icon.svg' : 'ballerina.svg')),
+                                dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', biExtension ? 'dark-icon.svg' : 'ballerina-inverse.svg'))
                             };
                         }
                         resolve(true);
@@ -399,7 +400,7 @@ export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation, res
     if (resetHistory) {
         history?.clear();
     }
-    stateService.send({ type: type, viewLocation: viewLocation});
+    stateService.send({ type: type, viewLocation: viewLocation });
 }
 
 export function updateView() {
@@ -432,7 +433,7 @@ async function handleMultipleWorkspaces(workspaceFolders: readonly WorkspaceFold
         const selectedProject = await window.showQuickPick(projectPaths, {
             placeHolder: 'Select a project to load the Ballerina Integrator'
         });
-    
+
         const isBI = checkIsBI(Uri.file(selectedProject));
         const scope = isBI && fetchScope(Uri.file(selectedProject));
         setBIContext(isBI);
