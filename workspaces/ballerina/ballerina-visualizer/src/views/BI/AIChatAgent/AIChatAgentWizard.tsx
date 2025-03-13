@@ -27,63 +27,18 @@ const FormContainer = styled.div`
     flex-direction: column;
     max-width: 600px;
     gap: 20px;
-    padding: 20px;
-`;
-
-const ButtonContainer = styled.div`
-    display: flex;
-    gap: 10px;
-`;
-
-const ContainerX = styled.div`
-    padding: 0 20px 20px;
-    max-width: 600px;
-    > div:last-child {
-        padding: 20px 0;
-        > div:last-child {
-            justify-content: flex-start;
-        }
-    }
 `;
 
 const Container = styled.div`
     display: "flex";
     flex-direction: "column";
     gap: 10;
-    margin: 20px;
 `;
 
-const BottomMarginTextWrapper = styled.div`
-    margin-top: 20px;
-    margin-left: 20px;
-    font-size: 15px;
-    margin-bottom: 10px;
-`;
 
-const HorizontalCardContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-`;
-
-const IconWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-`;
-
-const ButtonWrapper = styled.div`
-    max-width: 600px;
+const ButtonContainer = styled.div`
     display: flex;
     gap: 10px;
-    justify-content: right;
-`;
-
-const StepperContainer = styled.div`
-    margin-top: 16px;
-    margin-left: 16px;
-    margin-bottom: 20px;
 `;
 
 const FormFields = styled.div`
@@ -128,39 +83,13 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
             setNameError("Name cannot start with a number");
             return false;
         }
-        if (/[\s-]/.test(name)) {
-            setNameError("Name cannot contain spaces or dashes");
+        if (!/^[a-zA-Z][a-zA-Z0-9_]*$/.test(name)) {
+            setNameError("Name can only contain letters, numbers, and underscores");
             return false;
         }
         setNameError("");
         return true;
     };
-
-    const constructStringLiteral = (name: string): any => {
-        return {
-            "addNewButton": false,
-            "advanced": false,
-            "codedata": {
-                "inDisplayAnnotation": false,
-                "inListenerInit": false,
-                "isBasePath": false,
-                "type": "STRING_LITERAL"
-            },
-            "editable": true,
-            "enabled": true,
-            "isType": false,
-            "metadata": {
-                "description": "The string literal of the service",
-                "label": "String Literal"
-            },
-            "optional": false,
-            "placeholder": "\"/path\"",
-            "value": `"${name}"`,
-            "values": [],
-            "valueType": "EXPRESSION",
-            "valueTypeConstraint": "string"
-        }
-    }
 
     const handleCreateService = async () => {
         if (!validateName(agentName)) {
@@ -185,11 +114,11 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
                 listenerName: listenerName
             }).then(res => {
                 const serviceModel = res.service;
+                console.log("Service Model: ", serviceModel);
                 serviceModel.properties["listener"].editable = true;
                 serviceModel.properties["listener"].items = [listenerName];
                 serviceModel.properties["listener"].values = [listenerName];
-                serviceModel.properties["stringLiteral"] = constructStringLiteral(agentName);
-                console.log("Service Model: ", serviceModel);
+                serviceModel.properties["basePath"].value = `/${agentName}`;
                 rpcClient.getServiceDesignerRpcClient().addServiceSourceCode({
                     filePath: "",
                     service: res.service
@@ -219,45 +148,46 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
     return (
         <View>
             <TopNavigationBar />
-            <TitleBar title="AI Chat Agent" subtitle="" />
-            <ViewContent>
-                {currentStep === 0 &&
-                    <FormContainer>
-                        <FormHeader
-                            title="Create AI Chat Agent"
-                            subtitle="Create a chattable AI agent using an LLM, prompts and tools."
-                        />
-                        <FormFields>
-                            <TextField
-                                label="Name"
-                                description="Agent will be identified by this name. Cannot contain spaces or dashes, and cannot start with a number."
-                                value={agentName}
-                                onChange={(e) => {
-                                    setAgentName(e.target.value);
-                                    validateName(e.target.value);
-                                }}
-                                errorMsg={nameError}
+            <TitleBar title="AI Chat Agent" subtitle="Create a chattable AI agent using an LLM, prompts and tools." />
+            <ViewContent padding>
+                <Container>
+                    {currentStep === 0 &&
+                        <>
+                            <FormHeader
+                                title="Create AI Chat Agent"
                             />
-                            <ButtonContainer>
-                                <Button
-                                    appearance="primary"
-                                    onClick={handleCreateService}
-                                    disabled={isCreating || !!nameError || !agentName}
-                                >
-                                    {isCreating ? 'Creating...' : 'Create'}
-                                </Button>
-                                <Button appearance="secondary">Cancel</Button>
-                            </ButtonContainer>
-                        </FormFields>
-                    </FormContainer>
-                }
-                {currentStep !== 0 &&
-                    <Container>
+                            <FormContainer>
+                                <FormFields>
+                                    <TextField
+                                        label="Name"
+                                        description="Name of the agent"
+                                        value={agentName}
+                                        onChange={(e) => {
+                                            setAgentName(e.target.value);
+                                            validateName(e.target.value);
+                                        }}
+                                        errorMsg={nameError}
+                                    />
+                                    <ButtonContainer>
+                                        <Button
+                                            appearance="primary"
+                                            onClick={handleCreateService}
+                                            disabled={isCreating || !!nameError || !agentName}
+                                        >
+                                            {isCreating ? 'Creating...' : 'Create'}
+                                        </Button>
+                                        <Button appearance="secondary">Cancel</Button>
+                                    </ButtonContainer>
+                                </FormFields>
+                            </FormContainer>
+                        </>
+                    }
+                    {currentStep !== 0 &&
                         <LoadingContainer>
                             <LoadingRing message={steps[currentStep].description} />
                         </LoadingContainer>
-                    </Container>
-                }
+                    }
+                </Container>
             </ViewContent>
         </View>
     );

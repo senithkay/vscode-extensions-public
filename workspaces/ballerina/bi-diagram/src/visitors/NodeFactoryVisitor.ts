@@ -34,6 +34,7 @@ import { BaseVisitor } from "./BaseVisitor";
 import { EndNodeModel } from "../components/nodes/EndNode";
 import { ErrorNodeModel } from "../components/nodes/ErrorNode";
 import { AgentCallNodeModel } from "../components/nodes/AgentCallNode/AgentCallNodeModel";
+import { PromptNodeModel } from "../components/nodes/PromptNode/PromptNodeModel";
 
 export class NodeFactoryVisitor implements BaseVisitor {
     nodes: NodeModel[] = [];
@@ -597,6 +598,13 @@ export class NodeFactoryVisitor implements BaseVisitor {
     beginVisitComment(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
         const nodeModel = new CommentNodeModel(node);
+        this.nodes.push(nodeModel);
+        this.updateNodeLinks(node, nodeModel);
+    }
+
+    beginVisitNpFunction(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        const nodeModel = new PromptNodeModel(node);
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
     }

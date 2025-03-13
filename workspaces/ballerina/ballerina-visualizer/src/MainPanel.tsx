@@ -185,7 +185,12 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.BIDiagram:
                         setViewComponent(
-                            <DiagramWrapper syntaxTree={value?.syntaxTree} projectPath={value.projectUri} />
+                            <DiagramWrapper
+                                syntaxTree={value?.syntaxTree}
+                                projectPath={value?.projectUri}
+                                filePath={value?.documentUri}
+                                view={value?.focusFlowDiagramView}
+                            />
                         );
                         break;
                     case MACHINE_VIEW.ERDiagram:
