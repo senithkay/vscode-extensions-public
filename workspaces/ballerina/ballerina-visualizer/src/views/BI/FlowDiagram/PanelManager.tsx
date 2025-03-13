@@ -8,14 +8,7 @@
  */
 
 import { PanelContainer, NodeList, ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
-import {
-    FlowNode,
-    LineRange,
-    SubPanel,
-    SubPanelView,
-    FUNCTION_TYPE,
-    ToolData,
-} from "@wso2-enterprise/ballerina-core";
+import { FlowNode, LineRange, SubPanel, SubPanelView, FUNCTION_TYPE, ToolData } from "@wso2-enterprise/ballerina-core";
 import { InlineDataMapper } from "../../InlineDataMapper";
 import { HelperView } from "../HelperView";
 import FormGenerator from "../Forms/FormGenerator";
@@ -25,6 +18,8 @@ import { ToolConfig } from "./ToolConfig";
 import { AgentConfig } from "./AgentConfig";
 import { NewAgent } from "./NewAgent";
 import { AddTool } from "./AddTool";
+import { useEffect, useState } from "react";
+import { NewTool } from "./NewTool";
 
 export enum SidePanelView {
     NODE_LIST = "NODE_LIST",
@@ -34,6 +29,7 @@ export enum SidePanelView {
     NP_FUNCTION_LIST = "NP_FUNCTION_LIST",
     NEW_AGENT = "NEW_AGENT",
     ADD_TOOL = "ADD_TOOL",
+    NEW_TOOL = "NEW_TOOL",
     AGENT_TOOL = "AGENT_TOOL",
     AGENT_MODEL = "AGENT_MODEL",
     AGENT_CONFIG = "AGENT_CONFIG",
@@ -77,46 +73,57 @@ interface PanelManagerProps {
     onAddTool?: (node: FlowNode) => void;
 }
 
-export function PanelManager({
-    showSidePanel,
-    sidePanelView,
-    subPanel,
-    categories,
-    selectedNode,
-    nodeFormTemplate,
-    selectedClientName,
-    showEditForm,
-    targetLineRange,
-    connections,
-    fileName,
-    projectPath,
-    editForm,
-    updatedExpressionField,
-    onClose,
-    onBack,
-    onSelectNode,
-    onAddConnection,
-    onAddFunction,
-    onAddNPFunction,
-    onAddDataMapper,
-    onSubmitForm,
-    onDiscardSuggestions,
-    onSubPanel,
-    onResetUpdatedExpressionField,
-    onSearchFunction,
-    onSearchNpFunction,
-    onEditAgent,
-    onSelectTool,
-    onDeleteTool,
-    onAddTool,
-}: PanelManagerProps) {
+export function PanelManager(props: PanelManagerProps) {
+    const {
+        showSidePanel,
+        sidePanelView,
+        subPanel,
+        categories,
+        selectedNode,
+        nodeFormTemplate,
+        selectedClientName,
+        showEditForm,
+        targetLineRange,
+        connections,
+        fileName,
+        projectPath,
+        editForm,
+        updatedExpressionField,
+        onClose,
+        onBack,
+        onSelectNode,
+        onAddConnection,
+        onAddFunction,
+        onAddNPFunction,
+        onAddDataMapper,
+        onSubmitForm,
+        onDiscardSuggestions,
+        onSubPanel,
+        onResetUpdatedExpressionField,
+        onSearchFunction,
+        onSearchNpFunction,
+    } = props;
+
+    const [panelView, setPanelView] = useState<SidePanelView>(sidePanelView);
+    useEffect(() => {
+        setPanelView(sidePanelView);
+    }, [sidePanelView]);
+
+    const handleOnAddTool = () => {
+        setPanelView(SidePanelView.NEW_TOOL);
+    };
+
+    const handleOnBackToAddTool = () => {
+        setPanelView(SidePanelView.ADD_TOOL);
+    };
+
     const findSubPanelComponent = (subPanel: SubPanel) => {
         switch (subPanel.view) {
             case SubPanelView.INLINE_DATA_MAPPER:
                 return (
                     <InlineDataMapper
                         onClosePanel={onSubPanel}
-                        updateFormField={(data) => onResetUpdatedExpressionField()}
+                        updateFormField={() => onResetUpdatedExpressionField()}
                         {...subPanel.props?.inlineDataMapper}
                     />
                 );
@@ -125,7 +132,7 @@ export function PanelManager({
                     <HelperView
                         filePath={subPanel.props.sidePanelData.filePath}
                         position={subPanel.props.sidePanelData.range}
-                        updateFormField={(data) => onResetUpdatedExpressionField()}
+                        updateFormField={() => onResetUpdatedExpressionField()}
                         editorKey={subPanel.props.sidePanelData.editorKey}
                         onClosePanel={onSubPanel}
                         configurePanelData={subPanel.props.sidePanelData?.configurePanelData}
@@ -136,9 +143,8 @@ export function PanelManager({
         }
     };
 
-
     const renderPanelContent = () => {
-        switch (sidePanelView) {
+        switch (panelView) {
             case SidePanelView.NODE_LIST:
                 return (
                     <NodeList
@@ -160,7 +166,10 @@ export function PanelManager({
                 );
 
             case SidePanelView.ADD_TOOL:
-                return <AddTool agentCallNode={selectedNode} onSave={onClose} />;
+                return <AddTool agentCallNode={selectedNode} onAddNewTool={handleOnAddTool} onSave={onClose} />;
+
+            case SidePanelView.NEW_TOOL:
+                return <NewTool agentCallNode={selectedNode} onSave={onClose} />;
 
             case SidePanelView.AGENT_TOOL:
                 const selectedTool = selectedNode.metadata.data.tools?.find((tool) => tool.name === selectedClientName);
@@ -237,12 +246,19 @@ export function PanelManager({
         }
     };
 
+    const onBackCallback =
+        panelView === SidePanelView.NEW_TOOL
+            ? handleOnBackToAddTool
+            : panelView === SidePanelView.FORM && !showEditForm
+            ? onBack
+            : undefined;
+
     return (
         <PanelContainer
-            title={getContainerTitle(sidePanelView, selectedNode, selectedClientName)}
+            title={getContainerTitle(panelView, selectedNode, selectedClientName)}
             show={showSidePanel}
             onClose={onClose}
-            onBack={sidePanelView === SidePanelView.FORM && !showEditForm ? onBack : undefined}
+            onBack={onBackCallback}
             subPanelWidth={subPanel?.view === SubPanelView.INLINE_DATA_MAPPER ? 800 : 400}
             subPanel={findSubPanelComponent(subPanel)}
         >

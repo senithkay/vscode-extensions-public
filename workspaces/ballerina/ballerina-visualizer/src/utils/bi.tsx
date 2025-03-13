@@ -261,7 +261,9 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode, cli
         case SidePanelView.AGENT_TOOL:
             return "Configure Tool";
         case SidePanelView.ADD_TOOL:
-            return "Add Tool to Agent";
+            return "Add Tool";
+        case SidePanelView.NEW_TOOL:
+            return "Create New Tool";
         case SidePanelView.AGENT_CONFIG:
             return "Configure Agent";
         case SidePanelView.FORM:

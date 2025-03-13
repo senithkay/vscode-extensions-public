@@ -24,14 +24,6 @@ const Container = styled.div`
     box-sizing: border-box;
 `;
 
-const NoTools = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px 0;
-    color: ${ThemeColors.ON_SURFACE};
-`;
-
 const Description = styled.div`
     font-size: var(--vscode-font-size);
     color: ${ThemeColors.ON_SURFACE_VARIANT};
@@ -116,11 +108,12 @@ const Footer = styled.div`
 
 interface AddToolProps {
     agentCallNode: FlowNode;
+    onAddNewTool: () => void;
     onSave?: () => void;
 }
 
 export function AddTool(props: AddToolProps): JSX.Element {
-    const { agentCallNode, onSave } = props;
+    const { agentCallNode, onAddNewTool, onSave } = props;
     console.log(">>> AddTool props", props);
     const { rpcClient } = useRpcContext();
 
@@ -173,7 +166,7 @@ export function AddTool(props: AddToolProps): JSX.Element {
     };
 
     const handleAddNewTool = () => {
-        console.log(">>> add new tool");
+        onAddNewTool();
     };
 
     const handleOnSave = async () => {
