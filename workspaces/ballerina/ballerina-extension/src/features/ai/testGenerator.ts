@@ -13,7 +13,6 @@ import { DotToken, IdentifierToken, ModulePart, ResourceAccessorDefinition, Reso
 import { Uri, workspace } from "vscode";
 import { PARSING_ERROR, UNKNOWN_ERROR, ENDPOINT_REMOVED } from '../../views/ai-panel/errorCodes';
 import { langClient } from './activator';
-import * as yaml from 'js-yaml';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
@@ -351,7 +350,7 @@ async function getOpenAPISpecification(documentFilePath: string): Promise<string
     if (response.error) {
         throw new Error(response.error);
     }
-    return yaml.dump(response.content[0].spec);
+    return JSON.stringify(response.content[0].spec);
 }
 
 async function getUnitTests(request: TestGenerationRequest, projectSource: ProjectSource, abortController: AbortController, openApiSpec?: string): Promise<TestGenerationResponse | ErrorCode> {
