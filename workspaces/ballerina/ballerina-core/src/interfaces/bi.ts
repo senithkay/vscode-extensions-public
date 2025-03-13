@@ -206,7 +206,7 @@ export enum DIRECTORY_SUB_TYPE {
     AUTOMATION = "automation",
     TRIGGER = "trigger",
     DATA_MAPPER = "dataMapper",
-    NATURAL_FUNCTIONS = "naturalFunction",
+    NATURAL_FUNCTION = "naturalFunction",
     AGENTS = "agents",
 }
 
