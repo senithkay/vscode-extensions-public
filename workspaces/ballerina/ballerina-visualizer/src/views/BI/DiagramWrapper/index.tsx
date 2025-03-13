@@ -19,7 +19,7 @@ import { EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
 import { VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import styled from "@emotion/styled";
-import { BIFocusFlowDiagram, BIFocusFlowDiagramView } from "../FocusFlowDiagram";
+import { BI_FOCUS_FLOW_DIAGRAM, BIFocusFlowDiagram, BIFocusFlowDiagramView } from "../FocusFlowDiagram";
 
 const ActionButton = styled(Button)`
     display: flex;
@@ -176,7 +176,7 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
             )}
             {!isResource && !isAutomation && (
                 <TitleBar
-                    title={"Function"}
+                    title={getTitle(view)}
                     subtitleElement={
                         <SubTitleWrapper>
                             <Path>{method}</Path>
@@ -255,6 +255,13 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
     );
 }
 
+function getTitle(view: BIFocusFlowDiagramView) {
+    if (view === BI_FOCUS_FLOW_DIAGRAM.NP_FUNCTION) {
+        return "Natural Function";
+    }
+    return "Function";
+}
+
 function getResourcePath(resource: STNode) {
     let resourcePath = "";
     if (STKindChecker.isResourceAccessorDefinition(resource)) {
@@ -270,6 +277,23 @@ function getParameters(syntaxTree: STNode) {
         return syntaxTree.functionSignature.parameters
             .map((param) => {
                 if (!STKindChecker.isCommaToken(param)) {
+                    return `${param.paramName.value}: ${param.typeName.source.trim()}`;
+                }
+                return null;
+            })
+            .filter(Boolean)
+            .join(", ");
+    } else if (
+        STKindChecker.isFunctionDefinition(syntaxTree) &&
+        syntaxTree.functionBody.source.includes("@np:NaturalFunction external")
+    ) {
+        return syntaxTree.functionSignature.parameters
+            .map((param) => {
+                if (
+                    !STKindChecker.isCommaToken(param) &&
+                    param.paramName.value !== "prompt" &&
+                    param.paramName.value !== "context"
+                ) {
                     return `${param.paramName.value}: ${param.typeName.source.trim()}`;
                 }
                 return null;

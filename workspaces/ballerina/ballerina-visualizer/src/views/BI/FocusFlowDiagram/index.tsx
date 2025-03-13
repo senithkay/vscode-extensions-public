@@ -24,7 +24,6 @@ import {
     LineRange,
     EVENT_TYPE,
     VisualizerLocation,
-    MACHINE_VIEW,
     CurrentBreakpointsResponse as BreakpointInfo,
     ParentPopupData,
 } from "@wso2-enterprise/ballerina-core";
@@ -37,7 +36,6 @@ import {
 } from "../../../utils/bi";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { View, ProgressRing, ProgressIndicator, ThemeColors } from "@wso2-enterprise/ui-toolkit";
-import { applyModifications, textToModifications } from "../../../utils/utils";
 
 const Container = styled.div`
     width: 100%;
@@ -267,7 +265,7 @@ export function BIFocusFlowDiagram(props: BIFocusFlowDiagramProps) {
             });
     };
 
-    const handleOnFormSubmit = (updatedNode?: FlowNode, isDataMapperFormUpdate?: boolean) => {
+    const handleOnFormSubmit = (updatedNode?: FlowNode) => {
         if (!updatedNode) {
             console.log(">>> No updated node found");
             updatedNode = selectedNodeRef.current;
@@ -277,8 +275,7 @@ export function BIFocusFlowDiagram(props: BIFocusFlowDiagramProps) {
             .getBIDiagramRpcClient()
             .getSourceCode({
                 filePath: model.fileName,
-                flowNode: updatedNode,
-                isFunctionNodeUpdate: isDataMapperFormUpdate,
+                flowNode: updatedNode
             })
             .then((response) => {
                 console.log(">>> Updated source code", response);

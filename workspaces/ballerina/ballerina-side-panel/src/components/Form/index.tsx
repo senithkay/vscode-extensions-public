@@ -404,7 +404,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
     }
 
     // has advance fields
-    const hasAdvanceFields = formFields.some((field) => field.advanced && field.enabled);
+    const hasAdvanceFields = formFields.some((field) => field.advanced && field.enabled && !field.hidden);
     const variableField = formFields.find((field) => field.key === "variable");
     const typeField = formFields.find((field) => field.key === "type");
     const dataMapperField = formFields.find((field) => field.label.includes("Data mapper"));

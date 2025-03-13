@@ -23,7 +23,7 @@ import { useDiagramContext } from "../../DiagramContext";
 import { PromptNodeModel } from "./PromptNodeModel";
 import { ELineRange } from "@wso2-enterprise/ballerina-core";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
-import { getNodeTitle, nodeHasError } from "../../../utils/node";
+import { nodeHasError } from "../../../utils/node";
 import { cloneDeep } from "lodash";
 
 export namespace NodeStyles {
@@ -202,6 +202,7 @@ export function PromptNodeWidget(props: PromptNodeWidgetProps) {
     const handleSave = () => {
         const clonedNode = cloneDeep(model.node);
         clonedNode.properties['prompt'].value = `\`${bodyTextTemplate}\``;
+        clonedNode.codedata.node = "NP_FUNCTION_DEFINITION";
         onNodeSave?.(clonedNode);
         toggleEditable();
     };
@@ -270,23 +271,6 @@ export function PromptNodeWidget(props: PromptNodeWidgetProps) {
         });
     }
 
-    const nodeTitle = getNodeTitle(model.node);
-
-    const hasFullAssignment = model.node.properties?.variable?.value && model.node.properties?.expression?.value;
-
-    let nodeDescription = hasFullAssignment
-        ? `${model.node.properties.variable?.value} = ${model.node.properties?.expression?.value}`
-        : model.node.properties?.variable?.value || model.node.properties?.expression?.value;
-
-    // HACK: add descriptions for log nodes
-    if (
-        model.node.codedata?.org === "ballerina" &&
-        model.node.codedata?.module === "log" &&
-        model.node.properties?.msg?.value
-    ) {
-        nodeDescription = model.node.properties.msg.value;
-    }
-
     const hasError = nodeHasError(model.node);
 
     useEffect(() => {
@@ -327,8 +311,7 @@ export function PromptNodeWidget(props: PromptNodeWidgetProps) {
                 </NodeStyles.Icon>
                 <NodeStyles.Row>
                     <NodeStyles.Header onClick={handleOnClick}>
-                        <NodeStyles.Title>{nodeTitle}</NodeStyles.Title>
-                        <NodeStyles.Description>{nodeDescription}</NodeStyles.Description>
+                        <NodeStyles.Title>Prompt</NodeStyles.Title>
                     </NodeStyles.Header>
                     <NodeStyles.ActionButtonGroup>
                         {hasError && <DiagnosticsPopUp node={model.node} />}
