@@ -9,9 +9,8 @@
 
 import React from "react";
 import { FormField } from "../Form/types";
-import { TextArea } from "@wso2-enterprise/ui-toolkit";
+import { AutoResizeTextArea } from "@wso2-enterprise/ui-toolkit";
 import { useFormContext } from "../../context";
-import { capitalize } from "./utils";
 import { S } from "./ExpressionEditor";
 import { Controller } from "react-hook-form";
 
@@ -50,7 +49,7 @@ export function TextAreaEditor(props: TextAreaEditorProps) {
                 }}
                 render={({ field: { name, value, onChange }, fieldState: { error } }) => (
                     <div>
-                        <TextArea
+                        <AutoResizeTextArea
                             id={field.key}
                             name={name}
                             required={!field.optional}
@@ -62,6 +61,7 @@ export function TextAreaEditor(props: TextAreaEditorProps) {
                             onFocus={() => handleOnFieldFocus?.(field.key)}
                             autoFocus={autoFocus}
                             onChange={onChange}
+                            growRange={{ start: 4, offset: 12 }}
                         />
                     </div>
                 )}

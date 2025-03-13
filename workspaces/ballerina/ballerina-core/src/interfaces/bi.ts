@@ -68,11 +68,24 @@ export type Metadata = {
     draft?: boolean; // for diagram draft nodes
     data?: {
         isDataMappedFunction?: boolean;
-        tools?: { [key: string]: string }; // for agent call
-        model?: string; // for agent call
+        tools?: ToolData[];
+        model?: ToolData;
+        agent?: AgentData;
         paramsToHide?: string[]; // List of properties keys to to hide from forms
     }
 };
+
+export type ToolData = {
+    name: string;
+    description?: string;
+    path?: string;
+    type?: string;
+}
+
+export type AgentData = {
+    role?: string;
+    instructions?: string;
+}
 
 export type Property = {
     metadata: Metadata;
@@ -121,6 +134,7 @@ export type CodeData = {
     sourceCode?: string;
     parentSymbol?: string;
     inferredReturnType?: string;
+    isNew?: boolean;
 };
 
 export type Branch = {
@@ -228,7 +242,6 @@ export interface ProjectStructureArtifactResponse {
     icon?: string;
     context?: string;
     position?: NodePosition;
-    st?: STNode;
     serviceModel?: ServiceModel;
     resources?: ProjectStructureArtifactResponse[];
 }
@@ -268,7 +281,9 @@ export type NodePropertyKey =
     | "parameters"
     | "model"
     | "tools"
-    | "functionName";
+    | "query"
+    | "functionName"
+    | "systemPrompt";
 
 export type BranchKind = "block" | "worker";
 
@@ -326,6 +341,7 @@ export type NodeKind =
     | "AGENT"
     | "AGENT_CALL"
     | "FUNCTION_DEFINITION"
+    | "AUTOMATION"
     | "CONFIG_VARIABLE";
 
 export type OverviewFlow = {

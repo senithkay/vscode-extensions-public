@@ -81,10 +81,9 @@ export function ProjectForm() {
             <IconButton onClick={gotToWelcome}>
                 <Icon name="bi-arrow-back" iconSx={{ color: "var(--vscode-foreground)" }} />
             </IconButton>
-            <Typography variant="h2">Create Your Kola Integration</Typography>
+            <Typography variant="h2">Create Your Ballerina Integration</Typography>
             <BodyText>
-                Start by naming your project and selecting a location to save it. This will be the foundation for
-                building your integration.
+                Name your integration and select a location to start building.
             </BodyText>
             <TextField
                 onTextChange={handleProjectName}

@@ -47,7 +47,7 @@ export function fetchProjectInfo(): ProjectInfo {
 }
 
 export function checkIsBI(uri: Uri): boolean {
-    const config = workspace.getConfiguration('kolab', uri);
+    const config = workspace.getConfiguration('ballerina', uri);
     const inspected = config.inspect<boolean>('isBI');
 
     if (inspected) {
