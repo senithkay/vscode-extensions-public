@@ -30,7 +30,8 @@
         "onUri"
     ],
     "extensionDependencies": [
-        "anweber.httpbook"
+        "anweber.httpbook",
+        "wso2.wso2-platform"
     ],
     "contributes": {
         "languages": [
