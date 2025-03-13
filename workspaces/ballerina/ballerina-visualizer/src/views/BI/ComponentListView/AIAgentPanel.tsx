@@ -46,6 +46,7 @@ export function AIAgentPanel(props: AIAgentPanelProps) {
                     onClick={handleClick}
                     disabled={isDisabled}
                     tooltip={componentListItemTooltip(isDisabled)}
+                    isBeta
                 />
             </CardGrid>
         </PanelViewMore>
