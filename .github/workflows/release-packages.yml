@@ -50,6 +50,7 @@ jobs:
       isPreRelease: ${{ inputs.isPreRelease }}
       enableCache: false
       ballerina: false
+      wso2-platform: false
       choreo: false
       apk: false
       version: ${{ inputs.version }}
