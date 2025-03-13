@@ -32,7 +32,7 @@
     ],
     "extensionDependencies": [
         "anweber.httpbook",
-        "wso2.wso2-platform"
+        "WSO2.wso2-platform"
     ],
     "contributes": {
         "languages": [
