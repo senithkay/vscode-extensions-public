@@ -639,7 +639,7 @@ export class BallerinaExtension {
         try {
             let res: DownloadProgress = {
                 downloadedSize: 0,
-                message: "Fetching ballerina release details..",
+                message: "Fetching Ballerina release details..",
                 percentage: 0,
                 success: false,
                 totalSize: 0,
@@ -848,7 +848,7 @@ export class BallerinaExtension {
             // Get the latest successful daily build run and artifacts
             let res: DownloadProgress = {
                 downloadedSize: 0,
-                message: "Fetching ballerina release details..",
+                message: "Fetching Ballerina release details..",
                 percentage: 0,
                 success: false,
                 totalSize: 0,
