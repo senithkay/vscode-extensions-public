@@ -351,13 +351,8 @@
                 "category": "Ballerina"
             },
             {
-                "command": "ballerina.setup-ballerina",
-                "title": "Set up WSO2 Ballerina",
-                "category": "Ballerina"
-            },
-            {
                 "command": "ballerina.update-ballerina",
-                "title": "Update WSO2 Ballerina",
+                "title": "Update Ballerina Dev Pack",
                 "category": "Ballerina"
             },
             {

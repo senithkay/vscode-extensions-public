@@ -158,7 +158,11 @@ export class BallerinaExtension {
         this.ballerinaIntegratorReleaseUrl = "https://api.github.com/repos/ballerina-platform/ballerina-distribution/releases";
         this.ballerinaHomeCustomDirName = "ballerina-home";
         this.ballerinaInstallationDir = path.join(this.getBallerinaUserHome(), this.ballerinaHomeCustomDirName);
+
         this.updateToolServerUrl = "https://api.central.ballerina.io/2.0/update-tool";
+        if (this.overrideBallerinaHome()) {
+            this.updateToolServerUrl = "https://api.staging-central.ballerina.io/2.0/update-tool/";
+        }
         this.ballerinaUpdateToolUserAgent = this.getUpdateToolUserAgent();
         this.showStatusBarItem();
         // Load the extension
@@ -223,15 +227,15 @@ export class BallerinaExtension {
             this.showMessageInstallBallerina();
         });
 
-        commands.registerCommand('ballerina.setup-ballerina', () => {
-            this.updateIntegratorVersion();
+        commands.registerCommand('ballerina.setup-ballerina', () => { // Install developer pack from ballerina dist repo
+            this.installBallerina();
         });
 
-        commands.registerCommand('ballerina.update-ballerina', () => {
+        commands.registerCommand('ballerina.update-ballerina', () => { // Update developer pack from ballerina dist repo
             this.updateIntegratorVersion(true);
         });
 
-        commands.registerCommand('ballerina-setup.setupBallerina', () => {
+        commands.registerCommand('ballerina-setup.setupBallerina', () => { // Install release pack from ballerina update tool
             this.setupBallerina(true);
         });
 
