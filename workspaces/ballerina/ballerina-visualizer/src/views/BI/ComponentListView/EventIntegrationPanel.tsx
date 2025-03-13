@@ -80,6 +80,7 @@ export function EventIntegrationPanel(props: EventIntegrationPanelProps) {
                                     }}
                                     disabled={isDisabled}
                                     tooltip={isDisabled ? OutOfScopeComponentTooltip : ""}
+                                    isBeta={shouldMarkAsBeta(item)}
                                 />
                             );
                         }
@@ -89,6 +90,11 @@ export function EventIntegrationPanel(props: EventIntegrationPanelProps) {
         </PanelViewMore>
     );
 };
+
+function shouldMarkAsBeta(item: ServiceModel) {
+    const betaServices = ["salesforce", "trigger.github"];
+    return betaServices.includes(item.moduleName);
+}
 
 // TODO: This should be removed once the new icons are added to the BE API.
 export function getEntryNodeIcon(item: ServiceModel) {
