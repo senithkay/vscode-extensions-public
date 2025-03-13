@@ -70,6 +70,7 @@ export type Metadata = {
         isDataMappedFunction?: boolean;
         tools?: ToolData[];
         model?: ToolData;
+        agent?: AgentData;
         paramsToHide?: string[]; // List of properties keys to to hide from forms
     }
 };
@@ -78,6 +79,12 @@ export type ToolData = {
     name: string;
     description?: string;
     path?: string;
+    type?: string;
+}
+
+export type AgentData = {
+    role?: string;
+    instructions?: string;
 }
 
 export type Property = {
@@ -127,6 +134,7 @@ export type CodeData = {
     sourceCode?: string;
     parentSymbol?: string;
     inferredReturnType?: string;
+    isNew?: boolean;
 };
 
 export type Branch = {
