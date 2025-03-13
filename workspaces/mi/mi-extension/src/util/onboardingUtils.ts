@@ -926,8 +926,8 @@ async function showExtensionPrompt() {
         'Install Now'
     ).then(async (selection) => {
         if (selection === 'Install Now') {
-            await vscode.commands.executeCommand(COMMANDS.INSTALL_EXTENSION_COMMAND, COMMANDS.KOLA_EXTENSION);
-            await vscode.commands.executeCommand(COMMANDS.KOLA_OPEN_COMMAND);
+            await vscode.commands.executeCommand(COMMANDS.INSTALL_EXTENSION_COMMAND, COMMANDS.BI_EXTENSION);
+            await vscode.commands.executeCommand(COMMANDS.BI_OPEN_COMMAND);
         }
     });
 }

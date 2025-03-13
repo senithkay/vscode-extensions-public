@@ -350,12 +350,12 @@
                 "category": "Ballerina"
             },
             {
-                "command": "ballerina-setup.setupKola",
+                "command": "ballerina.setup-ballerina",
                 "title": "Set up WSO2 Ballerina",
                 "category": "Ballerina"
             },
             {
-                "command": "ballerina-setup.updateKola",
+                "command": "ballerina.update-ballerina",
                 "title": "Update WSO2 Ballerina",
                 "category": "Ballerina"
             },

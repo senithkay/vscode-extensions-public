@@ -108,8 +108,8 @@ export const COMMANDS = {
     DEVAN_DEPLOY: 'wso2.wso2-platform.create.component',
     DEVAN_OPEN_COMPONENT: 'wso2.wso2-platform.open.component.src',
 
-    KOLA_EXTENSION: 'ballerina-integrator',
-    KOLA_OPEN_COMMAND: 'ballerina.open.bi.welcome',
+    BI_EXTENSION: 'ballerina-integrator',
+    BI_OPEN_COMMAND: 'ballerina.open.bi.welcome',
     INSTALL_EXTENSION_COMMAND: 'workbench.extensions.installExtension'
 };
 

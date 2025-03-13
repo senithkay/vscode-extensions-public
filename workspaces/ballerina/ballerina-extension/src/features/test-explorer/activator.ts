@@ -11,7 +11,7 @@
 import { tests, workspace,  TestRunProfileKind, TestController } from "vscode";
 import { BallerinaExtension } from "../../core";
 import { runHandler } from "./runner";
-import { activateEditKolaTest } from "./commands";
+import { activateEditBiTest } from "./commands";
 import { discoverTestFunctionsInProject, handleFileChange as handleTestFileUpdate, handleFileDelete as handleTestFileDelete } from "./discover";
 
 export let testController: TestController;
@@ -37,7 +37,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
     // Register the test controller and file watcher with the extension context
     ballerinaExtInstance.context?.subscriptions.push(testController, fileWatcher);
 
-    activateEditKolaTest();
+    activateEditBiTest();
 }
 
 

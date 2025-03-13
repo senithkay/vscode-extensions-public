@@ -141,8 +141,8 @@ export class BallerinaExtension {
     private isOpenedOnce: boolean;
     private ballerinaUserHome: string;
     private ballerinaUserHomeName; string;
-    private ballerinaKolaVersion: string;
-    private ballerinaKolaReleaseUrl: string;
+    private ballerinaIntegratorVersion: string;
+    private ballerinaIntegratorReleaseUrl: string;
     private ballerinaHomeCustomDirName: string;
     private ballerinaInstallationDir: string;
     private updateToolServerUrl: string;
@@ -155,7 +155,7 @@ export class BallerinaExtension {
         this.isPersist = false;
         this.ballerinaUserHomeName = '.ballerina';
         this.ballerinaUserHome = path.join(this.getUserHomeDirectory(), this.ballerinaUserHomeName);
-        this.ballerinaKolaReleaseUrl = "https://api.github.com/repos/ballerina-platform/ballerina-distribution/releases";
+        this.ballerinaIntegratorReleaseUrl = "https://api.github.com/repos/ballerina-platform/ballerina-distribution/releases";
         this.ballerinaHomeCustomDirName = "ballerina-home";
         this.ballerinaInstallationDir = path.join(this.getBallerinaUserHome(), this.ballerinaHomeCustomDirName);
         this.updateToolServerUrl = "https://api.central.ballerina.io/2.0/update-tool";
@@ -223,12 +223,12 @@ export class BallerinaExtension {
             this.showMessageInstallBallerina();
         });
 
-        commands.registerCommand('ballerina-setup.setupKola', () => {
-            this.updateKolaVersion();
+        commands.registerCommand('ballerina.setup-ballerina', () => {
+            this.updateIntegratorVersion();
         });
 
-        commands.registerCommand('ballerina-setup.updateKola', () => {
-            this.updateKolaVersion(true);
+        commands.registerCommand('ballerina.update-ballerina', () => {
+            this.updateIntegratorVersion(true);
         });
 
         commands.registerCommand('ballerina-setup.setupBallerina', () => {
@@ -806,7 +806,7 @@ export class BallerinaExtension {
         }
     }
 
-    async updateKolaVersion(restartWindow?: boolean) {
+    async updateIntegratorVersion(restartWindow?: boolean) {
         try {
             if (this.langClient?.isRunning()) {
                 window.showInformationMessage(`Stopping the ballerina language server...`);
@@ -855,7 +855,7 @@ export class BallerinaExtension {
                 step: 1
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
-            const releasesResponse = await axios.get(this.ballerinaKolaReleaseUrl);
+            const releasesResponse = await axios.get(this.ballerinaIntegratorReleaseUrl);
             const releases = releasesResponse.data;
             const tags = releases.map((release: any) => release.tag_name).filter((tag: string) => tag.includes("bi-pack"));
             if (tags.length === 0) {
@@ -874,13 +874,13 @@ export class BallerinaExtension {
                 step: 2
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
-            const kolaReleaseResponse = await axios.get(`${this.ballerinaKolaReleaseUrl}/tags/${latestTag}`);
-            const kolaRelease = kolaReleaseResponse.data;
-            this.ballerinaKolaVersion = kolaRelease.tag_name.replace('v', '').split('-')[0];
-            console.log(`Latest release version: ${this.ballerinaKolaVersion}`);
+            const biReleaseResponse = await axios.get(`${this.ballerinaIntegratorReleaseUrl}/tags/${latestTag}`);
+            const biRelease = biReleaseResponse.data;
+            this.ballerinaIntegratorVersion = biRelease.tag_name.replace('v', '').split('-')[0];
+            console.log(`Latest release version: ${this.ballerinaIntegratorVersion}`);
 
             const platform = os.platform();
-            const asset = kolaRelease.assets.find((asset: any) => {
+            const asset = biRelease.assets.find((asset: any) => {
                 if (platform === 'win32') {
                     return asset.name.endsWith('windows.zip');
                 } else if (platform === 'linux') {
@@ -894,7 +894,7 @@ export class BallerinaExtension {
                 }
             });
             if (!asset) {
-                throw new Error('No artifact found in the release ' + this.ballerinaKolaVersion);
+                throw new Error('No artifact found in the release ' + this.ballerinaIntegratorVersion);
             }
             const artifactUrl = asset.browser_download_url;
 
