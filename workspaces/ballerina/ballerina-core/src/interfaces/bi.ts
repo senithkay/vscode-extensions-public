@@ -135,6 +135,7 @@ export type CodeData = {
     sourceCode?: string;
     parentSymbol?: string;
     inferredReturnType?: string;
+    version?: string;
     isNew?: boolean;
 };
 
@@ -205,6 +206,7 @@ export enum DIRECTORY_SUB_TYPE {
     SERVICE = "service",
     AUTOMATION = "automation",
     TRIGGER = "trigger",
+    LISTENER = "listener",
     DATA_MAPPER = "dataMapper",
     NATURAL_FUNCTION = "naturalFunction",
     AGENTS = "agents",
