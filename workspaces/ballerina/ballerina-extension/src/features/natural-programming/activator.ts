@@ -8,25 +8,27 @@
  */
 
 import vscode from 'vscode';
-import { ENABLE_NATURAL_PROGRAMMING } from "../../core/preferences";
+import { ENABLE_BACKGROUND_DRIFT_CHECK } from "../../core/preferences";
 import { debounce } from 'lodash';
 import { StateMachine } from "../../stateMachine";
-import { getLLMDiagnostics } from "./utils";
+import { addDefaultModelConfigForNaturalFunctions, getBackendURL, getLLMDiagnostics, getAccessToken } from "./utils";
 import { NLCodeActionProvider, showTextOptions } from './nl-code-action-provider';
 import { BallerinaExtension } from 'src/core';
-import { PROGRESS_BAR_MESSAGE, WARNING_MESSAGE, WARNING_MESSAGE_DEFAULT, MONITERED_EXTENSIONS } from './constants';
+import { PROGRESS_BAR_MESSAGE_FOR_DRIFT, WARNING_MESSAGE, WARNING_MESSAGE_DEFAULT, MONITERED_EXTENSIONS,
+    WARNING_MESSAGE_FOR_NP_TOKEN_NOT_FOUND, PROGRESS_BAR_MESSAGE_FOR_NP_TOKEN
+ } from './constants';
 
 let diagnosticCollection: vscode.DiagnosticCollection;
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
-    const naturalLanguageConfig = vscode.workspace.getConfiguration().get<boolean>(ENABLE_NATURAL_PROGRAMMING);
+    const backgroundDriftCheckConfig = vscode.workspace.getConfiguration().get<boolean>(ENABLE_BACKGROUND_DRIFT_CHECK);
 
     // Create diagnostic collection and register it
     diagnosticCollection = vscode.languages.createDiagnosticCollection('ballerina');
     ballerinaExtInstance.context.subscriptions.push(diagnosticCollection);
 
     const projectPath = StateMachine.context().projectUri;
-    if (naturalLanguageConfig) {
+    if (backgroundDriftCheckConfig) {
         if (!ballerinaExtInstance.context || projectPath == null || projectPath == "") {
             return;
         }
@@ -42,7 +44,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                 return;
             }
             vscode.window.showWarningMessage(WARNING_MESSAGE_DEFAULT);
-        }, 15000);
+        }, 600000);
         
         vscode.workspace.onDidChangeTextDocument(async event => {
             const filePath = event.document.uri.fsPath; // Get the file path
@@ -81,11 +83,11 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
     ballerinaExtInstance.context.subscriptions.push(showTextOptions);
 
-    vscode.commands.registerCommand("kolab.verifyDocs", async (...args: any[]) => {    
+    vscode.commands.registerCommand("ballerina.verifyDocs", async (...args: any[]) => {    
         await vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
-                title: PROGRESS_BAR_MESSAGE,
+                title: PROGRESS_BAR_MESSAGE_FOR_DRIFT,
                 cancellable: false,
             },
             async () => {
@@ -99,6 +101,25 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                     return;
                 }
                 vscode.window.showWarningMessage(WARNING_MESSAGE_DEFAULT);
+            }
+        );
+    });
+
+    vscode.commands.registerCommand("ballerina.configureDefaultModelForNaturalFunctions", async (...args: any[]) => {    
+        await vscode.window.withProgress(
+            {
+                location: vscode.ProgressLocation.Notification,
+                title: PROGRESS_BAR_MESSAGE_FOR_NP_TOKEN,
+                cancellable: false,
+            },
+            async () => {
+                const token: string = await getAccessToken();
+                if (token == null) {
+                    vscode.window.showWarningMessage(WARNING_MESSAGE_FOR_NP_TOKEN_NOT_FOUND);
+                    return;
+                }
+
+                addDefaultModelConfigForNaturalFunctions(projectPath, token, await getBackendURL());
             }
         );
     });

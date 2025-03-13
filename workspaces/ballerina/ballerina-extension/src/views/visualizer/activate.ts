@@ -38,7 +38,7 @@ export function activateSubscriptions() {
     // <------------- Shared Commands ------------>
     context.subscriptions.push(
         vscode.commands.registerCommand(SHARED_COMMANDS.SHOW_VISUALIZER, (path: vscode.Uri, position, resetHistory = false) => {
-            openView(EVENT_TYPE.OPEN_VIEW, { documentUri: path?.fsPath || vscode.window.activeTextEditor?.document.uri.fsPath, position: position}, resetHistory);
+            openView(EVENT_TYPE.OPEN_VIEW, { documentUri: path?.fsPath || vscode.window.activeTextEditor?.document.uri.fsPath, position: position }, resetHistory);
         })
     );
 
@@ -49,6 +49,12 @@ export function activateSubscriptions() {
             } else {
                 openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SetupView });
             }
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(SHARED_COMMANDS.OPEN_BI_NEW_PROJECT, () => {
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BIProjectForm });
         })
     );
 

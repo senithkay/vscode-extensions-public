@@ -82,6 +82,7 @@ import {
     RecordsInWorkspaceMentions,
     RenameIdentifierRequest,
     RenameRequest,
+    SCOPE,
     STModification,
     ServiceClassModelResponse,
     ServiceClassSourceRequest,
@@ -127,7 +128,7 @@ import { getCompleteSuggestions } from '../../utils/ai/completions';
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure } from "../../utils/bi";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
-import { getFunctionNodePosition } from "./utils";
+import { findScopeByModule, getFunctionNodePosition } from "./utils";
 
 export class BiDiagramRpcManager implements BIDiagramAPI {
 
@@ -685,16 +686,38 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
     }
 
     async deployProject(): Promise<void> {
-        // If has an automation set the type to scheduled task
         const projectStructure = await this.getProjectStructure();
+
+        const services = projectStructure.directoryMap[DIRECTORY_MAP.SERVICES];
         const automation = projectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION];
-        let type = "service";
-        if (automation) {
-            type = "scheduleTask";
+
+        let scopes: SCOPE[] = [];
+        if (services) {
+            const svcScopes = services.map((svc) => findScopeByModule(svc?.serviceModel.moduleName));
+            scopes = Array.from(new Set(svcScopes));
         }
-        // Show a quick pick to select deployment option
+        if (automation) {
+            scopes.push(SCOPE.AUTOMATION);
+        }
+
+        let integrationType: SCOPE;
+
+        if (scopes.length === 1) {
+            integrationType = scopes[0];
+        } else {
+            // Show a quick pick to select deployment option
+            const selectedScope = await window.showQuickPick(scopes, {
+                placeHolder: 'You have different types of artifacts within this project. Select the artifact type to be deployed'
+            });
+            integrationType = selectedScope as SCOPE;
+        }
+
+        if (!integrationType) {
+            return;
+        }
+
         const params = {
-            type: type, // Assuming this is a valid enum value
+            integrationType: integrationType,
             buildPackLang: "ballerina", // Example language
             name: path.basename(StateMachine.context().projectUri),
             componentDir: StateMachine.context().projectUri
@@ -704,9 +727,9 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     openAIChat(params: AIChatRequest): void {
         if (params.readme) {
-            commands.executeCommand("kolab.open.ai.panel", "Generate an integration according to the given Readme file");
+            commands.executeCommand("ballerina.open.ai.panel", "Generate an integration according to the given Readme file");
         } else {
-            commands.executeCommand("kolab.open.ai.panel");
+            commands.executeCommand("ballerina.open.ai.panel");
         }
     }
 
@@ -793,7 +816,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         }
 
         // Get Ballerina home path from settings
-        const config = workspace.getConfiguration('kolab');
+        const config = workspace.getConfiguration('ballerina');
         const ballerinaHome = config.get<string>('home');
         if (ballerinaHome) {
             // Add ballerina home to build path only if it's configured
@@ -1139,7 +1162,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             'Authorize using GitHub Copilot'
         ).then(selection => {
             if (selection === 'Authorize using GitHub Copilot') {
-                commands.executeCommand('kolab.login.copilot');
+                commands.executeCommand('ballerina.login.copilot');
             }
         });
     }

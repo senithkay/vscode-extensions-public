@@ -39,6 +39,9 @@ import {
     TRIGGER_CHARACTERS,
     Diagnostic,
     FUNCTION_TYPE,
+    FunctionNode,
+    FocusFlowDiagramView,
+    FOCUS_FLOW_DIAGRAM_VIEW
 } from "@wso2-enterprise/ballerina-core";
 import {
     HelperPaneVariableInfo,
@@ -46,9 +49,10 @@ import {
     HelperPaneFunctionCategory,
     HelperPaneCompletionItem
 } from "@wso2-enterprise/ballerina-side-panel";
-import { SidePanelView } from "../views/BI/FlowDiagram";
+import { SidePanelView } from "../views/BI/FlowDiagram/PanelManager";
 import { cloneDeep } from "lodash";
 import { CompletionItem, CompletionItemKind, convertCompletionItemKind } from "@wso2-enterprise/ui-toolkit";
+import { FunctionDefinition, STNode } from "@wso2-enterprise/syntax-tree";
 
 function convertAvailableNodeToPanelNode(node: AvailableNode, functionType?: FUNCTION_TYPE): PanelNode {
     // Check if node should be filtered based on function type
@@ -149,6 +153,7 @@ export function convertNodePropertyToFormField(
         placeholder: property.placeholder,
         editable: isFieldEditable(property, connections, clientName),
         enabled: true,
+        hidden: property.hidden,
         documentation: property.metadata?.description || "",
         value: getFormFieldValue(property, clientName),
         valueType: getFormFieldValueType(property),
@@ -249,6 +254,14 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode, cli
     switch (view) {
         case SidePanelView.NODE_LIST:
             return ""; // Show switch instead of title
+        case SidePanelView.AGENT_MODEL:
+            return "Configure LLM Model";
+        case SidePanelView.AGENT_TOOL:
+            return "Configure Tool";
+        case SidePanelView.AGENT_TOOL_LIST:
+            return "Add Tool to Agent";
+        case SidePanelView.AGENT_CONFIG:
+            return "Configure Agent";
         case SidePanelView.FORM:
             if (
                 activeNode.codedata?.node === "REMOTE_ACTION_CALL" ||
@@ -745,4 +758,17 @@ export function convertConfig(properties: NodeProperties, skipKeys: string[] = [
     }
 
     return formFields;
+}
+
+export function isNaturalFunction(node: STNode, view: FocusFlowDiagramView): node is FunctionDefinition {
+    return view === FOCUS_FLOW_DIAGRAM_VIEW.NP_FUNCTION;
+}
+
+export function getFlowNodeForNaturalFunction(node: FunctionNode): FlowNode {
+    const flowNode: FlowNode = {
+        ...node,
+        codedata: { ...node.codedata, node: "NP_FUNCTION" },
+        branches: []
+    }
+    return flowNode;
 }

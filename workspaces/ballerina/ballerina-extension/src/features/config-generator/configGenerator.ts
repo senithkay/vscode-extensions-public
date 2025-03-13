@@ -12,7 +12,7 @@ import { existsSync, openSync, readFileSync, writeFile } from "fs";
 import { BAL_TOML, BAL_CONFIG_FILE, PALETTE_COMMANDS, clearTerminal } from "../project";
 import { BallerinaExtension, ballerinaExtInstance, ExtendedLangClient } from "../../core";
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
-import { generateExistingValues, parseTomlToConfig, typeOfComment } from "./utils";
+import { parseTomlToConfig, typeOfComment } from "./utils";
 import { ConfigProperty, ConfigTypes, Constants, Property } from "./model";
 import { BallerinaProject, PackageConfigSchema, ProjectDiagnosticsResponse, SyntaxTree } from "@wso2-enterprise/ballerina-core";
 import { TextDocumentEdit } from "vscode-languageserver-types";
@@ -22,7 +22,7 @@ import { startDebugging } from "../editor-support/codelens-provider";
 
 const UNUSED_IMPORT_ERR_CODE = "BCE2002";
 
-export async function prepareAndGenerateConfig(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean, isBi?: boolean, executeRun: boolean = true): Promise<void> {
+export async function prepareAndGenerateConfig(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean, isBi?: boolean, executeRun: boolean = true, includeOptional: boolean = false): Promise<void> {
     const configRequirement: ConfigRequirementResult = await checkConfigGenerationRequired(ballerinaExtInstance, filePath, isBi);
 
     if (!configRequirement.needsConfig) {
@@ -41,7 +41,7 @@ export async function prepareAndGenerateConfig(ballerinaExtInstance: BallerinaEx
     const ignoreFile = `${context.projectPath}/.gitignore`;
 
     await handleNewValues(
-        context.packageName,
+        context,
         newValues,
         context.configFilePath,
         updatedContent,
@@ -49,7 +49,8 @@ export async function prepareAndGenerateConfig(ballerinaExtInstance: BallerinaEx
         ignoreFile,
         ballerinaExtInstance,
         isCommand,
-        isBi
+        isBi,
+        includeOptional
     );
 }
 
@@ -76,6 +77,7 @@ export async function checkConfigGenerationRequired(ballerinaExtInstance: Baller
     }
 
     const context: ConfigGenerationContext = {
+        orgName: currentProject.orgName!,
         packageName: currentProject.packageName!,
         projectPath: currentProject.path,
         configFilePath: `${currentProject.path}/${BAL_CONFIG_FILE}`
@@ -99,55 +101,60 @@ export async function checkConfigGenerationRequired(ballerinaExtInstance: Baller
             return { needsConfig: false };
         }
 
-        // Find organization name and package configs
-        const props: object = context.configSchema.configSchema.properties;
-        let orgName: string;
-        for (const key of Object.keys(props)) {
-            if (props[key].properties[context.packageName]) {
-                orgName = props[key].properties;
-                break;
-            }
-        }
-
-        if (!orgName) {
-            return { needsConfig: false };
-        }
-
-        const configs: Property = orgName[context.packageName];
-
-        if (configs.required?.length === 0) {
-            return { needsConfig: false };
-        }
-
-        // Check existing configs
+        // Process all configuration sections including imported modules
+        const allProps = context.configSchema.configSchema.properties;
         const newValues: ConfigProperty[] = [];
         let updatedContent = '';
+        let existingConfigs = {};
 
+        // Check existing configs
         if (existsSync(context.configFilePath)) {
             const tomlContent: string = readFileSync(Uri.file(context.configFilePath).fsPath, 'utf8');
-            const existingConfigs: object = generateExistingValues(
-                parseTomlToConfig(tomlContent),
-                orgName,
-                context.packageName
-            );
+            existingConfigs = parseTomlToConfig(tomlContent);
             context.existingConfigs = existingConfigs;
-
-            const obj = existingConfigs['[object Object]'][context.packageName];
-
-            if (Object.keys(obj).length > 0 || tomlContent.length > 0) {
-                findPropertyValues(configs, newValues, obj, tomlContent);
-                updatedContent = tomlContent + '\n';
-            } else {
-                findPropertyValues(configs, newValues);
-            }
-        } else {
-            findPropertyValues(configs, newValues);
+            updatedContent = tomlContent + '\n';
         }
 
-        const haveRequired = newValues.filter(value => value.required);
+        let requiredConfigsFound = false;
+
+        // Process each root organization (ballerina, ballerinax, etc.)
+        for (const orgKey of Object.keys(allProps)) {
+            const orgProps = allProps[orgKey].properties;
+
+            // Process each package within the organization
+            for (const pkgKey of Object.keys(orgProps)) {
+                const pkgConfig = orgProps[pkgKey];
+
+                // Skip if there are no required properties
+                if (!pkgConfig.required || pkgConfig.required.length === 0) {
+                    continue;
+                }
+
+                // Get existing configs for this path if available
+                const existingModuleConfigs = getExistingConfigsForPath(context, existingConfigs, orgKey, pkgKey);
+
+                // Find missing required configs
+                const moduleNewValues: ConfigProperty[] = [];
+                findPropertyValues(pkgConfig, moduleNewValues, existingModuleConfigs);
+
+                // Add to our collection with organization prefix
+                if (moduleNewValues.length > 0) {
+                    moduleNewValues.forEach(value => {
+                        value.orgKey = orgKey;
+                        value.pkgKey = pkgKey;
+                    });
+                    newValues.push(...moduleNewValues);
+
+                    // Check if we have any required configs
+                    if (moduleNewValues.some(v => v.required)) {
+                        requiredConfigsFound = true;
+                    }
+                }
+            }
+        }
 
         return {
-            needsConfig: newValues.length > 0 && haveRequired.length > 0,
+            needsConfig: newValues.length > 0 && requiredConfigsFound,
             context,
             newValues,
             updatedContent
@@ -159,7 +166,62 @@ export async function checkConfigGenerationRequired(ballerinaExtInstance: Baller
     }
 }
 
-export function findPropertyValues(configs: Property, newValues: ConfigProperty[], obj?: any, tomlContent?: string, skipAnyOf?: boolean): void {
+// Helper function to navigate nested toml structure and get existing configs
+function getExistingConfigsForPath(context: ConfigGenerationContext, existingConfigs: any, orgKey: string, pkgKey: string): any {
+    if (!existingConfigs) {
+        return {};
+    }
+
+    // For the default module, return root level configs
+    if (!existingConfigs[orgKey] && orgKey == context.orgName && pkgKey == context.packageName) {
+        const rootLevelConfigs = {};
+        for (const key in existingConfigs) {
+            if (typeof existingConfigs[key] !== 'object' || existingConfigs[key] === null) {
+                rootLevelConfigs[key] = existingConfigs[key];
+            }
+        }
+
+        if (Object.keys(rootLevelConfigs).length > 0) {
+            return rootLevelConfigs;
+        }
+    }
+
+    // Try as a dotted key
+    const dottedKey = `${orgKey}.${pkgKey}`;
+    if (existingConfigs[dottedKey]) {
+        return existingConfigs[dottedKey];
+    }
+
+    // Handle case where pkgKey itself contains dots
+    let currentObj = existingConfigs[orgKey];
+    if (currentObj) {
+        // Split the pkgKey by dots to navigate nested structure
+        const pkgParts = pkgKey.split('.');
+
+        // Traverse the object structure following the path
+        for (const part of pkgParts) {
+            if (currentObj && currentObj[part]) {
+                currentObj = currentObj[part];
+            } else {
+                currentObj = undefined;
+                break;
+            }
+        }
+
+        if (currentObj) {
+            return currentObj;
+        }
+    }
+
+    // check if there's a direct property match 
+    if (existingConfigs[orgKey] && existingConfigs[orgKey][pkgKey]) {
+        return existingConfigs[orgKey][pkgKey];
+    }
+
+    return {};
+}
+
+export function findPropertyValues(configs: Property, newValues: ConfigProperty[], obj?: any, skipAnyOf?: boolean): void {
     const properties = configs.properties;
     const requiredKeys = configs.required || [];
 
@@ -168,9 +230,9 @@ export function findPropertyValues(configs: Property, newValues: ConfigProperty[
             const property: Property = properties[propertyKey];
             const isRequired = requiredKeys.includes(propertyKey);
             if (!isRequired && property.required && property.required.length > 0) {
-                findPropertyValues(property, newValues, obj, tomlContent);
+                findPropertyValues(property, newValues, obj);
             } else {
-                const valueExists = obj ? (propertyKey in obj || tomlContent.includes(propertyKey)) : false;
+                const valueExists = obj ? (propertyKey in obj) : false;
                 const anyOfValue = skipAnyOf && Constants.ANY_OF in property;
                 if ((anyOfValue && valueExists) || !valueExists) {
                     newValues.push({
@@ -205,7 +267,7 @@ export async function getCurrentBIProject(projectPath: string): Promise<Ballerin
     return currentProject;
 }
 
-export async function handleNewValues(packageName: string, newValues: ConfigProperty[], configFile: string, updatedContent: string, uri: Uri, ignoreFile: string, ballerinaExtInstance: BallerinaExtension, isCommand: boolean, isBi: boolean): Promise<void> {
+export async function handleNewValues(context: ConfigGenerationContext, newValues: ConfigProperty[], configFile: string, updatedContent: string, uri: Uri, ignoreFile: string, ballerinaExtInstance: BallerinaExtension, isCommand: boolean, isBi: boolean, includeOptional: boolean): Promise<void> {
     let result;
     let btnTitle: string;
     let message: string;
@@ -231,7 +293,18 @@ export async function handleNewValues(packageName: string, newValues: ConfigProp
     if (isCommand || result === openConfigButton) {
         if (!existsSync(configFile)) {
             openSync(configFile, 'w');
-            updatedContent = `# Configuration file for "${packageName}"\n# How to use see:\n# ${docLink}\n\n\n` + updatedContent;
+            updatedContent = `
+# Configuration file for "${context.packageName}"
+# 
+# This file contains configuration values for configurable variables in your Ballerina code.
+# Both package-specific and imported module configurations are included below.
+# 
+# Learn more about configurable variables:
+# ${docLink}
+#
+# Note: This file is automatically added to .gitignore to protect sensitive information. ${updatedContent}
+
+`;
             if (existsSync(ignoreFile)) {
                 const ignoreUri = Uri.file(ignoreFile);
                 let ignoreContent: string = readFileSync(ignoreUri.fsPath, 'utf8');
@@ -256,7 +329,9 @@ export async function handleNewValues(packageName: string, newValues: ConfigProp
                 return 0; // the order of a and b remains unchanged
             }
         });
-        updateConfigToml(newValues, updatedContent, uri.fsPath);
+
+        const groupedValues = groupConfigsByModule(newValues);
+        updateConfigTomlByModule(context, groupedValues, updatedContent, uri.fsPath, includeOptional);
 
         await workspace.openTextDocument(uri).then(async document => {
             window.showTextDocument(document, { preview: false });
@@ -264,6 +339,97 @@ export async function handleNewValues(packageName: string, newValues: ConfigProp
     } else if (!isCommand && result === ignoreButton) {
         executeRunCommand(ballerinaExtInstance, configFile, isBi);
     }
+}
+
+// Function to group config properties by module
+function groupConfigsByModule(configProperties: ConfigProperty[]): Map<string, Map<string, ConfigProperty[]>> {
+    const result = new Map<string, Map<string, ConfigProperty[]>>();
+
+    for (const prop of configProperties) {
+        const orgKey = prop.orgKey || '';
+        const pkgKey = prop.pkgKey || '';
+
+        if (!result.has(orgKey)) {
+            result.set(orgKey, new Map<string, ConfigProperty[]>());
+        }
+
+        const orgMap = result.get(orgKey)!;
+        if (!orgMap.has(pkgKey)) {
+            orgMap.set(pkgKey, []);
+        }
+
+        orgMap.get(pkgKey)!.push(prop);
+    }
+
+    return result;
+}
+
+
+function updateConfigTomlByModule(context: ConfigGenerationContext, groupedValues: Map<string, Map<string, ConfigProperty[]>>, updatedContent: string, configPath: string, includeOptional: boolean): void {
+    const allOrgs = Array.from(groupedValues.keys());
+    const defaultOrgKey = context.orgName;
+
+    // Reorder to put default org first (IMPORTANT as wrong order can cause issues in config resolution)
+    const orgs = allOrgs.filter(org => org !== defaultOrgKey);
+    if (groupedValues.has(defaultOrgKey)) {
+        orgs.unshift(defaultOrgKey);
+    }
+
+    for (const orgKey of orgs) {
+        const orgMap = groupedValues.get(orgKey)!;
+        const sortedPackages = Array.from(orgMap.keys()).sort();
+
+        for (const pkgKey of sortedPackages) {
+            const configProps = orgMap.get(pkgKey)!;
+
+            if (configProps.length === 0) {
+                continue;
+            }
+
+            // Add section header if not in content already
+            const sectionHeader = `[${orgKey}.${pkgKey}]`;
+            const isDefaultModule = orgKey === context.orgName && pkgKey === context.packageName;
+            if (!updatedContent.includes(sectionHeader) && !isDefaultModule) {
+                updatedContent += `${sectionHeader}\n`;
+            }
+
+            // Process required configs
+            const requiredProps = configProps.filter(prop => prop.required);
+            const optionalProps = configProps.filter(prop => !prop.required);
+
+            // Add required properties
+            for (const prop of requiredProps) {
+                let comment = { value: `# ${typeOfComment} ${prop.type && prop.type.toUpperCase() || "STRING"}` };
+                let configValue = getConfigValue(prop.name, prop.property, comment);
+                updatedContent += configValue + comment.value + '\n\n';
+            }
+
+            // Add optional properties as comments
+            if (includeOptional) {
+                for (const prop of optionalProps) {
+                    let comment = { value: `# ${typeOfComment} ${prop.type && prop.type.toUpperCase() || "STRING"}` };
+                    const optional = `# "${prop.name}" is an optional value\n`;
+                    let configValue = getConfigValue(prop.name, prop.property, comment);
+                    updatedContent += `${optional}# ${configValue}${comment.value}\n\n`;
+                }
+            }
+
+            if (pkgKey !== sortedPackages[sortedPackages.length - 1]) {
+                updatedContent += '\n';
+            }
+        }
+
+        if (orgKey !== orgs[orgs.length - 1]) {
+            updatedContent += '\n';
+        }
+    }
+
+    writeFile(configPath, updatedContent, function (error) {
+        if (error) {
+            return window.showErrorMessage("Unable to update the configurable values: " + error);
+        }
+        window.showInformationMessage("Successfully updated the configurable values.");
+    });
 }
 
 async function executeRunCommand(ballerinaExtInstance: BallerinaExtension, filePath: string, isBi?: boolean) {
@@ -391,7 +557,9 @@ export function getConfigValue(name: string, obj: Property, comment: { value: st
             newConfigValue = getArrayConfigValue(comment, name, obj);
             break;
         case ConfigTypes.OBJECT:
-            newConfigValue = getObjectConfigValue(comment, name, obj);
+            // Use inline object format for nested objects
+            newConfigValue = getInlineObjectConfigValue(name, obj);
+            comment.value = `# ${typeOfComment} ${ConfigTypes.OBJECT.toUpperCase()}`;
             break;
         default:
             if (Constants.ANY_OF in obj) {
@@ -401,13 +569,12 @@ export function getConfigValue(name: string, obj: Property, comment: { value: st
                     newConfigValue = `${name} = 0\t`;
                 } else if (anyType.type === ConfigTypes.STRING) {
                     newConfigValue = `${name} = ""\t`;
-                } else if (anyType.type === ConfigTypes.OBJECT && anyType.name.includes(Constants.HTTP)) {
-                    comment.value = `# ${typeOfComment} ${ConfigTypes.OBJECT.toUpperCase()}\n`;
-                    const moreInfo = `# For more information refer https://lib.ballerina.io/ballerina/http/\n`;
-                    newConfigValue = `${moreInfo}[${name}]\t`;
-                } else {
+                } else if (anyType.type === ConfigTypes.OBJECT) {
+                    // For other objects, use inline format
+                    newConfigValue = getInlineObjectConfigValue(name, anyType);
                     comment.value = `# ${typeOfComment} ${ConfigTypes.OBJECT.toUpperCase()}`;
-                    newConfigValue = `[${name}]\t`;
+                } else {
+                    newConfigValue = `${name} = ""\t`;
                 }
             } else {
                 newConfigValue = `${name} = ""\t`;
@@ -417,39 +584,102 @@ export function getConfigValue(name: string, obj: Property, comment: { value: st
     return newConfigValue;
 }
 
+/**
+ * Generate an inline TOML object format for nested objects
+ */
+function getInlineObjectConfigValue(name: string, property: Property): string {
+    if (!property || !property.properties) {
+        return `${name} = {}\t`;
+    }
+
+    let configValue = `${name} = { `;
+    const parts: string[] = [];
+
+    // Add required properties if any
+    if (property.required && property.required.length > 0) {
+        for (const requiredKey of property.required) {
+            if (property.properties[requiredKey]) {
+                const propValue = getDefaultValueForType(property.properties[requiredKey]);
+                parts.push(`${requiredKey} = ${propValue}`);
+            }
+        }
+    } else {
+        const propertyKeys = Object.keys(property.properties);
+        const keysToInclude = propertyKeys.slice(0, Math.min(3, propertyKeys.length));
+
+        for (const key of keysToInclude) {
+            const propValue = getDefaultValueForType(property.properties[key]);
+            parts.push(`${key} = ${propValue}`);
+        }
+    }
+
+    configValue += parts.join(", ");
+    configValue += " }\t";
+    return configValue;
+}
+
+/**
+ * Get default value string for different property types
+ */
+function getDefaultValueForType(property: Property): string {
+    if (!property || !property.type) {
+        return '""';
+    }
+
+    switch (property.type) {
+        case ConfigTypes.INTEGER:
+            return "0";
+        case ConfigTypes.NUMBER:
+            return "0.0";
+        case ConfigTypes.BOOLEAN:
+            return "false";
+        case ConfigTypes.OBJECT:
+            return "{}";
+        case ConfigTypes.ARRAY:
+            return "[]";
+        case ConfigTypes.STRING:
+        default:
+            return '""';
+    }
+}
+
 function getArrayConfigValue(comment: { value: string }, name: string, item: Property): string {
     let newConfigValue = '';
-    switch (item.type) {
+    switch (item.items?.type) {
         case ConfigTypes.BOOLEAN:
             comment.value = ``;
-            newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.BOOLEAN.toUpperCase()} array\n# Example: ${name} = [false, false]\n`;
+            newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.BOOLEAN.toUpperCase()} array\n`;
             break;
         case ConfigTypes.INTEGER:
             comment.value = ``;
-            newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.INTEGER.toUpperCase()} array\n# Example: ${name} = [0, 0]\n`;
+            newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.INTEGER.toUpperCase()} array\n`;
             break;
         case ConfigTypes.NUMBER:
             comment.value = ``;
-            newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.NUMBER.toUpperCase()} array\n# Example: ${name} = [0.0, 0.0]\n`;
+            newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.NUMBER.toUpperCase()} array\n`;
             break;
         case ConfigTypes.STRING:
             comment.value = ``;
-            newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.STRING.toUpperCase()} array\n# Example: ${name} = ["red", "green"]\n`;
-            break;
-        case ConfigTypes.ARRAY:
-            comment.value = `# ${typeOfComment} ${ConfigTypes.ARRAY.toUpperCase()} of array\n`;
-            newConfigValue = getArrayConfigValue(comment, name, item.items);
+            newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.STRING.toUpperCase()} array\n`;
             break;
         case ConfigTypes.OBJECT:
             comment.value = ``;
-            if (item.additionalProperties && item.additionalProperties.type === ConfigTypes.STRING) {
-                newConfigValue = `[[${name}]]\t# ${typeOfComment} ${ConfigTypes.OBJECT.toUpperCase()} array\n# Example:\n# [[${name}]]\n# name = "John"\n# city = "Paris"\n# [[${name}]]\n# name = "Jack"\n# city = "Colombo"\n`;
+            if (item.items.additionalProperties && item.items.additionalProperties.type === ConfigTypes.STRING) {
+                // For arrays of map-like objects
+                newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.OBJECT.toUpperCase()} array\n`;
+            } else if (item.items.properties) {
+                // For arrays of structured objects
+                newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.OBJECT.toUpperCase()} array\n`;
             } else {
-                newConfigValue = getObjectConfigValue(comment, `[${name}]`, item);
+                newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.OBJECT.toUpperCase()} array\n`;
             }
             break;
+        case ConfigTypes.ARRAY:
+            comment.value = `# ${typeOfComment} ${ConfigTypes.ARRAY.toUpperCase()} of array\n`;
+            newConfigValue = `${name} = []\t# ${typeOfComment} Nested array\n`;
+            break;
         default:
-            newConfigValue = `${name} = ""\t`;
+            newConfigValue = `${name} = []\t# ${typeOfComment} Array\n`;
             break;
     }
     return newConfigValue;
@@ -497,6 +727,7 @@ function getObjectConfigValue(comment: { value: string }, name: string, property
 }
 
 export interface ConfigGenerationContext {
+    orgName: string;
     packageName: string;
     projectPath: string;
     configFilePath: string;

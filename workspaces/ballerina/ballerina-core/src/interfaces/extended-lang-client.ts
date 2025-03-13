@@ -341,6 +341,7 @@ export interface BallerinaProject {
     version?: string;
     author?: string;
     packageName?: string;
+    orgName?: string;
 }
 
 export interface BallerinaPackagesParams {
@@ -564,6 +565,7 @@ export interface PartialST {
 
 export interface OpenAPIConverterParams {
     documentFilePath: string;
+    enableBalExtension?: boolean;
 }
 
 export interface OpenAPISpec {
@@ -1139,6 +1141,7 @@ export interface Member {
     name?: string;
     docs?: string;
     defaultValue?: string;
+    optional?: boolean;
 }
 
 export interface GetGraphqlTypeRequest {
@@ -1333,6 +1336,7 @@ export interface AIGentToolsRequest {
     flowNode: FlowNode;
     toolName: string;
     connection: string;
+    description?: string;
 }
 
 export interface AIGentToolsResponse {

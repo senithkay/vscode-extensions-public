@@ -92,6 +92,10 @@ export class AiAgentRpcManager implements AIAgentAPI {
     }
 
     async genTool(params: AIGentToolsRequest): Promise<AIGentToolsResponse> {
+        // HACK: set description to empty string if it is not provided
+        if (!params.description) {
+            params.description = "";
+        }
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             try {
@@ -355,7 +359,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                     filePath: toolsPath,
                     flowNode: flowNode,
                     toolName: toolName,
-                    connection: tool.selectedCodeData.parentSymbol || ""
+                    connection: tool.selectedCodeData.parentSymbol || "",
                 });
             await this.updateSource(codeEdits.textEdits);
             await new Promise(resolve => setTimeout(resolve, 2000));

@@ -7,12 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NodeProperties } from "@wso2-enterprise/ballerina-core";
+import { NodeProperties, SCOPE } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { FunctionFindingVisitor } from "../../utils/function-finding-visitor";
 
 export const DATA_MAPPING_FILE_NAME = "data_mappings.bal";
+
+const INTEGRATION_API_MODULES = ["http", "graphql", "tcp"];
+const EVENT_INTEGRATION_MODULES = ["kafka", "rabbitmq", "salesforce", "trigger.github", "mqtt", "asb"];
+const FILE_INTEGRATION_MODULES = ["ftp", "file"];
+
 
 export function getFunctionNodePosition(nodeProperties: NodeProperties, syntaxTree: STNode): NodePosition {
     const functionName = nodeProperties.hasOwnProperty("functionName")
@@ -23,4 +28,15 @@ export function getFunctionNodePosition(nodeProperties: NodeProperties, syntaxTr
     const functionNode = functionFindingVisitor.getFunctionNode();
 
     return functionNode.position;
+}
+
+export function findScopeByModule(moduleName: string): SCOPE {
+    if (INTEGRATION_API_MODULES.includes(moduleName)) {
+        return SCOPE.INTEGRATION_AS_API;
+    } else if (EVENT_INTEGRATION_MODULES.includes(moduleName)) {
+        return SCOPE.EVENT_INTEGRATION;
+    } else if (FILE_INTEGRATION_MODULES.includes(moduleName)) {
+        return SCOPE.FILE_INTEGRATION;
+    }
+    return SCOPE.ANY;
 }

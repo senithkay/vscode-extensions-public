@@ -9,12 +9,6 @@
 
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import {
-    PanelContainer,
-    NodeList,
-    Category as PanelCategory,
-    ExpressionFormField,
-} from "@wso2-enterprise/ballerina-side-panel";
 import styled from "@emotion/styled";
 import { MemoizedDiagram } from "@wso2-enterprise/bi-diagram";
 import {
@@ -28,28 +22,26 @@ import {
     EVENT_TYPE,
     VisualizerLocation,
     MACHINE_VIEW,
-    NodeKind,
     SubPanel,
     SubPanelView,
     CurrentBreakpointsResponse as BreakpointInfo,
     FUNCTION_TYPE,
     ParentPopupData,
-    BISearchRequest
+    BISearchRequest,
+    ToolData,
 } from "@wso2-enterprise/ballerina-core";
 
 import {
     addDraftNodeToDiagram,
     convertBICategoriesToSidePanelCategories,
     convertFunctionCategoriesToSidePanelCategories,
-    getContainerTitle,
 } from "../../../utils/bi";
-import { NodePosition, ResourceAccessorDefinition, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { View, ProgressRing, ProgressIndicator, ThemeColors } from "@wso2-enterprise/ui-toolkit";
-import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { applyModifications, textToModifications } from "../../../utils/utils";
-import FormGenerator from "../Forms/FormGenerator";
-import { InlineDataMapper } from "../../InlineDataMapper";
-import { HelperView } from "../HelperView";
+import { PanelManager, SidePanelView } from "./PanelManager";
+import { transformCategories } from "./utils";
+import { Category as PanelCategory } from "@wso2-enterprise/ballerina-side-panel";
 
 const Container = styled.div`
     width: 100%;
@@ -62,31 +54,6 @@ const SpinnerContainer = styled.div`
     align-items: center;
     height: 100%;
 `;
-
-interface ColoredTagProps {
-    color: string;
-}
-
-const ColoredTag = styled(VSCodeTag) <ColoredTagProps>`
-    ::part(control) {
-        color: var(--button-primary-foreground);
-        background-color: ${({ color }: ColoredTagProps) => color};
-    }
-`;
-
-const SubTitle = styled.div`
-    font-size: 14px;
-    font-weight: 600;
-    color: ${ThemeColors.ON_SURFACE};
-`;
-
-export enum SidePanelView {
-    NODE_LIST = "NODE_LIST",
-    FORM = "FORM",
-    FUNCTION_LIST = "FUNCTION_LIST",
-    DATA_MAPPER_LIST = "DATA_MAPPER_LIST",
-    NP_FUNCTION_LIST = "NP_FUNCTION_LIST"
-}
 
 export interface BIFlowDiagramProps {
     syntaxTree: STNode; // INFO: this is used to make the diagram rerender when code changes
@@ -107,8 +74,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [fetchingAiSuggestions, setFetchingAiSuggestions] = useState(false);
     const [showProgressIndicator, setShowProgressIndicator] = useState(false);
     const [subPanel, setSubPanel] = useState<SubPanel>({ view: SubPanelView.UNDEFINED });
-    const [updatedExpressionField, setUpdatedExpressionField] = useState<ExpressionFormField>(undefined);
+    const [updatedExpressionField, setUpdatedExpressionField] = useState<any>(undefined);
     const [breakpointInfo, setBreakpointInfo] = useState<BreakpointInfo>();
+    const [agentToolData, setAgentToolData] = useState<ToolData[]>([]);
 
     const selectedNodeRef = useRef<FlowNode>();
     const nodeTemplateRef = useRef<FlowNode>();
@@ -117,7 +85,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const originalFlowModel = useRef<Flow>();
     const suggestedText = useRef<string>();
     const selectedClientName = useRef<string>();
-    const initialCategoriesRef = useRef<PanelCategory[]>([]);
+    const initialCategoriesRef = useRef<any[]>([]);
     const showEditForm = useRef<boolean>(false);
 
     useEffect(() => {
@@ -136,7 +104,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             fetchNodesAndAISuggestions(toNode, target, false, false);
         });
     }, [rpcClient]);
-
 
     const getFlowModel = () => {
         setShowProgressIndicator(true);
@@ -175,8 +142,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
 
         // restore original model
         if (originalFlowModel.current) {
-            // const updatedModel = removeDraftNodeFromDiagram(model);
-            // setModel(updatedModel);
             getFlowModel();
             originalFlowModel.current = undefined;
             setSuggestedModel(undefined);
@@ -208,26 +173,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     console.error(">>> Error getting available nodes", response);
                     return;
                 }
-                // filter out some categories that are not supported in the diagram
-                // TODO: these categories should be supported in the future
-                const notSupportedCategories = [
-                    "PARALLEL_FLOW",
-                    "LOCK",
-                    "START",
-                    "TRANSACTION",
-                    "COMMIT",
-                    "ROLLBACK",
-                    "RETRY",
-                ];
-                const filteredCategories = response.categories.map((category) => ({
-                    ...category,
-                    items: category?.items?.filter(
-                        (item) =>
-                            !("codedata" in item) ||
-                            !notSupportedCategories.includes((item as AvailableNode).codedata?.node)
-                    ),
-                })) as Category[];
+
+                // Use the utility function to filter categories
+                const filteredCategories = transformCategories(response.categories);
                 const convertedCategories = convertBICategoriesToSidePanelCategories(filteredCategories);
+
                 setCategories(convertedCategories);
                 initialCategoriesRef.current = convertedCategories; // Store initial categories
                 // add draft node to model
@@ -285,23 +235,18 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     };
 
     const handleOnAddNodePrompt = (parent: FlowNode | Branch, target: LineRange, prompt: string) => {
-        // clear previous click if had
         if (topNodeRef.current || targetRef.current) {
             handleOnCloseSidePanel();
             return;
         }
-        // handle add new node
         topNodeRef.current = parent;
         targetRef.current = target;
-        // save original model
         originalFlowModel.current = model;
-        // get ai suggestions
         setFetchingAiSuggestions(true);
         rpcClient
             .getBIDiagramRpcClient()
             .getAiSuggestions({ position: target, filePath: model.fileName, prompt })
             .then((model) => {
-                console.log(">>> flow model with ai suggested nodes", { model, length: model.flowModel.nodes.length });
                 if (model?.flowModel?.nodes?.length > 0) {
                     setSuggestedModel(model.flowModel);
                     suggestedText.current = model.suggestion;
@@ -321,11 +266,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             filePath: model.fileName,
             queryMap: searchText.trim()
                 ? {
-                    q: searchText,
-                    limit: 12,
-                    offset: 0,
-                    includeAvailableFunctions: "true",
-                }
+                      q: searchText,
+                      limit: 12,
+                      offset: 0,
+                      includeAvailableFunctions: "true",
+                  }
                 : undefined,
             searchKind: "NP_FUNCTION",
         };
@@ -345,7 +290,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             .finally(() => {
                 setShowProgressIndicator(false);
             });
-    }
+    };
 
     const handleSearchFunction = async (searchText: string, functionType: FUNCTION_TYPE) => {
         const request: BISearchRequest = {
@@ -356,11 +301,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             filePath: model.fileName,
             queryMap: searchText.trim()
                 ? {
-                    q: searchText,
-                    limit: 12,
-                    offset: 0,
-                    includeAvailableFunctions: "true",
-                }
+                      q: searchText,
+                      limit: 12,
+                      offset: 0,
+                      includeAvailableFunctions: "true",
+                  }
                 : undefined,
             searchKind: "FUNCTION",
         };
@@ -388,101 +333,111 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
 
     const handleOnSelectNode = (nodeId: string, metadata?: any) => {
         const { node, category } = metadata as { node: AvailableNode; category?: string };
-        // node is function
-        const nodeType: NodeKind = node.codedata.node;
-        if (nodeType === "FUNCTION") {
-            setShowProgressIndicator(true);
-            rpcClient
-                .getBIDiagramRpcClient()
-                .search({
-                    position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
-                    filePath: model.fileName,
-                    queryMap: undefined,
-                    searchKind: "FUNCTION",
-                })
-                .then((response) => {
-                    console.log(">>> List of functions", response);
-                    setCategories(
-                        convertFunctionCategoriesToSidePanelCategories(
-                            response.categories as Category[],
-                            FUNCTION_TYPE.REGULAR
-                        )
-                    );
-                    setSidePanelView(SidePanelView.FUNCTION_LIST);
-                    setShowSidePanel(true);
-                })
-                .finally(() => {
-                    setShowProgressIndicator(false);
-                });
-        } else if (nodeType === "DATA_MAPPER_CALL") {
-            setShowProgressIndicator(true);
-            rpcClient
-                .getBIDiagramRpcClient()
-                .search({
-                    position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
-                    filePath: model.fileName,
-                    queryMap: undefined,
-                    searchKind: "FUNCTION",
-                })
-                .then((response) => {
-                    setCategories(
-                        convertFunctionCategoriesToSidePanelCategories(
-                            response.categories as Category[],
-                            FUNCTION_TYPE.EXPRESSION_BODIED
-                        )
-                    );
-                    setSidePanelView(SidePanelView.DATA_MAPPER_LIST);
-                    setShowSidePanel(true);
-                })
-                .finally(() => {
-                    setShowProgressIndicator(false);
-                });
-        } else if (nodeType === "NP_FUNCTION") {
-            setShowProgressIndicator(true);
-            rpcClient
-                .getBIDiagramRpcClient()
-                .search({
-                    position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
-                    filePath: model.fileName,
-                    queryMap: undefined,
-                    searchKind: "NP_FUNCTION",
-                })
-                .then((response) => {
-                    console.log(">>> List of np functions", response);
-                    setCategories(
-                        convertFunctionCategoriesToSidePanelCategories(
-                            response.categories as Category[],
-                            FUNCTION_TYPE.REGULAR
-                        )
-                    );
-                    setSidePanelView(SidePanelView.NP_FUNCTION_LIST);
-                    setShowSidePanel(true);
-                })
-                .finally(() => {
-                    setShowProgressIndicator(false);
-                });
-        } else {
-            // default node
-            console.log(">>> on select panel node", { nodeId, metadata });
-            selectedClientName.current = category;
-            setShowProgressIndicator(true);
-            rpcClient
-                .getBIDiagramRpcClient()
-                .getNodeTemplate({
-                    position: targetRef.current.startLine,
-                    filePath: model.fileName,
-                    id: node.codedata,
-                })
-                .then((response) => {
-                    console.log(">>> FlowNode template", response);
-                    selectedNodeRef.current = response.flowNode;
-                    showEditForm.current = false;
-                    setSidePanelView(SidePanelView.FORM);
-                    setShowSidePanel(true);
-                })
-                .finally(() => {
-                    setShowProgressIndicator(false);
-                });
+        switch (node.codedata.node) {
+            case "AGENT_CALL":
+                handleOnAddAgent();
+                return;
+
+            case "FUNCTION":
+                setShowProgressIndicator(true);
+                rpcClient
+                    .getBIDiagramRpcClient()
+                    .search({
+                        position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
+                        filePath: model.fileName,
+                        queryMap: undefined,
+                        searchKind: "FUNCTION",
+                    })
+                    .then((response) => {
+                        console.log(">>> List of functions", response);
+                        setCategories(
+                            convertFunctionCategoriesToSidePanelCategories(
+                                response.categories as Category[],
+                                FUNCTION_TYPE.REGULAR
+                            )
+                        );
+                        setSidePanelView(SidePanelView.FUNCTION_LIST);
+                        setShowSidePanel(true);
+                    })
+                    .finally(() => {
+                        setShowProgressIndicator(false);
+                    });
+                break;
+
+            case "DATA_MAPPER_CALL":
+                setShowProgressIndicator(true);
+                rpcClient
+                    .getBIDiagramRpcClient()
+                    .search({
+                        position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
+                        filePath: model.fileName,
+                        queryMap: undefined,
+                        searchKind: "FUNCTION",
+                    })
+                    .then((response) => {
+                        setCategories(
+                            convertFunctionCategoriesToSidePanelCategories(
+                                response.categories as Category[],
+                                FUNCTION_TYPE.EXPRESSION_BODIED
+                            )
+                        );
+                        setSidePanelView(SidePanelView.DATA_MAPPER_LIST);
+                        setShowSidePanel(true);
+                    })
+                    .finally(() => {
+                        setShowProgressIndicator(false);
+                    });
+                break;
+
+            case "NP_FUNCTION":
+                setShowProgressIndicator(true);
+                rpcClient
+                    .getBIDiagramRpcClient()
+                    .search({
+                        position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
+                        filePath: model.fileName,
+                        queryMap: undefined,
+                        searchKind: "NP_FUNCTION",
+                    })
+                    .then((response) => {
+                        console.log(">>> List of np functions", response);
+                        setCategories(
+                            convertFunctionCategoriesToSidePanelCategories(
+                                response.categories as Category[],
+                                FUNCTION_TYPE.REGULAR
+                            )
+                        );
+                        setSidePanelView(SidePanelView.NP_FUNCTION_LIST);
+                        setShowSidePanel(true);
+                    })
+                    .finally(() => {
+                        setShowProgressIndicator(false);
+                    });
+                break;
+
+            default:
+                // default node
+                console.log(">>> on select panel node", { nodeId, metadata });
+                selectedClientName.current = category;
+                setShowProgressIndicator(true);
+                rpcClient
+                    .getBIDiagramRpcClient()
+                    .getNodeTemplate({
+                        position: targetRef.current.startLine,
+                        filePath: model.fileName,
+                        id: node.codedata,
+                    })
+                    .then((response) => {
+                        console.log(">>> FlowNode template", response);
+                        selectedNodeRef.current = response.flowNode;
+                        showEditForm.current = false;
+                        setSidePanelView(SidePanelView.FORM);
+                        setShowSidePanel(true);
+                    })
+                    .finally(() => {
+                        setShowProgressIndicator(false);
+                    });
+                break;
         }
     };
 
@@ -502,12 +457,10 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             .then((response) => {
                 console.log(">>> Updated source code", response);
                 if (response.textEdits) {
-                    // clear memory
                     selectedNodeRef.current = undefined;
                     handleOnCloseSidePanel();
                 } else {
                     console.error(">>> Error updating source code", response);
-                    // handle error
                 }
             })
             .finally(() => {
@@ -527,12 +480,10 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             .then((response) => {
                 console.log(">>> Updated source code after delete", response);
                 if (response.textEdits) {
-                    // clear memory
                     selectedNodeRef.current = undefined;
                     handleOnCloseSidePanel();
                 } else {
                     console.error(">>> Error updating source code", response);
-                    // handle error
                 }
             })
             .finally(() => {
@@ -563,7 +514,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         description: "Comment to describe the flow",
                     },
                     valueType: "STRING",
-                    value: `\n${comment}\n\n`, // HACK: add extra new lines to get last position right
+                    value: `\n${comment}\n\n`,
                     optional: false,
                     advanced: false,
                     editable: true,
@@ -580,14 +531,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 flowNode: updatedNode,
             })
             .then((response) => {
-                console.log(">>> Updated source code", response);
                 if (response.textEdits) {
-                    // clear memory
                     selectedNodeRef.current = undefined;
                     handleOnCloseSidePanel();
                 } else {
                     console.error(">>> Error updating source code", response);
-                    // handle error
                 }
             });
     };
@@ -605,6 +553,13 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             return;
         }
 
+        // if agent_call node, then show agent config panel
+        if (node.codedata.node === "AGENT_CALL") {
+            setSidePanelView(SidePanelView.AGENT_CONFIG);
+            setShowSidePanel(true);
+            return;
+        }
+
         setShowProgressIndicator(true);
         rpcClient
             .getBIDiagramRpcClient()
@@ -615,7 +570,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             })
             .then((response) => {
                 const nodesWithCustomForms = ["IF", "FORK"];
-                // if node doesn't have properties. don't show edit form
                 if (!response.flowNode.properties && !nodesWithCustomForms.includes(response.flowNode.codedata.node)) {
                     console.log(">>> Node doesn't have properties. Don't show edit form", response.flowNode);
                     setShowProgressIndicator(false);
@@ -634,17 +588,17 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     };
 
     const handleOnFormBack = () => {
-        if (sidePanelView === SidePanelView.FUNCTION_LIST
-            || sidePanelView === SidePanelView.DATA_MAPPER_LIST
-            || sidePanelView === SidePanelView.NP_FUNCTION_LIST) {
-            // Reset categories to the initial available nodes
+        if (
+            sidePanelView === SidePanelView.FUNCTION_LIST ||
+            sidePanelView === SidePanelView.DATA_MAPPER_LIST ||
+            sidePanelView === SidePanelView.NP_FUNCTION_LIST
+        ) {
             setCategories(initialCategoriesRef.current);
             setSidePanelView(SidePanelView.NODE_LIST);
         } else {
             setSidePanelView(SidePanelView.NODE_LIST);
             setSubPanel({ view: SubPanelView.UNDEFINED });
         }
-        // clear memory
         selectedNodeRef.current = undefined;
     };
 
@@ -783,47 +737,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
 
-    const handleEdit = () => {
-        const context: VisualizerLocation = {
-            view: MACHINE_VIEW.BIFunctionForm,
-            identifier: (props?.syntaxTree as ResourceAccessorDefinition).functionName.value,
-            documentUri: model.fileName
-        };
-        rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
-    };
-
     const handleSubPanel = (subPanel: SubPanel) => {
         setSubPanel(subPanel);
-    };
-
-    const updateExpressionField = (data: ExpressionFormField) => {
-        setUpdatedExpressionField(data);
-    };
-
-    const findSubPanelComponent = (subPanel: SubPanel) => {
-        switch (subPanel.view) {
-            case SubPanelView.INLINE_DATA_MAPPER:
-                return (
-                    <InlineDataMapper
-                        onClosePanel={handleSubPanel}
-                        updateFormField={updateExpressionField}
-                        {...subPanel.props?.inlineDataMapper}
-                    />
-                );
-            case SubPanelView.HELPER_PANEL:
-                return (
-                    <HelperView
-                        filePath={subPanel.props.sidePanelData.filePath}
-                        position={subPanel.props.sidePanelData.range}
-                        updateFormField={updateExpressionField}
-                        editorKey={subPanel.props.sidePanelData.editorKey}
-                        onClosePanel={handleSubPanel}
-                        configurePanelData={subPanel.props.sidePanelData?.configurePanelData}
-                    />
-                );
-            default:
-                return null;
-        }
     };
 
     const handleResetUpdatedExpressionField = () => {
@@ -831,18 +746,76 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     };
 
     const handleEditAgent = () => {
-        const agentName = selectedNodeRef.current.properties?.connection?.value as string;
-        if (!agentName) {
-            console.error("Agent name not found for node:", selectedNodeRef.current);
-            return;
+        console.log(">>> Edit agent called", selectedNodeRef.current);
+        // TODO: implement the edit agent logic
+    };
+
+    // AI Agent callback handlers
+    const handleOnEditAgentModel = (node: FlowNode) => {
+        console.log(">>> Edit agent model called", node);
+        selectedNodeRef.current = node;
+        showEditForm.current = true;
+        setSidePanelView(SidePanelView.AGENT_MODEL);
+        setShowSidePanel(true);
+    };
+
+    const handleOnAddTool = (node: FlowNode) => {
+        console.log(">>> Add tool called", node);
+        selectedNodeRef.current = node;
+        selectedClientName.current = "Add Tool";
+
+        // Open the tool selection panel
+        setShowProgressIndicator(true);
+
+        // This would call the API to fetch tools in a real implementation
+        setTimeout(() => {
+            // For now, just use a dummy category
+            const toolCategories: PanelCategory[] = [
+                {
+                    title: "Tools",
+                    description: "Tools available for the agent",
+                    items: [
+                        {
+                            id: "web-search",
+                            label: "Web Search",
+                            description: "Search the web for information",
+                            enabled: true,
+                        },
+                    ],
+                },
+            ];
+
+            setCategories(toolCategories);
+            setSidePanelView(SidePanelView.AGENT_TOOL_LIST);
+            setShowSidePanel(true);
+            setShowProgressIndicator(false);
+        }, 500);
+    };
+
+    const handleOnSelectTool = (tool: ToolData, node: FlowNode) => {
+        console.log(">>> Edit tool called", {node, tool});
+        selectedNodeRef.current = node;
+        selectedClientName.current = tool.name;
+        showEditForm.current = true;
+        setSidePanelView(SidePanelView.AGENT_TOOL);
+        setShowSidePanel(true);
+    };
+
+    const handleOnDeleteTool = (tool: ToolData, node: FlowNode) => {
+        console.log(">>> Delete tool called", tool, node);
+        selectedNodeRef.current = node;
+
+        // Confirm deletion and handle it
+        if (confirm(`Are you sure you want to remove the tool "${tool.name}" from this agent?`)) {
+            setShowProgressIndicator(true);
+
+            // This would call the API to delete the tool in a real implementation
+            setTimeout(() => {
+                // Just update the UI to show success
+                alert(`Tool "${tool.name}" has been removed successfully.`);
+                setShowProgressIndicator(false);
+            }, 500);
         }
-        rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                view: MACHINE_VIEW.AIAgentEditView,
-                identifier: agentName,
-            },
-        });
     };
 
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
@@ -860,13 +833,19 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             addBreakpoint: handleAddBreakpoint,
             removeBreakpoint: handleRemoveBreakpoint,
             openView: handleOpenView,
+            agentNode: {
+                onModelSelect: handleOnEditAgentModel,
+                onAddTool: handleOnAddTool,
+                onSelectTool: handleOnSelectTool,
+                onDeleteTool: handleOnDeleteTool,
+            },
             suggestions: {
                 fetching: fetchingAiSuggestions,
                 onAccept: onAcceptSuggestions,
                 onDiscard: onDiscardSuggestions,
             },
             projectPath,
-            breakpointInfo,
+            breakpointInfo
         }),
         [flowModel, fetchingAiSuggestions, projectPath, breakpointInfo]
     );
@@ -886,92 +865,45 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     {model && <MemoizedDiagram {...memoizedDiagramProps} />}
                 </Container>
             </View>
-            <PanelContainer
-                title={getContainerTitle(sidePanelView, selectedNodeRef.current, selectedClientName.current)}
-                show={showSidePanel}
+
+            <PanelManager
+                showSidePanel={showSidePanel}
+                sidePanelView={sidePanelView}
+                subPanel={subPanel}
+                categories={categories}
+                selectedNode={selectedNodeRef.current}
+                nodeFormTemplate={nodeTemplateRef.current}
+                selectedClientName={selectedClientName.current}
+                showEditForm={showEditForm.current}
+                targetLineRange={targetRef.current}
+                connections={model?.connections}
+                fileName={model?.fileName}
+                projectPath={projectPath}
+                editForm={showEditForm.current}
+                updatedExpressionField={updatedExpressionField}
+                // Regular callbacks
                 onClose={handleOnCloseSidePanel}
-                onBack={
-                    sidePanelView === SidePanelView.FORM && topNodeRef.current !== undefined
-                        ? handleOnFormBack
-                        : undefined
-                }
-                subPanelWidth={subPanel?.view === SubPanelView.INLINE_DATA_MAPPER ? 800 : 400}
-                subPanel={findSubPanelComponent(subPanel)}
-            >
-                <div onClick={onDiscardSuggestions}>
-                    {sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
-                        <NodeList
-                            categories={categories}
-                            onSelect={handleOnSelectNode}
-                            onAddConnection={handleOnAddConnection}
-                            onAddAgent={handleOnAddAgent}
-                            onClose={handleOnCloseSidePanel}
-                        />
-                    )}
-                    {sidePanelView === SidePanelView.FUNCTION_LIST && categories?.length > 0 && (
-                        <NodeList
-                            categories={categories}
-                            onSelect={handleOnSelectNode}
-                            onSearchTextChange={(searchText) => handleSearchFunction(searchText, FUNCTION_TYPE.REGULAR)}
-                            onAddFunction={handleOnAddFunction}
-                            onClose={handleOnCloseSidePanel}
-                            title={"Functions"}
-                            onBack={handleOnFormBack}
-                        />
-                    )}
-                    {sidePanelView === SidePanelView.NP_FUNCTION_LIST && categories?.length && (
-                        <NodeList
-                            categories={categories}
-                            onSelect={handleOnSelectNode}
-                            onSearchTextChange={(searchText) => handleSearchNpFunction(searchText, FUNCTION_TYPE.REGULAR)}
-                            onAddFunction={handleOnAddNPFunction}
-                            onClose={handleOnCloseSidePanel}
-                            title={"Prompt as code"}
-                            onBack={handleOnFormBack}
-                        />
-                    )}
-                    {sidePanelView === SidePanelView.DATA_MAPPER_LIST && categories?.length > 0 && (
-                        <NodeList
-                            categories={categories}
-                            onSelect={handleOnSelectNode}
-                            onSearchTextChange={(searchText) =>
-                                handleSearchFunction(searchText, FUNCTION_TYPE.EXPRESSION_BODIED)
-                            }
-                            onAddFunction={handleOnAddDataMapper}
-                            onClose={handleOnCloseSidePanel}
-                            title={"Data Mappers"}
-                            onBack={handleOnFormBack}
-                        />
-                    )}
-                    {sidePanelView === SidePanelView.FORM && (
-                        <FormGenerator
-                            fileName={model.fileName}
-                            node={selectedNodeRef.current}
-                            nodeFormTemplate={nodeTemplateRef.current}
-                            connections={model.connections}
-                            clientName={selectedClientName.current}
-                            targetLineRange={targetRef.current}
-                            projectPath={projectPath}
-                            editForm={showEditForm.current}
-                            onSubmit={handleOnFormSubmit}
-                            subPanelView={subPanel.view}
-                            openSubPanel={handleSubPanel}
-                            updatedExpressionField={updatedExpressionField}
-                            resetUpdatedExpressionField={handleResetUpdatedExpressionField}
-                            actionButtonConfig={
-                                selectedNodeRef.current?.codedata.node === "AGENT_CALL" &&
-                                    selectedNodeRef.current?.codedata.sourceCode
-                                    ? {
-                                        actionLabel: "Configure Agent",
-                                        description: "Change the agent's behavior by adjusting the system prompt, model, and tools. Click 'Configure Agent'.",
-                                        callback: handleEditAgent
-                                    }
-                                    : undefined
-                            }
-                        />
-                    )}
-                </div>
-            </PanelContainer>
+                onBack={handleOnFormBack}
+                onSelectNode={handleOnSelectNode}
+                // Add node callbacks
+                onAddConnection={handleOnAddConnection}
+                onAddAgent={handleOnAddAgent}
+                onAddFunction={handleOnAddFunction}
+                onAddNPFunction={handleOnAddNPFunction}
+                onAddDataMapper={handleOnAddDataMapper}
+
+                onSubmitForm={handleOnFormSubmit}
+                onDiscardSuggestions={onDiscardSuggestions}
+                onSubPanel={handleSubPanel}
+                onResetUpdatedExpressionField={handleResetUpdatedExpressionField}
+                onSearchFunction={handleSearchFunction}
+                onSearchNpFunction={handleSearchNpFunction}
+                // AI Agent specific callbacks
+                onEditAgent={handleEditAgent}
+                onSelectTool={handleOnSelectTool}
+                onDeleteTool={handleOnDeleteTool}
+                onAddTool={handleOnAddTool}
+            />
         </>
     );
 }

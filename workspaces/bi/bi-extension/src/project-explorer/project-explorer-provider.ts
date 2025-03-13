@@ -263,17 +263,17 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     configs.children = getComponents(components.directoryMap[DIRECTORY_MAP.CONFIGURATIONS], DIRECTORY_MAP.CONFIGURATIONS);
     entries.push(configs);
 
-    // Prompt as code
-    const promptAsCode = new ProjectExplorerEntry(
-        "Prompt as code",
+    // Natural Functions
+    const naturalFunctions = new ProjectExplorerEntry(
+        "Natural Functions",
         vscode.TreeItemCollapsibleState.Expanded,
         null,
         'function',
         false
     );
-    promptAsCode.contextValue = "promptAsCode";
-    promptAsCode.children = getComponents(components.directoryMap[DIRECTORY_MAP.PROMPT_AS_CODE], DIRECTORY_MAP.PROMPT_AS_CODE);
-    entries.push(promptAsCode);
+    naturalFunctions.contextValue = "naturalFunctions";
+    naturalFunctions.children = getComponents(components.directoryMap[DIRECTORY_MAP.NATURAL_FUNCTIONS], DIRECTORY_MAP.NATURAL_FUNCTIONS);
+    entries.push(naturalFunctions);
 
     return entries;
 }
@@ -312,7 +312,7 @@ function getComponents(items: ProjectStructureArtifactResponse[], itemType?: DIR
             [DIRECTORY_MAP.CLASSES]: DIRECTORY_SUB_TYPE.TYPE,
             [DIRECTORY_MAP.DATA_MAPPERS]: DIRECTORY_SUB_TYPE.DATA_MAPPER,
             [DIRECTORY_MAP.AGENTS]: DIRECTORY_SUB_TYPE.AGENTS,
-            [DIRECTORY_MAP.PROMPT_AS_CODE]: DIRECTORY_SUB_TYPE.PROMPT_AS_CODE
+            [DIRECTORY_MAP.NATURAL_FUNCTIONS]: DIRECTORY_SUB_TYPE.NATURAL_FUNCTION
         };
 
         fileEntry.contextValue = contextValueMap[itemType] || comp.icon;
