@@ -66,7 +66,7 @@ export function FunctionForm(props: FunctionFormProps) {
             nodeKind = 'DATA_MAPPER_DEFINITION';
             formType.current = 'Data Mapper';
             setTitleSubtitle('Transform data between different data types');
-            setFormSubtitle('Create mappings on how to convert the inputs to a single record output');
+            setFormSubtitle('Create mappings on how to convert one data structure to another");
         } else if (isNpFunction) {
             nodeKind = 'NP_FUNCTION_DEFINITION';
             formType.current = 'Natural Programming Function';
