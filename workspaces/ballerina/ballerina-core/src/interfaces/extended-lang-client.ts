@@ -1353,6 +1353,12 @@ export interface AIConnectorActionsResponse {
     actions: AvailableNode[];
 }
 
+// <-------- Deployment Related ------->
+
+export interface DeploymentResponse {
+    isCompleted: boolean;
+}
+
 // <------------ BI INTERFACES --------->
 
 export interface BaseLangClientInterface {

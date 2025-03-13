@@ -235,8 +235,12 @@ function getCustomEntryNodeIcon(type: string) {
             return "bi-graphql";
         case "java.jms":
             return "bi-java";
-        case "trigger.github":
+        case "github":
             return "bi-github";
+        case "salesforce":
+            return "bi-salesforce";
+        case "asb":
+            return "bi-asb";
         default:
             return "bi-http-service";
     }

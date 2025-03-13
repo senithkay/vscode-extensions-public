@@ -66,7 +66,8 @@ import {
     GetRecordModelFromSourceResponse,
     GetRecordModelFromSourceRequest,
     UpdateTypesRequest,
-    UpdateTypesResponse
+    UpdateTypesResponse,
+    DeploymentResponse
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -114,7 +115,7 @@ export const getModuleNodes: RequestType<void, BIModuleNodesResponse> = { method
 export const getReadmeContent: RequestType<void, ReadmeContentResponse> = { method: `${_preFix}/getReadmeContent` };
 export const openReadme: NotificationType<void> = { method: `${_preFix}/openReadme` };
 export const renameIdentifier: RequestType<RenameIdentifierRequest, void> = { method: `${_preFix}/renameIdentifier` };
-export const deployProject: NotificationType<void> = { method: `${_preFix}/deployProject` };
+export const deployProject: RequestType<void, DeploymentResponse> = { method: `${_preFix}/deployProject` };
 export const openAIChat: NotificationType<AIChatRequest> = { method: `${_preFix}/openAIChat` };
 export const getSignatureHelp: RequestType<SignatureHelpRequest, SignatureHelpResponse> = { method: `${_preFix}/getSignatureHelp` };
 export const buildProject: NotificationType<BuildMode> = { method: `${_preFix}/buildProject` };
