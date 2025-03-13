@@ -15,7 +15,7 @@ import { useVisualizerContext } from '../../../Context';
 import { CardGrid, PanelViewMore, Title, TitleWrapper } from './styles';
 import { BodyText } from '../../styles';
 import ButtonCard from '../../../components/ButtonCard';
-import { OutOfScopeComponentTooltip } from './componentListUtils';
+import { isBetaModule, OutOfScopeComponentTooltip } from './componentListUtils';
 
 interface EventIntegrationPanelProps {
     scope: SCOPE;
@@ -80,7 +80,7 @@ export function EventIntegrationPanel(props: EventIntegrationPanelProps) {
                                     }}
                                     disabled={isDisabled}
                                     tooltip={isDisabled ? OutOfScopeComponentTooltip : ""}
-                                    isBeta={shouldMarkAsBeta(item)}
+                                    isBeta={isBetaModule(item.moduleName)}
                                 />
                             );
                         }
@@ -90,11 +90,6 @@ export function EventIntegrationPanel(props: EventIntegrationPanelProps) {
         </PanelViewMore>
     );
 };
-
-function shouldMarkAsBeta(item: ServiceModel) {
-    const betaServices = ["salesforce", "trigger.github"];
-    return betaServices.includes(item.moduleName);
-}
 
 // TODO: This should be removed once the new icons are added to the BE API.
 export function getEntryNodeIcon(item: ServiceModel) {
