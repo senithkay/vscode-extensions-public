@@ -565,6 +565,7 @@ export interface PartialST {
 
 export interface OpenAPIConverterParams {
     documentFilePath: string;
+    enableBalExtension?: boolean;
 }
 
 export interface OpenAPISpec {

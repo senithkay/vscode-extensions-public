@@ -107,6 +107,7 @@ export const INVALID_RECORD_REFERENCE =
     "Invalid record reference. Follow <org-name>/<package-name>:<record-name> format when referencing to record in another package.";
 const NO_DRIFT_FOUND = "No drift identified between the code and the documentation.";
 const DRIFT_CHECK_ERROR = "Failed to check drift between the code and the documentation. Please try again.";
+const RATE_LIMIT_ERROR = ` Cause: Your usage limit has been exceeded. This should reset in the beggining of the next month.`
 
 // Define constants for command keys
 export const COMMAND_GENERATE = "/generate";
@@ -233,6 +234,8 @@ export function AIChat() {
     const [testGenIntermediaryState, setTestGenIntermediaryState] = useState<TestGeneratorIntermediaryState | null>(
         null
     );
+    const [currentDiagnostics, setCurrentDiagnostics] = useState<any[]>([]);
+    const [functions, setFunctions] = useState<any>([]);
 
     const messagesEndRef = React.createRef<HTMLDivElement>();
 
@@ -247,8 +250,8 @@ export function AIChat() {
             chatLocation = (await rpcClient.getVisualizerLocation()).projectUri;
             setIsReqFileExists(
                 chatLocation != null &&
-                    chatLocation != undefined &&
-                    (await rpcClient.getAiPanelRpcClient().isRequirementsSpecificationFileExist(chatLocation))
+                chatLocation != undefined &&
+                (await rpcClient.getAiPanelRpcClient().isRequirementsSpecificationFileExist(chatLocation))
             );
 
             generateNaturalProgrammingTemplate(isReqFileExists);
@@ -424,15 +427,24 @@ export function AIChat() {
             console.error("Failed to process content:", error);
             setIsLoading(false);
             setIsCodeLoading(false);
-            setMessages((prevMessages) => {
-                const newMessages = [...prevMessages];
-                if (error && "message" in error) {
-                    newMessages[newMessages.length - 1].content += `<error>${error.message}</error>`;
-                } else {
-                    newMessages[newMessages.length - 1].content += `<error>${error}</error>`;
-                }
-                return newMessages;
-            });
+            if (error.name === "AbortError") {
+                // Don't show an error message or show a user-friendly message
+                setMessages((prevMessages) => {
+                    const newMessages = [...prevMessages];
+                    newMessages[newMessages.length - 1].content += `<error>Generation stopped by the user</error>`;
+                    return newMessages;
+                });
+            } else {
+                setMessages((prevMessages) => {
+                    const newMessages = [...prevMessages];
+                    if (error && "message" in error) {
+                        newMessages[newMessages.length - 1].content += `<error>${error.message}</error>`;
+                    } else {
+                        newMessages[newMessages.length - 1].content += `<error>${error}</error>`;
+                    }
+                    return newMessages;
+                });
+            }
         }
     }
 
@@ -547,8 +559,8 @@ export function AIChat() {
                                     isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT)
                                         ? CodeGenerationType.CODE_FOR_USER_REQUIREMENT
                                         : isTestGenerationTemplateExists
-                                        ? CodeGenerationType.TESTS_FOR_USER_REQUIREMENT
-                                        : CodeGenerationType.CODE_GENERATION,
+                                            ? CodeGenerationType.TESTS_FOR_USER_REQUIREMENT
+                                            : CodeGenerationType.CODE_GENERATION,
                                 ],
                                 message
                             );
@@ -583,7 +595,7 @@ export function AIChat() {
                         } else {
                             throw new Error(
                                 `Invalid template format for the \`${COMMAND_DATAMAP}\` command. ` +
-                                    `Please ensure you follow the correct template.`
+                                `Please ensure you follow the correct template.`
                             );
                         }
                         break;
@@ -618,11 +630,7 @@ export function AIChat() {
                     throw new Error("Error: Query is empty. Please enter a valid query");
                 }
                 if (commandKey === COMMAND_GENERATE) {
-                    await processCodeGeneration(
-                        token,
-                        [messageBody, attachments, CodeGenerationType.CODE_GENERATION],
-                        message
-                    );
+                    await processCodeGeneration(token, [messageBody, attachments, CodeGenerationType.CODE_GENERATION], message);
                     return;
                 } else if (commandKey === COMMAND_NATURAL_PROGRAMMING) {
                     if (isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT)) {
@@ -645,7 +653,7 @@ export function AIChat() {
                 }
                 throw new Error(
                     `Invalid template format for the \`${commandKey}\` command. ` +
-                        `Please ensure you follow the correct template.`
+                    `Please ensure you follow the correct template.`
                 );
             }
         } else {
@@ -823,8 +831,6 @@ export function AIChat() {
             rpcClient
         );
 
-        let functions: any;
-
         if (!response.ok) {
             if (response.status > 400 && response.status < 500) {
                 await rpcClient.getAiPanelRpcClient().promptLogin();
@@ -836,7 +842,7 @@ export function AIChat() {
             let error = `Failed to fetch response.`;
             if (response.status == 429) {
                 response.json().then((body) => {
-                    error += ` Cause: ${body.detail}`;
+                    error += RATE_LIMIT_ERROR;
                 });
             }
             throw new Error(error);
@@ -878,16 +884,17 @@ export function AIChat() {
 
                 handleContentBlockDelta(textDelta);
             } else if (event.event == "functions") {
-                functions = event.body;
+                // Update the functions state instead of the global variable
+                setFunctions(event.body);
             } else if (event.event == "message_stop") {
                 const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
                     assistant_response: assistant_response,
                 });
                 assistant_response = postProcessResp.assistant_response;
                 const diagnostics = postProcessResp.diagnostics.diagnostics;
-                console.log("Diagnostics : ", diagnostics);
+                console.log("Initial Diagnostics : ", diagnostics);
+                setCurrentDiagnostics(diagnostics);
                 if (diagnostics.length > 0) {
-                    //TODO: fill
                     const diagReq = {
                         response: assistant_response,
                         diagnostics: diagnostics,
@@ -928,6 +935,8 @@ export function AIChat() {
                         const endTime = performance.now();
                         const executionTime = endTime - startTime;
                         console.log(`Repair call time: ${executionTime} milliseconds`);
+                        console.log("After auto repair, Diagnostics : ", postProcessResp.diagnostics.diagnostics);
+                        setCurrentDiagnostics(postProcessResp.diagnostics.diagnostics);
                         setIsCodeLoading(false);
                         assistant_response = fixedResponse;
                         setMessages((prevMessages) => {
@@ -1269,7 +1278,7 @@ export function AIChat() {
 
             if (response.status === 429) {
                 const body = await response.json();
-                throw new Error(`Too many requests: ${body.detail}`);
+                throw new Error(`Too many requests: ${RATE_LIMIT_ERROR}`);
             }
 
             throw new Error(`Failed to fetch response. HTTP Status: ${response.status}`);
@@ -1397,8 +1406,8 @@ export function AIChat() {
             }
             const generatedFullSource = existingSource
                 ? existingSource +
-                  "\n\n// >>>>>>>>>>>>>>TEST CASES NEED TO BE FIXED <<<<<<<<<<<<<<<\n\n" +
-                  response.testSource
+                "\n\n// >>>>>>>>>>>>>>TEST CASES NEED TO BE FIXED <<<<<<<<<<<<<<<\n\n" +
+                response.testSource
                 : response.testSource;
 
             const diagnostics = await rpcClient.getAiPanelRpcClient().getTestDiagnostics({
@@ -1793,7 +1802,7 @@ export function AIChat() {
             let error = `Failed to fetch response.`;
             if (response.status == 429) {
                 response.json().then((body) => {
-                    error += ` Cause: ${body.detail}`;
+                    error += RATE_LIMIT_ERROR;
                 });
             }
             throw new Error(error);
@@ -1916,7 +1925,7 @@ export function AIChat() {
             let error = `Failed to fetch response.`;
             if (response.status == 429) {
                 response.json().then((body) => {
-                    error += ` Cause: ${body.detail}`;
+                    error += RATE_LIMIT_ERROR;
                 });
             }
             throw new Error(error);
@@ -2181,6 +2190,84 @@ export function AIChat() {
         );
     };
 
+    const handleRetryRepair = async () => {
+        if (currentDiagnostics.length === 0) return;
+
+        setIsCodeLoading(true);
+        setIsLoading(true);
+
+        try {
+            const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
+            const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource(CodeGenerationType.CODE_GENERATION);
+
+            const usecase = messages[messages.length - 2].content;
+            const latestMessage = messages[messages.length - 1].content;
+
+            const diagReq = {
+                response: latestMessage,
+                diagnostics: currentDiagnostics,
+            };
+
+            const reqBody = {
+                usecase: usecase,
+                chatHistory: chatArray,
+                sourceFiles: project.sourceFiles,
+                diagnosticRequest: diagReq,
+                functions: functions,
+                operationType: CodeGenerationType.CODE_GENERATION
+            }
+            console.log("Request body for repair:", reqBody);
+            const response = await fetchWithToken(
+                backendRootUri + "/code/repair",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(reqBody),
+                    signal: signal,
+                },
+                rpcClient
+            );
+
+            if (!response.ok) {
+                throw new Error("Repair failed");
+            }
+
+            const jsonBody = await response.json();
+            const repairResponse = jsonBody.repairResponse;
+            let fixedResponse = replaceCodeBlocks(latestMessage, repairResponse);
+
+            const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
+                assistant_response: fixedResponse,
+            });
+
+            fixedResponse = postProcessResp.assistant_response;
+            setCurrentDiagnostics(postProcessResp.diagnostics.diagnostics);
+
+            setMessages((prevMessages) => {
+                const newMessages = [...prevMessages];
+                newMessages[newMessages.length - 1].content = fixedResponse;
+                return newMessages;
+            });
+
+            // Update chat entry
+            const lastIndex = chatArray.length - 1;
+            if (lastIndex >= 0 && chatArray[lastIndex].actor === "assistant") {
+                updateChatEntry(lastIndex, {
+                    actor: "assistant",
+                    message: fixedResponse,
+                });
+            }
+        } catch (error) {
+            console.error("Repair retry failed:", error);
+        } finally {
+            setIsCodeLoading(false);
+            setIsLoading(false);
+        }
+    };
+
     return (
         <AIChatView>
             <Header>
@@ -2331,6 +2418,8 @@ export function AIChat() {
                                                 buttonsActive={showGeneratingFiles}
                                                 isSyntaxError={isSyntaxError}
                                                 command={segment.command}
+                                                diagnostics={currentDiagnostics}
+                                                onRetryRepair={handleRetryRepair}
                                             />
                                         );
                                     }
@@ -2602,6 +2691,8 @@ interface CodeSectionProps {
     buttonsActive: boolean;
     isSyntaxError: boolean;
     command: string;
+    diagnostics: any[],
+    onRetryRepair: () => {},
 }
 
 const CodeSection: React.FC<CodeSectionProps> = ({
@@ -2614,6 +2705,8 @@ const CodeSection: React.FC<CodeSectionProps> = ({
     buttonsActive,
     isSyntaxError,
     command,
+    diagnostics = [],
+    onRetryRepair = () => { },
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isCodeAdded, setIsCodeAdded] = useState(false);
@@ -2626,8 +2719,8 @@ const CodeSection: React.FC<CodeSectionProps> = ({
     let name = loading
         ? "Generating " + (isTestCode ? "Tests..." : "Integration...")
         : isTestCode
-        ? "Ballerina Tests"
-        : "Ballerina Integration";
+            ? "Ballerina Tests"
+            : "Ballerina Integration";
 
     const allCodeSegments = splitContent(message.content)
         .filter((segment) => segment.type === SegmentType.Code)
@@ -2636,8 +2729,33 @@ const CodeSection: React.FC<CodeSectionProps> = ({
     return (
         <div>
             <EntryContainer onClick={() => !loading && setIsOpen(!isOpen)}>
-                <div style={{ flex: 9, fontWeight: "bold" }}>{name}</div>
-                <div style={{ marginLeft: "auto" }}>
+                <div style={{ flex: 9, fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>
+                    {!loading && isReady && language === "ballerina" && (
+                        !isOpen ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />
+                    )}
+                    {name}
+                </div>
+
+                <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "8px" }}>
+
+                    {/* Show warning icon if diagnostics exist */}
+                    {!loading && isReady && diagnostics.length > 0 && command === "code" && !isCodeAdded && (
+                        <Button
+                            appearance="icon"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onRetryRepair();
+                            }}
+                            disabled={loading}
+                            tooltip={`Click to attempt to fix the following errors in the generated code: \n${diagnostics.map(d => d.message).join("\n")}`}                        >
+                            <Codicon name="lightbulb-autofix" />
+                        </Button>
+                    )}
+
+                    {/* Show spinner during generation or repair */}
+                    {(loading) && <ProgressRing sx={{ height: '16px', width: '16px' }} />}
+
+                    {/* TODO see why Add to integration either Revert button is visible */}
                     {!loading && isReady && language === "ballerina" && (
                         <>
                             {!isCodeAdded ? (
