@@ -31,7 +31,7 @@ export const WaitingForLoginMessage = (props: { showProjectHeader?: boolean }) =
     const { showProjectHeader } = props;
 
     const cancelLogin = () => {
-        //rpcClient.sendAIStateEvent(AI_EVENT_TYPE.CANCEL);
+        rpcClient.sendAIStateEvent(AI_EVENT_TYPE.CANCEL);
     };
 
 
