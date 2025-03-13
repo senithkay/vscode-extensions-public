@@ -23,6 +23,8 @@ import {
     NODE_GAP_Y,
     NODE_HEIGHT,
     NODE_WIDTH,
+    PROMPT_NODE_HEIGHT,
+    PROMPT_NODE_WIDTH,
     WHILE_NODE_WIDTH,
 } from "../resources/constants";
 import { reverseCustomNodeId } from "../utils/node";
@@ -402,6 +404,20 @@ export class SizingVisitor implements BaseVisitor {
     endVisitWorker(node: Branch, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
         this.createBlockNode(node);
+    }
+
+    endVisitNpFunction(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+
+        const halfNodeWidth = PROMPT_NODE_WIDTH / 2;
+        const nodeHeight = PROMPT_NODE_HEIGHT;
+
+        this.setNodeSize(
+            node,
+            halfNodeWidth,
+            halfNodeWidth,
+            nodeHeight
+        );
     }
 
     skipChildren(): boolean {

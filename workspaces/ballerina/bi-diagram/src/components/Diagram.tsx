@@ -44,6 +44,7 @@ export interface DiagramProps {
     onDeleteNode?: (node: FlowNode) => void;
     onAddComment?: (comment: string, target: LineRange) => void;
     onNodeSelect?: (node: FlowNode) => void;
+    onNodeSave?: (node: FlowNode) => void;
     addBreakpoint?: (node: FlowNode) => void;
     removeBreakpoint?: (node: FlowNode) => void;
     onConnectionSelect?: (connectionName: string) => void;
@@ -75,6 +76,7 @@ export function Diagram(props: DiagramProps) {
         onDeleteNode,
         onAddComment,
         onNodeSelect,
+        onNodeSave,
         onConnectionSelect,
         goToSource,
         openView,
@@ -201,6 +203,7 @@ export function Diagram(props: DiagramProps) {
         onDeleteNode: onDeleteNode,
         onAddComment: onAddComment,
         onNodeSelect: onNodeSelect,
+        onNodeSave: onNodeSave,
         addBreakpoint: addBreakpoint,
         removeBreakpoint: removeBreakpoint,
         onConnectionSelect: onConnectionSelect,

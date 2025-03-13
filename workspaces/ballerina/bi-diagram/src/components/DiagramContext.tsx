@@ -25,6 +25,7 @@ export interface DiagramContextState {
     onDeleteNode?: (node: FlowNode) => void;
     onAddComment?: (comment: string, target: LineRange) => void;
     onNodeSelect?: (node: FlowNode) => void;
+    onNodeSave?: (node: FlowNode) => void;
     addBreakpoint?: (node: FlowNode) => void;
     removeBreakpoint?: (node: FlowNode) => void;
     onConnectionSelect?: (connectionName: string) => void;

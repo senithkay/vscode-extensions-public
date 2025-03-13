@@ -121,7 +121,7 @@ const stateMachine = createMachine<MachineContext>(
                                     identifier: (context, event) => event.data.identifier,
                                     position: (context, event) => event.data.position,
                                     syntaxTree: (context, event) => event.data.syntaxTree,
-
+                                    focusFlowDiagramView: (context, event) => event.data.focusFlowDiagramView
                                 })
                             }
                         }
