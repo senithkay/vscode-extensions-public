@@ -48,12 +48,16 @@ export function NewAgent(props: NewAgentProps): JSX.Element {
     const agentFilePath = useRef<string>("");
 
     useEffect(() => {
-        // get agent file path
-        rpcClient.getVisualizerLocation().then((res) => {
-            agentFilePath.current = Utils.joinPath(URI.file(res.projectUri), "agents.bal").fsPath;
-        });
-        fetchAgentNode();
+        initPanel();
     }, []);
+
+    const initPanel = async () => {
+        // get agent file path
+        const filePath = await rpcClient.getVisualizerLocation();
+        agentFilePath.current = Utils.joinPath(URI.file(filePath.projectUri), "agents.bal").fsPath;
+        // fetch agent node
+        await fetchAgentNode();
+    };
 
     useEffect(() => {
         if (agentNode && defaultModelNode) {
@@ -241,7 +245,12 @@ export function NewAgent(props: NewAgentProps): JSX.Element {
 
     return (
         <Container>
-            <ConfigForm formFields={formFields} onSubmit={handleOnSave} disableSaveButton={savingForm} />
+            <ConfigForm
+                formFields={formFields}
+                filePath={agentFilePath.current}
+                onSubmit={handleOnSave}
+                disableSaveButton={savingForm}
+            />
         </Container>
     );
 }

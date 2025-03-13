@@ -260,7 +260,7 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode, cli
             return "Configure LLM Model";
         case SidePanelView.AGENT_TOOL:
             return "Configure Tool";
-        case SidePanelView.AGENT_TOOL_LIST:
+        case SidePanelView.ADD_TOOL:
             return "Add Tool to Agent";
         case SidePanelView.AGENT_CONFIG:
             return "Configure Agent";

@@ -47,19 +47,12 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
     const [selectedModelFields, setSelectedModelFields] = useState<FormField[]>([]);
     const [savingForm, setSavingForm] = useState<boolean>(false);
 
-    const filepath = useRef<string>("");
+    const agentFilePath = useRef<string>("");
     const moduleConnectionNodes = useRef<FlowNode[]>([]);
     const selectedModelFlowNode = useRef<FlowNode>();
 
     useEffect(() => {
-        // get file path
-        rpcClient.getVisualizerLocation().then((res) => {
-            filepath.current = Utils.joinPath(URI.file(res.projectUri), "agents.bal").fsPath;
-        });
-        // get all models
-        fetchModels();
-        // fetch selected agent model
-        fetchSelectedAgentModel();
+        initPanel();
     }, []);
 
     useEffect(() => {
@@ -67,6 +60,16 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
             fetchModelNodeTemplate(selectedModel.codedata);
         }
     }, [modelsCodeData, selectedModel]);
+
+    const initPanel = async () => {
+        // get file path
+        const filePath = await rpcClient.getVisualizerLocation();
+        agentFilePath.current = Utils.joinPath(URI.file(filePath.projectUri), "agents.bal").fsPath;
+        // fetch all models
+        await fetchModels();
+        // fetch selected agent model
+        await fetchSelectedAgentModel();
+    };
 
     const fetchModels = async () => {
         console.log(">>> agent call node", agentCallNode);
@@ -77,7 +80,7 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
         }
         const models = await rpcClient
             .getAIAgentRpcClient()
-            .getAllModels({ agent: agentName, filePath: filepath.current });
+            .getAllModels({ agent: agentName, filePath: agentFilePath.current });
         console.log(">>> all models", models);
         setModelsCodeData(models.models);
     };
@@ -111,7 +114,7 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
             selectedModelFlowNode.current = cloneDeep(selectedModel);
             nodeProperties = selectedModel?.properties;
         } else {
-            const modelNodeTemplate = await getNodeTemplate(modelCodeData, filepath.current);
+            const modelNodeTemplate = await getNodeTemplate(modelCodeData, agentFilePath.current);
             console.log(">>> selected model node template", { modelNodeTemplate, modelCodeData });
             selectedModelFlowNode.current = cloneDeep(modelNodeTemplate);
             nodeProperties = modelNodeTemplate.properties;
@@ -153,7 +156,7 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
         // update source
         const response = await rpcClient
             .getBIDiagramRpcClient()
-            .getSourceCode({ filePath: filepath.current, flowNode: nodeTemplate });
+            .getSourceCode({ filePath: agentFilePath.current, flowNode: nodeTemplate });
         console.log(">>> response getSourceCode with template ", { response });
         onSave?.();
         setSavingForm(false);
@@ -187,7 +190,12 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
                 </Row>
             )}
             {selectedModelFields?.length > 0 && (
-                <ConfigForm formFields={selectedModelFields} onSubmit={handleOnSave} disableSaveButton={savingForm} />
+                <ConfigForm
+                    formFields={selectedModelFields}
+                    filePath={agentFilePath.current}
+                    onSubmit={handleOnSave}
+                    disableSaveButton={savingForm}
+                />
             )}
         </Container>
     );

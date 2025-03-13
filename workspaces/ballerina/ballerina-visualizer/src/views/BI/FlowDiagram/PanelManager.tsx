@@ -7,27 +7,24 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
 import { PanelContainer, NodeList, ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
 import {
     FlowNode,
-    Branch,
     LineRange,
     SubPanel,
     SubPanelView,
     FUNCTION_TYPE,
-    Category,
+    ToolData,
 } from "@wso2-enterprise/ballerina-core";
 import { InlineDataMapper } from "../../InlineDataMapper";
 import { HelperView } from "../HelperView";
 import FormGenerator from "../Forms/FormGenerator";
 import { getContainerTitle } from "../../../utils/bi";
-import { AIToolsList, ToolData } from "./AIToolsList";
-import { handleAgentOperations } from "./utils";
 import { ModelConfig } from "./ModelConfig";
 import { ToolConfig } from "./ToolConfig";
 import { AgentConfig } from "./AgentConfig";
 import { NewAgent } from "./NewAgent";
+import { AddTool } from "./AddTool";
 
 export enum SidePanelView {
     NODE_LIST = "NODE_LIST",
@@ -36,7 +33,7 @@ export enum SidePanelView {
     DATA_MAPPER_LIST = "DATA_MAPPER_LIST",
     NP_FUNCTION_LIST = "NP_FUNCTION_LIST",
     NEW_AGENT = "NEW_AGENT",
-    AGENT_TOOL_LIST = "AGENT_TOOL_LIST",
+    ADD_TOOL = "ADD_TOOL",
     AGENT_TOOL = "AGENT_TOOL",
     AGENT_MODEL = "AGENT_MODEL",
     AGENT_CONFIG = "AGENT_CONFIG",
@@ -139,13 +136,6 @@ export function PanelManager({
         }
     };
 
-    // Helper function to get AI agent tools
-    const getAgentTools = (): ToolData[] => {
-        if (!selectedNode || selectedNode.codedata.node !== "AGENT_CALL") return [];
-
-        const agentConfig = handleAgentOperations.getAgentConfig(selectedNode);
-        return agentConfig?.tools || [];
-    };
 
     const renderPanelContent = () => {
         switch (sidePanelView) {
@@ -160,18 +150,17 @@ export function PanelManager({
                 );
 
             case SidePanelView.NEW_AGENT:
-                return <NewAgent agentCallNode={selectedNode} fileName={fileName} lineRange={targetLineRange} onSave={onClose} />;
-
-            case SidePanelView.AGENT_TOOL_LIST:
                 return (
-                    <AIToolsList
-                        node={selectedNode}
-                        tools={getAgentTools()}
-                        onSelectTool={onSelectTool}
-                        onDeleteTool={onDeleteTool}
-                        onAddTool={onAddTool}
+                    <NewAgent
+                        agentCallNode={selectedNode}
+                        fileName={fileName}
+                        lineRange={targetLineRange}
+                        onSave={onClose}
                     />
                 );
+
+            case SidePanelView.ADD_TOOL:
+                return <AddTool agentCallNode={selectedNode} onSave={onClose} />;
 
             case SidePanelView.AGENT_TOOL:
                 const selectedTool = selectedNode.metadata.data.tools?.find((tool) => tool.name === selectedClientName);

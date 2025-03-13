@@ -7,12 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { FlowNode, ToolData } from "@wso2-enterprise/ballerina-core";
 import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import ConfigForm from "./ConfigForm";
+import { URI } from "vscode-uri";
+import { Utils } from "vscode-uri";
 
 const Container = styled.div`
     padding: 16px;
@@ -33,11 +35,22 @@ interface ToolConfigProps {
 
 export function ToolConfig(props: ToolConfigProps): JSX.Element {
     const { agentCallNode, toolData, onSave } = props;
+    console.log(">>> ToolConfig props", props);
 
     const { rpcClient } = useRpcContext();
     const [savingForm, setSavingForm] = useState<boolean>(false);
 
-    console.log(">>> ToolConfig props", props);
+    const agentFilePath = useRef<string>("");
+
+    useEffect(() => {
+        initPanel();
+    }, [agentCallNode]);
+
+    const initPanel = async () => {
+        // get agent file path
+        const filePath = await rpcClient.getVisualizerLocation();
+        agentFilePath.current = Utils.joinPath(URI.file(filePath.projectUri), "agents.bal").fsPath;
+    };
 
     const handleOnSave = async (data: FormField[], rawData: FormValues) => {
         console.log(">>> save value", { data, rawData });
@@ -79,7 +92,12 @@ export function ToolConfig(props: ToolConfigProps): JSX.Element {
 
     return (
         <Container>
-            <ConfigForm formFields={formFields} onSubmit={handleOnSave} disableSaveButton={savingForm} />
+            <ConfigForm
+                formFields={formFields}
+                filePath={agentFilePath.current}
+                onSubmit={handleOnSave}
+                disableSaveButton={savingForm}
+            />
         </Container>
     );
 }
