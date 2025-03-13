@@ -9,45 +9,28 @@
 
 import { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { FlowNode, FormField } from "@wso2-enterprise/ballerina-core";
+import { AgentToolRequest, FlowNode } from "@wso2-enterprise/ballerina-core";
 import { URI, Utils } from "vscode-uri";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { cloneDeep } from "lodash";
+import { AIAgentSidePanel } from "../AIAgents/AIAgentSidePanel";
+import { RelativeLoader } from "../../../components/RelativeLoader";
 
-const Container = styled.div`
-    padding: 16px;
-`;
-
-const NoTools = styled.div`
+const LoaderContainer = styled.div`
     display: flex;
-    align-items: center;
     justify-content: center;
-    padding: 24px 0;
-    color: var(--vscode-descriptionForeground);
-`;
-
-const ToolsList = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-`;
-
-const ToolItem = styled.div`
-    display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 12px 16px;
-    border-radius: 4px;
+    height: 100%;
 `;
 
 interface NewToolProps {
     agentCallNode: FlowNode;
+    onBack?: () => void;
     onSave?: () => void;
 }
 
 export function NewTool(props: NewToolProps): JSX.Element {
-    const { agentCallNode, onSave } = props;
+    const { agentCallNode, onSave, onBack } = props;
     console.log(">>> NewTool props", props);
     const { rpcClient } = useRpcContext();
 
@@ -66,7 +49,6 @@ export function NewTool(props: NewToolProps): JSX.Element {
         const filePath = await rpcClient.getVisualizerLocation();
         agentFilePath.current = Utils.joinPath(URI.file(filePath.projectUri), "agents.bal").fsPath;
         // fetch tools and agent node
-        await fetchExistingTools();
         await fetchAgentNode();
     };
 
@@ -88,44 +70,89 @@ export function NewTool(props: NewToolProps): JSX.Element {
         setAgentNode(agentNode);
     };
 
-    const fetchExistingTools = async () => {
-        const existingTools = await rpcClient.getAIAgentRpcClient().getTools({ filePath: agentFilePath.current });
-        console.log(">>> existing tools", existingTools);
-        setExistingTools(existingTools.tools);
-    };
+    const handleOnSubmit = async (data: AgentToolRequest) => {
+        console.log(">>> submit value", { data });
 
-    const handleOnSave = async (data: FormField[], rawData: FormValues) => {
-        console.log(">>> save value", { data, rawData });
+        // get nodeTemplate
+        const nodeTemplate = await rpcClient.getBIDiagramRpcClient().getNodeTemplate({
+            position: { line: 0, offset: 0 },
+            filePath: agentFilePath.current,
+            id: data.selectedCodeData,
+        });
+        console.log(">>> node template", { nodeTemplate });
+        if (!nodeTemplate.flowNode) {
+            console.error("Node template not found");
+            return;
+        }
+        // save tool
         setSavingForm(true);
+        const toolResponse = await rpcClient.getAIAgentRpcClient().genTool({
+            toolName: data.toolName,
+            description: data.description,
+            filePath: agentFilePath.current,
+            flowNode: nodeTemplate.flowNode,
+            connection: data.selectedCodeData.parentSymbol || "",
+        });
+        console.log(">>> response save tool", { toolResponse });
+
+        // wait for 2 seconds
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        // agent node with tools
         // update the agent node
         const updatedAgentNode = cloneDeep(agentNode);
-        const roleValue = (rawData["role"] || "").replace(/"/g, '\\"');
-        const instructionValue = (rawData["instruction"] || "").replace(/"/g, '\\"');
-        const systemPromptValue = `{role: "${roleValue}", instructions: string \`${instructionValue}\`}`;
-        updatedAgentNode.properties.systemPrompt.value = systemPromptValue;
+        let toolsValue = updatedAgentNode.properties.tools.value;
+
+        // Simple string manipulation to add the new tool
+        const selectedTool = data.toolName;
+        if (!selectedTool) {
+        } else if (!toolsValue || toolsValue === "[]") {
+            toolsValue = `[${selectedTool}]`;
+        } else if (typeof toolsValue === "string") {
+            if (toolsValue.startsWith("[") && toolsValue.endsWith("]")) {
+                const toolsString = toolsValue.substring(1, toolsValue.length - 1);
+                const existingTools = toolsString.split(",").map((t) => t.trim());
+
+                if (!existingTools.includes(selectedTool)) {
+                    toolsValue = toolsValue.substring(0, toolsValue.length - 1);
+                    if (toolsValue.length > 1) {
+                        toolsValue += ", ";
+                    }
+                    toolsValue += selectedTool + "]";
+                }
+            } else {
+                toolsValue = `[${selectedTool}]`;
+            }
+        } else if (Array.isArray(toolsValue)) {
+            if (!toolsValue.includes(selectedTool)) {
+                toolsValue.push(selectedTool);
+            }
+            toolsValue = `[${toolsValue.join(", ")}]`;
+        } else {
+            toolsValue = `[${selectedTool}]`;
+        }
+
+        updatedAgentNode.properties.tools.value = toolsValue;
 
         const agentResponse = await rpcClient
             .getBIDiagramRpcClient()
             .getSourceCode({ filePath: agentFilePath.current, flowNode: updatedAgentNode });
         console.log(">>> response getSourceCode with template ", { agentResponse });
 
-        onSave?.();
         setSavingForm(false);
+        onSave?.();
     };
 
-    const hasExistingTools = existingTools.length > 0;
-
     return (
-        <Container>
-            {hasExistingTools && (
-                <ToolsList>
-                    {existingTools.map((tool) => (
-                        <ToolItem key={tool}>{tool}</ToolItem>
-                    ))}
-                </ToolsList>
+        <>
+            {agentFilePath.current && !savingForm && (
+                <AIAgentSidePanel projectPath={agentFilePath.current} onSubmit={handleOnSubmit} />
             )}
-
-            {!hasExistingTools && <NoTools>No tools added. Add tools to enhance your agent's capabilities.</NoTools>}
-        </Container>
+            {(!agentFilePath.current || savingForm) && (
+                <LoaderContainer>
+                    <RelativeLoader />
+                </LoaderContainer>
+            )}
+        </>
     );
 }

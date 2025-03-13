@@ -20,6 +20,13 @@ import { NewAgent } from "./NewAgent";
 import { AddTool } from "./AddTool";
 import { useEffect, useState } from "react";
 import { NewTool } from "./NewTool";
+import styled from "@emotion/styled";
+
+const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+`;
 
 export enum SidePanelView {
     NODE_LIST = "NODE_LIST",
@@ -169,10 +176,10 @@ export function PanelManager(props: PanelManagerProps) {
                 return <AddTool agentCallNode={selectedNode} onAddNewTool={handleOnAddTool} onSave={onClose} />;
 
             case SidePanelView.NEW_TOOL:
-                return <NewTool agentCallNode={selectedNode} onSave={onClose} />;
+                return <NewTool agentCallNode={selectedNode} onSave={onClose} onBack={handleOnBackToAddTool} />;
 
             case SidePanelView.AGENT_TOOL:
-                const selectedTool = selectedNode.metadata.data.tools?.find((tool) => tool.name === selectedClientName);
+                const selectedTool = selectedNode?.metadata.data.tools?.find((tool) => tool.name === selectedClientName);
                 return <ToolConfig agentCallNode={selectedNode} toolData={selectedTool} onSave={onClose} />;
 
             case SidePanelView.AGENT_MODEL:
@@ -262,7 +269,7 @@ export function PanelManager(props: PanelManagerProps) {
             subPanelWidth={subPanel?.view === SubPanelView.INLINE_DATA_MAPPER ? 800 : 400}
             subPanel={findSubPanelComponent(subPanel)}
         >
-            <div onClick={onDiscardSuggestions}>{renderPanelContent()}</div>
+            <Container onClick={onDiscardSuggestions}>{renderPanelContent()}</Container>
         </PanelContainer>
     );
 }

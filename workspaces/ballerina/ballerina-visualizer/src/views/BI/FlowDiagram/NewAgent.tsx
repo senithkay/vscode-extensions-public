@@ -16,16 +16,18 @@ import { convertConfig } from "../../../utils/bi";
 import { URI, Utils } from "vscode-uri";
 import ConfigForm from "./ConfigForm";
 import { cloneDeep } from "lodash";
+import { RelativeLoader } from "../../../components/RelativeLoader";
 
 const Container = styled.div`
     padding: 16px;
+    height: 100%;
 `;
 
-const Row = styled.div`
+const LoaderContainer = styled.div`
     display: flex;
-    flex-direction: row;
-    align-items: center;
     justify-content: center;
+    align-items: center;
+    height: 100%;
 `;
 
 interface NewAgentProps {
@@ -43,6 +45,8 @@ export function NewAgent(props: NewAgentProps): JSX.Element {
     const [agentNode, setAgentNode] = useState<FlowNode | null>(null);
     const [defaultModelNode, setDefaultModelNode] = useState<FlowNode | null>(null);
     const [formFields, setFormFields] = useState<FormField[]>([]);
+
+    const [loading, setLoading] = useState<boolean>(false);
     const [savingForm, setSavingForm] = useState<boolean>(false);
 
     const agentFilePath = useRef<string>("");
@@ -52,6 +56,7 @@ export function NewAgent(props: NewAgentProps): JSX.Element {
     }, []);
 
     const initPanel = async () => {
+        setLoading(true);
         // get agent file path
         const filePath = await rpcClient.getVisualizerLocation();
         agentFilePath.current = Utils.joinPath(URI.file(filePath.projectUri), "agents.bal").fsPath;
@@ -62,6 +67,7 @@ export function NewAgent(props: NewAgentProps): JSX.Element {
     useEffect(() => {
         if (agentNode && defaultModelNode) {
             configureFormFields();
+            setLoading(false);
         }
     }, [agentNode, defaultModelNode]);
 
@@ -245,12 +251,19 @@ export function NewAgent(props: NewAgentProps): JSX.Element {
 
     return (
         <Container>
-            <ConfigForm
-                formFields={formFields}
-                filePath={agentFilePath.current}
-                onSubmit={handleOnSave}
-                disableSaveButton={savingForm}
-            />
+            {loading && (
+                <LoaderContainer>
+                    <RelativeLoader />
+                </LoaderContainer>
+            )}
+            {!loading && (
+                <ConfigForm
+                    formFields={formFields}
+                    filePath={agentFilePath.current}
+                    onSubmit={handleOnSave}
+                    disableSaveButton={savingForm}
+                />
+            )}
         </Container>
     );
 }

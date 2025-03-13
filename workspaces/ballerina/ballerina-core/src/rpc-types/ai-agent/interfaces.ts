@@ -33,6 +33,7 @@ export interface AgentTool {
 
 export interface AgentToolRequest {
     toolName: string;
+    description: string;
     selectedCodeData: CodeData; // Codedata can be FUNCTION_CALL | REMOTE_ACTION_CALL
 }
 

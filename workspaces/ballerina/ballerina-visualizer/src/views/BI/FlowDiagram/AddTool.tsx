@@ -14,6 +14,7 @@ import { URI, Utils } from "vscode-uri";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { cloneDeep } from "lodash";
 import { Button, Codicon, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { RelativeLoader } from "../../../components/RelativeLoader";
 
 const Container = styled.div`
     padding: 16px;
@@ -22,6 +23,13 @@ const Container = styled.div`
     height: 100%;
     min-height: 100%;
     box-sizing: border-box;
+`;
+
+const LoaderContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
 `;
 
 const Description = styled.div`
@@ -49,20 +57,20 @@ const Row = styled.div`
 const Title = styled.div`
     font-size: 14px;
     font-family: GilmerBold;
-    text-wrap: nowrap;
 `;
 
 const ToolItem = styled.div<{ isSelected?: boolean }>`
     display: flex;
-    justify-content: space-between;
+    flex-direction: row;
     align-items: center;
-    padding: 12px 16px;
-    border-radius: 4px;
+    gap: 5px;
+    padding: 5px;
     border: 1px solid
         ${(props: { isSelected: boolean }) => (props.isSelected ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT)};
-    transition: all 0.2s ease;
-    cursor: pointer;
-
+    border-radius: 5px;
+    height: 36px;
+    cursor: "pointer";
+    font-size: 14px;
     &:hover {
         background-color: ${ThemeColors.PRIMARY_CONTAINER};
         border: 1px solid ${ThemeColors.PRIMARY};
@@ -120,6 +128,8 @@ export function AddTool(props: AddToolProps): JSX.Element {
     const [agentNode, setAgentNode] = useState<FlowNode | null>(null);
     const [existingTools, setExistingTools] = useState<string[]>([]);
     const [selectedTool, setSelectedTool] = useState<string | null>(null);
+
+    const [loading, setLoading] = useState<boolean>(false);
     const [savingForm, setSavingForm] = useState<boolean>(false);
 
     const agentFilePath = useRef<string>("");
@@ -129,12 +139,14 @@ export function AddTool(props: AddToolProps): JSX.Element {
     }, [agentCallNode]);
 
     const initPanel = async () => {
+        setLoading(true);
         // get agent file path
         const filePath = await rpcClient.getVisualizerLocation();
         agentFilePath.current = Utils.joinPath(URI.file(filePath.projectUri), "agents.bal").fsPath;
         // fetch tools and agent node
         await fetchExistingTools();
         await fetchAgentNode();
+        setLoading(false);
     };
 
     const fetchAgentNode = async () => {
@@ -222,7 +234,12 @@ export function AddTool(props: AddToolProps): JSX.Element {
 
     return (
         <Container>
-            {hasExistingTools && (
+            {loading && (
+                <LoaderContainer>
+                    <RelativeLoader />
+                </LoaderContainer>
+            )}
+            {!loading && hasExistingTools && (
                 <>
                     <Column>
                         <Description>Choose a tool to add to the Agent or create a new one.</Description>
@@ -249,7 +266,7 @@ export function AddTool(props: AddToolProps): JSX.Element {
                     </Footer>
                 </>
             )}
-            {!hasExistingTools && !selectedTool && (
+            {!loading && !hasExistingTools && !selectedTool && (
                 <Column>
                     <Description>
                         No tools are currently available in your integration. Add a new tool to improve your agent's

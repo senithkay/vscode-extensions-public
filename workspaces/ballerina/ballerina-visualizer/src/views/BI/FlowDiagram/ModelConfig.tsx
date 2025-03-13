@@ -17,9 +17,18 @@ import { URI, Utils } from "vscode-uri";
 import ConfigForm from "./ConfigForm";
 import { Dropdown } from "@wso2-enterprise/ui-toolkit";
 import { cloneDeep } from "lodash";
+import { RelativeLoader } from "../../../components/RelativeLoader";
 
 const Container = styled.div`
     padding: 16px;
+    height: 100%;
+`;
+
+const LoaderContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
 `;
 
 const Row = styled.div`
@@ -45,6 +54,8 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
     // already assigned model
     const [selectedModel, setSelectedModel] = useState<FlowNode>();
     const [selectedModelFields, setSelectedModelFields] = useState<FormField[]>([]);
+
+    const [loading, setLoading] = useState<boolean>(false);
     const [savingForm, setSavingForm] = useState<boolean>(false);
 
     const agentFilePath = useRef<string>("");
@@ -62,6 +73,7 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
     }, [modelsCodeData, selectedModel]);
 
     const initPanel = async () => {
+        setLoading(true);
         // get file path
         const filePath = await rpcClient.getVisualizerLocation();
         agentFilePath.current = Utils.joinPath(URI.file(filePath.projectUri), "agents.bal").fsPath;
@@ -69,6 +81,7 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
         await fetchModels();
         // fetch selected agent model
         await fetchSelectedAgentModel();
+        setLoading(false);
     };
 
     const fetchModels = async () => {
@@ -108,6 +121,7 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
 
     // fetch selected model code data - node template
     const fetchModelNodeTemplate = async (modelCodeData: CodeData) => {
+        setLoading(true);
         let nodeProperties: NodeProperties = {};
         if (selectedModel?.codedata.object === modelCodeData.object) {
             // use selected model properties
@@ -125,6 +139,7 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
 
         const modelFields = convertConfig(nodeProperties);
         setSelectedModelFields(modelFields);
+        setLoading(false);
     };
 
     const getNodeTemplate = async (codeData: CodeData, filePath: string) => {
@@ -184,12 +199,17 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
                             setSelectedModelCodeData(selectedModelCodeData);
                             fetchModelNodeTemplate(selectedModelCodeData);
                         }}
-                        value={selectedModelCodeData?.object || (agentCallNode.metadata.data?.model?.type as string)}
+                        value={selectedModelCodeData?.object || (agentCallNode?.metadata.data?.model?.type as string)}
                         containerSx={{ width: "100%" }}
                     />
                 </Row>
             )}
-            {selectedModelFields?.length > 0 && (
+            {loading && (
+                <LoaderContainer>
+                    <RelativeLoader />
+                </LoaderContainer>
+            )}
+            {!loading && selectedModelFields?.length > 0 && (
                 <ConfigForm
                     formFields={selectedModelFields}
                     filePath={agentFilePath.current}
