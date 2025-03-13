@@ -108,6 +108,7 @@ export const INVALID_RECORD_REFERENCE =
     "Invalid record reference. Follow <org-name>/<package-name>:<record-name> format when referencing to record in another package.";
 const NO_DRIFT_FOUND = "No drift identified between the code and the documentation.";
 const DRIFT_CHECK_ERROR = "Failed to check drift between the code and the documentation. Please try again.";
+const RATE_LIMIT_ERROR = ` Cause: Your usage limit has been exceeded. This should reset in the beggining of the next month.`
 
 // Define constants for command keys
 export const COMMAND_GENERATE = "/generate";
@@ -842,7 +843,7 @@ export function AIChat() {
             let error = `Failed to fetch response.`;
             if (response.status == 429) {
                 response.json().then((body) => {
-                    error += ` Cause: ${body.detail}`;
+                    error += RATE_LIMIT_ERROR;
                 });
             }
             throw new Error(error);
@@ -1282,7 +1283,7 @@ export function AIChat() {
 
             if (response.status === 429) {
                 const body = await response.json();
-                throw new Error(`Too many requests: ${body.detail}`);
+                throw new Error(`Too many requests: ${RATE_LIMIT_ERROR}`);
             }
 
             throw new Error(`Failed to fetch response. HTTP Status: ${response.status}`);
@@ -1806,7 +1807,7 @@ export function AIChat() {
             let error = `Failed to fetch response.`;
             if (response.status == 429) {
                 response.json().then((body) => {
-                    error += ` Cause: ${body.detail}`;
+                    error += RATE_LIMIT_ERROR;
                 });
             }
             throw new Error(error);
@@ -1929,7 +1930,7 @@ export function AIChat() {
             let error = `Failed to fetch response.`;
             if (response.status == 429) {
                 response.json().then((body) => {
-                    error += ` Cause: ${body.detail}`;
+                    error += RATE_LIMIT_ERROR;
                 });
             }
             throw new Error(error);
