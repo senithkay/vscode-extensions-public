@@ -116,7 +116,7 @@ function openAllBallerinaFiles(context: BallerinaExtension) {
                     if (content) {
                         context.langClient.didOpen({
                             textDocument: {
-                                uri: filePath,
+                                uri: Uri.file(filePath).toString(),
                                 languageId: "ballerina",
                                 version: 1,
                                 text: content,
