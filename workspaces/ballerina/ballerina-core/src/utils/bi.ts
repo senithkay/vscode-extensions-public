@@ -186,7 +186,6 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
             comp.name = `${serviceModel?.listenerProtocol}:Service`
         }
 
-        console.log("===>>> ICON VALUE",  iconValue );
 
         const fileEntry: ProjectStructureArtifactResponse = {
             name: dtype === DIRECTORY_MAP.SERVICES ? comp.name || comp.filePath.replace(".bal", "") : comp.name,
