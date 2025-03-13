@@ -26,6 +26,7 @@ import { WhileNodeFactory } from "../components/nodes/WhileNode";
 import { EndNodeFactory } from "../components/nodes/EndNode";
 import { ErrorNodeFactory } from "../components/nodes/ErrorNode";
 import { AgentCallNodeFactory } from "../components/nodes/AgentCallNode/AgentCallNodeFactory";
+import { PromptNodeFactory } from "../components/nodes/PromptNode/PromptNodeFactory";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -38,6 +39,7 @@ export function generateEngine(): DiagramEngine {
     engine.getLinkFactories().registerFactory(new NodeLinkFactory());
 
     engine.getNodeFactories().registerFactory(new BaseNodeFactory());
+    engine.getNodeFactories().registerFactory(new PromptNodeFactory());
     engine.getNodeFactories().registerFactory(new EmptyNodeFactory());
     engine.getNodeFactories().registerFactory(new IfNodeFactory());
     engine.getNodeFactories().registerFactory(new WhileNodeFactory());
