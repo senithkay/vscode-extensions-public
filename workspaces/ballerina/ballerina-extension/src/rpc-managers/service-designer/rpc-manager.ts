@@ -340,6 +340,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
+                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -361,6 +362,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: params.filePath,
                     position: position
                 };
+                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -438,11 +440,11 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                         await StateMachine.langClient().resolveMissingDependencies({
                             documentIdentifier: { uri: fileUriString },
                         });
+                        // Temp fix: ResolveMissingDependencies does not work unless we call didOpen, This needs to be fixed in the LS
+                        await StateMachine.langClient().didOpen({
+                            textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
+                        });
                     }
-                    // // Temp fix: ResolveMissingDependencies does not work uless we call didOpen, This needs to be fixed in the LS
-                    // await StateMachine.langClient().didOpen({
-                    //     textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
-                    // });
                 }
             }
         } catch (error) {
@@ -477,6 +479,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: params.filePath,
                     position: position
                 };
+                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
