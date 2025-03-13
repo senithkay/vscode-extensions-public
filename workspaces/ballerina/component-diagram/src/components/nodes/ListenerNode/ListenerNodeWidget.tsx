@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ListenerNodeModel } from "./ListenerNodeModel";
@@ -17,10 +17,11 @@ import {
     AUTOMATION_LISTENER,
     LISTENER_NODE_HEIGHT,
 } from "../../../resources/constants";
-import { Button, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, Item, MenuItem, Menu, Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { ClockIcon, ListenIcon } from "../../../resources";
 import { useDiagramContext } from "../../DiagramContext";
 import { CDListener } from "@wso2-enterprise/ballerina-core";
+import { MoreVertIcon } from "../../../resources/icons/nodes/MoreVertIcon";
 
 type NodeStyleProp = {
     hovered: boolean;
@@ -83,6 +84,10 @@ const Icon = styled.div`
     }
 `;
 
+const MenuButton = styled(Button)`
+    border-radius: 5px;      
+`;
+
 const Title = styled(StyledText) <NodeStyleProp>`
     max-width: ${LISTENER_NODE_WIDTH - LISTENER_NODE_HEIGHT}px;
     white-space: nowrap;
@@ -116,7 +121,9 @@ export interface NodeWidgetProps extends Omit<ListenerNodeWidgetProps, "children
 export function ListenerNodeWidget(props: ListenerNodeWidgetProps) {
     const { model, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
-    const { onListenerSelect } = useDiagramContext();
+    const { onListenerSelect, onDeleteComponent } = useDiagramContext();
+    const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
+    const isMenuOpen = Boolean(menuAnchorEl);
 
 
     const handleOnClick = () => {
@@ -147,6 +154,20 @@ export function ListenerNodeWidget(props: ListenerNodeWidgetProps) {
         return "Listener";
     };
 
+    const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
+        event.stopPropagation();
+        setMenuAnchorEl(event.currentTarget);
+    };
+
+    const handleOnMenuClose = () => {
+        setMenuAnchorEl(null);
+    };
+
+    const menuItems: Item[] = [
+        { id: "edit", label: "Edit", onClick: () => handleOnClick() }
+        // { id: "delete", label: "Delete", onClick: () => onDeleteComponent(model.node) },
+    ];
+
     return (
         <Node
             hovered={isHovered}
@@ -158,13 +179,33 @@ export function ListenerNodeWidget(props: ListenerNodeWidgetProps) {
                 <Circle hovered={isHovered}>
                     <LeftPortWidget port={model.getPort("in")!} engine={engine} />
                     <Icon>{getNodeIcon()}</Icon>
+
                     <RightPortWidget port={model.getPort("out")!} engine={engine} />
                 </Circle>
+                <MenuButton appearance="icon" onClick={handleOnMenuClick}>
+                    <MoreVertIcon />
+                </MenuButton>
                 <Header>
                     <Title hovered={isHovered}>{getNodeTitle()}</Title>
                     <Description>{getNodeDescription()}</Description>
                 </Header>
             </Row>
+
+            <Popover
+                open={isMenuOpen}
+                anchorEl={menuAnchorEl}
+                handleClose={handleOnMenuClose}
+                sx={{
+                    padding: 0,
+                    borderRadius: 0,
+                }}
+            >
+                <Menu>
+                    {menuItems.map((item) => (
+                        <MenuItem key={item.id} item={item} />
+                    ))}
+                </Menu>
+            </Popover>
         </Node>
     );
 }
