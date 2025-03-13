@@ -449,8 +449,8 @@ async function handleMultipleWorkspaces(workspaceFolders: readonly WorkspaceFold
 }
 
 async function handleSingleWorkspace(workspaceURI: any) {
-    const isBI = checkIsBI(workspaceURI);
     const isBallerina = checkIsBallerina(workspaceURI);
+    const isBI = isBallerina && checkIsBI(workspaceURI);
     const scope = fetchScope(workspaceURI);
     const projectPath = isBallerina ? workspaceURI.fsPath : "";
 
