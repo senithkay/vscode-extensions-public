@@ -61,8 +61,9 @@ import { ListenerEditView } from "./views/BI/ServiceDesigner/ListenerEditView";
 import { AIAgentWizard } from "./views/BI/AIAgents/AIAgentWizard";
 import { ServiceClassDesigner } from "./views/BI/ServiceClassEditor/ServiceClassDesigner";
 import { ServiceClassConfig } from "./views/BI/ServiceClassEditor/ServiceClassConfig";
-import { AIAgentDesigner } from "./views/BI/AIAgentDesigner";
+import { AIAgentDesigner } from "./views/BI/AIChatAgent";
 import { AIAgentEditView } from "./views/BI/AIAgents/AIAgentEditView";
+import { AIChatAgentWizard } from "./views/BI/AIChatAgent/AIChatAgentWizard";
 
 const globalStyles = css`
     *,
@@ -247,11 +248,14 @@ const MainPanel = () => {
                     case MACHINE_VIEW.BIComponentView:
                         setViewComponent(<ComponentListView scope={value.scope} />);
                         break;
+                    case MACHINE_VIEW.AIChatAgentWizard:
+                        setViewComponent(<AIChatAgentWizard />);
+                        break;
                     case MACHINE_VIEW.BIServiceWizard:
                         setViewComponent(<ServiceWizard type={value.serviceType} />);
                         break;
                     case MACHINE_VIEW.AIAgentWizard:
-                        setViewComponent(<AIAgentWizard />);
+                        setViewComponent(<AIAgentWizard target={{ filePath: value.documentUri, position: value.metadata.target }} />);
                         break;
                     case MACHINE_VIEW.AIAgentEditView:
                         setViewComponent(<AIAgentEditView agentName={value.identifier} />);

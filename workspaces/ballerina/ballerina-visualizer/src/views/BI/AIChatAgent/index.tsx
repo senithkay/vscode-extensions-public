@@ -34,6 +34,8 @@ import { applyModifications } from "../../../utils/utils";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { TitleBar } from "../../../components/TitleBar";
 import { LoadingRing } from "../../../components/Loader";
+import AgentConfigForm from "../AIAgents/Forms/AgentConfigForm";
+import { AIAgentWizard } from "../AIAgents/AIAgentWizard";
 
 const LoadingContainer = styled.div`
     display: flex;
@@ -211,8 +213,8 @@ export function AIAgentDesigner(props: AIAgentDesignerProps) {
         <View>
             <TopNavigationBar />
             <TitleBar
-                title="AI Agent"
-                subtitle="Configure your AI Agent"
+                title="AI Chat Agent"
+                subtitle="Chattable AI agent using an LLM, prompts and tools."
                 actions={
                     <>
                         <VSCodeButton appearance="secondary" title="Edit Service" onClick={handleServiceEdit}>
@@ -300,7 +302,7 @@ export function AIAgentDesigner(props: AIAgentDesignerProps) {
                                 </VSCodeButton>
                             ))}
                         </InfoContainer>
-                        {/* TODO: Add the AI Agent Config Form here */}
+                        <AIAgentWizard hideTitleBar={true} />
                     </>
                 )}
             </ServiceContainer>

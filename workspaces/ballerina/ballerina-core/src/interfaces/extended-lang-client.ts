@@ -1336,6 +1336,7 @@ export interface AIGentToolsRequest {
     flowNode: FlowNode;
     toolName: string;
     connection: string;
+    description?: string;
 }
 
 export interface AIGentToolsResponse {
