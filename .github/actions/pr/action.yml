@@ -16,7 +16,7 @@ inputs:
     description: 'Ballerina bot token'
     required: true
   wso2-platform:
-    description: 'Is WSO2 Plaform'
+    description: 'Is WSO2 Platform'
     type: boolean
     default: false
   choreo:
