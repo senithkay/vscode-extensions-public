@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -52,6 +52,8 @@ import {
     FunctionNodeResponse,
     GetRecordConfigRequest,
     GetRecordConfigResponse,
+    GetRecordModelFromSourceRequest,
+    GetRecordModelFromSourceResponse,
     GetTypeRequest,
     GetTypeResponse,
     GetTypesRequest,
@@ -80,6 +82,8 @@ import {
     UpdateRecordConfigRequest,
     UpdateTypeRequest,
     UpdateTypeResponse,
+    UpdateTypesRequest,
+    UpdateTypesResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspacesResponse,
@@ -115,8 +119,6 @@ import {
     getReadmeContent,
     getRecordConfig,
     getRecordModelFromSource,
-    GetRecordModelFromSourceRequest,
-    GetRecordModelFromSourceResponse,   
     getRecordNames,
     getRecordSource,
     getServiceClassModel,
@@ -139,7 +141,8 @@ import {
     updateImports,
     updateRecordConfig,
     updateServiceClass,
-    updateType
+    updateType,
+    updateTypes
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -305,6 +308,10 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     updateType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
         return this._messenger.sendRequest(updateType, HOST_EXTENSION, params);
+    }
+
+    updateTypes(params: UpdateTypesRequest): Promise<UpdateTypesResponse> {
+        return this._messenger.sendRequest(updateTypes, HOST_EXTENSION, params);
     }
 
     getServiceClassModel(params: ModelFromCodeRequest): Promise<ServiceClassModelResponse> {

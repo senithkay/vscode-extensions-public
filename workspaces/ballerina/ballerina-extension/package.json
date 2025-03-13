@@ -2,7 +2,7 @@
     "name": "kolab",
     "displayName": "KolaB",
     "description": "KolaB Extension for Kola.",
-    "version": "0.4.8",
+    "version": "0.4.9",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
@@ -98,6 +98,7 @@
                         "description": "Define the scope of the project.",
                         "enum": [
                             "automation",
+                            "ai-agent",
                             "integration-as-api",
                             "event-integration",
                             "file-integration",
@@ -105,6 +106,7 @@
                         ],
                         "enumDescriptions": [
                             "Automation",
+                            "AI Agent",
                             "Integration as API",
                             "Event Integration",
                             "File Integration",
@@ -146,10 +148,10 @@
                         "default": true,
                         "description": "Enable semantic highlighting for Ballerina source."
                     },
-                    "kolab.enableNaturalProgramming": {
+                    "kolab.enableBackgroundDriftCheck": {
                         "type": "boolean",
                         "default": false,
-                        "description": "Enable natural programming for Ballerina source."
+                        "description": "Enable background drift check for Ballerina source."
                     },
                     "kolab.enablePerformanceForecast": {
                         "type": "boolean",
@@ -576,6 +578,11 @@
             {
                 "command": "kolab.open.bi.welcome",
                 "title": "Open Welcome",
+                "category": "BI"
+            },
+            {
+                "command": "kolab.open.bi.new",
+                "title": "New Ballerina Integration",
                 "category": "BI"
             },
             {

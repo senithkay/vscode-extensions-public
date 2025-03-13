@@ -15,7 +15,7 @@ import { useVisualizerContext } from '../../../Context';
 import { CardGrid, PanelViewMore, Title, TitleWrapper } from './styles';
 import { BodyText } from '../../styles';
 import ButtonCard from '../../../components/ButtonCard';
-import { componentListItemTooltip } from './componentListUtils';
+import { OutOfScopeComponentTooltip } from './componentListUtils';
 
 interface EventIntegrationPanelProps {
     scope: SCOPE;
@@ -62,7 +62,7 @@ export function EventIntegrationPanel(props: EventIntegrationPanelProps) {
             <TitleWrapper>
                 <Title variant="h2">Event Integration</Title>
                 <BodyText>
-                    Configure event-driven integrations for your project. Explore the available options below.
+                    Create an integration that can be triggered by an event.
                 </BodyText>
             </TitleWrapper>
             <CardGrid>
@@ -79,7 +79,7 @@ export function EventIntegrationPanel(props: EventIntegrationPanelProps) {
                                         handleClick(DIRECTORY_MAP.SERVICES, item.moduleName);
                                     }}
                                     disabled={isDisabled}
-                                    tooltip={componentListItemTooltip(isDisabled)}
+                                    tooltip={isDisabled ? OutOfScopeComponentTooltip : ""}
                                 />
                             );
                         }
