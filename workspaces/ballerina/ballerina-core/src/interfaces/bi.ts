@@ -340,6 +340,7 @@ export type NodeKind =
     | "AGENT"
     | "AGENT_CALL"
     | "FUNCTION_DEFINITION"
+    | "AUTOMATION"
     | "CONFIG_VARIABLE";
 
 export type OverviewFlow = {
