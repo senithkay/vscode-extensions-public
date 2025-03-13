@@ -47,7 +47,6 @@ export async function buildProjectStructure(projectDir: string, langClient: Exte
 }
 
 async function traverseComponents(components: BallerinaProjectComponents, response: ProjectStructureResponse, langClient: ExtendedLangClientInterface, designModel: CDModel) {
-
     const designServices: ComponentInfo[] = [];
 
     if (designModel) {
@@ -95,7 +94,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
         for (const module of pkg.modules) {
             response.directoryMap[DIRECTORY_MAP.AUTOMATION].push(...await getComponents(langClient, module.automations, pkg.filePath, "task", DIRECTORY_MAP.AUTOMATION));
             response.directoryMap[DIRECTORY_MAP.SERVICES].push(...await getComponents(langClient, designServices.length > 0 ? designServices : module.services, pkg.filePath, "http-service", DIRECTORY_MAP.SERVICES));
-            response.directoryMap[DIRECTORY_MAP.LISTENERS].push(...await getComponents(langClient, module.listeners, pkg.filePath, "http-service", DIRECTORY_MAP.LISTENERS));
+            response.directoryMap[DIRECTORY_MAP.LISTENERS].push(...await getComponents(langClient, module.listeners, pkg.filePath, "http-service", DIRECTORY_MAP.LISTENERS, designModel));
             response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(...await getComponents(langClient, module.functions, pkg.filePath, "function", DIRECTORY_MAP.FUNCTIONS));
             response.directoryMap[DIRECTORY_MAP.CONNECTIONS].push(...await getComponents(langClient, module.moduleVariables, pkg.filePath, "connection", DIRECTORY_MAP.CONNECTIONS));
             response.directoryMap[DIRECTORY_MAP.TYPES].push(...await getComponents(langClient, module.types, pkg.filePath, "type"));
@@ -138,7 +137,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
     }
 }
 
-async function getComponents(langClient: ExtendedLangClientInterface, components: ComponentInfo[], projectPath: string, icon: string, dtype?: DIRECTORY_MAP): Promise<ProjectStructureArtifactResponse[]> {
+async function getComponents(langClient: ExtendedLangClientInterface, components: ComponentInfo[], projectPath: string, icon: string, dtype?: DIRECTORY_MAP, designModel?: CDModel): Promise<ProjectStructureArtifactResponse[]> {
     if (!components) {
         return [];
     }
@@ -169,15 +168,24 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
         }
 
         let iconValue;
-        if (serviceModel?.listenerProtocol === "graphql") {
-            iconValue = "bi-graphql";
+        if (serviceModel?.listenerProtocol) {
+            iconValue = getCustomEntryNodeIcon(serviceModel?.listenerProtocol);
         } else {
             iconValue = comp.name.includes('-') && !serviceModel ? `${comp.name.split('-')[0]}-api` : icon;
+        }
+
+        if (designModel && dtype === DIRECTORY_MAP.LISTENERS) {
+            const listener = designModel.listeners.find(listener => listener.symbol === comp.name);
+            console.log("===>>> listener", { listener });
+            if (listener) {
+                iconValue = getCustomEntryNodeIcon(getTypePrefix(listener.type));
+            }
         }
 
         if (!comp.name && serviceModel) {
             comp.name = `${serviceModel?.listenerProtocol}:Service`
         }
+
 
         const fileEntry: ProjectStructureArtifactResponse = {
             name: dtype === DIRECTORY_MAP.SERVICES ? comp.name || comp.filePath.replace(".bal", "") : comp.name,
@@ -206,3 +214,36 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
     }
     return entries;
 }
+
+function getCustomEntryNodeIcon(type: string) {
+    switch (type) {
+        case "tcp":
+            return "bi-tcp";
+        case "agent":
+            return "bi-ai-agent";
+        case "kafka":
+            return "bi-kafka";
+        case "rabbitmq":
+            return "bi-rabbitmq";
+        case "nats":
+            return "bi-nats";
+        case "mqtt":
+            return "bi-mqtt";
+        case "grpc":
+            return "bi-grpc";
+        case "graphql":
+            return "bi-graphql";
+        case "java.jms":
+            return "bi-java";
+        case "trigger.github":
+            return "bi-github";
+        default:
+            return "bi-http-service";
+    }
+}
+
+const getTypePrefix = (type: string): string => {
+    if (!type) return "";
+    const parts = type.split(":");
+    return parts.length > 1 ? parts[0] : type;
+};

@@ -164,7 +164,7 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
 
     return (
         <DiagramContainer>
-            {project && (
+            {project ? (
                 <Diagram
                     project={project}
                     onListenerSelect={handleGoToListener}
@@ -174,6 +174,10 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
                     onConnectionSelect={handleGoToConnection}
                     onDeleteComponent={handleDeleteComponent}
                 />
+            ) : (
+                <SpinnerContainer>
+                    <ProgressRing color={ThemeColors.PRIMARY} />
+                </SpinnerContainer>
             )}
         </DiagramContainer>
     );
