@@ -256,4 +256,4 @@ function hasNoComponentsOpenInDiagram() {
 
 function isFilePathsEqual(filePath1: string, filePath2: string) {
     return path.normalize(filePath1) === path.normalize(filePath2);
-};
+}

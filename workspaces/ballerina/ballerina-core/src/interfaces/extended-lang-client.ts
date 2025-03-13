@@ -1140,6 +1140,7 @@ export interface Member {
     name?: string;
     docs?: string;
     defaultValue?: string;
+    optional?: boolean;
 }
 
 export interface GetGraphqlTypeRequest {
