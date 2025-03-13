@@ -51,7 +51,7 @@ import * as yaml from 'js-yaml';
 import * as path from 'path';
 import { Uri, commands, window, workspace, WorkspaceEdit, Position } from "vscode";
 import { StateMachine } from "../../stateMachine";
-
+import { injectAgent, injectImportIfMissing, injectAgentCode } from "../../utils/source-utils";
 export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
 
     async getRecordST(params: RecordSTRequest): Promise<RecordSTResponse> {
@@ -230,6 +230,11 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     async injectAIAgent(service: ServiceModel, result: SourceUpdateResponse) {
         // We will only inject if the typpe is ai.agent and serviceType is ChatService
         if (service.type === "ai.agent") {
+            // Inject the import if missing
+            const importStatement = `import ballerinax/ai.agent`;
+            injectImportIfMissing(importStatement, result.filePath);
+            // Inject the agent code
+            await injectAgent("myAgent", StateMachine.context().projectUri);
             // retrive the service model
             const service = await this.getServiceModelFromCode({
                 filePath: result.filePath,
@@ -240,20 +245,13 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     }
                 }
             });
-
             if (!service?.service?.functions?.[0]?.codedata?.lineRange?.endLine) {
                 console.error('Unable to determine injection position: Invalid service structure');
                 return;
             }
             const injectionPosition = service.service.functions[0].codedata.lineRange.endLine;
-
-            // Update the service function code 
             const serviceFile = path.join(StateMachine.context().projectUri, `main.bal`);
-            const serviceEdit = new WorkspaceEdit();
-            const serviceSourceCode = `        return error("Not implemented");
-    `;
-            serviceEdit.insert(Uri.file(serviceFile), new Position(injectionPosition.line, 0), serviceSourceCode);
-            await workspace.applyEdit(serviceEdit);
+            await injectAgentCode("myAgent", serviceFile, injectionPosition);
         }
     }
 

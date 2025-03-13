@@ -306,7 +306,6 @@ export function AIAgentDesigner(props: AIAgentDesignerProps) {
                                 </VSCodeButton>
                             ))}
                         </InfoContainer>
-                        <AIAgentWizard hideTitleBar={true} />
                     </>
                 )}
             </ServiceContainer>
