@@ -178,7 +178,10 @@
                     "ballerina.enableRunFast": {
                         "type": "boolean",
                         "default": false,
-                        "description": "Experimental: Enable compiling & running Ballerina programs inside Language Server resulting in faster execution."
+                        "description": "Enable faster execution by using the Language Server's compilation cache to reduce startup time.",
+                        "tags": [
+                            "experimental"
+                        ]
                     },
                     "ballerina.samplesDownloadDirectory": {
                         "type": "string",
