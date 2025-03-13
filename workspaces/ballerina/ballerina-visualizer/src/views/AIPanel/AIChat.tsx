@@ -1628,7 +1628,12 @@ export function AIChat() {
         assistant_response += `- **Output Record**: ${outputParam}\n`;
         assistant_response += `- **Function Name**: ${functionName}\n`;
 
-        let filePath = activeFile.endsWith(".bal") ? activeFile : "data_mappings.bal";
+        let filePath;
+        if (activeFile && activeFile.endsWith(".bal")) {
+            filePath = activeFile;
+        } else {
+            filePath = "data_mappings.bal";
+        }
         let finalContent = response.mappingCode;
         const needsImports = Array.from(importsMap.values()).length > 0;
 

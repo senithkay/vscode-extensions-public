@@ -8,7 +8,7 @@
  */
 
 import { FunctionDefinition, ModulePart, QualifiedNameReference, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { AI_EVENT_TYPE, ErrorCode, FormField, STModification, SyntaxTree, AttachmentResult, AttachmentStatus, RecordDefinitonObject, ParameterMetadata, ParameterDefinitions, MappingFileRecord } from "@wso2-enterprise/ballerina-core";
+import { AI_EVENT_TYPE, ErrorCode, FormField, STModification, SyntaxTree, AttachmentResult, AttachmentStatus, RecordDefinitonObject, ParameterMetadata, ParameterDefinitions, MappingFileRecord, keywords } from "@wso2-enterprise/ballerina-core";
 import { QuickPickItem, QuickPickOptions, window, workspace } from 'vscode';
 import { UNKNOWN_ERROR } from '../../views/ai-panel/errorCodes';
 
@@ -800,12 +800,13 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
         const temporaryRecord = navigateTypeInfo(field.fields, false);
         context.isRecord = true;
         
-        context.recordFields[field.name] = (temporaryRecord as RecordDefinitonObject).recordFields;
-        context.recordFieldsMetadata[field.name] = {
+        const fieldName = getBalRecFieldName(field.name);
+        context.recordFields[fieldName] = (temporaryRecord as RecordDefinitonObject).recordFields;
+        context.recordFieldsMetadata[fieldName] = {
             nullable: context.isNill,
             optional: field.optional,
             type: "record",
-            typeInstance: field.name,
+            typeInstance: fieldName,
             typeName: field.typeName,
             fields: (temporaryRecord as RecordDefinitonObject).recordFieldsMetadata
         };
@@ -878,11 +879,12 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
         const typeName = field.typeName;
         
         if (field.hasOwnProperty("name")) {
-            context.recordFields[field.name] = { type: typeName, comment: "" };
-            context.recordFieldsMetadata[field.name] = {
+            const fieldName = getBalRecFieldName(field.name);
+            context.recordFields[fieldName] = { type: typeName, comment: "" };
+            context.recordFieldsMetadata[fieldName] = {
                 typeName: typeName,
                 type: typeName,
-                typeInstance: field.name,
+                typeInstance: fieldName,
                 nullable: context.isNill,
                 optional: field.optional
             };
@@ -899,11 +901,12 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
     }
     
     private handleTypeInfo(field: FormField, context: VisitorContext): void {
-        context.recordFields[field.name] = { type: field.typeInfo.name, comment: "" };
-        context.recordFieldsMetadata[field.name] = {
+        const fieldName = getBalRecFieldName(field.name);
+        context.recordFields[fieldName] = { type: field.typeInfo.name, comment: "" };
+        context.recordFieldsMetadata[fieldName] = {
             typeName: field.typeInfo.name,
             type: field.typeInfo.name,
-            typeInstance: field.name,
+            typeInstance: fieldName,
             nullable: context.isNill,
             optional: field.optional
         };
@@ -916,12 +919,13 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
         
         if (context.isUnion && member.hasOwnProperty("name")) {
             memberName = member.name;
-            context.memberRecordFields[member.name] = (temporaryRecord as RecordDefinitonObject).recordFields;
-            context.memberFieldsMetadata[member.name] = {
+            const fieldName = getBalRecFieldName(memberName);
+            context.memberRecordFields[fieldName] = (temporaryRecord as RecordDefinitonObject).recordFields;
+            context.memberFieldsMetadata[fieldName] = {
                 nullable: context.isNill,
                 optional: member.optional,
                 type: "record",
-                typeInstance: member.name,
+                typeInstance: fieldName,
                 typeName: member.typeName,
                 fields: (temporaryRecord as RecordDefinitonObject).recordFieldsMetadata 
             };
@@ -1051,19 +1055,20 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
     }
     
     private addNamedSimpleMember(member: any, memberName: string, context: VisitorContext): void {
+        const fieldName = getBalRecFieldName(member.name);
         context.memberRecordFields = {
             ...context.memberRecordFields,
-            [member.name]: {
+            [fieldName]: {
                 type: memberName,
                 comment: ""
             }
         };
         context.memberFieldsMetadata = {
             ...context.memberFieldsMetadata,
-            [member.name]: {
+            [fieldName]: {
                 typeName: memberName,
                 type: memberName,
-                typeInstance: member.name,
+                typeInstance: fieldName,
                 nullable: context.isNill,
                 optional: member.optional
             }
@@ -1074,12 +1079,13 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
         // Check if typeName is not one of the BasicTypes types
         const BasicTypes = ["int", "string", "float", "boolean", "decimal", "readonly"];
         if (!BasicTypes.includes(memberName)) {
+            const fieldName = getBalRecFieldName(memberName);
             context.memberFieldsMetadata = {
                 ...context.memberFieldsMetadata,
-                [memberName]: {
-                    typeName: memberName,
-                    type: memberName,
-                    typeInstance: memberName,
+                [fieldName]: {
+                    typeName: fieldName,
+                    type: fieldName,
+                    typeInstance: fieldName,
                     nullable: context.isNill,
                     optional: member.optional
                 }
@@ -1103,8 +1109,9 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
         } else {
             resolvedTypeName = `${memberTypeNames.join("|")}`;
         }
-        
-        context.recordFields[field.name] = Object.keys(context.memberRecordFields).length > 0 
+
+        const fieldName = getBalRecFieldName(field.name);
+        context.recordFields[fieldName] = Object.keys(context.memberRecordFields).length > 0 
                                      ? context.memberRecordFields 
                                      : { type: `(${resolvedTypeName})[]`, comment: "" };
         
@@ -1113,7 +1120,8 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
     
     private handleArrayWithRecordType(field: FormField, context: VisitorContext): void {
         const temporaryRecord = navigateTypeInfo(field.memberType.fields, false);
-        context.recordFields[field.name] = (temporaryRecord as RecordDefinitonObject).recordFields;
+        const fieldName = getBalRecFieldName(field.name);
+        context.recordFields[fieldName] = (temporaryRecord as RecordDefinitonObject).recordFields;
         context.isArray = true;
         context.isRecord = true;
         
@@ -1121,7 +1129,7 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
             optional: field.optional,
             typeName: "record[]",
             type: "record[]",
-            typeInstance: field.name,
+            typeInstance: fieldName,
             fields: (temporaryRecord as RecordDefinitonObject).recordFieldsMetadata
         };
         
@@ -1142,11 +1150,12 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
             context.memberRecordFields = {};
             context.memberFieldsMetadata = {};
         } else {
-            context.recordFields[field.name] = { type: typeName, comment: "" };
-            context.recordFieldsMetadata[field.name] = {
+            const fieldName = getBalRecFieldName(field.name);
+            context.recordFields[fieldName] = { type: typeName, comment: "" };
+            context.recordFieldsMetadata[fieldName] = {
                 typeName: typeName,
                 type: typeName,
-                typeInstance: field.name,
+                typeInstance: fieldName,
                 nullable: context.isNill,
                 optional: field.optional
             };
@@ -1218,7 +1227,8 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
         };
         
         this.applyNullabilityToFieldMetadata(context);
-        context.recordFieldsMetadata[field.name] = context.fieldMetadata;
+        const fieldName = getBalRecFieldName(field.name);
+        context.recordFieldsMetadata[fieldName] = context.fieldMetadata;
     }
     
     private applyNullabilityToFieldMetadata(context: VisitorContext): void {
@@ -1242,10 +1252,11 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
     }
     
     private setFieldAndMetadata(field: FormField, resolvedTypeName: string, context: VisitorContext): void {
-        context.recordFields[field.name] = Object.keys(context.memberRecordFields).length > 0 
+        const fieldName = getBalRecFieldName(field.name);
+        context.recordFields[fieldName] = Object.keys(context.memberRecordFields).length > 0 
                                      ? context.memberRecordFields 
                                      : { type: resolvedTypeName, comment: "" };
-        context.recordFieldsMetadata[field.name] = context.fieldMetadata;
+        context.recordFieldsMetadata[fieldName] = context.fieldMetadata;
     }
     
     private resetContext(context: VisitorContext): void {
@@ -1293,6 +1304,10 @@ function navigateTypeInfo(
         "recordFields": context.recordFields, 
         "recordFieldsMetadata": context.recordFieldsMetadata 
     };
+}
+
+export function getBalRecFieldName(fieldName: string) {
+    return keywords.includes(fieldName) ? `'${fieldName}` : fieldName;
 }
 
 export async function getDatamapperCode(parameterDefinitions: ErrorCode | ParameterMetadata): Promise<object | ErrorCode> {
