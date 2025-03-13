@@ -34,7 +34,10 @@ import path from "path";
 import * as fs from 'fs';
 
 export const BACKEND_API_URL_V2 = getPluginConfig().get('rootUrl') as string;
-export const CONTEXT_UPLOAD_URL_V1 = getPluginConfig().get('contextUploadServiceUrl') as string;
+const BACKEND_BASE_URL = BACKEND_API_URL_V2.replace(/\/v2\.0$/, "");
+const CONTEXT_UPLOAD_URL_V1 = BACKEND_BASE_URL + "/context-api/v1.0";
+const ASK_API_URL_V1 = BACKEND_BASE_URL + "/ask-api/v1.0";
+
 const REQUEST_TIMEOUT = 2000000;
 
 let abortController = new AbortController();
@@ -1411,7 +1414,7 @@ async function sendDatamapperRequest(parameterDefinitions: ParameterMetadata | E
 async function sendMappingFileUploadRequest(file: Blob): Promise<Response | ErrorCode> {
     const formData = new FormData();
     formData.append("file", file);
-    const response = await fetch(CONTEXT_UPLOAD_URL_V1 + "/file_upload/generate_mapping_instruction", {
+    const response = await fetchWithToken(CONTEXT_UPLOAD_URL_V1 + "/file_upload/generate_mapping_instruction", {
         method: "POST",
         body: formData
     });
@@ -1419,8 +1422,7 @@ async function sendMappingFileUploadRequest(file: Blob): Promise<Response | Erro
 }
 
 export async function searchDocumentation(message: string): Promise<string | ErrorCode> {
-    const BACKEND_API_URL ="https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/ballerina-copilot/documentation-assist/v1.0";
-    const response = await fetch(BACKEND_API_URL + "/documentation-assistant", {
+    const response = await fetchWithToken(ASK_API_URL_V1 + "/documentation-assistant", {
         method: "POST",
         headers: {
             'Accept': 'application/json',
@@ -1508,7 +1510,7 @@ export async function getMappingFromFile(file: Blob): Promise<MappingFileRecord 
 async function sendTypesFileUploadRequest(file: Blob): Promise<Response | ErrorCode> {
     const formData = new FormData();
     formData.append("file", file);
-    const response = await fetch(CONTEXT_UPLOAD_URL_V1 + "/file_upload/generate_record", {
+    const response = await fetchWithToken(CONTEXT_UPLOAD_URL_V1 + "/file_upload/generate_record", {
         method: "POST",
         body: formData
     });
@@ -2120,7 +2122,7 @@ async function processCombinedKey(
 async function sendRequirementFileUploadRequest(file: Blob): Promise<Response | ErrorCode> {
     const formData = new FormData();
     formData.append("file", file);
-    const response = await fetch(CONTEXT_UPLOAD_URL_V1 + "/file_upload/extract_requirements", {
+    const response = await fetchWithToken(CONTEXT_UPLOAD_URL_V1 + "/file_upload/extract_requirements", {
         method: "POST",
         body: formData
     });
@@ -2162,4 +2164,27 @@ export async function requirementsSpecification(filepath: string): Promise<strin
 function getBase64FromFile(filePath) {
     const fileBuffer = fs.readFileSync(filePath);
     return fileBuffer.toString('base64');
+}
+
+export async function fetchWithToken(url: string, options: RequestInit) {
+    const accessToken = await getAccessToken();
+    options.headers = {
+        ...options.headers,
+        'Authorization': `Bearer ${accessToken}`,
+    };
+    let response = await fetch(url, options);
+    console.log("Response status: ", response.status);
+    if (response.status === 401) {
+        console.log("Token expired. Refreshing token...");
+        const newToken = await refreshAccessToken();
+        console.log("refreshed token : " + newToken);
+        if (newToken) {
+            options.headers = {
+                ...options.headers,
+                'Authorization': `Bearer ${newToken}`,
+            };
+            response = await fetch(url, options);
+        }
+    }
+    return response;
 }
