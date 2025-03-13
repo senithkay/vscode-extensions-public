@@ -21,7 +21,7 @@ import {
     resetDiagramZoomAndPosition,
 } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
-import { Flow, NodeModel, FlowNode, Branch, LineRange, NodePosition } from "../utils/types";
+import { Flow, NodeModel, FlowNode, Branch, LineRange, NodePosition, ToolData } from "../utils/types";
 import { traverseFlow } from "../utils/ast";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { NodeLinkModel } from "./NodeLink";
@@ -49,6 +49,13 @@ export interface DiagramProps {
     onConnectionSelect?: (connectionName: string) => void;
     goToSource?: (node: FlowNode) => void;
     openView?: (filePath: string, position: NodePosition) => void;
+    // agent node callbacks
+    agentNode?: {
+        onModelSelect: (node: FlowNode) => void;
+        onAddTool: (node: FlowNode) => void;
+        onSelectTool: (tool: ToolData, node: FlowNode) => void;
+        onDeleteTool: (tool: ToolData, node: FlowNode) => void;
+    };
     // ai suggestions callbacks
     suggestions?: {
         fetching: boolean;
@@ -71,6 +78,7 @@ export function Diagram(props: DiagramProps) {
         onConnectionSelect,
         goToSource,
         openView,
+        agentNode,
         suggestions,
         projectPath,
         addBreakpoint,
@@ -198,6 +206,7 @@ export function Diagram(props: DiagramProps) {
         onConnectionSelect: onConnectionSelect,
         goToSource: goToSource,
         openView: openView,
+        agentNode: agentNode,
         suggestions: suggestions,
         projectPath: projectPath,
         readOnly: onAddNode === undefined || onDeleteNode === undefined || onNodeSelect === undefined || readOnly,
