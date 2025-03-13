@@ -126,13 +126,9 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
         rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
 
-    const handleResourceTryIt = (methodValue: string, pathValue: string) => {
-        const commands = ["ballerina.tryit", false, { methodValue, pathValue }, { basePath, listener }]
-        rpcClient.getCommonRpcClient().executeCommand({ commands });
-    };
-
     let isAutomation = false;
     let isResource = false;
+    let isAgent = false;
     let method = "";
     const parameters = getParameters(syntaxTree);
 
@@ -148,12 +144,22 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
         isAutomation = true;
     }
 
+    if (serviceType === 'ai.agent') {
+        isAgent = true;
+    }
+
+    const handleResourceTryIt = (methodValue: string, pathValue: string, serviceType: string) => {
+        const resource = serviceType === 'http' ? { methodValue, pathValue } : undefined;
+        const commands = ["ballerina.tryit", false, resource, { basePath, listener }]
+        rpcClient.getCommonRpcClient().executeCommand({ commands });
+    };
+
     return (
         <View>
             <TopNavigationBar />
             {isResource && !isAutomation && (
                 <TitleBar
-                    title={"Resource"}
+                    title={isAgent ? "AI Chat Agent" : "Resource"}
                     subtitleElement={
                         <SubTitleWrapper>
                             <AccessorType>{method}</AccessorType>
@@ -162,10 +168,10 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                         </SubTitleWrapper>
                     }
                     actions={
-                        serviceType === 'http' ? (
+                        serviceType === 'http' || isAgent ? (
                             <ActionButton appearance="secondary" onClick={() => handleResourceTryIt(method, getResourcePath(syntaxTree))}      >
-                                <Icon name="play" isCodicon={true} sx={{ marginRight: 5, width: 16, height: 16, fontSize: 14 }} />
-                                Try It
+                                <Icon name={isAgent ? "comment-discussion" : "play"} isCodicon={true} sx={{ marginRight: 5, width: 16, height: 16, fontSize: 14 }} />
+                                {isAgent ? "Chat" : "Try It"}
                             </ActionButton>
                         ) : null
                     }
@@ -204,7 +210,7 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                     }
                 />
             )}
-            {enableSequenceDiagram && (
+            {enableSequenceDiagram && !isAgent && (
                 <Switch
                     leftLabel="Flow"
                     rightLabel="Sequence"
