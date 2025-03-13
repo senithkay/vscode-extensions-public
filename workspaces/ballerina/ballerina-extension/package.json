@@ -31,7 +31,8 @@
         "onUri"
     ],
     "extensionDependencies": [
-        "anweber.httpbook"
+        "anweber.httpbook",
+        "WSO2.wso2-platform"
     ],
     "contributes": {
         "languages": [
@@ -74,7 +75,7 @@
         "configuration": [
             {
                 "type": "object",
-                "title": "WSO2 Ballerina",
+                "title": "Ballerina",
                 "properties": {
                     "ballerina.pluginDevMode": {
                         "type": "boolean",
@@ -218,7 +219,7 @@
             },
             {
                 "type": "object",
-                "title": "WSO2 Ballerina Integrator",
+                "title": "Ballerina Integrator",
                 "properties": {
                     "ballerina.enableSequenceDiagramView": {
                         "type": "boolean",
@@ -601,7 +602,7 @@
             },
             {
                 "command": "BI.project-explorer.refresh",
-                "title": "Refresh WSO2 Ballerina",
+                "title": "Refresh Ballerina",
                 "category": "BI"
             },
             {

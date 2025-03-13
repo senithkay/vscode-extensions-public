@@ -411,7 +411,7 @@ export class BallerinaExtension {
             let res: DownloadProgress = {
                 message: `Success..`,
                 success: true,
-                step: 14 // This is the last step
+                step: 5 // This is the last step
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             console.log('Ballerina has been installed successfully');
@@ -444,7 +444,7 @@ export class BallerinaExtension {
                 percentage: 0,
                 success: false,
                 totalSize: 0,
-                step: 10
+                step: 5
             };
             try {
                 RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
@@ -476,15 +476,15 @@ export class BallerinaExtension {
                                 }
 
                                 // Sizes will be sent as MB
-                                res = {
-                                    downloadedSize: progressEvent.loaded / sizeMB,
-                                    message: "Downloading...",
-                                    percentage: percentCompleted,
-                                    success: false,
-                                    totalSize: progressEvent.total / sizeMB,
-                                    step: 11
-                                };
-                                RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+                                // res = {
+                                //     downloadedSize: progressEvent.loaded / sizeMB,
+                                //     message: "Downloading...",
+                                //     percentage: percentCompleted,
+                                //     success: false,
+                                //     totalSize: progressEvent.total / sizeMB,
+                                //     step: 5
+                                // };
+                                // RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
                             }
                         });
                         return;
@@ -511,7 +511,7 @@ export class BallerinaExtension {
                 ...res,
                 message: `Setting the Ballerina dependencies...`,
                 success: false,
-                step: 12
+                step: 5
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             const zip = new AdmZip(zipFilePath);
@@ -522,7 +522,7 @@ export class BallerinaExtension {
                 ...res,
                 message: `Cleaning up the temporary files...`,
                 success: false,
-                step: 13
+                step: 5
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             fs.rmSync(zipFilePath);
@@ -551,7 +551,7 @@ export class BallerinaExtension {
                 percentage: 0,
                 success: false,
                 totalSize: 0,
-                step: 6
+                step: 4
             };
             try {
                 RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
@@ -589,7 +589,7 @@ export class BallerinaExtension {
                                     percentage: percentCompleted,
                                     success: false,
                                     totalSize: progressEvent.total / sizeMB,
-                                    step: 7
+                                    step: 4
                                 };
                                 RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
                             }
@@ -617,7 +617,7 @@ export class BallerinaExtension {
                 ...res,
                 message: `Setting the Ballerina Home location...`,
                 success: false,
-                step: 8
+                step: 4
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             const zip = new AdmZip(zipFilePath);
@@ -628,7 +628,7 @@ export class BallerinaExtension {
                 ...res,
                 message: `Cleaning up the temporary files...`,
                 success: false,
-                step: 9
+                step: 4
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             fs.rmSync(zipFilePath);
@@ -705,15 +705,15 @@ export class BallerinaExtension {
                                 }
 
                                 // Sizes will be sent as MB
-                                res = {
-                                    downloadedSize: progressEvent.loaded / sizeMB,
-                                    message: "Downloading...",
-                                    percentage: percentCompleted,
-                                    success: false,
-                                    totalSize: progressEvent.total / sizeMB,
-                                    step: 3
-                                };
-                                RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+                                // res = {
+                                //     downloadedSize: progressEvent.loaded / sizeMB,
+                                //     message: "Downloading...",
+                                //     percentage: percentCompleted,
+                                //     success: false,
+                                //     totalSize: progressEvent.total / sizeMB,
+                                //     step: 2
+                                // };
+                                // RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
                             }
                         });
                         return;
@@ -739,7 +739,7 @@ export class BallerinaExtension {
                 ...res,
                 message: `Setting the Ballerina Home location...`,
                 success: false,
-                step: 4
+                step: 3
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             const zip = new AdmZip(zipFilePath);
@@ -752,7 +752,7 @@ export class BallerinaExtension {
                 ...res,
                 message: `Cleaning up the temporary files...`,
                 success: false,
-                step: 5
+                step: 3
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             fs.rmSync(zipFilePath);
@@ -924,7 +924,7 @@ export class BallerinaExtension {
                 await window.withProgress(
                     {
                         location: ProgressLocation.Notification,
-                        title: `Downloading WSO2 Ballerina Integrator distribution`,
+                        title: `Downloading Ballerina Integrator distribution`,
                         cancellable: false,
                     },
                     async (progress) => {
@@ -979,11 +979,11 @@ export class BallerinaExtension {
             console.log(`Downloaded artifact to ${zipFilePath}`);
 
             if (restartWindow) {
-                window.showInformationMessage("Setting the WSO2 Ballerina Integrator Home location...");
+                window.showInformationMessage("Setting the Ballerina Integrator Home location...");
             }
             res = {
                 ...res,
-                message: `Setting the WSO2 Ballerina Integrator Home location...`,
+                message: `Setting the Ballerina Integrator Home location...`,
                 success: false,
                 step: 4
             };
@@ -1031,7 +1031,7 @@ export class BallerinaExtension {
         let res: DownloadProgress = {
             message: `Setting the configurable values in vscode...`,
             success: false,
-            step: 9
+            step: 5
         };
         RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
         workspace.getConfiguration().update(BALLERINA_HOME, this.ballerinaHome, ConfigurationTarget.Global);
@@ -1043,7 +1043,7 @@ export class BallerinaExtension {
             let res: DownloadProgress = {
                 message: `Setting the Ballerina distribution permissions...`,
                 success: false,
-                step: 10
+                step: 5
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
 
