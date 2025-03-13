@@ -106,6 +106,7 @@ async function getContext(): Promise<VisualizerLocation> {
             serviceType: context.serviceType,
             type: context.type,
             isGraphql: context.isGraphql,
+            focusFlowDiagramView: context.focusFlowDiagramView,
             metadata: {
                 haveLS: StateMachine.langClient() && true,
                 recordFilePath: path.join(context.projectUri, "types.bal"),

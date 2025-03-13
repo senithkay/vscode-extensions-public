@@ -23,6 +23,7 @@ export type FormField = {
     optional: boolean;
     advanced?: boolean;
     editable: boolean;
+    hidden?: boolean;
     placeholder?: string;
     documentation: string;
     value: string | any[];
