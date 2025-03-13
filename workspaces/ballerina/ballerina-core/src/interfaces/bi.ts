@@ -205,6 +205,7 @@ export enum DIRECTORY_SUB_TYPE {
     SERVICE = "service",
     AUTOMATION = "automation",
     TRIGGER = "trigger",
+    LISTENER = "listener",
     DATA_MAPPER = "dataMapper",
     NATURAL_FUNCTION = "naturalFunction",
     AGENTS = "agents",
