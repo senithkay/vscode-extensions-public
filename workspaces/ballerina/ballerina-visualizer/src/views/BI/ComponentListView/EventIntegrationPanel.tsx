@@ -111,15 +111,15 @@ export function getCustomEntryNodeIcon(type: string) {
         case "kafka":
             return <Icon name="bi-kafka" />;
         case "rabbitmq":
-            return <Icon name="bi-rabbitmq" />;
+            return <Icon name="bi-rabbitmq" sx={{ color: "#f60" }} />;
         case "nats":
             return <Icon name="bi-nats" />;
         case "mqtt":
-            return <Icon name="bi-mqtt" />;
+            return <Icon name="bi-mqtt" sx={{ color: "#606" }} />;
         case "grpc":
             return <Icon name="bi-grpc" />;
         case "graphql":
-            return <Icon name="bi-graphql" />;
+            return <Icon name="bi-graphql" sx={{ color: "#e535ab" }} />;
         case "java.jms":
             return <Icon name="bi-java" />;
         case "trigger.github":
