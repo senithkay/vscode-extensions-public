@@ -27,6 +27,12 @@ namespace S {
     export const StyledButton = styled(Button)`
         border-radius: 5px;
     `;
+
+    export const TitleContainer = styled.div`
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    `;
 }
 
 export function PanelContainer(props: PanelContainerProps) {
@@ -48,12 +54,14 @@ export function PanelContainer(props: PanelContainerProps) {
         >
             {title && (
                 <SidePanelTitleContainer>
-                    {onBack && (
-                        <S.StyledButton appearance="icon" onClick={onBack}>
-                            <BackIcon />
-                        </S.StyledButton>
-                    )}
+                    <S.TitleContainer>
+                        {onBack && (
+                            <S.StyledButton appearance="icon" onClick={onBack}>
+                                <BackIcon />
+                            </S.StyledButton>
+                        )}
                     {title}
+                    </S.TitleContainer>
                     <S.StyledButton appearance="icon" onClick={onClose}>
                         <CloseIcon />
                     </S.StyledButton>

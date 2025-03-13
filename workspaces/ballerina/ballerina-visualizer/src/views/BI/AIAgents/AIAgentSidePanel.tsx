@@ -39,7 +39,7 @@ import {
     BISearchRequest,
     AgentTool,
     CodeData,
-    AgentToolRequest
+    AgentToolRequest,
 } from "@wso2-enterprise/ballerina-core";
 
 import {
@@ -73,7 +73,7 @@ interface ColoredTagProps {
     color: string;
 }
 
-const ColoredTag = styled(VSCodeTag) <ColoredTagProps>`
+const ColoredTag = styled(VSCodeTag)<ColoredTagProps>`
     ::part(control) {
         color: var(--button-primary-foreground);
         background-color: ${({ color }: ColoredTagProps) => color};
@@ -141,7 +141,9 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
                     console.error(">>> Error getting available nodes", response);
                     return;
                 }
-                const connectionsCategory = response.categories.filter(item => item.metadata.label === "Connections") as Category[];
+                const connectionsCategory = response.categories.filter(
+                    (item) => item.metadata.label === "Connections"
+                ) as Category[];
                 console.log("connectionsCategory", connectionsCategory);
                 const convertedCategories = convertBICategoriesToSidePanelCategories(connectionsCategory);
                 console.log("convertedCategories", convertedCategories);
@@ -157,8 +159,11 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
             });
     };
 
-
-    const handleSearchFunction = async (searchText: string, functionType: FUNCTION_TYPE, isSearching: boolean = true) => {
+    const handleSearchFunction = async (
+        searchText: string,
+        functionType: FUNCTION_TYPE,
+        isSearching: boolean = true
+    ) => {
         const request: BISearchRequest = {
             position: {
                 startLine: targetRef.current.startLine,
@@ -167,11 +172,11 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
             filePath: projectPath,
             queryMap: searchText.trim()
                 ? {
-                    q: searchText,
-                    limit: 12,
-                    offset: 0,
-                    includeAvailableFunctions: "true",
-                }
+                      q: searchText,
+                      limit: 12,
+                      offset: 0,
+                      includeAvailableFunctions: "true",
+                  }
                 : undefined,
             searchKind: "FUNCTION",
         };
@@ -181,13 +186,15 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
             return;
         }
         if (isSearching && searchText) {
-            setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[], functionType));
+            setCategories(
+                convertFunctionCategoriesToSidePanelCategories(response.categories as Category[], functionType)
+            );
             return;
         }
         if (!response || !response.categories) {
             return [];
         }
-        return convertFunctionCategoriesToSidePanelCategories(response.categories as Category[], functionType)
+        return convertFunctionCategoriesToSidePanelCategories(response.categories as Category[], functionType);
     };
 
     const handleOnSelectNode = (nodeId: string, metadata?: any) => {
@@ -221,7 +228,7 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
             location: {
                 view: MACHINE_VIEW.BIFunctionForm,
             },
-            isPopup: true
+            isPopup: true,
         });
     };
 
@@ -233,8 +240,8 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
         console.log("Tool name", data);
         const toolModel: AgentToolRequest = {
             toolName: data["name"],
-            selectedCodeData: selectedNodeCodeData
-        }
+            selectedCodeData: selectedNodeCodeData,
+        };
         console.log("New Agent Tool:", toolModel);
         onSubmit(toolModel);
         handleOnCancel();
@@ -270,26 +277,40 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
         }
     };
 
-    const field: FormField = {
-        key: `name`,
-        label: "Tool Name",
-        type: "IDENTIFIER",
-        optional: false,
-        editable: true,
-        documentation: "Enter the name of the tool.",
-        value: "",
-        valueTypeConstraint: "",
-        enabled: true
-    }
+    const fields: FormField[] = [
+        {
+            key: `name`,
+            label: "Tool Name",
+            type: "IDENTIFIER",
+            optional: false,
+            editable: true,
+            documentation: "Enter the name of the tool.",
+            value: "",
+            valueTypeConstraint: "",
+            enabled: true,
+        },
+        {
+            key: `description`,
+            label: "Description",
+            type: "TEXTAREA",
+            optional: false,
+            editable: true,
+            documentation: "Enter the description of the tool.",
+            value: "",
+            valueType: "STRING",
+            valueTypeConstraint: "",
+            enabled: true,
+        },
+    ];
 
     const handleOnCancel = () => {
         setSidePanelView(SidePanelView.NODE_LIST);
-    }
+    };
 
     const handleOnBack = () => {
         onBack();
         setSidePanelView(SidePanelView.NODE_LIST);
-    }
+    };
 
     return (
         <>
@@ -315,7 +336,7 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
                         <FormGeneratorNew
                             fileName={projectPath}
                             targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
-                            fields={[field]}
+                            fields={fields}
                             onBack={handleOnCancel}
                             onSubmit={handleToolSubmit}
                             submitText={"Save Tool"}
