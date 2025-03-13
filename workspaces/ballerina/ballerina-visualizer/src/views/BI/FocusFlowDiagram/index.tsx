@@ -111,31 +111,27 @@ export function BIFocusFlowDiagram(props: BIFocusFlowDiagramProps) {
                 rpcClient
                     .getBIDiagramRpcClient()
                     .getFlowModel()
-                    .then((model) => {
+                    .then(async (model) => {
                         if (model?.flowModel) {
                             if (isNaturalFunction(syntaxTree, view)) {
-                                rpcClient
-                                    .getBIDiagramRpcClient()
-                                    .getFunctionNode({
-                                        projectPath,
-                                        fileName: filePath,
-                                        functionName: syntaxTree.functionName.value
-                                    })
-                                    .then((node) => {
-                                        if (node?.functionDefinition) {
-                                            const flowNode = getFlowNodeForNaturalFunction(node.functionDefinition);
-                                            model.flowModel.nodes.push(flowNode);
-                                            setModel(model.flowModel);
-                                            onReady(filePath);
-                                        }
-                                    })
-                                    .finally(() => {
-                                        setShowProgressIndicator(false);
-                                        onReady(undefined);
-                                    });
+                                const node = await rpcClient.getBIDiagramRpcClient().getFunctionNode({
+                                    projectPath,
+                                    fileName: filePath,
+                                    functionName: syntaxTree.functionName.value
+                                });
+                                if (node?.functionDefinition) {
+                                    const flowNode = getFlowNodeForNaturalFunction(node.functionDefinition);
+                                    model.flowModel.nodes.push(flowNode);
+                                    setModel(model.flowModel);
+                                    onReady(filePath);
+                                }
                             }
                         }
                     })
+                    .finally(() => {
+                        setShowProgressIndicator(false);
+                        onReady(undefined);
+                    });
             });
     };
 
