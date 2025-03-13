@@ -69,7 +69,8 @@ import {
     GetRecordModelFromSourceResponse,
     GetRecordModelFromSourceRequest,
     UpdateTypesRequest,
-    UpdateTypesResponse
+    UpdateTypesResponse,
+    DeploymentResponse
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -116,7 +117,7 @@ export interface BIDiagramAPI {
     getReadmeContent: () => Promise<ReadmeContentResponse>;
     openReadme: () => void;
     renameIdentifier: (params: RenameIdentifierRequest) => Promise<void>;
-    deployProject: () => void;
+    deployProject: () => Promise<DeploymentResponse>;
     openAIChat: (params: AIChatRequest) => void;
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
     buildProject: (mode: BuildMode) => void;
