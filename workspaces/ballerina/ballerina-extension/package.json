@@ -799,7 +799,7 @@
                 {
                     "when": "isBalVisualizerActive && showBalGoToSource",
                     "command": "kolab.show.source",
-                    "group": "navigation@3",
+                    "group": "navigation@4",
                     "title": "Show Source"
                 },
                 {
@@ -810,13 +810,13 @@
                 },
                 {
                     "command": "BI.project.run",
-                    "group": "navigation@1",
+                    "group": "navigation@2",
                     "title": "Run Integration",
                     "when": "isBalVisualizerActive && isBIProject"
                 },
                 {
                     "command": "BI.project.debug",
-                    "group": "navigation@1",
+                    "group": "navigation@3",
                     "title": "Debug Integration",
                     "when": "isBalVisualizerActive && isBIProject"
                 }
