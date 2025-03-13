@@ -186,6 +186,8 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
             comp.name = `${serviceModel?.listenerProtocol}:Service`
         }
 
+        console.log("===>>> ICON VALUE",  iconValue );
+
         const fileEntry: ProjectStructureArtifactResponse = {
             name: dtype === DIRECTORY_MAP.SERVICES ? comp.name || comp.filePath.replace(".bal", "") : comp.name,
             path: componentFile,
@@ -218,6 +220,8 @@ function getCustomEntryNodeIcon(type: string) {
     switch (type) {
         case "tcp":
             return "bi-tcp";
+        case "agent":
+            return "bi-ai-agent";
         case "kafka":
             return "bi-kafka";
         case "rabbitmq":
@@ -242,5 +246,5 @@ function getCustomEntryNodeIcon(type: string) {
 const getTypePrefix = (type: string): string => {
     if (!type) return "";
     const parts = type.split(":");
-    return parts[0] || "";
+    return parts.length > 1 ? parts[0] : type;
 };
