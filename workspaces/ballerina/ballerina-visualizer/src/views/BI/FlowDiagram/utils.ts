@@ -40,17 +40,15 @@ export const transformCategories = (categories: Category[]): Category[] => {
     
     // remove agents from categories
     filteredCategories = filteredCategories.filter((category) => category.metadata.label !== "Agents");
-    
-    // rename "Prompt as code" from categories to "AI" and move it to 2nd position
-    const aiCategory = cloneDeep(filteredCategories.find((category) => category.metadata.label === "Prompt as code"));
-    if (aiCategory) {
-        aiCategory.metadata.label = "AI";
-    }
-    
-    // remove "Prompt as code" from categories
-    filteredCategories = filteredCategories.filter(
-        (category) => category.metadata.label !== "Prompt as code"
-    );
+
+    // create category for AI
+    const aiCategory: Category = {
+        metadata: {
+            label: "AI",
+            description: "Nodes related to AI functionalities",
+        },
+        items: []
+    };
     
     // add ai category to 2nd position
     filteredCategories.splice(1, 0, aiCategory);
