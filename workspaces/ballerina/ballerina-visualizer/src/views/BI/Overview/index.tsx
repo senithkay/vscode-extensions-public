@@ -15,7 +15,8 @@ import {
     EVENT_TYPE,
     MACHINE_VIEW,
     BuildMode,
-    DevantComponentResponse
+    DevantComponentResponse,
+    BI_COMMANDS
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Typography, Codicon, ProgressRing, Button, Icon, Divider, CheckBox } from "@wso2-enterprise/ui-toolkit";
@@ -79,6 +80,12 @@ const HeaderRow = styled.div`
     padding: 16px 0 16px 16px;
     background: var(--vscode-editor-background);
     border-bottom: 1px solid var(--vscode-dropdown-border);
+`;
+
+const HeaderControls = styled.div`
+    display: flex;
+    gap: 8px;
+    margin-right: 16px;
 `;
 
 const MainContent = styled.div`
@@ -662,8 +669,12 @@ export function Overview(props: ComponentDiagramProps) {
         rpcClient.getBIDiagramRpcClient().openReadme();
     };
 
-    const handlePlay = () => {
-        rpcClient.getBIDiagramRpcClient().runProject();
+    const handleLocalRun = () => {
+        rpcClient.getCommonRpcClient().executeCommand({ commands: [BI_COMMANDS.BI_RUN_PROJECT] });
+    };
+
+    const handleLocalDebug = () => {
+        rpcClient.getCommonRpcClient().executeCommand({ commands: [BI_COMMANDS.BI_DEBUG_PROJECT] });
     };
 
     const handleDockerBuild = () => {
@@ -687,11 +698,14 @@ export function Overview(props: ComponentDiagramProps) {
                     <ProjectTitle>{projectStructure.projectName || workspaceName}</ProjectTitle>
                     <ProjectSubtitle>Integration</ProjectSubtitle>
                 </TitleContainer>
-                <IconButtonContainer>
-                    <Button appearance="icon" onClick={handlePlay} buttonSx={{ padding: "4px 8px" }}>
-                        <Codicon name="play" sx={{ marginRight: 5 }} /> Run & Debug
+                <HeaderControls>
+                    <Button appearance="icon" onClick={handleLocalRun} buttonSx={{ padding: "4px 8px" }}>
+                        <Codicon name="play" sx={{ marginRight: 5 }} /> Run
                     </Button>
-                </IconButtonContainer>
+                    <Button appearance="icon" onClick={handleLocalDebug} buttonSx={{ padding: "4px 8px" }}>
+                        <Codicon name="debug" sx={{ marginRight: 5 }} /> Debug
+                    </Button>
+                </HeaderControls>
             </HeaderRow>
 
             <MainContent>
