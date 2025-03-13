@@ -130,16 +130,6 @@ export async function getView(documentUri: string, position: NodePosition, proje
                         projectUri: projectUri
                     }
                 };
-            }
-            else if (expr?.typeData?.typeSymbol?.signature?.includes("ballerinax/ai.agent")
-                && expr?.typeData?.typeSymbol?.signature?.includes("Listener")) {
-                return {
-                    location: {
-                        view: MACHINE_VIEW.AIAgentDesigner,
-                        documentUri: documentUri,
-                        position: position
-                    }
-                };
             } else {
                 return {
                     location: {
