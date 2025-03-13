@@ -15,6 +15,7 @@ import { LATEST_CAR_PLUGIN_VERSION } from './templates';
 import { runCommand } from '../test-explorer/runner';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
 
+const AdmZip = require('adm-zip');
 // Add Latest MI version as the first element in the array
 export const supportedJavaVersionsForMI: { [key: string]: string } = {
     '4.4.0': '21',
@@ -28,6 +29,7 @@ const miDownloadUrls: { [key: string]: string } = {
     '4.4.0': 'https://mi-distribution.wso2.com/4.4.0/wso2mi-4.4.0.zip',
     '4.3.0': 'https://mi-distribution.wso2.com/4.3.0/wso2mi-4.3.0.zip'
 };
+const miUpdateVersionCheckUrl = 'https://mi-distribution.wso2.com/versions.json';
 
 const CACHED_FOLDER = path.join(os.homedir(), '.wso2-mi');
 
@@ -43,12 +45,12 @@ export async function setupEnvironment(projectUri: string, isOldProject: boolean
             }
             setupConfigFiles(projectUri);
         }
-        const { miDetails } = await getProjectSetupDetails();
-        if (!(miDetails && miDetails.version)) {
+        const { miVersionFromPom } = await getProjectSetupDetails();
+        if (!miVersionFromPom) {
             return false;
         }
-        const isMISet = await isMISetup(miDetails.version);
-        const isJavaSet = await isJavaSetup(miDetails.version);
+        const isMISet = await isMISetup(miVersionFromPom);
+        const isJavaSet = await isJavaSetup(miVersionFromPom);
 
         return isMISet && isJavaSet;
     } catch (error) {
@@ -66,7 +68,7 @@ export async function getProjectSetupDetails(): Promise<SetupDetails> {
     if (isSupportedMIVersion(miVersion)) {
         const recommendedVersions = { miVersion, javaVersion: supportedJavaVersionsForMI[miVersion] };
         const setupDetails = await getJavaAndMIPathsFromWorkspace(miVersion);
-        return { ...setupDetails, miVersionStatus: 'valid', showDownloadButtons: isDownloadableMIVersion(miVersion), recommendedVersions };
+        return { ...setupDetails, miVersionStatus: 'valid', showDownloadButtons: isDownloadableMIVersion(miVersion), recommendedVersions, miVersionFromPom: miVersion };
     }
 
     return { miVersionStatus: 'not-valid', javaDetails: { status: 'not-valid' }, miDetails: { status: 'not-valid' } };
@@ -146,9 +148,9 @@ async function isMISetup(miVersion: string): Promise<boolean> {
             }
         }
 
-        const miCachedPath = getMIPathFromCache(miVersion);
-        if (miCachedPath) {
-            await config.update(SELECTED_SERVER_PATH, miCachedPath, vscode.ConfigurationTarget.Workspace);
+        const miCachedPathInfo = getLatestMIPathFromCache(miVersion);
+        if (miCachedPathInfo && miCachedPathInfo.path) {
+            await config.update(SELECTED_SERVER_PATH, miCachedPathInfo.path, vscode.ConfigurationTarget.Workspace);
             return true;
         }
     }
@@ -452,7 +454,7 @@ export async function downloadMI(miVersion: string): Promise<string> {
         }
         await extractWithProgress(miDownloadPath, miPath, 'Extracting Micro Integrator');
 
-        return getMIPathFromCache(miVersion)!;
+        return getLatestMIPathFromCache(miVersion)?.path!;
 
     } catch (error) {
         throw new Error('Failed to download Micro Integrator.');
@@ -586,11 +588,10 @@ async function getJavaAndMIPathsFromWorkspace(projectMiVersion: string): Promise
                 response.javaDetails = { status: "mismatch", path: validJavaHome, version: javaVersion! };
             }
         }
-
         const serverPath = config.get<string>(SELECTED_SERVER_PATH);
         const validServerPath = serverPath && verifyMIPath(serverPath) ||
             getMIFromGlobal(projectMiVersion) ||
-            getMIPathFromCache(projectMiVersion);
+            getLatestMIPathFromCache(projectMiVersion)?.path;
 
         if (validServerPath) {
             const miVersion = getMIVersion(validServerPath);
@@ -816,22 +817,7 @@ function getMIFromGlobal(miVersion: string): string | undefined {
         }
     }
 }
-function getMIPathFromCache(miVersion: string): string | null {
-    const miCachedPath = path.join(CACHED_FOLDER, 'micro-integrator');
-    if (fs.existsSync(miCachedPath)) {
-        const miFolders = fs.readdirSync(miCachedPath, { withFileTypes: true });
-        for (const folder of miFolders) {
-            if (folder.isDirectory()) {
-                const miHomePath = path.join(miCachedPath, folder.name);
-                const miRuntimeVersion = getMIVersion(miHomePath);
-                if (miRuntimeVersion && compareVersions(miVersion, miRuntimeVersion) === 0) {
-                    return miHomePath;
-                }
-            }
-        }
-    }
-    return null;
-}
+
 /**
  * Compares two version strings and returns a number indicating their relative order.
  *
@@ -1051,4 +1037,169 @@ async function showExtensionPrompt() {
             await vscode.commands.executeCommand(COMMANDS.BI_OPEN_COMMAND);
         }
     });
+}
+
+async function fetchLatestMIVersion(miVersion: string): Promise<string> {
+    try {
+        const response = await axios.get(miUpdateVersionCheckUrl);
+        const versions = response.data;
+        return versions[miVersion] || '';
+    } catch (error) {
+        console.error('Error fetching MI update version:', error);
+        return '';
+    }
+}
+
+function getCurrentUpdateVersion(miPath: string): string {
+    const updateConfigPath = path.join(miPath, 'updates', 'config.json');
+    if (fs.existsSync(updateConfigPath)) {
+        const configContent = fs.readFileSync(updateConfigPath, 'utf8');
+        const updateConfig = JSON.parse(configContent);
+        return updateConfig["update-level"] || '0';
+    }
+    return '0';
+}
+
+export async function checkForUpdatesAndUpdate(): Promise<void> {
+    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+    if (workspaceFolder) {
+        const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
+        const currentServerPath = config.get<string>(SELECTED_SERVER_PATH);
+        if (currentServerPath) {
+            const currentMIVersion = getMIVersion(currentServerPath);
+            if (currentMIVersion) {
+                const latestUpdateVersion = await fetchLatestMIVersion(currentMIVersion);
+                const currentUpdateVersion = getCurrentUpdateVersion(currentServerPath);
+                if (latestUpdateVersion && compareVersions(latestUpdateVersion, currentUpdateVersion) > 0) {
+                    const cachedMIPath = getLatestMIPathFromCache(currentMIVersion);
+                    if (cachedMIPath && cachedMIPath.version === latestUpdateVersion) {
+                        const changeOption = 'Switch to Updated Version';
+                        const cancelOption = 'Keep Current Version';
+                        vscode.window.showWarningMessage(
+                            'A newer version of Micro Integrator is available in your cache. Would you like to switch to it?',
+                            changeOption,
+                            cancelOption
+                        ).then((selection) => {
+                            if (selection === changeOption) {
+                                setPathsInWorkSpace({ type: 'MI', path: cachedMIPath.path });
+                            }
+                        });
+                    } else {
+                        const updateOption = 'Download and Update';
+                        const cancelOption = 'Skip Update';
+                        vscode.window.showWarningMessage(
+                            'A new version of Micro Integrator is available. Would you like to download and update now?',
+                            updateOption,
+                            cancelOption
+                        ).then((selection) => {
+                            if (selection === updateOption) {
+                                updateMI(currentMIVersion, latestUpdateVersion);
+                            }
+                        });
+                    }
+                }
+            }
+        }
+    }
+}
+
+function getLatestMIPathFromCache(miVersion: string): { path: string, version: string } | null {
+    const miCachePath = path.join(CACHED_FOLDER, 'micro-integrator');
+    if (fs.existsSync(miCachePath)) {
+        const miFolders = fs.readdirSync(miCachePath, { withFileTypes: true });
+        let highestUpdateVersion = '0';
+        let latestMIPath = '';
+        for (const folder of miFolders) {
+            if (folder.isDirectory()) {
+                const miHomePath = path.join(miCachePath, folder.name);
+                const miRuntimeVersion = getMIVersion(miHomePath);
+                if (miRuntimeVersion && compareVersions(miVersion, miRuntimeVersion) === 0) {
+                    const updateVersion = getCurrentUpdateVersion(miHomePath);
+                    if (compareVersions(updateVersion, highestUpdateVersion) >= 0) {
+                        highestUpdateVersion = updateVersion;
+                        latestMIPath = miHomePath;
+                    }
+                }
+            }
+        }
+        return latestMIPath ? { path: latestMIPath, version: highestUpdateVersion } : null;
+    }
+    return null;
+}
+
+function extractRootFolderFromZip(zipFilePath: string): string | null {
+    try {
+        const zipArchive = new AdmZip(zipFilePath);
+        const zipEntries = zipArchive.getEntries();
+
+        if (zipEntries.length === 0) {
+            return null;
+        }
+
+        let rootFolderName: string | null = null;
+
+        for (const entry of zipEntries) {
+            const entryPath = entry.entryName;
+
+            if (entryPath.includes('/')) {
+                const pathParts = entryPath.split('/');
+                const firstPathPart = pathParts[0];
+
+                if (rootFolderName === null && firstPathPart) {
+                    rootFolderName = firstPathPart;
+                    break;
+                }
+            }
+        }
+
+        return rootFolderName;
+    } catch (error) {
+        console.error("Error reading zip file:", error);
+        return null;
+    }
+}
+
+async function updateMI(miVersion: string, latestUpdateVersion: string): Promise<void> {
+    try {
+        const updateTempFolder = path.join(CACHED_FOLDER, '.mi-temp');
+        if (!fs.existsSync(updateTempFolder)) {
+            fs.mkdirSync(updateTempFolder, { recursive: true });
+        }
+
+        const miZipFileName = miDownloadUrls[miVersion].split('/').pop();
+        const miZipPath = path.join(updateTempFolder, miZipFileName!);
+        await downloadWithProgress(miDownloadUrls[miVersion], miZipPath, 'Downloading Micro Integrator Update');
+
+        const miCachePath = path.join(CACHED_FOLDER, 'micro-integrator');
+        const existingMIPath = getLatestMIPathFromCache(miVersion)?.path;
+        const rootFolderName = extractRootFolderFromZip(miZipPath);
+        if (existingMIPath) {
+            const replaceOption = 'Replace Existing Installation';
+            const createNewOption = 'Install as New Version';
+            const selection = await vscode.window.showWarningMessage(
+                'An existing Micro Integrator installation was found. Would you like to replace it or install as a new version? Note: Replacing will remove all existing configurations and CApps.',
+                replaceOption,
+                createNewOption
+            );
+
+            if (selection === replaceOption) {
+                fs.rmSync(existingMIPath, { recursive: true, force: true });
+                await extractWithProgress(miZipPath, miCachePath, 'Extracting Micro Integrator Update');
+                setPathsInWorkSpace({ type: 'MI', path: path.join(miCachePath, rootFolderName!) });
+            } else if (selection === createNewOption) {
+                const newFolderName = `wso2mi-${miVersion}-update-${latestUpdateVersion}`;
+                await extractWithProgress(miZipPath, updateTempFolder, 'Extracting Micro Integrator Update');
+                fs.renameSync(path.join(updateTempFolder, rootFolderName!), path.join(miCachePath, newFolderName));
+                setPathsInWorkSpace({ type: 'MI', path: path.join(miCachePath, newFolderName) });
+            }
+        } else {
+            await extractWithProgress(miZipPath, miCachePath, 'Extracting Micro Integrator Update');
+            setPathsInWorkSpace({ type: 'MI', path: path.join(miCachePath, rootFolderName!) });
+        }
+        fs.rmSync(updateTempFolder, { recursive: true, force: true });
+
+        vscode.window.showInformationMessage('Micro Integrator has been successfully updated.');
+    } catch (error) {
+        vscode.window.showErrorMessage(`Failed to update Micro Integrator: ${error instanceof Error ? error.message : error}`);
+    }
 }

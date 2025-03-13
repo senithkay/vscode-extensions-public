@@ -413,6 +413,7 @@ export interface SetPathRequest {
 }
 export interface SetupDetails {
     miVersionStatus?: "valid" | "missing" | "not-valid";
+    miVersionFromPom?: string;
     miDetails: PathDetailsResponse;
     javaDetails: PathDetailsResponse;
     showDownloadButtons?: boolean;

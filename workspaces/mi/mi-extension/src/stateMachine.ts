@@ -30,7 +30,7 @@ import { fileURLToPath } from 'url';
 import path = require('path');
 import { activateTestExplorer } from './test-explorer/activator';
 import { DMProject } from './datamapper/DMProject';
-import { setupEnvironment } from './util/onboardingUtils';
+import { checkForUpdatesAndUpdate, setupEnvironment } from './util/onboardingUtils';
 import { MiDiagramRpcManager } from './rpc-managers/mi-diagram/rpc-manager';
 const fs = require('fs');
 
@@ -529,6 +529,7 @@ const stateMachine = createMachine<MachineContext>({
             return new Promise(async (resolve, reject) => {
                 await activateProjectExplorer(extension.context, context.langClient!);
                 await activateTestExplorer(extension.context, context.langClient!);
+                checkForUpdatesAndUpdate();
                 resolve(true);
             });
         },
