@@ -42,7 +42,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                 return;
             }
             vscode.window.showWarningMessage(WARNING_MESSAGE_DEFAULT);
-        }, 15000);
+        }, 600000);
         
         vscode.workspace.onDidChangeTextDocument(async event => {
             const filePath = event.document.uri.fsPath; // Get the file path
