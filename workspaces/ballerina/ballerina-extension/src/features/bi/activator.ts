@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { commands } from "vscode";
+import { commands, Uri } from "vscode";
 import {
     BI_COMMANDS,
     BIDeleteByComponentInfoRequest,
@@ -24,10 +24,18 @@ import { BiDiagramRpcManager } from "../../rpc-managers/bi-diagram/rpc-manager";
 import { readFileSync, readdirSync, statSync } from "fs";
 import path from "path";
 import { isPositionEqual } from "../../utils/history/util";
+import { startDebugging } from "../editor-support/codelens-provider";
+
+const FOCUS_DEBUG_CONSOLE_COMMAND = 'workbench.debug.action.focusRepl';
 
 export function activate(context: BallerinaExtension) {
     commands.registerCommand(BI_COMMANDS.BI_RUN_PROJECT, () => {
         prepareAndGenerateConfig(context, StateMachine.context().projectUri, false, true);
+    });
+
+    commands.registerCommand(BI_COMMANDS.BI_DEBUG_PROJECT, () => {
+        commands.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
+        startDebugging(Uri.file(StateMachine.context().projectUri), false);
     });
 
     commands.registerCommand(BI_COMMANDS.ADD_CONNECTIONS, () => {
