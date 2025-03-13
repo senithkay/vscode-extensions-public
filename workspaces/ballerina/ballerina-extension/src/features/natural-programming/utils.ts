@@ -433,7 +433,7 @@ export async function fetchWithToken(url: string, options: RequestInit) {
 }
 
 export function getPluginConfig(): BallerinaPluginConfig {
-    return vscode.workspace.getConfiguration('kolab');
+    return vscode.workspace.getConfiguration('ballerina');
 }
 
 export async function getBackendURL(): Promise<string> {

@@ -704,9 +704,9 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     openAIChat(params: AIChatRequest): void {
         if (params.readme) {
-            commands.executeCommand("kolab.open.ai.panel", "Generate an integration according to the given Readme file");
+            commands.executeCommand("ballerina.open.ai.panel", "Generate an integration according to the given Readme file");
         } else {
-            commands.executeCommand("kolab.open.ai.panel");
+            commands.executeCommand("ballerina.open.ai.panel");
         }
     }
 
@@ -793,7 +793,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         }
 
         // Get Ballerina home path from settings
-        const config = workspace.getConfiguration('kolab');
+        const config = workspace.getConfiguration('ballerina');
         const ballerinaHome = config.get<string>('home');
         if (ballerinaHome) {
             // Add ballerina home to build path only if it's configured
@@ -1139,7 +1139,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             'Authorize using GitHub Copilot'
         ).then(selection => {
             if (selection === 'Authorize using GitHub Copilot') {
-                commands.executeCommand('kolab.login.copilot');
+                commands.executeCommand('ballerina.login.copilot');
             }
         });
     }
