@@ -105,7 +105,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         );
     });
 
-    vscode.commands.registerCommand("kolab.configureDefaultModelForNaturalFunctions", async (...args: any[]) => {    
+    vscode.commands.registerCommand("ballerina.configureDefaultModelForNaturalFunctions", async (...args: any[]) => {    
         await vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
