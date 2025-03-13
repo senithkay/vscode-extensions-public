@@ -46,6 +46,7 @@ import {
     CreateComponentResponse,
     CurrentBreakpointsResponse,
     DIRECTORY_MAP,
+    DeploymentResponse,
     DevantComponentResponse,
     EVENT_TYPE,
     EndOfFileRequest,
@@ -685,7 +686,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         await commands.executeCommand("wso2.wso2-platform.create.component", params);
     }
 
-    async deployProject(): Promise<void> {
+    async deployProject(): Promise<DeploymentResponse> {
         const projectStructure = await this.getProjectStructure();
 
         const services = projectStructure.directoryMap[DIRECTORY_MAP.SERVICES];
@@ -713,7 +714,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         }
 
         if (!integrationType) {
-            return;
+            return { isCompleted: true };
         }
 
         const params = {
@@ -723,6 +724,8 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             componentDir: StateMachine.context().projectUri
         };
         commands.executeCommand("wso2.wso2-platform.create.component", params);
+
+        return { isCompleted: true };
     }
 
     openAIChat(params: AIChatRequest): void {
