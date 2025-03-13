@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { ComponentInfo } from "../interfaces/ballerina";
 import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse } from "../interfaces/bi";
-import { BallerinaProjectComponents, ExtendedLangClientInterface, SyntaxTree } from "../interfaces/extended-lang-client";
+import { BallerinaProjectComponents, ExtendedLangClientInterface } from "../interfaces/extended-lang-client";
 import { CDModel } from "../interfaces/component-diagram";
 import { URI, Utils } from "vscode-uri";
 import path from "path";
@@ -111,13 +111,30 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
     const functions = response.directoryMap[DIRECTORY_MAP.FUNCTIONS];
     response.directoryMap[DIRECTORY_MAP.FUNCTIONS] = [];
     for (const func of functions) {
-        const st = func.st;
-        if (st && STKindChecker.isFunctionDefinition(st) && STKindChecker.isExpressionFunctionBody(st.functionBody)) {
-            func.icon = "dataMapper";
-            response.directoryMap[DIRECTORY_MAP.DATA_MAPPERS].push(func);
-        } else {
-            response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(func);
+        try {
+            const st = await langClient.getSTByRange({
+                documentIdentifier: { uri: URI.file(func.path).toString() },
+                lineRange: {
+                    start: {
+                        line: func.position.startLine,
+                        character: func.position.startColumn
+                    },
+                    end: {
+                        line: func.position.endLine,
+                        character: func.position.endColumn
+                    }
+                }
+            }) as STNode;
+            if (st && STKindChecker.isFunctionDefinition(st) && STKindChecker.isExpressionFunctionBody(st.functionBody)) {
+                func.icon = "dataMapper";
+                response.directoryMap[DIRECTORY_MAP.DATA_MAPPERS].push(func);
+            } else {
+                response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(func);
+            }
+        } catch (error) {
+            console.log("Data mapper ST fetch failed:", error);
         }
+
     }
 }
 
@@ -133,35 +150,22 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
             continue; // Skip main function
         }
         const componentFile = Utils.joinPath(URI.parse(projectPath), comp.filePath).fsPath;
-        let stNode: SyntaxTree;
-        try {
-            stNode = await langClient.getSTByRange({
-                documentIdentifier: { uri: URI.file(componentFile).toString() },
-                lineRange: {
-                    start: {
-                        line: comp.startLine,
-                        character: comp.startColumn
-                    },
-                    end: {
-                        line: comp.endLine,
-                        character: comp.endColumn
-                    }
-                }
-            }) as SyntaxTree;
 
-            // Get trigger model if available
-            const lineRange: LineRange = { startLine: { line: comp.startLine, offset: comp.startColumn }, endLine: { line: comp.endLine, offset: comp.endColumn } };
-            const serviceResponse = await langClient.getServiceModelFromCode({ filePath: componentFile, codedata: { lineRange } });
-            if (serviceResponse?.service) {
-                serviceModel = serviceResponse.service;
-                const triggerType = serviceModel.displayName;
-                const labelName = serviceModel.properties['name'].value;
-                compType = triggerType;
-                comp.name = `${triggerType} - ${labelName}`
-                icon = `bi-${serviceModel.moduleName}`;
+        if (dtype === DIRECTORY_MAP.SERVICES) {
+            try {
+                const lineRange: LineRange = { startLine: { line: comp.startLine, offset: comp.startColumn }, endLine: { line: comp.endLine, offset: comp.endColumn } };
+                const serviceResponse = await langClient.getServiceModelFromCode({ filePath: componentFile, codedata: { lineRange } });
+                if (serviceResponse?.service) {
+                    serviceModel = serviceResponse.service;
+                    const triggerType = serviceModel.displayName;
+                    const labelName = serviceModel.properties['name'].value;
+                    compType = triggerType;
+                    comp.name = `${triggerType} - ${labelName}`
+                    icon = `bi-${serviceModel.moduleName}`;
+                }
+            } catch (error) {
+                console.log(error);
             }
-        } catch (error) {
-            console.log(error);
         }
 
         let iconValue;
@@ -181,7 +185,6 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
             type: compType,
             icon: iconValue,
             context: comp.name,
-            st: stNode.syntaxTree,
             serviceModel: serviceModel,
             resources: comp?.resources ? await getComponents(langClient, comp?.resources, projectPath, "") : [],
             position: {
@@ -195,9 +198,7 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
             fileEntry.name = "automation"
         }
         if (dtype === DIRECTORY_MAP.CONNECTIONS) {
-            if (stNode.syntaxTree?.typeData?.isEndpoint) {
-                entries.push(fileEntry);
-            }
+            entries.push(fileEntry);
         } else {
             entries.push(fileEntry);
         }

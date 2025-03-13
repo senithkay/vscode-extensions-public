@@ -227,7 +227,6 @@ export interface ProjectStructureArtifactResponse {
     icon?: string;
     context?: string;
     position?: NodePosition;
-    st?: STNode;
     serviceModel?: ServiceModel;
     resources?: ProjectStructureArtifactResponse[];
 }
