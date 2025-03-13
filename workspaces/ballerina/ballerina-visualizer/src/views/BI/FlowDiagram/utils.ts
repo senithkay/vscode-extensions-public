@@ -41,21 +41,12 @@ export const transformCategories = (categories: Category[]): Category[] => {
     // remove agents from categories
     filteredCategories = filteredCategories.filter((category) => category.metadata.label !== "Agents");
 
-    // create category for AI
-    const aiCategory: Category = {
-        metadata: {
-            label: "AI",
-            description: "Nodes related to AI functionalities",
-        },
-        items: []
-    };
-    
-    // add ai category to 2nd position
-    filteredCategories.splice(1, 0, aiCategory);
-    
+    // find statement category
+    const statementCategory = filteredCategories.find((category) => category.metadata.label === "Statement");
+
     // add new item to ai category called "Agent"
-    if (filteredCategories[1] && filteredCategories[1].items) {
-        filteredCategories[1].items.push({
+    if (statementCategory && statementCategory.items) {
+        statementCategory.items.push({
             codedata: {
                 node: "AGENT_CALL",
             },
@@ -65,6 +56,12 @@ export const transformCategories = (categories: Category[]): Category[] => {
                 description: "Add an AI Agent to the flow",
             },
         });
+    }
+
+    // enrich the filtered categories with the updated statement category
+    const statementCategoryIndex = filteredCategories.findIndex((category) => category.metadata.label === "Statement");
+    if (statementCategoryIndex !== -1) {
+        filteredCategories.splice(statementCategoryIndex, 1, statementCategory);
     }
     
     return filteredCategories;
