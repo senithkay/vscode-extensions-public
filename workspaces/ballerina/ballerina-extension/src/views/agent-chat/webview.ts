@@ -23,7 +23,7 @@ import { AgentChatContext } from "./activate";
 
 export class ChatPanel {
     public static currentPanel: ChatPanel | undefined;
-    public static readonly viewType = 'kolab.agent-chat-panel';
+    public static readonly viewType = 'ballerina.agent-chat-panel';
     private readonly _panel: WebviewPanel;
     private _disposables: Disposable[] = [];
 

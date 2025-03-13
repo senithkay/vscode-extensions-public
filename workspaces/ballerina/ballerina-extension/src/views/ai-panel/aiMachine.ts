@@ -248,7 +248,7 @@ async function openLogin(context, event) {
 
 async function initiateInbuiltAuth() {
     const callbackUri = await vscode.env.asExternalUri(
-        vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.kolab/signin`)
+        vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.ballerina/signin`)
     );
     const oauthURL = await getAuthUrl(callbackUri.toString());
     return vscode.env.openExternal(vscode.Uri.parse(oauthURL));

@@ -2305,7 +2305,7 @@ export function AIChat() {
                             }}
                         >
                             <Icon
-                                name="bi-ai-agent"
+                                name="bi-ai-chat"
                                 sx={{ width: 60, height: 50 }}
                                 iconSx={{ fontSize: "60px", color: "var(--vscode-foreground)", cursor: "default" }}
                             />

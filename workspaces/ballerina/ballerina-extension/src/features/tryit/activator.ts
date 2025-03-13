@@ -183,7 +183,7 @@ async function openChatView(basePath: string, port: string) {
 
         const sessionId = uuidv4();
 
-        commands.executeCommand("kolab.open.agent.chat", { chatEp: chatEp.href, chatSessionId: sessionId });
+        commands.executeCommand("ballerina.open.agent.chat", { chatEp: chatEp.href, chatSessionId: sessionId });
     } catch (error) {
         vscode.window.showErrorMessage(`Failed to call Chat-Agent: ${error}`);
     }
@@ -825,7 +825,7 @@ function setupErrorLogWatcher(targetDir: string) {
                 ).then(selection => {
                     if (selection === 'Show Details') {
                         // Show the full error in an output channel
-                        const outputChannel = window.createOutputChannel('Kola Tryit - Log');
+                        const outputChannel = window.createOutputChannel('WSO2 Ballerina Integrator Tryit - Log');
                         outputChannel.appendLine(content.trim());
                         outputChannel.show();
                     }
