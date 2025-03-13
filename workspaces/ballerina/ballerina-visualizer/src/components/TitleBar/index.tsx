@@ -11,6 +11,7 @@ import { ReactNode } from "react";
 import styled from "@emotion/styled";
 import { Icon } from "@wso2-enterprise/ui-toolkit";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { BetaSVG } from "../../views/Connectors/Marketplace/BetaSVG";
 
 const TitleBarContainer = styled.div`
     display: flex;
@@ -75,6 +76,13 @@ const IconButton = styled.div`
     }
 `;
 
+const BetaSVGWrapper = styled.span`
+    display: inline-flex;
+    align-items: center;
+    margin-top: 2px;
+`;
+
+
 interface TitleBarProps {
     title: string;
     subtitle?: string;
@@ -82,10 +90,11 @@ interface TitleBarProps {
     actions?: ReactNode;
     hideBack?: boolean;
     onBack?: () => void; // Override back functionality
+    isBetaFeature?: boolean;
 }
 
 export function TitleBar(props: TitleBarProps) {
-    const { title, subtitle, subtitleElement, actions, hideBack, onBack } = props;
+    const { title, subtitle, subtitleElement, actions, hideBack, onBack, isBetaFeature } = props;
     const { rpcClient } = useRpcContext();
 
     const handleBackButtonClick = () => {
@@ -109,6 +118,11 @@ export function TitleBar(props: TitleBarProps) {
                     {subtitle && <SubTitle>{subtitle}</SubTitle>}
                     {subtitleElement && subtitleElement}
                 </TitleSection>
+                {isBetaFeature && (
+                    <BetaSVGWrapper>
+                        <BetaSVG width={45} height={18} />
+                    </BetaSVGWrapper>
+                )}
             </LeftContainer>
             <RightContainer>{actions && <ActionsContainer>{actions}</ActionsContainer>}</RightContainer>
         </TitleBarContainer>
