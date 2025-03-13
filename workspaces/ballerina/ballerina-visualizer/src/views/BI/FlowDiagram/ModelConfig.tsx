@@ -34,9 +34,6 @@ interface ModelConfigProps {
     onSave?: () => void;
 }
 
-/**
- * AIToolsList - Displays a list of tools for an AI agent and allows adding, configuring, and removing tools
- */
 export function ModelConfig(props: ModelConfigProps): JSX.Element {
     const { agentCallNode, onSave } = props;
 

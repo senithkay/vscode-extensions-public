@@ -250,7 +250,9 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode, cli
         case SidePanelView.NODE_LIST:
             return ""; // Show switch instead of title
         case SidePanelView.AGENT_MODEL:
-            return "Select AI Model";
+            return "Configure LLM Model";
+        case SidePanelView.AGENT_TOOL:
+            return "Configure Tool";
         case SidePanelView.AGENT_TOOL_LIST:
             return "Add Tool to Agent";
         case SidePanelView.AGENT_CONFIG:

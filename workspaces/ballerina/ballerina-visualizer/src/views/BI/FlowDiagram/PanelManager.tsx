@@ -25,6 +25,7 @@ import { getContainerTitle } from "../../../utils/bi";
 import { AIToolsList, ToolData } from "./AIToolsList";
 import { handleAgentOperations } from "./utils";
 import { ModelConfig } from "./ModelConfig";
+import { ToolConfig } from "./ToolConfig";
 
 export enum SidePanelView {
     NODE_LIST = "NODE_LIST",
@@ -170,7 +171,8 @@ export function PanelManager({
                 );
 
             case SidePanelView.AGENT_TOOL:
-                return <div>Agent Tool</div>;
+                const selectedTool = selectedNode.metadata.data.tools?.find((tool) => tool.name === selectedClientName);
+                return <ToolConfig agentCallNode={selectedNode} toolData={selectedTool} onSave={onClose} />;
 
             case SidePanelView.AGENT_MODEL:
                 return <ModelConfig agentCallNode={selectedNode} onSave={onClose} />;

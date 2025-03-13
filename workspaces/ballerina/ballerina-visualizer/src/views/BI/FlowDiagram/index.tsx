@@ -796,22 +796,12 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     };
 
     const handleOnSelectTool = (tool: ToolData, node: FlowNode) => {
-        console.log(">>> Select tool called", tool, node);
+        console.log(">>> Edit tool called", {node, tool});
         selectedNodeRef.current = node;
-        setAgentToolData([tool]);
-
-        // Open the tool configuration panel
-        setShowProgressIndicator(true);
-
-        // This would call the API to fetch tool config in a real implementation
-        setTimeout(() => {
-            // Just use the existing node for now
-            nodeTemplateRef.current = node;
-            showEditForm.current = true;
-            setSidePanelView(SidePanelView.AGENT_TOOL);
-            setShowSidePanel(true);
-            setShowProgressIndicator(false);
-        }, 500);
+        selectedClientName.current = tool.name;
+        showEditForm.current = true;
+        setSidePanelView(SidePanelView.AGENT_TOOL);
+        setShowSidePanel(true);
     };
 
     const handleOnDeleteTool = (tool: ToolData, node: FlowNode) => {
