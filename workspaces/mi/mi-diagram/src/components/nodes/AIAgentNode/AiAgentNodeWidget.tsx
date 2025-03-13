@@ -23,6 +23,7 @@ import path from "path";
 import { FirstCharToUpperCase } from "../../../utils/commons";
 import { getTextSizes } from "../../../utils/node";
 import { AIConnector, AIConnectorConnection } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
 
 namespace S {
     export type NodeStyleProp = {
@@ -272,9 +273,41 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
     }, [tooltip])
 
     const ConnectionCircle = (connection: AIConnectorConnection, marginTop: string, type: string) => {
+        const handleOnConnectionClick = async (e: any) => {
+            e.stopPropagation();
+
+            if (e.ctrlKey || e.metaKey) {
+                // open file of selected connection
+                rpcClient.getMiDiagramRpcClient().openFile({ path: connection.path, beside: true });
+
+            } else if (node.isSelected()) {
+                const connector = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
+                    documentUri: node.documentUri,
+                    connectorName: connection.connectorName
+                });
+
+                rpcClient.getMiVisualizerRpcClient().openView({
+                    type: POPUP_EVENT_TYPE.OPEN_VIEW,
+                    location: {
+                        documentUri: connection.path,
+                        view: MACHINE_VIEW.ConnectionForm,
+                        customProps: {
+                            connectionName: connection.name,
+                            connector
+                        }
+                    },
+                    isPopup: true
+                });
+            }
+        }
+
         return <S.CircleContainer style={{ marginTop }}>
             <svg width="135" height="70" viewBox="0 0 128 60">
-                <g onMouseEnter={() => setIsHovered({ ...isHovered, [type]: true })} onMouseLeave={() => setIsHovered({ ...isHovered, [type]: false })}>
+                <g
+                    onMouseEnter={() => setIsHovered({ ...isHovered, [type]: true })}
+                    onMouseLeave={() => setIsHovered({ ...isHovered, [type]: false })}
+                    onClick={(e) => handleOnConnectionClick(e)}
+                >
                     <circle
                         cx="100"
                         cy="20"
