@@ -697,7 +697,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             scopes = Array.from(new Set(svcScopes));
         }
         if (automation) {
-            scopes.push[SCOPE.AUTOMATION];
+            scopes.push(SCOPE.AUTOMATION);
         }
 
         let integrationType: SCOPE;
