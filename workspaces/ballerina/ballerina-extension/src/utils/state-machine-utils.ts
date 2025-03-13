@@ -157,17 +157,15 @@ export async function getView(documentUri: string, position: NodePosition, proje
             STKindChecker.isFunctionDefinition(node.syntaxTree) &&
             node.syntaxTree.functionBody.source.includes("@np:NaturalFunction external")
         ) {
-            if (StateMachine.context().isBI) {
-                return {
-                    location: {
-                        view: MACHINE_VIEW.BIDiagram,
-                        documentUri: documentUri,
-                        position: node.syntaxTree.position,
-                        focusFlowDiagramView: FOCUS_FLOW_DIAGRAM_VIEW.NP_FUNCTION,
-                    },
-                    dataMapperDepth: 0
-                };
-            }
+            return {
+                location: {
+                    view: MACHINE_VIEW.BIDiagram,
+                    documentUri: documentUri,
+                    position: node.syntaxTree.position,
+                    focusFlowDiagramView: FOCUS_FLOW_DIAGRAM_VIEW.NP_FUNCTION,
+                },
+                dataMapperDepth: 0
+            };
         } else if (
             STKindChecker.isFunctionDefinition(node.syntaxTree)
             || STKindChecker.isResourceAccessorDefinition(node.syntaxTree)
