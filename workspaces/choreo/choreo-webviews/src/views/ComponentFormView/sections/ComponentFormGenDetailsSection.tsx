@@ -147,13 +147,8 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 
 	const onSubmitForm: SubmitHandler<ComponentFormGenDetailsType> = () => onNextClick();
 
-	const { mutate: initializeGit } = useMutation({
-		mutationFn: () => ChoreoWebViewAPI.getInstance().triggerCmd("git.init"),
-		onSuccess: () => refetchGitData(),
-	});
-
-	const { mutate: addGitRemote } = useMutation({
-		mutationFn: () => ChoreoWebViewAPI.getInstance().triggerCmd("git.addRemote"),
+	const { mutate: openSourceControl } = useMutation({
+		mutationFn: () => ChoreoWebViewAPI.getInstance().triggerCmd("workbench.scm.focus"),
 		onSuccess: () => refetchGitData(),
 	});
 
@@ -172,13 +167,13 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 	if (!isLoadingGitData) {
 		if (gitData === null) {
 			invalidRepoMsg = "Please initialize the selected directory as a Git repository to proceed.";
-			invalidRepoAction = "Initialize";
-			onInvalidRepoActionClick = initializeGit;
+			invalidRepoAction = "Source Control";
+			onInvalidRepoActionClick = openSourceControl;
 			onInvalidRepoRefreshClick = refetchGitData;
 		} else if (gitData?.remotes?.length === 0) {
 			invalidRepoMsg = "The selected Git repository has no configured remotes. Please add a remote to proceed.";
-			invalidRepoAction = "Add Remote";
-			onInvalidRepoActionClick = addGitRemote;
+			invalidRepoAction = "Source Control";
+			onInvalidRepoActionClick = openSourceControl;
 			onInvalidRepoRefreshClick = refetchGitData;
 		}
 	}
