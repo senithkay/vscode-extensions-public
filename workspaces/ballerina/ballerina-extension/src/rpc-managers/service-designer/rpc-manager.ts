@@ -51,7 +51,7 @@ import * as yaml from 'js-yaml';
 import * as path from 'path';
 import { Uri, commands, window, workspace, WorkspaceEdit, Position } from "vscode";
 import { StateMachine } from "../../stateMachine";
-import { injectAgent, injectImportIfMissing, injectAgentCode } from "../../utils/source-utils";
+import { injectAgent, injectImportIfMissing, injectAgentCode } from "../../utils";
 export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
 
     async getRecordST(params: RecordSTRequest): Promise<RecordSTResponse> {
@@ -216,8 +216,8 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
-                commands.executeCommand("BI.project-explorer.refresh");
                 await this.injectAIAgent(params.service, result);
+                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -232,11 +232,15 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         if (service.type === "ai.agent") {
             // Inject the import if missing
             const importStatement = `import ballerinax/ai.agent`;
-            injectImportIfMissing(importStatement, result.filePath);
+            await injectImportIfMissing(importStatement, path.join(StateMachine.context().projectUri, `agents.bal`));
+
+            //get AgentName
+            const agentName = service.properties.basePath.value.replace("/", "");
+
             // Inject the agent code
-            await injectAgent("myAgent", StateMachine.context().projectUri);
+            await injectAgent(agentName, StateMachine.context().projectUri);
             // retrive the service model
-            const service = await this.getServiceModelFromCode({
+            const updatedService = await this.getServiceModelFromCode({
                 filePath: result.filePath,
                 codedata: {
                     lineRange: {
@@ -245,13 +249,13 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     }
                 }
             });
-            if (!service?.service?.functions?.[0]?.codedata?.lineRange?.endLine) {
+            if (!updatedService?.service?.functions?.[0]?.codedata?.lineRange?.endLine) {
                 console.error('Unable to determine injection position: Invalid service structure');
                 return;
             }
-            const injectionPosition = service.service.functions[0].codedata.lineRange.endLine;
+            const injectionPosition = updatedService.service.functions[0].codedata.lineRange.endLine;
             const serviceFile = path.join(StateMachine.context().projectUri, `main.bal`);
-            await injectAgentCode("myAgent", serviceFile, injectionPosition);
+            await injectAgentCode(agentName, serviceFile, injectionPosition);
         }
     }
 

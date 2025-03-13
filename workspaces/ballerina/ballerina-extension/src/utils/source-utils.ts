@@ -10,30 +10,30 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { workspace } from 'vscode';
-import { StateMachine } from 'src/stateMachine';
 import { Uri, Position } from 'vscode';
 import { LinePosition } from '@wso2-enterprise/ballerina-core';
+import path from 'path';
 
-export function injectImportIfMissing(importStatement: string, filePath: string) {
+export async function injectImportIfMissing(importStatement: string, filePath: string) {
     const fileContent = fs.readFileSync(filePath, 'utf8');
     if (!fileContent.includes(importStatement)) {
         const workspaceEdit = new vscode.WorkspaceEdit();
         const position = new vscode.Position(0, 0); // Insert at the beginning of the file
         workspaceEdit.insert(vscode.Uri.file(filePath), position, importStatement + ';\n');
-        vscode.workspace.applyEdit(workspaceEdit);
+        await vscode.workspace.applyEdit(workspaceEdit);
     }
 }
 
-export async function injectAgent(name, projectUri) {
+export async function injectAgent(name: string, projectUri: string) {
     const agentCode = `
-    final agent:OpenAiModel model = check new ("", "gpt-3.5-turbo-16k-0613");
-    final agent:Agent ${name} = check new (systemPrompt = {
+    final agent:OpenAiModel _${name}Model = check new ("", "gpt-3.5-turbo-16k-0613");
+    final agent:Agent _${name}Agent = check new (systemPrompt = {
         role: "",
         instructions: string \`\`
-    }, model = model, tools = []);
+    }, model = _${name}Model, tools = []);
     `;
     // Update the service function code 
-    const agentsFile = projectUri.join(StateMachine.context().projectUri, `agents.bal`);
+    const agentsFile = path.join(projectUri, `agents.bal`);
     const agentEdit = new vscode.WorkspaceEdit();
 
     // Read the file content to determine its length
@@ -54,7 +54,7 @@ export async function injectAgentCode(name: string, serviceFile: string, injecti
     // Update the service function code 
     const serviceEdit = new vscode.WorkspaceEdit();
     const serviceSourceCode = `
-        string stringResult = check ${name}->run(request.message);
+        string stringResult = check _${name}Agent->run(request.message);
         return {message: stringResult};
 `;
     serviceEdit.insert(Uri.file(serviceFile), new Position(injectionPosition.line, 0), serviceSourceCode);
