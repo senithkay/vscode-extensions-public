@@ -27,6 +27,7 @@ import { dataCacheStore } from "../stores/data-cache-store";
 import { createDirectory, openDirectory } from "../utils";
 import { getUserInfoForCmd, selectOrg, selectProject } from "./cmd-utils";
 import { updateContextFile } from "./create-directory-context-cmd";
+const unzipper = require("unzipper");
 
 export function cloneRepoCommand(context: ExtensionContext) {
 	context.subscriptions.push(
@@ -256,12 +257,33 @@ async function ensureBallerinaFilesIfEmpty(
 
 async function ensureMIFilesIfEmpty(name: string, directoryPath: string, integrationDisplayType: string): Promise<void> {
 	const createMiFiles = async()=>{
+		/*
 		const scopeVal = integrationDisplayType.toLowerCase().replaceAll(" ", "-").replaceAll("+","-");;
 		await commands.executeCommand("MI.project-explorer.create-project", {
 			name: name,
 			path: directoryPath,
 			scope: scopeVal
 		})
+		*/
+		// delete everything below after mi extension released
+		createReadStream(Uri.joinPath(ext.context.extensionUri, "sample-mi-project.zip").fsPath).pipe(unzipper.Extract({ path: directoryPath }));
+		if (integrationDisplayType) {
+			const scopeVal = integrationDisplayType.toLowerCase().replaceAll(" ", "-").replaceAll("+","-");
+			if (!existsSync(join(directoryPath, ".vscode"))) {
+				mkdirSync(join(directoryPath, ".vscode"));
+			}
+			const settingsPath = join(directoryPath, ".vscode", "settings.json");
+			if (existsSync(settingsPath)) {
+				// add property
+				const data = readFileSync(settingsPath, "utf8");
+				const settings = JSON.parse(data);
+				settings["MI.Scope"] = scopeVal;
+				writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+			} else {
+				// create new json
+				writeFileSync(settingsPath, JSON.stringify({ "MI.Scope": scopeVal}, null, 2));
+			}
+		}
 	}
 	try {
 		const files = readdirSync(directoryPath);
