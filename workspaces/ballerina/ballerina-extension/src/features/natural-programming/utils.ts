@@ -28,7 +28,6 @@ import {
 } from "./constants";
 import { isError, isNumber } from 'lodash';
 import { HttpStatusCode } from 'axios';
-import * as toml from 'toml';
 
 let controller = new AbortController();
 
@@ -468,15 +467,22 @@ export async function streamToString(stream: ReadableStream<Uint8Array>): Promis
     return result;
 }
 
+// Function to find a file in a case-insensitive way
+function findFileCaseInsensitive(directory, fileName) {
+    const files = fs.readdirSync(directory);
+    const targetFile = files.find(file => file.toLowerCase() === fileName.toLowerCase());
+    return targetFile ? path.join(directory, targetFile) : null;
+  }
+
 export function addDefaultModelConfigForNaturalFunctions(projectPath: string, token: string, backendUrl: string) {
-    const configFilePath = path.join(projectPath, 'Config.toml');
     const targetTable = '[ballerinax.np.defaultModelConfig]';
     const urlLine = `url = "${backendUrl}"`;
     const accessTokenLine = `accessToken = "${token}"`;
+    const configFilePath = findFileCaseInsensitive(projectPath, "Config.toml");
 
     let fileContent = '';
 
-    if (fs.existsSync(configFilePath)) {
+    if (configFilePath == null || fs.existsSync(configFilePath)) {
         fileContent = fs.readFileSync(configFilePath, 'utf-8');
     }
 
@@ -510,16 +516,18 @@ export function addDefaultModelConfigForNaturalFunctions(projectPath: string, to
                 fileContent.substring(existingAccessTokenLineEnd);
 
         } else {
-            //If url or accessToken line not exist, just replace the entire table
+            // If url or accessToken line does not exist, just replace the entire table
             let nextTableStartIndex = fileContent.indexOf('[', tableEndIndex + 1);
             if (nextTableStartIndex === -1) {
-                fileContent = fileContent.substring(0, tableStartIndex) + updatedTableContent + fileContent.substring(tableEndIndex + 1);
+                fileContent = fileContent.substring(0, tableStartIndex) 
+                        + updatedTableContent + fileContent.substring(tableEndIndex + 1);
             } else {
                 let nextLineBreakIndex = fileContent.substring(tableEndIndex + 1).indexOf('\n');
                 if (nextLineBreakIndex === -1) {
                     fileContent = fileContent.substring(0, tableStartIndex) + updatedTableContent;
                 } else {
-                    fileContent = fileContent.substring(0, tableStartIndex) + updatedTableContent + fileContent.substring(tableEndIndex + 1);
+                    fileContent = fileContent.substring(0, tableStartIndex) 
+                        + updatedTableContent + fileContent.substring(tableEndIndex + 1);
                 }
             }
         }
