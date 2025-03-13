@@ -282,7 +282,8 @@ export type NodePropertyKey =
     | "model"
     | "tools"
     | "query"
-    | "functionName";
+    | "functionName"
+    | "systemPrompt";
 
 export type BranchKind = "block" | "worker";
 
