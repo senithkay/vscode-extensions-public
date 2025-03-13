@@ -7,29 +7,19 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ballerinaExtInstance } from '../../core';
 import { DiagnosticEntry, Diagnostics, OpenAPISpec, ProjectDiagnostics, ProjectModule, ProjectSource, SyntaxTree, TestGenerationRequest, TestGenerationResponse, TestGenerationTarget } from '@wso2-enterprise/ballerina-core';
 import { ErrorCode } from "@wso2-enterprise/ballerina-core";
 import { DotToken, IdentifierToken, ModulePart, ResourceAccessorDefinition, ResourcePathRestParam, ResourcePathSegmentParam, ServiceDeclaration, SlashToken, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Uri, workspace } from "vscode";
-import { PARSING_ERROR, TIMEOUT, UNKNOWN_ERROR, USER_ABORTED, ENDPOINT_REMOVED } from '../../views/ai-panel/errorCodes';
+import { PARSING_ERROR, UNKNOWN_ERROR, ENDPOINT_REMOVED } from '../../views/ai-panel/errorCodes';
 import { langClient } from './activator';
-import * as yaml from 'js-yaml';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as child_process from 'child_process';
 import * as os from 'os';
 import { writeBallerinaFileDidOpen } from '../../utils/modification';
 import { fetchData } from '../../rpc-managers/ai-panel/utils/fetch-data-utils';
-import { request } from 'http';
-import { openExternalUrl } from 'src/utils/runCommand';
 import { closeAllBallerinaFiles } from './utils';
 
-const balVersionRegex = new RegExp("^[0-9]{4}.[0-9]+.[0-9]+");
-
-const config = workspace.getConfiguration('ballerina');
-const BAL_HOME = config.get('home') as string;
-const PLUGIN_DEV_MODE = config.get('pluginDevMode') as boolean;
 const TEST_GEN_REQUEST_TIMEOUT = 100000;
 
 // ----------- TEST GENERATOR -----------
@@ -356,15 +346,11 @@ function constructServiceName(targetNode: ServiceDeclaration): string {
 }
 
 async function getOpenAPISpecification(documentFilePath: string): Promise<string> {
-    if (isLatestTestGenSupported()) {
-        return await getOpenAPISpec(documentFilePath);
-    } else {
-        const response = await langClient.convertToOpenAPI({ documentFilePath }) as OpenAPISpec;
-        if (response.error) {
-            throw new Error(response.error);
-        }
-        return yaml.dump(response.content[0].spec);
+    const response = await langClient.convertToOpenAPI({ documentFilePath, enableBalExtension: true }) as OpenAPISpec;
+    if (response.error) {
+        throw new Error(response.error);
     }
+    return JSON.stringify(response.content[0].spec);
 }
 
 async function getUnitTests(request: TestGenerationRequest, projectSource: ProjectSource, abortController: AbortController, openApiSpec?: string): Promise<TestGenerationResponse | ErrorCode> {
@@ -417,50 +403,6 @@ async function sendTestGeneRequest(request: TestGenerationRequest, projectSource
         body: JSON.stringify(body)
     }, abortController, TEST_GEN_REQUEST_TIMEOUT);
     return response;
-}
-
-async function getOpenAPISpec(serviceFilePath: string): Promise<string> {
-    const tempDir = os.tmpdir();
-
-    return new Promise<string>((resolve, reject) => {
-        const balExec = PLUGIN_DEV_MODE ? BAL_HOME + '/bin/bal' : 'bal';
-        const command = `${balExec} openapi -i ${serviceFilePath} -o ${tempDir} --json --with-bal-ext`;
-
-        child_process.exec(command, (err, stdout, stderr) => {
-            if (err) {
-                reject(new Error(`Failed to extract the OpenAPI specification: ${err.message}`));
-            } else {
-                // Extract filename from stdout
-                const match = stdout.match(/-- (.+\.json)/);
-                if (!match) {
-                    reject(new Error('Failed: Unable to extract the OpenAPI specification. Please check your source for any compilation errors.'));
-                    return;
-                }
-
-                const filename = match[1];
-                const filePath = path.join(tempDir, filename);
-
-                // Read the content of the file
-                fs.readFile(filePath, 'utf8', (readErr, data) => {
-                    if (readErr) {
-                        reject(new Error(`Failed to extract the OpenAPI specification: ${readErr.message}`));
-                    } else {
-                        resolve(data);
-                    }
-                });
-            }
-        });
-    });
-}
-
-function isLatestTestGenSupported(): boolean {
-    const balVersion = ballerinaExtInstance.ballerinaVersion;
-    const versionStr = balVersion.match(balVersionRegex);
-    const splittedVersions = versionStr[0]?.split(".");
-    if ((parseInt(splittedVersions[0], 10) === 2201) && (parseInt(splittedVersions[1], 10) >= 10)) {
-        return true;
-    }
-    return false;
 }
 
 function getErrorDiagnostics(diagnostics: Diagnostics[], filePath: string): ProjectDiagnostics {
