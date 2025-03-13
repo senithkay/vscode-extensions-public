@@ -27,6 +27,7 @@ import { handleAgentOperations } from "./utils";
 import { ModelConfig } from "./ModelConfig";
 import { ToolConfig } from "./ToolConfig";
 import { AgentConfig } from "./AgentConfig";
+import { NewAgent } from "./NewAgent";
 
 export enum SidePanelView {
     NODE_LIST = "NODE_LIST",
@@ -34,6 +35,7 @@ export enum SidePanelView {
     FUNCTION_LIST = "FUNCTION_LIST",
     DATA_MAPPER_LIST = "DATA_MAPPER_LIST",
     NP_FUNCTION_LIST = "NP_FUNCTION_LIST",
+    NEW_AGENT = "NEW_AGENT",
     AGENT_TOOL_LIST = "AGENT_TOOL_LIST",
     AGENT_TOOL = "AGENT_TOOL",
     AGENT_MODEL = "AGENT_MODEL",
@@ -61,7 +63,6 @@ interface PanelManagerProps {
     onBack?: () => void;
     onSelectNode: (nodeId: string, metadata?: any) => void;
     onAddConnection?: () => void;
-    onAddAgent?: () => void;
     onAddFunction?: () => void;
     onAddNPFunction?: () => void;
     onAddDataMapper?: () => void;
@@ -98,7 +99,6 @@ export function PanelManager({
     onBack,
     onSelectNode,
     onAddConnection,
-    onAddAgent,
     onAddFunction,
     onAddNPFunction,
     onAddDataMapper,
@@ -155,10 +155,12 @@ export function PanelManager({
                         categories={categories}
                         onSelect={onSelectNode}
                         onAddConnection={onAddConnection}
-                        onAddAgent={onAddAgent}
                         onClose={onClose}
                     />
                 );
+
+            case SidePanelView.NEW_AGENT:
+                return <NewAgent agentCallNode={selectedNode} fileName={fileName} lineRange={targetLineRange} onSave={onClose} />;
 
             case SidePanelView.AGENT_TOOL_LIST:
                 return (

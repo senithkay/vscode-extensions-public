@@ -134,6 +134,7 @@ export type CodeData = {
     sourceCode?: string;
     parentSymbol?: string;
     inferredReturnType?: string;
+    version?: string;
     isNew?: boolean;
 };
 
