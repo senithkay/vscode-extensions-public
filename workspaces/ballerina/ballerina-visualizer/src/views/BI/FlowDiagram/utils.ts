@@ -48,7 +48,13 @@ export const transformCategories = (categories: Category[]): Category[] => {
     if (statementCategory && statementCategory.items) {
         statementCategory.items.push({
             codedata: {
+                module: "ai.agent",
                 node: "AGENT_CALL",
+                object: "Agent",
+                org: "ballerinax",
+                parentSymbol: "",
+                symbol: "run",
+                version: "0.7.13",
             },
             enabled: true,
             metadata: {
