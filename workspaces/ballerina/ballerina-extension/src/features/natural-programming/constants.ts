@@ -36,3 +36,4 @@ export const MISSING_API_DOCS_2 = "api documentation is missing";
 export const MONITERED_EXTENSIONS = [
     ".bal", ".md", ".txt", ".pdf", ".docx"
 ];
+export const CONFIG_FILE_NAME = "Config.toml";

@@ -22,7 +22,7 @@ import {
     REQUIREMENT_DOC_PREFIX, REQUIREMENT_TEXT_DOCUMENT, REQUIREMENT_MD_DOCUMENT,
     README_FILE_NAME_LOWERCASE, DRIFT_DIAGNOSTIC_ID,
     LACK_OF_API_DOCUMENTATION_WARNING, LACK_OF_API_DOCUMENTATION_WARNING_2,
-    NO_DOCUMENTATION_WARNING,
+    NO_DOCUMENTATION_WARNING, CONFIG_FILE_NAME,
     MISSING_README_FILE_WARNING, MISSING_README_FILE_WARNING_2,
     MISSING_REQUIREMENT_FILE, MISSING_API_DOCS, MISSING_API_DOCS_2
 } from "./constants";
@@ -471,18 +471,19 @@ export async function streamToString(stream: ReadableStream<Uint8Array>): Promis
 function findFileCaseInsensitive(directory, fileName) {
     const files = fs.readdirSync(directory);
     const targetFile = files.find(file => file.toLowerCase() === fileName.toLowerCase());
-    return targetFile ? path.join(directory, targetFile) : null;
-  }
+    const file = targetFile ? targetFile: fileName;
+    return path.join(directory, file);
+}
 
 export function addDefaultModelConfigForNaturalFunctions(projectPath: string, token: string, backendUrl: string) {
     const targetTable = '[ballerinax.np.defaultModelConfig]';
     const urlLine = `url = "${backendUrl}"`;
     const accessTokenLine = `accessToken = "${token}"`;
-    const configFilePath = findFileCaseInsensitive(projectPath, "Config.toml");
+    const configFilePath = findFileCaseInsensitive(projectPath, CONFIG_FILE_NAME);
 
     let fileContent = '';
 
-    if (configFilePath == null || fs.existsSync(configFilePath)) {
+    if (fs.existsSync(configFilePath)) {
         fileContent = fs.readFileSync(configFilePath, 'utf-8');
     }
 
@@ -494,45 +495,47 @@ export function addDefaultModelConfigForNaturalFunctions(projectPath: string, to
             fileContent += '\n\n';
         }
         fileContent += `\n${targetTable}\n${urlLine}\n${accessTokenLine}\n`;
-    } else {
-        // Table exists, update it
-        const tableEndIndex = fileContent.indexOf('\n', tableStartIndex);
+        fs.writeFileSync(configFilePath, fileContent);
+        return;
+    } 
 
-        let updatedTableContent = `${targetTable}\n${urlLine}\n${accessTokenLine}`;
+    // Table exists, update it
+    const tableEndIndex = fileContent.indexOf('\n', tableStartIndex);
 
-        let urlLineIndex = fileContent.indexOf('url =', tableStartIndex);
-        let accessTokenLineIndex = fileContent.indexOf('accessToken =', tableStartIndex);
+    let updatedTableContent = `${targetTable}\n${urlLine}\n${accessTokenLine}`;
 
-        if (urlLineIndex !== -1 && accessTokenLineIndex !== -1) {
-            // url and accessToken lines exist, replace them
-            const existingUrlLineEnd = fileContent.indexOf('\n', urlLineIndex);
-            const existingAccessTokenLineEnd = fileContent.indexOf('\n', accessTokenLineIndex);
+    let urlLineIndex = fileContent.indexOf('url =', tableStartIndex);
+    let accessTokenLineIndex = fileContent.indexOf('accessToken =', tableStartIndex);
 
-            fileContent =
-                fileContent.substring(0, urlLineIndex) +
-                urlLine +
-                fileContent.substring(existingUrlLineEnd, accessTokenLineIndex) +
-                accessTokenLine +
-                fileContent.substring(existingAccessTokenLineEnd);
+    if (urlLineIndex !== -1 && accessTokenLineIndex !== -1) {
+        // url and accessToken lines exist, replace them
+        const existingUrlLineEnd = fileContent.indexOf('\n', urlLineIndex);
+        const existingAccessTokenLineEnd = fileContent.indexOf('\n', accessTokenLineIndex);
 
-        } else {
-            // If url or accessToken line does not exist, just replace the entire table
-            let nextTableStartIndex = fileContent.indexOf('[', tableEndIndex + 1);
-            if (nextTableStartIndex === -1) {
-                fileContent = fileContent.substring(0, tableStartIndex) 
-                        + updatedTableContent + fileContent.substring(tableEndIndex + 1);
-            } else {
-                let nextLineBreakIndex = fileContent.substring(tableEndIndex + 1).indexOf('\n');
-                if (nextLineBreakIndex === -1) {
-                    fileContent = fileContent.substring(0, tableStartIndex) + updatedTableContent;
-                } else {
-                    fileContent = fileContent.substring(0, tableStartIndex) 
-                        + updatedTableContent + fileContent.substring(tableEndIndex + 1);
-                }
-            }
-        }
+        fileContent =
+            fileContent.substring(0, urlLineIndex) +
+            urlLine +
+            fileContent.substring(existingUrlLineEnd, accessTokenLineIndex) +
+            accessTokenLine +
+            fileContent.substring(existingAccessTokenLineEnd);
+        fs.writeFileSync(configFilePath, fileContent);
+        return;
     }
 
+    // If url or accessToken line does not exist, just replace the entire table
+    let nextTableStartIndex = fileContent.indexOf('[', tableEndIndex + 1);
+    if (nextTableStartIndex === -1) {
+        fileContent = fileContent.substring(0, tableStartIndex) 
+                + updatedTableContent + fileContent.substring(tableEndIndex + 1);
+    } else {
+        let nextLineBreakIndex = fileContent.substring(tableEndIndex + 1).indexOf('\n');
+        if (nextLineBreakIndex === -1) {
+            fileContent = fileContent.substring(0, tableStartIndex) + updatedTableContent;
+        } else {
+            fileContent = fileContent.substring(0, tableStartIndex) 
+                + updatedTableContent + fileContent.substring(tableEndIndex + 1);
+        }
+    }
     fs.writeFileSync(configFilePath, fileContent);
 }
 
