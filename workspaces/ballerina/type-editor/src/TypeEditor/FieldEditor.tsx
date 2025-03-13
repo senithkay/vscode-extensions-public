@@ -34,6 +34,20 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
     const [helperPaneOffset, setHelperPaneOffset] = useState<Position>({ top: 0, left: 0 });
     const [helperPaneOpened, setHelperPaneOpened] = useState<boolean>(false);
 
+    const toggleOptional = () => {
+        onChange({
+            ...member,
+            optional: !member.optional
+        });
+    };
+
+    const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        onChange({
+            ...member,
+            docs: e.target.value
+        });
+    }
+
     const handleMemberNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onChange({
             ...member,
@@ -134,7 +148,7 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
         const searchElements = Array.from(document.querySelectorAll('#helper-pane-search'));
         if (
             (typeHelperRef.current?.contains(e.relatedTarget as Node) ||
-            typeBrowserRef.current?.contains(e.relatedTarget as Node)) &&
+                typeBrowserRef.current?.contains(e.relatedTarget as Node)) &&
             !searchElements.some(element => element.contains(e.relatedTarget as Node))
         ) {
             e.preventDefault();
@@ -169,9 +183,14 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                 <Button appearance="icon" onClick={() => setPanelOpened(!panelOpened)}><Codicon name="kebab-vertical" /></Button>
             </div>
             {panelOpened && (
-                <div style={{ border: '1px solid var(--vscode-welcomePage-tileBorder)', marginLeft: '25px', marginBottom: '10px', padding: '8px', borderRadius: '4px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', border: '1px solid var(--vscode-welcomePage-tileBorder)', marginLeft: '25px', marginBottom: '10px', padding: '8px', borderRadius: '4px' }}>
                     <TextField label='Default Value' value={member.defaultValue} onChange={handleMemberDefaultValueChange} style={{ width: '180px' }} />
-                    <TextField label='Description' value={''} onChange={() => { }} style={{ width: '180px' }} />
+                    <TextField label='Description' value={member.docs} onChange={handleDescriptionChange} style={{ width: '180px' }} />
+                    <CheckBox
+                        label="Is Optional Field"
+                        checked={member?.optional}
+                        onChange={toggleOptional}
+                    />
                 </div >
             )}
             {isRecord(member.type) && typeof member.type !== 'string' && (
