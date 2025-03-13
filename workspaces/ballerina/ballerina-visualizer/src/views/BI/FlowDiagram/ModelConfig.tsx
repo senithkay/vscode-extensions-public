@@ -147,6 +147,8 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
         nodeTemplate.codedata.lineRange = selectedModel?.codedata.lineRange;
         // update isNew to false
         nodeTemplate.codedata.isNew = false;
+        // update model name
+        nodeTemplate.properties.variable.value = selectedModel?.properties.variable.value;
         console.log(">>> request getSourceCode with template ", { nodeTemplate });
         // update source
         const response = await rpcClient
