@@ -58,7 +58,6 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { TestGeneratorIntermediaryState } from "./features/testGenerator";
 import TextWithBadges from "./Components/TextWithBadges";
 import { CopilotContentBlockContent, CopilotErrorContent, CopilotEvent, parseCopilotSSEEvent } from "./utils/sse_utils";
-import { boolean } from "yup";
 
 interface CodeBlock {
     filePath: string;
@@ -251,8 +250,8 @@ export function AIChat() {
             chatLocation = (await rpcClient.getVisualizerLocation()).projectUri;
             setIsReqFileExists(
                 chatLocation != null &&
-                    chatLocation != undefined &&
-                    (await rpcClient.getAiPanelRpcClient().isRequirementsSpecificationFileExist(chatLocation))
+                chatLocation != undefined &&
+                (await rpcClient.getAiPanelRpcClient().isRequirementsSpecificationFileExist(chatLocation))
             );
 
             generateNaturalProgrammingTemplate(isReqFileExists);
@@ -560,8 +559,8 @@ export function AIChat() {
                                     isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT)
                                         ? CodeGenerationType.CODE_FOR_USER_REQUIREMENT
                                         : isTestGenerationTemplateExists
-                                        ? CodeGenerationType.TESTS_FOR_USER_REQUIREMENT
-                                        : CodeGenerationType.CODE_GENERATION,
+                                            ? CodeGenerationType.TESTS_FOR_USER_REQUIREMENT
+                                            : CodeGenerationType.CODE_GENERATION,
                                 ],
                                 message
                             );
@@ -596,7 +595,7 @@ export function AIChat() {
                         } else {
                             throw new Error(
                                 `Invalid template format for the \`${COMMAND_DATAMAP}\` command. ` +
-                                    `Please ensure you follow the correct template.`
+                                `Please ensure you follow the correct template.`
                             );
                         }
                         break;
@@ -654,7 +653,7 @@ export function AIChat() {
                 }
                 throw new Error(
                     `Invalid template format for the \`${commandKey}\` command. ` +
-                        `Please ensure you follow the correct template.`
+                    `Please ensure you follow the correct template.`
                 );
             }
         } else {
@@ -896,8 +895,6 @@ export function AIChat() {
                 console.log("Initial Diagnostics : ", diagnostics);
                 setCurrentDiagnostics(diagnostics);
                 if (diagnostics.length > 0) {
-                    // Enter repair mode
-                    // setHasAttemptedRepair(false);
                     const diagReq = {
                         response: assistant_response,
                         diagnostics: diagnostics,
@@ -940,8 +937,6 @@ export function AIChat() {
                         console.log(`Repair call time: ${executionTime} milliseconds`);
                         console.log("After auto repair, Diagnostics : ", postProcessResp.diagnostics.diagnostics);
                         setCurrentDiagnostics(postProcessResp.diagnostics.diagnostics);
-                        // Exit repair mode
-                        // setHasAttemptedRepair(true);
                         setIsCodeLoading(false);
                         assistant_response = fixedResponse;
                         setMessages((prevMessages) => {
@@ -1411,8 +1406,8 @@ export function AIChat() {
             }
             const generatedFullSource = existingSource
                 ? existingSource +
-                  "\n\n// >>>>>>>>>>>>>>TEST CASES NEED TO BE FIXED <<<<<<<<<<<<<<<\n\n" +
-                  response.testSource
+                "\n\n// >>>>>>>>>>>>>>TEST CASES NEED TO BE FIXED <<<<<<<<<<<<<<<\n\n" +
+                response.testSource
                 : response.testSource;
 
             const diagnostics = await rpcClient.getAiPanelRpcClient().getTestDiagnostics({
@@ -2196,24 +2191,23 @@ export function AIChat() {
     };
 
     const handleRetryRepair = async () => {
-        //TODO: Fix and test this.
         if (currentDiagnostics.length === 0) return;
-        
+
         setIsCodeLoading(true);
         setIsLoading(true);
-        
+
         try {
             const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
             const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource(CodeGenerationType.CODE_GENERATION);
-            
+
             const usecase = messages[messages.length - 2].content;
             const latestMessage = messages[messages.length - 1].content;
-            
+
             const diagReq = {
                 response: latestMessage,
                 diagnostics: currentDiagnostics,
             };
-            
+
             const reqBody = {
                 usecase: usecase,
                 chatHistory: chatArray,
@@ -2236,28 +2230,28 @@ export function AIChat() {
                 },
                 rpcClient
             );
-            
+
             if (!response.ok) {
                 throw new Error("Repair failed");
             }
-            
+
             const jsonBody = await response.json();
             const repairResponse = jsonBody.repairResponse;
             let fixedResponse = replaceCodeBlocks(latestMessage, repairResponse);
-            
+
             const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
                 assistant_response: fixedResponse,
             });
-            
+
             fixedResponse = postProcessResp.assistant_response;
             setCurrentDiagnostics(postProcessResp.diagnostics.diagnostics);
-            
+
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
                 newMessages[newMessages.length - 1].content = fixedResponse;
                 return newMessages;
             });
-            
+
             // Update chat entry
             const lastIndex = chatArray.length - 1;
             if (lastIndex >= 0 && chatArray[lastIndex].actor === "assistant") {
@@ -2697,8 +2691,8 @@ interface CodeSectionProps {
     buttonsActive: boolean;
     isSyntaxError: boolean;
     command: string;
-    diagnostics : any[],
-    onRetryRepair : () => {},
+    diagnostics: any[],
+    onRetryRepair: () => {},
 }
 
 const CodeSection: React.FC<CodeSectionProps> = ({
@@ -2712,7 +2706,7 @@ const CodeSection: React.FC<CodeSectionProps> = ({
     isSyntaxError,
     command,
     diagnostics = [],
-    onRetryRepair = () => {},
+    onRetryRepair = () => { },
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isCodeAdded, setIsCodeAdded] = useState(false);
@@ -2725,8 +2719,8 @@ const CodeSection: React.FC<CodeSectionProps> = ({
     let name = loading
         ? "Generating " + (isTestCode ? "Tests..." : "Integration...")
         : isTestCode
-        ? "Ballerina Tests"
-        : "Ballerina Integration";
+            ? "Ballerina Tests"
+            : "Ballerina Integration";
 
     const allCodeSegments = splitContent(message.content)
         .filter((segment) => segment.type === SegmentType.Code)
@@ -2741,9 +2735,9 @@ const CodeSection: React.FC<CodeSectionProps> = ({
                     )}
                     {name}
                 </div>
-                
+
                 <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "8px" }}>
-                    
+
                     {/* Show warning icon if diagnostics exist */}
                     {!loading && isReady && diagnostics.length > 0 && command === "code" && !isCodeAdded && (
                         <Button
@@ -2759,8 +2753,8 @@ const CodeSection: React.FC<CodeSectionProps> = ({
                     )}
 
                     {/* Show spinner during generation or repair */}
-                    {(loading) &&<ProgressRing sx={{ height: '16px', width: '16px'}} />}
-                    
+                    {(loading) && <ProgressRing sx={{ height: '16px', width: '16px' }} />}
+
                     {/* TODO see why Add to integration either Revert button is visible */}
                     {!loading && isReady && language === "ballerina" && (
                         <>
