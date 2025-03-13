@@ -35,7 +35,9 @@ import * as fs from 'fs';
 
 export const BACKEND_API_URL_V2 = getPluginConfig().get('rootUrl') as string;
 const BACKEND_BASE_URL = BACKEND_API_URL_V2.replace(/\/v2\.0$/, "");
-const CONTEXT_UPLOAD_URL_V1 = BACKEND_BASE_URL + "/context-api/v1.0";
+//TODO: Temp workaround as custom domain seem to block file uploads
+const CONTEXT_UPLOAD_URL_V1 = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/ballerina-copilot/context-upload-api/v1.0";
+// const CONTEXT_UPLOAD_URL_V1 = BACKEND_BASE_URL + "/context-api/v1.0";
 const ASK_API_URL_V1 = BACKEND_BASE_URL + "/ask-api/v1.0";
 
 const REQUEST_TIMEOUT = 2000000;
@@ -2171,6 +2173,7 @@ export async function fetchWithToken(url: string, options: RequestInit) {
     options.headers = {
         ...options.headers,
         'Authorization': `Bearer ${accessToken}`,
+        'User-Agent': 'Ballerina-VSCode-Plugin',
     };
     let response = await fetch(url, options);
     console.log("Response status: ", response.status);
