@@ -168,7 +168,17 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
                     }
                 </S.DropdownContainer>
             ))}
-            {field.items.length > 0 &&
+            {(field.addNewButton && field.items.length > dropdownCount) &&
+                <S.AddNewButton
+                    appearance='icon'
+                    aria-label="add"
+                    onClick={onAddAnother}
+                >
+                    <Codicon name="add" />
+                    {label}
+                </S.AddNewButton>
+            }
+            {(!field.addNewButton && field.items.length > 0) &&
                 <S.AddNewButton
                     appearance='icon'
                     aria-label="add"

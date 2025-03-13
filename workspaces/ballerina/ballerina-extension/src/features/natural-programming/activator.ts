@@ -81,7 +81,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
     ballerinaExtInstance.context.subscriptions.push(showTextOptions);
 
-    vscode.commands.registerCommand("kolab.verifyDocs", async (...args: any[]) => {    
+    vscode.commands.registerCommand("ballerina.verifyDocs", async (...args: any[]) => {    
         await vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
