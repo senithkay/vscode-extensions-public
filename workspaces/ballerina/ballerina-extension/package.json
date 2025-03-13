@@ -483,6 +483,11 @@
                 "category": "Ballerina"
             },
             {
+                "command": "ballerina.configureDefaultModelForNaturalFunctions",
+                "title": "Configure default model for natural functions",
+                "category": "Ballerina"
+            },
+            {
                 "command": "ballerina.pasteXMLAsRecord",
                 "title": "Paste XML as Record",
                 "category": "Ballerina"
