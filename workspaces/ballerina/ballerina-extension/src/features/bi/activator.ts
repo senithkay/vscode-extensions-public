@@ -81,6 +81,8 @@ export function activate(context: BallerinaExtension) {
             await handleComponentDeletion('records', item.label, item.info);
         } else if (item.contextValue === DIRECTORY_SUB_TYPE.SERVICE) {
             await handleComponentDeletion('services', item.tooltip, item.info);
+        } else if (item.contextValue === DIRECTORY_SUB_TYPE.LISTENER) {
+            await handleComponentDeletion('listeners', item.tooltip, item.info);
         } else if (item.contextValue === DIRECTORY_SUB_TYPE.AUTOMATION) {
             await handleComponentDeletion('automations', item.tooltip, item.info);
         } else if (item.contextValue === DIRECTORY_SUB_TYPE.CONFIGURATION) {

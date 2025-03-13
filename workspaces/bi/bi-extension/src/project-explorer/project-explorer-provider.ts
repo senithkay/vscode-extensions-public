@@ -194,7 +194,7 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
         true
     );
     listeners.contextValue = "listeners";
-    listeners.children = getComponents(components.directoryMap[DIRECTORY_MAP.LISTENERS]);
+    listeners.children = getComponents(components.directoryMap[DIRECTORY_MAP.LISTENERS], DIRECTORY_MAP.LISTENERS);
     entries.push(listeners);
 
     // Connections
@@ -306,7 +306,7 @@ function getComponents(items: ProjectStructureArtifactResponse[], itemType?: DIR
             [DIRECTORY_MAP.FUNCTIONS]: DIRECTORY_SUB_TYPE.FUNCTION,
             [DIRECTORY_MAP.CONFIGURATIONS]: DIRECTORY_SUB_TYPE.CONFIGURATION,
             [DIRECTORY_MAP.TRIGGERS]: DIRECTORY_SUB_TYPE.TRIGGER,
-            [DIRECTORY_MAP.LISTENERS]: DIRECTORY_SUB_TYPE.TRIGGER,
+            [DIRECTORY_MAP.LISTENERS]: DIRECTORY_SUB_TYPE.LISTENER,
             [DIRECTORY_MAP.RECORDS]: DIRECTORY_SUB_TYPE.TYPE,
             [DIRECTORY_MAP.ENUMS]: DIRECTORY_SUB_TYPE.TYPE,
             [DIRECTORY_MAP.CLASSES]: DIRECTORY_SUB_TYPE.TYPE,
