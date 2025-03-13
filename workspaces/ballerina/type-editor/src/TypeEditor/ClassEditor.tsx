@@ -12,6 +12,7 @@ import { Type, TypeFunctionModel } from '@wso2-enterprise/ballerina-core';
 import { Codicon, Button, TextField, LinkButton } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { TypeField } from './TypeField';
+import { isValidBallerinaIdentifier } from './TypeUtil';
 
 namespace S {
     export const Container = styled.div`
@@ -147,10 +148,12 @@ export function ClassEditor({ type, onChange, isGraphql }: ClassEditorProps) {
         defaultValue: ''
     });
     const [editingParamIndex, setEditingParamIndex] = useState<number | null>(null);
+    const [nameErrors, setNameErrors] = useState<Record<number, string>>({});
+    const [paramNameError, setParamNameError] = useState<string>('');
 
     const toggleFunctionExpand = (index: number) => {
-        setExpandedFunctions(prev => 
-            prev.includes(index) 
+        setExpandedFunctions(prev =>
+            prev.includes(index)
                 ? prev.filter(i => i !== index)
                 : [...prev, index]
         );
@@ -214,6 +217,10 @@ export function ClassEditor({ type, onChange, isGraphql }: ClassEditorProps) {
     };
 
     const handleParameterSave = (functionIndex: number) => {
+        if (!validateParameterName(parameterForm.name)) {
+            return;
+        }
+
         const updatedFunctions = [...(type.functions || [])];
         const currentFunction = updatedFunctions[functionIndex];
 
@@ -254,6 +261,7 @@ export function ClassEditor({ type, onChange, isGraphql }: ClassEditorProps) {
         setParameterForm({ name: '', type: '', defaultValue: '' });
         setShowParameterForm(null);
         setEditingParamIndex(null);
+        setParamNameError(''); // Clear any error message
     };
 
     const deleteParameter = (functionIndex: number, paramIndex: number) => {
@@ -271,6 +279,55 @@ export function ClassEditor({ type, onChange, isGraphql }: ClassEditorProps) {
             ...type,
             functions: updatedFunctions
         });
+    };
+
+    // Add function to validate name
+    const validateFunctionName = (index: number, name: string) => {
+        if (!isValidBallerinaIdentifier(name)) {
+            setNameErrors(prev => ({
+                ...prev,
+                [index]: 'Invalid Identifier.'
+            }));
+            return false;
+        } else {
+            setNameErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[index];
+                return newErrors;
+            });
+            return true;
+        }
+    };
+
+    const handleNameChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+        const newName = e.target.value;
+        updateFunction(index, { name: newName });
+    };
+
+    // Add handler for blur event to validate
+    const handleNameBlur = (index: number, e: React.FocusEvent<HTMLInputElement>) => {
+        validateFunctionName(index, e.target.value);
+    };
+
+    // Add function to validate parameter name
+    const validateParameterName = (name: string): boolean => {
+        if (!isValidBallerinaIdentifier(name)) {
+            setParamNameError('Invalid Identifier.');
+            return false;
+        } else {
+            setParamNameError('');
+            return true;
+        }
+    };
+
+    const handleParameterNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newName = e.target.value;
+        setParameterForm(prev => ({ ...prev, name: newName }));
+    };
+
+    // Add handler for parameter name blur
+    const handleParameterNameBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        validateParameterName(e.target.value);
     };
 
     return (
@@ -294,7 +351,9 @@ export function ClassEditor({ type, onChange, isGraphql }: ClassEditorProps) {
                         <TextField
                             value={func.name}
                             ref={(el) => nameInputRefs.current[index] = el}
-                            onChange={(e) => updateFunction(index, { name: e.target.value })}
+                            onChange={(e) => handleNameChange(index, e)}
+                            onBlur={(e) => handleNameBlur(index, e)}
+                            errorMsg={nameErrors[index]}
                             placeholder="Name"
                         />
                         <TypeField
@@ -348,7 +407,9 @@ export function ClassEditor({ type, onChange, isGraphql }: ClassEditorProps) {
                                     <TextField
                                         placeholder={isGraphql ? "Argument Name" : "Parameter Name"}
                                         value={parameterForm.name}
-                                        onChange={(e) => setParameterForm(prev => ({ ...prev, name: e.target.value }))}
+                                        onChange={handleParameterNameChange}
+                                        onBlur={handleParameterNameBlur}
+                                        errorMsg={paramNameError}
                                     />
                                     <TypeField
                                         type={parameterForm.type}
@@ -365,13 +426,14 @@ export function ClassEditor({ type, onChange, isGraphql }: ClassEditorProps) {
                                         <Button onClick={() => {
                                             setShowParameterForm(null);
                                             setParameterForm({ name: '', type: '', defaultValue: '' });
+                                            setParamNameError('');
                                         }}>
                                             Cancel
                                         </Button>
                                         <Button
                                             appearance="primary"
                                             onClick={() => handleParameterSave(index)}
-                                            disabled={!parameterForm.name || !parameterForm.type}
+                                            disabled={!parameterForm.name || !parameterForm.type || paramNameError !== ''}
                                         >
                                             Save
                                         </Button>
