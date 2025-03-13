@@ -48,10 +48,26 @@ export const RecordFromXml = (props: RecordFromXmlProps) => {
 
     const onXmlUpload = (xml: string) => {
         setXml(xml);
+        validateXml(xml);
+    }
+
+    const validateXml = (xml: string) => {
+        try {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(xml, "text/xml");
+            // Check if parsing produced an error node
+            if (doc.getElementsByTagName("parsererror").length > 0) {
+                throw new Error("Invalid XML");
+            }
+            setError("");
+        } catch (e) {
+            setError("Invalid XML format");
+        }
     }
 
     const onXmlChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setXml(event.target.value);
+        validateXml(event.target.value);
     }
 
     const importXmlAsRecord = async () => {
@@ -59,8 +75,24 @@ export const RecordFromXml = (props: RecordFromXmlProps) => {
             xmlValue: xml,
             prefix: ""
         });
-        console.log(resp);
-        onImport(resp.types.map((t) => t.type));
+
+        // get the last record
+        const lastRecord = resp.types[resp.types.length - 1];
+        // get a list  of the records except for the last record
+        const otherRecords = resp.types
+            .filter((t) => t.type.name !== lastRecord.type.name)
+            .map((t) => t.type);
+
+        if (otherRecords.length > 0) {
+            await rpcClient.getBIDiagramRpcClient().updateTypes({
+                filePath: 'types.bal',
+                types: otherRecords
+            });
+        }
+
+        if (lastRecord) {
+            onImport([lastRecord.type]);
+        }
     }
 
     return (

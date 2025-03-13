@@ -694,7 +694,7 @@ class BIRunAdapter extends LoggingDebugSession {
         }
 
         // Get Ballerina home path from settings
-        const config = workspace.getConfiguration('kolab');
+        const config = workspace.getConfiguration('ballerina');
         const ballerinaHome = config.get<string>('home');
         if (ballerinaHome) {
             // Add ballerina home to build path only if it's configured
@@ -811,6 +811,6 @@ function findFreePort(): Promise<number> {
 }
 
 function isFastRunEnabled(): boolean {
-    const config = workspace.getConfiguration('kolab');
+    const config = workspace.getConfiguration('ballerina');
     return config.get<boolean>('enableRunFast');
 }

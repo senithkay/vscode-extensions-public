@@ -66,8 +66,10 @@ interface FormProps {
     resetUpdatedExpressionField?: () => void;
     selectedNode?: NodeKind;
     nestedForm?: boolean;
+    compact?: boolean;
     helperPaneSide?: 'right' | 'left';
     recordTypeFields?: RecordTypeField[];
+    disableSaveButton?: boolean;
 }
 
 export function FormGeneratorNew(props: FormProps) {
@@ -86,12 +88,14 @@ export function FormGeneratorNew(props: FormProps) {
         resetUpdatedExpressionField,
         selectedNode,
         nestedForm,
+        compact = false,
         helperPaneSide,
-        recordTypeFields
+        recordTypeFields,
+        disableSaveButton = false
     } = props;
 
     const { rpcClient } = useRpcContext();
-    console.log("======FormGeneratorNew======,", fields)
+    // console.log("======FormGeneratorNew======,", fields)
 
     const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false });
 
@@ -498,7 +502,9 @@ export function FormGeneratorNew(props: FormProps) {
                     updatedExpressionField={updatedExpressionField}
                     resetUpdatedExpressionField={resetUpdatedExpressionField}
                     selectedNode={selectedNode}
+                    compact={compact}
                     recordTypeFields={recordTypeFields}
+                    disableSaveButton={disableSaveButton}
                 />
             )}
             {typeEditorState.isOpen && (

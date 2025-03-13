@@ -250,6 +250,7 @@ import {
     CopyArtifactResponse,
     GetArtifactTypeRequest,
     GetArtifactTypeResponse,
+    LocalInboundConnectorsResponse,
     BuildProjectRequest,
     DeployProjectRequest,
     DeployProjectResponse,
@@ -5143,6 +5144,14 @@ ${keyValuesXML}`;
                 const content = document.getText();
                 undoRedo.addModification(content);
             }
+        });
+    }
+
+    async getLocalInboundConnectors(): Promise<LocalInboundConnectorsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            let response = await langClient.getLocalInboundConnectors();
+            resolve(response);
         });
     }
 

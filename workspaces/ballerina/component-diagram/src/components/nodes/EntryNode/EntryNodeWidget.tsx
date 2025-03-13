@@ -19,7 +19,7 @@ import { MoreVertIcon } from "../../../resources/icons/nodes/MoreVertIcon";
 import { CDAutomation, CDFunction, CDService, CDResourceFunction } from "@wso2-enterprise/ballerina-core";
 import { getEntryNodeFunctionPortName } from "../../../utils/diagram";
 import { GraphQLIcon } from "../../../resources/icons/nodes/GraphqlIcon";
-
+import { AgentIcon } from "../../../resources/icons/nodes/AgentIcon";
 type NodeStyleProp = {
     hovered: boolean;
     inactive?: boolean;
@@ -75,7 +75,7 @@ const Icon = styled.div`
     }
 `;
 
-const Title = styled(StyledText)<NodeStyleProp>`
+const Title = styled(StyledText) <NodeStyleProp>`
     max-width: ${ENTRY_NODE_WIDTH - 80}px;
     white-space: nowrap;
     overflow: hidden;
@@ -138,7 +138,7 @@ const FunctionBoxWrapper = styled.div`
     color: ${ThemeColors.ON_SURFACE};
 `;
 
-const StyledServiceBox = styled(ServiceBox)<NodeStyleProp>`
+const StyledServiceBox = styled(ServiceBox) <NodeStyleProp>`
     height: 40px;
     padding: 0 12px;
 
@@ -170,7 +170,7 @@ interface EntryNodeWidgetProps {
     engine: DiagramEngine;
 }
 
-export interface NodeWidgetProps extends Omit<EntryNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<EntryNodeWidgetProps, "children"> { }
 
 export function EntryNodeWidget(props: EntryNodeWidgetProps) {
     const { model, engine } = props;
@@ -195,6 +195,9 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
                 const serviceType = (model.node as CDService)?.type;
                 if (serviceType === "graphql:Service") {
                     return <GraphQLIcon />;
+                }
+                if (serviceType === "agent:Service") {
+                    return <AgentIcon />;
                 }
                 return <ImageWithFallback imageUrl={(model.node as CDService).icon} fallbackEl={<HttpIcon />} />;
             default:

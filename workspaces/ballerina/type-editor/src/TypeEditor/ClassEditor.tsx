@@ -11,6 +11,7 @@ import React, { useRef, useState } from 'react';
 import { Type, TypeFunctionModel } from '@wso2-enterprise/ballerina-core';
 import { Codicon, Button, TextField, LinkButton } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
+import { TypeField } from './TypeField';
 
 namespace S {
     export const Container = styled.div`
@@ -275,7 +276,7 @@ export function ClassEditor({ type, onChange, isGraphql }: ClassEditorProps) {
     return (
         <S.Container>
             <S.Header>
-                <S.SectionTitle>{isGraphql ? 'Object Fields' : 'Service Class'}</S.SectionTitle>
+                <S.SectionTitle>{isGraphql ? 'Object Fields' : 'Resource Methods'}</S.SectionTitle>
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <Button appearance="icon" onClick={addFunction}><Codicon name="add" /></Button>
                 </div>
@@ -296,9 +297,10 @@ export function ClassEditor({ type, onChange, isGraphql }: ClassEditorProps) {
                             onChange={(e) => updateFunction(index, { name: e.target.value })}
                             placeholder="Name"
                         />
-                        <TextField
-                            value={typeof func.returnType === 'string' ? func.returnType : func.returnType?.name}
-                            onChange={(e) => updateFunction(index, { returnType: e.target.value })}
+                        <TypeField
+                            type={func.returnType}
+                            memberName={typeof func.returnType === 'string' ? func.returnType : func.returnType?.name}
+                            onChange={(newType) => updateFunction(index, { returnType: newType })}
                             placeholder="Type"
                         />
                         <Button appearance="icon" onClick={() => deleteFunction(index)}><Codicon name="trash" /></Button>
@@ -348,10 +350,11 @@ export function ClassEditor({ type, onChange, isGraphql }: ClassEditorProps) {
                                         value={parameterForm.name}
                                         onChange={(e) => setParameterForm(prev => ({ ...prev, name: e.target.value }))}
                                     />
-                                    <TextField
+                                    <TypeField
+                                        type={parameterForm.type}
+                                        memberName={parameterForm.type}
+                                        onChange={(newType) => setParameterForm(prev => ({ ...prev, type: newType }))}
                                         placeholder={isGraphql ? "Argument Type" : "Parameter Type"}
-                                        value={parameterForm.type}
-                                        onChange={(e) => setParameterForm(prev => ({ ...prev, type: e.target.value }))}
                                     />
                                     <TextField
                                         placeholder="Default Value"
