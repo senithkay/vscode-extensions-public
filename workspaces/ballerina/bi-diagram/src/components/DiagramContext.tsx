@@ -8,7 +8,7 @@
  */
 
 import React, { useState } from "react";
-import { Flow, NodeKind, FlowNode, Branch, LineRange, NodePosition, FlowNodeStyle } from "../utils/types";
+import { Flow, FlowNode, Branch, LineRange, NodePosition, ToolData } from "../utils/types";
 
 export interface DiagramContextState {
     flow: Flow;
@@ -30,6 +30,12 @@ export interface DiagramContextState {
     onConnectionSelect?: (connectionName: string) => void;
     goToSource: (node: FlowNode) => void;
     openView: (filePath: string, position: NodePosition) => void;
+    agentNode: {
+        onModelSelect: (node: FlowNode) => void;
+        onAddTool: (node: FlowNode) => void;
+        onSelectTool: (tool: ToolData, node: FlowNode) => void;
+        onDeleteTool: (tool: ToolData, node: FlowNode) => void;
+    };
     suggestions?: {
         fetching: boolean;
         onAccept(): void;
@@ -61,6 +67,12 @@ export const DiagramContext = React.createContext<DiagramContextState>({
     addBreakpoint: () => {},
     removeBreakpoint: () => {},
     openView: () => {},
+    agentNode: {
+        onModelSelect: () => {},
+        onAddTool: () => {},
+        onSelectTool: () => {},
+        onDeleteTool: () => {},
+    },
     suggestions: {
         fetching: false,
         onAccept: () => {},
