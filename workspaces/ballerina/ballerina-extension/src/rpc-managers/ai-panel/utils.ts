@@ -1404,7 +1404,7 @@ async function sendMappingFileUploadRequest(file: Blob): Promise<Response | Erro
 }
 
 export async function searchDocumentation(message: string): Promise<string | ErrorCode> {
-    const BACKEND_API_URL ="https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/ballerina-copilot/documentation-assist/v1.0";
+    const BACKEND_API_URL ="https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/ballerina-copilot/documentation-assist/v1.0";
     const response = await fetch(BACKEND_API_URL + "/documentation-assistant", {
         method: "POST",
         headers: {

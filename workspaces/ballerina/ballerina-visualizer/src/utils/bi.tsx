@@ -46,7 +46,7 @@ import {
     HelperPaneFunctionCategory,
     HelperPaneCompletionItem
 } from "@wso2-enterprise/ballerina-side-panel";
-import { SidePanelView } from "../views/BI/FlowDiagram";
+import { SidePanelView } from "../views/BI/FlowDiagram/PanelManager";
 import { cloneDeep } from "lodash";
 import { CompletionItem, CompletionItemKind, convertCompletionItemKind } from "@wso2-enterprise/ui-toolkit";
 
@@ -249,6 +249,14 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode, cli
     switch (view) {
         case SidePanelView.NODE_LIST:
             return ""; // Show switch instead of title
+        case SidePanelView.AGENT_MODEL:
+            return "Configure LLM Model";
+        case SidePanelView.AGENT_TOOL:
+            return "Configure Tool";
+        case SidePanelView.AGENT_TOOL_LIST:
+            return "Add Tool to Agent";
+        case SidePanelView.AGENT_CONFIG:
+            return "Configure Agent";
         case SidePanelView.FORM:
             if (
                 activeNode.codedata?.node === "REMOTE_ACTION_CALL" ||

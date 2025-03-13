@@ -8,7 +8,7 @@
  */
 
 import vscode from 'vscode';
-import { ENABLE_NATURAL_PROGRAMMING } from "../../core/preferences";
+import { ENABLE_BACKGROUND_DRIFT_CHECK } from "../../core/preferences";
 import { debounce } from 'lodash';
 import { StateMachine } from "../../stateMachine";
 import { getLLMDiagnostics } from "./utils";
@@ -19,14 +19,14 @@ import { PROGRESS_BAR_MESSAGE, WARNING_MESSAGE, WARNING_MESSAGE_DEFAULT, MONITER
 let diagnosticCollection: vscode.DiagnosticCollection;
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
-    const naturalLanguageConfig = vscode.workspace.getConfiguration().get<boolean>(ENABLE_NATURAL_PROGRAMMING);
+    const backgroundDriftCheckConfig = vscode.workspace.getConfiguration().get<boolean>(ENABLE_BACKGROUND_DRIFT_CHECK);
 
     // Create diagnostic collection and register it
     diagnosticCollection = vscode.languages.createDiagnosticCollection('ballerina');
     ballerinaExtInstance.context.subscriptions.push(diagnosticCollection);
 
     const projectPath = StateMachine.context().projectUri;
-    if (naturalLanguageConfig) {
+    if (backgroundDriftCheckConfig) {
         if (!ballerinaExtInstance.context || projectPath == null || projectPath == "") {
             return;
         }
@@ -81,7 +81,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
     ballerinaExtInstance.context.subscriptions.push(showTextOptions);
 
-    vscode.commands.registerCommand("kolab.verifyDocs", async (...args: any[]) => {    
+    vscode.commands.registerCommand("ballerina.verifyDocs", async (...args: any[]) => {    
         await vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,

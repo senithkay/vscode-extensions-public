@@ -292,7 +292,7 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
         {
             key: `description`,
             label: "Description",
-            type: "EXPRESSION",
+            type: "TEXTAREA",
             optional: false,
             editable: true,
             documentation: "Enter the description of the tool.",

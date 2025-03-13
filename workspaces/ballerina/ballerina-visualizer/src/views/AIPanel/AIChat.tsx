@@ -75,14 +75,14 @@ interface ApiResponse {
 }
 
 interface ChatIndexes {
-    integratedChatIndex: number,
-    previouslyIntegratedChatIndex: number
+    integratedChatIndex: number;
+    previouslyIntegratedChatIndex: number;
 }
 
 enum CodeGenerationType {
     CODE_FOR_USER_REQUIREMENT = "CODE_FOR_USER_REQUIREMENT",
     TESTS_FOR_USER_REQUIREMENT = "TESTS_FOR_USER_REQUIREMENT",
-    CODE_GENERATION = "CODE_GENERATION"
+    CODE_GENERATION = "CODE_GENERATION",
 }
 
 var chatArray: ChatEntry[] = [];
@@ -103,9 +103,11 @@ var remainingTokenPercentage: string | number;
 var remaingTokenLessThanOne: boolean = false;
 
 var timeToReset: number;
-export const INVALID_RECORD_REFERENCE = "Invalid record reference. Follow <org-name>/<package-name>:<record-name> format when referencing to record in another package.";
+export const INVALID_RECORD_REFERENCE =
+    "Invalid record reference. Follow <org-name>/<package-name>:<record-name> format when referencing to record in another package.";
 const NO_DRIFT_FOUND = "No drift identified between the code and the documentation.";
 const DRIFT_CHECK_ERROR = "Failed to check drift between the code and the documentation. Please try again.";
+const RATE_LIMIT_ERROR = ` Cause: Your usage limit has been exceeded. This should reset in the beggining of the next month.`
 
 // Define constants for command keys
 export const COMMAND_GENERATE = "/generate";
@@ -132,9 +134,9 @@ const TEMPLATE_DATAMAP = [
     "generate mapping using input as <recordname(s)> and output as <recordname>",
 ];
 const TEMPLATE_TYPECREATOR = ["generate types using the attatched file"];
-const TEMPLATE_DOCUMENTATION : string[] = [];
-const TEMPLATE_HEALTHCARE : string[] = [];
-const TEMPLATE_OPENAPI : string[]= [];
+const TEMPLATE_DOCUMENTATION: string[] = [];
+const TEMPLATE_HEALTHCARE: string[] = [];
+const TEMPLATE_OPENAPI: string[] = [];
 
 const DEFAULT_MENU_COMMANDS = [
     { command: COMMAND_GENERATE + " write a hello world http service" },
@@ -157,7 +159,7 @@ const commandToTemplate = new Map<string, string[]>([
     [COMMAND_HEALTHCARE, TEMPLATE_HEALTHCARE],
     [COMMAND_DOCUMENTATION, TEMPLATE_DOCUMENTATION],
     [COMMAND_NATURAL_PROGRAMMING, TEMPLATE_NATURAL_PROGRAMMING],
-    [COMMAND_OPENAPI, TEMPLATE_OPENAPI]
+    [COMMAND_OPENAPI, TEMPLATE_OPENAPI],
 ]);
 
 //TODO: Add the files relevant to the commands
@@ -166,9 +168,27 @@ export const getFileTypesForCommand = (command: string): string[] => {
     switch (command) {
         case COMMAND_GENERATE:
         case COMMAND_TESTS:
-            return ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml", ".sql", ".graphql", ""];
+            return [
+                "text/plain",
+                "application/json",
+                "application/x-yaml",
+                "application/xml",
+                "text/xml",
+                ".sql",
+                ".graphql",
+                "",
+            ];
         case COMMAND_NATURAL_PROGRAMMING:
-            return ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml", ".sql", ".graphql", ""];
+            return [
+                "text/plain",
+                "application/json",
+                "application/x-yaml",
+                "application/xml",
+                "text/xml",
+                ".sql",
+                ".graphql",
+                "",
+            ];
         case COMMAND_DATAMAP:
         case COMMAND_TYPECREATOR:
             return [
@@ -214,6 +234,8 @@ export function AIChat() {
     const [testGenIntermediaryState, setTestGenIntermediaryState] = useState<TestGeneratorIntermediaryState | null>(
         null
     );
+    const [currentDiagnostics, setCurrentDiagnostics] = useState<any[]>([]);
+    const [functions, setFunctions] = useState<any>([]);
 
     const messagesEndRef = React.createRef<HTMLDivElement>();
 
@@ -226,8 +248,11 @@ export function AIChat() {
         try {
             backendRootUri = await rpcClient.getAiPanelRpcClient().getBackendURL();
             chatLocation = (await rpcClient.getVisualizerLocation()).projectUri;
-            setIsReqFileExists(chatLocation != null && chatLocation != undefined 
-                && (await rpcClient.getAiPanelRpcClient().isRequirementsSpecificationFileExist(chatLocation)));
+            setIsReqFileExists(
+                chatLocation != null &&
+                chatLocation != undefined &&
+                (await rpcClient.getAiPanelRpcClient().isRequirementsSpecificationFileExist(chatLocation))
+            );
 
             generateNaturalProgrammingTemplate(isReqFileExists);
             // Do something with backendRootUri
@@ -309,15 +334,15 @@ export function AIChat() {
         if (isReqFileExists) {
             TEMPLATE_NATURAL_PROGRAMMING.push(
                 CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION,
-                GENERATE_CODE_AGAINST_THE_REQUIREMENT, 
+                GENERATE_CODE_AGAINST_THE_REQUIREMENT,
                 GENERATE_TEST_AGAINST_THE_REQUIREMENT
-            )
+            );
         } else {
             TEMPLATE_NATURAL_PROGRAMMING.push(
-                GENERATE_CODE_AGAINST_THE_REQUIREMENT_TEMPLATE, 
+                GENERATE_CODE_AGAINST_THE_REQUIREMENT_TEMPLATE,
                 CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION,
                 GENERATE_TEST_AGAINST_THE_REQUIREMENT
-            )
+            );
         }
     }
 
@@ -402,15 +427,24 @@ export function AIChat() {
             console.error("Failed to process content:", error);
             setIsLoading(false);
             setIsCodeLoading(false);
-            setMessages((prevMessages) => {
-                const newMessages = [...prevMessages];
-                if (error && "message" in error) {
-                    newMessages[newMessages.length - 1].content += `<error>${error.message}</error>`;
-                } else {
-                    newMessages[newMessages.length - 1].content += `<error>${error}</error>`;
-                }
-                return newMessages;
-            });
+            if (error.name === "AbortError") {
+                // Don't show an error message or show a user-friendly message
+                setMessages((prevMessages) => {
+                    const newMessages = [...prevMessages];
+                    newMessages[newMessages.length - 1].content += `<error>Generation stopped by the user</error>`;
+                    return newMessages;
+                });
+            } else {
+                setMessages((prevMessages) => {
+                    const newMessages = [...prevMessages];
+                    if (error && "message" in error) {
+                        newMessages[newMessages.length - 1].content += `<error>${error.message}</error>`;
+                    } else {
+                        newMessages[newMessages.length - 1].content += `<error>${error}</error>`;
+                    }
+                    return newMessages;
+                });
+            }
         }
     }
 
@@ -470,44 +504,47 @@ export function AIChat() {
                                         ? parameters.inputRecord[0]
                                         : messageBody,
                                     attachments,
-                                    null
+                                    null,
                                 ],
                                 message
                             );
                             break;
                         } else {
-                            const isRequirementsTemplateExists = isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT);
+                            const isRequirementsTemplateExists = isContentIncludedInMessageBody(
+                                messageBody,
+                                GENERATE_CODE_AGAINST_THE_REQUIREMENT
+                            );
                             if (isRequirementsTemplateExists && !isReqFileExists) {
                                 const handleExtractRequirements = () => {
                                     const prefix = GENERATE_CODE_AGAINST_THE_REQUIREMENT;
                                     if (messageBody.includes(prefix)) {
-                                      return removePrefixSymbols(messageBody.split(prefix)[1].trim());
+                                        return removePrefixSymbols(messageBody.split(prefix)[1].trim());
                                     } else {
-                                      return "";
+                                        return "";
                                     }
                                 };
 
                                 function removePrefixSymbols(text: string) {
                                     // Check if the text starts with ':' or '<'
-                                    if (text.startsWith(':') || text.startsWith('<')) {
-                                      // Remove the first character
-                                      return text.slice(1);
+                                    if (text.startsWith(":") || text.startsWith("<")) {
+                                        // Remove the first character
+                                        return text.slice(1);
                                     }
                                     // Return the original text if it doesn't start with ':' or '<'
                                     return text;
-                                  }
+                                }
                                 const requirements = handleExtractRequirements();
-                                await rpcClient.getAiPanelRpcClient().updateRequirementSpecification(
-                                    {
-                                        filepath: chatLocation,
-                                        content: requirements
-                                    }
-                                );
+                                await rpcClient.getAiPanelRpcClient().updateRequirementSpecification({
+                                    filepath: chatLocation,
+                                    content: requirements,
+                                });
                                 setIsReqFileExists(true);
                             }
 
-                            const isTestGenerationTemplateExists = 
-                                        isContentIncludedInMessageBody(messageBody, GENERATE_TEST_AGAINST_THE_REQUIREMENT)
+                            const isTestGenerationTemplateExists = isContentIncludedInMessageBody(
+                                messageBody,
+                                GENERATE_TEST_AGAINST_THE_REQUIREMENT
+                            );
                             if (isTestGenerationTemplateExists) {
                                 rpcClient.getAiPanelRpcClient().createTestDirecoryIfNotExists(chatLocation);
                             }
@@ -519,15 +556,16 @@ export function AIChat() {
                                         ? parameters.inputRecord[0]
                                         : messageBody,
                                     attachments,
-                                    isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT) 
-                                        ? CodeGenerationType.CODE_FOR_USER_REQUIREMENT 
-                                        : isTestGenerationTemplateExists ? CodeGenerationType.TESTS_FOR_USER_REQUIREMENT 
-                                        : CodeGenerationType.CODE_GENERATION
+                                    isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT)
+                                        ? CodeGenerationType.CODE_FOR_USER_REQUIREMENT
+                                        : isTestGenerationTemplateExists
+                                            ? CodeGenerationType.TESTS_FOR_USER_REQUIREMENT
+                                            : CodeGenerationType.CODE_GENERATION,
                                 ],
                                 message
                             );
                             break;
-                        } 
+                        }
                     }
                     case COMMAND_GENERATE: {
                         await processCodeGeneration(
@@ -537,7 +575,7 @@ export function AIChat() {
                                     ? parameters.inputRecord[0]
                                     : messageBody,
                                 attachments,
-                                CodeGenerationType.CODE_GENERATION
+                                CodeGenerationType.CODE_GENERATION,
                             ],
                             cleanedMessage
                         );
@@ -596,7 +634,11 @@ export function AIChat() {
                     return;
                 } else if (commandKey === COMMAND_NATURAL_PROGRAMMING) {
                     if (isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT)) {
-                        await processCodeGeneration(token, [messageBody, attachments, CodeGenerationType.CODE_FOR_USER_REQUIREMENT], message);
+                        await processCodeGeneration(
+                            token,
+                            [messageBody, attachments, CodeGenerationType.CODE_FOR_USER_REQUIREMENT],
+                            message
+                        );
                         return;
                     }
                 } else if (commandKey === COMMAND_DOCUMENTATION) {
@@ -611,7 +653,7 @@ export function AIChat() {
                 }
                 throw new Error(
                     `Invalid template format for the \`${commandKey}\` command. ` +
-                        `Please ensure you follow the correct template.`
+                    `Please ensure you follow the correct template.`
                 );
             }
         } else {
@@ -637,7 +679,10 @@ export function AIChat() {
         for (const template of expectedTemplates ?? []) {
             let pattern = template
                 .replace(/<servicename>/g, "(\\S+?)")
-                .replace(/<recordname\(s\)>/g, "(\\s*(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+(?:[\\s,]+(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+)*\\s*)")
+                .replace(
+                    /<recordname\(s\)>/g,
+                    "(\\s*(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+(?:[\\s,]+(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+)*\\s*)"
+                )
                 .replace(/<recordname>/g, "(\\s*(?:[\\w\\/|.-]+\\s*:\\s*)?[\\w|:\\[\\]]+\\s*)")
                 .replace(/<use-case>/g, "([\\s\\S]+?)")
                 .replace(/<requirements>/g, "([\\s\\S]+?)")
@@ -680,15 +725,20 @@ export function AIChat() {
         return null;
     }
 
-    async function processLLMDiagnostics(token: string, content: [string, AttachmentResult[], string], message: string) {
+    async function processLLMDiagnostics(
+        token: string,
+        content: [string, AttachmentResult[], string],
+        message: string
+    ) {
         const [useCase, attachments, operationType] = content;
 
-        let response: LLMDiagnostics =  rpcClient == null ? 
-            {statusCode: 500, diags: DRIFT_CHECK_ERROR}: 
-            await rpcClient.getAiPanelRpcClient().getDriftDiagnosticContents(chatLocation);
+        let response: LLMDiagnostics =
+            rpcClient == null
+                ? { statusCode: 500, diags: DRIFT_CHECK_ERROR }
+                : await rpcClient.getAiPanelRpcClient().getDriftDiagnosticContents(chatLocation);
 
         const responseStatus = response.statusCode;
-        const invalidResponse = response == null|| response.statusCode == null;
+        const invalidResponse = response == null || response.statusCode == null;
 
         if (invalidResponse) {
             throw new Error(DRIFT_CHECK_ERROR);
@@ -711,9 +761,9 @@ export function AIChat() {
         setIsLoading(false);
 
         const userMessage = getUserMessage([message, attachments]);
-        setMessages(prevMessages => {
+        setMessages((prevMessages) => {
             const newMessage = [...prevMessages];
-            newMessage[newMessage.length -1].content = response.diags;
+            newMessage[newMessage.length - 1].content = response.diags;
             return newMessage;
         });
         addChatEntry("user", userMessage);
@@ -746,7 +796,11 @@ export function AIChat() {
         }
     }
 
-    async function processCodeGeneration(token: string, content: [string, AttachmentResult[], string], message: string) {
+    async function processCodeGeneration(
+        token: string,
+        content: [string, AttachmentResult[], string],
+        message: string
+    ) {
         const [useCase, attachments, operationType] = content;
 
         let assistant_response = "";
@@ -755,7 +809,7 @@ export function AIChat() {
             usecase: useCase,
             chatHistory: chatArray,
             sourceFiles: project.sourceFiles,
-            operationType
+            operationType,
         };
 
         const stringifiedUploadedFiles = attachments.map((file) => JSON.stringify(file));
@@ -777,8 +831,6 @@ export function AIChat() {
             rpcClient
         );
 
-        let functions: any;
-
         if (!response.ok) {
             if (response.status > 400 && response.status < 500) {
                 await rpcClient.getAiPanelRpcClient().promptLogin();
@@ -790,7 +842,7 @@ export function AIChat() {
             let error = `Failed to fetch response.`;
             if (response.status == 429) {
                 response.json().then((body) => {
-                    error += ` Cause: ${body.detail}`;
+                    error += RATE_LIMIT_ERROR;
                 });
             }
             throw new Error(error);
@@ -832,16 +884,17 @@ export function AIChat() {
 
                 handleContentBlockDelta(textDelta);
             } else if (event.event == "functions") {
-                functions = event.body;
+                // Update the functions state instead of the global variable
+                setFunctions(event.body);
             } else if (event.event == "message_stop") {
                 const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
                     assistant_response: assistant_response,
                 });
                 assistant_response = postProcessResp.assistant_response;
                 const diagnostics = postProcessResp.diagnostics.diagnostics;
-                console.log("Diagnostics : ", diagnostics);
+                console.log("Initial Diagnostics : ", diagnostics);
+                setCurrentDiagnostics(diagnostics);
                 if (diagnostics.length > 0) {
-                    //TODO: fill
                     const diagReq = {
                         response: assistant_response,
                         diagnostics: diagnostics,
@@ -861,7 +914,7 @@ export function AIChat() {
                                 sourceFiles: project.sourceFiles,
                                 diagnosticRequest: diagReq,
                                 functions: functions,
-                                operationType
+                                operationType,
                             }),
                             signal: signal,
                         },
@@ -882,6 +935,8 @@ export function AIChat() {
                         const endTime = performance.now();
                         const executionTime = endTime - startTime;
                         console.log(`Repair call time: ${executionTime} milliseconds`);
+                        console.log("After auto repair, Diagnostics : ", postProcessResp.diagnostics.diagnostics);
+                        setCurrentDiagnostics(postProcessResp.diagnostics.diagnostics);
                         setIsCodeLoading(false);
                         assistant_response = fixedResponse;
                         setMessages((prevMessages) => {
@@ -969,32 +1024,34 @@ export function AIChat() {
             if (command === "ai_map") {
                 const importRegex = /import\s+[^;]+;/g;
                 const commentRegex = /^(?:(\/\/.*|#.*)\n)+/; // Matches both `//` and `#` comment blocks at the top
-            
+
                 const imports = segmentText.match(importRegex) || [];
-                const codeWithoutImports = segmentText.replace(importRegex, '').trim();
-            
+                const codeWithoutImports = segmentText.replace(importRegex, "").trim();
+
                 let updatedContent = originalContent;
-            
+
                 // Extract existing comments at the top
                 const commentMatch = updatedContent.match(commentRegex);
-                const existingComments = commentMatch ? commentMatch[0].trim() + "\n\n" : ""; 
-                updatedContent = updatedContent.replace(commentRegex, '').trim(); 
-            
+                const existingComments = commentMatch ? commentMatch[0].trim() + "\n\n" : "";
+                updatedContent = updatedContent.replace(commentRegex, "").trim();
+
                 // Find any additional `#` comments that may exist before imports
                 const additionalCommentMatch = updatedContent.match(commentRegex);
-                const additionalComments = additionalCommentMatch ? additionalCommentMatch[0].trim() + "\n\n" : ""; 
-                updatedContent = updatedContent.replace(commentRegex, '').trim();
-            
+                const additionalComments = additionalCommentMatch ? additionalCommentMatch[0].trim() + "\n\n" : "";
+                updatedContent = updatedContent.replace(commentRegex, "").trim();
+
                 // Ensure new imports are added after all comments
-                let updatedImports = '';
+                let updatedImports = "";
                 imports.forEach((imp: string) => {
                     if (!updatedContent.includes(imp)) {
                         updatedImports += `${imp}\n`;
                     }
                 });
-            
+
                 updatedContent = `${existingComments}${additionalComments}${updatedImports}${updatedContent}\n${codeWithoutImports}`;
-                segmentText = updatedContent.trim(); 
+                segmentText = updatedContent.trim();
+            } else if (command === "test") {
+                segmentText = `${originalContent}\n\n${segmentText}`;
             } else {
                 segmentText = `${segmentText}`;
             }
@@ -1010,8 +1067,7 @@ export function AIChat() {
         }
 
         const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
-        const developerMdContent = 
-                    await rpcClient.getAiPanelRpcClient().readDeveloperMdFile(chatLocation);
+        const developerMdContent = await rpcClient.getAiPanelRpcClient().readDeveloperMdFile(chatLocation);
         const updatedChatHistory = generateChatHistoryForSummarize(chatArray);
         const response = await fetchWithToken(
             backendRootUri + "/prompt/summarize",
@@ -1021,7 +1077,7 @@ export function AIChat() {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({chats: updatedChatHistory, existingChatSummary: developerMdContent}),
+                body: JSON.stringify({ chats: updatedChatHistory, existingChatSummary: developerMdContent }),
                 signal: signal,
             },
             rpcClient
@@ -1030,10 +1086,14 @@ export function AIChat() {
         setIsCodeAdded(true);
         previouslyIntegratedChatIndex = integratedChatIndex;
         integratedChatIndex = chatArray.length;
-        localStorage.setItem(`chatArray-AIGenerationChat-${projectUuid}-developer-index`, JSON.stringify({integratedChatIndex, previouslyIntegratedChatIndex}));
+        localStorage.setItem(
+            `chatArray-AIGenerationChat-${projectUuid}-developer-index`,
+            JSON.stringify({ integratedChatIndex, previouslyIntegratedChatIndex })
+        );
         const chatSummaryResponseStr = await streamToString(response.body);
-        await rpcClient.getAiPanelRpcClient()
-            .addChatSummary({summary: chatSummaryResponseStr, filepath: chatLocation});
+        await rpcClient
+            .getAiPanelRpcClient()
+            .addChatSummary({ summary: chatSummaryResponseStr, filepath: chatLocation });
         previousDevelopmentDocumentContent = developerMdContent;
     };
 
@@ -1043,15 +1103,15 @@ export function AIChat() {
         let result = "";
 
         while (true) {
-          const { done, value } = await reader.read();
-          if (done) {
-            break;
-          }
-          result += decoder.decode(value, { stream: true });
+            const { done, value } = await reader.read();
+            if (done) {
+                break;
+            }
+            result += decoder.decode(value, { stream: true });
         }
 
         return result;
-      }
+    }
 
     const handleRevertChanges = async (
         codeSegments: any,
@@ -1082,10 +1142,13 @@ export function AIChat() {
         }
         rpcClient.getAiPanelRpcClient().updateDevelopmentDocument({
             content: previousDevelopmentDocumentContent,
-            filepath: chatLocation
+            filepath: chatLocation,
         });
         integratedChatIndex = previouslyIntegratedChatIndex;
-        localStorage.setItem(`chatArray-AIGenerationChat-${projectUuid}-developer-index`, JSON.stringify({integratedChatIndex, previouslyIntegratedChatIndex}));
+        localStorage.setItem(
+            `chatArray-AIGenerationChat-${projectUuid}-developer-index`,
+            JSON.stringify({ integratedChatIndex, previouslyIntegratedChatIndex })
+        );
         tempStorage = {};
         setIsCodeAdded(false);
     };
@@ -1215,7 +1278,7 @@ export function AIChat() {
 
             if (response.status === 429) {
                 const body = await response.json();
-                throw new Error(`Too many requests: ${body.detail}`);
+                throw new Error(`Too many requests: ${RATE_LIMIT_ERROR}`);
             }
 
             throw new Error(`Failed to fetch response. HTTP Status: ${response.status}`);
@@ -1305,6 +1368,7 @@ export function AIChat() {
         functionIdentifier: string,
         testPlan: string
     ) {
+        const testPath = "tests/test.bal";
         setIsCodeLoading(true);
         let assistantResponse = `${testPlan}`;
 
@@ -1332,6 +1396,43 @@ export function AIChat() {
                 targetIdentifier: functionIdentifier,
                 testPlan,
             });
+            updateAssistantMessage(`\n<progress>Analyzing generated tests for potential issues.</progress>`);
+
+            let existingSource = "";
+            try {
+                existingSource = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: testPath });
+            } catch {
+                // File doesn't exist
+            }
+            const generatedFullSource = existingSource
+                ? existingSource +
+                "\n\n// >>>>>>>>>>>>>>TEST CASES NEED TO BE FIXED <<<<<<<<<<<<<<<\n\n" +
+                response.testSource
+                : response.testSource;
+
+            const diagnostics = await rpcClient.getAiPanelRpcClient().getTestDiagnostics({
+                testSource: generatedFullSource,
+            });
+
+            console.log(diagnostics);
+
+            let testCode = response.testSource;
+            const testConfig = response.testConfig;
+
+            if (diagnostics.diagnostics.length > 0) {
+                updateAssistantMessage(
+                    `\n<progress>Refining tests based on feedback to ensure accuracy and reliability.</progress>`
+                );
+                const fixedCode = await rpcClient.getAiPanelRpcClient().getGeneratedTests({
+                    backendUri: backendRootUri,
+                    targetType: TestGenerationTarget.Function,
+                    targetIdentifier: functionIdentifier,
+                    testPlan: testPlan,
+                    diagnostics: diagnostics,
+                    existingTests: generatedFullSource,
+                });
+                testCode = fixedCode.testSource;
+            }
 
             updateAssistantMessage(
                 `\n\nTest generation completed. Displaying the generated tests for the function ${functionIdentifier} below:`
@@ -1341,8 +1442,13 @@ export function AIChat() {
             setIsCodeLoading(false);
 
             updateAssistantMessage(
-                `\n\n<code filename="tests/test.bal" type="test">\n\`\`\`ballerina\n${response.testSource}\n\`\`\`\n</code>`
+                `\n\n<code filename="${testPath}" type="test">\n\`\`\`ballerina\n${testCode}\n\`\`\`\n</code>`
             );
+            if (testConfig) {
+                updateAssistantMessage(
+                    `\n\n<code filename="tests/Config.toml" type="test">\n\`\`\`ballerina\n${testConfig}\n\`\`\`\n</code>`
+                );
+            }
 
             const userMessage = getUserMessage(content);
             addChatEntry("user", userMessage);
@@ -1428,13 +1534,13 @@ export function AIChat() {
                         importsMap.set(importedRecordName, {
                             moduleName: matchedImport.moduleName,
                             alias: matchedImport.alias,
-                            recordName: recordName
+                            recordName: recordName,
                         });
                     } else {
                         const [moduleName, recordName] = importedRecordName.split(":");
                         importsMap.set(importedRecordName, {
                             moduleName: moduleName,
-                            recordName: recordName
+                            recordName: recordName,
                         });
                     }
                     return { type: `${importedRecordName}`, isArray, filePath: null };
@@ -1446,9 +1552,11 @@ export function AIChat() {
         });
 
         const parts = outputParam.split("|");
-        const validParts = parts.filter(name => name !== "error");
+        const validParts = parts.filter((name) => name !== "error");
         if (validParts.length > 1) {
-            throw new Error(`Invalid output parameter: "${outputParam}". Union types are not supported. Please provide a single valid record name.`);
+            throw new Error(
+                `Invalid output parameter: "${outputParam}". Union types are not supported. Please provide a single valid record name.`
+            );
         }
         const cleanedOutputRecordName = validParts.length > 0 ? validParts[0] : "error";
 
@@ -1480,13 +1588,13 @@ export function AIChat() {
                     importsMap.set(outputRecordName, {
                         moduleName: matchedImport.moduleName,
                         alias: matchedImport.alias,
-                        recordName: recordName
+                        recordName: recordName,
                     });
                 } else {
                     const [moduleName, recordName] = outputRecordName.split(":");
                     importsMap.set(outputRecordName, {
                         moduleName: moduleName,
-                        recordName: recordName
+                        recordName: recordName,
                     });
                 }
                 output = { type: `${outputRecordName}`, isArray: outputIsArray, filePath: null };
@@ -1526,18 +1634,18 @@ export function AIChat() {
 
         if (needsImports) {
             let fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath });
-            const existingImports = new Set(fileContent.match(/import\s+([a-zA-Z0-9._]+)/g)?.map(imp => imp.split(" ")[1]) || []);
-            
+            const existingImports = new Set(
+                fileContent.match(/import\s+([a-zA-Z0-9._]+)/g)?.map((imp) => imp.split(" ")[1]) || []
+            );
+
             newImports = Array.from(importsMap.values())
-                .filter(imp => !existingImports.has(imp.moduleName))
-                .map(imp => {
+                .filter((imp) => !existingImports.has(imp.moduleName))
+                .map((imp) => {
                     const moduleName = imp.moduleName.trim();
-                    return imp.alias ?
-                        `import ${moduleName} as ${imp.alias};` :
-                        `import ${moduleName};`;
+                    return imp.alias ? `import ${moduleName} as ${imp.alias};` : `import ${moduleName};`;
                 })
                 .join("\n");
-            
+
             finalContent = `${newImports}\n${response.mappingCode}`;
         }
         assistant_response += `<code filename="${filePath}" type="ai_map">\n\`\`\`ballerina\n${finalContent}\n\`\`\`\n</code>`;
@@ -1660,7 +1768,9 @@ export function AIChat() {
 
     async function processHealthcareCodeGeneration(token: string, useCase: string, message: string) {
         let assistant_response = "";
-        const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource(CodeGenerationType.CODE_GENERATION);
+        const project: ProjectSource = await rpcClient
+            .getAiPanelRpcClient()
+            .getProjectSource(CodeGenerationType.CODE_GENERATION);
         const requestBody: any = {
             usecase: useCase,
             chatHistory: chatArray,
@@ -1692,7 +1802,7 @@ export function AIChat() {
             let error = `Failed to fetch response.`;
             if (response.status == 429) {
                 response.json().then((body) => {
-                    error += ` Cause: ${body.detail}`;
+                    error += RATE_LIMIT_ERROR;
                 });
             }
             throw new Error(error);
@@ -1815,7 +1925,7 @@ export function AIChat() {
             let error = `Failed to fetch response.`;
             if (response.status == 429) {
                 response.json().then((body) => {
-                    error += ` Cause: ${body.detail}`;
+                    error += RATE_LIMIT_ERROR;
                 });
             }
             throw new Error(error);
@@ -1929,8 +2039,10 @@ export function AIChat() {
         chatArray.length = 0;
         integratedChatIndex = 0;
         previouslyIntegratedChatIndex = 0;
-        localStorage.setItem(`chatArray-AIGenerationChat-${projectUuid}-developer-index`, 
-            JSON.stringify({integratedChatIndex, previouslyIntegratedChatIndex}));
+        localStorage.setItem(
+            `chatArray-AIGenerationChat-${projectUuid}-developer-index`,
+            JSON.stringify({ integratedChatIndex, previouslyIntegratedChatIndex })
+        );
 
         setMessages((prevMessages) => []);
 
@@ -2078,6 +2190,84 @@ export function AIChat() {
         );
     };
 
+    const handleRetryRepair = async () => {
+        if (currentDiagnostics.length === 0) return;
+
+        setIsCodeLoading(true);
+        setIsLoading(true);
+
+        try {
+            const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
+            const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource(CodeGenerationType.CODE_GENERATION);
+
+            const usecase = messages[messages.length - 2].content;
+            const latestMessage = messages[messages.length - 1].content;
+
+            const diagReq = {
+                response: latestMessage,
+                diagnostics: currentDiagnostics,
+            };
+
+            const reqBody = {
+                usecase: usecase,
+                chatHistory: chatArray,
+                sourceFiles: project.sourceFiles,
+                diagnosticRequest: diagReq,
+                functions: functions,
+                operationType: CodeGenerationType.CODE_GENERATION
+            }
+            console.log("Request body for repair:", reqBody);
+            const response = await fetchWithToken(
+                backendRootUri + "/code/repair",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(reqBody),
+                    signal: signal,
+                },
+                rpcClient
+            );
+
+            if (!response.ok) {
+                throw new Error("Repair failed");
+            }
+
+            const jsonBody = await response.json();
+            const repairResponse = jsonBody.repairResponse;
+            let fixedResponse = replaceCodeBlocks(latestMessage, repairResponse);
+
+            const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
+                assistant_response: fixedResponse,
+            });
+
+            fixedResponse = postProcessResp.assistant_response;
+            setCurrentDiagnostics(postProcessResp.diagnostics.diagnostics);
+
+            setMessages((prevMessages) => {
+                const newMessages = [...prevMessages];
+                newMessages[newMessages.length - 1].content = fixedResponse;
+                return newMessages;
+            });
+
+            // Update chat entry
+            const lastIndex = chatArray.length - 1;
+            if (lastIndex >= 0 && chatArray[lastIndex].actor === "assistant") {
+                updateChatEntry(lastIndex, {
+                    actor: "assistant",
+                    message: fixedResponse,
+                });
+            }
+        } catch (error) {
+            console.error("Repair retry failed:", error);
+        } finally {
+            setIsCodeLoading(false);
+            setIsLoading(false);
+        }
+    };
+
     return (
         <AIChatView>
             <Header>
@@ -2115,7 +2305,7 @@ export function AIChat() {
                             }}
                         >
                             <Icon
-                                name="bi-ai-agent"
+                                name="bi-ai-chat"
                                 sx={{ width: 60, height: 50 }}
                                 iconSx={{ fontSize: "60px", color: "var(--vscode-foreground)", cursor: "default" }}
                             />
@@ -2228,6 +2418,8 @@ export function AIChat() {
                                                 buttonsActive={showGeneratingFiles}
                                                 isSyntaxError={isSyntaxError}
                                                 command={segment.command}
+                                                diagnostics={currentDiagnostics}
+                                                onRetryRepair={handleRetryRepair}
                                             />
                                         );
                                     }
@@ -2499,6 +2691,8 @@ interface CodeSectionProps {
     buttonsActive: boolean;
     isSyntaxError: boolean;
     command: string;
+    diagnostics: any[],
+    onRetryRepair: () => {},
 }
 
 const CodeSection: React.FC<CodeSectionProps> = ({
@@ -2511,6 +2705,8 @@ const CodeSection: React.FC<CodeSectionProps> = ({
     buttonsActive,
     isSyntaxError,
     command,
+    diagnostics = [],
+    onRetryRepair = () => { },
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isCodeAdded, setIsCodeAdded] = useState(false);
@@ -2523,8 +2719,8 @@ const CodeSection: React.FC<CodeSectionProps> = ({
     let name = loading
         ? "Generating " + (isTestCode ? "Tests..." : "Integration...")
         : isTestCode
-        ? "Ballerina Tests"
-        : "Ballerina Integration";
+            ? "Ballerina Tests"
+            : "Ballerina Integration";
 
     const allCodeSegments = splitContent(message.content)
         .filter((segment) => segment.type === SegmentType.Code)
@@ -2533,8 +2729,33 @@ const CodeSection: React.FC<CodeSectionProps> = ({
     return (
         <div>
             <EntryContainer onClick={() => !loading && setIsOpen(!isOpen)}>
-                <div style={{ flex: 9, fontWeight: "bold" }}>{name}</div>
-                <div style={{ marginLeft: "auto" }}>
+                <div style={{ flex: 9, fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>
+                    {!loading && isReady && language === "ballerina" && (
+                        !isOpen ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />
+                    )}
+                    {name}
+                </div>
+
+                <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "8px" }}>
+
+                    {/* Show warning icon if diagnostics exist */}
+                    {!loading && isReady && diagnostics.length > 0 && command === "code" && !isCodeAdded && (
+                        <Button
+                            appearance="icon"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onRetryRepair();
+                            }}
+                            disabled={loading}
+                            tooltip={`Click to attempt to fix the following errors in the generated code: \n${diagnostics.map(d => d.message).join("\n")}`}                        >
+                            <Codicon name="lightbulb-autofix" />
+                        </Button>
+                    )}
+
+                    {/* Show spinner during generation or repair */}
+                    {(loading) && <ProgressRing sx={{ height: '16px', width: '16px' }} />}
+
+                    {/* TODO see why Add to integration either Revert button is visible */}
                     {!loading && isReady && language === "ballerina" && (
                         <>
                             {!isCodeAdded ? (
@@ -2943,11 +3164,13 @@ export function splitContent(content: string): Segment[] {
     return segments;
 }
 function generateChatHistoryForSummarize(chatArray: ChatEntry[]): ChatEntry[] {
-    return chatArray.slice(integratedChatIndex).filter( chatEntry =>
-            chatEntry.actor.toLowerCase() == "user" 
-            && !chatEntry.message.includes(GENERATE_TEST_AGAINST_THE_REQUIREMENT) 
-            && !chatEntry.message.includes(GENERATE_CODE_AGAINST_THE_REQUIREMENT)
-            && !chatEntry.message.includes(CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION)
-    );
+    return chatArray
+        .slice(integratedChatIndex)
+        .filter(
+            (chatEntry) =>
+                chatEntry.actor.toLowerCase() == "user" &&
+                !chatEntry.message.includes(GENERATE_TEST_AGAINST_THE_REQUIREMENT) &&
+                !chatEntry.message.includes(GENERATE_CODE_AGAINST_THE_REQUIREMENT) &&
+                !chatEntry.message.includes(CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION)
+        );
 }
-

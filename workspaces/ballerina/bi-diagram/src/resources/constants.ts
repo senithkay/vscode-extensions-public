@@ -78,3 +78,4 @@ export const LAST_NODE = "lastNode";
 // agent node
 export const AGENT_NODE_TOOL_GAP = 5;
 export const AGENT_NODE_TOOL_SECTION_GAP = 30;
+export const AGENT_NODE_ADD_TOOL_BUTTON_WIDTH = 20;

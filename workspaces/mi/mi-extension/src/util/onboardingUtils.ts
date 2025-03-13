@@ -82,7 +82,7 @@ export async function getMIVersionFromPom(): Promise<string | null> {
     return runtimeVersion;
 }
 
-export function filterConnectorVersion(connectorName: string, connectors: any[]|undefined): string {
+export function filterConnectorVersion(connectorName: string, connectors: any[] | undefined): string {
     if (!connectors) {
         return '';
     }
@@ -449,9 +449,9 @@ export async function downloadMI(miVersion: string): Promise<string> {
             vscode.window.showInformationMessage('Micro Integrator already downloaded.');
         }
         await extractWithProgress(miDownloadPath, miPath, 'Extracting Micro Integrator');
-        
+
         return getMIPathFromCache(miVersion)!;
-        
+
     } catch (error) {
         throw new Error('Failed to download Micro Integrator.');
     }
@@ -870,7 +870,7 @@ async function runBallerinaBuildsWithProgress(projectPath: string) {
             try {
                 progress.report({ increment: 40, message: "Generating module..." });
                 let args = isWindows ? ['/c', 'bal.bat', 'tool', 'pull', 'mi-module-gen'] : ['tool', 'pull', 'mi-module-gen'];
-                await handleSpawnProcess(command,  args, {
+                await handleSpawnProcess(command, args, {
                     cwd: projectPath,
                     env: { ...process.env, PATH: process.env.PATH + path.delimiter + path.join(os.homedir(), '.ballerina', 'ballerina-home', 'bin').toString() }
                 });
@@ -920,13 +920,14 @@ async function runBallerinaBuildsWithProgress(projectPath: string) {
     );
 }
 
-function showExtensionPrompt() {
+async function showExtensionPrompt() {
     vscode.window.showInformationMessage(
         'Ballerina distribution is required to build the Ballerina module. Install and setup the Ballerina Extension from the Visual Studio Code Marketplace.',
         'Install Now'
-    ).then((selection) => {
+    ).then(async (selection) => {
         if (selection === 'Install Now') {
-            vscode.env.openExternal(vscode.Uri.parse('https://marketplace.visualstudio.com/items?itemName=WSO2.kola-extension'));
+            await vscode.commands.executeCommand(COMMANDS.INSTALL_EXTENSION_COMMAND, COMMANDS.BI_EXTENSION);
+            await vscode.commands.executeCommand(COMMANDS.BI_OPEN_COMMAND);
         }
     });
 }

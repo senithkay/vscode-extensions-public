@@ -54,16 +54,17 @@ import { StateMachine } from "../../stateMachine";
 import { injectAgent, injectImportIfMissing, injectAgentCode } from "../../utils";
 export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
 
+    // TODO: Remove this as its no longer used
     async getRecordST(params: RecordSTRequest): Promise<RecordSTResponse> {
         return new Promise(async (resolve) => {
-            const context = StateMachine.context();
-            const res: ProjectStructureResponse = await buildProjectStructure(context.projectUri, context.langClient);
-            res.directoryMap[DIRECTORY_MAP.TYPES].forEach(type => {
-                if (type.name === params.recordName) {
-                    resolve({ recordST: type.st as TypeDefinition });
-                }
-            });
-            resolve(null);
+            // const context = StateMachine.context();
+            // const res: ProjectStructureResponse = await buildProjectStructure(context.projectUri, context.langClient);
+            // res.directoryMap[DIRECTORY_MAP.TYPES].forEach(type => {
+            //     if (type.name === params.recordName) {
+            //         resolve({ recordST: type.st as TypeDefinition });
+            //     }
+            // });
+            // resolve(null);
         });
     }
 

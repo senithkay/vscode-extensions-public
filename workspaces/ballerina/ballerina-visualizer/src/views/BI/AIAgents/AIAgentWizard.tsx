@@ -387,7 +387,7 @@ export async function addAgentCallStatement(rpcClient: BallerinaRpcClient, targe
             console.error("Agent variable name not found in agent fields");
             return null;
         }
-
+        
         // add agent call statement
         // get the node template for agent call
         const agentCallNode = await rpcClient.getBIDiagramRpcClient().getNodeTemplate({
@@ -400,6 +400,7 @@ export async function addAgentCallStatement(rpcClient: BallerinaRpcClient, targe
                 org: "ballerinax",
                 parentSymbol: agentVarName,
                 symbol: "run",
+                version: "0.7.13",
             },
         });
         if (!agentCallNode || !agentCallNode.flowNode || !agentCallNode.flowNode.properties) {
