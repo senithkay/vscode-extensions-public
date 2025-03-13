@@ -11,10 +11,12 @@ import vscode from 'vscode';
 import { ENABLE_BACKGROUND_DRIFT_CHECK } from "../../core/preferences";
 import { debounce } from 'lodash';
 import { StateMachine } from "../../stateMachine";
-import { getLLMDiagnostics } from "./utils";
+import { addDefaultModelConfigForNaturalFunctions, getBackendURL, getLLMDiagnostics, getAccessToken } from "./utils";
 import { NLCodeActionProvider, showTextOptions } from './nl-code-action-provider';
 import { BallerinaExtension } from 'src/core';
-import { PROGRESS_BAR_MESSAGE, WARNING_MESSAGE, WARNING_MESSAGE_DEFAULT, MONITERED_EXTENSIONS } from './constants';
+import { PROGRESS_BAR_MESSAGE_FOR_DRIFT, WARNING_MESSAGE, WARNING_MESSAGE_DEFAULT, MONITERED_EXTENSIONS,
+    WARNING_MESSAGE_FOR_NP_TOKEN_NOT_FOUND, PROGRESS_BAR_MESSAGE_FOR_NP_TOKEN
+ } from './constants';
 
 let diagnosticCollection: vscode.DiagnosticCollection;
 
@@ -85,7 +87,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         await vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
-                title: PROGRESS_BAR_MESSAGE,
+                title: PROGRESS_BAR_MESSAGE_FOR_DRIFT,
                 cancellable: false,
             },
             async () => {
@@ -99,6 +101,25 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                     return;
                 }
                 vscode.window.showWarningMessage(WARNING_MESSAGE_DEFAULT);
+            }
+        );
+    });
+
+    vscode.commands.registerCommand("ballerina.configureDefaultModelForNaturalFunctions", async (...args: any[]) => {    
+        await vscode.window.withProgress(
+            {
+                location: vscode.ProgressLocation.Notification,
+                title: PROGRESS_BAR_MESSAGE_FOR_NP_TOKEN,
+                cancellable: false,
+            },
+            async () => {
+                const token: string = await getAccessToken();
+                if (token == null) {
+                    vscode.window.showWarningMessage(WARNING_MESSAGE_FOR_NP_TOKEN_NOT_FOUND);
+                    return;
+                }
+
+                addDefaultModelConfigForNaturalFunctions(projectPath, token, await getBackendURL());
             }
         );
     });

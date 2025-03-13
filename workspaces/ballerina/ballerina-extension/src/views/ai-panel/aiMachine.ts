@@ -181,47 +181,7 @@ async function checkToken(context, event): Promise<UserToken> {
                     resolve({ token: undefined, userToken: undefined });
                     return;
                 }
-                // const config = getPluginConfig();
-                // const ROOT_URL = config.get('rootUrl') as string;
-                // const url = ROOT_URL + USER_CHECK_BACKEND_URL;
-                // const response = await fetch(url, {
-                //     method: 'GET',
-                //     headers: {
-                //         'Content-Type': 'application/json',
-                //         'Authorization': `Bearer ${token}`,
-                //     },
-                // });
-                // if (response.ok) {
-                // const responseBody = await response.json() as AIUserTokens;
                 resolve({ token, userToken: undefined });
-                // } else {
-                //     if (response.status === 401 || response.status === 403) {
-                //         const newToken = await refreshAuthCode();
-                //         if (newToken != "") {
-                //             const tokenFetchResponse = await fetch(url, {
-                //                 method: 'GET',
-                //                 headers: {
-                //                     'Content-Type': 'application/json',
-                //                     'Authorization': `Bearer ${newToken}`,
-                //                 },
-                //             });
-                //             if (tokenFetchResponse.ok) {
-                //                 const responseBody = await tokenFetchResponse.json() as AIUserTokens;
-                //                 resolve({ token: newToken, userToken: responseBody });
-                //             } else {
-                //                 console.log("Error: " + tokenFetchResponse.statusText);
-                //                 console.log("Error Code: " + tokenFetchResponse.status);
-                //                 throw new Error(`Error while checking token: ${tokenFetchResponse.statusText}`);
-                //             }
-                //         } else {
-                //             resolve({ token: undefined, userToken: undefined });
-                //         }
-                //     } else {
-                //         console.log("Error: " + response.statusText);
-                //         console.log("Error Code: " + response.status);
-                //         throw new Error(`Error while checking token: ${response.statusText}`);
-                //     }
-                // }
             } else {
                 resolve({ token: undefined, userToken: undefined });
             }

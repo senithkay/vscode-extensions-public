@@ -91,6 +91,12 @@ export interface CommandProps {
     isService?: boolean
 }
 
+export const FOCUS_FLOW_DIAGRAM_VIEW = {
+    NP_FUNCTION: "NP_FUNCTION",
+} as const;
+
+export type FocusFlowDiagramView = typeof FOCUS_FLOW_DIAGRAM_VIEW[keyof typeof FOCUS_FLOW_DIAGRAM_VIEW];
+
 // State Machine context values
 export interface VisualizerLocation {
     view?: MACHINE_VIEW | null;
@@ -100,6 +106,7 @@ export interface VisualizerLocation {
     position?: NodePosition;
     syntaxTree?: STNode;
     isBI?: boolean;
+    focusFlowDiagramView?: FocusFlowDiagramView;
     serviceType?: string;
     type?: Type;
     isGraphql?: boolean;

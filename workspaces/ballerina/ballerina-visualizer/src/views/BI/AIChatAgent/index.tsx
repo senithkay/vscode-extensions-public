@@ -76,6 +76,8 @@ export function AIAgentDesigner(props: AIAgentDesignerProps) {
     const { filePath, position } = props;
     const { rpcClient } = useRpcContext();
     const [serviceModel, setServiceModel] = useState<ServiceModel>(undefined);
+    const [serviceName, setServiceName] = useState<string>("");
+
     const [functionModel, setFunctionModel] = useState<FunctionModel>(undefined);
     const [isSaving, setIsSaving] = useState<boolean>(false);
 
@@ -99,9 +101,11 @@ export function AIAgentDesigner(props: AIAgentDesignerProps) {
             .getServiceDesignerRpcClient()
             .getServiceModelFromCode({ filePath, codedata: { lineRange } })
             .then((res) => {
-                console.log("Service Model: ", res.service);
+                console.log("Service Model =======: ", res.service);
                 setServiceModel(res.service);
                 setIsSaving(false);
+                const name = res.service?.properties?.["stringLiteral"]?.value || "";
+                setServiceName(name.replace(/^"|"$/g, ""));
             });
         getProjectListeners();
     };
@@ -214,7 +218,7 @@ export function AIAgentDesigner(props: AIAgentDesignerProps) {
             <TopNavigationBar />
             <TitleBar
                 title="AI Chat Agent"
-                subtitle="Chattable AI agent using an LLM, prompts and tools."
+                subtitle={serviceName}
                 actions={
                     <>
                         <VSCodeButton appearance="secondary" title="Edit Service" onClick={handleServiceEdit}>
@@ -302,7 +306,6 @@ export function AIAgentDesigner(props: AIAgentDesignerProps) {
                                 </VSCodeButton>
                             ))}
                         </InfoContainer>
-                        <AIAgentWizard hideTitleBar={true} />
                     </>
                 )}
             </ServiceContainer>

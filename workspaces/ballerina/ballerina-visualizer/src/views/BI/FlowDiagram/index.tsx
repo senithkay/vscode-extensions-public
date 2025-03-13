@@ -845,7 +845,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 onDiscard: onDiscardSuggestions,
             },
             projectPath,
-            breakpointInfo,
+            breakpointInfo
         }),
         [flowModel, fetchingAiSuggestions, projectPath, breakpointInfo]
     );
