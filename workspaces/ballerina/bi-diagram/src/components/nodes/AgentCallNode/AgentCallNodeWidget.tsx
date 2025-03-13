@@ -393,12 +393,12 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                         </Popover>
                     </NodeStyles.Row>
                     {model.node.metadata.data?.agent?.role && (
-                        <NodeStyles.Row>
+                        <NodeStyles.Row  onClick={handleOnClick}>
                             <NodeStyles.Role>{model.node.metadata.data.agent.role}</NodeStyles.Role>
                         </NodeStyles.Row>
                     )}
                     {model.node.metadata.data?.agent?.instructions && (
-                        <NodeStyles.InstructionsRow>
+                        <NodeStyles.InstructionsRow onClick={handleOnClick}>
                             <NodeStyles.Instructions>
                                 {model.node.metadata.data.agent.instructions}
                             </NodeStyles.Instructions>
