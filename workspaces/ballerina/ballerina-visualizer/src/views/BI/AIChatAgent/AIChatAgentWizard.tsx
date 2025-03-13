@@ -173,7 +173,13 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
                                             setAgentName(e.target.value);
                                             validateName(e.target.value);
                                         }}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && !isCreating && !nameError && agentName) {
+                                                handleCreateService();
+                                            }
+                                        }}
                                         errorMsg={nameError}
+                                        autoFocus
                                     />
                                     <ButtonContainer>
                                         <Button
