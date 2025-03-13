@@ -59,7 +59,13 @@ export const transformCategories = (categories: Category[]): Category[] => {
     if (filteredCategories[1] && filteredCategories[1].items) {
         filteredCategories[1].items.push({
             codedata: {
+                module: "ai.agent",
                 node: "AGENT_CALL",
+                object: "Agent",
+                org: "ballerinax",
+                parentSymbol: "",
+                symbol: "run",
+                version: "0.7.13",
             },
             enabled: true,
             metadata: {
