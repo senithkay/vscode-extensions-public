@@ -319,7 +319,7 @@ export function NodeList(props: NodeListProps) {
                     const isProjectFunctionsCategory = group.title === "Current Integration";
                     const isDataMapperCategory = isProjectFunctionsCategory && title === "Data Mappers";
                     const isAgentCategory = group.title === "Agents";
-                    const isNpFunctionCategory = isProjectFunctionsCategory && title === "Prompt as code";
+                    const isNpFunctionCategory = isProjectFunctionsCategory && title === "Natural Functions";
                     if (
                         (!group || group.items.length === 0) &&
                         !isConnectionCategory &&
@@ -355,7 +355,7 @@ export function NodeList(props: NodeListProps) {
                                                               isDataMapperCategory
                                                                   ? "Data Mapper"
                                                                   : isNpFunctionCategory
-                                                                  ? "Prompt as code"
+                                                                  ? "Natural Function"
                                                                   : "Function"
                                                           }`
                                                 }
@@ -391,7 +391,7 @@ export function NodeList(props: NodeListProps) {
                                         isDataMapperCategory
                                             ? "Data Mapper"
                                             : isNpFunctionCategory
-                                            ? "Prompt as code"
+                                            ? "Natural Function"
                                             : "Function"
                                     }`}
                                 </S.HighlightedButton>

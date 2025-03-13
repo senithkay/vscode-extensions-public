@@ -7,7 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { commands } from "vscode";
-import { BI_COMMANDS, BIDeleteByComponentInfoRequest, ComponentInfo, DIRECTORY_SUB_TYPE, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
+import {
+    BI_COMMANDS,
+    BIDeleteByComponentInfoRequest,
+    ComponentInfo,
+    DIRECTORY_SUB_TYPE,
+    EVENT_TYPE,
+    FlowNode,
+    MACHINE_VIEW
+} from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "../../core";
 import { openView } from "../../stateMachine";
 import { prepareAndGenerateConfig } from "../config-generator/configGenerator";
@@ -15,6 +23,7 @@ import { StateMachine } from "../../stateMachine";
 import { BiDiagramRpcManager } from "../../rpc-managers/bi-diagram/rpc-manager";
 import { readFileSync, readdirSync, statSync } from "fs";
 import path from "path";
+import { isPositionEqual } from "../../utils/history/util";
 
 export function activate(context: BallerinaExtension) {
     commands.registerCommand(BI_COMMANDS.BI_RUN_PROJECT, () => {
@@ -64,29 +73,9 @@ export function activate(context: BallerinaExtension) {
         console.log(">>> delete component", item);
 
         if (item.contextValue === DIRECTORY_SUB_TYPE.CONNECTION) {
-            const rpcClient = new BiDiagramRpcManager();
-            rpcClient.getModuleNodes().then((response) => {
-                console.log(">>> moduleNodes", { moduleNodes: response });
-                const connector = response?.flowModel?.connections.find(
-                    (node) => node.properties.variable.value === item.label.trim()
-                );
-                if (connector) {
-                    rpcClient
-                        .deleteFlowNode({
-                            filePath: item.info,
-                            flowNode: connector,
-                        })
-                        .then((response) => {
-                            console.log(">>> Updated source code after delete", response);
-                            if (!response.textEdits) {
-                                console.error(">>> Error updating source code", response);
-                            }
-                        });
-                } else {
-                    console.error(">>> Error finding connector", { connectionName: item.label });
-                }
-            });
-        } else if (item.contextValue === DIRECTORY_SUB_TYPE.FUNCTION || item.contextValue === DIRECTORY_SUB_TYPE.DATA_MAPPER) {
+            await handleConnectionDeletion(item.label, item.info);
+        } else if (item.contextValue === DIRECTORY_SUB_TYPE.FUNCTION
+            || item.contextValue === DIRECTORY_SUB_TYPE.DATA_MAPPER) {
             await handleComponentDeletion('functions', item.label, item.info);
         } else if (item.contextValue === DIRECTORY_SUB_TYPE.TYPE) {
             await handleComponentDeletion('records', item.label, item.info);
@@ -176,6 +165,36 @@ const handleComponentDeletion = async (componentType: string, itemLabel: string,
     });
 };
 
+const handleConnectionDeletion = async (itemLabel: string, filePath: string) => {
+    const rpcClient = new BiDiagramRpcManager();
+    rpcClient.getModuleNodes().then((response) => {
+        console.log(">>> moduleNodes", { moduleNodes: response });
+        const connector = response?.flowModel?.connections.find(
+            (node) => node.properties.variable.value === itemLabel.trim()
+        );
+        if (connector) {
+            rpcClient
+                .deleteFlowNode({
+                    filePath: filePath,
+                    flowNode: connector,
+                })
+                .then((response) => {
+                    console.log(">>> Updated source code after delete", response);
+                    if (response.textEdits) {
+                        if (hasNoComponentsOpenInDiagram() || isFlowNodeOpenInDiagram(connector)) {
+                            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+                        }
+                    } else {
+
+                        console.error(">>> Error updating source code", response);
+                    }
+                });
+        } else {
+            console.error(">>> Error finding connector", { connectionName: itemLabel });
+        }
+    });
+};
+
 async function deleteComponent(component: ComponentInfo, rpcClient: BiDiagramRpcManager, filePath: string) {
     const req: BIDeleteByComponentInfoRequest = {
         filePath: filePath,
@@ -185,4 +204,56 @@ async function deleteComponent(component: ComponentInfo, rpcClient: BiDiagramRpc
     console.log(">>> delete component request", req);
 
     await rpcClient.deleteByComponentInfo(req);
+
+    if (hasNoComponentsOpenInDiagram() || isComponentOpenInDiagram(component)) {
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+    }
+}
+
+function isComponentOpenInDiagram(component: ComponentInfo) {
+    const openedCompoentPosition = StateMachine.context().position;
+    const openedComponentFilePath = StateMachine.context().documentUri;
+
+    if (!openedCompoentPosition) {
+        return false;
+    }
+
+    const componentPosition = {
+        startLine: component.startLine,
+        startColumn: component.startColumn,
+        endLine: component.endLine,
+        endColumn: component.endColumn
+    };
+    const componentFilePath = path.join(StateMachine.context().projectUri, component.filePath);
+
+    return isFilePathsEqual(openedComponentFilePath, componentFilePath)
+        && isPositionEqual(openedCompoentPosition, componentPosition);
+}
+
+function isFlowNodeOpenInDiagram(connector: FlowNode) {
+    const openedCompoentPosition = StateMachine.context().position;
+    const openedComponentFilePath = StateMachine.context().documentUri;
+
+    if (!openedCompoentPosition) {
+        return false;
+    }
+
+    const flowNodePosition = {
+        startLine: connector.codedata.lineRange.startLine.line,
+        startColumn: connector.codedata.lineRange.startLine.offset,
+        endLine: connector.codedata.lineRange.endLine.line,
+        endColumn: connector.codedata.lineRange.endLine.offset
+    };
+    const flowNodeFilePath = path.join(StateMachine.context().projectUri, connector.codedata.lineRange.fileName);
+
+    return isFilePathsEqual(openedComponentFilePath, flowNodeFilePath)
+        && isPositionEqual(openedCompoentPosition, flowNodePosition);
+}
+
+function hasNoComponentsOpenInDiagram() {
+    return !StateMachine.context().position;
+}
+
+function isFilePathsEqual(filePath1: string, filePath2: string) {
+    return path.normalize(filePath1) === path.normalize(filePath2);
 }

@@ -2,7 +2,7 @@
     "name": "kolab",
     "displayName": "KolaB",
     "description": "KolaB Extension for Kola.",
-    "version": "0.4.8",
+    "version": "0.4.9",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
@@ -148,10 +148,10 @@
                         "default": true,
                         "description": "Enable semantic highlighting for Ballerina source."
                     },
-                    "kolab.enableNaturalProgramming": {
+                    "kolab.enableBackgroundDriftCheck": {
                         "type": "boolean",
                         "default": false,
-                        "description": "Enable natural programming for Ballerina source."
+                        "description": "Enable background drift check for Ballerina source."
                     },
                     "kolab.enablePerformanceForecast": {
                         "type": "boolean",
@@ -345,8 +345,8 @@
         ],
         "commands": [
             {
-                "command": "kolab-setup.installBallerina",
-                "title": "Install Ballerina",
+                "command": "kolab-setup.setupBallerina",
+                "title": "Set up Ballerina",
                 "category": "Ballerina"
             },
             {
@@ -578,6 +578,11 @@
             {
                 "command": "kolab.open.bi.welcome",
                 "title": "Open Welcome",
+                "category": "BI"
+            },
+            {
+                "command": "kolab.open.bi.new",
+                "title": "New Ballerina Integration",
                 "category": "BI"
             },
             {

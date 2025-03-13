@@ -10,7 +10,7 @@
 
 import React, { useState } from 'react';
 import _ from 'lodash';
-import { Codicon, LinkButton } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, LinkButton, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { ResponseItem } from './ResponseItem';
 import { ResponseEditor } from './ResponseEditor';
@@ -24,8 +24,17 @@ export interface ResourceParamProps {
     readonly?: boolean;
 }
 
+const ResourceResponseContainer = styled.div`
+	margin-bottom: 25px;
+`;
+
 const AddButtonWrapper = styled.div`
 	margin: 8px 0;
+`;
+
+const AdvancedParamTitleWrapper = styled.div`
+	display: flex;
+	flex-direction: row;
 `;
 
 export function ResourceResponse(props: ResourceParamProps) {
@@ -35,8 +44,23 @@ export function ResourceResponse(props: ResourceParamProps) {
 
     const [editModel, setEditModel] = useState<StatusCodeResponse>(undefined);
 
+    const advancedEnabled = response.responses.filter(param => param.isHttpResponseType && param.enabled);
+    const advancedDisabled = response.responses.filter(param => param.isHttpResponseType && !param.enabled);
+
+    const [showAdvanced, setShowAdvanced] = useState<boolean>(advancedEnabled.length > 0);
+
+    const handleAdvanceParamToggle = () => {
+        setShowAdvanced(!showAdvanced);
+    };
+
     const onEdit = (param: StatusCodeResponse, id: number) => {
         setEditingSegmentId(id);
+        const schema = response.schema["statusCodeResponse"] as StatusCodeResponse;
+        param.statusCode.metadata = schema.statusCode.metadata;
+        param.body.metadata = schema.body.metadata;
+        param.name.metadata = schema.name.metadata;
+        param.headers.metadata = schema.headers.metadata;
+        param.type.metadata = schema.type.metadata;
         setEditModel(param);
     };
 
@@ -49,11 +73,6 @@ export function ResourceResponse(props: ResourceParamProps) {
         const updatedParameters = [...response.responses];
         updatedParameters.splice(indexToRemove, 1);
         onChange({ ...response, responses: updatedParameters });
-    };
-
-    const onChangeParam = (param: StatusCodeResponse) => {
-        console.log("Response Changed:", param);
-        setEditModel(param);
     };
 
     const onSaveParam = (param: StatusCodeResponse, index: number) => {
@@ -73,42 +92,92 @@ export function ResourceResponse(props: ResourceParamProps) {
         setEditModel(undefined);
     };
 
+    const onHandleResponseAdd = () => {
+        const param: StatusCodeResponse = response.responses.find(item => item.isHttpResponseType);
+        const index: number = 0;
+        const updatedParameters: StatusCodeResponse[] = [...response.responses];
+        param.enabled = true;
+        updatedParameters[index] = param;
+        onChange({ ...response, responses: updatedParameters });
+    };
+
+    const onDisable = (index: number) => {
+        const param: StatusCodeResponse = response.responses[index];
+        const updatedParameters: StatusCodeResponse[] = [...response.responses];
+        param.enabled = false;
+        updatedParameters[index] = param;
+        onChange({ ...response, responses: updatedParameters });
+    };
+
     const onParamEditCancel = (id?: number) => {
         setEditModel(undefined);
         setEditingSegmentId(-1);
     };
 
     return (
-        <div>
-            {response.responses.map((response: StatusCodeResponse, index) => (
-                <ResponseItem
-                    key={index}
-                    method={method}
-                    response={response}
-                    readonly={editingSegmentId !== -1 || readonly}
-                    onDelete={() => onDelete(index)}
-                    onEditClick={() => onEdit(response, index)}
-                />
-            ))}
+        <ResourceResponseContainer>
+            {!editModel && response.responses.map((response: StatusCodeResponse, index) => {
+                if (index === 0) {
+                    return;
+                }
+                return (
+                    <ResponseItem
+                        key={index}
+                        method={method}
+                        response={response}
+                        readonly={editingSegmentId !== -1 || readonly}
+                        onDelete={() => onDelete(index)}
+                        onEditClick={() => onEdit(response, index)}
+                    />
+                )
+            })}
             {!editModel && (
                 <AddButtonWrapper>
                     <LinkButton sx={readonly && { color: "var(--vscode-badge-background)" }} onClick={!readonly && onAddClick} >
                         <Codicon name="add" />
-                        <>Add Response</>
+                        <>Response</>
                     </LinkButton>
                 </AddButtonWrapper>
             )}
             {editModel &&
                 <ResponseEditor
                     index={editingSegmentId}
+                    method={method}
                     response={{ ...editModel }}
                     isEdit={editingSegmentId !== 999}
-                    schema={_.cloneDeep(response.schema["statusCodeResponse"]) as StatusCodeResponse}
-                    onChange={onChangeParam}
                     onSave={onSaveParam}
                     onCancel={onParamEditCancel}
                 />
             }
-        </div>
+            {!editModel &&
+                <AdvancedParamTitleWrapper>
+                    <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Advanced Parameters</Typography>
+                    <LinkButton sx={{ marginTop: 12, marginLeft: 8 }} onClick={handleAdvanceParamToggle}> {showAdvanced ? "Hide" : "Show"} </LinkButton>
+                </AdvancedParamTitleWrapper>
+            }
+            {!editModel && showAdvanced &&
+                advancedDisabled.map((param) => (
+                    <AddButtonWrapper >
+                        <LinkButton sx={readonly && { color: "var(--vscode-badge-background)" } || editModel && { opacity: 0.5, pointerEvents: 'none' }} onClick={onHandleResponseAdd}>
+                            <Codicon name="add" />
+                            <>{param.type.value}</>
+                        </LinkButton>
+                    </AddButtonWrapper>
+                ))
+            }
+            {!editModel && showAdvanced &&
+                advancedEnabled.map((response, index) => (
+                    <ResponseItem
+                        key={index}
+                        method={method}
+                        response={response}
+                        readonly={false}
+                        hideCode={true}
+                        onDelete={() => onDisable(index)}
+                        onEditClick={() => onEdit(response, index)}
+                    />
+                ))
+            }
+        </ResourceResponseContainer>
     );
 }

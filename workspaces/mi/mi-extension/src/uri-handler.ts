@@ -37,10 +37,11 @@ export function activateUriHandlers() {
                     const component = urlParams.get("component");
                     const technology = urlParams.get("technology");
                     const integrationType = urlParams.get("integrationType");
+                    const integrationDisplayType = urlParams.get("integrationDisplayType");
                     window.showInformationMessage('Opening component');
                     if (org && project && component && technology && integrationType) {
                         commands.executeCommand(COMMANDS.DEVAN_OPEN_COMPONENT, {
-                            org, project, component, technology, integrationType
+                            org, project, component, technology, integrationType, integrationDisplayType
                         });
                     } else {
                         window.showErrorMessage('Invalid component URL parameters');

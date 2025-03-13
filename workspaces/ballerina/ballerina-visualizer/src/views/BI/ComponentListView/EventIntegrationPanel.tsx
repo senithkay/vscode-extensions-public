@@ -15,7 +15,7 @@ import { useVisualizerContext } from '../../../Context';
 import { CardGrid, PanelViewMore, Title, TitleWrapper } from './styles';
 import { BodyText } from '../../styles';
 import ButtonCard from '../../../components/ButtonCard';
-import { componentListItemTooltip } from './componentListUtils';
+import { OutOfScopeComponentTooltip } from './componentListUtils';
 
 interface EventIntegrationPanelProps {
     scope: SCOPE;
@@ -62,7 +62,7 @@ export function EventIntegrationPanel(props: EventIntegrationPanelProps) {
             <TitleWrapper>
                 <Title variant="h2">Event Integration</Title>
                 <BodyText>
-                    Configure event-driven integrations for your project. Explore the available options below.
+                    Create an integration that can be triggered by an event.
                 </BodyText>
             </TitleWrapper>
             <CardGrid>
@@ -79,7 +79,8 @@ export function EventIntegrationPanel(props: EventIntegrationPanelProps) {
                                         handleClick(DIRECTORY_MAP.SERVICES, item.moduleName);
                                     }}
                                     disabled={isDisabled}
-                                    tooltip={componentListItemTooltip(isDisabled)}
+                                    tooltip={isDisabled ? OutOfScopeComponentTooltip : ""}
+                                    isBeta={shouldMarkAsBeta(item)}
                                 />
                             );
                         }
@@ -89,6 +90,11 @@ export function EventIntegrationPanel(props: EventIntegrationPanelProps) {
         </PanelViewMore>
     );
 };
+
+function shouldMarkAsBeta(item: ServiceModel) {
+    const betaServices = ["salesforce", "trigger.github"];
+    return betaServices.includes(item.moduleName);
+}
 
 // TODO: This should be removed once the new icons are added to the BE API.
 export function getEntryNodeIcon(item: ServiceModel) {
@@ -105,15 +111,15 @@ export function getCustomEntryNodeIcon(type: string) {
         case "kafka":
             return <Icon name="bi-kafka" />;
         case "rabbitmq":
-            return <Icon name="bi-rabbitmq" sx={{ color: "#f60" }} />;
+            return <Icon name="bi-rabbitmq" />;
         case "nats":
             return <Icon name="bi-nats" />;
         case "mqtt":
-            return <Icon name="bi-mqtt" sx={{ color: "#606" }} />;
+            return <Icon name="bi-mqtt" />;
         case "grpc":
             return <Icon name="bi-grpc" />;
         case "graphql":
-            return <Icon name="bi-graphql" sx={{ color: "#e535ab" }} />;
+            return <Icon name="bi-graphql" />;
         case "java.jms":
             return <Icon name="bi-java" />;
         case "trigger.github":

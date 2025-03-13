@@ -88,6 +88,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
 
     const [step, setStep] = useState<number>(0);
 
+    const [title, setTitle] = useState("");
     const [listenerModel, setListenerModel] = useState<ListenerModel>(undefined);
     const [serviceModel, setServiceModel] = useState<ServiceModel>(undefined);
     const [listeners, setListeners] = useState<ListenersResponse>(undefined);
@@ -99,6 +100,11 @@ export function ServiceWizard(props: ServiceWizardProps) {
     const [existingListener, setExistingListener] = useState<string>(undefined);
 
     useEffect(() => {
+        rpcClient.getServiceDesignerRpcClient()
+        .getServiceModel({ filePath: "", moduleName: type, listenerName: "" })
+        .then(res => {
+            setTitle(res.service.displayName || res.service.name);
+        });
         rpcClient.getServiceDesignerRpcClient().getListeners({ filePath: "", moduleName: type }).then(res => {
             console.log("Existing Listeners: ", res);
             setExisting(res.hasListeners);
@@ -171,7 +177,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
     return (
         <View>
             <TopNavigationBar />
-            <TitleBar title="Service" subtitle="Create a new service for your integration" />
+            {title && <TitleBar title={title} />}
             <ViewContent>
                 {!listenerModel && !listeners &&
                     <LoadingContainer>

@@ -401,7 +401,7 @@ interface ComponentDiagramProps {
 
 export function Overview(props: ComponentDiagramProps) {
     const { rpcClient } = useRpcContext();
-    const [projectName, setProjectName] = React.useState<string>("");
+    const [workspaceName, setWorkspaceName] = React.useState<string>("");
     const [readmeContent, setReadmeContent] = React.useState<string>("");
     const [isCodeGenerating, setIsCodeGenerating] = React.useState<boolean>(false);
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>();
@@ -427,7 +427,7 @@ export function Overview(props: ComponentDiagramProps) {
             .then((res) => {
                 const workspace = res.workspaces.find(workspace => workspace.fsPath === props.projectPath);
                 if (workspace) {
-                    setProjectName(workspace.name);
+                    setWorkspaceName(workspace.name);
                 }
             });
 
@@ -684,7 +684,7 @@ export function Overview(props: ComponentDiagramProps) {
         <PageLayout>
             <HeaderRow>
                 <TitleContainer>
-                    <ProjectTitle>{projectName}</ProjectTitle>
+                    <ProjectTitle>{projectStructure.projectName || workspaceName}</ProjectTitle>
                     <ProjectSubtitle>Integration</ProjectSubtitle>
                 </TitleContainer>
                 <IconButtonContainer>
@@ -703,7 +703,7 @@ export function Overview(props: ComponentDiagramProps) {
                                 <Codicon name="wand" sx={{ marginRight: 8 }} /> Generate
                             </Button>
                             <Button appearance="primary" onClick={handleAddConstruct}>
-                                <Codicon name="add" sx={{ marginRight: 8 }} /> Add Construct
+                                <Codicon name="add" sx={{ marginRight: 8 }} /> Add Artifact
                             </Button>
                         </ActionContainer>)}
                     </DiagramHeaderContainer>
@@ -717,11 +717,11 @@ export function Overview(props: ComponentDiagramProps) {
                                     variant="body1"
                                     sx={{ marginBottom: "24px", color: "var(--vscode-descriptionForeground)" }}
                                 >
-                                    Start by adding constructs or use AI to generate your project structure
+                                    Start by adding artifacts or use AI to generate your project structure
                                 </Typography>
                                 <ButtonContainer>
                                     <Button appearance="primary" onClick={handleAddConstruct}>
-                                        <Codicon name="add" sx={{ marginRight: 8 }} /> Add Construct
+                                        <Codicon name="add" sx={{ marginRight: 8 }} /> Add Artifact
                                     </Button>
                                     <Button appearance="secondary" onClick={handleGenerate}>
                                         <Codicon name="wand" sx={{ marginRight: 8 }} /> Generate with AI
@@ -729,7 +729,7 @@ export function Overview(props: ComponentDiagramProps) {
                                 </ButtonContainer>
                             </EmptyStateContainer>
                         ) : (
-                            <ComponentDiagram projectName={projectName} projectStructure={projectStructure} />
+                            <ComponentDiagram projectStructure={projectStructure} />
                         )}
                     </DiagramContent>
                 </MainPanel>
@@ -759,7 +759,7 @@ export function Overview(props: ComponentDiagramProps) {
                     ) : (
                         <EmptyReadmeContainer>
                             <Description variant="body2">
-                                Describe your integration and generate your constructs with AI
+                                Describe your integration and generate your artifacts with AI
                             </Description>
                             <VSCodeLink onClick={handleEditReadme}>Add a README</VSCodeLink>
                         </EmptyReadmeContainer>

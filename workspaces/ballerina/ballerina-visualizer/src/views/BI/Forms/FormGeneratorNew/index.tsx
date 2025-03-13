@@ -66,6 +66,8 @@ interface FormProps {
     resetUpdatedExpressionField?: () => void;
     selectedNode?: NodeKind;
     nestedForm?: boolean;
+    helperPaneSide?: 'right' | 'left';
+    recordTypeFields?: RecordTypeField[];
 }
 
 export function FormGeneratorNew(props: FormProps) {
@@ -83,7 +85,9 @@ export function FormGeneratorNew(props: FormProps) {
         updatedExpressionField,
         resetUpdatedExpressionField,
         selectedNode,
-        nestedForm
+        nestedForm,
+        helperPaneSide,
+        recordTypeFields
     } = props;
 
     const { rpcClient } = useRpcContext();
@@ -438,7 +442,7 @@ export function FormGeneratorNew(props: FormProps) {
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
             onCancel: handleExpressionEditorCancel,
-            helperPaneOrigin: "right",
+            helperPaneOrigin: helperPaneSide || "right",
             helperPaneHeight: "3/4"
         } as FormExpressionEditorProps;
     }, [
@@ -466,7 +470,7 @@ export function FormGeneratorNew(props: FormProps) {
                 <FormTypeEditor
                     newType={true}
                     onTypeChange={handleTypeChange}
-                    { ...(isGraphql && { type: defaultType(), isGraphql: true }) }
+                    {...(isGraphql && { type: defaultType(), isGraphql: true })}
                 />
             </PanelContainer>
             <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3`, zIndex: 1000 }} />
@@ -494,6 +498,7 @@ export function FormGeneratorNew(props: FormProps) {
                     updatedExpressionField={updatedExpressionField}
                     resetUpdatedExpressionField={resetUpdatedExpressionField}
                     selectedNode={selectedNode}
+                    recordTypeFields={recordTypeFields}
                 />
             )}
             {typeEditorState.isOpen && (

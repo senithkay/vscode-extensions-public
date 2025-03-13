@@ -10,156 +10,159 @@
 
 import { useEffect, useState } from 'react';
 
-import { CheckBox, Divider, Typography } from '@wso2-enterprise/ui-toolkit';
-import { EditorContainer } from '../../../styles';
-import { LineRange, StatusCodeResponse, responseCodes } from '@wso2-enterprise/ballerina-core';
-import { getTitleFromResponseCode } from '../../../utils';
-import { FormField } from '@wso2-enterprise/ballerina-side-panel';
+import { CheckBox, Divider, Tabs, Typography } from '@wso2-enterprise/ui-toolkit';
+import { EditorContainer, EditorContent } from '../../../styles';
+import { LineRange, PropertyModel, StatusCodeResponse, responseCodes } from '@wso2-enterprise/ballerina-core';
+import { getDefaultResponse, getTitleFromResponseCode, HTTP_METHOD } from '../../../utils';
+import { FormField, FormValues } from '@wso2-enterprise/ballerina-side-panel';
 import FormGeneratorNew from '../../../../Forms/FormGeneratorNew';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { URI, Utils } from 'vscode-uri';
+import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
+
+
+enum Views {
+    NEW = "NEW",
+    EXISTING = "EXISTING",
+}
 
 export interface ParamProps {
     index: number;
+    method: HTTP_METHOD;
     response: StatusCodeResponse;
     isEdit: boolean;
-    schema: StatusCodeResponse;
-    onChange: (param: StatusCodeResponse) => void;
     onSave: (param: StatusCodeResponse, index: number) => void;
     onCancel?: (id?: number) => void;
 }
 
 export function ResponseEditor(props: ParamProps) {
-    const { index, response, isEdit, onSave, onChange, onCancel, schema } = props;
+    const { method, index, response, isEdit, onSave, onCancel } = props;
 
     const { rpcClient } = useRpcContext();
 
     const [filePath, setFilePath] = useState<string>('');
+    const [currentView, setCurrentView] = useState(response.type.value ? Views.EXISTING : Views.NEW);
 
     const [targetLineRange, setTargetLineRange] = useState<LineRange>();
+
+    const [newFields, setNewFields] = useState<FormField[]>([]);
 
     useEffect(() => {
         rpcClient.getVisualizerLocation().then(res => { setFilePath(Utils.joinPath(URI.file(res.projectUri), 'main.bal').fsPath) });
     }, []);
 
-    useEffect(() => {
-        if (!response.createStatusCodeResponse) {
-            response.createStatusCodeResponse = schema.createStatusCodeResponse;
-        }
-    }, [response]);
-
-    const handleCodeChange = (value: string) => {
-        const code = responseCodes.find(code => code.title === value).code;
-        response.statusCode.enabled = !!value;
-        response.statusCode.value = String(code);
-        onChange(response);
-    };
-
-    const handleNTypeChange = (value: string, isArray: boolean) => {
-        response.type.enabled = !!value;
-        response.type.value = isArray ? `${value}[]` : value;
-        onChange(response);
-    };
-
-    const handleTypeChange = (value: string, isArray: boolean) => {
-        response.body.enabled = !!value;
-        response.body.value = isArray ? `${value}[]` : value;
-        onChange(response);
-    };
-
-    const handleNamedTypeChange = (checked: boolean) => {
-        response.createStatusCodeResponse.value = checked ? "true" : "false";
-        response.createStatusCodeResponse.enabled = checked;
-        onChange(response);
-    };
-
-    const handleNameValueChange = (value: string) => {
-        response.name.value = value;
-        response.name.enabled = response.createStatusCodeResponse.enabled;
-        onChange(response);
-    };
-
     const handleOnCancel = () => {
         onCancel(index);
     };
 
-    const handleOnSave = () => {
-        onSave(response, index);
-    };
-
-    const currentFields: FormField[] = [
-        {
-            key: `code`,
-            label: schema.statusCode.metadata.label,
-            type: 'SINGLE_SELECT',
-            optional: false,
-            editable: true,
-            enabled: schema.statusCode?.enabled ?? true,
-            documentation: '',
-            value: getTitleFromResponseCode(Number(response.statusCode.value)),
-            items: responseCodes.map(code => code.title),
-            valueTypeConstraint: "",
-            addNewButton: false
-        },
-        {
-            key: `typeVal`,
-            label: schema.body.metadata.label,
-            type: 'TYPE',
-            optional: false,
-            editable: true,
-            enabled: schema.body?.enabled ?? true,
-            documentation: '',
-            value: response.body.value,
-            valueTypeConstraint: ""
-        },
-        {
-            key: `namedType`,
-            label: schema.name.metadata.label,
-            type: 'string',
-            optional: false,
-            advanced: false,
-            editable: true,
-            enabled: response.name?.enabled ?? true,
-            documentation: '',
-            value: response.name.value,
-            valueTypeConstraint: ""
+    const convertPropertyToFormField = (property: PropertyModel, isArray?: boolean) => {
+        const converted: FormField = {
+            key: "",
+            label: property.metadata.label,
+            type: property.valueType,
+            optional: property.optional,
+            editable: property.editable,
+            enabled: property.enabled,
+            documentation: property.metadata.description,
+            value: isArray ? property.values || [] : property.value,
+            items: property.items,
+            diagnostics: property.diagnostics,
+            valueTypeConstraint: property.valueTypeConstraint,
         }
-    ];
-
-
-    const typeField: FormField[] = [
-        {
-            key: `typeVal`,
-            label: schema.type.metadata.label,
-            type: 'TYPE',
-            optional: false,
-            editable: true,
-            enabled: schema.type?.enabled ?? true,
-            documentation: '',
-            value: response.type.value,
-            valueTypeConstraint: ""
-        }
-    ];
-
-    const onTypeNameSubmit = (dataValues: any) => {
-        console.log("Type name values", dataValues);
-
-        const code = responseCodes.find(code => code.title === dataValues.code).code;
-        response.statusCode.enabled = !!dataValues.code;
-        response.statusCode.value = String(code);
-
-        response.body.enabled = !!dataValues.typeVal;
-        response.body.value = dataValues.typeVal;
-
-        response.name.value = dataValues.namedType;
-        response.name.enabled = response.createStatusCodeResponse.enabled;
-        onSave(response, index);
-
+        return converted;
     }
 
-    const onTypeValueSubmit = (dataValues: any) => {
-        response.type.enabled = !!dataValues.typeVal;
-        response.type.value = dataValues.typeVal;
+    const updateNewFields = (res: StatusCodeResponse) => {
+        const fields = [
+            {
+                ...convertPropertyToFormField(res.statusCode),
+                key: `statusCode`,
+                value: getTitleFromResponseCode(Number(res.statusCode.value)),
+                items: responseCodes.map(code => code.title),
+            },
+            {
+                ...convertPropertyToFormField(res.body),
+                key: `body`,
+            },
+            {
+                ...convertPropertyToFormField(res.name),
+                key: `name`,
+            },
+            {
+                ...convertPropertyToFormField(res.headers, true),
+                key: `headers`,
+            }
+        ];
+        setNewFields(fields);
+    };
+
+    useEffect(() => {
+        updateNewFields(response);
+    }, [response]);
+
+
+    const existingFields: FormField[] = [
+        {
+            ...convertPropertyToFormField(response.type),
+            key: `type`,
+        }
+    ];
+
+
+    const isValidResponse = (dataValues: FormValues) => {
+        if (dataValues['name']) {
+            return true;
+        }
+        const code = responseCodes.find(code => code.title === dataValues['statusCode']).code;
+        const defaultCode = getDefaultResponse(method);
+
+        // Set optional false for the response name
+        response.name.optional = false;
+        response.name.diagnostics = [{ severity: "ERROR", message: "Response Name Required" }]
+
+        // Set all the other values
+        response.statusCode.value = String(code);
+        response.body.value = dataValues['body'];
+        response.name.value = dataValues['name'];
+        response.headers.values = dataValues['headers'];
+
+        if (code === defaultCode) { // Case 1: Use select the default response success for the accessor
+            // If the user add a header type then user should fill the name field as well
+            if (dataValues['headers'] && dataValues['headers'].length > 0) {
+                updateNewFields({ ...response });
+                return false;
+            }
+        } else { // Case 2: User select a response other than the default success response
+            // If user add a body or header values then user must add a name.
+            if (dataValues['body'] || (dataValues['headers'] && dataValues['headers'].length > 0)) {
+                updateNewFields({ ...response });
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    const handleOnNewSubmit = (dataValues: FormValues) => {
+        console.log("Add New Response: ", dataValues);
+        if (isValidResponse(dataValues)) {
+            // Set the values
+            const code = responseCodes.find(code => code.title === dataValues['statusCode']).code;
+            response.statusCode.value = String(code);
+            response.body.value = dataValues['body'];
+            response.name.value = dataValues['name'];
+            response.headers.values = dataValues['headers'];
+            onSave(response, index);
+        }
+    }
+
+    const handleOnExistingSubmit = (dataValues: FormValues) => {
+        console.log("Add Existing Type: ", dataValues);
+        response.type.value = dataValues['type'];
+        response.statusCode.value = '';
+        response.body.value = '';
+        response.name.value = '';
+        response.headers.values = [];
         onSave(response, index);
     }
 
@@ -177,59 +180,49 @@ export function ResponseEditor(props: ParamProps) {
         }
     }, [filePath, rpcClient]);
 
+    const handleCheckChange = (view: string) => {
+        if (currentView === Views.EXISTING) {
+            setCurrentView(Views.NEW);
+        } else {
+            setCurrentView(Views.EXISTING);
+        }
+    };
+
     return (
         <EditorContainer>
-            <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Response Configuration</Typography>
+            <EditorContent>
+                <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Response Configuration</Typography>
+                <VSCodeCheckbox checked={currentView === Views.EXISTING} onChange={handleCheckChange} id="is-req-checkbox">
+                    Use Existing
+                </VSCodeCheckbox>
+            </EditorContent>
             <Divider />
-            {!isEdit && filePath && targetLineRange &&
-                <>
-                    <CheckBox
-                        label={schema.createStatusCodeResponse?.metadata.description}
-                        value={response.createStatusCodeResponse?.metadata.description}
-                        checked={response.createStatusCodeResponse?.value === "true"}
-                        onChange={handleNamedTypeChange}
-                        sx={{ paddingLeft: "16px" }}
-                    />
-                    <>
-                        {response.createStatusCodeResponse?.value === "true" &&
-                            <>
-                                <FormGeneratorNew
-                                    fileName={filePath}
-                                    targetLineRange={targetLineRange}
-                                    fields={currentFields}
-                                    onBack={handleOnCancel}
-                                    onSubmit={onTypeNameSubmit}
-                                    submitText={"Add"}
-                                    nestedForm={true}
-                                />
-                            </>
-                        }
-                        {(!response.createStatusCodeResponse.value || response.createStatusCodeResponse.value === "false") &&
-                            <FormGeneratorNew
-                                fileName={filePath}
-                                targetLineRange={targetLineRange}
-                                fields={typeField}
-                                onBack={handleOnCancel}
-                                onSubmit={onTypeValueSubmit}
-                                submitText={"Add"}
-                                nestedForm={true}
-                            />
-                        }
-                    </>
-                </>
-            }
-            {isEdit && filePath && targetLineRange &&
-                <>
+            {currentView === Views.NEW && filePath && targetLineRange &&
+                <div>
                     <FormGeneratorNew
                         fileName={filePath}
                         targetLineRange={targetLineRange}
-                        fields={typeField}
+                        fields={newFields}
                         onBack={handleOnCancel}
-                        onSubmit={onTypeValueSubmit}
-                        submitText={"Save"}
+                        onSubmit={handleOnNewSubmit}
+                        submitText={isEdit ? "Save" : "Add"}
                         nestedForm={true}
+                        helperPaneSide='left'
                     />
-                </>
+                </div>}
+            {currentView === Views.EXISTING && filePath && targetLineRange &&
+                <div>
+                    <FormGeneratorNew
+                        fileName={filePath}
+                        targetLineRange={targetLineRange}
+                        fields={existingFields}
+                        onBack={handleOnCancel}
+                        onSubmit={handleOnExistingSubmit}
+                        submitText={isEdit ? "Save" : "Add"}
+                        nestedForm={true}
+                        helperPaneSide='left'
+                    />
+                </div>
             }
         </EditorContainer >
     );

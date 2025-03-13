@@ -341,6 +341,7 @@ export interface BallerinaProject {
     version?: string;
     author?: string;
     packageName?: string;
+    orgName?: string;
 }
 
 export interface BallerinaPackagesParams {
@@ -1139,6 +1140,7 @@ export interface Member {
     name?: string;
     docs?: string;
     defaultValue?: string;
+    optional?: boolean;
 }
 
 export interface GetGraphqlTypeRequest {
