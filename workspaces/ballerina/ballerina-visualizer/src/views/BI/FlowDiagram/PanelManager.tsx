@@ -26,6 +26,7 @@ import { AIToolsList, ToolData } from "./AIToolsList";
 import { handleAgentOperations } from "./utils";
 import { ModelConfig } from "./ModelConfig";
 import { ToolConfig } from "./ToolConfig";
+import { AgentConfig } from "./AgentConfig";
 
 export enum SidePanelView {
     NODE_LIST = "NODE_LIST",
@@ -178,7 +179,7 @@ export function PanelManager({
                 return <ModelConfig agentCallNode={selectedNode} onSave={onClose} />;
 
             case SidePanelView.AGENT_CONFIG:
-                return <div>Agent Config</div>;
+                return <AgentConfig agentCallNode={selectedNode} fileName={fileName} onSave={onClose} />;
 
             case SidePanelView.FUNCTION_LIST:
                 return (

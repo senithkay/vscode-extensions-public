@@ -26,20 +26,21 @@ const Container = styled.div`
 
 const FormContainer = styled.div`
     > div:first-child {
-        padding: 16px 0 0 0;
+        padding: 0;
     }
 `;
 
 interface ConfigProps {
     formFields: FormField[];
+    disableSaveButton?: boolean;
     onSubmit: (data: FormField[], rawData: FormValues) => void;
     onBack?: () => void;
 }
 
 export function ConfigForm(props: ConfigProps) {
-    const { rpcClient } = useRpcContext();
+    const { formFields, disableSaveButton, onSubmit, onBack } = props;
 
-    const { formFields, onSubmit, onBack } = props;
+    const { rpcClient } = useRpcContext();
     const [filePath, setFilePath] = useState<string>("");
 
     useEffect(() => {
@@ -87,6 +88,7 @@ export function ConfigForm(props: ConfigProps) {
                             onBack={onBack}
                             onSubmit={handleSubmit}
                             compact={true}
+                            disableSaveButton={disableSaveButton}
                         />
                     )}
                 </FormContainer>

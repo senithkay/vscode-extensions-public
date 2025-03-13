@@ -553,6 +553,13 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             return;
         }
 
+        // if agent_call node, then show agent config panel
+        if (node.codedata.node === "AGENT_CALL") {
+            setSidePanelView(SidePanelView.AGENT_CONFIG);
+            setShowSidePanel(true);
+            return;
+        }
+
         setShowProgressIndicator(true);
         rpcClient
             .getBIDiagramRpcClient()
@@ -739,18 +746,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     };
 
     const handleEditAgent = () => {
-        const agentName = selectedNodeRef.current.properties?.connection?.value as string;
-        if (!agentName) {
-            console.error("Agent name not found for node:", selectedNodeRef.current);
-            return;
-        }
-        rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                view: MACHINE_VIEW.AIAgentEditView,
-                identifier: agentName,
-            },
-        });
+        console.log(">>> Edit agent called", selectedNodeRef.current);
+        // TODO: implement the edit agent logic
     };
 
     // AI Agent callback handlers
@@ -888,19 +885,21 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 onClose={handleOnCloseSidePanel}
                 onBack={handleOnFormBack}
                 onSelectNode={handleOnSelectNode}
+                // Add node callbacks
                 onAddConnection={handleOnAddConnection}
                 onAddAgent={handleOnAddAgent}
                 onAddFunction={handleOnAddFunction}
                 onAddNPFunction={handleOnAddNPFunction}
                 onAddDataMapper={handleOnAddDataMapper}
+
                 onSubmitForm={handleOnFormSubmit}
                 onDiscardSuggestions={onDiscardSuggestions}
                 onSubPanel={handleSubPanel}
                 onResetUpdatedExpressionField={handleResetUpdatedExpressionField}
                 onSearchFunction={handleSearchFunction}
                 onSearchNpFunction={handleSearchNpFunction}
-                onEditAgent={handleEditAgent}
                 // AI Agent specific callbacks
+                onEditAgent={handleEditAgent}
                 onSelectTool={handleOnSelectTool}
                 onDeleteTool={handleOnDeleteTool}
                 onAddTool={handleOnAddTool}

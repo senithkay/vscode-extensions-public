@@ -27,6 +27,7 @@ const Row = styled.div`
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    margin-bottom: 16px;
 `;
 
 interface ModelConfigProps {
@@ -44,6 +45,7 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
     // already assigned model
     const [selectedModel, setSelectedModel] = useState<FlowNode>();
     const [selectedModelFields, setSelectedModelFields] = useState<FormField[]>([]);
+    const [savingForm, setSavingForm] = useState<boolean>(false);
 
     const filepath = useRef<string>("");
     const moduleConnectionNodes = useRef<FlowNode[]>([]);
@@ -134,6 +136,7 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
 
     const handleOnSave = async (data: FormField[], rawData: FormValues) => {
         console.log(">>> save value", { data, rawData });
+        setSavingForm(true);
         const nodeTemplate = selectedModelFlowNode.current;
         data.forEach((field) => {
             if (field.editable) {
@@ -151,6 +154,7 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
             .getSourceCode({ filePath: filepath.current, flowNode: nodeTemplate });
         console.log(">>> response getSourceCode with template ", { response });
         onSave?.();
+        setSavingForm(false);
     };
 
     return (
@@ -175,13 +179,13 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
                             setSelectedModelCodeData(selectedModelCodeData);
                             fetchModelNodeTemplate(selectedModelCodeData);
                         }}
-                        value={selectedModelCodeData?.object || agentCallNode.metadata.data?.model?.type as string}
+                        value={selectedModelCodeData?.object || (agentCallNode.metadata.data?.model?.type as string)}
                         containerSx={{ width: "100%" }}
                     />
                 </Row>
             )}
             {selectedModelFields?.length > 0 && (
-                <ConfigForm formFields={selectedModelFields} onSubmit={handleOnSave} />
+                <ConfigForm formFields={selectedModelFields} onSubmit={handleOnSave} disableSaveButton={savingForm} />
             )}
         </Container>
     );

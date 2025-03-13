@@ -7,16 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import styled from "@emotion/styled";
-import { CodeData, FlowNode, NodeProperties, ToolData } from "@wso2-enterprise/ballerina-core";
+import { FlowNode, ToolData } from "@wso2-enterprise/ballerina-core";
 import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { convertConfig } from "../../../utils/bi";
-import { URI, Utils } from "vscode-uri";
 import ConfigForm from "./ConfigForm";
-import { Dropdown } from "@wso2-enterprise/ui-toolkit";
-import { cloneDeep } from "lodash";
 
 const Container = styled.div`
     padding: 16px;
@@ -37,14 +33,18 @@ interface ToolConfigProps {
 
 export function ToolConfig(props: ToolConfigProps): JSX.Element {
     const { agentCallNode, toolData, onSave } = props;
+
     const { rpcClient } = useRpcContext();
+    const [savingForm, setSavingForm] = useState<boolean>(false);
 
     console.log(">>> ToolConfig props", props);
 
     const handleOnSave = async (data: FormField[], rawData: FormValues) => {
         console.log(">>> save value", { data, rawData });
+        setSavingForm(true);
         // TODO: implement the save logic
         onSave?.();
+        setSavingForm(false);
     };
 
     const formFields: FormField[] = [
@@ -79,7 +79,7 @@ export function ToolConfig(props: ToolConfigProps): JSX.Element {
 
     return (
         <Container>
-            <ConfigForm formFields={formFields} onSubmit={handleOnSave} />
+            <ConfigForm formFields={formFields} onSubmit={handleOnSave} disableSaveButton={savingForm} />
         </Container>
     );
 }
