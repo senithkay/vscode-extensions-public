@@ -465,14 +465,14 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                                 justifyContent: 'center',
                             }}>
                                 <Typography variant='body2'>AI decides based on description</Typography>
-                                {(value.description?.currentValue && value.description?.defaultValue !== value.description?.currentValue) && <Button
+                                {(value.description?.defaultValue !== value.description?.currentValue) && <Button
                                     tooltip={"Reset to default description"}
                                     onClick={() => {
                                         onChange({
                                             ...value,
                                             description: {
                                                 ...value.description,
-                                                currentValue: undefined
+                                                currentValue: value.description.defaultValue
                                             }
                                         });
                                     }}
