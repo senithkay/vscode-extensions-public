@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./common";
 import { Diagnostic as VSCodeDiagnostic } from "vscode-languageserver-types";
 import { ServiceModel } from "./service";
@@ -92,6 +92,7 @@ export type Property = {
     diagnostics?: Diagnostic;
     valueType: string;
     value: string | ELineRange | NodeProperties | string[];
+    advanceValue?: string | ELineRange | NodeProperties | string[];
     optional: boolean;
     editable: boolean;
     advanced?: boolean;
@@ -285,7 +286,8 @@ export type NodePropertyKey =
     | "tools"
     | "query"
     | "functionName"
-    | "systemPrompt";
+    | "systemPrompt"
+    | "enableModelContext";
 
 export type BranchKind = "block" | "worker";
 
