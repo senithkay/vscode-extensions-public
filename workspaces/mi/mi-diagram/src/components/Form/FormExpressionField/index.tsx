@@ -174,7 +174,6 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
     const [headerInfo, setHeaderInfo] = useState<HelperPaneCompletionItem[]>(null);
     const [paramInfo, setParamInfo] = useState<HelperPaneCompletionItem[]>(null);
     const [isAIFill, setIsAIFill] = useState<boolean>(value.fromAI);
-    const [isAIDescription, setIsAIDescription] = useState<boolean>(value?.description?.currentValue?.length > 0);
 
     const debouncedRetrieveCompletions = useCallback(
         async (expression: string, cursorPosition: number) => {
@@ -416,49 +415,6 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                 <S.Label>{label}</S.Label>
                 {required && <RequiredFormInput />}
                 {labelAdornment}
-                {isAIFill && <>
-                    <Typography variant='body2' sx={{ color: Colors.PRIMARY, margin: '0 0 0 10px' }}>AI will decide this value</Typography>
-                    <Button
-                        tooltip={"Give instructions to AI"}
-                        onClick={() => {
-                            if (!isAIDescription) {
-                                onChange({
-                                    ...value,
-                                    description: {
-                                        ...value.description,
-                                        currentValue: undefined
-                                    }
-                                });
-                            }
-                            setIsAIDescription(!isAIDescription);
-                        }}
-                        appearance="icon"
-                        sx={{
-                            marginLeft: '5px',
-                            'vscode-button:hover': {
-                                backgroundColor: 'var(--button-primary-hover-background) !important'
-                            }
-                        }}
-                        buttonSx={{
-                            height: '16px',
-                            width: '22px',
-                            borderRadius: '2px',
-                            backgroundColor: 'var(--vscode-button-background)',
-                            ...(isHelperPaneOpen && {
-                                backgroundColor: 'var(--button-primary-hover-background)'
-                            })
-                        }}
-                    >
-                        <Codicon
-                            name={"edit"}
-                            iconSx={{
-                                fontSize: '12px',
-                                color: 'var(--vscode-button-foreground)'
-                            }}
-                            sx={{ height: '14px', width: '16px' }}
-                        />
-                    </Button>
-                </>}
             </S.Header>
             <div>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -497,21 +453,69 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                         })}
                     />}
 
-                    {isAIFill && <TextField
-                        value={isAIDescription ? value.description?.currentValue : value.description?.defaultValue}
-                        disabled={!isAIDescription}
-                        onChange={(e) => {
-                            onChange({
-                                ...value,
-                                description: {
-                                    ...value.description,
-                                    currentValue: e.target.value
-                                }
-                            });
-                        }}
-                        placeholder={'Description'}
-                        sx={{ width: '100%', backgroundColor: 'var(--vscode-input-background)' }}
-                    />}
+                    {isAIFill && (
+                        <div style={{ width: '100%' }}>
+                            <div style={{
+                                color: Colors.ON_SURFACE,
+                                padding: '5px',
+                                backgroundColor: 'var(--vscode-inputOption-activeBackground)',
+                                textAlign: 'center',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}>
+                                <Typography variant='body2'>AI decides based on description</Typography>
+                                {(value.description?.currentValue && value.description?.defaultValue !== value.description?.currentValue) && <Button
+                                    tooltip={"Reset to default description"}
+                                    onClick={() => {
+                                        onChange({
+                                            ...value,
+                                            description: {
+                                                ...value.description,
+                                                currentValue: undefined
+                                            }
+                                        });
+                                    }}
+                                    appearance="icon"
+                                    sx={{
+                                        marginLeft: '5px',
+                                        'vscode-button:hover': {
+                                            backgroundColor: 'var(--button-primary-hover-background) !important'
+                                        }
+                                    }}
+                                    buttonSx={{
+                                        height: '16px',
+                                        width: '22px',
+                                        borderRadius: '2px',
+                                        backgroundColor: 'var(--vscode-button-background)',
+                                    }}
+                                >
+                                    <Codicon
+                                        name={"debug-restart"}
+                                        iconSx={{
+                                            fontSize: '12px',
+                                            color: 'var(--vscode-button-foreground)'
+                                        }}
+                                        sx={{ height: '14px', width: '16px' }}
+                                    />
+                                </Button>}
+                            </div>
+                            <TextField
+                                value={value.description?.currentValue ?? value.description?.defaultValue}
+                                onChange={(e) => {
+                                    onChange({
+                                        ...value,
+                                        description: {
+                                            ...value.description,
+                                            currentValue: e.target.value
+                                        }
+                                    });
+                                }}
+                                placeholder={'Description'}
+                                sx={{ width: '100%', backgroundColor: 'var(--vscode-input-background)' }}
+                            />
+                        </div>
+                    )}
 
                     {supportsAIValues && <Button
                         tooltip={"Let AI fill this field"}
