@@ -263,7 +263,7 @@ export class BallerinaExtension {
             const pluginVersion = this.extension.packageJSON.version.split('-')[0];
             return this.getBallerinaVersion(this.ballerinaHome, this.overrideBallerinaHome()).then(async runtimeVersion => {
                 this.ballerinaVersion = runtimeVersion.split('-')[0];
-                this.biSupported = isSupportedSLVersion(this, 2201120)
+                this.biSupported = isSupportedSLVersion(this, 2201120);
                 const { home } = this.autoDetectBallerinaHome();
                 this.ballerinaHome = home;
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${this.ballerinaVersion}`);
@@ -391,7 +391,7 @@ export class BallerinaExtension {
             const terminal = window.createTerminal('Update Ballerina');
             terminal.show();
             terminal.sendText('bal dist update');
-            window.showInformationMessage('Ballerina update started. Please wait...')
+            window.showInformationMessage('Ballerina update started. Please wait...');
         }, (reason) => {
             console.error('Error getting the ballerina version:', reason.message);
             this.showMessageSetupBallerina(restartWindow);
