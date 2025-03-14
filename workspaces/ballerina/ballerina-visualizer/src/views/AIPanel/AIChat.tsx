@@ -22,6 +22,7 @@ import {
     TestGenerationTarget,
     LLMDiagnostics,
     ImportStatement,
+    DiagnosticEntry,
 } from "@wso2-enterprise/ballerina-core";
 
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -869,7 +870,6 @@ export function AIChat() {
                 try {
                     await processSSEEvent(chunk);
                 } catch (error) {
-                    setIsCodeLoading(false);
                     console.error("Failed to parse SSE event:", error);
                 }
 
@@ -888,13 +888,19 @@ export function AIChat() {
                 // Update the functions state instead of the global variable
                 setFunctions(event.body);
             } else if (event.event == "message_stop") {
-                const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
-                    assistant_response: assistant_response,
-                });
-                assistant_response = postProcessResp.assistant_response;
-                const diagnostics = postProcessResp.diagnostics.diagnostics;
-                console.log("Initial Diagnostics : ", diagnostics);
-                setCurrentDiagnostics(diagnostics);
+                let diagnostics: DiagnosticEntry[] = [];
+                try {
+                    const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
+                        assistant_response: assistant_response,
+                    });
+                    assistant_response = postProcessResp.assistant_response;
+                    diagnostics = postProcessResp.diagnostics.diagnostics;
+                    console.log("Initial Diagnostics : ", diagnostics);
+                    setCurrentDiagnostics(diagnostics);
+                } catch (error) {
+                    setIsCodeLoading(false);
+                    diagnostics = [];
+                }
                 if (diagnostics.length > 0) {
                     const diagReq = {
                         response: assistant_response,
