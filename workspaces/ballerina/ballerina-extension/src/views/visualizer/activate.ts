@@ -49,7 +49,7 @@ export function activateSubscriptions() {
 
     context.subscriptions.push(
         vscode.commands.registerCommand(SHARED_COMMANDS.OPEN_BI_WELCOME, () => {
-            if (StateMachine.langClient() && ballerinaExtInstance && isSupportedSLVersion(ballerinaExtInstance, 2201100)) {
+            if (StateMachine.langClient()) {
                 openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BIWelcome });
             } else {
                 openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SetupView });
