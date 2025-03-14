@@ -71,7 +71,7 @@ export function TypeEditor(props: TypeEditorProps) {
         setFocused(true);
         // Trigger actions on focus
         await onFocus?.();
-        await retrieveVisibleTypes(value, value.length);
+        await retrieveVisibleTypes(value, value.length, field.valueTypeConstraint as string);
         if (openRecordEditor) {
             setShowDefaultCompletion(true);
         }
@@ -199,7 +199,7 @@ export function TypeEditor(props: TypeEditorProps) {
                                 cursorPositionRef.current = updatedCursorPosition;
 
                                 // Retrieve visible types
-                                await retrieveVisibleTypes(value, updatedCursorPosition);
+                                await retrieveVisibleTypes(value, updatedCursorPosition, field.valueTypeConstraint as string);
                             }}
                             onCompletionSelect={handleCompletionSelect}
                             onDefaultCompletionSelect={handleDefaultCompletionSelect}
