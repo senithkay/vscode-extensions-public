@@ -26,7 +26,7 @@ const DEFAULT_CHOREO_ENV_CONFIG: IChoreoEnvConfig = {
 	},
 	choreoConsoleBaseUrl: "https://console.choreo.dev",
 	billingConsoleBaseUrl: "https://subscriptions.wso2.com",
-	devantConsoleBaseUrl: "https://console.devant.dev/",
+	devantConsoleBaseUrl: "https://console.devant.dev",
 };
 
 const CHOREO_ENV_CONFIG_STAGE: IChoreoEnvConfig = {
