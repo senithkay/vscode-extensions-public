@@ -1174,7 +1174,7 @@ async function updateMI(miVersion: string, latestUpdateVersion: string): Promise
         const existingMIPath = getLatestMIPathFromCache(miVersion)?.path;
         const rootFolderName = extractRootFolderFromZip(miZipPath);
         if (existingMIPath) {
-            const replaceOption = 'Replace Existing Installation';
+            const replaceOption = 'Replace existing runtime';
             const createNewOption = 'Install as New Version';
             const selection = await vscode.window.showWarningMessage(
                 'An existing Micro Integrator runtime was found. Would you like to replace it or install as a separate runtime? Note: Replacing will remove all existing configurations and CApps in the server.',
