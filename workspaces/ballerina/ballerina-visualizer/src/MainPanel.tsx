@@ -74,7 +74,7 @@ const globalStyles = css`
 
 const VisualizerContainer = styled.div`
     width: 100%;
-    /* height: 100%; */
+    overflow: scroll;
 `;
 
 const ComponentViewWrapper = styled.div`
@@ -239,7 +239,7 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.BIWelcome:
                         setNavActive(false);
-                        setViewComponent(<WelcomeView />);
+                        setViewComponent(<WelcomeView isBISupported={value.metadata.isBISupported} />);
                         break;
                     case MACHINE_VIEW.SetupView:
                         setNavActive(false);

@@ -35,7 +35,12 @@
             {
                 "view": "BI.project-explorer",
                 "contents": "Welcome to Ballerina Integrator. You can open a folder containing a Ballerina integration or create a new integration.\n[Open Ballerina Integration](command:vscode.openFolder)\n[Create New Integration](command:ballerina.open.bi.new)\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
-                "when": "BI.status == 'unknownProject'"
+                "when": "BI.status == 'unknownProject' && BI.LSStatus != 'updateNeed'"
+            },
+            {
+                "view": "BI.project-explorer",
+                "contents": "Welcome to Ballerina Integrator. Your current ballerina distribution is not supported. Please update to version 12 or above.\n[Update Now](command:ballerina.update-ballerina)\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
+                "when": "BI.LSStatus == 'updateNeed'"
             },
             {
                 "view": "BI.project-explorer",
