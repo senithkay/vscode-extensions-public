@@ -20,7 +20,8 @@ import { ballerinaExtInstance, LANGUAGE } from "../../core";
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
     public static readonly viewType = "ballerina.visualizer";
-    public static readonly panelTitle = "Ballerina Visualizer";
+    public static readonly ballerinaTitle = "Ballerina Visualizer";
+    public static readonly biTitle = "Ballerina Integrator";
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
 
@@ -59,10 +60,15 @@ export class VisualizerWebview {
         });
     }
 
+    public static get webviewTitle(): string {
+        const biExtension = vscode.extensions.getExtension('wso2.ballerina-integrator') && ballerinaExtInstance.biSupported;
+        return biExtension ? VisualizerWebview.biTitle : VisualizerWebview.ballerinaTitle;
+    }
+
     private static createWebview(): vscode.WebviewPanel {
         const panel = vscode.window.createWebviewPanel(
             VisualizerWebview.viewType,
-            VisualizerWebview.panelTitle,
+            VisualizerWebview.webviewTitle,
             { viewColumn: ViewColumn.Active, preserveFocus: true },
             {
                 enableScripts: true,
@@ -71,7 +77,7 @@ export class VisualizerWebview {
             }
         );
         const biExtension = vscode.extensions.getExtension('wso2.ballerina-integrator') && ballerinaExtInstance.biSupported;
-        panel.title = biExtension ? "Ballerina Integrator" : "Ballerina Visualizer";
+        panel.title = biExtension ? VisualizerWebview.biTitle : VisualizerWebview.ballerinaTitle;
         panel.iconPath = {
             light: vscode.Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', biExtension ? 'light-icon.svg' : 'ballerina.svg')),
             dark: vscode.Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', biExtension ? 'dark-icon.svg' : 'ballerina-inverse.svg'))

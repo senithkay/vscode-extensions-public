@@ -216,7 +216,7 @@ const stateMachine = createMachine<MachineContext>(
                         const webview = VisualizerWebview.currentPanel?.getWebview();
                         if (webview && (context.isBI || context.view === MACHINE_VIEW.BIWelcome)) {
                             const biExtension = extensions.getExtension('wso2.ballerina-integrator') && context.isBISupported;
-                            webview.title = biExtension ? "Ballerina Integrator" : "Ballerina Visualizer";
+                            webview.title = biExtension ? VisualizerWebview.biTitle : VisualizerWebview.ballerinaTitle;
                             webview.iconPath = {
                                 light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', biExtension ? 'light-icon.svg' : 'ballerina.svg')),
                                 dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', biExtension ? 'dark-icon.svg' : 'ballerina-inverse.svg'))
