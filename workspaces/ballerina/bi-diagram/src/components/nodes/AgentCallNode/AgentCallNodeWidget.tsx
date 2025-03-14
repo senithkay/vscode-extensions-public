@@ -6,12 +6,13 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-
+/** @jsxImportSource @emotion/react */
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { AgentCallNodeModel } from "./AgentCallNodeModel";
 import {
+    AGENT_NODE_ADD_TOOL_BUTTON_WIDTH,
     AGENT_NODE_TOOL_GAP,
     AGENT_NODE_TOOL_SECTION_GAP,
     DRAFT_NODE_BORDER_WIDTH,
@@ -23,14 +24,15 @@ import {
     NODE_PADDING,
     NODE_WIDTH,
 } from "../../../resources/constants";
-import { Button, Icon, Item, Menu, MenuItem, Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
-import { MoreVertIcon } from "../../../resources";
-import { AgentNodeTools, FlowNode } from "../../../utils/types";
+import { Button, Icon, Item, Menu, MenuItem, Popover, ThemeColors, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { MoreVertIcon, OpenAiIcon, AzureOpenAiIcon, AnthropicIcon, OllamaIcon, DefaultLlmIcon, MistralAIIcon } from "../../../resources/icons";
+import { AgentData, FlowNode, ToolData } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
 import ConnectorIcon from "../../ConnectorIcon";
 import { useDiagramContext } from "../../DiagramContext";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
-import { getAgentNodeTools, nodeHasError } from "../../../utils/node";
+import { nodeHasError } from "../../../utils/node";
+import { css } from "@emotion/react";
 import { BreakpointMenu } from "../../BreakNodeMenu/BreakNodeMenu";
 
 export namespace NodeStyles {
@@ -126,12 +128,56 @@ export namespace NodeStyles {
         opacity: 0.7;
     `;
 
+    export const Role = styled(StyledText)`
+        font-size: 12px;
+        color: ${ThemeColors.PRIMARY};
+        font-family: "GilmerMedium";
+        font-weight: bold;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        padding: 0 4px;
+    `;
+
+    export const Instructions = styled(StyledText)`
+        font-size: 12px;
+        color: ${ThemeColors.ON_SURFACE};
+        opacity: 0.7;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        width: 100%;
+        max-height: calc(100% - 5px);
+        line-height: 1.4;
+        padding: 0 4px 4px;
+    `;
+
+    export const InstructionsRow = styled.div`
+        flex: 1;
+        overflow: hidden;
+        align-items: flex-start;
+        margin-bottom: 6px;
+    `;
+
     export const Row = styled.div`
         display: flex;
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
         width: 100%;
+    `;
+
+    export const Column = styled.div`
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        gap: 8px;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
     `;
 
     export const ActionButtonGroup = styled.div`
@@ -162,28 +208,6 @@ export namespace NodeStyles {
         align-items: center;
         gap: 8px;
     `;
-
-    export type PillStyleProp = {
-        color: string;
-    };
-    export const Pill = styled.div<PillStyleProp>`
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 4px;
-        color: ${(props: PillStyleProp) => props.color};
-        padding: 2px 4px;
-        border-radius: 20px;
-        border: 1px solid ${(props: PillStyleProp) => props.color};
-        font-size: 12px;
-        font-family: monospace;
-        svg {
-            fill: ${(props: PillStyleProp) => props.color};
-            stroke: ${(props: PillStyleProp) => props.color};
-            height: 12px;
-            width: 12px;
-        }
-    `;
 }
 
 interface AgentCallNodeWidgetProps {
@@ -196,7 +220,7 @@ export interface NodeWidgetProps extends Omit<AgentCallNodeWidgetProps, "childre
 
 export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { onNodeSelect, onConnectionSelect, goToSource, onDeleteNode, removeBreakpoint, addBreakpoint, readOnly } =
+    const { onNodeSelect, goToSource, onDeleteNode, removeBreakpoint, addBreakpoint, agentNode, readOnly } =
         useDiagramContext();
 
     const [isBoxHovered, setIsBoxHovered] = useState(false);
@@ -225,8 +249,27 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
         setAnchorEl(null);
     };
 
-    const onConnectionClick = () => {
-        onConnectionSelect && onConnectionSelect(model.node.properties?.connection?.value as string);
+    const onModelEditClick = () => {
+        console.log(">>> onModelEditClick", model.node);
+        agentNode?.onModelSelect && agentNode.onModelSelect(model.node);
+        setAnchorEl(null);
+    };
+
+    const onToolClick = (tool: ToolData) => {
+        console.log(">>> onToolClick", tool);
+        agentNode?.onSelectTool && agentNode.onSelectTool(tool, model.node);
+        setAnchorEl(null);
+    };
+
+    const onAddToolClick = () => {
+        console.log(">>> onAddToolClick", model.node);
+        agentNode?.onAddTool && agentNode.onAddTool(model.node);
+        setAnchorEl(null);
+    };
+
+    const onDeleteToolClick = (tool: ToolData) => {
+        console.log(">>> onDeleteToolClick", tool);
+        agentNode?.onDeleteTool && agentNode.onDeleteTool(tool, model.node);
         setAnchorEl(null);
     };
 
@@ -271,7 +314,15 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
     const disabled = model.node.suggested;
     const nodeTitle = "AI Agent : " + model.node.properties.connection?.value;
     const hasError = nodeHasError(model.node);
-    const tools = getAgentNodeTools(model.node);
+    const tools = model.node.metadata?.data?.tools || [];
+    if (model.node.metadata.data?.agent) {
+        model.node.metadata.data.agent = sanitizeAgentData(model.node.metadata.data.agent);
+    }
+    let containerHeight =
+        NODE_HEIGHT + AGENT_NODE_TOOL_SECTION_GAP + AGENT_NODE_ADD_TOOL_BUTTON_WIDTH + AGENT_NODE_TOOL_GAP * 2;
+    if (tools.length > 0) {
+        containerHeight += tools.length * (NODE_HEIGHT + AGENT_NODE_TOOL_GAP);
+    }
 
     return (
         <NodeStyles.Node>
@@ -296,8 +347,10 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                     />
                 )}
                 <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
-                <NodeStyles.Row style={{ height: `${model.node.viewState?.ch}px` }}>
-                    <NodeStyles.Row>
+                <NodeStyles.Column style={{ height: `${model.node.viewState?.ch}px` }}>
+                    <NodeStyles.Row
+                        style={{ borderBottom: `1px solid ${ThemeColors.OUTLINE_VARIANT}`, marginTop: "2px" }}
+                    >
                         <NodeStyles.Icon onClick={handleOnClick}>
                             <NodeIcon type={model.node.codedata.node} size={24} />
                         </NodeStyles.Icon>
@@ -338,19 +391,27 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                             </Menu>
                         </Popover>
                     </NodeStyles.Row>
-                </NodeStyles.Row>
+                    {model.node.metadata.data?.agent?.role && (
+                        <NodeStyles.Row  onClick={handleOnClick}>
+                            <NodeStyles.Role>{model.node.metadata.data.agent.role}</NodeStyles.Role>
+                        </NodeStyles.Row>
+                    )}
+                    {model.node.metadata.data?.agent?.instructions && (
+                        <NodeStyles.InstructionsRow onClick={handleOnClick}>
+                            <NodeStyles.Instructions>
+                                {model.node.metadata.data.agent.instructions}
+                            </NodeStyles.Instructions>
+                        </NodeStyles.InstructionsRow>
+                    )}
+                </NodeStyles.Column>
                 <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
             </NodeStyles.Box>
 
             <svg
-                width={NODE_GAP_X + NODE_HEIGHT + LABEL_HEIGHT + LABEL_WIDTH}
+                width={NODE_GAP_X + NODE_HEIGHT + LABEL_HEIGHT + LABEL_WIDTH + 10}
                 height={model.node.viewState?.ch}
-                viewBox={`0 0 300 ${
-                    tools.length > 0
-                        ? NODE_HEIGHT + AGENT_NODE_TOOL_SECTION_GAP + tools.length * (NODE_HEIGHT + AGENT_NODE_TOOL_GAP)
-                        : NODE_HEIGHT
-                }`}
-                style={{ marginLeft: "-5px" }}
+                viewBox={`0 0 300 ${containerHeight}`}
+                style={{ marginLeft: "-10px" }}
             >
                 {/* ai agent model circle */}
                 <g>
@@ -363,22 +424,23 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                         strokeWidth={1.5}
                         strokeDasharray={disabled ? "5 5" : "none"}
                         opacity={disabled ? 0.7 : 1}
-                    />
-                    <foreignObject x="68" y="12" width="44" height="44" fill={ThemeColors.ON_SURFACE}>
-                        <ConnectorIcon
-                            url={model.node.metadata.data.model}
-                            fallbackIcon={
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                    <g fill="none">
-                                        <path d="m12.594 23.258l-.012.002l-.071.035l-.02.004l-.014-.004l-.071-.036q-.016-.004-.024.006l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.016-.018m.264-.113l-.014.002l-.184.093l-.01.01l-.003.011l.018.43l.005.012l.008.008l.201.092q.019.005.029-.008l.004-.014l-.034-.614q-.005-.019-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.003-.011l.018-.43l-.003-.012l-.01-.01z" />
-                                        <path
-                                            fill="currentColor"
-                                            d="M9.107 5.448c.598-1.75 3.016-1.803 3.725-.159l.06.16l.807 2.36a4 4 0 0 0 2.276 2.411l.217.081l2.36.806c1.75.598 1.803 3.016.16 3.725l-.16.06l-2.36.807a4 4 0 0 0-2.412 2.276l-.081.216l-.806 2.361c-.598 1.75-3.016 1.803-3.724.16l-.062-.16l-.806-2.36a4 4 0 0 0-2.276-2.412l-.216-.081l-2.36-.806c-1.751-.598-1.804-3.016-.16-3.724l.16-.062l2.36-.806A4 4 0 0 0 8.22 8.025l.081-.216zM11 6.094l-.806 2.36a6 6 0 0 1-3.49 3.649l-.25.091l-2.36.806l2.36.806a6 6 0 0 1 3.649 3.49l.091.25l.806 2.36l.806-2.36a6 6 0 0 1 3.49-3.649l.25-.09l2.36-.807l-2.36-.806a6 6 0 0 1-3.649-3.49l-.09-.25zM19 2a1 1 0 0 1 .898.56l.048.117l.35 1.026l1.027.35a1 1 0 0 1 .118 1.845l-.118.048l-1.026.35l-.35 1.027a1 1 0 0 1-1.845.117l-.048-.117l-.35-1.026l-1.027-.35a1 1 0 0 1-.118-1.845l.118-.048l1.026-.35l.35-1.027A1 1 0 0 1 19 2"
-                                        />
-                                    </g>
-                                </svg>
+                        onClick={onModelEditClick}
+                        css={css`
+                            cursor: pointer;
+                            &:hover {
+                                stroke: ${ThemeColors.PRIMARY};
                             }
-                        />
+                        `}
+                    />
+                    <foreignObject
+                        x="68"
+                        y="12"
+                        width="44"
+                        height="44"
+                        fill={ThemeColors.ON_SURFACE}
+                        style={{ pointerEvents: "none" }}
+                    >
+                        {getLlmModelIcons(model.node.metadata.data.model?.type)}
                     </foreignObject>
                     <line
                         x1="0"
@@ -395,12 +457,29 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                 </g>
 
                 {/* circles for tools */}
-                {tools.map((tool: AgentNodeTools, index: number) => (
+                {tools.map((tool: ToolData, index: number) => (
                     <g
                         key={index}
                         transform={`translate(0, ${
                             (index + 1) * (NODE_HEIGHT + AGENT_NODE_TOOL_GAP) + AGENT_NODE_TOOL_SECTION_GAP
                         })`}
+                        onClick={() => onToolClick(tool)}
+                        css={css`
+                            cursor: pointer;
+                            &:hover circle {
+                                stroke: ${ThemeColors.PRIMARY};
+                            }
+                            &:hover foreignObject .connector-icon path {
+                                fill: ${ThemeColors.PRIMARY};
+                            }
+                            &:hover text {
+                                fill: ${ThemeColors.PRIMARY};
+                            }
+                            &:hover .tool-tooltip {
+                                opacity: 1;
+                                visibility: visible;
+                            }
+                        `}
                     >
                         <circle
                             cx="80"
@@ -412,11 +491,20 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                             strokeDasharray={disabled ? "5 5" : "none"}
                             opacity={disabled ? 0.7 : 1}
                         />
-                        <foreignObject x="68" y="12" width="44" height="44" fill={ThemeColors.ON_SURFACE}>
-                            <ConnectorIcon
-                                url={tool.iconUrl}
-                                fallbackIcon={<Icon name="bi-function" sx={{ fontSize: "24px" }} />}
-                            />
+                        <foreignObject
+                            x="68"
+                            y="12"
+                            width="44"
+                            height="44"
+                            fill={ThemeColors.ON_SURFACE}
+                            style={{ pointerEvents: "none" }}
+                        >
+                            <div className="connector-icon">
+                                <ConnectorIcon
+                                    url={tool.path}
+                                    fallbackIcon={<Icon name="bi-function" sx={{ fontSize: "24px" }} />}
+                                />
+                            </div>
                         </foreignObject>
                         <text
                             x="110"
@@ -439,10 +527,101 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                                 stroke: ThemeColors.ON_SURFACE,
                                 strokeWidth: 1.5,
                                 markerEnd: `url(#${model.node.id}-arrow-head-tool-${tool.name})`,
+                                strokeDasharray: "6 6",
                             }}
                         />
+
+                        {/* Tool tooltip */}
+                        <foreignObject
+                            x="110"
+                            y="-10"
+                            width="150"
+                            height="30"
+                            className="tool-tooltip"
+                            style={{ pointerEvents: "none" }}
+                        >
+                            <div
+                                css={css`
+                                    background-color: ${ThemeColors.SURFACE_BRIGHT};
+                                    color: ${ThemeColors.ON_SURFACE};
+                                    padding: 4px 8px;
+                                    border-radius: 4px;
+                                    font-size: 12px;
+                                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                                    opacity: 0;
+                                    visibility: hidden;
+                                    transition: opacity 0.2s ease-in-out;
+                                    pointer-events: none;
+                                    white-space: nowrap;
+                                    font-family: "GilmerRegular";
+                                `}
+                            >
+                                Click to edit {tool.name}
+                            </div>
+                        </foreignObject>
                     </g>
                 ))}
+
+                {/* Add "Add new tool" button below all tools */}
+                <g
+                    transform={`translate(-11, ${
+                        tools.length > 0
+                            ? (tools.length + 1) * (NODE_HEIGHT + AGENT_NODE_TOOL_GAP) + AGENT_NODE_TOOL_SECTION_GAP
+                            : NODE_HEIGHT + AGENT_NODE_TOOL_SECTION_GAP
+                    })`}
+                    onClick={onAddToolClick}
+                    style={{ cursor: "pointer" }}
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        css={css`
+                            cursor: pointer;
+                            &:hover path:last-of-type {
+                                fill: ${ThemeColors.PRIMARY};
+                            }
+                            &:hover + .custom-tooltip {
+                                opacity: 1;
+                                visibility: visible;
+                            }
+                        `}
+                    >
+                        <title>Add new tool</title>
+                        <path
+                            fill={ThemeColors.SURFACE_BRIGHT}
+                            d="M12 0C5 0 0 5 0 12s5 12 12 12 12-5 12-12S19 0 12 0z"
+                        />
+                        <path
+                            fill={ThemeColors.ON_SURFACE}
+                            d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                        />
+                    </svg>
+
+                    {/* Custom tooltip */}
+                    <foreignObject x="25" y="-10" width="100" height="30" style={{ pointerEvents: "none" }}>
+                        <div
+                            className="custom-tooltip"
+                            css={css`
+                                background-color: ${ThemeColors.SURFACE_BRIGHT};
+                                color: ${ThemeColors.ON_SURFACE};
+                                padding: 4px 8px;
+                                border-radius: 4px;
+                                font-size: 12px;
+                                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                                opacity: 0;
+                                visibility: hidden;
+                                transition: opacity 0.2s ease-in-out;
+                                pointer-events: none;
+                                white-space: nowrap;
+                                font-family: "GilmerRegular";
+                            `}
+                        >
+                            Add new tool
+                        </div>
+                    </foreignObject>
+                </g>
 
                 <defs>
                     <marker
@@ -470,11 +649,11 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                             cy="4"
                             r="3"
                             fill={ThemeColors.SURFACE_DIM}
-                            stroke={ThemeColors.OUTLINE_VARIANT}
+                            stroke={ThemeColors.ON_SURFACE}
                             strokeWidth="1"
                         />
                     </marker>
-                    {tools.map((tool: AgentNodeTools) => (
+                    {tools.map((tool: ToolData) => (
                         <marker
                             key={tool.name}
                             id={`${model.node.id}-arrow-head-tool-${tool.name}`}
@@ -492,4 +671,36 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
             </svg>
         </NodeStyles.Node>
     );
+}
+
+// sanitize agent instructions and role
+// remove leading and trailing quotes
+// remove suffix "string `" and prefix "`"
+function sanitizeAgentData(data: AgentData) {
+    if (data.role) {
+        data.role = data.role.replace(/^['"]|['"]$/g, "").replace(/^string `|`$/g, "");
+    }
+    if (data.instructions) {
+        data.instructions = data.instructions.replace(/^['"]|['"]$/g, "").replace(/^string `|`$/g, "");
+    }
+    return data;
+}
+
+// get llm model icons
+// this should replace with CDN icons
+function getLlmModelIcons(modelType: string) {
+    switch (modelType) {
+        case "OpenAiModel":
+            return <OpenAiIcon />;
+        case "AzureOpenAiModel":
+            return <AzureOpenAiIcon />;
+        case "AnthropicModel":
+            return <AnthropicIcon />;
+        case "OllamaModel":
+            return <OllamaIcon />;
+        case "MistralAiModel":
+            return <MistralAIIcon />;
+        default:
+            return <DefaultLlmIcon />;
+    }
 }

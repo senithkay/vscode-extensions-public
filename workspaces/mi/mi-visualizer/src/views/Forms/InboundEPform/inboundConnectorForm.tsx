@@ -140,7 +140,7 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
         );
         if (genericGroup) {
             return genericGroup.value.elements
-                .filter((element: any) => element.type === "attribute")
+                .filter((element: any) => element.type === "attribute" && element.value.name !== "generateSequences")
                 .map((attribute: any) => attribute.value.name);
         }
         return [];
@@ -216,6 +216,17 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
 
     const handleCreateInboundConnector = async (values: any) => {
         const attributeNames = getGenericAttributeNames(formData);
+
+        if (values.generateSequences) {
+            if (props.model) {
+                values.sequence = props.model.sequence;
+                values.onError = props.model.onError;
+            }
+        } else {
+            values.sequence = values.sequence.value;
+            values.onError = values.onError.value;
+        }
+
         const { attrFields, paramFields } = extractProperties(values, attributeNames);
 
         // Transform the keys of the rest object
@@ -294,16 +305,16 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
             )}
             <FormActions>
                 <Button
-                    appearance="primary"
-                    onClick={handleSubmit(handleCreateInboundConnector)}
-                >
-                    {props.model ? "Update" : "Create"}
-                </Button>
-                <Button
                     appearance="secondary"
                     onClick={handleOnClose}
                 >
                     Cancel
+                </Button>
+                <Button
+                    appearance="primary"
+                    onClick={handleSubmit(handleCreateInboundConnector)}
+                >
+                    {props.model ? "Update" : "Create"}
                 </Button>
             </FormActions>
         </>

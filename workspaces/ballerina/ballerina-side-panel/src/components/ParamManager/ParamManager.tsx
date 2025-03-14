@@ -236,7 +236,7 @@ export function ParamManager(props: ParamManagerProps) {
                 } else if ((editingSegmentId !== index)) {
                     render.push(
                         <ParamItem
-                            params={param}
+                            param={param}
                             readonly={editingSegmentId !== -1 || readonly}
                             onDelete={onDelete}
                             onEditClick={onEdit}

@@ -8,7 +8,7 @@
  */
 
 import { DisplayAnnotation } from "./ballerina";
-import { PropertyTypeMemberInfo } from "./bi";
+import { DiagnosticMessage, PropertyTypeMemberInfo } from "./bi";
 import { LineRange } from "./common";
 
 
@@ -93,7 +93,7 @@ export interface StatusCodeResponse extends PropertyModel {
     body: PropertyModel;
     name: PropertyModel;
     type: PropertyModel;
-    createStatusCodeResponse: PropertyModel;
+    headers: PropertyModel;
 }
 
 interface MetaData {
@@ -120,6 +120,7 @@ export interface PropertyModel {
     codedata?: CodeData;
     enabled?: boolean;
     editable?: boolean;
+    isHttpResponseType?: boolean;
     value?: string;
     values?: string[];
     valueType?: string;
@@ -134,6 +135,7 @@ export interface PropertyModel {
     addNewButton?: boolean;
     typeMembers?: PropertyTypeMemberInfo[];
     httpParamType?: "QUERY" | "Header" | "PAYLOAD";
+    diagnostics?: DiagnosticMessage[];
 }
 
 export interface ParameterModel extends PropertyModel {

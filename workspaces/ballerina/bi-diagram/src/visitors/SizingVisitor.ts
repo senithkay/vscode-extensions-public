@@ -8,6 +8,7 @@
  */
 
 import {
+    AGENT_NODE_ADD_TOOL_BUTTON_WIDTH,
     AGENT_NODE_TOOL_GAP,
     AGENT_NODE_TOOL_SECTION_GAP,
     COMMENT_NODE_WIDTH,
@@ -22,9 +23,11 @@ import {
     NODE_GAP_Y,
     NODE_HEIGHT,
     NODE_WIDTH,
+    PROMPT_NODE_HEIGHT,
+    PROMPT_NODE_WIDTH,
     WHILE_NODE_WIDTH,
 } from "../resources/constants";
-import { getAgentNodeTools, reverseCustomNodeId } from "../utils/node";
+import { reverseCustomNodeId } from "../utils/node";
 import { Branch, FlowNode } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
@@ -220,15 +223,12 @@ export class SizingVisitor implements BaseVisitor {
         const containerRightWidth = halfNodeWidth + NODE_GAP_X + NODE_HEIGHT + LABEL_HEIGHT + LABEL_WIDTH;
 
         // Calculate node height based on node type
-        const tools = getAgentNodeTools(node);
+        const tools = node.metadata?.data?.tools || [];
         const numberOfCircles = tools.length || 0;
-        let nodeHeight = NODE_HEIGHT;
-        // if agent has tools, add tool section gap
-        if (tools.length > 0) {
-            nodeHeight += AGENT_NODE_TOOL_SECTION_GAP + numberOfCircles * (NODE_HEIGHT + AGENT_NODE_TOOL_GAP);
+        let containerHeight = NODE_HEIGHT + AGENT_NODE_TOOL_SECTION_GAP + AGENT_NODE_ADD_TOOL_BUTTON_WIDTH + AGENT_NODE_TOOL_GAP * 2;
+        if (numberOfCircles > 0) {
+            containerHeight += numberOfCircles * (NODE_HEIGHT + AGENT_NODE_TOOL_GAP);
         }
-        let containerHeight = nodeHeight;
-
         this.setNodeSize(node, containerLeftWidth, containerRightWidth, containerHeight);
     }
 
@@ -404,6 +404,20 @@ export class SizingVisitor implements BaseVisitor {
     endVisitWorker(node: Branch, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
         this.createBlockNode(node);
+    }
+
+    endVisitNpFunction(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+
+        const halfNodeWidth = PROMPT_NODE_WIDTH / 2;
+        const nodeHeight = PROMPT_NODE_HEIGHT;
+
+        this.setNodeSize(
+            node,
+            halfNodeWidth,
+            halfNodeWidth,
+            nodeHeight
+        );
     }
 
     skipChildren(): boolean {

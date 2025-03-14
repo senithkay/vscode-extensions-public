@@ -62,7 +62,7 @@ export function Parameters(props: ParametersProps) {
     };
 
     const onAddParamClick = () => {
-        queryModel.name.value = "param";
+        queryModel.name.value = "";
         queryModel.type.value = "";
         setIsNew(true);
         setEditModel(queryModel);

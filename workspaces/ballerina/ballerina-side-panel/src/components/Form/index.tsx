@@ -25,15 +25,17 @@ import { getValueForDropdown, isDropdownField } from "../editors/utils";
 import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, FlowNode, LinePosition, ExpressionProperty, RecordTypeField } from "@wso2-enterprise/ballerina-core";
 import { FormContext, Provider } from "../../context";
 import { formatJSONLikeString } from "./utils";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 namespace S {
-    export const Container = styled(SidePanelBody) <{ nestedForm?: boolean }>`
+    export const Container = styled(SidePanelBody) <{ nestedForm?: boolean, compact?: boolean }>`
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: ${({ compact }) => (compact ? "8px" : "20px")};
         height: ${({ nestedForm }) => nestedForm ? 'unset' : 'calc(100vh - 100px)'};
         overflow-y: ${({ nestedForm }) => nestedForm ? 'visible' : 'scroll'};
+        & > :last-child {
+            margin-top: ${({ compact }) => (compact ? "12px" : "0")};
+        }
     `;
 
     export const Row = styled.div<{}>`
@@ -52,7 +54,7 @@ namespace S {
         gap: 12px;
         width: 100%;
         margin-top: 8px;
-        padding-bottom: 14px;
+        padding-bottom: ${({ showBorder }) => (showBorder ? "14px" : "0")};
         border-bottom: ${({ showBorder }) => (showBorder ? `1px solid ${ThemeColors.OUTLINE_VARIANT}` : "none")};
     `;
 
@@ -195,6 +197,7 @@ export interface FormProps {
     nestedForm?: boolean;
     isInferredReturnType?: boolean;
     disableSaveButton?: boolean;
+    compact?: boolean;
 }
 
 export const Form = forwardRef((props: FormProps, ref) => {
@@ -223,6 +226,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         visualizableFields,
         recordTypeFields,
         nestedForm,
+        compact = false,
         isInferredReturnType
     } = props;
 
@@ -240,21 +244,13 @@ export const Form = forwardRef((props: FormProps, ref) => {
         formState: { isValidating, errors, isDirty }
     } = useForm<FormValues>();
 
-    const { rpcClient } = useRpcContext();
-
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [activeFormField, setActiveFormField] = useState<string | undefined>(undefined);
     const [diagnosticsInfo, setDiagnosticsInfo] = useState<FormDiagnostics[] | undefined>(undefined);
-    const [isGraphql, setIsGraphql] = useState<boolean>(false);
 
     const exprRef = useRef<FormExpressionEditorRef>(null);
 
     useEffect(() => {
-        rpcClient.getVisualizerLocation().then(context => {
-            if (context.view === "GraphQL Diagram") {
-                setIsGraphql(true);
-            }
-        });
         // Check if the form is a onetime usage or not. This is checked due to reset issue with nested forms in param manager
         if (!oneTimeForm) {
             // Reset form with new values when formFields change
@@ -305,7 +301,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     }
                 });
             }
-        } 
+        }
     }, [updatedExpressionField]);
 
     const handleOnSave = (data: FormValues) => {
@@ -408,7 +404,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
     }
 
     // has advance fields
-    const hasAdvanceFields = formFields.some((field) => field.advanced);
+    const hasAdvanceFields = formFields.some((field) => field.advanced && field.enabled && !field.hidden);
     const variableField = formFields.find((field) => field.key === "variable");
     const typeField = formFields.find((field) => field.key === "type");
     const dataMapperField = formFields.find((field) => field.label.includes("Data mapper"));
@@ -474,11 +470,11 @@ export const Form = forwardRef((props: FormProps, ref) => {
     // TODO: support multiple type fields
     return (
         <Provider {...contextValue}>
-            <S.Container nestedForm={nestedForm}>
+            <S.Container nestedForm={nestedForm} compact={compact}>
                 {actionButton && <S.ActionButtonContainer>{actionButton}</S.ActionButtonContainer>}
                 {infoLabel && <S.InfoLabel>{infoLabel}</S.InfoLabel>}
                 {prioritizeVariableField && variableField && (
-                    <S.CategoryRow showBorder={true}>
+                    <S.CategoryRow showBorder={!compact}>
                         {variableField &&
                             <EditorFactory
                                 field={variableField}
@@ -531,7 +527,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     }
                     {hasAdvanceFields && (
                         <S.Row>
-                            {isGraphql ? 'Advanced Arguments' : 'Advanced Parameters'}
+                            Advanced Configurations
                             <S.ButtonContainer>
                                 {!showAdvancedOptions && (
                                     <LinkButton

@@ -28,14 +28,16 @@ export function fetchProjectInfo(): ProjectInfo {
     const workspaceUris = workspace.workspaceFolders ? workspace.workspaceFolders.map(folder => folder.uri) : [];
     let isBICount = 0; // Counter for workspaces with isBI set to true
     let isBalCount = 0; // Counter for workspaces with Ballerina project
-    
+
     // Check each workspace folder's configuration for 'isBI'
     for (const uri of workspaceUris) {
-        if (checkIsBI(uri)) {
-            isBICount++;
+        const isBallerina = checkIsBallerina(uri);
+        if (isBallerina) {
             isBalCount++;
-        } else if (checkIsBallerina(uri)) {
-            isBalCount++;
+            if (checkIsBI(uri)) {
+                isBICount++;
+                isBalCount++;
+            }
         }
     }
 
@@ -47,7 +49,7 @@ export function fetchProjectInfo(): ProjectInfo {
 }
 
 export function checkIsBI(uri: Uri): boolean {
-    const config = workspace.getConfiguration('kolab', uri);
+    const config = workspace.getConfiguration('ballerina', uri);
     const inspected = config.inspect<boolean>('isBI');
 
     if (inspected) {

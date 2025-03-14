@@ -15,7 +15,7 @@ const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data');
 
 suite("Editor Tests", function () {
     suiteTeardown((done) => {
-        commands.executeCommand('kolab.stopLangServer');
+        commands.executeCommand('ballerina.stopLangServer');
         done();
     });
 

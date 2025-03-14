@@ -84,7 +84,11 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                         label: property.metadata?.label || key,
                         description: property.metadata?.description || ''
                     },
-                    valueType: property?.valueType || 'string'
+                    valueType: property?.valueType || 'string',
+                    diagnostics: {
+                        hasDiagnostics: property.diagnostics && property.diagnostics.length > 0,
+                        diagnostics: property.diagnostics
+                    }
                 } as Property,
                 recordTypeMembers: property.typeMembers.filter(member => member.kind === "RECORD_TYPE")
             }));
@@ -185,7 +189,7 @@ function convertConfig(listener: ServiceModel): FormField[] {
             valueTypeConstraint: expression.valueTypeConstraint,
             advanced: expression.advanced,
             diagnostics: [],
-            items: expression.valueType === "SINGLE_SELECT" ? expression.items : expression.items || [expression.value],
+            items: expression.items,
             choices: expression.choices,
             placeholder: expression.placeholder,
             addNewButton: expression.addNewButton,

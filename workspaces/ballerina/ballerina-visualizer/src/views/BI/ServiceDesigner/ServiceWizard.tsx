@@ -18,58 +18,13 @@ import { LoadingContainer } from '../../styles';
 import { TitleBar } from '../../../components/TitleBar';
 import { TopNavigationBar } from '../../../components/TopNavigationBar';
 import { LoadingRing } from '../../../components/Loader';
-
-const FORM_WIDTH = 600;
-
-const FormContainer = styled.div`
-    padding-top: 15px;
-    padding-bottom: 15px;
-`;
-
-
-const ContainerX = styled.div`
-    padding: 0 20px 20px;
-    max-width: 600px;
-    > div:last-child {
-        padding: 20px 0;
-        > div:last-child {
-            justify-content: flex-start;
-        }
-    }
-`;
+import { isBetaModule } from '../ComponentListView/componentListUtils';
 
 const Container = styled.div`
     display: "flex";
     flex-direction: "column";
     gap: 10;
     margin: 20px;
-`;
-
-const BottomMarginTextWrapper = styled.div`
-    margin-top: 20px;
-    margin-left: 20px;
-    font-size: 15px;
-    margin-bottom: 10px;
-`;
-
-const HorizontalCardContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-`;
-
-const IconWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-`;
-
-const ButtonWrapper = styled.div`
-    max-width: 600px;
-    display: flex;
-    gap: 10px;
-    justify-content: right;
 `;
 
 const StepperContainer = styled.div`
@@ -82,12 +37,18 @@ export interface ServiceWizardProps {
     type: string;
 }
 
+interface WizardHeaderInfo {
+    title: string;
+    moduleName: string;
+}
+
 export function ServiceWizard(props: ServiceWizardProps) {
     const { type } = props;
     const { rpcClient } = useRpcContext();
 
     const [step, setStep] = useState<number>(0);
 
+    const [headerInfo, setHeaderInfo] = useState<WizardHeaderInfo>(undefined);
     const [listenerModel, setListenerModel] = useState<ListenerModel>(undefined);
     const [serviceModel, setServiceModel] = useState<ServiceModel>(undefined);
     const [listeners, setListeners] = useState<ListenersResponse>(undefined);
@@ -99,6 +60,14 @@ export function ServiceWizard(props: ServiceWizardProps) {
     const [existingListener, setExistingListener] = useState<string>(undefined);
 
     useEffect(() => {
+        rpcClient.getServiceDesignerRpcClient()
+        .getServiceModel({ filePath: "", moduleName: type, listenerName: "" })
+        .then(res => {
+            setHeaderInfo({
+                title: res.service.displayName || res.service.name,
+                moduleName: res.service.moduleName
+            });
+        });
         rpcClient.getServiceDesignerRpcClient().getListeners({ filePath: "", moduleName: type }).then(res => {
             console.log("Existing Listeners: ", res);
             setExisting(res.hasListeners);
@@ -171,7 +140,12 @@ export function ServiceWizard(props: ServiceWizardProps) {
     return (
         <View>
             <TopNavigationBar />
-            <TitleBar title="Service" subtitle="Create a new service for your integration" />
+            {headerInfo && (
+                <TitleBar
+                    title={headerInfo.title}
+                    isBetaFeature={isBetaModule(headerInfo.moduleName)}
+                />
+            )}
             <ViewContent>
                 {!listenerModel && !listeners &&
                     <LoadingContainer>

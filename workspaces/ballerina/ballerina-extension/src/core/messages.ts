@@ -14,6 +14,7 @@ export const INSTALL_BALLERINA: string = "Unable to detect Ballerina in your env
     " If not, please install Ballerina.";
 export const DOWNLOAD_BALLERINA: string = "https://ballerina.io/downloads/";
 export const CONFIG_CHANGED: string = "Ballerina plugin configuration changed. Please restart vscode for changes to take effect.";
+export const UPDATE_BALLERINA_VERSION: string = "Some features may not work properly for your Ballerina version. Please update Ballerina version to Update 12 or later.";
 export const OLD_BALLERINA_VERSION: string = "Your Ballerina version does not match the Ballerina vscode plugin version. Please download the latest Ballerina distribution or download a compatible vscode plugin version via https://ballerina.io/downloads/.";
 export const OLD_PLUGIN_VERSION: string = "Your Ballerina vscode plugin version does not match your Ballerina version. Some features may not work properly. Please update the Ballerina vscode plugin.";
 export const MISSING_SERVER_CAPABILITY: string = "Your version of Ballerina platform distribution does not support this feature. Please update to the latest Ballerina platform";
