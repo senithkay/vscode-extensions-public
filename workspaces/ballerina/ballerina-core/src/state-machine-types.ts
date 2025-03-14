@@ -116,6 +116,7 @@ export interface VisualizerLocation {
 
 export interface VisualizerMetadata {
     haveLS?: boolean;
+    isBISupported?: boolean;
     recordFilePath?: string;
     enableSequenceDiagram?: boolean; // Enable sequence diagram view
     target?: LinePosition;

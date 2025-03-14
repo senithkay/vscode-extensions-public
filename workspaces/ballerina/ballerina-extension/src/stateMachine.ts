@@ -17,6 +17,7 @@ import { checkIsBallerina, checkIsBI, fetchScope } from './utils';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
+    isBISupported: boolean;
     errorCode: string | null;
 }
 
@@ -32,6 +33,7 @@ const stateMachine = createMachine<MachineContext>(
         context: {
             langClient: null,
             errorCode: null,
+            isBISupported: false,
             view: MACHINE_VIEW.Overview
         },
         on: {
@@ -62,7 +64,8 @@ const stateMachine = createMachine<MachineContext>(
                     onDone: {
                         target: "extensionReady",
                         actions: assign({
-                            langClient: (context, event) => event.data
+                            langClient: (context, event) => event.data.langClient,
+                            isBISupported: (context, event) => event.data.isBISupported,
                         })
                     },
                     onError: {
@@ -192,7 +195,7 @@ const stateMachine = createMachine<MachineContext>(
                     fetchAndCacheLibraryData();
                     StateMachineAI.initialize();
                     StateMachinePopup.initialize();
-                    resolve(ls.langClient);
+                    resolve({ langClient: ls.langClient, isBISupported: ls.biSupported });
                 } catch (error) {
                     throw new Error("LS Activation failed", error);
                 }

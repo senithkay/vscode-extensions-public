@@ -68,6 +68,9 @@ function handleVisibilityChange(res: { visible: boolean }, dataProvider: Project
 
 function handleNonBallerinaVisibility() {
 	if (extension.langClient) {
+		if (!extension.biSupported) {
+			commands.executeCommand('setContext', 'BI.LSStatus', 'updateNeed');
+		}
 		commands.executeCommand('setContext', 'BI.status', 'unknownProject');
 	}
 	commands.executeCommand(SHARED_COMMANDS.OPEN_BI_WELCOME);

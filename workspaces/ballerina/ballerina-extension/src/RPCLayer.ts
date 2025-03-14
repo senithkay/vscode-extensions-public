@@ -108,6 +108,7 @@ async function getContext(): Promise<VisualizerLocation> {
             isGraphql: context.isGraphql,
             focusFlowDiagramView: context.focusFlowDiagramView,
             metadata: {
+                isBISupported: context.isBISupported,
                 haveLS: StateMachine.langClient() && true,
                 recordFilePath: path.join(context.projectUri, "types.bal"),
                 enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
