@@ -196,8 +196,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         });
     };
 
-    const addConfigurable = async (newLabel: string, newPosition: NodePosition,
-        newSource: string, isExistingStmt: boolean = false) => {
+    const addConfigurable = async (newLabel: string, newPosition: NodePosition, newSource: string, isExistingStmt: boolean = false) => {
         const partialST = await getPartialSTForModuleMembers(
             { codeSnippet: newSource.trim() }, langServerRpcClient);
 
