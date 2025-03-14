@@ -14,6 +14,7 @@ import {
     DIRECTORY_SUB_TYPE,
     EVENT_TYPE,
     FlowNode,
+    FOCUS_FLOW_DIAGRAM_VIEW,
     MACHINE_VIEW
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "../../core";
@@ -71,6 +72,10 @@ export function activate(context: BallerinaExtension) {
         openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BIDataMapperForm });
     });
 
+    commands.registerCommand(BI_COMMANDS.ADD_NATURAL_FUNCTION, () => {
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BINPFunctionForm });
+    });
+
     commands.registerCommand(BI_COMMANDS.SWITCH_PROJECT, async () => {
         // Hack to switch the project. This will reload the window and prompt the user to select the project.
         // This is a temporary solution until we provide the support for multi root workspaces.
@@ -89,10 +94,14 @@ export function activate(context: BallerinaExtension) {
             await handleComponentDeletion('records', item.label, item.info);
         } else if (item.contextValue === DIRECTORY_SUB_TYPE.SERVICE) {
             await handleComponentDeletion('services', item.tooltip, item.info);
+        } else if (item.contextValue === DIRECTORY_SUB_TYPE.LISTENER) {
+            await handleComponentDeletion('listeners', item.tooltip, item.info);
         } else if (item.contextValue === DIRECTORY_SUB_TYPE.AUTOMATION) {
             await handleComponentDeletion('automations', item.tooltip, item.info);
         } else if (item.contextValue === DIRECTORY_SUB_TYPE.CONFIGURATION) {
             await handleComponentDeletion('configurableVariables', item.label, item.info);
+        } else if (item.contextValue === DIRECTORY_SUB_TYPE.NATURAL_FUNCTION) {
+            await handleComponentDeletion('naturalFunctions', item.label, item.info);
         }
     });
 
@@ -116,7 +125,7 @@ function openAllBallerinaFiles(context: BallerinaExtension) {
                     if (content) {
                         context.langClient.didOpen({
                             textDocument: {
-                                uri: filePath,
+                                uri: Uri.file(filePath).toString(),
                                 languageId: "ballerina",
                                 version: 1,
                                 text: content,

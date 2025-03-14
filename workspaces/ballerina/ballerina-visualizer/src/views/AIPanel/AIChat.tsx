@@ -30,7 +30,7 @@ import ReactMarkdown from "react-markdown";
 
 import styled from "@emotion/styled";
 import AIChatInput from "./Components/AIChatInput";
-import ProgressTextSegment from "./Components/ProgressTextSegment";
+import ProgressTextSegment, { Spinner } from "./Components/ProgressTextSegment";
 import BallerinaCodeBlock from "./Components/BallerinaCodeBlock";
 import RoleContainer, { PreviewContainer, PreviewContainerDefault } from "./Components/RoleContainter";
 import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
@@ -1628,7 +1628,12 @@ export function AIChat() {
         assistant_response += `- **Output Record**: ${outputParam}\n`;
         assistant_response += `- **Function Name**: ${functionName}\n`;
 
-        let filePath = activeFile.endsWith(".bal") ? activeFile : "data_mappings.bal";
+        let filePath;
+        if (activeFile && activeFile.endsWith(".bal")) {
+            filePath = activeFile;
+        } else {
+            filePath = "data_mappings.bal";
+        }
         let finalContent = response.mappingCode;
         const needsImports = Array.from(importsMap.values()).length > 0;
 
@@ -2305,7 +2310,7 @@ export function AIChat() {
                             }}
                         >
                             <Icon
-                                name="bi-ai-agent"
+                                name="bi-ai-chat"
                                 sx={{ width: 60, height: 50 }}
                                 iconSx={{ fontSize: "60px", color: "var(--vscode-foreground)", cursor: "default" }}
                             />
@@ -2601,17 +2606,20 @@ interface EntryContainerProps {
     isOpen: boolean;
 }
 
-const EntryContainer = styled.div({
+const EntryContainer = styled.div<{ hasErrors: boolean }>(({ hasErrors }: { hasErrors: boolean }) => ({
     display: "flex",
     alignItems: "center",
     marginTop: "10px",
     cursor: "pointer",
     padding: "10px",
     backgroundColor: "var(--vscode-list-hoverBackground)",
+    // backgroundColor: hasErrors 
+    // ? "var(--vscode-inputValidation-warningBackground)" 
+    // : "var(--vscode-list-hoverBackground)",
     "&:hover": {
         backgroundColor: "var(--vscode-badge-background)",
     },
-});
+}));
 
 const CodeSegmentHeader = styled.div({
     display: "flex",
@@ -2726,20 +2734,26 @@ const CodeSection: React.FC<CodeSectionProps> = ({
         .filter((segment) => segment.type === SegmentType.Code)
         .map((segment) => ({ segmentText: segment.text, filePath: segment.fileName }));
 
+    function isRepairButtonVisisble() {
+        return !loading && isReady && diagnostics.length > 0 && command === "code" && !isCodeAdded
+    }
+        
     return (
         <div>
-            <EntryContainer onClick={() => !loading && setIsOpen(!isOpen)}>
+            <EntryContainer hasErrors={isRepairButtonVisisble()} onClick={() => !loading && setIsOpen(!isOpen)}>
                 <div style={{ flex: 9, fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>
                     {!loading && isReady && language === "ballerina" && (
-                        !isOpen ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />
+                        !isOpen ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />
                     )}
+                    {/* Show spinner during generation or repair */}
+                    {(loading) && <Spinner className="codicon codicon-loading spin"role="img"></Spinner>}
                     {name}
                 </div>
 
                 <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "8px" }}>
 
                     {/* Show warning icon if diagnostics exist */}
-                    {!loading && isReady && diagnostics.length > 0 && command === "code" && !isCodeAdded && (
+                    {isRepairButtonVisisble() && (
                         <Button
                             appearance="icon"
                             onClick={(e) => {
@@ -2747,13 +2761,10 @@ const CodeSection: React.FC<CodeSectionProps> = ({
                                 onRetryRepair();
                             }}
                             disabled={loading}
-                            tooltip={`Click to attempt to fix the following errors in the generated code: \n${diagnostics.map(d => d.message).join("\n")}`}                        >
-                            <Codicon name="lightbulb-autofix" />
+                            tooltip={`Click to auto-resolve errors of the generated integration with AI: \nErrors:\n${diagnostics.map(d => d.message).join("\n")}`}                        >
+                            <Codicon name="sync" />
                         </Button>
                     )}
-
-                    {/* Show spinner during generation or repair */}
-                    {(loading) && <ProgressRing sx={{ height: '16px', width: '16px' }} />}
 
                     {/* TODO see why Add to integration either Revert button is visible */}
                     {!loading && isReady && language === "ballerina" && (

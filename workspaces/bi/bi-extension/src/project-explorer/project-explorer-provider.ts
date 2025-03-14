@@ -73,9 +73,8 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
         });
     }
 
-    constructor(isBallerina: boolean) {
+    constructor() {
         this._data = [];
-        isBallerina && this.refresh();
     }
 
     getTreeItem(element: ProjectExplorerEntry): vscode.TreeItem | Thenable<vscode.TreeItem> {
@@ -194,7 +193,7 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
         true
     );
     listeners.contextValue = "listeners";
-    listeners.children = getComponents(components.directoryMap[DIRECTORY_MAP.LISTENERS]);
+    listeners.children = getComponents(components.directoryMap[DIRECTORY_MAP.LISTENERS], DIRECTORY_MAP.LISTENERS);
     entries.push(listeners);
 
     // Connections
@@ -306,13 +305,13 @@ function getComponents(items: ProjectStructureArtifactResponse[], itemType?: DIR
             [DIRECTORY_MAP.FUNCTIONS]: DIRECTORY_SUB_TYPE.FUNCTION,
             [DIRECTORY_MAP.CONFIGURATIONS]: DIRECTORY_SUB_TYPE.CONFIGURATION,
             [DIRECTORY_MAP.TRIGGERS]: DIRECTORY_SUB_TYPE.TRIGGER,
-            [DIRECTORY_MAP.LISTENERS]: DIRECTORY_SUB_TYPE.TRIGGER,
+            [DIRECTORY_MAP.LISTENERS]: DIRECTORY_SUB_TYPE.LISTENER,
             [DIRECTORY_MAP.RECORDS]: DIRECTORY_SUB_TYPE.TYPE,
             [DIRECTORY_MAP.ENUMS]: DIRECTORY_SUB_TYPE.TYPE,
             [DIRECTORY_MAP.CLASSES]: DIRECTORY_SUB_TYPE.TYPE,
             [DIRECTORY_MAP.DATA_MAPPERS]: DIRECTORY_SUB_TYPE.DATA_MAPPER,
             [DIRECTORY_MAP.AGENTS]: DIRECTORY_SUB_TYPE.AGENTS,
-            [DIRECTORY_MAP.NATURAL_FUNCTIONS]: DIRECTORY_SUB_TYPE.NATURAL_FUNCTIONS
+            [DIRECTORY_MAP.NATURAL_FUNCTIONS]: DIRECTORY_SUB_TYPE.NATURAL_FUNCTION
         };
 
         fileEntry.contextValue = contextValueMap[itemType] || comp.icon;

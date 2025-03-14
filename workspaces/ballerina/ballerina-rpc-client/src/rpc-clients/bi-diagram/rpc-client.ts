@@ -40,6 +40,7 @@ import {
     ConfigVariableResponse,
     CreateComponentResponse,
     CurrentBreakpointsResponse,
+    DeploymentResponse,
     DevantComponentResponse,
     EndOfFileRequest,
     ExpressionCompletionsRequest,
@@ -242,8 +243,8 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(renameIdentifier, HOST_EXTENSION, params);
     }
 
-    deployProject(): void {
-        return this._messenger.sendNotification(deployProject, HOST_EXTENSION);
+    deployProject(): Promise<DeploymentResponse> {
+        return this._messenger.sendRequest(deployProject, HOST_EXTENSION);
     }
 
     openAIChat(params: AIChatRequest): void {

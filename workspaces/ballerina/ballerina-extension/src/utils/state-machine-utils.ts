@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { HistoryEntry, MACHINE_VIEW, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
-import { FunctionDefinition, NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { FOCUS_FLOW_DIAGRAM_VIEW, HistoryEntry, MACHINE_VIEW, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
+import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { StateMachine } from "../stateMachine";
 import { Uri } from "vscode";
 import { UIDGenerationVisitor } from "./history/uid-generation-visitor";
@@ -130,16 +130,6 @@ export async function getView(documentUri: string, position: NodePosition, proje
                         projectUri: projectUri
                     }
                 };
-            }
-            else if (expr?.typeData?.typeSymbol?.signature?.includes("ballerinax/ai.agent")
-                && expr?.typeData?.typeSymbol?.signature?.includes("Listener")) {
-                return {
-                    location: {
-                        view: MACHINE_VIEW.AIAgentDesigner,
-                        documentUri: documentUri,
-                        position: position
-                    }
-                };
             } else {
                 return {
                     location: {
@@ -169,10 +159,12 @@ export async function getView(documentUri: string, position: NodePosition, proje
         ) {
             return {
                 location: {
-                    view: MACHINE_VIEW.BINPFunctionForm,
-                    identifier: node.syntaxTree.functionName.value,
-                    documentUri: documentUri
+                    view: MACHINE_VIEW.BIDiagram,
+                    documentUri: documentUri,
+                    position: node.syntaxTree.position,
+                    focusFlowDiagramView: FOCUS_FLOW_DIAGRAM_VIEW.NP_FUNCTION,
                 },
+                dataMapperDepth: 0
             };
         } else if (
             STKindChecker.isFunctionDefinition(node.syntaxTree)

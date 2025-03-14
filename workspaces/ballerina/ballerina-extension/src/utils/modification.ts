@@ -44,18 +44,7 @@ export async function modifyFileContent(params: UpdateFileContentRequest): Promi
         }
         return doc.save();
     } else {
-        StateMachine.langClient().didChange({
-            contentChanges: [
-                {
-                    text: content
-                }
-            ],
-            textDocument: {
-                uri: URI.file(normalizedFilePath).toString(),
-                version: 1
-            }
-        });
-        writeFileSync(normalizedFilePath, content);
+        writeBallerinaFileDidOpen(normalizedFilePath, content);
         StateMachine.langClient().updateStatusBar();
         if (updateViewFlag) {
             updateView();

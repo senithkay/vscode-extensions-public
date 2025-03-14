@@ -563,15 +563,16 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
 
         // Check if config generation is required before starting the debug session
         await prepareAndGenerateConfig(ballerinaExtInstance, session.configuration.script, false, StateMachine.context().isBI, false);
-        if (session.configuration.noDebug && StateMachine.context().isBI) {
-            return new Promise((resolve) => {
-                resolve(new DebugAdapterInlineImplementation(new BIRunAdapter()));
-            });
-        }
 
         if (session.configuration.noDebug && ballerinaExtInstance.enabledRunFast()) {
             return new Promise((resolve) => {
                 resolve(new DebugAdapterInlineImplementation(new FastRunDebugAdapter()));
+            });
+        }
+
+        if (session.configuration.noDebug && StateMachine.context().isBI) {
+            return new Promise((resolve) => {
+                resolve(new DebugAdapterInlineImplementation(new BIRunAdapter()));
             });
         }
 
@@ -694,7 +695,7 @@ class BIRunAdapter extends LoggingDebugSession {
         }
 
         // Get Ballerina home path from settings
-        const config = workspace.getConfiguration('kolab');
+        const config = workspace.getConfiguration('ballerina');
         const ballerinaHome = config.get<string>('home');
         if (ballerinaHome) {
             // Add ballerina home to build path only if it's configured
@@ -756,7 +757,7 @@ async function runFast(root: string, options: { debugPort?: number; env?: Map<st
         if (window.activeTextEditor?.document.isDirty) {
             await commands.executeCommand(PALETTE_COMMANDS.SAVE_ALL);
         }
-        const { debugPort, env = new Map(), programArgs = [] } = options;
+        const { debugPort = -1, env = new Map(), programArgs = [] } = options;
         const commandArguments = [
             { key: "path", value: root },
             { key: "debugPort", value: debugPort },
@@ -811,6 +812,6 @@ function findFreePort(): Promise<number> {
 }
 
 function isFastRunEnabled(): boolean {
-    const config = workspace.getConfiguration('kolab');
+    const config = workspace.getConfiguration('ballerina');
     return config.get<boolean>('enableRunFast');
 }

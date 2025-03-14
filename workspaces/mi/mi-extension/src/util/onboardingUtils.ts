@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
-import child_process, { spawnSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import axios from 'axios';
 import { downloadWithProgress, extractWithProgress, selectFolderDialog } from './fileOperations';
 import { extension } from '../MIExtensionContext';
@@ -12,6 +12,7 @@ import { COMMANDS } from '../constants';
 import { SetPathRequest, PathDetailsResponse, SetupDetails } from '@wso2-enterprise/mi-core';
 import { parseStringPromise } from 'xml2js';
 import { LATEST_CAR_PLUGIN_VERSION } from './templates';
+import { runCommand } from '../test-explorer/runner';
 
 // Add Latest MI version as the first element in the array
 export const supportedJavaVersionsForMI: { [key: string]: string } = {
@@ -82,7 +83,7 @@ export async function getMIVersionFromPom(): Promise<string | null> {
     return runtimeVersion;
 }
 
-export function filterConnectorVersion(connectorName: string, connectors: any[]|undefined): string {
+export function filterConnectorVersion(connectorName: string, connectors: any[] | undefined): string {
     if (!connectors) {
         return '';
     }
@@ -449,9 +450,9 @@ export async function downloadMI(miVersion: string): Promise<string> {
             vscode.window.showInformationMessage('Micro Integrator already downloaded.');
         }
         await extractWithProgress(miDownloadPath, miPath, 'Extracting Micro Integrator');
-        
+
         return getMIPathFromCache(miVersion)!;
-        
+
     } catch (error) {
         throw new Error('Failed to download Micro Integrator.');
     }
@@ -830,93 +831,100 @@ export async function buildBallerinaModule(projectPath: string) {
     }
 }
 
-function handleSpawnProcess(command: string, args: string[], options: child_process.SpawnOptions): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const process = child_process.spawn(command, args, options);
-        let output = '';
-        let errorOutput = '';
-
-        process.stdout!.on('data', (data) => {
-            output += data.toString();
-        });
-        process.stderr!.on('data', (data) => {
-            errorOutput += data.toString();
-        });
-        process.on('close', (code) => {
-            if (output.includes("is already active")) {
-                resolve(output);
-            } else if (code === 0) {
-                resolve(output);
-            } else {
-                reject(new Error(`Failed building Ballerina module: ${errorOutput}`));
-            }
-        });
-        process.on('error', (err) => {
-            reject(err);
-        });
-    });
-}
-
 async function runBallerinaBuildsWithProgress(projectPath: string) {
-    const isWindows = process.platform === 'win32';
-    const command = isWindows ? 'cmd.exe' : 'bal';
     await vscode.window.withProgress(
         {
             location: vscode.ProgressLocation.Notification,
             title: "Running Ballerina Build",
             cancellable: false,
         },
-        async (progress, token) => {
-            try {
-                progress.report({ increment: 40, message: "Generating module..." });
-                let args = isWindows ? ['/c', 'bal.bat', 'tool', 'pull', 'mi-module-gen'] : ['tool', 'pull', 'mi-module-gen'];
-                await handleSpawnProcess(command,  args, {
-                    cwd: projectPath,
-                    env: { ...process.env, PATH: process.env.PATH + path.delimiter + path.join(os.homedir(), '.ballerina', 'ballerina-home', 'bin').toString() }
-                });
-                args = isWindows ? ['/c', 'bal.bat', 'mi-module-gen', '-i', '.'] : ['mi-module-gen', '-i', '.'];
-                await handleSpawnProcess(command, args, {
-                    cwd: projectPath,
-                    env: { ...process.env, PATH: process.env.PATH + path.delimiter + path.join(os.homedir(), '.ballerina', 'ballerina-home', 'bin').toString() }
-                });
+        async (progress, token) => await new Promise<void>((resolve, reject) => {
+                progress.report({ increment: 10, message: "Pull dependencies..." });
+                const balHome = path.join(os.homedir(), '.ballerina', 'ballerina-home', 'bin').toString();
 
-                progress.report({ increment: 40, message: "Copying Ballerina module..." });
-                const targetFolderPath = path.join(projectPath, 'target');
-                if (fs.existsSync(targetFolderPath)) {
-                    fs.rmSync(targetFolderPath, { recursive: true, force: true });
+                runCommand(`${balHome}${path.sep}bal tool pull mi-module-gen`, `"${projectPath}"`, onData, onError, buildModule);
+
+                let isModuleAlreadyInstalled = false, commandFailed = false;
+                function onData(data: string) {
+                    if (data.includes("is already available locally")) {
+                        isModuleAlreadyInstalled = true;
+                    }
                 }
 
-                const tomlContent = fs.readFileSync(path.join(projectPath, "Ballerina.toml"), 'utf8');
-                const nameMatch = tomlContent.match(/name\s*=\s*"([^"]+)"/);
-                const versionMatch = tomlContent.match(/version\s*=\s*"([^"]+)"/);
-                const name = nameMatch ? nameMatch[1] : null;
-                const version = versionMatch ? versionMatch[1] : null;
-
-                const zipName = name + "-connector-" + version + ".zip";
-                const zipPath = path.join(projectPath, zipName);
-
-                const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-                const copyTo = path.join(workspaceFolder?.uri.fsPath || '', 'src', 'main', 'wso2mi', 'resources', 'connectors', zipName);
-                if (fs.existsSync(copyTo)) {
-                    fs.rmSync(copyTo);
-                    await new Promise(resolve => setTimeout(resolve, 3000));
+                function onError(data: string) {
+                    if (data) {
+                        if (data.includes("spawn bal ENOENT") ||
+                            data.includes("The system cannot find the path specified") ||
+                            data.includes("'ba' is not recognized as an internal or external command, operable program or batch file.")) {
+                            vscode.window.showErrorMessage("Ballerina not found. Please install and setup the Ballerina Extension and try again.");
+                            showExtensionPrompt();
+                        } else {
+                            vscode.window.showErrorMessage(`Error: ${data}`);
+                        }
+                        commandFailed = true;
+                    }
                 }
-                fs.copyFileSync(zipPath, copyTo);
-                fs.rmSync(zipPath);
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                progress.report({ increment: 100, message: "Completed Ballerina module build." });
-                vscode.window.showInformationMessage("Ballerina module build successful");
-            } catch (error: any) {
-                if (error.message.includes("spawn bal ENOENT")) {
-                    vscode.window.showErrorMessage("Ballerina not found. Please install and setup the Ballerina Extension and try again.");
-                    showExtensionPrompt();
-                } else {
-                    vscode.window.showErrorMessage(`Error: ${error.message}`);
+
+                function buildModule() {
+                    if (!isModuleAlreadyInstalled && commandFailed) {
+                        reject();
+                        return;
+                    }
+                    commandFailed = false;
+                    progress.report({ increment: 40, message: "Generating module..." });
+
+                    runCommand(`${balHome}${path.sep}bal mi-module-gen -i .`, `"${projectPath}"`, onData, onError, onComplete);
+
+                    async function onComplete() {
+                        try {
+                            if (commandFailed) {
+                                reject();
+                                return;
+                            }
+                            progress.report({ increment: 40, message: "Copying Ballerina module..." });
+                            const targetFolderPath = path.join(projectPath, 'target');
+                            if (fs.existsSync(targetFolderPath)) {
+                                fs.rmSync(targetFolderPath, { recursive: true, force: true });
+                            } else {
+                                reject();
+                                return vscode.window.showErrorMessage("Target directory not found");
+                            }
+
+                            const tomlContent = fs.readFileSync(path.join(projectPath, "Ballerina.toml"), 'utf8');
+                            const nameMatch = tomlContent.match(/name\s*=\s*"([^"]+)"/);
+                            const versionMatch = tomlContent.match(/version\s*=\s*"([^"]+)"/);
+                            const name = nameMatch ? nameMatch[1] : null;
+                            const version = versionMatch ? versionMatch[1] : null;
+
+                            const zipName = name + "-connector-" + version + ".zip";
+                            const zipPath = path.join(projectPath, zipName);
+
+                            const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+                            const copyTo = path.join(workspaceFolder?.uri.fsPath || '', 'src', 'main', 'wso2mi', 'resources', 'connectors', zipName);
+                            if (fs.existsSync(copyTo)) {
+                                await fs.promises.rm(copyTo, { force: true });
+
+                                // TODO: Remove this after fixing the issue from LS side
+                                // https://github.com/wso2/mi-vscode/issues/952
+                                await new Promise((resolve) => setTimeout(resolve, 1000));
+                            }
+                            await fs.promises.copyFile(zipPath, copyTo);
+                            await fs.promises.rm(zipPath);
+
+                            progress.report({ increment: 10, message: "Completed Ballerina module build." });
+                            vscode.window.showInformationMessage("Ballerina module build successful");
+                            resolve();
+                        } catch (error) {
+                            if (error instanceof Error) {
+                                onError(error.message);
+                            } else {
+                                onError(String(error));
+                            }
+                            reject();
+                        }
+                    }
                 }
-                progress.report({ increment: 100, message: "Error occurred during build." });
-                vscode.window.showInformationMessage("Ballerina module build failed");
-            }
-        }
+            })
     );
 }
 
@@ -926,8 +934,8 @@ async function showExtensionPrompt() {
         'Install Now'
     ).then(async (selection) => {
         if (selection === 'Install Now') {
-            await vscode.commands.executeCommand(COMMANDS.INSTALL_EXTENSION_COMMAND, COMMANDS.KOLA_EXTENSION);
-            await vscode.commands.executeCommand(COMMANDS.KOLA_OPEN_COMMAND);
+            await vscode.commands.executeCommand(COMMANDS.INSTALL_EXTENSION_COMMAND, COMMANDS.BI_EXTENSION);
+            await vscode.commands.executeCommand(COMMANDS.BI_OPEN_COMMAND);
         }
     });
 }

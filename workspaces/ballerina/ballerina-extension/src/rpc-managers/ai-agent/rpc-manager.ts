@@ -92,11 +92,17 @@ export class AiAgentRpcManager implements AIAgentAPI {
     }
 
     async genTool(params: AIGentToolsRequest): Promise<AIGentToolsResponse> {
+        // HACK: set description to empty string if it is not provided
+        if (!params.description) {
+            params.description = "";
+        }
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             try {
-                const res: AIGentToolsResponse = await context.langClient.genTool(params);
-                resolve(res);
+                const response: AIGentToolsResponse = await context.langClient.genTool(params);
+                await this.updateSource(response.textEdits);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                resolve(response);
             } catch (error) {
                 console.log(error);
             }
@@ -309,6 +315,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                     filePath: toolsPath,
                     flowNode: flowNode,
                     toolName: toolName,
+                    description: "",
                     connection: connectionName
                 });
             await this.updateSource(codeEdits.textEdits);
@@ -355,7 +362,8 @@ export class AiAgentRpcManager implements AIAgentAPI {
                     filePath: toolsPath,
                     flowNode: flowNode,
                     toolName: toolName,
-                    connection: tool.selectedCodeData.parentSymbol || ""
+                    description: tool.description,
+                    connection: tool.selectedCodeData.parentSymbol || "",
                 });
             await this.updateSource(codeEdits.textEdits);
             await new Promise(resolve => setTimeout(resolve, 2000));
