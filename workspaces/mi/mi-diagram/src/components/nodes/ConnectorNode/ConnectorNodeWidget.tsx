@@ -346,7 +346,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                     onClick={(e) => handleOnConnectionClick(e)}
                 >
                     <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} >
-                        <svg width="110" height="50" viewBox="0 0 103 40">
+                        <svg width={NODE_DIMENSIONS.CONNECTOR.CONNECTION_PART_WIDTH} height="50" viewBox="0 0 103 40">
                             <circle
                                 cx="80"
                                 cy="20"

@@ -302,7 +302,7 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
         }
 
         return <S.CircleContainer style={{ marginTop }}>
-            <svg width="135" height="70" viewBox="0 0 128 60">
+            <svg width={NODE_DIMENSIONS.AI_AGENT.CONNECTION_PART_WIDTH} height="70" viewBox="0 0 128 60">
                 <g
                     onMouseEnter={() => setIsHovered({ ...isHovered, [type]: true })}
                     onMouseLeave={() => setIsHovered({ ...isHovered, [type]: false })}

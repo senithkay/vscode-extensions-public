@@ -169,11 +169,14 @@ export const NODE_DIMENSIONS = {
     },
     CONNECTOR: {
         WIDTH: 150,
-        FULL_WIDTH: 150 + 110,
         HEIGHT: 60,
+        CONNECTION_PART_WIDTH: 110,
+        FULL_WIDTH: 150 + 110,
     },
     AI_AGENT: {
         WIDTH: 200,
+        CONNECTION_PART_WIDTH: 135,
+        FULL_WIDTH: 200 + 135,
     },
     DATA_SERVICE: {
         WIDTH: 150,
