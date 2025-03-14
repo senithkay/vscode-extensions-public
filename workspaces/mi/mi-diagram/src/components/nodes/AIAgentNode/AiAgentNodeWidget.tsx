@@ -403,7 +403,7 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                                 <Description>{FirstCharToUpperCase(connectorName)}</Description>
                             </Body>
                         </div>
-                        {isHovered && (
+                        {isHovered.node && (
                             <S.EOptionsMenu appearance="icon" onClick={handleOnClickMenu}>
                                 <MoreVertIcon />
                             </S.EOptionsMenu>
