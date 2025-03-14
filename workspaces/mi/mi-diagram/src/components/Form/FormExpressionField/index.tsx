@@ -173,7 +173,6 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
     const [configInfo, setConfigInfo] = useState<HelperPaneCompletionItem[]>(null);
     const [headerInfo, setHeaderInfo] = useState<HelperPaneCompletionItem[]>(null);
     const [paramInfo, setParamInfo] = useState<HelperPaneCompletionItem[]>(null);
-    const supportAIValues = 'fromAI' in value;
     const [isAIFill, setIsAIFill] = useState<boolean>(value.fromAI);
     const [isAIDescription, setIsAIDescription] = useState<boolean>(value?.description?.currentValue?.length > 0);
 
@@ -514,7 +513,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                         sx={{ width: '100%', backgroundColor: 'var(--vscode-input-background)' }}
                     />}
 
-                    {supportAIValues && <Button
+                    {supportsAIValues && <Button
                         tooltip={"Let AI fill this field"}
                         onClick={handleAIFill}
                         appearance="icon"
