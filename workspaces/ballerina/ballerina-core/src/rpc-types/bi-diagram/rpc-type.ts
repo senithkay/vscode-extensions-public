@@ -148,4 +148,5 @@ export const getFunctionNode: RequestType<FunctionNodeRequest, FunctionNodeRespo
 export const getEndOfFile: RequestType<EndOfFileRequest, LinePosition> = { method: `${_preFix}/getEndOfFile` };
 export const search: RequestType<BISearchRequest, BISearchResponse> = { method: `${_preFix}/search` };
 export const getRecordNames: RequestType<void, RecordsInWorkspaceMentions> = { method: `${_preFix}/getRecordNames` };
+export const getFunctionNames: RequestType<void, RecordsInWorkspaceMentions> = { method: `${_preFix}/getFunctionNames` };
 export const getDevantComponent: RequestType<void, DevantComponentResponse> = { method: `${_preFix}/getDevantComponent` };

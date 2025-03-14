@@ -150,5 +150,6 @@ export interface BIDiagramAPI {
     getEndOfFile: (params: EndOfFileRequest) => Promise<LinePosition>;
     search: (params: BISearchRequest) => Promise<BISearchResponse>;
     getRecordNames: () => Promise<RecordsInWorkspaceMentions>;
+    getFunctionNames: () => Promise<RecordsInWorkspaceMentions>;
     getDevantComponent: () => Promise<DevantComponentResponse | undefined>;
 }

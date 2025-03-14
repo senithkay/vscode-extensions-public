@@ -105,7 +105,7 @@ import {
     VisibleTypesResponse,
     WorkspaceFolder,
     WorkspacesResponse,
-    buildProjectStructure
+    buildProjectStructure,
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import * as path from 'path';
@@ -1493,6 +1493,27 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 reject(error);
             });
         });
+    }
+
+    async getFunctionNames(): Promise<RecordsInWorkspaceMentions> {
+        const projectComponents = await this.getProjectComponents();
+        
+        // Extracting all function names
+        const functionNames: string[] = [];
+        
+        if (projectComponents?.components?.packages) {
+            for (const pkg of projectComponents.components.packages) {
+                for (const module of pkg.modules || []) {
+                    if (module.functions) {
+                        for (const func of module.functions) {
+                            functionNames.push(func.name);
+                        }
+                    }
+                }
+            }
+        }
+        
+        return { mentions: functionNames };
     }
 }
 

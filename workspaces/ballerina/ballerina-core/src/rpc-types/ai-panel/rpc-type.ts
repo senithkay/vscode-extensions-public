@@ -8,7 +8,7 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { AIVisualizerState, AddToProjectRequest, GetFromFileRequest, DeleteFromProjectRequest, GenerateMappingsRequest, GenerateMappingsResponse, NotifyAIMappingsRequest, ProjectSource, ProjectDiagnostics, InitialPrompt, GenerateMappingsFromRecordRequest, GenerateMappingFromRecordResponse, PostProcessRequest, PostProcessResponse, GenerateTypesFromRecordRequest, GenerateTypesFromRecordResponse, FetchDataRequest, FetchDataResponse, TestGenerationRequest, TestGenerationResponse, TestGenerationMentions, AIChatSummary, DeveloperDocument, RequirementSpecification, LLMDiagnostics } from "./interfaces";
+import { AIVisualizerState, AddToProjectRequest, GetFromFileRequest, DeleteFromProjectRequest, GenerateMappingsRequest, GenerateMappingsResponse, NotifyAIMappingsRequest, ProjectSource, ProjectDiagnostics, InitialPrompt, GenerateMappingsFromRecordRequest, GenerateMappingFromRecordResponse, PostProcessRequest, PostProcessResponse, GenerateTypesFromRecordRequest, GenerateTypesFromRecordResponse, FetchDataRequest, FetchDataResponse, TestGenerationRequest, TestGenerationResponse, TestGenerationMentions, AIChatSummary, DeveloperDocument, RequirementSpecification, LLMDiagnostics, SourceFile } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "ai-panel";
@@ -35,6 +35,7 @@ export const getShadowDiagnostics: RequestType<ProjectSource, ProjectDiagnostics
 export const checkSyntaxError: RequestType<ProjectSource, boolean> = { method: `${_preFix}/checkSyntaxError` };
 export const getInitialPrompt: RequestType<void, InitialPrompt> = { method: `${_preFix}/getInitialPrompt` };
 export const clearInitialPrompt: NotificationType<void> = { method: `${_preFix}/clearInitialPrompt` };
+export const refreshFile: NotificationType<SourceFile> = { method: `${_preFix}/refreshFile` };
 export const getGeneratedTests: RequestType<TestGenerationRequest, TestGenerationResponse> = { method: `${_preFix}/getGeneratedTests` };
 export const getTestDiagnostics: RequestType<TestGenerationResponse, ProjectDiagnostics> = { method: `${_preFix}/getTestDiagnostics` };
 export const getServiceSourceForName: RequestType<string, string> = { method: `${_preFix}/getServiceSourceForName` };
