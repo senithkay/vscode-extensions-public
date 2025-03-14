@@ -156,8 +156,7 @@ export function SequenceWizard(props: SequenceWizardProps) {
         }
 
         if (props.isExternalTrigger) {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            rpcClient.getMiDiagramRpcClient().markAsDefaultSequence({ path: result.filePath });
+            rpcClient.getMiDiagramRpcClient().markAsDefaultSequence({ path: result.filePath, name: values.name });
         }
 
         if (props.isPopup) {
