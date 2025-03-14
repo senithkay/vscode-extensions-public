@@ -898,7 +898,6 @@ export function AIChat() {
                     console.log("Initial Diagnostics : ", diagnostics);
                     setCurrentDiagnostics(diagnostics);
                 } catch (error) {
-                    setIsCodeLoading(false);
                     diagnostics = [];
                 }
                 if (diagnostics.length > 0) {
