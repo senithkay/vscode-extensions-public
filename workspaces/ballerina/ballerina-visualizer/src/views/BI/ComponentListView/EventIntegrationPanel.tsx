@@ -15,7 +15,7 @@ import { useVisualizerContext } from '../../../Context';
 import { CardGrid, PanelViewMore, Title, TitleWrapper } from './styles';
 import { BodyText } from '../../styles';
 import ButtonCard from '../../../components/ButtonCard';
-import { isBetaModule, OutOfScopeComponentTooltip } from './componentListUtils';
+import { OutOfScopeComponentTooltip } from './componentListUtils';
 
 interface EventIntegrationPanelProps {
     scope: SCOPE;
@@ -80,7 +80,6 @@ export function EventIntegrationPanel(props: EventIntegrationPanelProps) {
                                     }}
                                     disabled={isDisabled}
                                     tooltip={isDisabled ? OutOfScopeComponentTooltip : ""}
-                                    isBeta={isBetaModule(item.moduleName)}
                                 />
                             );
                         }

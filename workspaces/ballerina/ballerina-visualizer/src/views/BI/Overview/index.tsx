@@ -269,7 +269,7 @@ interface DeploymentOptionProps {
     isExpanded: boolean;
     onToggle: () => void;
     onDeploy: () => void;
-    learnMoreLink?: boolean;
+    learnMoreLink?: string;
     isDeploying?: boolean;
 }
 
@@ -283,6 +283,14 @@ function DeploymentOption({
     learnMoreLink,
     isDeploying
 }: DeploymentOptionProps) {
+    const { rpcClient } = useRpcContext();
+
+    const openLearnMoreURL = () => {
+        rpcClient.getCommonRpcClient().openExternalUrl({
+            url: learnMoreLink
+        })
+    };
+
     return (
         <DeploymentOptionContainer
             isExpanded={isExpanded}
@@ -299,7 +307,9 @@ function DeploymentOption({
             <DeploymentBody isExpanded={isExpanded}>
                 <p style={{ marginTop: 8 }}>
                     {description}
-                    {learnMoreLink && <> <VSCodeLink>Learn more</VSCodeLink></>}
+                    {learnMoreLink && (
+                        <VSCodeLink onClick={openLearnMoreURL} style={{ marginLeft: '4px' }}>Learn more</VSCodeLink>
+                    )}
                 </p>
                 <Button appearance="secondary" onClick={(e) => {
                     e.stopPropagation();
@@ -350,12 +360,12 @@ function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, go
                 {devantComponent == undefined &&
                     <DeploymentOption
                         title="Deploy to Devant"
-                        description="Deploy your integration to the cloud using WSO2 Devant."
-                        buttonText="Deploy to Cloud"
+                        description="Deploy your integration to the cloud using Devant by WSO2."
+                        buttonText="Deploy"
                         isExpanded={expandedOptions.has('cloud')}
                         onToggle={() => toggleOption('cloud')}
                         onDeploy={handleDeployToDevant}
-                        learnMoreLink={true}
+                        learnMoreLink={"https://wso2.com/devant/docs"}
                         isDeploying={isDeploying}
                     />
                 }
@@ -368,7 +378,7 @@ function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, go
                         isExpanded={expandedOptions.has('devant')}
                         onToggle={() => toggleOption('devant')}
                         onDeploy={() => goToDevant(devantComponent)}
-                        learnMoreLink={true}
+                        learnMoreLink={"https://wso2.com/devant/docs"}
                     />
                 }
 
@@ -404,12 +414,21 @@ interface IntegrationControlPlaneProps {
 }
 
 function IntegrationControlPlane({ enabled, handleICP }: IntegrationControlPlaneProps) {
+    const { rpcClient } = useRpcContext();
+
+    const openLearnMoreURL = () => {
+        rpcClient.getCommonRpcClient().openExternalUrl({
+            url: "https://wso2.com/integrator/integration-control-plane/"
+        })
+    };
 
     return (
         <div>
             <Title variant="h3">Integration Control Plane</Title>
-            <p>Moniter the deployment runtime using WSO2 Integration Control Plane. Click the {enabled ? "Disable ICP" : "Integrate ICP"} button to {enabled ? "diable" : "enable"} ICP
-                for the integration.</p>
+            <p>
+                {"Moniter the deployment runtime using WSO2 Integration Control Plane."}
+                <VSCodeLink onClick={openLearnMoreURL} style={{ marginLeft: '4px' }}> Learn More </VSCodeLink>
+            </p>
             <CheckBox
                 checked={enabled}
                 onChange={handleICP}
@@ -703,10 +722,10 @@ export function Overview(props: ComponentDiagramProps) {
     };
 
     const goToDevant = (devantComponent: DevantComponentResponse) => {
-        rpcClient.getCommonRpcClient().openExternalUrl({ url: `https://devant.wso2.com/devant/projects/${devantComponent.org}/${devantComponent.project}/${devantComponent.component}` });
+        rpcClient.getCommonRpcClient().openExternalUrl({
+            url: `https://console.devant.dev/organizations/${devantComponent.org}`
+        });
     };
-
-
 
     return (
         <PageLayout>
