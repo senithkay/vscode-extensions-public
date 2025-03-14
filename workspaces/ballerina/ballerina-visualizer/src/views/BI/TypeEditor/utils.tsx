@@ -32,10 +32,12 @@ export const getTypes = (types: VisibleTypeItem[]): TypeHelperCategory[] => {
     const categoryRecord: Record<string, TypeHelperItem[]> = {};
 
     for (const type of types) {
+        if (!type) {
+            continue;
+        }
         if (!categoryRecord[type.labelDetails.detail]) {
             categoryRecord[type.labelDetails.detail] = [];
         }
-            
         categoryRecord[type.labelDetails.detail].push({
             name: type.label,
             insertText: type.insertText,
