@@ -166,6 +166,7 @@ export function convertNodePropertyToFormField(
         hidden: property.hidden,
         documentation: property.metadata?.description || "",
         value: getFormFieldValue(property, clientName),
+        advanceProps: convertNodePropertiesToFormFields(property.advanceValue as NodeProperties),
         valueType: getFormFieldValueType(property),
         items: getFormFieldItems(property, connections),
         diagnostics: property.diagnostics?.diagnostics || [],

@@ -168,7 +168,12 @@ const MainPanel = () => {
             } else {
                 switch (value?.view) {
                     case MACHINE_VIEW.Overview:
-                        setViewComponent(<OverviewBI projectPath={value.projectUri} />);
+                        setViewComponent(
+                            <OverviewBI
+                                projectPath={value.projectUri}
+                                deployedComponent={value.metadata?.devantComponent}
+                            />
+                        );
                         break;
                     case MACHINE_VIEW.ServiceDesigner:
                         setViewComponent(

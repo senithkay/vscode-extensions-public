@@ -238,7 +238,7 @@ export function Mediators(props: MediatorProps) {
         props.clearSearch();
         await fetchMediators();
         await fetchLocalConnectorData();
-        connectorName ? setExpandedModules([connectorName]) : initializeExpandedModules(allMediators);;
+        connectorName ? setExpandedModules([connectorName]) : initializeExpandedModules(allMediators);
     };
 
     const deleteConnector = async (connectorName: string, artifactId: string, version: string, iconUrl: string, connectorPath: string) => {
@@ -253,8 +253,13 @@ export function Mediators(props: MediatorProps) {
     }
 
     const refreshConnector = async (connectorName: string, ballerinaModulePath: string) => {
-            await rpcClient.getMiDiagramRpcClient().buildBallerinaModule(ballerinaModulePath);
-                        reloadPalette(connectorName);
+        setIsLoading(true);
+        await rpcClient.getMiDiagramRpcClient().buildBallerinaModule(ballerinaModulePath);
+        const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
+        if (response === "Success") {
+            await reloadPalette(connectorName);
+        }
+        setIsLoading(false);
     }
 
     const firstCharToUpperCaseForDefault = (name: string) => {

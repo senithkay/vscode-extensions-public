@@ -195,7 +195,8 @@ import {
     GetRecordModelFromSourceRequest,
     GetRecordModelFromSourceResponse,
     UpdateTypesRequest,
-    UpdateTypesResponse
+    UpdateTypesResponse,
+    DidChangeWatchedFileParams
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -372,7 +373,8 @@ enum VSCODE_APIS {
     DOC_SYMBOL = 'textDocument/documentSymbol',
     CODE_ACTION = 'textDocument/codeAction',
     EXECUTE_CMD = 'workspace/executeCommand',
-    PUBLISH_DIAGNOSTICS = 'textDocument/publishDiagnostics'
+    PUBLISH_DIAGNOSTICS = 'textDocument/publishDiagnostics',
+    DID_CHANGE_WATCHED_FILES = 'workspace/didChangeWatchedFiles'
 }
 
 export class ExtendedLangClient extends LanguageClient implements ExtendedLangClientInterface {
@@ -406,6 +408,11 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     didChange(params: DidChangeParams): void {
         debug(`didChange at ${new Date()} - ${new Date().getTime()}`);
         this.sendNotification(VSCODE_APIS.DID_CHANGE, params);
+    }
+
+    didChangedWatchedFiles(params: DidChangeWatchedFileParams): void {
+        debug(`didChangedWatchedFiles at ${new Date()} - ${new Date().getTime()}`);
+        this.sendNotification(VSCODE_APIS.DID_CHANGE_WATCHED_FILES, params);
     }
 
     registerPublishDiagnostics(): void {

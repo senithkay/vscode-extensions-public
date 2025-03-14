@@ -11,6 +11,7 @@ import { NotificationType, RequestType } from "vscode-messenger-common";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./interfaces/common";
 import { Type } from "./interfaces/extended-lang-client";
+import { DevantComponent } from "./rpc-types/bi-diagram/interfaces";
 
 export type MachineStateValue =
     | 'initialize'
@@ -121,6 +122,7 @@ export interface VisualizerMetadata {
     recordFilePath?: string;
     enableSequenceDiagram?: boolean; // Enable sequence diagram view
     target?: LinePosition;
+    devantComponent?: DevantComponent;
 }
 
 export interface PopupVisualizerLocation extends VisualizerLocation {

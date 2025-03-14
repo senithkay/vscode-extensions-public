@@ -15,6 +15,7 @@ import ChatInput from "./ChatInput";
 import LoadingIndicator from "./LoadingIndicator";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
+import ReactMarkdown from "react-markdown";
 
 enum ChatMessageType {
     MESSAGE = "message",
@@ -127,6 +128,39 @@ const MessageBubble = styled.div<{ isUser: boolean; isError?: boolean }>`
     border-radius: ${({ isUser }: { isUser: boolean }) => (isUser ? "12px 12px 0px 12px" : "12px 12px 12px 0px")};
 `;
 
+const StyledMarkdown = styled(ReactMarkdown)`
+    margin: 0;
+    padding: 0;
+
+    /* Remove default paragraph margins */
+    p {
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Remove extra spacing for lists */
+    ul,
+    ol {
+        margin: 0;
+        padding-left: 20px; /* Keep indentation for lists */
+    }
+
+    /* Ensure code blocks don't add extra padding */
+    pre {
+        margin: 0;
+        padding: 8px;
+        background: var(--vscode-editor-background);
+        border-radius: 4px;
+    }
+
+    code {
+        font-family: monospace;
+        background-color: var(--vscode-editor-background);
+        padding: 2px 4px;
+        border-radius: 4px;
+    }
+`;
+
 // ---------- CHAT FOOTER ----------
 const ChatFooter = styled.div`
     position: sticky;
@@ -226,7 +260,7 @@ const ChatInterface: React.FC = () => {
                                 </ProfilePic>
                             )}
                             <MessageBubble isUser={msg.isUser} isError={false}>
-                                {msg.text}
+                                <StyledMarkdown>{msg.text}</StyledMarkdown>
                             </MessageBubble>
                             {msg.isUser && (
                                 <ProfilePic>

@@ -59,7 +59,6 @@ export function IntegrationAPIPanel(props: IntegrationAPIPanelProps) {
                         onClick={() => handleClick("graphql")}
                         disabled={isDisabled}
                         tooltip={isDisabled ? OutOfScopeComponentTooltip : ""}
-                        isBeta
                     />
                     <ButtonCard
                         icon={<Icon name="bi-tcp" />}
@@ -68,7 +67,6 @@ export function IntegrationAPIPanel(props: IntegrationAPIPanelProps) {
                         onClick={() => handleClick("tcp")}
                         disabled={isDisabled}
                         tooltip={isDisabled ? OutOfScopeComponentTooltip : ""}
-                        isBeta
                     />
                     {/* TODO: Add this when GRPC is working */}
                     {/* <ButtonCard
