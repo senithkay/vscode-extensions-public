@@ -869,6 +869,7 @@ export function AIChat() {
                 try {
                     await processSSEEvent(chunk);
                 } catch (error) {
+                    setIsCodeLoading(false);
                     console.error("Failed to parse SSE event:", error);
                 }
 
