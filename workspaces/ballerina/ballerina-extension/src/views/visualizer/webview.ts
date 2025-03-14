@@ -14,7 +14,7 @@ import { RPCLayer } from "../../RPCLayer";
 import { debounce } from "lodash";
 import { WebViewOptions, getComposerWebViewOptions, getLibraryWebViewContent } from "../../utils/webview-utils";
 import { extension } from "../../BalExtensionContext";
-import { history, StateMachine, updateView } from "../../stateMachine";
+import { StateMachine, updateView } from "../../stateMachine";
 import { LANGUAGE } from "../../core";
 
 export class VisualizerWebview {
