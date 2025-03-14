@@ -127,8 +127,8 @@ const TEMPLATE_GENERATE = [
     "generate an integration according to the given Readme file",
 ];
 const TEMPLATE_TESTS = [
-    "generate test using <servicename> service",
-    "generate test for resource <method(space)path> function",
+    "generate tests for <servicename> service",
+    "generate tests for resource <method(space)path> function",
 ];
 const TEMPLATE_DATAMAP = [
     "generate mappings using input as <recordname(s)> and output as <recordname> using the function <functionname>",
@@ -685,15 +685,14 @@ export function AIChat() {
         const expectedTemplates = commandToTemplate.get(command);
         for (const template of expectedTemplates ?? []) {
             let pattern = template
-                .replace(/<servicename>/g, "(\\S+?)")
+                .replace(/<servicename>/g, "(.+?)")
                 .replace(
                     /<recordname\(s\)>/g,
                     "(\\s*(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+(?:[\\s,]+(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+)*\\s*)"
                 )
                 .replace(/<recordname>/g, "(\\s*(?:[\\w\\/|.-]+\\s*:\\s*)?[\\w|:\\[\\]]+\\s*)")
-                .replace(/<use-case>/g, "([\\s\\S]+?)")
                 .replace(/<requirements>/g, "([\\s\\S]+?)")
-                .replace(/<functionname>/g, "(\\S+?)")
+                .replace(/<functionname>/g, "(.+?)")
                 .replace(/<question>/g, "(.+?)")
                 .replace(/<method\(space\)path>/g, "([^\\n]+)");
 
