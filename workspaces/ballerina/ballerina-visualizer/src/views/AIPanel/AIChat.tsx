@@ -22,6 +22,7 @@ import {
     TestGenerationTarget,
     LLMDiagnostics,
     ImportStatement,
+    DiagnosticEntry,
 } from "@wso2-enterprise/ballerina-core";
 
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -887,13 +888,20 @@ export function AIChat() {
                 // Update the functions state instead of the global variable
                 setFunctions(event.body);
             } else if (event.event == "message_stop") {
-                const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
-                    assistant_response: assistant_response,
-                });
-                assistant_response = postProcessResp.assistant_response;
-                const diagnostics = postProcessResp.diagnostics.diagnostics;
-                console.log("Initial Diagnostics : ", diagnostics);
-                setCurrentDiagnostics(diagnostics);
+                let diagnostics: DiagnosticEntry[] = [];
+                try {
+                    const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
+                        assistant_response: assistant_response,
+                    });
+                    assistant_response = postProcessResp.assistant_response;
+                    diagnostics = postProcessResp.diagnostics.diagnostics;
+                    console.log("Initial Diagnostics : ", diagnostics);
+                    setCurrentDiagnostics(diagnostics);
+                } catch (error) {
+                    // Add this catch block because `Add to Integration` button not appear for `/generate`
+                    // Related issue: https://github.com/wso2-enterprise/vscode-extensions/issues/5065
+                    diagnostics = [];
+                }
                 if (diagnostics.length > 0) {
                     const diagReq = {
                         response: assistant_response,
