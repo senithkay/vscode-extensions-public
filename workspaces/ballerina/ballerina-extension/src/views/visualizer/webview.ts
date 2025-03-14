@@ -15,7 +15,7 @@ import { debounce } from "lodash";
 import { WebViewOptions, getComposerWebViewOptions, getLibraryWebViewContent } from "../../utils/webview-utils";
 import { extension } from "../../BalExtensionContext";
 import { StateMachine, updateView } from "../../stateMachine";
-import { LANGUAGE } from "../../core";
+import { ballerinaExtInstance, LANGUAGE } from "../../core";
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
@@ -51,7 +51,9 @@ export class VisualizerWebview {
         this._panel.onDidChangeViewState(() => {
             vscode.commands.executeCommand('setContext', 'isBalVisualizerActive', this._panel?.active);
             // Refresh the webview when becomes active
-            if (this._panel?.active) {
+            const state = StateMachine.state();
+            const machineReady = typeof state === 'object' && 'viewActive' in state && state.viewActive === "webViewLoaded";
+            if (this._panel?.active && machineReady) {
                 sendUpdateNotificationToWebview();
             }
         });
@@ -68,7 +70,7 @@ export class VisualizerWebview {
                 retainContextWhenHidden: true,
             }
         );
-        const biExtension = vscode.extensions.getExtension('wso2.ballerina-integrator') && StateMachine.context().isBISupported;
+        const biExtension = vscode.extensions.getExtension('wso2.ballerina-integrator') && ballerinaExtInstance.biSupported;
         panel.title = biExtension ? "Ballerina Integrator" : "Ballerina Visualizer";
         panel.iconPath = {
             light: vscode.Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', biExtension ? 'light-icon.svg' : 'ballerina.svg')),

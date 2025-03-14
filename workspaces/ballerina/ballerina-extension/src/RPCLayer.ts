@@ -39,21 +39,18 @@ export class RPCLayer {
     static _messenger: Messenger = new Messenger();
 
     constructor(webViewPanel: WebviewPanel | WebviewView) {
-        if (isWebviewPanel(webViewPanel)) {
-            RPCLayer._messenger.registerWebviewPanel(webViewPanel as WebviewPanel);
-            StateMachine.service().onTransition((state) => {
-                RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, state.value);
-            });
-            // Popup machine transition
-            StateMachinePopup.service().onTransition((state) => {
-                RPCLayer._messenger.sendNotification(popupStateChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, state.value);
-            });
-        } else {
-            RPCLayer._messenger.registerWebviewView(webViewPanel as WebviewView);
-            StateMachineAI.service().onTransition((state) => {
-                RPCLayer._messenger.sendNotification(aiStateChanged, { type: 'webview', webviewType: AiPanelWebview.viewType }, state.value);
-            });
-        }
+        RPCLayer._messenger.registerWebviewPanel(webViewPanel as WebviewPanel);
+        StateMachine.service().onTransition((state) => {
+            RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, state.value);
+        });
+        // Popup machine transition
+        StateMachinePopup.service().onTransition((state) => {
+            RPCLayer._messenger.sendNotification(popupStateChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, state.value);
+        });
+        RPCLayer._messenger.registerWebviewView(webViewPanel as WebviewView);
+        StateMachineAI.service().onTransition((state) => {
+            RPCLayer._messenger.sendNotification(aiStateChanged, { type: 'webview', webviewType: AiPanelWebview.viewType }, state.value);
+        });
     }
 
     static create(webViewPanel: WebviewPanel | WebviewView) {
@@ -131,11 +128,6 @@ async function getPopupContext(): Promise<PopupVisualizerLocation> {
             metadata: context.metadata,
         });
     });
-}
-
-function isWebviewPanel(webview: WebviewPanel | WebviewView): boolean {
-    const title = webview.title;
-    return title === VisualizerWebview.panelTitle;
 }
 
 export function notifyCurrentWebview() {
