@@ -18,7 +18,7 @@ import ConfigForm from "./ConfigForm";
 import { cloneDeep } from "lodash";
 
 const Container = styled.div`
-    padding: 16px;
+    padding: 16px 0 16px 16px;
 `;
 
 const Row = styled.div`

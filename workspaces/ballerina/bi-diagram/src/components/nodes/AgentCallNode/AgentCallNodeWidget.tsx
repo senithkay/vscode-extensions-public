@@ -312,7 +312,7 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
     ];
 
     const disabled = model.node.suggested;
-    const nodeTitle = "AI Agent : " + model.node.properties.connection?.value;
+    const nodeTitle = "AI Agent";
     const hasError = nodeHasError(model.node);
     const tools = model.node.metadata?.data?.tools || [];
     if (model.node.metadata.data?.agent) {
