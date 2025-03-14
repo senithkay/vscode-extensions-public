@@ -391,8 +391,10 @@ export const Form = forwardRef((props: FormProps, ref) => {
     };
 
     const getVisualiableFields = () => {
-        const flowNode = mergeFormDataWithFlowNode(getValues(), targetLineRange);
-        handleVisualizableFields && handleVisualizableFields(fileName, flowNode, targetLineRange.startLine);
+        if(mergeFormDataWithFlowNode) {
+            const flowNode = mergeFormDataWithFlowNode(getValues(), targetLineRange);
+            handleVisualizableFields && handleVisualizableFields(fileName, flowNode, targetLineRange.startLine);
+        }
     };
 
     const handleGetExpressionDiagnostics = async (
