@@ -7,11 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { URI, Utils } from "vscode-uri";
 import { FormGeneratorNew } from "../Forms/FormGeneratorNew";
 
 const Container = styled.div`
@@ -32,22 +29,15 @@ const FormContainer = styled.div`
 
 interface ConfigProps {
     formFields: FormField[];
+    filePath: string;
     disableSaveButton?: boolean;
     onSubmit: (data: FormField[], rawData: FormValues) => void;
     onBack?: () => void;
 }
 
 export function ConfigForm(props: ConfigProps) {
-    const { formFields, disableSaveButton, onSubmit, onBack } = props;
-
-    const { rpcClient } = useRpcContext();
-    const [filePath, setFilePath] = useState<string>("");
-
-    useEffect(() => {
-        rpcClient.getVisualizerLocation().then((res) => {
-            setFilePath(Utils.joinPath(URI.file(res.projectUri), "agents.bal").fsPath);
-        });
-    }, []);
+    const { formFields, filePath, disableSaveButton, onSubmit, onBack } = props;
+    console.log(">>> ConfigForm props", props);
 
     const handleSubmit = async (data: FormValues) => {
         formFields.forEach((val) => {
@@ -69,11 +59,6 @@ export function ConfigForm(props: ConfigProps) {
     const typeField = formFields.find((field) => field.key === "type");
     if (typeField) {
         typeField.enabled = false;
-    }
-    // variable field disable
-    const variableField = formFields.find((field) => field.key === "variable");
-    if (variableField) {
-        variableField.editable = false;
     }
 
     return (

@@ -1335,8 +1335,8 @@ export interface AIGentToolsRequest {
     filePath: string;
     flowNode: FlowNode;
     toolName: string;
+    description: string;
     connection: string;
-    description?: string;
 }
 
 export interface AIGentToolsResponse {
@@ -1351,6 +1351,12 @@ export interface AIConnectorActionsRequest {
 }
 export interface AIConnectorActionsResponse {
     actions: AvailableNode[];
+}
+
+// <-------- Deployment Related ------->
+
+export interface DeploymentResponse {
+    isCompleted: boolean;
 }
 
 // <------------ BI INTERFACES --------->

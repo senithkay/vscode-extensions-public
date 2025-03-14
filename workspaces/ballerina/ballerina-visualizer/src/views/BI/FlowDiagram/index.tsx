@@ -334,10 +334,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const handleOnSelectNode = (nodeId: string, metadata?: any) => {
         const { node, category } = metadata as { node: AvailableNode; category?: string };
         switch (node.codedata.node) {
-            case "AGENT_CALL":
-                handleOnAddAgent();
-                return;
-
             case "FUNCTION":
                 setShowProgressIndicator(true);
                 rpcClient
@@ -431,7 +427,12 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         console.log(">>> FlowNode template", response);
                         selectedNodeRef.current = response.flowNode;
                         showEditForm.current = false;
-                        setSidePanelView(SidePanelView.FORM);
+                        // if agent_call node, then show agent config panel
+                        if (node.codedata.node === "AGENT_CALL") {
+                            setSidePanelView(SidePanelView.NEW_AGENT);
+                        } else {
+                            setSidePanelView(SidePanelView.FORM);
+                        }
                         setShowSidePanel(true);
                     })
                     .finally(() => {
@@ -616,19 +617,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         });
     };
 
-    const handleOnAddAgent = () => {
-        rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                view: MACHINE_VIEW.AIAgentWizard,
-                documentUri: model.fileName,
-                metadata: {
-                    target: targetRef.current.startLine,
-                },
-            },
-        });
-    };
-
     const handleOnEditConnection = (connectionName: string) => {
         rpcClient.getVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
@@ -786,14 +774,14 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             ];
 
             setCategories(toolCategories);
-            setSidePanelView(SidePanelView.AGENT_TOOL_LIST);
+            setSidePanelView(SidePanelView.ADD_TOOL);
             setShowSidePanel(true);
             setShowProgressIndicator(false);
         }, 500);
     };
 
     const handleOnSelectTool = (tool: ToolData, node: FlowNode) => {
-        console.log(">>> Edit tool called", {node, tool});
+        console.log(">>> Edit tool called", { node, tool });
         selectedNodeRef.current = node;
         selectedClientName.current = tool.name;
         showEditForm.current = true;
@@ -887,11 +875,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 onSelectNode={handleOnSelectNode}
                 // Add node callbacks
                 onAddConnection={handleOnAddConnection}
-                onAddAgent={handleOnAddAgent}
                 onAddFunction={handleOnAddFunction}
                 onAddNPFunction={handleOnAddNPFunction}
                 onAddDataMapper={handleOnAddDataMapper}
-
                 onSubmitForm={handleOnFormSubmit}
                 onDiscardSuggestions={onDiscardSuggestions}
                 onSubPanel={handleSubPanel}

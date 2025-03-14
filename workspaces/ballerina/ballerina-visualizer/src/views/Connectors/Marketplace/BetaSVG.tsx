@@ -11,9 +11,9 @@ import * as React from "react";
 export const BETA_SVG_WIDTH = 26;
 export const BETA_SVG_HEIGHT = 12;
 
-export function BetaSVG() {
+export function BetaSVG({ width = 40, height = 16 }) {
     return (
-        <svg width={40} height={16} viewBox="0 0 40 16" xmlns="http://www.w3.org/2000/svg">
+        <svg width={width} height={height} viewBox="0 0 40 16" xmlns="http://www.w3.org/2000/svg">
             <rect
                 width="40"
                 height="16"

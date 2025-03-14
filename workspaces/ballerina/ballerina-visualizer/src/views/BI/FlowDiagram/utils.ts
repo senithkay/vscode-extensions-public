@@ -40,26 +40,21 @@ export const transformCategories = (categories: Category[]): Category[] => {
     
     // remove agents from categories
     filteredCategories = filteredCategories.filter((category) => category.metadata.label !== "Agents");
-    
-    // rename "Prompt as code" from categories to "AI" and move it to 2nd position
-    const aiCategory = cloneDeep(filteredCategories.find((category) => category.metadata.label === "Prompt as code"));
-    if (aiCategory) {
-        aiCategory.metadata.label = "AI";
-    }
-    
-    // remove "Prompt as code" from categories
-    filteredCategories = filteredCategories.filter(
-        (category) => category.metadata.label !== "Prompt as code"
-    );
-    
-    // add ai category to 2nd position
-    filteredCategories.splice(1, 0, aiCategory);
-    
+
+    // find statement category
+    const statementCategory = filteredCategories.find((category) => category.metadata.label === "Statement");
+
     // add new item to ai category called "Agent"
-    if (filteredCategories[1] && filteredCategories[1].items) {
-        filteredCategories[1].items.push({
+    if (statementCategory && statementCategory.items) {
+        statementCategory.items.push({
             codedata: {
+                module: "ai.agent",
                 node: "AGENT_CALL",
+                object: "Agent",
+                org: "ballerinax",
+                parentSymbol: "",
+                symbol: "run",
+                version: "0.7.13",
             },
             enabled: true,
             metadata: {
@@ -67,6 +62,12 @@ export const transformCategories = (categories: Category[]): Category[] => {
                 description: "Add an AI Agent to the flow",
             },
         });
+    }
+
+    // enrich the filtered categories with the updated statement category
+    const statementCategoryIndex = filteredCategories.findIndex((category) => category.metadata.label === "Statement");
+    if (statementCategoryIndex !== -1) {
+        filteredCategories.splice(statementCategoryIndex, 1, statementCategory);
     }
     
     return filteredCategories;
