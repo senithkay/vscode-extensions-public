@@ -127,6 +127,7 @@ export function TypeEditor(props: TypeEditorProps) {
             typeBrowserRef,
             value,
             cursorPositionRef.current,
+            isTypeHelperOpen,
             onChange,
             handleChangeTypeHelperState,
             helperPaneHeight
@@ -136,7 +137,7 @@ export function TypeEditor(props: TypeEditorProps) {
     /* Track cursor position */
     const handleSelectionChange = () => {
         const selection = window.getSelection();
-        if (!selection) {
+        if (!selection || selection.rangeCount === 0) {
             return;
         }
 
@@ -177,7 +178,7 @@ export function TypeEditor(props: TypeEditorProps) {
                 defaultValue={field.value}
                 rules={{
                     required: {
-                        value: !field.optional && !field.placeholder,
+                        value: !field.optional,
                         message: `${field.label} is required`
                     }
                 }}
@@ -208,6 +209,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             getHelperPane={handleGetTypeHelper}
                             helperPaneOrigin={typeHelperOrigin}
                             helperPaneHeight={typeHelperHeight}
+                            expressionEditorIconName="bi-type"
                             onBlur={handleBlur}
                             onSave={onSave}
                             onCancel={handleCancel}
@@ -215,7 +217,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             autoFocus={autoFocus}
                             sx={{ paddingInline: '0' }}
                         />
-                        {error && <ErrorBanner errorMsg={error.message.toString()} />}
+                        {error?.message && <ErrorBanner errorMsg={error.message.toString()} />}
                     </div>
                 )}
             />

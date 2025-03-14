@@ -15,7 +15,7 @@ import {
     ParameterValue,
     Parameter,
 } from "@wso2-enterprise/ballerina-side-panel";
-import { AddNodeVisitor, RemoveNodeVisitor, NodeIcon, traverseFlow } from "@wso2-enterprise/bi-diagram";
+import { AddNodeVisitor, RemoveNodeVisitor, NodeIcon, traverseFlow, ConnectorIcon } from "@wso2-enterprise/bi-diagram";
 import {
     Category,
     AvailableNode,
@@ -38,7 +38,10 @@ import {
     functionKinds,
     TRIGGER_CHARACTERS,
     Diagnostic,
-    FUNCTION_TYPE
+    FUNCTION_TYPE,
+    FunctionNode,
+    FocusFlowDiagramView,
+    FOCUS_FLOW_DIAGRAM_VIEW
 } from "@wso2-enterprise/ballerina-core";
 import {
     HelperPaneVariableInfo,
@@ -46,10 +49,10 @@ import {
     HelperPaneFunctionCategory,
     HelperPaneCompletionItem
 } from "@wso2-enterprise/ballerina-side-panel";
-import { SidePanelView } from "../views/BI/FlowDiagram";
-import React from "react";
+import { SidePanelView } from "../views/BI/FlowDiagram/PanelManager";
 import { cloneDeep } from "lodash";
-import { COMPLETION_ITEM_KIND, CompletionItem, CompletionItemKind, convertCompletionItemKind } from "@wso2-enterprise/ui-toolkit";
+import { CompletionItem, CompletionItemKind, convertCompletionItemKind } from "@wso2-enterprise/ui-toolkit";
+import { FunctionDefinition, STNode } from "@wso2-enterprise/syntax-tree";
 
 function convertAvailableNodeToPanelNode(node: AvailableNode, functionType?: FUNCTION_TYPE): PanelNode {
     // Check if node should be filtered based on function type
@@ -90,7 +93,7 @@ function convertDiagramCategoryToSidePanelCategory(category: Category, functionT
     return {
         title: category.metadata.label,
         description: category.metadata.description,
-        icon: icon ? <img src={icon} alt={category.metadata.label} style={{ width: "20px" }} /> : undefined,
+        icon: <ConnectorIcon url={icon} style={{ width: "20px" }} />,
         items: items,
     };
 }
@@ -150,6 +153,7 @@ export function convertNodePropertyToFormField(
         placeholder: property.placeholder,
         editable: isFieldEditable(property, connections, clientName),
         enabled: true,
+        hidden: property.hidden,
         documentation: property.metadata?.description || "",
         value: getFormFieldValue(property, clientName),
         valueType: getFormFieldValueType(property),
@@ -157,7 +161,8 @@ export function convertNodePropertyToFormField(
         diagnostics: property.diagnostics?.diagnostics || [],
         valueTypeConstraint: property.valueTypeConstraint,
         lineRange: property?.codedata?.lineRange,
-        metadata: property.metadata
+        metadata: property.metadata,
+        codedata: property.codedata
     };
     return formField;
 }
@@ -249,17 +254,35 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode, cli
     switch (view) {
         case SidePanelView.NODE_LIST:
             return ""; // Show switch instead of title
+        case SidePanelView.NEW_AGENT:
+            return "AI Agent";
+        case SidePanelView.AGENT_MODEL:
+            return "Configure LLM Model";
+        case SidePanelView.AGENT_TOOL:
+            return "Configure Tool";
+        case SidePanelView.ADD_TOOL:
+            return "Add Tool";
+        case SidePanelView.NEW_TOOL:
+            return "Create New Tool";
+        case SidePanelView.AGENT_CONFIG:
+            return "Configure Agent";
         case SidePanelView.FORM:
+            if (!activeNode) {
+                return "";
+            }
             if (
                 activeNode.codedata?.node === "REMOTE_ACTION_CALL" ||
                 activeNode.codedata?.node === "RESOURCE_ACTION_CALL"
             ) {
                 return `${clientName || activeNode.properties.connection.value} → ${activeNode.metadata.label}`;
             } else if (activeNode.codedata?.node === "DATA_MAPPER_CALL") {
-                return `${activeNode.codedata?.module ? activeNode.codedata?.module + " :" : ""} ${activeNode.codedata.symbol}`;
-            }
-            return `${activeNode.codedata?.module ? activeNode.codedata?.module + " :" : ""} ${activeNode.metadata.label
+                return `${activeNode.codedata?.module ? activeNode.codedata?.module + " :" : ""} ${
+                    activeNode.codedata.symbol
                 }`;
+            }
+            return `${activeNode.codedata?.module ? activeNode.codedata?.module + " :" : ""} ${
+                activeNode.metadata.label
+            }`;
         default:
             return "";
     }
@@ -726,11 +749,14 @@ function handleRepeatableProperty(property: Property, formField: FormField): voi
     };
 }
 
-export function convertConfig(properties: NodeProperties): FormField[] {
+export function convertConfig(properties: NodeProperties, skipKeys: string[] = []): FormField[] {
     const formFields: FormField[] = [];
     const sortedKeys = Object.keys(properties).sort();
 
     for (const key of sortedKeys) {
+        if (skipKeys.includes(key)) {
+            continue;
+        }
         const property = properties[key as keyof NodeProperties];
         const formField = convertNodePropertyToFormField(key, property);
 
@@ -742,4 +768,17 @@ export function convertConfig(properties: NodeProperties): FormField[] {
     }
 
     return formFields;
+}
+
+export function isNaturalFunction(node: STNode, view: FocusFlowDiagramView): node is FunctionDefinition {
+    return view === FOCUS_FLOW_DIAGRAM_VIEW.NP_FUNCTION;
+}
+
+export function getFlowNodeForNaturalFunction(node: FunctionNode): FlowNode {
+    const flowNode: FlowNode = {
+        ...node,
+        codedata: { ...node.codedata, node: "NP_FUNCTION" },
+        branches: []
+    }
+    return flowNode;
 }

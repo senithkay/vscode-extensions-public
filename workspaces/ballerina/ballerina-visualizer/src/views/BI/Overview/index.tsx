@@ -15,10 +15,11 @@ import {
     EVENT_TYPE,
     MACHINE_VIEW,
     BuildMode,
-    DevantComponentResponse
+    DevantComponentResponse,
+    BI_COMMANDS
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Typography, Codicon, ProgressRing, Button, Icon, Divider, CheckBox } from "@wso2-enterprise/ui-toolkit";
+import { Typography, Codicon, ProgressRing, Button, Icon, Divider, CheckBox, ProgressIndicator, Overlay } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { getProjectFromResponse, parseSSEEvent, replaceCodeBlocks, splitContent } from "../../AIPanel/AIChat";
@@ -79,6 +80,12 @@ const HeaderRow = styled.div`
     padding: 16px 0 16px 16px;
     background: var(--vscode-editor-background);
     border-bottom: 1px solid var(--vscode-dropdown-border);
+`;
+
+const HeaderControls = styled.div`
+    display: flex;
+    gap: 8px;
+    margin-right: 16px;
 `;
 
 const MainContent = styled.div`
@@ -263,6 +270,7 @@ interface DeploymentOptionProps {
     onToggle: () => void;
     onDeploy: () => void;
     learnMoreLink?: boolean;
+    isDeploying?: boolean;
 }
 
 function DeploymentOption({
@@ -272,13 +280,15 @@ function DeploymentOption({
     isExpanded,
     onToggle,
     onDeploy,
-    learnMoreLink
+    learnMoreLink,
+    isDeploying
 }: DeploymentOptionProps) {
     return (
         <DeploymentOptionContainer
             isExpanded={isExpanded}
             onClick={onToggle}
         >
+            {isDeploying && <ProgressIndicator />}
             <DeploymentHeader>
                 <Codicon
                     name={'circle-outline'}
@@ -305,13 +315,14 @@ function DeploymentOption({
 interface DeploymentOptionsProps {
     handleDockerBuild: () => void;
     handleJarBuild: () => void;
-    handleDeploy: () => void;
+    handleDeploy: () => Promise<void>;
     goToDevant: (devantComponent: DevantComponentResponse) => void;
     devantComponent: DevantComponentResponse | undefined;
 }
 
 function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, goToDevant, devantComponent }: DeploymentOptionsProps) {
     const [expandedOptions, setExpandedOptions] = useState<Set<string>>(new Set(['cloud', 'devant']));
+    const [isDeploying, setIsDeploying] = useState(false);
 
     const toggleOption = (option: string) => {
         setExpandedOptions(prev => {
@@ -325,52 +336,65 @@ function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, go
         });
     };
 
+    const handleDeployToDevant = async () => {
+        setIsDeploying(true);
+        await handleDeploy();
+        setIsDeploying(false);
+    };
+
     return (
-        <div>
-            <Title variant="h3">Deployment Options</Title>
+        <>
+            <div>
+                <Title variant="h3">Deployment Options</Title>
 
-            {devantComponent == undefined &&
+                {devantComponent == undefined &&
+                    <DeploymentOption
+                        title="Deploy to Devant"
+                        description="Deploy your integration to the cloud using WSO2 Devant."
+                        buttonText="Deploy to Cloud"
+                        isExpanded={expandedOptions.has('cloud')}
+                        onToggle={() => toggleOption('cloud')}
+                        onDeploy={handleDeployToDevant}
+                        learnMoreLink={true}
+                        isDeploying={isDeploying}
+                    />
+                }
+
+                {devantComponent != undefined &&
+                    <DeploymentOption
+                        title="Deployed in Devant"
+                        description="This integration is already deployed in Devant."
+                        buttonText="View in Devant"
+                        isExpanded={expandedOptions.has('devant')}
+                        onToggle={() => toggleOption('devant')}
+                        onDeploy={() => goToDevant(devantComponent)}
+                        learnMoreLink={true}
+                    />
+                }
+
                 <DeploymentOption
-                    title="Deploy to Devant"
-                    description="Deploy your integration to the cloud using WSO2 Devant."
-                    buttonText="Deploy to Cloud"
-                    isExpanded={expandedOptions.has('cloud')}
-                    onToggle={() => toggleOption('cloud')}
-                    onDeploy={handleDeploy}
-                    learnMoreLink={true}
+                    title="Deploy with Docker"
+                    description="Create a Docker image of your integration and deploy it to any Docker-enabled system."
+                    buttonText="Create Docker Image"
+                    isExpanded={expandedOptions.has('docker')}
+                    onToggle={() => toggleOption('docker')}
+                    onDeploy={handleDockerBuild}
                 />
-            }
 
-            {devantComponent != undefined &&
                 <DeploymentOption
-                    title="Deployed in Devant"
-                    description="This integration is already deployed in Devant."
-                    buttonText="View in Devant"
-                    isExpanded={expandedOptions.has('devant')}
-                    onToggle={() => toggleOption('devant')}
-                    onDeploy={() => goToDevant(devantComponent)}
-                    learnMoreLink={true}
+                    title="Deploy on a VM"
+                    description="Create a self-contained Ballerina executable and run it on any system with Java installed."
+                    buttonText="Create Executable"
+                    isExpanded={expandedOptions.has('vm')}
+                    onToggle={() => toggleOption('vm')}
+                    onDeploy={handleJarBuild}
                 />
+            </div>
+            {
+                isDeploying
+                    && <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3`, zIndex: 1000 }} />
             }
-
-            <DeploymentOption
-                title="Deploy with Docker"
-                description="Create a Docker image of your integration and deploy it to any Docker-enabled system."
-                buttonText="Create Docker Image"
-                isExpanded={expandedOptions.has('docker')}
-                onToggle={() => toggleOption('docker')}
-                onDeploy={handleDockerBuild}
-            />
-
-            <DeploymentOption
-                title="Deploy on a VM"
-                description="Create a self-contained Ballerina executable and run it on any system with Java installed."
-                buttonText="Create Executable"
-                isExpanded={expandedOptions.has('vm')}
-                onToggle={() => toggleOption('vm')}
-                onDeploy={handleJarBuild}
-            />
-        </div>
+        </>
     );
 }
 
@@ -396,12 +420,12 @@ function IntegrationControlPlane({ enabled, handleICP }: IntegrationControlPlane
 }
 
 interface ComponentDiagramProps {
-    //
+    projectPath: string;
 }
 
 export function Overview(props: ComponentDiagramProps) {
     const { rpcClient } = useRpcContext();
-    const [projectName, setProjectName] = React.useState<string>("");
+    const [workspaceName, setWorkspaceName] = React.useState<string>("");
     const [readmeContent, setReadmeContent] = React.useState<string>("");
     const [isCodeGenerating, setIsCodeGenerating] = React.useState<boolean>(false);
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>();
@@ -425,7 +449,10 @@ export function Overview(props: ComponentDiagramProps) {
             .getBIDiagramRpcClient()
             .getWorkspaces()
             .then((res) => {
-                setProjectName(res.workspaces[0].name);
+                const workspace = res.workspaces.find(workspace => workspace.fsPath === props.projectPath);
+                if (workspace) {
+                    setWorkspaceName(workspace.name);
+                }
             });
 
         rpcClient
@@ -628,8 +655,8 @@ export function Overview(props: ComponentDiagramProps) {
         });
     };
 
-    const handleDeploy = () => {
-        rpcClient.getBIDiagramRpcClient().deployProject();
+    const handleDeploy = async () => {
+        await rpcClient.getBIDiagramRpcClient().deployProject();
     };
 
     const handleICP = (icpEnabled: boolean) => {
@@ -659,8 +686,12 @@ export function Overview(props: ComponentDiagramProps) {
         rpcClient.getBIDiagramRpcClient().openReadme();
     };
 
-    const handlePlay = () => {
-        rpcClient.getBIDiagramRpcClient().runProject();
+    const handleLocalRun = () => {
+        rpcClient.getCommonRpcClient().executeCommand({ commands: [BI_COMMANDS.BI_RUN_PROJECT] });
+    };
+
+    const handleLocalDebug = () => {
+        rpcClient.getCommonRpcClient().executeCommand({ commands: [BI_COMMANDS.BI_DEBUG_PROJECT] });
     };
 
     const handleDockerBuild = () => {
@@ -681,14 +712,17 @@ export function Overview(props: ComponentDiagramProps) {
         <PageLayout>
             <HeaderRow>
                 <TitleContainer>
-                    <ProjectTitle>{projectName}</ProjectTitle>
+                    <ProjectTitle>{projectStructure.projectName || workspaceName}</ProjectTitle>
                     <ProjectSubtitle>Integration</ProjectSubtitle>
                 </TitleContainer>
-                <IconButtonContainer>
-                    <Button appearance="icon" onClick={handlePlay} buttonSx={{ padding: "4px 8px" }}>
-                        <Codicon name="play" sx={{ marginRight: 5 }} /> Run & Debug
+                <HeaderControls>
+                    <Button appearance="icon" onClick={handleLocalRun} buttonSx={{ padding: "4px 8px" }}>
+                        <Codicon name="play" sx={{ marginRight: 5 }} /> Run
                     </Button>
-                </IconButtonContainer>
+                    <Button appearance="icon" onClick={handleLocalDebug} buttonSx={{ padding: "4px 8px" }}>
+                        <Codicon name="debug" sx={{ marginRight: 5 }} /> Debug
+                    </Button>
+                </HeaderControls>
             </HeaderRow>
 
             <MainContent>
@@ -700,7 +734,7 @@ export function Overview(props: ComponentDiagramProps) {
                                 <Codicon name="wand" sx={{ marginRight: 8 }} /> Generate
                             </Button>
                             <Button appearance="primary" onClick={handleAddConstruct}>
-                                <Codicon name="add" sx={{ marginRight: 8 }} /> Add Construct
+                                <Codicon name="add" sx={{ marginRight: 8 }} /> Add Artifact
                             </Button>
                         </ActionContainer>)}
                     </DiagramHeaderContainer>
@@ -714,11 +748,11 @@ export function Overview(props: ComponentDiagramProps) {
                                     variant="body1"
                                     sx={{ marginBottom: "24px", color: "var(--vscode-descriptionForeground)" }}
                                 >
-                                    Start by adding constructs or use AI to generate your project structure
+                                    Start by adding artifacts or use AI to generate your project structure
                                 </Typography>
                                 <ButtonContainer>
                                     <Button appearance="primary" onClick={handleAddConstruct}>
-                                        <Codicon name="add" sx={{ marginRight: 8 }} /> Add Construct
+                                        <Codicon name="add" sx={{ marginRight: 8 }} /> Add Artifact
                                     </Button>
                                     <Button appearance="secondary" onClick={handleGenerate}>
                                         <Codicon name="wand" sx={{ marginRight: 8 }} /> Generate with AI
@@ -726,7 +760,7 @@ export function Overview(props: ComponentDiagramProps) {
                                 </ButtonContainer>
                             </EmptyStateContainer>
                         ) : (
-                            <ComponentDiagram projectName={projectName} projectStructure={projectStructure} />
+                            <ComponentDiagram projectStructure={projectStructure} />
                         )}
                     </DiagramContent>
                 </MainPanel>
@@ -756,7 +790,7 @@ export function Overview(props: ComponentDiagramProps) {
                     ) : (
                         <EmptyReadmeContainer>
                             <Description variant="body2">
-                                Describe your integration and generate your constructs with AI
+                                Describe your integration and generate your artifacts with AI
                             </Description>
                             <VSCodeLink onClick={handleEditReadme}>Add a README</VSCodeLink>
                         </EmptyReadmeContainer>

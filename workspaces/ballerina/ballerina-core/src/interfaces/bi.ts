@@ -68,23 +68,52 @@ export type Metadata = {
     draft?: boolean; // for diagram draft nodes
     data?: {
         isDataMappedFunction?: boolean;
+        tools?: ToolData[];
+        model?: ToolData;
+        agent?: AgentData;
+        paramsToHide?: string[]; // List of properties keys to to hide from forms
     }
-    tools?: string[]; // for agent call
-    model?: string; // for agent call
 };
+
+export type ToolData = {
+    name: string;
+    description?: string;
+    path?: string;
+    type?: string;
+}
+
+export type AgentData = {
+    role?: string;
+    instructions?: string;
+}
 
 export type Property = {
     metadata: Metadata;
     diagnostics?: Diagnostic;
     valueType: string;
-    value: string | ELineRange | NodeProperties;
+    value: string | ELineRange | NodeProperties | string[];
     optional: boolean;
     editable: boolean;
     advanced?: boolean;
+    hidden?: boolean;
     placeholder?: string;
     valueTypeConstraint?: string | string[];
     codedata?: CodeData;
+    typeMembers?: PropertyTypeMemberInfo[];
 };
+
+export type PropertyTypeMemberInfo = {
+    type: string;
+    kind: string;
+    packageInfo: string;
+    selected: boolean;
+};
+
+export type RecordTypeField = {
+    key: string;
+    property: Property;
+    recordTypeMembers: PropertyTypeMemberInfo[];
+}
 
 export type Diagnostic = {
     hasDiagnostics: boolean;
@@ -104,6 +133,10 @@ export type CodeData = {
     symbol?: string;
     lineRange?: ELineRange;
     sourceCode?: string;
+    parentSymbol?: string;
+    inferredReturnType?: string;
+    version?: string;
+    isNew?: boolean;
 };
 
 export type Branch = {
@@ -160,7 +193,9 @@ export enum DIRECTORY_MAP {
     CONFIGURATIONS = "configurations",
     DATA_MAPPERS = "dataMappers",
     ENUMS = "enums",
-    CLASSES = "classes"
+    CLASSES = "classes",
+    NATURAL_FUNCTIONS = "naturalFunctions",
+    AGENTS = "agents"
 }
 
 export enum DIRECTORY_SUB_TYPE {
@@ -171,7 +206,10 @@ export enum DIRECTORY_SUB_TYPE {
     SERVICE = "service",
     AUTOMATION = "automation",
     TRIGGER = "trigger",
+    LISTENER = "listener",
     DATA_MAPPER = "dataMapper",
+    NATURAL_FUNCTION = "naturalFunction",
+    AGENTS = "agents",
 }
 
 export enum FUNCTION_TYPE {
@@ -181,6 +219,7 @@ export enum FUNCTION_TYPE {
 }
 
 export interface ProjectStructureResponse {
+    projectName: string;
     directoryMap: {
         [DIRECTORY_MAP.SERVICES]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.AUTOMATION]: ProjectStructureArtifactResponse[];
@@ -194,6 +233,7 @@ export interface ProjectStructureResponse {
         [DIRECTORY_MAP.DATA_MAPPERS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.ENUMS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.CLASSES]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.NATURAL_FUNCTIONS]: ProjectStructureArtifactResponse[];
     };
 }
 
@@ -204,7 +244,6 @@ export interface ProjectStructureArtifactResponse {
     icon?: string;
     context?: string;
     position?: NodePosition;
-    st?: STNode;
     serviceModel?: ServiceModel;
     resources?: ProjectStructureArtifactResponse[];
 }
@@ -242,7 +281,11 @@ export type NodePropertyKey =
     | "defaultable"
     | "scope"
     | "parameters"
-    | "functionName";
+    | "model"
+    | "tools"
+    | "query"
+    | "functionName"
+    | "systemPrompt";
 
 export type BranchKind = "block" | "worker";
 
@@ -283,6 +326,8 @@ export type NodeKind =
     | "FUNCTION"
     | "FUNCTION_CALL"
     | "NP_FUNCTION_CALL"
+    | "NP_FUNCTION"
+    | "NP_FUNCTION_DEFINITION"
     | "ASSIGN"
     | "DATA_MAPPER_DEFINITION"
     | "DATA_MAPPER_CALL"
@@ -294,9 +339,12 @@ export type NodeKind =
     | "ROLLBACK"
     | "FAIL"
     | "RETRY"
+    | "CLASS"
+    | "AGENT"
+    | "AGENT_CALL"
     | "FUNCTION_DEFINITION"
-    | "CONFIG_VARIABLE"
-    | "AGENT_CALL";
+    | "AUTOMATION"
+    | "CONFIG_VARIABLE";
 
 export type OverviewFlow = {
     entryPoints: EntryPoint[];

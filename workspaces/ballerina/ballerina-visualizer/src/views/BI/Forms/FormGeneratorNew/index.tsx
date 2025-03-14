@@ -19,7 +19,8 @@ import {
     Type,
     TextEdit,
     NodeKind,
-    ExpressionProperty
+    ExpressionProperty,
+    RecordTypeField
 } from "@wso2-enterprise/ballerina-core";
 import {
     FormField,
@@ -54,6 +55,7 @@ interface FormProps {
     targetLineRange: LineRange;
     projectPath?: string;
     submitText?: string;
+    cancelText?: string;
     onBack?: () => void;
     editForm?: boolean;
     isGraphqlEditor?: boolean;
@@ -64,6 +66,10 @@ interface FormProps {
     resetUpdatedExpressionField?: () => void;
     selectedNode?: NodeKind;
     nestedForm?: boolean;
+    compact?: boolean;
+    helperPaneSide?: 'right' | 'left';
+    recordTypeFields?: RecordTypeField[];
+    disableSaveButton?: boolean;
 }
 
 export function FormGeneratorNew(props: FormProps) {
@@ -73,6 +79,7 @@ export function FormGeneratorNew(props: FormProps) {
         targetLineRange,
         projectPath,
         submitText,
+        cancelText,
         onBack,
         onSubmit,
         isGraphqlEditor,
@@ -80,11 +87,15 @@ export function FormGeneratorNew(props: FormProps) {
         updatedExpressionField,
         resetUpdatedExpressionField,
         selectedNode,
-        nestedForm
+        nestedForm,
+        compact = false,
+        helperPaneSide,
+        recordTypeFields,
+        disableSaveButton = false
     } = props;
 
     const { rpcClient } = useRpcContext();
-    console.log("======FormGeneratorNew======,", fields)
+    // console.log("======FormGeneratorNew======,", fields)
 
     const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false });
 
@@ -295,39 +306,48 @@ export function FormGeneratorNew(props: FormProps) {
         value: string,
         onChange: (value: string, updatedCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void,
-        helperPaneHeight: HelperPaneHeight
+        helperPaneHeight: HelperPaneHeight,
+        recordTypeField?: RecordTypeField
     ) => {
+        const handleHelperPaneClose = () => {
+            changeHelperPaneState(false);
+            handleExpressionEditorCancel();
+        }
+
         return getHelperPane({
             fileName: fileName,
             targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
             exprRef: exprRef,
             anchorRef: anchorRef,
-            onClose: () => changeHelperPaneState(false),
+            onClose: handleHelperPaneClose,
             defaultValue: defaultValue,
             currentValue: value,
             onChange: onChange,
-            helperPaneHeight: helperPaneHeight
+            helperPaneHeight: helperPaneHeight,
+            recordTypeField: recordTypeField
         });
-    }
+    };
 
     const handleGetTypeHelper = (
         typeBrowserRef: RefObject<HTMLDivElement>,
         currentType: string,
         currentCursorPosition: number,
+        typeHelperState: boolean,
         onChange: (newType: string, newCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void,
         typeHelperHeight: HelperPaneHeight
     ) => {
-        return getTypeHelper(
-            typeBrowserRef,
-            fileName,
-            updateLineRange(targetLineRange, expressionOffsetRef.current),
-            currentType,
-            currentCursorPosition,
-            typeHelperHeight,
-            onChange,
-            () => changeHelperPaneState(false)
-        );
+        return getTypeHelper({
+            typeBrowserRef: typeBrowserRef,
+            filePath: fileName,
+            targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
+            currentType: currentType,
+            currentCursorPosition: currentCursorPosition,
+            helperPaneHeight: typeHelperHeight,
+            typeHelperState: typeHelperState,
+            onChange: onChange,
+            changeTypeHelperState: changeHelperPaneState
+        });
     }
 
     const handleTypeChange = async (type: Type) => {
@@ -426,7 +446,7 @@ export function FormGeneratorNew(props: FormProps) {
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
             onCancel: handleExpressionEditorCancel,
-            helperPaneOrigin: "right",
+            helperPaneOrigin: helperPaneSide || "right",
             helperPaneHeight: "3/4"
         } as FormExpressionEditorProps;
     }, [
@@ -454,7 +474,7 @@ export function FormGeneratorNew(props: FormProps) {
                 <FormTypeEditor
                     newType={true}
                     onTypeChange={handleTypeChange}
-                    { ...(isGraphql && { type: defaultType(), isGraphql: true }) }
+                    {...(isGraphql && { type: defaultType(), isGraphql: true })}
                 />
             </PanelContainer>
             <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3`, zIndex: 1000 }} />
@@ -472,6 +492,7 @@ export function FormGeneratorNew(props: FormProps) {
                     openRecordEditor={handleOpenTypeEditor}
                     onCancelForm={onBack}
                     submitText={submitText}
+                    cancelText={cancelText}
                     onSubmit={handleSubmit}
                     openView={handleOpenView}
                     openSubPanel={openSubPanel}
@@ -481,6 +502,9 @@ export function FormGeneratorNew(props: FormProps) {
                     updatedExpressionField={updatedExpressionField}
                     resetUpdatedExpressionField={resetUpdatedExpressionField}
                     selectedNode={selectedNode}
+                    compact={compact}
+                    recordTypeFields={recordTypeFields}
+                    disableSaveButton={disableSaveButton}
                 />
             )}
             {typeEditorState.isOpen && (

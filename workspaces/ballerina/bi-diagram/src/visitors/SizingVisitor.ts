@@ -8,17 +8,23 @@
  */
 
 import {
+    AGENT_NODE_ADD_TOOL_BUTTON_WIDTH,
+    AGENT_NODE_TOOL_GAP,
+    AGENT_NODE_TOOL_SECTION_GAP,
     COMMENT_NODE_WIDTH,
     EMPTY_NODE_CONTAINER_WIDTH,
     END_NODE_WIDTH,
     IF_NODE_WIDTH,
     LABEL_HEIGHT,
+    LABEL_WIDTH,
     LAST_NODE,
     NODE_BORDER_WIDTH,
     NODE_GAP_X,
     NODE_GAP_Y,
     NODE_HEIGHT,
     NODE_WIDTH,
+    PROMPT_NODE_HEIGHT,
+    PROMPT_NODE_WIDTH,
     WHILE_NODE_WIDTH,
 } from "../resources/constants";
 import { reverseCustomNodeId } from "../utils/node";
@@ -214,17 +220,15 @@ export class SizingVisitor implements BaseVisitor {
         const nodeWidth = NODE_WIDTH;
         const halfNodeWidth = nodeWidth / 2;
         const containerLeftWidth = halfNodeWidth;
-        const containerRightWidth = halfNodeWidth + NODE_GAP_X + NODE_HEIGHT + LABEL_HEIGHT;
+        const containerRightWidth = halfNodeWidth + NODE_GAP_X + NODE_HEIGHT + LABEL_HEIGHT + LABEL_WIDTH;
 
         // Calculate node height based on node type
-        const numberOfCircles = node.metadata?.tools?.length || 0;
-        let nodeHeight = NODE_HEIGHT + numberOfCircles * (NODE_HEIGHT + LABEL_HEIGHT);
-
-        let containerHeight = nodeHeight;
-        if (node.properties?.variable?.value || node.properties?.type?.value) {
-            containerHeight += LABEL_HEIGHT;
+        const tools = node.metadata?.data?.tools || [];
+        const numberOfCircles = tools.length || 0;
+        let containerHeight = NODE_HEIGHT + AGENT_NODE_TOOL_SECTION_GAP + AGENT_NODE_ADD_TOOL_BUTTON_WIDTH + AGENT_NODE_TOOL_GAP * 2;
+        if (numberOfCircles > 0) {
+            containerHeight += numberOfCircles * (NODE_HEIGHT + AGENT_NODE_TOOL_GAP);
         }
-
         this.setNodeSize(node, containerLeftWidth, containerRightWidth, containerHeight);
     }
 
@@ -400,6 +404,20 @@ export class SizingVisitor implements BaseVisitor {
     endVisitWorker(node: Branch, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
         this.createBlockNode(node);
+    }
+
+    endVisitNpFunction(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+
+        const halfNodeWidth = PROMPT_NODE_WIDTH / 2;
+        const nodeHeight = PROMPT_NODE_HEIGHT;
+
+        this.setNodeSize(
+            node,
+            halfNodeWidth,
+            halfNodeWidth,
+            nodeHeight
+        );
     }
 
     skipChildren(): boolean {

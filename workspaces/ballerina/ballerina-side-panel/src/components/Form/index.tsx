@@ -22,18 +22,20 @@ import styled from "@emotion/styled";
 import { ExpressionFormField, FormExpressionEditorProps, FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, FlowNode, LinePosition, ExpressionProperty } from "@wso2-enterprise/ballerina-core";
+import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, FlowNode, LinePosition, ExpressionProperty, RecordTypeField } from "@wso2-enterprise/ballerina-core";
 import { FormContext, Provider } from "../../context";
 import { formatJSONLikeString } from "./utils";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 namespace S {
-    export const Container = styled(SidePanelBody) <{ nestedForm?: boolean }>`
+    export const Container = styled(SidePanelBody) <{ nestedForm?: boolean, compact?: boolean }>`
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: ${({ compact }) => (compact ? "8px" : "20px")};
         height: ${({ nestedForm }) => nestedForm ? 'unset' : 'calc(100vh - 100px)'};
         overflow-y: ${({ nestedForm }) => nestedForm ? 'visible' : 'scroll'};
+        & > :last-child {
+            margin-top: ${({ compact }) => (compact ? "12px" : "0")};
+        }
     `;
 
     export const Row = styled.div<{}>`
@@ -52,7 +54,7 @@ namespace S {
         gap: 12px;
         width: 100%;
         margin-top: 8px;
-        padding-bottom: 14px;
+        padding-bottom: ${({ showBorder }) => (showBorder ? "14px" : "0")};
         border-bottom: ${({ showBorder }) => (showBorder ? `1px solid ${ThemeColors.OUTLINE_VARIANT}` : "none")};
     `;
 
@@ -162,11 +164,18 @@ namespace S {
         font-size: var(--vscode-font-size);
         color: ${ThemeColors.ON_SURFACE_VARIANT};
     `;
+
+    export const ActionButtonContainer = styled.div`
+        display: flex;
+        justify-content: flex-start;
+    `;
 }
 export interface FormProps {
     infoLabel?: string;
     formFields: FormField[];
     submitText?: string;
+    cancelText?: string;
+    actionButton?: React.ReactNode; // Action button to display at the top
     targetLineRange?: LineRange; // TODO: make them required after connector wizard is fixed
     fileName?: string; // TODO: make them required after connector wizard is fixed
     projectPath?: string;
@@ -184,8 +193,11 @@ export interface FormProps {
     mergeFormDataWithFlowNode?: (data: FormValues, targetLineRange: LineRange) => FlowNode;
     handleVisualizableFields?: (filePath: string, flowNode: FlowNode, position: LinePosition) => void;
     visualizableFields?: string[];
+    recordTypeFields?: RecordTypeField[];
     nestedForm?: boolean;
+    isInferredReturnType?: boolean;
     disableSaveButton?: boolean;
+    compact?: boolean;
 }
 
 export const Form = forwardRef((props: FormProps, ref) => {
@@ -195,6 +207,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
         projectPath,
         selectedNode,
         submitText,
+        cancelText,
+        actionButton,
         onSubmit,
         onCancelForm,
         oneTimeForm,
@@ -210,7 +224,10 @@ export const Form = forwardRef((props: FormProps, ref) => {
         mergeFormDataWithFlowNode,
         handleVisualizableFields,
         visualizableFields,
+        recordTypeFields,
         nestedForm,
+        compact = false,
+        isInferredReturnType
     } = props;
 
     const {
@@ -227,21 +244,13 @@ export const Form = forwardRef((props: FormProps, ref) => {
         formState: { isValidating, errors, isDirty }
     } = useForm<FormValues>();
 
-    const { rpcClient } = useRpcContext();
-
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [activeFormField, setActiveFormField] = useState<string | undefined>(undefined);
     const [diagnosticsInfo, setDiagnosticsInfo] = useState<FormDiagnostics[] | undefined>(undefined);
-    const [isGraphql, setIsGraphql] = useState<boolean>(false);
 
     const exprRef = useRef<FormExpressionEditorRef>(null);
 
     useEffect(() => {
-        rpcClient.getVisualizerLocation().then(context => {
-            if (context.view === "GraphQL Diagram") {
-                setIsGraphql(true);
-            }
-        });
         // Check if the form is a onetime usage or not. This is checked due to reset issue with nested forms in param manager
         if (!oneTimeForm) {
             // Reset form with new values when formFields change
@@ -395,7 +404,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
     }
 
     // has advance fields
-    const hasAdvanceFields = formFields.some((field) => field.advanced);
+    const hasAdvanceFields = formFields.some((field) => field.advanced && field.enabled && !field.hidden);
     const variableField = formFields.find((field) => field.key === "variable");
     const typeField = formFields.find((field) => field.key === "type");
     const dataMapperField = formFields.find((field) => field.label.includes("Data mapper"));
@@ -461,19 +470,21 @@ export const Form = forwardRef((props: FormProps, ref) => {
     // TODO: support multiple type fields
     return (
         <Provider {...contextValue}>
-            <S.Container nestedForm={nestedForm}>
+            <S.Container nestedForm={nestedForm} compact={compact}>
+                {actionButton && <S.ActionButtonContainer>{actionButton}</S.ActionButtonContainer>}
                 {infoLabel && <S.InfoLabel>{infoLabel}</S.InfoLabel>}
                 {prioritizeVariableField && variableField && (
-                    <S.CategoryRow showBorder={true}>
+                    <S.CategoryRow showBorder={!compact}>
                         {variableField &&
                             <EditorFactory
                                 field={variableField}
                                 handleOnFieldFocus={handleOnFieldFocus}
                                 autoFocus={firstEditableFieldIndex === formFields.indexOf(variableField)}
                                 visualizableFields={visualizableFields}
+                                recordTypeFields={recordTypeFields}
                             />
                         }
-                        {typeField && (
+                        {typeField && !isInferredReturnType && (
                             <EditorFactory
                                 field={typeField}
                                 openRecordEditor={openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, typeField))}
@@ -481,6 +492,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 handleOnFieldFocus={handleOnFieldFocus}
                                 handleOnTypeChange={handleOnTypeChange}
                                 visualizableFields={visualizableFields}
+                                recordTypeFields={recordTypeFields}
                             />
                         )}
                     </S.CategoryRow>
@@ -507,6 +519,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                         handleOnFieldFocus={handleOnFieldFocus}
                                         autoFocus={firstEditableFieldIndex === formFields.indexOf(field)}
                                         visualizableFields={visualizableFields}
+                                        recordTypeFields={recordTypeFields}
                                     />
                                 </S.Row>
                             );
@@ -514,7 +527,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     }
                     {hasAdvanceFields && (
                         <S.Row>
-                            {isGraphql ? 'Advance Arguments' : 'Advance Parameters'}
+                            Advanced Configurations
                             <S.ButtonContainer>
                                 {!showAdvancedOptions && (
                                     <LinkButton
@@ -551,6 +564,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                             subPanelView={subPanelView}
                                             handleOnFieldFocus={handleOnFieldFocus}
                                             visualizableFields={visualizableFields}
+                                            recordTypeFields={recordTypeFields}
                                         />
                                     </S.Row>
                                 );
@@ -559,7 +573,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                 </S.CategoryRow>
                 {onSubmit && (
                     <S.Footer>
-                        {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  Cancel </Button>}
+                        {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  {cancelText || "Cancel"} </Button>}
                         <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
                             {submitText || "Save"}
                         </S.PrimaryButton>

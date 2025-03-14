@@ -223,7 +223,7 @@ export function TypeEditor(props: TypeEditorProps) {
         } else {
             selectedKind = value as TypeKind;
         }
-
+        setEditorState(ConfigState.EDITOR_FORM);
         setSelectedTypeKind(selectedKind);
         const typeValue = selectedKind === TypeKind.CLASS ? "CLASS" : selectedKind.toUpperCase();
 
@@ -319,7 +319,8 @@ export function TypeEditor(props: TypeEditorProps) {
                             onImportJson={() => setEditorState(ConfigState.IMPORT_FROM_JSON)}
                             onImportXml={() => setEditorState(ConfigState.IMPORT_FROM_XML)}
                         />
-                        <AdvancedOptions type={type} onChange={setType} />
+                        {/* Temporary disabled till we get the LS support for closed records creation */}
+                        {/* <AdvancedOptions type={type} onChange={setType} /> */}
                     </>
                 );
             case TypeKind.ENUM:
@@ -405,7 +406,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             {isNewType && (
                                 <Dropdown
                                     id="type-selector"
-                                    label="Type"
+                                    label="Kind"
                                     value={getTypeKindLabel(selectedTypeKind, isGraphql)}
                                     items={getAvailableTypeKinds(isGraphql, selectedTypeKind).map((kind) => ({
                                         label: getTypeKindLabel(kind, isGraphql),
@@ -471,7 +472,7 @@ export function TypeEditor(props: TypeEditorProps) {
 
                                 </>
                             )}
-                            {isNewType && (
+                            {isNewType && (editorState === ConfigState.EDITOR_FORM || editorState === ConfigState.IMPORT_FROM_JSON) && (
                                 <TextFieldWrapper>
                                     <TextField
                                         label="Name"

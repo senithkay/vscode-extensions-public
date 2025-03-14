@@ -15,7 +15,7 @@ import { isTestFunctionItem } from "./discover";
 import path from "path";
 import { promises as fs } from 'fs';
 
-export function activateEditKolaTest() {
+export function activateEditBiTest() {
     // register run project tests handler
     commands.registerCommand(BI_COMMANDS.BI_EDIT_TEST_FUNCTION, async (entry: TestItem) => {
         if (!isTestFunctionItem(entry)) {

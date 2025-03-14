@@ -1401,6 +1401,17 @@ export interface CreateClassMediatorRequest {
 export interface CreateClassMediatorResponse {
     path: string;
 }
+
+export interface CreateBallerinaModuleRequest {
+    projectDirectory: string;
+    moduleName: string;
+    version: string;
+}
+
+export interface CreateBallerinaModuleResponse {
+    path: string;
+}
+
 export interface GetBackendRootUrlResponse {
     url: string;
 }
@@ -1469,6 +1480,8 @@ export interface ConnectorDependency {
     artifactId: string;
     version: string;
     connectorPath?: string;
+    isBallerinaModule?: boolean;
+    ballerinaModulePath?: string;
 }
 
 export interface UpdateConnectorRequest {
@@ -1496,6 +1509,10 @@ export interface StoreConnectorJsonResponse {
     outboundConnectors?: any[];
     inboundConnectors?: any[];
     connectors?: any[];
+}
+
+export interface LocalInboundConnectorsResponse {
+    "inbound-connector-data"?: any;
 }
 
 export interface RemoveConnectorRequest {
@@ -1626,6 +1643,16 @@ export interface DeleteArtifactRequest {
 
 export interface APIContextsResponse {
     contexts: string[]
+}
+
+export interface BuildProjectRequest {
+    buildType?: 'docker' | 'capp';
+}
+
+export interface DeployProjectRequest {
+}
+export interface DeployProjectResponse {
+    success: boolean;
 }
 
 export interface ExportProjectRequest {
@@ -1909,13 +1936,15 @@ export interface GetMediatorsRequest {
 }
 
 export interface GetMediatorsResponse {
-    [key: string]: { 
+    [key: string]: {
         items: Mediator[] | MediatorCategory[],
         isConnector?: boolean;
         isSupportCategories?: boolean;
         artifactId?: string;
         version?: string;
         connectorPath?: string;
+        isBallerinaModule?: boolean;
+        ballerinaModulePath?: string
     };
 }
 

@@ -46,18 +46,19 @@ export function activateUriHandlers(ballerinaExtInstance: BallerinaExtension) {
                     console.log("Code: " + code);
                     if (code) {
                         exchangeAuthCode(code);
-                    } else {
-                        // Handle error here
                     }
+                    console.log("Auth code not found. Ignoring");
+                    break;
                 case '/open':
                     const org = urlParams.get("org");
                     const project = urlParams.get("project");
                     const component = urlParams.get("component");
                     const technology = urlParams.get("technology");
                     const integrationType = urlParams.get("integrationType");
+                    const integrationDisplayType = urlParams.get("integrationDisplayType");
                     if (org && project && component && technology && integrationType) {
-                        commands.executeCommand('wso2.platform.open.component.src', {
-                            org, project, component, technology, integrationType
+                        commands.executeCommand('wso2.wso2-platform.open.component.src', {
+                            org, project, component, technology, integrationType, integrationDisplayType
                         });
                     } else {
                         window.showErrorMessage('Invalid component URL parameters');

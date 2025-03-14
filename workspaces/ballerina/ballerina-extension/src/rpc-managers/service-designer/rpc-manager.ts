@@ -32,6 +32,7 @@ import {
     ResourceSourceCodeResponse,
     STModification,
     ServiceDesignerAPI,
+    ServiceModel,
     ServiceModelFromCodeRequest,
     ServiceModelFromCodeResponse,
     ServiceModelRequest,
@@ -48,21 +49,22 @@ import * as fs from 'fs';
 import { existsSync, writeFileSync } from "fs";
 import * as yaml from 'js-yaml';
 import * as path from 'path';
-import { Uri, commands, window, workspace } from "vscode";
+import { Uri, commands, window, workspace, WorkspaceEdit, Position } from "vscode";
 import { StateMachine } from "../../stateMachine";
-
+import { injectAgent, injectImportIfMissing, injectAgentCode } from "../../utils";
 export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
 
+    // TODO: Remove this as its no longer used
     async getRecordST(params: RecordSTRequest): Promise<RecordSTResponse> {
         return new Promise(async (resolve) => {
-            const context = StateMachine.context();
-            const res: ProjectStructureResponse = await buildProjectStructure(context.projectUri, context.langClient);
-            res.directoryMap[DIRECTORY_MAP.TYPES].forEach(type => {
-                if (type.name === params.recordName) {
-                    resolve({ recordST: type.st as TypeDefinition });
-                }
-            });
-            resolve(null);
+            // const context = StateMachine.context();
+            // const res: ProjectStructureResponse = await buildProjectStructure(context.projectUri, context.langClient);
+            // res.directoryMap[DIRECTORY_MAP.TYPES].forEach(type => {
+            //     if (type.name === params.recordName) {
+            //         resolve({ recordST: type.st as TypeDefinition });
+            //     }
+            // });
+            // resolve(null);
         });
     }
 
@@ -138,9 +140,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
-                if (StateMachine.context().isBI) {
-                    commands.executeCommand("BI.project-explorer.refresh");
-                }
+                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -161,9 +161,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
-                if (StateMachine.context().isBI) {
-                    commands.executeCommand("BI.project-explorer.refresh");
-                }
+                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -215,18 +213,62 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 }
                 const res: ListenerSourceCodeResponse = await context.langClient.addServiceSourceCode(params);
                 const position = await this.updateSource(res, identifiers);
-                const result: SourceUpdateResponse = {
+                let result: SourceUpdateResponse = {
                     filePath: targetFile,
                     position: position
                 };
-                if (StateMachine.context().isBI) {
-                    commands.executeCommand("BI.project-explorer.refresh");
-                }
+                result = await this.injectAIAgent(params.service, result);
+                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
             }
         });
+    }
+
+    // This is a hack to inject the AI agent code into the chat service function
+    // This has to be replaced once we have a proper design for AI Agent Chat Service
+    async injectAIAgent(service: ServiceModel, result: SourceUpdateResponse): Promise<SourceUpdateResponse> {
+        // We will only inject if the typpe is ai.agent and serviceType is ChatService
+        if (service.type === "ai.agent") {
+            // Inject the import if missing
+            const importStatement = `import ballerinax/ai.agent`;
+            await injectImportIfMissing(importStatement, path.join(StateMachine.context().projectUri, `agents.bal`));
+
+            //get AgentName
+            const agentName = service.properties.basePath.value.replace("/", "");
+
+            // Inject the agent code
+            await injectAgent(agentName, StateMachine.context().projectUri);
+            // retrive the service model
+            const updatedService = await this.getServiceModelFromCode({
+                filePath: result.filePath,
+                codedata: {
+                    lineRange: {
+                        startLine: { line: result.position.startLine, offset: result.position.startColumn },
+                        endLine: { line: result.position.endLine, offset: result.position.endColumn }
+                    }
+                }
+            });
+            if (!updatedService?.service?.functions?.[0]?.codedata?.lineRange?.endLine) {
+                console.error('Unable to determine injection position: Invalid service structure');
+                return;
+            }
+            const injectionPosition = updatedService.service.functions[0].codedata.lineRange.endLine;
+            const serviceFile = path.join(StateMachine.context().projectUri, `main.bal`);
+            await injectAgentCode(agentName, serviceFile, injectionPosition);
+            const functionPosition: NodePosition = {
+                startLine: updatedService.service.functions[0].codedata.lineRange.startLine.line,
+                startColumn: updatedService.service.functions[0].codedata.lineRange.startLine.offset,
+                endLine: updatedService.service.functions[0].codedata.lineRange.endLine.line + 3,
+                endColumn: updatedService.service.functions[0].codedata.lineRange.endLine.offset
+            };
+            return {
+                filePath: result.filePath,
+                position: functionPosition
+            };
+        }
+        return result;
     }
 
     async updateServiceSourceCode(params: ServiceSourceCodeRequest): Promise<SourceUpdateResponse> {
@@ -249,9 +291,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
-                if (StateMachine.context().isBI) {
-                    commands.executeCommand("BI.project-explorer.refresh");
-                }
+                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -300,6 +340,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
+                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -321,6 +362,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: params.filePath,
                     position: position
                 };
+                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -398,11 +440,11 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                         await StateMachine.langClient().resolveMissingDependencies({
                             documentIdentifier: { uri: fileUriString },
                         });
+                        // Temp fix: ResolveMissingDependencies does not work unless we call didOpen, This needs to be fixed in the LS
+                        await StateMachine.langClient().didOpen({
+                            textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
+                        });
                     }
-                    // // Temp fix: ResolveMissingDependencies does not work uless we call didOpen, This needs to be fixed in the LS
-                    // await StateMachine.langClient().didOpen({
-                    //     textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
-                    // });
                 }
             }
         } catch (error) {
@@ -437,6 +479,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: params.filePath,
                     position: position
                 };
+                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
