@@ -448,7 +448,6 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                         {categories.query?.length === 0 && (
                             <EmptyStateContainer>
                                 <EmptyStateText>No Query fields defined</EmptyStateText>
-                                <EmptyStateSubText>Click + to add a Query field</EmptyStateSubText>
                             </EmptyStateContainer>
                         )}
                     </OperationCard>
@@ -479,7 +478,6 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                         {categories.mutation?.length === 0 && (
                             <EmptyStateContainer>
                                 <EmptyStateText>No Mutation fields defined</EmptyStateText>
-                                <EmptyStateSubText>Click + to add a Mutation field</EmptyStateSubText>
                             </EmptyStateContainer>
                         )}
                     </OperationCard>
@@ -510,7 +508,6 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                         {categories.subscription?.length === 0 && (
                             <EmptyStateContainer>
                                 <EmptyStateText>No Subscription fields defined</EmptyStateText>
-                                <EmptyStateSubText>Click + to add a Subscription field</EmptyStateSubText>
                             </EmptyStateContainer>
                         )}
                     </OperationCard>
@@ -572,9 +569,6 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                         {!serviceModel && (
                             <LoadingContainer>
                                 <ProgressRing />
-                                <Typography variant="h3" sx={{ marginTop: "16px" }}>
-                                    Loading Graphql Designer...
-                                </Typography>
                             </LoadingContainer>
                         )}
                         {serviceModel && renderOperations()}

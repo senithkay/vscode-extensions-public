@@ -23,6 +23,7 @@ export type FormField = {
     optional: boolean;
     advanced?: boolean;
     editable: boolean;
+    hidden?: boolean;
     placeholder?: string;
     documentation: string;
     value: string | any[];
@@ -41,6 +42,7 @@ export type FormField = {
     enabled: boolean;
     lineRange?: LineRange;
     metadata?: Metadata;
+    codedata?: {[key: string]: any};
 };
 
 export type ParameterValue = {
@@ -114,7 +116,7 @@ type FormCompletionConditionalProps = {
 
 type FormTypeConditionalProps = {
     types: CompletionItem[];
-    retrieveVisibleTypes: (value: string, cursorPosition: number) => Promise<void>;
+    retrieveVisibleTypes: (value: string, cursorPosition: number, typeConstraint?: string) => Promise<void>;
     getTypeHelper: (
         typeBrowserRef: RefObject<HTMLDivElement>,
         currentType: string,

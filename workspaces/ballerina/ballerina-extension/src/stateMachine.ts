@@ -5,7 +5,7 @@ import { activateBallerina } from './extension';
 import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP, SCOPE } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './features/library-browser';
 import { VisualizerWebview } from './views/visualizer/webview';
-import { commands, Uri, window, workspace, WorkspaceFolder } from 'vscode';
+import { commands, extensions, Uri, window, workspace, WorkspaceFolder } from 'vscode';
 import { notifyCurrentWebview, RPCLayer } from './RPCLayer';
 import { generateUid, getComponentIdentifier, getNodeByIndex, getNodeByName, getNodeByUid, getView } from './utils/state-machine-utils';
 import * as path from 'path';
@@ -13,7 +13,7 @@ import { extension } from './BalExtensionContext';
 import { BiDiagramRpcManager } from './rpc-managers/bi-diagram/rpc-manager';
 import { StateMachineAI } from './views/ai-panel/aiMachine';
 import { StateMachinePopup } from './stateMachinePopup';
-import { checkIsBI, fetchScope } from './utils';
+import { checkIsBallerina, checkIsBI, fetchScope } from './utils';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
@@ -86,7 +86,8 @@ const stateMachine = createMachine<MachineContext>(
                             identifier: (context, event) => event.viewLocation.identifier,
                             serviceType: (context, event) => event.viewLocation.serviceType,
                             type: (context, event) => event.viewLocation?.type,
-                            isGraphql: (context, event) => event.viewLocation?.isGraphql
+                            isGraphql: (context, event) => event.viewLocation?.isGraphql,
+                            metadata: (context, event) => event.viewLocation?.metadata
                         })
                     }
                 }
@@ -120,7 +121,7 @@ const stateMachine = createMachine<MachineContext>(
                                     identifier: (context, event) => event.data.identifier,
                                     position: (context, event) => event.data.position,
                                     syntaxTree: (context, event) => event.data.syntaxTree,
-                                    
+                                    focusFlowDiagramView: (context, event) => event.data.focusFlowDiagramView
                                 })
                             }
                         }
@@ -136,7 +137,8 @@ const stateMachine = createMachine<MachineContext>(
                                     identifier: (context, event) => event.viewLocation.identifier,
                                     serviceType: (context, event) => event.viewLocation.serviceType,
                                     type: (context, event) => event.viewLocation?.type,
-                                    isGraphql: (context, event) => event.viewLocation?.isGraphql
+                                    isGraphql: (context, event) => event.viewLocation?.isGraphql,
+                                    metadata: (context, event) => event.viewLocation?.metadata
                                 })
                             },
                             VIEW_UPDATE: {
@@ -206,10 +208,11 @@ const stateMachine = createMachine<MachineContext>(
                         undoRedoManager = new UndoRedoManager();
                         const webview = VisualizerWebview.currentPanel?.getWebview();
                         if (webview && (context.isBI || context.view === MACHINE_VIEW.BIWelcome)) {
-                            webview.title = "Kola";
+                            const biExtension = extensions.getExtension('wso2.ballerina-integrator');
+                            webview.title = biExtension ? "Ballerina Integrator" : "Ballerina Visualizer";
                             webview.iconPath = {
-                                light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'dark-icon.svg')),
-                                dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'light-icon.svg'))
+                                light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', biExtension ? 'light-icon.svg' : 'ballerina.svg')),
+                                dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', biExtension ? 'dark-icon.svg' : 'ballerina-inverse.svg'))
                             };
                         }
                         resolve(true);
@@ -225,13 +228,6 @@ const stateMachine = createMachine<MachineContext>(
             return new Promise(async (resolve, reject) => {
                 if (!context.view && context.langClient) {
                     if (!context.position || ("groupId" in context.position)) {
-                        if (context.isBI) {
-                            const entryPoints = (await new BiDiagramRpcManager().getProjectStructure()).directoryMap[DIRECTORY_MAP.SERVICES].length;
-                            if (entryPoints === 0) {
-                                history.push({ location: { view: MACHINE_VIEW.Overview, documentUri: context.documentUri } });
-                                return resolve();
-                            }
-                        }
                         history.push({ location: { view: MACHINE_VIEW.Overview, documentUri: context.documentUri } });
                         return resolve();
                     }
@@ -397,16 +393,16 @@ export const StateMachine = {
 
 export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation, resetHistory = false) {
     if (resetHistory) {
-        history.clear();
+        history?.clear();
     }
-    stateService.send({ type: type, viewLocation: viewLocation});
+    stateService.send({ type: type, viewLocation: viewLocation });
 }
 
-export function updateView() {
+export function updateView(refreshTreeView?: boolean) {
     const historyStack = history.get();
     const lastView = historyStack[historyStack.length - 1];
     stateService.send({ type: "VIEW_UPDATE", viewLocation: lastView ? lastView.location : { view: "Overview" } });
-    if (StateMachine.context().isBI) {
+    if (refreshTreeView) {
         commands.executeCommand("BI.project-explorer.refresh");
     }
     notifyCurrentWebview();
@@ -427,30 +423,33 @@ async function checkForProjects(): Promise<{ isBI: boolean, projectPath: string,
 }
 
 async function handleMultipleWorkspaces(workspaceFolders: readonly WorkspaceFolder[]) {
-    const biProjects = workspaceFolders.filter(folder => checkIsBI(folder.uri));
+    const balProjects = workspaceFolders.filter(folder => checkIsBallerina(folder.uri));
 
-    if (biProjects.length > 1) {
-        const projectPaths = biProjects.map(folder => folder.uri.fsPath);
+    if (balProjects.length > 1) {
+        const projectPaths = balProjects.map(folder => folder.uri.fsPath);
         const selectedProject = await window.showQuickPick(projectPaths, {
             placeHolder: 'Select a project to load the Ballerina Integrator'
         });
+
         const isBI = checkIsBI(Uri.file(selectedProject));
-        const scope = fetchScope(Uri.file(selectedProject));
+        const scope = isBI && fetchScope(Uri.file(selectedProject));
         setBIContext(isBI);
         return { isBI, projectPath: selectedProject, scope };
+    } else if (balProjects.length === 1) {
+        const isBI = checkIsBI(balProjects[0].uri);
+        const scope = isBI && fetchScope(balProjects[0].uri);
+        setBIContext(isBI);
+        return { isBI, projectPath: balProjects[0].uri.fsPath, scope };
     }
 
-    const isBI = biProjects.length > 0;
-    const biProject = biProjects[0];
-    const scope = fetchScope(biProject.uri);
-    setBIContext(isBI);
-    return { isBI, projectPath: isBI ? biProject.uri.fsPath : '', scope };
+    return { isBI: false, projectPath: '' };
 }
 
 async function handleSingleWorkspace(workspaceURI: any) {
-    const isBI = checkIsBI(workspaceURI);
+    const isBallerina = checkIsBallerina(workspaceURI);
+    const isBI = isBallerina && checkIsBI(workspaceURI);
     const scope = fetchScope(workspaceURI);
-    const projectPath = isBI ? workspaceURI.fsPath : "";
+    const projectPath = isBallerina ? workspaceURI.fsPath : "";
 
     setBIContext(isBI);
     if (!isBI) {

@@ -425,14 +425,19 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
 
                         {displayedLocalConnectors && displayedLocalConnectors.map((connector: any) => (
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                {!allowedConnectionTypes &&
-                                    <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: '10px' }}>
-                                        <Typography variant="h4">{capitalizeFirstChar(connector.name)} Connector</Typography>
-                                        <VersionTag>{connector.version}</VersionTag>
-                                    </div>
-                                }
+                                {!allowedConnectionTypes && (
+                                    <>
+                                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: '10px' }}>
+                                            <Typography variant="h4">{capitalizeFirstChar(connector.name)} Connector</Typography>
+                                            <VersionTag>{connector.version}</VersionTag>
+                                        </div>
+                                        {Object.entries(connector.connectionUiSchema).length === 0 && (
+                                            <div style={{ color: Colors.SECONDARY_TEXT }}>No connections available</div>
+                                        )}
+                                    </>
+                                )}
                                 <>
-                                    {Object.entries(connector.connectionUiSchema).length > 0 ? (
+                                    {Object.entries(connector.connectionUiSchema).length > 0 && (
                                         <SampleGrid>
                                             {Object.entries(connector.connectionUiSchema).map(([connectionType, connectionData]) => (
                                                 (allowedConnectionTypes && !allowedConnectionTypes.some(
@@ -461,8 +466,6 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                                                     </ComponentCard>
                                                 )))}
                                         </SampleGrid>
-                                    ) : (
-                                        <div style={{ color: Colors.SECONDARY_TEXT}}>No connections available</div>
                                     )}
                                 </>
                             </div>

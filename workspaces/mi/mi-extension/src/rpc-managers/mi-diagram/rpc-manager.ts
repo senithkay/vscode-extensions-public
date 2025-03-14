@@ -250,6 +250,7 @@ import {
     GetArtifactTypeRequest,
     GetArtifactTypeResponse,
     ExtendedTextEdit,
+    LocalInboundConnectorsResponse,
     BuildProjectRequest,
     DeployProjectRequest,
     DeployProjectResponse,
@@ -609,8 +610,17 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             let expectedFileName = `${apiName}${version ? `_v${version}` : ''}`;
             if (path.basename(documentUri).split('.')[0] !== expectedFileName) {
+                const originalFileName = `${path.basename(documentUri, path.extname(documentUri))}.yaml`;
+                const originalFilePath = path.join(path.dirname(documentUri), originalFileName);
                 await this.renameFile({ existingPath: documentUri, newPath: path.join(path.dirname(documentUri), `${expectedFileName}.xml`) });
                 documentUri = path.join(path.dirname(documentUri), `${expectedFileName}.xml`);
+                // Path to old API file
+                const projectDir = workspace.getWorkspaceFolder(Uri.file(originalFilePath))?.uri.fsPath;
+                const oldAPIXMLPath = path.join(projectDir ?? "", 'src', 'main', 'wso2mi', 'resources', 'api-definitions', originalFileName);
+                // Delete the old API from resources folder
+                if (fs.existsSync(oldAPIXMLPath)) {
+                    fs.unlinkSync(oldAPIXMLPath);
+                }
             }
 
             await this.applyEdit({ text: sanitizedXmlData, documentUri, range: apiRange });
@@ -5142,6 +5152,14 @@ ${keyValuesXML}`;
                 const content = document.getText();
                 undoRedo.addModification(content);
             }
+        });
+    }
+
+    async getLocalInboundConnectors(): Promise<LocalInboundConnectorsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            let response = await langClient.getLocalInboundConnectors();
+            resolve(response);
         });
     }
 

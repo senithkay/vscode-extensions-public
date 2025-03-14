@@ -11,7 +11,9 @@ export interface ConfigProperty {
     name: string;
     type: string;
     property: Property;
-    required: boolean;
+    required?: boolean;
+    orgKey?: string;  
+    pkgKey?: string;
 }
 
 export interface Property {

@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { ComponentInfo } from "../interfaces/ballerina";
 import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse } from "../interfaces/bi";
-import { BallerinaProjectComponents, ExtendedLangClientInterface, SyntaxTree } from "../interfaces/extended-lang-client";
+import { BallerinaProjectComponents, ExtendedLangClientInterface } from "../interfaces/extended-lang-client";
 import { CDModel } from "../interfaces/component-diagram";
 import { URI, Utils } from "vscode-uri";
 import path from "path";
@@ -19,6 +19,7 @@ import { ServiceModel } from "../interfaces/service";
 
 export async function buildProjectStructure(projectDir: string, langClient: ExtendedLangClientInterface): Promise<ProjectStructureResponse> {
     const result: ProjectStructureResponse = {
+        projectName: "",
         directoryMap: {
             [DIRECTORY_MAP.SERVICES]: [],
             [DIRECTORY_MAP.AUTOMATION]: [],
@@ -32,7 +33,7 @@ export async function buildProjectStructure(projectDir: string, langClient: Exte
             [DIRECTORY_MAP.DATA_MAPPERS]: [],
             [DIRECTORY_MAP.ENUMS]: [],
             [DIRECTORY_MAP.CLASSES]: [],
-            [DIRECTORY_MAP.PROMPT_AS_CODE]: []
+            [DIRECTORY_MAP.NATURAL_FUNCTIONS]: []
         }
     };
     const components = await langClient.getBallerinaProjectComponents({
@@ -46,7 +47,6 @@ export async function buildProjectStructure(projectDir: string, langClient: Exte
 }
 
 async function traverseComponents(components: BallerinaProjectComponents, response: ProjectStructureResponse, langClient: ExtendedLangClientInterface, designModel: CDModel) {
-
     const designServices: ComponentInfo[] = [];
 
     if (designModel) {
@@ -90,17 +90,19 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
     }
 
     for (const pkg of components.packages) {
+        response.projectName = pkg.name;
         for (const module of pkg.modules) {
             response.directoryMap[DIRECTORY_MAP.AUTOMATION].push(...await getComponents(langClient, module.automations, pkg.filePath, "task", DIRECTORY_MAP.AUTOMATION));
             response.directoryMap[DIRECTORY_MAP.SERVICES].push(...await getComponents(langClient, designServices.length > 0 ? designServices : module.services, pkg.filePath, "http-service", DIRECTORY_MAP.SERVICES));
-            response.directoryMap[DIRECTORY_MAP.LISTENERS].push(...await getComponents(langClient, module.listeners, pkg.filePath, "http-service", DIRECTORY_MAP.LISTENERS));
-            response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(...await getComponents(langClient, module.functions, pkg.filePath, "function"));
+            response.directoryMap[DIRECTORY_MAP.LISTENERS].push(...await getComponents(langClient, module.listeners, pkg.filePath, "http-service", DIRECTORY_MAP.LISTENERS, designModel));
+            response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(...await getComponents(langClient, module.functions, pkg.filePath, "function", DIRECTORY_MAP.FUNCTIONS));
             response.directoryMap[DIRECTORY_MAP.CONNECTIONS].push(...await getComponents(langClient, module.moduleVariables, pkg.filePath, "connection", DIRECTORY_MAP.CONNECTIONS));
             response.directoryMap[DIRECTORY_MAP.TYPES].push(...await getComponents(langClient, module.types, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.RECORDS].push(...await getComponents(langClient, module.records, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.ENUMS].push(...await getComponents(langClient, module.enums, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.CLASSES].push(...await getComponents(langClient, module.classes, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.CONFIGURATIONS].push(...await getComponents(langClient, module.configurableVariables, pkg.filePath, "config"));
+            response.directoryMap[DIRECTORY_MAP.NATURAL_FUNCTIONS].push(...await getComponents(langClient, module.naturalFunctions, pkg.filePath, "function"));
         }
     }
 
@@ -108,63 +110,82 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
     const functions = response.directoryMap[DIRECTORY_MAP.FUNCTIONS];
     response.directoryMap[DIRECTORY_MAP.FUNCTIONS] = [];
     for (const func of functions) {
-        const st = func.st;
-        if (st && STKindChecker.isFunctionDefinition(st) && STKindChecker.isExpressionFunctionBody(st.functionBody)) {
-            func.icon = "dataMapper";
-            response.directoryMap[DIRECTORY_MAP.DATA_MAPPERS].push(func);
-        } else {
-            response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(func);
+        try {
+            const st = await langClient.getSTByRange({
+                documentIdentifier: { uri: URI.file(func.path).toString() },
+                lineRange: {
+                    start: {
+                        line: func.position.startLine,
+                        character: func.position.startColumn
+                    },
+                    end: {
+                        line: func.position.endLine,
+                        character: func.position.endColumn
+                    }
+                }
+            }) as STNode;
+            if (st && STKindChecker.isFunctionDefinition(st) && STKindChecker.isExpressionFunctionBody(st.functionBody)) {
+                func.icon = "dataMapper";
+                response.directoryMap[DIRECTORY_MAP.DATA_MAPPERS].push(func);
+            } else {
+                response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(func);
+            }
+        } catch (error) {
+            console.log("Data mapper ST fetch failed:", error);
         }
+
     }
 }
 
-async function getComponents(langClient: ExtendedLangClientInterface, components: ComponentInfo[], projectPath: string, icon: string, dtype?: DIRECTORY_MAP): Promise<ProjectStructureArtifactResponse[]> {
+async function getComponents(langClient: ExtendedLangClientInterface, components: ComponentInfo[], projectPath: string, icon: string, dtype?: DIRECTORY_MAP, designModel?: CDModel): Promise<ProjectStructureArtifactResponse[]> {
+    if (!components) {
+        return [];
+    }
     const entries: ProjectStructureArtifactResponse[] = [];
     let compType = "HTTP";
     let serviceModel: ServiceModel = undefined;
     for (const comp of components) {
+        if (dtype === DIRECTORY_MAP.FUNCTIONS && comp.name === "main") {
+            continue; // Skip main function
+        }
         const componentFile = Utils.joinPath(URI.parse(projectPath), comp.filePath).fsPath;
-        let stNode: SyntaxTree;
-        try {
-            stNode = await langClient.getSTByRange({
-                documentIdentifier: { uri: URI.file(componentFile).toString() },
-                lineRange: {
-                    start: {
-                        line: comp.startLine,
-                        character: comp.startColumn
-                    },
-                    end: {
-                        line: comp.endLine,
-                        character: comp.endColumn
-                    }
-                }
-            }) as SyntaxTree;
 
-            // Get trigger model if available
-            const lineRange: LineRange = { startLine: { line: comp.startLine, offset: comp.startColumn }, endLine: { line: comp.endLine, offset: comp.endColumn } };
-            const serviceResponse = await langClient.getServiceModelFromCode({ filePath: componentFile, codedata: { lineRange } });
-            if (serviceResponse?.service) {
-                serviceModel = serviceResponse.service;
-                const triggerType = serviceModel.displayName;
-                const labelName = serviceModel.properties['name'].value;
-                compType = triggerType;
-                comp.name = `${triggerType} - ${labelName}`
-                icon = `bi-${serviceModel.moduleName}`;
+        if (dtype === DIRECTORY_MAP.SERVICES) {
+            try {
+                const lineRange: LineRange = { startLine: { line: comp.startLine, offset: comp.startColumn }, endLine: { line: comp.endLine, offset: comp.endColumn } };
+                const serviceResponse = await langClient.getServiceModelFromCode({ filePath: componentFile, codedata: { lineRange } });
+                if (serviceResponse?.service) {
+                    serviceModel = serviceResponse.service;
+                    const triggerType = serviceModel.displayName;
+                    const labelName = serviceModel.properties['name'].value;
+                    compType = triggerType;
+                    comp.name = `${triggerType} - ${labelName}`
+                    icon = `bi-${serviceModel.moduleName}`;
+                }
+            } catch (error) {
+                console.log(error);
             }
-        } catch (error) {
-            console.log(error);
         }
 
         let iconValue;
-        if (serviceModel?.listenerProtocol === "graphql") {
-            iconValue = "bi-graphql";
+        if (serviceModel?.listenerProtocol) {
+            iconValue = getCustomEntryNodeIcon(serviceModel?.listenerProtocol);
         } else {
             iconValue = comp.name.includes('-') && !serviceModel ? `${comp.name.split('-')[0]}-api` : icon;
+        }
+
+        if (designModel && dtype === DIRECTORY_MAP.LISTENERS) {
+            const listener = designModel.listeners.find(listener => listener.symbol === comp.name);
+            console.log("===>>> listener", { listener });
+            if (listener) {
+                iconValue = getCustomEntryNodeIcon(getTypePrefix(listener.type));
+            }
         }
 
         if (!comp.name && serviceModel) {
             comp.name = `${serviceModel?.listenerProtocol}:Service`
         }
+
 
         const fileEntry: ProjectStructureArtifactResponse = {
             name: dtype === DIRECTORY_MAP.SERVICES ? comp.name || comp.filePath.replace(".bal", "") : comp.name,
@@ -172,7 +193,6 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
             type: compType,
             icon: iconValue,
             context: comp.name,
-            st: stNode.syntaxTree,
             serviceModel: serviceModel,
             resources: comp?.resources ? await getComponents(langClient, comp?.resources, projectPath, "") : [],
             position: {
@@ -186,9 +206,7 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
             fileEntry.name = "automation"
         }
         if (dtype === DIRECTORY_MAP.CONNECTIONS) {
-            if (stNode.syntaxTree?.typeData?.isEndpoint) {
-                entries.push(fileEntry);
-            }
+            entries.push(fileEntry);
         } else {
             entries.push(fileEntry);
         }
@@ -196,3 +214,40 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
     }
     return entries;
 }
+
+function getCustomEntryNodeIcon(type: string) {
+    switch (type) {
+        case "tcp":
+            return "bi-tcp";
+        case "agent":
+            return "bi-ai-agent";
+        case "kafka":
+            return "bi-kafka";
+        case "rabbitmq":
+            return "bi-rabbitmq";
+        case "nats":
+            return "bi-nats";
+        case "mqtt":
+            return "bi-mqtt";
+        case "grpc":
+            return "bi-grpc";
+        case "graphql":
+            return "bi-graphql";
+        case "java.jms":
+            return "bi-java";
+        case "github":
+            return "bi-github";
+        case "salesforce":
+            return "bi-salesforce";
+        case "asb":
+            return "bi-asb";
+        default:
+            return "bi-http-service";
+    }
+}
+
+const getTypePrefix = (type: string): string => {
+    if (!type) return "";
+    const parts = type.split(":");
+    return parts.length > 1 ? parts[0] : type;
+};

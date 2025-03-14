@@ -33,6 +33,7 @@ import { registerInlineDataMapperRpcHandlers } from './rpc-managers/inline-data-
 import { registerTestManagerRpcHandlers } from './rpc-managers/test-manager/rpc-handler';
 import { registerIcpServiceRpcHandlers } from './rpc-managers/icp-service/rpc-handler';
 import { ballerinaExtInstance } from './core';
+import { registerAgentChatRpcHandlers } from './rpc-managers/agent-chat/rpc-handler';
 
 export class RPCLayer {
     static _messenger: Messenger = new Messenger();
@@ -76,6 +77,7 @@ export class RPCLayer {
         registerTestManagerRpcHandlers(RPCLayer._messenger);
         registerAiAgentRpcHandlers(RPCLayer._messenger);
         registerIcpServiceRpcHandlers(RPCLayer._messenger);
+        registerAgentChatRpcHandlers(RPCLayer._messenger);
 
         // ----- AI Webview RPC Methods
         registerAiPanelRpcHandlers(RPCLayer._messenger);
@@ -104,10 +106,12 @@ async function getContext(): Promise<VisualizerLocation> {
             serviceType: context.serviceType,
             type: context.type,
             isGraphql: context.isGraphql,
+            focusFlowDiagramView: context.focusFlowDiagramView,
             metadata: {
                 haveLS: StateMachine.langClient() && true,
                 recordFilePath: path.join(context.projectUri, "types.bal"),
                 enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
+                target: context.metadata?.target,
             },
             scope: context.scope,
         });

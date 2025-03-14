@@ -33,6 +33,7 @@ export function ResourceForm(props: ResourceFormProps) {
 
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [functionModel, setFunctionModel] = useState<FunctionModel>(model);
+	const [isPathValid, setIsPathValid] = useState<boolean>(false);
 
 	useEffect(() => {
 		console.log("Function Model", model);
@@ -46,6 +47,10 @@ export function ResourceForm(props: ResourceFormProps) {
 		};
 		setFunctionModel(updatedFunctionModel);
 		console.log("Path,Method Change: ", updatedFunctionModel);
+	}
+
+	const onResourcePathError = (hasErros: boolean) => {
+		setIsPathValid(!hasErros);
 	}
 
 	const handleParamChange = (params: ParameterModel[]) => {
@@ -68,6 +73,7 @@ export function ResourceForm(props: ResourceFormProps) {
 	};
 
 	const handleSave = () => {
+		console.log("Saved Resource", functionModel);
 		onSave(functionModel);
 	}
 
@@ -75,13 +81,14 @@ export function ResourceForm(props: ResourceFormProps) {
 		<>
 			{isLoading && <ProgressIndicator id="resource-loading-bar" />}
 			<SidePanelBody>
-				<ResourcePath method={functionModel.accessor} path={functionModel.name} onChange={onPathChange} />
+				<ResourcePath method={functionModel.accessor} path={functionModel.name} onChange={onPathChange} 
+				onError={onResourcePathError} />
 				<Divider />
 				<Parameters showPayload={(functionModel.accessor.value && functionModel.accessor.value.toUpperCase() !== "GET")} parameters={functionModel.parameters} onChange={handleParamChange} schemas={functionModel.schema} />
 				<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Responses</Typography>
 				<ResourceResponse method={functionModel.accessor.value.toUpperCase() as HTTP_METHOD} response={functionModel.returnType} onChange={handleResponseChange} />
 				<ActionButtons
-					primaryButton={{ text: "Save", onClick: handleSave, tooltip: "Save" }}
+					primaryButton={{ text: "Save", onClick: handleSave, tooltip: "Save", disabled: !isPathValid }}
 					secondaryButton={{ text: "Cancel", onClick: onClose, tooltip: "Cancel" }}
 					sx={{ justifyContent: "flex-end" }}
 				/>

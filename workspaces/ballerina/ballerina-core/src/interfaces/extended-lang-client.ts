@@ -341,6 +341,7 @@ export interface BallerinaProject {
     version?: string;
     author?: string;
     packageName?: string;
+    orgName?: string;
 }
 
 export interface BallerinaPackagesParams {
@@ -564,6 +565,7 @@ export interface PartialST {
 
 export interface OpenAPIConverterParams {
     documentFilePath: string;
+    enableBalExtension?: boolean;
 }
 
 export interface OpenAPISpec {
@@ -880,6 +882,7 @@ export interface SignatureHelpResponse {
 export interface VisibleTypesRequest {
     filePath: string;
     position: LinePosition;
+    typeConstraint?: string;
 }
 
 export interface VisibleTypeItem {
@@ -1139,6 +1142,7 @@ export interface Member {
     name?: string;
     docs?: string;
     defaultValue?: string;
+    optional?: boolean;
 }
 
 export interface GetGraphqlTypeRequest {
@@ -1164,6 +1168,19 @@ export interface UpdateTypeRequest {
     filePath: string;
     description: string;
     type: Type;
+}
+
+export interface UpdateTypesRequest {
+    filePath: string;
+    types: Type[];
+}
+
+export interface UpdateTypesResponse {
+    textEdits: {
+        [filePath: string]: TextEdit[];
+    };
+    errorMsg?: string;
+    stacktrace?: string;
 }
 
 export interface GetTypesResponse {
@@ -1319,6 +1336,7 @@ export interface AIGentToolsRequest {
     filePath: string;
     flowNode: FlowNode;
     toolName: string;
+    description: string;
     connection: string;
 }
 
@@ -1334,6 +1352,12 @@ export interface AIConnectorActionsRequest {
 }
 export interface AIConnectorActionsResponse {
     actions: AvailableNode[];
+}
+
+// <-------- Deployment Related ------->
+
+export interface DeploymentResponse {
+    isCompleted: boolean;
 }
 
 // <------------ BI INTERFACES --------->

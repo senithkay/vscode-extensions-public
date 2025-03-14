@@ -15,7 +15,7 @@ import { CardGrid, PanelViewMore, Title, TitleWrapper } from './styles';
 import { BodyText } from '../../styles';
 import ButtonCard from '../../../components/ButtonCard';
 import { useVisualizerContext } from '../../../Context';
-import { componentListItemTooltip } from './componentListUtils';
+import { OutOfScopeComponentTooltip } from './componentListUtils';
 
 interface FileIntegrationPanelProps {
     scope: SCOPE;
@@ -61,7 +61,7 @@ export function FileIntegrationPanel(props: FileIntegrationPanelProps) {
         <PanelViewMore disabled={isDisabled}>
             <TitleWrapper>
                 <Title variant="h2">File Integration</Title>
-                <BodyText>Select the file integration type that best suits your project's needs.</BodyText>
+                <BodyText>Create an integration that can be triggered by the availability of files in a location.</BodyText>
             </TitleWrapper>
             <CardGrid>
                 {triggers.local
@@ -86,7 +86,7 @@ export function FileIntegrationPanel(props: FileIntegrationPanelProps) {
                                     handleOnSelect(item);
                                 }}
                                 disabled={isDisabled}
-                                tooltip={componentListItemTooltip(isDisabled)}
+                                tooltip={isDisabled ? OutOfScopeComponentTooltip : ""}
                             />
                         );
                     })}

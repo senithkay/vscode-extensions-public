@@ -24,16 +24,16 @@ jobs:
           API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}
           token: ${{ secrets.PUBLISH_PAT }}
 
-      - name: Notification - KolaB
+      - name: Notification - Ballerina
         uses: ./.github/actions/dailyBuildNotification
         with:
-          title: KolaB
-          fileName: kolab
+          title: Ballerina
+          fileName: ballerina
           chatAPI: ${{ secrets.EGGPLANT_EXT_CHAT_API }}
 
-      - name: Notification - Kola
+      - name: Notification - Ballerina Integrator
         uses: ./.github/actions/dailyBuildNotification
         with:
-          title: Kola
-          fileName: kola-extension
+          title: Ballerina Integrator
+          fileName: ballerina-integrator
           chatAPI: ${{ secrets.EGGPLANT_EXT_CHAT_API }}

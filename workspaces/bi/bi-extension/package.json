@@ -1,9 +1,10 @@
 {
-    "name": "kola-extension",
-    "displayName": "Kola",
-    "description": "Project Kola.",
-    "version": "0.4.7",
+    "name": "ballerina-integrator",
+    "displayName": "Ballerina Integrator",
+    "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
+    "version": "0.9.1",
     "publisher": "wso2",
+    "icon": "resources/images/wso2-ballerina-integrator-logo.png",
     "repository": {
         "url": "http://repo.url"
     },
@@ -18,27 +19,27 @@
     ],
     "main": "./out/extension",
     "extensionDependencies": [
-        "wso2.kolab"
+        "wso2.ballerina"
     ],
     "contributes": {
         "viewsContainers": {
             "activitybar": [
                 {
-                    "id": "kola-integrator",
-                    "title": "Kola Integrator",
-                    "icon": "$(circuit-board)"
+                    "id": "ballerina-integrator",
+                    "title": "Ballerina Integrator",
+                    "icon": "assets/icon.svg"
                 }
             ]
         },
         "viewsWelcome": [
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to Kola Integrator. You can open a folder containing a Kola integration or create a new integration.\n[Open Kola Integration](command:vscode.openFolder)\n[Create New Integration](command:kolab.open.bi.welcome)\nTo learn more about how to use Kola Integrator in VS Code [read our docs](https://wso2.github.io/docs-kola/).",
+                "contents": "Welcome to Ballerina Integrator. You can open a folder containing a Ballerina integration or create a new integration.\n[Open Ballerina Integration](command:vscode.openFolder)\n[Create New Integration](command:ballerina.open.bi.new)\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://wso2.github.io/docs-ballerina-integrator/).",
                 "when": "BI.status == 'unknownProject'"
             },
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to Kola Integrator! The Kola distribution is required but not found. [Set up Kola distribution](command:kolab.open.bi.welcome) to get started.",
+                "contents": "Welcome to WSO2 Ballerina Integrator! The WSO2 Ballerina distribution is required but not found. [Set up WSO2 Ballerina distribution](command:ballerina.open.bi.welcome) to get started.",
                 "when": "BI.status == 'noLS'"
             },
             {
@@ -48,7 +49,7 @@
             }
         ],
         "views": {
-            "kola-integrator": [
+            "ballerina-integrator": [
                 {
                     "id": "BI.project-explorer",
                     "name": ""
@@ -58,7 +59,7 @@
         "menus": {
             "view/item/context": [
                 {
-                    "command": "kolab.show.visualizer",
+                    "command": "ballerina.show.visualizer",
                     "when": "view == BI.project-explorer && viewItem == bi-project",
                     "group": "inline"
                 },
@@ -69,7 +70,7 @@
                 },
                 {
                     "command": "BI.project-explorer.delete",
-                    "when": "view == BI.project-explorer && viewItem == connection || viewItem == service || viewItem == function || viewItem == automation || viewItem == type || viewItem == configuration || viewItem == dataMapper",
+                    "when": "view == BI.project-explorer && viewItem == connection || viewItem == listener || viewItem == service || viewItem == function || viewItem == automation || viewItem == type || viewItem == configuration || viewItem == dataMapper || viewItem == naturalFunction",
                     "group": "inline"
                 },
                 {
@@ -95,6 +96,11 @@
                 {
                     "command": "BI.project-explorer.add-data-mapper",
                     "when": "view == BI.project-explorer && viewItem == dataMappers",
+                    "group": "inline"
+                },
+                {
+                    "command": "BI.project-explorer.add-natural-function",
+                    "when": "view == BI.project-explorer && viewItem == naturalFunctions",
                     "group": "inline"
                 }
             ],
@@ -126,7 +132,7 @@
         "lint": "eslint src --ext ts",
         "test": "node ./out/test/runTest.js",
         "build": "pnpm run compile && pnpm run lint && pnpm run postbuild",
-        "package": "vsce package --no-dependencies",
+        "package": "vsce package --no-dependencies --pre-release",
         "copyFonts": "copyfiles -f ./node_modules/@wso2-enterprise/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
         "rebuild": "pnpm run clean && pnpm run compile && pnpm run postbuild",
         "postbuild": "pnpm run copyFonts && pnpm run package && pnpm run copyVSIX",

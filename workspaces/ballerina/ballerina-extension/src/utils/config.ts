@@ -10,6 +10,8 @@
 import { SCOPE } from '@wso2-enterprise/ballerina-core';
 import { BallerinaExtension } from '../core';
 import { WorkspaceConfiguration, workspace, Uri } from 'vscode';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export enum VERSION {
     BETA = 'beta',
@@ -24,7 +26,7 @@ interface BallerinaPluginConfig extends WorkspaceConfiguration {
 }
 
 export function getPluginConfig(): BallerinaPluginConfig {
-    return workspace.getConfiguration('kolab');
+    return workspace.getConfiguration('ballerina');
 }
 
 export function isWindows(): boolean {
@@ -71,7 +73,7 @@ export function isSupportedSLVersion(ballerinaExtInstance: BallerinaExtension, m
 }
 
 export function checkIsBI(uri: Uri): boolean {
-    const config = workspace.getConfiguration('kolab', uri);
+    const config = workspace.getConfiguration('ballerina', uri);
     const inspected = config.inspect<boolean>('isBI');
 
     if (inspected) {
@@ -85,8 +87,13 @@ export function checkIsBI(uri: Uri): boolean {
     return false; // Return false if isBI is not set
 }
 
+export function checkIsBallerina(uri: Uri): boolean {
+    const ballerinaTomlPath = path.join(uri.fsPath, 'Ballerina.toml');
+    return fs.existsSync(ballerinaTomlPath);
+}
+
 export function fetchScope(uri: Uri): SCOPE {
-    const config = workspace.getConfiguration('kolab', uri);
+    const config = workspace.getConfiguration('ballerina', uri);
     const inspected = config.inspect<SCOPE>('scope');
 
     if (inspected) {
