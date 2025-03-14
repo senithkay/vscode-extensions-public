@@ -47,7 +47,7 @@ import {
     CurrentBreakpointsResponse,
     DIRECTORY_MAP,
     DeploymentResponse,
-    DevantComponentResponse,
+    DevantComponent,
     EVENT_TYPE,
     EndOfFileRequest,
     ExpressionCompletionsRequest,
@@ -1404,7 +1404,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         return { mentions: recordNames };
     }
 
-    async getDevantComponent(): Promise<DevantComponentResponse | undefined> {
+    async getDevantComponent(): Promise<DevantComponent | undefined> {
         // get project root from state machine 
         // find the repo root from the project root
         // read .choreo/context.yaml in repo root 

@@ -28,7 +28,8 @@
         "onCommand:ballerina.showExamples",
         "workspaceContains:**/Ballerina.toml",
         "onNotebook:ballerina-notebook",
-        "onUri"
+        "onUri",
+        "onCommand:BI.notify-deployment-completion"
     ],
     "extensionDependencies": [
         "anweber.httpbook",
