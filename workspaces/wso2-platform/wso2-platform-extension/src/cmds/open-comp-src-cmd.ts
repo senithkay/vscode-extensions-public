@@ -36,9 +36,9 @@ export function openCompSrcCommand(context: ExtensionContext) {
 						let selectedOrg: Organization;
 						if (typeof params?.org === "string") {
 							selectedOrg =
-								userInfo.organizations.find((item) => item.handle === params.org || item.name === params.org) ??
+								userInfo.organizations.find((item) => item.handle === params?.org || item.name === params?.org) ??
 								(await selectOrg(userInfo, "Select organization"));
-						} else if (params.org) {
+						} else if (params?.org) {
 							selectedOrg = params?.org;
 						} else {
 							selectedOrg = await selectOrg(userInfo, "Select organization");
@@ -56,7 +56,7 @@ export function openCompSrcCommand(context: ExtensionContext) {
 									`Loading projects from '${selectedOrg.name}'`,
 									`Select the project from '${selectedOrg.name}', that needs to be cloned`,
 								));
-						} else if (params.project) {
+						} else if (params?.project) {
 							selectedProject = params?.project;
 						} else {
 							selectedProject = await selectProject(
