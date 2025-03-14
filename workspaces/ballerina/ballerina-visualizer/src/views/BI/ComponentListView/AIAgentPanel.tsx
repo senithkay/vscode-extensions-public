@@ -46,7 +46,6 @@ export function AIAgentPanel(props: AIAgentPanelProps) {
                     onClick={handleClick}
                     disabled={isDisabled}
                     tooltip={isDisabled ? OutOfScopeComponentTooltip : ""}
-                    isBeta
                 />
             </CardGrid>
         </PanelViewMore>
