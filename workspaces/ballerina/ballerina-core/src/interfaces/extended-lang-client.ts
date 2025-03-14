@@ -1364,6 +1364,47 @@ export interface AIConnectorActionsResponse {
     actions: AvailableNode[];
 }
 
+export type OpenAPIClientGenerationRequest = {
+    openApiContractPath: string;
+    projectPath: string;
+    module: string;
+}
+
+interface OpenAPIClientSource {
+    isModuleExists: boolean;
+    textEditsMap: {
+        [key: string]: TextEdit[];
+    };
+}
+
+export type OpenAPIClientGenerationResponse = {
+    source: OpenAPIClientSource;
+}
+
+export type OpenAPIGeneratedModulesRequest = {
+    projectPath: string;
+}
+
+export type OpenAPIGeneratedModulesResponse = {
+    modules: string[];
+}
+
+export type OpenAPIClientDeleteRequest = {
+    projectPath: string;
+    module: string;
+}
+
+export type OpenAPIClientDeleteData = {
+    filesToDelete: string[];
+    textEditsMap: {
+        [key: string]: TextEdit[];
+    };
+}
+
+export type OpenAPIClientDeleteResponse = {
+    deleteData: OpenAPIClientDeleteData
+}
+
 // <-------- Deployment Related ------->
 
 export interface DeploymentResponse {
@@ -1396,6 +1437,7 @@ export interface BIInterface extends BaseLangClientInterface {
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
     getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
     getExpressionDiagnostics: (params: ExpressionDiagnosticsRequest) => Promise<ExpressionDiagnosticsResponse>;
+    getOpenApiGeneratedModules: (params: OpenAPIGeneratedModulesRequest) => Promise<OpenAPIGeneratedModulesResponse>
 
     // New Service Designer APIs
     getTriggerModels: (params: TriggerModelsRequest) => Promise<TriggerModelsResponse>;
