@@ -6,12 +6,5 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-
-const BetaModules = ["graphql", "tcp", "salesforce", "trigger.github"];
-
 export const OutOfScopeComponentTooltip = "This feature is not available in the current scope.";
 export const AutomationAlreadyExistsTooltip = "An integration can only have one automation. You have already created an automation.";
-
-export function isBetaModule(moduleName: string) {
-    return BetaModules.includes(moduleName);
-}
