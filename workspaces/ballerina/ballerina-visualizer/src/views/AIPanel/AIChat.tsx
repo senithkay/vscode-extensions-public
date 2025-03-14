@@ -1732,7 +1732,6 @@ export function AIChat() {
         try {
             console.log("Searching for: " + message, +"Token: ", token);
             assistant_response = await rpcClient.getAiPanelRpcClient().getFromDocumentation(message);
-            //console.log("Assistant Response: " + assistant_response);
 
             formatted_response = assistant_response.replace(
                 /```ballerina\s*([\s\S]+?)\s*```/g,
@@ -1760,13 +1759,12 @@ export function AIChat() {
             setIsLoading(false);
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
-                newMessages[newMessages.length - 1].content += `Failed fetching data from documentation: ${error}`;
+                newMessages[newMessages.length - 1].content += `An unknown error occurred while fetching data from the documentation`;
                 newMessages[newMessages.length - 1].type = "Error";
                 return newMessages;
             });
-            throw new Error("Failed fetching");
+            return;
         }
-
         addChatEntry("user", message);
         addChatEntry("assistant", formatted_response);
     }
