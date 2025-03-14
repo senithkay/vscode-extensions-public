@@ -898,6 +898,8 @@ export function AIChat() {
                     console.log("Initial Diagnostics : ", diagnostics);
                     setCurrentDiagnostics(diagnostics);
                 } catch (error) {
+                    // Add this catch block because `Add to Integration` button not appear for `/generate`
+                    // Related issue: https://github.com/wso2-enterprise/vscode-extensions/issues/5065
                     diagnostics = [];
                 }
                 if (diagnostics.length > 0) {
