@@ -122,7 +122,7 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
 
     const handleEdit = (fileUri?: string) => {
         const context: VisualizerLocation = {
-            view: MACHINE_VIEW.BIFunctionForm,
+            view: view === FOCUS_FLOW_DIAGRAM_VIEW.NP_FUNCTION ? MACHINE_VIEW.BINPFunctionForm : MACHINE_VIEW.BIFunctionForm,
             identifier: (syntaxTree as ResourceAccessorDefinition).functionName.value,
             documentUri: fileUri,
         };
