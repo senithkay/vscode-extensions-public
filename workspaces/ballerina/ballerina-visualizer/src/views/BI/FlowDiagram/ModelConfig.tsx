@@ -17,9 +17,18 @@ import { URI, Utils } from "vscode-uri";
 import ConfigForm from "./ConfigForm";
 import { Dropdown } from "@wso2-enterprise/ui-toolkit";
 import { cloneDeep } from "lodash";
+import { RelativeLoader } from "../../../components/RelativeLoader";
 
 const Container = styled.div`
     padding: 16px;
+    height: 100%;
+`;
+
+const LoaderContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
 `;
 
 const Row = styled.div`
@@ -45,21 +54,16 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
     // already assigned model
     const [selectedModel, setSelectedModel] = useState<FlowNode>();
     const [selectedModelFields, setSelectedModelFields] = useState<FormField[]>([]);
+
+    const [loading, setLoading] = useState<boolean>(false);
     const [savingForm, setSavingForm] = useState<boolean>(false);
 
-    const filepath = useRef<string>("");
+    const agentFilePath = useRef<string>("");
     const moduleConnectionNodes = useRef<FlowNode[]>([]);
     const selectedModelFlowNode = useRef<FlowNode>();
 
     useEffect(() => {
-        // get file path
-        rpcClient.getVisualizerLocation().then((res) => {
-            filepath.current = Utils.joinPath(URI.file(res.projectUri), "agents.bal").fsPath;
-        });
-        // get all models
-        fetchModels();
-        // fetch selected agent model
-        fetchSelectedAgentModel();
+        initPanel();
     }, []);
 
     useEffect(() => {
@@ -67,6 +71,18 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
             fetchModelNodeTemplate(selectedModel.codedata);
         }
     }, [modelsCodeData, selectedModel]);
+
+    const initPanel = async () => {
+        setLoading(true);
+        // get file path
+        const filePath = await rpcClient.getVisualizerLocation();
+        agentFilePath.current = Utils.joinPath(URI.file(filePath.projectUri), "agents.bal").fsPath;
+        // fetch all models
+        await fetchModels();
+        // fetch selected agent model
+        await fetchSelectedAgentModel();
+        setLoading(false);
+    };
 
     const fetchModels = async () => {
         console.log(">>> agent call node", agentCallNode);
@@ -77,7 +93,7 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
         }
         const models = await rpcClient
             .getAIAgentRpcClient()
-            .getAllModels({ agent: agentName, filePath: filepath.current });
+            .getAllModels({ agent: agentName, filePath: agentFilePath.current });
         console.log(">>> all models", models);
         setModelsCodeData(models.models);
     };
@@ -105,13 +121,14 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
 
     // fetch selected model code data - node template
     const fetchModelNodeTemplate = async (modelCodeData: CodeData) => {
+        setLoading(true);
         let nodeProperties: NodeProperties = {};
         if (selectedModel?.codedata.object === modelCodeData.object) {
             // use selected model properties
             selectedModelFlowNode.current = cloneDeep(selectedModel);
             nodeProperties = selectedModel?.properties;
         } else {
-            const modelNodeTemplate = await getNodeTemplate(modelCodeData, filepath.current);
+            const modelNodeTemplate = await getNodeTemplate(modelCodeData, agentFilePath.current);
             console.log(">>> selected model node template", { modelNodeTemplate, modelCodeData });
             selectedModelFlowNode.current = cloneDeep(modelNodeTemplate);
             nodeProperties = modelNodeTemplate.properties;
@@ -122,6 +139,7 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
 
         const modelFields = convertConfig(nodeProperties);
         setSelectedModelFields(modelFields);
+        setLoading(false);
     };
 
     const getNodeTemplate = async (codeData: CodeData, filePath: string) => {
@@ -147,11 +165,13 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
         nodeTemplate.codedata.lineRange = selectedModel?.codedata.lineRange;
         // update isNew to false
         nodeTemplate.codedata.isNew = false;
+        // update model name
+        nodeTemplate.properties.variable.value = selectedModel?.properties.variable.value;
         console.log(">>> request getSourceCode with template ", { nodeTemplate });
         // update source
         const response = await rpcClient
             .getBIDiagramRpcClient()
-            .getSourceCode({ filePath: filepath.current, flowNode: nodeTemplate });
+            .getSourceCode({ filePath: agentFilePath.current, flowNode: nodeTemplate });
         console.log(">>> response getSourceCode with template ", { response });
         onSave?.();
         setSavingForm(false);
@@ -179,13 +199,23 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
                             setSelectedModelCodeData(selectedModelCodeData);
                             fetchModelNodeTemplate(selectedModelCodeData);
                         }}
-                        value={selectedModelCodeData?.object || (agentCallNode.metadata.data?.model?.type as string)}
+                        value={selectedModelCodeData?.object || (agentCallNode?.metadata.data?.model?.type as string)}
                         containerSx={{ width: "100%" }}
                     />
                 </Row>
             )}
-            {selectedModelFields?.length > 0 && (
-                <ConfigForm formFields={selectedModelFields} onSubmit={handleOnSave} disableSaveButton={savingForm} />
+            {loading && (
+                <LoaderContainer>
+                    <RelativeLoader />
+                </LoaderContainer>
+            )}
+            {!loading && selectedModelFields?.length > 0 && (
+                <ConfigForm
+                    formFields={selectedModelFields}
+                    filePath={agentFilePath.current}
+                    onSubmit={handleOnSave}
+                    disableSaveButton={savingForm}
+                />
             )}
         </Container>
     );

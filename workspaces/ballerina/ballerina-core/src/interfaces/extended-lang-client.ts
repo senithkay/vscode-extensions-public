@@ -882,6 +882,7 @@ export interface SignatureHelpResponse {
 export interface VisibleTypesRequest {
     filePath: string;
     position: LinePosition;
+    typeConstraint?: string;
 }
 
 export interface VisibleTypeItem {
@@ -1335,8 +1336,8 @@ export interface AIGentToolsRequest {
     filePath: string;
     flowNode: FlowNode;
     toolName: string;
+    description: string;
     connection: string;
-    description?: string;
 }
 
 export interface AIGentToolsResponse {
