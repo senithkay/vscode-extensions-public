@@ -47,12 +47,7 @@ export function AgentConfig(props: AgentConfigProps): JSX.Element {
     const agentFilePath = useRef<string>("");
 
     useEffect(() => {
-        // get agent file path
-        rpcClient.getVisualizerLocation().then((res) => {
-            agentFilePath.current = Utils.joinPath(URI.file(res.projectUri), "agents.bal").fsPath;
-        });
-        fetchAgentNode();
-        fetchAgentCallNode();
+        initPanel();
     }, [agentCallNode]);
 
     useEffect(() => {
@@ -60,6 +55,15 @@ export function AgentConfig(props: AgentConfigProps): JSX.Element {
             configureFormFields();
         }
     }, [agentNode, agentCallNodeTemplate]);
+
+    const initPanel = async () => {
+        // get agent file path
+        const filePath = await rpcClient.getVisualizerLocation();
+        agentFilePath.current = Utils.joinPath(URI.file(filePath.projectUri), "agents.bal").fsPath;
+        // fetch agent node
+        await fetchAgentNode();
+        await fetchAgentCallNode();
+    };
 
     const fetchAgentNode = async () => {
         console.log(">>> agentNode");
@@ -195,7 +199,12 @@ export function AgentConfig(props: AgentConfigProps): JSX.Element {
 
     return (
         <Container>
-            <ConfigForm formFields={formFields} onSubmit={handleOnSave} disableSaveButton={savingForm} />
+            <ConfigForm
+                formFields={formFields}
+                filePath={agentFilePath.current}
+                onSubmit={handleOnSave}
+                disableSaveButton={savingForm}
+            />
         </Container>
     );
 }
