@@ -237,7 +237,8 @@ export const ConfigurablePage = ({
                     position: {
                         line: targetLineRange.startLine.line,
                         offset: targetLineRange.startLine.offset
-                    }
+                    },
+                    typeConstraint: "anydata"
                 })
                 .then((types) => {
                     setConfTypes(
