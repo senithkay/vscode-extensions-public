@@ -170,7 +170,7 @@ export function Overview(props: OverviewProps) {
     };
 
     const goToDevant = (devantComponent: DevantComponentResponse) => {
-        rpcClient.getMiVisualizerRpcClient().openExternal({ uri: `https://devant.wso2.com/devant/projects/${devantComponent.org}/${devantComponent.project}/${devantComponent.component}` });
+        rpcClient.getMiVisualizerRpcClient().openExternal({ uri: `https://console.devant.dev/organizations/${devantComponent.org}` });
     };
 
     const handleDeploy = (params: DeployProjectRequest) => {
