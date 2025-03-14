@@ -538,11 +538,6 @@
                 "icon": "$(notebook)"
             },
             {
-                "command": "ballerina.view.architectureView",
-                "title": "Architecture View",
-                "category": "Ballerina"
-            },
-            {
                 "command": "ballerina.view.serviceDesigner",
                 "title": "Service Designer View",
                 "category": "Ballerina"
