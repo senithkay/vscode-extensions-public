@@ -18,6 +18,7 @@ import { Controller } from 'react-hook-form';
 import { useFormContext } from '../../context';
 import { NodeKind } from '@wso2-enterprise/ballerina-core';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+import Form from '../Form';
 
 export interface Parameter {
     id: number;
@@ -83,6 +84,7 @@ export function ParamManagerEditor(props: ParamManagerEditorProps) {
     const { field, openRecordEditor, selectedNode } = props;
     const { form } = useFormContext();
     const { control, setValue } = form;
+
     return (
         <ParamContainer>
             <HeaderContainer>
@@ -115,6 +117,7 @@ export function ParamManagerEditor(props: ParamManagerEditorProps) {
                     </>
                 )}
             />
+            {field.advanceProps && <Form formFields={field.advanceProps} nestedForm />}
         </ParamContainer>
     );
 

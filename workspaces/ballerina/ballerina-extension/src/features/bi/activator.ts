@@ -36,7 +36,7 @@ export function activate(context: BallerinaExtension) {
 
     commands.registerCommand(BI_COMMANDS.BI_DEBUG_PROJECT, () => {
         commands.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
-        startDebugging(Uri.file(StateMachine.context().projectUri), false);
+        startDebugging(Uri.file(StateMachine.context().projectUri), false, true);
     });
 
     commands.registerCommand(BI_COMMANDS.ADD_CONNECTIONS, () => {
@@ -103,6 +103,22 @@ export function activate(context: BallerinaExtension) {
         } else if (item.contextValue === DIRECTORY_SUB_TYPE.NATURAL_FUNCTION) {
             await handleComponentDeletion('naturalFunctions', item.label, item.info);
         }
+    });
+
+    commands.registerCommand(BI_COMMANDS.NOTIFY_DEPLOYMENT_COMPLETION, () => {
+        const rpcClient = new BiDiagramRpcManager();
+
+        rpcClient.getDevantComponent().then((res) => {
+            console.log(">>> Devant Component", res);
+            if (res) {
+                openView(EVENT_TYPE.OPEN_VIEW, {
+                    view: MACHINE_VIEW.Overview,
+                    metadata: {
+                        devantComponent: res
+                    }
+                });
+            }
+        });
     });
 
     //HACK: Open all Ballerina files in the project

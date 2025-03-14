@@ -122,7 +122,7 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
 
     const handleEdit = (fileUri?: string) => {
         const context: VisualizerLocation = {
-            view: MACHINE_VIEW.BIFunctionForm,
+            view: view === FOCUS_FLOW_DIAGRAM_VIEW.NP_FUNCTION ? MACHINE_VIEW.BINPFunctionForm : MACHINE_VIEW.BIFunctionForm,
             identifier: (syntaxTree as ResourceAccessorDefinition).functionName.value,
             documentUri: fileUri,
         };
@@ -151,7 +151,7 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
         isAgent = true;
     }
 
-    const handleResourceTryIt = (methodValue: string, pathValue: string, serviceType: string) => {
+    const handleResourceTryIt = (methodValue: string, pathValue: string) => {
         const resource = serviceType === 'http' ? { methodValue, pathValue } : undefined;
         const commands = ["ballerina.tryit", false, resource, { basePath, listener }]
         rpcClient.getCommonRpcClient().executeCommand({ commands });
@@ -172,7 +172,7 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                     }
                     actions={
                         serviceType === 'http' || isAgent ? (
-                            <ActionButton appearance="secondary" onClick={() => handleResourceTryIt(method, getResourcePath(syntaxTree))}      >
+                            <ActionButton appearance="secondary" onClick={() => handleResourceTryIt(method, getResourcePath(syntaxTree))}>
                                 <Icon name={isAgent ? "comment-discussion" : "play"} isCodicon={true} sx={{ marginRight: 5, width: 16, height: 16, fontSize: 14 }} />
                                 {isAgent ? "Chat" : "Try It"}
                             </ActionButton>

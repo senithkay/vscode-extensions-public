@@ -50,7 +50,7 @@ import { gitStatusBarItem } from "../features/editor-support/git-status";
 import { checkIsPersistModelFile } from "../views/persist-layer-diagram/activator";
 import { BallerinaProject, DownloadProgress, onDownloadProgress } from "@wso2-enterprise/ballerina-core";
 import os, { platform } from "os";
-import axios from "axios";
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import AdmZip from 'adm-zip';
 import fs from 'fs';
 import path from 'path';
@@ -161,7 +161,7 @@ export class BallerinaExtension {
 
         this.updateToolServerUrl = "https://api.central.ballerina.io/2.0/update-tool";
         if (this.overrideBallerinaHome()) {
-            this.updateToolServerUrl = "https://api.staging-central.ballerina.io/2.0/update-tool/";
+            this.updateToolServerUrl = "https://api.staging-central.ballerina.io/2.0/update-tool";
         }
         this.ballerinaUpdateToolUserAgent = this.getUpdateToolUserAgent();
         this.showStatusBarItem();
@@ -324,21 +324,27 @@ export class BallerinaExtension {
     private getUpdateToolUserAgent(): string {
         const platform = os.platform();
         if (platform === 'win32') {
-            return "jballerina/0.0.0/ (win-64) Updater/1.5.0";
+            return "ballerina/2201.11.0 (win-64) Updater/1.4.5";
         } else if (platform === 'linux') {
-            return "jballerina/0.0.0/ (linux-64) Updater/1.5.0";
+            return "ballerina/2201.11.0 (linux-64) Updater/1.4.5";
         } else if (platform === 'darwin') {
             if (os.arch() === 'arm64') {
-                return "jballerina/0.0.0/ (macos-arm-64) Updater/1.5.0";
+                return "ballerina/2201.11.0 (macos-arm-64) Updater/1.4.5";
             }
-            return "jballerina/0.0.0/ (macos-64) Updater/1.5.0";
+            return "ballerina/2201.11.0 (macos-64) Updater/1.4.5";
         }
         return null;
     }
 
     async getLatestBallerinaVersion(): Promise<string> {
         try {
-            const latestDistributionVersionResponse = await axios.get(this.updateToolServerUrl + "/distributions/latest?version=2201.0.0&type=patch");
+            const latestDistributionVersionResponse = await this.axiosWithRetry({
+                method: 'get',
+                url: this.updateToolServerUrl + "/distributions/latest?version=2201.0.0&type=patch",
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
             const latestDistributionVersion = latestDistributionVersionResponse.data.patch;
 
             return latestDistributionVersion.toString();
@@ -347,6 +353,33 @@ export class BallerinaExtension {
             return null;
         }
     }
+
+    async axiosWithRetry(
+        config: AxiosRequestConfig,
+        maxRetries: number = 3
+      ): Promise<AxiosResponse> {
+        let retries = 0;
+        
+        while (true) {
+            try {
+                return await axios(config);
+            } catch (error) {
+                retries++;
+                
+                if (retries > maxRetries) {
+                    console.error(`Maximum retries (${maxRetries}) exceeded`);
+                    throw error;
+                }
+                
+                console.log(`Attempt ${retries} failed, retrying...`);
+                
+                // Optional: add exponential backoff
+                const delay = 1000 * Math.pow(2, retries - 1);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+    }
+      
 
     async setupBallerina(restartWindow?: boolean) {
         this.getBallerinaVersion(this.ballerinaHome, false).then(async runtimeVersion => {
@@ -370,63 +403,96 @@ export class BallerinaExtension {
 
     private async installBallerina(restartWindow?: boolean) {
         try {
+            let continueInstallation = true;
             // Remove the existing Ballerina version
             fs.rmSync(this.ballerinaInstallationDir, { recursive: true, force: true });
 
             // Download the latest update tool version
-            await this.downloadUpdateTool();
+            continueInstallation = await this.downloadUpdateTool();
 
+            if (!continueInstallation) {
+                return;
+            }
             // Get the latest distribution version
             const latestDistributionVersion = await this.getLatestBallerinaVersion();
+            if (latestDistributionVersion === null) {
+                window.showErrorMessage('Error getting the latest distribution version. Please try again.');
+                return;
+            }
 
             // Download the latest distribution zip
-            await this.downloadBallerina(latestDistributionVersion);
-
-            // Get supported jre version
-            const distributionsResponse = await axios.get(this.updateToolServerUrl + "/distributions", {
-                headers: {
-                    'User-Agent': this.ballerinaUpdateToolUserAgent,
-                    'Content-Type': 'application/json'
-                }
-            });
-            const supportedJreVersion = distributionsResponse.data.list.filter((distribution: any) => distribution.version === latestDistributionVersion)[0].dependencies[0].name;
-
-            // Download the JRE zip
-            await this.downloadJre(supportedJreVersion);
-
-            // Set the Ballerina Home and Command for vscode
-            await this.setBallerinaHomeAndCommand();
-
-            // Set the executable permissions
-            await this.setExecutablePermissions();
-
-            // Set the Ballerina version
-            const filePath = path.join(this.ballerinaInstallationDir, 'distributions', 'ballerina-version');
-            fs.writeFileSync(filePath, `ballerina-${latestDistributionVersion}`);
-            console.log(`Updated ${filePath} with version: ${latestDistributionVersion}`);
-
-            // Set the Ballerina Home and Command for the user
-            this.setBallerinaCommandForUser();
-
-            let res: DownloadProgress = {
-                message: `Success..`,
-                success: true,
-                step: 5 // This is the last step
-            };
-            RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
-            console.log('Ballerina has been installed successfully');
-            if (restartWindow) {
-                commands.executeCommand('workbench.action.reloadWindow');
-            } else {
-                window.showInformationMessage("Ballerina has been installed successfully");
+            continueInstallation = await this.downloadBallerina(latestDistributionVersion);
+            if (!continueInstallation) {
+                return;
             }
+
+            let supportedJreVersion;
+            try {
+                if (this.updateToolServerUrl.includes('staging')) {
+                    supportedJreVersion = "jdk-21.0.5+11-jre";
+                } else {
+                    // Get supported jre version
+                    const distributionsResponse = await this.axiosWithRetry({
+                        method: 'get',
+                        url: this.updateToolServerUrl + "/distributions",
+                        headers: {
+                            'User-Agent': this.ballerinaUpdateToolUserAgent,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    const distributions = distributionsResponse.data.list;
+                    console.log('Filtered Distributions:', distributions.filter((distribution: any) => distribution.version === latestDistributionVersion));
+                    supportedJreVersion = distributions.filter((distribution: any) => distribution.version === latestDistributionVersion)[0].dependencies[0].name;
+                }
+            } catch (error) {
+                console.error('Error fetching Ballerina dependencies:', error);
+                window.showErrorMessage('Error fetching Ballerina dependencies (JRE version). Please try again.');
+                return;
+            }
+
+            if (supportedJreVersion !== undefined) {
+                // Download the JRE zip
+                continueInstallation = await this.downloadJre(supportedJreVersion);
+                if (!continueInstallation) {
+                    return;
+                }
+
+                // Set the Ballerina Home and Command for vscode
+                await this.setBallerinaHomeAndCommand();
+
+                // Set the executable permissions
+                await this.setExecutablePermissions();
+
+                // Set the Ballerina version
+                const filePath = path.join(this.ballerinaInstallationDir, 'distributions', 'ballerina-version');
+                fs.writeFileSync(filePath, `ballerina-${latestDistributionVersion}`);
+                console.log(`Updated ${filePath} with version: ${latestDistributionVersion}`);
+
+                // Set the Ballerina Home and Command for the user
+                this.setBallerinaCommandForUser();
+
+                let res: DownloadProgress = {
+                    message: `Success..`,
+                    success: true,
+                    step: 5 // This is the last step
+                };
+                RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+                console.log('Ballerina has been installed successfully');
+                if (restartWindow) {
+                    commands.executeCommand('workbench.action.reloadWindow');
+                } else {
+                    window.showInformationMessage(`Ballerina has been installed successfully. Please restart the window to apply the changes.`);
+                }
+            }   
         } catch (error) {
             console.error('Error downloading or setting up Ballerina:', error);
-            window.showErrorMessage('Error downloading or setting up Ballerina:', error);
+            window.showErrorMessage('Error downloading or setting up Ballerina. Please restart the window and try again.');
+            throw error;
         }
     }
 
     private async downloadJre(jreVersion: string) {
+        let status = false;
         const encodedJreVersion = jreVersion.replace('+', '%2B');
         const jreDownloadUrl = `${this.updateToolServerUrl}/dependencies/${encodedJreVersion}`;
         const ballerinaDependenciesPath = path.join(this.ballerinaInstallationDir, 'dependencies');
@@ -458,7 +524,7 @@ export class BallerinaExtension {
                     async (progress) => {
                         let lastPercentageReported = 0;
 
-                        response = await axios({
+                        response = await this.axiosWithRetry({
                             url: jreDownloadUrl,
                             method: 'GET',
                             responseType: 'arraybuffer',
@@ -527,13 +593,16 @@ export class BallerinaExtension {
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             fs.rmSync(zipFilePath);
             console.log('Cleanup complete.');
+            status = true;
         } catch (error) {
             console.error('Error downloading Ballerina dependencies:', error);
             window.showErrorMessage('Error downloading Ballerina dependencies:', error);
         }
+        return status;
     }
 
     private async downloadBallerina(distributionVersion: string) {
+        let status = false;
         const distributionVersionUrl = `${this.updateToolServerUrl}/distributions/${distributionVersion}`;
         const ballerinaDistributionsPath = path.join(this.ballerinaInstallationDir, 'distributions');
         const distributionZipName = `ballerina-${distributionVersion}.zip`;
@@ -565,7 +634,7 @@ export class BallerinaExtension {
                     async (progress) => {
                         let lastPercentageReported = 0;
 
-                        response = await axios({
+                        response = await this.axiosWithRetry({
                             url: distributionVersionUrl,
                             method: 'GET',
                             responseType: 'arraybuffer',
@@ -633,13 +702,16 @@ export class BallerinaExtension {
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             fs.rmSync(zipFilePath);
             console.log('Cleanup complete.');
+            status = true;
         } catch (error) {
             console.error('Error downloading Ballerina:', error);
             window.showErrorMessage('Error downloading Ballerina:', error);
         }
+        return status;
     }
 
     private async downloadUpdateTool() {
+        let status = false;
         try {
             let res: DownloadProgress = {
                 downloadedSize: 0,
@@ -649,8 +721,11 @@ export class BallerinaExtension {
                 totalSize: 0,
                 step: 1
             };
-            RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
-            const latestToolVersionResponse = await axios.get(this.updateToolServerUrl + "/versions/latest", {
+            RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);   
+            
+            const latestToolVersionResponse = await this.axiosWithRetry({
+                method: 'get',
+                url: this.updateToolServerUrl + "/versions/latest",
                 headers: {
                     'User-Agent': this.ballerinaUpdateToolUserAgent,
                     'Content-Type': 'application/json'
@@ -687,12 +762,13 @@ export class BallerinaExtension {
                     async (progress) => {
                         let lastPercentageReported = 0;
 
-                        response = await axios({
-                            url: latestToolVersionUrl,
+                        response = await this.axiosWithRetry({
                             method: 'GET',
+                            url: latestToolVersionUrl,
                             responseType: 'arraybuffer',
                             headers: {
-                                'User-Agent': this.ballerinaUpdateToolUserAgent
+                                'User-Agent': this.ballerinaUpdateToolUserAgent,
+                                'Content-Type': 'application/json'
                             },
                             onDownloadProgress: (progressEvent) => {
                                 const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -757,10 +833,12 @@ export class BallerinaExtension {
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             fs.rmSync(zipFilePath);
             console.log('Cleanup complete.');
+            status = true;
         } catch (error) {
             console.error('Error downloading Ballerina update tool:', error);
-            window.showErrorMessage('Error downloading Ballerina update tool:', error);
+            window.showErrorMessage('Error downloading Ballerina update tool');
         }
+        return status;
     }
 
     private setBallerinaCommandForUser() {
@@ -780,7 +858,7 @@ export class BallerinaExtension {
                 if (error) {
                     window.showErrorMessage(`Failed to set command path: ${stderr}`);
                 } else {
-                    window.showInformationMessage(`Ballerina command path set successfully. You may need to restart your terminal for changes to take effect.`);
+                    console.log(`Ballerina command path set successfully. You may need to restart your terminal for changes to take effect.`);
                 }
             });
         } else if (platform === 'darwin') {
@@ -791,7 +869,7 @@ export class BallerinaExtension {
                 if (err) {
                     window.showErrorMessage(`Failed to update .zshrc: ${err.message}`);
                 } else {
-                    window.showInformationMessage(`Ballerina command path set successfully. You may need to restart your terminal for changes to take effect.`);
+                    console.log(`Ballerina command path set successfully. You may need to restart your terminal for changes to take effect.`);
                 }
             });
         } else if (platform === 'linux') {
@@ -802,7 +880,7 @@ export class BallerinaExtension {
                 if (err) {
                     window.showErrorMessage(`Failed to update .bashrc: ${err.message}`);
                 } else {
-                    window.showInformationMessage(`Ballerina command path set successfully. You may need to restart your terminal for changes to take effect.`);
+                    console.log(`Ballerina command path set successfully. You may need to restart your terminal for changes to take effect.`);
                 }
             });
         } else {

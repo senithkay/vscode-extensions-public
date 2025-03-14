@@ -154,7 +154,6 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
             <TitleBar
                 title="AI Chat Agent"
                 subtitle="Create a chattable AI agent using an LLM, prompts and tools."
-                isBetaFeature
             />
             <ViewContent padding>
                 <Container>
