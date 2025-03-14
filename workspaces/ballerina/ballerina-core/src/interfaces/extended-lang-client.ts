@@ -82,6 +82,14 @@ export interface TextEdit {
     }
 }
 
+export interface DidChangeWatchedFileParams {
+    changes: Change[];
+}
+
+export interface Change {
+    uri: string;
+    type: number;
+}
 
 // <-------- BALLERINA RELATED --------->
 

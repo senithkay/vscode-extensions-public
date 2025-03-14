@@ -27,6 +27,7 @@ export type FormField = {
     placeholder?: string;
     documentation: string;
     value: string | any[];
+    advanceProps?: FormField[];
     valueType?: string;
     diagnostics?: DiagnosticMessage[];
     items?: string[];

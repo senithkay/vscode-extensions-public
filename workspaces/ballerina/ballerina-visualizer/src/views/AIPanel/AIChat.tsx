@@ -22,6 +22,7 @@ import {
     TestGenerationTarget,
     LLMDiagnostics,
     ImportStatement,
+    DiagnosticEntry,
 } from "@wso2-enterprise/ballerina-core";
 
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -887,13 +888,20 @@ export function AIChat() {
                 // Update the functions state instead of the global variable
                 setFunctions(event.body);
             } else if (event.event == "message_stop") {
-                const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
-                    assistant_response: assistant_response,
-                });
-                assistant_response = postProcessResp.assistant_response;
-                const diagnostics = postProcessResp.diagnostics.diagnostics;
-                console.log("Initial Diagnostics : ", diagnostics);
-                setCurrentDiagnostics(diagnostics);
+                let diagnostics: DiagnosticEntry[] = [];
+                try {
+                    const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
+                        assistant_response: assistant_response,
+                    });
+                    assistant_response = postProcessResp.assistant_response;
+                    diagnostics = postProcessResp.diagnostics.diagnostics;
+                    console.log("Initial Diagnostics : ", diagnostics);
+                    setCurrentDiagnostics(diagnostics);
+                } catch (error) {
+                    // Add this catch block because `Add to Integration` button not appear for `/generate`
+                    // Related issue: https://github.com/wso2-enterprise/vscode-extensions/issues/5065
+                    diagnostics = [];
+                }
                 if (diagnostics.length > 0) {
                     const diagReq = {
                         response: assistant_response,
@@ -1732,7 +1740,6 @@ export function AIChat() {
         try {
             console.log("Searching for: " + message, +"Token: ", token);
             assistant_response = await rpcClient.getAiPanelRpcClient().getFromDocumentation(message);
-            //console.log("Assistant Response: " + assistant_response);
 
             formatted_response = assistant_response.replace(
                 /```ballerina\s*([\s\S]+?)\s*```/g,
@@ -1760,13 +1767,12 @@ export function AIChat() {
             setIsLoading(false);
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
-                newMessages[newMessages.length - 1].content += `Failed fetching data from documentation: ${error}`;
+                newMessages[newMessages.length - 1].content += `An unknown error occurred while fetching data from the documentation`;
                 newMessages[newMessages.length - 1].type = "Error";
                 return newMessages;
             });
-            throw new Error("Failed fetching");
+            return;
         }
-
         addChatEntry("user", message);
         addChatEntry("assistant", formatted_response);
     }

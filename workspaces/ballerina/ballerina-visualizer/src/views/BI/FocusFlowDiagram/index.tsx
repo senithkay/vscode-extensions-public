@@ -156,7 +156,7 @@ export function BIFocusFlowDiagram(props: BIFocusFlowDiagramProps) {
     ) => {
         const getNodeRequest: BIAvailableNodesRequest = {
             position: target.startLine,
-            filePath: model.fileName,
+            filePath: model?.fileName || parent?.codedata?.lineRange.fileName,
         };
         console.log(">>> get available node request", getNodeRequest);
         // save original model
