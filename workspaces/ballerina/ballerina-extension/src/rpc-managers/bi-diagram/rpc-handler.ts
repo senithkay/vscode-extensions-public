@@ -71,6 +71,7 @@ import {
     getExpressionCompletions,
     getExpressionDiagnostics,
     getFlowModel,
+    getFunctionNames,
     getFunctionNode,
     getModuleNodes,
     getNodeTemplate,
@@ -164,5 +165,6 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getEndOfFile, (args: EndOfFileRequest) => rpcManger.getEndOfFile(args));
     messenger.onRequest(search, (args: BISearchRequest) => rpcManger.search(args));
     messenger.onRequest(getRecordNames, () => rpcManger.getRecordNames());
+    messenger.onRequest(getFunctionNames, () => rpcManger.getFunctionNames());
     messenger.onRequest(getDevantComponent, () => rpcManger.getDevantComponent());
 }
