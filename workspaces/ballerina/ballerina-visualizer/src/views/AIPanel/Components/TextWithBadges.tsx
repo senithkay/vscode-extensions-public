@@ -45,9 +45,10 @@ const TextWithBadges: React.FC<TextWithBadgesProps> = ({ text }) => {
     let match;
 
     while ((match = badgeRegex.exec(text)) !== null) {
-        const beforeText = text.substring(lastIndex, match.index);
+        let beforeText = text.substring(lastIndex, match.index);
         if (beforeText) {
-            parts.push(beforeText);
+            beforeText = beforeText.replace(/ /g, "\u00A0");
+            parts.push(<span key={lastIndex}>{beforeText}</span>);
         }
 
         parts.push(<Badge key={match.index} text={match[1]} />);
@@ -56,7 +57,8 @@ const TextWithBadges: React.FC<TextWithBadgesProps> = ({ text }) => {
 
     // Push remaining text if any
     if (lastIndex < text.length) {
-        parts.push(text.substring(lastIndex));
+        let remainingText = text.substring(lastIndex).replace(/ /g, "\u00A0");
+        parts.push(<span key={lastIndex}>{remainingText}</span>);
     }
 
     return (

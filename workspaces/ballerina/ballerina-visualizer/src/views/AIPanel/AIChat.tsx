@@ -127,8 +127,8 @@ const TEMPLATE_GENERATE = [
     "generate an integration according to the given Readme file",
 ];
 const TEMPLATE_TESTS = [
-    "generate test using <servicename> service",
-    "generate test for resource <method(space)path> function",
+    "generate tests for <servicename> service",
+    "generate tests for resource <method(space)path> function",
 ];
 const TEMPLATE_DATAMAP = [
     "generate mappings using input as <recordname(s)> and output as <recordname> using the function <functionname>",
@@ -487,12 +487,17 @@ export function AIChat() {
 
     async function processContent(token: string, content: [string, AttachmentResult[]]) {
         const [message, attachments] = content;
+        console.log(`------MESSAGE: ${message}------`);
         const cleanedMessage = message.replace(/<\/?badge>/g, "").trim();
+        console.log(`------CLEANED MESSAGE: ${cleanedMessage}------`);
         const commandKey = findCommand(cleanedMessage);
+        console.log(`------COMMAND KEY: ${commandKey}------`);
         if (commandKey) {
             const commandLength = commandKey.length;
             const messageBody = cleanedMessage.slice(commandLength).trim();
+            console.log(`------MESSAGE BODY: ${messageBody}------`);
             const parameters = extractParameters(commandKey, messageBody);
+            console.log(`------PARAMETERS: ${parameters}------`);
 
             if (parameters) {
                 switch (commandKey) {
@@ -685,7 +690,7 @@ export function AIChat() {
         const expectedTemplates = commandToTemplate.get(command);
         for (const template of expectedTemplates ?? []) {
             let pattern = template
-                .replace(/<servicename>/g, "(\\S+?)")
+                .replace(/<servicename>/g, "(.+?)")
                 .replace(
                     /<recordname\(s\)>/g,
                     "(\\s*(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+(?:[\\s,]+(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+)*\\s*)"
@@ -693,7 +698,7 @@ export function AIChat() {
                 .replace(/<recordname>/g, "(\\s*(?:[\\w\\/|.-]+\\s*:\\s*)?[\\w|:\\[\\]]+\\s*)")
                 .replace(/<use-case>/g, "([\\s\\S]+?)")
                 .replace(/<requirements>/g, "([\\s\\S]+?)")
-                .replace(/<functionname>/g, "(\\S+?)")
+                .replace(/<functionname>/g, "(.+?)")
                 .replace(/<question>/g, "(.+?)")
                 .replace(/<method\(space\)path>/g, "([^\\n]+)");
 
