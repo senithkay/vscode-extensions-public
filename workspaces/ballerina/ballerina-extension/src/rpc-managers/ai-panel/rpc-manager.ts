@@ -598,8 +598,8 @@ export class AiPanelRpcManager implements AIPanelAPI {
         let remainingDiags: Diagnostics[] = await attemptRepairProject(langClient, tempDir);
 
         const filteredDiags: DiagnosticEntry[] = getErrorDiagnostics(remainingDiags);
-        await closeAllBallerinaFiles(tempDir);
         const newAssistantResponse = getModifiedAssistantResponse(assist_resp, tempDir, project);
+        await closeAllBallerinaFiles(tempDir);
         return {
             assistant_response: newAssistantResponse,
             diagnostics: {

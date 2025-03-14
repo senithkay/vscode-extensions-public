@@ -43,7 +43,15 @@ export async function closeAllBallerinaFiles(dirPath: string): Promise<void> {
                 await langClient.didClose({
                     textDocument: { uri: fileUri }
                 });
-                
+                await langClient.didChangedWatchedFiles({
+                    changes: [
+                        {
+                            uri: fileUri,
+                            type: 3
+                        }
+                    ]
+                });
+
                 console.log(`Closed file: ${entryPath}`);
             }
         }

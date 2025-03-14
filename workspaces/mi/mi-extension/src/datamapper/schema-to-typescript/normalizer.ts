@@ -231,6 +231,16 @@ rules.set('Transform const to singleton enum', schema => {
   }
 })
 
+rules.set('Add titles to oneOf or anyOf types', (schema, fileName, options, key) => {
+  let subSchemas = schema.oneOf || schema.anyOf
+  if (subSchemas) {
+    subSchemas.forEach((subSchema, index) => {
+      if (subSchema.type !== 'object' || subSchema.title) { return }
+      subSchema.title = `${schema.title || key || 'Object'}${index}`
+    })
+  }
+})
+
 export function normalize(
   rootSchema: LinkedJSONSchema,
   dereferencedPaths: DereferencedPaths,
