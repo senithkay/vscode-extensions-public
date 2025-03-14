@@ -1198,7 +1198,7 @@ async function updateMI(miVersion: string, latestUpdateVersion: string): Promise
         }
         fs.rmSync(updateTempFolder, { recursive: true, force: true });
 
-        vscode.window.showInformationMessage('Micro Integrator has been successfully updated.');
+        vscode.window.showInformationMessage('Micro Integrator has been updated successfully.');
     } catch (error) {
         vscode.window.showErrorMessage(`Failed to update Micro Integrator: ${error instanceof Error ? error.message : error}`);
     }
