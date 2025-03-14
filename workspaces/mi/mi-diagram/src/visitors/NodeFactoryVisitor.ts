@@ -181,7 +181,7 @@ export class NodeFactoryVisitor implements Visitor {
                 diagramNode = new EndNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
                 break;
             case NodeTypes.CALL_NODE:
-                diagramNode = new CallNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes, data.type);
+                diagramNode = new CallNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes, data);
                 break;
             case NodeTypes.EMPTY_NODE:
                 diagramNode = new EmptyNodeModel(node, this.documentUri);
