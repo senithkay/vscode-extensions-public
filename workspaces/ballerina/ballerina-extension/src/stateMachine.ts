@@ -190,11 +190,15 @@ const stateMachine = createMachine<MachineContext>(
         activateLanguageServer: (context, event) => {
             return new Promise(async (resolve, reject) => {
                 try {
-                    commands.executeCommand('setContext', 'BI.status', 'loading');
+                    commands.executeCommand('setContext', 'BI.status', 'loadingLS');
                     const ls = await activateBallerina();
                     fetchAndCacheLibraryData();
                     StateMachineAI.initialize();
                     StateMachinePopup.initialize();
+                    commands.executeCommand('setContext', 'BI.status', 'loadingDone');
+                    if (!ls.biSupported) {
+                        commands.executeCommand('setContext', 'BI.status', 'updateNeed');
+                    }
                     resolve({ langClient: ls.langClient, isBISupported: ls.biSupported });
                 } catch (error) {
                     throw new Error("LS Activation failed", error);
@@ -211,7 +215,7 @@ const stateMachine = createMachine<MachineContext>(
                         undoRedoManager = new UndoRedoManager();
                         const webview = VisualizerWebview.currentPanel?.getWebview();
                         if (webview && (context.isBI || context.view === MACHINE_VIEW.BIWelcome)) {
-                            const biExtension = extensions.getExtension('wso2.ballerina-integrator');
+                            const biExtension = extensions.getExtension('wso2.ballerina-integrator') && context.isBISupported;
                             webview.title = biExtension ? "Ballerina Integrator" : "Ballerina Visualizer";
                             webview.iconPath = {
                                 light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', biExtension ? 'light-icon.svg' : 'ballerina.svg')),
@@ -402,7 +406,7 @@ export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation, res
 }
 
 export function updateView(refreshTreeView?: boolean) {
-    const historyStack = history.get();
+    const historyStack = history?.get();
     const lastView = historyStack[historyStack.length - 1];
     stateService.send({ type: "VIEW_UPDATE", viewLocation: lastView ? lastView.location : { view: "Overview" } });
     if (refreshTreeView) {

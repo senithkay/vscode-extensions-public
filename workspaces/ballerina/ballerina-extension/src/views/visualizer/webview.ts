@@ -14,13 +14,13 @@ import { RPCLayer } from "../../RPCLayer";
 import { debounce } from "lodash";
 import { WebViewOptions, getComposerWebViewOptions, getLibraryWebViewContent } from "../../utils/webview-utils";
 import { extension } from "../../BalExtensionContext";
-import { StateMachine, updateView } from "../../stateMachine";
+import { history, StateMachine, updateView } from "../../stateMachine";
 import { LANGUAGE } from "../../core";
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
     public static readonly viewType = "ballerina.visualizer";
-    public static readonly panelTitle = "Ballerina Integrator";
+    public static readonly panelTitle = "Ballerina Visualizer";
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
 
@@ -68,7 +68,8 @@ export class VisualizerWebview {
                 retainContextWhenHidden: true,
             }
         );
-        const biExtension = vscode.extensions.getExtension('wso2.ballerina-integrator');
+        const biExtension = vscode.extensions.getExtension('wso2.ballerina-integrator') && StateMachine.context().isBISupported;
+        panel.title = biExtension ? "Ballerina Integrator" : "Ballerina Visualizer";
         panel.iconPath = {
             light: vscode.Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', biExtension ? 'light-icon.svg' : 'ballerina.svg')),
             dark: vscode.Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', biExtension ? 'dark-icon.svg' : 'ballerina-inverse.svg'))

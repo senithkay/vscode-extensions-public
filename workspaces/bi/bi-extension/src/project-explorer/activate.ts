@@ -22,7 +22,7 @@ interface ExplorerActivationConfig {
 export function activateProjectExplorer(config: ExplorerActivationConfig) {
 	const { context, isBI, isBallerina, isMultiRoot } = config;
 
-	if (extension.langClient) {
+	if (extension.langClient && extension.biSupported) {
 		setLoadingStatus();
 	}
 
@@ -58,7 +58,7 @@ function handleVisibilityChangeEvents(tree: TreeView<ProjectExplorerEntry>, data
 
 function handleVisibilityChange(res: { visible: boolean }, dataProvider: ProjectExplorerEntryProvider, isBallerina?: boolean) {
 	if (res.visible) {
-		if (isBallerina) {
+		if (isBallerina && extension.biSupported) {
 			dataProvider.refresh();
 		} else {
 			handleNonBallerinaVisibility();
@@ -69,9 +69,10 @@ function handleVisibilityChange(res: { visible: boolean }, dataProvider: Project
 function handleNonBallerinaVisibility() {
 	if (extension.langClient) {
 		if (!extension.biSupported) {
-			commands.executeCommand('setContext', 'BI.LSStatus', 'updateNeed');
+			commands.executeCommand('setContext', 'BI.status', 'updateNeed');
+		} else {
+			commands.executeCommand('setContext', 'BI.status', 'unknownProject');
 		}
-		commands.executeCommand('setContext', 'BI.status', 'unknownProject');
 	}
 	commands.executeCommand(SHARED_COMMANDS.OPEN_BI_WELCOME);
 }
