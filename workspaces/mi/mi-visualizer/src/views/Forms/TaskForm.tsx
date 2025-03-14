@@ -15,13 +15,14 @@ import { CreateTaskRequest, CreateSequenceRequest, EVENT_TYPE, MACHINE_VIEW } fr
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
-import {FormKeylookup, ParamConfig, ParamManager} from "@wso2-enterprise/mi-diagram";
+import { FormKeylookup, ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
 import CodeMirror from "@uiw/react-codemirror";
 import { xml } from "@codemirror/lang-xml";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { XMLValidator } from "fast-xml-parser";
 import cronValidator from 'cron-expression-validator';
 import path from "path";
+import { SequenceWizard } from "./SequenceForm";
 export interface Region {
     label: string;
     value: string;
@@ -80,6 +81,7 @@ export function TaskForm(props: TaskFormProps) {
     const [artifactNames, setArtifactNames] = useState([]);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
     const [messageIsXML, setMessageIsXML] = useState(true);
+    const [isInternalTrigger, setIsInternalTrigger] = useState(true);
     const [xmlErrors, setXmlErrors] = useState({
         code: "",
         col: 0,
@@ -348,187 +350,202 @@ export function TaskForm(props: TaskFormProps) {
 
     return (
         <FormView title={formTitle} onClose={cancelHandler}>
-            <TextField
-                id="name"
-                required
-                autoFocus
-                label="Task Name"
-                placeholder="Name"
-                errorMsg={errors.name?.message}
-                {...register("name")}
+            <RadioButtonGroup
+                id="triggerType"
+                label="Please select a trigger"
+                options={[{ content: "Internal Trigger", value: "internal" }, { content: "External Trigger", value: "external" }]}
+                value={isInternalTrigger ? "internal" : "external"}
+                onChange={(e) => setIsInternalTrigger(e.target.value === "internal")}
             />
-            <FormGroup title="Trigger Information of the Task" isCollapsed={false}>
-                <RadioButtonGroup
-                    id="triggerType"
-                    label="Trigger Type"
-                    options={[{ content: "Simple", value: "simple" }, { content: "Cron", value: "cron" }]}
-                    {...register("triggerType")}
-                />
-                {watch("triggerType") === 'simple' ? (
+            {
+                isInternalTrigger ? (
                     <>
-                        <FormCheckBox label="Trigger Indefinitely" control={control} {...register('isCountUndefined')} />
-                        {!watch("isCountUndefined") &&
-                            <TextField
-                                id="triggerCount"
-                                required
-                                label="Count"
-                                errorMsg={errors.triggerCount?.message}
-                                {...register("triggerCount")}
-                            />
-                        }
                         <TextField
-                            id="triggerInterval"
+                            id="name"
                             required
-                            label="Interval (in seconds)"
-                            errorMsg={errors.triggerInterval?.message}
-                            {...register("triggerInterval")}
+                            autoFocus
+                            label="Task Name"
+                            placeholder="Name"
+                            errorMsg={errors.name?.message}
+                            {...register("name")}
                         />
-                    </>
-                ) : (
-                    <TextField
-                        id="triggerCron"
-                        required
-                        label="Cron"
-                        errorMsg={errors.triggerCron?.message}
-                        {...register("triggerCron")}
-                    />
-                )}
-                <ParamManager paramConfigs={params} readonly={false}
-                              addParamText={"Custom Property"} onChange={handlePropertiesOnChange} />
-            </FormGroup>
-            <FormGroup title="Task Implementation" isCollapsed={true}>
-                <Dropdown
-                    id="injectTo"
-                    label="Message inject destination"
-                    items={[{ value: "sequence" }, { value: "proxy" }]}
-                    {...register("injectTo")}
-                />
-                {watch("injectTo") === 'main' && (<>
-                    {/* <TextField
+                        <FormGroup title="Trigger Information of the Task" isCollapsed={false}>
+                            <RadioButtonGroup
+                                id="triggerType"
+                                label="Trigger Type"
+                                options={[{ content: "Simple", value: "simple" }, { content: "Cron", value: "cron" }]}
+                                {...register("triggerType")}
+                            />
+                            {watch("triggerType") === 'simple' ? (
+                                <>
+                                    <FormCheckBox label="Trigger Indefinitely" control={control} {...register('isCountUndefined')} />
+                                    {!watch("isCountUndefined") &&
+                                        <TextField
+                                            id="triggerCount"
+                                            required
+                                            label="Count"
+                                            errorMsg={errors.triggerCount?.message}
+                                            {...register("triggerCount")}
+                                        />
+                                    }
+                                    <TextField
+                                        id="triggerInterval"
+                                        required
+                                        label="Interval (in seconds)"
+                                        errorMsg={errors.triggerInterval?.message}
+                                        {...register("triggerInterval")}
+                                    />
+                                </>
+                            ) : (
+                                <TextField
+                                    id="triggerCron"
+                                    required
+                                    label="Cron"
+                                    errorMsg={errors.triggerCron?.message}
+                                    {...register("triggerCron")}
+                                />
+                            )}
+                            <ParamManager paramConfigs={params} readonly={false}
+                                addParamText={"Custom Property"} onChange={handlePropertiesOnChange} />
+                        </FormGroup>
+                        <FormGroup title="Task Implementation" isCollapsed={true}>
+                            <Dropdown
+                                id="injectTo"
+                                label="Message inject destination"
+                                items={[{ value: "sequence" }, { value: "proxy" }]}
+                                {...register("injectTo")}
+                            />
+                            {watch("injectTo") === 'main' && (<>
+                                {/* <TextField
                         id="to"
                         description="Endpoint address if the message should be sent to a specific endpoint."
                         label="To"
                         errorMsg={errors.to?.message}
                         {...register("to")}
                     /> */}
-                    <Dropdown
-                        id="format"
-                        label="Format"
-                        items={[{ value: "soap12" }, { value: "soap11" }, { value: "pox" }, { value: "get" }]}
-                        {...register('format')}
-                    />
-                    <TextField
-                        id="soapAction"
-                        description="This is the SOAP action to use when sending the message to the endpoint."
-                        label="SOAP Action"
-                        errorMsg={errors.soapAction?.message}
-                        {...register("soapAction")}
-                    />
-                </>)}
-                {watch("injectTo") === 'proxy' && (<>
-                    <FormKeylookup
-                        id="proxyName"
-                        control={control}
-                        label="Proxy service name"
-                        name="proxyName"
-                        filterType="proxyService"
-                        path={props.path}
-                        errorMsg={errors.proxyName?.message}
-                        {...register("proxyName")}
-                    />
-                </>)}
-                {watch("injectTo") === 'sequence' && (<>
-                    <FormKeylookup
-                        filter={(value: string) => !value.endsWith(".xml")}
-                        id="sequenceName"
-                        control={control}
-                        label="Sequence name"
-                        name="proxyName"
-                        filterType="sequence"
-                        path={props.path}
-                        errorMsg={errors.sequenceName?.message}
-                        {...register("sequenceName")}
-                    />
-                    <FormCheckBox
-                        control={control}
-                        label="Invoke handlers when calling sequence"
-                        {...register("invokeHandlers")}
-                    />
-                </>)}
-            </FormGroup>
-            <FormGroup title="Message" isCollapsed={true}>
-                <CheckBox
-                    label="message format is XML"
-                    value="xml"
-                    checked={messageIsXML}
-                    onChange={(isChecked: boolean) => setMessageIsXML(isChecked)}
-                />
-                {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
-                <CodeMirror
-                    value={getValues("message")}
-                    theme={oneDark}
-                    extensions={[xml()]}
-                    height="200px"
-                    autoFocus
-                    editable={true}
-                    indentWithTab={true}
-                    onChange={handleXMLInputChange}
-                    options={{
-                        lineNumbers: true,
-                        lint: true,
-                        mode: "xml",
-                        columns: 100,
-                        columnNumbers: true,
-                        lineWrapping: true,
-                    }}
-                />
-                <TextField
-                    id="registryKey"
-                    label="Registry path for message to inject"
-                    errorMsg={errors.registryKey?.message}
-                    {...register("registryKey")}
-                />
-            </FormGroup>
-            <FormGroup title="Advanced">
-                <TextField
-                    id="pinnedServers"
-                    label="Pinned Servers"
-                    placeholder="Servers"
-                    errorMsg={errors.pinnedServers?.message}
-                    {...register("pinnedServers")}
-                />
-                <TextField
-                    id="group"
-                    required
-                    label="Task Group"
-                    placeholder="Group"
-                    errorMsg={errors.group?.message}
-                    {...register("group")}
-                />
-                <TextField
-                    id="implementation"
-                    required
-                    label="Task Implementation"
-                    placeholder="Implementation"
-                    errorMsg={errors.implementation?.message}
-                    {...register("implementation")}
-                />
-            </FormGroup>
-            <FormActions>
-                <Button
-                    appearance="secondary"
-                    onClick={cancelHandler}
-                >
-                    Cancel
-                </Button>
-                <Button
-                    appearance="primary"
-                    onClick={handleSubmit(handleCreateTask)}
-                    disabled={!(isDirty || isCustomPropsUpdated)}
-                >
-                    {isNewTask ? "Create" : "Update"}
-                </Button>
-            </FormActions>
+                                <Dropdown
+                                    id="format"
+                                    label="Format"
+                                    items={[{ value: "soap12" }, { value: "soap11" }, { value: "pox" }, { value: "get" }]}
+                                    {...register('format')}
+                                />
+                                <TextField
+                                    id="soapAction"
+                                    description="This is the SOAP action to use when sending the message to the endpoint."
+                                    label="SOAP Action"
+                                    errorMsg={errors.soapAction?.message}
+                                    {...register("soapAction")}
+                                />
+                            </>)}
+                            {watch("injectTo") === 'proxy' && (<>
+                                <FormKeylookup
+                                    id="proxyName"
+                                    control={control}
+                                    label="Proxy service name"
+                                    name="proxyName"
+                                    filterType="proxyService"
+                                    path={props.path}
+                                    errorMsg={errors.proxyName?.message}
+                                    {...register("proxyName")}
+                                />
+                            </>)}
+                            {watch("injectTo") === 'sequence' && (<>
+                                <FormKeylookup
+                                    filter={(value: string) => !value.endsWith(".xml")}
+                                    id="sequenceName"
+                                    control={control}
+                                    label="Sequence name"
+                                    name="proxyName"
+                                    filterType="sequence"
+                                    path={props.path}
+                                    errorMsg={errors.sequenceName?.message}
+                                    {...register("sequenceName")}
+                                />
+                                <FormCheckBox
+                                    control={control}
+                                    label="Invoke handlers when calling sequence"
+                                    {...register("invokeHandlers")}
+                                />
+                            </>)}
+                        </FormGroup>
+                        <FormGroup title="Message" isCollapsed={true}>
+                            <CheckBox
+                                label="message format is XML"
+                                value="xml"
+                                checked={messageIsXML}
+                                onChange={(isChecked: boolean) => setMessageIsXML(isChecked)}
+                            />
+                            {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
+                            <CodeMirror
+                                value={getValues("message")}
+                                theme={oneDark}
+                                extensions={[xml()]}
+                                height="200px"
+                                autoFocus
+                                editable={true}
+                                indentWithTab={true}
+                                onChange={handleXMLInputChange}
+                                options={{
+                                    lineNumbers: true,
+                                    lint: true,
+                                    mode: "xml",
+                                    columns: 100,
+                                    columnNumbers: true,
+                                    lineWrapping: true,
+                                }}
+                            />
+                            <TextField
+                                id="registryKey"
+                                label="Registry path for message to inject"
+                                errorMsg={errors.registryKey?.message}
+                                {...register("registryKey")}
+                            />
+                        </FormGroup>
+                        <FormGroup title="Advanced">
+                            <TextField
+                                id="pinnedServers"
+                                label="Pinned Servers"
+                                placeholder="Servers"
+                                errorMsg={errors.pinnedServers?.message}
+                                {...register("pinnedServers")}
+                            />
+                            <TextField
+                                id="group"
+                                required
+                                label="Task Group"
+                                placeholder="Group"
+                                errorMsg={errors.group?.message}
+                                {...register("group")}
+                            />
+                            <TextField
+                                id="implementation"
+                                required
+                                label="Task Implementation"
+                                placeholder="Implementation"
+                                errorMsg={errors.implementation?.message}
+                                {...register("implementation")}
+                            />
+                        </FormGroup>
+                        <FormActions>
+                            <Button
+                                appearance="secondary"
+                                onClick={cancelHandler}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                appearance="primary"
+                                onClick={handleSubmit(handleCreateTask)}
+                                disabled={!(isDirty || isCustomPropsUpdated)}
+                            >
+                                {isNewTask ? "Create" : "Update"}
+                            </Button>
+                        </FormActions>
+                    </>
+                ) : (
+                    <SequenceWizard path={props.path} isExternalTrigger={true} />
+                )
+            }
         </FormView >
     );
 }
