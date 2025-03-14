@@ -241,6 +241,10 @@ function getCustomEntryNodeIcon(type: string) {
             return "bi-salesforce";
         case "asb":
             return "bi-asb";
+        case "ftp":
+            return "bi-ftp";
+        case "file":
+            return "bi-file";
         default:
             return "bi-http-service";
     }
