@@ -192,7 +192,7 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
             path: componentFile,
             type: compType,
             icon: iconValue,
-            context: getComponentName(comp.name, serviceModel),
+            context: comp.name,
             serviceModel: serviceModel,
             resources: serviceModel?.listenerProtocol === "agent" ? [] : comp?.resources ? await getComponents(langClient, comp?.resources, projectPath, "") : [],
             position: serviceModel?.listenerProtocol === "agent" ? {
