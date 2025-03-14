@@ -37,7 +37,7 @@ import {
 	getTypeAnnotation,
 	getEditorLineAndColumn
 } from "./common-utils";
-import { ArrayOutputNode, FocusedInputNode, InputNode, LinkConnectorNode, ObjectOutputNode, SubMappingNode } from "../Node";
+import { ArrayOutputNode, FocusedInputNode, InputNode, LinkConnectorNode, ObjectOutputNode, SubMappingNode, UnionOutputNode } from "../Node";
 import { ExpressionLabelModel } from "../Label";
 import { DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { getPosition, isPositionsEquals } from "./st-utils";
@@ -100,11 +100,16 @@ export async function createSourceForMapping(sourcePort: InputOutputPortModel, t
 		parent = parent.parentModel;
 	}
 
-	if (targetNode instanceof ObjectOutputNode) {
+	if (targetNode instanceof ObjectOutputNode || targetNode instanceof UnionOutputNode) {
 		if (targetNode.value) {
 			const targetExpr = targetNode.value;
 			if (Node.isObjectLiteralExpression(targetExpr)) {
 				objectLitExpr = targetExpr;
+			} else if (Node.isAsExpression(targetExpr)){
+				const expr = targetExpr.getExpression();
+				if (Node.isObjectLiteralExpression(expr)) {
+					objectLitExpr = expr;
+				}
 			}
 		} else {
 			// When the return statement is not available in the function body
