@@ -413,7 +413,7 @@ async function getOpenAPIDefinition(service: ServiceInfo): Promise<OAISpec> {
 async function getServicePort(projectDir: string, service: ServiceInfo, openapiSpec?: OAISpec): Promise<number> {
     try {
         // If the service has an anonymous listener, directly use the port defined inline
-        if (service.listener.port) {
+        if (service.listener.port && !isNaN(parseInt(service.listener.port))) {
             return parseInt(service.listener.port);
         }
 
@@ -422,7 +422,7 @@ async function getServicePort(projectDir: string, service: ServiceInfo, openapiS
         const portInSpecStr = openapiSpec?.servers?.[0]?.variables?.port?.default;
         if (portInSpecStr) {
             const parsedPort = parseInt(portInSpecStr);
-            portInSpec = isNaN(parsedPort) ? parsedPort : undefined;
+            portInSpec = !isNaN(parsedPort) ? parsedPort : undefined;
         }
 
         const balProcesses = await findRunningBallerinaProcesses(projectDir)
