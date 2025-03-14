@@ -229,16 +229,16 @@ export class BallerinaExtension {
             this.showMessageInstallBallerina();
         });
 
-        commands.registerCommand('ballerina.setup-ballerina', () => { // Install ballerina from central for new users
+        commands.registerCommand('ballerina.setup-ballerina', () => { // Install ballerina from central for new users. This should set the ballerina to system path
             this.installBallerina();
         });
 
-        commands.registerCommand('ballerina.update-ballerina', () => { // Update developer pack from ballerina dev build and set to ballerina-home and enable plugin dev mode
-            this.updateIntegratorVersion(true);
+        commands.registerCommand('ballerina.update-ballerina-dev-pack', () => { // Update developer pack from ballerina dev build and set to ballerina-home and enable plugin dev mode
+            this.updateBallerinaDeveloperPack(true);
         });
 
-        commands.registerCommand('ballerina-setup.setupBallerina', () => { // Install release pack from ballerina update tool
-            this.setupBallerina(true);
+        commands.registerCommand('ballerina.update-ballerina', () => { // Update release pack from ballerina update tool with a terminal
+            this.updateBallerina(true);
         });
 
         try {
@@ -360,50 +360,45 @@ export class BallerinaExtension {
     async axiosWithRetry(
         config: AxiosRequestConfig,
         maxRetries: number = 3
-      ): Promise<AxiosResponse> {
+    ): Promise<AxiosResponse> {
         let retries = 0;
-        
+
         while (true) {
             try {
                 return await axios(config);
             } catch (error) {
                 retries++;
-                
+
                 if (retries > maxRetries) {
                     console.error(`Maximum retries (${maxRetries}) exceeded`);
                     throw error;
                 }
-                
+
                 console.log(`Attempt ${retries} failed, retrying...`);
-                
+
                 // Optional: add exponential backoff
                 const delay = 1000 * Math.pow(2, retries - 1);
                 await new Promise(resolve => setTimeout(resolve, delay));
             }
         }
     }
-      
 
-    async setupBallerina(restartWindow?: boolean) {
+
+    async updateBallerina(restartWindow?: boolean) {
         this.getBallerinaVersion(this.ballerinaHome, false).then(async runtimeVersion => {
             const currentBallerinaVersion = runtimeVersion.split('-')[0];
             console.log('Current Ballerina version:', currentBallerinaVersion);
-            // Check if the ballerina version is supported with latest language server features.
-            if (currentBallerinaVersion.includes('Swan Lake')) {
-                const ballerinaShortVersion = currentBallerinaVersion.split(' ')[0];
-                const ballerinaUpdateVersion = ballerinaShortVersion.split('.')[1];
-                if (parseInt(ballerinaUpdateVersion) < 12) {
-                    this.showMessageUpdateBallerina();
-                }
-            } else {
-                this.showMessageUpdateBallerina();
-            }
+            const terminal = window.createTerminal('Update Ballerina');
+            terminal.show();
+            terminal.sendText('bal dist update');
+            window.showInformationMessage('Ballerina update started. Please wait...')
         }, (reason) => {
             console.error('Error getting the ballerina version:', reason.message);
             this.showMessageSetupBallerina(restartWindow);
         });
     }
 
+    // Install ballerina from the central
     private async installBallerina(restartWindow?: boolean) {
         try {
             let continueInstallation = true;
@@ -486,7 +481,7 @@ export class BallerinaExtension {
                 } else {
                     window.showInformationMessage(`Ballerina has been installed successfully. Please restart the window to apply the changes.`);
                 }
-            }   
+            }
         } catch (error) {
             console.error('Error downloading or setting up Ballerina:', error);
             window.showErrorMessage('Error downloading or setting up Ballerina. Please restart the window and try again.');
@@ -724,8 +719,8 @@ export class BallerinaExtension {
                 totalSize: 0,
                 step: 1
             };
-            RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);   
-            
+            RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+
             const latestToolVersionResponse = await this.axiosWithRetry({
                 method: 'get',
                 url: this.updateToolServerUrl + "/versions/latest",
@@ -891,7 +886,7 @@ export class BallerinaExtension {
         }
     }
 
-    async updateIntegratorVersion(restartWindow?: boolean) {
+    async updateBallerinaDeveloperPack(restartWindow?: boolean) {
         try {
             if (this.langClient?.isRunning()) {
                 window.showInformationMessage(`Stopping the ballerina language server...`);
@@ -905,7 +900,7 @@ export class BallerinaExtension {
 
             await this.downloadAndUnzipBallerina(restartWindow);
 
-            await this.setBallerinaHomeAndCommand();
+            await this.setBallerinaHomeAndCommand(true);
 
             await this.setExecutablePermissions();
 
@@ -1098,7 +1093,7 @@ export class BallerinaExtension {
         }
     }
 
-    private async setBallerinaHomeAndCommand() {
+    private async setBallerinaHomeAndCommand(isDev?: boolean) {
         let exeExtension = "";
         if (isWindows()) {
             exeExtension = ".bat";
@@ -1115,8 +1110,10 @@ export class BallerinaExtension {
             step: 5
         };
         RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
-        workspace.getConfiguration().update(BALLERINA_HOME, this.ballerinaHome, ConfigurationTarget.Global);
-        workspace.getConfiguration().update(OVERRIDE_BALLERINA_HOME, true, ConfigurationTarget.Global);
+        if (isDev) { // Set the vscode configurable values only for dev mode
+            workspace.getConfiguration().update(BALLERINA_HOME, this.ballerinaHome, ConfigurationTarget.Global);
+            workspace.getConfiguration().update(OVERRIDE_BALLERINA_HOME, true, ConfigurationTarget.Global);
+        }
     }
 
     private async setExecutablePermissions() {
