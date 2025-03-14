@@ -188,14 +188,19 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
 
 
         const fileEntry: ProjectStructureArtifactResponse = {
-            name: dtype === DIRECTORY_MAP.SERVICES ? comp.name || comp.filePath.replace(".bal", "") : comp.name,
+            name: dtype === DIRECTORY_MAP.SERVICES ? getComponentName(comp.name, serviceModel) || comp.filePath.replace(".bal", "") : getComponentName(comp.name, serviceModel),
             path: componentFile,
             type: compType,
             icon: iconValue,
             context: comp.name,
             serviceModel: serviceModel,
-            resources: comp?.resources ? await getComponents(langClient, comp?.resources, projectPath, "") : [],
-            position: {
+            resources: serviceModel?.listenerProtocol === "agent" ? [] : comp?.resources ? await getComponents(langClient, comp?.resources, projectPath, "") : [],
+            position: serviceModel?.listenerProtocol === "agent" ? {
+                endColumn: comp.resources[0].endColumn,
+                endLine: comp.resources[0].endLine,
+                startColumn: comp.resources[0].startColumn,
+                startLine: comp.resources[0].startLine
+            } : {
                 endColumn: comp.endColumn,
                 endLine: comp.endLine,
                 startColumn: comp.startColumn,
@@ -213,6 +218,13 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
 
     }
     return entries;
+}
+
+function getComponentName(name: string, serviceModel: ServiceModel) {
+    if (serviceModel?.listenerProtocol === "agent") {
+     return name.startsWith('/') ? name.substring(1) : name;
+    }
+    return name;
 }
 
 function getCustomEntryNodeIcon(type: string) {
@@ -241,6 +253,10 @@ function getCustomEntryNodeIcon(type: string) {
             return "bi-salesforce";
         case "asb":
             return "bi-asb";
+        case "ftp":
+            return "bi-ftp";
+        case "file":
+            return "bi-file";
         default:
             return "bi-http-service";
     }
