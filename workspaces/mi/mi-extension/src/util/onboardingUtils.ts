@@ -1076,7 +1076,7 @@ export async function checkForUpdatesAndUpdate(): Promise<void> {
                         const changeOption = 'Switch to Updated Version';
                         const cancelOption = 'Keep Current Version';
                         vscode.window.showWarningMessage(
-                            'A newer version of Micro Integrator is available in your cache. Would you like to switch to it?',
+                            'A newer version of the Micro Integrator is available locally. Would you like to switch to it?',
                             changeOption,
                             cancelOption
                         ).then((selection) => {
