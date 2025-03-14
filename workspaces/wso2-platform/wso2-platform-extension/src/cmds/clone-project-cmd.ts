@@ -213,7 +213,7 @@ async function ensureBallerinaFilesIfEmpty(
 	const createBalFiles = (directoryPath: string, integrationDisplayType: string) => {
 		writeFileSync(
 			join(directoryPath, "Ballerina.toml"),
-			`[package]\norg = "${org.handle}"\nname = "${componentName.replaceAll("-", "_")}"\nversion = "0.1.0"`,
+			`[package]\norg = "${org.handle}"\nname = "${componentName.replaceAll(' ',"_").replaceAll("-", "_")}"\nversion = "0.1.0"`,
 			"utf8",
 		);
 		if (integrationDisplayType) {
@@ -260,7 +260,7 @@ async function ensureMIFilesIfEmpty(name: string, directoryPath: string, integra
 		/*
 		const scopeVal = integrationDisplayType.toLowerCase().replaceAll(" ", "-").replaceAll("+","-");;
 		await commands.executeCommand("MI.project-explorer.create-project", {
-			name: name,
+			name: name.replaceAll("-","_").replaceAll(" ","_"),
 			path: directoryPath,
 			scope: scopeVal
 		})
