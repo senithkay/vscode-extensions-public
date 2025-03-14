@@ -23,6 +23,7 @@ export interface SequenceWizardProps {
     path: string;
     isPopup?: boolean;
     handlePopupClose?: () => void;
+    isExternalTrigger?: boolean;
 }
 
 type InputsFields = {
@@ -149,9 +150,16 @@ export function SequenceWizard(props: SequenceWizardProps) {
             directory: sequenceDir,
         }
         const result = await rpcClient.getMiDiagramRpcClient().createSequence(createSequenceParams);
+
         if (watch("saveInReg")) {
             await saveToRegistry(rpcClient, props.path, values.registryType, values.name, result.fileContent, values.registryPath, values.artifactName);
         }
+
+        if (props.isExternalTrigger) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            rpcClient.getMiDiagramRpcClient().markAsDefaultSequence({ path: result.filePath });
+        }
+
         if (props.isPopup) {
             rpcClient.getMiVisualizerRpcClient().openView({
                 type: POPUP_EVENT_TYPE.CLOSE_VIEW,
@@ -159,7 +167,7 @@ export function SequenceWizard(props: SequenceWizardProps) {
                 isPopup: true
             });
         } else {
-            handleCancel();
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.InboundEPView, documentUri: result.filePath } });
         }
     };
 
@@ -171,8 +179,8 @@ export function SequenceWizard(props: SequenceWizardProps) {
         props.handlePopupClose ? props.handlePopupClose() : rpcClient.getMiVisualizerRpcClient().goBack();
     }
 
-    return (
-        <FormView title="Create New Sequence" onClose={handleBackButtonClick} >
+    const formContent = (
+        <>
             <TextField
                 id='name-input'
                 label="Name"
@@ -190,40 +198,29 @@ export function SequenceWizard(props: SequenceWizardProps) {
                     errorMsg={errors.onErrorSequence?.message.toString()}
                     {...register("onErrorSequence")}
                 />
-                <FormCheckBox
-                    label="Enable tracing"
-                    {...register("trace")}
-                    control={control}
-                />
-                <FormCheckBox
-                    label="Enable statistics"
-                    {...register("statistics")}
-                    control={control}
-                />
+                <FormCheckBox label="Enable tracing" {...register("trace")} control={control} />
+                <FormCheckBox label="Enable statistics" {...register("statistics")} control={control} />
             </FormGroup>
-            {isRegistryContentVisible && <FormCheckBox
-                label="Save the sequence in registry"
-                {...register("saveInReg")}
-                control={control}
-            />}
-            {isRegistryContentVisible && watch("saveInReg") && (<>
+            {isRegistryContentVisible && <FormCheckBox label="Save the sequence in registry" {...register("saveInReg")} control={control} />}
+            {isRegistryContentVisible && watch("saveInReg") && (
                 <AddToRegistry path={props.path} fileName={watch("name")} register={register} errors={errors} getValues={getValues} />
-            </>)}
+            )}
             <FormActions>
-                <Button
-                    appearance="secondary"
-                    onClick={handleCancel}
-                >
-                    Cancel
-                </Button>
-                <Button
-                    appearance="primary"
-                    disabled={!isDirty}
-                    onClick={handleSubmit(handleCreateSequence)}
-                >
+                <Button appearance="secondary" onClick={handleCancel}>Cancel</Button>
+                <Button appearance="primary" disabled={!isDirty} onClick={handleSubmit(handleCreateSequence)}>
                     {isNewTemplate ? "Create" : "Save Changes"}
                 </Button>
             </FormActions>
-        </FormView>
+        </>
+    );
+
+    return (
+        <>
+            {!props.isExternalTrigger ? (
+                <FormView title="Create New Sequence" onClose={handleBackButtonClick}>
+                    {formContent}
+                </FormView>
+            ) : formContent}
+        </>
     );
 }
