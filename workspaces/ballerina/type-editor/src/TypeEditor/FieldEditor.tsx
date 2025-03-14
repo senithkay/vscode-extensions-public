@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Member, Type } from '@wso2-enterprise/ballerina-core';
 import { Button, CheckBox, Codicon, Position, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
-import { typeToSource, defaultAnonymousRecordType } from './TypeUtil';
+import { typeToSource, defaultAnonymousRecordType, isValidBallerinaIdentifier } from './TypeUtil';
 import { RecordEditor } from './RecordEditor';
 import { TypeHelper } from '../TypeHelper';
 
@@ -33,6 +33,7 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
     const [typeFieldCursorPosition, setTypeFieldCursorPosition] = useState<number>(0);
     const [helperPaneOffset, setHelperPaneOffset] = useState<Position>({ top: 0, left: 0 });
     const [helperPaneOpened, setHelperPaneOpened] = useState<boolean>(false);
+    const [nameError, setNameError] = useState<string>('');
 
     const toggleOptional = () => {
         onChange({
@@ -53,6 +54,14 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
             ...member,
             name: e.target.value
         });
+    }
+
+    const handleMemberNameBlur = (e: React.FocusEvent<HTMLInputElement>) => {        
+        if (!isValidBallerinaIdentifier( e.target.value)) {
+            setNameError('Invalid Identifier.');
+        } else {
+            setNameError('');
+        }
     }
 
     const handleMemberTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -163,7 +172,9 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                 <CheckBox label="" checked={selected} onChange={() => { selected ? onDeselect() : onSelect(); }} />
                 <TextField
                     value={member.name}
-                    onBlur={handleMemberNameChange}
+                    onChange={handleMemberNameChange}
+                    onBlur={handleMemberNameBlur}
+                    errorMsg={nameError}
                 />
                 <TextField
                     ref={typeFieldRef}
