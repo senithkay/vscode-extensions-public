@@ -91,7 +91,7 @@ import {
     EndOfFileRequest,
     RecordsInWorkspaceMentions,
     BuildMode,
-    DevantComponentResponse
+    DevantComponent
 } from "./interfaces";
 
 export interface BIDiagramAPI {
@@ -151,5 +151,6 @@ export interface BIDiagramAPI {
     search: (params: BISearchRequest) => Promise<BISearchResponse>;
     getRecordNames: () => Promise<RecordsInWorkspaceMentions>;
     getFunctionNames: () => Promise<RecordsInWorkspaceMentions>;
-    getDevantComponent: () => Promise<DevantComponentResponse | undefined>;
+    getDevantComponent: () => Promise<DevantComponent | undefined>;
+
 }

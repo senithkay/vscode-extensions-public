@@ -28,7 +28,8 @@
         "onCommand:ballerina.showExamples",
         "workspaceContains:**/Ballerina.toml",
         "onNotebook:ballerina-notebook",
-        "onUri"
+        "onUri",
+        "onCommand:BI.notify-deployment-completion"
     ],
     "extensionDependencies": [
         "anweber.httpbook",
@@ -535,11 +536,6 @@
                 "title": "Create Notebook",
                 "category": "Ballerina",
                 "icon": "$(notebook)"
-            },
-            {
-                "command": "ballerina.view.architectureView",
-                "title": "Architecture View",
-                "category": "Ballerina"
             },
             {
                 "command": "ballerina.view.serviceDesigner",

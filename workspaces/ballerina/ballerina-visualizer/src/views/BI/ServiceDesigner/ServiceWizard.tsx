@@ -18,7 +18,6 @@ import { LoadingContainer } from '../../styles';
 import { TitleBar } from '../../../components/TitleBar';
 import { TopNavigationBar } from '../../../components/TopNavigationBar';
 import { LoadingRing } from '../../../components/Loader';
-import { isBetaModule } from '../ComponentListView/componentListUtils';
 
 const Container = styled.div`
     display: "flex";
@@ -37,18 +36,13 @@ export interface ServiceWizardProps {
     type: string;
 }
 
-interface WizardHeaderInfo {
-    title: string;
-    moduleName: string;
-}
-
 export function ServiceWizard(props: ServiceWizardProps) {
     const { type } = props;
     const { rpcClient } = useRpcContext();
 
     const [step, setStep] = useState<number>(0);
 
-    const [headerInfo, setHeaderInfo] = useState<WizardHeaderInfo>(undefined);
+    const [title, setTitle] = useState(undefined);
     const [listenerModel, setListenerModel] = useState<ListenerModel>(undefined);
     const [serviceModel, setServiceModel] = useState<ServiceModel>(undefined);
     const [listeners, setListeners] = useState<ListenersResponse>(undefined);
@@ -63,10 +57,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
         rpcClient.getServiceDesignerRpcClient()
         .getServiceModel({ filePath: "", moduleName: type, listenerName: "" })
         .then(res => {
-            setHeaderInfo({
-                title: res.service.displayName || res.service.name,
-                moduleName: res.service.moduleName
-            });
+            setTitle(res.service.displayName || res.service.name);
         });
         rpcClient.getServiceDesignerRpcClient().getListeners({ filePath: "", moduleName: type }).then(res => {
             console.log("Existing Listeners: ", res);
@@ -140,12 +131,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
     return (
         <View>
             <TopNavigationBar />
-            {headerInfo && (
-                <TitleBar
-                    title={headerInfo.title}
-                    isBetaFeature={isBetaModule(headerInfo.moduleName)}
-                />
-            )}
+            {title && <TitleBar title={title}/>}
             <ViewContent>
                 {!listenerModel && !listeners &&
                     <LoadingContainer>

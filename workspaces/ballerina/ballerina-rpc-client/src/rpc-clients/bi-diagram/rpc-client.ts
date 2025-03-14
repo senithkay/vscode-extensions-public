@@ -41,7 +41,7 @@ import {
     CreateComponentResponse,
     CurrentBreakpointsResponse,
     DeploymentResponse,
-    DevantComponentResponse,
+    DevantComponent,
     EndOfFileRequest,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -380,7 +380,7 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(getFunctionNames, HOST_EXTENSION);
     }
 
-    getDevantComponent(): Promise<DevantComponentResponse | undefined> {
+    getDevantComponent(): Promise<DevantComponent | undefined> {
         return this._messenger.sendRequest(getDevantComponent, HOST_EXTENSION);
     }
 }
