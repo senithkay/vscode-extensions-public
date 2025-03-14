@@ -81,12 +81,14 @@ export function BallerinaModuleForm(props: BallerinaModuleProps) {
                 id='name-input'
                 label="Module Name"
                 errorMsg={errors.moduleName?.message}
+                required
                 {...register("moduleName")}
             />
             <TextField
                 id='version-input'
                 label="Version"
                 errorMsg={errors.version?.message}
+                required
                 {...register("version")}
             />
             <br />
