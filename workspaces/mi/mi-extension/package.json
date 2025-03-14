@@ -19,6 +19,9 @@
     "onDebugDynamicConfigurations:mi",
     "onUri"
   ],
+  "extensionDependencies": [
+    "wso2.wso2-platform"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "languages": [
@@ -150,6 +153,12 @@
             "type": "boolean",
             "default": false,
             "description": "Enable legacy expression support",
+            "scope": "resource"
+          },
+          "MI.Scope": {
+            "type": "string",
+            "default": "",
+            "description": "Devant project scope",
             "scope": "resource"
           }
         }

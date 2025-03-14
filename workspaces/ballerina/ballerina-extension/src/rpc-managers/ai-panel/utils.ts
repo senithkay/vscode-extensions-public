@@ -1438,7 +1438,7 @@ export async function searchDocumentation(message: string): Promise<string | Err
     if (response as Response) {
         return await filterDocumentation(response as Response);
     } else {
-        return SERVER_ERROR;
+        return SERVER_ERROR
     }
     
 }
