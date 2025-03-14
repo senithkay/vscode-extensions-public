@@ -69,7 +69,7 @@ export function FunctionForm(props: FunctionFormProps) {
             setFormSubtitle('Create mappings on how to convert the inputs into a single output');
         } else if (isNpFunction) {
             nodeKind = 'NP_FUNCTION_DEFINITION';
-            formType.current = 'Natural Programming Function';
+            formType.current = 'Natural Function';
             setTitleSubtitle('Build a flow using a natural language description');
             setFormSubtitle('Describe what you need in a prompt and let AI handle the implementation');
         } else {
@@ -107,7 +107,32 @@ export function FunctionForm(props: FunctionFormProps) {
                 filePath: Utils.joinPath(URI.file(projectPath), fileName).fsPath,
                 id: { node: kind },
             });
-        const flowNode = res.flowNode;
+        let flowNode = res.flowNode;
+        if (isNpFunction) {
+            /* 
+            * TODO: Remove this once the LS is updated
+            * HACK: Add the advanced fields under parameters.advanceValue
+            */ 
+            // Get all the advanced fields
+            let properties = flowNode.properties as NodeProperties;
+            const advancedProperties = Object.fromEntries(
+                Object.entries(properties).filter(([_, property]) => property.advanced)
+            );
+            // Remove the advanced fields from properties
+            properties = Object.fromEntries(
+                Object.entries(properties).filter(([_, property]) => !property.advanced)
+            );
+            flowNode.properties = properties;
+
+            // Add the all the advanced fields to advanceValue
+            flowNode.properties.parameters = {
+                ...flowNode.properties.parameters,
+                advanceValue: {
+                    ...advancedProperties,
+                }
+            }
+        }
+
         setFunctionNode(flowNode);
         console.log("Function Node: ", flowNode);
     }
@@ -120,7 +145,32 @@ export function FunctionForm(props: FunctionFormProps) {
                 fileName,
                 projectPath
             });
-        const flowNode = res.functionDefinition;
+        let flowNode = res.functionDefinition;
+        if (isNpFunction) {
+            /* 
+            * TODO: Remove this once the LS is updated
+            * HACK: Add the advanced fields under parameters.advanceValue
+            */ 
+            // Get all the advanced fields
+            let properties = flowNode.properties as NodeProperties;
+            const advancedProperties = Object.fromEntries(
+                Object.entries(properties).filter(([_, property]) => property.advanced)
+            );
+            // Remove the advanced fields from properties
+            properties = Object.fromEntries(
+                Object.entries(properties).filter(([_, property]) => !property.advanced)
+            );
+            flowNode.properties = properties;
+
+            // Add the all the advanced fields to advanceValue
+            flowNode.properties.parameters = {
+                ...flowNode.properties.parameters,
+                advanceValue: {
+                    ...advancedProperties,
+                }
+            }
+        }
+
         setFunctionNode(flowNode);
         console.log("Existing Function Node: ", flowNode);
     }
