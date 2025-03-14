@@ -28,8 +28,7 @@ export function AIAgentPanel(props: AIAgentPanelProps) {
         await rpcClient.getVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
-                view: MACHINE_VIEW.BIServiceWizard,
-                serviceType: "ai.agent",
+                view: MACHINE_VIEW.AIChatAgentWizard
             },
         });
     };
@@ -47,6 +46,7 @@ export function AIAgentPanel(props: AIAgentPanelProps) {
                     onClick={handleClick}
                     disabled={isDisabled}
                     tooltip={isDisabled ? OutOfScopeComponentTooltip : ""}
+                    isBeta
                 />
             </CardGrid>
         </PanelViewMore>

@@ -20,6 +20,7 @@ import { FileIntegrationPanel } from "./FileIntegrationPanel";
 import { IntegrationAPIPanel } from "./IntegrationApiPanel";
 import { OtherArtifactsPanel } from "./OtherArtifactsPanel";
 import { AIAgentPanel } from "./AIAgentPanel";
+
 interface ComponentListViewProps {
     scope: SCOPE;
 };

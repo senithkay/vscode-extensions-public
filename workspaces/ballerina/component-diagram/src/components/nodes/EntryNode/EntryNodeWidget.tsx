@@ -19,7 +19,7 @@ import { MoreVertIcon } from "../../../resources/icons/nodes/MoreVertIcon";
 import { CDAutomation, CDFunction, CDService, CDResourceFunction } from "@wso2-enterprise/ballerina-core";
 import { getEntryNodeFunctionPortName } from "../../../utils/diagram";
 import { GraphQLIcon } from "../../../resources/icons/nodes/GraphqlIcon";
-
+import { AgentIcon } from "../../../resources/icons/nodes/AgentIcon";
 type NodeStyleProp = {
     hovered: boolean;
     inactive?: boolean;
@@ -75,7 +75,7 @@ const Icon = styled.div`
     }
 `;
 
-const Title = styled(StyledText)<NodeStyleProp>`
+const Title = styled(StyledText) <NodeStyleProp>`
     max-width: ${ENTRY_NODE_WIDTH - 80}px;
     white-space: nowrap;
     overflow: hidden;
@@ -138,7 +138,7 @@ const FunctionBoxWrapper = styled.div`
     color: ${ThemeColors.ON_SURFACE};
 `;
 
-const StyledServiceBox = styled(ServiceBox)<NodeStyleProp>`
+const StyledServiceBox = styled(ServiceBox) <NodeStyleProp>`
     height: 40px;
     padding: 0 12px;
 
@@ -170,12 +170,12 @@ interface EntryNodeWidgetProps {
     engine: DiagramEngine;
 }
 
-export interface NodeWidgetProps extends Omit<EntryNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<EntryNodeWidgetProps, "children"> { }
 
 export function EntryNodeWidget(props: EntryNodeWidgetProps) {
     const { model, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
-    const { onServiceSelect, onAutomationSelect, onDeleteComponent } = useDiagramContext();
+    const { onServiceSelect, onAutomationSelect, onDeleteComponent, onFunctionSelect } = useDiagramContext();
     const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(menuAnchorEl);
 
@@ -247,6 +247,48 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
 
     const hasMoreFunctions = serviceFunctions.length > 3;
     const visibleFunctions = serviceFunctions.slice(0, hasMoreFunctions ? 2 : serviceFunctions.length);
+
+    if ((model.node as CDService)?.type === "agent:Service") {
+        return (
+            <Node>
+                <TopPortWidget port={model.getPort("in")!} engine={engine} />
+                <Box hovered={isHovered}>
+                    <ServiceBox
+                        onMouseEnter={() => setIsHovered(true)}
+                        onMouseLeave={() => setIsHovered(false)}
+                        onClick={() => { onFunctionSelect(serviceFunctions[0]) }}
+                    >
+                        <Icon><AgentIcon /></Icon>
+                        <Header hovered={isHovered} onClick={() => { onFunctionSelect(serviceFunctions[0]) }}>
+                            <Title hovered={isHovered}>{getNodeTitle().replace(/^\//, '')}</Title>
+                            <Description>{getNodeDescription()}</Description>
+                        </Header>
+                        <MenuButton appearance="icon" onClick={handleOnMenuClick}>
+                            <MoreVertIcon />
+                        </MenuButton>
+                    </ServiceBox>
+                </Box>
+                <Popover
+                    open={isMenuOpen}
+                    anchorEl={menuAnchorEl}
+                    handleClose={handleOnMenuClose}
+                    sx={{
+                        padding: 0,
+                        borderRadius: 0,
+                    }}
+                >
+                    <Menu>
+                        {menuItems.map((item) => (
+                            <MenuItem key={item.id} item={item} />
+                        ))}
+                    </Menu>
+                </Popover>
+                <BottomPortWidget port={model.getPort("out")!} engine={engine} />
+                <BottomPortWidget port={model.getPort(getEntryNodeFunctionPortName(serviceFunctions[0]))!} engine={engine} />
+            </Node>
+        );
+    }
+
 
     return (
         <Node>

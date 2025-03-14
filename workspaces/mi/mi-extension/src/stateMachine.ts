@@ -625,6 +625,8 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
                 dark: Uri.file(path.join(extension.context.extensionPath, 'assets', `dark-${icon}.svg`)),
             };;
         }
+    } else if (location?.view) {
+        VisualizerWebview.currentPanel = new VisualizerWebview(location?.view, extension.webviewReveal);
     }
 }
 

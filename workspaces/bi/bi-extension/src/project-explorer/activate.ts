@@ -26,7 +26,7 @@ export function activateProjectExplorer(config: ExplorerActivationConfig) {
 		setLoadingStatus();
 	}
 
-	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(isBallerina);
+	const projectExplorerDataProvider = new ProjectExplorerEntryProvider();
 	const projectTree = createProjectTree(projectExplorerDataProvider);
 
 	if (isBallerina) {

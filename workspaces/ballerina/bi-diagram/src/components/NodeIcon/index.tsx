@@ -84,6 +84,7 @@ export function NodeIcon(props: NodeIconProps) {
         case "FUNCTION_CALL":
             return <FunctionIcon />;
         case "NP_FUNCTION_CALL":
+        case "NP_FUNCTION":
             return <Icon name="bi-ai-function" sx={{ fontSize: size, width: size, height: size }} />;
         case "DATA_MAPPER_CALL":
             return <Icon name="dataMapper" sx={{ fontSize: size, width: size, height: size }} />;

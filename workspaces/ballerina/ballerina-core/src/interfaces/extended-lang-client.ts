@@ -565,6 +565,7 @@ export interface PartialST {
 
 export interface OpenAPIConverterParams {
     documentFilePath: string;
+    enableBalExtension?: boolean;
 }
 
 export interface OpenAPISpec {
@@ -881,6 +882,7 @@ export interface SignatureHelpResponse {
 export interface VisibleTypesRequest {
     filePath: string;
     position: LinePosition;
+    typeConstraint?: string;
 }
 
 export interface VisibleTypeItem {
@@ -1334,6 +1336,7 @@ export interface AIGentToolsRequest {
     filePath: string;
     flowNode: FlowNode;
     toolName: string;
+    description: string;
     connection: string;
 }
 
@@ -1349,6 +1352,12 @@ export interface AIConnectorActionsRequest {
 }
 export interface AIConnectorActionsResponse {
     actions: AvailableNode[];
+}
+
+// <-------- Deployment Related ------->
+
+export interface DeploymentResponse {
+    isCompleted: boolean;
 }
 
 // <------------ BI INTERFACES --------->

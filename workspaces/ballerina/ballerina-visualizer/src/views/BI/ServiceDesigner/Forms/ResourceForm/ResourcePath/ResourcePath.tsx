@@ -7,10 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Codicon, Dropdown, LinkButton, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { PropertyModel } from '@wso2-enterprise/ballerina-core';
+import { isConstantLiteral, parseResourcePath, SegmentParam } from '../Utils/ResourcePathParser';
+import { string } from 'yup';
 
 const verbs = [
 	{
@@ -55,25 +57,70 @@ export interface ResourcePathProps {
 	path: PropertyModel;
 	method: PropertyModel;
 	onChange: (method: PropertyModel, path: PropertyModel) => void;
+	onError: (hasErros: boolean) => void;
 }
 
 export function ResourcePath(props: ResourcePathProps) {
-	const { method, path, onChange } = props;
+	const { method, path, onChange, onError } = props;
+
+	const [inputValue, setInputValue] = useState('');
+	const [resourcePathErrors, setResourcePathErrors] = useState<string>("");
+	const allowedPathParamTypes = ['string', 'int', 'float', 'boolean', 'decimal'];
+
+	useEffect(() => {
+		const resourePathStr = path.value ? path.value : "";
+		onError(!resourePathStr);
+		setInputValue(resourePathStr);
+	}, []);
 
 	const handleMethodChange = (value: string) => {
 		onChange({ ...method, value: value.toLowerCase() }, path);
 	};
 
 	const handlePathChange = (value: string) => {
+		setInputValue(value);
 		onChange(method, { ...path, value });
 	};
+
+	const handleBlur = () => {
+		const { errors, valid, segments } = parseResourcePath(inputValue);
+		if (errors.length > 0) {
+			onError(true);
+			setResourcePathErrors(errors[0].message);
+			return;
+		}
+
+		let allPathParams: string[] = [];
+		for (let i = 0; i < segments.length; i++) {
+			const segment = segments[i];
+			if (segment.type === 'param') {
+				const param = segment as SegmentParam;
+				const paramName = param.paramName;
+				if (paramName && allPathParams.includes(paramName)) {
+					onError(true);
+					setResourcePathErrors(`Duplicate path parameter: ${paramName}`);
+					return;
+				}
+				allPathParams.push(paramName);
+				const paramType = param.typeDescriptor;
+				if (paramType && !(allowedPathParamTypes.includes(paramType) || isConstantLiteral(paramType))) {
+					onError(true);
+					setResourcePathErrors(`Unsupported path parameter type: ${paramType}`);
+					return;
+				}
+			}
+		}
+		setResourcePathErrors("");
+		onError(false);
+	}
 
 	const handlePathAdd = () => {
-		const value = `${path.value}/[string param]`;
+		const value = !path.value || path.value == '' ? '[string param]' : `${path.value}/[string param]`;
+		setInputValue(value);
 		onChange(method, { ...path, value });
 	};
 
-
+	
 	return (
 		<>
 			<PathContainer>
@@ -98,13 +145,14 @@ export function ResourcePath(props: ResourcePathProps) {
 					sx={{ marginLeft: 15, flexGrow: 1 }}
 					autoFocus
 					required
-					errorMsg={""}
+					errorMsg={resourcePathErrors}
 					label="Resource Path"
 					size={70}
 					onTextChange={(input) => {
 						const trimmedInput = input.startsWith('/') ? input.slice(1) : input;
 						handlePathChange(trimmedInput);
 					}}
+					onBlur={handleBlur}
 					placeholder="path/foo"
 					value={path.value}
 					onFocus={(e) => e.target.select()}
