@@ -127,6 +127,7 @@ export class BallerinaExtension {
     public ballerinaHome: string;
     private ballerinaCmd: string;
     public ballerinaVersion: string;
+    public biSupported: boolean;
     public extension: Extension<any>;
     private clientOptions: LanguageClientOptions;
     public langClient?: ExtendedLangClient;
@@ -152,6 +153,7 @@ export class BallerinaExtension {
         this.ballerinaHome = '';
         this.ballerinaCmd = '';
         this.ballerinaVersion = '';
+        this.biSupported = false;
         this.isPersist = false;
         this.ballerinaUserHomeName = '.ballerina';
         this.ballerinaUserHome = path.join(this.getUserHomeDirectory(), this.ballerinaUserHomeName);
@@ -227,11 +229,11 @@ export class BallerinaExtension {
             this.showMessageInstallBallerina();
         });
 
-        commands.registerCommand('ballerina.setup-ballerina', () => { // Install developer pack from ballerina dist repo
+        commands.registerCommand('ballerina.setup-ballerina', () => { // Install ballerina from central for new users
             this.installBallerina();
         });
 
-        commands.registerCommand('ballerina.update-ballerina', () => { // Update developer pack from ballerina dist repo
+        commands.registerCommand('ballerina.update-ballerina', () => { // Update developer pack from ballerina dev build and set to ballerina-home and enable plugin dev mode
             this.updateIntegratorVersion(true);
         });
 
@@ -261,6 +263,7 @@ export class BallerinaExtension {
             const pluginVersion = this.extension.packageJSON.version.split('-')[0];
             return this.getBallerinaVersion(this.ballerinaHome, this.overrideBallerinaHome()).then(async runtimeVersion => {
                 this.ballerinaVersion = runtimeVersion.split('-')[0];
+                this.biSupported = isSupportedSLVersion(this, 2201120)
                 const { home } = this.autoDetectBallerinaHome();
                 this.ballerinaHome = home;
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${this.ballerinaVersion}`);
