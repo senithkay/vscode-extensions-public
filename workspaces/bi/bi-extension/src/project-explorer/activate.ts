@@ -73,6 +73,8 @@ function handleNonBallerinaVisibility() {
 		} else {
 			commands.executeCommand('setContext', 'BI.status', 'unknownProject');
 		}
+	} else {
+		commands.executeCommand('setContext', 'BI.status', 'noLS');
 	}
 	commands.executeCommand(SHARED_COMMANDS.OPEN_BI_WELCOME);
 }
