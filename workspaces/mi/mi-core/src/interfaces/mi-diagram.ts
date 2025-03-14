@@ -49,4 +49,10 @@ export type FormExpressionFieldValue = {
     fromAI?: boolean;
     value: string;
     namespaces: Namespace[];
+    description?: AIDescription;
+}
+
+export type AIDescription = {
+    defaultValue: string;
+    currentValue: string;
 }
