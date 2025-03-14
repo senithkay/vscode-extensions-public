@@ -1177,7 +1177,7 @@ async function updateMI(miVersion: string, latestUpdateVersion: string): Promise
             const replaceOption = 'Replace Existing Installation';
             const createNewOption = 'Install as New Version';
             const selection = await vscode.window.showWarningMessage(
-                'An existing Micro Integrator installation was found. Would you like to replace it or install as a new version? Note: Replacing will remove all existing configurations and CApps.',
+                'An existing Micro Integrator runtime was found. Would you like to replace it or install as a separate runtime? Note: Replacing will remove all existing configurations and CApps in the server.',
                 replaceOption,
                 createNewOption
             );
