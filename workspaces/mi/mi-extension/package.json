@@ -151,6 +151,12 @@
             "default": false,
             "description": "Enable legacy expression support",
             "scope": "resource"
+          },
+          "MI.Scope": {
+            "type": "string",
+            "default": "",
+            "description": "Devant project scope",
+            "scope": "resource"
           }
         }
       }
