@@ -99,8 +99,10 @@ export class AiAgentRpcManager implements AIAgentAPI {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             try {
-                const res: AIGentToolsResponse = await context.langClient.genTool(params);
-                resolve(res);
+                const response: AIGentToolsResponse = await context.langClient.genTool(params);
+                await this.updateSource(response.textEdits);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                resolve(response);
             } catch (error) {
                 console.log(error);
             }
@@ -313,6 +315,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                     filePath: toolsPath,
                     flowNode: flowNode,
                     toolName: toolName,
+                    description: "",
                     connection: connectionName
                 });
             await this.updateSource(codeEdits.textEdits);
@@ -359,6 +362,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                     filePath: toolsPath,
                     flowNode: flowNode,
                     toolName: toolName,
+                    description: tool.description,
                     connection: tool.selectedCodeData.parentSymbol || "",
                 });
             await this.updateSource(codeEdits.textEdits);

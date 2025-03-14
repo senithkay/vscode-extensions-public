@@ -73,9 +73,8 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
         });
     }
 
-    constructor(isBallerina: boolean) {
+    constructor() {
         this._data = [];
-        isBallerina && this.refresh();
     }
 
     getTreeItem(element: ProjectExplorerEntry): vscode.TreeItem | Thenable<vscode.TreeItem> {

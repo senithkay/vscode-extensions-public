@@ -774,7 +774,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             ];
 
             setCategories(toolCategories);
-            setSidePanelView(SidePanelView.AGENT_TOOL_LIST);
+            setSidePanelView(SidePanelView.ADD_TOOL);
             setShowSidePanel(true);
             setShowProgressIndicator(false);
         }, 500);

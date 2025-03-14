@@ -21,6 +21,7 @@ import { ClassEditor } from "./ClassEditor";
 import { AdvancedOptions } from "./AdvancedOptions";
 import { TypeHelperCategory, TypeHelperItem, TypeHelperOperator } from "../TypeHelper";
 import { TypeHelperContext } from "../Context";
+import { isValidBallerinaIdentifier } from "./TypeUtil";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -132,13 +133,7 @@ enum TypeKind {
 
 const undoRedoManager = new UndoRedoManager();
 
-// Add validation function
-const isValidBallerinaIdentifier = (name: string): boolean => {
-    // Ballerina identifiers must start with a letter or underscore
-    // and can contain letters, digits, and underscores
-    const regex = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
-    return name.length > 0 && regex.test(name);
-};
+
 
 export function TypeEditor(props: TypeEditorProps) {
     console.log("===TypeEditorProps===", props);
@@ -271,7 +266,7 @@ export function TypeEditor(props: TypeEditorProps) {
 
     const onTypeChange = async (type: Type) => {
         if (!isValidBallerinaIdentifier(type.name)) {
-            setNameError("Invalid name.");
+            setNameError("Invalid Identifier.");
             return;
         }
         const name = type.name;
@@ -395,6 +390,15 @@ export function TypeEditor(props: TypeEditorProps) {
         }
     };
 
+    const handleOnBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const typedName = e.target.value;
+        if (typedName && !isValidBallerinaIdentifier(typedName)) {
+            setNameError("Invalid Identifier.");
+        } else {
+            setNameError(""); // Clear error if valid
+        }
+    };
+
     return (
         <TypeHelperContext.Provider value={props.typeHelper}>
             <S.Container>
@@ -442,7 +446,12 @@ export function TypeEditor(props: TypeEditorProps) {
                                                     id={type.name}
                                                     label={type.properties["name"].metadata.label}
                                                     value={tempName}
-                                                    onChange={(e) => setTempName(e.target.value)}
+                                                    errorMsg={nameError}
+                                                    onBlur={handleOnBlur}
+                                                    onChange={(e) => {
+                                                        setTempName(e.target.value);
+                                                        setNameError("");  // Clear error when user types
+                                                    }}
                                                     description={type.properties["name"].metadata.description}
                                                     required={!type.properties["name"].optional}
                                                     autoFocus
@@ -477,6 +486,8 @@ export function TypeEditor(props: TypeEditorProps) {
                                     <TextField
                                         label="Name"
                                         value={type.name}
+                                        errorMsg={nameError}
+                                        onBlur={handleOnBlur}
                                         onChange={(e) => {
                                             setType({ ...type, name: e.target.value });
                                             setNameError("");  // Clear error when user types

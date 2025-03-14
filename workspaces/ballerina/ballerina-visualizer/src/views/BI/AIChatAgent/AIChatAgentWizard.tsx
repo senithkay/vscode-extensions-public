@@ -102,6 +102,7 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
             const listener = listenerModel;
             const listenerName = agentName + "Listener";
             listener.properties['name'].value = listenerName;
+            listener.properties['listenOn'].value = "check http:getDefaultListener()";
 
             setCurrentStep(1);
             await rpcClient.getServiceDesignerRpcClient().addListenerSourceCode({ filePath: "", listener });
@@ -123,13 +124,15 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
                     filePath: "",
                     service: res.service
                 }).then((res) => {
-                    rpcClient.getVisualizerRpcClient().openView({
-                        type: EVENT_TYPE.OPEN_VIEW,
-                        location: {
-                            documentUri: res.filePath,
-                            position: res.position
-                        },
-                    });
+                    setTimeout(() => {
+                        rpcClient.getVisualizerRpcClient().openView({
+                            type: EVENT_TYPE.OPEN_VIEW,
+                            location: {
+                                documentUri: res.filePath,
+                                position: res.position
+                            },
+                        });
+                    }, 1000);
                     setCurrentStep(3);
                     setIsCreating(false);
                 });
@@ -170,7 +173,13 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
                                             setAgentName(e.target.value);
                                             validateName(e.target.value);
                                         }}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && !isCreating && !nameError && agentName) {
+                                                handleCreateService();
+                                            }
+                                        }}
                                         errorMsg={nameError}
+                                        autoFocus
                                     />
                                     <ButtonContainer>
                                         <Button

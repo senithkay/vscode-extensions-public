@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { CodeData, FunctionNode, LineRange, NodeKind, NodeProperties } from "@wso2-enterprise/ballerina-core";
+import { FunctionNode, LineRange, NodeKind, NodeProperties } from "@wso2-enterprise/ballerina-core";
 import { View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";

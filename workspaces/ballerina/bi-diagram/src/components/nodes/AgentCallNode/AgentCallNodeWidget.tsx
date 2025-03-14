@@ -25,7 +25,7 @@ import {
     NODE_WIDTH,
 } from "../../../resources/constants";
 import { Button, Icon, Item, Menu, MenuItem, Popover, ThemeColors, Tooltip } from "@wso2-enterprise/ui-toolkit";
-import { MoreVertIcon, OpenAiIcon, AzureOpenAiIcon, AnthropicIcon, OllamaIcon, DefaultLlmIcon } from "../../../resources/icons";
+import { MoreVertIcon, OpenAiIcon, AzureOpenAiIcon, AnthropicIcon, OllamaIcon, DefaultLlmIcon, MistralAIIcon } from "../../../resources/icons";
 import { AgentData, FlowNode, ToolData } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
 import ConnectorIcon from "../../ConnectorIcon";
@@ -698,6 +698,8 @@ function getLlmModelIcons(modelType: string) {
             return <AnthropicIcon />;
         case "OllamaModel":
             return <OllamaIcon />;
+        case "MistralAiModel":
+            return <MistralAIIcon />;
         default:
             return <DefaultLlmIcon />;
     }

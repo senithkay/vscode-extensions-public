@@ -57,10 +57,11 @@ export interface ResourcePathProps {
 	path: PropertyModel;
 	method: PropertyModel;
 	onChange: (method: PropertyModel, path: PropertyModel) => void;
+	onError: (hasErros: boolean) => void;
 }
 
 export function ResourcePath(props: ResourcePathProps) {
-	const { method, path, onChange } = props;
+	const { method, path, onChange, onError } = props;
 
 	const [inputValue, setInputValue] = useState('');
 	const [resourcePathErrors, setResourcePathErrors] = useState<string>("");
@@ -68,6 +69,8 @@ export function ResourcePath(props: ResourcePathProps) {
 
 	useEffect(() => {
 		const resourePathStr = path.value ? path.value : "";
+		onError(!resourePathStr);
+		setInputValue(resourePathStr);
 	}, []);
 
 	const handleMethodChange = (value: string) => {
@@ -82,6 +85,7 @@ export function ResourcePath(props: ResourcePathProps) {
 	const handleBlur = () => {
 		const { errors, valid, segments } = parseResourcePath(inputValue);
 		if (errors.length > 0) {
+			onError(true);
 			setResourcePathErrors(errors[0].message);
 			return;
 		}
@@ -93,18 +97,21 @@ export function ResourcePath(props: ResourcePathProps) {
 				const param = segment as SegmentParam;
 				const paramName = param.paramName;
 				if (paramName && allPathParams.includes(paramName)) {
+					onError(true);
 					setResourcePathErrors(`Duplicate path parameter: ${paramName}`);
 					return;
 				}
 				allPathParams.push(paramName);
 				const paramType = param.typeDescriptor;
 				if (paramType && !(allowedPathParamTypes.includes(paramType) || isConstantLiteral(paramType))) {
+					onError(true);
 					setResourcePathErrors(`Unsupported path parameter type: ${paramType}`);
 					return;
 				}
 			}
 		}
 		setResourcePathErrors("");
+		onError(false);
 	}
 
 	const handlePathAdd = () => {
