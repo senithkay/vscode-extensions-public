@@ -34,12 +34,12 @@
         "viewsWelcome": [
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to Ballerina Integrator. You can open a folder containing a Ballerina integration or create a new integration.\n[Open Ballerina Integration](command:vscode.openFolder)\n[Create New Integration](command:ballerina.open.bi.new)\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://wso2.github.io/docs-ballerina-integrator/).",
+                "contents": "Welcome to Ballerina Integrator. You can open a folder containing a Ballerina integration or create a new integration.\n[Open Ballerina Integration](command:vscode.openFolder)\n[Create New Integration](command:ballerina.open.bi.new)\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
                 "when": "BI.status == 'unknownProject'"
             },
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to WSO2 Ballerina Integrator! The WSO2 Ballerina distribution is required but not found. [Set up WSO2 Ballerina distribution](command:ballerina.open.bi.welcome) to get started.",
+                "contents": "Welcome to Ballerina Integrator for VS Code! Ballerina distribution is required but not found. [Set up Ballerina distribution](command:ballerina.open.bi.welcome) to get started.\nExplore more at [ballerina.io](https://ballerina.io)",
                 "when": "BI.status == 'noLS'"
             },
             {

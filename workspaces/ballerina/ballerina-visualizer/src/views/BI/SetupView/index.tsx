@@ -143,14 +143,13 @@ export function SetupView(props: SetupViewProps) {
         <Wrapper>
             <TitleContainer>
                 <Headline>Ballerina Integrator for VS Code</Headline>
-                <SubLine>Let's Set Up</SubLine>
+                <SubLine>Let's set up your environment</SubLine>
                 <Caption>
-                    Welcome to Ballerina Integrator! Let's quickly set up your environment to get started. Just click the button below,
-                    and we’ll take care of everything step by step.
+                    Ballerina distribution is required but not found. Just click the button below, and we’ll take care of everything step by step.
                 </Caption>
             </TitleContainer>
             <StyledButton appearance="primary" onClick={() => downloadLS()} disabled={progress !== null}>
-                <ButtonContent>Set Up Ballerina Integrator</ButtonContent>
+                <ButtonContent>Set up Ballerina distribution</ButtonContent>
             </StyledButton>
             {progress &&
                 <StepContainer>
@@ -224,7 +223,7 @@ export function SetupView(props: SetupViewProps) {
                 <StepContainer>
                     <Row>
                         <Column>
-                            <StepTitle>Restart to Apply Changes</StepTitle>
+                            <StepTitle>Restart to apply changes</StepTitle>
                             <StepDescription>
                                 To finish the setup, please restart the VS Code. This ensures everything is
                                 configured correctly and ready to use.

@@ -112,13 +112,13 @@ export function WelcomeView() {
 
     const openGettingStartedGuide = () => {
         rpcClient.getCommonRpcClient().openExternalUrl({
-            url: "https://wso2.github.io/docs-ballerina-integrator/get-started/quick-start-guide/"
+            url: "https://bi.docs.wso2.com/get-started/quick-start-guide/"
         })
     };
 
     const openSamples = () => {
         rpcClient.getCommonRpcClient().openExternalUrl({
-            url: "https://wso2.github.io/docs-ballerina-integrator/learn/message-transformation/"
+            url: "https://bi.docs.wso2.com/learn/message-transformation/"
         })
     };
 
@@ -139,7 +139,7 @@ export function WelcomeView() {
                         <StepTitle>Get Started Quickly</StepTitle>
                         <StepDescription>
                             New to Ballerina Integrator? Start here! Explore step-by-step tutorials to help you get up and running with
-                            ease. <VSCodeLink onClick={openGettingStartedGuide}>Read the Guide</VSCodeLink>.
+                            ease. <VSCodeLink onClick={openGettingStartedGuide}>Read the guide</VSCodeLink>.
                         </StepDescription>
                     </Column>
                 </Row>
