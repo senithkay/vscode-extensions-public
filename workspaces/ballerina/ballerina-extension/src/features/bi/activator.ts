@@ -105,6 +105,22 @@ export function activate(context: BallerinaExtension) {
         }
     });
 
+    commands.registerCommand(BI_COMMANDS.NOTIFY_DEPLOYMENT_COMPLETION, () => {
+        const rpcClient = new BiDiagramRpcManager();
+
+        rpcClient.getDevantComponent().then((res) => {
+            console.log(">>> Devant Component", res);
+            if (res) {
+                openView(EVENT_TYPE.OPEN_VIEW, {
+                    view: MACHINE_VIEW.Overview,
+                    metadata: {
+                        devantComponent: res
+                    }
+                });
+            }
+        });
+    });
+
     //HACK: Open all Ballerina files in the project
     openAllBallerinaFiles(context);
 }
