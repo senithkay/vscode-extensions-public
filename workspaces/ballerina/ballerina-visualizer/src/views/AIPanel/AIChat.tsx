@@ -487,17 +487,12 @@ export function AIChat() {
 
     async function processContent(token: string, content: [string, AttachmentResult[]]) {
         const [message, attachments] = content;
-        console.log(`------MESSAGE: ${message}------`);
         const cleanedMessage = message.replace(/<\/?badge>/g, "").trim();
-        console.log(`------CLEANED MESSAGE: ${cleanedMessage}------`);
         const commandKey = findCommand(cleanedMessage);
-        console.log(`------COMMAND KEY: ${commandKey}------`);
         if (commandKey) {
             const commandLength = commandKey.length;
             const messageBody = cleanedMessage.slice(commandLength).trim();
-            console.log(`------MESSAGE BODY: ${messageBody}------`);
             const parameters = extractParameters(commandKey, messageBody);
-            console.log(`------PARAMETERS: ${parameters}------`);
 
             if (parameters) {
                 switch (commandKey) {
@@ -696,7 +691,6 @@ export function AIChat() {
                     "(\\s*(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+(?:[\\s,]+(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+)*\\s*)"
                 )
                 .replace(/<recordname>/g, "(\\s*(?:[\\w\\/|.-]+\\s*:\\s*)?[\\w|:\\[\\]]+\\s*)")
-                .replace(/<use-case>/g, "([\\s\\S]+?)")
                 .replace(/<requirements>/g, "([\\s\\S]+?)")
                 .replace(/<functionname>/g, "(.+?)")
                 .replace(/<question>/g, "(.+?)")
