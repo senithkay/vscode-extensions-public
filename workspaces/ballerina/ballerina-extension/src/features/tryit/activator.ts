@@ -326,7 +326,7 @@ async function generateTryItFileContent(targetDir: string, openapiSpec: OAISpec,
         const tryitContent = tryitCompiledTemplate({
             ...openapiSpec,
             port: service.port.toString(),
-            basePath: service.basePath,
+            basePath: service.basePath === '/' ? '' : service.basePath, // to avoid double slashes in the URL
             serviceName: service.name || 'Default',
             isResourceMode: isResourceMode,
             resourceMethod: isResourceMode ? resourceMetadata?.methodValue.toUpperCase() : '',
