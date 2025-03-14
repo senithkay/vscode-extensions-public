@@ -22,6 +22,7 @@ import {
     PostProcessRequest,
     ProjectSource,
     RequirementSpecification,
+    SourceFile,
     TestGenerationRequest,
     TestGenerationResponse,
     abortTestGeneration,
@@ -70,6 +71,7 @@ import {
     promptWSO2AILogout,
     readDeveloperMdFile,
     refreshAccessToken,
+    refreshFile,
     showSignInAlert,
     stopAIMappings,
     updateDevelopmentDocument,
@@ -104,6 +106,7 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(checkSyntaxError, (args: ProjectSource) => rpcManger.checkSyntaxError(args));
     messenger.onRequest(getInitialPrompt, () => rpcManger.getInitialPrompt());
     messenger.onNotification(clearInitialPrompt, () => rpcManger.clearInitialPrompt());
+    messenger.onNotification(refreshFile, (args: SourceFile) => rpcManger.refreshFile(args));
     messenger.onRequest(getGeneratedTests, (args: TestGenerationRequest) => rpcManger.getGeneratedTests(args));
     messenger.onRequest(getTestDiagnostics, (args: TestGenerationResponse) => rpcManger.getTestDiagnostics(args));
     messenger.onRequest(getServiceSourceForName, (args: string) => rpcManger.getServiceSourceForName(args));
