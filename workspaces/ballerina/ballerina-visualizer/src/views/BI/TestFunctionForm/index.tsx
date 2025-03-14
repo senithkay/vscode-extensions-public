@@ -149,6 +149,7 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
             const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
                 filePath: functionFilePath.fsPath,
                 position: { line: 0, offset: 0 },
+                typeConstraint: "anydata"
             });
 
             visibleTypes = convertToVisibleTypes(response.types);
