@@ -11,7 +11,7 @@ import vscode from 'vscode';
 import { ENABLE_BACKGROUND_DRIFT_CHECK } from "../../core/preferences";
 import { debounce } from 'lodash';
 import { StateMachine } from "../../stateMachine";
-import { addDefaultModelConfigForNaturalFunctions, getBackendURL, getLLMDiagnostics, getAccessToken } from "./utils";
+import { addDefaultModelConfigForNaturalFunctions, getBackendURL, getLLMDiagnostics, getTokenForNaturalFunction } from "./utils";
 import { NLCodeActionProvider, showTextOptions } from './nl-code-action-provider';
 import { BallerinaExtension } from 'src/core';
 import { PROGRESS_BAR_MESSAGE_FOR_DRIFT, WARNING_MESSAGE, WARNING_MESSAGE_DEFAULT, MONITERED_EXTENSIONS,
@@ -113,7 +113,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                 cancellable: false,
             },
             async () => {
-                const token: string = await getAccessToken();
+                const token: string = await getTokenForNaturalFunction();
                 if (token == null) {
                     vscode.window.showWarningMessage(WARNING_MESSAGE_FOR_NP_TOKEN_NOT_FOUND);
                     return;
