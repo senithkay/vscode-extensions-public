@@ -549,6 +549,10 @@ export function addDefaultModelConfigForNaturalFunctions(projectPath: string, to
     fs.writeFileSync(configFilePath, fileContent);
 }
 
+export function getTokenForNaturalFunction() {
+    return refreshAccessToken();
+}
+
 function isSkippedDiagnostic(result: ResultItem) {
     const cause = result.cause.toLowerCase();
     if (cause.includes(LACK_OF_API_DOCUMENTATION_WARNING) || cause.includes(LACK_OF_API_DOCUMENTATION_WARNING_2) || cause.includes(MISSING_API_DOCS_2)
