@@ -4991,8 +4991,8 @@ ${keyValuesXML}`;
 
     async markAsDefaultSequence(params: MarkAsDefaultSequenceRequest): Promise<void> {
         return new Promise(async (resolve) => {
-            const { path: filePath, remove } = params;
-            commands.executeCommand(COMMANDS.MARK_SEQUENCE_AS_DEFAULT, { info: { path: filePath } }, remove);
+            const { path: filePath, remove, name } = params;
+            commands.executeCommand(COMMANDS.MARK_SEQUENCE_AS_DEFAULT, { info: { path: filePath, name  } }, remove);
 
             resolve();
         });

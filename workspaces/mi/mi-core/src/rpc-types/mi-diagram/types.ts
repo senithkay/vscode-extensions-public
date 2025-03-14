@@ -1845,6 +1845,7 @@ export interface DSSFetchTablesResponse {
 export interface MarkAsDefaultSequenceRequest {
     path: string;
     remove?: boolean;
+    name?: string
 }
 
 export interface GetSubFoldersRequest {
