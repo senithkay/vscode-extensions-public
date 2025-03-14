@@ -274,7 +274,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
 
                     if (existingType !== newType) {
                         setValue(field.key, newType);
-                        getVisualiableFields();
+                        mergeFormDataWithFlowNode && getVisualiableFields();
                     }
                 }
 
