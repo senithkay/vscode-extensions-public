@@ -123,7 +123,7 @@ const TypeHelperEl = (props: TypeHelperProps) => {
                     });
             }
         }, 150),
-        [filteredTypeBrowserTypes]
+        [filePath, targetLineRange]
     );
 
     const handleSearchTypeBrowser = useCallback(
@@ -131,7 +131,7 @@ const TypeHelperEl = (props: TypeHelperProps) => {
             setLoadingTypeBrowser(true);
             debouncedSearchTypeBrowser(searchText);
         },
-        [debouncedSearchTypeBrowser, filteredTypeBrowserTypes]
+        [debouncedSearchTypeBrowser]
     );
 
     const handleTypeItemClick = async (item: TypeHelperItem) => {
