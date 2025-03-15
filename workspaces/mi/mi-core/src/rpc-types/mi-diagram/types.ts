@@ -1848,6 +1848,15 @@ export interface MarkAsDefaultSequenceRequest {
     name?: string
 }
 
+export const SCOPE = {
+    AUTOMATION: 'automation',
+    INTEGRATION_AS_API: 'integration-as-api',
+    EVENT_INTEGRATION: 'event-integration',
+    FILE_INTEGRATION: 'file-integration',
+    AI_AGENT: 'ai-agent',
+    ANY: 'any'
+};
+
 export interface GetSubFoldersRequest {
     path: string;
 }
