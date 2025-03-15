@@ -23,6 +23,7 @@ import { ANIMATION } from './constant';
 import { getArrowPosition, getHelperPanePosition } from '../utils';
 import { useTypeHelperContext } from '../Context';
 import { TypeHelperComponent } from './TypeHelper';
+import { CodeData, FunctionKind } from '@wso2-enterprise/ballerina-core';
 
 /* Types */
 export type TypeHelperItem = {
@@ -30,6 +31,8 @@ export type TypeHelperItem = {
     insertText: string;
     sortText?: string;
     type: CompletionItemKind;
+    codedata?: CodeData;
+    kind?: FunctionKind;
 };
 
 export type TypeHelperCategory = {
