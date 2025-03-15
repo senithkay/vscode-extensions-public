@@ -120,7 +120,7 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
                     });
             }
         }, 150),
-        [filteredTypeBrowserTypes]
+        [filePath, targetLineRange]
     );
 
     const handleSearchTypeBrowser = useCallback(
@@ -128,7 +128,7 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
             setLoadingTypeBrowser(true);
             debouncedSearchTypeBrowser(searchText);
         },
-        [debouncedSearchTypeBrowser, filteredTypeBrowserTypes]
+        [debouncedSearchTypeBrowser]
     );
 
     const handleTypeItemClick = async (item: TypeHelperItem) => {
