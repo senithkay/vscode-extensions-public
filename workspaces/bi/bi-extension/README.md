@@ -4,12 +4,11 @@ WSO2 Ballerina Integrator Visual Studio Code extension (BI for VSCode) is a comp
 
 ## Prerequisites
 
-You need the following to work with the BI for VS Code extension.
+You need the following to work with the Ballerina Integrator extension
+- [Ballerina VS Code extension](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina)
+- [Ballerina Swan Lake Update 2201.12.1](https://ballerina.io/downloads/) or above]
 
-- Ballerina VS Code extension 5.0.0 or above
-- Ballerina Swan Lake Update 12 or above
-
-If these prerequisites are not installed on your local machine, the Ballerina Integrator for VS Code extension will guide you through the download and configuration process during the setup.
+**If these prerequisites are not installed on your local machine, the Ballerina Integrator for VS Code extension will guide you through the download and configuration process during the setup.**
 
 If a different Ballerina version is installed on your local machine, you'll be prompted to download the required versions.
 
@@ -19,27 +18,22 @@ If a different Ballerina version is installed on your local machine, you'll be p
 
 2. Click on the Ballerina Integrator icon on the Activity Bar of the VS Code editor to open the extension and get started.
 
-    <img src="https://github.com/wso2/docs-mi/blob/main/en/docs/assets/img/develop/mi-for-vscode/mi-vscode-extension.png?raw=true" width="100%" />
+<img src="https://github.com/wso2/docs-bi/blob/main/en/docs/assets/img/extension-readme/bi-icon.png?raw=true" width="100%" />
 
-When you open the extension for the first time, you'll see the **Design View** panel on the right side and the **Ballerina Integrator: Project Explorer** view on the left.
+When you open the extension for the first time, you'll see the **Create Integration** panel. To get started, you need to first create the integration. You can either open a folder containing an integration or create a new integration.
 
-<img src="https://github.com/wso2/docs-mi/blob/main/en/docs/assets/img/develop/mi-for-vscode/getting-started.png?raw=true" width="100%" />
+## Ballerina Integrator Designer
 
-To get started, you need to first create the integration. You can either open a folder containing an integration or create a new integration. Alternatively, you can use an integration sample provided under Explore Samples, which will generate the required integrations and files for a specific use case.
-
-## Ballerina Integrator Project Explorer
-
-Ballerina Integrator (BI) Project Explorer provides a view of all the project directories created for your integration solution. Shown below is the project explorer of a sample project.
+Ballerina Integrator (BI) Designer is a graphical tool that allows you to design your integration projects visually. You can create, edit, and manage your integration projects using the BI Designer. 
+Click on the **+ Add Artifact** button to add artifacts to your integration project.
 
 <img src="https://github.com/wso2/docs-mi/blob/main/en/docs/assets/img/develop/mi-for-vscode/project-explorer.png?raw=true" width="100%" />
-
-You can add the artifacts required for your integration using BI Project Explorer.
 
 ## WSO2 Copilot
 
 The WSO2 Copilot is an AI-powered tool that simplifies the process of creating integration scenarios. It allows you to specify integration requirements using natural language or by providing relevant files, such as OpenAPI specifications. WSO2 Copilot generates the necessary integration artifacts, which can be seamlessly incorporated into your projects. You can iteratively refine your projects through conversational prompts, enabling the addition of features or modifications with ease. This approach supports incremental development, allowing you to build and enhance your integration projects over time.
 
-<img src="https://github.com/wso2/docs-mi/blob/main/en/docs/assets/img/develop/mi-for-vscode/open-ai-panel.png?raw=true" width="100%" />
+<img src="https://github.com/wso2/docs-bi/blob/main/en/docs/assets/img/extension-readme/open-ai-panel.png?raw=true" width="100%" />
 
 You can create any integration project by entering your integration scenario in natural language into the provided text box, allowing AI to generate the necessary artifacts.
 
@@ -48,18 +42,17 @@ You can provide integration requirements as:
 - Text prompts: Describe your integration scenario in natural language.
 - Files: Upload relevant files, such as OpenAPI specifications, that provide additional context for the integration.
 
-<img src="https://github.com/wso2/docs-mi/blob/main/en/docs/assets/img/develop/mi-for-vscode/mi-copilot.png?raw=true" width="100%" />
+<img src="https://github.com/wso2/docs-bi/blob/main/en/docs/assets/img/extension-readme/wso2-co-pilot.png?raw=true" width="100%" />
 
-## Samples
+## Explore Pre-Built Samples
 
-The Design View lists a set of sample projects and integration artifacts that represent common integration scenarios. You can use these to explore Ballerina Integrator and to try out common integration use cases.
-
-<img src="https://github.com/wso2/docs-mi/blob/main/en/docs/assets/img/develop/mi-for-vscode/samples.png?raw=true" width="100%" />
+Need inspiration? Browse through sample projects to see how Ballerina Integrator handles real-world integrations.
+[Explore Samples](https://bi.docs.wso2.com/learn/message-transformation/)
 
 ## Documentation
 
-To learn more about the Ballerina Integrator for Visual Studio Code extension, go to the [Ballerina Integrator for VS Code](https://mi.docs.wso2.com/en/latest/develop/mi-for-vscode/mi-for-vscode-overview/) documentation.
+To learn more about the Ballerina Integrator for Visual Studio Code extension, go to the [Ballerina Integrator quick start guide](https://bi.docs.wso2.com/get-started/quick-start-guide/) documentation.
 
 ## Reach Out
 
-For further assistance, create a [GitHub issue](https://github.com/wso2/mi-vscode/issues). Our team will review and respond promptly to address your concerns.
+For further assistance, [join our community](https://ballerina.io/community/#join-us). Our team will respond promptly to address your concerns.
