@@ -42,7 +42,7 @@ type TypeHelperComponentProps = {
     onChange: (newType: string, newCursorPosition: number) => void;
     onSearchTypeHelper: (searchText: string, isType: boolean) => void;
     onSearchTypeBrowser: (searchText: string) => void;
-    onTypeItemClick: (item: TypeHelperItem) => void;
+    onTypeItemClick: (item: TypeHelperItem) => Promise<string>;
     onClose: () => void;
 };
 
@@ -158,8 +158,8 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
     };
 
     const handleTypeItemClick = (item: TypeHelperItem) => {
-        const prefixRegex = /[a-zA-Z0-9_']*$/;
-        const suffixRegex = /^[a-zA-Z0-9_']*/;
+        const prefixRegex = /[a-zA-Z0-9_':]*$/;
+        const suffixRegex = /^[a-zA-Z0-9_':]*/;
         const prefixMatch = currentType.slice(0, currentCursorPosition).match(prefixRegex);
         const suffixMatch = currentType.slice(currentCursorPosition).match(suffixRegex);
         const prefixCursorPosition = currentCursorPosition - (prefixMatch?.[0]?.length ?? 0);
