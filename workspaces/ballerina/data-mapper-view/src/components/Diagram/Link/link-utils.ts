@@ -14,7 +14,7 @@ import {
 } from "../utils/dm-utils";
 import { getSupportedUnionTypes } from "../utils/union-type-utils";
 
-import { LinkModel } from "@projectstorm/react-diagrams-core";
+import { LinkModel, PortModel } from "@projectstorm/react-diagrams-core";
 
 export enum ClauseType {
     Select = "select",
@@ -140,7 +140,11 @@ export function removePendingMappingTempLinkIfExists(link: LinkModel) {
 	}
 }
 
-export function userActionRequiredMapping(mappingType: MappingType): boolean {
+export function userActionRequiredMapping(mappingType: MappingType, targetPort: PortModel): boolean {
+    if (targetPort instanceof RecordFieldPortModel && !targetPort?.parentModel) {
+        // No user action required provided for root target ports.
+        return false;
+    }
     return mappingType === MappingType.ArrayToArray
         || mappingType === MappingType.ArrayToSingleton
         || mappingType === MappingType.RecordToRecord
