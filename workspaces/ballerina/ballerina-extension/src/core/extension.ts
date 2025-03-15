@@ -509,7 +509,7 @@ export class BallerinaExtension {
                 percentage: 0,
                 success: false,
                 totalSize: 0,
-                step: 5
+                step: 4
             };
             try {
                 RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
@@ -525,116 +525,6 @@ export class BallerinaExtension {
 
                         response = await this.axiosWithRetry({
                             url: jreDownloadUrl,
-                            method: 'GET',
-                            responseType: 'arraybuffer',
-                            headers: {
-                                'User-Agent': this.ballerinaUpdateToolUserAgent
-                            },
-                            onDownloadProgress: (progressEvent) => {
-                                const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                                console.log(`Total Size: ${progressEvent.total / sizeMB}MB`);
-                                console.log(`Download progress: ${percentCompleted}%`);
-
-                                if (percentCompleted > lastPercentageReported) {
-                                    progress.report({ increment: percentCompleted - lastPercentageReported, message: `${percentCompleted}% of ${Math.round(progressEvent.total / sizeMB)}MB` });
-                                    lastPercentageReported = percentCompleted;
-                                }
-
-                                // Sizes will be sent as MB
-                                // res = {
-                                //     downloadedSize: progressEvent.loaded / sizeMB,
-                                //     message: "Downloading...",
-                                //     percentage: percentCompleted,
-                                //     success: false,
-                                //     totalSize: progressEvent.total / sizeMB,
-                                //     step: 5
-                                // };
-                                // RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
-                            }
-                        });
-                        return;
-                    }
-                );
-            } catch (error) {
-                // Sizes will be sent as MB
-                res = {
-                    ...res,
-                    message: `Failed: ${error}`,
-                    success: false,
-                    step: -1 // Error step
-                };
-                RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
-                console.error('Error downloading Ballerina dependencies:', error);
-            }
-            console.log('response:', response.data);
-            const zipFilePath = path.join(ballerinaDependenciesPath, jreVersion + '.zip');
-            fs.writeFileSync(zipFilePath, response.data);
-            console.log(`Downloaded Ballerina dependencies to ${ballerinaDependenciesPath}`);
-
-            // Setting the Ballerina Home location
-            res = {
-                ...res,
-                message: `Setting the Ballerina dependencies...`,
-                success: false,
-                step: 5
-            };
-            RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
-            const zip = new AdmZip(zipFilePath);
-            zip.extractAllTo(ballerinaDependenciesPath, true);
-
-            // Cleanup: Remove the downloaded zip file
-            res = {
-                ...res,
-                message: `Cleaning up the temporary files...`,
-                success: false,
-                step: 5
-            };
-            RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
-            fs.rmSync(zipFilePath);
-            console.log('Cleanup complete.');
-            status = true;
-        } catch (error) {
-            console.error('Error downloading Ballerina dependencies:', error);
-            window.showErrorMessage('Error downloading Ballerina dependencies:', error);
-        }
-        return status;
-    }
-
-    private async downloadBallerina(distributionVersion: string) {
-        let status = false;
-        const distributionVersionUrl = `${this.updateToolServerUrl}/distributions/${distributionVersion}`;
-        const ballerinaDistributionsPath = path.join(this.ballerinaInstallationDir, 'distributions');
-        const distributionZipName = `ballerina-${distributionVersion}.zip`;
-        try {
-            // Create destination folder if it doesn't exist
-            if (!fs.existsSync(ballerinaDistributionsPath)) {
-                fs.mkdirSync(ballerinaDistributionsPath, { recursive: true });
-            }
-
-            // Download the artifact and save it to the user home directory
-            let response;
-            let res: DownloadProgress = {
-                downloadedSize: 0,
-                message: "Download starting...",
-                percentage: 0,
-                success: false,
-                totalSize: 0,
-                step: 4
-            };
-            try {
-                RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
-                const sizeMB = 1024 * 1024;
-                await window.withProgress(
-                    {
-                        location: ProgressLocation.Notification,
-                        title: `Downloading Ballerina ${distributionVersion}`,
-                        cancellable: false,
-                    },
-                    async (progress) => {
-                        let lastPercentageReported = 0;
-
-                        response = await this.axiosWithRetry({
-                            url: distributionVersionUrl,
                             method: 'GET',
                             responseType: 'arraybuffer',
                             headers: {
@@ -674,6 +564,116 @@ export class BallerinaExtension {
                     step: -1 // Error step
                 };
                 RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+                console.error('Error downloading Ballerina dependencies:', error);
+            }
+            console.log('response:', response.data);
+            const zipFilePath = path.join(ballerinaDependenciesPath, jreVersion + '.zip');
+            fs.writeFileSync(zipFilePath, response.data);
+            console.log(`Downloaded Ballerina dependencies to ${ballerinaDependenciesPath}`);
+
+            // Setting the Ballerina Home location
+            res = {
+                ...res,
+                message: `Setting the Ballerina dependencies...`,
+                success: false,
+                step: 4
+            };
+            RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+            const zip = new AdmZip(zipFilePath);
+            zip.extractAllTo(ballerinaDependenciesPath, true);
+
+            // Cleanup: Remove the downloaded zip file
+            res = {
+                ...res,
+                message: `Cleaning up the temporary files...`,
+                success: false,
+                step: 4
+            };
+            RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+            fs.rmSync(zipFilePath);
+            console.log('Cleanup complete.');
+            status = true;
+        } catch (error) {
+            console.error('Error downloading Ballerina dependencies:', error);
+            window.showErrorMessage('Error downloading Ballerina dependencies:', error);
+        }
+        return status;
+    }
+
+    private async downloadBallerina(distributionVersion: string) {
+        let status = false;
+        const distributionVersionUrl = `${this.updateToolServerUrl}/distributions/${distributionVersion}`;
+        const ballerinaDistributionsPath = path.join(this.ballerinaInstallationDir, 'distributions');
+        const distributionZipName = `ballerina-${distributionVersion}.zip`;
+        try {
+            // Create destination folder if it doesn't exist
+            if (!fs.existsSync(ballerinaDistributionsPath)) {
+                fs.mkdirSync(ballerinaDistributionsPath, { recursive: true });
+            }
+
+            // Download the artifact and save it to the user home directory
+            let response;
+            let res: DownloadProgress = {
+                downloadedSize: 0,
+                message: "Download starting...",
+                percentage: 0,
+                success: false,
+                totalSize: 0,
+                step: 3
+            };
+            try {
+                RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+                const sizeMB = 1024 * 1024;
+                await window.withProgress(
+                    {
+                        location: ProgressLocation.Notification,
+                        title: `Downloading Ballerina ${distributionVersion}`,
+                        cancellable: false,
+                    },
+                    async (progress) => {
+                        let lastPercentageReported = 0;
+
+                        response = await this.axiosWithRetry({
+                            url: distributionVersionUrl,
+                            method: 'GET',
+                            responseType: 'arraybuffer',
+                            headers: {
+                                'User-Agent': this.ballerinaUpdateToolUserAgent
+                            },
+                            onDownloadProgress: (progressEvent) => {
+                                const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                                console.log(`Total Size: ${progressEvent.total / sizeMB}MB`);
+                                console.log(`Download progress: ${percentCompleted}%`);
+
+                                if (percentCompleted > lastPercentageReported) {
+                                    progress.report({ increment: percentCompleted - lastPercentageReported, message: `${percentCompleted}% of ${Math.round(progressEvent.total / sizeMB)}MB` });
+                                    lastPercentageReported = percentCompleted;
+                                }
+
+                                // Sizes will be sent as MB
+                                res = {
+                                    downloadedSize: progressEvent.loaded / sizeMB,
+                                    message: "Downloading...",
+                                    percentage: percentCompleted,
+                                    success: false,
+                                    totalSize: progressEvent.total / sizeMB,
+                                    step: 3
+                                };
+                                RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+                            }
+                        });
+                        return;
+                    }
+                );
+            } catch (error) {
+                // Sizes will be sent as MB
+                res = {
+                    ...res,
+                    message: `Failed: ${error}`,
+                    success: false,
+                    step: -1 // Error step
+                };
+                RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
                 console.error('Error downloading Ballerina:', error);
             }
             const zipFilePath = path.join(ballerinaDistributionsPath, distributionZipName);
@@ -685,7 +685,7 @@ export class BallerinaExtension {
                 ...res,
                 message: `Setting the Ballerina Home location...`,
                 success: false,
-                step: 4
+                step: 3
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             const zip = new AdmZip(zipFilePath);
@@ -696,7 +696,7 @@ export class BallerinaExtension {
                 ...res,
                 message: `Cleaning up the temporary files...`,
                 success: false,
-                step: 4
+                step: 3
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             fs.rmSync(zipFilePath);
@@ -780,15 +780,15 @@ export class BallerinaExtension {
                                 }
 
                                 // Sizes will be sent as MB
-                                // res = {
-                                //     downloadedSize: progressEvent.loaded / sizeMB,
-                                //     message: "Downloading...",
-                                //     percentage: percentCompleted,
-                                //     success: false,
-                                //     totalSize: progressEvent.total / sizeMB,
-                                //     step: 2
-                                // };
-                                // RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+                                res = {
+                                    downloadedSize: progressEvent.loaded / sizeMB,
+                                    message: "Downloading...",
+                                    percentage: percentCompleted,
+                                    success: false,
+                                    totalSize: progressEvent.total / sizeMB,
+                                    step: 2
+                                };
+                                RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
                             }
                         });
                         return;
@@ -814,7 +814,7 @@ export class BallerinaExtension {
                 ...res,
                 message: `Setting the Ballerina Home location...`,
                 success: false,
-                step: 3
+                step: 2
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             const zip = new AdmZip(zipFilePath);
@@ -827,7 +827,7 @@ export class BallerinaExtension {
                 ...res,
                 message: `Cleaning up the temporary files...`,
                 success: false,
-                step: 3
+                step: 2
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             fs.rmSync(zipFilePath);
@@ -846,7 +846,7 @@ export class BallerinaExtension {
         let res: DownloadProgress = {
             message: `Setting the environment variables for user...`,
             success: false,
-            step: 11
+            step: 5
         };
         RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
         const platform = os.platform();
