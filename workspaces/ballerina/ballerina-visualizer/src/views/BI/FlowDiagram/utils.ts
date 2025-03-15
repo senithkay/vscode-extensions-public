@@ -46,7 +46,10 @@ export const transformCategories = (categories: Category[]): Category[] => {
     // find AGENT_CALL from statement category
     const agentCallNode = statementCategory?.items?.find((item) => (item as AvailableNode).codedata?.node === "AGENT_CALL") as AvailableNode;
     if (agentCallNode?.codedata) {
+        // HACK: update agent call node until LS update with the new agent node
         agentCallNode.codedata.object = "Agent";
+        agentCallNode.codedata.parentSymbol = "";
+        agentCallNode.codedata.version =  agentCallNode.codedata.version || "0.7.16";
     }else{
         // TODO: this should remove once LS update with the new agent node
         // add new item
