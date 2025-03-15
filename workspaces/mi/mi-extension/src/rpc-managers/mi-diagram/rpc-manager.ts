@@ -245,11 +245,11 @@ import {
     TestConnectorConnectionResponse,
     MiVersionResponse,
     CheckDBDriverResponse,
-    RemoveDBDriverResponse,
     CopyArtifactRequest,
     CopyArtifactResponse,
     GetArtifactTypeRequest,
     GetArtifactTypeResponse,
+    ExtendedTextEdit,
     LocalInboundConnectorsResponse,
     BuildProjectRequest,
     DeployProjectRequest,
@@ -268,7 +268,6 @@ import { Transform } from 'stream';
 import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
-import * as syntaxTree from '../../../../syntax-tree/lib/src';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { parse, stringify } from "yaml";
 import { UnitTest } from "../../../../syntax-tree/lib/src";
@@ -2522,19 +2521,24 @@ ${endpointAttributes}
     async applyEdit(params: ApplyEditRequest | ApplyEditsRequest): Promise<ApplyEditResponse> {
         return new Promise(async (resolve) => {
             const edit = new WorkspaceEdit();
-            const uri = params.documentUri;
-            const file = Uri.file(uri);
-            const addNewLine = params.addNewLine ?? true;
 
             const getRange = (range: STRange | Range) =>
                 new Range(new Position(range.start.line, range.start.character),
                     new Position(range.end.line, range.end.character));
 
             if ('text' in params) {
+                const uri = params.documentUri;
+                const file = Uri.file(uri);
                 const textToInsert = params.addNewLine ? (params.text.endsWith('\n') ? params.text : `${params.text}\n`) : params.text;
                 edit.replace(file, getRange(params.range), textToInsert);
             } else if ('edits' in params) {
                 params.edits.forEach(editRequest => {
+                    const uri = editRequest.documentUri ?? params.documentUri;
+                    const file = Uri.file(uri);
+
+                    if (editRequest.isCreateNewFile) {
+                        edit.createFile(file);
+                    }
                     const textToInsert = params.addNewLine ? (editRequest.newText.endsWith('\n') ? editRequest.newText : `${editRequest.newText}\n`) : editRequest.newText;
                     edit.replace(file, getRange(editRequest.range), textToInsert);
                 });
@@ -2542,22 +2546,26 @@ ${endpointAttributes}
 
             await workspace.applyEdit(edit);
 
-            let document = workspace.textDocuments.find(doc => doc.uri.fsPath === uri) ||
-                await workspace.openTextDocument(file);
-
             if (!params.disableFormatting) {
-                const formatEdits = (editRequest: TextEdit) => {
+                const formatEdits = (editRequest: ExtendedTextEdit) => {
                     const textToInsert = editRequest.newText.endsWith('\n') ? editRequest.newText : `${editRequest.newText}\n`;
                     const formatRange = this.getFormatRange(getRange(editRequest.range), textToInsert);
-                    return this.rangeFormat({ uri, range: formatRange });
+                    return this.rangeFormat({ uri: editRequest.documentUri!, range: formatRange });
                 };
                 if ('text' in params) {
-                    await formatEdits({ range: getRange(params.range), newText: params.text });
+                    await formatEdits({ range: getRange(params.range), newText: params.text, documentUri: params.documentUri });
                 } else if ('edits' in params) {
-                    await Promise.all(params.edits.map(editRequest => formatEdits({ range: getRange(editRequest.range), newText: editRequest.newText })));
+                    await Promise.all(params.edits.map(editRequest => formatEdits({
+                        range: getRange(editRequest.range),
+                        newText: editRequest.newText,
+                        documentUri: editRequest.documentUri ?? params.documentUri
+                    })));
                 }
             }
             if (!params.disableUndoRedo) {
+                const uri = params.documentUri;
+                const file = Uri.file(uri);
+                let document = workspace.textDocuments.find(doc => doc.uri.fsPath === uri) || await workspace.openTextDocument(file);
                 const content = document.getText();
                 undoRedo.addModification(content);
             }
