@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useState } from "react";
 import { MACHINE_VIEW, EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import styled from "@emotion/styled";
@@ -15,10 +15,8 @@ import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 
 const Wrapper = styled.div`
-    height: calc(100vh - 100px);
     max-width: 660px;
     margin: 80px 120px;
-    overflow: auto;
 `;
 
 const Headline = styled.div`
@@ -98,7 +96,12 @@ const StepDescription = styled.div<{ color?: string }>`
 `;
 
 
-export function WelcomeView() {
+type WelcomeViewProps = {
+    isBISupported: boolean;
+};
+
+
+export function WelcomeView(props: WelcomeViewProps) {
     const { rpcClient } = useRpcContext();
 
     const goToCreateProject = () => {
@@ -112,14 +115,18 @@ export function WelcomeView() {
 
     const openGettingStartedGuide = () => {
         rpcClient.getCommonRpcClient().openExternalUrl({
-            url: "https://wso2.github.io/docs-ballerina-integrator/get-started/quick-start-guide/"
+            url: "https://bi.docs.wso2.com/get-started/quick-start-guide/"
         })
     };
 
     const openSamples = () => {
         rpcClient.getCommonRpcClient().openExternalUrl({
-            url: "https://wso2.github.io/docs-ballerina-integrator/learn/message-transformation/"
+            url: "https://bi.docs.wso2.com/learn/message-transformation/"
         })
+    };
+
+    const updateBallerina = () => {
+        rpcClient.getCommonRpcClient().executeCommand({ commands: ["ballerina.update-ballerina"] })
     };
 
     return (
@@ -139,7 +146,7 @@ export function WelcomeView() {
                         <StepTitle>Get Started Quickly</StepTitle>
                         <StepDescription>
                             New to Ballerina Integrator? Start here! Explore step-by-step tutorials to help you get up and running with
-                            ease. <VSCodeLink onClick={openGettingStartedGuide}>Read the Guide</VSCodeLink>.
+                            ease. <VSCodeLink onClick={openGettingStartedGuide}>Read the guide</VSCodeLink>.
                         </StepDescription>
                     </Column>
                 </Row>
@@ -149,12 +156,17 @@ export function WelcomeView() {
                         <StepDescription>
                             Ready to build? Start a new integration project using our intuitive graphical designer.
                         </StepDescription>
-                        <StyledButton appearance="primary" onClick={() => goToCreateProject()}>
+                        <StyledButton disabled={!props.isBISupported} appearance="primary" onClick={() => goToCreateProject()}>
                             <ButtonContent>
                                 <Codicon name="add" iconSx={{ fontSize: 16 }} />
                                 Create New Integration
                             </ButtonContent>
                         </StyledButton>
+                        {!props.isBISupported &&
+                            <StepDescription>
+                                Your current ballerina distribution is not supported. Please update to version 12 or above. <VSCodeLink onClick={updateBallerina}>Update Now</VSCodeLink>
+                            </StepDescription>
+                        }
                     </Column>
                 </Row>
                 <Row>
