@@ -208,7 +208,7 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
             key: `description`,
             label: "Description",
             type: "TEXTAREA",
-            optional: false,
+            optional: true,
             editable: true,
             documentation: "Enter the description of the tool.",
             value: "",
@@ -229,13 +229,13 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
                     <RelativeLoader />
                 </LoaderContainer>
             )}
-            {sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
+            {!loading && sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
                 <NodeList
                     categories={categories}
                     onSelect={handleOnSelectNode}
                     onAddConnection={handleOnAddConnection}
                     onSearchTextChange={(searchText) => handleSearchFunction(searchText, FUNCTION_TYPE.REGULAR)}
-                    onAddFunction={handleOnAddFunction}
+                    // onAddFunction={handleOnAddFunction}
                     title={"Functions"}
                 />
             )}
