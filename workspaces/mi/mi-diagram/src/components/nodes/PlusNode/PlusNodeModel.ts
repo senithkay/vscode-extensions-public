@@ -15,9 +15,11 @@ import { BaseNodeModel } from "../BaseNodeModel";
 
 export class PlusNodeModel extends BaseNodeModel {
     protected model: APIResource | NamedSequence;
+    readonly type: "OpenSidePanel" | "AddNewTag" = "AddNewTag";
 
-    constructor(stNode: STNode, mediatorName: string, documentUri: string) {
+    constructor(stNode: STNode, mediatorName: string, documentUri: string, type: "OpenSidePanel" | "AddNewTag" = "AddNewTag") {
         super(NodeTypes.PLUS_NODE, mediatorName, documentUri, stNode);
+        this.type = type;
     }
 
     addPort<T extends NodePortModel>(port: T): T {
