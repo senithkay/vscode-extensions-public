@@ -70,6 +70,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         value,
         disabled,
         sx,
+        completionSx,
         completions,
         showDefaultCompletion,
         autoSelectFirstItem,
@@ -78,9 +79,11 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         helperPaneOrigin = 'bottom',
         helperPaneHeight = 'default',
         helperPaneWidth,
+        actionButtons,
+        resize = 'vertical',
+        growRange = { start: 1, offset: 7 },
         changeHelperPaneState,
         getHelperPane,
-        actionButtons,
         onChange,
         onSave,
         onCancel,
@@ -476,8 +479,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                 onBlur={handleTextAreaBlur}
                 sx={{ width: '100%', ...sx }}
                 disabled={disabled || isSavingExpression}
-                growRange={{ start: 1, offset: 7 }}
-                resize='vertical'
+                growRange={growRange}
+                resize={resize}
             />
             {isSavingExpression && <ProgressIndicator barWidth={6} sx={{ top: "100%" }} />}
             {isFocused && 
@@ -509,6 +512,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                                 getDefaultCompletion={getDefaultCompletion}
                                 onCompletionSelect={handleCompletionSelect}
                                 onDefaultCompletionSelect={onDefaultCompletionSelect}
+                                sx={completionSx}
                             />
                         </Transition>
                     </DropdownContainer>,

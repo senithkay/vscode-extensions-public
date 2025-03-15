@@ -86,3 +86,13 @@ export function getNodeTitle(node: FlowNode) {
     }
     return label;
 }
+
+export function getRawTemplate(text: string) {
+    const rawTemplateRegex = /^`.+$`/
+    const isRawTemplate = text.match(rawTemplateRegex)?.[0];
+    if (!isRawTemplate) {
+        return `\`${text}\``;
+    }
+
+    return text;
+}

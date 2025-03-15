@@ -9,6 +9,32 @@
 
 import React, { useState } from "react";
 import { Flow, FlowNode, Branch, LineRange, NodePosition, ToolData } from "../utils/types";
+import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
+import { ExpressionProperty, TextEdit } from "@wso2-enterprise/ballerina-core";
+
+type CompletionConditionalProps = {
+    completions: CompletionItem[];
+    triggerCharacters: readonly string[];
+    retrieveCompletions: (
+        value: string,
+        property: ExpressionProperty,
+        offset: number,
+        invalidateCache: boolean,
+        triggerCharacter?: string,
+        onlyVariables?: boolean
+    ) => Promise<void>;
+} | {
+    completions?: never;
+    triggerCharacters?: never;
+    retrieveCompletions?: never;
+}
+
+export type ExpressionContextProps = CompletionConditionalProps & {
+    onCompletionItemSelect?: (value: string, additionalTextEdits?: TextEdit[]) => Promise<void>;
+    onFocus?: () => void | Promise<void>;
+    onBlur?: () => void | Promise<void>;
+    onCancel?: () => void;
+}
 
 export interface DiagramContextState {
     flow: Flow;
@@ -46,6 +72,7 @@ export interface DiagramContextState {
     readOnly?: boolean;
     lockCanvas?: boolean;
     setLockCanvas?: (lock: boolean) => void;
+    expressionContext: ExpressionContextProps;
 }
 
 export const DiagramContext = React.createContext<DiagramContextState>({
@@ -83,6 +110,11 @@ export const DiagramContext = React.createContext<DiagramContextState>({
     readOnly: false,
     lockCanvas: false,
     setLockCanvas: (lock: boolean) => {},
+    expressionContext: {
+        completions: [],
+        triggerCharacters: [],
+        retrieveCompletions: () => Promise.resolve(),
+    }
 });
 
 export const useDiagramContext = () => React.useContext(DiagramContext);
