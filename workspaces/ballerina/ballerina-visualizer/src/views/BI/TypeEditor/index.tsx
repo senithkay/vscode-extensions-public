@@ -131,9 +131,15 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
         [debouncedSearchTypeBrowser, filteredTypeBrowserTypes]
     );
 
-    const handleTypeItemClick = (item: TypeHelperItem) => {
-        // TODO: Implement this onces the LS API is ready
-        console.log(item);
+    const handleTypeItemClick = async (item: TypeHelperItem) => {
+        const response = await rpcClient.getBIDiagramRpcClient().addFunction({
+            filePath: filePath,
+            codedata: item.codedata,
+            kind: item.kind,
+            searchKind: 'TYPE'
+        });
+
+        return response.template ?? '';
     };
 
     return (

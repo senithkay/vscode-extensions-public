@@ -10,6 +10,7 @@
 import { AvailableNode, Category, Item, VisibleTypeItem } from '@wso2-enterprise/ballerina-core';
 import type { TypeHelperCategory, TypeHelperItem, TypeHelperOperator } from '@wso2-enterprise/type-editor';
 import { COMPLETION_ITEM_KIND, convertCompletionItemKind } from '@wso2-enterprise/ui-toolkit';
+import { getFunctionItemKind } from '../../../utils/bi';
 
 // TODO: Remove this order onces the LS is fixed
 const TYPE_CATEGORY_ORDER = [
@@ -85,8 +86,9 @@ export const getTypeBrowserTypes = (types: Category[]) => {
             continue;
         }
         
-        const items = [];
-        const subCategories = [];
+        const categoryKind = getFunctionItemKind(category.metadata.label);
+        const items: TypeHelperItem[] = [];
+        const subCategories: TypeHelperCategory[] = [];
         for (const categoryItem of category.items) {
             if (isCategoryType(categoryItem)) {
                 if (categoryItem.items.length === 0) {
@@ -98,14 +100,18 @@ export const getTypeBrowserTypes = (types: Category[]) => {
                     items: categoryItem.items.map((item) => ({
                         name: item.metadata.label,
                         insertText: item.metadata.label,
-                        type: COMPLETION_ITEM_KIND.TypeParameter
+                        type: COMPLETION_ITEM_KIND.TypeParameter,
+                        codedata: (item as AvailableNode).codedata,
+                        kind: categoryKind
                     }))
                 });
             } else {
                 items.push({
                     name: categoryItem.metadata.label,
                     insertText: categoryItem.metadata.label,
-                    type: COMPLETION_ITEM_KIND.TypeParameter
+                    type: COMPLETION_ITEM_KIND.TypeParameter,
+                    codedata: categoryItem.codedata,
+                    kind: categoryKind
                 });
             }
         }
