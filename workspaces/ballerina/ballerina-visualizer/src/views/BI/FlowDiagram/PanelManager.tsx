@@ -181,7 +181,9 @@ export function PanelManager(props: PanelManagerProps) {
                 return <NewTool agentCallNode={selectedNode} onSave={onClose} onBack={handleOnBackToAddTool} />;
 
             case SidePanelView.AGENT_TOOL:
-                const selectedTool = selectedNode?.metadata.data.tools?.find((tool) => tool.name === selectedClientName);
+                const selectedTool = selectedNode?.metadata.data.tools?.find(
+                    (tool) => tool.name === selectedClientName
+                );
                 return <ToolConfig agentCallNode={selectedNode} toolData={selectedTool} onSave={onClose} />;
 
             case SidePanelView.AGENT_MODEL:
@@ -258,6 +260,8 @@ export function PanelManager(props: PanelManagerProps) {
     const onBackCallback =
         panelView === SidePanelView.NEW_TOOL
             ? handleOnBackToAddTool
+            : panelView === SidePanelView.NEW_AGENT
+            ? onBack
             : panelView === SidePanelView.FORM && !showEditForm
             ? onBack
             : undefined;

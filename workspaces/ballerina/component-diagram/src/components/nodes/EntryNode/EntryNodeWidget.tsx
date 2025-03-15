@@ -12,7 +12,7 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { EntryNodeModel } from "./EntryNodeModel";
 import { NODE_BORDER_WIDTH, ENTRY_NODE_WIDTH, ENTRY_NODE_HEIGHT } from "../../../resources/constants";
-import { Button, Item, Menu, MenuItem, Popover, ImageWithFallback, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, Item, Menu, MenuItem, Popover, ImageWithFallback, ThemeColors, Icon } from "@wso2-enterprise/ui-toolkit";
 import { useDiagramContext } from "../../DiagramContext";
 import { HttpIcon, TaskIcon } from "../../../resources";
 import { MoreVertIcon } from "../../../resources/icons/nodes/MoreVertIcon";
@@ -62,7 +62,7 @@ const StyledText = styled.div`
     font-size: 14px;
 `;
 
-const Icon = styled.div`
+const IconWrapper = styled.div`
     padding: 4px;
     max-width: 32px;
     svg {
@@ -258,7 +258,7 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
                         onMouseLeave={() => setIsHovered(false)}
                         onClick={() => { onFunctionSelect(serviceFunctions[0]) }}
                     >
-                        <Icon><AgentIcon /></Icon>
+                        <IconWrapper><Icon name="bi-ai-agent" /></IconWrapper>
                         <Header hovered={isHovered} onClick={() => { onFunctionSelect(serviceFunctions[0]) }}>
                             <Title hovered={isHovered}>{getNodeTitle().replace(/^\//, '')}</Title>
                             <Description>{getNodeDescription()}</Description>
@@ -299,7 +299,7 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
                     onMouseLeave={() => setIsHovered(false)}
                     onClick={handleOnClick}
                 >
-                    <Icon>{getNodeIcon()}</Icon>
+                    <IconWrapper>{getNodeIcon()}</IconWrapper>
                     <Header hovered={isHovered} onClick={handleOnClick}>
                         <Title hovered={isHovered}>{getNodeTitle()}</Title>
                         <Description>{getNodeDescription()}</Description>

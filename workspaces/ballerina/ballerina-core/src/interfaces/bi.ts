@@ -68,6 +68,8 @@ export type Metadata = {
     draft?: boolean; // for diagram draft nodes
     data?: {
         isDataMappedFunction?: boolean;
+        isAgentTool?: boolean;
+        isIsolatedFunction?: boolean;
         tools?: ToolData[];
         model?: ToolData;
         agent?: AgentData;
@@ -287,6 +289,7 @@ export type NodePropertyKey =
     | "query"
     | "functionName"
     | "systemPrompt"
+    | "prompt"
     | "enableModelContext";
 
 export type BranchKind = "block" | "worker";
