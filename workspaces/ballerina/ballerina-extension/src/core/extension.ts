@@ -1128,16 +1128,16 @@ export class BallerinaExtension {
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
 
             // Set permissions for the ballerina command
-            await fs.promises.chmod(this.getBallerinaCmd(), 0o555);
+            await fs.promises.chmod(this.getBallerinaCmd(), 0o755);
 
             // Set permissions for lib
             await this.setPermissionsForDirectory(path.join(this.getBallerinaHome(), 'lib'), 0o755);
 
             // Set permissions for all files in the distributions
-            await this.setPermissionsForDirectory(path.join(this.getBallerinaHome(), 'distributions'), 0o555);
+            await this.setPermissionsForDirectory(path.join(this.getBallerinaHome(), 'distributions'), 0o755);
 
             // Set permissions for all files in the dependencies
-            await this.setPermissionsForDirectory(path.join(this.getBallerinaHome(), 'dependencies'), 0o555);
+            await this.setPermissionsForDirectory(path.join(this.getBallerinaHome(), 'dependencies'), 0o755);
 
             console.log('Command files are now executable.');
         } catch (error) {
