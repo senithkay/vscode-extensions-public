@@ -146,6 +146,22 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
             );
             return;
         }
+        // filter "Current Integration" category items to support isIsolatedFunction
+        const currentIntegrationCategory = response.categories.find(
+            (category) => category.metadata.label === "Current Integration"
+        );
+        if (currentIntegrationCategory) {
+            currentIntegrationCategory.items = currentIntegrationCategory.items.filter(
+                (item, index) => {
+                    // check key isIsolatedFunction in item.metadata.data
+                    if (!item.metadata.data || !item.metadata.data.hasOwnProperty('isIsolatedFunction')) {
+                        return true;
+                    }
+                    // if key exists return value of isIsolatedFunction
+                    return item.metadata.data.isIsolatedFunction;
+                }
+            );
+        }
         if (!response || !response.categories) {
             return [];
         }
@@ -208,7 +224,7 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
             key: `description`,
             label: "Description",
             type: "TEXTAREA",
-            optional: false,
+            optional: true,
             editable: true,
             documentation: "Enter the description of the tool.",
             value: "",
@@ -229,13 +245,12 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
                     <RelativeLoader />
                 </LoaderContainer>
             )}
-            {sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
+            {!loading && sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
                 <NodeList
                     categories={categories}
                     onSelect={handleOnSelectNode}
                     onAddConnection={handleOnAddConnection}
-                    onSearchTextChange={(searchText) => handleSearchFunction(searchText, FUNCTION_TYPE.REGULAR)}
-                    onAddFunction={handleOnAddFunction}
+                    onSearchTextChange={(searchText) => handleSearchFunction(searchText, FUNCTION_TYPE.REGULAR, true)}
                     title={"Functions"}
                 />
             )}

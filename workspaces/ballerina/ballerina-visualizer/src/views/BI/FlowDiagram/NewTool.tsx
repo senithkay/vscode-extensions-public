@@ -74,8 +74,46 @@ export function NewTool(props: NewToolProps): JSX.Element {
 
     const handleOnSubmit = async (data: AgentToolRequest) => {
         console.log(">>> submit value", { data });
-        // save tool
         setSavingForm(true);
+
+        // agent node with tools
+        // update the agent node
+        const updatedAgentNode = cloneDeep(agentNode);
+        console.log(">>> updatedAgentNode tools", { tools: cloneDeep(updatedAgentNode.properties.tools.value) });
+        let toolsValue = cloneDeep(updatedAgentNode.properties.tools.value);
+        // Simple string manipulation to add the new tool
+        const selectedTool = data.toolName;
+        if (selectedTool) {
+            // if toolsValue is empty, and selectedTool is empty, create a new empty array
+            if (!toolsValue) {
+                toolsValue = [];
+            }
+            // if toolsValue is not empty, and selectedTool is empty, create a new array with the selected tool
+            if (toolsValue === "[]") {
+                toolsValue = `[${selectedTool}]`;
+            } else if (typeof toolsValue === "string") {
+                if (toolsValue.startsWith("[") && toolsValue.endsWith("]")) {
+                    // let's replace end bracket with the selected tool
+                    toolsValue = toolsValue.substring(0, toolsValue.length - 1) + "," + selectedTool + "]";
+                } else if (toolsValue.startsWith("[") && toolsValue.endsWith("]\n")) {
+                    // let's replace end bracket with the selected tool
+                    toolsValue = toolsValue.substring(0, toolsValue.length - 2) + "," + selectedTool + "]";
+                }
+            }
+        }
+        console.log(">>> toolsValue", { toolsValue });
+        updatedAgentNode.properties.tools.value = toolsValue;
+        updatedAgentNode.codedata.isNew = false;
+
+        const agentResponse = await rpcClient
+            .getBIDiagramRpcClient()
+            .getSourceCode({ filePath: agentFilePath.current, flowNode: updatedAgentNode });
+        console.log(">>> response getSourceCode with template ", { agentResponse });
+
+        // wait for 2 seconds
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        // add tools
         if (data.selectedCodeData.node === "FUNCTION_CALL") {
             // create tool from existing function
             // get function definition
@@ -89,6 +127,10 @@ export function NewTool(props: NewToolProps): JSX.Element {
                 console.error("Function definition not found");
                 return;
             }
+            if (functionDefinition.functionDefinition?.codedata) {
+                functionDefinition.functionDefinition.codedata.isNew = true;
+            }
+            // save tool
             const toolResponse = await rpcClient.getAIAgentRpcClient().genTool({
                 toolName: data.toolName,
                 description: data.description,
@@ -110,7 +152,10 @@ export function NewTool(props: NewToolProps): JSX.Element {
                 console.error("Node template not found");
                 return;
             }
-
+            if (nodeTemplate.flowNode?.codedata) {
+                nodeTemplate.flowNode.codedata.isNew = true;
+            }
+            // save tool
             const toolResponse = await rpcClient.getAIAgentRpcClient().genTool({
                 toolName: data.toolName,
                 description: data.description,
@@ -120,50 +165,6 @@ export function NewTool(props: NewToolProps): JSX.Element {
             });
             console.log(">>> response save tool", { toolResponse });
         }
-
-        // wait for 2 seconds
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-
-        // agent node with tools
-        // update the agent node
-        const updatedAgentNode = cloneDeep(agentNode);
-        let toolsValue = updatedAgentNode.properties.tools.value;
-
-        // Simple string manipulation to add the new tool
-        const selectedTool = data.toolName;
-        if (!selectedTool) {
-        } else if (!toolsValue || toolsValue === "[]") {
-            toolsValue = `[${selectedTool}]`;
-        } else if (typeof toolsValue === "string") {
-            if (toolsValue.startsWith("[") && toolsValue.endsWith("]")) {
-                const toolsString = toolsValue.substring(1, toolsValue.length - 1);
-                const existingTools = toolsString.split(",").map((t) => t.trim());
-
-                if (!existingTools.includes(selectedTool)) {
-                    toolsValue = toolsValue.substring(0, toolsValue.length - 1);
-                    if (toolsValue.length > 1) {
-                        toolsValue += ", ";
-                    }
-                    toolsValue += selectedTool + "]";
-                }
-            } else {
-                toolsValue = `[${selectedTool}]`;
-            }
-        } else if (Array.isArray(toolsValue)) {
-            if (!toolsValue.includes(selectedTool)) {
-                toolsValue.push(selectedTool);
-            }
-            toolsValue = `[${toolsValue.join(", ")}]`;
-        } else {
-            toolsValue = `[${selectedTool}]`;
-        }
-
-        updatedAgentNode.properties.tools.value = toolsValue;
-
-        const agentResponse = await rpcClient
-            .getBIDiagramRpcClient()
-            .getSourceCode({ filePath: agentFilePath.current, flowNode: updatedAgentNode });
-        console.log(">>> response getSourceCode with template ", { agentResponse });
 
         setSavingForm(false);
         onSave?.();
