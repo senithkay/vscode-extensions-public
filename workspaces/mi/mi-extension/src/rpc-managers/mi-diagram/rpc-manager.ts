@@ -255,7 +255,8 @@ import {
     DeployProjectRequest,
     DeployProjectResponse,
     CreateBallerinaModuleRequest,
-    CreateBallerinaModuleResponse
+    CreateBallerinaModuleResponse,
+    SCOPE
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -296,7 +297,7 @@ import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 import { importCapp } from "../../util/importCapp";
-import { compareVersions, filterConnectorVersion, generateInitialDependencies, getDefaultProjectPath, getMIVersionFromPom, buildBallerinaModule} from "../../util/onboardingUtils";
+import { compareVersions, filterConnectorVersion, generateInitialDependencies, getDefaultProjectPath, getMIVersionFromPom, buildBallerinaModule } from "../../util/onboardingUtils";
 import { Range as STRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { checkForDevantExt } from "../../extension";
 
@@ -4402,8 +4403,57 @@ ${keyValuesXML}`;
                 name: path.basename(StateMachine.context().projectUri!),
                 componentDir: StateMachine.context().projectUri
             };
-            commands.executeCommand(COMMANDS.DEVAN_DEPLOY, params);
-            resolve({ success: true });
+
+            const langClient = StateMachine.context().langClient!;
+
+            let integrationType: string | undefined;
+            if (params.componentDir) {
+                const rootPath = (await this.getProjectRoot({ path: params.componentDir })).path;
+                const resp = await langClient.getProjectIntegrationType(rootPath);
+
+                function mapTypeToScope(type: string): string | undefined {
+                    switch (type) {
+                        case 'AUTOMATION':
+                            return SCOPE.AUTOMATION;
+                        case 'INTEGRATION_AS_API':
+                            return SCOPE.INTEGRATION_AS_API;
+                        case 'EVENT_INTEGRATION':
+                            return SCOPE.EVENT_INTEGRATION;
+                        case 'FILE_INTEGRATION':
+                            return SCOPE.FILE_INTEGRATION;
+                        case 'AI_AGENT':
+                            return SCOPE.AI_AGENT;
+                        case 'ANY':
+                            return SCOPE.ANY;
+                    }
+                }
+
+                if (resp.length === 1) {
+                    const type = resp[0]
+                    integrationType = mapTypeToScope(type);
+                } else {
+                    // Show a quick pick to select deployment option
+                    const selectedScope = await window.showQuickPick(resp, {
+                        placeHolder: 'You have different types of artifacts within this project. Select the artifact type to be deployed'
+                    });
+
+                    if (selectedScope) {
+                        integrationType = mapTypeToScope(selectedScope);
+                    }
+                }
+
+                if (!integrationType) {
+                    return { success: false };
+                }
+
+                const paramsWithType = { ...params, integrationType };
+
+                commands.executeCommand(COMMANDS.DEVAN_DEPLOY, paramsWithType);
+                resolve({ success: true });
+
+            } else {
+                resolve({ success: false });
+            }
         });
     }
 
@@ -4992,7 +5042,7 @@ ${keyValuesXML}`;
     async markAsDefaultSequence(params: MarkAsDefaultSequenceRequest): Promise<void> {
         return new Promise(async (resolve) => {
             const { path: filePath, remove, name } = params;
-            commands.executeCommand(COMMANDS.MARK_SEQUENCE_AS_DEFAULT, { info: { path: filePath, name  } }, remove);
+            commands.executeCommand(COMMANDS.MARK_SEQUENCE_AS_DEFAULT, { info: { path: filePath, name } }, remove);
 
             resolve();
         });
