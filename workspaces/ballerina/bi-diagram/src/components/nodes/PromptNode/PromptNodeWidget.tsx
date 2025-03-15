@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import {
@@ -17,13 +17,13 @@ import {
     PROMPT_NODE_HEIGHT,
     PROMPT_NODE_WIDTH,
 } from "../../../resources/constants";
-import { Button, Icon, Item, TextArea, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, CompletionItem, FormExpressionEditor, FormExpressionEditorRef, Icon, Item, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import NodeIcon from "../../NodeIcon";
 import { useDiagramContext } from "../../DiagramContext";
 import { PromptNodeModel } from "./PromptNodeModel";
-import { ELineRange } from "@wso2-enterprise/ballerina-core";
+import { ELineRange, ExpressionProperty } from "@wso2-enterprise/ballerina-core";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
-import { nodeHasError } from "../../../utils/node";
+import { getRawTemplate, nodeHasError } from "../../../utils/node";
 import { cloneDeep } from "lodash";
 
 export namespace NodeStyles {
@@ -170,6 +170,14 @@ export namespace NodeStyles {
     `;
 }
 
+const FETCH_COMPLETIONS_STATE = {
+    IDLE: "IDLE",
+    FETCHING: "FETCHING",
+    DONE: "DONE"
+} as const;
+
+type FetchCompletionsState = typeof FETCH_COMPLETIONS_STATE[keyof typeof FETCH_COMPLETIONS_STATE];
+
 export interface PromptNodeWidgetProps {
     model: PromptNodeModel;
     engine: DiagramEngine;
@@ -183,14 +191,31 @@ export function PromptNodeWidget(props: PromptNodeWidgetProps) {
         projectPath,
         goToSource,
         openView,
-        onNodeSave
+        onNodeSave,
+        expressionContext
     } = useDiagramContext();
+    const {
+        completions,
+        triggerCharacters,
+        retrieveCompletions,
+        onCompletionItemSelect,
+        onFocus,
+        onBlur,
+        onCancel
+    } = expressionContext;
 
     const [isHovered, setIsHovered] = useState(false);
     const [editable, setEditable] = useState(false);
     const [bodyTextTemplate, setBodyTextTemplate] = useState("");
     const hasBreakpoint = model.hasBreakpoint();
     const isActiveBreakpoint = model.isActiveBreakpoint();
+
+    const exprRef = useRef<FormExpressionEditorRef>(null);
+    const anchorRef = useRef<HTMLDivElement>(null);
+    const cursorPositionRef = useRef<number | undefined>(undefined);
+    const fetchingStateRef = useRef<FetchCompletionsState>(FETCH_COMPLETIONS_STATE.IDLE);
+    const invalidateCacheRef = useRef<boolean>(false);
+    const field: ExpressionProperty = useMemo(() => model.node.properties['prompt'], [model]);
 
     const handleOnClick = async (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.metaKey) {
@@ -201,7 +226,7 @@ export function PromptNodeWidget(props: PromptNodeWidgetProps) {
 
     const handleSave = () => {
         const clonedNode = cloneDeep(model.node);
-        clonedNode.properties['prompt'].value = `\`${bodyTextTemplate}\``;
+        clonedNode.properties['prompt'].value = getRawTemplate(bodyTextTemplate);
         clonedNode.codedata.node = "NP_FUNCTION_DEFINITION";
         onNodeSave?.(clonedNode);
         toggleEditable();
@@ -274,14 +299,105 @@ export function PromptNodeWidget(props: PromptNodeWidgetProps) {
     const hasError = nodeHasError(model.node);
 
     useEffect(() => {
-        const prompt = model.node.properties?.['prompt']?.value;
+        const prompt = model.node.properties?.['prompt']?.value as string;
         if (!prompt) {
-            setBodyTextTemplate("");
+            handleBodyTextChange("");
         } else {
             const promptWithoutQuotes = prompt.replace(/^`|`$/g, "");
-            setBodyTextTemplate(promptWithoutQuotes);
+            handleBodyTextChange(promptWithoutQuotes);
         }
     }, [model.node.properties]);
+
+    const handleCompletionSelect = async (value: string, item: CompletionItem) => {
+        // Trigger actions on completion select
+        await onCompletionItemSelect?.(getRawTemplate(value), item.additionalTextEdits);
+
+        // Set cursor position
+        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
+        cursorPositionRef.current = cursorPosition;
+    };
+
+    const handleFocus = async () => {
+        // Retrive completions
+        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
+        cursorPositionRef.current = cursorPosition;
+        const triggerCharacter =
+            cursorPosition > 0 ? triggerCharacters.find((char) => bodyTextTemplate[cursorPosition - 1] === char) : undefined;
+        if (triggerCharacter) {
+            await retrieveCompletions(
+                getRawTemplate(bodyTextTemplate),
+                field,
+                cursorPosition + 1,
+                true,
+                triggerCharacter
+            );
+        } else {
+            await retrieveCompletions(
+                getRawTemplate(bodyTextTemplate),
+                field,
+                cursorPosition + 1,
+                true
+            );
+        }
+
+        // Trigger actions on focus
+        await onFocus?.();
+    };
+
+    const handleBlur = async () => {
+        // Trigger actions on blur
+        await onBlur?.();
+
+        // Clean up memory
+        cursorPositionRef.current = undefined;
+    };
+
+    const handleChange = async (newValue: string, updatedCursorPosition: number) => {
+        handleBodyTextChange(newValue);
+        cursorPositionRef.current = updatedCursorPosition;
+
+        // Check state to invalidate completion cache
+        if (
+            fetchingStateRef.current === FETCH_COMPLETIONS_STATE.IDLE &&
+            isExpression(newValue, updatedCursorPosition)
+        ) {
+            invalidateCacheRef.current = true;
+            fetchingStateRef.current = FETCH_COMPLETIONS_STATE.FETCHING;
+        } else if (
+            fetchingStateRef.current === FETCH_COMPLETIONS_STATE.FETCHING &&
+            isExpression(newValue, updatedCursorPosition)
+        ) {
+            invalidateCacheRef.current = false;
+            fetchingStateRef.current = FETCH_COMPLETIONS_STATE.DONE;
+        } else if (
+            fetchingStateRef.current === FETCH_COMPLETIONS_STATE.DONE &&
+            !isExpression(newValue, updatedCursorPosition)
+        ) {
+            fetchingStateRef.current = FETCH_COMPLETIONS_STATE.IDLE;
+        }
+
+        // Check if the current character is a trigger character
+        const triggerCharacter =
+            updatedCursorPosition > 0
+                ? triggerCharacters.find((char) => newValue[updatedCursorPosition - 1] === char)
+                : undefined;
+        if (triggerCharacter) {
+            await retrieveCompletions(
+                getRawTemplate(newValue),
+                field,
+                updatedCursorPosition + 1,
+                invalidateCacheRef.current,
+                triggerCharacter
+            );
+        } else {
+            await retrieveCompletions(
+                getRawTemplate(newValue),
+                field,
+                updatedCursorPosition + 1,
+                invalidateCacheRef.current
+            );
+        }
+    }
 
     return (
         <NodeStyles.Node
@@ -332,11 +448,22 @@ export function PromptNodeWidget(props: PromptNodeWidgetProps) {
                 )}
             </NodeStyles.Row>
             <NodeStyles.Body>
-                <TextArea
+                <FormExpressionEditor
+                    ref={exprRef}
+                    anchorRef={anchorRef}
+                    completions={completions}
                     value={bodyTextTemplate}
-                    onTextChange={handleBodyTextChange}
+                    placeholder="Enter your prompt here..."
+                    onChange={handleChange}
+                    onCompletionSelect={handleCompletionSelect}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
+                    onCancel={onCancel}
+                    growRange={{ start: 12, offset: 0 }}
                     disabled={!editable}
-                    rows={12}
+                    resize="disabled"
+                    sx={{ paddingInline: '0' }}
+                    completionSx={{ width: '331px' }}
                 />
             </NodeStyles.Body>
             {editable && (
@@ -352,4 +479,37 @@ export function PromptNodeWidget(props: PromptNodeWidgetProps) {
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
         </NodeStyles.Node>
     );
+}
+
+function isExpression(value: string, cursorPosition: number) {
+    let suffixMatch: boolean = false;
+    let prefixMatch: boolean = false;
+
+    if (cursorPosition === 0) {
+        return false;
+    }
+
+    for (let i = cursorPosition; i < value.length; i++) {
+        const index = i;
+        if (value[index] === "}") {
+            console.log("suffixMatch", index);
+            suffixMatch = true;
+            break;
+        } else if (value[index] === "{") {
+            break;
+        }
+    }
+
+    for (let i = cursorPosition; i > 0; i--) {
+        const index = i - 1;
+        if (value[index] === "{") {
+            console.log("prefixMatch", index);
+            prefixMatch = true;
+            break;
+        } else if (value[index] === "}") {
+            break;
+        }
+    }
+
+    return prefixMatch && suffixMatch;
 }
