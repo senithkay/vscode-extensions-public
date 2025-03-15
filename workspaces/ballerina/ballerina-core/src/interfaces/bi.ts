@@ -289,6 +289,7 @@ export type NodePropertyKey =
     | "query"
     | "functionName"
     | "systemPrompt"
+    | "prompt"
     | "enableModelContext";
 
 export type BranchKind = "block" | "worker";
