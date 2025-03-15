@@ -111,7 +111,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
     response.directoryMap[DIRECTORY_MAP.FUNCTIONS] = [];
     for (const func of functions) {
         try {
-            const st = await langClient.getSTByRange({
+            const res = await langClient.getSTByRange({
                 documentIdentifier: { uri: URI.file(func.path).toString() },
                 lineRange: {
                     start: {
@@ -123,17 +123,22 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
                         character: func.position.endColumn
                     }
                 }
-            }) as STNode;
-            if (st && STKindChecker.isFunctionDefinition(st) && STKindChecker.isExpressionFunctionBody(st.functionBody)) {
-                func.icon = "dataMapper";
-                response.directoryMap[DIRECTORY_MAP.DATA_MAPPERS].push(func);
-            } else {
-                response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(func);
+            });
+            if (res && 'syntaxTree' in res) {
+                const funcST = res.syntaxTree;
+                if (funcST
+                    && STKindChecker.isFunctionDefinition(funcST)
+                    && STKindChecker.isExpressionFunctionBody(funcST.functionBody)
+                ) {
+                    func.icon = "dataMapper";
+                    response.directoryMap[DIRECTORY_MAP.DATA_MAPPERS].push(func);
+                } else {
+                    response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(func);
+                }
             }
         } catch (error) {
             console.log("Data mapper ST fetch failed:", error);
         }
-
     }
 }
 
