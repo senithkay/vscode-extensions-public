@@ -267,6 +267,17 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     defaultValues[field.key] = field.value ?? "";
                 }
 
+                if (field.key === "type") {
+                    // Handle the case where the type is changed via 'Add Type'
+                    const existingType = formValues[field.key];
+                    const newType = field.value;
+
+                    if (existingType !== newType) {
+                        setValue(field.key, newType);
+                        mergeFormDataWithFlowNode && getVisualiableFields();
+                    }
+                }
+
                 if (formValues[field.key] !== undefined && formValues[field.key] !== "" && !field.value) {
                     defaultValues[field.key] = formValues[field.key];
                 }
@@ -380,8 +391,10 @@ export const Form = forwardRef((props: FormProps, ref) => {
     };
 
     const getVisualiableFields = () => {
-        const flowNode = mergeFormDataWithFlowNode(getValues(), targetLineRange);
-        handleVisualizableFields && handleVisualizableFields(fileName, flowNode, targetLineRange.startLine);
+        if(mergeFormDataWithFlowNode) {
+            const flowNode = mergeFormDataWithFlowNode(getValues(), targetLineRange);
+            handleVisualizableFields && handleVisualizableFields(fileName, flowNode, targetLineRange.startLine);
+        }
     };
 
     const handleGetExpressionDiagnostics = async (

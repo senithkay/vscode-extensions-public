@@ -222,59 +222,6 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
         });
     };
 
-    const handlePullConnector = async () => {
-        if (!selectedNodeRef.current) {
-            console.error(">>> Error pulling connector. No node found");
-            return;
-        }
-        setPullingStatus(PullingStatus.PULLING);
-        try {
-            const connector = selectedNodeRef.current;
-            if (connector.codedata.org === "ballerina") {
-                console.log(">>> Ballerina org is already pulled");
-                setPullingStatus(PullingStatus.SUCCESS);
-                return true;
-            }
-
-            const command = `bal pull ${connector.codedata.org}/${connector.codedata.module}`;
-            console.log(">>> Module pull command", command);
-            const commonRpcClient = await rpcClient.getCommonRpcClient();
-            const runCommandResponse = await commonRpcClient.runBackgroundTerminalCommand({
-                command: command,
-            });
-            console.log(">>> Run command response", runCommandResponse);
-            const processedResponseStatus = handleRunCommandResponse(runCommandResponse);
-            if (processedResponseStatus === PullingStatus.EXISTS) {
-                setPullingStatus(PullingStatus.EXISTS);
-                return true;
-            }
-            if (processedResponseStatus === PullingStatus.ERROR) {
-                setPullingStatus(PullingStatus.ERROR);
-                return false;
-            }
-            // pull driver if connector is dependent on driver
-            if (isConnectorDependOnDriver(connector.codedata.module)) {
-                const driverCommand = `bal pull ${connector.codedata.org}/${connector.codedata.module}.driver`;
-                console.log(">>> Module driver pull command", driverCommand);
-                const driverRunCommandResponse = await commonRpcClient.runBackgroundTerminalCommand({
-                    command: driverCommand,
-                });
-                console.log(">>> Module driver pull command response", driverRunCommandResponse);
-                const processedDriverResponseStatus = handleRunCommandResponse(driverRunCommandResponse);
-                if (processedDriverResponseStatus === PullingStatus.ERROR) {
-                    setPullingStatus(PullingStatus.ERROR);
-                    return false;
-                }
-            }
-            setPullingStatus(PullingStatus.SUCCESS);
-            return true;
-        } catch (error) {
-            console.error(">>> Error pulling connector", error);
-            setPullingStatus(PullingStatus.ERROR);
-            return false;
-        }
-    };
-
     return (
         <Container>
             <>
