@@ -452,6 +452,7 @@ export class BallerinaExtension {
                 // Download the JRE zip
                 continueInstallation = await this.downloadJre(supportedJreVersion);
                 if (!continueInstallation) {
+                    window.showErrorMessage('Error downloading Ballerina dependencies (JRE). Please try again.');
                     return;
                 }
 
