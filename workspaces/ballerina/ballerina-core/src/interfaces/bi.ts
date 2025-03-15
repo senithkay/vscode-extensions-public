@@ -94,7 +94,7 @@ export type Property = {
     diagnostics?: Diagnostic;
     valueType: string;
     value: string | ELineRange | NodeProperties | string[];
-    advanceValue?: string | ELineRange | NodeProperties | string[];
+    advanceProperties?: NodeProperties;
     optional: boolean;
     editable: boolean;
     advanced?: boolean;
