@@ -2,7 +2,7 @@
     "name": "ballerina-integrator",
     "displayName": "Ballerina Integrator",
     "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
-    "version": "0.9.1",
+    "version": "0.9.2",
     "publisher": "wso2",
     "icon": "resources/images/wso2-ballerina-integrator-logo.png",
     "repository": {
@@ -34,18 +34,28 @@
         "viewsWelcome": [
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to Ballerina Integrator. You can open a folder containing a Ballerina integration or create a new integration.\n[Open Ballerina Integration](command:vscode.openFolder)\n[Create New Integration](command:ballerina.open.bi.new)\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://wso2.github.io/docs-ballerina-integrator/).",
+                "contents": "Welcome to Ballerina Integrator. You can open a folder containing a Ballerina integration or create a new integration.\n[Open Ballerina Integration](command:vscode.openFolder)\n[Create New Integration](command:ballerina.open.bi.new)\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
                 "when": "BI.status == 'unknownProject'"
             },
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to WSO2 Ballerina Integrator! The WSO2 Ballerina distribution is required but not found. [Set up WSO2 Ballerina distribution](command:ballerina.open.bi.welcome) to get started.",
+                "contents": "Welcome to Ballerina Integrator. Your current ballerina distribution is not supported. Please update to version 12 or above.\n[Update Now](command:ballerina.update-ballerina)\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
+                "when": "BI.status == 'updateNeed'"
+            },
+            {
+                "view": "BI.project-explorer",
+                "contents": "Welcome to Ballerina Integrator for VS Code! Ballerina distribution is required but not found. [Set up Ballerina distribution](command:ballerina.open.bi.welcome) to get started.\nExplore more at [ballerina.io](https://ballerina.io)",
                 "when": "BI.status == 'noLS'"
             },
             {
                 "view": "BI.project-explorer",
                 "contents": "Loading your workspace, please wait...",
                 "when": "BI.status == 'loading'"
+            },
+            {
+                "view": "BI.project-explorer",
+                "contents": "Activating Language Server, please wait...",
+                "when": "BI.status == 'loadingLS'"
             }
         ],
         "views": {

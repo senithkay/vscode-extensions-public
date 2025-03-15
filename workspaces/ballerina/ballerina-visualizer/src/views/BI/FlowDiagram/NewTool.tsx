@@ -74,7 +74,8 @@ export function NewTool(props: NewToolProps): JSX.Element {
 
     const handleOnSubmit = async (data: AgentToolRequest) => {
         console.log(">>> submit value", { data });
-
+        // save tool
+        setSavingForm(true);
         if (data.selectedCodeData.node === "FUNCTION_CALL") {
             // create tool from existing function
             // get function definition
@@ -109,8 +110,7 @@ export function NewTool(props: NewToolProps): JSX.Element {
                 console.error("Node template not found");
                 return;
             }
-            // save tool
-            setSavingForm(true);
+
             const toolResponse = await rpcClient.getAIAgentRpcClient().genTool({
                 toolName: data.toolName,
                 description: data.description,

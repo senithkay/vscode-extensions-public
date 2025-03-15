@@ -63,6 +63,7 @@ import { ServiceClassConfig } from "./views/BI/ServiceClassEditor/ServiceClassCo
 import { AIAgentDesigner } from "./views/BI/AIChatAgent";
 import { AIAgentEditView } from "./views/BI/AIAgents/AIAgentEditView";
 import { AIChatAgentWizard } from "./views/BI/AIChatAgent/AIChatAgentWizard";
+import { BallerinaUpdateView } from "./views/BI/BallerinaUpdateView";
 
 const globalStyles = css`
     *,
@@ -242,9 +243,13 @@ const MainPanel = () => {
                             <SequenceDiagram syntaxTree={value?.syntaxTree} applyModifications={applyModifications} />
                         );
                         break;
+                    case MACHINE_VIEW.BallerinaUpdateView:
+                        setNavActive(false);
+                        setViewComponent(<BallerinaUpdateView />);
+                        break;
                     case MACHINE_VIEW.BIWelcome:
                         setNavActive(false);
-                        setViewComponent(<WelcomeView />);
+                        setViewComponent(<WelcomeView isBISupported={value.metadata.isBISupported} />);
                         break;
                     case MACHINE_VIEW.SetupView:
                         setNavActive(false);
