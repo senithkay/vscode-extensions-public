@@ -648,7 +648,7 @@ const isCategoryType = (item: Item): item is Category => {
     return !(item as AvailableNode)?.codedata;
 };
 
-const getFunctionItemKind = (category: string): FunctionKind => {
+export const getFunctionItemKind = (category: string): FunctionKind => {
     if (category.includes("Current")) {
         return functionKinds.CURRENT;
     } else if (category.includes("Imported")) {
