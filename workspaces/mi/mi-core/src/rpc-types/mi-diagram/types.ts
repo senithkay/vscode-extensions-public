@@ -28,7 +28,7 @@ export interface ApplyEditRequest {
 
 export interface ApplyEditsRequest {
     documentUri: string;
-    edits: TextEdit[];
+    edits: ExtendedTextEdit[];
     disableFormatting?: boolean;
     disableUndoRedo?: boolean;
     addNewLine?: boolean;
@@ -1974,7 +1974,7 @@ export interface MediatorCategory {
 }
 
 export interface GetMediatorRequest {
-    mediatorType: string;
+    mediatorType?: string;
     documentUri: string;
     range: Range;
     isEdit?: boolean;
@@ -1997,7 +1997,12 @@ export interface UpdateMediatorRequest {
 }
 
 export interface UpdateMediatorResponse {
-    textEdits: TextEdit[];
+    textEdits: ExtendedTextEdit[];
+}
+
+export interface ExtendedTextEdit extends TextEdit {
+    documentUri?: string;
+    isCreateNewFile?: boolean;
 }
 
 export interface GetConnectionSchemaRequest {

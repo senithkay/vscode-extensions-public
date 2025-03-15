@@ -88,7 +88,7 @@ export function MediatorPage(props: MediatorPageProps) {
                         formData={connectorData.form}
                         nodePosition={nodeRange}
                         documentUri={documentUri}
-                        connectorName={connectorData.connectorName}
+                        connectorName={connectorData.connectorName || connectorData.name}
                         connectionName={connectorData.connectionName}
                         operationName={connectorData.operationName}
                         connectionType={connectorData.connectionType}
