@@ -264,6 +264,8 @@ export const getAttributeType = (attr: Member | TypeFunctionModel): string => {
                     return `${memberType} ${member.name}`;
                 });
                 return `record {${recordMembers.join(', ')}}`;// TODO: Verify anonymous records representation
+            case 'ERROR':
+                return `error`; // HACK: This is a hack to represent error till we get refs a empty
             default:
                 return type.name || 'unknown';
         }

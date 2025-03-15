@@ -715,7 +715,7 @@ async function checkIfMiProject() {
     // Register Project Creation command in any of the above cases
     if (!(await vscode.commands.getCommands()).includes(COMMANDS.CREATE_PROJECT_COMMAND)) {
         vscode.commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, async (args) => {
-            if (args.name && args.path && args.scope) {
+            if (args && args.name && args.path && args.scope) {
                 const rpcManager = new MiDiagramRpcManager();
                 if (rpcManager) {
                     await rpcManager.createProject(
