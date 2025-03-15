@@ -52,7 +52,3 @@ Need inspiration? Browse through sample projects to see how Ballerina Integrator
 ## Documentation
 
 To learn more about the Ballerina Integrator for Visual Studio Code extension, go to the [Ballerina Integrator quick start guide](https://bi.docs.wso2.com/get-started/quick-start-guide/) documentation.
-
-## Reach Out
-
-For further assistance, [join our community](https://ballerina.io/community/#join-us). Our team will respond promptly to address your concerns.
