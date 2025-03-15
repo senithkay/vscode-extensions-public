@@ -1113,6 +1113,8 @@ export class BallerinaExtension {
         if (isDev) { // Set the vscode configurable values only for dev mode
             workspace.getConfiguration().update(BALLERINA_HOME, this.ballerinaHome, ConfigurationTarget.Global);
             workspace.getConfiguration().update(OVERRIDE_BALLERINA_HOME, true, ConfigurationTarget.Global);
+        } else { // Turn off the dev mode when using prod installation
+            workspace.getConfiguration().update(OVERRIDE_BALLERINA_HOME, false, ConfigurationTarget.Global);
         }
     }
 
