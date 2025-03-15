@@ -426,6 +426,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
     const contextValue: FormContext = {
         form: {
             control,
+            getValues,
             setValue,
             watch,
             register,
