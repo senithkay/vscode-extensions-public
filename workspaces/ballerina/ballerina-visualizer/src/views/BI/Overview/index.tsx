@@ -17,6 +17,7 @@ import {
     BuildMode,
     BI_COMMANDS,
     DevantMetadata,
+    SHARED_COMMANDS
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Typography, Codicon, ProgressRing, Button, Icon, Divider, CheckBox, ProgressIndicator, Overlay } from "@wso2-enterprise/ui-toolkit";
@@ -28,6 +29,7 @@ import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import ReactMarkdown from "react-markdown";
 import { useQuery } from '@tanstack/react-query'
 import { CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { AlertBoxWithClose } from "../../AIPanel/AlertBoxWithClose";
 
 const SpinnerContainer = styled.div`
     display: flex;
@@ -445,6 +447,8 @@ export function Overview(props: ComponentDiagramProps) {
         queryFn: ()=>rpcClient.getBIDiagramRpcClient().getDevantMetadata(),
         refetchInterval: 2000
     })
+    const [showAlert, setShowAlert] = React.useState(false);
+
 
     const fetchContext = () => {
         rpcClient
@@ -503,6 +507,9 @@ export function Overview(props: ComponentDiagramProps) {
 
     useEffect(() => {
         fetchContext();
+        showLoginAlert().then((status) => {
+            setShowAlert(status);
+        });
     }, []);
 
     useEffect(() => {
@@ -709,6 +716,24 @@ export function Overview(props: ComponentDiagramProps) {
         })
     };
 
+    async function handleSettings() {
+        await rpcClient.getAiPanelRpcClient().openSettings();
+        rpcClient.getCommonRpcClient().executeCommand({ commands: [SHARED_COMMANDS.OPEN_AI_PANEL] });
+    }
+
+    async function handleClose() {
+        //TODO: Set state to never show this alert again
+        await rpcClient.getAiPanelRpcClient().markAlertShown();
+        setShowAlert(false);
+    }
+
+    async function showLoginAlert() {
+        //TODO: Read state and return true/false
+        const resp = await rpcClient.getAiPanelRpcClient().showSignInAlert();
+        setShowAlert(resp);
+        return resp;
+    }
+
     return (
         <PageLayout>
             <HeaderRow>
@@ -728,6 +753,24 @@ export function Overview(props: ComponentDiagramProps) {
 
             <MainContent>
                 <MainPanel noPadding={true}>
+                {showAlert && (
+                <AlertBoxWithClose
+                    subTitle={
+                    "Please log in to WSO2 AI Platform to access AI features. You won't be able to use AI features until you log in."
+                    }
+                    title={"Login to WSO2 AI Platform"}
+
+                    btn1Title="Manage Accounts"
+                    btn1IconName="settings-gear"
+                    btn1OnClick={() => handleSettings()}
+                    btn1Id="settings"
+
+                    btn2Title="Close"
+                    btn2IconName="close"
+                    btn2OnClick={() =>handleClose()}
+                    btn2Id="Close"
+                />
+                )}
                     <DiagramHeaderContainer withPadding={true}>
                         <Title variant="h2">Design</Title>
                         {!isEmptyProject() && (<ActionContainer>
