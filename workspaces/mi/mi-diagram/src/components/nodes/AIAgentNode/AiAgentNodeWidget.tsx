@@ -166,8 +166,8 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
 
     const systemPrompt = stNode.parameters?.filter((property: any) => property.name === "system")[0]?.value;
     const prompt = stNode.parameters?.filter((property: any) => property.name === "prompt")[0]?.value;
-    const systemPromptSize = getTextSizes(systemPrompt, "13px", undefined, undefined, 160);
-    const promptSize = getTextSizes(prompt, "13px", undefined, undefined, 160);
+    const systemPromptSize = getTextSizes(systemPrompt, "13px", undefined, undefined, 160, 8);
+    const promptSize = getTextSizes(prompt, "13px", undefined, undefined, 160, 8);
     const systemPromptHeight = systemPrompt ? 36 + systemPromptSize.height : 0;
     const promptHeight = prompt ? 36 + promptSize.height : 0;
 
