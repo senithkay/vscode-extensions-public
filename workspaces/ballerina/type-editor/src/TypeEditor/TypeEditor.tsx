@@ -114,7 +114,7 @@ interface TypeEditorProps {
         typeBrowserTypes: TypeHelperCategory[];
         onSearchTypeHelper: (searchText: string, isType?: boolean) => void;
         onSearchTypeBrowser: (searchText: string) => void;
-        onTypeItemClick: (item: TypeHelperItem) => void;
+        onTypeItemClick: (item: TypeHelperItem) => Promise<string>;
     }
 }
 
