@@ -31,6 +31,7 @@ export interface Region {
 interface TaskFormProps {
     path?: string;
     model?: Task;
+    type?: string;
 };
 
 type InputsFields = {
@@ -81,7 +82,7 @@ export function TaskForm(props: TaskFormProps) {
     const [artifactNames, setArtifactNames] = useState([]);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
     const [messageIsXML, setMessageIsXML] = useState(true);
-    const [isInternalTrigger, setIsInternalTrigger] = useState(true);
+    const [isInternalTrigger, setIsInternalTrigger] = useState(props.type !== "external");
     const [xmlErrors, setXmlErrors] = useState({
         code: "",
         col: 0,
@@ -116,8 +117,8 @@ export function TaskForm(props: TaskFormProps) {
     const [params, setParams] = useState(paramConfigs);
 
     const formTitle = isNewTask
-        ? "Create New Scheduled Task"
-        : "Edit Scheduled Task : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
+        ? "Create New Automation"
+        : "Edit Automation : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
 
     const schema = yup.object({
         name: yup.string().required("Task Name is required")
@@ -350,13 +351,13 @@ export function TaskForm(props: TaskFormProps) {
 
     return (
         <FormView title={formTitle} onClose={cancelHandler}>
-            <RadioButtonGroup
+            {!props.type && <RadioButtonGroup
                 id="triggerType"
                 label="Please select a trigger"
                 options={[{ content: "Internal Trigger", value: "internal" }, { content: "External Trigger", value: "external" }]}
                 value={isInternalTrigger ? "internal" : "external"}
                 onChange={(e) => setIsInternalTrigger(e.target.value === "internal")}
-            />
+            />}
             {
                 isInternalTrigger ? (
                     <>

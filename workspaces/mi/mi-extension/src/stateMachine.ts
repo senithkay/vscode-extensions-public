@@ -76,6 +76,7 @@ const stateMachine = createMachine<MachineContext>({
                             event.data.isOldProject || event.data.isProject,
                         actions: assign({
                             view: (context, event) => event.data.view,
+                            customProps: (context, event) => event.data.customProps,
                             projectUri: (context, event) => event.data.projectUri,
                             isOldProject: (context, event) => event.data.isOldProject,
                             displayOverview: (context, event) => event.data.displayOverview
@@ -635,6 +636,7 @@ async function checkIfMiProject() {
 
     let isProject = false, isOldProject = false, displayOverview = true, view = MACHINE_VIEW.Overview, isEnvironmentSetUp = false;
     let projectUri = '';
+    const customProps: any = {};
     try {
         // Check for pom.xml files excluding node_modules directory
         const pomFiles = await vscode.workspace.findFiles('pom.xml', '**/node_modules/**', 1);
@@ -674,6 +676,7 @@ async function checkIfMiProject() {
                     break;
                 case "automation":
                     view = MACHINE_VIEW.TaskForm;
+                    customProps.type = "external";
                     break;
                 case "event-integration":
                 case "file-integration":
@@ -740,6 +743,7 @@ async function checkIfMiProject() {
         displayOverview,
         projectUri, // Return the path of the detected project
         view,
+        customProps,
         isEnvironmentSetUp
     };
 }
@@ -758,7 +762,8 @@ async function createSettingsFile(args) {
         fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 4));
     } catch (error: any) {
         vscode.window.showErrorMessage(`Failed to create settings file: ${error.message}`);
-    }}
+    }
+}
 
 function findViewIcon(view) {
     let icon = 'icon';
