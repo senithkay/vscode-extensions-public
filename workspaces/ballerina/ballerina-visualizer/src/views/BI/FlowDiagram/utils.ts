@@ -43,9 +43,13 @@ export const transformCategories = (categories: Category[]): Category[] => {
 
     // find statement category
     const statementCategory = filteredCategories.find((category) => category.metadata.label === "Statement");
-
-    // add new item to ai category called "Agent"
-    if (statementCategory && statementCategory.items) {
+    // find AGENT_CALL from statement category
+    const agentCallNode = statementCategory?.items?.find((item) => (item as AvailableNode).codedata?.node === "AGENT_CALL") as AvailableNode;
+    if (agentCallNode?.codedata) {
+        agentCallNode.codedata.object = "Agent";
+    }else{
+        // TODO: this should remove once LS update with the new agent node
+        // add new item
         statementCategory.items.push({
             codedata: {
                 module: "ai.agent",
@@ -54,7 +58,7 @@ export const transformCategories = (categories: Category[]): Category[] => {
                 org: "ballerinax",
                 parentSymbol: "",
                 symbol: "run",
-                version: "0.7.13",
+                version: "0.7.16",
             },
             enabled: true,
             metadata: {
@@ -62,12 +66,6 @@ export const transformCategories = (categories: Category[]): Category[] => {
                 description: "Add an AI Agent to the flow",
             },
         });
-    }
-
-    // enrich the filtered categories with the updated statement category
-    const statementCategoryIndex = filteredCategories.findIndex((category) => category.metadata.label === "Statement");
-    if (statementCategoryIndex !== -1) {
-        filteredCategories.splice(statementCategoryIndex, 1, statementCategory);
     }
     
     return filteredCategories;

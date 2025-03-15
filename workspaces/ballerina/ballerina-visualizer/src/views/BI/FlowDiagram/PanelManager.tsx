@@ -69,6 +69,7 @@ interface PanelManagerProps {
     onSubmitForm: (updatedNode?: FlowNode, isDataMapperFormUpdate?: boolean) => void;
     onDiscardSuggestions: () => void;
     onSubPanel: (subPanel: SubPanel) => void;
+    onUpdateExpressionField: (updatedExpressionField: ExpressionFormField) => void;
     onResetUpdatedExpressionField: () => void;
     onSearchFunction?: (searchText: string, functionType: FUNCTION_TYPE) => void;
     onSearchNpFunction?: (searchText: string, functionType: FUNCTION_TYPE) => void;
@@ -106,6 +107,7 @@ export function PanelManager(props: PanelManagerProps) {
         onSubmitForm,
         onDiscardSuggestions,
         onSubPanel,
+        onUpdateExpressionField,
         onResetUpdatedExpressionField,
         onSearchFunction,
         onSearchNpFunction,
@@ -130,7 +132,7 @@ export function PanelManager(props: PanelManagerProps) {
                 return (
                     <InlineDataMapper
                         onClosePanel={onSubPanel}
-                        updateFormField={() => onResetUpdatedExpressionField()}
+                        updateFormField={onUpdateExpressionField}
                         {...subPanel.props?.inlineDataMapper}
                     />
                 );
@@ -139,7 +141,7 @@ export function PanelManager(props: PanelManagerProps) {
                     <HelperView
                         filePath={subPanel.props.sidePanelData.filePath}
                         position={subPanel.props.sidePanelData.range}
-                        updateFormField={() => onResetUpdatedExpressionField()}
+                        updateFormField={onUpdateExpressionField}
                         editorKey={subPanel.props.sidePanelData.editorKey}
                         onClosePanel={onSubPanel}
                         configurePanelData={subPanel.props.sidePanelData?.configurePanelData}

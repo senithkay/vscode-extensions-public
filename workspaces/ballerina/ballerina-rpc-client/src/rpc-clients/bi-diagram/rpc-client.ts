@@ -112,6 +112,7 @@ import {
     getExpressionCompletions,
     getExpressionDiagnostics,
     getFlowModel,
+    getFunctionNames,
     getFunctionNode,
     getModuleNodes,
     getNodeTemplate,
@@ -374,6 +375,11 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
     getRecordNames(): Promise<RecordsInWorkspaceMentions> {
         return this._messenger.sendRequest(getRecordNames, HOST_EXTENSION);
     }
+
+    getFunctionNames(): Promise<RecordsInWorkspaceMentions> {
+        return this._messenger.sendRequest(getFunctionNames, HOST_EXTENSION);
+    }
+
     getDevantComponent(): Promise<DevantComponent | undefined> {
         return this._messenger.sendRequest(getDevantComponent, HOST_EXTENSION);
     }

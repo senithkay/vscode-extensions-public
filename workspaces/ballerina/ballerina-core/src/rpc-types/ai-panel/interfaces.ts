@@ -150,6 +150,7 @@ export interface GenerateMappingsFromRecordRequest {
     outputRecordType: DataMappingRecord;
     functionName: string;
     imports: { moduleName: string; alias?: string }[];
+    inputNames?: string[];
     attachment?: AttachmentResult[]
 }
 

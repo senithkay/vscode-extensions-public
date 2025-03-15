@@ -41,7 +41,7 @@ import { View, ProgressRing, ProgressIndicator, ThemeColors } from "@wso2-enterp
 import { applyModifications, textToModifications } from "../../../utils/utils";
 import { PanelManager, SidePanelView } from "./PanelManager";
 import { transformCategories } from "./utils";
-import { Category as PanelCategory } from "@wso2-enterprise/ballerina-side-panel";
+import { ExpressionFormField, Category as PanelCategory } from "@wso2-enterprise/ballerina-side-panel";
 
 const Container = styled.div`
     width: 100%;
@@ -729,6 +729,10 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         setSubPanel(subPanel);
     };
 
+    const handleUpdateExpressionField = (data: ExpressionFormField) => {
+        setUpdatedExpressionField(data);
+    };
+
     const handleResetUpdatedExpressionField = () => {
         setUpdatedExpressionField(undefined);
     };
@@ -881,6 +885,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 onSubmitForm={handleOnFormSubmit}
                 onDiscardSuggestions={onDiscardSuggestions}
                 onSubPanel={handleSubPanel}
+                onUpdateExpressionField={handleUpdateExpressionField}
                 onResetUpdatedExpressionField={handleResetUpdatedExpressionField}
                 onSearchFunction={handleSearchFunction}
                 onSearchNpFunction={handleSearchNpFunction}
