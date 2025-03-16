@@ -952,6 +952,7 @@ export interface AddFunctionRequest {
     filePath: string;
     codedata: CodeData;
     kind: FunctionKind;
+    searchKind: SearchKind;
 }
 
 export interface AddFunctionResponse {

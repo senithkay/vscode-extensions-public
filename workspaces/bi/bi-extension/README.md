@@ -27,7 +27,7 @@ When you open the extension for the first time, you'll see the **Create Integrat
 Ballerina Integrator (BI) Designer is a graphical tool that allows you to design your integration projects visually. You can create, edit, and manage your integration projects using the BI Designer. 
 Click on the **+ Add Artifact** button to add artifacts to your integration project.
 
-<img src="https://github.com/wso2/docs-mi/blob/main/en/docs/assets/img/develop/mi-for-vscode/project-explorer.png?raw=true" width="100%" />
+<img src="https://github.com/wso2/docs-bi/blob/main/en/docs/assets/img/extension-readme/designer.png?raw=true" width="100%" />
 
 ## WSO2 Copilot
 
