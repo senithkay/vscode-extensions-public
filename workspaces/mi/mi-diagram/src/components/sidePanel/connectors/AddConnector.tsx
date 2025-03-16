@@ -48,9 +48,6 @@ interface AddConnectorProps {
     dirtyFields: any;
 }
 
-
-const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression', 'textOrExpression'];
-
 const AddConnector = (props: AddConnectorProps) => {
     const { formData, nodePosition, control, errors, setValue, reset, watch, getValues, dirtyFields, handleSubmit, documentUri } = props;
     const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
@@ -61,37 +58,16 @@ const AddConnector = (props: AddConnectorProps) => {
     const handleOnCancelExprEditorRef = useRef(() => { });
     const [parameters, setParameters] = useState<string[]>(props.parameters);
 
-    const paramConfigs: ParamConfig = {
-        paramValues: [],
-        paramFields: [
-            {
-                id: 0,
-                type: "TextField",
-                label: "Key",
-                defaultValue: "",
-                isRequired: true
-            },
-            {
-                id: 1,
-                type: "TextField",
-                label: "Value",
-                defaultValue: "",
-                isRequired: true
-            }]
-    };
-
-    const [params, setParams] = useState(paramConfigs);
-
     const fetchConnections = async () => {
+        const connectionsData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
+            documentUri: props.documentUri,
+            connectorName: props.formData?.connectorName ?? props.connectorName.replace(/\s/g, '')
+        });
+
         if (props.formData && props.formData !== "") {
             const allowedTypes = findAllowedConnectionTypes(props.formData.elements);
 
-            const connectorData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
-                documentUri: props.documentUri,
-                connectorName: props.formData?.connectorName ?? props.connectorName.replace(/\s/g, '')
-            });
-
-            const filteredConnections = connectorData.connections.filter(
+            const filteredConnections = connectionsData.connections.filter(
                 connection => allowedTypes?.some(
                     // Ignore case in checking allowed connection types
                     type => type.toLowerCase() === connection.connectionType.toLowerCase()
@@ -101,11 +77,6 @@ const AddConnector = (props: AddConnectorProps) => {
             setConnections(connectionNames);
         } else {
             // Fetch connections for old connectors (No ConnectionType)
-            const connectionsData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
-                documentUri: props.documentUri,
-                connectorName: props.connectorName.replace(/\s/g, '')
-            });
-
             const connectionsNames = connectionsData.connections.map(connection => connection.name);
             setConnections(connectionsNames);
         }
@@ -136,27 +107,8 @@ const AddConnector = (props: AddConnectorProps) => {
     }, [props.formData]);
 
     useEffect(() => {
-        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0 && sidePanelContext.formValues?.parameters) {
-            if (sidePanelContext.formValues.form) {
-                sidePanelContext.formValues?.parameters.forEach((param: any) => {
-                    const inputType = getInputType(formData, param.name);
-                    param.name = getNameForController(param.name);
-                    if (expressionFieldTypes.includes(inputType)) {
-                        if (param.isExpression) {
-                            let namespacesArray: any[] = [];
-                            if (param.namespaces) {
-                                namespacesArray = Object.entries(param.namespaces).map(([prefix, uri]) => ({ prefix: prefix.split(':')[1], uri: uri }));
-                            }
-                            setValue(param.name, { isExpression: true, value: param.value.replace(/[{}]/g, ''), namespaces: namespacesArray });
-                        } else {
-                            param.namespaces = [];
-                            setValue(param.name, param);
-                        }
-                    } else {
-                        setValue(param.name, param.value);
-                    }
-                });
-            } else {
+        if (!sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0 && sidePanelContext.formValues?.parameters) {
+            if (!sidePanelContext.formValues.form) {
                 //Handle connectors without uischema
                 fetchParameters(sidePanelContext.formValues.operationName);
 
@@ -173,11 +125,6 @@ const AddConnector = (props: AddConnectorProps) => {
                         setValue(param.name, param);
                     }
                 });
-
-                const modifiedParams = {
-                    ...params, paramValues: generateParams(sidePanelContext.formValues.parameters)
-                };
-                setParams(modifiedParams);
             }
 
             if (sidePanelContext.formValues?.connectionName) {
@@ -223,7 +170,8 @@ const AddConnector = (props: AddConnectorProps) => {
         return inputType;
     }
 
-    const addNewConnection = async () => {
+    const addNewConnection = async (name?: string, allowedConnectionTypes?: string) => {
+        const connectionTypes = allowedConnectionTypes ?? findAllowedConnectionTypes(props.formData.elements ?? "");
 
         rpcClient.getMiVisualizerRpcClient().openView({
             type: POPUP_EVENT_TYPE.OPEN_VIEW,
@@ -231,7 +179,7 @@ const AddConnector = (props: AddConnectorProps) => {
                 documentUri: props.documentUri,
                 view: MACHINE_VIEW.ConnectorStore,
                 customProps: {
-                    allowedConnectionTypes: findAllowedConnectionTypes(props.formData.elements ?? ""),
+                    allowedConnectionTypes: connectionTypes,
                 }
             },
             isPopup: true
@@ -240,17 +188,13 @@ const AddConnector = (props: AddConnectorProps) => {
         rpcClient.onParentPopupSubmitted(async (data: ParentPopupData) => {
             if (data.recentIdentifier) {
                 await fetchConnections();
-                setValue('configKey', data.recentIdentifier);
+                setValue(name ?? 'configKey', data.recentIdentifier);
             }
         });
     }
 
     const onClick = async (values: any) => {
         setDiagramLoading(true);
-
-        params.paramValues.forEach(param => {
-            setValue(param.key, { "value": param.value });
-        });
 
         const connectorName = props.formData?.connectorName ??
             props.connectorName?.toLowerCase().replace(/\s/g, '') ??
@@ -280,26 +224,6 @@ const AddConnector = (props: AddConnectorProps) => {
         clearSidePanelState(sidePanelContext);
 
     };
-
-    function generateParams(parameters: any[]) {
-        return parameters.map((param: any, id) => {
-            return {
-                id: id,
-                key: param.name,
-                value: param.value,
-                icon: "query",
-                paramValues: [
-                    {
-                        value: param.name,
-                    },
-                    {
-                        value: param.value,
-                    },
-                ]
-            }
-        });
-    }
-
 
     if (isLoading) {
         return <ProgressIndicator />;
@@ -412,7 +336,9 @@ const AddConnector = (props: AddConnectorProps) => {
                     <>
                         {/* {renderForm(props.formData.elements)} */}
                         <FormGenerator
+                            documentUri={props.documentUri}
                             formData={formData}
+                            connectorName={props.connectorName}
                             control={control}
                             errors={errors}
                             setValue={setValue}
@@ -421,7 +347,6 @@ const AddConnector = (props: AddConnectorProps) => {
                             getValues={getValues}
                             skipGeneralHeading={true}
                             ignoreFields={props.connectionName ? ["configRef"] : []}
-                            connections={connections}
                             addNewConnection={addNewConnection}
                             range={props.nodePosition} />
                         <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>

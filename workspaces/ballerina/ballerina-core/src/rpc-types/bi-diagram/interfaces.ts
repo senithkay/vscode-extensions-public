@@ -160,7 +160,7 @@ export enum BuildMode {
     DOCKER = "docker"
 }
 
-export interface DevantComponentResponse {
+export interface DevantComponent {
     org: string;
     project: string;
     component: string;

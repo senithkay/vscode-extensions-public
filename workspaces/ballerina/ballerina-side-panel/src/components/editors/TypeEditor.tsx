@@ -71,7 +71,7 @@ export function TypeEditor(props: TypeEditorProps) {
         setFocused(true);
         // Trigger actions on focus
         await onFocus?.();
-        await retrieveVisibleTypes(value, value.length);
+        await retrieveVisibleTypes(value, value.length, field.valueTypeConstraint as string);
         if (openRecordEditor) {
             setShowDefaultCompletion(true);
         }
@@ -170,7 +170,8 @@ export function TypeEditor(props: TypeEditorProps) {
                     </S.LabelContainer>
                     <S.Description>{field.documentation}</S.Description>
                 </S.Header>
-                {field.valueType && <S.Type isVisible={focused} title={field.valueType}>{sanitizeType(field.valueType)}</S.Type>}
+                {field.valueTypeConstraint && 
+                    <S.Type isVisible={focused} title={field.valueTypeConstraint as string}>{sanitizeType(field.valueTypeConstraint as string)}</S.Type>}
             </S.HeaderContainer>
             <Controller
                 control={control}
@@ -178,7 +179,7 @@ export function TypeEditor(props: TypeEditorProps) {
                 defaultValue={field.value}
                 rules={{
                     required: {
-                        value: !field.optional && !field.placeholder,
+                        value: !field.optional,
                         message: `${field.label} is required`
                     }
                 }}
@@ -199,7 +200,7 @@ export function TypeEditor(props: TypeEditorProps) {
                                 cursorPositionRef.current = updatedCursorPosition;
 
                                 // Retrieve visible types
-                                await retrieveVisibleTypes(value, updatedCursorPosition);
+                                await retrieveVisibleTypes(value, updatedCursorPosition, field.valueTypeConstraint as string);
                             }}
                             onCompletionSelect={handleCompletionSelect}
                             onDefaultCompletionSelect={handleDefaultCompletionSelect}
@@ -217,7 +218,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             autoFocus={autoFocus}
                             sx={{ paddingInline: '0' }}
                         />
-                        {error && <ErrorBanner errorMsg={error.message.toString()} />}
+                        {error?.message && <ErrorBanner errorMsg={error.message.toString()} />}
                     </div>
                 )}
             />

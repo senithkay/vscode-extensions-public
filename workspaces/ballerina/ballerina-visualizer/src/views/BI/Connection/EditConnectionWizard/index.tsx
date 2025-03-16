@@ -143,7 +143,6 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                         editorKey={subPanel.props.sidePanelData.editorKey}
                         onClosePanel={handleSubPanel}
                         configurePanelData={subPanel.props.sidePanelData?.configurePanelData}
-                        recordTypeField={subPanel.props.sidePanelData?.recordField}
                     />
                 );
             default:

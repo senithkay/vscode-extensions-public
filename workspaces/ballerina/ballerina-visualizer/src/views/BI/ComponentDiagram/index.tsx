@@ -38,19 +38,18 @@ const DiagramContainer = styled.div`
 `;
 
 interface ComponentDiagramProps {
-    projectName: string;
     projectStructure: ProjectStructureResponse;
 }
 
 export function ComponentDiagram(props: ComponentDiagramProps) {
-    const { projectName, projectStructure } = props;
+    const { projectStructure } = props;
 
     const [project, setProject] = useState<CDModel | null>(null);
     const { rpcClient } = useRpcContext();
 
     useEffect(() => {
         fetchProject();
-    }, []);
+    }, [projectStructure]);
 
     const fetchProject = () => {
         rpcClient
@@ -165,7 +164,7 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
 
     return (
         <DiagramContainer>
-            {project && (
+            {project ? (
                 <Diagram
                     project={project}
                     onListenerSelect={handleGoToListener}
@@ -175,6 +174,10 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
                     onConnectionSelect={handleGoToConnection}
                     onDeleteComponent={handleDeleteComponent}
                 />
+            ) : (
+                <SpinnerContainer>
+                    <ProgressRing color={ThemeColors.PRIMARY} />
+                </SpinnerContainer>
             )}
         </DiagramContainer>
     );

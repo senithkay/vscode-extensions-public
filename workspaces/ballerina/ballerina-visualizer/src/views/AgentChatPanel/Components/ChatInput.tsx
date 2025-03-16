@@ -118,12 +118,35 @@ const StyledInput = forwardRef<StyledInputRef, StyledInputProps>(({ value, onCha
     }, [onChange]);
 
     // Only allow plain-text paste (no HTML)
-    const handlePaste = useCallback((e: React.ClipboardEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        const text = e.clipboardData.getData("text/plain");
-        // Insert as plain text, removing HTML
-        document.execCommand("insertText", false, text);
-    }, []);
+    const handlePaste = useCallback(
+        (e: React.ClipboardEvent<HTMLDivElement>) => {
+            e.preventDefault();
+            const text = e.clipboardData.getData("text/plain");
+
+            // Insert text at caret position
+            const selection = window.getSelection();
+            if (!selection?.rangeCount) return;
+
+            const range = selection.getRangeAt(0);
+            range.deleteContents();
+
+            // Create a text node and insert it
+            const textNode = document.createTextNode(text);
+            range.insertNode(textNode);
+
+            // Move caret to end of inserted text
+            range.setStartAfter(textNode);
+            range.setEndAfter(textNode);
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            // Update parent's state
+            if (divRef.current) {
+                onChange(divRef.current.innerText);
+            }
+        },
+        [onChange]
+    );
 
     return (
         <div
@@ -135,6 +158,9 @@ const StyledInput = forwardRef<StyledInputRef, StyledInputProps>(({ value, onCha
                 flex: 1,
                 outline: "none",
                 whiteSpace: "pre-wrap",
+                overflowWrap: "break-word",
+                wordBreak: "break-word",
+                hyphens: "auto",
                 // Limit to about 5 lines:
                 lineHeight: "1.4",
                 maxHeight: "calc(1.4em * 5)",

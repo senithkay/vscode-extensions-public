@@ -67,7 +67,10 @@ import {
     RecordSourceGenRequest,
     RecordSourceGenResponse,
     GetRecordModelFromSourceResponse,
-    GetRecordModelFromSourceRequest
+    GetRecordModelFromSourceRequest,
+    UpdateTypesRequest,
+    UpdateTypesResponse,
+    DeploymentResponse
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -88,7 +91,7 @@ import {
     EndOfFileRequest,
     RecordsInWorkspaceMentions,
     BuildMode,
-    DevantComponentResponse
+    DevantComponent
 } from "./interfaces";
 
 export interface BIDiagramAPI {
@@ -114,7 +117,7 @@ export interface BIDiagramAPI {
     getReadmeContent: () => Promise<ReadmeContentResponse>;
     openReadme: () => void;
     renameIdentifier: (params: RenameIdentifierRequest) => Promise<void>;
-    deployProject: () => void;
+    deployProject: () => Promise<DeploymentResponse>;
     openAIChat: (params: AIChatRequest) => void;
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
     buildProject: (mode: BuildMode) => void;
@@ -131,6 +134,7 @@ export interface BIDiagramAPI {
     getTypes: (params: GetTypesRequest) => Promise<GetTypesResponse>;
     getType: (params: GetTypeRequest) => Promise<GetTypeResponse>;
     updateType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
+    updateTypes: (params: UpdateTypesRequest) => Promise<UpdateTypesResponse>;
     getServiceClassModel: (params: ModelFromCodeRequest) => Promise<ServiceClassModelResponse>;
     updateClassField: (params: ClassFieldModifierRequest) => Promise<SourceEditResponse>;
     addClassField: (params: AddFieldRequest) => Promise<SourceEditResponse>;
@@ -146,5 +150,7 @@ export interface BIDiagramAPI {
     getEndOfFile: (params: EndOfFileRequest) => Promise<LinePosition>;
     search: (params: BISearchRequest) => Promise<BISearchResponse>;
     getRecordNames: () => Promise<RecordsInWorkspaceMentions>;
-    getDevantComponent: () => Promise<DevantComponentResponse | undefined>;
+    getFunctionNames: () => Promise<RecordsInWorkspaceMentions>;
+    getDevantComponent: () => Promise<DevantComponent | undefined>;
+
 }

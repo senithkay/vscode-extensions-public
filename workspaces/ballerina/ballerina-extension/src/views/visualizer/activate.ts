@@ -38,17 +38,28 @@ export function activateSubscriptions() {
     // <------------- Shared Commands ------------>
     context.subscriptions.push(
         vscode.commands.registerCommand(SHARED_COMMANDS.SHOW_VISUALIZER, (path: vscode.Uri, position, resetHistory = false) => {
-            openView(EVENT_TYPE.OPEN_VIEW, { documentUri: path?.fsPath || vscode.window.activeTextEditor?.document.uri.fsPath, position: position}, resetHistory);
+            if (StateMachine.langClient() && StateMachine.context().isBISupported) { // This is added since we can't fetch new diagram data without bi supported ballerina version
+                openView(EVENT_TYPE.OPEN_VIEW, { documentUri: path?.fsPath || vscode.window.activeTextEditor?.document.uri.fsPath, position: position }, resetHistory);
+            } else {
+                openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BallerinaUpdateView }); // Redirect user to the ballerina update available page
+            }
+
         })
     );
 
     context.subscriptions.push(
         vscode.commands.registerCommand(SHARED_COMMANDS.OPEN_BI_WELCOME, () => {
-            if (StateMachine.langClient() && ballerinaExtInstance && isSupportedSLVersion(ballerinaExtInstance, 2201100)) {
+            if (StateMachine.langClient()) {
                 openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BIWelcome });
             } else {
                 openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SetupView });
             }
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(SHARED_COMMANDS.OPEN_BI_NEW_PROJECT, () => {
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BIProjectForm });
         })
     );
 

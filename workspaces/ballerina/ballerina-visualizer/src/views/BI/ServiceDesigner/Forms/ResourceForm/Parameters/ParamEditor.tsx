@@ -12,7 +12,7 @@ import React, { useEffect, useState } from 'react';
 
 import { Divider, Dropdown, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { EditorContainer } from '../../../styles';
+import { EditorContainer, EditorContent } from '../../../styles';
 import { LineRange, ParameterModel } from '@wso2-enterprise/ballerina-core';
 import { FormField } from '@wso2-enterprise/ballerina-side-panel';
 import FormGeneratorNew from '../../../../Forms/FormGeneratorNew';
@@ -33,6 +33,7 @@ export function ParamEditor(props: ParamProps) {
     const { param, hideType = false, onChange, onSave, onCancel } = props;
 
     const { rpcClient } = useRpcContext();
+    const [currentFields, setCurrentFields] = useState<FormField[]>([]);
 
     const [filePath, setFilePath] = useState<string>('');
 
@@ -42,19 +43,12 @@ export function ParamEditor(props: ParamProps) {
         onChange({ ...param, httpParamType: value as "QUERY" | "Header" | "PAYLOAD" });
     };
 
-    const handleTypeChange = (value: string) => {
-        onChange({ ...param, type: { ...param.type, value } });
-    };
-
-    const handleChange = (value: string) => {
-        onChange({ ...param, name: { ...param.name, value } });
-    };
-
-    const handleValueChange = (value: string) => {
-        onChange({ ...param, defaultValue: { ...param.defaultValue, value } });
-    };
-
     const handleReqFieldChange = () => {
+        if (param.kind === 'REQUIRED') {
+            updateFormFields(true);
+        } else {
+            updateFormFields();
+        }
         const kind = param.kind === 'REQUIRED' ? "OPTIONAL" : "REQUIRED";
         onChange({ ...param, kind });
     };
@@ -63,61 +57,71 @@ export function ParamEditor(props: ParamProps) {
         onCancel(param);
     };
 
-    const handleOnSave = () => {
-        onSave(param);
-    };
-
     useEffect(() => {
         rpcClient.getVisualizerLocation().then(res => { setFilePath(Utils.joinPath(URI.file(res.projectUri), 'main.bal').fsPath) });
+        updateFormFields();
     }, []);
 
+    const updateFormFields = (enableDefault: boolean = false) => {
+        const fields: FormField[] = [];
 
-    const currentFields: FormField[] = [
-        {
-            key: `variable`,
+        // Add name field
+        fields.push({
+            key: `name`,
             label: 'Name',
-            type: 'string',
+            type: param.name.valueType,
             optional: false,
             editable: true,
             documentation: '',
-            enabled: param.name?.enabled ?? true,
+            enabled: param.name?.enabled,
             value: param.name.value,
             valueTypeConstraint: ""
+        });
+
+        // Add type field if not hidden
+        if (!hideType) {
+            fields.push({
+                key: `type`,
+                label: 'Type',
+                type: param.type.valueType,
+                optional: false,
+                editable: true,
+                documentation: '',
+                enabled: param.type?.enabled,
+                value: param.type.value,
+                valueTypeConstraint: ""
+            });
         }
-    ];
 
-    !hideType && currentFields.push({
-        key: `type`,
-        label: 'Type',
-        type: 'TYPE',
-        optional: false,
-        editable: true,
-        documentation: '',
-        enabled: param.type?.enabled ?? true,
-        value: param.type.value,
-        valueTypeConstraint: ""
-    })
+        // Add default value field if available
+        if (param.defaultValue) {
+            fields.push({
+                key: `defaultValue`,
+                label: 'Default Value',
+                type: param.defaultValue.valueType,
+                optional: true,
+                advanced: true,
+                editable: true,
+                documentation: '',
+                enabled: enableDefault || param.defaultValue?.enabled,
+                value: param.defaultValue?.value,
+                valueTypeConstraint: ""
+            });
+        }
+        setCurrentFields(fields);
+    };
 
-    param.defaultValue && currentFields.push({
-        key: `defaultable`,
-        label: 'Default Value',
-        type: 'string',
-        optional: true,
-        advanced: true,
-        editable: true,
-        documentation: '',
-        enabled: param.defaultValue?.enabled ?? true,
-        value: param.defaultValue?.value,
-        valueTypeConstraint: ""
-    })
+    useEffect(() => {
+        updateFormFields();
+    }, [param.name, param.type, param.defaultValue, hideType]);
 
     const onParameterSubmit = (dataValues: any) => {
         console.log("Param values", dataValues);
         onSave({
             ...param,
-            type: { ...param.type, value: dataValues['type'] },
-            name: { ...param.name, value: dataValues['variable'] },
-            defaultValue: { ...param.defaultValue, value: dataValues['defaultable'] }
+            type: { ...param.type, value: dataValues['type'] ?? param.type.value },
+            name: { ...param.name, value: dataValues['name'] ?? param.name.value },
+            defaultValue: { ...param.defaultValue, value: dataValues['defaultValue'] ?? param.defaultValue?.value, enabled: dataValues['defaultValue'] && true }
         });
     }
 
@@ -140,17 +144,26 @@ export function ParamEditor(props: ParamProps) {
             {param.httpParamType && <Typography sx={{ marginBlockEnd: 10 }} variant="h4">{param.httpParamType === "PAYLOAD" ? "Payload" : "Parameter"} Configuration</Typography>}
             {!param.httpParamType && <Typography sx={{ marginBlockEnd: 10 }} variant="h4">{param.metadata.label} Configuration</Typography>}
             <Divider />
-            {param.httpParamType && param.httpParamType !== "PAYLOAD" && (
-                <Dropdown
-                    id="param-type-selector"
-                    sx={{ zIndex: 2, width: 172 }}
-                    isRequired
-                    items={options}
-                    label="Param Type"
-                    onValueChange={handleOnSelect}
-                    value={param.httpParamType}
-                />
-            )}
+            {param.httpParamType !== "PAYLOAD" &&
+                <EditorContent>
+                    {param.httpParamType && (
+                        <Dropdown
+                            id="param-type-selector"
+                            sx={{ zIndex: 2, width: 172 }}
+                            isRequired
+                            items={options}
+                            label="Param Type"
+                            onValueChange={handleOnSelect}
+                            value={param.httpParamType}
+                        />
+                    )}
+                    {param.httpParamType === "QUERY" && (
+                        <VSCodeCheckbox checked={param.kind === "REQUIRED"} onChange={handleReqFieldChange} id="is-req-checkbox">
+                            Is Required?
+                        </VSCodeCheckbox>
+                    )}
+                </EditorContent>
+            }
             <>
                 {filePath && targetLineRange &&
                     <FormGeneratorNew
@@ -161,15 +174,11 @@ export function ParamEditor(props: ParamProps) {
                         onSubmit={onParameterSubmit}
                         submitText={param.type.value ? "Save" : "Add"}
                         nestedForm={true}
+                        helperPaneSide='left'
                     />
                 }
 
             </>
-            {param.httpParamType === "QUERY" && (
-                <VSCodeCheckbox checked={param.kind === "REQUIRED"} onChange={handleReqFieldChange} id="is-req-checkbox">
-                    Is Required?
-                </VSCodeCheckbox>
-            )}
         </EditorContainer >
     );
 }

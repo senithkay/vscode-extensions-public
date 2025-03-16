@@ -8,49 +8,69 @@
  */
 
 import vscode from 'vscode';
-import { ENABLE_NATURAL_PROGRAMMING } from "../../core/preferences";
+import { ENABLE_BACKGROUND_DRIFT_CHECK } from "../../core/preferences";
 import { debounce } from 'lodash';
 import { StateMachine } from "../../stateMachine";
-import { getLLMDiagnostics } from "./utils";
+import { addDefaultModelConfigForNaturalFunctions, getBackendURL, getLLMDiagnostics, getTokenForNaturalFunction } from "./utils";
 import { NLCodeActionProvider, showTextOptions } from './nl-code-action-provider';
 import { BallerinaExtension } from 'src/core';
-import { PROGRESS_BAR_MESSAGE, WARNING_MESSAGE, WARNING_MESSAGE_DEFAULT } from './constants';
+import { PROGRESS_BAR_MESSAGE_FOR_DRIFT, WARNING_MESSAGE, WARNING_MESSAGE_DEFAULT, MONITERED_EXTENSIONS,
+    WARNING_MESSAGE_FOR_NP_TOKEN_NOT_FOUND, PROGRESS_BAR_MESSAGE_FOR_NP_TOKEN
+ } from './constants';
 
 let diagnosticCollection: vscode.DiagnosticCollection;
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
-    const naturalLanguageConfig = vscode.workspace.getConfiguration().get<boolean>(ENABLE_NATURAL_PROGRAMMING);
+    const backgroundDriftCheckConfig = vscode.workspace.getConfiguration().get<boolean>(ENABLE_BACKGROUND_DRIFT_CHECK);
 
     // Create diagnostic collection and register it
     diagnosticCollection = vscode.languages.createDiagnosticCollection('ballerina');
     ballerinaExtInstance.context.subscriptions.push(diagnosticCollection);
 
     const projectPath = StateMachine.context().projectUri;
-    if (naturalLanguageConfig) {
+    if (backgroundDriftCheckConfig) {
         if (!ballerinaExtInstance.context || projectPath == null || projectPath == "") {
             return;
         }
 
-        // Set up debounced diagnostics and event listeners
         const debouncedGetLLMDiagnostics = debounce(async () => {
-            const result: number|null = await getLLMDiagnostics(projectPath, diagnosticCollection);
+            const result: number | null = await getLLMDiagnostics(projectPath, diagnosticCollection);
             if (result == null) {
                 return;
             }
-
+        
             if (result > 400 && result < 500) {
                 vscode.window.showWarningMessage(WARNING_MESSAGE);
                 return;
             }
             vscode.window.showWarningMessage(WARNING_MESSAGE_DEFAULT);
-        }, 8000);
-
+        }, 600000);
+        
         vscode.workspace.onDidChangeTextDocument(async event => {
-            debouncedGetLLMDiagnostics();
+            const filePath = event.document.uri.fsPath; // Get the file path
+            const fileExtension = filePath.substring(filePath.lastIndexOf('.')); // Extract the file extension
+        
+            // Check if the file extension is in the monitoredExtensions array
+            if (MONITERED_EXTENSIONS.includes(fileExtension)) {
+                debouncedGetLLMDiagnostics();
+            }
         }, null, ballerinaExtInstance.context.subscriptions);
-
+        
         vscode.workspace.onDidDeleteFiles(async event => {
-            debouncedGetLLMDiagnostics();
+            let isMoniteredFileGotDeleted = false;
+            event.files.forEach(file => {
+                const filePath = file.fsPath; // Get the file path
+                const fileExtension = filePath.substring(filePath.lastIndexOf('.')); // Extract the file extension
+        
+                // Check if the file extension is in the monitoredExtensions array
+                if (MONITERED_EXTENSIONS.includes(fileExtension)) {
+                    isMoniteredFileGotDeleted = true;
+                }
+            });
+
+            if (isMoniteredFileGotDeleted) {
+                debouncedGetLLMDiagnostics();
+            }
         }, null, ballerinaExtInstance.context.subscriptions);
     }
 
@@ -63,11 +83,11 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
     ballerinaExtInstance.context.subscriptions.push(showTextOptions);
 
-    vscode.commands.registerCommand("kolab.verifyDocs", async (...args: any[]) => {    
+    vscode.commands.registerCommand("ballerina.verifyDocs", async (...args: any[]) => {    
         await vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
-                title: PROGRESS_BAR_MESSAGE,
+                title: PROGRESS_BAR_MESSAGE_FOR_DRIFT,
                 cancellable: false,
             },
             async () => {
@@ -81,6 +101,25 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                     return;
                 }
                 vscode.window.showWarningMessage(WARNING_MESSAGE_DEFAULT);
+            }
+        );
+    });
+
+    vscode.commands.registerCommand("ballerina.configureDefaultModelForNaturalFunctions", async (...args: any[]) => {    
+        await vscode.window.withProgress(
+            {
+                location: vscode.ProgressLocation.Notification,
+                title: PROGRESS_BAR_MESSAGE_FOR_NP_TOKEN,
+                cancellable: false,
+            },
+            async () => {
+                const token: string = await getTokenForNaturalFunction();
+                if (token == null) {
+                    vscode.window.showWarningMessage(WARNING_MESSAGE_FOR_NP_TOKEN_NOT_FOUND);
+                    return;
+                }
+
+                addDefaultModelConfigForNaturalFunctions(projectPath, token, await getBackendURL());
             }
         );
     });

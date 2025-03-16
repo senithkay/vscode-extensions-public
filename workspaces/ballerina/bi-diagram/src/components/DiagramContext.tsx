@@ -8,7 +8,33 @@
  */
 
 import React, { useState } from "react";
-import { Flow, NodeKind, FlowNode, Branch, LineRange, NodePosition, FlowNodeStyle } from "../utils/types";
+import { Flow, FlowNode, Branch, LineRange, NodePosition, ToolData } from "../utils/types";
+import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
+import { ExpressionProperty, TextEdit } from "@wso2-enterprise/ballerina-core";
+
+type CompletionConditionalProps = {
+    completions: CompletionItem[];
+    triggerCharacters: readonly string[];
+    retrieveCompletions: (
+        value: string,
+        property: ExpressionProperty,
+        offset: number,
+        invalidateCache: boolean,
+        triggerCharacter?: string,
+        onlyVariables?: boolean
+    ) => Promise<void>;
+} | {
+    completions?: never;
+    triggerCharacters?: never;
+    retrieveCompletions?: never;
+}
+
+export type ExpressionContextProps = CompletionConditionalProps & {
+    onCompletionItemSelect?: (value: string, additionalTextEdits?: TextEdit[]) => Promise<void>;
+    onFocus?: () => void | Promise<void>;
+    onBlur?: () => void | Promise<void>;
+    onCancel?: () => void;
+}
 
 export interface DiagramContextState {
     flow: Flow;
@@ -25,11 +51,18 @@ export interface DiagramContextState {
     onDeleteNode?: (node: FlowNode) => void;
     onAddComment?: (comment: string, target: LineRange) => void;
     onNodeSelect?: (node: FlowNode) => void;
+    onNodeSave?: (node: FlowNode) => void;
     addBreakpoint?: (node: FlowNode) => void;
     removeBreakpoint?: (node: FlowNode) => void;
     onConnectionSelect?: (connectionName: string) => void;
     goToSource: (node: FlowNode) => void;
     openView: (filePath: string, position: NodePosition) => void;
+    agentNode: {
+        onModelSelect: (node: FlowNode) => void;
+        onAddTool: (node: FlowNode) => void;
+        onSelectTool: (tool: ToolData, node: FlowNode) => void;
+        onDeleteTool: (tool: ToolData, node: FlowNode) => void;
+    };
     suggestions?: {
         fetching: boolean;
         onAccept(): void;
@@ -39,6 +72,7 @@ export interface DiagramContextState {
     readOnly?: boolean;
     lockCanvas?: boolean;
     setLockCanvas?: (lock: boolean) => void;
+    expressionContext: ExpressionContextProps;
 }
 
 export const DiagramContext = React.createContext<DiagramContextState>({
@@ -61,6 +95,12 @@ export const DiagramContext = React.createContext<DiagramContextState>({
     addBreakpoint: () => {},
     removeBreakpoint: () => {},
     openView: () => {},
+    agentNode: {
+        onModelSelect: () => {},
+        onAddTool: () => {},
+        onSelectTool: () => {},
+        onDeleteTool: () => {},
+    },
     suggestions: {
         fetching: false,
         onAccept: () => {},
@@ -70,6 +110,11 @@ export const DiagramContext = React.createContext<DiagramContextState>({
     readOnly: false,
     lockCanvas: false,
     setLockCanvas: (lock: boolean) => {},
+    expressionContext: {
+        completions: [],
+        triggerCharacters: [],
+        retrieveCompletions: () => Promise.resolve(),
+    }
 });
 
 export const useDiagramContext = () => React.useContext(DiagramContext);

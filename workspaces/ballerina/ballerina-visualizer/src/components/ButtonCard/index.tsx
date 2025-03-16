@@ -10,6 +10,7 @@
 import React from "react";
 import { ThemeColors, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
+import { BetaSVG } from "../../views/Connectors/Marketplace/BetaSVG";
 
 const Card = styled.div<{ active?: boolean; appearance?: ButtonCardAppearance, disabled?: boolean }>`
     gap: 16px;
@@ -48,6 +49,9 @@ const Title = styled(Text)<TextProps>`
     white-space: ${(props: TextProps) => (props.truncate ? "nowrap" : "normal")};
     overflow: ${(props: TextProps) => (props.truncate ? "hidden" : "visible")};
     text-overflow: ${(props: TextProps) => (props.truncate ? "ellipsis" : "clip")};
+    display: flex;
+    align-items: center;
+    gap: 8px;
 `;
 
 const Caption = styled(Text)`
@@ -115,7 +119,7 @@ export function ButtonCard(props: ButtonCardProps) {
         truncate: explicitTruncate,
         onClick,
         disabled,
-        tooltip,
+        tooltip
     } = props;
 
     // Apply truncation by default for small appearance if not explicitly set
@@ -133,7 +137,11 @@ export function ButtonCard(props: ButtonCardProps) {
                     {icon && <IconContainer>{icon}</IconContainer>}
                     <ContentContainer>
                         {caption && <Caption>{caption}</Caption>}
-                        <Title truncate={truncate}>{title}</Title>
+                        <Title
+                            truncate={truncate}
+                        >
+                            {title}
+                        </Title>
                         {description && <Description truncate={truncate}>{description}</Description>}
                     </ContentContainer>
                 </CardContainer>

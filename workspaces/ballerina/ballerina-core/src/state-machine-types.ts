@@ -11,6 +11,7 @@ import { NotificationType, RequestType } from "vscode-messenger-common";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./interfaces/common";
 import { Type } from "./interfaces/extended-lang-client";
+import { DevantComponent } from "./rpc-types/bi-diagram/interfaces";
 
 export type MachineStateValue =
     | 'initialize'
@@ -50,6 +51,7 @@ export type VoidCommands = "OPEN_LOW_CODE" | "OPEN_PROJECT" | "CREATE_PROJECT";
 
 export enum MACHINE_VIEW {
     Overview = "Overview",
+    BallerinaUpdateView = "Ballerina Update View",
     SequenceDiagram = "Sequence Diagram",
     ServiceDesigner = "Service Designer",
     ERDiagram = "ER Diagram",
@@ -67,7 +69,7 @@ export enum MACHINE_VIEW {
     EditConnectionWizard = "Edit Connection Wizard",
     BIMainFunctionForm = "Add Automation",
     BIFunctionForm = "Add Function",
-    BINPFunctionForm = "Add Prompt as code function",
+    BINPFunctionForm = "Add Natural Function",
     BITestFunctionForm = "Add Test Function",
     BIServiceWizard = "Service Wizard",
     BIServiceConfigView = "Service Config View",
@@ -78,6 +80,7 @@ export enum MACHINE_VIEW {
     AIAgentWizard = "AI Agent Wizard",
     AIAgentEditView = "AI Agent Edit View",
     AIAgentDesigner = "AI Agent Designer",
+    AIChatAgentWizard = "AI Chat Agent Wizard",
 }
 
 export interface MachineEvent {
@@ -90,6 +93,12 @@ export interface CommandProps {
     isService?: boolean
 }
 
+export const FOCUS_FLOW_DIAGRAM_VIEW = {
+    NP_FUNCTION: "NP_FUNCTION",
+} as const;
+
+export type FocusFlowDiagramView = typeof FOCUS_FLOW_DIAGRAM_VIEW[keyof typeof FOCUS_FLOW_DIAGRAM_VIEW];
+
 // State Machine context values
 export interface VisualizerLocation {
     view?: MACHINE_VIEW | null;
@@ -99,6 +108,7 @@ export interface VisualizerLocation {
     position?: NodePosition;
     syntaxTree?: STNode;
     isBI?: boolean;
+    focusFlowDiagramView?: FocusFlowDiagramView;
     serviceType?: string;
     type?: Type;
     isGraphql?: boolean;
@@ -108,9 +118,11 @@ export interface VisualizerLocation {
 
 export interface VisualizerMetadata {
     haveLS?: boolean;
+    isBISupported?: boolean;
     recordFilePath?: string;
     enableSequenceDiagram?: boolean; // Enable sequence diagram view
     target?: LinePosition;
+    devantComponent?: DevantComponent;
 }
 
 export interface PopupVisualizerLocation extends VisualizerLocation {

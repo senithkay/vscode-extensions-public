@@ -124,11 +124,8 @@ namespace S {
     `;
 
     export const ComponentTitle = styled.div`
-        text-overflow: ellipsis;
-        overflow: hidden;
         white-space: nowrap;
         width: 124px;
-        word-break: break-all;
     `;
 
     export const IconContainer = styled.div`
@@ -206,7 +203,6 @@ interface NodeListProps {
     onSearchTextChange?: (text: string) => void;
     onAddConnection?: () => void;
     onAddFunction?: () => void;
-    onAddAgent?: () => void;
     onBack?: () => void;
     onClose?: () => void;
 }
@@ -220,7 +216,6 @@ export function NodeList(props: NodeListProps) {
         onSearchTextChange,
         onAddConnection,
         onAddFunction,
-        onAddAgent,
         onBack,
         onClose,
     } = props;
@@ -267,12 +262,6 @@ export function NodeList(props: NodeListProps) {
         }
     };
 
-    const handleAddAgent = () => {
-        if (onAddAgent) {
-            onAddAgent();
-        }
-    };
-
     const getNodesContainer = (nodes: Node[]) => (
         <S.Grid columns={2}>
             {nodes.map((node, index) => {
@@ -289,7 +278,17 @@ export function NodeList(props: NodeListProps) {
                         title={node.label}
                     >
                         <S.IconContainer>{node.icon || <LogIcon />}</S.IconContainer>
-                        <S.ComponentTitle>{node.label}</S.ComponentTitle>
+                        <S.ComponentTitle
+                            ref={(el) => {
+                                if (el && el.scrollWidth > el.clientWidth) {
+                                    el.style.fontSize = "13px";
+                                    el.style.wordBreak = "break-word";
+                                    el.style.whiteSpace = "normal";
+                                }
+                            }}
+                        >
+                            {node.label}
+                        </S.ComponentTitle>
                     </S.Component>
                 );
             })}
@@ -319,7 +318,7 @@ export function NodeList(props: NodeListProps) {
                     const isProjectFunctionsCategory = group.title === "Current Integration";
                     const isDataMapperCategory = isProjectFunctionsCategory && title === "Data Mappers";
                     const isAgentCategory = group.title === "Agents";
-                    const isNpFunctionCategory = isProjectFunctionsCategory && title === "Prompt as code";
+                    const isNpFunctionCategory = isProjectFunctionsCategory && title === "Natural Functions";
                     if (
                         (!group || group.items.length === 0) &&
                         !isConnectionCategory &&
@@ -330,6 +329,10 @@ export function NodeList(props: NodeListProps) {
                         return null;
                     }
                     if (searchText && group.items.length === 0) {
+                        return null;
+                    }
+                    // skip current integration category if onAddFunction is not provided and items are empty
+                    if (!onAddFunction && isProjectFunctionsCategory && group.items?.length === 0) {
                         return null;
                     }
                     return (
@@ -344,37 +347,52 @@ export function NodeList(props: NodeListProps) {
                                     <>
                                         <S.Title>{group.title}</S.Title>
                                         {(isConnectionCategory || isProjectFunctionsCategory || isAgentCategory) && (
-                                            <Button
-                                                appearance="icon"
-                                                tooltip={
-                                                    isConnectionCategory
-                                                        ? "Add Connection"
-                                                        : isAgentCategory
-                                                        ? "Add Agent"
-                                                        : `Create ${
-                                                              isDataMapperCategory
-                                                                  ? "Data Mapper"
-                                                                  : isNpFunctionCategory
-                                                                  ? "Prompt as code"
-                                                                  : "Function"
-                                                          }`
-                                                }
-                                                onClick={
-                                                    isConnectionCategory
-                                                        ? handleAddConnection
-                                                        : isAgentCategory
-                                                        ? handleAddAgent
-                                                        : handleAddFunction
-                                                }
-                                            >
-                                                <Codicon name="add" />
-                                            </Button>
+                                            <>
+                                                {onAddConnection && isConnectionCategory && (
+                                                    <Button
+                                                        appearance="icon"
+                                                        tooltip="Add Connection"
+                                                        onClick={handleAddConnection}
+                                                    >
+                                                        <Codicon name="add" />
+                                                    </Button>
+                                                )}
+                                                {onAddFunction && isDataMapperCategory && (
+                                                    <Button
+                                                        appearance="icon"
+                                                        tooltip="Create Data Mapper"
+                                                        onClick={handleAddFunction}
+                                                    >
+                                                        <Codicon name="add" />
+                                                    </Button>
+                                                )}
+                                                {onAddFunction &&
+                                                    isProjectFunctionsCategory &&
+                                                    !isDataMapperCategory &&
+                                                    !isNpFunctionCategory && (
+                                                        <Button
+                                                            appearance="icon"
+                                                            tooltip="Create Function"
+                                                            onClick={handleAddFunction}
+                                                        >
+                                                            <Codicon name="add" />
+                                                        </Button>
+                                                    )}
+                                                {onAddFunction && isNpFunctionCategory && (
+                                                    <Button
+                                                        appearance="icon"
+                                                        tooltip="Create Natural Function"
+                                                        onClick={handleAddFunction}
+                                                    >
+                                                        <Codicon name="add" />
+                                                    </Button>
+                                                )}
+                                            </>
                                         )}
                                     </>
                                 )}
                             </S.Row>
-                            {/* {!isSubCategory && <S.BodyText>{group.description}</S.BodyText>} */}
-                            {isConnectionCategory && group.items.length === 0 && (
+                            {onAddConnection && isConnectionCategory && group.items.length === 0 && (
                                 <S.HighlightedButton onClick={handleAddConnection}>
                                     <Codicon
                                         name="add"
@@ -384,31 +402,26 @@ export function NodeList(props: NodeListProps) {
                                     Add Connection
                                 </S.HighlightedButton>
                             )}
-                            {isProjectFunctionsCategory && group.items.length === 0 && !searchText && !isSearching && (
-                                <S.HighlightedButton onClick={handleAddFunction}>
-                                    <Codicon name="add" iconSx={{ fontSize: 12 }} />
-                                    {`Create ${
-                                        isDataMapperCategory
-                                            ? "Data Mapper"
-                                            : isNpFunctionCategory
-                                            ? "Prompt as code"
-                                            : "Function"
-                                    }`}
-                                </S.HighlightedButton>
-                            )}
-                            {isAgentCategory && group.items.length === 0 && (
-                                <S.HighlightedButton onClick={handleAddAgent}>
-                                    <Codicon
-                                        name="add"
-                                        iconSx={{ fontSize: 12 }}
-                                        sx={{ display: "flex", alignItems: "center" }}
-                                    />
-                                    Add Agent
-                                </S.HighlightedButton>
-                            )}
+                            {onAddFunction &&
+                                isProjectFunctionsCategory &&
+                                group.items.length === 0 &&
+                                !searchText &&
+                                !isSearching && (
+                                    <S.HighlightedButton onClick={handleAddFunction}>
+                                        <Codicon name="add" iconSx={{ fontSize: 12 }} />
+                                        {`Create ${
+                                            isDataMapperCategory
+                                                ? "Data Mapper"
+                                                : isNpFunctionCategory
+                                                ? "Natural Function"
+                                                : "Function"
+                                        }`}
+                                    </S.HighlightedButton>
+                                )}
                             {group.items.length > 0 && "id" in group.items.at(0)
                                 ? getNodesContainer(group.items as Node[])
-                                : isConnectionCategory || isProjectFunctionsCategory || isAgentCategory
+                                : (onAddConnection && isConnectionCategory) ||
+                                  (onAddFunction && isProjectFunctionsCategory)
                                 ? getConnectionContainer(group.items as Category[])
                                 : getCategoryContainer(group.items as Category[], true)}
                         </S.CategoryRow>

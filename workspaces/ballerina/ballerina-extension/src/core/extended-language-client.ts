@@ -193,7 +193,10 @@ import {
     RecordSourceGenResponse,
     RecordSourceGenRequest,
     GetRecordModelFromSourceRequest,
-    GetRecordModelFromSourceResponse
+    GetRecordModelFromSourceResponse,
+    UpdateTypesRequest,
+    UpdateTypesResponse,
+    DidChangeWatchedFileParams
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -286,6 +289,7 @@ enum EXTENDED_APIS {
     BI_GET_TYPES = 'typesManager/getTypes',
     BI_GET_TYPE = 'typesManager/getType',
     BI_UPDATE_TYPE = 'typesManager/updateType',
+    BI_UPDATE_TYPES = 'typesManager/updateTypes',
     BI_GET_GRAPHQL_TYPE = 'typesManager/getGraphqlType',
     BI_CREATE_GRAPHQL_CLASS_TYPE = 'typesManager/createGraphqlClassType',
     BI_GET_RECORD_CONFIG = 'typesManager/recordConfig',
@@ -369,7 +373,8 @@ enum VSCODE_APIS {
     DOC_SYMBOL = 'textDocument/documentSymbol',
     CODE_ACTION = 'textDocument/codeAction',
     EXECUTE_CMD = 'workspace/executeCommand',
-    PUBLISH_DIAGNOSTICS = 'textDocument/publishDiagnostics'
+    PUBLISH_DIAGNOSTICS = 'textDocument/publishDiagnostics',
+    DID_CHANGE_WATCHED_FILES = 'workspace/didChangeWatchedFiles'
 }
 
 export class ExtendedLangClient extends LanguageClient implements ExtendedLangClientInterface {
@@ -403,6 +408,11 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     didChange(params: DidChangeParams): void {
         debug(`didChange at ${new Date()} - ${new Date().getTime()}`);
         this.sendNotification(VSCODE_APIS.DID_CHANGE, params);
+    }
+
+    didChangedWatchedFiles(params: DidChangeWatchedFileParams): void {
+        debug(`didChangedWatchedFiles at ${new Date()} - ${new Date().getTime()}`);
+        this.sendNotification(VSCODE_APIS.DID_CHANGE_WATCHED_FILES, params);
     }
 
     registerPublishDiagnostics(): void {
@@ -635,7 +645,6 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         if (!isSupported) {
             return Promise.resolve(NOT_SUPPORTED);
         }
-        const test = await this.sendRequest(EXTENDED_APIS.PACKAGE_COMPONENTS, params);
         return this.sendRequest(EXTENDED_APIS.PACKAGE_COMPONENTS, params);
     }
 
@@ -960,6 +969,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async updateType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
         return this.sendRequest<UpdateTypeResponse>(EXTENDED_APIS.BI_UPDATE_TYPE, params);
+    }
+
+    async updateTypes(params: UpdateTypesRequest): Promise<UpdateTypesResponse> {
+        return this.sendRequest<UpdateTypesResponse>(EXTENDED_APIS.BI_UPDATE_TYPES, params);
     }
 
     async createGraphqlClassType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {

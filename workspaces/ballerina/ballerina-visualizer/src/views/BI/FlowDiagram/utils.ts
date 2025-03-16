@@ -1,0 +1,103 @@
+/**
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import { Category, AvailableNode } from "@wso2-enterprise/ballerina-core";
+import { cloneDeep } from "lodash";
+
+/**
+ * Transforms categories by filtering out unsupported nodes and reorganizing categories
+ * 
+ * @param categories The original categories array from the API
+ * @returns Transformed categories array
+ */
+export const transformCategories = (categories: Category[]): Category[] => {
+    // filter out some categories that are not supported in the diagram
+    // TODO: these categories should be supported in the future
+    const notSupportedCategories = [
+        "PARALLEL_FLOW",
+        "LOCK",
+        "START",
+        "TRANSACTION",
+        "COMMIT",
+        "ROLLBACK",
+        "RETRY",
+    ];
+    
+    let filteredCategories = categories.map((category) => ({
+        ...category,
+        items: category?.items?.filter(
+            (item) =>
+                !("codedata" in item) ||
+                !notSupportedCategories.includes((item as AvailableNode).codedata?.node)
+        ),
+    })) as Category[];
+    
+    // remove agents from categories
+    filteredCategories = filteredCategories.filter((category) => category.metadata.label !== "Agents");
+
+    // find statement category
+    const statementCategory = filteredCategories.find((category) => category.metadata.label === "Statement");
+    // find AGENT_CALL from statement category
+    const agentCallNode = statementCategory?.items?.find((item) => (item as AvailableNode).codedata?.node === "AGENT_CALL") as AvailableNode;
+    if (agentCallNode?.codedata) {
+        // HACK: update agent call node until LS update with the new agent node
+        agentCallNode.codedata.object = "Agent";
+        agentCallNode.codedata.parentSymbol = "";
+        agentCallNode.codedata.version =  agentCallNode.codedata.version || "0.7.16";
+    }else{
+        // TODO: this should remove once LS update with the new agent node
+        // add new item
+        statementCategory.items.push({
+            codedata: {
+                module: "ai.agent",
+                node: "AGENT_CALL",
+                object: "Agent",
+                org: "ballerinax",
+                parentSymbol: "",
+                symbol: "run",
+                version: "0.7.16",
+            },
+            enabled: true,
+            metadata: {
+                label: "Agent",
+                description: "Add an AI Agent to the flow",
+            },
+        });
+    }
+    
+    return filteredCategories;
+};
+
+/**
+ * Utility function to handle AIAgent specific operations
+ */
+export const handleAgentOperations = {
+    /**
+     * Get AIAgent node configuration
+     */
+    getAgentConfig: (node: any) => {
+        if (!node || node.codedata?.node !== "AGENT_CALL") return null;
+        
+        const properties = node.properties || {};
+        return {
+            name: properties.connection?.value || "Unknown Agent",
+            model: properties.model?.value || "gpt-3.5-turbo",
+            systemPrompt: properties.systemPrompt?.value || "",
+            tools: properties.tools?.value || []
+        };
+    },
+    
+    /**
+     * Format AIAgent node data
+     */
+    formatAgentData: (data: any) => {
+        // Format AIAgent specific data for display or API calls
+        return data;
+    }
+}; 

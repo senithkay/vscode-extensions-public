@@ -405,12 +405,13 @@ export function FormGenerator(props: FormProps) {
     );
 
     const debouncedGetVisibleTypes = useCallback(
-        debounce(async (value: string, cursorPosition: number) => {
+        debounce(async (value: string, cursorPosition: number, typeConstraint?: string) => {
             let visibleTypes: CompletionItem[] = types;
             if (!types.length) {
                 const types = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
                     filePath: fileName,
                     position: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
+                    typeConstraint: typeConstraint,
                 });
 
                 visibleTypes = convertToVisibleTypes(types);
@@ -431,8 +432,8 @@ export function FormGenerator(props: FormProps) {
     );
 
     const handleGetVisibleTypes = useCallback(
-        async (value: string, cursorPosition: number) => {
-            await debouncedGetVisibleTypes(value, cursorPosition);
+        async (value: string, cursorPosition: number, typeConstraint?: string) => {
+            await debouncedGetVisibleTypes(value, cursorPosition, typeConstraint);
         },
         [debouncedGetVisibleTypes]
     );
@@ -698,6 +699,7 @@ export function FormGenerator(props: FormProps) {
                     disableSaveButton={disableSaveButton}
                     actionButton={actionButton}
                     recordTypeFields={recordTypeFields}
+                    isInferredReturnType={!!node.codedata?.inferredReturnType}
                 />
             )}
             {typeEditorState.isOpen && (

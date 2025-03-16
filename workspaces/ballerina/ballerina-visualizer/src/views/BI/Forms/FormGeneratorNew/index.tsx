@@ -66,6 +66,10 @@ interface FormProps {
     resetUpdatedExpressionField?: () => void;
     selectedNode?: NodeKind;
     nestedForm?: boolean;
+    compact?: boolean;
+    helperPaneSide?: 'right' | 'left';
+    recordTypeFields?: RecordTypeField[];
+    disableSaveButton?: boolean;
 }
 
 export function FormGeneratorNew(props: FormProps) {
@@ -83,11 +87,15 @@ export function FormGeneratorNew(props: FormProps) {
         updatedExpressionField,
         resetUpdatedExpressionField,
         selectedNode,
-        nestedForm
+        nestedForm,
+        compact = false,
+        helperPaneSide,
+        recordTypeFields,
+        disableSaveButton = false
     } = props;
 
     const { rpcClient } = useRpcContext();
-    console.log("======FormGeneratorNew======,", fields)
+    // console.log("======FormGeneratorNew======,", fields)
 
     const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false });
 
@@ -247,12 +255,13 @@ export function FormGeneratorNew(props: FormProps) {
         }
     }, [debouncedRetrieveCompletions]);
 
-    const debouncedGetVisibleTypes = useCallback(debounce(async (value: string, cursorPosition: number) => {
+    const debouncedGetVisibleTypes = useCallback(debounce(async (value: string, cursorPosition: number, typeConstraint: string) => {
         let visibleTypes: CompletionItem[] = types;
         if (!types.length) {
             const types = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
                 filePath: fileName,
                 position: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
+                typeConstraint: typeConstraint,
             });
 
             visibleTypes = convertToVisibleTypes(types);
@@ -270,8 +279,8 @@ export function FormGeneratorNew(props: FormProps) {
         setFilteredTypes(filteredTypes);
     }, 250), [rpcClient, types, fileName, targetLineRange]);
 
-    const handleGetVisibleTypes = useCallback(async (value: string, cursorPosition: number) => {
-        await debouncedGetVisibleTypes(value, cursorPosition);
+    const handleGetVisibleTypes = useCallback(async (value: string, cursorPosition: number, typeConstraint?: string) => {
+        await debouncedGetVisibleTypes(value, cursorPosition, typeConstraint);
     }, [debouncedGetVisibleTypes]);
 
     const handleCompletionItemSelect = async (value: string, additionalTextEdits?: TextEdit[]) => {
@@ -438,7 +447,7 @@ export function FormGeneratorNew(props: FormProps) {
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
             onCancel: handleExpressionEditorCancel,
-            helperPaneOrigin: "right",
+            helperPaneOrigin: helperPaneSide || "right",
             helperPaneHeight: "3/4"
         } as FormExpressionEditorProps;
     }, [
@@ -466,7 +475,7 @@ export function FormGeneratorNew(props: FormProps) {
                 <FormTypeEditor
                     newType={true}
                     onTypeChange={handleTypeChange}
-                    { ...(isGraphql && { type: defaultType(), isGraphql: true }) }
+                    {...(isGraphql && { type: defaultType(), isGraphql: true })}
                 />
             </PanelContainer>
             <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3`, zIndex: 1000 }} />
@@ -494,6 +503,9 @@ export function FormGeneratorNew(props: FormProps) {
                     updatedExpressionField={updatedExpressionField}
                     resetUpdatedExpressionField={resetUpdatedExpressionField}
                     selectedNode={selectedNode}
+                    compact={compact}
+                    recordTypeFields={recordTypeFields}
+                    disableSaveButton={disableSaveButton}
                 />
             )}
             {typeEditorState.isOpen && (

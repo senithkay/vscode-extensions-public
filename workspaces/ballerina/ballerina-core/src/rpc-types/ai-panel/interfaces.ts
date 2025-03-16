@@ -27,6 +27,7 @@ export interface FetchDataResponse {
 
 export interface ProjectSource {
     projectModules?: ProjectModule[];
+    projectTests?: SourceFile[];
     sourceFiles: SourceFile[];
 }
 
@@ -149,6 +150,7 @@ export interface GenerateMappingsFromRecordRequest {
     outputRecordType: DataMappingRecord;
     functionName: string;
     imports: { moduleName: string; alias?: string }[];
+    inputNames?: string[];
     attachment?: AttachmentResult[]
 }
 

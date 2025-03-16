@@ -1,0 +1,288 @@
+/*
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import { existsSync, readFileSync, writeFileSync } from "fs";
+import * as os from "os";
+import * as path from "path";
+import { join } from "path";
+import {
+	ChoreoBuildPackNames,
+	ChoreoComponentType,
+	CommandIds,
+	DevantScopes,
+	type ICreateComponentParams,
+	type SubmitComponentCreateReq,
+	type WorkspaceConfig,
+	getComponentTypeText,
+	getIntegrationScopeText,
+	getTypeOfIntegrationType,
+} from "@wso2-enterprise/wso2-platform-core";
+import { type ExtensionContext, ProgressLocation, type QuickPickItem, Uri, commands, window, workspace } from "vscode";
+import { choreoEnvConfig } from "../config";
+import { ext } from "../extensionVariables";
+import { getGitRoot } from "../git/util";
+import { authStore } from "../stores/auth-store";
+import { contextStore } from "../stores/context-store";
+import { dataCacheStore } from "../stores/data-cache-store";
+import { webviewStateStore } from "../stores/webview-state-store";
+import { convertFsPathToUriPath, delay, getSubPath, goTosource, isSubpath, openDirectory } from "../utils";
+import { showComponentDetailsView } from "../webviews/ComponentDetailsView";
+import { ComponentFormView, type IComponentCreateFormParams } from "../webviews/ComponentFormView";
+import { getUserInfoForCmd, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
+import { updateContextFile } from "./create-directory-context-cmd";
+
+let componentWizard: ComponentFormView;
+
+export function createNewComponentCommand(context: ExtensionContext) {
+	context.subscriptions.push(
+		commands.registerCommand(CommandIds.CreateNewComponent, async (params: ICreateComponentParams) => {
+			try {
+				const userInfo = await getUserInfoForCmd("create a component");
+				let isIntegration = false;
+				if (params?.buildPackLang === ChoreoBuildPackNames.Ballerina || params?.buildPackLang === ChoreoBuildPackNames.MicroIntegrator) {
+					isIntegration = true;
+					webviewStateStore.getState().setExtensionName("Devant");
+				}
+				if (userInfo) {
+					const selected = contextStore.getState().state.selected;
+					let selectedProject = selected?.project;
+					let selectedOrg = selected?.org;
+
+					if (!selectedProject || !selectedOrg) {
+						selectedOrg = await selectOrg(userInfo, "Select organization");
+
+						const createdProjectRes = await selectProjectWithCreateNew(
+							selectedOrg,
+							`Loading projects from '${selectedOrg.name}'`,
+							`Select the project from '${selectedOrg.name}', to create the component in`,
+						);
+						selectedProject = createdProjectRes.selectedProject;
+					}
+
+
+					const componentTypes: string[] = [];
+
+					let selectedType: string | undefined = undefined;
+					let selectedSubType: string | undefined = undefined;
+
+					if (isIntegration) {
+						componentTypes.push(DevantScopes.AUTOMATION, DevantScopes.AI_AGENT, DevantScopes.INTEGRATION_AS_API, DevantScopes.EVENT_INTEGRATION, DevantScopes.FILE_INTEGRATION);
+						if(params?.integrationType && componentTypes.includes(params.integrationType)){
+							// map integrationType to type and subtype
+							const intType = getTypeOfIntegrationType(params?.integrationType)
+							selectedType = intType.type
+							selectedSubType = intType.subType
+						}
+					} else {
+						componentTypes.push(
+							ChoreoComponentType.Service,
+							ChoreoComponentType.WebApplication,
+							ChoreoComponentType.ScheduledTask,
+							ChoreoComponentType.ManualTrigger,
+						);
+						const isProxyCreateEnabled = workspace.getConfiguration().get<boolean>("WSO2.WSO2-Platform.FeaturePreview.ProxyCreation");
+						if (isProxyCreateEnabled) {
+							componentTypes.push(ChoreoComponentType.ApiProxy);
+						}
+						if(params?.type && componentTypes.includes(params.type)){
+							selectedType = params?.type;
+						}
+					}
+
+					
+
+					if (!selectedType) {
+						// todo: change these options if isIntegration
+						const typeQuickPicks: (QuickPickItem & { value: string })[] = componentTypes.map((item) => ({
+							label: isIntegration ? getIntegrationScopeText(item) : getComponentTypeText(item),
+							value: item,
+						}));
+
+						const selectedTypePick = await window.showQuickPick(typeQuickPicks, {
+							title: `Select ${isIntegration ? "Integration" : "Component"} Type`,
+						});
+						if (selectedTypePick?.value) {
+							if(isIntegration){
+								const intType = getTypeOfIntegrationType(selectedTypePick?.value)
+								selectedType = intType.type
+								selectedSubType = intType.subType
+							}else{
+								selectedType = selectedTypePick?.value;
+							}
+						}
+					}
+
+					if (!selectedType) {
+						throw new Error("Component type is required");
+					}
+
+					let selectedUri: Uri;
+					if (params?.componentDir && existsSync(params?.componentDir)) {
+						selectedUri = Uri.parse(convertFsPathToUriPath(params?.componentDir));
+					} else {
+						let defaultUri: Uri;
+						if (workspace.workspaceFile && workspace.workspaceFile.scheme !== "untitled") {
+							defaultUri = workspace.workspaceFile;
+						} else if (workspace.workspaceFolders && workspace.workspaceFolders?.length > 0) {
+							defaultUri = workspace.workspaceFolders[0].uri;
+						} else {
+							defaultUri = Uri.file(os.homedir());
+						}
+						const supPathUri = await window.showOpenDialog({
+							canSelectFolders: true,
+							canSelectFiles: false,
+							canSelectMany: false,
+							title: "Select component directory",
+							defaultUri: defaultUri,
+						});
+						if (!supPathUri || supPathUri.length === 0) {
+							throw new Error("Component directory selection is required");
+						}
+						selectedUri = supPathUri[0];
+					}
+					const dirName = path.basename(selectedUri.fsPath);
+
+					const isWithinWorkspace = workspace.workspaceFolders?.some((item) => isSubpath(item.uri?.fsPath, selectedUri?.fsPath));
+
+					const createCompParams: IComponentCreateFormParams = {
+						directoryUriPath: selectedUri.path,
+						directoryFsPath: selectedUri.fsPath,
+						directoryName: dirName,
+						organization: selectedOrg!,
+						project: selectedProject!,
+						extensionName: webviewStateStore.getState().state.extensionName,
+						initialValues: {
+							type: selectedType,
+							subType: selectedSubType,
+							buildPackLang: params?.buildPackLang,
+							name: params?.name || dirName || "",
+						},
+					};
+
+					if (isWithinWorkspace || workspace.workspaceFile) {
+						componentWizard = new ComponentFormView(ext.context.extensionUri, createCompParams);
+						componentWizard.getWebview()?.reveal();
+					} else {
+						let gitRoot: string | undefined;
+						try {
+							gitRoot = await getGitRoot(context, selectedUri.fsPath);
+						} catch (err) {
+							// ignore error
+						}
+						// TODO: check this on windows
+						openDirectory(gitRoot || selectedUri.path, "Where do you want to open the selected directory?", () => {
+							ext.context.globalState.update("create-comp-params", JSON.stringify(createCompParams));
+						});
+					}
+				}
+			} catch (err: any) {
+				console.error("Failed to create component", err);
+				window.showErrorMessage(err?.message || "Failed to create component");
+			}
+		}),
+	);
+}
+
+/** Continue create component flow if user chooses a directory outside his/her workspace. */
+export const continueCreateComponent = () => {
+	const compParams: string | null | undefined = ext.context.globalState.get("create-comp-params");
+	if (compParams) {
+		ext.context.globalState.update("create-comp-params", null);
+		const createCompParams: IComponentCreateFormParams = JSON.parse(compParams);
+		if(createCompParams?.extensionName){
+			webviewStateStore.getState().setExtensionName(createCompParams?.extensionName as "WSO2" | "Choreo" | "Devant");
+		}
+		componentWizard = new ComponentFormView(ext.context.extensionUri, createCompParams);
+		componentWizard.getWebview()?.reveal();
+	}
+};
+
+export const submitCreateComponentHandler = async ({ createParams, org, project }: SubmitComponentCreateReq) => {
+	const extensionName = webviewStateStore.getState().state?.extensionName;
+	const createdComponent = await window.withProgress(
+		{
+			title: `Creating new component ${createParams.displayName}...`,
+			location: ProgressLocation.Notification,
+		},
+		() => ext.clients.rpcClient.createComponent(createParams),
+	);
+
+	if (createdComponent) {
+		// TODO: enable autoBuildOnCommit once its stable
+		/*
+		if (type !== ChoreoComponentType.ApiProxy && autoBuildOnCommit) {
+			const envs = dataCacheStore.getState().getEnvs(org.handle, project.handler);
+			const matchingTrack = createdComponent?.deploymentTracks.find((item) => item.branch === createParams.branch);
+			if (matchingTrack && envs.length > 0) {
+				try {
+					await window.withProgress(
+						{ title: `Enabling auto build on commit for component ${createParams.displayName}...`, location: ProgressLocation.Notification },
+						() =>
+							ext.clients.rpcClient.enableAutoBuildOnCommit({
+								componentId: createdComponent?.metadata?.id,
+								orgId: org.id.toString(),
+								versionId: matchingTrack.id,
+								envId: envs[0]?.id,
+							}),
+					);
+				} catch {
+					console.log("Failed to enable auto build on commit");
+				}
+			}
+		}
+		*/
+
+		if (extensionName !== "Devant") {
+			showComponentDetailsView(org, project, createdComponent, createParams?.componentDir);
+		}
+
+		window
+			.showInformationMessage(
+				`${extensionName === "Devant" ? "Integration" : "Component"} '${createdComponent.metadata.name}' was successfully created`,
+				`Open in ${extensionName}`,
+			)
+			.then(async (resp) => {
+				if (resp === `Open in ${extensionName}`) {
+					commands.executeCommand(
+						"vscode.open",
+						`${extensionName === "Devant" ? choreoEnvConfig.getDevantUrl() : choreoEnvConfig.getConsoleUrl()}/organizations/${org.handle}/projects/${project.id}/components/${createdComponent.metadata.handler}/overview`,
+					);
+				}
+			});
+
+		const compCache = dataCacheStore.getState().getComponents(org.handle, project.handler);
+		dataCacheStore.getState().setComponents(org.handle, project.handler, [createdComponent, ...compCache]);
+
+		// update the context file if needed
+		try {
+			const gitRoot = await getGitRoot(ext.context, createParams.componentDir);
+			const projectCache = dataCacheStore.getState().getProjects(org.handle);
+			if (gitRoot) {
+				updateContextFile(gitRoot, authStore.getState().state.userInfo!, project, org, projectCache);
+			}
+		} catch (err) {
+			console.error("Failed to get git details of ", createParams.componentDir);
+		}
+
+		if (workspace.workspaceFile) {
+			const workspaceContent: WorkspaceConfig = JSON.parse(readFileSync(workspace.workspaceFile.fsPath, "utf8"));
+			workspaceContent.folders = [
+				...workspaceContent.folders,
+				{
+					name: createdComponent.metadata.name, // name not needed?
+					path: path.normalize(path.relative(path.dirname(workspace.workspaceFile.fsPath), createParams.componentDir)),
+				},
+			];
+		} else {
+			contextStore.getState().refreshState();
+		}
+	}
+
+	return createdComponent;
+};

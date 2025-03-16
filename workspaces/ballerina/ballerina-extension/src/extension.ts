@@ -116,16 +116,11 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         // Enable Ballerina by examples
         activateBBE(ballerinaExtInstance);
 
-        if (StateMachine.context().isBI) {
-            //Enable BI Feature
-            activateBIFeatures(ballerinaExtInstance);
+        //Enable BI Feature
+        activateBIFeatures(ballerinaExtInstance);
 
-            // Enable Ballerina Testing Explorer
-            activateBITesting(ballerinaExtInstance);
-        } else {
-            // Activate Ballerina Testing
-            activateTesting(ballerinaExtInstance);
-        }
+        // Enable Ballerina Testing Explorer
+        activateBITesting(ballerinaExtInstance);
 
         // Enable Ballerina Notebook
         activateNotebook(ballerinaExtInstance);
@@ -175,7 +170,7 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
             // cmds.forEach((cmd) => {
             //     const cmdID: string = cmd.command;
             //     // This is to skip the command un-registration
-            //     if (!(cmdID.includes("kolab-setup") || cmdID.includes(SHARED_COMMANDS.OPEN_BI_WELCOME))) {
+            //     if (!(cmdID.includes("ballerina-setup") || cmdID.includes(SHARED_COMMANDS.OPEN_BI_WELCOME))) {
             //         commands.registerCommand(cmdID, () => {
             //             ballerinaExtInstance.showMessageInstallBallerina();
             //         });
@@ -188,7 +183,7 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
             // cmds.forEach((cmd) => {
             //     const cmdID: string = cmd.command;
             //     // This is to skip the command un-registration
-            //     if (!(cmdID.includes("kolab-setup") || cmdID.includes(SHARED_COMMANDS.OPEN_BI_WELCOME))) {
+            //     if (!(cmdID.includes("ballerina-setup") || cmdID.includes(SHARED_COMMANDS.OPEN_BI_WELCOME))) {
             //         commands.registerCommand(cmdID, () => {
             //             const actionViewLogs = "View Logs";
             //             window.showWarningMessage("Ballerina extension did not start properly."

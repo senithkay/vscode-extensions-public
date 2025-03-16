@@ -11,6 +11,7 @@ import { ReactNode } from "react";
 import styled from "@emotion/styled";
 import { Icon } from "@wso2-enterprise/ui-toolkit";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { BetaSVG } from "../../views/Connectors/Marketplace/BetaSVG";
 
 const TitleBarContainer = styled.div`
     display: flex;
@@ -74,6 +75,13 @@ const IconButton = styled.div`
         font-size: 24px;
     }
 `;
+
+const BetaSVGWrapper = styled.span`
+    display: inline-flex;
+    align-items: center;
+    margin-top: 2px;
+`;
+
 
 interface TitleBarProps {
     title: string;

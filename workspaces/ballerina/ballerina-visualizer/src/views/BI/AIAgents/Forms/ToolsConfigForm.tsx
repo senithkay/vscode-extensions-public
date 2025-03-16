@@ -9,21 +9,17 @@
 
 import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
 import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
-import { ServiceModel, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
+import { SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { URI, Utils } from "vscode-uri";
-import { BodyText } from "../../../styles";
 import { FormGeneratorNew } from "../../Forms/FormGeneratorNew";
 import { FormHeader } from "../../../../components/FormHeader";
 
 const Container = styled.div`
-    /* padding: 0 20px 20px; */
     max-width: 600px;
     height: 100%;
     > div:last-child {
-        /* padding: 20px 0; */
         > div:last-child {
             justify-content: flex-start;
         }
@@ -31,7 +27,6 @@ const Container = styled.div`
 `;
 
 const FormContainer = styled.div`
-    /* padding-top: 15px; */
     padding-bottom: 15px;
 `;
 
@@ -87,6 +82,7 @@ export function ToolsConfigForm(props: ConfigProps) {
                                     submitText={formSubmitText}
                                     cancelText={formCancelText}
                                     openSubPanel={handleOpenToolsForm}
+                                    compact={true}
                                 />
                             }
                         </FormContainer>

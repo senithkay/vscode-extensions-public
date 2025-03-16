@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./common";
 import { Diagnostic as VSCodeDiagnostic } from "vscode-languageserver-types";
 import { ServiceModel } from "./service";
@@ -68,20 +68,37 @@ export type Metadata = {
     draft?: boolean; // for diagram draft nodes
     data?: {
         isDataMappedFunction?: boolean;
-        tools?: { [key: string]: string }; // for agent call
-        model?: string; // for agent call
+        isAgentTool?: boolean;
+        isIsolatedFunction?: boolean;
+        tools?: ToolData[];
+        model?: ToolData;
+        agent?: AgentData;
         paramsToHide?: string[]; // List of properties keys to to hide from forms
     }
 };
+
+export type ToolData = {
+    name: string;
+    description?: string;
+    path?: string;
+    type?: string;
+}
+
+export type AgentData = {
+    role?: string;
+    instructions?: string;
+}
 
 export type Property = {
     metadata: Metadata;
     diagnostics?: Diagnostic;
     valueType: string;
     value: string | ELineRange | NodeProperties | string[];
+    advanceProperties?: NodeProperties;
     optional: boolean;
     editable: boolean;
     advanced?: boolean;
+    hidden?: boolean;
     placeholder?: string;
     valueTypeConstraint?: string | string[];
     codedata?: CodeData;
@@ -120,6 +137,9 @@ export type CodeData = {
     lineRange?: ELineRange;
     sourceCode?: string;
     parentSymbol?: string;
+    inferredReturnType?: string;
+    version?: string;
+    isNew?: boolean;
 };
 
 export type Branch = {
@@ -177,7 +197,7 @@ export enum DIRECTORY_MAP {
     DATA_MAPPERS = "dataMappers",
     ENUMS = "enums",
     CLASSES = "classes",
-    PROMPT_AS_CODE = "promptAsCode",
+    NATURAL_FUNCTIONS = "naturalFunctions",
     AGENTS = "agents"
 }
 
@@ -189,8 +209,9 @@ export enum DIRECTORY_SUB_TYPE {
     SERVICE = "service",
     AUTOMATION = "automation",
     TRIGGER = "trigger",
+    LISTENER = "listener",
     DATA_MAPPER = "dataMapper",
-    PROMPT_AS_CODE = "promptAsCode",
+    NATURAL_FUNCTION = "naturalFunction",
     AGENTS = "agents",
 }
 
@@ -201,6 +222,7 @@ export enum FUNCTION_TYPE {
 }
 
 export interface ProjectStructureResponse {
+    projectName: string;
     directoryMap: {
         [DIRECTORY_MAP.SERVICES]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.AUTOMATION]: ProjectStructureArtifactResponse[];
@@ -214,7 +236,7 @@ export interface ProjectStructureResponse {
         [DIRECTORY_MAP.DATA_MAPPERS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.ENUMS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.CLASSES]: ProjectStructureArtifactResponse[];
-        [DIRECTORY_MAP.PROMPT_AS_CODE]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.NATURAL_FUNCTIONS]: ProjectStructureArtifactResponse[];
     };
 }
 
@@ -225,7 +247,6 @@ export interface ProjectStructureArtifactResponse {
     icon?: string;
     context?: string;
     position?: NodePosition;
-    st?: STNode;
     serviceModel?: ServiceModel;
     resources?: ProjectStructureArtifactResponse[];
 }
@@ -265,7 +286,11 @@ export type NodePropertyKey =
     | "parameters"
     | "model"
     | "tools"
-    | "functionName";
+    | "query"
+    | "functionName"
+    | "systemPrompt"
+    | "prompt"
+    | "enableModelContext";
 
 export type BranchKind = "block" | "worker";
 
@@ -323,6 +348,7 @@ export type NodeKind =
     | "AGENT"
     | "AGENT_CALL"
     | "FUNCTION_DEFINITION"
+    | "AUTOMATION"
     | "CONFIG_VARIABLE";
 
 export type OverviewFlow = {

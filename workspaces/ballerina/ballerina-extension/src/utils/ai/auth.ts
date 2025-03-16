@@ -93,7 +93,7 @@ vscode.authentication.onDidChangeSessions(async e => {
             //     'Login with GitHub Copilot'
             // ).then(selection => {
             //     if (selection === 'Login with GitHub Copilot') {
-            //         commands.executeCommand('kolab.login.copilot');
+            //         commands.executeCommand('ballerina.login.copilot');
             //     }
             // });
         }

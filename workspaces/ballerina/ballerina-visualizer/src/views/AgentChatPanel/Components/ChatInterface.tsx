@@ -14,6 +14,8 @@ import styled from "@emotion/styled";
 import ChatInput from "./ChatInput";
 import LoadingIndicator from "./LoadingIndicator";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
+import ReactMarkdown from "react-markdown";
 
 enum ChatMessageType {
     MESSAGE = "message",
@@ -38,7 +40,7 @@ const Watermark = styled.div`
     user-select: none;
 `;
 
-const Codicon = styled.span`
+const ChatIcon = styled.span`
     font-size: 60px !important;
     width: 60px;
     height: 60px;
@@ -71,7 +73,7 @@ const ChatContainer = styled.div`
     flex-direction: column;
     flex: 1;
     overflow: hidden;
-    margin: 16px 0;
+    margin: 20px 0 32px 0;
 `;
 
 const Messages = styled.div`
@@ -86,30 +88,44 @@ const Messages = styled.div`
     padding: 8px 20px;
 `;
 
-const MessageBubble = styled.div<{ isUser: boolean; isError?: boolean }>`
-    background-color: ${({ isUser }: { isUser: boolean }) =>
-        isUser ? "var(--vscode-button-background)" : "var(--vscode-editorWidget-background)"};
-    padding: 10px 14px;
-    /* For user: top-left: 16, top-right: 16, bottom-right: 0, bottom-left: 16 */
-    /* For non-user: top-left: 16, top-right: 16, bottom-right: 16, bottom-left: 0 */
-    border-radius: ${({ isUser }: { isUser: boolean }) => (isUser ? "16px 16px 0px 16px" : "16px 16px 16px 0px")};
-    max-width: 70%;
+const MessageContainer = styled.div<{ isUser: boolean }>`
+    display: flex;
+    align-items: flex-end;
+    justify-content: ${({ isUser }: { isUser: boolean }) => (isUser ? "flex-end" : "flex-start")};
+    gap: 6px;
+`;
+
+const ProfilePic = styled.div`
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    object-fit: cover;
+`;
+
+const MessageBubble = styled.div<{ isUser: boolean; isError?: boolean; isLoading?: boolean }>`
+    position: relative;
+    padding: ${({ isLoading }: { isLoading?: boolean }) => (isLoading ? "10px 14px" : "0 14px")};
+    max-width: 55%;
     align-self: ${({ isUser }: { isUser: boolean }) => (isUser ? "flex-end" : "flex-start")};
-    
-    /* Preserve line breaks, let text wrap, and insert hyphens if needed */
-    white-space: pre-wrap;
     overflow-wrap: break-word;
     word-break: break-word;
     hyphens: auto;
 
-    /* Browser prefixes for safety */
-    -webkit-hyphens: auto;
-    -moz-hyphens: auto;
-
-    text-align: left;
     color: ${({ isError }: { isError: boolean }) => (isError ? "var(--vscode-errorForeground)" : "inherit")};
-`;
 
+    &:before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-color: ${({ isUser }: { isUser: boolean }) =>
+            isUser ? "var(--vscode-button-background)" : "var(--vscode-editorWidget-background)"};
+        opacity: 0.3; /* 70% transparent */
+        border-radius: inherit;
+        z-index: -1;
+    }
+
+    border-radius: ${({ isUser }: { isUser: boolean }) => (isUser ? "12px 12px 0px 12px" : "12px 12px 12px 0px")};
+`;
 
 // ---------- CHAT FOOTER ----------
 const ChatFooter = styled.div`
@@ -184,7 +200,7 @@ const ChatInterface: React.FC = () => {
             <ChatContainer>
                 {messages.length === 0 && (
                     <Watermark>
-                        <Codicon className="codicon codicon-comment-discussion" />
+                        <ChatIcon className="codicon codicon-comment-discussion" />
                         <WatermarkTitle>Agent Chat</WatermarkTitle>
                         <WatermarkSubTitle>
                             The chat interface serves as a testing environment to evaluate and refine the flow of the AI
@@ -195,16 +211,57 @@ const ChatInterface: React.FC = () => {
                 <Messages>
                     {/* Render each message */}
                     {messages.map((msg, idx) => (
-                        <MessageBubble key={idx} isUser={msg.isUser} isError={msg.type === "error"}>
-                            {msg.text}
-                        </MessageBubble>
+                        <MessageContainer isUser={msg.isUser}>
+                            {!msg.isUser && (
+                                <ProfilePic>
+                                    <Icon
+                                        name="bi-ai-agent"
+                                        sx={{ width: 18, height: 18 }}
+                                        iconSx={{
+                                            fontSize: "18px",
+                                            color: "var(--vscode-foreground)",
+                                            cursor: "default",
+                                        }}
+                                    />
+                                </ProfilePic>
+                            )}
+                            <MessageBubble isUser={msg.isUser} isError={false}>
+                                <ReactMarkdown>{msg.text}</ReactMarkdown>
+                            </MessageBubble>
+                            {msg.isUser && (
+                                <ProfilePic>
+                                    <Codicon
+                                        name="account"
+                                        sx={{ width: 18, height: 18 }}
+                                        iconSx={{
+                                            fontSize: "18px",
+                                            color: "var(--vscode-foreground)",
+                                            cursor: "default",
+                                        }}
+                                    />
+                                </ProfilePic>
+                            )}
+                        </MessageContainer>
                     ))}
 
                     {/* If waiting on a response, show the loading bubble */}
                     {isLoading && (
-                        <MessageBubble isUser={false}>
-                            <LoadingIndicator />
-                        </MessageBubble>
+                        <MessageContainer isUser={false}>
+                            <ProfilePic>
+                                <Icon
+                                    name="bi-ai-agent"
+                                    sx={{ width: 18, height: 18 }}
+                                    iconSx={{
+                                        fontSize: "18px",
+                                        color: "var(--vscode-foreground)",
+                                        cursor: "default",
+                                    }}
+                                />
+                            </ProfilePic>
+                            <MessageBubble isUser={false} isLoading={true}>
+                                <LoadingIndicator />
+                            </MessageBubble>
+                        </MessageContainer>
                     )}
                     <div ref={messagesEndRef} />
                 </Messages>

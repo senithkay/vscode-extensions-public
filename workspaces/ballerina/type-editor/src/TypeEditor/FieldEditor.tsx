@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Member, Type } from '@wso2-enterprise/ballerina-core';
 import { Button, CheckBox, Codicon, Position, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
-import { typeToSource, defaultAnonymousRecordType } from './TypeUtil';
+import { typeToSource, defaultAnonymousRecordType, isValidBallerinaIdentifier } from './TypeUtil';
 import { RecordEditor } from './RecordEditor';
 import { TypeHelper } from '../TypeHelper';
 
@@ -33,12 +33,35 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
     const [typeFieldCursorPosition, setTypeFieldCursorPosition] = useState<number>(0);
     const [helperPaneOffset, setHelperPaneOffset] = useState<Position>({ top: 0, left: 0 });
     const [helperPaneOpened, setHelperPaneOpened] = useState<boolean>(false);
+    const [nameError, setNameError] = useState<string>('');
+
+    const toggleOptional = () => {
+        onChange({
+            ...member,
+            optional: !member.optional
+        });
+    };
+
+    const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        onChange({
+            ...member,
+            docs: e.target.value
+        });
+    }
 
     const handleMemberNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onChange({
             ...member,
             name: e.target.value
         });
+    }
+
+    const handleMemberNameBlur = (e: React.FocusEvent<HTMLInputElement>) => {        
+        if (!isValidBallerinaIdentifier( e.target.value)) {
+            setNameError('Invalid Identifier.');
+        } else {
+            setNameError('');
+        }
     }
 
     const handleMemberTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,7 +157,7 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
         const searchElements = Array.from(document.querySelectorAll('#helper-pane-search'));
         if (
             (typeHelperRef.current?.contains(e.relatedTarget as Node) ||
-            typeBrowserRef.current?.contains(e.relatedTarget as Node)) &&
+                typeBrowserRef.current?.contains(e.relatedTarget as Node)) &&
             !searchElements.some(element => element.contains(e.relatedTarget as Node))
         ) {
             e.preventDefault();
@@ -149,7 +172,9 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                 <CheckBox label="" checked={selected} onChange={() => { selected ? onDeselect() : onSelect(); }} />
                 <TextField
                     value={member.name}
-                    onBlur={handleMemberNameChange}
+                    onChange={handleMemberNameChange}
+                    onBlur={handleMemberNameBlur}
+                    errorMsg={nameError}
                 />
                 <TextField
                     ref={typeFieldRef}
@@ -169,9 +194,14 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                 <Button appearance="icon" onClick={() => setPanelOpened(!panelOpened)}><Codicon name="kebab-vertical" /></Button>
             </div>
             {panelOpened && (
-                <div style={{ border: '1px solid var(--vscode-welcomePage-tileBorder)', marginLeft: '25px', marginBottom: '10px', padding: '8px', borderRadius: '4px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', border: '1px solid var(--vscode-welcomePage-tileBorder)', marginLeft: '25px', marginBottom: '10px', padding: '8px', borderRadius: '4px' }}>
                     <TextField label='Default Value' value={member.defaultValue} onChange={handleMemberDefaultValueChange} style={{ width: '180px' }} />
-                    <TextField label='Description' value={''} onChange={() => { }} style={{ width: '180px' }} />
+                    <TextField label='Description' value={member.docs} onChange={handleDescriptionChange} style={{ width: '180px' }} />
+                    <CheckBox
+                        label="Is Optional Field"
+                        checked={member?.optional}
+                        onChange={toggleOptional}
+                    />
                 </div >
             )}
             {isRecord(member.type) && typeof member.type !== 'string' && (
