@@ -478,19 +478,26 @@ export function FormGenerator(props: FormProps) {
                     node.properties["type"].value = variableType || "any";
                 }
 
-                const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
-                    filePath: fileName,
-                    context: {
-                        expression: expression,
-                        startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
-                        offset: 0,
-                        codedata: node.codedata,
-                        property: property,
-                    },
-                });
+                try {
+                    const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
+                        filePath: fileName,
+                        context: {
+                            expression: expression,
+                            startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
+                            offset: 0,
+                            codedata: node.codedata,
+                            property: property,
+                        },
+                    });
+    
+                    const uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
+                    setDiagnosticsInfo({ key, diagnostics: uniqueDiagnostics });
+                } catch (error) {
+                    // Remove diagnostics if LS crashes
+                    console.error(">>> Error getting expression diagnostics", error);
+                    setDiagnosticsInfo({ key, diagnostics: [] });
+                }
 
-                const uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
-                setDiagnosticsInfo({ key, diagnostics: uniqueDiagnostics });
             },
             250
         ),
