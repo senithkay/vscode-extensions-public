@@ -36,6 +36,7 @@ export interface DiagramContextState {
         onAddTool: (node: FlowNode) => void;
         onSelectTool: (tool: ToolData, node: FlowNode) => void;
         onDeleteTool: (tool: ToolData, node: FlowNode) => void;
+        goToTool: (tool: ToolData, node: FlowNode) => void;
     };
     suggestions?: {
         fetching: boolean;
@@ -73,6 +74,7 @@ export const DiagramContext = React.createContext<DiagramContextState>({
         onAddTool: () => {},
         onSelectTool: () => {},
         onDeleteTool: () => {},
+        goToTool: () => {},
     },
     suggestions: {
         fetching: false,

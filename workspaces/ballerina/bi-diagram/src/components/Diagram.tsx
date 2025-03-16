@@ -56,6 +56,7 @@ export interface DiagramProps {
         onAddTool: (node: FlowNode) => void;
         onSelectTool: (tool: ToolData, node: FlowNode) => void;
         onDeleteTool: (tool: ToolData, node: FlowNode) => void;
+        goToTool: (tool: ToolData, node: FlowNode) => void;
     };
     // ai suggestions callbacks
     suggestions?: {
