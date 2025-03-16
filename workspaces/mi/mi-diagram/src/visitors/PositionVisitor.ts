@@ -506,8 +506,8 @@ export class PositionVisitor implements Visitor {
             if (tools) {
                 const systemPrompt = node?.parameters?.filter((property: any) => property.name === "system")[0]?.value;
                 const prompt = node?.parameters?.filter((property: any) => property.name === "prompt")[0]?.value;
-                const systenPromptSize = getTextSizes(systemPrompt, "13px", undefined, undefined, 160);
-                const promptSize = getTextSizes(prompt, "13px", undefined, undefined, 160);
+                const systenPromptSize = getTextSizes(systemPrompt, "13px", undefined, undefined, 160, 8);
+                const promptSize = getTextSizes(prompt, "13px", undefined, undefined, 160, 8);
                 const systemPromptHeight = systemPrompt ? 36 + systenPromptSize.height : 0;
                 const promptHeight = prompt ? 36 + promptSize.height : 0;
                 const toolsStartY = node.viewState.y + NODE_GAP.AI_AGENT_TOP + systemPromptHeight + 5 + promptHeight + 30;

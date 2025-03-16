@@ -114,7 +114,7 @@ interface TypeEditorProps {
         typeBrowserTypes: TypeHelperCategory[];
         onSearchTypeHelper: (searchText: string, isType?: boolean) => void;
         onSearchTypeBrowser: (searchText: string) => void;
-        onTypeItemClick: (item: TypeHelperItem) => void;
+        onTypeItemClick: (item: TypeHelperItem) => Promise<string>;
     }
 }
 
@@ -176,7 +176,8 @@ export function TypeEditor(props: TypeEditorProps) {
             codedata: {
                 node: "RECORD" as TypeNodeKind
             },
-            includes: [] as string[]
+            includes: [] as string[],
+            allowAdditionalFields: false
         };
         return defaultType as unknown as Type;
     });
@@ -314,8 +315,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             onImportJson={() => setEditorState(ConfigState.IMPORT_FROM_JSON)}
                             onImportXml={() => setEditorState(ConfigState.IMPORT_FROM_XML)}
                         />
-                        {/* Temporary disabled till we get the LS support for closed records creation */}
-                        {/* <AdvancedOptions type={type} onChange={setType} /> */}
+                        <AdvancedOptions type={type} onChange={setType} />
                     </>
                 );
             case TypeKind.ENUM:
@@ -391,8 +391,7 @@ export function TypeEditor(props: TypeEditorProps) {
     };
 
     const handleOnBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const typedName = e.target.value;
-        if (typedName && !isValidBallerinaIdentifier(typedName)) {
+        if (!isValidBallerinaIdentifier(e.target.value)) {
             setNameError("Invalid Identifier.");
         } else {
             setNameError(""); // Clear error if valid

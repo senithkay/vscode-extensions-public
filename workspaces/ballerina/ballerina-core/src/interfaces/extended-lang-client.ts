@@ -952,6 +952,7 @@ export interface AddFunctionRequest {
     filePath: string;
     codedata: CodeData;
     kind: FunctionKind;
+    searchKind: SearchKind;
 }
 
 export interface AddFunctionResponse {
@@ -1105,6 +1106,7 @@ export interface Type {
     restMember?: Member;
     includes?: string[];
     functions?: TypeFunctionModel[];
+    allowAdditionalFields?: boolean;
 }
 
 type ServiceFunctionKind = "RESOURCE" | "REMOTE" | "FUNCTION";

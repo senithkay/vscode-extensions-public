@@ -73,7 +73,7 @@ const ChatContainer = styled.div`
     flex-direction: column;
     flex: 1;
     overflow: hidden;
-    margin: 16px 0;
+    margin: 20px 0 32px 0;
 `;
 
 const Messages = styled.div`
@@ -102,12 +102,11 @@ const ProfilePic = styled.div`
     object-fit: cover;
 `;
 
-const MessageBubble = styled.div<{ isUser: boolean; isError?: boolean }>`
+const MessageBubble = styled.div<{ isUser: boolean; isError?: boolean; isLoading?: boolean }>`
     position: relative;
-    padding: 10px 14px;
+    padding: ${({ isLoading }: { isLoading?: boolean }) => (isLoading ? "10px 14px" : "0 14px")};
     max-width: 55%;
     align-self: ${({ isUser }: { isUser: boolean }) => (isUser ? "flex-end" : "flex-start")};
-    white-space: pre-wrap;
     overflow-wrap: break-word;
     word-break: break-word;
     hyphens: auto;
@@ -126,39 +125,6 @@ const MessageBubble = styled.div<{ isUser: boolean; isError?: boolean }>`
     }
 
     border-radius: ${({ isUser }: { isUser: boolean }) => (isUser ? "12px 12px 0px 12px" : "12px 12px 12px 0px")};
-`;
-
-const StyledMarkdown = styled(ReactMarkdown)`
-    margin: 0;
-    padding: 0;
-
-    /* Remove default paragraph margins */
-    p {
-        margin: 0;
-        padding: 0;
-    }
-
-    /* Remove extra spacing for lists */
-    ul,
-    ol {
-        margin: 0;
-        padding-left: 20px; /* Keep indentation for lists */
-    }
-
-    /* Ensure code blocks don't add extra padding */
-    pre {
-        margin: 0;
-        padding: 8px;
-        background: var(--vscode-editor-background);
-        border-radius: 4px;
-    }
-
-    code {
-        font-family: monospace;
-        background-color: var(--vscode-editor-background);
-        padding: 2px 4px;
-        border-radius: 4px;
-    }
 `;
 
 // ---------- CHAT FOOTER ----------
@@ -260,7 +226,7 @@ const ChatInterface: React.FC = () => {
                                 </ProfilePic>
                             )}
                             <MessageBubble isUser={msg.isUser} isError={false}>
-                                <StyledMarkdown>{msg.text}</StyledMarkdown>
+                                <ReactMarkdown>{msg.text}</ReactMarkdown>
                             </MessageBubble>
                             {msg.isUser && (
                                 <ProfilePic>
@@ -292,7 +258,7 @@ const ChatInterface: React.FC = () => {
                                     }}
                                 />
                             </ProfilePic>
-                            <MessageBubble isUser={false}>
+                            <MessageBubble isUser={false} isLoading={true}>
                                 <LoadingIndicator />
                             </MessageBubble>
                         </MessageContainer>

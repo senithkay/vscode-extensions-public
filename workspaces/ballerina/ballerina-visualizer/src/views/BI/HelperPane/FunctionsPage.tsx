@@ -74,7 +74,8 @@ export const FunctionsPage = ({ anchorRef, fileName, targetLineRange, onClose, o
         const response = await rpcClient.getBIDiagramRpcClient().addFunction({
             filePath: fileName,
             codedata: item.codedata,
-            kind: item.kind as FunctionKind
+            kind: item.kind as FunctionKind,
+            searchKind: 'FUNCTION'
         });
 
         if (response.template) {

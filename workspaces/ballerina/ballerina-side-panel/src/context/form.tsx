@@ -18,13 +18,15 @@ import {
     UseFormUnregister, 
     UseFormSetError,
     UseFormClearErrors,
-    FieldErrors
+    FieldErrors,
+    UseFormGetValues
 } from 'react-hook-form';
 import { FormExpressionEditorProps } from '../components/Form/types';
 
 export interface FormContext {
     form: {
         control: Control<FieldValues, any>;
+        getValues: UseFormGetValues<FieldValues>;
         setValue: UseFormSetValue<FieldValues>;
         watch: UseFormWatch<any>;
         register: UseFormRegister<FieldValues>;

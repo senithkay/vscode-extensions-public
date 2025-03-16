@@ -177,6 +177,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
                 properties: {},
                 members: [],
                 includes: [] as string[],
+                allowAdditionalFields: false
             };
         }
         return typesModel.find((type: Type) => type.name === typeId);

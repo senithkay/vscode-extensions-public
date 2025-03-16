@@ -5,6 +5,7 @@ import styled from '@emotion/styled';
 import { typeToSource, defaultAnonymousRecordType, isValidBallerinaIdentifier } from './TypeUtil';
 import { RecordEditor } from './RecordEditor';
 import { TypeHelper } from '../TypeHelper';
+import { AdvancedOptions } from './AdvancedOptions';
 
 interface FieldEditorProps {
     member: Member;
@@ -214,6 +215,7 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                         onImportJson={() => { }}
                         onImportXml={() => { }}
                     />
+                    <AdvancedOptions type={member.type as Type} onChange={(type: Type) => onChange({ ...member, type })} />
                 </div>
             )}
             <TypeHelper

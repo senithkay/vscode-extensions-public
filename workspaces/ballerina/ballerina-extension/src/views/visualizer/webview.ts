@@ -53,7 +53,7 @@ export class VisualizerWebview {
             vscode.commands.executeCommand('setContext', 'isBalVisualizerActive', this._panel?.active);
             // Refresh the webview when becomes active
             const state = StateMachine.state();
-            const machineReady = typeof state === 'object' && 'viewActive' in state && state.viewActive === "webViewLoaded";
+            const machineReady = typeof state === 'object' && 'viewActive' in state && state.viewActive === "viewReady";
             if (this._panel?.active && machineReady) {
                 sendUpdateNotificationToWebview();
             }
@@ -65,7 +65,7 @@ export class VisualizerWebview {
     }
 
     public static get webviewTitle(): string {
-        const biExtension = vscode.extensions.getExtension('wso2.ballerina-integrator') && ballerinaExtInstance.biSupported;
+        const biExtension = vscode.extensions.getExtension('wso2.ballerina-integrator');
         return biExtension ? VisualizerWebview.biTitle : VisualizerWebview.ballerinaTitle;
     }
 
@@ -80,8 +80,7 @@ export class VisualizerWebview {
                 retainContextWhenHidden: true,
             }
         );
-        const biExtension = vscode.extensions.getExtension('wso2.ballerina-integrator') && ballerinaExtInstance.biSupported;
-        panel.title = biExtension ? VisualizerWebview.biTitle : VisualizerWebview.ballerinaTitle;
+        const biExtension = vscode.extensions.getExtension('wso2.ballerina-integrator');
         panel.iconPath = {
             light: vscode.Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', biExtension ? 'light-icon.svg' : 'ballerina.svg')),
             dark: vscode.Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', biExtension ? 'dark-icon.svg' : 'ballerina-inverse.svg'))

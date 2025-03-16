@@ -30,7 +30,7 @@ export type TypeHelperContext = {
     // Callback function to search the type browser
     onSearchTypeBrowser: (searchText: string) => void;
     // Callback function to handle type item click
-    onTypeItemClick: (item: TypeHelperItem) => void;
+    onTypeItemClick: (item: TypeHelperItem) => Promise<string>;
 };
 
 const defaultTypeHelperContext: TypeHelperContext = {
@@ -41,7 +41,7 @@ const defaultTypeHelperContext: TypeHelperContext = {
     typeBrowserTypes: [],
     onSearchTypeHelper: () => {},
     onSearchTypeBrowser: () => {},
-    onTypeItemClick: () => {},
+    onTypeItemClick: () => Promise.resolve(''),
 };
 
 export const TypeHelperContext = createContext<TypeHelperContext>(defaultTypeHelperContext);

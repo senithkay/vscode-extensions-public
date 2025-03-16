@@ -157,10 +157,9 @@ export function SetupView(props: SetupViewProps) {
                         <IconContainer>
                             {getIcon(progress?.step > 1 || progress?.success, progress?.step === 1)}
                         </IconContainer>
-
                         <Column>
-                            <StepTitle>Check Latest Version</StepTitle>
-                            <StepDescription>Ensuring you have the latest version of the Ballerina runtime.</StepDescription>
+                            <StepTitle>Prepare Installation</StepTitle>
+                            <StepDescription>Checking versions and preparing environment for installation.</StepDescription>
                         </Column>
                     </Row>
                     <Row>
@@ -168,10 +167,8 @@ export function SetupView(props: SetupViewProps) {
                             {getIcon(progress?.step > 2 || progress?.success, progress?.step === 2)}
                         </IconContainer>
                         <Column>
-                            <StepTitle>
-                                Download Ballerina Runtime
-                            </StepTitle>
-                            <StepDescription>Fetching the runtime required to run Ballerina Integrator.</StepDescription>
+                            <StepTitle>Install Ballerina Tool {progress?.step === 2 && progress?.percentage ? "(" + progress.percentage + "% - " + progress?.totalSize.toFixed(0) + "MB)" : ""}</StepTitle>
+                            <StepDescription>Downloading and installing the Ballerina tool package.</StepDescription>
                         </Column>
                     </Row>
                     <Row>
@@ -179,8 +176,8 @@ export function SetupView(props: SetupViewProps) {
                             {getIcon(progress?.step > 3 || progress?.success, progress?.step === 3)}
                         </IconContainer>
                         <Column>
-                            <StepTitle>Unzip Files</StepTitle>
-                            <StepDescription>Unpacking the downloaded files to prepare for installation.</StepDescription>
+                            <StepTitle>Install Ballerina Distribution {progress?.step === 3 && progress?.percentage ? "(" + progress.percentage + "% - " + progress?.totalSize.toFixed(0) + "MB)" : ""}</StepTitle>
+                            <StepDescription>Downloading and installing the Ballerina distribution package.</StepDescription>
                         </Column>
                     </Row>
                     <Row>
@@ -188,8 +185,8 @@ export function SetupView(props: SetupViewProps) {
                             {getIcon(progress?.step > 4 || progress?.success, progress?.step === 4)}
                         </IconContainer>
                         <Column>
-                            <StepTitle>Install Ballerina Runtime {progress?.percentage ? "( " + progress.percentage + "% )" : ""}</StepTitle>
-                            <StepDescription>Integrating the Ballerina runtime with your VS Code setup.</StepDescription>
+                            <StepTitle>Install Java Runtime {progress?.step === 4 && progress?.percentage ? "(" + progress.percentage + "% - " + progress?.totalSize.toFixed(0) + "MB)" : ""}</StepTitle>
+                            <StepDescription>Downloading and installing the required Java Runtime Environment.</StepDescription>
                         </Column>
                     </Row>
                     <Row>
@@ -197,8 +194,8 @@ export function SetupView(props: SetupViewProps) {
                             {getIcon(progress?.step > 5 || progress?.success, progress?.step === 5)}
                         </IconContainer>
                         <Column>
-                            <StepTitle>Clean Up</StepTitle>
-                            <StepDescription>Cleaning up temporary files and finalizing the setup.</StepDescription>
+                            <StepTitle>Complete Setup</StepTitle>
+                            <StepDescription>Configuring VS Code, setting permissions and finalizing installation.</StepDescription>
                         </Column>
                     </Row>
                 </StepContainer>

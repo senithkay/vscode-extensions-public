@@ -215,8 +215,7 @@ const stateMachine = createMachine<MachineContext>(
                         undoRedoManager = new UndoRedoManager();
                         const webview = VisualizerWebview.currentPanel?.getWebview();
                         if (webview && (context.isBI || context.view === MACHINE_VIEW.BIWelcome)) {
-                            const biExtension = extensions.getExtension('wso2.ballerina-integrator') && context.isBISupported;
-                            webview.title = biExtension ? VisualizerWebview.biTitle : VisualizerWebview.ballerinaTitle;
+                            const biExtension = extensions.getExtension('wso2.ballerina-integrator');
                             webview.iconPath = {
                                 light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', biExtension ? 'light-icon.svg' : 'ballerina.svg')),
                                 dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', biExtension ? 'dark-icon.svg' : 'ballerina-inverse.svg'))
