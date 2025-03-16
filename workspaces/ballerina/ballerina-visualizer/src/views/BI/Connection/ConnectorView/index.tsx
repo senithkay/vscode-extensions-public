@@ -231,6 +231,9 @@ export function ConnectorView(props: ConnectorViewProps) {
                         {/* Default connectors of LS is hardcoded and is sent with categories with item field */}
                         {filteredCategories[0]?.items ? (
                             filteredCategories.map((category, index) => {
+                                if (!category.items || category.items.length === 0) {
+                                    return null;
+                                }
                                 return (
                                     <div key={category.metadata.label + index}>
                                         <Typography variant="h3">{category.metadata.label}</Typography>
