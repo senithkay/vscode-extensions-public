@@ -1106,6 +1106,7 @@ export interface Type {
     restMember?: Member;
     includes?: string[];
     functions?: TypeFunctionModel[];
+    allowAdditionalFields?: boolean;
 }
 
 type ServiceFunctionKind = "RESOURCE" | "REMOTE" | "FUNCTION";
