@@ -40,7 +40,13 @@ import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { View, ProgressRing, ProgressIndicator, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { applyModifications, textToModifications } from "../../../utils/utils";
 import { PanelManager, SidePanelView } from "./PanelManager";
-import { transformCategories } from "./utils";
+import {
+    findAgentNodeFromAgentCallNode,
+    findFunctionByName,
+    getAgentFilePath,
+    removeToolFromAgentNode,
+    transformCategories,
+} from "./utils";
 import { ExpressionFormField, Category as PanelCategory } from "@wso2-enterprise/ballerina-side-panel";
 
 const Container = styled.div`
@@ -793,21 +799,50 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         setShowSidePanel(true);
     };
 
-    const handleOnDeleteTool = (tool: ToolData, node: FlowNode) => {
+    const handleOnDeleteTool = async (tool: ToolData, node: FlowNode) => {
         console.log(">>> Delete tool called", tool, node);
         selectedNodeRef.current = node;
-
-        // Confirm deletion and handle it
-        if (confirm(`Are you sure you want to remove the tool "${tool.name}" from this agent?`)) {
-            setShowProgressIndicator(true);
-
-            // This would call the API to delete the tool in a real implementation
-            setTimeout(() => {
-                // Just update the UI to show success
-                alert(`Tool "${tool.name}" has been removed successfully.`);
-                setShowProgressIndicator(false);
-            }, 500);
+        setShowProgressIndicator(true);
+        try {
+            const agentNode = await findAgentNodeFromAgentCallNode(node, rpcClient);
+            const updatedAgentNode = await removeToolFromAgentNode(agentNode, tool.name);
+            const agentFilePath = await getAgentFilePath(rpcClient);
+            // Generate the source code
+            const agentResponse = await rpcClient
+                .getBIDiagramRpcClient()
+                .getSourceCode({ filePath: agentFilePath, flowNode: updatedAgentNode });
+            console.log(">>> response getSourceCode after tool deletion", { agentResponse });
+        } catch (error) {
+            console.error("Error deleting tool:", error);
+            alert(`Failed to remove tool "${tool.name}". Please try again.`);
+        } finally {
+            setShowProgressIndicator(false);
         }
+    };
+
+    const handleOnGoToTool = async (tool: ToolData, node: FlowNode) => {
+        console.log(">>> Go to tool called", tool, node);
+        setShowProgressIndicator(true);
+        const agentFilePath = await getAgentFilePath(rpcClient);
+        // get project components to find the function
+        const projectComponents = await rpcClient.getBIDiagramRpcClient().getProjectComponents();
+        if (!projectComponents || !projectComponents.components) {
+            console.error("Project components not found");
+            return;
+        }
+        // find function from project components
+        const functionInfo = findFunctionByName(projectComponents.components, tool.name);
+        if (!functionInfo) {
+            console.error("Function not found");
+            return;
+        }
+        setShowProgressIndicator(false);
+        handleOpenView(agentFilePath, {
+            startLine: functionInfo.startLine,
+            startColumn: functionInfo.startColumn,
+            endLine: functionInfo.endLine,
+            endColumn: functionInfo.endColumn,
+        });
     };
 
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
@@ -830,6 +865,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 onAddTool: handleOnAddTool,
                 onSelectTool: handleOnSelectTool,
                 onDeleteTool: handleOnDeleteTool,
+                goToTool: handleOnGoToTool,
             },
             suggestions: {
                 fetching: fetchingAiSuggestions,
@@ -837,7 +873,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 onDiscard: onDiscardSuggestions,
             },
             projectPath,
-            breakpointInfo
+            breakpointInfo,
         }),
         [flowModel, fetchingAiSuggestions, projectPath, breakpointInfo]
     );
