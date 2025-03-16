@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { ComponentInfo } from "../interfaces/ballerina";
 import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse } from "../interfaces/bi";
 import { BallerinaProjectComponents, ExtendedLangClientInterface } from "../interfaces/extended-lang-client";
@@ -48,8 +48,19 @@ export async function buildProjectStructure(projectDir: string, langClient: Exte
 
 async function traverseComponents(components: BallerinaProjectComponents, response: ProjectStructureResponse, langClient: ExtendedLangClientInterface, designModel: CDModel) {
     const designServices: ComponentInfo[] = [];
-
+    const connectionServices: ComponentInfo[] = [];
     if (designModel) {
+        designModel.connections.forEach(connection => {
+            const connectionInfo: ComponentInfo = {
+                name: connection.symbol,
+                filePath: path.basename(connection.location.filePath),
+                startLine: connection.location.startLine.line,
+                startColumn: connection.location.startLine.offset,
+                endLine: connection.location.endLine.line,
+                endColumn: connection.location.endLine.offset,
+            }
+            connectionServices.push(connectionInfo);
+        });
         designModel?.services.forEach(service => {
             const resources: ComponentInfo[] = [];
             service.resourceFunctions.forEach(func => {
@@ -96,7 +107,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
             response.directoryMap[DIRECTORY_MAP.SERVICES].push(...await getComponents(langClient, designServices.length > 0 ? designServices : module.services, pkg.filePath, "http-service", DIRECTORY_MAP.SERVICES));
             response.directoryMap[DIRECTORY_MAP.LISTENERS].push(...await getComponents(langClient, module.listeners, pkg.filePath, "http-service", DIRECTORY_MAP.LISTENERS, designModel));
             response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(...await getComponents(langClient, module.functions, pkg.filePath, "function", DIRECTORY_MAP.FUNCTIONS));
-            response.directoryMap[DIRECTORY_MAP.CONNECTIONS].push(...await getComponents(langClient, module.moduleVariables, pkg.filePath, "connection", DIRECTORY_MAP.CONNECTIONS));
+            response.directoryMap[DIRECTORY_MAP.CONNECTIONS].push(...await getComponents(langClient, connectionServices, pkg.filePath, "connection", DIRECTORY_MAP.CONNECTIONS));
             response.directoryMap[DIRECTORY_MAP.TYPES].push(...await getComponents(langClient, module.types, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.RECORDS].push(...await getComponents(langClient, module.records, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.ENUMS].push(...await getComponents(langClient, module.enums, pkg.filePath, "type"));

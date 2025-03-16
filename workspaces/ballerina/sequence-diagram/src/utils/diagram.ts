@@ -74,6 +74,8 @@ export function genDagreEngine() {
 export function getEntryParticipant(flow: Flow): Participant {
     return flow.participants?.find(
         (participant) =>
+            flow.location &&
+            participant.location &&
             flow.location.startLine.line === participant.location.startLine.line &&
             flow.location.startLine.offset === participant.location.startLine.offset &&
             flow.location.endLine.line === participant.location.endLine.line &&
