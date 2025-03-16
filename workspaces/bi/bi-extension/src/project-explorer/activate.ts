@@ -59,6 +59,7 @@ function handleVisibilityChangeEvents(tree: TreeView<ProjectExplorerEntry>, data
 function handleVisibilityChange(res: { visible: boolean }, dataProvider: ProjectExplorerEntryProvider, isBallerina?: boolean) {
 	if (res.visible) {
 		if (isBallerina && extension.biSupported) {
+			commands.executeCommand(SHARED_COMMANDS.SHOW_VISUALIZER);
 			dataProvider.refresh();
 		} else {
 			handleNonBallerinaVisibility();
