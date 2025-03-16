@@ -49,7 +49,7 @@ export const SequenceView = ({ model: SequenceModel, documentUri, diagnostics }:
         }
     }
 
-
+    // TODO: Fix from statemachine
     if (!SequenceModel) {
         return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
             <ProgressRing />
