@@ -118,8 +118,8 @@ const MessageBubble = styled.div<{ isUser: boolean; isError?: boolean; isLoading
         position: absolute;
         inset: 0;
         background-color: ${({ isUser }: { isUser: boolean }) =>
-            isUser ? "var(--vscode-button-background)" : "var(--vscode-editorWidget-background)"};
-        opacity: 0.3; /* 70% transparent */
+            isUser ? "var(--vscode-button-background)" : "var(--vscode-tab-inactiveBackground)"};
+        opacity: ${({ isUser }: { isUser: boolean }) => (isUser ? "0.3" : "1")};
         border-radius: inherit;
         z-index: -1;
     }
