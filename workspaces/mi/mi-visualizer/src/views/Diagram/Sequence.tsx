@@ -10,13 +10,13 @@ import React from "react";
 import { Diagnostic } from "vscode-languageserver-types";
 import { NamedSequence } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { Diagram } from "@wso2-enterprise/mi-diagram";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { View, ViewContent, ViewHeader } from "../../components/View";
 import { generateSequenceData, onSequenceEdit } from "../../utils/form";
 import { EditSequenceForm, EditSequenceFields } from "../Forms/EditForms/EditSequenceForm";
 import path from "path";
-import {EVENT_TYPE, MACHINE_VIEW} from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 
 export interface SequenceViewProps {
     model: NamedSequence;
@@ -26,8 +26,7 @@ export interface SequenceViewProps {
 
 export const SequenceView = ({ model: SequenceModel, documentUri, diagnostics }: SequenceViewProps) => {
     const { rpcClient } = useVisualizerContext();
-    const model = SequenceModel as NamedSequence;
-    const data = generateSequenceData(model) as EditSequenceFields
+
     const [isFormOpen, setFormOpen] = React.useState(false);
 
     const handleEditSequence = () => {
@@ -38,7 +37,7 @@ export const SequenceView = ({ model: SequenceModel, documentUri, diagnostics }:
         let artifactNameChanged = false;
         let documentPath = documentUri;
         if (path.basename(documentUri).split('.')[0] !== data.name) {
-            rpcClient.getMiDiagramRpcClient().renameFile({existingPath: documentUri, newPath: path.join(path.dirname(documentUri), `${data.name}.xml`)});
+            rpcClient.getMiDiagramRpcClient().renameFile({ existingPath: documentUri, newPath: path.join(path.dirname(documentUri), `${data.name}.xml`) });
             artifactNameChanged = true;
             documentPath = path.join(path.dirname(documentUri), `${data.name}.xml`);
         }
@@ -49,6 +48,15 @@ export const SequenceView = ({ model: SequenceModel, documentUri, diagnostics }:
             setFormOpen(false);
         }
     }
+
+
+    if (!SequenceModel) {
+        return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+            <ProgressRing />
+        </div>
+    }
+    const model = SequenceModel as NamedSequence;
+    const data = generateSequenceData(model) as EditSequenceFields
 
     return (
         <View>
