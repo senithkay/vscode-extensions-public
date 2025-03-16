@@ -191,7 +191,6 @@ const TitleContainer = styled.div`
 const ProjectTitle = styled.h1`
     font-weight: bold;
     font-size: 1.5rem;
-    text-transform: capitalize;
     margin-bottom: 0;
     margin-top: 0;
     @media (min-width: 768px) {
