@@ -12,9 +12,9 @@ import styled from "@emotion/styled";
 import { AgentToolRequest, FlowNode } from "@wso2-enterprise/ballerina-core";
 import { URI, Utils } from "vscode-uri";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { cloneDeep } from "lodash";
 import { AIAgentSidePanel } from "../AIAgents/AIAgentSidePanel";
 import { RelativeLoader } from "../../../components/RelativeLoader";
+import { addToolToAgentNode, findAgentNodeFromAgentCallNode } from "./utils";
 
 const LoaderContainer = styled.div`
     display: flex;
@@ -55,56 +55,19 @@ export function NewTool(props: NewToolProps): JSX.Element {
     };
 
     const fetchAgentNode = async () => {
-        // get module nodes
-        const moduleNodes = await rpcClient.getBIDiagramRpcClient().getModuleNodes();
-        console.log(">>> module nodes", moduleNodes);
-        // get agent name
-        const agentName = agentCallNode.properties.connection.value;
-        // get agent node
-        const agentNode = moduleNodes.flowModel.connections.find(
-            (node) => node.properties.variable.value === agentName
-        );
-        if (!agentNode) {
-            console.error("Agent node not found");
-            return;
-        }
-        console.log(">>> agent node", agentNode);
+        const agentNode = await findAgentNodeFromAgentCallNode(agentCallNode, rpcClient);
         setAgentNode(agentNode);
     };
 
     const handleOnSubmit = async (data: AgentToolRequest) => {
         console.log(">>> submit value", { data });
         setSavingForm(true);
-
-        // agent node with tools
-        // update the agent node
-        const updatedAgentNode = cloneDeep(agentNode);
-        console.log(">>> updatedAgentNode tools", { tools: cloneDeep(updatedAgentNode.properties.tools.value) });
-        let toolsValue = cloneDeep(updatedAgentNode.properties.tools.value);
-        // Simple string manipulation to add the new tool
-        const selectedTool = data.toolName;
-        if (selectedTool) {
-            // if toolsValue is empty, and selectedTool is empty, create a new empty array
-            if (!toolsValue) {
-                toolsValue = [];
-            }
-            // if toolsValue is not empty, and selectedTool is empty, create a new array with the selected tool
-            if (toolsValue === "[]") {
-                toolsValue = `[${selectedTool}]`;
-            } else if (typeof toolsValue === "string") {
-                if (toolsValue.startsWith("[") && toolsValue.endsWith("]")) {
-                    // let's replace end bracket with the selected tool
-                    toolsValue = toolsValue.substring(0, toolsValue.length - 1) + "," + selectedTool + "]";
-                } else if (toolsValue.startsWith("[") && toolsValue.endsWith("]\n")) {
-                    // let's replace end bracket with the selected tool
-                    toolsValue = toolsValue.substring(0, toolsValue.length - 2) + "," + selectedTool + "]";
-                }
-            }
+        if (!data.toolName) {
+            console.error("Tool name is required");
+            return;
         }
-        console.log(">>> toolsValue", { toolsValue });
-        updatedAgentNode.properties.tools.value = toolsValue;
-        updatedAgentNode.codedata.isNew = false;
-
+        const updatedAgentNode = await addToolToAgentNode(agentNode, data.toolName);
+        // generate the source code
         const agentResponse = await rpcClient
             .getBIDiagramRpcClient()
             .getSourceCode({ filePath: agentFilePath.current, flowNode: updatedAgentNode });
