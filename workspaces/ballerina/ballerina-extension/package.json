@@ -346,11 +346,6 @@
         ],
         "commands": [
             {
-                "command": "ballerina.update-ballerina",
-                "title": "Update Ballerina",
-                "category": "Ballerina"
-            },
-            {
                 "command": "ballerina.update-ballerina-dev-pack",
                 "title": "Update Ballerina Dev Pack",
                 "category": "Ballerina"
