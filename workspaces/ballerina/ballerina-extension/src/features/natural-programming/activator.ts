@@ -113,13 +113,18 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                 cancellable: false,
             },
             async () => {
-                const token: string = await getTokenForNaturalFunction();
-                if (token == null) {
+                try {
+                    const token: string = await getTokenForNaturalFunction();
+                    if (token == null) {
+                        vscode.window.showWarningMessage(WARNING_MESSAGE_FOR_NP_TOKEN_NOT_FOUND);
+                        return;
+                    }
+    
+                    addDefaultModelConfigForNaturalFunctions(projectPath, token, await getBackendURL());
+                } catch (error) {
                     vscode.window.showWarningMessage(WARNING_MESSAGE_FOR_NP_TOKEN_NOT_FOUND);
                     return;
                 }
-
-                addDefaultModelConfigForNaturalFunctions(projectPath, token, await getBackendURL());
             }
         );
     });

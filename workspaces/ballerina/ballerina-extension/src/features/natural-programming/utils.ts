@@ -550,7 +550,11 @@ export function addDefaultModelConfigForNaturalFunctions(projectPath: string, to
 }
 
 export function getTokenForNaturalFunction() {
-    return refreshAccessToken();
+    try {
+        return refreshAccessToken();
+    } catch (error) {
+        throw error;
+    }
 }
 
 function isSkippedDiagnostic(result: ResultItem) {
