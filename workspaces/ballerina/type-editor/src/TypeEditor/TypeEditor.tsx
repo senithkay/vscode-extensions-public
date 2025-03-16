@@ -391,8 +391,7 @@ export function TypeEditor(props: TypeEditorProps) {
     };
 
     const handleOnBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const typedName = e.target.value;
-        if (typedName && !isValidBallerinaIdentifier(typedName)) {
+        if (!isValidBallerinaIdentifier(e.target.value)) {
             setNameError("Invalid Identifier.");
         } else {
             setNameError(""); // Clear error if valid
