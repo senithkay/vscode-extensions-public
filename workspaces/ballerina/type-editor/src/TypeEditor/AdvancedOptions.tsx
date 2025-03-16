@@ -31,7 +31,7 @@ export function AdvancedOptions({ type, onChange }: AdvancedOptionsProps) {
                 <CheckBox
                     sx={{ border: 'none' }}
                     label="Allow Additional Fields"
-                    checked={type.allowAdditionalFields === true}
+                    checked={type?.allowAdditionalFields === true}
                     onChange={(checked: boolean) => {
                         onChange({ ...type, allowAdditionalFields: checked });
                     }}
