@@ -176,7 +176,8 @@ export function TypeEditor(props: TypeEditorProps) {
             codedata: {
                 node: "RECORD" as TypeNodeKind
             },
-            includes: [] as string[]
+            includes: [] as string[],
+            allowAdditionalFields: false
         };
         return defaultType as unknown as Type;
     });
@@ -314,8 +315,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             onImportJson={() => setEditorState(ConfigState.IMPORT_FROM_JSON)}
                             onImportXml={() => setEditorState(ConfigState.IMPORT_FROM_XML)}
                         />
-                        {/* Temporary disabled till we get the LS support for closed records creation */}
-                        {/* <AdvancedOptions type={type} onChange={setType} /> */}
+                        <AdvancedOptions type={type} onChange={setType} />
                     </>
                 );
             case TypeKind.ENUM:
