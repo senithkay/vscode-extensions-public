@@ -88,6 +88,9 @@ export function NewTool(props: NewToolProps): JSX.Element {
             if (!toolsValue) {
                 toolsValue = [];
             }
+
+            // remove all \n newlines from toolsValue
+            toolsValue = toolsValue.toString().replace(/\n/g, "");
             // if toolsValue is not empty, and selectedTool is empty, create a new array with the selected tool
             if (toolsValue === "[]") {
                 toolsValue = `[${selectedTool}]`;
