@@ -188,6 +188,9 @@ export function AddTool(props: AddToolProps): JSX.Element {
         const updatedAgentNode = cloneDeep(agentNode);
         let toolsValue = updatedAgentNode.properties.tools.value;
 
+        // remove all \n newlines from toolsValue
+        toolsValue = toolsValue.toString().replace(/\n/g, "");
+
         // Simple string manipulation to add the new tool
         if (!selectedTool) {
         } else if (!toolsValue || toolsValue === "[]") {
