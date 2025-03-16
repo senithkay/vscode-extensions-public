@@ -550,6 +550,7 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
                             filePath={Utils.joinPath(URI.file(projectUri), serviceClassModel.codedata.lineRange.fileName).fsPath}
                             lineRange={serviceClassModel.codedata.lineRange}
                             isGraphqlView={isGraphql}
+                            isServiceClass={true}
                             onClose={handleCloseFunctionForm}
                             onSave={handleFunctionSave}
                         />
