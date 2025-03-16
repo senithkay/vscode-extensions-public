@@ -533,11 +533,6 @@
                 "icon": "$(notebook)"
             },
             {
-                "command": "ballerina.view.serviceDesigner",
-                "title": "Service Designer View",
-                "category": "Ballerina"
-            },
-            {
                 "command": "ballerina.view.cellView",
                 "title": "Cell View",
                 "category": "Ballerina"
@@ -562,12 +557,6 @@
                     "dark": "./resources/icons/light-ai-chat.svg",
                     "light": "./resources/icons/dark-ai-chat.svg"
                 }
-            },
-            {
-                "command": "ballerina.open.agent.chat",
-                "title": "Open Agent Chat Panel",
-                "category": "Ballerina",
-                "icon": "$(comment-discussion)"
             },
             {
                 "command": "ballerina.open.bi.welcome",
