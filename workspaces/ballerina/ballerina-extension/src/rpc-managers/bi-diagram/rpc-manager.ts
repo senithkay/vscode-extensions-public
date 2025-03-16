@@ -1101,6 +1101,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         const projectUri = StateMachine.context().projectUri;
         const filePath = path.join(projectUri, params.filePath);
         return new Promise((resolve, reject) => {
+            console.log(">>> updating type request", params.type);
             StateMachine.langClient()
                 .updateType({ filePath, type: params.type, description: "" })
                 .then((updateTypeResponse: UpdateTypeResponse) => {
