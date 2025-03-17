@@ -28,7 +28,7 @@ import {
 import { InputAccessNodeFindingVisitor } from "../../Visitors/InputAccessNodeFindingVisitor";
 import { NodePosition, getPosition, isPositionsEquals, traversNode } from "./st-utils";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
-import { ArrayOutputNode, InputNode, ObjectOutputNode, SubMappingNode } from "../Node";
+import { ArrayOutputNode, InputNode, ObjectOutputNode, SubMappingNode, UnionOutputNode } from "../Node";
 import { InputOutputPortModel, MappingType, ValueType } from "../Port";
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { useDMSearchStore } from "../../../store/store";
@@ -506,6 +506,8 @@ export function getTargetPortPrefix(node: NodeModel): string {
             return ARRAY_OUTPUT_TARGET_PORT_PREFIX;
         case node instanceof PrimitiveOutputNode:
             return PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX;
+        case node instanceof UnionOutputNode:
+            return OBJECT_OUTPUT_TARGET_PORT_PREFIX;
         // TODO: Update cases for other node types
 		default:
 			return PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX;
