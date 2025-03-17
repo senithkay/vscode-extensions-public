@@ -60,6 +60,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                 );
                 if (!connector) {
                     console.error(">>> Error finding connector", { connectionName });
+                    onClose?.();
                     return;
                 }
                 setConnection(connector);

@@ -36,6 +36,7 @@ export type CDConnection = {
     uuid: string;
     enableFlowModel: boolean;
     sortText: string;
+    icon?: string;
 };
 
 export type CDListener = {
