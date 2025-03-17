@@ -19,6 +19,26 @@ export enum VERSION {
     PREVIEW = 'preview'
 }
 
+export const AGENTS_FILE = "agents.bal";
+export const AUTOMATION_FILE = "automation.bal";
+export const CONFIG_FILE = "config.bal";
+export const CONNECTIONS_FILE = "connections.bal";
+export const DATA_MAPPING_FILE = "data_mappings.bal";
+export const FUNCTIONS_FILE = "functions.bal";
+export const MAIN_FILE = "main.bal";
+export const TYPES_FILE = "types.bal";
+
+export const BI_PROJECT_FILES = [
+    AGENTS_FILE,
+    AUTOMATION_FILE,
+    CONFIG_FILE,
+    CONNECTIONS_FILE,
+    DATA_MAPPING_FILE,
+    FUNCTIONS_FILE,
+    MAIN_FILE,
+    TYPES_FILE
+];
+
 interface BallerinaPluginConfig extends WorkspaceConfiguration {
     home?: string;
     debugLog?: boolean;
@@ -102,6 +122,20 @@ export function fetchScope(uri: Uri): SCOPE {
             inspected.workspaceValue,
             inspected.globalValue
         ];
-        return valuesToCheck.find(value => value !== undefined) as SCOPE;
+        const scope = valuesToCheck.find(value => value !== undefined) as SCOPE;
+        if (scope) {
+            // Create BI files if the scope is set
+            setupBIFiles(uri.fsPath);
+        }
+        return scope;
     }
+}
+
+export function setupBIFiles(projectDir: string): void {
+    BI_PROJECT_FILES.forEach(file => {
+        const filePath = path.join(projectDir, file);
+        if (!fs.existsSync(filePath)) {
+            fs.writeFileSync(filePath, '');
+        }
+    });
 }
