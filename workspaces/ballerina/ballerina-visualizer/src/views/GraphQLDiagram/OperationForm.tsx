@@ -17,13 +17,14 @@ interface OperationFormProps {
     filePath: string;
     lineRange: LineRange;
     isGraphqlView: boolean;
+    isServiceClass?: boolean;
     onSave: (model: FunctionModel) => void;
     onClose: () => void;
 }
 
 export function OperationForm(props: OperationFormProps) {
     console.log("OperationForm props: ", props);
-    const { model, onSave, onClose, filePath, lineRange, isGraphqlView } = props;
+    const { model, onSave, onClose, filePath, lineRange, isGraphqlView, isServiceClass } = props;
     const [fields, setFields] = useState<FormField[]>([]);
 
     const handleParamChange = (param: Parameter) => {
@@ -114,7 +115,7 @@ export function OperationForm(props: OperationFormProps) {
             },
             {
                 key: 'parameters',
-                label: isGraphqlView ? 'Arguments' : 'Parameters',
+                label: isServiceClass ? 'Parameters' : (isGraphqlView ? 'Arguments' : 'Parameters'),
                 type: 'PARAM_MANAGER',
                 optional: true,
                 editable: true,
@@ -159,13 +160,14 @@ export function OperationForm(props: OperationFormProps) {
         <>
             {fields.length > 0 && (
                 <FormGeneratorNew
-                    isGraphqlEditor={true}
                     fileName={filePath}
                     targetLineRange={lineRange}
                     fields={fields}
                     onSubmit={handleFunctionCreate}
                     onBack={onClose}
                     submitText="Save"
+                    isGraphqlEditor={isGraphqlView}
+                    helperPaneSide="left"
                 />
             )}
         </>

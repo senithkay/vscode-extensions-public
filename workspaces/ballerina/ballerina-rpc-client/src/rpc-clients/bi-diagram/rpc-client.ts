@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -34,11 +34,14 @@ import {
     BISourceCodeRequest,
     BISourceCodeResponse,
     BreakpointRequest,
+    BuildMode,
     ClassFieldModifierRequest,
     ComponentRequest,
     ConfigVariableResponse,
     CreateComponentResponse,
     CurrentBreakpointsResponse,
+    DeploymentResponse,
+    DevantComponent,
     EndOfFileRequest,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -48,6 +51,10 @@ import {
     FormDidOpenParams,
     FunctionNodeRequest,
     FunctionNodeResponse,
+    GetRecordConfigRequest,
+    GetRecordConfigResponse,
+    GetRecordModelFromSourceRequest,
+    GetRecordModelFromSourceResponse,
     GetTypeRequest,
     GetTypeResponse,
     GetTypesRequest,
@@ -60,6 +67,8 @@ import {
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
+    RecordSourceGenRequest,
+    RecordSourceGenResponse,
     RecordsInWorkspaceMentions,
     RenameIdentifierRequest,
     ServiceClassModelResponse,
@@ -71,8 +80,11 @@ import {
     UpdateConfigVariableResponse,
     UpdateImportsRequest,
     UpdateImportsResponse,
+    UpdateRecordConfigRequest,
     UpdateTypeRequest,
     UpdateTypeResponse,
+    UpdateTypesRequest,
+    UpdateTypesResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspacesResponse,
@@ -94,18 +106,23 @@ import {
     getBreakpointInfo,
     getConfigVariables,
     getDesignModel,
+    getDevantComponent,
     getEnclosedFunction,
     getEndOfFile,
     getExpressionCompletions,
     getExpressionDiagnostics,
     getFlowModel,
+    getFunctionNames,
     getFunctionNode,
     getModuleNodes,
     getNodeTemplate,
     getProjectComponents,
     getProjectStructure,
     getReadmeContent,
+    getRecordConfig,
+    getRecordModelFromSource,
     getRecordNames,
+    getRecordSource,
     getServiceClassModel,
     getSignatureHelp,
     getSourceCode,
@@ -124,11 +141,10 @@ import {
     updateClassField,
     updateConfigVariables,
     updateImports,
+    updateRecordConfig,
     updateServiceClass,
     updateType,
-    BuildMode,
-    DevantComponentResponse,
-    getDevantComponent
+    updateTypes
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -228,8 +244,8 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(renameIdentifier, HOST_EXTENSION, params);
     }
 
-    deployProject(): void {
-        return this._messenger.sendNotification(deployProject, HOST_EXTENSION);
+    deployProject(): Promise<DeploymentResponse> {
+        return this._messenger.sendRequest(deployProject, HOST_EXTENSION);
     }
 
     openAIChat(params: AIChatRequest): void {
@@ -296,6 +312,10 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(updateType, HOST_EXTENSION, params);
     }
 
+    updateTypes(params: UpdateTypesRequest): Promise<UpdateTypesResponse> {
+        return this._messenger.sendRequest(updateTypes, HOST_EXTENSION, params);
+    }
+
     getServiceClassModel(params: ModelFromCodeRequest): Promise<ServiceClassModelResponse> {
         return this._messenger.sendRequest(getServiceClassModel, HOST_EXTENSION, params);
     }
@@ -314,6 +334,22 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     createGraphqlClassType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
         return this._messenger.sendRequest(createGraphqlClassType, HOST_EXTENSION, params);
+    }
+
+    getRecordConfig(params: GetRecordConfigRequest): Promise<GetRecordConfigResponse> {
+        return this._messenger.sendRequest(getRecordConfig, HOST_EXTENSION, params);
+    }
+
+    updateRecordConfig(params: UpdateRecordConfigRequest): Promise<GetRecordConfigResponse> {
+        return this._messenger.sendRequest(updateRecordConfig, HOST_EXTENSION, params);
+    }
+
+    getRecordModelFromSource(params: GetRecordModelFromSourceRequest): Promise<GetRecordModelFromSourceResponse> {
+        return this._messenger.sendRequest(getRecordModelFromSource, HOST_EXTENSION, params);
+    }
+
+    getRecordSource(params: RecordSourceGenRequest): Promise<RecordSourceGenResponse> {
+        return this._messenger.sendRequest(getRecordSource, HOST_EXTENSION, params);
     }
 
     updateImports(params: UpdateImportsRequest): Promise<UpdateImportsResponse> {
@@ -339,7 +375,12 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
     getRecordNames(): Promise<RecordsInWorkspaceMentions> {
         return this._messenger.sendRequest(getRecordNames, HOST_EXTENSION);
     }
-    getDevantComponent(): Promise<DevantComponentResponse | undefined> {
+
+    getFunctionNames(): Promise<RecordsInWorkspaceMentions> {
+        return this._messenger.sendRequest(getFunctionNames, HOST_EXTENSION);
+    }
+
+    getDevantComponent(): Promise<DevantComponent | undefined> {
         return this._messenger.sendRequest(getDevantComponent, HOST_EXTENSION);
     }
 }

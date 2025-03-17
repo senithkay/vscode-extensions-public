@@ -30,12 +30,12 @@ import {
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { GraphqlServiceEditor } from "./GraphqlServiceEditor";
-import { TypeEditor } from "@wso2-enterprise/type-editor";
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { TopNavigationBar } from "../../components/TopNavigationBar";
 import { TitleBar } from "../../components/TitleBar";
 import { GraphqlObjectViewer } from "./ObjectViewer";
+import { FormTypeEditor } from "../BI/TypeEditor";
 
 const SpinnerContainer = styled.div`
     display: flex;
@@ -252,9 +252,8 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
             )}
             {isTypeEditorOpen && editingType && editingType.codedata.node !== "CLASS" && (
                 <PanelContainer title={`Edit Type`} show={true} onClose={onTypeEditorClosed}>
-                    <TypeEditor
+                    <FormTypeEditor
                         type={editingType}
-                        rpcClient={rpcClient}
                         onTypeChange={onTypeChange}
                         newType={false}
                         isGraphql={true}

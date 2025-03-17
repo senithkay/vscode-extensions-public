@@ -103,6 +103,7 @@ type ExpressionEditorBaseProps = {
     value: string;
     placeholder?: string;
     sx?: React.CSSProperties;
+    completionSx?: React.CSSProperties;
     inputProps?: InputProps;
     onChange: (value: string, updatedCursorPosition: number) => void | Promise<void>;
     onFocus?: (e?: any) => void | Promise<void>;

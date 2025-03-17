@@ -93,7 +93,7 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 					?.some(link => (link as DataMapperLinkModel)?.isActualLink);
 
 				const mappingType = getMappingType(sourcePort, targetPort);
-				if (userActionRequiredMapping(mappingType)) {
+				if (userActionRequiredMapping(mappingType, targetPort)) {
 					// Source update behavior is determined by the user.
 					return;
 				}

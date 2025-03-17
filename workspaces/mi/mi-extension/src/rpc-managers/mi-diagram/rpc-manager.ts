@@ -245,11 +245,18 @@ import {
     TestConnectorConnectionResponse,
     MiVersionResponse,
     CheckDBDriverResponse,
-    RemoveDBDriverResponse,
     CopyArtifactRequest,
     CopyArtifactResponse,
     GetArtifactTypeRequest,
-    GetArtifactTypeResponse
+    GetArtifactTypeResponse,
+    ExtendedTextEdit,
+    LocalInboundConnectorsResponse,
+    BuildProjectRequest,
+    DeployProjectRequest,
+    DeployProjectResponse,
+    CreateBallerinaModuleRequest,
+    CreateBallerinaModuleResponse,
+    SCOPE
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -262,7 +269,6 @@ import { Transform } from 'stream';
 import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
-import * as syntaxTree from '../../../../syntax-tree/lib/src';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { parse, stringify } from "yaml";
 import { UnitTest } from "../../../../syntax-tree/lib/src";
@@ -283,6 +289,7 @@ import { importProject } from "../../util/migrationUtils";
 import { getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
 import { getDataSourceXml } from "../../util/template-engine/mustach-templates/DataSource";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
+import { getBallerinaModuleContent, getBallerinaConfigContent } from "../../util/template-engine/mustach-templates/ballerinaModule";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
 import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/recipientEndpoint";
 import { dockerfileContent, rootPomXmlContent } from "../../util/templates";
@@ -290,8 +297,9 @@ import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 import { importCapp } from "../../util/importCapp";
-import { compareVersions, filterConnectorVersion, generateInitialDependencies, getDefaultProjectPath, getMIVersionFromPom } from "../../util/onboardingUtils";
+import { compareVersions, filterConnectorVersion, generateInitialDependencies, getDefaultProjectPath, getMIVersionFromPom, buildBallerinaModule } from "../../util/onboardingUtils";
 import { Range as STRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { checkForDevantExt } from "../../extension";
 
 const AdmZip = require('adm-zip');
 
@@ -603,8 +611,17 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             let expectedFileName = `${apiName}${version ? `_v${version}` : ''}`;
             if (path.basename(documentUri).split('.')[0] !== expectedFileName) {
+                const originalFileName = `${path.basename(documentUri, path.extname(documentUri))}.yaml`;
+                const originalFilePath = path.join(path.dirname(documentUri), originalFileName);
                 await this.renameFile({ existingPath: documentUri, newPath: path.join(path.dirname(documentUri), `${expectedFileName}.xml`) });
                 documentUri = path.join(path.dirname(documentUri), `${expectedFileName}.xml`);
+                // Path to old API file
+                const projectDir = workspace.getWorkspaceFolder(Uri.file(originalFilePath))?.uri.fsPath;
+                const oldAPIXMLPath = path.join(projectDir ?? "", 'src', 'main', 'wso2mi', 'resources', 'api-definitions', originalFileName);
+                // Delete the old API from resources folder
+                if (fs.existsSync(oldAPIXMLPath)) {
+                    fs.unlinkSync(oldAPIXMLPath);
+                }
             }
 
             await this.applyEdit({ text: sanitizedXmlData, documentUri, range: apiRange });
@@ -1692,6 +1709,10 @@ ${endpointAttributes}
         });
     }
 
+    async buildBallerinaModule(projectPath: string): Promise<void> {
+        await buildBallerinaModule(projectPath);
+    }
+
     async getTemplate(params: RetrieveTemplateRequest): Promise<RetrieveTemplateResponse> {
         const options = {
             ignoreAttributes: false,
@@ -2501,19 +2522,24 @@ ${endpointAttributes}
     async applyEdit(params: ApplyEditRequest | ApplyEditsRequest): Promise<ApplyEditResponse> {
         return new Promise(async (resolve) => {
             const edit = new WorkspaceEdit();
-            const uri = params.documentUri;
-            const file = Uri.file(uri);
-            const addNewLine = params.addNewLine ?? true;
 
             const getRange = (range: STRange | Range) =>
                 new Range(new Position(range.start.line, range.start.character),
                     new Position(range.end.line, range.end.character));
 
             if ('text' in params) {
+                const uri = params.documentUri;
+                const file = Uri.file(uri);
                 const textToInsert = params.addNewLine ? (params.text.endsWith('\n') ? params.text : `${params.text}\n`) : params.text;
                 edit.replace(file, getRange(params.range), textToInsert);
             } else if ('edits' in params) {
                 params.edits.forEach(editRequest => {
+                    const uri = editRequest.documentUri ?? params.documentUri;
+                    const file = Uri.file(uri);
+
+                    if (editRequest.isCreateNewFile) {
+                        edit.createFile(file);
+                    }
                     const textToInsert = params.addNewLine ? (editRequest.newText.endsWith('\n') ? editRequest.newText : `${editRequest.newText}\n`) : editRequest.newText;
                     edit.replace(file, getRange(editRequest.range), textToInsert);
                 });
@@ -2521,22 +2547,26 @@ ${endpointAttributes}
 
             await workspace.applyEdit(edit);
 
-            let document = workspace.textDocuments.find(doc => doc.uri.fsPath === uri) ||
-                await workspace.openTextDocument(file);
-
             if (!params.disableFormatting) {
-                const formatEdits = (editRequest: TextEdit) => {
+                const formatEdits = (editRequest: ExtendedTextEdit) => {
                     const textToInsert = editRequest.newText.endsWith('\n') ? editRequest.newText : `${editRequest.newText}\n`;
                     const formatRange = this.getFormatRange(getRange(editRequest.range), textToInsert);
-                    return this.rangeFormat({ uri, range: formatRange });
+                    return this.rangeFormat({ uri: editRequest.documentUri!, range: formatRange });
                 };
                 if ('text' in params) {
-                    await formatEdits({ range: getRange(params.range), newText: params.text });
+                    await formatEdits({ range: getRange(params.range), newText: params.text, documentUri: params.documentUri });
                 } else if ('edits' in params) {
-                    await Promise.all(params.edits.map(editRequest => formatEdits({ range: getRange(editRequest.range), newText: editRequest.newText })));
+                    await Promise.all(params.edits.map(editRequest => formatEdits({
+                        range: getRange(editRequest.range),
+                        newText: editRequest.newText,
+                        documentUri: editRequest.documentUri ?? params.documentUri
+                    })));
                 }
             }
             if (!params.disableUndoRedo) {
+                const uri = params.documentUri;
+                const file = Uri.file(uri);
+                let document = workspace.textDocuments.find(doc => doc.uri.fsPath === uri) || await workspace.openTextDocument(file);
                 const content = document.getText();
                 undoRedo.addModification(content);
             }
@@ -2931,34 +2961,34 @@ ${endpointAttributes}
             window.showInformationMessage(`Successfully created ${name} project`);
             const projectOpened = StateMachine.context().projectOpened;
 
-            if (open) {
-                if (projectOpened) {
-                    const answer = await window.showInformationMessage(
-                        "Do you want to open the created project in the current window or new window?",
-                        "Current Window",
-                        "New Window"
-                    );
+            commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
+            resolve({ filePath: path.join(directory, name) });
 
-                    if (answer === "Current Window") {
-                        const folderUri = Uri.file(path.join(directory, name));
+            // FIX ME: Enable when multiproject support provided
+            // if (open) {
+            //     if (projectOpened) {
+            //         const answer = await window.showInformationMessage(
+            //             "Do you want to open the created project in the current window or new window?",
+            //             "Current Window",
+            //             "New Window"
+            //         );
 
-                        // Get the currently opened workspaces
-                        const workspaceFolders = workspace.workspaceFolders || [];
+            //         if (answer === "Current Window") {
+            //             const folderUri = Uri.file(path.join(directory, name));
 
-                        // Check if the folder is not already part of the workspace
-                        if (!workspaceFolders.some(folder => folder.uri.fsPath === folderUri.fsPath)) {
-                            workspace.updateWorkspaceFolders(workspaceFolders.length, 0, { uri: folderUri });
-                        }
-                    } else {
-                        commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
-                        resolve({ filePath: path.join(directory, name) });
-                    }
+            //             // Get the currently opened workspaces
+            //             const workspaceFolders = workspace.workspaceFolders || [];
 
-                } else {
-                    commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
-                    resolve({ filePath: path.join(directory, name) });
-                }
-            }
+            //             // Check if the folder is not already part of the workspace
+            //             if (!workspaceFolders.some(folder => folder.uri.fsPath === folderUri.fsPath)) {
+            //                 workspace.updateWorkspaceFolders(workspaceFolders.length, 0, { uri: folderUri });
+            //             }
+            //         } else {
+            //             commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
+            //             resolve({ filePath: path.join(directory, name) });
+            //         }
+
+            //     }
 
             resolve({ filePath: path.join(directory, name) });
         });
@@ -3733,6 +3763,25 @@ ${endpointAttributes}
         });
     }
 
+    async createBallerinaModule(params: CreateBallerinaModuleRequest): Promise<CreateBallerinaModuleResponse> {
+        return new Promise(async (resolve) => {
+            const content = getBallerinaModuleContent();
+            const configContent = getBallerinaConfigContent({ name: params.moduleName, version: params.version });
+            const fullPath = path.join(params.projectDirectory, params.moduleName);
+            fs.mkdirSync(fullPath, { recursive: true });
+            const filePath = path.join(fullPath, `${params.moduleName}-module.bal`);
+            await replaceFullContentToFile(filePath, content);
+            const balFile = await vscode.workspace.openTextDocument(filePath);
+            await balFile.save();
+            const configFilePath = path.join(fullPath, "Ballerina.toml");
+            await replaceFullContentToFile(configFilePath, configContent);
+            const configFile = await vscode.workspace.openTextDocument(configFilePath);
+            await configFile.save();
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
+
     async getSelectiveWorkspaceContext(): Promise<GetSelectiveWorkspaceContextResponse> {
         const workspaceFolders = workspace.workspaceFolders;
         if (!workspaceFolders) {
@@ -4329,15 +4378,82 @@ ${keyValuesXML}`;
         }
     }
 
-    async buildProject(): Promise<void> {
+    async buildProject(params: BuildProjectRequest): Promise<void> {
         return new Promise(async (resolve) => {
-            const selection = await window.showQuickPick(["Build CAPP", "Create Docker Image"]);
-            if (selection === "Build CAPP") {
+            let selection = params?.buildType?.toString();
+            if (!selection) {
+                selection = await window.showQuickPick(["Build CAPP", "Create Docker Image"]);
+            }
+            if (selection === "Build CAPP" || selection === "capp") {
                 await commands.executeCommand(COMMANDS.BUILD_PROJECT, false);
-            } else if (selection === "Create Docker Image") {
+            } else if (selection === "Create Docker Image" || selection === "docker") {
                 await commands.executeCommand(COMMANDS.CREATE_DOCKER_IMAGE);
             }
             resolve();
+        });
+    }
+
+    async deployProject(params: DeployProjectRequest): Promise<DeployProjectResponse> {
+        return new Promise(async (resolve) => {
+            if (!checkForDevantExt()) {
+                return;
+            }
+            const params = {
+                buildPackLang: "microintegrator",
+                name: path.basename(StateMachine.context().projectUri!),
+                componentDir: StateMachine.context().projectUri
+            };
+
+            const langClient = StateMachine.context().langClient!;
+
+            let integrationType: string | undefined;
+            if (params.componentDir) {
+                const rootPath = (await this.getProjectRoot({ path: params.componentDir })).path;
+                const resp = await langClient.getProjectIntegrationType(rootPath);
+
+                function mapTypeToScope(type: string): string | undefined {
+                    switch (type) {
+                        case 'AUTOMATION':
+                            return SCOPE.AUTOMATION;
+                        case 'INTEGRATION_AS_API':
+                            return SCOPE.INTEGRATION_AS_API;
+                        case 'EVENT_INTEGRATION':
+                            return SCOPE.EVENT_INTEGRATION;
+                        case 'FILE_INTEGRATION':
+                            return SCOPE.FILE_INTEGRATION;
+                        case 'AI_AGENT':
+                            return SCOPE.AI_AGENT;
+                        case 'ANY':
+                            return SCOPE.ANY;
+                    }
+                }
+
+                if (resp.length === 1) {
+                    const type = resp[0]
+                    integrationType = mapTypeToScope(type);
+                } else {
+                    // Show a quick pick to select deployment option
+                    const selectedScope = await window.showQuickPick(resp, {
+                        placeHolder: 'You have different types of artifacts within this project. Select the artifact type to be deployed'
+                    });
+
+                    if (selectedScope) {
+                        integrationType = mapTypeToScope(selectedScope);
+                    }
+                }
+
+                if (!integrationType) {
+                    return { success: false };
+                }
+
+                const paramsWithType = { ...params, integrationType };
+
+                commands.executeCommand(COMMANDS.DEVAN_DEPLOY, paramsWithType);
+                resolve({ success: true });
+
+            } else {
+                resolve({ success: false });
+            }
         });
     }
 
@@ -4925,8 +5041,8 @@ ${keyValuesXML}`;
 
     async markAsDefaultSequence(params: MarkAsDefaultSequenceRequest): Promise<void> {
         return new Promise(async (resolve) => {
-            const { path: filePath, remove } = params;
-            commands.executeCommand(COMMANDS.MARK_SEQUENCE_AS_DEFAULT, { info: { path: filePath } }, remove);
+            const { path: filePath, remove, name } = params;
+            commands.executeCommand(COMMANDS.MARK_SEQUENCE_AS_DEFAULT, { info: { path: filePath, name } }, remove);
 
             resolve();
         });
@@ -5089,6 +5205,14 @@ ${keyValuesXML}`;
         });
     }
 
+    async getLocalInboundConnectors(): Promise<LocalInboundConnectorsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            let response = await langClient.getLocalInboundConnectors();
+            resolve(response);
+        });
+    }
+
     async getConnectionSchema(param: GetConnectionSchemaRequest): Promise<GetConnectionSchemaResponse> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
@@ -5221,6 +5345,6 @@ export async function askImportFileDir() {
         canSelectMany: false,
         defaultUri: Uri.file(os.homedir()),
         title: "Select a file to import",
-        filters: { 'ATF': ['xml','dbs'] }
+        filters: { 'ATF': ['xml', 'dbs'] }
     });
 }

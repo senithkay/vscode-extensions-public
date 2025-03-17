@@ -1,3 +1,12 @@
+/**
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
 import { commands, window, workspace, FileSystemWatcher, Disposable, Uri } from "vscode";
 import { clearTerminal, PALETTE_COMMANDS } from "../project/cmds/cmd-runner";
 import * as fs from 'fs';
@@ -5,122 +14,19 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { BallerinaExtension } from "src/core";
 import Handlebars from "handlebars";
-import { clientManager, findRunningBallerinaProcesses, handleError, waitForBallerinaService } from "./utils";
+import { clientManager, findRunningBallerinaProcesses, handleError, HTTPYAC_CONFIG_TEMPLATE, TRYIT_TEMPLATE, waitForBallerinaService } from "./utils";
 import { BIDesignModelResponse, OpenAPISpec } from "@wso2-enterprise/ballerina-core";
 import { startDebugging } from "../editor-support/codelens-provider";
+import { v4 as uuidv4 } from "uuid";
 
-let errorLogWatcher: FileSystemWatcher | undefined;
-
-const TRYIT_TEMPLATE = `/*
-### {{#if isResourceMode}}Try Resource: '{{resourceMethod}} {{resourcePath}}'{{else}}Try Service: '{{serviceName}}' (http://localhost:{{port}}{{trim basePath}}){{/if}}
-{{info.description}}
-*/
-
-{{#each paths}}
-{{#each this}}
-/*
-{{#unless ../../isResourceMode}}#### {{uppercase @key}} {{@../key}}{{/unless}}
-
-{{#if parameters}}
-{{#with (groupParams parameters)}}
-{{#if path}}
-**Path Parameters:**
-{{#each path}}
-- \`{{name}}\` [{{schema.type}}]{{#if description}} - {{description}}{{/if}}{{#if required}} (Required){{/if}}
-{{/each}}
-{{/if}}
-
-{{#if query}}
-**Query Parameters:**
-{{#each query}}
-- \`{{name}}\` [{{schema.type}}]{{#if description}} - {{description}}{{/if}}{{#if required}} (Required){{/if}}
-{{/each}}
-{{/if}}
-
-{{#if header}}
-**Header Parameters:**
-{{#each header}}
-- \`{{name}}\` [{{schema.type}}]{{#if description}} - {{description}}{{/if}}{{#if required}} (Required){{/if}}
-{{/each}}
-{{/if}}
-{{/with}}
-{{/if}}
-*/
-###
-{{uppercase @key}} http://localhost:{{../../port}}{{trim ../../basePath}}{{{@../key}}}{{queryParams parameters}}{{#if parameters}}{{headerParams parameters}}{{/if}}
-{{#if requestBody}}Content-Type: {{getContentType requestBody}}
-
-{{generateRequestBody requestBody}}
-{{/if}}
-
-{{/each}}
-{{/each}}`;
-
-const HTTPYAC_CONFIG_TEMPLATE = `
-const fs = require('fs');
-const path = require('path');
-
-// Define the log file path relative to the config file location
-const LOG_FILE_PATH = path.join(__dirname, 'httpyac_errors.log');
-
-// Helper function to format error groups
-const formatErrorGroup = (title, params) => {
-  if (params.length === 0) return '';
-  return \`\${title}:\\n\${params.map(p => \`  - \${p}\`).join('\\n')}\\n\`;
+// File constants
+const FILE_NAMES = {
+    TRYIT: 'tryit.http',
+    HTTPYAC_CONFIG: 'httpyac.config.js',
+    ERROR_LOG: 'httpyac_errors.log'
 };
 
-module.exports = {
-  configureHooks: function (api) {
-    api.hooks.onRequest.addHook('validatePlaceholders', function (request) {
-      const missingParams = {
-        path: [],
-        query: [],
-        header: []
-      };
-
-      // Check URL path parameters
-      const url = new URL(request.url);
-      const decodedPath = decodeURIComponent(url.pathname);
-      const pathParamRegex = /[{]([^{}]+)[}]/g;
-      const pathMatches = [...decodedPath.matchAll(pathParamRegex)];
-      
-      pathMatches.forEach(match => {
-        missingParams.path.push(match[1]);
-      });
-
-      // Check query parameters
-      for (const [key, value] of url.searchParams.entries()) {
-        if (value === '{?}') {
-          missingParams.query.push(key);
-        }
-      }
-
-      // Check headers
-      for (const [key, value] of Object.entries(request.headers || {})) {
-        if (value === '{?}') {
-          missingParams.header.push(key);
-        }
-      }
-
-      // Check if any parameters are missing
-      const hasMissingParams = Object.values(missingParams)
-        .some(group => group.length > 0);
-
-      if (hasMissingParams) {
-        const errorMessage = [
-          \`Request to "\${request.url}" has missing required parameters:\\n\`,
-          formatErrorGroup('Path Parameters', missingParams.path),
-          formatErrorGroup('Query Parameters', missingParams.query),
-          formatErrorGroup('Header Parameters', missingParams.header),
-          '\\nPlease provide values for these parameters before sending the request.'
-        ].filter(Boolean).join('\\n');
-
-        // Write to log file
-        fs.writeFileSync(LOG_FILE_PATH, errorMessage, 'utf8');
-      }
-    });
-  }
-};`;
+let errorLogWatcher: FileSystemWatcher | undefined;
 
 export function activateTryItCommand(ballerinaExtInstance: BallerinaExtension) {
     try {
@@ -156,7 +62,7 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
 
         const services: ServiceInfo[] = await getAvailableServices(workspaceRoot);
         if (!services || services.length === 0) {
-            vscode.window.showInformationMessage('No HTTP services found in the project');
+            vscode.window.showInformationMessage('No services found in the project');
             return;
         }
 
@@ -180,7 +86,7 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
         let selectedService: ServiceInfo;
         // If in resource try it mode, find the service containing the resource path
         if (resourceMetadata) {
-            const matchingService = await findServiceForResource(services, resourceMetadata);
+            const matchingService = await findServiceForResource(services, resourceMetadata, serviceMetadata);
             if (!matchingService) {
                 vscode.window.showErrorMessage(`Could not find a service containing the resource path: ${resourceMetadata.pathValue}`);
                 return;
@@ -190,7 +96,7 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
         } else if (services.length > 1) {
             if (serviceMetadata) {
                 const matchingService = services.find(service =>
-                    service.basePath === serviceMetadata.basePath && service.listener === serviceMetadata.listener
+                    service.basePath === serviceMetadata.basePath && compareListeners(service.listener, serviceMetadata.listener)
                 );
 
                 if (matchingService) {
@@ -222,12 +128,19 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
             fs.mkdirSync(targetDir);
         }
 
-        const openapiSpec: OAISpec = await getOpenAPIDefinition(selectedService);
-        const selectedPort: number = await getServicePort(workspaceRoot, selectedService, openapiSpec);
-        selectedService.port = selectedPort;
+        if (selectedService.type === ServiceType.HTTP) {
+            const openapiSpec: OAISpec = await getOpenAPIDefinition(selectedService);
+            const selectedPort: number = await getServicePort(workspaceRoot, selectedService, openapiSpec);
+            selectedService.port = selectedPort;
 
-        const tryitFileUri = await generateTryItFileContent(workspaceRoot, openapiSpec, selectedService, resourceMetadata);
-        await openInSplitView(tryitFileUri, 'http');
+            const tryitFileUri = await generateTryItFileContent(targetDir, openapiSpec, selectedService, resourceMetadata);
+            await openInSplitView(tryitFileUri, 'http');
+        } else {
+            const selectedPort: number = await getServicePort(workspaceRoot, selectedService);
+            selectedService.port = selectedPort;
+
+            await openChatView(selectedService.basePath, selectedPort.toString());
+        }
 
         // Setup the error log watcher
         setupErrorLogWatcher(targetDir);
@@ -259,7 +172,24 @@ async function openInSplitView(fileUri: vscode.Uri, editorType: string = 'defaul
     }
 }
 
-async function findServiceForResource(services: ServiceInfo[], resourceMetadata: ResourceMetadata): Promise<ServiceInfo | undefined> {
+async function openChatView(basePath: string, port: string) {
+    try {
+        const baseUrl = `http://localhost:${port}`;
+        const chatPath = "chat";
+
+        const serviceEp = new URL(basePath, baseUrl);
+        const cleanedServiceEp = serviceEp.pathname.replace(/\/$/, '') + "/" + chatPath.replace(/^\//, '');
+        const chatEp = new URL(cleanedServiceEp, serviceEp.origin);
+
+        const sessionId = uuidv4();
+
+        commands.executeCommand("ballerina.open.agent.chat", { chatEp: chatEp.href, chatSessionId: sessionId });
+    } catch (error) {
+        vscode.window.showErrorMessage(`Failed to call Chat-Agent: ${error}`);
+    }
+}
+
+async function findServiceForResource(services: ServiceInfo[], resourceMetadata: ResourceMetadata, serviceMetadata: ServiceMetadata): Promise<ServiceInfo | undefined> {
     try {
         // Normalize path values for comparison
         const targetPath = resourceMetadata.pathValue?.trim();
@@ -271,6 +201,10 @@ async function findServiceForResource(services: ServiceInfo[], resourceMetadata:
         // TODO: Optimize this by checking only the relevant service once we have the lang server support for that
         for (const service of services) {
             try {
+                if (serviceMetadata && (service.basePath !== serviceMetadata.basePath || !compareListeners(service.listener, serviceMetadata.listener))) {
+                    continue;
+                }
+
                 const openapiSpec: OAISpec = await getOpenAPIDefinition(service);
                 const matchingPaths = Object.keys(openapiSpec.paths || {}).filter((specPath) => {
                     return comparePathPatterns(specPath, targetPath);
@@ -303,13 +237,35 @@ async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> 
         });
 
         const services = response.designModel.services
-            .filter(service => service.type.toLowerCase().includes('http'))
-            .map(service => ({
-                name: service.displayName || service.absolutePath.startsWith('/') ? service.absolutePath.trim().substring(1) : service.absolutePath.trim(),
-                basePath: service.absolutePath.trim(),
-                filePath: service.location.filePath,
-                listener: service.attachedListeners.map(listener => response.designModel.listeners.find(l => l.uuid === listener)?.symbol).join(', ')
-            }));
+            .filter(({ type }) => {
+                const lowerType = type.toLowerCase();
+                return lowerType.includes('http') || lowerType.includes('agent');
+            })
+            .map(({ displayName, absolutePath, location, attachedListeners, type }) => {
+                const trimmedPath = absolutePath.trim();
+                const name = displayName || (trimmedPath.startsWith('/') ? trimmedPath.substring(1) : trimmedPath);
+                const serviceType = type.toLowerCase().includes('http') ? ServiceType.HTTP : ServiceType.AGENT;
+                const listener = {
+                    name: attachedListeners
+                        .map(listenerId => response.designModel.listeners.find(l => l.uuid === listenerId)?.symbol)
+                        .filter(Boolean)
+                        .join(','),
+                    port: attachedListeners
+                        .map(listenerId => response.designModel.listeners.find(l => l.uuid === listenerId)?.args.find(arg => arg.key === 'port')?.value)
+                        .filter(Boolean)
+                        .join(','),
+                };
+
+
+
+                return {
+                    name,
+                    basePath: trimmedPath,
+                    filePath: location.filePath,
+                    type: serviceType,
+                    listener,
+                };
+            });
 
         return services || [];
     } catch (error) {
@@ -318,7 +274,7 @@ async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> 
     }
 }
 
-async function generateTryItFileContent(projectRoot: string, openapiSpec: OAISpec, service: ServiceInfo, resourceMetadata?: ResourceMetadata): Promise<vscode.Uri | undefined> {
+async function generateTryItFileContent(targetDir: string, openapiSpec: OAISpec, service: ServiceInfo, resourceMetadata?: ResourceMetadata): Promise<vscode.Uri | undefined> {
     try {
         // Register Handlebars helpers
         registerHandlebarsHelpers(openapiSpec);
@@ -366,32 +322,33 @@ async function generateTryItFileContent(projectRoot: string, openapiSpec: OAISpe
             }
         }
 
-        // Generate content using template
-        const templateData = {
+        const tryitCompiledTemplate = Handlebars.compile(TRYIT_TEMPLATE);
+        const tryitContent = tryitCompiledTemplate({
             ...openapiSpec,
             port: service.port.toString(),
-            basePath: service.basePath,
+            basePath: service.basePath === '/' ? '' : service.basePath, // to avoid double slashes in the URL
             serviceName: service.name || 'Default',
             isResourceMode: isResourceMode,
-            resourceMethod: isResourceMode ? resourceMetadata.methodValue.toLowerCase() : '',
+            resourceMethod: isResourceMode ? resourceMetadata?.methodValue.toUpperCase() : '',
             resourcePath: resourcePath,
-        };
+        });
 
-        const compiledTemplate = Handlebars.compile(TRYIT_TEMPLATE);
-        const content = compiledTemplate(templateData);
+        const httpyacCompiledTemplate = Handlebars.compile(HTTPYAC_CONFIG_TEMPLATE);
+        const httpyacContent = httpyacCompiledTemplate({
+            errorLogFile: FILE_NAMES.ERROR_LOG,
+        });
 
-        const tryitFileName = `tryit.http`;
-        const tryitFilePath = path.join(projectRoot, tryitFileName);
-        const configFilePath = path.join(projectRoot, 'httpyac.config.js');
-        fs.writeFileSync(tryitFilePath, content);
-        fs.writeFileSync(configFilePath, HTTPYAC_CONFIG_TEMPLATE);
+        const tryitFilePath = path.join(targetDir, FILE_NAMES.TRYIT);
+        const configFilePath = path.join(targetDir, FILE_NAMES.HTTPYAC_CONFIG);
+        fs.writeFileSync(tryitFilePath, tryitContent);
+        fs.writeFileSync(configFilePath, httpyacContent);
+
         return vscode.Uri.file(tryitFilePath);
     } catch (error) {
         handleError(error, "Try It client initialization failed");
         return undefined;
     }
 }
-
 
 // Helper function to compare path patterns, considering path parameters
 function comparePathPatterns(specPath: string, targetPath: string): boolean {
@@ -453,14 +410,19 @@ async function getOpenAPIDefinition(service: ServiceInfo): Promise<OAISpec> {
     }
 }
 
-async function getServicePort(projectDir: string, service: ServiceInfo, openapiSpec: OAISpec): Promise<number> {
+async function getServicePort(projectDir: string, service: ServiceInfo, openapiSpec?: OAISpec): Promise<number> {
     try {
+        // If the service has an anonymous listener, directly use the port defined inline
+        if (service.listener.port && !isNaN(parseInt(service.listener.port))) {
+            return parseInt(service.listener.port);
+        }
+
         // Try to get default port from OpenAPI spec first
         let portInSpec: number;
-        const portInSpecStr = openapiSpec.servers?.[0]?.variables?.port?.default;
+        const portInSpecStr = openapiSpec?.servers?.[0]?.variables?.port?.default;
         if (portInSpecStr) {
             const parsedPort = parseInt(portInSpecStr);
-            portInSpec = isNaN(parsedPort) ? parsedPort : undefined;
+            portInSpec = !isNaN(parsedPort) ? parsedPort : undefined;
         }
 
         const balProcesses = await findRunningBallerinaProcesses(projectDir)
@@ -491,7 +453,8 @@ async function getServicePort(projectDir: string, service: ServiceInfo, openapiS
         }));
 
         const selected = await vscode.window.showQuickPick(portItems, {
-            placeHolder: `Port auto-detection failed due to multiple service ports. Pick the correct port for the service '${service.name || service.basePath}' to continue`,
+            placeHolder: `Multiple service ports found. Select the port of the service '${service.name || service.basePath}'`,
+            title: 'Select Service Port'
         });
 
         if (!selected) {
@@ -818,9 +781,29 @@ function resolveSchemaRef(ref: string, context: OAISpec): Schema | undefined {
     return current as Schema;
 }
 
+// helper function to compare listeners
+function compareListeners(serviceInfoListener: { name: string, port?: string }, serviceMetadataListener: string): boolean {
+    // named listeners
+    if (serviceInfoListener.name && serviceMetadataListener === serviceInfoListener.name) {
+        return true;
+    }
+
+    // anonymous listeners
+    if (serviceMetadataListener.startsWith('new http:Listener') && serviceInfoListener.port) {
+        // Extract port from 'http:Listener(9090)'
+        const portMatch = serviceMetadataListener.match(/new http:Listener\((\d+)\)/);
+        if (portMatch && portMatch[1]) {
+            const port = parseInt(portMatch[1], 10);
+            return port === parseInt(serviceInfoListener.port);
+        }
+    }
+
+    return false;
+}
+
 // Function to setup error log watching
 function setupErrorLogWatcher(targetDir: string) {
-    const errorLogPath = path.join(targetDir, 'httpyac_errors.log');
+    const errorLogPath = path.join(targetDir, FILE_NAMES.ERROR_LOG);
 
     // Dispose existing watcher if any
     disposeErrorWatcher();
@@ -842,7 +825,7 @@ function setupErrorLogWatcher(targetDir: string) {
                 ).then(selection => {
                     if (selection === 'Show Details') {
                         // Show the full error in an output channel
-                        const outputChannel = window.createOutputChannel('Kola Tryit - Log');
+                        const outputChannel = window.createOutputChannel('Ballerina Integrator Tryit - Log');
                         outputChannel.appendLine(content.trim());
                         outputChannel.show();
                     }
@@ -874,12 +857,21 @@ function disposeErrorWatcher() {
 }
 
 // Service information interface
+enum ServiceType {
+    HTTP = 'http',
+    AGENT = 'agent'
+}
+
 interface ServiceInfo {
     name?: string;
     basePath: string;
     filePath: string;
-    listener: string;
     port?: number;
+    type: ServiceType;
+    listener: {
+        name: string;
+        port?: string;
+    };
 }
 
 // Main OpenAPI specification interface

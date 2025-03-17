@@ -14,7 +14,7 @@ import { DocumentIdentifier, LinePosition, LineRange, NOT_SUPPORTED_TYPE, Positi
 import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleResponse, BallerinaModulesRequest, BallerinaTrigger, BallerinaTriggerInfo, BallerinaConnector, ExecutorPosition, ExpressionRange, JsonToRecordMapperDiagnostic, MainTriggerModifyRequest, NoteBookCellOutputValue, NotebookCellMetaInfo, OASpec, PackageSummary, PartialSTModification, ResolvedTypeForExpression, ResolvedTypeForSymbol, STModification, SequenceModel, SequenceModelDiagnostic, ServiceTriggerModifyRequest, SymbolDocumentation, XMLToRecordConverterDiagnostic, TypeField, ComponentInfo } from "./ballerina";
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteCommandParams, InitializeParams, InitializeResult, LocationLink, RenameParams } from "vscode-languageserver-protocol";
-import { Category, Flow, FlowNode, CodeData, ConfigVariable, FunctionNode, Property } from "./bi";
+import { Category, Flow, FlowNode, CodeData, ConfigVariable, FunctionNode, Property, AvailableNode, PropertyTypeMemberInfo } from "./bi";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
 import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
 import { FieldType, FunctionModel, ListenerModel, ServiceClassModel, ServiceModel } from "./service";
@@ -82,6 +82,14 @@ export interface TextEdit {
     }
 }
 
+export interface DidChangeWatchedFileParams {
+    changes: Change[];
+}
+
+export interface Change {
+    uri: string;
+    type: number;
+}
 
 // <-------- BALLERINA RELATED --------->
 
@@ -341,6 +349,7 @@ export interface BallerinaProject {
     version?: string;
     author?: string;
     packageName?: string;
+    orgName?: string;
 }
 
 export interface BallerinaPackagesParams {
@@ -564,6 +573,7 @@ export interface PartialST {
 
 export interface OpenAPIConverterParams {
     documentFilePath: string;
+    enableBalExtension?: boolean;
 }
 
 export interface OpenAPISpec {
@@ -707,7 +717,7 @@ export type SearchQueryParams = {
     includeAvailableFunctions?: string;
 }
 
-export type SearchKind = 'FUNCTION' | 'CONNECTOR' | 'TYPE';
+export type SearchKind = 'FUNCTION' | 'CONNECTOR' | 'TYPE' | "NP_FUNCTION";
 
 export type BISearchRequest = {
     position: LineRange;
@@ -723,6 +733,7 @@ export type BISearchResponse = {
 export type BIGetEnclosedFunctionRequest = {
     filePath: string;
     position: LinePosition;
+    findClass?: boolean;
 }
 
 export type BIGetEnclosedFunctionResponse = {
@@ -879,6 +890,7 @@ export interface SignatureHelpResponse {
 export interface VisibleTypesRequest {
     filePath: string;
     position: LinePosition;
+    typeConstraint?: string;
 }
 
 export interface VisibleTypeItem {
@@ -940,6 +952,7 @@ export interface AddFunctionRequest {
     filePath: string;
     codedata: CodeData;
     kind: FunctionKind;
+    searchKind: SearchKind;
 }
 
 export interface AddFunctionResponse {
@@ -1093,6 +1106,7 @@ export interface Type {
     restMember?: Member;
     includes?: string[];
     functions?: TypeFunctionModel[];
+    allowAdditionalFields?: boolean;
 }
 
 type ServiceFunctionKind = "RESOURCE" | "REMOTE" | "FUNCTION";
@@ -1138,6 +1152,7 @@ export interface Member {
     name?: string;
     docs?: string;
     defaultValue?: string;
+    optional?: boolean;
 }
 
 export interface GetGraphqlTypeRequest {
@@ -1165,6 +1180,19 @@ export interface UpdateTypeRequest {
     type: Type;
 }
 
+export interface UpdateTypesRequest {
+    filePath: string;
+    types: Type[];
+}
+
+export interface UpdateTypesResponse {
+    textEdits: {
+        [filePath: string]: TextEdit[];
+    };
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
 export interface GetTypesResponse {
     types: Type[];
 }
@@ -1172,6 +1200,58 @@ export interface GetTypesResponse {
 export interface GetTypeResponse {
     type: Type;
 }
+
+export interface GetRecordConfigRequest {
+    filePath: string;
+    codedata: {
+        org: string;
+        module: string;
+        version: string;
+    };
+    typeConstraint: string;
+}
+
+export interface GetRecordConfigResponse {
+    recordConfig?: TypeField;
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
+export type RecordSourceGenRequest = {
+    filePath: string;
+    type: TypeField;
+}
+
+export type RecordSourceGenResponse = {
+    errorMessage?: string;
+    stackTrace?: string;
+    recordValue?: string;
+}
+
+export type UpdateRecordConfigRequest = {
+    filePath: string;
+    codedata: {
+        org: string;
+        module: string;
+        version: string;
+    };
+    typeConstraint: string;
+    expr: string;
+}
+
+export type GetRecordModelFromSourceRequest = {
+    filePath: string;
+    typeMembers: PropertyTypeMemberInfo[];
+    expr: string;
+}
+
+export type GetRecordModelFromSourceResponse = {
+    recordConfig: TypeField;
+    typeName: string;
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
 
 export interface TextEditRange {
     start: {
@@ -1236,6 +1316,60 @@ export interface FunctionNodeResponse {
     functionDefinition: FunctionNode;
 }
 
+// <-------- AI Agent Related ------->
+
+export interface AINodesRequest {
+    filePath: string;
+}
+export interface AINodesResponse {
+    agents?: CodeData[];
+    models?: CodeData[];
+}
+export interface AIModelsResponse {
+    models: string[];
+}
+
+// TODO: Correct the data type
+export interface AIModelsRequest {
+    agent: any;
+    filePath?: string;
+}
+
+export interface AIToolsRequest {
+    filePath: string;
+}
+export interface AIToolsResponse {
+    tools: string[];
+}
+
+export interface AIGentToolsRequest {
+    filePath: string;
+    flowNode: FlowNode;
+    toolName: string;
+    description: string;
+    connection: string;
+}
+
+export interface AIGentToolsResponse {
+    textEdits: {
+        [key: string]: TextEdit[];
+    };
+}
+
+export interface AIConnectorActionsRequest {
+    filePath: string;
+    flowNode: FlowNode; // Connector flowNode
+}
+export interface AIConnectorActionsResponse {
+    actions: AvailableNode[];
+}
+
+// <-------- Deployment Related ------->
+
+export interface DeploymentResponse {
+    isCompleted: boolean;
+}
+
 // <------------ BI INTERFACES --------->
 
 export interface BaseLangClientInterface {
@@ -1287,6 +1421,14 @@ export interface BIInterface extends BaseLangClientInterface {
     addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
     convertJsonToRecordType: (params: JsonToRecordParams) => Promise<TypeDataWithReferences>;
     convertXmlToRecordType: (params: XMLToRecordParams) => Promise<TypeDataWithReferences>;
+
+    // AI Agent APIs
+    getAllAgents: (params: AINodesRequest) => Promise<AINodesResponse>;
+    getAllModels: (params: AIModelsRequest) => Promise<AINodesResponse>;
+    getModels: (params: AIModelsRequest) => Promise<AIModelsResponse>;
+    getTools: (params: AIToolsRequest) => Promise<AIToolsResponse>;
+    genTool: (params: AIGentToolsRequest) => Promise<AIGentToolsResponse>;
+    getConnectorActions: (params: AIConnectorActionsRequest) => Promise<AIConnectorActionsResponse>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {

@@ -7,35 +7,26 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ballerinaExtInstance } from '../../core';
 import { DiagnosticEntry, Diagnostics, OpenAPISpec, ProjectDiagnostics, ProjectModule, ProjectSource, SyntaxTree, TestGenerationRequest, TestGenerationResponse, TestGenerationTarget } from '@wso2-enterprise/ballerina-core';
 import { ErrorCode } from "@wso2-enterprise/ballerina-core";
 import { DotToken, IdentifierToken, ModulePart, ResourceAccessorDefinition, ResourcePathRestParam, ResourcePathSegmentParam, ServiceDeclaration, SlashToken, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Uri, workspace } from "vscode";
-import { PARSING_ERROR, TIMEOUT, UNKNOWN_ERROR, USER_ABORTED, ENDPOINT_REMOVED } from '../../views/ai-panel/errorCodes';
+import { PARSING_ERROR, UNKNOWN_ERROR, ENDPOINT_REMOVED } from '../../views/ai-panel/errorCodes';
 import { langClient } from './activator';
-import * as yaml from 'js-yaml';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as child_process from 'child_process';
 import * as os from 'os';
 import { writeBallerinaFileDidOpen } from '../../utils/modification';
 import { fetchData } from '../../rpc-managers/ai-panel/utils/fetch-data-utils';
-import { request } from 'http';
-import { openExternalUrl } from 'src/utils/runCommand';
+import { closeAllBallerinaFiles } from './utils';
 
-const balVersionRegex = new RegExp("^[0-9]{4}.[0-9]+.[0-9]+");
-
-let hasStopped: boolean = false;
-const config = workspace.getConfiguration('ballerina');
-const BAL_HOME = config.get('home') as string;
-const PLUGIN_DEV_MODE = config.get('pluginDevMode') as boolean;
 const TEST_GEN_REQUEST_TIMEOUT = 100000;
 
 // ----------- TEST GENERATOR -----------
 export async function generateTest(
     projectRoot: string,
-    testGenRequest: TestGenerationRequest
+    testGenRequest: TestGenerationRequest,
+    abortController: AbortController
 ): Promise<TestGenerationResponse> {
     const projectSource = await getProjectSource(projectRoot);
     if (!projectSource) {
@@ -56,13 +47,13 @@ export async function generateTest(
         const testPlan = testGenRequest.testPlan;
 
         if (typeof testGenRequest.existingTests === 'undefined' || typeof testGenRequest.diagnostics === 'undefined') {
-            const unitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests(testGenRequest, projectSource, openApiSpec);
+            const unitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests(testGenRequest, projectSource, abortController, openApiSpec);
             if (isErrorCode(unitTestResp)) {
                 throw new Error((unitTestResp as ErrorCode).message);
             }
             return unitTestResp as TestGenerationResponse;
         } else {
-            const updatedUnitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests(testGenRequest, projectSource, openApiSpec);
+            const updatedUnitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests(testGenRequest, projectSource, abortController, openApiSpec);
             if (isErrorCode(updatedUnitTestResp)) {
                 throw new Error((updatedUnitTestResp as ErrorCode).message);
             }
@@ -76,20 +67,41 @@ export async function generateTest(
 
         const functionIdentifier = testGenRequest.targetIdentifier;
         const { serviceDeclaration, resourceAccessorDef, serviceDocFilePath } = await getResourceAccessorDef(projectRoot, functionIdentifier);
-        const serviceProjectSource: ProjectSource = {
-            sourceFiles: [
-                {
-                    filePath: "service.bal",
-                    content: serviceDeclaration.source
-                }
-            ]
-        };
+        const openApiSpec = await getOpenAPISpecification(serviceDocFilePath);
 
-        const unitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests(testGenRequest, serviceProjectSource);
-        if (isErrorCode(unitTestResp)) {
-            throw new Error((unitTestResp as ErrorCode).message);
+        // TODO: At the moment we just look at the test.bal file, technically we should be maintain a state of the test file that we are working,
+        // and do the amendments accordingly.
+
+        if (!testGenRequest.diagnostics) {
+            const projectSourceWithTests = await getProjectSourceWithTests(projectRoot);
+            const testFile = projectSourceWithTests.projectTests.find(test =>
+                test.filePath.split('/').pop() === 'test.bal'
+            );
+            const updatedTestGenRequest: TestGenerationRequest = {
+                ...testGenRequest,
+                existingTests: testFile?.content,
+            };
+            const serviceProjectSource: ProjectSource = {
+                sourceFiles: [
+                    {
+                        filePath: "service.bal",
+                        content: serviceDeclaration.source
+                    }
+                ]
+            };
+
+            const unitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests(updatedTestGenRequest, serviceProjectSource, abortController, openApiSpec);
+            if (isErrorCode(unitTestResp)) {
+                throw new Error((unitTestResp as ErrorCode).message);
+            }
+            return unitTestResp as TestGenerationResponse;
+        } else {
+            const updatedUnitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests(testGenRequest, projectSource, abortController, openApiSpec);
+            if (isErrorCode(updatedUnitTestResp)) {
+                throw new Error((updatedUnitTestResp as ErrorCode).message);
+            }
+            return updatedUnitTestResp as TestGenerationResponse;
         }
-        return unitTestResp as TestGenerationResponse;
     } else {
         throw new Error("Invalid test generation target type.");
     }
@@ -136,7 +148,11 @@ export async function getResourceAccessorDef(projectRoot: string, resourceMethod
     let resourceAccessorDef: ResourceAccessorDefinition | null = null;
     let serviceDocFilePath = "";
 
+    let found = false;
+
     for (const sourceFile of projectSource.sourceFiles) {
+        if (found) { break; }
+
         serviceDocFilePath = sourceFile.filePath;
         const fileUri = Uri.file(serviceDocFilePath).toString();
         const syntaxTree = await langClient.getSyntaxTree({
@@ -150,6 +166,8 @@ export async function getResourceAccessorDef(projectRoot: string, resourceMethod
         }
 
         for (const member of (syntaxTree.syntaxTree as ModulePart).members) {
+            if (found) { break; }
+
             if (STKindChecker.isServiceDeclaration(member)) {
                 const resourceAccessors = (member as ServiceDeclaration).members.filter(m => STKindChecker.isResourceAccessorDefinition(m));
                 for (const resourceAccessor of resourceAccessors) {
@@ -177,10 +195,10 @@ export async function getResourceAccessorDef(projectRoot: string, resourceMethod
                     if (constructedResource.toLowerCase() === resourceMethodAndPath) {
                         serviceDeclaration = member as ServiceDeclaration;
                         resourceAccessorDef = resourceAccessor as ResourceAccessorDefinition;
+                        found = true;
                         break;
                     }
                 }
-                if (serviceDeclaration) { break; }
             }
         }
     }
@@ -207,6 +225,7 @@ export async function getDiagnostics(
     writeBallerinaFileDidOpen(tempTestFilePath, generatedTestSource.testSource);
 
     const diagnosticsResult = await langClient.getDiagnostics({ documentIdentifier: { uri: Uri.file(tempTestFilePath).toString() } });
+    await closeAllBallerinaFiles(tempDir);
     fs.rmSync(tempDir, { recursive: true, force: true });
     if (Array.isArray(diagnosticsResult)) {
         const errorDiagnostics = getErrorDiagnostics(diagnosticsResult, tempTestFilePath);
@@ -226,6 +245,7 @@ async function getProjectSource(dirPath: string): Promise<ProjectSource | null> 
 
     const projectSource: ProjectSource = {
         sourceFiles: [],
+        projectTests: [],
         projectModules: [],
     };
 
@@ -267,6 +287,31 @@ async function getProjectSource(dirPath: string): Promise<ProjectSource | null> 
     return projectSource;
 }
 
+async function getProjectSourceWithTests(dirPath: string): Promise<ProjectSource | null> {
+    const projectRoot = await findBallerinaProjectRoot(dirPath);
+
+    if (!projectRoot) {
+        return null;
+    }
+
+    const projectSourceWithTests: ProjectSource = await getProjectSource(dirPath);
+
+    // Read tests
+    const testsDir = path.join(projectRoot, 'tests');
+    if (fs.existsSync(testsDir)) {
+        const testFiles = fs.readdirSync(testsDir);
+        for (const file of testFiles) {
+            if (file.endsWith('.bal') || file.endsWith('Config.toml')) {
+                const filePath = path.join(testsDir, file);
+                const content = await fs.promises.readFile(filePath, 'utf-8');
+                projectSourceWithTests.projectTests.push({ filePath, content });
+            }
+        }
+    }
+
+    return projectSourceWithTests;
+}
+
 const findMatchingServiceDeclaration = (syntaxTree: SyntaxTree, targetServiceName: string): ServiceDeclaration | null => {
     const serviceDeclarations = findServiceDeclarations(syntaxTree);
 
@@ -301,20 +346,16 @@ function constructServiceName(targetNode: ServiceDeclaration): string {
 }
 
 async function getOpenAPISpecification(documentFilePath: string): Promise<string> {
-    if (isLatestTestGenSupported()) {
-        return await getOpenAPISpec(documentFilePath);
-    } else {
-        const response = await langClient.convertToOpenAPI({ documentFilePath }) as OpenAPISpec;
-        if (response.error) {
-            throw new Error(response.error);
-        }
-        return yaml.dump(response.content[0].spec);
+    const response = await langClient.convertToOpenAPI({ documentFilePath, enableBalExtension: true }) as OpenAPISpec;
+    if (response.error) {
+        throw new Error(response.error);
     }
+    return JSON.stringify(response.content[0].spec);
 }
 
-async function getUnitTests(request: TestGenerationRequest, projectSource: ProjectSource, openApiSpec?: string): Promise<TestGenerationResponse | ErrorCode> {
+async function getUnitTests(request: TestGenerationRequest, projectSource: ProjectSource, abortController: AbortController, openApiSpec?: string): Promise<TestGenerationResponse | ErrorCode> {
     try {
-        let response = await sendTestGeneRequest(request, projectSource, openApiSpec);
+        let response = await sendTestGeneRequest(request, projectSource, abortController, openApiSpec);
         if (isErrorCode(response)) {
             return (response as ErrorCode);
         }
@@ -325,20 +366,7 @@ async function getUnitTests(request: TestGenerationRequest, projectSource: Proje
     }
 }
 
-// export async function getUnitTestsForFunction(projectRoot: string, request: GenerateTestForFuncRequest): Promise<TestGenerationResponse | ErrorCode> {
-//     try {
-//         let response = await sendTestGeneRequestForFunction(projectRoot, request);
-//         if (isErrorCode(response)) {
-//             return (response as ErrorCode);
-//         }
-//         response = (response as Response);
-//         return await filterTestGenResponse(response);
-//     } catch (error) {
-//         return UNKNOWN_ERROR;
-//     }
-// }
-
-async function sendTestGeneRequest(request: TestGenerationRequest, projectSource: ProjectSource, openApiSpec?: string): Promise<Response | ErrorCode> {
+async function sendTestGeneRequest(request: TestGenerationRequest, projectSource: ProjectSource, abortController: AbortController, openApiSpec?: string): Promise<Response | ErrorCode> {
     const body = {
         targetType: request.targetType,
         targetIdentifier: request.targetIdentifier,
@@ -373,72 +401,8 @@ async function sendTestGeneRequest(request: TestGenerationRequest, projectSource
             'User-Agent': 'Ballerina-VSCode-Plugin'
         },
         body: JSON.stringify(body)
-    }, TEST_GEN_REQUEST_TIMEOUT);
+    }, abortController, TEST_GEN_REQUEST_TIMEOUT);
     return response;
-}
-
-// async function sendTestGeneRequestForFunction(projectRoot: string, request: GenerateTestForFuncRequest): Promise<Response | ErrorCode> {
-//     const { serviceDeclaration, resourceAccessorDef, serviceDocFilePath } = await getResourceAccessorDef(projectRoot, request.resourceFunction);
-//     const body = {
-//         functionSource: resourceAccessorDef.source,
-//         serviceSource: serviceDeclaration.source,
-//         testPlan: request.testPlan,
-//     };
-
-//     const response = await fetchWithTimeout(request.backendUri + "/tests", {
-//         method: "POST",
-//         headers: {
-//             'Accept': 'application/json',
-//             'Content-Type': 'application/json',
-//             'User-Agent': 'Ballerina-VSCode-Plugin'
-//         },
-//         body: JSON.stringify(body)
-//     }, TEST_GEN_REQUEST_TIMEOUT);
-//     return response;
-// }
-
-async function getOpenAPISpec(serviceFilePath: string): Promise<string> {
-    const tempDir = os.tmpdir();
-
-    return new Promise<string>((resolve, reject) => {
-        const balExec = PLUGIN_DEV_MODE ? BAL_HOME + '/bin/bal' : 'bal';
-        const command = `${balExec} openapi -i ${serviceFilePath} -o ${tempDir} --json --with-bal-ext`;
-
-        child_process.exec(command, (err, stdout, stderr) => {
-            if (err) {
-                reject(new Error(`Failed to extract the OpenAPI specification: ${err.message}`));
-            } else {
-                // Extract filename from stdout
-                const match = stdout.match(/-- (.+\.json)/);
-                if (!match) {
-                    reject(new Error('Failed: Unable to extract the OpenAPI specification. Please check your source for any compilation errors.'));
-                    return;
-                }
-
-                const filename = match[1];
-                const filePath = path.join(tempDir, filename);
-
-                // Read the content of the file
-                fs.readFile(filePath, 'utf8', (readErr, data) => {
-                    if (readErr) {
-                        reject(new Error(`Failed to extract the OpenAPI specification: ${readErr.message}`));
-                    } else {
-                        resolve(data);
-                    }
-                });
-            }
-        });
-    });
-}
-
-function isLatestTestGenSupported(): boolean {
-    const balVersion = ballerinaExtInstance.ballerinaVersion;
-    const versionStr = balVersion.match(balVersionRegex);
-    const splittedVersions = versionStr[0]?.split(".");
-    if ((parseInt(splittedVersions[0], 10) === 2201) && (parseInt(splittedVersions[1], 10) >= 10)) {
-        return true;
-    }
-    return false;
 }
 
 function getErrorDiagnostics(diagnostics: Diagnostics[], filePath: string): ProjectDiagnostics {
@@ -516,10 +480,10 @@ async function findBallerinaProjectRoot(dirPath: string): Promise<string | null>
 const fetchWithTimeout = async (
     url: string,
     options: RequestInit,
+    abortController: AbortController,
     timeout = 300000
 ): Promise<Response | ErrorCode> => {
-    const abortController = new AbortController();
-    const id = setTimeout(() => abortController.abort(), timeout);
+    const id = setTimeout(() => abortController?.abort(), timeout);
 
     try {
         options = {
@@ -530,10 +494,17 @@ const fetchWithTimeout = async (
         const response = await fetchData(url, options);
         return response;
     } catch (error: any) {
-        if (error.name === 'AbortError' && !hasStopped) {
-            return TIMEOUT;
-        } else if (error.name === 'AbortError' && hasStopped) {
-            return USER_ABORTED;
+        if (error.name === 'AbortError') {
+            return {
+                code: -1,
+                message: "Request aborted"
+            };
+        }
+        if (error instanceof Error) {
+            return {
+                code: -2,
+                message: error.message
+            };
         }
         return UNKNOWN_ERROR;
     } finally {

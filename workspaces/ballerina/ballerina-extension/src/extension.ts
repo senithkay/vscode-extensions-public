@@ -35,6 +35,8 @@ import { ExtendedClientCapabilities } from '@wso2-enterprise/ballerina-core';
 import { RPCLayer } from './RPCLayer';
 import { activateAIFeatures } from './features/ai/activator';
 import { activateTryItCommand } from './features/tryit/activator';
+import { activate as activateNPFeatures } from './features/natural-programming/activator';
+import { activateAgentChatPanel } from './views/agent-chat/activate';
 
 let langClient: ExtendedLangClient;
 export let isPluginStartup = true;
@@ -85,7 +87,7 @@ export async function activate(context: ExtensionContext) {
     // Wait for the ballerina extension to be ready
     await StateMachine.initialize();
     // Then return the ballerina extension context
-    return ballerinaExtInstance;
+    return { ballerinaExtInstance, projectPath: StateMachine.context().projectUri };
 }
 
 export async function activateBallerina(): Promise<BallerinaExtension> {
@@ -114,16 +116,11 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         // Enable Ballerina by examples
         activateBBE(ballerinaExtInstance);
 
-        if (StateMachine.context().isBI) {
-            //Enable BI Feature
-            activateBIFeatures(ballerinaExtInstance);
+        //Enable BI Feature
+        activateBIFeatures(ballerinaExtInstance);
 
-            // Enable Ballerina Testing Explorer
-            activateBITesting(ballerinaExtInstance);
-        } else {
-            // Activate Ballerina Testing
-            activateTesting(ballerinaExtInstance);
-        }
+        // Enable Ballerina Testing Explorer
+        activateBITesting(ballerinaExtInstance);
 
         // Enable Ballerina Notebook
         activateNotebook(ballerinaExtInstance);
@@ -143,6 +140,12 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
 
         // Activate Try It command
         activateTryItCommand(ballerinaExtInstance);
+
+        // Activate natural programming features
+        activateNPFeatures(ballerinaExtInstance);
+
+        // Activate Agent Chat Panel
+        activateAgentChatPanel(ballerinaExtInstance);
 
         langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         // Register showTextDocument listener
@@ -167,7 +170,7 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
             // cmds.forEach((cmd) => {
             //     const cmdID: string = cmd.command;
             //     // This is to skip the command un-registration
-            //     if (!(cmdID.includes("kolab-setup") || cmdID.includes(SHARED_COMMANDS.OPEN_BI_WELCOME))) {
+            //     if (!(cmdID.includes("ballerina-setup") || cmdID.includes(SHARED_COMMANDS.OPEN_BI_WELCOME))) {
             //         commands.registerCommand(cmdID, () => {
             //             ballerinaExtInstance.showMessageInstallBallerina();
             //         });
@@ -180,7 +183,7 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
             // cmds.forEach((cmd) => {
             //     const cmdID: string = cmd.command;
             //     // This is to skip the command un-registration
-            //     if (!(cmdID.includes("kolab-setup") || cmdID.includes(SHARED_COMMANDS.OPEN_BI_WELCOME))) {
+            //     if (!(cmdID.includes("ballerina-setup") || cmdID.includes(SHARED_COMMANDS.OPEN_BI_WELCOME))) {
             //         commands.registerCommand(cmdID, () => {
             //             const actionViewLogs = "View Logs";
             //             window.showWarningMessage("Ballerina extension did not start properly."

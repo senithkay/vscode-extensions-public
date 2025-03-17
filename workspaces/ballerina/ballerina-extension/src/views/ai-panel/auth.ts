@@ -84,25 +84,6 @@ export async function exchangeAuthCode(authCode: string) {
             await extension.context.secrets.store('BallerinaAIRefreshToken', response.refreshToken ?? '');
             token = await extension.context.secrets.get('BallerinaAIUser');
             console.log("Token after exchange: " + token);
-            // const config = getPluginConfig();
-            // const ROOT_URL = config.get('rootUrl') as string;
-            // const url = ROOT_URL + USER_CHECK_BACKEND_URL;
-
-            // const fetch_response = await fetch(url, {
-            //     method: 'GET',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //         'Authorization': `Bearer ${response.accessToken}`,
-            //     },
-            // });
-
-            // if (fetch_response.ok) {
-            //     const responseBody = await fetch_response.json() as AIUserTokens;
-            //     const context = StateMachineAI.context();
-            //     context.userTokens = responseBody;
-            // } else {
-            //     throw new Error(`Error while checking token usage: ${fetch_response.statusText}`);
-            // }
 
             StateMachineAI.sendEvent(AI_EVENT_TYPE.SIGN_IN_SUCCESS);
         } catch (error: any) {
@@ -112,30 +93,3 @@ export async function exchangeAuthCode(authCode: string) {
     }
 }
 
-// export async function refreshAuthCode(): Promise<string> {
-//     const refresh_token = await extension.context.secrets.get('MIAIRefreshToken');
-//     if (!refresh_token) {
-//         throw new Error("Refresh token is not available.");
-//     } else {
-//         try {
-//             console.log("Refreshing token...");
-//             const params = new URLSearchParams({
-//                 client_id: AUTH_CLIENT_ID,
-//                 refresh_token: refresh_token,
-//                 grant_type: 'refresh_token',
-//                 scope: 'openid email'
-//             });
-//             const response = await axios.post(`https://api.asgardeo.io/t/${AUTH_ORG}/oauth2/token`, params.toString(), { headers: CommonReqHeaders });
-//             const newAccessToken = response.data.access_token;
-//             const newRefreshToken = response.data.refresh_token;
-//             await extension.context.secrets.store('MIAIUser', newAccessToken);
-//             await extension.context.secrets.store('MIAIRefreshToken', newRefreshToken);
-//             console.log("Token refreshed successfully!");
-//             return newAccessToken;
-//         } catch (error: any) {
-//             const errMsg = "Error while refreshing token! " + error?.message;
-//             console.error(errMsg);
-//             return "";
-//         }
-//     }
-// }

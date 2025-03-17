@@ -17,7 +17,7 @@ const spin = keyframes`
     to { transform: rotate(360deg); }
 `;
 
-const Spinner = styled.span`
+export const Spinner = styled.span`
     display: inline-block;
     margin-right: 8px;
     font-size: 14px;

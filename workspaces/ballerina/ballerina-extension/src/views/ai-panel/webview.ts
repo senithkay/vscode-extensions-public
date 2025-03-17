@@ -19,7 +19,7 @@ import { StateMachine } from '../../stateMachine';
 
 export class AiPanelWebview {
     public static currentPanel: AiPanelWebview | undefined;
-    public static readonly viewType = 'kolab.ai-panel';
+    public static readonly viewType = 'ballerina.ai-panel';
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
 
@@ -33,7 +33,7 @@ export class AiPanelWebview {
     private static createWebview(): vscode.WebviewPanel {
         const panel = vscode.window.createWebviewPanel(
             AiPanelWebview.viewType,
-            StateMachine.context().isBI ? "WSO2 Copilot" : "WSO2 Copilot",
+            "WSO2 Copilot",
             ViewColumn.Beside,
             {
                 enableScripts: true,
@@ -42,8 +42,8 @@ export class AiPanelWebview {
             }
         );
         panel.iconPath = {
-            light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'dark-hubot.svg')),
-            dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'light-hubot.svg'))
+            light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'dark-ai-chat.svg')),
+            dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'light-ai-chat.svg'))
         };
         return panel;
     }

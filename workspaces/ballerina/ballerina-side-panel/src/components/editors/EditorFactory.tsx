@@ -9,7 +9,7 @@
 
 import React from "react";
 
-import { NodeKind, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
+import { NodeKind, RecordTypeField, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 
 import { FormField } from "../Form/types";
 import { MultiSelectEditor } from "./MultiSelectEditor";
@@ -25,8 +25,11 @@ import { ArrayEditor } from "./ArrayEditor";
 import { MapEditor } from "./MapEditor";
 import { ChoiceForm } from "./ChoiceForm";
 import { FormMapEditor } from "./FormMapEditor";
+import { TextAreaEditor } from "./TextAreaEditor";
+import { DropdownChoiceForm } from "./DropdownChoiceForm";
 import { IdentifierEditor } from "./IdentifierEditor";
 import { ReadonlyField } from "./ReadonlyField";
+import { ContextAwareRawExpressionEditor } from "./RawExpressionEditor";
 
 interface FormFieldEditorProps {
     field: FormField;
@@ -38,6 +41,7 @@ interface FormFieldEditorProps {
     autoFocus?: boolean;
     handleOnTypeChange?: () => void;
     visualizableFields?: string[];
+    recordTypeFields?: RecordTypeField[];
 }
 
 export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormFieldEditorProps>((props, ref) => {
@@ -50,14 +54,19 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
         handleOnFieldFocus,
         autoFocus,
         handleOnTypeChange,
-        visualizableFields
+        visualizableFields,
+        recordTypeFields
     } = props;
-    if (!field.enabled) {
+    if (!field.enabled || field.hidden) {
         return <></>;
     } else if (field.type === "MULTIPLE_SELECT") {
         return <MultiSelectEditor field={field} label={"Add Another"} openSubPanel={openSubPanel} />;
     } else if (field.type === "CHOICE") {
         return <ChoiceForm field={field} />;
+    } else if (field.type === "DROPDOWN_CHOICE") {
+        return <DropdownChoiceForm field={field} />;
+    } else if (field.type === "TEXTAREA") {
+        return <TextAreaEditor field={field} />;
     } else if (field.type === "EXPRESSION_SET") {
         return <ArrayEditor field={field} label={"Add Another Value"} />;
     } else if (field.type === "MAPPING_EXPRESSION_SET") {
@@ -97,6 +106,15 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
                 handleOnFieldFocus={handleOnFieldFocus}
                 autoFocus={autoFocus}
                 visualizable={visualizableFields?.includes(field.key)}
+                recordTypeField={recordTypeFields?.find(recordField => recordField.key === field.key)}
+            />
+        );
+    } else if (!field.items && field.type === "RAW_TEMPLATE" && field.editable) {
+        return (
+            <ContextAwareRawExpressionEditor
+                ref={ref}
+                field={field}
+                autoFocus={autoFocus}
             />
         );
     } else if (field.type === "VIEW") {

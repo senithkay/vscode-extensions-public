@@ -319,7 +319,7 @@ export function AddConnection(props: AddConnectionProps) {
     }
 
     const handleOnClose = () => {
-        if (props.fromSidePanel) {
+        if (props.isPopup) {
             handlePopupClose();
         } else if (props.changeConnectionType) {
             props.changeConnectionType();
@@ -453,7 +453,7 @@ export function AddConnection(props: AddConnectionProps) {
                                 </div>}
                                 <Button
                                     appearance="secondary"
-                                    onClick={handleOnClose}
+                                    onClick={handlePopupClose ?? handleOnClose}
                                 >
                                     Cancel
                                 </Button>
@@ -482,7 +482,7 @@ export function AddConnection(props: AddConnectionProps) {
                         <FormActions>
                             <Button
                                 appearance="secondary"
-                                onClick={handleOnClose}
+                                onClick={handlePopupClose ?? handleOnClose}
                             >
                                 Cancel
                             </Button>

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { RefObject } from 'react';
+import React, { MutableRefObject, RefObject } from 'react';
 import { COMPLETION_ITEM_KIND, CompletionItemKind } from '../types';
 import { Codicon } from '../../Codicon/Codicon';
 
@@ -58,8 +58,13 @@ export const setCursor = (
     inputRef: RefObject<HTMLTextAreaElement | HTMLInputElement>,
     inputElementType: 'input' | 'textarea',
     value: string,
-    position: number
+    position: number,
+    manualFocusTrigger?: MutableRefObject<boolean>
 ) => {
+    if (manualFocusTrigger) {
+        manualFocusTrigger.current = true;
+    }
+    
     const inputElement = inputRef.current.shadowRoot.querySelector(inputElementType);
     inputElement.focus();
     inputElement.value = value;

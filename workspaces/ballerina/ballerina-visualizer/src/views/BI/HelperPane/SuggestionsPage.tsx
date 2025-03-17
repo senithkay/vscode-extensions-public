@@ -64,7 +64,7 @@ export const SuggestionsPage = ({ fileName, targetLineRange, defaultValue, onCha
         debounce((searchText: string) => {
             setFilteredVariableInfo(filterHelperPaneVariables(variableInfo, searchText));
             setIsLoading(false);
-        }, 5000),
+        }, 150),
         [variableInfo, setFilteredVariableInfo, setIsLoading, filterHelperPaneVariables]
     );
 
@@ -82,7 +82,7 @@ export const SuggestionsPage = ({ fileName, targetLineRange, defaultValue, onCha
                 titleSx={{ fontFamily: "GilmerRegular" }}
             />
             <HelperPane.Body>
-                {defaultValue && defaultValue !== '""' && (
+                {defaultValue && (
                     <HelperPane.Section
                         title="Suggestions"
                         titleSx={{ fontFamily: "GilmerMedium" }}

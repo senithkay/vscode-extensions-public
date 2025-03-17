@@ -11,11 +11,10 @@ import React from "react";
 
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import { Button, Codicon, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
 
 import { SelectionState, ViewOption } from "../DataMapper";
 import AutoMapButton from "./AutoMapButton";
-import ConfigureButton from "./ConfigureButton";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
 import HeaderSearchBox from "./HeaderSearchBox";
 import EditButton from "./EditButton";
@@ -23,10 +22,7 @@ import EditButton from "./EditButton";
 export interface DataMapperHeaderProps {
     selection: SelectionState;
     hasEditDisabled: boolean;
-    experimentalEnabled: boolean;
-    isBI?: boolean;
     changeSelection: (mode: ViewOption, selection?: SelectionState, navIndex?: number) => void;
-    onConfigOpen: () => void;
     onEdit: () => void;
     onClose?: () => void;
     autoMapWithAI: () => Promise<void>;
@@ -37,10 +33,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
     const {
         selection,
         hasEditDisabled,
-        experimentalEnabled,
-        isBI,
         changeSelection,
-        onConfigOpen,
         onEdit,
         onClose,
         autoMapWithAI,
@@ -71,8 +64,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                         <HeaderSearchBox selection={selection} />
                     </FilterBar>
                     <AutoMapButton onClick={handleAutoMap} />
-                    {!isBI && <ConfigureButton onClick={onConfigOpen} />}
-                    {isBI && <EditButton onClick={onEdit} />}
+                    {<EditButton onClick={onEdit} />}
                 </RightContainer>
             )}
             {onClose && (

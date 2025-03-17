@@ -25,7 +25,8 @@ export const convertHelperPaneHeightToCSS = (helperPaneHeight: HelperPaneHeight)
 export const getHelperPanePosition = (
     expressionEditorRef: MutableRefObject<HTMLDivElement>,
     helperPaneOrigin: HelperPaneOrigin,
-    helperPaneHeight: HelperPaneHeight
+    helperPaneHeight: HelperPaneHeight,
+    helperPaneWidth?: number
 ): HelperPanePosition => {
     const expressionEditor = expressionEditorRef.current!;
     const rect = expressionEditor.getBoundingClientRect();
@@ -41,7 +42,8 @@ export const getHelperPanePosition = (
     if (helperPaneOrigin === 'right') {
         position.left = rect.left + rect.width + ARROW_HEIGHT;
     } else if (helperPaneOrigin === 'left') {
-        position.left = rect.left - (HELPER_PANE_WIDTH + ARROW_HEIGHT);
+        const helperPaneCurrentWidth = helperPaneWidth ? helperPaneWidth : HELPER_PANE_WIDTH;
+        position.left = rect.left - (helperPaneCurrentWidth + ARROW_HEIGHT);
     }
 
     if (helperPaneHeight === 'full') {

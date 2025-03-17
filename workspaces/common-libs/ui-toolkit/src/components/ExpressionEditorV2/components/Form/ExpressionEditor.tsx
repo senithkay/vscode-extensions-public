@@ -70,6 +70,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         value,
         disabled,
         sx,
+        completionSx,
         completions,
         showDefaultCompletion,
         autoSelectFirstItem,
@@ -77,9 +78,12 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         isHelperPaneOpen,
         helperPaneOrigin = 'bottom',
         helperPaneHeight = 'default',
+        helperPaneWidth,
+        actionButtons,
+        resize = 'vertical',
+        growRange = { start: 1, offset: 7 },
         changeHelperPaneState,
         getHelperPane,
-        actionButtons,
         onChange,
         onSave,
         onCancel,
@@ -109,6 +113,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         prefix: /((?:\w|')*)$/,
         suffix: /^((?:\w|')*)/,
     };
+
+    const manualFocusTrigger = useRef<boolean>(false);
 
     const showCompletions = showDefaultCompletion || completions?.length > 0;
 
@@ -198,7 +204,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
 
         await handleChange(newTextValue, newCursorPosition);
         onCompletionSelect && await onCompletionSelect(newTextValue, item);
-        setCursor(textAreaRef, 'textarea', newTextValue, newCursorPosition);
+        setCursor(textAreaRef, 'textarea', newTextValue, newCursorPosition, manualFocusTrigger);
     };
 
     const handleExpressionSave = async (value: string, ref?: React.MutableRefObject<string>) => {
@@ -310,7 +316,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     }
 
     const getHelperPaneComponent = (): JSX.Element => {
-        const helperPanePosition = getHelperPanePosition(containerRef, helperPaneOrigin, helperPaneHeight);
+        const helperPanePosition = getHelperPanePosition(containerRef, helperPaneOrigin, helperPaneHeight, helperPaneWidth);
         const arrowPosition = getHelperPaneArrowPosition(containerRef, helperPaneOrigin, helperPanePosition);
         
         return (
@@ -374,8 +380,9 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         }
     };
 
-    const handleRefFocus = () => {
+    const handleRefFocus = (manualTrigger?: boolean) => {
         if (document.activeElement !== elementRef.current) {
+            manualFocusTrigger.current = manualTrigger ?? false;
             textAreaRef.current?.focus();
         }
     }
@@ -391,15 +398,19 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     }
 
     const handleRefSetCursor = (value: string, cursorPosition: number) => {
-        setCursor(textAreaRef, 'textarea', value, cursorPosition);
+        setCursor(textAreaRef, 'textarea', value, cursorPosition, manualFocusTrigger);
     }
 
     const handleTextAreaFocus = async () => {
         // Additional actions to be performed when the expression editor gains focus
         setIsFocused(true);
-        changeHelperPaneState?.(true);
 
-        await onFocus?.();
+        if (!manualFocusTrigger.current) {
+            changeHelperPaneState?.(true);
+            await onFocus?.();
+        }
+
+        manualFocusTrigger.current = false;
     }
 
     const handleTextAreaBlur = (e: React.FocusEvent) => {
@@ -410,6 +421,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     useImperativeHandle(ref, () => ({
         shadowRoot: textAreaRef.current?.shadowRoot,
         inputElement: textAreaRef.current?.shadowRoot?.querySelector('textarea'),
+        parentElement: textAreaRef.current?.parentElement,
         focus: handleRefFocus,
         blur: handleRefBlur,
         setCursor: handleRefSetCursor,
@@ -428,7 +440,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                 !textAreaRef.current?.contains(e.target) &&
                 !dropdownContainerRef.current?.contains(e.target) &&
                 !helperPaneContainerRef.current?.contains(e.target) &&
-                !anchorRef.current?.contains(e.target)
+                !anchorRef?.current?.contains(e.target)
             ) {
                 // Additional actions to be performed when the expression editor loses focus
                 setIsFocused(false);
@@ -467,8 +479,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                 onBlur={handleTextAreaBlur}
                 sx={{ width: '100%', ...sx }}
                 disabled={disabled || isSavingExpression}
-                growRange={{ start: 1, offset: 7 }}
-                resize='vertical'
+                growRange={growRange}
+                resize={resize}
             />
             {isSavingExpression && <ProgressIndicator barWidth={6} sx={{ top: "100%" }} />}
             {isFocused && 
@@ -500,6 +512,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                                 getDefaultCompletion={getDefaultCompletion}
                                 onCompletionSelect={handleCompletionSelect}
                                 onDefaultCompletionSelect={onDefaultCompletionSelect}
+                                sx={completionSx}
                             />
                         </Transition>
                     </DropdownContainer>,
