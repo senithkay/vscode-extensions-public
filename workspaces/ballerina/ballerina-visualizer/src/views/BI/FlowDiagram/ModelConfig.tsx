@@ -97,9 +97,21 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
     };
 
     const fetchSelectedAgentModel = async () => {
+        // get module nodes
+        const moduleNodes = await rpcClient.getBIDiagramRpcClient().getModuleNodes();
+        console.log(">>> module nodes", moduleNodes);
+        if (moduleNodes.flowModel.connections.length > 0) {
+            moduleConnectionNodes.current = moduleNodes.flowModel.connections;
+        }
+        // get agent name
+        const agentName = agentCallNode.properties.connection.value;
         // get agent node
-        const agentNode = await findAgentNodeFromAgentCallNode(agentCallNode, rpcClient);
+        const agentNode = moduleConnectionNodes.current.find((node) => node.properties.variable.value === agentName);
         console.log(">>> agent node", agentNode);
+        if (!agentNode) {
+            console.error("Agent node not found", agentCallNode);
+            return;
+        }
         // get model name
         const modelName = agentNode?.properties.model.value;
         console.log(">>> model name", modelName);
@@ -125,7 +137,11 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
         }
         console.log(">>> node properties", nodeProperties);
         // use same variable name for model fields
-        nodeProperties.variable = selectedModel?.properties.variable;
+        if (selectedModel?.properties.variable) {
+            nodeProperties.variable.value = selectedModel?.properties.variable.value;
+        } else {
+            console.error("Already assigned model node variable not found", selectedModel);
+        }
 
         const modelFields = convertConfig(nodeProperties);
         setSelectedModelFields(modelFields);

@@ -146,22 +146,6 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
             );
             return;
         }
-        // filter "Current Integration" category items to support isIsolatedFunction
-        const currentIntegrationCategory = response.categories.find(
-            (category) => category.metadata.label === "Current Integration"
-        );
-        if (currentIntegrationCategory) {
-            currentIntegrationCategory.items = currentIntegrationCategory.items.filter(
-                (item, index) => {
-                    // check key isIsolatedFunction in item.metadata.data
-                    if (!item.metadata.data || !item.metadata.data.hasOwnProperty('isIsolatedFunction')) {
-                        return true;
-                    }
-                    // if key exists return value of isIsolatedFunction
-                    return item.metadata.data.isIsolatedFunction;
-                }
-            );
-        }
         if (!response || !response.categories) {
             return [];
         }
