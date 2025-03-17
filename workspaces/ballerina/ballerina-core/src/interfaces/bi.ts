@@ -140,6 +140,7 @@ export type CodeData = {
     inferredReturnType?: string;
     version?: string;
     isNew?: boolean;
+    isGenerated?: boolean;
 };
 
 export type Branch = {

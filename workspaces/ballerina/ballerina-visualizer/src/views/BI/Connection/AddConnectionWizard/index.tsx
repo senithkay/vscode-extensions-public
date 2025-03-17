@@ -168,6 +168,10 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
             const visualizerLocation = await rpcClient.getVisualizerLocation();
             let connectionsFilePath = visualizerLocation.documentUri || visualizerLocation.projectUri;
 
+            if (node.codedata.isGenerated && !connectionsFilePath.endsWith(".bal")) {
+                connectionsFilePath += "/main.bal";
+            }
+
             if (connectionsFilePath === "") {
                 console.error(">>> Error updating source code. No source file found");
                 setSavingFormStatus(SavingFormStatus.ERROR);
