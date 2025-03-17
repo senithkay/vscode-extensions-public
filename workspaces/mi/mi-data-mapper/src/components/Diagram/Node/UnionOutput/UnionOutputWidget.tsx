@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Button, Codicon, ProgressRing, TruncatedLabel } from '@wso2-enterprise/ui-toolkit';
@@ -20,13 +20,11 @@ import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Por
 import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { useIONodesStyles } from '../../../styles';
 import {
-	useDMCollapsedFieldsStore,
 	useDMExpressionBarStore,
 	useDMIOConfigPanelStore,
 	useDMSubMappingConfigPanelStore
 } from '../../../../store/store';
 import { OutputSearchHighlight } from '../commons/Search';
-import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../../utils/constants';
 import { DMType, IOType, TypeKind } from '@wso2-enterprise/mi-core';
 import FieldActionWrapper from '../commons/FieldActionWrapper';
 import { ValueConfigMenu, ValueConfigMenuItem, ValueConfigOption } from '../commons/ValueConfigButton';
@@ -56,8 +54,7 @@ export function UnionOutputWidget(props: UnionOutputWidgetProps) {
 		engine,
 		getPort,
 		context,
-		valueLabel,
-		deleteField
+		valueLabel
 	} = props;
 	const { views } = context;
 	const focusedView = views[views.length - 1];
@@ -68,10 +65,6 @@ export function UnionOutputWidget(props: UnionOutputWidgetProps) {
 
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 	const [isLoading, setIsLoading] = useState(false);
-	const [isHovered, setIsHovered] = useState(false);
-	const [hasFirstClickOnOutput, setHasFirstClickOnOutput] = useState(false);
-
-	const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
 	const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(state => ({
 		setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
@@ -86,11 +79,6 @@ export function UnionOutputWidget(props: UnionOutputWidgetProps) {
 
 	const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
 
-	const { childrenTypes } = dmTypeWithValue;
-	const fields = childrenTypes || [];
-	const hasFields = fields.length > 0;
-	const isObjectType = dmTypeWithValue.type.typeName === 'Object';
-
 	const portIn = getPort(`${id}.IN`);
 	const isExprBarFocused = exprBarFocusedPort?.getName() === portIn?.getName();
 
@@ -100,41 +88,8 @@ export function UnionOutputWidget(props: UnionOutputWidgetProps) {
 	}
 	const isDisabled = portIn?.descendantHasValue;
 
-	const indentation = (portIn && (!hasFields || !expanded)) ? 0 : 24;
-
-	useEffect(() => {
-		if (focusedOnSubMappingRoot) {
-			const dynamicOutputPort = getPort(`${OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX}.IN`);
-
-			dynamicOutputPort.registerListener({
-				eventDidFire(event) {
-					if (event.function === "firstClickedOnDynamicOutput") {
-						setHasFirstClickOnOutput(true);
-						setTimeout(() => setHasFirstClickOnOutput(false), 3000);
-					}
-				},
-			})
-		}
-	}, []);
-
-	const handleExpand = () => {
-		if (!expanded) {
-			collapsedFieldsStore.expandField(id, dmTypeWithValue.type.kind);
-		} else {
-			collapsedFieldsStore.collapseField(id, dmTypeWithValue.type.kind);
-		}
-	};
-
 	const handlePortState = (state: PortState) => {
 		setPortState(state)
-	};
-
-	const onMouseEnter = () => {
-		setIsHovered(true);
-	};
-
-	const onMouseLeave = () => {
-		setIsHovered(false);
 	};
 
 	const handleModifyChildFieldsOptionality = async (isOptional: boolean) => {
@@ -224,8 +179,6 @@ export function UnionOutputWidget(props: UnionOutputWidgetProps) {
 				<TreeHeader
 					isSelected={portState !== PortState.Unselected}
 					id={"recordfield-" + id}
-					onMouseEnter={onMouseEnter}
-					onMouseLeave={onMouseLeave}
 					className={isExprBarFocused ? classes.treeLabelPortExprFocused : ""}
 				>
 					<span className={classes.inPort}>
