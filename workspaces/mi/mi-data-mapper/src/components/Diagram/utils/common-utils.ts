@@ -801,8 +801,12 @@ export function getMappingType(sourcePort: PortModel, targetPort: PortModel): Ma
         }
 
         if ((sourcePort.field.kind === TypeKind.Object || sourcePort.field.kind === TypeKind.Interface) 
-            && (targetPort.field.kind === TypeKind.Object || targetPort.field.kind === TypeKind.Interface)) {
-            return MappingType.ObjectToObject;
+            || (targetPort.field.kind === TypeKind.Object || targetPort.field.kind === TypeKind.Interface)) {
+            return MappingType.ObjectToObject; //TODO: Need to rename something like ContainsObject
+        }
+
+        if (sourcePort.field.kind === TypeKind.Union || targetPort.field.kind === TypeKind.Union) {
+            return MappingType.ObjectToObject; //TODO: Need to create separate mapping type for union if required
         }
     }
 
