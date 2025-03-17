@@ -290,10 +290,14 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         const workspaceEdit = new vscode.WorkspaceEdit();
         const fileUri = Uri.file(filePath);
 
-        if (!fs.existsSync(filePath)) {
-            fs.mkdirSync(path.dirname(filePath), { recursive: true });
-            fs.writeFileSync(filePath, '', 'utf8');
-            console.log(`File created: ${filePath}`);
+        const dirPath = path.dirname(filePath);
+        const dirUri = vscode.Uri.file(dirPath);
+
+        try {
+            await vscode.workspace.fs.createDirectory(dirUri);
+            workspaceEdit.createFile(fileUri, { ignoreIfExists: true });
+        } catch (error) {
+            console.error("Error creating file or directory:", error);
         }
 
         for (const edit of textEdits) {
