@@ -47,6 +47,7 @@ final agent:Agent _${name}Agent = check new (systemPrompt = {
     // Insert at the end of the file
     agentEdit.insert(Uri.file(agentsFile), new Position(fileContent.split('\n').length, 0), agentCode);
     await workspace.applyEdit(agentEdit);
+    await workspace.saveAll();
 }
 
 
@@ -59,4 +60,5 @@ export async function injectAgentCode(name: string, serviceFile: string, injecti
 `;
     serviceEdit.insert(Uri.file(serviceFile), new Position(injectionPosition.line, 0), serviceSourceCode);
     await workspace.applyEdit(serviceEdit);
+    await workspace.saveAll();
 }
