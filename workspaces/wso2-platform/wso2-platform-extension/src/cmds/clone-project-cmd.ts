@@ -257,15 +257,14 @@ async function ensureBallerinaFilesIfEmpty(
 
 async function ensureMIFilesIfEmpty(name: string, directoryPath: string, integrationDisplayType: string): Promise<void> {
 	const createMiFiles = async()=>{
-		/*
 		const scopeVal = integrationDisplayType.toLowerCase().replaceAll(" ", "-").replaceAll("+","-");;
 		await commands.executeCommand("MI.project-explorer.create-project", {
 			name: name.replaceAll("-","_").replaceAll(" ","_"),
 			path: directoryPath,
 			scope: scopeVal
 		})
-		*/
-		// delete everything below after mi extension released
+		// todo: remove sample-mi-project.zip and unzipper
+		/*
 		createReadStream(Uri.joinPath(ext.context.extensionUri, "sample-mi-project.zip").fsPath).pipe(unzipper.Extract({ path: directoryPath }));
 		if (integrationDisplayType) {
 			const scopeVal = integrationDisplayType.toLowerCase().replaceAll(" ", "-").replaceAll("+","-");
@@ -284,6 +283,7 @@ async function ensureMIFilesIfEmpty(name: string, directoryPath: string, integra
 				writeFileSync(settingsPath, JSON.stringify({ "MI.Scope": scopeVal}, null, 2));
 			}
 		}
+		*/
 	}
 	try {
 		const files = readdirSync(directoryPath);
