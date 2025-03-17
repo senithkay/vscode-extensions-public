@@ -485,7 +485,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         return hasDiagnostics;
     }, [diagnosticsInfo])
 
-    const disableSaveButton = !isValid || !isFormValid || isValidating || props.disableSaveButton;
+    const disableSaveButton = !isValid || isValidating || props.disableSaveButton;
 
     // TODO: support multiple type fields
     return (

@@ -127,11 +127,11 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
             filePath: projectPath,
             queryMap: searchText.trim()
                 ? {
-                      q: searchText,
-                      limit: 12,
-                      offset: 0,
-                      includeAvailableFunctions: "true",
-                  }
+                    q: searchText,
+                    limit: 12,
+                    offset: 0,
+                    includeAvailableFunctions: "true",
+                }
                 : undefined,
             searchKind: "FUNCTION",
         };
@@ -184,20 +184,10 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
     const handleToolSubmit = (data: FormValues) => {
         // Safely convert name to camelCase, handling any input
         const name = data["name"] || "";
-        const camelCaseName =
-            name
-                .trim()
-                .toLowerCase()
-                .replace(/[^a-z0-9]+/g, " ")
-                .split(" ")
-                .filter(Boolean)
-                .map((word: string, index: number) =>
-                    index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)
-                )
-                .join("") || "newTool";
+        const cleanName = name.trim().replace(/[^a-zA-Z0-9]/g, "") || "newTool";
 
         const toolModel: AgentToolRequest = {
-            toolName: camelCaseName,
+            toolName: cleanName,
             description: data["description"],
             selectedCodeData: selectedNodeCodeData,
         };
