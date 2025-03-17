@@ -281,9 +281,6 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         } catch (error) {
             console.log(">>> error updating source", error);
         }
-        if (!isConnector && !isFunctionNodeUpdate) {
-            updateView();
-        }
     }
 
     async applyTextEdits(filePath: string, textEdits: TextEdit[]): Promise<void> {

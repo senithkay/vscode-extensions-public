@@ -124,7 +124,7 @@ export function activate(context: BallerinaExtension) {
     });
 
     //HACK: Open all Ballerina files in the project
-    openAllBallerinaFiles(context);
+    // openAllBallerinaFiles(context);
 }
 
 function openAllBallerinaFiles(context: BallerinaExtension) {
