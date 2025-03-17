@@ -182,9 +182,22 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
     };
 
     const handleToolSubmit = (data: FormValues) => {
-        console.log("Tool name", data);
+        // Safely convert name to camelCase, handling any input
+        const name = data["name"] || "";
+        const camelCaseName =
+            name
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, " ")
+                .split(" ")
+                .filter(Boolean)
+                .map((word: string, index: number) =>
+                    index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)
+                )
+                .join("") || "newTool";
+
         const toolModel: AgentToolRequest = {
-            toolName: data["name"],
+            toolName: camelCaseName,
             description: data["description"],
             selectedCodeData: selectedNodeCodeData,
         };
