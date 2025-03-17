@@ -274,7 +274,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
         }
         if (!apiData) {
             // Create API
-            const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: path })).path;
+            const projectDir = path ? (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: path })).path : (await rpcClient.getVisualizerState()).projectUri;
             const artifactDir = pathLib.join(projectDir, 'src', 'main', 'wso2mi', 'artifacts');
 
             let createAPIParams: CreateAPIRequest = {

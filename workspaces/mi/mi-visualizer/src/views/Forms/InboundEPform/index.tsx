@@ -150,8 +150,10 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     }
 
     const handleCreateInboundEP = async (values: any) => {
+        const projectDir = props.path ? (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: props.path })).path : (await rpcClient.getVisualizerState()).projectUri;
+        const artifactDir = path.join(projectDir, 'src', 'main', 'wso2mi', 'artifacts', 'inbound-endpoints').toString();
         const createInboundEPParams = {
-            directory: props.path,
+            directory: artifactDir,
             ...values,
             type: values.type?.toLowerCase(),
             parameters: {
