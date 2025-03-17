@@ -15,6 +15,7 @@ interface IChoreoEnvConfig {
 	choreoConsoleBaseUrl: string;
 	billingConsoleBaseUrl: string;
 	devantConsoleBaseUrl: string;
+	devantAsguadeoClientId: string;
 }
 
 const DEFAULT_CHOREO_ENV_CONFIG: IChoreoEnvConfig = {
@@ -27,6 +28,7 @@ const DEFAULT_CHOREO_ENV_CONFIG: IChoreoEnvConfig = {
 	choreoConsoleBaseUrl: "https://console.choreo.dev",
 	billingConsoleBaseUrl: "https://subscriptions.wso2.com",
 	devantConsoleBaseUrl: "https://console.devant.dev",
+	devantAsguadeoClientId: "09YlJuqQZdFNRDC0sx3DHHDnZvIa"
 };
 
 const CHOREO_ENV_CONFIG_STAGE: IChoreoEnvConfig = {
@@ -39,6 +41,7 @@ const CHOREO_ENV_CONFIG_STAGE: IChoreoEnvConfig = {
 	choreoConsoleBaseUrl: "https://console.st.choreo.dev",
 	billingConsoleBaseUrl: "https://subscriptions.st.wso2.com",
 	devantConsoleBaseUrl: "https://preview-st.devant.dev",
+	devantAsguadeoClientId: "fO22Kjf5AIZSGRO4R3kYUgTadyYa"
 };
 
 const CHOREO_ENV_CONFIG_DEV: IChoreoEnvConfig = {
@@ -51,6 +54,7 @@ const CHOREO_ENV_CONFIG_DEV: IChoreoEnvConfig = {
 	choreoConsoleBaseUrl: "https://consolev2.preview-dv.choreo.dev",
 	billingConsoleBaseUrl: "https://subscriptions.dv.wso2.com",
 	devantConsoleBaseUrl: "https://preview-dv.devant.dev",
+	devantAsguadeoClientId: "zL9kF4GCPiN2veO8judQvwlqLb8a"
 };
 
 class ChoreoEnvConfig {
@@ -70,6 +74,10 @@ class ChoreoEnvConfig {
 
 	public getDevantUrl(): string {
 		return this._config.devantConsoleBaseUrl;
+	}
+
+	public getDevantAsguadeoClientId(): string {
+		return this._config.devantAsguadeoClientId;
 	}
 }
 

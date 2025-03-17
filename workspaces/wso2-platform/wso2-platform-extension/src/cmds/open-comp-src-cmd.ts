@@ -29,11 +29,11 @@ export function openCompSrcCommand(context: ExtensionContext) {
 				integrationDisplayType: string;
 			}) => {
 				try {
+					if (params?.technology === ChoreoBuildPackNames.Ballerina || params?.technology === ChoreoBuildPackNames.MicroIntegrator || params?.technology  == "mi") {
+						webviewStateStore.getState().setExtensionName("Devant");
+					}
 					const userInfo = await getUserInfoForCmd("clone project repository");
 					if (userInfo) {
-						if (params?.technology === ChoreoBuildPackNames.Ballerina || params?.technology === ChoreoBuildPackNames.MicroIntegrator) {
-							webviewStateStore.getState().setExtensionName("Devant");
-						}
 						let selectedOrg: Organization;
 						if (typeof params?.org === "string") {
 							selectedOrg =

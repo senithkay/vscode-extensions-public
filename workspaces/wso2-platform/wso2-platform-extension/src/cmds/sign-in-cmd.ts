@@ -12,6 +12,8 @@ import { type ExtensionContext, ProgressLocation, commands, window } from "vscod
 import * as vscode from "vscode";
 import { ext } from "../extensionVariables";
 import { getLogger } from "../logger/logger";
+import { webviewStateStore } from "../stores/webview-state-store";
+import { choreoEnvConfig } from "../config";
 
 export function signInCommand(context: ExtensionContext) {
 	context.subscriptions.push(
@@ -20,9 +22,17 @@ export function signInCommand(context: ExtensionContext) {
 				getLogger().debug("Signing in to WSO2 Platform");
 				const callbackUrl = await vscode.env.asExternalUri(vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.wso2-platform/signin`));
 
+				let baseUrl : string | undefined;
+				if (webviewStateStore.getState().state?.extensionName == "Devant") {
+					baseUrl = `${choreoEnvConfig.getDevantUrl()}/login`
+				}
+				let clientId : string | undefined;
+				if (webviewStateStore.getState().state?.extensionName == "Devant") {
+					clientId = choreoEnvConfig.getDevantAsguadeoClientId()
+				}
 				console.log("Generating WSO2 Platform login URL for ", callbackUrl.toString());
 				const loginUrl = await window.withProgress({ title: "Generating Login URL...", location: ProgressLocation.Notification }, async () => {
-					return ext.clients.rpcClient.getSignInUrl(callbackUrl.toString());
+					return ext.clients.rpcClient.getSignInUrl({callbackUrl: callbackUrl.toString(), baseUrl, clientId});
 				});
 
 				if (loginUrl) {

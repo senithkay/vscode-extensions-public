@@ -43,12 +43,12 @@ export function createNewComponentCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.CreateNewComponent, async (params: ICreateComponentParams) => {
 			try {
-				const userInfo = await getUserInfoForCmd("create a component");
 				let isIntegration = false;
 				if (params?.buildPackLang === ChoreoBuildPackNames.Ballerina || params?.buildPackLang === ChoreoBuildPackNames.MicroIntegrator) {
 					isIntegration = true;
 					webviewStateStore.getState().setExtensionName("Devant");
 				}
+				const userInfo = await getUserInfoForCmd("create a component");
 				if (userInfo) {
 					const selected = contextStore.getState().state.selected;
 					let selectedProject = selected?.project;
