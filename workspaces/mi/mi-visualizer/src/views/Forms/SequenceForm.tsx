@@ -166,7 +166,7 @@ export function SequenceWizard(props: SequenceWizardProps) {
                 isPopup: true
             });
         } else {
-            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.InboundEPView, documentUri: result.filePath } });
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.SequenceView, documentUri: result.filePath } });
         }
     };
 

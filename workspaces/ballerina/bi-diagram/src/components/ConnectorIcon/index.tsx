@@ -53,6 +53,8 @@ export function ConnectorIcon(props: ConnectorIconProps): React.ReactElement {
                 onError={() => setImageError(true)} 
             />
         );
+    } else if (url && fallbackIcon) {
+        return <div style={mergedIconStyle} className={className}>{fallbackIcon}</div>;
     }
 
     const databaseClients = ["mysql", "postgres", "sqlite", "mssql", "oracle", "redis", "cassandra", "mongodb"];

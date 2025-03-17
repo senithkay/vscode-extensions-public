@@ -12,13 +12,13 @@ For instructions on installing the Ballerina VS Code extension, go to <a href="h
 
 The VS Code extension allows you to design and develop your Ballerina program using a graphical representation of the code. This graphical view displays the logic and network interaction of a function or a service resource, which makes it easy to understand the source. 
 
-### Architecture View
+### Ballerina Visualizer View
 
-The <a href="https://wso2.com/ballerina/vscode/docs/design-the-application/" target="_blank">Architecture View</a> offers a high-level overview of Ballerina projects based solely on the source code to understand the components of the project and how they interact. 
+The <a href="https://wso2.com/ballerina/vscode/docs/design-the-application/" target="_blank">Ballerina Visualizer View</a> offers a high-level overview of Ballerina projects based solely on the source code to understand the components of the project and how they interact. 
 
-<img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/architecture-view.png?raw=true" width="100%" />
+<img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/ballerina-visualizer.png?raw=true" width="100%" />
 
-### Service designing
+### Service Designer View
 
 The Ballerina VS Code extension enables the intuitive creation of Ballerina services (<a href="https://wso2.com/ballerina/vscode/docs/design-the-services/http-api-designer/" target="_blank">HTTP</a> and <a href="https://wso2.com/ballerina/vscode/docs/design-the-services/graphql-api-designer/" target="_blank">GraphQL</a>) without deep familiarity with syntax and configurations.
 
@@ -26,9 +26,15 @@ The Ballerina VS Code extension enables the intuitive creation of Ballerina serv
 
 ### Sequence Diagram View
 
-The <a href="https://wso2.com/ballerina/vscode/docs/implement-the-code/sequence-diagram-view/" target="_blank">Sequence Diagram View</a> provides a graphical user interface that allows users to visualize and construct program logic by capturing the flow, concurrency, endpoints, and interactions within the code.
+The <a href="https://wso2.com/ballerina/vscode/docs/implement-the-code/sequence-diagram-view/" target="_blank">Sequence Diagram View</a> provides a graphical user interface that allows users to visualize and construct program logic by capturing the sequence, concurrency, endpoints, and interactions within the code.
 
 <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/sequence-diagram.png?raw=true" width="100%" />
+
+### Flow Diagram View
+
+The Flow Diagram View provides a graphical user interface that allows users to visualize and construct program logic by capturing the flow, concurrency, endpoints, and interactions within the code.
+
+<img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/flow-diagram.png?raw=true" width="100%" />
 
 ### Data Mapper
 

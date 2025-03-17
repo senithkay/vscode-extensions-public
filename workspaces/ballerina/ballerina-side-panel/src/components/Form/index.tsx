@@ -458,11 +458,17 @@ export const Form = forwardRef((props: FormProps, ref) => {
                 continue;
             }
 
-            const diagnostics: Diagnostic[] = diagnosticsInfoItem.diagnostics || [];
+            let diagnostics: Diagnostic[] = diagnosticsInfoItem.diagnostics || [];
             if (diagnostics.length === 0) {
                 clearErrors(key);
                 continue;
             } else {
+                // Filter the BCE2066 diagnostics
+                diagnostics = diagnostics.filter(d => 
+                    d.code !== "BCE2066" ||
+                    d.message !== "incompatible types: expected 'any', found 'error'"
+                );
+                
                 const diagnosticsMessage = diagnostics.map(d => d.message).join('\n');
                 setError(key, { type: "validate", message: diagnosticsMessage });
 

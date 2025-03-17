@@ -53,7 +53,7 @@ export class VisualizerWebview {
             vscode.commands.executeCommand('setContext', 'isBalVisualizerActive', this._panel?.active);
             // Refresh the webview when becomes active
             const state = StateMachine.state();
-            const machineReady = typeof state === 'object' && 'viewActive' in state && state.viewActive === "webViewLoaded";
+            const machineReady = typeof state === 'object' && 'viewActive' in state && state.viewActive === "viewReady";
             if (this._panel?.active && machineReady) {
                 sendUpdateNotificationToWebview();
             }

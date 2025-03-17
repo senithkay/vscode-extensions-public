@@ -25,7 +25,15 @@ import {
     NODE_WIDTH,
 } from "../../../resources/constants";
 import { Button, Icon, Item, Menu, MenuItem, Popover, ThemeColors, Tooltip } from "@wso2-enterprise/ui-toolkit";
-import { MoreVertIcon, OpenAiIcon, AzureOpenAiIcon, AnthropicIcon, OllamaIcon, DefaultLlmIcon, MistralAIIcon } from "../../../resources/icons";
+import {
+    MoreVertIcon,
+    OpenAiIcon,
+    AzureOpenAiIcon,
+    AnthropicIcon,
+    OllamaIcon,
+    DefaultLlmIcon,
+    MistralAIIcon,
+} from "../../../resources/icons";
 import { AgentData, FlowNode, ToolData } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
 import ConnectorIcon from "../../ConnectorIcon";
@@ -225,7 +233,10 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
 
     const [isBoxHovered, setIsBoxHovered] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
+    const [toolAnchorEl, setToolAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
+    const [selectedTool, setSelectedTool] = useState<ToolData | null>(null);
     const isMenuOpen = Boolean(anchorEl);
+    const isToolMenuOpen = Boolean(toolAnchorEl);
     const hasBreakpoint = model.hasBreakpoint();
     const isActiveBreakpoint = model.isActiveBreakpoint();
 
@@ -267,12 +278,6 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
         setAnchorEl(null);
     };
 
-    const onDeleteToolClick = (tool: ToolData) => {
-        console.log(">>> onDeleteToolClick", tool);
-        agentNode?.onDeleteTool && agentNode.onDeleteTool(tool, model.node);
-        setAnchorEl(null);
-    };
-
     const onGoToSource = () => {
         goToSource && goToSource(model.node);
         setAnchorEl(null);
@@ -289,6 +294,34 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
 
     const handleOnMenuClose = () => {
         setAnchorEl(null);
+    };
+
+    const handleToolMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>, tool: ToolData) => {
+        event.stopPropagation();
+        setToolAnchorEl(event.currentTarget);
+        setSelectedTool(tool);
+    };
+
+    const handleToolMenuClose = () => {
+        setToolAnchorEl(null);
+        setSelectedTool(null);
+    };
+
+    const onEditTool = (tool: ToolData) => {
+        console.log(">>> onEditTool", tool);
+        onToolClick(tool);
+    };
+
+    const onImplementTool = (tool: ToolData) => {
+        console.log(">>> onImplementTool", tool);
+        agentNode?.goToTool && agentNode.goToTool(tool, model.node);
+        handleToolMenuClose();
+    };
+
+    const onDeleteTool = (tool: ToolData) => {
+        console.log(">>> onDeleteTool", tool);
+        agentNode?.onDeleteTool && agentNode.onDeleteTool(tool, model.node);
+        handleToolMenuClose();
     };
 
     const onAddBreakpoint = () => {
@@ -309,6 +342,24 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
         },
         { id: "goToSource", label: "Source", onClick: () => onGoToSource() },
         { id: "delete", label: "Delete", onClick: () => deleteNode() },
+    ];
+
+    const toolMenuItems = (tool: ToolData): Item[] => [
+        {
+            id: "edit",
+            label: "Edit",
+            onClick: () => onEditTool(tool),
+        },
+        {
+            id: "implement",
+            label: "View",
+            onClick: () => onImplementTool(tool),
+        },
+        {
+            id: "delete",
+            label: "Delete",
+            onClick: () => onDeleteTool(tool),
+        },
     ];
 
     const disabled = model.node.suggested;
@@ -392,7 +443,7 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                         </Popover>
                     </NodeStyles.Row>
                     {model.node.metadata.data?.agent?.role && (
-                        <NodeStyles.Row  onClick={handleOnClick}>
+                        <NodeStyles.Row onClick={handleOnClick}>
                             <NodeStyles.Role>{model.node.metadata.data.agent.role}</NodeStyles.Role>
                         </NodeStyles.Row>
                     )}
@@ -479,6 +530,10 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                                 opacity: 1;
                                 visibility: visible;
                             }
+                            &:hover .tool-menu-button {
+                                opacity: 1;
+                                visibility: visible;
+                            }
                         `}
                     >
                         <circle
@@ -518,6 +573,59 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                             {tool.name.length > 20 ? `${tool.name.slice(0, 20)}...` : tool.name}
                             <title>{tool.name}</title>
                         </text>
+
+                        {/* Tool menu button */}
+                        {!readOnly && (
+                            <>
+                                {/* Transparent overlay for hover detection */}
+                                <foreignObject
+                                    x="60"
+                                    y="0"
+                                    width="220"
+                                    height="48"
+                                    css={css`
+                                        pointer-events: all;
+                                        &:hover + .tool-menu-button {
+                                            opacity: 1;
+                                            visibility: visible;
+                                        }
+                                    `}
+                                >
+                                    <div style={{ width: "100%", height: "100%" }} />
+                                </foreignObject>
+                                <foreignObject
+                                    x={tool.name.length > 20 ? 240 : 110 + tool.name.length * 7}
+                                    y="14"
+                                    width="24"
+                                    height="24"
+                                    className="tool-menu-button"
+                                    css={css`
+                                        opacity: 0;
+                                        visibility: hidden;
+                                        transition: opacity 0.2s ease-in-out;
+                                        pointer-events: all;
+                                        &:hover {
+                                            opacity: 1;
+                                            visibility: visible;
+                                        }
+                                    `}
+                                >
+                                    <NodeStyles.MenuButton
+                                        appearance="icon"
+                                        onClick={(e) => handleToolMenuClick(e, tool)}
+                                        css={css`
+                                            padding: 2px;
+                                            height: 24px;
+                                            width: 24px;
+                                            min-width: 24px;
+                                        `}
+                                    >
+                                        <MoreVertIcon />
+                                    </NodeStyles.MenuButton>
+                                </foreignObject>
+                            </>
+                        )}
+
                         <line
                             x1="0"
                             y1="25"
@@ -561,6 +669,22 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                         </foreignObject>
                     </g>
                 ))}
+
+                {/* Tool Menu Popover */}
+                <Popover
+                    open={isToolMenuOpen}
+                    anchorEl={toolAnchorEl}
+                    handleClose={handleToolMenuClose}
+                    sx={{
+                        padding: 0,
+                        borderRadius: 0,
+                    }}
+                >
+                    <Menu>
+                        {selectedTool &&
+                            toolMenuItems(selectedTool).map((item) => <MenuItem key={item.id} item={item} />)}
+                    </Menu>
+                </Popover>
 
                 {/* Add "Add new tool" button below all tools */}
                 <g

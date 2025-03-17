@@ -412,6 +412,7 @@ export function FormGeneratorNew(props: FormProps) {
                 properties: {},
                 members: [],
                 includes: [] as string[],
+                allowAdditionalFields: false
             };
         }
         return {
