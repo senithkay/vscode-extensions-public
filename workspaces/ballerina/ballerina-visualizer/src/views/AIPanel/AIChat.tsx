@@ -2480,7 +2480,8 @@ export function AIChat() {
 
             fixedResponse = postProcessResp.assistant_response;
             setCurrentDiagnostics(postProcessResp.diagnostics.diagnostics);
-
+            const diagnosedSourceFiles: ProjectSource = getProjectFromResponse(fixedResponse);
+            setIsSyntaxError(await rpcClient.getAiPanelRpcClient().checkSyntaxError(diagnosedSourceFiles));
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
                 newMessages[newMessages.length - 1].content = fixedResponse;
