@@ -33,7 +33,8 @@ export async function buildProjectStructure(projectDir: string, langClient: Exte
             [DIRECTORY_MAP.DATA_MAPPERS]: [],
             [DIRECTORY_MAP.ENUMS]: [],
             [DIRECTORY_MAP.CLASSES]: [],
-            [DIRECTORY_MAP.NATURAL_FUNCTIONS]: []
+            [DIRECTORY_MAP.NATURAL_FUNCTIONS]: [],
+            [DIRECTORY_MAP.LOCAL_CONNECTORS]: [],
         }
     };
     const components = await langClient.getBallerinaProjectComponents({
@@ -43,6 +44,7 @@ export async function buildProjectStructure(projectDir: string, langClient: Exte
         projectPath: projectDir
     });
     await traverseComponents(components, result, langClient, componentModel?.designModel);
+    await populateLocalConnectors(projectDir, result, langClient);
     return result;
 }
 
@@ -104,10 +106,10 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
         response.projectName = pkg.name;
         for (const module of pkg.modules) {
             response.directoryMap[DIRECTORY_MAP.AUTOMATION].push(...await getComponents(langClient, module.automations, pkg.filePath, "task", DIRECTORY_MAP.AUTOMATION));
-            response.directoryMap[DIRECTORY_MAP.SERVICES].push(...await getComponents(langClient, designServices.length > 0 ? designServices : module.services, pkg.filePath, "http-service", DIRECTORY_MAP.SERVICES));
+            response.directoryMap[DIRECTORY_MAP.SERVICES].push(...await getComponents(langClient, designServices.length > 0 && !module?.name ? designServices : module.services, pkg.filePath, "http-service", DIRECTORY_MAP.SERVICES));
             response.directoryMap[DIRECTORY_MAP.LISTENERS].push(...await getComponents(langClient, module.listeners, pkg.filePath, "http-service", DIRECTORY_MAP.LISTENERS, designModel));
             response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(...await getComponents(langClient, module.functions, pkg.filePath, "function", DIRECTORY_MAP.FUNCTIONS));
-            response.directoryMap[DIRECTORY_MAP.CONNECTIONS].push(...await getComponents(langClient, connectionServices, pkg.filePath, "connection", DIRECTORY_MAP.CONNECTIONS));
+            response.directoryMap[DIRECTORY_MAP.CONNECTIONS].push(...await getComponents(langClient, module.moduleVariables.filter(item => connectionServices.map(conItem => conItem.name).includes(item.name.trim())), pkg.filePath, "connection", DIRECTORY_MAP.CONNECTIONS));
             response.directoryMap[DIRECTORY_MAP.TYPES].push(...await getComponents(langClient, module.types, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.RECORDS].push(...await getComponents(langClient, module.records, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.ENUMS].push(...await getComponents(langClient, module.enums, pkg.filePath, "type"));
@@ -238,9 +240,30 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
 
 function getComponentName(name: string, serviceModel: ServiceModel) {
     if (serviceModel?.listenerProtocol === "agent") {
-     return name.startsWith('/') ? name.substring(1) : name;
+        return name.startsWith('/') ? name.substring(1) : name;
     }
     return name;
+}
+
+async function populateLocalConnectors(projectDir: string, response: ProjectStructureResponse, langClient: ExtendedLangClientInterface) {
+    const filePath = `${projectDir}/Ballerina.toml`;
+    const localConnectors = (await langClient.getOpenApiGeneratedModules({ projectPath: projectDir })).modules;
+    const mappedEntries: ProjectStructureArtifactResponse[] = localConnectors.map(moduleName => ({
+        name: moduleName,
+        path: filePath,
+        type: "HTTP",
+        icon: "connection",
+        context: moduleName,
+        resources: [],
+        position: {
+            endColumn: 61,
+            endLine: 8,
+            startColumn: 0,
+            startLine: 5
+        }
+    }));
+
+    response.directoryMap[DIRECTORY_MAP.LOCAL_CONNECTORS].push(...mappedEntries);
 }
 
 function getCustomEntryNodeIcon(type: string) {

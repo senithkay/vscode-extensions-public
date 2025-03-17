@@ -241,7 +241,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         setValue,
         setError,
         clearErrors,
-        formState: { isValidating, errors, isDirty }
+        formState: { isValidating, errors, isDirty, isValid: isFormValid },
     } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
@@ -485,7 +485,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         return hasDiagnostics;
     }, [diagnosticsInfo])
 
-    const disableSaveButton = !isValid || isValidating || props.disableSaveButton;
+    const disableSaveButton = !isValid || !isFormValid || isValidating || props.disableSaveButton;
 
     // TODO: support multiple type fields
     return (
