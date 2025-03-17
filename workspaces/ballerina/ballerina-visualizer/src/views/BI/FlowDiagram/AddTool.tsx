@@ -10,11 +10,10 @@
 import { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { FlowNode } from "@wso2-enterprise/ballerina-core";
-import { URI, Utils } from "vscode-uri";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { cloneDeep } from "lodash";
 import { Button, Codicon, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { RelativeLoader } from "../../../components/RelativeLoader";
+import { addToolToAgentNode, findAgentNodeFromAgentCallNode, getAgentFilePath } from "./utils";
 
 const Container = styled.div`
     padding: 16px;
@@ -141,8 +140,7 @@ export function AddTool(props: AddToolProps): JSX.Element {
     const initPanel = async () => {
         setLoading(true);
         // get agent file path
-        const filePath = await rpcClient.getVisualizerLocation();
-        agentFilePath.current = Utils.joinPath(URI.file(filePath.projectUri), "agents.bal").fsPath;
+        agentFilePath.current = await getAgentFilePath(rpcClient);
         // fetch tools and agent node
         await fetchExistingTools();
         await fetchAgentNode();
@@ -150,20 +148,8 @@ export function AddTool(props: AddToolProps): JSX.Element {
     };
 
     const fetchAgentNode = async () => {
-        // get module nodes
-        const moduleNodes = await rpcClient.getBIDiagramRpcClient().getModuleNodes();
-        console.log(">>> module nodes", moduleNodes);
-        // get agent name
-        const agentName = agentCallNode.properties.connection.value;
         // get agent node
-        const agentNode = moduleNodes.flowModel.connections.find(
-            (node) => node.properties.variable.value === agentName
-        );
-        if (!agentNode) {
-            console.error("Agent node not found");
-            return;
-        }
-        console.log(">>> agent node", agentNode);
+        const agentNode = await findAgentNodeFromAgentCallNode(agentCallNode, rpcClient);
         setAgentNode(agentNode);
     };
 
@@ -185,42 +171,8 @@ export function AddTool(props: AddToolProps): JSX.Element {
         console.log(">>> save value", { selectedTool });
         setSavingForm(true);
         // update the agent node
-        const updatedAgentNode = cloneDeep(agentNode);
-        let toolsValue = updatedAgentNode.properties.tools.value;
-
-        // remove all \n newlines from toolsValue
-        toolsValue = toolsValue.toString().replace(/\n/g, "");
-
-        // Simple string manipulation to add the new tool
-        if (!selectedTool) {
-        } else if (!toolsValue || toolsValue === "[]") {
-            toolsValue = `[${selectedTool}]`;
-        } else if (typeof toolsValue === "string") {
-            if (toolsValue.startsWith("[") && toolsValue.endsWith("]")) {
-                const toolsString = toolsValue.substring(1, toolsValue.length - 1);
-                const existingTools = toolsString.split(",").map((t) => t.trim());
-
-                if (!existingTools.includes(selectedTool)) {
-                    toolsValue = toolsValue.substring(0, toolsValue.length - 1);
-                    if (toolsValue.length > 1) {
-                        toolsValue += ", ";
-                    }
-                    toolsValue += selectedTool + "]";
-                }
-            } else {
-                toolsValue = `[${selectedTool}]`;
-            }
-        } else if (Array.isArray(toolsValue)) {
-            if (!toolsValue.includes(selectedTool)) {
-                toolsValue.push(selectedTool);
-            }
-            toolsValue = `[${toolsValue.join(", ")}]`;
-        } else {
-            toolsValue = `[${selectedTool}]`;
-        }
-
-        updatedAgentNode.properties.tools.value = toolsValue;
-
+        const updatedAgentNode = await addToolToAgentNode(agentNode, selectedTool);
+        // generate the source code
         const agentResponse = await rpcClient
             .getBIDiagramRpcClient()
             .getSourceCode({ filePath: agentFilePath.current, flowNode: updatedAgentNode });
