@@ -77,7 +77,7 @@ namespace S {
     `;
 
     export const IconContainer = styled.div`
-        padding: 8px 0;
+        padding: 8px;
         & img {
             height: 25px;
             width: 25px;
@@ -146,7 +146,6 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
 
 
     const [iconPath, setIconPath] = useState(null);
-    const [connectionIconPath, setConnectionIconPath] = useState(null);
 
     const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -213,7 +212,6 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
             });
             const iconPath = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: connectorData.iconPath, name: "icon-small" });
             setIconPath(iconPath?.uri);
-            setConnectionIconPath(connectionIconPath?.uri ?? iconPath?.uri);
         }
         fetchData();
     }, [sidePanelContext?.node]);
@@ -273,6 +271,32 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
     }, [tooltip])
 
     const ConnectionCircle = (connection: AIConnectorConnection, marginTop: string, type: string) => {
+        const [connectionIconPath, setConnectionIconPath] = useState(null);
+
+        useEffect(() => {
+            node.setSelected(sidePanelContext?.node === node);
+
+            const fetchData = async (connectionName: string) => {
+                const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
+                    documentUri: node.documentUri,
+                    connectorName: stNode.tag.split(".")[0]
+                });
+                const connectionData: any = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
+                    documentUri: node.documentUri,
+                    connectorName: stNode.tag.split(".")[0]
+                });
+                const connection = connectionData.connections.find((connection: any) => connection.name === connectionName);
+                const connectionType = connection ? connection.connectionType : null;
+
+                const connectionIconPath = await rpcClient.getMiDiagramRpcClient().getIconPathUri({
+                    path: path.join(connectorData.iconPath, 'connections'),
+                    name: connectionType
+                });
+                setConnectionIconPath(connectionIconPath?.uri ?? iconPath);
+            }
+            fetchData(connection.name);
+        }, [connection.name]);
+
         const handleOnConnectionClick = async (e: any) => {
             e.stopPropagation();
 
